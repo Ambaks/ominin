@@ -24,8 +24,12 @@ Committed project skills in `.claude/skills/`: graphify (knowledge graph) and
 `/commit` (the required commit/push workflow). `CLAUDE.md` defines agent
 rules: code-quality standards (no hardcoded constants without discussion),
 README status updates on every push, and `graphify update .` after code
-changes. The knowledge graph is not yet built (`graphify-out/` appears after
-the first `/graphify .` run).
+changes. The knowledge graph is built and committed in `graphify-out/`
+(159 nodes, 18 communities — query it with `graphify query "<question>"`).
+
+Note: the root `.gitignore`'s Python-template `lib/` pattern is anchored to
+`/lib/` — unanchored it silently excluded `frontend/lib/` from git and from
+the knowledge graph.
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|
