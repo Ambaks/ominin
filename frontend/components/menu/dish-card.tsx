@@ -23,15 +23,13 @@ function Badges({ badges }: { badges?: Badge[] }) {
   );
 }
 
-function OrderButton({ compact = false }: { compact?: boolean }) {
+function OrderButton() {
   return (
     <button
       type="button"
       disabled
       title="Commande à table bientôt disponible"
-      className={`ember-gradient shrink-0 cursor-not-allowed rounded-full font-semibold text-background opacity-45 ${
-        compact ? "px-3.5 py-1.5 text-xs" : "px-5 py-2.5 text-sm"
-      }`}
+      className="ember-gradient shrink-0 cursor-not-allowed rounded-full px-5 py-2.5 text-sm font-semibold text-background opacity-45"
     >
       + Ajouter
     </button>
@@ -83,51 +81,6 @@ function FeaturedCard({ item }: { item: MenuItem }) {
   );
 }
 
-/** Compact row with optional thumbnail for regular items. */
-function RowCard({ item }: { item: MenuItem }) {
-  return (
-    <article className="flex gap-4 rounded-2xl border border-hairline bg-surface p-4">
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <Badges badges={item.badges} />
-        <div className="flex items-baseline gap-3">
-          <h3 className="font-display text-base font-medium">{item.name}</h3>
-          <span
-            aria-hidden
-            className="min-w-4 flex-1 border-b border-dotted border-faint/50"
-          />
-          <span className="font-display text-base text-ember-1">
-            {formatPrice(item.price)}
-          </span>
-        </div>
-        {item.description && (
-          <p className="text-[13px] leading-relaxed text-muted">
-            {item.description}
-          </p>
-        )}
-        <Pairing pairing={item.pairing} />
-        <div className="mt-auto pt-1.5">
-          <OrderButton compact />
-        </div>
-      </div>
-      {item.image && (
-        <div className="relative size-24 shrink-0 self-center overflow-hidden rounded-xl sm:size-28">
-          <Image
-            src={item.image}
-            alt={item.name}
-            fill
-            sizes="112px"
-            className="object-cover"
-          />
-        </div>
-      )}
-    </article>
-  );
-}
-
 export function DishCard({ item }: { item: MenuItem }) {
-  return item.featured && item.image ? (
-    <FeaturedCard item={item} />
-  ) : (
-    <RowCard item={item} />
-  );
+  return <FeaturedCard item={item} />;
 }

@@ -17,8 +17,12 @@ see after scanning the table QR code), modeled on Miracards' digital menus
 with a dark-premium gradient design. It lives at `/m/[slug]` (per-restaurant
 URLs for QR codes) with mock data for one demo restaurant at
 `/m/trattoria-lucia`; `/` redirects there. Order buttons are rendered but
-disabled — ordering flow and backend data come later. Verified via headless
-Chromium screenshots (mobile + desktop), `npm run lint`, and `npm run build`.
+disabled — ordering flow and backend data come later.
+
+All menu items now render as photo cards (the previous compact row layout
+for non-featured items has been removed). Every item in the demo data has an
+image, eliminating the visual inconsistency between "featured" and regular
+entries. The `featured` flag on `MenuItem` has been retired.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph) and
 `/commit` (the required commit/push workflow). `CLAUDE.md` defines agent

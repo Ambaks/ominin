@@ -8,8 +8,6 @@ export interface MenuItem {
   image?: string;
   badges?: Badge[];
   pairing?: string;
-  /** Featured items render as large photo cards instead of rows. */
-  featured?: boolean;
 }
 
 export interface MenuCategory {
@@ -56,7 +54,7 @@ const trattoriaLucia: Restaurant = {
           image: unsplash("photo-1541529086526-db283c563270"),
           badges: ["top"],
           pairing: "Idéal avec un verre de Lambrusco frais",
-          featured: true,
+
         },
         {
           id: "burrata",
@@ -81,6 +79,7 @@ const trattoriaLucia: Restaurant = {
           description:
             "Croquettes de risotto à l'aubergine fumée, cœur de mozzarella, sauce tomate épicée.",
           price: 11,
+          image: unsplash("photo-1595295333158-4742f28fbd85"),
           badges: ["nouveau"],
         },
       ],
@@ -98,7 +97,7 @@ const trattoriaLucia: Restaurant = {
           price: 14,
           image: unsplash("photo-1574071318508-1cdbab80d002"),
           badges: ["top"],
-          featured: true,
+
         },
         {
           id: "diavola",
@@ -114,6 +113,7 @@ const trattoriaLucia: Restaurant = {
           description:
             "Crème de truffe noire, mozzarella di bufala, champignons, noisettes torréfiées.",
           price: 19,
+          image: unsplash("photo-1565299624946-b28f40a0ae38"),
           badges: ["nouveau"],
           pairing: "Idéal avec un Nebbiolo",
         },
@@ -123,6 +123,7 @@ const trattoriaLucia: Restaurant = {
           description:
             "Gorgonzola, taleggio, pecorino, fior di latte, poire rôtie et noix.",
           price: 17,
+          image: unsplash("photo-1513104890138-7c749659a591"),
         },
       ],
     },
@@ -140,7 +141,7 @@ const trattoriaLucia: Restaurant = {
           image: unsplash("photo-1612874742237-6526221588e3"),
           badges: ["top", "maison"],
           pairing: "Idéal avec un Frascati Superiore",
-          featured: true,
+
         },
         {
           id: "tagliatelle",
@@ -165,6 +166,7 @@ const trattoriaLucia: Restaurant = {
           description:
             "Palourdes fraîches, vin blanc, ail, piment doux, persil.",
           price: 22,
+          image: unsplash("photo-1563379926898-05f4575a45d8"),
         },
       ],
     },
@@ -182,7 +184,7 @@ const trattoriaLucia: Restaurant = {
           image: unsplash("photo-1600891964092-4316c288032e"),
           badges: ["top"],
           pairing: "Idéal avec un Chianti Classico",
-          featured: true,
+
         },
         {
           id: "osso-buco",
@@ -190,6 +192,7 @@ const trattoriaLucia: Restaurant = {
           description:
             "Jarret de veau braisé, gremolata, risotto au safran.",
           price: 26,
+          image: unsplash("photo-1534939561126-855b8675edd7"),
           badges: ["maison"],
         },
         {
@@ -197,6 +200,7 @@ const trattoriaLucia: Restaurant = {
           name: "Scaloppine al limone",
           description: "Escalopes de veau, sauce citron, câpres, purée maison.",
           price: 23,
+          image: unsplash("photo-1432139555190-58524dae6a55"),
         },
       ],
     },
@@ -228,6 +232,7 @@ const trattoriaLucia: Restaurant = {
           name: "Gamberoni all'aglio",
           description: "Gambas sautées à l'ail, piment, vin blanc, focaccia grillée.",
           price: 25,
+          image: unsplash("photo-1565680018434-b513d5e5fd47"),
         },
       ],
     },
@@ -244,7 +249,7 @@ const trattoriaLucia: Restaurant = {
           price: 9,
           image: unsplash("photo-1571877227200-a0d98ea607e9"),
           badges: ["top", "maison"],
-          featured: true,
+
         },
         {
           id: "panna-cotta",
@@ -258,6 +263,7 @@ const trattoriaLucia: Restaurant = {
           name: "Affogato al caffè",
           description: "Glace fior di latte noyée dans un espresso, amaretti.",
           price: 7,
+          image: unsplash("photo-1579954115563-e72bf1381629"),
         },
       ],
     },
@@ -286,6 +292,7 @@ const trattoriaLucia: Restaurant = {
           name: "Limoncello spritz",
           description: "Limoncello artisanal, prosecco, menthe fraîche.",
           price: 11,
+          image: unsplash("photo-1560512823-829485b8bf24"),
           badges: ["nouveau"],
         },
       ],
@@ -307,18 +314,21 @@ const trattoriaLucia: Restaurant = {
           name: "Vermentino di Sardegna",
           description: "Sardaigne · blanc sec et minéral · verre 6€",
           price: 28,
+          image: unsplash("photo-1566995541428-f4e719c69aa2"),
         },
         {
           id: "prosecco",
           name: "Prosecco Superiore",
           description: "Valdobbiadene · brut · verre 6,50€",
           price: 30,
+          image: unsplash("photo-1592483648228-b35146a4330c"),
         },
         {
           id: "nebbiolo",
           name: "Nebbiolo Langhe",
           description: "Piémont · élégant et structuré · verre 8€",
           price: 38,
+          image: unsplash("photo-1553361371-9b22f78e8b1d"),
         },
       ],
     },
@@ -338,6 +348,7 @@ const trattoriaLucia: Restaurant = {
           name: "Ichnusa non filtrata",
           description: "Bière sarde non filtrée · 33cl",
           price: 7,
+          image: unsplash("photo-1535958636474-b021ee887b13"),
         },
       ],
     },
@@ -350,24 +361,28 @@ const trattoriaLucia: Restaurant = {
           name: "Limonata di Sicilia",
           description: "Citrons de Sicile pressés · 25cl",
           price: 5,
+          image: unsplash("photo-1621263764928-df1444c5e859"),
         },
         {
           id: "chinotto",
           name: "Chinotto",
           description: "Soda italien d'agrumes amers · 33cl",
           price: 5,
+          image: unsplash("photo-1625772299848-391b6a87d7b3"),
         },
         {
           id: "san-pellegrino",
           name: "San Pellegrino",
           description: "Eau pétillante · 50cl",
           price: 4,
+          image: unsplash("photo-1523362628745-0c100150b504"),
         },
         {
           id: "espresso",
           name: "Espresso",
           description: "Torréfaction napolitaine",
           price: 2.5,
+          image: unsplash("photo-1510707577719-ae7c14805e3a"),
         },
       ],
     },
