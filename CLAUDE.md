@@ -73,6 +73,9 @@ Backend (run from `backend/`):
   knowledge graph current. It is incremental and AST-only (no API calls,
   fast, free). This is an instruction being followed, not automation — no
   hook runs it for you, so treat it as a required step of every code change.
+- To commit and push, follow the `/commit` skill
+  (`.claude/skills/commit/SKILL.md`) — it encodes the two rules above plus
+  safety checks and the commit-message standard.
 
 ## graphify
 

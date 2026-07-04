@@ -12,12 +12,13 @@ revenue justifies paid plans.
 
 ## Project status
 
-Scaffolding is complete and verified (both apps boot). The graphify skill is
-installed project-wide in `.claude/`, and `CLAUDE.md` defines agent rules:
-code-quality standards (no hardcoded constants without discussion), README
-status updates on every push, and `graphify update .` after code changes.
-No product features yet; the knowledge graph is not yet built (`graphify-out/`
-appears after the first `/graphify .` run).
+Scaffolding is complete and verified (both apps boot). Committed project
+skills in `.claude/skills/`: graphify (knowledge graph) and `/commit` (the
+required commit/push workflow). `CLAUDE.md` defines agent rules: code-quality
+standards (no hardcoded constants without discussion), README status updates
+on every push, and `graphify update .` after code changes. No product
+features yet; the knowledge graph is not yet built (`graphify-out/` appears
+after the first `/graphify .` run).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|
@@ -109,7 +110,20 @@ the knowledge graph automatically. To build or refresh the graph, type
 `/graphify .` in a Claude Code session at the repo root. After modifying code,
 `graphify update .` keeps the graph current (AST-only, no API cost).
 
-### 5. Final checklist
+### 5. Project skills (nothing to install)
+
+This repo ships committed Claude Code skills in `.claude/skills/` — you get
+them automatically with the clone:
+
+- `/graphify` — build/query the knowledge graph (see step 4)
+- `/commit` — the required way to commit and push: writes a detailed commit
+  message, updates the README project status, refreshes the knowledge graph,
+  runs safety checks, then pushes
+
+When asked to commit work in this repo, always go through `/commit`
+(`.claude/skills/commit/SKILL.md`) rather than raw git commands.
+
+### 6. Final checklist
 
 - [ ] `npm run build` succeeds in `frontend/`
 - [ ] `curl http://localhost:8000/health` returns `{"status":"ok"}`
