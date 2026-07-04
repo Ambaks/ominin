@@ -55,9 +55,9 @@
     "semantic_hash": "4278a1dad60bff8f8f840b8c8a008625"
   },
   "frontend/components/menu/dish-card.tsx": {
-    "mtime": 1783129507.5141928,
-    "ast_hash": "622867eefbc460787220bcb584cf3963",
-    "semantic_hash": "622867eefbc460787220bcb584cf3963"
+    "mtime": 1783198022.8869593,
+    "ast_hash": "fff763d296d61f7e329f727030284763",
+    "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
     "mtime": 1783129508.903382,
@@ -160,9 +160,9 @@
     "semantic_hash": "b05e99388de79e2df384e2f17f9c82e0"
   },
   "README.md": {
-    "mtime": 1783130621.625445,
-    "ast_hash": "fa0ebe5f600e5d7445c780a13095c10a",
-    "semantic_hash": "fa0ebe5f600e5d7445c780a13095c10a"
+    "mtime": 1783197170.4791718,
+    "ast_hash": "1eac70bffe930b94ff21b1a7c8a4ea12",
+    "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
     "mtime": 1783126871.4088914,
@@ -205,8 +205,13 @@
     "semantic_hash": "a2760511c65806022ad20adf74370ff3"
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1783129043.0656095,
-    "ast_hash": "75360619894cb75fb860397fbe735fe9",
-    "semantic_hash": "75360619894cb75fb860397fbe735fe9"
+    "mtime": 1783198156.0237627,
+    "ast_hash": "7dde57cdb6e8e97abf16cad2948ab133",
+    "semantic_hash": ""
+  },
+  "frontend/public/planche-lucia.jpg": {
+    "mtime": 1783197332.6709187,
+    "ast_hash": "3d92d98ecb19a99e5fcccf1f1ffc8391",
+    "semantic_hash": ""
   }
 }

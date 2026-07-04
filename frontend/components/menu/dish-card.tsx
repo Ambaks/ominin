@@ -46,14 +46,14 @@ function Pairing({ pairing }: { pairing?: string }) {
 /** Large photo card for featured items. */
 function FeaturedCard({ item }: { item: MenuItem }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-hairline bg-surface">
+    <article className="overflow-hidden rounded-2xl border border-hairline bg-surface lg:rounded-3xl">
       {item.image && (
-        <div className="relative aspect-video">
+        <div className="relative aspect-video lg:aspect-4/3">
           <Image
             src={item.image}
             alt={item.name}
             fill
-            sizes="(max-width: 672px) 100vw, 672px"
+            sizes="(max-width: 1024px) 100vw, 480px"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
@@ -62,15 +62,15 @@ function FeaturedCard({ item }: { item: MenuItem }) {
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-2 p-4">
+      <div className="flex flex-col gap-2 p-4 lg:gap-3 lg:p-5">
         <div className="flex items-baseline justify-between gap-4">
-          <h3 className="font-display text-xl font-medium">{item.name}</h3>
-          <span className="font-display text-lg text-ember-1">
+          <h3 className="font-display text-xl font-medium lg:text-2xl">{item.name}</h3>
+          <span className="font-display text-lg text-ember-1 lg:text-xl">
             {formatPrice(item.price)}
           </span>
         </div>
         {item.description && (
-          <p className="text-sm leading-relaxed text-muted">{item.description}</p>
+          <p className="text-sm leading-relaxed text-muted lg:text-[15px]">{item.description}</p>
         )}
         <Pairing pairing={item.pairing} />
         <div className="mt-1 flex justify-end">

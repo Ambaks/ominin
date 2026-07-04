@@ -22,7 +22,10 @@ disabled — ordering flow and backend data come later.
 All menu items now render as photo cards (the previous compact row layout
 for non-featured items has been removed). Every item in the demo data has an
 image, eliminating the visual inconsistency between "featured" and regular
-entries. The `featured` flag on `MenuItem` has been retired.
+entries. The `featured` flag on `MenuItem` has been retired. The desktop
+layout (≥1024px) is now optimized separately from mobile: wider content area
+(max-w-5xl), 2-column card grid, taller hero, larger typography, and more
+generous spacing — all behind `lg:` breakpoints so mobile is unchanged.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph) and
 `/commit` (the required commit/push workflow). `CLAUDE.md` defines agent

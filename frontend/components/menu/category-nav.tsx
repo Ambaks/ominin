@@ -61,7 +61,7 @@ export function CategoryNav({ categories }: { categories: CategoryLink[] }) {
     <nav className="sticky top-0 z-10 border-b border-hairline bg-background/85 backdrop-blur-md">
       <div
         ref={railRef}
-        className="no-scrollbar mx-auto flex max-w-2xl gap-2 overflow-x-auto px-5 py-3"
+        className="no-scrollbar mx-auto flex max-w-2xl gap-2 overflow-x-auto px-5 py-3 lg:max-w-5xl lg:gap-3 lg:px-10 lg:py-4"
       >
         {categories.map(({ id, name }) => {
           const active = id === activeId;
@@ -70,7 +70,7 @@ export function CategoryNav({ categories }: { categories: CategoryLink[] }) {
               key={id}
               href={`#${id}`}
               data-category={id}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all lg:px-5 lg:py-2.5 lg:text-base ${
                 active
                   ? "ember-gradient text-background shadow-[0_0_18px_rgba(226,118,75,0.35)]"
                   : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"

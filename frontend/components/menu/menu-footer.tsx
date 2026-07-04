@@ -9,7 +9,7 @@ const LANGUAGES = [
 export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
   return (
     <footer className="border-t border-hairline">
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-10 text-center">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 px-5 py-10 text-center lg:max-w-5xl lg:px-10 lg:py-14">
         <div className="flex gap-2" aria-label="Langue">
           {LANGUAGES.map(({ code, label }) => (
             <button

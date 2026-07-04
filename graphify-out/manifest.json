@@ -35,9 +35,9 @@
     "semantic_hash": "988e85818875a383622bece712be0e34"
   },
   "frontend/app/m/[slug]/page.tsx": {
-    "mtime": 1783129253.4554923,
-    "ast_hash": "ecc036592cc374a57ce6f7be5cb4e540",
-    "semantic_hash": "ecc036592cc374a57ce6f7be5cb4e540"
+    "mtime": 1783199488.7978594,
+    "ast_hash": "fe9eddbda7bd164fbc4e4ac2007f5716",
+    "semantic_hash": ""
   },
   "frontend/app/not-found.tsx": {
     "mtime": 1783129158.2345347,
@@ -50,29 +50,29 @@
     "semantic_hash": "8444bddb22d9ddf253e13ff5d956e8f4"
   },
   "frontend/components/menu/category-nav.tsx": {
-    "mtime": 1783129078.198458,
-    "ast_hash": "4278a1dad60bff8f8f840b8c8a008625",
-    "semantic_hash": "4278a1dad60bff8f8f840b8c8a008625"
+    "mtime": 1783199498.693949,
+    "ast_hash": "78e8535cf40a59d3d26748dbbb87388d",
+    "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
-    "mtime": 1783198022.8869593,
-    "ast_hash": "fff763d296d61f7e329f727030284763",
+    "mtime": 1783199517.153596,
+    "ast_hash": "be6a763f095de8c399287df4ec28df73",
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1783129508.903382,
-    "ast_hash": "b7d91e05a0b0fbc4f1311f087dd52a23",
-    "semantic_hash": "b7d91e05a0b0fbc4f1311f087dd52a23"
+    "mtime": 1783199495.4388235,
+    "ast_hash": "80c921770d0a6561e663b13291c3091e",
+    "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
-    "mtime": 1783129118.5924149,
-    "ast_hash": "7f7dd9fbadecee07b4bc973bd62a6036",
-    "semantic_hash": "7f7dd9fbadecee07b4bc973bd62a6036"
+    "mtime": 1783199512.4976518,
+    "ast_hash": "83c3b62e0227c78b6d9c30629b08535f",
+    "semantic_hash": ""
   },
   "frontend/components/menu/menu-section.tsx": {
-    "mtime": 1783129113.380209,
-    "ast_hash": "30a648ae7eea7996fc65e642ac098249",
-    "semantic_hash": "30a648ae7eea7996fc65e642ac098249"
+    "mtime": 1783199653.2195745,
+    "ast_hash": "ac884368e9f952314b18215df6cb06b8",
+    "semantic_hash": ""
   },
   "frontend/eslint.config.mjs": {
     "mtime": 1783126762.4038439,
@@ -160,8 +160,8 @@
     "semantic_hash": "b05e99388de79e2df384e2f17f9c82e0"
   },
   "README.md": {
-    "mtime": 1783197170.4791718,
-    "ast_hash": "1eac70bffe930b94ff21b1a7c8a4ea12",
+    "mtime": 1783199063.6011899,
+    "ast_hash": "6a0f0aeed7b2fa49cf4e5c696edfa09c",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {

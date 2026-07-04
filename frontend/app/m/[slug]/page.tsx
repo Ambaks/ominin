@@ -32,7 +32,7 @@ export default async function MenuPage({ params }: PageProps<"/m/[slug]">) {
     <div className="flex flex-1 flex-col">
       <Hero restaurant={restaurant} />
       <CategoryNav categories={categoryLinks} />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10">
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
         {restaurant.categories.map((category, index) => (
           <MenuSection key={category.id} category={category} index={index} />
         ))}
