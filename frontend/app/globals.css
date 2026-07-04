@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
+/*
+  Ominin menu — "candlelit trattoria" dark premium theme.
+  Warm near-black surfaces, ember gradient accents (amber → terracotta → rose).
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0c0a08;
+  --foreground: #f3ece1;
+
+  --surface: #15110d;
+  --surface-raised: #1c1712;
+  --hairline: rgba(243, 236, 225, 0.09);
+
+  --muted: #a1937f;
+  --faint: #6f6355;
+
+  --ember-1: #f0b35b;
+  --ember-2: #e2764b;
+  --ember-3: #c94f5e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-hairline: var(--hairline);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-ember-1: var(--ember-1);
+  --color-ember-2: var(--ember-2);
+  --color-ember-3: var(--ember-3);
+
+  --font-sans: var(--font-instrument-sans);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ember gradient, reused by text, bars, borders */
+.ember-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--ember-1),
+    var(--ember-2) 55%,
+    var(--ember-3)
+  );
+}
+
+.ember-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--ember-1),
+    var(--ember-2) 55%,
+    var(--ember-3)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradient shimmer for loading skeletons */
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer {
+  background-image: linear-gradient(
+    100deg,
+    var(--surface) 40%,
+    rgba(240, 179, 91, 0.14) 50%,
+    var(--surface) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* Staggered entrance for menu sections */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hide horizontal scrollbar on the category rail */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .shimmer,
+  .rise {
+    animation: none;
+  }
+  .rise {
+    opacity: 1;
+    transform: none;
+  }
 }

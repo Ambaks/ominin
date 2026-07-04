@@ -12,13 +12,20 @@ revenue justifies paid plans.
 
 ## Project status
 
-Scaffolding is complete and verified (both apps boot). Committed project
-skills in `.claude/skills/`: graphify (knowledge graph) and `/commit` (the
-required commit/push workflow). `CLAUDE.md` defines agent rules: code-quality
-standards (no hardcoded constants without discussion), README status updates
-on every push, and `graphify update .` after code changes. No product
-features yet; the knowledge graph is not yet built (`graphify-out/` appears
-after the first `/graphify .` run).
+First product feature is in: the customer-facing QR menu page (what guests
+see after scanning the table QR code), modeled on Miracards' digital menus
+with a dark-premium gradient design. It lives at `/m/[slug]` (per-restaurant
+URLs for QR codes) with mock data for one demo restaurant at
+`/m/trattoria-lucia`; `/` redirects there. Order buttons are rendered but
+disabled — ordering flow and backend data come later. Verified via headless
+Chromium screenshots (mobile + desktop), `npm run lint`, and `npm run build`.
+
+Committed project skills in `.claude/skills/`: graphify (knowledge graph) and
+`/commit` (the required commit/push workflow). `CLAUDE.md` defines agent
+rules: code-quality standards (no hardcoded constants without discussion),
+README status updates on every push, and `graphify update .` after code
+changes. The knowledge graph is not yet built (`graphify-out/` appears after
+the first `/graphify .` run).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|
