@@ -34,8 +34,8 @@ export default function Home() {
         <DemoShowcase />
         <Pricing />
         <Testimonials />
-        <Faq />
         <FinalCta />
+        <Faq />
       </main>
       <LandingFooter />
     </>

@@ -14,14 +14,15 @@ revenue justifies paid plans.
 
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
 French-language, dark-premium design (same ember-gradient system as the menu
-page). Sections: sticky nav, hero with staggered entrance animations, "how it
-works" 4-step flow, stat-led features grid, live phone-framed iframe demo of
-the QR menu, 3-tier pricing (Digital 29€ / Smart 59€ / Connect 99€), client
-testimonials (L'Adresse, Chez l'Walida, NERO), FAQ accordion (native
-`<details>`), and a final CTA section. Zero client-side JS — every component
-is a server component. All copy and data lives in `lib/landing-data.ts` (no
-content literals in JSX). CTAs currently scroll to a contact section with
-email (`mailto:`) and a demo link; a dedicated signup page will replace this.
+page). Sections: sticky nav, hero ("Reduisez vos depenses, facilitez votre
+vie."), "how it works" 4-step flow, stat-led features grid, live
+phone-framed iframe demo of the QR menu, 3-tier pricing (Digital 29€ / Smart
+59€ / Connect 99€ — "Le plus choisi" badge on Connect), client testimonials
+(L'Adresse, Chez l'Walida, NERO), final CTA, then FAQ accordion (native
+`<details>`). Zero client-side JS — every component is a server component.
+All copy and data lives in `lib/landing-data.ts` (no content literals in
+JSX). CTAs currently scroll to a contact section with email (`mailto:`) and
+a demo link; a dedicated signup page will replace this.
 
 **Business model**: QR codes (stickers on tables), not physical NFC cards.
 Restaurants receive personalized QR codes; clients scan to view the menu,

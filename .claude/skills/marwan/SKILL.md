@@ -1,6 +1,6 @@
 ---
 name: marwan
-description: Write a detailed commit explaining the work done, keep the README project status and the graphify knowledge graph current, then commit and push. Trigger: /commit
+description: Explain to Marwan, my collaborator on this project (my name is Ambaka) what he has to do. Trigger: /marwan
 ---
 
 ---
@@ -11,7 +11,7 @@ Explain to Marwan, my collaborator on this project (my name is Ambaka) what he h
 
 ## Information about Marwan
 
-Marwan is a AI and cloud AI cybersecurity intern at Airbus, one of the most prestigious companies in France. He is french, so speak to him in french.
+Marwan is an AI and cloud AI cybersecurity intern at Airbus, one of the most prestigious companies in France. He is french, so speak to him in french.
 
 He has experience developing websites and solutions for businesses, such as NFCFORYOU which is a service that gives restaurants NFC cards that they can stick to their tables so that users can order on their own time themselves and the business can slash their operatings costs. 
 

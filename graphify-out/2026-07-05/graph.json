@@ -262,18 +262,248 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_page",
-      "community": 1,
+      "community": 19,
       "norm_label": "page.tsx"
+    },
+    {
+      "label": "metadata",
+      "file_type": "code",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "frontend_app_page_metadata",
+      "community": 19,
+      "norm_label": "metadata"
     },
     {
       "label": "Home()",
       "file_type": "code",
       "source_file": "frontend/app/page.tsx",
-      "source_location": "L4",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_app_page_home",
-      "community": 1,
+      "community": 19,
       "norm_label": "home()"
+    },
+    {
+      "label": "demo-showcase.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_demo_showcase",
+      "community": 19,
+      "norm_label": "demo-showcase.tsx"
+    },
+    {
+      "label": "DemoShowcase()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "frontend_components_landing_demo_showcase_demoshowcase",
+      "community": 19,
+      "norm_label": "demoshowcase()"
+    },
+    {
+      "label": "faq.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_faq",
+      "community": 19,
+      "norm_label": "faq.tsx"
+    },
+    {
+      "label": "Faq()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_faq_faq",
+      "community": 19,
+      "norm_label": "faq()"
+    },
+    {
+      "label": "features.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_features",
+      "community": 19,
+      "norm_label": "features.tsx"
+    },
+    {
+      "label": "Features()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_features_features",
+      "community": 19,
+      "norm_label": "features()"
+    },
+    {
+      "label": "final-cta.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_final_cta",
+      "community": 19,
+      "norm_label": "final-cta.tsx"
+    },
+    {
+      "label": "FinalCta()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_final_cta_finalcta",
+      "community": 19,
+      "norm_label": "finalcta()"
+    },
+    {
+      "label": "hero.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_hero",
+      "community": 19,
+      "norm_label": "hero.tsx"
+    },
+    {
+      "label": "Hero()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "frontend_components_landing_hero_hero",
+      "community": 19,
+      "norm_label": "hero()"
+    },
+    {
+      "label": "how-it-works.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_how_it_works",
+      "community": 19,
+      "norm_label": "how-it-works.tsx"
+    },
+    {
+      "label": "HowItWorks()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_how_it_works_howitworks",
+      "community": 19,
+      "norm_label": "howitworks()"
+    },
+    {
+      "label": "landing-footer.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_landing_footer",
+      "community": 19,
+      "norm_label": "landing-footer.tsx"
+    },
+    {
+      "label": "LandingFooter()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "frontend_components_landing_landing_footer_landingfooter",
+      "community": 19,
+      "norm_label": "landingfooter()"
+    },
+    {
+      "label": "landing-nav.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_landing_nav",
+      "community": 19,
+      "norm_label": "landing-nav.tsx"
+    },
+    {
+      "label": "LandingNav()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_landing_nav_landingnav",
+      "community": 19,
+      "norm_label": "landingnav()"
+    },
+    {
+      "label": "pricing.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_pricing",
+      "community": 19,
+      "norm_label": "pricing.tsx"
+    },
+    {
+      "label": "Pricing()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "frontend_components_landing_pricing_pricing",
+      "community": 19,
+      "norm_label": "pricing()"
+    },
+    {
+      "label": "section-heading.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/section-heading.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_section_heading",
+      "community": 19,
+      "norm_label": "section-heading.tsx"
+    },
+    {
+      "label": "SectionHeading()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/section-heading.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_section_heading_sectionheading",
+      "community": 19,
+      "norm_label": "sectionheading()"
+    },
+    {
+      "label": "testimonials.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_testimonials",
+      "community": 19,
+      "norm_label": "testimonials.tsx"
+    },
+    {
+      "label": "Testimonials()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "frontend_components_landing_testimonials_testimonials",
+      "community": 19,
+      "norm_label": "testimonials()"
     },
     {
       "label": "category-nav.tsx",
@@ -464,6 +694,216 @@
       "id": "frontend_eslint_config_eslintconfig",
       "community": 6,
       "norm_label": "eslintconfig"
+    },
+    {
+      "label": "landing-data.ts",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data",
+      "community": 19,
+      "norm_label": "landing-data.ts"
+    },
+    {
+      "label": "Cta",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_cta",
+      "community": 19,
+      "norm_label": "cta"
+    },
+    {
+      "label": "NavLink",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_navlink",
+      "community": 19,
+      "norm_label": "navlink"
+    },
+    {
+      "label": "Step",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_step",
+      "community": 19,
+      "norm_label": "step"
+    },
+    {
+      "label": "Feature",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_feature",
+      "community": 19,
+      "norm_label": "feature"
+    },
+    {
+      "label": "Plan",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_plan",
+      "community": 19,
+      "norm_label": "plan"
+    },
+    {
+      "label": "ClientRef",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_clientref",
+      "community": 19,
+      "norm_label": "clientref"
+    },
+    {
+      "label": "FaqItem",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_faqitem",
+      "community": 19,
+      "norm_label": "faqitem"
+    },
+    {
+      "label": "demoCta",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_democta",
+      "community": 19,
+      "norm_label": "democta"
+    },
+    {
+      "label": "signupCta",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_signupcta",
+      "community": 19,
+      "norm_label": "signupcta"
+    },
+    {
+      "label": "seo",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L62",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_seo",
+      "community": 19,
+      "norm_label": "seo"
+    },
+    {
+      "label": "nav",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_nav",
+      "community": 19,
+      "norm_label": "nav"
+    },
+    {
+      "label": "hero",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_hero",
+      "community": 19,
+      "norm_label": "hero"
+    },
+    {
+      "label": "howItWorks",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L94",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_howitworks",
+      "community": 19,
+      "norm_label": "howitworks"
+    },
+    {
+      "label": "featuresSection",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L121",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_featuressection",
+      "community": 19,
+      "norm_label": "featuressection"
+    },
+    {
+      "label": "demoSection",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L161",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_demosection",
+      "community": 19,
+      "norm_label": "demosection"
+    },
+    {
+      "label": "pricingSection",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L170",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_pricingsection",
+      "community": 19,
+      "norm_label": "pricingsection"
+    },
+    {
+      "label": "clientsSection",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L225",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_clientssection",
+      "community": 19,
+      "norm_label": "clientssection"
+    },
+    {
+      "label": "faqSection",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L258",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_faqsection",
+      "community": 19,
+      "norm_label": "faqsection"
+    },
+    {
+      "label": "finalCta",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L296",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_finalcta",
+      "community": 19,
+      "norm_label": "finalcta"
+    },
+    {
+      "label": "footer",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L305",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_footer",
+      "community": 19,
+      "norm_label": "footer"
     },
     {
       "label": "menu-data.ts",
@@ -1152,7 +1592,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill",
-      "community": 19,
+      "community": 5,
       "norm_label": "skill.md"
     },
     {
@@ -1162,7 +1602,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_graphify",
-      "community": 19,
+      "community": 5,
       "norm_label": "/graphify"
     },
     {
@@ -1172,7 +1612,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_usage",
-      "community": 19,
+      "community": 5,
       "norm_label": "usage"
     },
     {
@@ -1182,7 +1622,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_what_graphify_is_for",
-      "community": 19,
+      "community": 5,
       "norm_label": "what graphify is for"
     },
     {
@@ -1342,7 +1782,7 @@
       "source_location": "L623",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
-      "community": 19,
+      "community": 5,
       "norm_label": "interpreter guard for subcommands"
     },
     {
@@ -1352,7 +1792,7 @@
       "source_location": "L641",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_update_and_cluster_only",
-      "community": 19,
+      "community": 5,
       "norm_label": "for --update and --cluster-only"
     },
     {
@@ -1362,7 +1802,7 @@
       "source_location": "L647",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_graphify_query",
-      "community": 19,
+      "community": 5,
       "norm_label": "for /graphify query"
     },
     {
@@ -1372,7 +1812,7 @@
       "source_location": "L659",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_graphify_add_and_watch",
-      "community": 19,
+      "community": 5,
       "norm_label": "for /graphify add and --watch"
     },
     {
@@ -1382,7 +1822,7 @@
       "source_location": "L665",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
-      "community": 19,
+      "community": 5,
       "norm_label": "for the commit hook and native claude.md integration"
     },
     {
@@ -1392,7 +1832,7 @@
       "source_location": "L671",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_honesty_rules",
-      "community": 19,
+      "community": 5,
       "norm_label": "honesty rules"
     },
     {
@@ -1746,6 +2186,66 @@
       "norm_label": "for --cluster-only"
     },
     {
+      "label": "SKILL.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill",
+      "community": 84,
+      "norm_label": "skill.md"
+    },
+    {
+      "label": "/marwan",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill_marwan",
+      "community": 84,
+      "norm_label": "/marwan"
+    },
+    {
+      "label": "Information about Marwan",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill_information_about_marwan",
+      "community": 84,
+      "norm_label": "information about marwan"
+    },
+    {
+      "label": "What you must do when invoked",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill_what_you_must_do_when_invoked",
+      "community": 84,
+      "norm_label": "what you must do when invoked"
+    },
+    {
+      "label": "Step 1 \u2014 Understand what changed",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill_step_1_understand_what_changed",
+      "community": 84,
+      "norm_label": "step 1 \u2014 understand what changed"
+    },
+    {
+      "label": "Step 2 - Write the summary info and give Marwan his designated task.",
+      "file_type": "document",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "claude_skills_marwan_skill_step_2_write_the_summary_info_and_give_marwan_his_designated_task",
+      "community": 84,
+      "norm_label": "step 2 - write the summary info and give marwan his designated task."
+    },
+    {
       "label": "CLAUDE.md",
       "file_type": "document",
       "source_file": "CLAUDE.md",
@@ -1899,7 +2399,7 @@
       "label": "Setup guide (written for an LLM agent)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L63",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "readme_setup_guide_written_for_an_llm_agent",
       "community": 18,
@@ -1909,7 +2409,7 @@
       "label": "1. Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L70",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "readme_1_prerequisites",
       "community": 18,
@@ -1919,7 +2419,7 @@
       "label": "2. Frontend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L80",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "readme_2_frontend",
       "community": 18,
@@ -1929,7 +2429,7 @@
       "label": "3. Backend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L90",
+      "source_location": "L93",
       "_origin": "ast",
       "id": "readme_3_backend",
       "community": 18,
@@ -1939,7 +2439,7 @@
       "label": "4. Graphify (knowledge-graph CLI)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L113",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "readme_4_graphify_knowledge_graph_cli",
       "community": 18,
@@ -1949,7 +2449,7 @@
       "label": "5. Project skills (nothing to install)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L128",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "readme_5_project_skills_nothing_to_install",
       "community": 18,
@@ -1959,7 +2459,7 @@
       "label": "6. Final checklist",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L141",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "readme_6_final_checklist",
       "community": 18,
@@ -2047,7 +2547,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -3119,10 +3619,240 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/page.tsx",
-      "source_location": "L4",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "frontend_app_page",
       "target": "frontend_app_page_home",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_app_page_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_demo_showcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_demo_showcase_demoshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_faq",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_faq_faq",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_features_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_final_cta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_final_cta_finalcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_hero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_hero_hero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_how_it_works",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_how_it_works_howitworks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_landing_footer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_landing_footer_landingfooter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_landing_nav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_landing_nav_landingnav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_pricing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_pricing_pricing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_testimonials",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_components_landing_testimonials_testimonials",
       "confidence_score": 1.0
     },
     {
@@ -3133,7 +3863,568 @@
       "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_page",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/page.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_app_page",
+      "target": "frontend_lib_landing_data_seo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_components_landing_demo_showcase_demoshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_lib_landing_data_democta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_lib_landing_data_demosection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_faq",
+      "target": "frontend_components_landing_faq_faq",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_faq",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_faq",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_faq",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/faq.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_faq",
+      "target": "frontend_lib_landing_data_faqsection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_features",
+      "target": "frontend_components_landing_features_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_features",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_features",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_features",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/features.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_features",
+      "target": "frontend_lib_landing_data_featuressection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_final_cta",
+      "target": "frontend_components_landing_final_cta_finalcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_final_cta",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_final_cta",
+      "target": "frontend_lib_landing_data_democta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/final-cta.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_final_cta",
+      "target": "frontend_lib_landing_data_finalcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_components_landing_hero_hero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_lib_landing_data_clientssection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_lib_landing_data_democta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_lib_landing_data_hero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_how_it_works",
+      "target": "frontend_components_landing_how_it_works_howitworks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_how_it_works",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_how_it_works",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_how_it_works",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/how-it-works.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_how_it_works",
+      "target": "frontend_lib_landing_data_howitworks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_footer",
+      "target": "frontend_components_landing_landing_footer_landingfooter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_footer",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_footer",
+      "target": "frontend_lib_landing_data_footer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-footer.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_footer",
+      "target": "frontend_lib_landing_data_nav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_nav",
+      "target": "frontend_components_landing_landing_nav_landingnav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_nav",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_nav",
+      "target": "frontend_lib_landing_data_nav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_components_landing_pricing_pricing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_lib_landing_data_pricingsection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_lib_landing_data_signupcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
       "target": "frontend_lib_menu_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing",
+      "target": "frontend_lib_menu_data_formatprice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/section-heading.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_section_heading",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_components_landing_section_heading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_components_landing_section_heading_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_components_landing_testimonials_testimonials",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_lib_landing_data_clientssection",
       "confidence_score": 1.0
     },
     {
@@ -3407,6 +4698,217 @@
       "weight": 1.0,
       "source": "frontend_eslint_config",
       "target": "frontend_eslint_config_eslintconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_clientref",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L225",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_clientssection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_cta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_democta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L161",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_demosection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_faqitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L258",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_faqsection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_feature",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_featuressection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L296",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_finalcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L305",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_footer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_hero",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_howitworks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_nav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_navlink",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_plan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L170",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_pricingsection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_seo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_signupcta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_step",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_menu_data",
       "confidence_score": 1.0
     },
     {
@@ -4532,6 +6034,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "claude_skills_marwan_skill",
+      "target": "claude_skills_marwan_skill_marwan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "claude_skills_marwan_skill_marwan",
+      "target": "claude_skills_marwan_skill_information_about_marwan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "claude_skills_marwan_skill_marwan",
+      "target": "claude_skills_marwan_skill_what_you_must_do_when_invoked",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "claude_skills_marwan_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_marwan_skill_step_1_understand_what_changed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/marwan/SKILL.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "claude_skills_marwan_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_marwan_skill_step_2_write_the_summary_info_and_give_marwan_his_designated_task",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -4653,7 +6205,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L63",
+      "source_location": "L66",
       "weight": 1.0,
       "source": "readme_ominin",
       "target": "readme_setup_guide_written_for_an_llm_agent",
@@ -4673,7 +6225,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L70",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_1_prerequisites",
@@ -4683,7 +6235,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L80",
+      "source_location": "L83",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_2_frontend",
@@ -4693,7 +6245,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L90",
+      "source_location": "L93",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_3_backend",
@@ -4703,7 +6255,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L113",
+      "source_location": "L116",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_4_graphify_knowledge_graph_cli",
@@ -4713,7 +6265,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L128",
+      "source_location": "L131",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_5_project_skills_nothing_to_install",
@@ -4723,7 +6275,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_6_final_checklist",
@@ -4818,5 +6370,5 @@
       "source_file": "CLAUDE.md"
     }
   ],
-  "built_at_commit": "7ca73b15fcc9df8f829b7a6e62869a3f05ab144e"
+  "built_at_commit": "31d9a55f5645d9b87911a86c140fb118f426ff22"
 }

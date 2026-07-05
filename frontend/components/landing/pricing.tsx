@@ -16,7 +16,7 @@ export function Pricing() {
           center
         />
 
-        <div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:items-start">
+        <div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:items-stretch">
           {pricingSection.plans.map((plan) => (
             <div
               key={plan.id}

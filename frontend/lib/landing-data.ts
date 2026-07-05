@@ -78,8 +78,8 @@ export const nav = {
 
 export const hero = {
   eyebrow: "Menus digitaux · Commande à table · Paiement",
-  titleStart: "Transformez chaque table en",
-  titleAccent: "serveur autonome.",
+  titleStart: "Reduisez vos depenses,",
+  titleAccent: "facilitez votre vie.",
   subtitle:
     "Vos clients scannent le QR code de la table, consultent, commandent et payent — sans application, sans attente. Vous mettez votre menu à jour en 30 secondes, votre équipe respire, vos coûts baissent.",
   secondaryCta: { label: "Découvrir les tarifs", href: "#tarifs" } satisfies Cta,
@@ -121,7 +121,7 @@ export const howItWorks = {
 export const featuresSection = {
   id: "fonctionnalites",
   eyebrow: "Fonctionnalités",
-  title: "Pensé pour le service, pas pour la démo.",
+  title: "Pensé pour le service.",
   subtitle:
     "Chaque fonction répond à un vrai problème de salle : moins de pas, moins d'erreurs, moins de temps perdu.",
   features: [
@@ -199,7 +199,6 @@ export const pricingSection = {
         "Gestion des tables",
         "Suivi des commandes en direct",
       ],
-      badge: "Le plus choisi",
     },
     {
       id: "connect",
@@ -212,6 +211,7 @@ export const pricingSection = {
         "Intégration caisse enregistreuse",
         "Vues serveur, cuisine et manager",
       ],
+      badge: "Le plus choisi",
     },
   ] satisfies Plan[],
   guarantees: [
@@ -225,7 +225,7 @@ export const pricingSection = {
 export const clientsSection = {
   id: "clients",
   eyebrow: "Clients",
-  title: "Ils ont rangé les cartes papier.",
+  title: "Fini les cartes papier.",
   sinceLabel: "Client depuis",
   clients: [
     {
