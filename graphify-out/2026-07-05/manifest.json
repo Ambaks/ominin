@@ -45,9 +45,9 @@
     "semantic_hash": "8d285f5579613473cacb9af3df1cc210"
   },
   "frontend/app/page.tsx": {
-    "mtime": 1783214056.6273384,
-    "ast_hash": "9f7701d3b93effd94fe1ad19eb525228",
-    "semantic_hash": ""
+    "mtime": 1783129159.2621167,
+    "ast_hash": "8444bddb22d9ddf253e13ff5d956e8f4",
+    "semantic_hash": "8444bddb22d9ddf253e13ff5d956e8f4"
   },
   "frontend/components/menu/category-nav.tsx": {
     "mtime": 1783199498.693949,
@@ -160,8 +160,8 @@
     "semantic_hash": "b05e99388de79e2df384e2f17f9c82e0"
   },
   "README.md": {
-    "mtime": 1783199805.6680243,
-    "ast_hash": "63f227c0cbd71813e2f4a2b710c9cffb",
+    "mtime": 1783199063.6011899,
+    "ast_hash": "6a0f0aeed7b2fa49cf4e5c696edfa09c",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -212,71 +212,6 @@
   "frontend/public/planche-lucia.jpg": {
     "mtime": 1783197332.6709187,
     "ast_hash": "3d92d98ecb19a99e5fcccf1f1ffc8391",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/demo-showcase.tsx": {
-    "mtime": 1783214012.5196369,
-    "ast_hash": "f46c78a13e31ab62973085c50e0bc539",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/faq.tsx": {
-    "mtime": 1783214034.1380308,
-    "ast_hash": "e44f987f62b6fd9f45df08c6580baa8e",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/features.tsx": {
-    "mtime": 1783214003.4116585,
-    "ast_hash": "5cd897c2311038c7ae4948bce4214a94",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/final-cta.tsx": {
-    "mtime": 1783214039.9385467,
-    "ast_hash": "02914b1fff92919f8240589137d577f5",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/hero.tsx": {
-    "mtime": 1783213991.9711819,
-    "ast_hash": "a933471c3bc58fc27356b7c289fb4281",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/how-it-works.tsx": {
-    "mtime": 1783213998.5972733,
-    "ast_hash": "95a8f22235f3da05917a96e03fe693e6",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/landing-footer.tsx": {
-    "mtime": 1783214043.1585953,
-    "ast_hash": "467add03ad9ca2e572b6fdbafd369b2a",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/landing-nav.tsx": {
-    "mtime": 1783213980.5964987,
-    "ast_hash": "c802c989e568c6872954dcf88990ad62",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/pricing.tsx": {
-    "mtime": 1783214024.3015978,
-    "ast_hash": "2f8377ab3c39e46c6613701a78144457",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/section-heading.tsx": {
-    "mtime": 1783213975.436887,
-    "ast_hash": "c08e9d3b7cb55549168d78442ea353d0",
-    "semantic_hash": ""
-  },
-  "frontend/components/landing/testimonials.tsx": {
-    "mtime": 1783214029.8175495,
-    "ast_hash": "4c1223b2c761021be2e498578bc68c87",
-    "semantic_hash": ""
-  },
-  "frontend/lib/landing-data.ts": {
-    "mtime": 1783202279.5567505,
-    "ast_hash": "9033d1a3ce17005a5f3fed315143a656",
-    "semantic_hash": ""
-  },
-  ".claude/skills/marwan/SKILL.md": {
-    "mtime": 1783208525.9127364,
-    "ast_hash": "2f8cc43ccafa3ac56e17b414e03851a1",
     "semantic_hash": ""
   }
 }

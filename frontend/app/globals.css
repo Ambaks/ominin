@@ -108,6 +108,16 @@ body {
   animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Soft radial glow for hero/CTA atmosphere */
+.ember-glow {
+  background-image: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(240, 179, 91, 0.08) 0%,
+    rgba(226, 118, 75, 0.04) 40%,
+    transparent 70%
+  );
+}
+
 /* Hide horizontal scrollbar on the category rail */
 .no-scrollbar {
   scrollbar-width: none;

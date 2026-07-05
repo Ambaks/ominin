@@ -12,31 +12,29 @@ revenue justifies paid plans.
 
 ## Project status
 
-First product feature is in: the customer-facing QR menu page (what guests
-see after scanning the table QR code), modeled on Miracards' digital menus
-with a dark-premium gradient design. It lives at `/m/[slug]` (per-restaurant
-URLs for QR codes) with mock data for one demo restaurant at
-`/m/trattoria-lucia`; `/` redirects there. Order buttons are rendered but
-disabled — ordering flow and backend data come later.
+**Homepage / marketing landing page** is now live at `/`. Conversion-focused,
+French-language, dark-premium design (same ember-gradient system as the menu
+page). Sections: sticky nav, hero with staggered entrance animations, "how it
+works" 4-step flow, stat-led features grid, live phone-framed iframe demo of
+the QR menu, 3-tier pricing (Digital 29€ / Smart 59€ / Connect 99€), client
+testimonials (L'Adresse, Chez l'Walida, NERO), FAQ accordion (native
+`<details>`), and a final CTA section. Zero client-side JS — every component
+is a server component. All copy and data lives in `lib/landing-data.ts` (no
+content literals in JSX). CTAs currently scroll to a contact section with
+email (`mailto:`) and a demo link; a dedicated signup page will replace this.
 
-All menu items now render as photo cards (the previous compact row layout
-for non-featured items has been removed). Every item in the demo data has an
-image, eliminating the visual inconsistency between "featured" and regular
-entries. The `featured` flag on `MenuItem` has been retired. The desktop
-layout (≥1024px) is now optimized separately from mobile: wider content area
-(max-w-5xl), 2-column card grid, taller hero, larger typography, and more
-generous spacing — all behind `lg:` breakpoints so mobile is unchanged.
+**Business model**: QR codes (stickers on tables), not physical NFC cards.
+Restaurants receive personalized QR codes; clients scan to view the menu,
+order, and pay — no app required.
 
-Committed project skills in `.claude/skills/`: graphify (knowledge graph) and
-`/commit` (the required commit/push workflow). `CLAUDE.md` defines agent
-rules: code-quality standards (no hardcoded constants without discussion),
-README status updates on every push, and `graphify update .` after code
-changes. The knowledge graph is built and committed in `graphify-out/`
-(159 nodes, 18 communities — query it with `graphify query "<question>"`).
+**QR menu page** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
+guests see after scanning. Dark-premium gradient design, responsive desktop
+layout (2-column grid, max-w-5xl), all items as photo cards. Order buttons
+rendered but disabled — ordering flow and backend data come later.
 
-Note: the root `.gitignore`'s Python-template `lib/` pattern is anchored to
-`/lib/` — unanchored it silently excluded `frontend/lib/` from git and from
-the knowledge graph.
+Committed project skills in `.claude/skills/`: graphify (knowledge graph),
+`/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
+Knowledge graph: `graphify-out/` (305 nodes, 85 communities).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|

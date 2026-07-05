@@ -1,16 +1,16 @@
-# Graph Report - ominin  (2026-07-05)
+# Graph Report - ominin  (2026-07-04)
 
 ## Corpus Check
-- 50 files · ~26,615 words
+- 37 files · ~23,542 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 305 nodes · 290 edges · 85 communities (20 shown, 65 thin omitted)
+- 255 nodes · 191 edges · 84 communities (19 shown, 65 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `31d9a55f`
+- Built from commit: `7ca73b15`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -96,7 +96,6 @@
 - [[_COMMUNITY_graphifyy CLI|graphifyy CLI]]
 - [[_COMMUNITY_QR Menu Page (mslug)|QR Menu Page (/m/[slug])]]
 - [[_COMMUNITY_LLM Agent Setup Guide|LLM Agent Setup Guide]]
-- [[_COMMUNITY_marwan|/marwan]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 16 edges
@@ -104,11 +103,11 @@
 3. `/graphify` - 10 edges
 4. `Ominin` - 10 edges
 5. `graphify reference: extra exports and benchmark` - 8 edges
-6. `SectionHeading()` - 7 edges
-7. `What you must do when invoked` - 7 edges
-8. `Setup guide (written for an LLM agent)` - 7 edges
-9. `scripts` - 5 edges
-10. `graphify reference: query, path, explain` - 5 edges
+6. `What you must do when invoked` - 7 edges
+7. `Setup guide (written for an LLM agent)` - 7 edges
+8. `scripts` - 5 edges
+9. `graphify reference: query, path, explain` - 5 edges
+10. `getRestaurant()` - 4 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `generateMetadata()` --calls--> `getRestaurant()`  [EXTRACTED]
@@ -126,10 +125,10 @@
 - **Ominin Free-tier Tech Stack** — claude_frontend_stack, claude_backend_stack, claude_supabase, claude_claude_api_integration [EXTRACTED 1.00]
 - **Keeping the Knowledge Graph Current** — _claude_skills_graphify_references_update_incremental_update, _claude_skills_graphify_references_hooks_post_commit_hook, _claude_skills_graphify_references_add_watch_watch_mode, claude_workflow_rules, _claude_skills_commit_skill_project_upkeep [INFERRED 0.85]
 
-## Communities (85 total, 65 thin omitted)
+## Communities (84 total, 65 thin omitted)
 
 ### Community 1 - "Menu Data & Components"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (19): generateMetadata(), MenuPage(), CategoryLink, CategoryNav(), BADGE_LABELS, DishCard(), FeaturedCard(), Hero() (+11 more)
 
 ### Community 2 - "Package Dependencies"
@@ -145,8 +144,8 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 5 - "Menu Data & Components 2"
-Cohesion: 0.08
-Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
+Cohesion: 0.13
+Nodes (15): Part A - Structural extraction for code files, Part B - Semantic extraction (parallel subagents), Part C - Merge AST + semantic into final extraction, Step 0 - GitHub repos and multi-path merge (only if a URL or several paths), Step 1 - Ensure graphify is installed, Step 2.5 - Video and audio (only if video files detected), Step 2 - Detect files, Step 3 - Extract entities and relationships (+7 more)
 
 ### Community 6 - "FastAPI Backend"
 Cohesion: 0.29
@@ -161,8 +160,8 @@ Cohesion: 0.18
 Nodes (10): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Graphify (knowledge-graph CLI), 5. Project skills (nothing to install), 6. Final checklist, Ominin, Project status (+2 more)
 
 ### Community 19 - "/graphify"
-Cohesion: 0.09
-Nodes (32): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+24 more)
+Cohesion: 0.20
+Nodes (9): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Usage (+1 more)
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.22
@@ -192,27 +191,25 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.50
 Nodes (3): Deploy on Vercel, Getting Started, Learn More
 
-### Community 84 - "/marwan"
-Cohesion: 0.33
-Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
-
 ## Knowledge Gaps
-- **185 isolated node(s):** `backend`, `fraunces`, `instrumentSans`, `metadata`, `viewport` (+180 more)
+- **174 isolated node(s):** `backend`, `fraunces`, `instrumentSans`, `metadata`, `viewport` (+169 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `What You Must Do When Invoked` connect `Menu Data & Components 2` to `/graphify`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `/graphify` connect `/graphify` to `Menu Data & Components 2`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
 - **What connects `backend`, `fraunces`, `instrumentSans` to the rest of the system?**
-  _186 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _175 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Menu Data & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.10080645161290322 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09269162210338681 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
 - **Should `TypeScript Config` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `Menu Data & Components 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
-- **Should `/graphify` be split into smaller, more focused modules?**
-  _Cohesion score 0.08985507246376812 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
