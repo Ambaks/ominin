@@ -1,10 +1,12 @@
+import Image from "next/image";
 import { brand, nav, footer } from "@/lib/landing-data";
 
 export function LandingFooter() {
   return (
     <footer className="border-t border-hairline">
       <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 px-5 py-10 text-center lg:max-w-5xl lg:px-10 lg:py-14">
-        <p className="ember-text font-display text-lg font-semibold">
+        <p className="flex items-center gap-2 ember-text font-display text-lg font-semibold">
+          <Image src="/logo.png" alt="" width={28} height={28} />
           {brand}
         </p>
 

@@ -45,8 +45,8 @@
     "semantic_hash": "8d285f5579613473cacb9af3df1cc210"
   },
   "frontend/app/page.tsx": {
-    "mtime": 1783214056.6273384,
-    "ast_hash": "9f7701d3b93effd94fe1ad19eb525228",
+    "mtime": 1783215496.2377768,
+    "ast_hash": "fcaaabbcbaae4ac3a9b512667bd53ffe",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
@@ -160,8 +160,8 @@
     "semantic_hash": "b05e99388de79e2df384e2f17f9c82e0"
   },
   "README.md": {
-    "mtime": 1783199805.6680243,
-    "ast_hash": "63f227c0cbd71813e2f4a2b710c9cffb",
+    "mtime": 1783215031.9331656,
+    "ast_hash": "3690822aa65dea8dd7f996b656ed9953",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -215,8 +215,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/demo-showcase.tsx": {
-    "mtime": 1783214012.5196369,
-    "ast_hash": "f46c78a13e31ab62973085c50e0bc539",
+    "mtime": 1783214457.1197836,
+    "ast_hash": "79bc0b78ee71379b9897c632f6ee9638",
     "semantic_hash": ""
   },
   "frontend/components/landing/faq.tsx": {
@@ -255,13 +255,13 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/pricing.tsx": {
-    "mtime": 1783214024.3015978,
-    "ast_hash": "2f8377ab3c39e46c6613701a78144457",
+    "mtime": 1783215611.2587142,
+    "ast_hash": "6c30c7d3930ffba92d084335dcd40186",
     "semantic_hash": ""
   },
   "frontend/components/landing/section-heading.tsx": {
-    "mtime": 1783213975.436887,
-    "ast_hash": "c08e9d3b7cb55549168d78442ea353d0",
+    "mtime": 1783214442.2507315,
+    "ast_hash": "a2dc950937a44c1ecb5331742193a072",
     "semantic_hash": ""
   },
   "frontend/components/landing/testimonials.tsx": {
@@ -270,13 +270,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1783202279.5567505,
-    "ast_hash": "9033d1a3ce17005a5f3fed315143a656",
+    "mtime": 1783215424.8499813,
+    "ast_hash": "7614c7050453cab766fadbfda6754c41",
     "semantic_hash": ""
   },
   ".claude/skills/marwan/SKILL.md": {
-    "mtime": 1783208525.9127364,
-    "ast_hash": "2f8cc43ccafa3ac56e17b414e03851a1",
+    "mtime": 1783215215.7549038,
+    "ast_hash": "be7839b0930437b9ea7ffd84396b8a2f",
     "semantic_hash": ""
   }
 }

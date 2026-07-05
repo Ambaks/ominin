@@ -160,8 +160,8 @@
     "semantic_hash": "b05e99388de79e2df384e2f17f9c82e0"
   },
   "README.md": {
-    "mtime": 1783215031.9331656,
-    "ast_hash": "3690822aa65dea8dd7f996b656ed9953",
+    "mtime": 1783215646.368427,
+    "ast_hash": "da7717296519e17c04f0ca5c086b9338",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -245,13 +245,13 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/landing-footer.tsx": {
-    "mtime": 1783214043.1585953,
-    "ast_hash": "467add03ad9ca2e572b6fdbafd369b2a",
+    "mtime": 1783216375.2912002,
+    "ast_hash": "54aa22c42cbe30c1811b6788a18fdf49",
     "semantic_hash": ""
   },
   "frontend/components/landing/landing-nav.tsx": {
-    "mtime": 1783213980.5964987,
-    "ast_hash": "c802c989e568c6872954dcf88990ad62",
+    "mtime": 1783216371.9730732,
+    "ast_hash": "e6a7b7221fc9035846c930afea7046a8",
     "semantic_hash": ""
   },
   "frontend/components/landing/pricing.tsx": {
@@ -277,6 +277,26 @@
   ".claude/skills/marwan/SKILL.md": {
     "mtime": 1783215215.7549038,
     "ast_hash": "be7839b0930437b9ea7ffd84396b8a2f",
+    "semantic_hash": ""
+  },
+  "ChatGPT Image Jul 5, 2026 at 03_44_03 AM.png": {
+    "mtime": 1783215887.5391011,
+    "ast_hash": "5629fb983a87f35462f98d85796f92f7",
+    "semantic_hash": ""
+  },
+  "frontend/app/apple-icon.png": {
+    "mtime": 1783216361.8559551,
+    "ast_hash": "df3c4f36219d445945d7fb49c99f0f70",
+    "semantic_hash": ""
+  },
+  "frontend/app/icon.png": {
+    "mtime": 1783216361.8526692,
+    "ast_hash": "27285135687d401d6a37febe207eacb7",
+    "semantic_hash": ""
+  },
+  "frontend/public/logo.png": {
+    "mtime": 1783216361.8590553,
+    "ast_hash": "1c383d8451a1aff30922196f57fc2638",
     "semantic_hash": ""
   }
 }

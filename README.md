@@ -24,6 +24,13 @@ All copy and data lives in `lib/landing-data.ts` (no content literals in
 JSX). CTAs currently scroll to a contact section with email (`mailto:`) and
 a demo link; a dedicated signup page will replace this.
 
+**Branding**: the Ominin logo (triple ember-gradient chevron, neon glow) is
+in place — favicon/app icons via Next.js metadata file conventions
+(`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`, dark theme-matched
+tiles) and a transparent `public/logo.png` shown beside the wordmark in the
+landing nav and footer. The mark was redrawn programmatically from the
+original render (`logo.png` at repo root) so it stays crisp at favicon sizes.
+
 **Business model**: QR codes (stickers on tables), not physical NFC cards.
 Restaurants receive personalized QR codes; clients scan to view the menu,
 order, and pay — no app required.

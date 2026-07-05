@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { brand, nav } from "@/lib/landing-data";
 
@@ -5,7 +6,11 @@ export function LandingNav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-hairline bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-3 lg:max-w-5xl lg:px-10">
-        <a href="#" className="ember-text font-display text-lg font-semibold">
+        <a
+          href="#"
+          className="flex items-center gap-2 ember-text font-display text-lg font-semibold"
+        >
+          <Image src="/logo.png" alt="" width={28} height={28} />
           {brand}
         </a>
 
