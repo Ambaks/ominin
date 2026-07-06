@@ -1,16 +1,16 @@
 # Graph Report - ominin  (2026-07-06)
 
 ## Corpus Check
-- 90 files · ~94,569 words
+- 93 files · ~96,213 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 500 nodes · 937 edges · 90 communities (25 shown, 65 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 14 edges (avg confidence: 0.74)
+- 520 nodes · 988 edges · 91 communities (26 shown, 65 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 15 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `cf9e281a`
+- Built from commit: `8955a686`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -102,18 +102,19 @@
 - [[_COMMUNITY_api.ts|api.ts]]
 - [[_COMMUNITY_formule-form-modal.tsx|formule-form-modal.tsx]]
 - [[_COMMUNITY_shell.tsx|shell.tsx]]
+- [[_COMMUNITY_Verifying the Ominin frontend|Verifying the Ominin frontend]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `update()` - 27 edges
-2. `useToast()` - 25 edges
-3. `useGestionAccess()` - 24 edges
-4. `useGestion()` - 17 edges
+1. `update()` - 28 edges
+2. `useToast()` - 27 edges
+3. `useGestionAccess()` - 26 edges
+4. `useGestion()` - 21 edges
 5. `compilerOptions` - 16 edges
 6. `formatPrice()` - 14 edges
 7. `What You Must Do When Invoked` - 12 edges
-8. `hasFeature()` - 10 edges
-9. `MenuItem` - 10 edges
-10. `/graphify` - 10 edges
+8. `can()` - 11 edges
+9. `hasFeature()` - 10 edges
+10. `MenuItem` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `CommandesPage()` --calls--> `hasFeature()`  [INFERRED]
@@ -135,15 +136,15 @@
 - **Ominin Free-tier Tech Stack** — claude_frontend_stack, claude_backend_stack, claude_supabase, claude_claude_api_integration [EXTRACTED 1.00]
 - **Keeping the Knowledge Graph Current** — _claude_skills_graphify_references_update_incremental_update, _claude_skills_graphify_references_hooks_post_commit_hook, _claude_skills_graphify_references_add_watch_watch_mode, claude_workflow_rules, _claude_skills_commit_skill_project_upkeep [INFERRED 0.85]
 
-## Communities (90 total, 65 thin omitted)
+## Communities (91 total, 65 thin omitted)
 
 ### Community 1 - "Menu Data & Components"
-Cohesion: 0.11
-Nodes (16): generateMetadata(), MenuPage(), CategoryLink, CategoryNav(), DishCard(), FeaturedCard(), Hero(), LANGUAGES (+8 more)
+Cohesion: 0.09
+Nodes (20): generateMetadata(), MenuPage(), CategoryLink, CategoryNav(), DishCard(), FeaturedCard(), Hero(), LANGUAGES (+12 more)
 
 ### Community 2 - "Package Dependencies"
-Cohesion: 0.09
-Nodes (21): dependencies, next, react, react-dom, devDependencies, eslint, eslint-config-next, tailwindcss (+13 more)
+Cohesion: 0.08
+Nodes (23): dependencies, next, qrcode, react, react-dom, devDependencies, eslint, eslint-config-next (+15 more)
 
 ### Community 3 - "Commit Workflow"
 Cohesion: 0.18
@@ -206,27 +207,31 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 85 - "types.ts"
-Cohesion: 0.09
-Nodes (40): ApercuPage(), StatCard(), OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), DemoSwitcher(), OFFRE_FEATURES (+32 more)
+Cohesion: 0.08
+Nodes (46): ApercuPage(), StatCard(), OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), DemoSwitcher(), OFFRE_FEATURES (+38 more)
 
 ### Community 86 - "useToast"
-Cohesion: 0.12
-Nodes (31): CommandesPage(), FilterId, FILTERS, matchesFilter(), FormulesPage(), MenuPage(), TablesPage(), OrderGroupCard() (+23 more)
+Cohesion: 0.09
+Nodes (39): CommandesPage(), FilterId, FILTERS, matchesFilter(), EtablissementForm(), EtablissementPage(), FormulesPage(), MenuPage() (+31 more)
 
 ### Community 87 - "api.ts"
-Cohesion: 0.08
-Nodes (37): addTableToGroup(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory(), deleteFormule(), deleteItem() (+29 more)
+Cohesion: 0.09
+Nodes (30): addTableToGroup(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory(), deleteFormule(), deleteItem() (+22 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.20
-Nodes (22): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+14 more)
+Cohesion: 0.21
+Nodes (21): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+13 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.13
-Nodes (15): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), EditIcon(), FormulesIcon(), IconProps, MenuIcon() (+7 more)
+Cohesion: 0.14
+Nodes (15): metadata, ApercuIcon(), CommandesIcon(), EditIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+7 more)
+
+### Community 90 - "Verifying the Ominin frontend"
+Cohesion: 0.40
+Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ## Knowledge Gaps
-- **197 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `metadata`, `fraunces` (+192 more)
+- **203 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `metadata`, `fraunces` (+198 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -234,16 +239,16 @@ Nodes (15): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), EditIcon
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `formatPrice()` connect `types.ts` to `shell.tsx`, `/graphify`, `useToast`, `Menu Data & Components`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
+- **Why does `useGestion()` connect `useToast` to `shell.tsx`, `types.ts`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Why does `useToast()` connect `useToast` to `formule-form-modal.tsx`, `shell.tsx`, `types.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
-- **Why does `useGestionAccess()` connect `useToast` to `formule-form-modal.tsx`, `shell.tsx`, `types.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**
-  _198 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _204 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Menu Data & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.10591133004926108 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0928030303030303 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
-  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected._

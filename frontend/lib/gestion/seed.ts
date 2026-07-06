@@ -170,6 +170,10 @@ export function seed(): GestionState {
     etablissement: {
       slug: restaurant.slug,
       name: restaurant.name,
+      tagline: restaurant.tagline,
+      address: restaurant.address,
+      phone: restaurant.phone,
+      hours: restaurant.hours,
       offre: "connect",
     },
     role: "gerant",

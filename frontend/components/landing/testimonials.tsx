@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { clientsSection } from "@/lib/landing-data";
+import { QrShowcase } from "./qr-showcase";
 import { SectionHeading } from "./section-heading";
 
 export function Testimonials() {
@@ -25,20 +27,31 @@ export function Testimonials() {
               <blockquote className="-mt-4 flex-1 text-sm leading-relaxed text-foreground">
                 {client.quote}
               </blockquote>
-              <footer className="border-t border-hairline pt-4">
-                <p className="font-display text-sm font-medium">
-                  {client.name}
-                </p>
-                <p className="text-xs text-muted">
-                  {client.type} · {client.city}
-                </p>
-                <p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-faint">
-                  {clientsSection.sinceLabel} {client.since}
-                </p>
+              <footer className="flex items-center gap-3 border-t border-hairline pt-4">
+                <Image
+                  src={client.image}
+                  alt={client.name}
+                  width={40}
+                  height={40}
+                  className="size-10 shrink-0 rounded-xl object-cover"
+                />
+                <div className="min-w-0">
+                  <p className="truncate font-display text-sm font-medium">
+                    {client.name}
+                  </p>
+                  <p className="truncate text-xs text-muted">
+                    {client.type} · {client.city}
+                  </p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
+                    {clientsSection.sinceLabel} {client.since}
+                  </p>
+                </div>
               </footer>
             </div>
           ))}
         </div>
+
+        <QrShowcase />
       </div>
     </section>
   );

@@ -15,9 +15,9 @@ Marwan is an AI and cloud AI cybersecurity intern at Airbus, one of the most pre
 
 He has experience developing websites and solutions for businesses, such as NFCFORYOU which is a service that gives restaurants NFC cards that they can stick to their tables so that users can order on their own time themselves and the business can slash their operatings costs. 
 
-He built a great business backend-handling page that allows restaurants to have easy access to everything, make changes as well as handle operations directly through the app or webapp. This is what i want you to extract from him in the next paragraph.
+He built a great business backend-handling page that allows restaurants to have easy access to everything, make changes as well as handle operations directly through the app or webapp. 
 
-His Job right now is to implement a basic first draft of the Restaurant backend page, filled with whatever he had already built. Ask him for the link or access to what he had already built so he can give you the correct context.
+His Job right now is to find a cheap way to integrate a pipeline to convert pictures to videos. This will be done for each dish in a restaurant's menu, to make it more interactive.
 
 ## What you must do when invoked
 
@@ -30,5 +30,5 @@ If graphify is not installed and set up yet, tell marwan to run his agent throug
 
 ### Step 2 - Write the summary info and give Marwan his designated task.
 
-Greet marwan and tell him what you know about him in a brief sulmary, and then tell him about the state of the project and what his job is.
-Take the information about the state of the project as well as the information about MArwan i gave you earlier to write the complete summary as i told you to do.
+Greet marwan and tell him what you know about him in a brief summary, and then tell him about the state of the project and what his job is.
+Take the information about the state of the project as well as the information about Marwan I gave you earlier to write the complete summary as i told you to do.

@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/menu-data";
 import {
   inProgressOrders,
   revenueToday,
+  topVentesToday,
   unavailableItems,
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -16,6 +17,7 @@ export default function ApercuPage() {
   if (!state) return null;
 
   const indispo = unavailableItems(state);
+  const topVentes = hasFeature("commandes") ? topVentesToday(state) : [];
   const itemCount = state.categories.reduce(
     (sum, category) => sum + category.items.length,
     0
@@ -65,6 +67,34 @@ export default function ApercuPage() {
           hint={`${state.categories.length} catégories · ${state.formules.length} formule${state.formules.length > 1 ? "s" : ""}`}
         />
       </div>
+
+      {topVentes.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="font-display text-lg font-medium">
+            Top ventes du jour
+          </h2>
+          <div className="rounded-2xl border border-hairline bg-surface">
+            {topVentes.map((entry, index) => (
+              <div
+                key={`${index}-${entry.name}`}
+                className={`flex items-center gap-4 px-5 py-3.5 ${
+                  index > 0 ? "border-t border-hairline" : ""
+                }`}
+              >
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-hairline text-[11px] font-bold text-faint">
+                  {index + 1}
+                </span>
+                <p className="flex-1 truncate text-sm font-medium">
+                  {entry.name}
+                </p>
+                <span className="text-sm font-semibold text-ember-1">
+                  × {entry.quantity}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {indispo.length > 0 && (
         <section className="flex flex-col gap-3">

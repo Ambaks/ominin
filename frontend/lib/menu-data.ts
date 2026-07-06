@@ -54,7 +54,7 @@ export interface Restaurant {
   categories: MenuCategory[];
 }
 
-const unsplash = (id: string, w = 1200) =>
+export const unsplash = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
 
 const trattoriaLucia: Restaurant = {

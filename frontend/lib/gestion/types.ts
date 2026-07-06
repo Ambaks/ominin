@@ -21,11 +21,16 @@ export type Action =
   | "menu.edit"
   | "menu.availability"
   | "formules.edit"
-  | "categories.edit";
+  | "categories.edit"
+  | "etablissement.edit";
 
 export interface Etablissement {
   slug: string;
   name: string;
+  tagline: string;
+  address: string;
+  phone: string;
+  hours: string;
   offre: Offre;
 }
 

@@ -3,6 +3,7 @@ import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import { seed } from "./seed";
 import { commit, getState } from "./store";
 import type {
+  Etablissement,
   Formule,
   GestionState,
   Offre,
@@ -367,6 +368,19 @@ export async function markGroupPaid(
         order.paymentMode = mode;
       }
     }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Établissement
+
+export type EtablissementInput = Omit<Etablissement, "slug" | "offre">;
+
+export async function updateEtablissement(
+  input: EtablissementInput
+): Promise<void> {
+  update((draft) => {
+    Object.assign(draft.etablissement, input);
   });
 }
 

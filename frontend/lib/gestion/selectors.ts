@@ -1,4 +1,5 @@
 import type { MenuItem } from "@/lib/menu-data";
+import { TOP_VENTES_COUNT } from "./constants";
 import type { GestionState, Order, OrderItem, Table } from "./types";
 
 export function lineTotal(line: OrderItem): number {
@@ -34,6 +35,27 @@ export function revenueToday(state: GestionState): number {
         new Date(order.createdAt).toDateString() === today
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);
+}
+
+/** Plats les plus commandés aujourd'hui, commandes annulées exclues. */
+export function topVentesToday(
+  state: GestionState
+): { name: string; quantity: number }[] {
+  const today = new Date().toDateString();
+  const totals = new Map<string, { name: string; quantity: number }>();
+  for (const order of state.orders) {
+    if (order.status === "annulee") continue;
+    if (new Date(order.createdAt).toDateString() !== today) continue;
+    for (const line of order.items) {
+      const key = line.itemId ?? line.name;
+      const entry = totals.get(key);
+      if (entry) entry.quantity += line.quantity;
+      else totals.set(key, { name: line.name, quantity: line.quantity });
+    }
+  }
+  return [...totals.values()]
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, TOP_VENTES_COUNT);
 }
 
 export function isItemAvailable(item: MenuItem): boolean {

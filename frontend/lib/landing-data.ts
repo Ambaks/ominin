@@ -1,4 +1,4 @@
-import { DEMO_SLUG } from "@/lib/menu-data";
+import { DEMO_SLUG, unsplash } from "@/lib/menu-data";
 
 export interface Cta {
   label: string;
@@ -37,6 +37,12 @@ export interface ClientRef {
   city: string;
   since: number;
   quote: string;
+  image: string;
+}
+
+export interface QrShowcasePoint {
+  title: string;
+  description: string;
 }
 
 export interface FaqItem {
@@ -227,6 +233,8 @@ export const clientsSection = {
   eyebrow: "Clients",
   title: "Fini les cartes papier.",
   sinceLabel: "Client depuis",
+  // Photos d'illustration (Unsplash) — à remplacer par de vraies photos des
+  // établissements clients.
   clients: [
     {
       name: "L'Adresse",
@@ -235,6 +243,7 @@ export const clientsSection = {
       since: 2024,
       quote:
         "L'installation a pris 10 minutes. Le lendemain, nos clients scannaient déjà.",
+      image: unsplash("photo-1550966871-3ed3cdb5ed0c", 200),
     },
     {
       name: "Chez l'Walida",
@@ -243,6 +252,7 @@ export const clientsSection = {
       since: 2025,
       quote:
         "Depuis qu'on a les QR codes, mes serveurs gèrent deux fois plus de tables.",
+      image: unsplash("photo-1541518763669-27fef04b14ea", 200),
     },
     {
       name: "NERO",
@@ -251,8 +261,53 @@ export const clientsSection = {
       since: 2026,
       quote:
         "Nos clients adorent — plus personne ne cherche la carte papier. Et on met à jour le menu en 30 secondes depuis notre téléphone.",
+      image: unsplash("photo-1514933651103-005eec06c04b", 200),
     },
   ] satisfies ClientRef[],
+};
+
+export const qrShowcase = {
+  label: "QR codes personnalisés",
+  title: "Le secret est collé sur la table.",
+  lead: "Chaque table reçoit son sticker QR à votre logo — prêt à coller, prêt à servir. Vos clients scannent, votre menu s'ouvre. Pas d'application, pas d'attente.",
+  points: [
+    {
+      title: "À votre logo, fournis gratuitement",
+      description:
+        "Conçus et imprimés par notre équipe, livrés prêts à coller sur vos tables.",
+    },
+    {
+      title: "Abîmé ? Remplacé sous 48 h",
+      description:
+        "Un sticker déchiré ou taché, et de nouveaux partent sans frais.",
+    },
+    {
+      title: "Réimprimables en un clic",
+      description:
+        "Téléchargez ou réimprimez chaque code vous-même, depuis votre espace de gestion.",
+    },
+  ] satisfies QrShowcasePoint[],
+  scanHintStrong: "Ce QR code est réel.",
+  scanHint:
+    "Scannez-le avec votre téléphone : le menu démo s'ouvre instantanément.",
+  mobileCta: {
+    label: "Sur mobile ? Ouvrir le menu démo",
+    href: demoCta.href,
+  } satisfies Cta,
+  badge: "Scannez-moi",
+  sticker: {
+    restaurant: "Trattoria Lucia",
+    table: "Table 12",
+    caption: "Scannez pour consulter le menu",
+  },
+  qrPath: `/m/${DEMO_SLUG}?table=12`,
+  qrAlt: "QR code du menu démo Ominin",
+  // Photo d'illustration (Unsplash) — à remplacer par une vraie photo de
+  // table cliente avec sticker, ou une courte vidéo en boucle du geste de scan.
+  photo: {
+    src: unsplash("photo-1552566626-52f8b828add9", 1400),
+    alt: "Table dressée dans un restaurant chaleureux",
+  },
 };
 
 export const faqSection = {

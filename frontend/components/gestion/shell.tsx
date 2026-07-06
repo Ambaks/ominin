@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastProvider } from "@/components/ui/toast";
-import { hasFeature } from "@/lib/gestion/permissions";
+import { can, hasFeature } from "@/lib/gestion/permissions";
 import { useGestion } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
 import { DemoSwitcher } from "./demo-switcher";
 import {
   ApercuIcon,
   CommandesIcon,
+  ExternalLinkIcon,
   FormulesIcon,
+  GearIcon,
   MenuIcon,
+  QrIcon,
   TablesIcon,
   type IconProps,
 } from "./icons";
@@ -29,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },
+  { href: "/gestion/qr", label: "QR codes", feature: null, icon: QrIcon },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -64,10 +68,10 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
       <div className="flex min-h-dvh w-full flex-col">
-        <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-5 py-3 lg:max-w-5xl lg:px-10">
+        <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden">
+          <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 lg:max-w-5xl lg:px-10">
             <div className="min-w-0">
-              <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
+              <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
                 Espace de gestion
               </p>
               <p className="truncate font-display text-lg font-medium">
@@ -75,13 +79,36 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
             {state && (
-              <DemoSwitcher etablissement={state.etablissement} role={state.role} />
+              <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <a
+                  href={`/m/${state.etablissement.slug}`}
+                  target="_blank"
+                  rel="noopener"
+                  title="Voir mon menu"
+                  aria-label="Voir mon menu"
+                  className="flex items-center gap-1.5 rounded-full border border-hairline p-2 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:py-2"
+                >
+                  <ExternalLinkIcon className="size-3.5" />
+                  <span className="hidden lg:inline">Voir mon menu</span>
+                </a>
+                {can(state.role, "etablissement.edit") && (
+                  <Link
+                    href="/gestion/etablissement"
+                    title="Établissement"
+                    aria-label="Établissement"
+                    className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  >
+                    <GearIcon className="size-3.5" />
+                  </Link>
+                )}
+                <DemoSwitcher etablissement={state.etablissement} role={state.role} />
+              </div>
             )}
           </div>
         </header>
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
-          <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex">
+          <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex print:hidden">
             {items.map((item) => {
               const active = isActive(pathname, item.href);
               return (
@@ -113,7 +140,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden">
           <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
             {items.map((item) => {
               const active = isActive(pathname, item.href);

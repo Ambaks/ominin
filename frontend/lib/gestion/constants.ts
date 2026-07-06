@@ -8,10 +8,11 @@ import type {
 } from "./types";
 
 export const STORAGE_KEY = "ominin.gestion";
-export const STORAGE_VERSION = 1;
+export const STORAGE_VERSION = 2;
 
 export const SEED_TABLE_COUNT = 12;
 export const TOAST_DURATION_MS = 3000;
+export const TOP_VENTES_COUNT = 5;
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "En attente",
