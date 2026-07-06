@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { brand, nav } from "@/lib/landing-data";
 
 export function LandingNav() {
@@ -26,12 +27,15 @@ export function LandingNav() {
           ))}
         </div>
 
-        <Link
-          href={nav.cta.href}
-          className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm"
-        >
-          {nav.cta.label}
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Link
+            href={nav.cta.href}
+            className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm"
+          >
+            {nav.cta.label}
+          </Link>
+        </div>
       </div>
     </nav>
   );

@@ -25,9 +25,9 @@
     "semantic_hash": "24288f664e7bfc40189049944cf9bb95"
   },
   "frontend/app/layout.tsx": {
-    "mtime": 1783128977.696111,
-    "ast_hash": "3b19c905c585f08cb212bb3cb7195124",
-    "semantic_hash": "3b19c905c585f08cb212bb3cb7195124"
+    "mtime": 1783365971.0901463,
+    "ast_hash": "9bbf0b1bacc41319741079948d8082b9",
+    "semantic_hash": ""
   },
   "frontend/app/m/[slug]/loading.tsx": {
     "mtime": 1783129154.3559308,
@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
-    "mtime": 1783199498.693949,
-    "ast_hash": "78e8535cf40a59d3d26748dbbb87388d",
+    "mtime": 1783366048.6355853,
+    "ast_hash": "13fafc549f4c3dce195eaedb046f4ba1",
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
@@ -85,8 +85,8 @@
     "semantic_hash": "6623f9b4ca91e52889471f774c0307e1"
   },
   "frontend/package.json": {
-    "mtime": 1783350455.4239132,
-    "ast_hash": "0f27969ea9461e6c2a01e0b36ab63d8a",
+    "mtime": 1783365839.6925342,
+    "ast_hash": "baefd4d13a4805bab14987b186a99f71",
     "semantic_hash": ""
   },
   "frontend/postcss.config.mjs": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/landing-nav.tsx": {
-    "mtime": 1783216371.9730732,
-    "ast_hash": "e6a7b7221fc9035846c930afea7046a8",
+    "mtime": 1783366007.373944,
+    "ast_hash": "e07ddc4616b3ecd3c47bf67d54ef222e",
     "semantic_hash": ""
   },
   "frontend/components/landing/pricing.tsx": {
@@ -400,8 +400,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1783351143.621607,
-    "ast_hash": "e5bae4428e853124bdb87bb0fb26a0cc",
+    "mtime": 1783366030.2004426,
+    "ast_hash": "16140eab72b652339ef8093a4fa0bcba",
     "semantic_hash": ""
   },
   "frontend/components/gestion/tables/table-grid.tsx": {
@@ -522,6 +522,11 @@
   "frontend/components/landing/qr-showcase.tsx": {
     "mtime": 1783351769.40322,
     "ast_hash": "99dafbbd0ba21fbca0e8674bf8405e99",
+    "semantic_hash": ""
+  },
+  "frontend/components/ui/theme-toggle.tsx": {
+    "mtime": 1783366093.8299718,
+    "ast_hash": "e05ac57384c51f29a416c8b0d93647a0",
     "semantic_hash": ""
   }
 }

@@ -282,7 +282,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_page",
-      "community": 85,
+      "community": 91,
       "norm_label": "page.tsx"
     },
     {
@@ -292,7 +292,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_app_gestion_page_apercupage",
-      "community": 85,
+      "community": 91,
       "norm_label": "apercupage()"
     },
     {
@@ -522,7 +522,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card",
-      "community": 85,
+      "community": 91,
       "norm_label": "stat-card.tsx"
     },
     {
@@ -532,7 +532,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card_statcard",
-      "community": 85,
+      "community": 91,
       "norm_label": "statcard()"
     },
     {
@@ -932,7 +932,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_editicon",
-      "community": 89,
+      "community": 86,
       "norm_label": "editicon()"
     },
     {
@@ -942,7 +942,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_trashicon",
-      "community": 89,
+      "community": 86,
       "norm_label": "trashicon()"
     },
     {
@@ -952,7 +952,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_chevrondownicon",
-      "community": 86,
+      "community": 89,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -1002,7 +1002,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_menu_item_card",
-      "community": 89,
+      "community": 86,
       "norm_label": "menu-item-card.tsx"
     },
     {
@@ -1356,6 +1356,46 @@
       "norm_label": "pricing()"
     },
     {
+      "label": "qr-live.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-live.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_live",
+      "community": 19,
+      "norm_label": "qr-live.tsx"
+    },
+    {
+      "label": "QrLive()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-live.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_live_qrlive",
+      "community": 19,
+      "norm_label": "qrlive()"
+    },
+    {
+      "label": "qr-showcase.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_showcase",
+      "community": 19,
+      "norm_label": "qr-showcase.tsx"
+    },
+    {
+      "label": "QrShowcase()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_showcase_qrshowcase",
+      "community": 19,
+      "norm_label": "qrshowcase()"
+    },
+    {
       "label": "section-heading.tsx",
       "file_type": "code",
       "source_file": "frontend/components/landing/section-heading.tsx",
@@ -1389,7 +1429,7 @@
       "label": "Testimonials()",
       "file_type": "code",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L4",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_testimonials_testimonials",
       "community": 19,
@@ -1742,7 +1782,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_components_ui_toast_toastprovider",
-      "community": 86,
+      "community": 89,
       "norm_label": "toastprovider()"
     },
     {
@@ -1852,7 +1892,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_lib_gestion_api_iteminput",
-      "community": 1,
+      "community": 87,
       "norm_label": "iteminput"
     },
     {
@@ -2342,7 +2382,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_seed_seed",
-      "community": 85,
+      "community": 87,
       "norm_label": "seed()"
     },
     {
@@ -2352,7 +2392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors",
-      "community": 85,
+      "community": 91,
       "norm_label": "selectors.ts"
     },
     {
@@ -2362,7 +2402,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_linetotal",
-      "community": 85,
+      "community": 91,
       "norm_label": "linetotal()"
     },
     {
@@ -2392,7 +2432,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_inprogressorders",
-      "community": 85,
+      "community": 91,
       "norm_label": "inprogressorders()"
     },
     {
@@ -2402,7 +2442,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_revenuetoday",
-      "community": 85,
+      "community": 91,
       "norm_label": "revenuetoday()"
     },
     {
@@ -2412,7 +2452,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_topventestoday",
-      "community": 85,
+      "community": 91,
       "norm_label": "topventestoday()"
     },
     {
@@ -2422,7 +2462,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_isitemavailable",
-      "community": 85,
+      "community": 86,
       "norm_label": "isitemavailable()"
     },
     {
@@ -2432,7 +2472,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_unavailableitems",
-      "community": 85,
+      "community": 91,
       "norm_label": "unavailableitems()"
     },
     {
@@ -2452,7 +2492,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_tablenumber",
-      "community": 85,
+      "community": 91,
       "norm_label": "tablenumber()"
     },
     {
@@ -2492,7 +2532,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_load",
-      "community": 85,
+      "community": 87,
       "norm_label": "load()"
     },
     {
@@ -2502,7 +2542,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getclientsnapshot",
-      "community": 85,
+      "community": 87,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -2532,7 +2572,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getstate",
-      "community": 85,
+      "community": 87,
       "norm_label": "getstate()"
     },
     {
@@ -2632,7 +2672,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_feature",
-      "community": 89,
+      "community": 85,
       "norm_label": "feature"
     },
     {
@@ -2702,7 +2742,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_tablegroup",
-      "community": 86,
+      "community": 87,
       "norm_label": "tablegroup"
     },
     {
@@ -2712,7 +2752,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_article",
-      "community": 1,
+      "community": 87,
       "norm_label": "article"
     },
     {
@@ -2722,7 +2762,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etape",
-      "community": 85,
+      "community": 88,
       "norm_label": "etape"
     },
     {
@@ -2816,10 +2856,20 @@
       "norm_label": "clientref"
     },
     {
+      "label": "QrShowcasePoint",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_qrshowcasepoint",
+      "community": 19,
+      "norm_label": "qrshowcasepoint"
+    },
+    {
       "label": "FaqItem",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L42",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_faqitem",
       "community": 19,
@@ -2829,7 +2879,7 @@
       "label": "demoCta",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L51",
+      "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_democta",
       "community": 19,
@@ -2839,7 +2889,7 @@
       "label": "signupCta",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L57",
+      "source_location": "L63",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_signupcta",
       "community": 19,
@@ -2849,7 +2899,7 @@
       "label": "seo",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L62",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_seo",
       "community": 19,
@@ -2859,7 +2909,7 @@
       "label": "nav",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L69",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_nav",
       "community": 19,
@@ -2869,7 +2919,7 @@
       "label": "hero",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L79",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_hero",
       "community": 19,
@@ -2879,7 +2929,7 @@
       "label": "howItWorks",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L94",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_howitworks",
       "community": 19,
@@ -2889,7 +2939,7 @@
       "label": "featuresSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L121",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_featuressection",
       "community": 19,
@@ -2899,7 +2949,7 @@
       "label": "demoSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L161",
+      "source_location": "L167",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_demosection",
       "community": 19,
@@ -2909,7 +2959,7 @@
       "label": "pricingSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L170",
+      "source_location": "L176",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_pricingsection",
       "community": 19,
@@ -2919,17 +2969,27 @@
       "label": "clientsSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L225",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_clientssection",
       "community": 19,
       "norm_label": "clientssection"
     },
     {
+      "label": "qrShowcase",
+      "file_type": "code",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L269",
+      "_origin": "ast",
+      "id": "frontend_lib_landing_data_qrshowcase",
+      "community": 19,
+      "norm_label": "qrshowcase"
+    },
+    {
       "label": "faqSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L258",
+      "source_location": "L313",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_faqsection",
       "community": 19,
@@ -2939,7 +2999,7 @@
       "label": "finalCta",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L296",
+      "source_location": "L351",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_finalcta",
       "community": 19,
@@ -2949,7 +3009,7 @@
       "label": "footer",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L305",
+      "source_location": "L360",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_footer",
       "community": 19,
@@ -2972,7 +3032,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_badge",
-      "community": 1,
+      "community": 87,
       "norm_label": "badge"
     },
     {
@@ -3002,7 +3062,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_optiongroup",
-      "community": 1,
+      "community": 87,
       "norm_label": "optiongroup"
     },
     {
@@ -3082,7 +3142,7 @@
       "source_location": "L428",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_formatprice",
-      "community": 85,
+      "community": 86,
       "norm_label": "formatprice()"
     },
     {
@@ -4697,7 +4757,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -11568,6 +11628,92 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-live.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_live",
+      "target": "frontend_components_landing_qr_live_qrlive",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_showcase",
+      "target": "frontend_components_landing_qr_live",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_showcase",
+      "target": "frontend_components_landing_qr_live_qrlive",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_showcase",
+      "target": "frontend_components_landing_qr_showcase_qrshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_showcase",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-showcase.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_showcase",
+      "target": "frontend_lib_landing_data_qrshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_components_landing_qr_showcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/testimonials.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_testimonials",
+      "target": "frontend_components_landing_qr_showcase_qrshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/section-heading.tsx",
       "source_location": "L1",
       "weight": 1.0,
@@ -11580,7 +11726,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L2",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_components_landing_testimonials",
       "target": "frontend_components_landing_section_heading",
@@ -11591,7 +11737,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L2",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_components_landing_testimonials",
       "target": "frontend_components_landing_section_heading_sectionheading",
@@ -11601,7 +11747,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L4",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_components_landing_testimonials",
       "target": "frontend_components_landing_testimonials_testimonials",
@@ -11612,7 +11758,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_components_landing_testimonials",
       "target": "frontend_lib_landing_data",
@@ -11623,7 +11769,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/testimonials.tsx",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_components_landing_testimonials",
       "target": "frontend_lib_landing_data_clientssection",
@@ -14280,7 +14426,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L225",
+      "source_location": "L231",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_clientssection",
@@ -14300,7 +14446,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L51",
+      "source_location": "L57",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_democta",
@@ -14310,7 +14456,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L161",
+      "source_location": "L167",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_demosection",
@@ -14320,7 +14466,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L42",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_faqitem",
@@ -14330,7 +14476,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L258",
+      "source_location": "L313",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_faqsection",
@@ -14350,7 +14496,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L121",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_featuressection",
@@ -14360,7 +14506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L296",
+      "source_location": "L351",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_finalcta",
@@ -14370,7 +14516,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L305",
+      "source_location": "L360",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_footer",
@@ -14380,7 +14526,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L79",
+      "source_location": "L85",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_hero",
@@ -14390,7 +14536,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L94",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_howitworks",
@@ -14400,7 +14546,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L69",
+      "source_location": "L75",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_nav",
@@ -14430,7 +14576,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L170",
+      "source_location": "L176",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_pricingsection",
@@ -14440,7 +14586,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L62",
+      "source_location": "L269",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_qrshowcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_landing_data_qrshowcasepoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L68",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_seo",
@@ -14450,7 +14616,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L57",
+      "source_location": "L63",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_signupcta",
@@ -14475,6 +14641,17 @@
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_menu_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/landing-data.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_lib_landing_data",
+      "target": "frontend_lib_menu_data_unsplash",
       "confidence_score": 1.0
     },
     {

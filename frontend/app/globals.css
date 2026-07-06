@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 /*
-  Ominin menu — "candlelit trattoria" dark premium theme.
-  Warm near-black surfaces, ember gradient accents (amber → terracotta → rose).
+  Ominin menu — "candlelit trattoria" premium theme.
+  Dark (default): warm near-black surfaces, ember gradient accents
+  (amber → terracotta → rose). Light: warm linen surfaces with the
+  same embers darkened for contrast.
 */
 
 :root {
@@ -19,6 +21,32 @@
   --ember-1: #f0b35b;
   --ember-2: #e2764b;
   --ember-3: #c94f5e;
+
+  --shimmer-highlight: rgba(240, 179, 91, 0.14);
+  --glow-inner: rgba(240, 179, 91, 0.08);
+  --glow-outer: rgba(226, 118, 75, 0.04);
+}
+
+html.light {
+  --background: #faf6f0;
+  --foreground: #221b13;
+
+  --surface: #f2ebe0;
+  --surface-raised: #ffffff;
+  --hairline: rgba(34, 27, 19, 0.12);
+
+  --muted: #7a6a58;
+  --faint: #a89a86;
+
+  --ember-1: #c08515;
+  --ember-2: #c05a32;
+  --ember-3: #a83848;
+
+  --shimmer-highlight: rgba(192, 133, 21, 0.18);
+  --glow-inner: rgba(192, 133, 21, 0.12);
+  --glow-outer: rgba(192, 90, 50, 0.07);
+
+  color-scheme: light;
 }
 
 @theme inline {
@@ -85,7 +113,7 @@ body {
   background-image: linear-gradient(
     100deg,
     var(--surface) 40%,
-    rgba(240, 179, 91, 0.14) 50%,
+    var(--shimmer-highlight) 50%,
     var(--surface) 60%
   );
   background-size: 200% 100%;
@@ -112,8 +140,8 @@ body {
 .ember-glow {
   background-image: radial-gradient(
     ellipse at 50% 0%,
-    rgba(240, 179, 91, 0.08) 0%,
-    rgba(226, 118, 75, 0.04) 40%,
+    var(--glow-inner) 0%,
+    var(--glow-outer) 40%,
     transparent 70%
   );
 }

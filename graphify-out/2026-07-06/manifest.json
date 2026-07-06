@@ -205,8 +205,8 @@
     "semantic_hash": "a2760511c65806022ad20adf74370ff3"
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1783277507.3840654,
-    "ast_hash": "7f76ca04aa1bf8599bae93a715dd8799",
+    "mtime": 1783351694.245878,
+    "ast_hash": "c018b98c0be2a17acd44fa33d79a077c",
     "semantic_hash": ""
   },
   "frontend/public/planche-lucia.jpg": {
@@ -265,13 +265,13 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/testimonials.tsx": {
-    "mtime": 1783214029.8175495,
-    "ast_hash": "4c1223b2c761021be2e498578bc68c87",
+    "mtime": 1783351776.4362686,
+    "ast_hash": "89e1b6658c956a2b4f63ac9bc26fb2a0",
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1783215424.8499813,
-    "ast_hash": "7614c7050453cab766fadbfda6754c41",
+    "mtime": 1783351720.4617445,
+    "ast_hash": "26f004e6c79c0eed5f0b85b746b815c0",
     "semantic_hash": ""
   },
   ".claude/skills/marwan/SKILL.md": {
@@ -512,6 +512,16 @@
   "frontend/.claude/skills/verify/SKILL.md": {
     "mtime": 1783351244.4761355,
     "ast_hash": "6518d6abf2186b0b1694c76b6927d949",
+    "semantic_hash": ""
+  },
+  "frontend/components/landing/qr-live.tsx": {
+    "mtime": 1783351733.4568667,
+    "ast_hash": "08498310ca5236d95b3074f285367593",
+    "semantic_hash": ""
+  },
+  "frontend/components/landing/qr-showcase.tsx": {
+    "mtime": 1783351769.40322,
+    "ast_hash": "99dafbbd0ba21fbca0e8674bf8405e99",
     "semantic_hash": ""
   }
 }

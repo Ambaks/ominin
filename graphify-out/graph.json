@@ -132,7 +132,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page",
-      "community": 86,
+      "community": 85,
       "norm_label": "page.tsx"
     },
     {
@@ -142,7 +142,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_filters",
-      "community": 86,
+      "community": 85,
       "norm_label": "filters"
     },
     {
@@ -152,7 +152,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_filterid",
-      "community": 86,
+      "community": 85,
       "norm_label": "filterid"
     },
     {
@@ -162,7 +162,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_matchesfilter",
-      "community": 86,
+      "community": 85,
       "norm_label": "matchesfilter()"
     },
     {
@@ -172,7 +172,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_commandespage",
-      "community": 86,
+      "community": 85,
       "norm_label": "commandespage()"
     },
     {
@@ -369,7 +369,7 @@
       "label": "fraunces",
       "file_type": "code",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_layout_fraunces",
       "community": 7,
@@ -379,7 +379,7 @@
       "label": "instrumentSans",
       "file_type": "code",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_app_layout_instrumentsans",
       "community": 7,
@@ -389,7 +389,7 @@
       "label": "metadata",
       "file_type": "code",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_app_layout_metadata",
       "community": 7,
@@ -399,7 +399,7 @@
       "label": "viewport",
       "file_type": "code",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_app_layout_viewport",
       "community": 7,
@@ -409,7 +409,7 @@
       "label": "RootLayout()",
       "file_type": "code",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_app_layout_rootlayout",
       "community": 7,
@@ -952,7 +952,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_chevrondownicon",
-      "community": 89,
+      "community": 86,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -1089,7 +1089,7 @@
       "label": "NavItem",
       "file_type": "code",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_navitem",
       "community": 89,
@@ -1099,7 +1099,7 @@
       "label": "NAV_ITEMS",
       "file_type": "code",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_nav_items",
       "community": 89,
@@ -1109,7 +1109,7 @@
       "label": "isActive()",
       "file_type": "code",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_isactive",
       "community": 89,
@@ -1119,7 +1119,7 @@
       "label": "ShellSkeleton()",
       "file_type": "code",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L42",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_shellskeleton",
       "community": 89,
@@ -1129,7 +1129,7 @@
       "label": "GestionShell()",
       "file_type": "code",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L57",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_gestionshell",
       "community": 86,
@@ -1142,7 +1142,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_tables_table_grid",
-      "community": 86,
+      "community": 85,
       "norm_label": "table-grid.tsx"
     },
     {
@@ -1152,7 +1152,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_gestion_tables_table_grid_tablegrid",
-      "community": 86,
+      "community": 85,
       "norm_label": "tablegrid()"
     },
     {
@@ -1162,7 +1162,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_tables_table_group_card",
-      "community": 86,
+      "community": 85,
       "norm_label": "table-group-card.tsx"
     },
     {
@@ -1329,7 +1329,7 @@
       "label": "LandingNav()",
       "file_type": "code",
       "source_file": "frontend/components/landing/landing-nav.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_landing_nav_landingnav",
       "community": 19,
@@ -1442,27 +1442,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav",
-      "community": 1,
+      "community": 89,
       "norm_label": "category-nav.tsx"
     },
     {
       "label": "CategoryLink",
       "file_type": "code",
       "source_file": "frontend/components/menu/category-nav.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorylink",
-      "community": 1,
+      "community": 89,
       "norm_label": "categorylink"
     },
     {
       "label": "CategoryNav()",
       "file_type": "code",
       "source_file": "frontend/components/menu/category-nav.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorynav",
-      "community": 1,
+      "community": 89,
       "norm_label": "categorynav()"
     },
     {
@@ -1682,7 +1682,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs",
-      "community": 86,
+      "community": 85,
       "norm_label": "pill-tabs.tsx"
     },
     {
@@ -1692,7 +1692,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs_pilltab",
-      "community": 86,
+      "community": 85,
       "norm_label": "pilltab"
     },
     {
@@ -1702,7 +1702,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs_pilltabs",
-      "community": 86,
+      "community": 85,
       "norm_label": "pilltabs()"
     },
     {
@@ -1724,6 +1724,46 @@
       "id": "frontend_components_ui_price_input_priceinput",
       "community": 88,
       "norm_label": "priceinput()"
+    },
+    {
+      "label": "theme-toggle.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_ui_theme_toggle",
+      "community": 89,
+      "norm_label": "theme-toggle.tsx"
+    },
+    {
+      "label": "SunIcon()",
+      "file_type": "code",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "frontend_components_ui_theme_toggle_sunicon",
+      "community": 89,
+      "norm_label": "sunicon()"
+    },
+    {
+      "label": "MoonIcon()",
+      "file_type": "code",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "frontend_components_ui_theme_toggle_moonicon",
+      "community": 89,
+      "norm_label": "moonicon()"
+    },
+    {
+      "label": "ThemeToggle()",
+      "file_type": "code",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "frontend_components_ui_theme_toggle_themetoggle",
+      "community": 89,
+      "norm_label": "themetoggle()"
     },
     {
       "label": "toast.tsx",
@@ -1782,7 +1822,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_components_ui_toast_toastprovider",
-      "community": 89,
+      "community": 86,
       "norm_label": "toastprovider()"
     },
     {
@@ -1892,7 +1932,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_lib_gestion_api_iteminput",
-      "community": 87,
+      "community": 1,
       "norm_label": "iteminput"
     },
     {
@@ -2392,7 +2432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors",
-      "community": 91,
+      "community": 85,
       "norm_label": "selectors.ts"
     },
     {
@@ -2402,7 +2442,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_linetotal",
-      "community": 91,
+      "community": 85,
       "norm_label": "linetotal()"
     },
     {
@@ -2422,7 +2462,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ishistorystatus",
-      "community": 86,
+      "community": 85,
       "norm_label": "ishistorystatus()"
     },
     {
@@ -2492,7 +2532,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_tablenumber",
-      "community": 91,
+      "community": 85,
       "norm_label": "tablenumber()"
     },
     {
@@ -2502,7 +2542,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_grouptablenumbers",
-      "community": 86,
+      "community": 85,
       "norm_label": "grouptablenumbers()"
     },
     {
@@ -2732,7 +2772,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_table",
-      "community": 86,
+      "community": 85,
       "norm_label": "table"
     },
     {
@@ -2742,7 +2782,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_tablegroup",
-      "community": 87,
+      "community": 85,
       "norm_label": "tablegroup"
     },
     {
@@ -2752,7 +2792,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_article",
-      "community": 87,
+      "community": 1,
       "norm_label": "article"
     },
     {
@@ -2762,7 +2802,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etape",
-      "community": 88,
+      "community": 85,
       "norm_label": "etape"
     },
     {
@@ -3032,7 +3072,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_badge",
-      "community": 87,
+      "community": 1,
       "norm_label": "badge"
     },
     {
@@ -3062,7 +3102,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_optiongroup",
-      "community": 87,
+      "community": 1,
       "norm_label": "optiongroup"
     },
     {
@@ -3082,7 +3122,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_menucategory",
-      "community": 85,
+      "community": 1,
       "norm_label": "menucategory"
     },
     {
@@ -3102,7 +3142,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_unsplash",
-      "community": 1,
+      "community": 19,
       "norm_label": "unsplash()"
     },
     {
@@ -3276,10 +3316,20 @@
       "norm_label": "next"
     },
     {
-      "label": "qrcode",
+      "label": "next-themes",
       "file_type": "code",
       "source_file": "frontend/package.json",
       "source_location": "L13",
+      "_origin": "ast",
+      "id": "frontend_package_dependencies_next_themes",
+      "community": 2,
+      "norm_label": "next-themes"
+    },
+    {
+      "label": "qrcode",
+      "file_type": "code",
+      "source_file": "frontend/package.json",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_package_dependencies_qrcode",
       "community": 2,
@@ -3289,7 +3339,7 @@
       "label": "react",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L14",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_package_dependencies_react",
       "community": 2,
@@ -3299,7 +3349,7 @@
       "label": "react-dom",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L15",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_package_dependencies_react_dom",
       "community": 2,
@@ -3309,7 +3359,7 @@
       "label": "devDependencies",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L17",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_package_devdependencies",
       "community": 2,
@@ -3319,7 +3369,7 @@
       "label": "@tailwindcss/postcss",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L18",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_tailwindcss_postcss",
       "community": 2,
@@ -3329,7 +3379,7 @@
       "label": "@types/node",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L19",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_types_node",
       "community": 2,
@@ -3339,7 +3389,7 @@
       "label": "@types/qrcode",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L20",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_types_qrcode",
       "community": 2,
@@ -3349,7 +3399,7 @@
       "label": "@types/react",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L21",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_types_react",
       "community": 2,
@@ -3359,7 +3409,7 @@
       "label": "@types/react-dom",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_types_react_dom",
       "community": 2,
@@ -3369,7 +3419,7 @@
       "label": "eslint",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L23",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_eslint",
       "community": 2,
@@ -3379,7 +3429,7 @@
       "label": "eslint-config-next",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L24",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_eslint_config_next",
       "community": 2,
@@ -3389,7 +3439,7 @@
       "label": "tailwindcss",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L25",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_tailwindcss",
       "community": 2,
@@ -3399,7 +3449,7 @@
       "label": "typescript",
       "file_type": "code",
       "source_file": "frontend/package.json",
-      "source_location": "L26",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_package_devdependencies_typescript",
       "community": 2,
@@ -4757,7 +4807,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -7242,7 +7292,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_app_layout",
       "target": "frontend_app_layout_fraunces",
@@ -7252,7 +7302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_layout",
       "target": "frontend_app_layout_instrumentsans",
@@ -7262,7 +7312,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0,
       "source": "frontend_app_layout",
       "target": "frontend_app_layout_metadata",
@@ -7272,7 +7322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "frontend_app_layout",
       "target": "frontend_app_layout_rootlayout",
@@ -7282,7 +7332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/layout.tsx",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_app_layout",
       "target": "frontend_app_layout_viewport",
@@ -8653,7 +8703,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_demo_switcher",
@@ -8686,7 +8736,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_demo_switcher_demoswitcher",
@@ -9784,7 +9834,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons",
@@ -9795,7 +9845,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_iconprops",
@@ -9806,7 +9856,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_navitem",
       "target": "frontend_components_gestion_icons_iconprops",
@@ -9817,7 +9867,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_apercuicon",
@@ -9828,7 +9878,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_commandesicon",
@@ -9839,7 +9889,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_tablesicon",
@@ -9861,7 +9911,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_menuicon",
@@ -9872,7 +9922,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_formulesicon",
@@ -9883,7 +9933,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_qricon",
@@ -9894,7 +9944,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_gearicon",
@@ -9905,7 +9955,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_icons_externallinkicon",
@@ -10820,7 +10870,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L57",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_shell_gestionshell",
@@ -10830,7 +10880,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_shell_isactive",
@@ -10840,7 +10890,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_shell_nav_items",
@@ -10850,7 +10900,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_shell_navitem",
@@ -10860,7 +10910,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L42",
+      "source_location": "L43",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_components_gestion_shell_shellskeleton",
@@ -10874,7 +10924,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
-      "target": "frontend_components_ui_toast",
+      "target": "frontend_components_ui_theme_toggle",
       "confidence_score": 1.0
     },
     {
@@ -10885,7 +10935,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
-      "target": "frontend_components_ui_toast_toastprovider",
+      "target": "frontend_components_ui_theme_toggle_themetoggle",
       "confidence_score": 1.0
     },
     {
@@ -10894,6 +10944,28 @@
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
       "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_shell",
+      "target": "frontend_components_ui_toast",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/shell.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_shell",
+      "target": "frontend_components_ui_toast_toastprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/shell.tsx",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_permissions",
@@ -10904,7 +10976,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_permissions_can",
@@ -10915,7 +10987,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_permissions_hasfeature",
@@ -10926,7 +10998,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_store",
@@ -10937,7 +11009,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_store_usegestion",
@@ -10948,7 +11020,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_types",
@@ -10959,7 +11031,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell",
       "target": "frontend_lib_gestion_types_feature",
@@ -10970,7 +11042,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_navitem",
       "target": "frontend_lib_gestion_types_feature",
@@ -10982,7 +11054,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L94",
+      "source_location": "L96",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_gestionshell",
       "target": "frontend_lib_gestion_permissions_can"
@@ -10993,7 +11065,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/shell.tsx",
-      "source_location": "L58",
+      "source_location": "L59",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_gestionshell",
       "target": "frontend_lib_gestion_store_usegestion"
@@ -11510,7 +11582,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/landing-nav.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_components_landing_landing_nav",
       "target": "frontend_components_landing_landing_nav_landingnav",
@@ -11524,7 +11596,7 @@
       "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_landing_nav",
-      "target": "frontend_lib_landing_data",
+      "target": "frontend_components_ui_theme_toggle",
       "confidence_score": 1.0
     },
     {
@@ -11533,6 +11605,28 @@
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/landing-nav.tsx",
       "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_nav",
+      "target": "frontend_components_ui_theme_toggle_themetoggle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_landing_nav",
+      "target": "frontend_lib_landing_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/landing-nav.tsx",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_components_landing_landing_nav",
       "target": "frontend_lib_landing_data_nav",
@@ -11779,7 +11873,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/menu/category-nav.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_components_menu_category_nav",
       "target": "frontend_components_menu_category_nav_categorylink",
@@ -11789,10 +11883,32 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/menu/category-nav.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_components_menu_category_nav",
       "target": "frontend_components_menu_category_nav_categorynav",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/menu/category-nav.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_menu_category_nav",
+      "target": "frontend_components_ui_theme_toggle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/menu/category-nav.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_menu_category_nav",
+      "target": "frontend_components_ui_theme_toggle_themetoggle",
       "confidence_score": 1.0
     },
     {
@@ -12173,6 +12289,36 @@
       "weight": 1.0,
       "source": "frontend_components_ui_price_input",
       "target": "frontend_lib_gestion_format_pricetoinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "frontend_components_ui_theme_toggle",
+      "target": "frontend_components_ui_theme_toggle_moonicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_components_ui_theme_toggle",
+      "target": "frontend_components_ui_theme_toggle_sunicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/ui/theme-toggle.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "frontend_components_ui_theme_toggle",
+      "target": "frontend_components_ui_theme_toggle_themetoggle",
       "confidence_score": 1.0
     },
     {
@@ -14798,7 +14944,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/package.json",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "source": "frontend_package",
       "target": "frontend_package_devdependencies",
@@ -14901,7 +15047,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "frontend_package_dependencies",
-      "target": "frontend_package_dependencies_qrcode",
+      "target": "frontend_package_dependencies_next_themes",
       "confidence_score": 1.0
     },
     {
@@ -14911,7 +15057,7 @@
       "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_package_dependencies",
-      "target": "frontend_package_dependencies_react",
+      "target": "frontend_package_dependencies_qrcode",
       "confidence_score": 1.0
     },
     {
@@ -14921,17 +15067,17 @@
       "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_package_dependencies",
-      "target": "frontend_package_dependencies_react_dom",
+      "target": "frontend_package_dependencies_react",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/package.json",
-      "source_location": "L23",
+      "source_location": "L16",
       "weight": 1.0,
-      "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_eslint",
+      "source": "frontend_package_dependencies",
+      "target": "frontend_package_dependencies_react_dom",
       "confidence_score": 1.0
     },
     {
@@ -14941,7 +15087,7 @@
       "source_location": "L24",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_eslint_config_next",
+      "target": "frontend_package_devdependencies_eslint",
       "confidence_score": 1.0
     },
     {
@@ -14951,17 +15097,17 @@
       "source_location": "L25",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_tailwindcss",
+      "target": "frontend_package_devdependencies_eslint_config_next",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/package.json",
-      "source_location": "L18",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_tailwindcss_postcss",
+      "target": "frontend_package_devdependencies_tailwindcss",
       "confidence_score": 1.0
     },
     {
@@ -14971,7 +15117,7 @@
       "source_location": "L19",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_types_node",
+      "target": "frontend_package_devdependencies_tailwindcss_postcss",
       "confidence_score": 1.0
     },
     {
@@ -14981,7 +15127,7 @@
       "source_location": "L20",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_types_qrcode",
+      "target": "frontend_package_devdependencies_types_node",
       "confidence_score": 1.0
     },
     {
@@ -14991,7 +15137,7 @@
       "source_location": "L21",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
-      "target": "frontend_package_devdependencies_types_react",
+      "target": "frontend_package_devdependencies_types_qrcode",
       "confidence_score": 1.0
     },
     {
@@ -15001,6 +15147,16 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
+      "target": "frontend_package_devdependencies_types_react",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/package.json",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "frontend_package_devdependencies",
       "target": "frontend_package_devdependencies_types_react_dom",
       "confidence_score": 1.0
     },
@@ -15008,7 +15164,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/package.json",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0,
       "source": "frontend_package_devdependencies",
       "target": "frontend_package_devdependencies_typescript",
@@ -16203,5 +16359,5 @@
       "source_file": "CLAUDE.md"
     }
   ],
-  "built_at_commit": "8955a6861b46ebd3cc0fe514e5950e662d3f8231"
+  "built_at_commit": "76a75f6dee6c061b6d6b070d5817aa277a687a29"
 }

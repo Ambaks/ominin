@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { can, hasFeature } from "@/lib/gestion/permissions";
 import { useGestion } from "@/lib/gestion/store";
@@ -80,6 +81,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
             </div>
             {state && (
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <ThemeToggle />
                 <a
                   href={`/m/${state.etablissement.slug}`}
                   target="_blank"
