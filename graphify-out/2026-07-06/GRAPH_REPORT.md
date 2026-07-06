@@ -1,7 +1,7 @@
 # Graph Report - ominin  (2026-07-06)
 
 ## Corpus Check
-- 90 files · ~94,739 words
+- 90 files · ~94,569 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

@@ -1,5 +1,24 @@
 export type Badge = "maison" | "top" | "nouveau";
 
+export const BADGE_LABELS: Record<Badge, string> = {
+  maison: "Recette maison",
+  top: "Top vente",
+  nouveau: "Nouveauté",
+};
+
+export interface OptionChoice {
+  id: string;
+  name: string;
+  supplement: number;
+}
+
+export interface OptionGroup {
+  id: string;
+  name: string;
+  obligatoire: boolean;
+  choices: OptionChoice[];
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -8,6 +27,13 @@ export interface MenuItem {
   image?: string;
   badges?: Badge[];
   pairing?: string;
+  /** Note de format/volume ("75 cl", "33 cl"). */
+  detail?: string;
+  /** undefined ⇒ disponible. */
+  disponible?: boolean;
+  /** undefined/null ⇒ stock illimité. */
+  stock?: number | null;
+  options?: OptionGroup[];
 }
 
 export interface MenuCategory {

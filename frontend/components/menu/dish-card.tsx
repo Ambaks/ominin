@@ -1,11 +1,5 @@
 import Image from "next/image";
-import { formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
-
-const BADGE_LABELS: Record<Badge, string> = {
-  maison: "Recette maison",
-  top: "Top vente",
-  nouveau: "Nouveauté",
-};
+import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
 
 function Badges({ badges }: { badges?: Badge[] }) {
   if (!badges?.length) return null;
