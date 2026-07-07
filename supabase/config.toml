@@ -151,6 +151,12 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
+# Email de confirmation d'inscription (utilisé par le CLI en local ; en prod,
+# coller le même HTML dans Dashboard → Authentication → Email Templates).
+[auth.email.template.confirmation]
+subject = "Confirmez votre adresse — votre table est prête"
+content_path = "./supabase/templates/confirmation.html"
+
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
 enable_signup = false

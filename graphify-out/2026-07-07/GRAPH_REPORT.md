@@ -241,10 +241,10 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createClient()` connect `api.ts` to `Menu Data & Components`, `types.ts`, `useToast`, `shell.tsx`, `proxy.ts`?**
   _High betweenness centrality (0.015) - this node is a cross-community bridge._
-- **Why does `createClient()` connect `selectors.ts` to `types.ts`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Why does `useGestion()` connect `useToast` to `shell.tsx`, `proxy.ts`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `useGestionAccess()` connect `useToast` to `formule-form-modal.tsx`, `proxy.ts`, `types.ts`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**

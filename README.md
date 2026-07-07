@@ -14,16 +14,19 @@ revenue justifies paid plans.
 
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
 French-language, warm premium design with dark/light theme toggle (same
-ember-gradient system as the menu page). Sections: sticky nav, hero ("Reduisez vos depenses, facilitez votre
-vie."), "how it works" 4-step flow, stat-led features grid, live
-phone-framed iframe demo of the QR menu, 3-tier pricing (Digital 29€ / Smart
+ember-gradient system as the menu page). Sections: sticky nav, hero (full-bleed
+restaurant-room photo behind gradient scrims, H1 "Vos tables prennent les commandes.",
+editorial left-aligned layout on desktop), QR-corner brand motif (decorative), "how it works"
+4-step flow, stat-led features grid, live phone-framed iframe demo of the QR menu
+(staged on table photo with "Table 12" tag and caption), 3-tier pricing (Digital 29€ / Smart
 59€ / Connect 99€ — "Le plus choisi" badge on Connect), client testimonials
-(L'Adresse, Chez l'Walida, NERO), final CTA, then FAQ accordion (native
-`<details>`). Zero client-side JS — every component is a server component.
-All copy and data lives in `lib/landing-data.ts` (no content literals in
-JSX). Every "Commencer" CTA now points to `/login`; each pricing card links
-to `/login?plan=<offre>` so the chosen plan follows the whole signup funnel,
+(L'Adresse, Chez l'Walida, NERO) on a cream "paper" band (visual irony: the paper
+menu the product replaces), final CTA with faint QR-motif watermark, then FAQ
+accordion (native `<details>`). Zero client-side JS — every component is a server component.
+All copy and data lives in `lib/landing-data.ts` (no content literals in JSX).
+Every "Commencer" CTA points to `/login`; each pricing card links to `/login?plan=<offre>`,
 and the nav carries a "Connexion" link.
+Build passes; landing verified end-to-end in browser (desktop + mobile, dark + light).
 
 **Branding**: the Ominin logo (triple ember-gradient chevron, neon glow) is
 in place — favicon/app icons via Next.js metadata file conventions
@@ -88,7 +91,13 @@ Auth is Supabase email/password **and Google OAuth** — `/login`,
 numbered tables in one SECURITY DEFINER function), with Next 16 `proxy.ts`
 refreshing the session and guarding `/gestion`. Signup now shows a dedicated
 confirmation screen (with email icon) after registration, guiding users to
-open the verification link in their inbox. Invitations are pure-Postgres: a
+open the verification link in their inbox. **Branded confirmation email template**
+(`supabase/templates/confirmation.html`) — French, cream "paper" theme with serif
+typography and ember accents, table-based inline-styled HTML for mail-client
+compatibility. Registered in `supabase/config.toml`; verified via template render
+screenshot. Production: template must be pasted manually into Supabase Dashboard
+(→ Auth → Email Templates → Confirmation) since this machine lacks Supabase CLI auth.
+Invitations are pure-Postgres: a
 trigger attaches the membership when the invited email creates its account
 (or instantly if it already exists). Demo data: `npm run seed:demo` reuses
 `seed()` as the single source of truth (readable slug ids remapped to uuids).
