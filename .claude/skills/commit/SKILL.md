@@ -9,6 +9,17 @@ Commit and push the current changes with a detailed, reviewable message,
 following this repo's workflow rules (see `CLAUDE.md`). Invoke as `/commit`,
 optionally with scope, e.g. `/commit only the backend changes`.
 
+## Execution requirement
+
+This skill must always be carried out by a Haiku-model agent, never by the
+invoking agent directly. As soon as this skill is triggered, dispatch a
+single `Agent` call with `subagent_type: "claude"` and `model: "haiku"`,
+passing the full text of Steps 1-6 below (plus any scope the user gave, e.g.
+"only the backend changes") as the prompt. Run it in the foreground
+(`run_in_background: false`) since the commit must finish, and its report
+must be relayed back to the user, before the turn ends. Do not execute Steps
+1-6 yourself in the main conversation.
+
 ## What you must do when invoked
 
 Follow these steps in order. Do not skip steps.
