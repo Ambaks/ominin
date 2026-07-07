@@ -88,8 +88,8 @@ export const nav = {
 
 export const hero = {
   eyebrow: "Menus digitaux · Commande à table · Paiement",
-  titleStart: "Reduisez vos depenses,",
-  titleAccent: "facilitez votre vie.",
+  titleStart: "Vos tables prennent",
+  titleAccent: "les commandes.",
   subtitle:
     "Vos clients scannent le QR code de la table, consultent, commandent et payent — sans application, sans attente. Vous mettez votre menu à jour en 30 secondes, votre équipe respire, vos coûts baissent.",
   secondaryCta: { label: "Découvrir les tarifs", href: "#tarifs" } satisfies Cta,
@@ -99,6 +99,12 @@ export const hero = {
     "Aucune application requise",
   ],
   clientsLabel: "Ils servent déjà avec Ominin",
+  // Photo d'illustration (Unsplash) — à remplacer par une vraie photo de
+  // salle cliente au service du soir.
+  photo: {
+    src: unsplash("photo-1552566626-52f8b828add9", 2000),
+    alt: "Salle de restaurant chaleureuse, tables dressées pour le service",
+  },
 };
 
 export const howItWorks = {
@@ -174,7 +180,17 @@ export const demoSection = {
   subtitle:
     "Voici le menu d'un restaurant propulsé par Ominin. Faites défiler : c'est le vrai produit, exactement ce que vos clients verront à table.",
   fullscreenLabel: "Ouvrir la démo en plein écran",
+  mobileHint: "Ouvrez le menu exactement comme vos clients le verront.",
   iframeTitle: "Démo — menu digital Ominin",
+  tableTag: "Table 12",
+  sceneCaption:
+    "Voilà exactement ce qui se passe à la table 12 de la Trattoria Lucia.",
+  // Photo d'ambiance (Unsplash) derrière le téléphone — à remplacer par une
+  // vraie photo de table cliente.
+  photo: {
+    src: unsplash("photo-1424847651672-bf20a4b0982b", 1600),
+    alt: "Table de restaurant au service du soir",
+  },
 };
 
 export const pricingSection = {
@@ -310,8 +326,8 @@ export const qrShowcase = {
   // Photo d'illustration (Unsplash) — à remplacer par une vraie photo de
   // table cliente avec sticker, ou une courte vidéo en boucle du geste de scan.
   photo: {
-    src: unsplash("photo-1552566626-52f8b828add9", 1400),
-    alt: "Table dressée dans un restaurant chaleureux",
+    src: unsplash("photo-1466978913421-dad2ebd01d17", 1400),
+    alt: "Tablée au restaurant, le soir, plats partagés",
   },
 };
 

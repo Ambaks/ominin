@@ -193,7 +193,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_commandespage",
-      "community": 86,
+      "community": 1,
       "norm_label": "commandespage()"
     },
     {
@@ -363,7 +363,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_qr_page",
-      "community": 86,
+      "community": 92,
       "norm_label": "page.tsx"
     },
     {
@@ -373,7 +373,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_app_gestion_qr_page_useqrcodes",
-      "community": 86,
+      "community": 92,
       "norm_label": "useqrcodes()"
     },
     {
@@ -383,7 +383,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_app_gestion_qr_page_qrimage",
-      "community": 86,
+      "community": 92,
       "norm_label": "qrimage()"
     },
     {
@@ -393,7 +393,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "frontend_app_gestion_qr_page_qrpage",
-      "community": 86,
+      "community": 92,
       "norm_label": "qrpage()"
     },
     {
@@ -743,7 +743,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_card",
-      "community": 85,
+      "community": 1,
       "norm_label": "order-card.tsx"
     },
     {
@@ -753,7 +753,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_card_ordercard",
-      "community": 85,
+      "community": 1,
       "norm_label": "ordercard()"
     },
     {
@@ -763,7 +763,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_group_card",
-      "community": 85,
+      "community": 1,
       "norm_label": "order-group-card.tsx"
     },
     {
@@ -813,7 +813,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_payment_dialog_paymentdialog",
-      "community": 85,
+      "community": 1,
       "norm_label": "paymentdialog()"
     },
     {
@@ -873,7 +873,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor",
-      "community": 88,
+      "community": 86,
       "norm_label": "etape-editor.tsx"
     },
     {
@@ -883,7 +883,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_articledraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "articledraft"
     },
     {
@@ -893,7 +893,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_etapedraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "etapedraft"
     },
     {
@@ -903,7 +903,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_emptyarticle",
-      "community": 88,
+      "community": 86,
       "norm_label": "emptyarticle()"
     },
     {
@@ -913,7 +913,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_emptyetape",
-      "community": 88,
+      "community": 86,
       "norm_label": "emptyetape()"
     },
     {
@@ -923,7 +923,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_etapestodraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "etapestodraft()"
     },
     {
@@ -933,7 +933,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_drafttoetapes",
-      "community": 88,
+      "community": 86,
       "norm_label": "drafttoetapes()"
     },
     {
@@ -943,7 +943,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_etape_editor_etapeeditor",
-      "community": 88,
+      "community": 86,
       "norm_label": "etapeeditor()"
     },
     {
@@ -973,7 +973,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_formule_form_modal",
-      "community": 88,
+      "community": 86,
       "norm_label": "formule-form-modal.tsx"
     },
     {
@@ -983,7 +983,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_components_gestion_formules_formule_form_modal_formuleformmodal",
-      "community": 88,
+      "community": 86,
       "norm_label": "formuleformmodal()"
     },
     {
@@ -1103,7 +1103,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_xicon",
-      "community": 88,
+      "community": 86,
       "norm_label": "xicon()"
     },
     {
@@ -1133,7 +1133,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_chevrondownicon",
-      "community": 89,
+      "community": 86,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -1183,7 +1183,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_item_form_modal",
-      "community": 88,
+      "community": 86,
       "norm_label": "item-form-modal.tsx"
     },
     {
@@ -1193,7 +1193,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_item_form_modal_itemformmodal",
-      "community": 88,
+      "community": 86,
       "norm_label": "itemformmodal()"
     },
     {
@@ -1223,7 +1223,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor",
-      "community": 88,
+      "community": 86,
       "norm_label": "options-editor.tsx"
     },
     {
@@ -1233,7 +1233,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor_choicedraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "choicedraft"
     },
     {
@@ -1243,7 +1243,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor_optiongroupdraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "optiongroupdraft"
     },
     {
@@ -1253,7 +1253,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor_optionstodraft",
-      "community": 88,
+      "community": 86,
       "norm_label": "optionstodraft()"
     },
     {
@@ -1263,7 +1263,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor_drafttooptions",
-      "community": 88,
+      "community": 86,
       "norm_label": "drafttooptions()"
     },
     {
@@ -1273,7 +1273,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_components_gestion_menu_options_editor_optionseditor",
-      "community": 88,
+      "community": 86,
       "norm_label": "optionseditor()"
     },
     {
@@ -1343,7 +1343,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_gestionshell",
-      "community": 86,
+      "community": 89,
       "norm_label": "gestionshell()"
     },
     {
@@ -1420,7 +1420,7 @@
       "label": "DemoShowcase()",
       "file_type": "code",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L5",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_components_landing_demo_showcase_demoshowcase",
       "community": 19,
@@ -1500,7 +1500,7 @@
       "label": "Hero()",
       "file_type": "code",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L8",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_hero_hero",
       "community": 19,
@@ -1585,6 +1585,26 @@
       "id": "frontend_components_landing_pricing_pricing",
       "community": 19,
       "norm_label": "pricing()"
+    },
+    {
+      "label": "qr-corners.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-corners.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_corners",
+      "community": 19,
+      "norm_label": "qr-corners.tsx"
+    },
+    {
+      "label": "QrCorners()",
+      "file_type": "code",
+      "source_file": "frontend/components/landing/qr-corners.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "frontend_components_landing_qr_corners_qrcorners",
+      "community": 19,
+      "norm_label": "qrcorners()"
     },
     {
       "label": "qr-live.tsx",
@@ -1873,7 +1893,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_field",
-      "community": 88,
+      "community": 86,
       "norm_label": "field.tsx"
     },
     {
@@ -1883,7 +1903,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_ui_field_field",
-      "community": 88,
+      "community": 86,
       "norm_label": "field()"
     },
     {
@@ -1943,7 +1963,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_price_input",
-      "community": 88,
+      "community": 86,
       "norm_label": "price-input.tsx"
     },
     {
@@ -1953,7 +1973,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_ui_price_input_priceinput",
-      "community": 88,
+      "community": 86,
       "norm_label": "priceinput()"
     },
     {
@@ -2063,7 +2083,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_toggle",
-      "community": 88,
+      "community": 86,
       "norm_label": "toggle.tsx"
     },
     {
@@ -2073,7 +2093,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_ui_toggle_toggle",
-      "community": 88,
+      "community": 86,
       "norm_label": "toggle()"
     },
     {
@@ -2083,7 +2103,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_eslint_config",
-      "community": 6,
+      "community": 94,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -2093,7 +2113,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_eslint_config_eslintconfig",
-      "community": 6,
+      "community": 94,
       "norm_label": "eslintconfig"
     },
     {
@@ -2503,7 +2523,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "frontend_lib_gestion_constants_order_action_labels",
-      "community": 85,
+      "community": 1,
       "norm_label": "order_action_labels"
     },
     {
@@ -2563,7 +2583,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_format",
-      "community": 88,
+      "community": 86,
       "norm_label": "format.ts"
     },
     {
@@ -2573,7 +2593,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "frontend_lib_gestion_format_parsepriceinput",
-      "community": 88,
+      "community": 86,
       "norm_label": "parsepriceinput()"
     },
     {
@@ -2583,7 +2603,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_lib_gestion_format_pricetoinput",
-      "community": 88,
+      "community": 86,
       "norm_label": "pricetoinput()"
     },
     {
@@ -2593,7 +2613,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_format_formattime",
-      "community": 85,
+      "community": 1,
       "norm_label": "formattime()"
     },
     {
@@ -2733,7 +2753,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_lib_gestion_permissions_nextstatuses",
-      "community": 85,
+      "community": 1,
       "norm_label": "nextstatuses()"
     },
     {
@@ -2753,7 +2773,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_seed_seed",
-      "community": 92,
+      "community": 91,
       "norm_label": "seed()"
     },
     {
@@ -2783,7 +2803,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ordertotal",
-      "community": 85,
+      "community": 1,
       "norm_label": "ordertotal()"
     },
     {
@@ -2833,7 +2853,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_isitemavailable",
-      "community": 86,
+      "community": 1,
       "norm_label": "isitemavailable()"
     },
     {
@@ -3153,7 +3173,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_order",
-      "community": 85,
+      "community": 1,
       "norm_label": "order"
     },
     {
@@ -3163,7 +3183,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_table",
-      "community": 86,
+      "community": 92,
       "norm_label": "table"
     },
     {
@@ -3370,7 +3390,7 @@
       "label": "howItWorks",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L104",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_howitworks",
       "community": 19,
@@ -3380,7 +3400,7 @@
       "label": "featuresSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L131",
+      "source_location": "L137",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_featuressection",
       "community": 19,
@@ -3390,7 +3410,7 @@
       "label": "demoSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L171",
+      "source_location": "L177",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_demosection",
       "community": 19,
@@ -3400,7 +3420,7 @@
       "label": "pricingSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L180",
+      "source_location": "L196",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_pricingsection",
       "community": 19,
@@ -3410,7 +3430,7 @@
       "label": "clientsSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L236",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_clientssection",
       "community": 19,
@@ -3420,7 +3440,7 @@
       "label": "qrShowcase",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L274",
+      "source_location": "L290",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_qrshowcase",
       "community": 19,
@@ -3430,7 +3450,7 @@
       "label": "faqSection",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L318",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_faqsection",
       "community": 19,
@@ -3440,7 +3460,7 @@
       "label": "finalCta",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L356",
+      "source_location": "L372",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_finalcta",
       "community": 19,
@@ -3450,7 +3470,7 @@
       "label": "footer",
       "file_type": "code",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L365",
+      "source_location": "L381",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_footer",
       "community": 19,
@@ -3513,7 +3533,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_menuitem",
-      "community": 88,
+      "community": 86,
       "norm_label": "menuitem"
     },
     {
@@ -3523,7 +3543,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_menucategory",
-      "community": 85,
+      "community": 88,
       "norm_label": "menucategory"
     },
     {
@@ -3573,7 +3593,7 @@
       "source_location": "L423",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_getrestaurant",
-      "community": 92,
+      "community": 91,
       "norm_label": "getrestaurant()"
     },
     {
@@ -3633,7 +3653,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_client",
-      "community": 92,
+      "community": 91,
       "norm_label": "client.ts"
     },
     {
@@ -3653,7 +3673,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types",
-      "community": 92,
+      "community": 91,
       "norm_label": "database.types.ts"
     },
     {
@@ -3663,7 +3683,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_json",
-      "community": 92,
+      "community": 91,
       "norm_label": "json"
     },
     {
@@ -3673,7 +3693,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_database",
-      "community": 92,
+      "community": 91,
       "norm_label": "database"
     },
     {
@@ -3683,7 +3703,7 @@
       "source_location": "L516",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_databasewithoutinternals",
-      "community": 92,
+      "community": 91,
       "norm_label": "databasewithoutinternals"
     },
     {
@@ -3693,7 +3713,7 @@
       "source_location": "L518",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_defaultschema",
-      "community": 92,
+      "community": 91,
       "norm_label": "defaultschema"
     },
     {
@@ -3703,7 +3723,7 @@
       "source_location": "L520",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tables",
-      "community": 92,
+      "community": 91,
       "norm_label": "tables"
     },
     {
@@ -3713,7 +3733,7 @@
       "source_location": "L549",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesinsert",
-      "community": 92,
+      "community": 91,
       "norm_label": "tablesinsert"
     },
     {
@@ -3723,7 +3743,7 @@
       "source_location": "L574",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesupdate",
-      "community": 92,
+      "community": 91,
       "norm_label": "tablesupdate"
     },
     {
@@ -3733,7 +3753,7 @@
       "source_location": "L599",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_enums",
-      "community": 92,
+      "community": 91,
       "norm_label": "enums"
     },
     {
@@ -3743,7 +3763,7 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_compositetypes",
-      "community": 92,
+      "community": 91,
       "norm_label": "compositetypes"
     },
     {
@@ -3753,7 +3773,7 @@
       "source_location": "L633",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_constants",
-      "community": 92,
+      "community": 91,
       "norm_label": "constants"
     },
     {
@@ -3993,7 +4013,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_package_dependencies_qrcode",
-      "community": 2,
+      "community": 19,
       "norm_label": "qrcode"
     },
     {
@@ -4163,7 +4183,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_proxy",
-      "community": 91,
+      "community": 93,
       "norm_label": "proxy.ts"
     },
     {
@@ -4173,7 +4193,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_proxy_proxy",
-      "community": 91,
+      "community": 93,
       "norm_label": "proxy()"
     },
     {
@@ -4183,7 +4203,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_proxy_config",
-      "community": 91,
+      "community": 93,
       "norm_label": "config"
     },
     {
@@ -4193,7 +4213,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo",
-      "community": 92,
+      "community": 91,
       "norm_label": "seed-demo.ts"
     },
     {
@@ -4203,7 +4223,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_db",
-      "community": 92,
+      "community": 91,
       "norm_label": "db"
     },
     {
@@ -4213,7 +4233,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_tojson",
-      "community": 92,
+      "community": 91,
       "norm_label": "tojson()"
     },
     {
@@ -4223,7 +4243,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_main",
-      "community": 92,
+      "community": 91,
       "norm_label": "main()"
     },
     {
@@ -6413,17 +6433,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/eslint.config.mjs",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_eslint_config",
-      "target": "backend_app_config",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/config.py",
@@ -6913,6 +6922,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/gestion/commandes/page.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_commandes_page_commandespage",
+      "target": "frontend_app_gestion_commandes_page_matchesfilter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/gestion/commandes/page.tsx",
       "source_location": "L28",
       "weight": 1.0,
       "source": "frontend_app_gestion_commandes_page_matchesfilter",
@@ -6929,6 +6949,17 @@
       "weight": 1.0,
       "source": "frontend_app_gestion_commandes_page_commandespage",
       "target": "frontend_lib_gestion_permissions_hasfeature"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/gestion/commandes/page.tsx",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_commandes_page_commandespage",
+      "target": "frontend_lib_gestion_selectors_grouptablenumbers"
     },
     {
       "relation": "calls",
@@ -7260,6 +7291,28 @@
     {
       "relation": "calls",
       "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/gestion/equipe/page.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_equipe_page_teammanager",
+      "target": "frontend_lib_gestion_store_load"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/gestion/equipe/page.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_equipe_page_teammanager",
+      "target": "frontend_lib_supabase_client_createclient"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "frontend/app/gestion/equipe/page.tsx",
@@ -7446,12 +7499,12 @@
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "frontend/app/gestion/etablissement/page.tsx",
       "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_gestion_etablissement_page_etablissementform",
-      "target": "frontend_components_ui_toast_usetoast",
-      "confidence_score": 1.0
+      "target": "frontend_components_ui_toast_usetoast"
     },
     {
       "relation": "calls",
@@ -8370,6 +8423,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/gestion/qr/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_qr_page_useqrcodes",
+      "target": "frontend_package_dependencies_qrcode"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -8627,6 +8691,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/gestion/tables/page.tsx",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "frontend_app_gestion_tables_page_tablespage",
+      "target": "frontend_lib_gestion_selectors_grouptablenumbers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/gestion/tables/page.tsx",
       "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_app_gestion_tables_page_tablespage",
@@ -8777,6 +8852,17 @@
       "source": "frontend_app_login_page",
       "target": "frontend_app_login_login_form",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/login/login-form.tsx",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "frontend_app_login_login_form_loginform",
+      "target": "frontend_lib_supabase_client_createclient"
     },
     {
       "relation": "imports",
@@ -9164,6 +9250,28 @@
       "source": "frontend_app_onboarding_page",
       "target": "frontend_app_onboarding_onboarding_form",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/onboarding/onboarding-form.tsx",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "frontend_app_onboarding_onboarding_form_onboardingform",
+      "target": "frontend_app_onboarding_onboarding_form_slugify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/onboarding/onboarding-form.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "frontend_app_onboarding_onboarding_form_onboardingform",
+      "target": "frontend_lib_supabase_client_createclient"
     },
     {
       "relation": "imports",
@@ -9891,6 +9999,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/commandes/order-card.tsx",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_commandes_order_card_ordercard",
+      "target": "frontend_lib_gestion_selectors_linetotal"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/commandes/order-card.tsx",
       "source_location": "L89",
       "weight": 1.0,
       "source": "frontend_components_gestion_commandes_order_card_ordercard",
@@ -9913,7 +10032,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/commandes/order-card.tsx",
-      "source_location": "L89",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "frontend_components_gestion_commandes_order_card_ordercard",
       "target": "frontend_lib_menu_data_formatprice"
@@ -10103,6 +10222,17 @@
       "weight": 1.0,
       "source": "frontend_components_gestion_commandes_order_group_card_ordergroupcard",
       "target": "frontend_lib_gestion_permissions_can"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/commandes/order-group-card.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_commandes_order_group_card_ordergroupcard",
+      "target": "frontend_lib_gestion_selectors_ordertotal"
     },
     {
       "relation": "calls",
@@ -10642,6 +10772,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L267",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_etapeeditor",
+      "target": "frontend_components_gestion_formules_etape_editor_emptyarticle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L279",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_etapeeditor",
+      "target": "frontend_components_gestion_formules_etape_editor_emptyetape",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10662,6 +10814,28 @@
       "weight": 1.0,
       "source": "frontend_components_gestion_formules_formule_form_modal_formuleformmodal",
       "target": "frontend_components_gestion_formules_etape_editor_emptyetape"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_etapestodraft",
+      "target": "frontend_components_gestion_menu_options_editor_optionstodraft"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_etapestodraft",
+      "target": "frontend_lib_gestion_format_pricetoinput"
     },
     {
       "relation": "imports",
@@ -10686,6 +10860,28 @@
       "target": "frontend_components_gestion_formules_etape_editor_etapestodraft"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_drafttoetapes",
+      "target": "frontend_components_gestion_menu_options_editor_drafttooptions"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_drafttoetapes",
+      "target": "frontend_lib_gestion_format_parsepriceinput"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10695,6 +10891,28 @@
       "source": "frontend_components_gestion_formules_formule_form_modal",
       "target": "frontend_components_gestion_formules_etape_editor_drafttoetapes",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/formule-form-modal.tsx",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_formule_form_modal_formuleformmodal",
+      "target": "frontend_components_gestion_formules_etape_editor_drafttoetapes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/formules/etape-editor.tsx",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_formules_etape_editor_etapeeditor",
+      "target": "frontend_components_gestion_menu_options_editor_optionstodraft"
     },
     {
       "relation": "imports",
@@ -12013,6 +12231,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/menu/item-form-modal.tsx",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_menu_item_form_modal_itemformmodal",
+      "target": "frontend_components_gestion_menu_options_editor_drafttooptions"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/menu/item-form-modal.tsx",
       "source_location": "L51",
       "weight": 1.0,
       "source": "frontend_components_gestion_menu_item_form_modal_itemformmodal",
@@ -12453,6 +12682,39 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/menu/options-editor.tsx",
+      "source_location": "L207",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_menu_options_editor_optionseditor",
+      "target": "frontend_components_gestion_menu_options_editor_optionstodraft",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/menu/options-editor.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_menu_options_editor_optionstodraft",
+      "target": "frontend_lib_gestion_format_pricetoinput"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/menu/options-editor.tsx",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_menu_options_editor_drafttooptions",
+      "target": "frontend_lib_gestion_format_parsepriceinput"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
@@ -12693,10 +12955,32 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/gestion/shell.tsx",
+      "source_location": "L118",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_shell_gestionshell",
+      "target": "frontend_components_gestion_shell_signout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/shell.tsx",
       "source_location": "L44",
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_signout",
       "target": "frontend_lib_supabase_client_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/gestion/shell.tsx",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_shell_gestionshell",
+      "target": "frontend_components_gestion_shell_isactive",
       "confidence_score": 1.0
     },
     {
@@ -12709,6 +12993,17 @@
       "weight": 1.0,
       "source": "frontend_components_gestion_shell_gestionshell",
       "target": "frontend_lib_gestion_permissions_can"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/shell.tsx",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_shell_gestionshell",
+      "target": "frontend_lib_gestion_permissions_hasfeature"
     },
     {
       "relation": "calls",
@@ -12829,6 +13124,17 @@
       "source": "frontend_components_gestion_subscription_gate",
       "target": "frontend_lib_landing_data_pricingsection",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/gestion/subscription-gate.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "frontend_components_gestion_subscription_gate_subscriptiongate",
+      "target": "frontend_lib_gestion_store_refreshsubscription"
     },
     {
       "relation": "contains",
@@ -12975,7 +13281,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L5",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_components_landing_demo_showcase_demoshowcase",
@@ -12986,7 +13292,29 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L3",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_components_landing_qr_corners",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_demo_showcase",
+      "target": "frontend_components_landing_qr_corners_qrcorners",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/demo-showcase.tsx",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_components_landing_section_heading",
@@ -12997,7 +13325,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L3",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_components_landing_section_heading_sectionheading",
@@ -13008,7 +13336,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_lib_landing_data",
@@ -13019,7 +13347,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_lib_landing_data_democta",
@@ -13030,7 +13358,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/demo-showcase.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_demo_showcase",
       "target": "frontend_lib_landing_data_demosection",
@@ -13191,7 +13519,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L8",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_components_landing_hero",
       "target": "frontend_components_landing_hero_hero",
@@ -13202,7 +13530,29 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L2",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_components_landing_qr_corners",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_landing_hero",
+      "target": "frontend_components_landing_qr_corners_qrcorners",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/hero.tsx",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_hero",
       "target": "frontend_lib_landing_data",
@@ -13213,7 +13563,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_hero",
       "target": "frontend_lib_landing_data_clientssection",
@@ -13224,7 +13574,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_hero",
       "target": "frontend_lib_landing_data_democta",
@@ -13235,7 +13585,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/hero.tsx",
-      "source_location": "L2",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_components_landing_hero",
       "target": "frontend_lib_landing_data_hero",
@@ -13480,6 +13830,38 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing_pricing",
+      "target": "frontend_lib_landing_data_plansignuphref"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/landing/pricing.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "frontend_components_landing_pricing_pricing",
+      "target": "frontend_lib_menu_data_formatprice"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/landing/qr-corners.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_corners",
+      "target": "frontend_components_landing_qr_corners_qrcorners",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/landing/qr-live.tsx",
@@ -13499,6 +13881,17 @@
       "source": "frontend_components_landing_qr_showcase",
       "target": "frontend_components_landing_qr_live",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/landing/qr-live.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "frontend_components_landing_qr_live_qrlive",
+      "target": "frontend_package_dependencies_qrcode"
     },
     {
       "relation": "imports",
@@ -14050,6 +14443,28 @@
       "source": "frontend_components_ui_price_input",
       "target": "frontend_lib_gestion_format_pricetoinput",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/ui/price-input.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "frontend_components_ui_price_input_priceinput",
+      "target": "frontend_lib_gestion_format_parsepriceinput"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/ui/price-input.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "frontend_components_ui_price_input_priceinput",
+      "target": "frontend_lib_gestion_format_pricetoinput"
     },
     {
       "relation": "contains",
@@ -15198,6 +15613,50 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/gestion/api.ts",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_api_deleteitem",
+      "target": "frontend_lib_gestion_api_finditem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/api.ts",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_api_setitemavailability",
+      "target": "frontend_lib_gestion_api_finditem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/api.ts",
+      "source_location": "L161",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_api_setitemstock",
+      "target": "frontend_lib_gestion_api_finditem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/api.ts",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_api_updateitem",
+      "target": "frontend_lib_gestion_api_finditem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/api.ts",
       "source_location": "L390",
       "weight": 1.0,
       "source": "frontend_lib_gestion_api_addtabletogroup",
@@ -15687,6 +16146,17 @@
       "weight": 1.0,
       "source": "frontend_lib_gestion_api_setformuleavailability",
       "target": "frontend_lib_supabase_result_check"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/api.ts",
+      "source_location": "L376",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_api_creategroup",
+      "target": "frontend_lib_gestion_api_isactiveorder",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -16549,6 +17019,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/gestion/mappers.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_mappers_assemblecategories",
+      "target": "frontend_lib_gestion_mappers_rowtomenuitem",
+      "confidence_score": 0.5
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -16777,6 +17258,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L248",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_usegestionaccess",
+      "target": "frontend_lib_gestion_permissions_hasfeature"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/permissions.ts",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_permissions_nextstatuses",
+      "target": "frontend_lib_gestion_permissions_can",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -16786,6 +17289,17 @@
       "source": "frontend_lib_gestion_store",
       "target": "frontend_lib_gestion_permissions_can",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L247",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_usegestionaccess",
+      "target": "frontend_lib_gestion_permissions_can"
     },
     {
       "relation": "contains",
@@ -17106,6 +17620,50 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/selectors.ts",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_selectors_ordertotal",
+      "target": "frontend_lib_gestion_selectors_linetotal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/selectors.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_selectors_revenuetoday",
+      "target": "frontend_lib_gestion_selectors_ordertotal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/selectors.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_selectors_unavailableitems",
+      "target": "frontend_lib_gestion_selectors_isitemavailable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/selectors.ts",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_selectors_grouptablenumbers",
+      "target": "frontend_lib_gestion_selectors_tablenumber",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/gestion/store.ts",
@@ -17398,6 +17956,50 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_fetchorders",
+      "target": "frontend_lib_gestion_store_client"
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_load",
+      "target": "frontend_lib_gestion_store_client"
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L215",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_refreshsubscription",
+      "target": "frontend_lib_gestion_store_client"
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_subscribeorders",
+      "target": "frontend_lib_gestion_store_client"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -17472,6 +18074,17 @@
       "weight": 1.0,
       "source": "frontend_lib_gestion_store_refreshorders",
       "target": "frontend_lib_gestion_store_fetchorders",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/gestion/store.ts",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "frontend_lib_gestion_store_subscribeorders",
+      "target": "frontend_lib_gestion_store_refreshorders",
       "confidence_score": 1.0
     },
     {
@@ -17857,7 +18470,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L236",
+      "source_location": "L252",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_clientssection",
@@ -17887,7 +18500,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L171",
+      "source_location": "L177",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_demosection",
@@ -17907,7 +18520,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L318",
+      "source_location": "L334",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_faqsection",
@@ -17927,7 +18540,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L131",
+      "source_location": "L137",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_featuressection",
@@ -17937,7 +18550,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L356",
+      "source_location": "L372",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_finalcta",
@@ -17947,7 +18560,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L365",
+      "source_location": "L381",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_footer",
@@ -17967,7 +18580,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L104",
+      "source_location": "L110",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_howitworks",
@@ -18017,7 +18630,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L180",
+      "source_location": "L196",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_pricingsection",
@@ -18027,7 +18640,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/landing-data.ts",
-      "source_location": "L274",
+      "source_location": "L290",
       "weight": 1.0,
       "source": "frontend_lib_landing_data",
       "target": "frontend_lib_landing_data_qrshowcase",
@@ -18951,6 +19564,17 @@
       "source_location": "L32",
       "weight": 1.0,
       "source": "frontend_scripts_seed_demo",
+      "target": "frontend_scripts_seed_demo_tojson",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/scripts/seed-demo.ts",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "frontend_scripts_seed_demo_main",
       "target": "frontend_scripts_seed_demo_tojson",
       "confidence_score": 1.0
     },

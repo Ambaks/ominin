@@ -5,9 +5,14 @@ export function FinalCta() {
   return (
     <section
       id={finalCta.id}
-      className="scroll-mt-20 border-t border-hairline"
+      className="relative scroll-mt-20 border-t border-hairline"
     >
-      <div className="ember-glow mx-auto w-full max-w-2xl px-5 py-20 text-center lg:max-w-5xl lg:px-10 lg:py-32">
+      {/* Trame QR en filigrane, fondue sur les bords */}
+      <div
+        className="qr-motif absolute inset-0 [mask-image:radial-gradient(ellipse_60%_70%_at_50%_50%,black,transparent)]"
+        aria-hidden
+      />
+      <div className="ember-glow relative mx-auto w-full max-w-2xl px-5 py-20 text-center lg:max-w-5xl lg:px-10 lg:py-32">
         <h2 className="font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
           {finalCta.title}
         </h2>

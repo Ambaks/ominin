@@ -105,18 +105,20 @@
 - [[_COMMUNITY_Verifying the Ominin frontend|Verifying the Ominin frontend]]
 - [[_COMMUNITY_selectors.ts|selectors.ts]]
 - [[_COMMUNITY_proxy.ts|proxy.ts]]
+- [[_COMMUNITY_proxy.ts|proxy.ts]]
+- [[_COMMUNITY_eslint.config.mjs|eslint.config.mjs]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `createClient()` - 33 edges
-2. `useGestionAccess()` - 28 edges
+1. `createClient()` - 36 edges
+2. `useGestionAccess()` - 30 edges
 3. `useToast()` - 27 edges
 4. `apply()` - 26 edges
 5. `useGestion()` - 23 edges
 6. `check()` - 21 edges
 7. `compilerOptions` - 16 edges
-8. `formatPrice()` - 14 edges
-9. `load()` - 12 edges
-10. `getState()` - 12 edges
+8. `formatPrice()` - 15 edges
+9. `load()` - 14 edges
+10. `can()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
@@ -140,8 +142,8 @@ Cohesion: 0.10
 Nodes (19): generateMetadata(), getRestaurant, MenuPage(), DishCard(), FeaturedCard(), Hero(), LANGUAGES, MenuFooter() (+11 more)
 
 ### Community 2 - "Package Dependencies"
-Cohesion: 0.06
-Nodes (30): dependencies, next, next-themes, qrcode, react, react-dom, stripe, @supabase/ssr (+22 more)
+Cohesion: 0.07
+Nodes (29): dependencies, next, next-themes, react, react-dom, stripe, @supabase/ssr, @supabase/supabase-js (+21 more)
 
 ### Community 3 - "Commit Workflow"
 Cohesion: 0.18
@@ -154,10 +156,6 @@ Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModu
 ### Community 5 - "Menu Data & Components 2"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
-
-### Community 6 - "FastAPI Backend"
-Cohesion: 0.29
-Nodes (3): Settings, BaseSettings, eslintConfig
 
 ### Community 7 - "Root Layout & Fonts"
 Cohesion: 0.33
@@ -212,8 +210,8 @@ Cohesion: 0.10
 Nodes (38): CommandesPage(), EquipePage(), ROLES, TeamManager(), EtablissementForm(), EtablissementPage(), FormulesPage(), MenuPage() (+30 more)
 
 ### Community 87 - "api.ts"
-Cohesion: 0.16
-Nodes (39): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+31 more)
+Cohesion: 0.17
+Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
 
 ### Community 88 - "formule-form-modal.tsx"
 Cohesion: 0.15
@@ -232,8 +230,8 @@ Cohesion: 0.21
 Nodes (9): POST(), POST(), upsertSubscription(), GET(), OnboardingPage(), getStripe(), createAdminClient(), createClient() (+1 more)
 
 ### Community 92 - "proxy.ts"
-Cohesion: 0.10
-Nodes (33): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), seed() (+25 more)
+Cohesion: 0.16
+Nodes (22): QrPage(), useQrCodes(), assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder() (+14 more)
 
 ## Knowledge Gaps
 - **228 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+223 more)

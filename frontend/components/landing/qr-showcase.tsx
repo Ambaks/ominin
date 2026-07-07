@@ -24,7 +24,7 @@ export function QrShowcase() {
             {qrShowcase.points.map((point) => (
               <li key={point.title} className="flex gap-3.5">
                 <span
-                  className="ember-gradient mt-1.5 size-1.5 shrink-0 rounded-full"
+                  className="ember-gradient mt-1.5 size-1.5 shrink-0 rounded-[1px]"
                   aria-hidden
                 />
                 <div>
@@ -60,12 +60,12 @@ export function QrShowcase() {
             className="object-cover"
           />
           <div
-            className="absolute inset-0 bg-linear-to-b from-surface/70 via-transparent to-background/40 lg:bg-linear-to-r lg:from-surface lg:via-surface/25 lg:to-transparent"
+            className="absolute inset-0 bg-linear-to-b from-surface/70 via-transparent to-background/40 lg:bg-linear-to-r lg:from-surface lg:via-surface/15 lg:to-transparent"
             aria-hidden
           />
 
           <div className="absolute inset-0 flex items-center justify-center p-8">
-            <div className="relative w-52 rotate-2 rounded-2xl bg-white p-5 text-center shadow-2xl shadow-black/60 transition-transform duration-300 hover:rotate-0 sm:w-56">
+            <div className="relative w-52 rotate-2 rounded-2xl bg-white p-5 text-center shadow-2xl shadow-black/30 transition-transform duration-300 hover:rotate-0 sm:w-56">
               <span className="ember-gradient absolute -right-3 -top-3 rotate-6 rounded-full px-3 py-1 text-[11px] font-bold text-background shadow-lg">
                 {qrShowcase.badge}
               </span>
