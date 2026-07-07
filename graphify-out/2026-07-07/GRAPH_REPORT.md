@@ -1,16 +1,16 @@
 # Graph Report - ominin  (2026-07-07)
 
 ## Corpus Check
-- 111 files · ~105,502 words
+- 118 files · ~107,378 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 596 nodes · 1286 edges · 94 communities (26 shown, 68 thin omitted)
+- 614 nodes · 1335 edges · 94 communities (26 shown, 68 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `379e84d3`
+- Built from commit: `b9c09925`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -108,7 +108,7 @@
 - [[_COMMUNITY_eslint.config.mjs|eslint.config.mjs]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `createClient()` - 35 edges
+1. `createClient()` - 36 edges
 2. `useGestionAccess()` - 30 edges
 3. `useToast()` - 27 edges
 4. `apply()` - 26 edges
@@ -120,16 +120,16 @@
 10. `can()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `CommandesPage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/gestion/commandes/page.tsx → frontend/lib/gestion/permissions.ts
+- `EquipePage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/gestion/equipe/page.tsx → frontend/lib/gestion/permissions.ts
+- `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/gestion/page.tsx → frontend/lib/gestion/permissions.ts
+- `TablesPage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/gestion/tables/page.tsx → frontend/lib/gestion/permissions.ts
 - `FormuleFormModal()` --calls--> `hasFeature()`  [INFERRED]
   frontend/components/gestion/formules/formule-form-modal.tsx → frontend/lib/gestion/permissions.ts
-- `ItemFormModal()` --calls--> `hasFeature()`  [INFERRED]
-  frontend/components/gestion/menu/item-form-modal.tsx → frontend/lib/gestion/permissions.ts
-- `FeaturedCard()` --calls--> `formatPrice()`  [EXTRACTED]
-  frontend/components/menu/dish-card.tsx → frontend/lib/menu-data.ts
-- `load()` --indirect_call--> `rowToFormule()`  [INFERRED]
-  frontend/lib/gestion/store.ts → frontend/lib/gestion/mappers.ts
-- `load()` --indirect_call--> `must()`  [INFERRED]
-  frontend/lib/gestion/store.ts → frontend/lib/supabase/result.ts
 
 ## Import Cycles
 - None detected.
@@ -137,12 +137,12 @@
 ## Communities (94 total, 68 thin omitted)
 
 ### Community 1 - "Menu Data & Components"
-Cohesion: 0.09
-Nodes (20): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), DishCard(), FeaturedCard(), Hero() (+12 more)
+Cohesion: 0.11
+Nodes (18): generateMetadata(), getRestaurant, MenuPage(), DishCard(), FeaturedCard(), Hero(), LANGUAGES, MenuFooter() (+10 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.07
-Nodes (27): dependencies, next, next-themes, react, react-dom, @supabase/ssr, @supabase/supabase-js, devDependencies (+19 more)
+Nodes (29): dependencies, next, next-themes, react, react-dom, stripe, @supabase/ssr, @supabase/supabase-js (+21 more)
 
 ### Community 3 - "Commit Workflow"
 Cohesion: 0.18
@@ -166,7 +166,7 @@ Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & a
 
 ### Community 19 - "/graphify"
 Cohesion: 0.07
-Nodes (38): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+30 more)
+Nodes (40): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+32 more)
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.22
@@ -201,52 +201,52 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 85 - "types.ts"
-Cohesion: 0.09
-Nodes (43): TeamManager(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), OFFRE_FEATURES, ORDER_ACTION_LABELS, ORDER_STATUS_FLOW, ORDER_STATUS_LABELS (+35 more)
+Cohesion: 0.08
+Nodes (47): QrPage(), useQrCodes(), OnboardingForm(), slugify(), metadata, STATUS_CLASSES, StatusBadge(), TableGrid() (+39 more)
 
 ### Community 86 - "useToast"
-Cohesion: 0.08
-Nodes (53): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, EtablissementForm(), EtablissementPage() (+45 more)
+Cohesion: 0.09
+Nodes (53): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager(), EtablissementForm() (+45 more)
 
 ### Community 87 - "api.ts"
-Cohesion: 0.16
-Nodes (43): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+35 more)
+Cohesion: 0.17
+Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.17
-Nodes (24): LoginForm(), metadata, ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor() (+16 more)
+Cohesion: 0.25
+Nodes (21): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+13 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.13
-Nodes (19): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+11 more)
+Cohesion: 0.09
+Nodes (24): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+16 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
 Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
-Cohesion: 0.11
-Nodes (22): GET(), OnboardingForm(), slugify(), metadata, OnboardingPage(), OFFRE_LABELS, seed(), getRestaurant() (+14 more)
+Cohesion: 0.08
+Nodes (27): POST(), POST(), upsertSubscription(), GET(), LoginForm(), metadata, OnboardingPage(), seed() (+19 more)
 
 ## Knowledge Gaps
-- **221 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+216 more)
+- **225 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+220 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **68 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `qrcode` connect `/graphify` to `Package Dependencies`, `useToast`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `qrcode` connect `/graphify` to `Package Dependencies`, `types.ts`?**
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `Package Dependencies` to `/graphify`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
-- **Why does `useQrCodes()` connect `useToast` to `/graphify`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+  _High betweenness centrality (0.058) - this node is a cross-community bridge._
+- **Why does `useQrCodes()` connect `types.ts` to `/graphify`?**
+  _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**
-  _222 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _226 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Menu Data & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.09475806451612903 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10837438423645321 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
-  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._

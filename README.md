@@ -13,8 +13,8 @@ revenue justifies paid plans.
 ## Project status
 
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
-French-language, dark-premium design (same ember-gradient system as the menu
-page). Sections: sticky nav, hero ("Reduisez vos depenses, facilitez votre
+French-language, warm premium design with dark/light theme toggle (same
+ember-gradient system as the menu page). Sections: sticky nav, hero ("Reduisez vos depenses, facilitez votre
 vie."), "how it works" 4-step flow, stat-led features grid, live
 phone-framed iframe demo of the QR menu, 3-tier pricing (Digital 29€ / Smart
 59€ / Connect 99€ — "Le plus choisi" badge on Connect), client testimonials
@@ -36,8 +36,18 @@ original render (`logo.png` at repo root) so it stays crisp at favicon sizes.
 Restaurants receive personalized QR codes; clients scan to view the menu,
 order, and pay — no app required.
 
+**Theming**: dual dark/light theme via `next-themes` (class strategy on
+`<html>`, localStorage-persisted, no FOUC). Dark is the default; light is
+opt-in via a sun/moon toggle in the landing nav, gestion header, and customer
+menu category rail. All components use semantic CSS-variable tokens
+(`bg-background`, `text-foreground`, `border-hairline`, `text-ember-*`, …)
+defined in `globals.css` — the `html.light` block overrides the same 10
+variables with a warm "linen & terracotta" palette (embers darkened ~25% for
+contrast on light surfaces). The `@theme inline` Tailwind v4 bridge and all
+component class strings are theme-agnostic.
+
 **QR menu page** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
-guests see after scanning. Dark-premium gradient design, responsive desktop
+guests see after scanning. Premium gradient design, responsive desktop
 layout (2-column grid, max-w-5xl), all items as photo cards. Server-rendered
 from Supabase (anonymous public read): back-office menu edits are immediately
 live for guests. Order buttons rendered but disabled — the guest ordering flow
@@ -113,7 +123,7 @@ subscription. **Pending**: fill `STRIPE_SECRET_KEY` (test mode) in
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
-Knowledge graph: `graphify-out/` (500 nodes, 90 communities).
+Knowledge graph: `graphify-out/` (530+ nodes, 90+ communities).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|
