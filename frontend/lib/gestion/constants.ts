@@ -7,9 +7,6 @@ import type {
   Role,
 } from "./types";
 
-export const STORAGE_KEY = "ominin.gestion";
-export const STORAGE_VERSION = 2;
-
 export const SEED_TABLE_COUNT = 12;
 export const TOAST_DURATION_MS = 3000;
 export const TOP_VENTES_COUNT = 5;

@@ -7,16 +7,18 @@ import { ToastProvider } from "@/components/ui/toast";
 import { can, hasFeature } from "@/lib/gestion/permissions";
 import { useGestion } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
-import { DemoSwitcher } from "./demo-switcher";
+import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
   CommandesIcon,
   ExternalLinkIcon,
   FormulesIcon,
   GearIcon,
+  LogoutIcon,
   MenuIcon,
   QrIcon,
   TablesIcon,
+  TeamIcon,
   type IconProps,
 } from "./icons";
 
@@ -34,7 +36,14 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },
   { href: "/gestion/qr", label: "QR codes", feature: null, icon: QrIcon },
+  { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon },
 ];
+
+async function signOut() {
+  await createClient().auth.signOut();
+  // Navigation complète : purge le store et repasse par le proxy.
+  window.location.assign("/login");
+}
 
 function isActive(pathname: string, href: string): boolean {
   return href === "/gestion" ? pathname === href : pathname.startsWith(href);
@@ -103,7 +112,15 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     <GearIcon className="size-3.5" />
                   </Link>
                 )}
-                <DemoSwitcher etablissement={state.etablissement} role={state.role} />
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  title="Se déconnecter"
+                  aria-label="Se déconnecter"
+                  className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                >
+                  <LogoutIcon className="size-3.5" />
+                </button>
               </div>
             )}
           </div>

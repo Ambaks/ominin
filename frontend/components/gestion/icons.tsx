@@ -127,3 +127,22 @@ export function ChevronDownIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function TeamIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="9" cy="8" r="3.25" />
+      <path d="M3.5 19.5c.6-3.2 2.7-5 5.5-5s4.9 1.8 5.5 5" />
+      <path d="M15.5 5.3a3.25 3.25 0 0 1 0 5.4M17.8 14.9c1.5.7 2.4 2.2 2.7 4.1" />
+    </Svg>
+  );
+}
+
+export function LogoutIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M14 4H6a1.5 1.5 0 0 0-1.5 1.5v13A1.5 1.5 0 0 0 6 20h8" />
+      <path d="M10 12h10.5M17 8.5l3.5 3.5-3.5 3.5" />
+    </Svg>
+  );
+}

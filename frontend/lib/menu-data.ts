@@ -47,7 +47,8 @@ export interface Restaurant {
   slug: string;
   name: string;
   tagline: string;
-  coverImage: string;
+  /** undefined ⇒ fond dégradé de repli dans le hero. */
+  coverImage?: string;
   address: string;
   phone: string;
   hours: string;

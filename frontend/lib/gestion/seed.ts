@@ -1,5 +1,5 @@
 import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
-import { SEED_TABLE_COUNT, STORAGE_VERSION } from "./constants";
+import { SEED_TABLE_COUNT } from "./constants";
 import type {
   GestionState,
   Order,
@@ -166,8 +166,8 @@ export function seed(): GestionState {
   });
 
   return {
-    version: STORAGE_VERSION,
     etablissement: {
+      id: crypto.randomUUID(),
       slug: restaurant.slug,
       name: restaurant.name,
       tagline: restaurant.tagline,

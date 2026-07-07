@@ -25,6 +25,7 @@ export type Action =
   | "etablissement.edit";
 
 export interface Etablissement {
+  id: string;
   slug: string;
   name: string;
   tagline: string;
@@ -96,7 +97,6 @@ export interface Formule {
 }
 
 export interface GestionState {
-  version: number;
   etablissement: Etablissement;
   role: Role;
   categories: MenuCategory[];

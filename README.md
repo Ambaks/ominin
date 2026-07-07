@@ -37,8 +37,10 @@ order, and pay — no app required.
 
 **QR menu page** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
 guests see after scanning. Dark-premium gradient design, responsive desktop
-layout (2-column grid, max-w-5xl), all items as photo cards. Order buttons
-rendered but disabled — ordering flow and backend data come later.
+layout (2-column grid, max-w-5xl), all items as photo cards. Server-rendered
+from Supabase (anonymous public read): back-office menu edits are immediately
+live for guests. Order buttons rendered but disabled — the guest ordering flow
+comes later.
 
 **Back-office dashboard ("Espace de gestion")** at `/gestion` — the v1 of the
 page restaurants use after logging in. French UI, same ember design system.
@@ -48,15 +50,46 @@ payée with cancel, filter pills, grouped-table orders with bulk serve/pay,
 payment-mode dialog), Tables (grid selection → table groups, add/remove/
 dissolve), Menu (categories with inline taglines, item CRUD incl. photo URL,
 badges, pairing, stock/availability, options-variantes editor with import),
-Formules (step-based set menus, articles linkable to menu items). Tier gating
-mirrors the landing pricing (digital → Menu+Formules only; smart/connect add
-Commandes/Tables/options/roles gérant-cuisinier-serveur); a topbar demo
-switcher toggles offre + role. **No auth or backend yet**: state lives in
-localStorage (key `ominin.gestion`, seeded from the Trattoria Lucia demo)
-behind `frontend/lib/gestion/api.ts`, an async mutation surface designed as
-the future Supabase seam — UI call sites won't change when the real backend
-lands. Deliberately deferred: auth, Supabase + Realtime order notifications,
-photo upload, QR page reading dashboard edits, subcategories.
+Formules (step-based set menus, articles linkable to menu items), plus Équipe
+(gérant only: invite members by email with a role, change roles, remove).
+Tier gating mirrors the landing pricing (digital → Menu+Formules only;
+smart/connect add Commandes/Tables/options/roles gérant-cuisinier-serveur);
+the offre lives on the etablissement row, the role on the user's membership
+(the old demo switcher is gone). All state is loaded from Supabase behind
+`frontend/lib/gestion/api.ts` (UI call sites unchanged): every mutation
+writes to Postgres then updates the local snapshot, and the store subscribes
+to Realtime order changes (coalesced refetch) so status updates appear live
+across devices.
+
+**Database & auth** (branch `feature/database-workflow`): the full data layer
+is on Supabase. Multi-tenant Postgres schema versioned in
+`supabase/migrations/` — etablissements, memberships (role + denormalized
+email), invitations, categories, items, formules, tables, table_groups,
+orders, order_items; option groups and formule steps are jsonb value-objects;
+order lines snapshot name/price so they survive menu edits. Business
+invariants live in Postgres: an order-status transition trigger mirrors
+`ORDER_STATUS_FLOW`, and per-role guard triggers mirror `ROLE_ACTIONS`
+(cuisinier → status changes + item availability/stock only, serveur →
+"servie" + table grouping only). RLS on every table: anonymous read is
+limited to public menu data (QR page); everything else is member-scoped.
+Auth is Supabase email/password **and Google OAuth** — `/login`,
+`/auth/callback`, `/onboarding` (creates etablissement + gérant membership +
+numbered tables in one SECURITY DEFINER function), with Next 16 `proxy.ts`
+refreshing the session and guarding `/gestion`. Invitations are
+pure-Postgres: a trigger attaches the membership when the invited email
+creates its account (or instantly if it already exists). Demo data:
+`npm run seed:demo` reuses `seed()` as the single source of truth (readable
+slug ids remapped to uuids). **Live**: the free cloud project is created and
+linked, migrations pushed, demo seeded, env keys filled
+(`backend/.env` + `frontend/.env.local`, both gitignored), and
+`database.types.ts` regenerated from the real schema. Verified end-to-end:
+RLS probed over REST with the anon key (menu readable, orders/memberships
+invisible, anonymous writes blocked), `/m/trattoria-lucia` server-renders
+from Postgres, `/gestion` without a session 307-redirects to `/login`.
+Deliberately deferred: Google provider activation (OAuth client to create in
+Google Cloud Console — email/password login already works), guest ordering
+from the QR page, online payment, photo upload (Supabase Storage),
+multi-etablissement switcher, subcategories.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
@@ -76,6 +109,7 @@ ominin/
 ├── frontend/          Next.js app (customer-facing dashboard)
 ├── backend/           FastAPI service (API + AI/data processing)
 │   └── app/           main.py (entry, /health), config.py (env settings)
+├── supabase/          Versioned SQL migrations (schema, functions/triggers, RLS)
 ├── .claude/           Committed Claude Code config, incl. the graphify skill
 └── CLAUDE.md          Project context and conventions for AI agents
 ```
@@ -137,7 +171,32 @@ kill %1
 Dev server: `uv run uvicorn app.main:app --reload` → http://localhost:8000
 (interactive API docs at /docs)
 
-### 4. Graphify (knowledge-graph CLI)
+### 4. Supabase (database & auth)
+
+The schema lives in `supabase/migrations/` (schema → functions/triggers →
+RLS). One-time human steps: create a free project at supabase.com, then copy
+from Project Settings → API the URL + `anon` key into `frontend/.env.local`
+(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) and the URL +
+`service_role` key into `backend/.env`.
+
+```bash
+supabase login                          # opens browser once
+supabase link --project-ref <ref>      # ref = id in the project URL
+supabase db push                       # applies supabase/migrations/
+cd frontend && npm run seed:demo       # inserts the Trattoria Lucia demo
+```
+
+Optional but recommended: regenerate the DB types after any schema change —
+`supabase gen types typescript --linked > frontend/lib/supabase/database.types.ts`.
+For Google sign-in, create an OAuth Client ID in Google Cloud Console and
+enable the Google provider in Supabase → Authentication → Providers (use the
+callback URL shown there).
+
+Verify: `npm run dev` in `frontend/`, then `/m/trattoria-lucia` shows the
+demo menu from the database, and `/login` → sign-up → `/onboarding` creates
+a working `/gestion` space.
+
+### 5. Graphify (knowledge-graph CLI)
 
 The skill files are already in the repo at `.claude/skills/graphify/` — do not
 reinstall or modify them. Only the CLI needs installing on each machine:
@@ -152,12 +211,12 @@ the knowledge graph automatically. To build or refresh the graph, type
 `/graphify .` in a Claude Code session at the repo root. After modifying code,
 `graphify update .` keeps the graph current (AST-only, no API cost).
 
-### 5. Project skills (nothing to install)
+### 6. Project skills (nothing to install)
 
 This repo ships committed Claude Code skills in `.claude/skills/` — you get
 them automatically with the clone:
 
-- `/graphify` — build/query the knowledge graph (see step 4)
+- `/graphify` — build/query the knowledge graph (see step 5)
 - `/commit` — the required way to commit and push: writes a detailed commit
   message, updates the README project status, refreshes the knowledge graph,
   runs safety checks, then pushes
@@ -165,12 +224,14 @@ them automatically with the clone:
 When asked to commit work in this repo, always go through `/commit`
 (`.claude/skills/commit/SKILL.md`) rather than raw git commands.
 
-### 6. Final checklist
+### 7. Final checklist
 
 - [ ] `npm run build` succeeds in `frontend/`
 - [ ] `curl http://localhost:8000/health` returns `{"status":"ok"}`
 - [ ] `graphify --version` prints a version
 - [ ] `backend/.env` exists (keys may be pending from the human)
+- [ ] `frontend/.env.local` exists with the Supabase URL + anon key
+- [ ] `supabase db push` applied (pending the human-created cloud project)
 
 Read `CLAUDE.md` at the repo root for stack rationale, commands, and project
 conventions before writing any code.
