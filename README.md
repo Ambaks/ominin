@@ -6,9 +6,7 @@ their operations.
 ## What this is
 
 Ominin provides computer and AI solutions to restaurant businesses — think cost
-tracking, forecasting, invoice processing, and back-office automation. The
-project targets 100+ users while running on free-tier infrastructure until
-revenue justifies paid plans.
+tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
