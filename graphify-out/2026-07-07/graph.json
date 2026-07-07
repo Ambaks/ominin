@@ -5598,7 +5598,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -6448,7 +6448,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -6470,7 +6470,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_supabase_server",
@@ -6534,7 +6534,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/webhook/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_stripe_server",
@@ -6571,6 +6571,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/webhook/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_webhook_route",
+      "target": "frontend_lib_supabase_server",
       "confidence_score": 1.0
     },
     {
@@ -6621,7 +6632,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/auth/callback/route.ts",
-      "source_location": "L2",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
       "target": "frontend_lib_supabase_server",
@@ -6636,17 +6647,6 @@
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
       "target": "frontend_lib_supabase_server_createclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/auth/callback/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_auth_callback_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -18271,17 +18271,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_proxy",
-      "target": "frontend_lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/admin.ts",
@@ -18572,6 +18561,17 @@
       "weight": 1.0,
       "source": "frontend_lib_supabase_server",
       "target": "frontend_lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_proxy",
+      "target": "frontend_lib_supabase_server",
       "confidence_score": 1.0
     },
     {

@@ -153,7 +153,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page",
-      "community": 86,
+      "community": 85,
       "norm_label": "page.tsx"
     },
     {
@@ -163,7 +163,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_filters",
-      "community": 86,
+      "community": 85,
       "norm_label": "filters"
     },
     {
@@ -173,7 +173,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_filterid",
-      "community": 86,
+      "community": 85,
       "norm_label": "filterid"
     },
     {
@@ -183,7 +183,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_app_gestion_commandes_page_matchesfilter",
-      "community": 86,
+      "community": 85,
       "norm_label": "matchesfilter()"
     },
     {
@@ -343,7 +343,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_page",
-      "community": 86,
+      "community": 85,
       "norm_label": "page.tsx"
     },
     {
@@ -353,7 +353,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_app_gestion_page_apercupage",
-      "community": 86,
+      "community": 85,
       "norm_label": "apercupage()"
     },
     {
@@ -483,7 +483,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_login_login_form",
-      "community": 1,
+      "community": 88,
       "norm_label": "login-form.tsx"
     },
     {
@@ -493,7 +493,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_googleicon",
-      "community": 1,
+      "community": 88,
       "norm_label": "googleicon()"
     },
     {
@@ -503,7 +503,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_mailicon",
-      "community": 1,
+      "community": 88,
       "norm_label": "mailicon()"
     },
     {
@@ -513,7 +513,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_loginform",
-      "community": 1,
+      "community": 88,
       "norm_label": "loginform()"
     },
     {
@@ -523,7 +523,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_login_page",
-      "community": 1,
+      "community": 88,
       "norm_label": "page.tsx"
     },
     {
@@ -533,7 +533,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_login_page_metadata",
-      "community": 1,
+      "community": 88,
       "norm_label": "metadata"
     },
     {
@@ -543,7 +543,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_app_login_page_loginpage",
-      "community": 1,
+      "community": 88,
       "norm_label": "loginpage()"
     },
     {
@@ -573,7 +573,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_m_slug_page",
-      "community": 91,
+      "community": 1,
       "norm_label": "page.tsx"
     },
     {
@@ -583,7 +583,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_app_m_slug_page_getrestaurant",
-      "community": 91,
+      "community": 1,
       "norm_label": "getrestaurant"
     },
     {
@@ -593,7 +593,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_app_m_slug_page_generatemetadata",
-      "community": 91,
+      "community": 1,
       "norm_label": "generatemetadata()"
     },
     {
@@ -603,7 +603,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_app_m_slug_page_menupage",
-      "community": 91,
+      "community": 1,
       "norm_label": "menupage()"
     },
     {
@@ -613,7 +613,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_not_found",
-      "community": 88,
+      "community": 1,
       "norm_label": "not-found.tsx"
     },
     {
@@ -623,7 +623,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_not_found_notfound",
-      "community": 88,
+      "community": 1,
       "norm_label": "notfound()"
     },
     {
@@ -723,7 +723,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card",
-      "community": 86,
+      "community": 85,
       "norm_label": "stat-card.tsx"
     },
     {
@@ -733,7 +733,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card_statcard",
-      "community": 86,
+      "community": 85,
       "norm_label": "statcard()"
     },
     {
@@ -773,7 +773,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_group_card_ordergroupcard",
-      "community": 86,
+      "community": 85,
       "norm_label": "ordergroupcard()"
     },
     {
@@ -1363,7 +1363,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_components_gestion_subscription_gate_subscriptiongate",
-      "community": 85,
+      "community": 89,
       "norm_label": "subscriptiongate()"
     },
     {
@@ -1673,7 +1673,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav",
-      "community": 91,
+      "community": 89,
       "norm_label": "category-nav.tsx"
     },
     {
@@ -1683,7 +1683,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorylink",
-      "community": 91,
+      "community": 89,
       "norm_label": "categorylink"
     },
     {
@@ -1693,7 +1693,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorynav",
-      "community": 91,
+      "community": 89,
       "norm_label": "categorynav()"
     },
     {
@@ -1703,7 +1703,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card",
-      "community": 88,
+      "community": 1,
       "norm_label": "dish-card.tsx"
     },
     {
@@ -1713,7 +1713,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_badges",
-      "community": 88,
+      "community": 1,
       "norm_label": "badges()"
     },
     {
@@ -1723,7 +1723,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_orderbutton",
-      "community": 88,
+      "community": 1,
       "norm_label": "orderbutton()"
     },
     {
@@ -1733,7 +1733,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_pairing",
-      "community": 88,
+      "community": 1,
       "norm_label": "pairing()"
     },
     {
@@ -1743,7 +1743,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_featuredcard",
-      "community": 88,
+      "community": 1,
       "norm_label": "featuredcard()"
     },
     {
@@ -1753,7 +1753,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_dishcard",
-      "community": 91,
+      "community": 1,
       "norm_label": "dishcard()"
     },
     {
@@ -1763,7 +1763,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_hero",
-      "community": 91,
+      "community": 1,
       "norm_label": "hero.tsx"
     },
     {
@@ -1773,7 +1773,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_menu_hero_hero",
-      "community": 91,
+      "community": 1,
       "norm_label": "hero()"
     },
     {
@@ -1783,7 +1783,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_footer",
-      "community": 91,
+      "community": 1,
       "norm_label": "menu-footer.tsx"
     },
     {
@@ -1793,7 +1793,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_footer_languages",
-      "community": 91,
+      "community": 1,
       "norm_label": "languages"
     },
     {
@@ -1803,7 +1803,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_footer_menufooter",
-      "community": 91,
+      "community": 1,
       "norm_label": "menufooter()"
     },
     {
@@ -1813,7 +1813,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_section",
-      "community": 91,
+      "community": 1,
       "norm_label": "menu-section.tsx"
     },
     {
@@ -1823,7 +1823,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_section_menusection",
-      "community": 91,
+      "community": 1,
       "norm_label": "menusection()"
     },
     {
@@ -1913,7 +1913,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs",
-      "community": 86,
+      "community": 85,
       "norm_label": "pill-tabs.tsx"
     },
     {
@@ -1923,7 +1923,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs_pilltab",
-      "community": 86,
+      "community": 85,
       "norm_label": "pilltab"
     },
     {
@@ -1933,7 +1933,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_components_ui_pill_tabs_pilltabs",
-      "community": 86,
+      "community": 85,
       "norm_label": "pilltabs()"
     },
     {
@@ -1963,7 +1963,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_ui_theme_toggle",
-      "community": 19,
+      "community": 89,
       "norm_label": "theme-toggle.tsx"
     },
     {
@@ -1973,7 +1973,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_ui_theme_toggle_sunicon",
-      "community": 19,
+      "community": 89,
       "norm_label": "sunicon()"
     },
     {
@@ -1983,7 +1983,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_components_ui_theme_toggle_moonicon",
-      "community": 19,
+      "community": 89,
       "norm_label": "moonicon()"
     },
     {
@@ -1993,7 +1993,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_components_ui_theme_toggle_themetoggle",
-      "community": 19,
+      "community": 89,
       "norm_label": "themetoggle()"
     },
     {
@@ -2163,7 +2163,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_lib_gestion_api_iteminput",
-      "community": 88,
+      "community": 1,
       "norm_label": "iteminput"
     },
     {
@@ -2513,7 +2513,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "frontend_lib_gestion_constants_role_labels",
-      "community": 85,
+      "community": 86,
       "norm_label": "role_labels"
     },
     {
@@ -2763,7 +2763,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors",
-      "community": 86,
+      "community": 85,
       "norm_label": "selectors.ts"
     },
     {
@@ -2773,7 +2773,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_linetotal",
-      "community": 86,
+      "community": 85,
       "norm_label": "linetotal()"
     },
     {
@@ -2793,7 +2793,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ishistorystatus",
-      "community": 86,
+      "community": 85,
       "norm_label": "ishistorystatus()"
     },
     {
@@ -2803,7 +2803,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_inprogressorders",
-      "community": 86,
+      "community": 85,
       "norm_label": "inprogressorders()"
     },
     {
@@ -2813,7 +2813,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_revenuetoday",
-      "community": 86,
+      "community": 85,
       "norm_label": "revenuetoday()"
     },
     {
@@ -2823,7 +2823,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_topventestoday",
-      "community": 86,
+      "community": 85,
       "norm_label": "topventestoday()"
     },
     {
@@ -2843,7 +2843,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_unavailableitems",
-      "community": 86,
+      "community": 85,
       "norm_label": "unavailableitems()"
     },
     {
@@ -2853,7 +2853,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_freetables",
-      "community": 86,
+      "community": 85,
       "norm_label": "freetables()"
     },
     {
@@ -2863,7 +2863,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_tablenumber",
-      "community": 86,
+      "community": 85,
       "norm_label": "tablenumber()"
     },
     {
@@ -2873,7 +2873,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_grouptablenumbers",
-      "community": 86,
+      "community": 85,
       "norm_label": "grouptablenumbers()"
     },
     {
@@ -2973,7 +2973,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getclientsnapshot",
-      "community": 92,
+      "community": 86,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -2983,7 +2983,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getserversnapshot",
-      "community": 92,
+      "community": 86,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -3103,7 +3103,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_feature",
-      "community": 89,
+      "community": 85,
       "norm_label": "feature"
     },
     {
@@ -3123,7 +3123,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etablissement",
-      "community": 85,
+      "community": 86,
       "norm_label": "etablissement"
     },
     {
@@ -3173,7 +3173,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_tablegroup",
-      "community": 85,
+      "community": 92,
       "norm_label": "tablegroup"
     },
     {
@@ -3183,7 +3183,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_article",
-      "community": 88,
+      "community": 1,
       "norm_label": "article"
     },
     {
@@ -3193,7 +3193,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etape",
-      "community": 85,
+      "community": 92,
       "norm_label": "etape"
     },
     {
@@ -3463,7 +3463,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_menu_data",
-      "community": 88,
+      "community": 1,
       "norm_label": "menu-data.ts"
     },
     {
@@ -3473,7 +3473,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_badge",
-      "community": 88,
+      "community": 1,
       "norm_label": "badge"
     },
     {
@@ -3483,7 +3483,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_badge_labels",
-      "community": 88,
+      "community": 1,
       "norm_label": "badge_labels"
     },
     {
@@ -3493,7 +3493,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_optionchoice",
-      "community": 88,
+      "community": 1,
       "norm_label": "optionchoice"
     },
     {
@@ -3503,7 +3503,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_optiongroup",
-      "community": 88,
+      "community": 1,
       "norm_label": "optiongroup"
     },
     {
@@ -3533,7 +3533,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_restaurant",
-      "community": 91,
+      "community": 1,
       "norm_label": "restaurant"
     },
     {
@@ -3543,7 +3543,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_unsplash",
-      "community": 88,
+      "community": 1,
       "norm_label": "unsplash()"
     },
     {
@@ -3553,7 +3553,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_trattorialucia",
-      "community": 88,
+      "community": 1,
       "norm_label": "trattorialucia"
     },
     {
@@ -3563,7 +3563,7 @@
       "source_location": "L419",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_restaurants",
-      "community": 88,
+      "community": 1,
       "norm_label": "restaurants"
     },
     {
@@ -3583,7 +3583,7 @@
       "source_location": "L429",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_formatprice",
-      "community": 86,
+      "community": 85,
       "norm_label": "formatprice()"
     },
     {
@@ -4507,10 +4507,20 @@
       "norm_label": "/commit"
     },
     {
-      "label": "What you must do when invoked",
+      "label": "Execution requirement",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
       "source_location": "L12",
+      "_origin": "ast",
+      "id": "claude_skills_commit_skill_execution_requirement",
+      "community": 20,
+      "norm_label": "execution requirement"
+    },
+    {
+      "label": "What you must do when invoked",
+      "file_type": "document",
+      "source_file": ".claude/skills/commit/SKILL.md",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "community": 20,
@@ -4520,7 +4530,7 @@
       "label": "Step 1 \u2014 Understand what changed",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L16",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_1_understand_what_changed",
       "community": 20,
@@ -4530,7 +4540,7 @@
       "label": "Step 2 \u2014 Project upkeep (required before every push)",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L24",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_2_project_upkeep_required_before_every_push",
       "community": 20,
@@ -4540,7 +4550,7 @@
       "label": "Step 3 \u2014 Safety checks",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L32",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_3_safety_checks",
       "community": 20,
@@ -4550,7 +4560,7 @@
       "label": "Step 4 \u2014 Write the commit message",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L43",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_4_write_the_commit_message",
       "community": 20,
@@ -4560,7 +4570,7 @@
       "label": "Step 5 \u2014 Commit and push",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L55",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_5_commit_and_push",
       "community": 20,
@@ -4570,7 +4580,7 @@
       "label": "Step 6 \u2014 Report back",
       "file_type": "document",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L62",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "claude_skills_commit_skill_step_6_report_back",
       "community": 20,
@@ -5390,7 +5400,7 @@
       "label": "Setup guide (written for an LLM agent)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L154",
+      "source_location": "L155",
       "_origin": "ast",
       "id": "readme_setup_guide_written_for_an_llm_agent",
       "community": 18,
@@ -5400,7 +5410,7 @@
       "label": "1. Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L161",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "readme_1_prerequisites",
       "community": 18,
@@ -5410,7 +5420,7 @@
       "label": "2. Frontend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L171",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "readme_2_frontend",
       "community": 18,
@@ -5420,7 +5430,7 @@
       "label": "3. Backend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L181",
+      "source_location": "L182",
       "_origin": "ast",
       "id": "readme_3_backend",
       "community": 18,
@@ -5430,7 +5440,7 @@
       "label": "4. Supabase (database & auth)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L204",
+      "source_location": "L205",
       "_origin": "ast",
       "id": "readme_4_supabase_database_auth",
       "community": 18,
@@ -5440,7 +5450,7 @@
       "label": "5. Graphify (knowledge-graph CLI)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L229",
+      "source_location": "L230",
       "_origin": "ast",
       "id": "readme_5_graphify_knowledge_graph_cli",
       "community": 18,
@@ -5450,7 +5460,7 @@
       "label": "6. Project skills (nothing to install)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L244",
+      "source_location": "L245",
       "_origin": "ast",
       "id": "readme_6_project_skills_nothing_to_install",
       "community": 18,
@@ -5460,7 +5470,7 @@
       "label": "7. Final checklist",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L257",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "readme_7_final_checklist",
       "community": 18,
@@ -5598,7 +5608,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -6448,7 +6458,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L2",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -6470,7 +6480,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_supabase_server",
@@ -6534,7 +6544,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/webhook/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_stripe_server",
@@ -6571,17 +6581,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/stripe/webhook/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_stripe_webhook_route",
-      "target": "frontend_lib_supabase_server",
       "confidence_score": 1.0
     },
     {
@@ -6632,7 +6631,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/auth/callback/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
       "target": "frontend_lib_supabase_server",
@@ -6647,6 +6646,17 @@
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
       "target": "frontend_lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/auth/callback/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_auth_callback_route",
+      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -18271,6 +18281,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_proxy",
+      "target": "frontend_lib_stripe_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/admin.ts",
@@ -18561,17 +18582,6 @@
       "weight": 1.0,
       "source": "frontend_lib_supabase_server",
       "target": "frontend_lib_supabase_server_createclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_proxy",
-      "target": "frontend_lib_supabase_server",
       "confidence_score": 1.0
     },
     {
@@ -19191,6 +19201,16 @@
       "source_location": "L12",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_commit",
+      "target": "claude_skills_commit_skill_execution_requirement",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/commit/SKILL.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "claude_skills_commit_skill_commit",
       "target": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "confidence_score": 1.0
     },
@@ -19198,7 +19218,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L16",
+      "source_location": "L27",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_1_understand_what_changed",
@@ -19208,7 +19228,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L24",
+      "source_location": "L35",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_2_project_upkeep_required_before_every_push",
@@ -19218,7 +19238,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L32",
+      "source_location": "L43",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_3_safety_checks",
@@ -19228,7 +19248,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L43",
+      "source_location": "L54",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_4_write_the_commit_message",
@@ -19238,7 +19258,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L55",
+      "source_location": "L66",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_5_commit_and_push",
@@ -19248,7 +19268,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/skills/commit/SKILL.md",
-      "source_location": "L62",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "claude_skills_commit_skill_what_you_must_do_when_invoked",
       "target": "claude_skills_commit_skill_step_6_report_back",
@@ -19938,7 +19958,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L154",
+      "source_location": "L155",
       "weight": 1.0,
       "source": "readme_ominin",
       "target": "readme_setup_guide_written_for_an_llm_agent",
@@ -19958,7 +19978,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L161",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_1_prerequisites",
@@ -19968,7 +19988,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L171",
+      "source_location": "L172",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_2_frontend",
@@ -19978,7 +19998,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L181",
+      "source_location": "L182",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_3_backend",
@@ -19988,7 +20008,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L204",
+      "source_location": "L205",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_4_supabase_database_auth",
@@ -19998,7 +20018,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L229",
+      "source_location": "L230",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_5_graphify_knowledge_graph_cli",
@@ -20008,7 +20028,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L244",
+      "source_location": "L245",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_6_project_skills_nothing_to_install",
@@ -20018,7 +20038,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L257",
+      "source_location": "L258",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_7_final_checklist",
@@ -20106,5 +20126,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2184b88d0a94c2b7f02c06b5c787e36367ee8a64"
+  "built_at_commit": "a76dc68b00a76bb48e71ffad48474c6ef52ec8d3"
 }
