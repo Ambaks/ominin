@@ -91,7 +91,5 @@
   "89": "shell.tsx",
   "90": "Verifying the Ominin frontend",
   "91": "selectors.ts",
-  "92": "proxy.ts",
-  "93": "proxy.ts",
-  "94": "eslint.config.mjs"
+  "92": "proxy.ts"
 }

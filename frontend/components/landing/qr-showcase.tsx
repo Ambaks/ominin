@@ -65,22 +65,24 @@ export function QrShowcase() {
           />
 
           <div className="absolute inset-0 flex items-center justify-center p-8">
-            <div className="relative w-52 rotate-2 rounded-2xl bg-white p-5 text-center shadow-2xl shadow-black/30 transition-transform duration-300 hover:rotate-0 sm:w-56">
+            <div className="relative w-52 rotate-2 rounded-2xl border border-hairline bg-surface-raised p-5 text-center shadow-2xl shadow-black/30 transition-transform duration-300 hover:rotate-0 sm:w-56">
               <span className="ember-gradient absolute -right-3 -top-3 rotate-6 rounded-full px-3 py-1 text-[11px] font-bold text-background shadow-lg">
                 {qrShowcase.badge}
               </span>
-              <p className="font-display text-sm font-semibold text-neutral-900">
+              <p className="font-display text-sm font-semibold text-foreground">
                 {qrShowcase.sticker.restaurant}
               </p>
-              <QrLive
-                path={qrShowcase.qrPath}
-                alt={qrShowcase.qrAlt}
-                className="mx-auto mt-3 size-36 sm:size-40"
-              />
-              <p className="mt-3 font-display text-xl font-semibold text-neutral-900">
+              <div className="mx-auto mt-3 w-fit rounded-xl bg-white p-2">
+                <QrLive
+                  path={qrShowcase.qrPath}
+                  alt={qrShowcase.qrAlt}
+                  className="size-32 rounded-lg sm:size-36"
+                />
+              </div>
+              <p className="mt-3 font-display text-xl font-semibold text-foreground">
                 {qrShowcase.sticker.table}
               </p>
-              <p className="mt-1 text-[11px] text-neutral-500">
+              <p className="mt-1 text-[11px] text-muted">
                 {qrShowcase.sticker.caption}
               </p>
             </div>
