@@ -86,21 +86,22 @@ limited to public menu data (QR page); everything else is member-scoped.
 Auth is Supabase email/password **and Google OAuth** — `/login`,
 `/auth/callback`, `/onboarding` (creates etablissement + gérant membership +
 numbered tables in one SECURITY DEFINER function), with Next 16 `proxy.ts`
-refreshing the session and guarding `/gestion`. Invitations are
-pure-Postgres: a trigger attaches the membership when the invited email
-creates its account (or instantly if it already exists). Demo data:
-`npm run seed:demo` reuses `seed()` as the single source of truth (readable
-slug ids remapped to uuids). **Live**: the free cloud project is created and
-linked, migrations pushed, demo seeded, env keys filled
-(`backend/.env` + `frontend/.env.local`, both gitignored), and
-`database.types.ts` regenerated from the real schema. Verified end-to-end:
-RLS probed over REST with the anon key (menu readable, orders/memberships
-invisible, anonymous writes blocked), `/m/trattoria-lucia` server-renders
-from Postgres, `/gestion` without a session 307-redirects to `/login`.
-Deliberately deferred: Google provider activation (OAuth client to create in
-Google Cloud Console — email/password login already works), guest ordering
-from the QR page, photo upload (Supabase Storage), multi-etablissement
-switcher, subcategories.
+refreshing the session and guarding `/gestion`. Signup now shows a dedicated
+confirmation screen (with email icon) after registration, guiding users to
+open the verification link in their inbox. Invitations are pure-Postgres: a
+trigger attaches the membership when the invited email creates its account
+(or instantly if it already exists). Demo data: `npm run seed:demo` reuses
+`seed()` as the single source of truth (readable slug ids remapped to uuids).
+**Live**: the free cloud project is created and linked, migrations pushed,
+demo seeded, env keys filled (`backend/.env` + `frontend/.env.local`, both
+gitignored), and `database.types.ts` regenerated from the real schema.
+Verified end-to-end: RLS probed over REST with the anon key (menu readable,
+orders/memberships invisible, anonymous writes blocked), `/m/trattoria-lucia`
+server-renders from Postgres, `/gestion` without a session 307-redirects to
+`/login`. Deliberately deferred: Google provider activation (OAuth client to
+create in Google Cloud Console — email/password login already works), guest
+ordering from the QR page, photo upload (Supabase Storage),
+multi-etablissement switcher, subcategories.
 
 **Stripe subscriptions**: paid plans are enforced end-to-end. Funnel:
 pricing card → `/login?plan=<offre>` (signup mode preselected) →

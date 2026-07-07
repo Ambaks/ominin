@@ -1,16 +1,16 @@
 # Graph Report - ominin  (2026-07-07)
 
 ## Corpus Check
-- 118 files · ~107,645 words
+- 118 files · ~107,785 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 614 nodes · 1287 edges · 93 communities (28 shown, 65 thin omitted)
+- 615 nodes · 1288 edges · 93 communities (27 shown, 66 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7d3a27c2`
+- Built from commit: `2184b88d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -119,25 +119,21 @@
 10. `getState()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
-  frontend/app/gestion/page.tsx → frontend/lib/gestion/permissions.ts
+- `FormuleFormModal()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/components/gestion/formules/formule-form-modal.tsx → frontend/lib/gestion/permissions.ts
 - `ItemFormModal()` --calls--> `hasFeature()`  [INFERRED]
   frontend/components/gestion/menu/item-form-modal.tsx → frontend/lib/gestion/permissions.ts
 - `signOut()` --calls--> `createClient()`  [EXTRACTED]
   frontend/components/gestion/shell.tsx → frontend/lib/supabase/client.ts
+- `FeaturedCard()` --calls--> `formatPrice()`  [EXTRACTED]
+  frontend/components/menu/dish-card.tsx → frontend/lib/menu-data.ts
 - `load()` --indirect_call--> `must()`  [INFERRED]
   frontend/lib/gestion/store.ts → frontend/lib/supabase/result.ts
-- `GET()` --calls--> `createClient()`  [EXTRACTED]
-  frontend/app/auth/callback/route.ts → frontend/lib/supabase/server.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (93 total, 65 thin omitted)
-
-### Community 1 - "Menu Data & Components"
-Cohesion: 0.07
-Nodes (35): ApercuPage(), generateMetadata(), getRestaurant, MenuPage(), StatCard(), CategoryLink, CategoryNav(), DishCard() (+27 more)
+## Communities (93 total, 66 thin omitted)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.06
@@ -169,7 +165,7 @@ Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & a
 
 ### Community 19 - "/graphify"
 Cohesion: 0.06
-Nodes (40): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+32 more)
+Nodes (39): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+31 more)
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.22
@@ -204,56 +200,56 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 85 - "types.ts"
-Cohesion: 0.17
-Nodes (19): OnboardingForm(), metadata, STATUS_CLASSES, StatusBadge(), ItemInput, OFFRE_FEATURES, OFFRE_LABELS, ORDER_STATUS_FLOW (+11 more)
+Cohesion: 0.10
+Nodes (32): OnboardingForm(), metadata, OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), SubscriptionGate(), OFFRE_FEATURES (+24 more)
 
 ### Community 86 - "useToast"
-Cohesion: 0.07
-Nodes (52): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager(), EtablissementForm() (+44 more)
+Cohesion: 0.08
+Nodes (51): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager(), EtablissementForm() (+43 more)
 
 ### Community 87 - "api.ts"
 Cohesion: 0.16
 Nodes (39): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+31 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.15
-Nodes (22): LoginForm(), metadata, ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor() (+14 more)
+Cohesion: 0.11
+Nodes (31): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+23 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.11
-Nodes (19): metadata, ApercuIcon(), CommandesIcon(), EditIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+11 more)
+Cohesion: 0.12
+Nodes (18): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+10 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
 Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
-Cohesion: 0.21
-Nodes (9): POST(), POST(), upsertSubscription(), GET(), OnboardingPage(), getStripe(), createAdminClient(), createClient() (+1 more)
+Cohesion: 0.10
+Nodes (20): POST(), POST(), upsertSubscription(), GET(), generateMetadata(), getRestaurant, MenuPage(), OnboardingPage() (+12 more)
 
 ### Community 92 - "proxy.ts"
-Cohesion: 0.11
-Nodes (30): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), Client (+22 more)
+Cohesion: 0.10
+Nodes (33): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), seed() (+25 more)
 
 ## Knowledge Gaps
 - **227 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+222 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **66 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `createClient()` connect `api.ts` to `types.ts`, `useToast`, `formule-form-modal.tsx`, `shell.tsx`, `proxy.ts`?**
-  _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `createClient()` connect `selectors.ts` to `Menu Data & Components`, `types.ts`?**
-  _High betweenness centrality (0.008) - this node is a cross-community bridge._
-- **Why does `useGestion()` connect `useToast` to `shell.tsx`, `Menu Data & Components`, `proxy.ts`?**
+- **Why does `createClient()` connect `api.ts` to `Menu Data & Components`, `types.ts`, `useToast`, `shell.tsx`, `proxy.ts`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `useGestion()` connect `useToast` to `shell.tsx`, `proxy.ts`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `useGestionAccess()` connect `useToast` to `formule-form-modal.tsx`, `proxy.ts`, `types.ts`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**
   _228 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Menu Data & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.06868686868686869 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._
+- **Should `TypeScript Config` be split into smaller, more focused modules?**
+  _Cohesion score 0.1 - nodes in this community are weakly interconnected._

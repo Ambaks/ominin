@@ -28,6 +28,24 @@ function GoogleIcon() {
   );
 }
 
+function MailIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-6"
+      aria-hidden
+    >
+      <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
+      <path d="m3 6 9 7 9-7" />
+    </svg>
+  );
+}
+
 export function LoginForm({
   authError,
   plan,
@@ -48,13 +66,12 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(
     authError ? "La connexion a échoué. Réessayez." : null
   );
-  const [notice, setNotice] = useState<string | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
-    setNotice(null);
     setBusy(true);
     const supabase = createClient();
     try {
@@ -77,9 +94,7 @@ export function LoginForm({
         if (data.session) {
           window.location.assign(destination);
         } else {
-          setNotice(
-            "Compte créé. Ouvrez le lien de confirmation envoyé par email pour continuer."
-          );
+          setPendingEmail(email);
         }
       }
     } catch (cause) {
@@ -105,6 +120,50 @@ export function LoginForm({
       setBusy(false);
     }
   };
+
+  if (pendingEmail) {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+        <Link
+          href="/"
+          className="font-display text-2xl font-medium tracking-tight"
+        >
+          <span className="ember-text">Ominin</span>
+        </Link>
+
+        <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6 text-center">
+          <div className="ember-gradient mx-auto flex size-12 items-center justify-center rounded-full text-background">
+            <MailIcon />
+          </div>
+          <h1 className="mt-4 font-display text-xl font-medium">
+            Merci de votre inscription !
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            Nous avons envoyé un lien de confirmation à{" "}
+            <span className="font-medium text-foreground">{pendingEmail}</span>.
+            Ouvrez-le pour activer votre compte et accéder à votre espace.
+          </p>
+          <p className="mt-3 text-xs text-faint">
+            Pensez à vérifier vos courriers indésirables si l’email n’apparaît
+            pas dans quelques minutes.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setPendingEmail(null);
+            setMode("signin");
+            setPassword("");
+            setBusy(false);
+          }}
+          className="text-sm text-muted transition-colors hover:text-foreground"
+        >
+          Retour à la connexion
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
@@ -163,7 +222,6 @@ export function LoginForm({
           </Field>
 
           {error && <p className="text-sm text-ember-3">{error}</p>}
-          {notice && <p className="text-sm text-muted">{notice}</p>}
 
           <button
             type="submit"
@@ -180,7 +238,6 @@ export function LoginForm({
         onClick={() => {
           setMode(mode === "signin" ? "signup" : "signin");
           setError(null);
-          setNotice(null);
         }}
         className="text-sm text-muted transition-colors hover:text-foreground"
       >
