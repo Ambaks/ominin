@@ -83,7 +83,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_auth_callback_route",
-      "community": 94,
+      "community": 91,
       "norm_label": "route.ts"
     },
     {
@@ -93,7 +93,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_app_auth_callback_route_get",
-      "community": 94,
+      "community": 91,
       "norm_label": "get()"
     },
     {
@@ -173,7 +173,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_app_gestion_equipe_page_teammanager",
-      "community": 86,
+      "community": 85,
       "norm_label": "teammanager()"
     },
     {
@@ -293,7 +293,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_page",
-      "community": 85,
+      "community": 86,
       "norm_label": "page.tsx"
     },
     {
@@ -303,7 +303,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_app_gestion_page_apercupage",
-      "community": 85,
+      "community": 86,
       "norm_label": "apercupage()"
     },
     {
@@ -573,7 +573,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_onboarding_onboarding_form",
-      "community": 94,
+      "community": 91,
       "norm_label": "onboarding-form.tsx"
     },
     {
@@ -583,7 +583,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_app_onboarding_onboarding_form_slugify",
-      "community": 94,
+      "community": 91,
       "norm_label": "slugify()"
     },
     {
@@ -593,7 +593,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_app_onboarding_onboarding_form_onboardingform",
-      "community": 94,
+      "community": 91,
       "norm_label": "onboardingform()"
     },
     {
@@ -603,7 +603,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_onboarding_page",
-      "community": 94,
+      "community": 91,
       "norm_label": "page.tsx"
     },
     {
@@ -613,7 +613,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_onboarding_page_metadata",
-      "community": 94,
+      "community": 91,
       "norm_label": "metadata"
     },
     {
@@ -623,7 +623,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_app_onboarding_page_onboardingpage",
-      "community": 94,
+      "community": 91,
       "norm_label": "onboardingpage()"
     },
     {
@@ -663,7 +663,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card",
-      "community": 85,
+      "community": 86,
       "norm_label": "stat-card.tsx"
     },
     {
@@ -673,7 +673,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card_statcard",
-      "community": 85,
+      "community": 86,
       "norm_label": "statcard()"
     },
     {
@@ -693,7 +693,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_card_ordercard",
-      "community": 85,
+      "community": 86,
       "norm_label": "ordercard()"
     },
     {
@@ -703,7 +703,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_commandes_order_group_card",
-      "community": 85,
+      "community": 86,
       "norm_label": "order-group-card.tsx"
     },
     {
@@ -1073,7 +1073,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_chevrondownicon",
-      "community": 86,
+      "community": 89,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -1973,7 +1973,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_components_ui_toast_toastprovider",
-      "community": 86,
+      "community": 89,
       "norm_label": "toastprovider()"
     },
     {
@@ -2443,7 +2443,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "frontend_lib_gestion_constants_offre_labels",
-      "community": 94,
+      "community": 91,
       "norm_label": "offre_labels"
     },
     {
@@ -2513,7 +2513,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_format_formattime",
-      "community": 85,
+      "community": 86,
       "norm_label": "formattime()"
     },
     {
@@ -2523,7 +2523,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers",
-      "community": 91,
+      "community": 85,
       "norm_label": "mappers.ts"
     },
     {
@@ -2543,7 +2543,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_rowtoetablissement",
-      "community": 91,
+      "community": 85,
       "norm_label": "rowtoetablissement()"
     },
     {
@@ -2563,7 +2563,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_assemblecategories",
-      "community": 91,
+      "community": 1,
       "norm_label": "assemblecategories()"
     },
     {
@@ -2573,7 +2573,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_rowtoformule",
-      "community": 91,
+      "community": 87,
       "norm_label": "rowtoformule()"
     },
     {
@@ -2583,7 +2583,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_rowtotable",
-      "community": 91,
+      "community": 85,
       "norm_label": "rowtotable()"
     },
     {
@@ -2593,7 +2593,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_assemblegroups",
-      "community": 91,
+      "community": 85,
       "norm_label": "assemblegroups()"
     },
     {
@@ -2603,7 +2603,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_orderrow",
-      "community": 91,
+      "community": 85,
       "norm_label": "orderrow"
     },
     {
@@ -2613,7 +2613,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_rowtoorder",
-      "community": 91,
+      "community": 85,
       "norm_label": "rowtoorder()"
     },
     {
@@ -2683,7 +2683,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors",
-      "community": 85,
+      "community": 86,
       "norm_label": "selectors.ts"
     },
     {
@@ -2693,7 +2693,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_linetotal",
-      "community": 85,
+      "community": 86,
       "norm_label": "linetotal()"
     },
     {
@@ -2703,7 +2703,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ordertotal",
-      "community": 85,
+      "community": 86,
       "norm_label": "ordertotal()"
     },
     {
@@ -2723,7 +2723,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_inprogressorders",
-      "community": 85,
+      "community": 86,
       "norm_label": "inprogressorders()"
     },
     {
@@ -2733,7 +2733,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_revenuetoday",
-      "community": 85,
+      "community": 86,
       "norm_label": "revenuetoday()"
     },
     {
@@ -2743,7 +2743,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_topventestoday",
-      "community": 85,
+      "community": 86,
       "norm_label": "topventestoday()"
     },
     {
@@ -2763,7 +2763,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_unavailableitems",
-      "community": 85,
+      "community": 86,
       "norm_label": "unavailableitems()"
     },
     {
@@ -2803,7 +2803,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store",
-      "community": 91,
+      "community": 85,
       "norm_label": "store.ts"
     },
     {
@@ -2813,7 +2813,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_client",
-      "community": 91,
+      "community": 85,
       "norm_label": "client"
     },
     {
@@ -2823,7 +2823,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_listeners",
-      "community": 91,
+      "community": 85,
       "norm_label": "listeners"
     },
     {
@@ -2833,7 +2833,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_notify",
-      "community": 91,
+      "community": 85,
       "norm_label": "notify()"
     },
     {
@@ -2843,7 +2843,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_fetchorders",
-      "community": 91,
+      "community": 85,
       "norm_label": "fetchorders()"
     },
     {
@@ -2853,7 +2853,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_refreshorders",
-      "community": 91,
+      "community": 85,
       "norm_label": "refreshorders()"
     },
     {
@@ -2863,7 +2863,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_subscribeorders",
-      "community": 91,
+      "community": 85,
       "norm_label": "subscribeorders()"
     },
     {
@@ -2873,7 +2873,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_load",
-      "community": 91,
+      "community": 85,
       "norm_label": "load()"
     },
     {
@@ -2883,7 +2883,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_subscribe",
-      "community": 91,
+      "community": 85,
       "norm_label": "subscribe()"
     },
     {
@@ -2893,7 +2893,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getclientsnapshot",
-      "community": 91,
+      "community": 85,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -2903,7 +2903,7 @@
       "source_location": "L180",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getserversnapshot",
-      "community": 91,
+      "community": 85,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -2923,7 +2923,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_commit",
-      "community": 91,
+      "community": 87,
       "norm_label": "commit()"
     },
     {
@@ -3033,7 +3033,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etablissement",
-      "community": 91,
+      "community": 85,
       "norm_label": "etablissement"
     },
     {
@@ -3083,7 +3083,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_tablegroup",
-      "community": 86,
+      "community": 85,
       "norm_label": "tablegroup"
     },
     {
@@ -3093,7 +3093,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_article",
-      "community": 1,
+      "community": 85,
       "norm_label": "article"
     },
     {
@@ -3103,7 +3103,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etape",
-      "community": 91,
+      "community": 85,
       "norm_label": "etape"
     },
     {
@@ -3403,7 +3403,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_optiongroup",
-      "community": 1,
+      "community": 85,
       "norm_label": "optiongroup"
     },
     {
@@ -3520,7 +3520,7 @@
       "label": "Json",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L7",
+      "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_json",
       "community": 91,
@@ -3530,17 +3530,37 @@
       "label": "Database",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L15",
+      "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_database",
       "community": 91,
       "norm_label": "database"
     },
     {
+      "label": "DatabaseWithoutInternals",
+      "file_type": "code",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L484",
+      "_origin": "ast",
+      "id": "frontend_lib_supabase_database_types_databasewithoutinternals",
+      "community": 91,
+      "norm_label": "databasewithoutinternals"
+    },
+    {
+      "label": "DefaultSchema",
+      "file_type": "code",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L486",
+      "_origin": "ast",
+      "id": "frontend_lib_supabase_database_types_defaultschema",
+      "community": 91,
+      "norm_label": "defaultschema"
+    },
+    {
       "label": "Tables",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L456",
+      "source_location": "L488",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tables",
       "community": 91,
@@ -3550,21 +3570,51 @@
       "label": "TablesInsert",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L458",
+      "source_location": "L517",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesinsert",
       "community": 91,
       "norm_label": "tablesinsert"
     },
     {
+      "label": "TablesUpdate",
+      "file_type": "code",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L542",
+      "_origin": "ast",
+      "id": "frontend_lib_supabase_database_types_tablesupdate",
+      "community": 91,
+      "norm_label": "tablesupdate"
+    },
+    {
       "label": "Enums",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L460",
+      "source_location": "L567",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_enums",
       "community": 91,
       "norm_label": "enums"
+    },
+    {
+      "label": "CompositeTypes",
+      "file_type": "code",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L584",
+      "_origin": "ast",
+      "id": "frontend_lib_supabase_database_types_compositetypes",
+      "community": 91,
+      "norm_label": "compositetypes"
+    },
+    {
+      "label": "Constants",
+      "file_type": "code",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L601",
+      "_origin": "ast",
+      "id": "frontend_lib_supabase_database_types_constants",
+      "community": 91,
+      "norm_label": "constants"
     },
     {
       "label": "result.ts",
@@ -3603,7 +3653,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_server",
-      "community": 94,
+      "community": 91,
       "norm_label": "server.ts"
     },
     {
@@ -3613,7 +3663,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_lib_supabase_server_createclient",
-      "community": 94,
+      "community": 91,
       "norm_label": "createclient()"
     },
     {
@@ -3793,7 +3843,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_package_dependencies_qrcode",
-      "community": 2,
+      "community": 19,
       "norm_label": "qrcode"
     },
     {
@@ -5150,7 +5200,7 @@
       "label": "Setup guide (written for an LLM agent)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L119",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "readme_setup_guide_written_for_an_llm_agent",
       "community": 18,
@@ -5160,7 +5210,7 @@
       "label": "1. Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L126",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "readme_1_prerequisites",
       "community": 18,
@@ -5170,7 +5220,7 @@
       "label": "2. Frontend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L136",
+      "source_location": "L141",
       "_origin": "ast",
       "id": "readme_2_frontend",
       "community": 18,
@@ -5180,7 +5230,7 @@
       "label": "3. Backend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L146",
+      "source_location": "L151",
       "_origin": "ast",
       "id": "readme_3_backend",
       "community": 18,
@@ -5190,7 +5240,7 @@
       "label": "4. Supabase (database & auth)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L169",
+      "source_location": "L174",
       "_origin": "ast",
       "id": "readme_4_supabase_database_auth",
       "community": 18,
@@ -5200,7 +5250,7 @@
       "label": "5. Graphify (knowledge-graph CLI)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L194",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "readme_5_graphify_knowledge_graph_cli",
       "community": 18,
@@ -5210,7 +5260,7 @@
       "label": "6. Project skills (nothing to install)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L209",
+      "source_location": "L214",
       "_origin": "ast",
       "id": "readme_6_project_skills_nothing_to_install",
       "community": 18,
@@ -5220,7 +5270,7 @@
       "label": "7. Final checklist",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L222",
+      "source_location": "L227",
       "_origin": "ast",
       "id": "readme_7_final_checklist",
       "community": 18,
@@ -5358,7 +5408,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -18129,7 +18179,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L15",
+      "source_location": "L584",
+      "weight": 1.0,
+      "source": "frontend_lib_supabase_database_types",
+      "target": "frontend_lib_supabase_database_types_compositetypes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L601",
+      "weight": 1.0,
+      "source": "frontend_lib_supabase_database_types",
+      "target": "frontend_lib_supabase_database_types_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_database",
@@ -18139,7 +18209,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L460",
+      "source_location": "L484",
+      "weight": 1.0,
+      "source": "frontend_lib_supabase_database_types",
+      "target": "frontend_lib_supabase_database_types_databasewithoutinternals",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L486",
+      "weight": 1.0,
+      "source": "frontend_lib_supabase_database_types",
+      "target": "frontend_lib_supabase_database_types_defaultschema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L567",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_enums",
@@ -18149,7 +18239,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L7",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_json",
@@ -18159,7 +18249,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L456",
+      "source_location": "L488",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_tables",
@@ -18169,10 +18259,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L458",
+      "source_location": "L517",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_tablesinsert",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/supabase/database.types.ts",
+      "source_location": "L542",
+      "weight": 1.0,
+      "source": "frontend_lib_supabase_database_types",
+      "target": "frontend_lib_supabase_database_types_tablesupdate",
       "confidence_score": 1.0
     },
     {
@@ -19639,7 +19739,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L119",
+      "source_location": "L124",
       "weight": 1.0,
       "source": "readme_ominin",
       "target": "readme_setup_guide_written_for_an_llm_agent",
@@ -19659,7 +19759,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L126",
+      "source_location": "L131",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_1_prerequisites",
@@ -19669,7 +19769,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L136",
+      "source_location": "L141",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_2_frontend",
@@ -19679,7 +19779,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L146",
+      "source_location": "L151",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_3_backend",
@@ -19689,7 +19789,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L169",
+      "source_location": "L174",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_4_supabase_database_auth",
@@ -19699,7 +19799,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L194",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_5_graphify_knowledge_graph_cli",
@@ -19709,7 +19809,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L209",
+      "source_location": "L214",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_6_project_skills_nothing_to_install",
@@ -19719,7 +19819,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L222",
+      "source_location": "L227",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_7_final_checklist",

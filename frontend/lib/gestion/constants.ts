@@ -9,6 +9,8 @@ import type {
 
 export const SEED_TABLE_COUNT = 12;
 export const TOAST_DURATION_MS = 3000;
+/** Relecture du statut d'abonnement au retour de Stripe Checkout. */
+export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {

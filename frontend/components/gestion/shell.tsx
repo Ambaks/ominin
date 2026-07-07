@@ -21,6 +21,7 @@ import {
   TeamIcon,
   type IconProps,
 } from "./icons";
+import { SubscriptionGate } from "./subscription-gate";
 
 interface NavItem {
   href: string;
@@ -155,7 +156,16 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </aside>
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
-            {state ? children : <ShellSkeleton />}
+            {!state ? (
+              <ShellSkeleton />
+            ) : state.subscriptionStatus === "active" ? (
+              children
+            ) : (
+              <SubscriptionGate
+                role={state.role}
+                offre={state.etablissement.offre}
+              />
+            )}
           </main>
         </div>
 

@@ -9,6 +9,11 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: PageProps<"/login">) {
-  const { error } = await searchParams;
-  return <LoginForm authError={error === "auth"} />;
+  const { error, plan } = await searchParams;
+  return (
+    <LoginForm
+      authError={error === "auth"}
+      plan={typeof plan === "string" ? plan : undefined}
+    />
+  );
 }

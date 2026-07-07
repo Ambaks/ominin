@@ -15,11 +15,11 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function OnboardingForm() {
+export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
-  const [offre, setOffre] = useState<Offre>("digital");
+  const [offre, setOffre] = useState<Offre>(initialOffre ?? "digital");
   const [tableCount, setTableCount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,6 +44,19 @@ export function OnboardingForm() {
       );
       setBusy(false);
       return;
+    }
+
+    // Enchaîne sur le paiement ; en cas d'échec (Stripe non configuré…),
+    // /gestion affiche l'écran « Activer mon abonnement ».
+    try {
+      const response = await fetch("/api/stripe/checkout", { method: "POST" });
+      const body = (await response.json()) as { url?: string };
+      if (response.ok && body.url) {
+        window.location.assign(body.url);
+        return;
+      }
+    } catch {
+      // Le verrou d'abonnement prend le relais.
     }
     window.location.assign("/gestion");
   };

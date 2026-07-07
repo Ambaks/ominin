@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1783384714.0048392,
-    "ast_hash": "e53c6d7d02d2f0c93e651ffc09b9c29e",
+    "mtime": 1783393115.308678,
+    "ast_hash": "f97e69065f77f4aa3fd6079a6196cad1",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1783381188.88105,
-    "ast_hash": "230a2b549e04b7ba6161ea0da0424563",
+    "mtime": 1783390546.631153,
+    "ast_hash": "d5320256e78dd270063a62c486979d2b",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/result.ts": {

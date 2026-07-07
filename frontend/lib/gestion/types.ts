@@ -98,6 +98,8 @@ export interface Formule {
 
 export interface GestionState {
   etablissement: Etablissement;
+  /** Statut Stripe brut ("active", "past_due"…) ; null ⇒ jamais souscrit. */
+  subscriptionStatus: string | null;
   role: Role;
   categories: MenuCategory[];
   formules: Formule[];

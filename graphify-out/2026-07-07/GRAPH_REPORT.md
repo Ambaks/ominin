@@ -1,11 +1,11 @@
 # Graph Report - ominin  (2026-07-07)
 
 ## Corpus Check
-- 111 files · ~105,064 words
+- 111 files · ~105,502 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 591 nodes · 1281 edges · 95 communities (27 shown, 68 thin omitted)
+- 596 nodes · 1286 edges · 94 communities (26 shown, 68 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 21 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
@@ -106,7 +106,6 @@
 - [[_COMMUNITY_selectors.ts|selectors.ts]]
 - [[_COMMUNITY_proxy.ts|proxy.ts]]
 - [[_COMMUNITY_eslint.config.mjs|eslint.config.mjs]]
-- [[_COMMUNITY_onboarding-form.tsx|onboarding-form.tsx]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 35 edges
@@ -121,29 +120,29 @@
 10. `can()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
-  frontend/app/gestion/page.tsx → frontend/lib/gestion/permissions.ts
 - `FormuleFormModal()` --calls--> `hasFeature()`  [INFERRED]
   frontend/components/gestion/formules/formule-form-modal.tsx → frontend/lib/gestion/permissions.ts
 - `ItemFormModal()` --calls--> `hasFeature()`  [INFERRED]
   frontend/components/gestion/menu/item-form-modal.tsx → frontend/lib/gestion/permissions.ts
 - `FeaturedCard()` --calls--> `formatPrice()`  [EXTRACTED]
   frontend/components/menu/dish-card.tsx → frontend/lib/menu-data.ts
+- `load()` --indirect_call--> `rowToFormule()`  [INFERRED]
+  frontend/lib/gestion/store.ts → frontend/lib/gestion/mappers.ts
 - `load()` --indirect_call--> `must()`  [INFERRED]
   frontend/lib/gestion/store.ts → frontend/lib/supabase/result.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (95 total, 68 thin omitted)
+## Communities (94 total, 68 thin omitted)
 
 ### Community 1 - "Menu Data & Components"
 Cohesion: 0.09
-Nodes (21): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), DishCard(), FeaturedCard(), Hero() (+13 more)
+Nodes (20): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), DishCard(), FeaturedCard(), Hero() (+12 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.07
-Nodes (28): dependencies, next, next-themes, qrcode, react, react-dom, @supabase/ssr, @supabase/supabase-js (+20 more)
+Nodes (27): dependencies, next, next-themes, react, react-dom, @supabase/ssr, @supabase/supabase-js, devDependencies (+19 more)
 
 ### Community 3 - "Commit Workflow"
 Cohesion: 0.18
@@ -167,7 +166,7 @@ Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & a
 
 ### Community 19 - "/graphify"
 Cohesion: 0.07
-Nodes (37): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+29 more)
+Nodes (38): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+30 more)
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.22
@@ -202,56 +201,52 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 85 - "types.ts"
-Cohesion: 0.12
-Nodes (32): ApercuPage(), StatCard(), OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), OFFRE_FEATURES, ORDER_ACTION_LABELS (+24 more)
+Cohesion: 0.09
+Nodes (43): TeamManager(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), OFFRE_FEATURES, ORDER_ACTION_LABELS, ORDER_STATUS_FLOW, ORDER_STATUS_LABELS (+35 more)
 
 ### Community 86 - "useToast"
-Cohesion: 0.09
-Nodes (47): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager(), EtablissementForm() (+39 more)
+Cohesion: 0.08
+Nodes (53): CommandesPage(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, EtablissementForm(), EtablissementPage() (+45 more)
 
 ### Community 87 - "api.ts"
-Cohesion: 0.17
-Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
+Cohesion: 0.16
+Nodes (43): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+35 more)
 
 ### Community 88 - "formule-form-modal.tsx"
 Cohesion: 0.17
 Nodes (24): LoginForm(), metadata, ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor() (+16 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.15
-Nodes (17): metadata, ApercuIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps, LogoutIcon() (+9 more)
+Cohesion: 0.13
+Nodes (19): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+11 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
 Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
-Cohesion: 0.12
-Nodes (30): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), seed() (+22 more)
-
-### Community 94 - "onboarding-form.tsx"
-Cohesion: 0.29
-Nodes (7): GET(), OnboardingForm(), slugify(), metadata, OnboardingPage(), OFFRE_LABELS, createClient()
+Cohesion: 0.11
+Nodes (22): GET(), OnboardingForm(), slugify(), metadata, OnboardingPage(), OFFRE_LABELS, seed(), getRestaurant() (+14 more)
 
 ## Knowledge Gaps
-- **216 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+211 more)
+- **221 isolated node(s):** `backend`, `FILTERS`, `FilterId`, `ROLES`, `metadata` (+216 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **68 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `qrcode` connect `Package Dependencies` to `/graphify`, `useToast`?**
+- **Why does `qrcode` connect `/graphify` to `Package Dependencies`, `useToast`?**
   _High betweenness centrality (0.057) - this node is a cross-community bridge._
-- **Why does `useQrCodes()` connect `useToast` to `Package Dependencies`?**
+- **Why does `dependencies` connect `Package Dependencies` to `/graphify`?**
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+- **Why does `useQrCodes()` connect `useToast` to `/graphify`?**
   _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**
-  _217 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _222 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Menu Data & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.0928030303030303 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09475806451612903 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
-  _Cohesion score 0.06896551724137931 - nodes in this community are weakly interconnected._
-- **Should `TypeScript Config` be split into smaller, more focused modules?**
-  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

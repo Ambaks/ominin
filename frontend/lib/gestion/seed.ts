@@ -176,6 +176,7 @@ export function seed(): GestionState {
       hours: restaurant.hours,
       offre: "connect",
     },
+    subscriptionStatus: "active",
     role: "gerant",
     categories,
     formules: [

@@ -59,6 +59,13 @@ async function main() {
       .single()
   );
 
+  // La démo reste utilisable sans passer par Stripe.
+  const { error: subscriptionError } = await db.from("subscriptions").insert({
+    etablissement_id: etab.id,
+    status: state.subscriptionStatus,
+  });
+  if (subscriptionError) throw new Error(subscriptionError.message);
+
   const categories = must(
     await db
       .from("categories")

@@ -1,4 +1,4 @@
-import { pricingSection, signupCta } from "@/lib/landing-data";
+import { planSignupHref, pricingSection } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
 import { SectionHeading } from "./section-heading";
 
@@ -66,14 +66,14 @@ export function Pricing() {
               </div>
 
               <a
-                href={signupCta.href}
+                href={planSignupHref(plan.id)}
                 className={`mt-auto rounded-full px-5 py-2.5 text-center text-sm font-semibold transition-colors ${
                   plan.badge
                     ? "ember-gradient text-background"
                     : "border border-hairline text-foreground hover:border-ember-2/40"
                 }`}
               >
-                {signupCta.label}
+                {pricingSection.ctaLabel} {plan.name}
               </a>
             </div>
           ))}

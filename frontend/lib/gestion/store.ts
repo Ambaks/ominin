@@ -107,14 +107,31 @@ async function load(): Promise<void> {
   }
   const etablissementId = membership.etablissement_id;
 
-  const [etablissement, categories, items, formules, tables, groups, orders] =
-    await Promise.all([
+  const [
+    etablissement,
+    subscription,
+    categories,
+    items,
+    formules,
+    tables,
+    groups,
+    orders,
+  ] = await Promise.all([
       supabase
         .from("etablissements")
         .select("*")
         .eq("id", etablissementId)
         .single()
         .then(must),
+      supabase
+        .from("subscriptions")
+        .select("status")
+        .eq("etablissement_id", etablissementId)
+        .maybeSingle()
+        .then((result) => {
+          if (result.error) throw new Error(result.error.message);
+          return result.data;
+        }),
       supabase
         .from("categories")
         .select("*")
@@ -149,6 +166,7 @@ async function load(): Promise<void> {
 
   state = {
     etablissement: rowToEtablissement(etablissement),
+    subscriptionStatus: subscription?.status ?? null,
     role: membership.role,
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
@@ -188,6 +206,23 @@ export function getState(): GestionState {
 export function commit(next: GestionState) {
   state = next;
   notify();
+}
+
+/** Relit le statut d'abonnement (retour de Stripe Checkout, avant webhook). */
+export async function refreshSubscription(): Promise<void> {
+  if (!state) return;
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("status")
+    .eq("etablissement_id", state.etablissement.id)
+    .maybeSingle();
+  if (error) return;
+  const status = data?.status ?? null;
+  if (state && state.subscriptionStatus !== status) {
+    state = { ...state, subscriptionStatus: status };
+    notify();
+  }
 }
 
 /** État complet, ou null côté serveur / avant chargement (⇒ squelette). */

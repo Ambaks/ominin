@@ -21,8 +21,9 @@ phone-framed iframe demo of the QR menu, 3-tier pricing (Digital 29€ / Smart
 (L'Adresse, Chez l'Walida, NERO), final CTA, then FAQ accordion (native
 `<details>`). Zero client-side JS — every component is a server component.
 All copy and data lives in `lib/landing-data.ts` (no content literals in
-JSX). CTAs currently scroll to a contact section with email (`mailto:`) and
-a demo link; a dedicated signup page will replace this.
+JSX). Every "Commencer" CTA now points to `/login`; each pricing card links
+to `/login?plan=<offre>` so the chosen plan follows the whole signup funnel,
+and the nav carries a "Connexion" link.
 
 **Branding**: the Ominin logo (triple ember-gradient chevron, neon glow) is
 in place — favicon/app icons via Next.js metadata file conventions
@@ -88,8 +89,27 @@ invisible, anonymous writes blocked), `/m/trattoria-lucia` server-renders
 from Postgres, `/gestion` without a session 307-redirects to `/login`.
 Deliberately deferred: Google provider activation (OAuth client to create in
 Google Cloud Console — email/password login already works), guest ordering
-from the QR page, online payment, photo upload (Supabase Storage),
-multi-etablissement switcher, subcategories.
+from the QR page, photo upload (Supabase Storage), multi-etablissement
+switcher, subcategories.
+
+**Stripe subscriptions**: paid plans are enforced end-to-end. Funnel:
+pricing card → `/login?plan=<offre>` (signup mode preselected) →
+`/onboarding` (offre prefilled) → Stripe Checkout (hosted page, monthly
+subscription, no trial, `locale: fr`) → back to `/gestion`. A `subscriptions`
+table (migration 0004, member-read RLS, written only by the webhook via
+service_role) holds the raw Stripe status; `/gestion` is fully locked behind
+an "Activer mon abonnement" screen until the status is `active` (the screen
+polls after Checkout returns, gérant-only button). Code lives in Next route
+handlers (`/api/stripe/checkout` + `/api/stripe/webhook`, signature-verified)
+— chosen over the FastAPI backend because Render free tier cold starts would
+delay webhooks. Prices live in Stripe, resolved by `lookup_key` = offre id;
+`npm run setup:stripe` creates the three products from `pricingSection` in
+`lib/landing-data.ts` (the landing prices are the single source of truth —
+nothing hardcoded). The demo etablissement is seeded with an active
+subscription. **Pending**: fill `STRIPE_SECRET_KEY` (test mode) in
+`backend/.env`, run `npm run setup:stripe`, and for local webhook testing run
+`stripe listen --forward-to localhost:3000/api/stripe/webhook` (copy the
+`whsec_…` into `frontend/.env.local` `STRIPE_WEBHOOK_SECRET`).
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.

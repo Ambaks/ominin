@@ -28,8 +28,21 @@ function GoogleIcon() {
   );
 }
 
-export function LoginForm({ authError }: { authError: boolean }) {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+export function LoginForm({
+  authError,
+  plan,
+}: {
+  authError: boolean;
+  plan?: string;
+}) {
+  // Offre choisie sur la landing : si l'utilisateur n'a pas encore
+  // d'établissement, l'onboarding la préremplit (sinon il est redirigé).
+  const destination = plan
+    ? `/onboarding?plan=${encodeURIComponent(plan)}`
+    : "/gestion";
+  const [mode, setMode] = useState<"signin" | "signup">(
+    plan ? "signup" : "signin"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
@@ -51,16 +64,18 @@ export function LoginForm({ authError }: { authError: boolean }) {
           password,
         });
         if (error) throw error;
-        window.location.assign("/gestion");
+        window.location.assign(destination);
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`,
+          },
         });
         if (error) throw error;
         if (data.session) {
-          window.location.assign("/gestion");
+          window.location.assign(destination);
         } else {
           setNotice(
             "Compte créé. Ouvrez le lien de confirmation envoyé par email pour continuer."
@@ -81,7 +96,9 @@ export function LoginForm({ authError }: { authError: boolean }) {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`,
+      },
     });
     if (error) {
       setError(error.message);

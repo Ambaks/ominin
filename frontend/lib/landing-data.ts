@@ -59,11 +59,14 @@ export const demoCta: Cta = {
   href: `/m/${DEMO_SLUG}`,
 };
 
-// Point this at the signup page once it exists — every "Commencer" CTA follows.
 export const signupCta: Cta = {
   label: "Commencer",
-  href: "#contact",
+  href: "/login",
 };
+
+/** CTA d'une carte tarif : l'offre choisie suit tout le funnel d'inscription. */
+export const planSignupHref = (planId: string) =>
+  `/login?plan=${encodeURIComponent(planId)}`;
 
 export const seo = {
   title:
@@ -78,6 +81,7 @@ export const nav = {
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
     { label: "FAQ", href: "#faq" },
+    { label: "Connexion", href: "/login" },
   ] satisfies NavLink[],
   cta: { label: "Voir la démo", href: `/m/${DEMO_SLUG}` } satisfies Cta,
 };
@@ -180,6 +184,7 @@ export const pricingSection = {
   subtitle:
     "Trois offres mensuelles, résiliables à tout moment. Vous changez d'offre quand vous voulez.",
   perMonth: "/mois",
+  ctaLabel: "Choisir",
   plans: [
     {
       id: "digital",
