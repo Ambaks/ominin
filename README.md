@@ -12,6 +12,12 @@ revenue justifies paid plans.
 
 ## Project status
 
+> ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
+> Dashboard-only steps the coding agent can't do (no Supabase/Vercel/Stripe
+> access): paste the branded signup-confirmation email into the Supabase
+> dashboard, add the two Stripe env vars in Vercel + redeploy, and set the
+> Supabase auth URLs. The sales funnel isn't fully live until these are done.
+
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
 French-language, warm premium design with dark/light theme toggle (same
 ember-gradient system as the menu page). Sections: sticky nav, hero (full-bleed
