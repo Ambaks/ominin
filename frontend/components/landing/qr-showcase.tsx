@@ -71,7 +71,10 @@ export function QrShowcase() {
                   <span className="ember-gradient absolute -right-3 -top-3 rotate-6 rounded-full px-3 py-1 text-[11px] font-bold text-background shadow-lg">
                     {qrShowcase.badge}
                   </span>
-                  <p className="font-display text-sm font-semibold text-foreground">
+                  <p className="ember-text text-[10px] font-bold uppercase tracking-[0.22em]">
+                    {qrShowcase.sticker.brand}
+                  </p>
+                  <p className="mt-1 font-display text-sm font-semibold text-foreground">
                     {qrShowcase.sticker.restaurant}
                   </p>
                   <div className="mx-auto mt-3 w-fit rounded-xl bg-white p-2">

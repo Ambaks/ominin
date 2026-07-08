@@ -39,9 +39,13 @@ tiles) and a transparent `public/logo.png` shown beside the wordmark in the
 landing nav and footer. The mark was redrawn programmatically from the
 original render (`logo.png` at repo root) so it stays crisp at favicon sizes.
 
-**Business model**: QR codes (stickers on tables), not physical NFC cards.
-Restaurants receive personalized QR codes; clients scan to view the menu,
-order, and pay — no app required.
+**Business model**: QR codes (stickers on tables), branded as **"Le Cachet"**
+(proprietary name rolled out across the landing: defined at first mention in
+the how-it-works flow, rendered on the QR sticker mockup, and explained in a
+dedicated FAQ item, so visitors grasp Cachet = QR code sticker), not physical
+NFC cards. Restaurants receive personalized Cachets; clients scan to view the
+menu, order, and pay — no app required. Hero and SEO copy retain "QR code"
+wording for universal discoverability and search terms.
 
 **Theming**: dual dark/light theme via `next-themes` (class strategy on
 `<html>`, localStorage-persisted, no FOUC). Dark is the default; light is

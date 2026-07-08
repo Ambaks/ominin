@@ -112,9 +112,9 @@ export const howItWorks = {
   title: "De l'assise à la commande, en moins d'une minute.",
   steps: [
     {
-      title: "Le client scanne le QR code",
+      title: "Le client scanne le Cachet",
       description:
-        "Un scan du QR code collé sur la table. Rien à installer, rien à expliquer.",
+        "Le Cachet, c'est le QR code à votre logo collé sur la table. Un scan, rien à installer, rien à expliquer.",
     },
     {
       title: "Votre menu s'affiche",
@@ -149,9 +149,9 @@ export const featuresSection = {
     },
     {
       stat: "QR Codes",
-      title: "Un sticker par table, c'est tout",
+      title: "Le Cachet : un par table",
       description:
-        "On vous fournit vos QR codes personnalisés, prêts à coller. Pas de matériel, pas de formation, opérationnel en quelques minutes.",
+        "Le Cachet, c'est votre QR code personnalisé à votre logo. On vous le fournit prêt à coller — pas de matériel, pas de formation, opérationnel en quelques minutes.",
     },
     {
       stat: "Simple",
@@ -209,8 +209,8 @@ export const pricingSection = {
       tagline: "Votre carte, en digital.",
       featuresLabel: "Inclus :",
       features: [
-        "Menu digital QR code",
-        "QR codes personnalisés à votre logo",
+        "Menu digital par QR code",
+        "Vos Cachets personnalisés à votre logo",
         "Mise à jour en temps réel",
         "Espace de gestion",
       ],
@@ -242,7 +242,7 @@ export const pricingSection = {
     },
   ] satisfies Plan[],
   guarantees: [
-    "QR codes fournis gratuitement",
+    "Vos Cachets fournis gratuitement",
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
@@ -272,7 +272,7 @@ export const clientsSection = {
       city: "Muret",
       since: 2025,
       quote:
-        "Depuis qu'on a les QR codes, mes serveurs gèrent deux fois plus de tables.",
+        "Depuis qu'on a posé les Cachets, mes serveurs gèrent deux fois plus de tables.",
       image: unsplash("photo-1541518763669-27fef04b14ea", 200),
     },
     {
@@ -288,9 +288,9 @@ export const clientsSection = {
 };
 
 export const qrShowcase = {
-  label: "QR codes personnalisés",
+  label: "Le Cachet",
   title: "Le secret est collé sur la table.",
-  lead: "Chaque table reçoit son sticker QR à votre logo — prêt à coller, prêt à servir. Vos clients scannent, votre menu s'ouvre. Pas d'application, pas d'attente.",
+  lead: "Le Cachet, c'est votre QR code à votre logo, collé sur chaque table — prêt à coller, prêt à servir. Vos clients le scannent, votre menu s'ouvre. Pas d'application, pas d'attente.",
   points: [
     {
       title: "À votre logo, fournis gratuitement",
@@ -308,7 +308,7 @@ export const qrShowcase = {
         "Téléchargez ou réimprimez chaque code vous-même, depuis votre espace de gestion.",
     },
   ] satisfies QrShowcasePoint[],
-  scanHintStrong: "Ce QR code est réel.",
+  scanHintStrong: "Ce Cachet est réel.",
   scanHint:
     "Scannez-le avec votre téléphone : le menu démo s'ouvre instantanément.",
   mobileCta: {
@@ -317,6 +317,7 @@ export const qrShowcase = {
   } satisfies Cta,
   badge: "Scannez-moi",
   sticker: {
+    brand: "Le Cachet",
     restaurant: "Trattoria Lucia",
     table: "Table 12",
     caption: "Scannez pour consulter le menu",
@@ -337,19 +338,24 @@ export const faqSection = {
   title: "Questions fréquentes.",
   items: [
     {
-      question: "Mes clients doivent-ils installer une application ?",
+      question: "C'est quoi, « le Cachet » ?",
       answer:
-        "Non. Le menu s'ouvre directement dans le navigateur du téléphone, sur iPhone comme sur Android. Un scan du QR code sur la table suffit.",
+        "Le Cachet, c'est le petit QR code personnalisé à votre logo qu'on colle sur chaque table. Vos clients le scannent avec leur téléphone et votre menu s'ouvre — sans application. C'est notre façon de remplacer la carte papier.",
     },
     {
-      question: "Que se passe-t-il si un QR code est abîmé ?",
+      question: "Mes clients doivent-ils installer une application ?",
       answer:
-        "Nous vous en renvoyons gratuitement. Prévenez-nous et de nouveaux stickers personnalisés partent sous 48 heures.",
+        "Non. Le menu s'ouvre directement dans le navigateur du téléphone, sur iPhone comme sur Android. Un scan du Cachet sur la table suffit.",
+    },
+    {
+      question: "Que se passe-t-il si un Cachet est abîmé ?",
+      answer:
+        "Nous vous en renvoyons gratuitement. Prévenez-nous et de nouveaux Cachets personnalisés partent sous 48 heures.",
     },
     {
       question: "Combien de temps pour être opérationnel ?",
       answer:
-        "Quelques minutes. Notre équipe conçoit votre menu digital, vous recevez vos QR codes personnalisés à coller sur les tables. Aucune installation technique de votre côté.",
+        "Quelques minutes. Notre équipe conçoit votre menu digital, vous recevez vos Cachets à coller sur les tables. Aucune installation technique de votre côté.",
     },
     {
       question: "Puis-je modifier mon menu moi-même ?",
