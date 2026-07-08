@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { demoSection, demoCta } from "@/lib/landing-data";
+import { IphoneFrame } from "./iphone-frame";
 import { QrCorners } from "./qr-corners";
 import { SectionHeading } from "./section-heading";
 
@@ -36,16 +37,14 @@ export function DemoShowcase() {
 
             <div className="relative p-4">
               <QrCorners />
-              <div className="w-80 overflow-hidden rounded-[2.5rem] border-2 border-surface-raised bg-surface-raised p-3 shadow-2xl shadow-black/50">
-                <div className="overflow-hidden rounded-4xl bg-background">
-                  <iframe
-                    src={demoCta.href}
-                    title={demoSection.iframeTitle}
-                    loading="lazy"
-                    className="h-170 w-full"
-                  />
-                </div>
-              </div>
+              <IphoneFrame>
+                <iframe
+                  src={demoCta.href}
+                  title={demoSection.iframeTitle}
+                  loading="lazy"
+                  className="h-204 w-full"
+                />
+              </IphoneFrame>
             </div>
 
             <p className="max-w-md text-center text-sm text-muted">

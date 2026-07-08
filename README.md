@@ -21,16 +21,20 @@ French-language, warm premium design with dark/light theme toggle (same
 ember-gradient system as the menu page). Sections: sticky nav, hero (full-bleed
 restaurant-room photo behind gradient scrims, H1 "Vos tables prennent les commandes.",
 editorial left-aligned layout on desktop), QR-corner brand motif (decorative), "how it works"
-4-step flow, stat-led features grid, live phone-framed iframe demo of the QR menu
-(staged on table photo with "Table 12" tag and caption), 3-tier pricing (Digital 29€ / Smart
-59€ / Connect 99€ — "Le plus choisi" badge on Connect), client testimonials
-(L'Adresse, Chez l'Walida, NERO) on a cream "paper" band (visual irony: the paper
-menu the product replaces), final CTA with faint QR-motif watermark, then FAQ
+4-step flow, stat-led features grid, live device-framed demo of the QR menu
+(staged on table photo with "Table 12" tag and caption). Demo frame: realistic iPhone 17 Pro Max
+device chrome (`IphoneFrame` component) with titanium chassis gradient, black antenna liner,
+Dynamic Island, and authentic side buttons (Action + Volume on left, Sleep + Camera Control
+on right) — purely decorative (all chrome `aria-hidden`, only iframe content in a11y tree).
+3-tier pricing (Digital 29€ / Smart 59€ / Connect 99€ — "Le plus choisi" badge on Connect),
+client testimonials (L'Adresse, Chez l'Walida, NERO) on a cream "paper" band (visual irony:
+the paper menu the product replaces), final CTA with faint QR-motif watermark, then FAQ
 accordion (native `<details>`). Zero client-side JS — every component is a server component.
 All copy and data lives in `lib/landing-data.ts` (no content literals in JSX).
 Every "Commencer" CTA points to `/login`; each pricing card links to `/login?plan=<offre>`,
 and the nav carries a "Connexion" link.
-Build passes; landing verified end-to-end in browser (desktop + mobile, dark + light).
+Build passes; landing verified end-to-end in browser (desktop + mobile, dark + light);
+demo device frame verified in Playwright screenshots.
 
 **Branding**: the Ominin logo (triple ember-gradient chevron, neon glow) is
 in place — favicon/app icons via Next.js metadata file conventions
