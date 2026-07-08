@@ -142,32 +142,32 @@ export const featuresSection = {
     "Chaque fonction répond à un vrai problème de salle : moins de pas, moins d'erreurs, moins de temps perdu.",
   features: [
     {
-      stat: "30 s",
-      title: "Menu à jour en 30 secondes",
+      stat: "Instantané",
+      title: "Mettez votre menu à jour en un click",
       description:
         "Changez un prix, retirez un plat épuisé, ajoutez le spécial du jour — depuis votre téléphone, effet immédiat sur toutes les tables.",
     },
     {
-      stat: "QR",
+      stat: "QR Codes",
       title: "Un sticker par table, c'est tout",
       description:
         "On vous fournit vos QR codes personnalisés, prêts à coller. Pas de matériel, pas de formation, opérationnel en quelques minutes.",
     },
     {
-      stat: "0",
-      title: "Application à installer",
+      stat: "Simple",
+      title: "0 application à installer",
       description:
         "Le menu s'ouvre dans le navigateur, sur iPhone comme sur Android. Aucun téléchargement, aucun compte à créer.",
     },
     {
-      stat: "1",
-      title: "Espace de gestion unique",
+      stat: "Centralisé",
+      title: "1 espace de gestion unique",
       description:
         "Menus, tables, commandes : tout se pilote depuis un seul tableau de bord, sans formation.",
     },
     {
-      stat: "3",
-      title: "Vues pour votre équipe",
+      stat: "3 vues",
+      title: "Toute l'équipe se connecte",
       description:
         "Serveur, cuisine, manager : chacun voit exactement ce dont il a besoin, rien de plus.",
     },
@@ -176,7 +176,7 @@ export const featuresSection = {
 
 export const demoSection = {
   eyebrow: "La démo",
-  title: "Ne nous croyez pas sur parole. Goûtez.",
+  title: "Ne nous croyez pas sur parole. Essayez.",
   subtitle:
     "Voici le menu d'un restaurant propulsé par Ominin. Faites défiler : c'est le vrai produit, exactement ce que vos clients verront à table.",
   fullscreenLabel: "Ouvrir la démo en plein écran",
