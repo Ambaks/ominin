@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { clientsSection } from "@/lib/landing-data";
-import { QrShowcase } from "./qr-showcase";
 import { SectionHeading } from "./section-heading";
 
 export function Testimonials() {
@@ -52,8 +51,6 @@ export function Testimonials() {
             </div>
           ))}
         </div>
-
-        <QrShowcase />
       </div>
     </section>
   );

@@ -3,10 +3,11 @@ import { seo } from "@/lib/landing-data";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { QrShowcase } from "@/components/landing/qr-showcase";
 import { Features } from "@/components/landing/features";
 import { DemoShowcase } from "@/components/landing/demo-showcase";
-import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
+import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
 import { FinalCta } from "@/components/landing/final-cta";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -30,10 +31,11 @@ export default function Home() {
       <main>
         <Hero />
         <HowItWorks />
+        <QrShowcase />
         <Features />
         <DemoShowcase />
-        <Pricing />
         <Testimonials />
+        <Pricing />
         <FinalCta />
         <Faq />
       </main>

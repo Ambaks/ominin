@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/qr-showcase.tsx": {
-    "mtime": 1783468596.489152,
-    "ast_hash": "1bc5016edb9d965cf5689a6e7eb83f91",
+    "mtime": 1783468675.1023333,
+    "ast_hash": "a65cd1e6efde55cd497e69a8690356cd",
     "semantic_hash": ""
   },
   "frontend/components/landing/section-heading.tsx": {

@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "frontend/app/page.tsx": {
-    "mtime": 1783215496.2377768,
-    "ast_hash": "fcaaabbcbaae4ac3a9b512667bd53ffe",
+    "mtime": 1783468867.601588,
+    "ast_hash": "8e569c3305e7fb38cd474cc98a96a197",
     "semantic_hash": ""
   },
   "frontend/components/gestion/apercu/stat-card.tsx": {
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/qr-showcase.tsx": {
-    "mtime": 1783468675.1023333,
-    "ast_hash": "a65cd1e6efde55cd497e69a8690356cd",
+    "mtime": 1783468839.8219194,
+    "ast_hash": "c2cb8c976aa1e180c4804d991b8d6e2a",
     "semantic_hash": ""
   },
   "frontend/components/landing/section-heading.tsx": {
@@ -285,8 +285,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/testimonials.tsx": {
-    "mtime": 1783468580.0206852,
-    "ast_hash": "f61c797abdfdaad290063081b17534f1",
+    "mtime": 1783468856.4215593,
+    "ast_hash": "03242a3079aefb751141fe9e5fcb5ddb",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
