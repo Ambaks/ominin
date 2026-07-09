@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { QrShowcase } from "@/components/landing/qr-showcase";
 import { Features } from "@/components/landing/features";
 import { DemoShowcase } from "@/components/landing/demo-showcase";
+import { Proof } from "@/components/landing/proof";
 import { Testimonials } from "@/components/landing/testimonials";
 import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
@@ -34,6 +35,7 @@ export default function Home() {
         <QrShowcase />
         <Features />
         <DemoShowcase />
+        <Proof />
         <Testimonials />
         <Pricing />
         <FinalCta />

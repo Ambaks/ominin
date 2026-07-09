@@ -21,6 +21,12 @@ export interface Feature {
   description: string;
 }
 
+export interface ProofStat {
+  stat: string;
+  title: string;
+  description: string;
+}
+
 export interface Plan {
   id: string;
   name: string;
@@ -179,6 +185,31 @@ export const demoSection = {
     src: unsplash("photo-1424847651672-bf20a4b0982b", 1600),
     alt: "Table de restaurant au service du soir",
   },
+};
+
+export const proofSection = {
+  titleStart: "C'est prouvé : Ominin aide bars et restaurants à",
+  titleAccent: "vendre plus.",
+  stats: [
+    {
+      stat: "+25%",
+      title: "de commandes en moyenne",
+      description:
+        "Selon l'étude menée par Grubhub, les cartes avec photos augmentent le taux de commande de +25%.",
+    },
+    {
+      stat: "85%",
+      title: "des clients se décident grâce à la carte",
+      description:
+        "TouchBistro a démontré que 85% des clients choisissent un restaurant après avoir consulté leur menu en ligne.",
+    },
+    {
+      stat: "+20%",
+      title: "sur l'addition finale en moyenne",
+      description:
+        "D'après Grubhub, le ticket moyen est 20% plus élevé sur une carte digitale que sur une carte papier.",
+    },
+  ] satisfies ProofStat[],
 };
 
 export const pricingSection = {

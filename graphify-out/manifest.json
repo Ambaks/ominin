@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "frontend/app/page.tsx": {
-    "mtime": 1783468867.601588,
-    "ast_hash": "8e569c3305e7fb38cd474cc98a96a197",
+    "mtime": 1783557024.4046185,
+    "ast_hash": "eef6d7b7bda3d1b6ea6f15a9effb13f3",
     "semantic_hash": ""
   },
   "frontend/components/gestion/apercu/stat-card.tsx": {
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1783555611.1895835,
-    "ast_hash": "e2fd8384f20f0a7ddc3a20354f965447",
+    "mtime": 1783557007.9585972,
+    "ast_hash": "910c153b6cc7848bd9d3c21e988593a1",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -570,8 +570,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1783555839.989526,
-    "ast_hash": "a5a0dab7c112b35feaa97b67e476f2d1",
+    "mtime": 1783556417.2660425,
+    "ast_hash": "dcbd1ebc568abfa1e60d07b352ecd52f",
     "semantic_hash": ""
   },
   "TACHES-AMBAKA.md": {
@@ -657,6 +657,16 @@
   "frontend/components/landing/iphone-frame.tsx": {
     "mtime": 1783554568.3431687,
     "ast_hash": "b2af6bad8cf21dbcc5368c1cb56c3d27",
+    "semantic_hash": ""
+  },
+  "frontend/components/landing/proof.tsx": {
+    "mtime": 1783557015.4966593,
+    "ast_hash": "a37198c4157c179faa9714eef916f761",
+    "semantic_hash": ""
+  },
+  "Screenshot 2026-07-09 at 02.26.43.png": {
+    "mtime": 1783556810.4878414,
+    "ast_hash": "785e8078991560b1c9fbacabafdf04a5",
     "semantic_hash": ""
   }
 }

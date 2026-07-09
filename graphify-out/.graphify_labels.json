@@ -90,5 +90,6 @@
   "88": "formule-form-modal.tsx",
   "89": "shell.tsx",
   "90": "Verifying the Ominin frontend",
-  "91": "selectors.ts"
+  "91": "selectors.ts",
+  "92": "store.ts"
 }
