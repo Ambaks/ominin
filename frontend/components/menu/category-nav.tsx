@@ -8,7 +8,7 @@ interface CategoryLink {
   name: string;
 }
 
-export function CategoryNav({ categories }: { categories: CategoryLink[] }) {
+export function CategoryNav({ categories, embedded }: { categories: CategoryLink[]; embedded?: boolean }) {
   const [activeId, setActiveId] = useState(categories[0]?.id);
   const [progress, setProgress] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
@@ -59,7 +59,7 @@ export function CategoryNav({ categories }: { categories: CategoryLink[] }) {
   }, [activeId]);
 
   return (
-    <nav className="sticky top-0 z-10 border-b border-hairline bg-background/85 backdrop-blur-md">
+    <nav className={`sticky z-10 border-b border-hairline bg-background/85 backdrop-blur-md ${embedded ? "top-12" : "top-0"}`}>
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
         <div
           ref={railRef}

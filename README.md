@@ -26,11 +26,13 @@ editorial left-aligned layout on desktop), QR-corner brand motif (decorative), "
 device chrome (`IphoneFrame` component) with titanium chassis gradient, black antenna liner,
 Dynamic Island, and authentic side buttons (Action + Volume on left, Sleep + Camera Control
 on right) — purely decorative (all chrome `aria-hidden`, only iframe content in a11y tree).
-Screen container includes `pt-12` top padding to simulate the iOS safe area inset, so menu
-content renders below the Dynamic Island notch.
+Demo uses embed mode: the menu page accepts `?embed=1` query param and the `CategoryNav` 
+component responds by positioning its sticky header at `top-12` instead of `top-0`, 
+accounting for the Dynamic Island notch; the iPhone frame screen container itself has no 
+padding, letting the iframe content fill the frame properly.
 Proof section with three data-backed stats cards (rebranded from a competitor's format,
 restyled to the ember-gradient theme, showing +25% order lift, 85% client menu influence,
-and +20% ticket lift — all sourced from industry studies). 3-tier pricing (Digital 49€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),
+and +20% ticket lift — all sourced from industry studies). 3-tier pricing (Digital 59€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),
 client testimonials (L'Adresse, Chez l'Walida, NERO) in a 3-column card grid, final CTA
 with faint QR-motif watermark, then FAQ accordion (native `<details>`). Zero client-side JS
 — every component is a server component. All copy and data lives in `lib/landing-data.ts`

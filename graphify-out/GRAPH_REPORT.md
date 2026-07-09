@@ -1,7 +1,7 @@
 # Graph Report - ominin  (2026-07-09)
 
 ## Corpus Check
-- 122 files · ~206,519 words
+- 122 files · ~206,558 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `80229f9c`
+- Built from commit: `7841bc48`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -245,10 +245,10 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createClient()` connect `api.ts` to `types.ts`, `useToast`, `formule-form-modal.tsx`, `shell.tsx`, `selectors.ts`, `store.ts`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `selectors.ts` to `Menu Data & Components`, `types.ts`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Why does `useGestion()` connect `useToast` to `shell.tsx`, `store.ts`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **Why does `useGestionAccess()` connect `useToast` to `formule-form-modal.tsx`, `store.ts`, `types.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**

@@ -570,13 +570,13 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1783556417.2660425,
-    "ast_hash": "dcbd1ebc568abfa1e60d07b352ecd52f",
+    "mtime": 1783557637.095376,
+    "ast_hash": "bfba32e94935d3e44e319c5aaf6026e9",
     "semantic_hash": ""
   },
   "TACHES-AMBAKA.md": {
-    "mtime": 1783468580.0166268,
-    "ast_hash": "bffd32157d46ff02af947dcf67044837",
+    "mtime": 1783557883.1511893,
+    "ast_hash": "8ec845f722ba3fea85e5ecd0a87eb968",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -655,8 +655,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/iphone-frame.tsx": {
-    "mtime": 1783554568.3431687,
-    "ast_hash": "b2af6bad8cf21dbcc5368c1cb56c3d27",
+    "mtime": 1783557914.6912382,
+    "ast_hash": "17b66b394b2e6ba8f9cd40463431af0d",
     "semantic_hash": ""
   },
   "frontend/components/landing/proof.tsx": {
@@ -667,6 +667,11 @@
   "Screenshot 2026-07-09 at 02.26.43.png": {
     "mtime": 1783556810.4878414,
     "ast_hash": "785e8078991560b1c9fbacabafdf04a5",
+    "semantic_hash": ""
+  },
+  "Screenshot 2026-07-09 at 02.42.17.png": {
+    "mtime": 1783557745.6346033,
+    "ast_hash": "7f7549a3e025dfb5605ec4a9b1b11170",
     "semantic_hash": ""
   }
 }

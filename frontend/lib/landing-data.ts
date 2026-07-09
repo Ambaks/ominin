@@ -78,7 +78,7 @@ export const seo = {
   title:
     "Ominin — Menu digital QR code, commande et paiement à table pour restaurants",
   description:
-    "Menus digitaux par QR code, commande et paiement à table. Sans engagement, dès 49 €/mois. Vos clients scannent, commandent, payent — sans application.",
+    "Menus digitaux par QR code, commande et paiement à table. Sans engagement, dès 59 €/mois. Vos clients scannent, commandent, payent — sans application.",
 };
 
 export const nav = {
@@ -224,7 +224,7 @@ export const pricingSection = {
     {
       id: "digital",
       name: "Digital",
-      price: 49,
+      price: 59,
       tagline: "Votre carte, en digital.",
       featuresLabel: "Inclus :",
       features: [

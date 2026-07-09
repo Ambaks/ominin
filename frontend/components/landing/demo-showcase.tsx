@@ -39,7 +39,7 @@ export function DemoShowcase() {
               <QrCorners />
               <IphoneFrame>
                 <iframe
-                  src={demoCta.href}
+                  src={`${demoCta.href}?embed=1`}
                   title={demoSection.iframeTitle}
                   loading="lazy"
                   className="h-204 w-full"
