@@ -14,6 +14,9 @@ export function CartBar() {
   const [state, setState] = useState<SubmitState>("idle");
   const [payment, setPayment] = useState<PaymentChoice>("comptoir");
   const [error, setError] = useState<string | null>(null);
+  // Paiement carte choisi mais impossible à démarrer : la commande reste
+  // valable, il faut le dire au client (il paiera au comptoir).
+  const [cardFailed, setCardFailed] = useState(false);
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
   if (!cart.orderingEnabled || cart.tableNumber === null) return null;
@@ -22,6 +25,7 @@ export function CartBar() {
   const submit = async () => {
     setState("sending");
     setError(null);
+    setCardFailed(false);
     const supabase = createClient();
     const payload = cart.lines.map((line) => ({
       item_id: line.itemId,
@@ -59,9 +63,11 @@ export function CartBar() {
           window.location.assign(body.url);
           return;
         }
+        setCardFailed(true);
       } catch {
         // Le règlement en ligne a échoué : la commande reste valable,
         // le client paiera au comptoir.
+        setCardFailed(true);
       }
     }
 
@@ -111,6 +117,12 @@ export function CartBar() {
                   Votre commande part en cuisine pour la table {cart.tableNumber}.
                   Un serveur vous l&rsquo;apporte dès qu&rsquo;elle est prête.
                 </p>
+                {cardFailed && (
+                  <p className="text-sm leading-relaxed text-ember-3">
+                    Le paiement par carte n&rsquo;a pas pu démarrer&nbsp;: vous
+                    réglerez votre addition au comptoir.
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={close}

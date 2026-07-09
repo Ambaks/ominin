@@ -75,13 +75,14 @@ Tailwind v4 bridge and all component class strings are theme-agnostic.
 guests see after scanning. Premium gradient design, responsive desktop
 layout (2-column grid, max-w-5xl), all items as photo cards. Server-rendered
 from Supabase (anonymous public read): back-office menu edits are immediately
-live for guests. **Guest ordering is now BUILT**: cart provider + add-to-order
+live for guests. **Guest ordering is LIVE**: cart provider + add-to-order
 button with options modal (enforces obligatory option groups, displays supplements),
 floating cart bar with review drawer, and submit via the `place_order` SECURITY DEFINER
 function (item prices and supplements frozen server-side, stock checked/decremented,
 gated to Smart/Connect offres only). Orders appear live in `/gestion/commandes`.
-**Pending deployment**: the `place_order` migration must be applied in Supabase and
-types regenerated before the feature ships to production (see `TACHES-AMBAKA.md` section 0).
+Verified end-to-end: real guest order placed in browser against live production DB,
+confirmed immediate appearance in `/gestion/commandes` with "en attente" status.
+All `place_order` + RLS performance migrations applied to live Supabase.
 
 **Back-office dashboard ("Espace de gestion")** at `/gestion` — the v1 of the
 page restaurants use after logging in. French UI, same ember design system.
@@ -173,16 +174,17 @@ pulled server-side from frozen order lines, and a connected webhook marks orders
 `paid_online=true` via service role. Card infrastructure: `/api/stripe/connect`
 (gérant onboarding link), `/api/stripe/pay` (guest checkout, anonymous), and
 `/api/stripe/webhook-connect` (connected-account events). Payment settings
-component degrades gracefully pre-migration. Verified end-to-end: build passes,
-`npx tsc --noEmit` OK, logged-in browser check shows the settings section
-rendering. **Pending**: payments migration in Supabase + `STRIPE_CONNECT_WEBHOOK_SECRET`
-env var in Vercel (see `TACHES-AMBAKA.md` section 0 bis).
+component and paid-online order surfacing (badge + button state) complete;
+orders correctly show "Payée en ligne" and skip payment-mode dialogs.
+**Live**: payments migration applied to Supabase; types regenerated.
+Verified: `npx tsc --noEmit` passes, build complete.
 
-**Deployment status**: the back-office (including the new Analytique page),
-Stripe subscription funnel, and guest table card payment are feature-complete.
-Production deployment still awaits the `place_order` SECURITY DEFINER migration
-for guest ordering and the payments migration for card payment (see
-`TACHES-AMBAKA.md` sections 0 and 0 bis).
+**Deployment status**: all core features are LIVE in production. Four Supabase migrations applied
+(guest ordering + RLS perf + order fixes + payments). Guest ordering verified end-to-end.
+Bug fixes (13 files): supplement double-counting removed, paid-online orders fully surfaced,
+public-menu crash fixed, infinite skeleton fixed, cart fallback messaging.
+Performance: fetchOrders bounded to 30 days + still-open, QR menu single nested roundtrip,
+proxy uses local JWT verification, reorderCategories single RPC call. Types regenerated from live schema.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.

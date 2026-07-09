@@ -2,10 +2,9 @@ import type { MenuItem } from "@/lib/menu-data";
 import { TOP_VENTES_COUNT } from "./constants";
 import type { GestionState, Order, OrderItem, Table } from "./types";
 
+/** unitPrice est figé suppléments inclus par place_order : rien à rajouter. */
 export function lineTotal(line: OrderItem): number {
-  const supplements =
-    line.options?.reduce((sum, option) => sum + option.supplement, 0) ?? 0;
-  return line.quantity * (line.unitPrice + supplements);
+  return line.quantity * line.unitPrice;
 }
 
 export function orderTotal(order: Order): number {
@@ -38,7 +37,7 @@ export function revenueToday(state: GestionState): number {
 }
 
 /** Minuit local, il y a `daysAgo` jours. */
-function dayStart(daysAgo: number): Date {
+export function dayStart(daysAgo: number): Date {
   const date = new Date();
   date.setHours(0, 0, 0, 0);
   date.setDate(date.getDate() - daysAgo);

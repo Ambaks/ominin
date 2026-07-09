@@ -6,6 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import { must } from "@/lib/supabase/result";
 import {
+  ACTIVE_ORDER_STATUSES,
+  ANALYTICS_PERIOD_DAYS,
+} from "./constants";
+import {
   assembleCategories,
   assembleGroups,
   rowToEtablissement,
@@ -14,12 +18,14 @@ import {
   rowToTable,
 } from "./mappers";
 import { can, hasFeature } from "./permissions";
+import { dayStart } from "./selectors";
 import type { Action, Feature, GestionState, Offre, Role } from "./types";
 
 type Client = SupabaseClient<Database>;
 
 let state: GestionState | null = null;
 let loadStarted = false;
+let loadError: string | null = null;
 const listeners = new Set<() => void>();
 
 function notify() {
@@ -27,11 +33,18 @@ function notify() {
 }
 
 async function fetchOrders(supabase: Client, etablissementId: string) {
+  // Sans borne, tout l'historique repasserait sur le réseau à chaque refetch.
+  // On charge la fenêtre couvrant la plus longue période d'analytique, plus
+  // les commandes encore ouvertes quel que soit leur âge.
+  const since = dayStart(Math.max(...ANALYTICS_PERIOD_DAYS) - 1).toISOString();
   const rows = must(
     await supabase
       .from("orders")
       .select("*, order_items(*)")
       .eq("etablissement_id", etablissementId)
+      .or(
+        `created_at.gte.${since},status.in.(${ACTIVE_ORDER_STATUSES.join(",")})`
+      )
       .order("created_at", { ascending: true })
   );
   return rows.map(rowToOrder);
@@ -179,17 +192,31 @@ async function load(): Promise<void> {
   subscribeOrders(supabase, etablissementId);
 }
 
+function startLoad() {
+  loadStarted = true;
+  loadError = null;
+  notify();
+  load().catch((error) => {
+    console.error("Chargement de l'espace de gestion impossible :", error);
+    loadError =
+      error instanceof Error ? error.message : "Une erreur est survenue.";
+    // Autorise un nouvel essai via retryLoad().
+    loadStarted = false;
+    notify();
+  });
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
-  if (!loadStarted) {
-    loadStarted = true;
-    load().catch((error) => {
-      console.error("Chargement de l'espace de gestion impossible :", error);
-    });
-  }
+  if (!loadStarted && !loadError) startLoad();
   return () => {
     listeners.delete(listener);
   };
+}
+
+/** Relance le chargement initial après un échec (bouton « Réessayer »). */
+export function retryLoad(): void {
+  if (!loadStarted) startLoad();
 }
 
 const getClientSnapshot = (): GestionState | null => state;
@@ -228,6 +255,18 @@ export async function refreshSubscription(): Promise<void> {
 /** État complet, ou null côté serveur / avant chargement (⇒ squelette). */
 export function useGestion(): GestionState | null {
   return useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+}
+
+const getErrorSnapshot = (): string | null => loadError;
+const getErrorServerSnapshot = (): string | null => null;
+
+/** Erreur du chargement initial, ou null (⇒ squelette ou état chargé). */
+export function useGestionError(): string | null {
+  return useSyncExternalStore(
+    subscribe,
+    getErrorSnapshot,
+    getErrorServerSnapshot
+  );
 }
 
 export interface GestionAccess {

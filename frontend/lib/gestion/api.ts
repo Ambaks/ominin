@@ -213,15 +213,17 @@ export async function deleteCategory(categoryId: string): Promise<void> {
 
 export async function reorderCategories(orderedIds: string[]): Promise<void> {
   const supabase = createClient();
-  const results = await Promise.all(
-    orderedIds.map((id, position) =>
-      supabase.from("categories").update({ position }).eq("id", id)
-    )
-  );
-  for (const result of results) check(result);
+  // reorder_categories est ajoutée par la migration 20260709000004 (types à
+  // régénérer) : un seul UPDATE ensembliste au lieu d'une requête par catégorie.
+  const rpc = supabase.rpc.bind(supabase) as unknown as (
+    fn: string,
+    args: Record<string, unknown>
+  ) => Promise<{ error: { message: string } | null }>;
+  check(await rpc("reorder_categories", { p_ids: orderedIds }));
+  const position = new Map(orderedIds.map((id, index) => [id, index]));
   apply((draft) => {
     draft.categories.sort(
-      (a, b) => orderedIds.indexOf(a.id) - orderedIds.indexOf(b.id)
+      (a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0)
     );
   });
 }
@@ -489,19 +491,17 @@ export async function markOrderPaid(
   });
 }
 
-/** Ids des commandes du groupe pouvant passer au statut cible. */
-function groupEligibleIds(groupeId: string, target: OrderStatus): string[] {
-  return getState()
-    .orders.filter(
-      (order) =>
-        order.groupeId === groupeId &&
-        ORDER_STATUS_FLOW[order.status].includes(target)
-    )
-    .map((order) => order.id);
+/** Commandes du groupe pouvant passer au statut cible. */
+function groupEligibleOrders(groupeId: string, target: OrderStatus): Order[] {
+  return getState().orders.filter(
+    (order) =>
+      order.groupeId === groupeId &&
+      ORDER_STATUS_FLOW[order.status].includes(target)
+  );
 }
 
 export async function markGroupServed(groupeId: string): Promise<void> {
-  const ids = groupEligibleIds(groupeId, "servie");
+  const ids = groupEligibleOrders(groupeId, "servie").map((order) => order.id);
   if (!ids.length) return;
   const supabase = createClient();
   check(
@@ -518,20 +518,36 @@ export async function markGroupPaid(
   groupeId: string,
   mode: PaymentMode
 ): Promise<void> {
-  const ids = groupEligibleIds(groupeId, "payee");
-  if (!ids.length) return;
+  const eligible = groupEligibleOrders(groupeId, "payee");
+  if (!eligible.length) return;
+  // Les commandes déjà réglées en ligne gardent leur payment_mode « carte » :
+  // seul leur statut avance.
+  const paidOnlineIds = eligible
+    .filter((order) => order.paidOnline)
+    .map((order) => order.id);
+  const toChargeIds = eligible
+    .filter((order) => !order.paidOnline)
+    .map((order) => order.id);
   const supabase = createClient();
-  check(
-    await supabase
-      .from("orders")
-      .update({ status: "payee", payment_mode: mode })
-      .in("id", ids)
-  );
+  const results = await Promise.all([
+    toChargeIds.length
+      ? supabase
+          .from("orders")
+          .update({ status: "payee", payment_mode: mode })
+          .in("id", toChargeIds)
+      : null,
+    paidOnlineIds.length
+      ? supabase.from("orders").update({ status: "payee" }).in("id", paidOnlineIds)
+      : null,
+  ]);
+  for (const result of results) if (result) check(result);
   apply((draft) => {
     for (const order of draft.orders) {
-      if (ids.includes(order.id)) {
+      if (toChargeIds.includes(order.id)) {
         order.status = "payee";
         order.paymentMode = mode;
+      } else if (paidOnlineIds.includes(order.id)) {
+        order.status = "payee";
       }
     }
   });

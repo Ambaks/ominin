@@ -22,27 +22,17 @@ type MenuData = Restaurant & { offre: string; onlinePayment: boolean };
 const getRestaurant = cache(async (slug: string): Promise<MenuData | null> => {
   const supabase = await createClient();
 
-  const { data: etablissement } = await supabase
+  // Catégories et items embarqués par PostgREST : un seul aller-retour
+  // sur la page la plus consultée (chaque scan de QR code).
+  const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*")
+    .select("*, categories(*), items(*)")
     .eq("slug", slug)
+    .order("position", { referencedTable: "categories", ascending: true })
+    .order("created_at", { referencedTable: "items", ascending: true })
     .maybeSingle();
+  if (error) throw new Error(error.message);
   if (!etablissement) return null;
-
-  const [categoriesResult, itemsResult] = await Promise.all([
-    supabase
-      .from("categories")
-      .select("*")
-      .eq("etablissement_id", etablissement.id)
-      .order("position", { ascending: true }),
-    supabase
-      .from("items")
-      .select("*")
-      .eq("etablissement_id", etablissement.id)
-      .order("created_at", { ascending: true }),
-  ]);
-  if (categoriesResult.error) throw new Error(categoriesResult.error.message);
-  if (itemsResult.error) throw new Error(itemsResult.error.message);
 
   return {
     slug: etablissement.slug,
@@ -57,8 +47,8 @@ const getRestaurant = cache(async (slug: string): Promise<MenuData | null> => {
     onlinePayment:
       (etablissement as { online_payment?: boolean }).online_payment ?? false,
     categories: assembleCategories(
-      categoriesResult.data,
-      itemsResult.data
+      etablissement.categories,
+      etablissement.items
     ).filter((category) => category.items.length > 0),
   };
 });

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { can, hasFeature } from "@/lib/gestion/permissions";
-import { useGestion } from "@/lib/gestion/store";
+import { retryLoad, useGestion, useGestionError } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -52,6 +52,24 @@ function isActive(pathname: string, href: string): boolean {
   return href === "/gestion" ? pathname === href : pathname.startsWith(href);
 }
 
+function LoadError({ message }: { message: string }) {
+  return (
+    <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-hairline bg-surface p-8 text-center">
+      <h1 className="font-display text-xl font-medium">
+        Chargement impossible
+      </h1>
+      <p className="text-sm leading-relaxed text-muted">{message}</p>
+      <button
+        type="button"
+        onClick={retryLoad}
+        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+      >
+        Réessayer
+      </button>
+    </div>
+  );
+}
+
 function ShellSkeleton() {
   return (
     <div aria-busy className="flex flex-col gap-4">
@@ -69,6 +87,7 @@ function ShellSkeleton() {
 
 export function GestionShell({ children }: { children: React.ReactNode }) {
   const state = useGestion();
+  const loadError = useGestionError();
   const pathname = usePathname();
 
   const offre = state?.etablissement.offre;
@@ -159,7 +178,11 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
             {!state ? (
-              <ShellSkeleton />
+              loadError ? (
+                <LoadError message={loadError} />
+              ) : (
+                <ShellSkeleton />
+              )
             ) : state.subscriptionStatus === "active" ? (
               children
             ) : (

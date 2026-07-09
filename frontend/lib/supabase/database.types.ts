@@ -83,6 +83,7 @@ export type Database = {
           id: string
           name: string
           offre: Database["public"]["Enums"]["offre"]
+          online_payment: boolean
           phone: string
           slug: string
           tagline: string
@@ -95,6 +96,7 @@ export type Database = {
           id?: string
           name: string
           offre: Database["public"]["Enums"]["offre"]
+          online_payment?: boolean
           phone?: string
           slug: string
           tagline?: string
@@ -107,6 +109,7 @@ export type Database = {
           id?: string
           name?: string
           offre?: Database["public"]["Enums"]["offre"]
+          online_payment?: boolean
           phone?: string
           slug?: string
           tagline?: string
@@ -335,6 +338,7 @@ export type Database = {
           etablissement_id: string
           group_id: string | null
           id: string
+          paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           status: Database["public"]["Enums"]["order_status"]
           table_id: string
@@ -344,6 +348,7 @@ export type Database = {
           etablissement_id: string
           group_id?: string | null
           id?: string
+          paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           status?: Database["public"]["Enums"]["order_status"]
           table_id: string
@@ -353,6 +358,7 @@ export type Database = {
           etablissement_id?: string
           group_id?: string | null
           id?: string
+          paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           status?: Database["public"]["Enums"]["order_status"]
           table_id?: string
@@ -378,6 +384,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tables"
             referencedColumns: ["id", "etablissement_id"]
+          },
+        ]
+      }
+      payment_accounts: {
+        Row: {
+          charges_enabled: boolean
+          etablissement_id: string
+          stripe_account_id: string
+          updated_at: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          etablissement_id: string
+          stripe_account_id: string
+          updated_at?: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          etablissement_id?: string
+          stripe_account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -493,6 +528,12 @@ export type Database = {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
       }
+      member_etablissements: { Args: never; Returns: string[] }
+      place_order: {
+        Args: { p_items: Json; p_slug: string; p_table_number: number }
+        Returns: string
+      }
+      reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
     }
     Enums: {
       badge: "maison" | "top" | "nouveau"

@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 637 nodes · 1318 edges · 91 communities (26 shown, 65 thin omitted)
+- 637 nodes · 1318 edges · 92 communities (27 shown, 65 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
@@ -16,6 +16,7 @@
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Graphify Skill References|Graphify Skill References]]
+- [[_COMMUNITY_page.tsx|page.tsx]]
 - [[_COMMUNITY_Package Dependencies|Package Dependencies]]
 - [[_COMMUNITY_Commit Workflow|Commit Workflow]]
 - [[_COMMUNITY_TypeScript Config|TypeScript Config]]
@@ -131,7 +132,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (91 total, 65 thin omitted)
+## Communities (92 total, 65 thin omitted)
+
+### Community 1 - "page.tsx"
+Cohesion: 0.18
+Nodes (10): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), Hero(), LANGUAGES, MenuFooter() (+2 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.06
@@ -214,8 +219,8 @@ Cohesion: 0.10
 Nodes (33): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+25 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.07
-Nodes (28): metadata, generateMetadata(), getRestaurant, MenuPage(), ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon() (+20 more)
+Cohesion: 0.12
+Nodes (18): metadata, ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), IconProps (+10 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
@@ -235,10 +240,10 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createClient()` connect `api.ts` to `shell.tsx`, `selectors.ts`, `types.ts`, `useToast`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `selectors.ts` to `page.tsx`, `types.ts`?**
+  _High betweenness centrality (0.008) - this node is a cross-community bridge._
 - **Why does `useGestion()` connect `useToast` to `shell.tsx`, `types.ts`?**
   _High betweenness centrality (0.007) - this node is a cross-community bridge._
-- **Why does `useGestionAccess()` connect `useToast` to `formule-form-modal.tsx`, `types.ts`?**
-  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `FILTERS`, `FilterId` to the rest of the system?**

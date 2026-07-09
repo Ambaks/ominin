@@ -45,6 +45,18 @@ export function OrderCard({
     }
   };
 
+  // Déjà réglée par carte sur le menu QR : pas de choix de mode à refaire.
+  const settleOnline = async () => {
+    try {
+      await api.markOrderPaid(order.id, "carte");
+      toast.success("Commande clôturée (payée en ligne).");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    }
+  };
+
   return (
     <article
       className={
@@ -88,10 +100,16 @@ export function OrderCard({
           <span className="font-display text-lg text-ember-1">
             {formatPrice(orderTotal(order))}
           </span>
-          {order.paymentMode && (
-            <span className="rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
-              {PAYMENT_MODE_LABELS[order.paymentMode]}
+          {order.paidOnline && order.status !== "payee" ? (
+            <span className="rounded-full border border-ember-2/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
+              Payée en ligne
             </span>
+          ) : (
+            order.paymentMode && (
+              <span className="rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
+                {PAYMENT_MODE_LABELS[order.paymentMode]}
+              </span>
+            )
           )}
         </div>
         {targets.length > 0 && (
@@ -103,11 +121,17 @@ export function OrderCard({
                   key={target}
                   type="button"
                   onClick={() =>
-                    target === "payee" ? setPaying(true) : transition(target)
+                    target === "payee"
+                      ? order.paidOnline
+                        ? void settleOnline()
+                        : setPaying(true)
+                      : transition(target)
                   }
                   className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
                 >
-                  {ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
+                  {target === "payee" && order.paidOnline
+                    ? "Clôturer (payée en ligne)"
+                    : ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
                 </button>
               ))}
             {targets.includes("annulee") && (

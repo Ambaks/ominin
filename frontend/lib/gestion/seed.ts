@@ -57,7 +57,10 @@ export function seed(): GestionState {
     itemId,
     name: item(itemId).name,
     quantity,
-    unitPrice: item(itemId).price,
+    // Même convention que place_order : suppléments inclus dans unitPrice.
+    unitPrice:
+      item(itemId).price +
+      (options?.reduce((sum, option) => sum + option.supplement, 0) ?? 0),
     options,
   });
   const minutesAgo = (minutes: number) =>

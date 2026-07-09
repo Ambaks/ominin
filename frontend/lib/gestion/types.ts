@@ -60,6 +60,8 @@ export interface Order {
   createdAt: string;
   items: OrderItem[];
   paymentMode?: PaymentMode;
+  /** Déjà réglée par carte via le menu QR (webhook Stripe Connect). */
+  paidOnline?: boolean;
 }
 
 export interface Table {

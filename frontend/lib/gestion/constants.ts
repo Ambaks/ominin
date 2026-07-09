@@ -34,6 +34,11 @@ export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   annulee: [],
 };
 
+/** Statuts encore ouverts (ceux dont le flux autorise une transition). */
+export const ACTIVE_ORDER_STATUSES = (
+  Object.keys(ORDER_STATUS_FLOW) as OrderStatus[]
+).filter((status) => ORDER_STATUS_FLOW[status].length > 0);
+
 /** Libellé du bouton menant vers chaque statut cible. */
 export const ORDER_ACTION_LABELS: Record<
   Exclude<OrderStatus, "en_attente">,

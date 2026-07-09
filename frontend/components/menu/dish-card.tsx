@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 
@@ -31,12 +30,12 @@ function FeaturedCard({ item }: { item: MenuItem }) {
     <article className="overflow-hidden rounded-2xl border border-hairline bg-surface lg:rounded-3xl">
       {item.image && (
         <div className="relative aspect-video lg:aspect-4/3">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image (une URL inconnue ferait planter toute la page) */}
+          <img
             src={item.image}
             alt={item.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 480px"
-            className="object-cover"
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover"
           />
           <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
           <div className="absolute left-4 top-4">

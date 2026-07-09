@@ -30,9 +30,12 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims vérifie le JWT localement (clés asymétriques) au lieu d'un
+  // aller-retour vers Supabase Auth à chaque navigation ; il rafraîchit la
+  // session expirée et retombe sur la validation serveur si le projet est
+  // encore en clé symétrique. Contrôle optimiste : RLS reste l'autorité.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   const { pathname } = request.nextUrl;
   const isProtected =
