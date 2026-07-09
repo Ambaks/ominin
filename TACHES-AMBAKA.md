@@ -44,9 +44,41 @@ plante aux visiteurs de la démo).
    (menu → panier → envoi → apparition live dans `/gestion/commandes`) puis
    merger `feature/database-workflow` dans `main` pour déployer.
 
-> Les prochaines fonctionnalités qui touchent la base (paiement à table,
-> analytics, upload photo) suivront le même chemin : nouvelle migration dans
-> `supabase/migrations/`, à appliquer ici.
+> Les prochaines fonctionnalités qui touchent la base suivront le même
+> chemin : nouvelle migration dans `supabase/migrations/`, à appliquer ici.
+
+---
+
+## 0 bis. Paiement à table — migration + variable Vercel  ⬅️ à faire
+
+### À quoi ça sert
+
+Le **paiement de l'addition par carte, depuis le téléphone du client**, est
+construit (offre Connect). Chaque restaurant relie son propre compte Stripe
+(onboarding Express depuis Gestion → Établissement → « Paiement à table ») :
+l'argent des additions va **directement au restaurateur**, pas à Ominin.
+Côté client : au moment d'envoyer la commande, choix « Payer au comptoir » /
+« Payer par carte maintenant » → page Stripe → retour au menu.
+
+### Étapes
+
+1. **Appliquer la migration** `supabase/migrations/20260709000002_payments.sql`
+   (mêmes méthodes que la section 0 : `supabase db push` ou SQL Editor).
+   Elle ajoute `etablissements.online_payment`, la table `payment_accounts`
+   (id de compte Stripe par resto, lecture membre uniquement) et
+   `orders.paid_online`.
+2. **Ajouter la variable dans Vercel** (Production) : `STRIPE_CONNECT_WEBHOOK_SECRET`
+   — valeur dans `frontend/.env.local` sur la machine de Marwan (transmission
+   sécurisée, pas d'email en clair). Le webhook Stripe des comptes connectés
+   (`we_1Tr6fTJVLrNv9QpHU6EQjd6g` → `/api/stripe/webhook-connect`) est déjà
+   créé côté Stripe.
+3. Régénérer les types (comme section 0, étape 2) — plusieurs accès sont
+   volontairement non typés dans le code en attendant.
+
+> Stripe Connect est déjà activé sur le compte plateforme (vérifié par sonde).
+> Après ces étapes, le parcours complet se teste : relier un compte Express de
+> test depuis les réglages, activer le toggle, commander depuis le menu QR et
+> payer par carte.
 
 ---
 

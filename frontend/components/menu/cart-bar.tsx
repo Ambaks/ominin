@@ -6,11 +6,13 @@ import { formatPrice } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 
 type SubmitState = "idle" | "sending" | "sent" | "error";
+type PaymentChoice = "comptoir" | "carte";
 
 export function CartBar() {
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
+  const [payment, setPayment] = useState<PaymentChoice>("comptoir");
   const [error, setError] = useState<string | null>(null);
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
@@ -32,7 +34,7 @@ export function CartBar() {
       fn: string,
       args: Record<string, unknown>
     ) => Promise<{ data: unknown; error: { message: string } | null }>;
-    const { error: rpcError } = await rpc("place_order", {
+    const { data: orderId, error: rpcError } = await rpc("place_order", {
       p_slug: cart.slug,
       p_table_number: cart.tableNumber,
       p_items: payload,
@@ -42,6 +44,27 @@ export function CartBar() {
       setError(rpcError.message);
       return;
     }
+
+    if (payment === "carte") {
+      // La commande est en cuisine ; on enchaîne sur le règlement Stripe.
+      try {
+        const response = await fetch("/api/stripe/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId }),
+        });
+        const body = (await response.json()) as { url?: string };
+        if (response.ok && body.url) {
+          cart.clear();
+          window.location.assign(body.url);
+          return;
+        }
+      } catch {
+        // Le règlement en ligne a échoué : la commande reste valable,
+        // le client paiera au comptoir.
+      }
+    }
+
     cart.clear();
     setState("sent");
   };
@@ -164,6 +187,29 @@ export function CartBar() {
                       {formatPrice(cart.total)}
                     </span>
                   </div>
+                  {cart.onlinePayment && (
+                    <div className="mb-4 flex gap-2">
+                      {(
+                        [
+                          ["comptoir", "Payer au comptoir"],
+                          ["carte", "Payer par carte maintenant"],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setPayment(value)}
+                          className={`flex-1 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${
+                            payment === value
+                              ? "border-ember-2/60 bg-surface-raised text-foreground"
+                              : "border-hairline text-muted"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   {state === "error" && (
                     <p className="mb-3 text-sm text-ember-3">{error}</p>
                   )}

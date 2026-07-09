@@ -540,7 +540,10 @@ export async function markGroupPaid(
 // ---------------------------------------------------------------------------
 // Établissement
 
-export type EtablissementInput = Omit<Etablissement, "id" | "slug" | "offre">;
+export type EtablissementInput = Omit<
+  Etablissement,
+  "id" | "slug" | "offre" | "onlinePayment"
+>;
 
 export async function updateEtablissement(
   input: EtablissementInput
@@ -554,5 +557,22 @@ export async function updateEtablissement(
   );
   apply((draft) => {
     Object.assign(draft.etablissement, input);
+  });
+}
+
+/** Active/désactive le choix « payer par carte » sur le menu QR (gérant). */
+export async function setOnlinePayment(enabled: boolean): Promise<void> {
+  const supabase = createClient();
+  // Colonne ajoutée par la migration 20260709000002 (types à régénérer).
+  check(
+    await (supabase as unknown as {
+      from: (t: string) => ReturnType<typeof supabase.from>;
+    })
+      .from("etablissements")
+      .update({ online_payment: enabled })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.onlinePayment = enabled;
   });
 }

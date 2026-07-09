@@ -1,7 +1,6 @@
 {
   "0": "Graphify Skill References",
   "2": "Package Dependencies",
-  "3": "Commit Workflow",
   "4": "TypeScript Config",
   "5": "Menu Data & Components 2",
   "6": "FastAPI Backend",
@@ -10,6 +9,7 @@
   "9": "Next.js Config",
   "10": "PostCSS Config",
   "11": "FastAPI Backend 2",
+  "12": "store.ts",
   "13": "Template Icon Asset 2",
   "14": "Template Icon Asset 3",
   "15": "Template Icon Asset 4",

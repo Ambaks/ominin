@@ -33,6 +33,8 @@ export interface Etablissement {
   phone: string;
   hours: string;
   offre: Offre;
+  /** Le menu QR propose le règlement par carte (Stripe Connect relié). */
+  onlinePayment: boolean;
 }
 
 export interface OrderItemOption {

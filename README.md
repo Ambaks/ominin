@@ -165,10 +165,24 @@ subscription. **Pending**: fill `STRIPE_SECRET_KEY` (test mode) in
 `stripe listen --forward-to localhost:3000/api/stripe/webhook` (copy the
 `whsec_…` into `frontend/.env.local` `STRIPE_WEBHOOK_SECRET`).
 
-**Deployment status**: the back-office (including the new Analytique page) and
-Stripe subscription funnel are feature-complete. Production deployment still
-awaits the `place_order` SECURITY DEFINER migration for guest ordering (see
-`TACHES-AMBAKA.md` section 0).
+**Guest table payment via Stripe Connect** (per-restaurant Express accounts):
+gérants connect their Stripe account via hosted onboarding from the Établissement
+page ("Paiement à table" section, connect-account status + enable toggle);
+guests pay by card at order time (payment choice in cart drawer), amounts are
+pulled server-side from frozen order lines, and a connected webhook marks orders
+`paid_online=true` via service role. Card infrastructure: `/api/stripe/connect`
+(gérant onboarding link), `/api/stripe/pay` (guest checkout, anonymous), and
+`/api/stripe/webhook-connect` (connected-account events). Payment settings
+component degrades gracefully pre-migration. Verified end-to-end: build passes,
+`npx tsc --noEmit` OK, logged-in browser check shows the settings section
+rendering. **Pending**: payments migration in Supabase + `STRIPE_CONNECT_WEBHOOK_SECRET`
+env var in Vercel (see `TACHES-AMBAKA.md` section 0 bis).
+
+**Deployment status**: the back-office (including the new Analytique page),
+Stripe subscription funnel, and guest table card payment are feature-complete.
+Production deployment still awaits the `place_order` SECURITY DEFINER migration
+for guest ordering and the payments migration for card payment (see
+`TACHES-AMBAKA.md` sections 0 and 0 bis).
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.

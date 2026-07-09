@@ -11,8 +11,8 @@ import { CartProvider } from "@/lib/menu/cart";
 import type { Restaurant } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/server";
 
-/** L'offre de l'établissement conditionne la commande à table. */
-type MenuData = Restaurant & { offre: string };
+/** L'offre et le réglage paiement de l'établissement pilotent le panier. */
+type MenuData = Restaurant & { offre: string; onlinePayment: boolean };
 
 /*
  * Menu public : lecture anonyme de la base (policies RLS « public read »).
@@ -53,6 +53,9 @@ const getRestaurant = cache(async (slug: string): Promise<MenuData | null> => {
     phone: etablissement.phone,
     hours: etablissement.hours,
     offre: etablissement.offre,
+    // Colonne de la migration 20260709000002 (types à régénérer) ; absente ⇒ false.
+    onlinePayment:
+      (etablissement as { online_payment?: boolean }).online_payment ?? false,
     categories: assembleCategories(
       categoriesResult.data,
       itemsResult.data
@@ -93,7 +96,14 @@ export default async function MenuPage({
   }));
 
   return (
-    <CartProvider config={{ slug, tableNumber, orderingEnabled }}>
+    <CartProvider
+      config={{
+        slug,
+        tableNumber,
+        orderingEnabled,
+        onlinePayment: orderingEnabled && restaurant.onlinePayment,
+      }}
+    >
       <div className="flex flex-1 flex-col">
         <Hero restaurant={restaurant} />
         <CategoryNav categories={categoryLinks} embedded={embed === "1"} />

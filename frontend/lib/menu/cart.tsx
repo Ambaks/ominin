@@ -33,6 +33,8 @@ export interface CartConfig {
   tableNumber: number | null;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
+  /** Le restaurant propose le règlement par carte à la commande. */
+  onlinePayment: boolean;
 }
 
 interface CartContextValue extends CartConfig {

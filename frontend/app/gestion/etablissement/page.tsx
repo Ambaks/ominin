@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
@@ -106,10 +107,13 @@ export default function EtablissementPage() {
       </div>
 
       {can("etablissement.edit") ? (
-        <EtablissementForm
-          key={state.etablissement.slug}
-          etablissement={state.etablissement}
-        />
+        <>
+          <EtablissementForm
+            key={state.etablissement.slug}
+            etablissement={state.etablissement}
+          />
+          <PaymentSettings initialEnabled={state.etablissement.onlinePayment} />
+        </>
       ) : (
         <EmptyState
           title="Réservé au gérant"
