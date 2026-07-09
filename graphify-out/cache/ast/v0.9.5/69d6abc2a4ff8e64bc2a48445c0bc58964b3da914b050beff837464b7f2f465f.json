@@ -1,0 +1,1 @@
+{"nodes": [{"id": "backend_venv_lib_python3_13_site_packages_fastapi_dependencies_init_py", "label": "__init__.py", "file_type": "code", "source_file": "backend/.venv/lib/python3.13/site-packages/fastapi/dependencies/__init__.py", "source_location": "L1"}], "edges": [], "raw_calls": []}

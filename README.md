@@ -26,7 +26,7 @@ editorial left-aligned layout on desktop), QR-corner brand motif (decorative), "
 device chrome (`IphoneFrame` component) with titanium chassis gradient, black antenna liner,
 Dynamic Island, and authentic side buttons (Action + Volume on left, Sleep + Camera Control
 on right) — purely decorative (all chrome `aria-hidden`, only iframe content in a11y tree).
-3-tier pricing (Digital 29€ / Smart 59€ / Connect 99€ — "Le plus choisi" badge on Connect),
+3-tier pricing (Digital 49€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),
 client testimonials (L'Adresse, Chez l'Walida, NERO) in a 3-column card grid, final CTA
 with faint QR-motif watermark, then FAQ accordion (native `<details>`). Zero client-side JS
 — every component is a server component. All copy and data lives in `lib/landing-data.ts`
