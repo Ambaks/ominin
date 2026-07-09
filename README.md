@@ -30,9 +30,11 @@ Demo uses embed mode: the menu page accepts `?embed=1` query param and the `Cate
 component responds by positioning its sticky header at `top-12` instead of `top-0`, 
 accounting for the Dynamic Island notch; the iPhone frame screen container itself has no 
 padding, letting the iframe content fill the frame properly.
-Proof section with three data-backed stats cards (rebranded from a competitor's format,
-restyled to the ember-gradient theme, showing +25% order lift, 85% client menu influence,
-and +20% ticket lift — all sourced from industry studies). 3-tier pricing (Digital 59€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),
+Proof section with three data-backed stats cards (restyled to the ember-gradient theme,
+showing +25% order lift, 85% client menu influence, and +20% ticket lift — all sourced
+from industry studies with attribution and source citations). Section retitled "Ce que
+montrent les études du secteur" with descriptive subtitle and full disclaimer about data
+provenance. 3-tier pricing (Digital 59€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),
 client testimonials (L'Adresse, Chez l'Walida, NERO) in a 3-column card grid, final CTA
 with faint QR-motif watermark, then FAQ accordion (native `<details>`). Zero client-side JS
 — every component is a server component. All copy and data lives in `lib/landing-data.ts`
@@ -60,12 +62,14 @@ wording for universal discoverability and search terms.
 **Theming**: dual dark/light theme via `next-themes` (class strategy on
 `<html>`, localStorage-persisted, no FOUC). Dark is the default; light is
 opt-in via a sun/moon toggle in the landing nav, gestion header, and customer
-menu category rail. All components use semantic CSS-variable tokens
-(`bg-background`, `text-foreground`, `border-hairline`, `text-ember-*`, …)
-defined in `globals.css` — the `html.light` block overrides the same 10
-variables with a warm "linen & terracotta" palette (embers darkened ~25% for
-contrast on light surfaces). The `@theme inline` Tailwind v4 bridge and all
-component class strings are theme-agnostic.
+menu category rail. Theme state is managed by a `Providers` wrapper component
+(`app/providers.tsx`) that uses a separate storage key for menu embeds (`/m/...`
+routes), preventing the demo menu's theme toggle from affecting the marketing site.
+All components use semantic CSS-variable tokens (`bg-background`, `text-foreground`,
+`border-hairline`, `text-ember-*`, …) defined in `globals.css` — the `html.light`
+block overrides the same 10 variables with a warm "linen & terracotta" palette
+(embers darkened ~25% for contrast on light surfaces). The `@theme inline`
+Tailwind v4 bridge and all component class strings are theme-agnostic.
 
 **QR menu page** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
 guests see after scanning. Premium gradient design, responsive desktop

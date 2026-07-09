@@ -1,6 +1,6 @@
 {
   "0": "Graphify Skill References",
-  "1": "Menu Data & Components",
+  "1": "page.tsx",
   "2": "Package Dependencies",
   "3": "Commit Workflow",
   "4": "TypeScript Config",
@@ -90,6 +90,5 @@
   "88": "formule-form-modal.tsx",
   "89": "shell.tsx",
   "90": "Verifying the Ominin frontend",
-  "91": "selectors.ts",
-  "92": "store.ts"
+  "91": "selectors.ts"
 }

@@ -25,6 +25,7 @@ export interface ProofStat {
   stat: string;
   title: string;
   description: string;
+  source: string;
 }
 
 export interface Plan {
@@ -188,26 +189,33 @@ export const demoSection = {
 };
 
 export const proofSection = {
-  titleStart: "C'est prouvé : Ominin aide bars et restaurants à",
-  titleAccent: "vendre plus.",
+  titleStart: "Ce que montrent les",
+  titleAccent: "études du secteur",
+  subtitle:
+    "Les chiffres publiés par les acteurs de la restauration digitale.",
+  disclaimer:
+    "Chiffres issus d'études publiées par des acteurs du secteur. Ils illustrent des tendances observées dans la restauration digitale et ne constituent pas une garantie de résultats.",
   stats: [
     {
       stat: "+25%",
       title: "de commandes en moyenne",
       description:
         "Selon l'étude menée par Grubhub, les cartes avec photos augmentent le taux de commande de +25%.",
+      source: "Source : Grubhub",
     },
     {
       stat: "85%",
       title: "des clients se décident grâce à la carte",
       description:
         "TouchBistro a démontré que 85% des clients choisissent un restaurant après avoir consulté leur menu en ligne.",
+      source: "Source : TouchBistro",
     },
     {
       stat: "+20%",
       title: "sur l'addition finale en moyenne",
       description:
         "D'après Grubhub, le ticket moyen est 20% plus élevé sur une carte digitale que sur une carte papier.",
+      source: "Source : Grubhub",
     },
   ] satisfies ProofStat[],
 };

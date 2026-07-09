@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "frontend/app/layout.tsx": {
-    "mtime": 1783365971.0901463,
-    "ast_hash": "9bbf0b1bacc41319741079948d8082b9",
+    "mtime": 1783558903.0421226,
+    "ast_hash": "dc2c7eb7391cbb438854700c7d07e9b7",
     "semantic_hash": ""
   },
   "frontend/app/login/login-form.tsx": {
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "frontend/app/m/[slug]/page.tsx": {
-    "mtime": 1783447815.9413407,
-    "ast_hash": "1509711fdc1e629c1ec3901fdc581eee",
+    "mtime": 1783558706.748226,
+    "ast_hash": "4a038287ce9f8ba5dc530952fbe11c0f",
     "semantic_hash": ""
   },
   "frontend/app/not-found.tsx": {
@@ -220,8 +220,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/demo-showcase.tsx": {
-    "mtime": 1783554588.0010145,
-    "ast_hash": "1848825a60b3f780df63e0f1f2307c10",
+    "mtime": 1783558685.3565574,
+    "ast_hash": "bc08c8acbc1eb77d0a9c8791d8dc1ce5",
     "semantic_hash": ""
   },
   "frontend/components/landing/faq.tsx": {
@@ -290,8 +290,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
-    "mtime": 1783366048.6355853,
-    "ast_hash": "13fafc549f4c3dce195eaedb046f4ba1",
+    "mtime": 1783558696.685234,
+    "ast_hash": "905580f8835777d7ed8e694592beb95b",
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1783557007.9585972,
-    "ast_hash": "910c153b6cc7848bd9d3c21e988593a1",
+    "mtime": 1783561706.8153355,
+    "ast_hash": "e540b21dd8daa833478f40bd92596b3d",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -570,8 +570,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1783557637.095376,
-    "ast_hash": "bfba32e94935d3e44e319c5aaf6026e9",
+    "mtime": 1783558798.6309893,
+    "ast_hash": "d09d5fe5ca7ff99e1f501a20d253f67a",
     "semantic_hash": ""
   },
   "TACHES-AMBAKA.md": {
@@ -655,13 +655,13 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/iphone-frame.tsx": {
-    "mtime": 1783557914.6912382,
-    "ast_hash": "17b66b394b2e6ba8f9cd40463431af0d",
+    "mtime": 1783558533.1636152,
+    "ast_hash": "b2af6bad8cf21dbcc5368c1cb56c3d27",
     "semantic_hash": ""
   },
   "frontend/components/landing/proof.tsx": {
-    "mtime": 1783557015.4966593,
-    "ast_hash": "a37198c4157c179faa9714eef916f761",
+    "mtime": 1783561721.2102036,
+    "ast_hash": "7dbcece7dfb5f8208a48e6138088e0e5",
     "semantic_hash": ""
   },
   "Screenshot 2026-07-09 at 02.26.43.png": {
@@ -672,6 +672,11 @@
   "Screenshot 2026-07-09 at 02.42.17.png": {
     "mtime": 1783557745.6346033,
     "ast_hash": "7f7549a3e025dfb5605ec4a9b1b11170",
+    "semantic_hash": ""
+  },
+  "frontend/app/providers.tsx": {
+    "mtime": 1783558897.0149374,
+    "ast_hash": "5039bd012bc5a2cee1d2e5386c93ae81",
     "semantic_hash": ""
   }
 }

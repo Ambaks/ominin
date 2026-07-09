@@ -1,6 +1,7 @@
 import { proofSection } from "@/lib/landing-data";
 
 export function Proof() {
+  // TODO: replace vendor citations with links to primary sources
   return (
     <section className="border-t border-hairline">
       <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
@@ -8,6 +9,9 @@ export function Proof() {
           {proofSection.titleStart}{" "}
           <span className="ember-text">{proofSection.titleAccent}</span>
         </h2>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted lg:text-[15px]">
+          {proofSection.subtitle}
+        </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-5">
           {proofSection.stats.map((item) => (
@@ -24,9 +28,14 @@ export function Proof() {
               <p className="text-sm leading-relaxed text-muted">
                 {item.description}
               </p>
+              <p className="text-xs text-muted">{item.source}</p>
             </div>
           ))}
         </div>
+
+        <p className="mt-10 max-w-3xl text-xs leading-relaxed text-muted lg:mt-14">
+          {proofSection.disclaimer}
+        </p>
       </div>
     </section>
   );
