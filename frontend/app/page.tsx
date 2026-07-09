@@ -16,12 +16,15 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: { canonical: "/" },
   openGraph: {
     title: seo.title,
     description: seo.description,
     type: "website",
     siteName: "Ominin",
     locale: "fr_FR",
+    url: "/",
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: "Ominin" }],
   },
 };
 

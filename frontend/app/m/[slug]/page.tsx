@@ -59,9 +59,21 @@ export async function generateMetadata({
   const { slug } = await params;
   const restaurant = await getRestaurant(slug);
   if (!restaurant) notFound();
+  const title = `${restaurant.name} — Menu`;
+  const description = `${restaurant.tagline} · ${restaurant.address}`;
+  const images = restaurant.coverImage ? [restaurant.coverImage] : undefined;
   return {
-    title: `${restaurant.name} — Menu`,
-    description: `${restaurant.tagline} · ${restaurant.address}`,
+    title,
+    description,
+    alternates: { canonical: `/m/${slug}` },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: `/m/${slug}`,
+      images,
+    },
+    twitter: { card: "summary_large_image", title, description, images },
   };
 }
 
