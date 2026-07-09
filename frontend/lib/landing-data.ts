@@ -154,18 +154,6 @@ export const featuresSection = {
         "Le Cachet, c'est votre QR code personnalisé à votre logo. On vous le fournit prêt à coller — pas de matériel, pas de formation, opérationnel en quelques minutes.",
     },
     {
-      stat: "Simple",
-      title: "0 application à installer",
-      description:
-        "Le menu s'ouvre dans le navigateur, sur iPhone comme sur Android. Aucun téléchargement, aucun compte à créer.",
-    },
-    {
-      stat: "Centralisé",
-      title: "1 espace de gestion unique",
-      description:
-        "Menus, tables, commandes : tout se pilote depuis un seul tableau de bord, sans formation.",
-    },
-    {
       stat: "3 vues",
       title: "Toute l'équipe se connecte",
       description:

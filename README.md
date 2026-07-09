@@ -27,10 +27,10 @@ device chrome (`IphoneFrame` component) with titanium chassis gradient, black an
 Dynamic Island, and authentic side buttons (Action + Volume on left, Sleep + Camera Control
 on right) — purely decorative (all chrome `aria-hidden`, only iframe content in a11y tree).
 3-tier pricing (Digital 29€ / Smart 59€ / Connect 99€ — "Le plus choisi" badge on Connect),
-client testimonials (L'Adresse, Chez l'Walida, NERO) on a cream "paper" band (visual irony:
-the paper menu the product replaces), final CTA with faint QR-motif watermark, then FAQ
-accordion (native `<details>`). Zero client-side JS — every component is a server component.
-All copy and data lives in `lib/landing-data.ts` (no content literals in JSX).
+client testimonials (L'Adresse, Chez l'Walida, NERO) in a 3-column card grid, final CTA
+with faint QR-motif watermark, then FAQ accordion (native `<details>`). Zero client-side JS
+— every component is a server component. All copy and data lives in `lib/landing-data.ts`
+(no content literals in JSX).
 Every "Commencer" CTA points to `/login`; each pricing card links to `/login?plan=<offre>`,
 and the nav carries a "Connexion" link.
 Build passes; landing verified end-to-end in browser (desktop + mobile, dark + light);

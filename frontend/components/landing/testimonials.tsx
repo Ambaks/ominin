@@ -6,11 +6,9 @@ export function Testimonials() {
   return (
     <section
       id={clientsSection.id}
-      className="paper relative scroll-mt-20 border-t border-hairline"
+      className="scroll-mt-20 border-t border-hairline"
     >
-      {/* La carte papier que le produit remplace — ironie visuelle assumée */}
-      <div className="paper-grain absolute inset-0" aria-hidden />
-      <div className="relative mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
+      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
         <SectionHeading
           eyebrow={clientsSection.eyebrow}
           title={clientsSection.title}
