@@ -26,6 +26,8 @@ editorial left-aligned layout on desktop), QR-corner brand motif (decorative), "
 device chrome (`IphoneFrame` component) with titanium chassis gradient, black antenna liner,
 Dynamic Island, and authentic side buttons (Action + Volume on left, Sleep + Camera Control
 on right) — purely decorative (all chrome `aria-hidden`, only iframe content in a11y tree).
+Screen container includes `pt-12` top padding to simulate the iOS safe area inset, so menu
+content renders below the Dynamic Island notch.
 Proof section with three data-backed stats cards (rebranded from a competitor's format,
 restyled to the ember-gradient theme, showing +25% order lift, 85% client menu influence,
 and +20% ticket lift — all sourced from industry studies). 3-tier pricing (Digital 49€ / Smart 79€ / Connect 99€ — "Le plus choisi" badge on Connect),

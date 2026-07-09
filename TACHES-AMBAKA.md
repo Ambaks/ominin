@@ -2,8 +2,7 @@
 
 Ces étapes **ne peuvent pas être faites par l'agent de code** : elles demandent
 un accès aux tableaux de bord (Supabase, Vercel, Stripe) qui n'est pas
-disponible depuis Claude Code sur nos machines. C'est donc à toi, Ambaka, de les
-faire une fois, à la main. Coche-les au fur et à mesure.
+disponible depuis Claude Code sur nos machines. C'est donc à toi, Ambaka, de les faire une fois, à la main. Coche-les au fur et à mesure.
 
 ---
 

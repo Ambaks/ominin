@@ -27,7 +27,7 @@ export function IphoneFrame({ children }: { children: ReactNode }) {
         {/* Liseré d'antenne / bord d'écran noir */}
         <div className="rounded-[3.7rem] bg-black p-1.5">
           {/* Écran */}
-          <div className="relative overflow-hidden rounded-[3.3rem] bg-background ring-1 ring-white/5">
+          <div className="relative overflow-hidden rounded-[3.3rem] bg-background pt-12 ring-1 ring-white/5">
             {children}
 
             {/* Dynamic Island */}
