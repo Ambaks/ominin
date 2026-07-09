@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
+import { AddToOrder } from "./add-to-order";
 
 function Badges({ badges }: { badges?: Badge[] }) {
   if (!badges?.length) return null;
@@ -14,19 +15,6 @@ function Badges({ badges }: { badges?: Badge[] }) {
         </span>
       ))}
     </div>
-  );
-}
-
-function OrderButton() {
-  return (
-    <button
-      type="button"
-      disabled
-      title="Commande à table bientôt disponible"
-      className="ember-gradient shrink-0 cursor-not-allowed rounded-full px-5 py-2.5 text-sm font-semibold text-background opacity-45"
-    >
-      + Ajouter
-    </button>
   );
 }
 
@@ -68,7 +56,7 @@ function FeaturedCard({ item }: { item: MenuItem }) {
         )}
         <Pairing pairing={item.pairing} />
         <div className="mt-1 flex justify-end">
-          <OrderButton />
+          <AddToOrder item={item} />
         </div>
       </div>
     </article>

@@ -6,6 +6,50 @@ disponible depuis Claude Code sur nos machines. C'est donc à toi, Ambaka, de le
 
 ---
 
+## 0. Appliquer la migration « commande client »  ⬅️ à faire (bloque le déploiement)
+
+### À quoi ça sert
+
+La **commande à table par le client** est construite : sur le menu QR, le client
+ajoute des plats à un panier (avec choix d'options) et envoie la commande, qui
+arrive **en direct** dans `/gestion/commandes`. Tout le code front est prêt et
+vérifié dans le navigateur.
+
+Il manque une chose côté base : une fonction Postgres `place_order` (fichier
+`supabase/migrations/20260709000001_guest_orders.sql`) qui valide et fige la
+commande côté serveur — les prix et suppléments sont relus en base, **jamais
+fournis par le client**, donc impossible de trafiquer un montant. Aucune
+insertion anonyme directe sur `orders` : tout passe par cette fonction.
+
+### Pourquoi ce n'est pas déjà en ligne
+
+Créer une fonction Postgres (DDL) demande un accès direct à la base — la CLI
+Supabase authentifiée, ou l'éditeur SQL du dashboard — que l'agent n'a pas
+depuis nos machines. Tant que la migration n'est pas appliquée, l'envoi d'une
+commande échoue avec « Could not find the function public.place_order ». **C'est
+pour ça que la commande client n'est pas encore déployée en prod** (elle reste
+sur la branche `feature/database-workflow` pour ne pas donner un bouton qui
+plante aux visiteurs de la démo).
+
+### Étapes
+
+1. Applique la migration, au choix :
+   - **CLI** (si le projet est lié) : depuis la racine du repo, `supabase db push`.
+   - **Dashboard** : Supabase → **SQL Editor** → colle le contenu de
+     `supabase/migrations/20260709000001_guest_orders.sql` → **Run**.
+2. Régénère les types pour que `place_order` soit typé côté front :
+   `supabase gen types typescript --linked > frontend/lib/supabase/database.types.ts`
+   (ou depuis le dashboard → API → TypeScript).
+3. Préviens Marwan : il pourra alors tester une vraie commande de bout en bout
+   (menu → panier → envoi → apparition live dans `/gestion/commandes`) puis
+   merger `feature/database-workflow` dans `main` pour déployer.
+
+> Les prochaines fonctionnalités qui touchent la base (paiement à table,
+> analytics, upload photo) suivront le même chemin : nouvelle migration dans
+> `supabase/migrations/`, à appliquer ici.
+
+---
+
 ## 1. Brancher le nouvel email de confirmation d'inscription  ⬅️ à faire
 
 ### À quoi ça sert

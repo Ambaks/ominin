@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuSection } from "@/components/menu/menu-section";
 import { assembleCategories } from "@/lib/gestion/mappers";
+import { CartProvider } from "@/lib/menu/cart";
 import type { Restaurant } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/server";
+
+/** L'offre de l'établissement conditionne la commande à table. */
+type MenuData = Restaurant & { offre: string };
 
 /*
  * Menu public : lecture anonyme de la base (policies RLS « public read »).
  * Les modifications faites dans l'espace de gestion sont visibles ici
  * immédiatement. cache() déduplique entre generateMetadata et la page.
  */
-const getRestaurant = cache(async (slug: string): Promise<Restaurant | null> => {
+const getRestaurant = cache(async (slug: string): Promise<MenuData | null> => {
   const supabase = await createClient();
 
   const { data: etablissement } = await supabase
@@ -47,6 +52,7 @@ const getRestaurant = cache(async (slug: string): Promise<Restaurant | null> => 
     address: etablissement.address,
     phone: etablissement.phone,
     hours: etablissement.hours,
+    offre: etablissement.offre,
     categories: assembleCategories(
       categoriesResult.data,
       itemsResult.data
@@ -66,11 +72,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function MenuPage({ params, searchParams }: PageProps<"/m/[slug]">) {
+export default async function MenuPage({
+  params,
+  searchParams,
+}: PageProps<"/m/[slug]">) {
   const { slug } = await params;
-  const { embed } = await searchParams;
+  const { embed, table } = await searchParams;
   const restaurant = await getRestaurant(slug);
   if (!restaurant) notFound();
+
+  const parsedTable = Number(Array.isArray(table) ? table[0] : table);
+  const tableNumber =
+    Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
+  const orderingEnabled =
+    restaurant.offre === "smart" || restaurant.offre === "connect";
 
   const categoryLinks = restaurant.categories.map(({ id, name }) => ({
     id,
@@ -78,15 +93,18 @@ export default async function MenuPage({ params, searchParams }: PageProps<"/m/[
   }));
 
   return (
-    <div className="flex flex-1 flex-col">
-      <Hero restaurant={restaurant} />
-      <CategoryNav categories={categoryLinks} embedded={embed === "1"} />
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
-        {restaurant.categories.map((category, index) => (
-          <MenuSection key={category.id} category={category} index={index} />
-        ))}
-      </main>
-      <MenuFooter restaurant={restaurant} />
-    </div>
+    <CartProvider config={{ slug, tableNumber, orderingEnabled }}>
+      <div className="flex flex-1 flex-col">
+        <Hero restaurant={restaurant} />
+        <CategoryNav categories={categoryLinks} embedded={embed === "1"} />
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
+          {restaurant.categories.map((category, index) => (
+            <MenuSection key={category.id} category={category} index={index} />
+          ))}
+        </main>
+        <MenuFooter restaurant={restaurant} />
+      </div>
+      <CartBar />
+    </CartProvider>
   );
 }

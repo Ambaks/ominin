@@ -71,12 +71,17 @@ block overrides the same 10 variables with a warm "linen & terracotta" palette
 (embers darkened ~25% for contrast on light surfaces). The `@theme inline`
 Tailwind v4 bridge and all component class strings are theme-agnostic.
 
-**QR menu page** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
+**QR menu page & guest ordering** at `/m/[slug]` (demo: `/m/trattoria-lucia`) — the product
 guests see after scanning. Premium gradient design, responsive desktop
 layout (2-column grid, max-w-5xl), all items as photo cards. Server-rendered
 from Supabase (anonymous public read): back-office menu edits are immediately
-live for guests. Order buttons rendered but disabled — the guest ordering flow
-comes later.
+live for guests. **Guest ordering is now BUILT**: cart provider + add-to-order
+button with options modal (enforces obligatory option groups, displays supplements),
+floating cart bar with review drawer, and submit via the `place_order` SECURITY DEFINER
+function (item prices and supplements frozen server-side, stock checked/decremented,
+gated to Smart/Connect offres only). Orders appear live in `/gestion/commandes`.
+**Pending deployment**: the `place_order` migration must be applied in Supabase and
+types regenerated before the feature ships to production (see `TACHES-AMBAKA.md` section 0).
 
 **Back-office dashboard ("Espace de gestion")** at `/gestion` — the v1 of the
 page restaurants use after logging in. French UI, same ember design system.
