@@ -25,6 +25,10 @@
   --shimmer-highlight: rgba(240, 179, 91, 0.14);
   --glow-inner: rgba(240, 179, 91, 0.08);
   --glow-outer: rgba(226, 118, 75, 0.04);
+
+  /* Marque des graphiques (analytique) : ember recalé dans la bande de
+     luminance OKLCH admise sur surface sombre (contraste ≥ 3:1 validé). */
+  --chart-mark: #d4693f;
 }
 
 html.light {
@@ -46,6 +50,8 @@ html.light {
   --glow-inner: rgba(192, 133, 21, 0.12);
   --glow-outer: rgba(192, 90, 50, 0.07);
 
+  --chart-mark: #c05a32;
+
   color-scheme: light;
 }
 
@@ -60,6 +66,7 @@ html.light {
   --color-ember-1: var(--ember-1);
   --color-ember-2: var(--ember-2);
   --color-ember-3: var(--ember-3);
+  --color-chart-mark: var(--chart-mark);
 
   --font-sans: var(--font-instrument-sans);
   --font-display: var(--font-fraunces);

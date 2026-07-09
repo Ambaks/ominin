@@ -39,6 +39,15 @@ export function CommandesIcon(props: IconProps) {
   );
 }
 
+export function ChartIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20.5h16" />
+      <path d="M6.5 20.5v-7M12 20.5V6.5M17.5 20.5V11" />
+    </Svg>
+  );
+}
+
 export function TablesIcon(props: IconProps) {
   return (
     <Svg {...props}>

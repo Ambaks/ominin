@@ -85,16 +85,21 @@ types regenerated before the feature ships to production (see `TACHES-AMBAKA.md`
 
 **Back-office dashboard ("Espace de gestion")** at `/gestion` — the v1 of the
 page restaurants use after logging in. French UI, same ember design system.
-Five routes under a shared shell (desktop sidebar / mobile bottom tabs):
+Six routes under a shared shell (desktop sidebar / mobile bottom tabs):
 Aperçu (stats + out-of-stock list), Commandes (status lifecycle en_attente →
 payée with cancel, filter pills, grouped-table orders with bulk serve/pay,
-payment-mode dialog), Tables (grid selection → table groups, add/remove/
-dissolve), Menu (categories with inline taglines, item CRUD incl. photo URL,
-badges, pairing, stock/availability, options-variantes editor with import),
+payment-mode dialog), **Analytique** (7/30-day period toggle, stat tiles for CA
+encaissé/commandes payées/panier moyen, CSS-only bar charts: CA par jour with
+direct label on max day + per-bar hover tooltip, Top ventes horizontal bars,
+Heures de pointe order-by-hour, plus accessible `<details>` data table; gated
+to Smart/Connect, live-updating via realtime store; chart colors use a dedicated
+validated theme-aware token `--chart-mark`), Tables (grid selection → table groups,
+add/remove/dissolve), Menu (categories with inline taglines, item CRUD incl. photo
+URL, badges, pairing, stock/availability, options-variantes editor with import),
 Formules (step-based set menus, articles linkable to menu items), plus Équipe
 (gérant only: invite members by email with a role, change roles, remove).
 Tier gating mirrors the landing pricing (digital → Menu+Formules only;
-smart/connect add Commandes/Tables/options/roles gérant-cuisinier-serveur);
+smart/connect add Commandes/Tables/Analytique/options/roles gérant-cuisinier-serveur);
 the offre lives on the etablissement row, the role on the user's membership
 (the old demo switcher is gone). All state is loaded from Supabase behind
 `frontend/lib/gestion/api.ts` (UI call sites unchanged): every mutation
@@ -152,15 +157,24 @@ handlers (`/api/stripe/checkout` + `/api/stripe/webhook`, signature-verified)
 delay webhooks. Prices live in Stripe, resolved by `lookup_key` = offre id;
 `npm run setup:stripe` creates the three products from `pricingSection` in
 `lib/landing-data.ts` (the landing prices are the single source of truth —
-nothing hardcoded). The demo etablissement is seeded with an active
+nothing hardcoded) and now reconciles price changes: if a landing price changes,
+it creates a new Stripe price with `transfer_lookup_key: true` and archives the old
+one (existing subscriptions keep their old price, but Checkout resolves by lookup_key
+so new signups see the new price). This was run against live Stripe to align pricing
+(Digital 29→49 €, Smart 59→79 €). The demo etablissement is seeded with an active
 subscription. **Pending**: fill `STRIPE_SECRET_KEY` (test mode) in
 `backend/.env`, run `npm run setup:stripe`, and for local webhook testing run
 `stripe listen --forward-to localhost:3000/api/stripe/webhook` (copy the
 `whsec_…` into `frontend/.env.local` `STRIPE_WEBHOOK_SECRET`).
 
+**Deployment status**: the back-office (including the new Analytique page) and
+Stripe subscription funnel are feature-complete. Production deployment still
+awaits the `place_order` SECURITY DEFINER migration for guest ordering (see
+`TACHES-AMBAKA.md` section 0).
+
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
-Knowledge graph: `graphify-out/` (530+ nodes, 90+ communities).
+Knowledge graph: `graphify-out/` (615+ nodes, 37 communities).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|

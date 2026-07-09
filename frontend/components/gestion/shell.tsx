@@ -10,6 +10,7 @@ import type { Feature } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
+  ChartIcon,
   CommandesIcon,
   ExternalLinkIcon,
   FormulesIcon,
@@ -33,6 +34,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
+  { href: "/gestion/analytique", label: "Analytique", feature: "commandes", icon: ChartIcon },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },
@@ -145,7 +147,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     className={`size-4.5 ${active ? "text-ember-1" : ""}`}
                   />
                   {item.label}
-                  {item.feature === "commandes" && pendingCount > 0 && (
+                  {item.href === "/gestion/commandes" && pendingCount > 0 && (
                     <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
                       {pendingCount}
                     </span>
@@ -183,7 +185,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 >
                   <item.icon className="size-5" />
                   {item.label}
-                  {item.feature === "commandes" && pendingCount > 0 && (
+                  {item.href === "/gestion/commandes" && pendingCount > 0 && (
                     <span className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background">
                       {pendingCount}
                     </span>

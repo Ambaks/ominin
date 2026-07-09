@@ -12,6 +12,8 @@ export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
+/** Périodes proposées par la page Analytique (en jours calendaires). */
+export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "En attente",
