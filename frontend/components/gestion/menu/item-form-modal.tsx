@@ -7,6 +7,7 @@ import { PriceInput } from "@/components/ui/price-input";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
+import { uploadPhoto } from "@/lib/gestion/photo";
 import { useGestionAccess } from "@/lib/gestion/store";
 import {
   BADGE_LABELS,
@@ -51,6 +52,26 @@ export function ItemFormModal({
     optionsToDraft(item?.options)
   );
   const [submitted, setSubmitted] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const handlePhotoFile = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      setImage(await uploadPhoto(file));
+      toast.success("Photo téléversée.");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "L'envoi de la photo a échoué."
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const parsedPrice = parsePriceInput(price);
   const stockTrimmed = stock.trim();
@@ -186,14 +207,45 @@ export function ItemFormModal({
           </Field>
         </div>
 
-        <Field label="Photo" hint="URL de l'image affichée sur le menu client">
-          <input
-            value={image}
-            onChange={(event) => setImage(event.target.value)}
-            type="url"
-            placeholder="https://…"
-            className={inputClass}
-          />
+        <Field
+          label="Photo"
+          hint="Téléversez une image (compressée automatiquement) ou collez une URL"
+        >
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <label
+                className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+                  uploading
+                    ? "border border-hairline text-faint"
+                    : "ember-gradient text-background"
+                }`}
+              >
+                {uploading ? "Envoi…" : "Téléverser une photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={uploading}
+                  onChange={(event) => void handlePhotoFile(event)}
+                  className="hidden"
+                />
+              </label>
+              <input
+                value={image}
+                onChange={(event) => setImage(event.target.value)}
+                type="url"
+                placeholder="ou https://…"
+                className={inputClass}
+              />
+            </div>
+            {image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={image}
+                alt="Aperçu de la photo du plat"
+                className="h-24 w-40 rounded-xl border border-hairline object-cover"
+              />
+            )}
+          </div>
         </Field>
 
         <Field label="Badges">

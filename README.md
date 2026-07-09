@@ -94,8 +94,7 @@ direct label on max day + per-bar hover tooltip, Top ventes horizontal bars,
 Heures de pointe order-by-hour, plus accessible `<details>` data table; gated
 to Smart/Connect, live-updating via realtime store; chart colors use a dedicated
 validated theme-aware token `--chart-mark`), Tables (grid selection → table groups,
-add/remove/dissolve), Menu (categories with inline taglines, item CRUD incl. photo
-URL, badges, pairing, stock/availability, options-variantes editor with import),
+add/remove/dissolve), Menu (categories with inline taglines, item CRUD with **photo upload**—gérant-only, client-side compression, public Supabase Storage bucket—plus photo URL input, badges, pairing, stock/availability, options-variantes editor with import),
 Formules (step-based set menus, articles linkable to menu items), plus Équipe
 (gérant only: invite members by email with a role, change roles, remove).
 Tier gating mirrors the landing pricing (digital → Menu+Formules only;
@@ -141,8 +140,7 @@ orders/memberships invisible, anonymous writes blocked), `/m/trattoria-lucia`
 server-renders from Postgres, `/gestion` without a session 307-redirects to
 `/login`. Deliberately deferred: Google provider activation (OAuth client to
 create in Google Cloud Console — email/password login already works), guest
-ordering from the QR page, photo upload (Supabase Storage),
-multi-etablissement switcher, subcategories.
+ordering from the QR page, multi-etablissement switcher, subcategories.
 
 **Stripe subscriptions**: paid plans are enforced end-to-end. Funnel:
 pricing card → `/login?plan=<offre>` (signup mode preselected) →
