@@ -103,13 +103,16 @@ export type OrderRow = Tables<"orders"> & {
 export function rowToOrder(row: OrderRow): Order {
   return {
     id: row.id,
+    type: row.type,
     tableId: row.table_id,
     groupeId: row.group_id,
     status: row.status,
     createdAt: row.created_at,
     paymentMode: row.payment_mode ?? undefined,
-    // Colonne de la migration 20260709000002 (types à régénérer) ; absente ⇒ false.
     paidOnline: (row as { paid_online?: boolean }).paid_online ?? false,
+    customerName: row.customer_name ?? undefined,
+    customerPhone: row.customer_phone ?? undefined,
+    pickupAt: row.pickup_at ?? undefined,
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {

@@ -2,11 +2,23 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /*
- * Rafraîchit la session Supabase (cookies) et garde les routes privées.
- * Contrôle optimiste seulement : la vraie autorisation est portée par les
- * policies RLS côté Postgres.
+ * Deux rôles :
+ *  1. Sous-domaine click & collect (NEXT_PUBLIC_COLLECT_HOST) : réécrit tout
+ *     chemin vers l'arborescence /collect — collect.ominin.com/le-slug sert
+ *     app/collect/[slug]. Les routes /api passent sans réécriture (matcher).
+ *  2. Domaine principal : rafraîchit la session Supabase (cookies) et garde
+ *     les routes privées. Contrôle optimiste seulement : la vraie
+ *     autorisation est portée par les policies RLS côté Postgres.
  */
 export async function proxy(request: NextRequest) {
+  const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST;
+  if (collectHost && request.headers.get("host") === collectHost) {
+    const { pathname } = request.nextUrl;
+    const url = request.nextUrl.clone();
+    url.pathname = pathname === "/" ? "/collect" : `/collect${pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -30,16 +42,18 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // getClaims vérifie le JWT localement (clés asymétriques) au lieu d'un
-  // aller-retour vers Supabase Auth à chaque navigation ; il rafraîchit la
-  // session expirée et retombe sur la validation serveur si le projet est
-  // encore en clé symétrique. Contrôle optimiste : RLS reste l'autorité.
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
-
   const { pathname } = request.nextUrl;
   const isProtected =
     pathname.startsWith("/gestion") || pathname.startsWith("/onboarding");
+  // Hors des routes gardées (le matcher laisse passer tout chemin de page,
+  // pour la réécriture collect) : ne pas payer l'appel session Supabase.
+  if (!isProtected && pathname !== "/login") {
+    return response;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
@@ -58,5 +72,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/gestion/:path*", "/onboarding", "/login"],
+  // Toute page hors assets (_next, fichiers avec extension) et routes /api :
+  // le sous-domaine collect exige la réécriture sur des chemins arbitraires.
+  matcher: ["/((?!_next/|api/|.*\\..*).*)"],
 };

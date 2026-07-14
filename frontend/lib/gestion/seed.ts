@@ -71,6 +71,7 @@ export function seed(): GestionState {
   const orders: Order[] = [
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-2",
       status: "en_attente",
       createdAt: minutesAgo(4),
@@ -83,6 +84,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-7",
       status: "en_attente",
       createdAt: minutesAgo(1),
@@ -90,6 +92,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-3",
       status: "en_preparation",
       createdAt: minutesAgo(14),
@@ -102,6 +105,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-9",
       status: "prete",
       createdAt: minutesAgo(22),
@@ -109,6 +113,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-8",
       status: "servie",
       createdAt: minutesAgo(38),
@@ -116,6 +121,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-4",
       groupeId,
       status: "en_preparation",
@@ -124,6 +130,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-6",
       groupeId,
       status: "prete",
@@ -132,6 +139,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-5",
       status: "payee",
       createdAt: minutesAgo(95),
@@ -140,6 +148,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-1",
       status: "payee",
       createdAt: minutesAgo(150),
@@ -148,6 +157,7 @@ export function seed(): GestionState {
     },
     {
       id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-10",
       status: "annulee",
       createdAt: minutesAgo(45),
@@ -181,6 +191,7 @@ export function seed(): GestionState {
       onlinePayment: false,
     },
     subscriptionStatus: "active",
+    collectSubscriptionStatus: null,
     role: "gerant",
     categories,
     formules: [

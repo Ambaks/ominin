@@ -1,7 +1,7 @@
 "use client";
 
 import { EditIcon, MenuIcon, TrashIcon } from "@/components/gestion/icons";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation, useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
@@ -19,6 +19,7 @@ export function MenuItemCard({
 }) {
   const { can } = useGestionAccess();
   const toast = useToast();
+  const run = useRunMutation();
   const canEdit = can("menu.edit");
   const canAvailability = can("menu.availability");
   const available = isItemAvailable(item);
@@ -32,8 +33,7 @@ export function MenuItemCard({
       return;
     }
     if ((item.stock ?? null) === stock) return;
-    await api.setItemStock(item.id, stock);
-    toast.success("Stock mis à jour.");
+    await run(() => api.setItemStock(item.id, stock), "Stock mis à jour.");
   };
 
   return (
@@ -94,14 +94,12 @@ export function MenuItemCard({
             <Toggle
               checked={enVente}
               disabled={!canAvailability}
-              onChange={async (checked) => {
-                await api.setItemAvailability(item.id, checked);
-                toast.success(
-                  checked
-                    ? "Article remis en vente."
-                    : "Article retiré de la vente."
-                );
-              }}
+              onChange={(checked) =>
+                void run(
+                  () => api.setItemAvailability(item.id, checked),
+                  checked ? "Article remis en vente." : "Article retiré de la vente."
+                )
+              }
               label={`Disponibilité de ${item.name}`}
             />
             {enVente ? (item.stock === 0 ? "Épuisé" : "En vente") : "Retiré"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -18,7 +18,7 @@ export function FormuleCard({
   onDelete: () => void;
 }) {
   const { can } = useGestionAccess();
-  const toast = useToast();
+  const run = useRunMutation();
   const canEdit = can("formules.edit");
 
   return (
@@ -59,12 +59,12 @@ export function FormuleCard({
           <Toggle
             checked={formule.disponible}
             disabled={!canEdit}
-            onChange={async (checked) => {
-              await api.setFormuleAvailability(formule.id, checked);
-              toast.success(
+            onChange={(checked) =>
+              void run(
+                () => api.setFormuleAvailability(formule.id, checked),
                 checked ? "Formule remise en vente." : "Formule retirée de la vente."
-              );
-            }}
+              )
+            }
             label={`Disponibilité de ${formule.name}`}
           />
           {formule.disponible ? "En vente" : "Retirée"}
