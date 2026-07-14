@@ -94,6 +94,18 @@ body {
   background-size: 120px 120px;
 }
 
+/*
+  Trame timeline — signature graphique d'Ominin Clip : les graduations d'une
+  timeline de montage, en filigrane. Même gris neutre que la trame QR.
+*/
+.clip-timeline-motif {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 46px,
+    rgba(128, 128, 128, 0.14) 46px 48px
+  );
+}
+
 /* Ember gradient, reused by text, bars, borders */
 .ember-gradient {
   background-image: linear-gradient(

@@ -1,11 +1,11 @@
-# Graph Report - ominin  (2026-07-13)
+# Graph Report - ominin  (2026-07-14)
 
 ## Corpus Check
-- 137 files · ~213,920 words
+- 137 files · ~214,120 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 699 nodes · 1491 edges · 93 communities (28 shown, 65 thin omitted)
+- 699 nodes · 1493 edges · 94 communities (28 shown, 66 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
@@ -105,6 +105,7 @@
 - [[_COMMUNITY_Verifying the Ominin frontend|Verifying the Ominin frontend]]
 - [[_COMMUNITY_selectors.ts|selectors.ts]]
 - [[_COMMUNITY_store.ts|store.ts]]
+- [[_COMMUNITY_client.ts|client.ts]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 34 edges
@@ -133,11 +134,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (93 total, 65 thin omitted)
+## Communities (94 total, 66 thin omitted)
 
 ### Community 1 - "page.tsx"
-Cohesion: 0.07
-Nodes (34): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, generateMetadata(), getRestaurant, MenuPage() (+26 more)
+Cohesion: 0.08
+Nodes (27): generateMetadata(), getRestaurant, MenuPage(), CartLine, cartTotal(), CheckoutDialog(), CollectExperience(), ItemRow() (+19 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.06
@@ -216,8 +217,8 @@ Cohesion: 0.15
 Nodes (40): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+32 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.15
-Nodes (22): LoginForm(), metadata, ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor() (+14 more)
+Cohesion: 0.23
+Nodes (20): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+12 more)
 
 ### Community 89 - "shell.tsx"
 Cohesion: 0.09
@@ -228,22 +229,22 @@ Cohesion: 0.40
 Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
-Cohesion: 0.09
-Nodes (28): POST(), ResolvedLine, resolveOptions(), GET(), POST(), Product, PRODUCTS_BY_CHOICE, parseProducts() (+20 more)
+Cohesion: 0.06
+Nodes (48): POST(), ResolvedLine, resolveOptions(), GET(), POST(), Product, PRODUCTS_BY_CHOICE, parseProducts() (+40 more)
 
 ### Community 92 - "store.ts"
-Cohesion: 0.09
-Nodes (37): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), seed() (+29 more)
+Cohesion: 0.16
+Nodes (24): assembleCategories(), assembleGroups(), OrderRow, rowToEtablissement(), rowToFormule(), rowToOrder(), rowToTable(), Client (+16 more)
 
 ## Knowledge Gaps
 - **246 isolated node(s):** `backend`, `ResolvedLine`, `Product`, `PRODUCTS_BY_CHOICE`, `Product` (+241 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **66 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `createClient()` connect `api.ts` to `types.ts`, `useToast`, `formule-form-modal.tsx`, `shell.tsx`, `store.ts`?**
+- **Why does `createClient()` connect `api.ts` to `types.ts`, `useToast`, `shell.tsx`, `store.ts`, `client.ts`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Why does `formatPrice()` connect `page.tsx` to `/graphify`, `selectors.ts`, `types.ts`, `useToast`?**
   _High betweenness centrality (0.012) - this node is a cross-community bridge._
@@ -254,6 +255,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `backend`, `ResolvedLine`, `Product` to the rest of the system?**
   _247 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06821480406386067 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08246225319396051 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._

@@ -263,7 +263,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_confirmation_page",
-      "community": 1,
+      "community": 91,
       "norm_label": "page.tsx"
     },
     {
@@ -273,7 +273,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_confirmation_page_metadata",
-      "community": 1,
+      "community": 91,
       "norm_label": "metadata"
     },
     {
@@ -283,7 +283,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_confirmation_page_confirmationpage",
-      "community": 1,
+      "community": 91,
       "norm_label": "confirmationpage()"
     },
     {
@@ -293,7 +293,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_page",
-      "community": 1,
+      "community": 91,
       "norm_label": "page.tsx"
     },
     {
@@ -303,7 +303,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_page_getpage",
-      "community": 1,
+      "community": 91,
       "norm_label": "getpage"
     },
     {
@@ -313,7 +313,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_page_generatemetadata",
-      "community": 1,
+      "community": 91,
       "norm_label": "generatemetadata()"
     },
     {
@@ -323,7 +323,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_app_collect_slug_page_collectpage",
-      "community": 1,
+      "community": 91,
       "norm_label": "collectpage()"
     },
     {
@@ -703,7 +703,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_login_login_form",
-      "community": 88,
+      "community": 93,
       "norm_label": "login-form.tsx"
     },
     {
@@ -713,7 +713,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_googleicon",
-      "community": 88,
+      "community": 93,
       "norm_label": "googleicon()"
     },
     {
@@ -723,7 +723,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_mailicon",
-      "community": 88,
+      "community": 93,
       "norm_label": "mailicon()"
     },
     {
@@ -733,7 +733,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "frontend_app_login_login_form_loginform",
-      "community": 88,
+      "community": 93,
       "norm_label": "loginform()"
     },
     {
@@ -743,7 +743,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_login_page",
-      "community": 88,
+      "community": 93,
       "norm_label": "page.tsx"
     },
     {
@@ -753,7 +753,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_login_page_metadata",
-      "community": 88,
+      "community": 93,
       "norm_label": "metadata"
     },
     {
@@ -763,7 +763,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_app_login_page_loginpage",
-      "community": 88,
+      "community": 93,
       "norm_label": "loginpage()"
     },
     {
@@ -3323,7 +3323,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_seed_seed",
-      "community": 92,
+      "community": 91,
       "norm_label": "seed()"
     },
     {
@@ -4243,7 +4243,7 @@
       "source_location": "L423",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_getrestaurant",
-      "community": 92,
+      "community": 91,
       "norm_label": "getrestaurant()"
     },
     {
@@ -4263,7 +4263,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_public_menu",
-      "community": 1,
+      "community": 91,
       "norm_label": "public-menu.ts"
     },
     {
@@ -4273,7 +4273,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_lib_public_menu_fetchrestaurant",
-      "community": 1,
+      "community": 91,
       "norm_label": "fetchrestaurant()"
     },
     {
@@ -4323,7 +4323,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_client",
-      "community": 88,
+      "community": 93,
       "norm_label": "client.ts"
     },
     {
@@ -4343,7 +4343,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types",
-      "community": 92,
+      "community": 91,
       "norm_label": "database.types.ts"
     },
     {
@@ -4353,7 +4353,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_json",
-      "community": 92,
+      "community": 91,
       "norm_label": "json"
     },
     {
@@ -4373,7 +4373,7 @@
       "source_location": "L584",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_databasewithoutinternals",
-      "community": 92,
+      "community": 91,
       "norm_label": "databasewithoutinternals"
     },
     {
@@ -4383,7 +4383,7 @@
       "source_location": "L586",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_defaultschema",
-      "community": 92,
+      "community": 91,
       "norm_label": "defaultschema"
     },
     {
@@ -4393,7 +4393,7 @@
       "source_location": "L588",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tables",
-      "community": 92,
+      "community": 91,
       "norm_label": "tables"
     },
     {
@@ -4403,7 +4403,7 @@
       "source_location": "L617",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesinsert",
-      "community": 92,
+      "community": 91,
       "norm_label": "tablesinsert"
     },
     {
@@ -4413,7 +4413,7 @@
       "source_location": "L642",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesupdate",
-      "community": 92,
+      "community": 91,
       "norm_label": "tablesupdate"
     },
     {
@@ -4423,7 +4423,7 @@
       "source_location": "L667",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_enums",
-      "community": 92,
+      "community": 91,
       "norm_label": "enums"
     },
     {
@@ -4433,7 +4433,7 @@
       "source_location": "L684",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_compositetypes",
-      "community": 92,
+      "community": 91,
       "norm_label": "compositetypes"
     },
     {
@@ -4443,7 +4443,7 @@
       "source_location": "L701",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_constants",
-      "community": 92,
+      "community": 91,
       "norm_label": "constants"
     },
     {
@@ -4453,7 +4453,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_public",
-      "community": 1,
+      "community": 91,
       "norm_label": "public.ts"
     },
     {
@@ -4463,7 +4463,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_lib_supabase_public_createpublicclient",
-      "community": 1,
+      "community": 91,
       "norm_label": "createpublicclient()"
     },
     {
@@ -4903,7 +4903,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo",
-      "community": 92,
+      "community": 91,
       "norm_label": "seed-demo.ts"
     },
     {
@@ -4913,7 +4913,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_db",
-      "community": 92,
+      "community": 91,
       "norm_label": "db"
     },
     {
@@ -4923,7 +4923,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_tojson",
-      "community": 92,
+      "community": 91,
       "norm_label": "tojson()"
     },
     {
@@ -4933,7 +4933,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_main",
-      "community": 92,
+      "community": 91,
       "norm_label": "main()"
     },
     {
@@ -6120,7 +6120,7 @@
       "label": "Setup guide (written for an LLM agent)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L186",
+      "source_location": "L208",
       "_origin": "ast",
       "id": "readme_setup_guide_written_for_an_llm_agent",
       "community": 18,
@@ -6130,7 +6130,7 @@
       "label": "1. Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L193",
+      "source_location": "L215",
       "_origin": "ast",
       "id": "readme_1_prerequisites",
       "community": 18,
@@ -6140,7 +6140,7 @@
       "label": "2. Frontend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L203",
+      "source_location": "L225",
       "_origin": "ast",
       "id": "readme_2_frontend",
       "community": 18,
@@ -6150,7 +6150,7 @@
       "label": "3. Backend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L213",
+      "source_location": "L235",
       "_origin": "ast",
       "id": "readme_3_backend",
       "community": 18,
@@ -6160,7 +6160,7 @@
       "label": "4. Supabase (database & auth)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L236",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "readme_4_supabase_database_auth",
       "community": 18,
@@ -6170,7 +6170,7 @@
       "label": "5. Graphify (knowledge-graph CLI)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L261",
+      "source_location": "L283",
       "_origin": "ast",
       "id": "readme_5_graphify_knowledge_graph_cli",
       "community": 18,
@@ -6180,7 +6180,7 @@
       "label": "6. Project skills (nothing to install)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L276",
+      "source_location": "L298",
       "_origin": "ast",
       "id": "readme_6_project_skills_nothing_to_install",
       "community": 18,
@@ -6190,7 +6190,7 @@
       "label": "7. Final checklist",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L289",
+      "source_location": "L311",
       "_origin": "ast",
       "id": "readme_7_final_checklist",
       "community": 18,
@@ -6438,7 +6438,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -7308,7 +7308,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/collect/checkout/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_collect_server",
@@ -7407,7 +7407,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/collect/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -7585,7 +7585,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_collect_order_route",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -7644,7 +7644,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -7703,6 +7703,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/checkout/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_checkout_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -7772,7 +7783,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/webhook/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_stripe_server",
@@ -7831,6 +7842,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_supabase_database_types_database",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/webhook/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_webhook_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -7928,7 +7950,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -16486,6 +16508,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_proxy",
+      "target": "frontend_lib_collect_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -21113,17 +21146,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_proxy",
-      "target": "frontend_lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/admin.ts",
@@ -22842,7 +22864,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L186",
+      "source_location": "L208",
       "weight": 1.0,
       "source": "readme_ominin",
       "target": "readme_setup_guide_written_for_an_llm_agent",
@@ -22862,7 +22884,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L193",
+      "source_location": "L215",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_1_prerequisites",
@@ -22872,7 +22894,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L203",
+      "source_location": "L225",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_2_frontend",
@@ -22882,7 +22904,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L213",
+      "source_location": "L235",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_3_backend",
@@ -22892,7 +22914,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L236",
+      "source_location": "L258",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_4_supabase_database_auth",
@@ -22902,7 +22924,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L261",
+      "source_location": "L283",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_5_graphify_knowledge_graph_cli",
@@ -22912,7 +22934,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L276",
+      "source_location": "L298",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_6_project_skills_nothing_to_install",
@@ -22922,7 +22944,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L289",
+      "source_location": "L311",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_7_final_checklist",
