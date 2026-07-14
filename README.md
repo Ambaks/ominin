@@ -208,9 +208,32 @@ subscriptions. DB migrations: `20260710000002_collect_enums.sql` (new enum
 values), `20260710000003_collect.sql` (schema changes, `collect_pending` table,
 RPC function, updated order transition triggers).
 
+**Ominin Clip** (`clip.ominin.com`): livestream-clipper subdomain product —
+automated social posting of clip videos. Conversion landing page (hero with
+product mockup, how-it-works flow, time-savings features, pricing section with
+FAQ) lives at `/clip` and is reachable via the subdomain proxy rewrite. All
+copy (French) and pricing (1 500 € one-time base product + 50 €/month per 10
+social accounts, first month free) source from `lib/clip-landing-data.ts`. Auth:
+clipper signups via `/clip/login` (tagged with product metadata) tag users as
+`product:"clip"` in Supabase; protected `/clip/espace` space is a stub for
+phase 2. Shared auth form (`components/auth/auth-form.tsx`, parameterized by
+brand/destination/signup mode) extracted from `/login/login-form.tsx` — reused
+for both restaurant and clipper signups. Bug fix: `app/auth/callback/route.ts`
+now uses `x-forwarded-host`/`host` headers to preserve subdomain through
+redirects (was using `request.url.origin` which broke for clip in production).
+Design system: new `.clip-timeline-motif` CSS utility in `globals.css` for
+branding. `frontend/proxy.ts` extended: NEXT_PUBLIC_CLIP_HOST subdomain rewrites
+to `/clip/*` routes, /auth/* paths pass through un-rewritten for OAuth callbacks,
+/espace is protected. Verified: `npm run build` + `npm run lint` pass; 28
+Playwright tests covering clip homepage content, host rewrite, login/signup
+modes, auth flow, protected routes, and cross-host non-regression.
+Deliberately deferred (phase 2): full clipper platform (social account
+connections, clip uploads, posting agents, Stripe billing), DNS/domain setup
+(Vercel domain binding, CNAME, Supabase redirect URL for clip.ominin.com).
+
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
-Knowledge graph: `graphify-out/` (699 nodes, 94 communities).
+Knowledge graph: `graphify-out/` (802 nodes, 101 communities).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|

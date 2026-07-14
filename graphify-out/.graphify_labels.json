@@ -92,5 +92,9 @@
   "90": "Verifying the Ominin frontend",
   "91": "selectors.ts",
   "92": "store.ts",
-  "93": "client.ts"
+  "93": "client.ts",
+  "94": "page.tsx",
+  "95": "section-heading.tsx",
+  "96": "demo-showcase.tsx",
+  "97": "nav.tsx"
 }
