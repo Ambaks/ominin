@@ -173,8 +173,8 @@ Cohesion: 0.50
 Nodes (3): csp, nextConfig, securityHeaders
 
 ### Community 18 - "Setup guide (written for an LLM agent)"
-Cohesion: 0.07
-Nodes (28): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & auth), 5. Graphify (knowledge-graph CLI), 6. Project skills (nothing to install), 7. Final checklist, Ominin (+20 more)
+Cohesion: 0.09
+Nodes (21): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & auth), 5. Graphify (knowledge-graph CLI), 6. Project skills (nothing to install), 7. Final checklist, Ominin (+13 more)
 
 ### Community 19 - "/graphify"
 Cohesion: 0.13
