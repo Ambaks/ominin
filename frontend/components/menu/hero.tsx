@@ -1,17 +1,14 @@
-import Image from "next/image";
 import type { Restaurant } from "@/lib/menu-data";
 
 export function Hero({ restaurant }: { restaurant: Restaurant }) {
   return (
     <header className="relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
       {restaurant.coverImage ? (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
+        <img
           src={restaurant.coverImage}
           alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
+          className="absolute inset-0 size-full object-cover"
         />
       ) : (
         <div className="ember-gradient absolute inset-0 opacity-25" />

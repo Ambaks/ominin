@@ -5,7 +5,7 @@ import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import type { MenuCategory } from "@/lib/menu-data";
 
@@ -16,30 +16,30 @@ export function CategoryManager({
   categories: MenuCategory[];
   onClose: () => void;
 }) {
-  const toast = useToast();
+  const run = useRunMutation();
   const [newName, setNewName] = useState("");
   const [deleting, setDeleting] = useState<MenuCategory | null>(null);
 
   const move = async (index: number, delta: -1 | 1) => {
     const ids = categories.map((category) => category.id);
     [ids[index], ids[index + delta]] = [ids[index + delta], ids[index]];
-    await api.reorderCategories(ids);
+    await run(() => api.reorderCategories(ids));
   };
 
   const rename = async (category: MenuCategory, name: string) => {
     const trimmed = name.trim();
     if (!trimmed || trimmed === category.name) return;
-    await api.renameCategory(category.id, trimmed);
-    toast.success("Catégorie renommée.");
+    await run(() => api.renameCategory(category.id, trimmed), "Catégorie renommée.");
   };
 
   const add = async (event: React.FormEvent) => {
     event.preventDefault();
     const trimmed = newName.trim();
     if (!trimmed) return;
-    await api.createCategory(trimmed);
-    setNewName("");
-    toast.success("Catégorie ajoutée.");
+    await run(async () => {
+      await api.createCategory(trimmed);
+      setNewName("");
+    }, "Catégorie ajoutée.");
   };
 
   return (
@@ -118,11 +118,12 @@ export function CategoryManager({
           confirmLabel="Supprimer"
           destructive
           onClose={() => setDeleting(null)}
-          onConfirm={async () => {
-            await api.deleteCategory(deleting.id);
-            setDeleting(null);
-            toast.success("Catégorie supprimée.");
-          }}
+          onConfirm={() =>
+            void run(async () => {
+              await api.deleteCategory(deleting.id);
+              setDeleting(null);
+            }, "Catégorie supprimée.")
+          }
         />
       )}
     </Modal>

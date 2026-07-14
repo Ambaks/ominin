@@ -12,7 +12,7 @@ export function orderTotal(order: Order): number {
 }
 
 export function isHistoryStatus(status: Order["status"]): boolean {
-  return status === "payee" || status === "annulee";
+  return status === "payee" || status === "annulee" || status === "retiree";
 }
 
 /** Commandes à traiter : en attente, en préparation ou prêtes. */
@@ -30,7 +30,7 @@ export function revenueToday(state: GestionState): number {
   return state.orders
     .filter(
       (order) =>
-        order.status === "payee" &&
+        (order.status === "payee" || order.status === "retiree") &&
         new Date(order.createdAt).toDateString() === today
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);

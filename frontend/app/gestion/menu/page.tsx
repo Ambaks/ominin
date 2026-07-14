@@ -7,7 +7,7 @@ import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { MenuItem } from "@/lib/menu-data";
@@ -15,7 +15,7 @@ import type { MenuItem } from "@/lib/menu-data";
 export default function MenuPage() {
   const state = useGestion();
   const { can } = useGestionAccess();
-  const toast = useToast();
+  const run = useRunMutation();
   const [activeCatId, setActiveCatId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<MenuItem | null>(null);
@@ -100,11 +100,13 @@ export default function MenuPage() {
               key={category.id}
               defaultValue={category.tagline ?? ""}
               placeholder="Note de catégorie affichée sur le menu client…"
-              onBlur={async (event) => {
+              onBlur={(event) => {
                 const value = event.target.value;
                 if (value.trim() === (category.tagline ?? "")) return;
-                await api.updateCategoryTagline(category.id, value);
-                toast.success("Note enregistrée.");
+                void run(
+                  () => api.updateCategoryTagline(category.id, value),
+                  "Note enregistrée."
+                );
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
@@ -161,11 +163,12 @@ export default function MenuPage() {
           confirmLabel="Supprimer"
           destructive
           onClose={() => setDeleting(null)}
-          onConfirm={async () => {
-            await api.deleteItem(deleting.id);
-            setDeleting(null);
-            toast.success("Article supprimé.");
-          }}
+          onConfirm={() =>
+            void run(async () => {
+              await api.deleteItem(deleting.id);
+              setDeleting(null);
+            }, "Article supprimé.")
+          }
         />
       )}
 

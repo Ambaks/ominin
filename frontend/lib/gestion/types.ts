@@ -8,8 +8,10 @@ export type OrderStatus =
   | "prete"
   | "servie"
   | "payee"
-  | "annulee";
-export type PaymentMode = "especes" | "carte";
+  | "annulee"
+  | "retiree";
+export type OrderType = "sur_place" | "collect";
+export type PaymentMode = "especes" | "carte" | "en_ligne";
 
 /** Capacités débloquées par l'offre (le menu et les formules sont toujours inclus). */
 export type Feature = "commandes" | "tables" | "options" | "roles";
@@ -54,14 +56,17 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  tableId: string;
+  type: OrderType;
+  tableId: string | null;
   groupeId?: string | null;
   status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
   paymentMode?: PaymentMode;
-  /** Déjà réglée par carte via le menu QR (webhook Stripe Connect). */
   paidOnline?: boolean;
+  customerName?: string;
+  customerPhone?: string;
+  pickupAt?: string;
 }
 
 export interface Table {
@@ -102,8 +107,10 @@ export interface Formule {
 
 export interface GestionState {
   etablissement: Etablissement;
-  /** Statut Stripe brut ("active", "past_due"…) ; null ⇒ jamais souscrit. */
+  /** Statut Stripe de l'abonnement offre ("active", "past_due"…) ; null ⇒ jamais souscrit. */
   subscriptionStatus: string | null;
+  /** Statut Stripe de l'abonnement click & collect. */
+  collectSubscriptionStatus: string | null;
   role: Role;
   categories: MenuCategory[];
   formules: Formule[];

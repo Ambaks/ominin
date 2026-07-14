@@ -32,12 +32,13 @@ export function OrderCard({
   const [paying, setPaying] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
-  const targets = nextStatuses(order.status, role);
+  const isCollect = order.type === "collect";
+  const targets = nextStatuses(order.status, role, order.type);
 
   const transition = async (target: OrderStatus) => {
     try {
       await api.updateOrderStatus(order.id, target);
-      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : "annulée"}.`);
+      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : "annulée"}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -45,7 +46,6 @@ export function OrderCard({
     }
   };
 
-  // Déjà réglée par carte sur le menu QR : pas de choix de mode à refaire.
   const settleOnline = async () => {
     try {
       await api.markOrderPaid(order.id, "carte");
@@ -57,6 +57,13 @@ export function OrderCard({
     }
   };
 
+  const heading = isCollect
+    ? order.customerName ?? "Client"
+    : `Table ${tableNo}`;
+  const cancelMessage = isCollect
+    ? `La commande de ${order.customerName ?? "ce client"} sera annulée définitivement.`
+    : `La commande de la table ${tableNo} sera annulée définitivement.`;
+
   return (
     <article
       className={
@@ -65,13 +72,24 @@ export function OrderCard({
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2.5">
-          <h3 className="font-display text-lg font-medium">Table {tableNo}</h3>
+          {isCollect && (
+            <span className="rounded-full border border-ember-2/30 bg-ember-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
+              Emporter
+            </span>
+          )}
+          <h3 className="font-display text-lg font-medium">{heading}</h3>
           <span className="text-xs tabular-nums text-faint">
             {formatTime(order.createdAt)}
           </span>
         </div>
         <StatusBadge status={order.status} />
       </div>
+
+      {isCollect && order.pickupAt && (
+        <p className="mt-1 text-xs text-muted">
+          Retrait : {formatTime(order.pickupAt)}
+        </p>
+      )}
 
       <ul className="mt-3 flex flex-col gap-1.5">
         {order.items.map((line) => (
@@ -166,7 +184,7 @@ export function OrderCard({
       {cancelling && (
         <ConfirmDialog
           title="Annuler la commande ?"
-          message={`La commande de la table ${tableNo} sera annulée définitivement.`}
+          message={cancelMessage}
           confirmLabel="Annuler la commande"
           destructive
           onClose={() => setCancelling(false)}

@@ -8,6 +8,7 @@ const STATUS_CLASSES: Record<OrderStatus, string> = {
   servie: "border-hairline bg-surface text-muted",
   payee: "border-hairline bg-surface text-faint",
   annulee: "border-ember-3/40 bg-ember-3/10 text-ember-3",
+  retiree: "border-hairline bg-surface text-faint",
 };
 
 export function StatusBadge({ status }: { status: OrderStatus }) {

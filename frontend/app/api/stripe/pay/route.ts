@@ -56,7 +56,9 @@ export async function POST(request: Request) {
         .from("order_items")
         .select("name, quantity, unit_price")
         .eq("order_id", orderId),
-      admin.from("tables").select("number").eq("id", order.table_id).single(),
+      order.table_id
+        ? admin.from("tables").select("number").eq("id", order.table_id).single()
+        : Promise.resolve({ data: null, error: null }),
       untyped
         .from("payment_accounts")
         .select("stripe_account_id, charges_enabled")

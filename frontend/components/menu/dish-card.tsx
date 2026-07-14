@@ -30,7 +30,7 @@ function FeaturedCard({ item }: { item: MenuItem }) {
     <article className="overflow-hidden rounded-2xl border border-hairline bg-surface lg:rounded-3xl">
       {item.image && (
         <div className="relative aspect-video lg:aspect-4/3">
-          {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image (une URL inconnue ferait planter toute la page) */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
           <img
             src={item.image}
             alt={item.name}

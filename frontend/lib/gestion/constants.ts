@@ -3,6 +3,7 @@ import type {
   Feature,
   Offre,
   OrderStatus,
+  OrderType,
   PaymentMode,
   Role,
 } from "./types";
@@ -14,6 +15,11 @@ export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Nombre de commandes par page dans l'historique (chargement à la demande). */
+export const HISTORY_PAGE_SIZE = 50;
+
+/** Statuts d'historique : commandes clôturées. */
+export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "En attente",
@@ -22,16 +28,24 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   servie: "Servie",
   payee: "Payée",
   annulee: "Annulée",
+  retiree: "Retirée",
 };
 
-/** Transitions autorisées depuis chaque statut. */
+/** Transitions autorisées depuis chaque statut (union des deux flux). */
 export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   en_attente: ["en_preparation", "annulee"],
   en_preparation: ["prete", "annulee"],
-  prete: ["servie", "annulee"],
+  prete: ["servie", "retiree", "annulee"],
   servie: ["payee"],
   payee: [],
   annulee: [],
+  retiree: [],
+};
+
+/** Statuts exclus pour un type de commande donné (l'autre flux). */
+export const EXCLUDED_STATUSES: Record<OrderType, OrderStatus[]> = {
+  sur_place: ["retiree"],
+  collect: ["servie", "payee"],
 };
 
 /** Statuts encore ouverts (ceux dont le flux autorise une transition). */
@@ -49,6 +63,7 @@ export const ORDER_ACTION_LABELS: Record<
   servie: "Marquer servie",
   payee: "Encaisser",
   annulee: "Annuler",
+  retiree: "Marquer retirée",
 };
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -66,6 +81,7 @@ export const OFFRE_LABELS: Record<Offre, string> = {
 export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   especes: "Espèces",
   carte: "Carte",
+  en_ligne: "En ligne",
 };
 
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
@@ -80,8 +96,9 @@ export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
     "orders.setStatus:en_preparation",
     "orders.setStatus:prete",
     "orders.setStatus:servie",
+    "orders.setStatus:retiree",
     "orders.setStatus:annulee",
     "menu.availability",
   ],
-  serveur: ["orders.setStatus:servie", "tables.group"],
+  serveur: ["orders.setStatus:servie", "orders.setStatus:retiree", "tables.group"],
 };
