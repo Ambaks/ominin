@@ -39,6 +39,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      clip_posts: {
+        Row: {
+          attempt: number
+          captions: Json
+          created_at: string
+          id: string
+          platforms: string[]
+          provider_request_id: string | null
+          published_at: string | null
+          results: Json | null
+          status: Database["public"]["Enums"]["clip_post_status"]
+          storage_path: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          attempt?: number
+          captions: Json
+          created_at?: string
+          id?: string
+          platforms: string[]
+          provider_request_id?: string | null
+          published_at?: string | null
+          results?: Json | null
+          status?: Database["public"]["Enums"]["clip_post_status"]
+          storage_path?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          attempt?: number
+          captions?: Json
+          created_at?: string
+          id?: string
+          platforms?: string[]
+          provider_request_id?: string | null
+          published_at?: string | null
+          results?: Json | null
+          status?: Database["public"]["Enums"]["clip_post_status"]
+          storage_path?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clip_profiles: {
+        Row: {
+          created_at: string
+          provider_username: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          provider_username: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          provider_username?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       collect_pending: {
         Row: {
           created_at: string
@@ -602,6 +665,7 @@ export type Database = {
     }
     Enums: {
       badge: "maison" | "top" | "nouveau"
+      clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       member_role: "gerant" | "cuisinier" | "serveur"
       offre: "digital" | "smart" | "connect"
       order_status:
@@ -746,6 +810,7 @@ export const Constants = {
   public: {
     Enums: {
       badge: ["maison", "top", "nouveau"],
+      clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       member_role: ["gerant", "cuisinier", "serveur"],
       offre: ["digital", "smart", "connect"],
       order_status: [
