@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -20,7 +20,7 @@ export function OrderGroupCard({
   tableNumbersById: Map<string, number>;
 }) {
   const { can } = useGestionAccess();
-  const toast = useToast();
+  const run = useRunMutation();
   const [paying, setPaying] = useState(false);
 
   const groupeId = orders[0].groupeId!;
@@ -51,7 +51,7 @@ export function OrderGroupCard({
           <OrderCard
             key={order.id}
             order={order}
-            tableNo={tableNumbersById.get(order.tableId) ?? 0}
+            tableNo={order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0}
             embedded
           />
         ))}
@@ -62,10 +62,9 @@ export function OrderGroupCard({
           {canServe && (
             <button
               type="button"
-              onClick={async () => {
-                await api.markGroupServed(groupeId);
-                toast.success("Groupe servi.");
-              }}
+              onClick={() =>
+                void run(() => api.markGroupServed(groupeId), "Groupe servi.")
+              }
               className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-ember-2/40"
             >
               Tout marquer servi
@@ -86,10 +85,9 @@ export function OrderGroupCard({
       {paying && (
         <PaymentDialog
           onClose={() => setPaying(false)}
-          onSelect={async (mode) => {
+          onSelect={(mode) => {
             setPaying(false);
-            await api.markGroupPaid(groupeId, mode);
-            toast.success("Groupe encaissé.");
+            void run(() => api.markGroupPaid(groupeId, mode), "Groupe encaissé.");
           }}
         />
       )}

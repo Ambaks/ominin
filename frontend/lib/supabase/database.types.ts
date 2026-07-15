@@ -39,6 +39,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      collect_pending: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          payload: Json
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collect_pending_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -335,33 +364,48 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          customer_name: string | null
+          customer_phone: string | null
           etablissement_id: string
           group_id: string | null
           id: string
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
+          pickup_at: string | null
           status: Database["public"]["Enums"]["order_status"]
-          table_id: string
+          stripe_session_id: string | null
+          table_id: string | null
+          type: Database["public"]["Enums"]["order_type"]
         }
         Insert: {
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           etablissement_id: string
           group_id?: string | null
           id?: string
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
+          pickup_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          table_id: string
+          stripe_session_id?: string | null
+          table_id?: string | null
+          type?: Database["public"]["Enums"]["order_type"]
         }
         Update: {
           created_at?: string
+          customer_name?: string | null
+          customer_phone?: string | null
           etablissement_id?: string
           group_id?: string | null
           id?: string
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
+          pickup_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          table_id?: string
+          stripe_session_id?: string | null
+          table_id?: string | null
+          type?: Database["public"]["Enums"]["order_type"]
         }
         Relationships: [
           {
@@ -419,6 +463,7 @@ export type Database = {
       subscriptions: {
         Row: {
           etablissement_id: string
+          product: Database["public"]["Enums"]["product"]
           status: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -426,6 +471,7 @@ export type Database = {
         }
         Insert: {
           etablissement_id: string
+          product?: Database["public"]["Enums"]["product"]
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -433,6 +479,7 @@ export type Database = {
         }
         Update: {
           etablissement_id?: string
+          product?: Database["public"]["Enums"]["product"]
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -442,7 +489,7 @@ export type Database = {
           {
             foreignKeyName: "subscriptions_etablissement_id_fkey"
             columns: ["etablissement_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
@@ -524,6 +571,24 @@ export type Database = {
         }
         Returns: string
       }
+      create_collect_order: {
+        Args: {
+          p_pending_id: string
+          p_stripe_session_id: string
+        }
+        Returns: string
+      }
+      create_table_group: {
+        Args: {
+          p_integrate_orders: boolean
+          p_table_ids: string[]
+        }
+        Returns: {
+          created_at: string
+          etablissement_id: string
+          id: string
+        }
+      }
       current_member_role: {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
@@ -546,7 +611,10 @@ export type Database = {
         | "servie"
         | "payee"
         | "annulee"
-      payment_mode: "especes" | "carte"
+        | "retiree"
+      order_type: "sur_place" | "collect"
+      payment_mode: "especes" | "carte" | "en_ligne"
+      product: "offre" | "collect"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -687,8 +755,11 @@ export const Constants = {
         "servie",
         "payee",
         "annulee",
+        "retiree",
       ],
-      payment_mode: ["especes", "carte"],
+      order_type: ["sur_place", "collect"],
+      payment_mode: ["especes", "carte", "en_ligne"],
+      product: ["offre", "collect"],
     },
   },
 } as const

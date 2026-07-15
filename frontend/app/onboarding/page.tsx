@@ -14,9 +14,15 @@ export default async function OnboardingPage({
   searchParams,
 }: PageProps<"/onboarding">) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
   const { data: membership } = await supabase
     .from("memberships")
     .select("etablissement_id")
+    .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
 

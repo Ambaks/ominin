@@ -326,45 +326,26 @@ export async function setFormuleAvailability(
 // Tables
 
 function isActiveOrder(order: Order): boolean {
-  return order.status !== "payee" && order.status !== "annulee";
+  return order.status !== "payee" && order.status !== "annulee" && order.status !== "retiree";
 }
 
 export async function createGroup(
   tableIds: string[],
   integrateOrders: boolean
 ): Promise<TableGroup> {
-  const current = getState();
   if (tableIds.length < 2) {
     throw new Error("Un groupe doit contenir au moins deux tables.");
   }
-  const taken = new Set(current.groups.flatMap((group) => group.tableIds));
-  if (tableIds.some((id) => taken.has(id))) {
-    throw new Error("Certaines tables sont déjà dans un groupe.");
-  }
 
+  // RPC transactionnelle : insertion du groupe + affectation des tables et des
+  // commandes en une seule opération verrouillée (voir create_table_group).
   const supabase = createClient();
   const row = must(
-    await supabase
-      .from("table_groups")
-      .insert({ etablissement_id: etablissementId() })
-      .select()
-      .single()
+    await supabase.rpc("create_table_group", {
+      p_table_ids: tableIds,
+      p_integrate_orders: integrateOrders,
+    })
   );
-  check(
-    await supabase
-      .from("tables")
-      .update({ group_id: row.id })
-      .in("id", tableIds)
-  );
-  if (integrateOrders) {
-    check(
-      await supabase
-        .from("orders")
-        .update({ group_id: row.id })
-        .in("table_id", tableIds)
-        .not("status", "in", "(payee,annulee)")
-    );
-  }
 
   const group: TableGroup = {
     id: row.id,
@@ -375,7 +356,7 @@ export async function createGroup(
     draft.groups.push(group);
     if (integrateOrders) {
       for (const order of draft.orders) {
-        if (isActiveOrder(order) && tableIds.includes(order.tableId)) {
+        if (isActiveOrder(order) && order.tableId && tableIds.includes(order.tableId)) {
           order.groupeId = group.id;
         }
       }

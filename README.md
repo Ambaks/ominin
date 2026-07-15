@@ -186,9 +186,54 @@ public-menu crash fixed, infinite skeleton fixed, cart fallback messaging.
 Performance: fetchOrders bounded to 30 days + still-open, QR menu single nested roundtrip,
 proxy uses local JWT verification, reorderCategories single RPC call. Types regenerated from live schema.
 
+**Click & collect** (`collect.ominin.com`): full takeaway ordering system on a
+dedicated subdomain. Restaurants subscribe independently (100 €/month standalone,
+150 €/month bundled with Connect). Customer flow: browse the menu at
+`collect.ominin.com/<slug>` → add items to cart (with option variants) → enter
+name/phone/pickup time → pay via Stripe Checkout (payment mode, not subscription)
+→ order confirmation page polls until the webhook creates the order, then tracks
+status (en_attente → en_preparation → prête → retirée). Server-side: `proxy.ts`
+rewrites the collect subdomain to `/collect/*` app routes; `/api/collect/checkout`
+validates items/prices from the database (never trusts client-sent prices), stores
+the cart in `collect_pending`, and creates a Stripe payment session;
+`/api/collect/order` serves the confirmation page's polling. The Stripe webhook
+calls `create_collect_order` (SECURITY DEFINER RPC, idempotent via
+`stripe_session_id` unique constraint) to atomically convert the pending cart into
+an order + order_items. Gestion dashboard fully adapted: orders tagged with an
+"Emporter" badge show customer name and pickup time instead of table number, with
+a collect-specific status flow (prête → retirée instead of servie → payée).
+Multi-product subscriptions: the `subscriptions` table has a composite PK
+`(etablissement_id, product)` supporting independent offre and collect
+subscriptions. DB migrations: `20260710000002_collect_enums.sql` (new enum
+values), `20260710000003_collect.sql` (schema changes, `collect_pending` table,
+RPC function, updated order transition triggers).
+
+**Ominin Clip** (`clip.ominin.com`): livestream-clipper subdomain product —
+automated social posting of clip videos. Conversion landing page (hero with
+product mockup, how-it-works flow, time-savings features, pricing section with
+FAQ) lives at `/clip` and is reachable via the subdomain proxy rewrite. All
+copy (French) and pricing (1 500 € one-time base product + 50 €/month per 10
+social accounts, first month free) source from `lib/clip-landing-data.ts`. Auth:
+clipper signups via `/clip/login` (tagged with product metadata) tag users as
+`product:"clip"` in Supabase; protected `/clip/espace` space is a stub for
+phase 2. Shared auth form (`components/auth/auth-form.tsx`, parameterized by
+brand/destination/signup mode) extracted from `/login/login-form.tsx` — reused
+for both restaurant and clipper signups. Bug fix: `app/auth/callback/route.ts`
+now uses `x-forwarded-host`/`host` headers to preserve subdomain through
+redirects (was using `request.url.origin` which broke for clip in production).
+Design system: new `.clip-timeline-motif` CSS utility in `globals.css` for
+branding. `frontend/proxy.ts` extended: NEXT_PUBLIC_CLIP_HOST subdomain rewrites
+to `/clip/*` routes, /auth/* paths pass through un-rewritten for OAuth callbacks,
+/espace is protected. Verified: `npm run build` + `npm run lint` pass; 28
+Playwright tests covering clip homepage content, host rewrite, login/signup
+modes, auth flow, protected routes, and cross-host non-regression.
+Deliberately deferred (phase 2): full clipper platform (social account
+connections, clip uploads, posting agents, Stripe billing), DNS/domain setup
+(Vercel domain binding, CNAME, Supabase redirect URL for clip.ominin.com).
+
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.
-Knowledge graph: `graphify-out/` (615+ nodes, 37 communities).
+Knowledge graph: `graphify-out/` (802 nodes, 101 communities).
 
 | Layer | Tech | Hosting plan (free tier) |
 |---|---|---|

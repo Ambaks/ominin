@@ -276,6 +276,31 @@ export const pricingSection = {
   ],
 };
 
+/*
+ * Click & collect : produit indépendant des trois offres de menu (cumulable
+ * avec chacune). Les montants ici sont la source de vérité des prix Stripe
+ * (scripts/setup-stripe.ts) comme pour pricingSection. Le bundle regroupe
+ * Connect + Click & collect en un seul abonnement.
+ */
+export const collectOffer = {
+  id: "collect",
+  name: "Click & collect",
+  price: 100,
+  tagline: "La vente à emporter, sans commission.",
+  features: [
+    "Votre page de commande à emporter",
+    "Paiement en ligne à la commande",
+    "Commandes reçues dans votre espace de gestion",
+    "Aucune commission sur les ventes",
+  ],
+  bundle: {
+    id: "collect_connect",
+    name: "Connect + Click & collect",
+    price: 150,
+    tagline: "Le service complet, sur place et à emporter.",
+  },
+};
+
 export const clientsSection = {
   id: "clients",
   eyebrow: "Clients",

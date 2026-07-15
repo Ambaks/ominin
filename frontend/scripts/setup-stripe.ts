@@ -1,20 +1,20 @@
 /*
- * Synchronise les produits/prix Stripe avec pricingSection
- * (lib/landing-data.ts) — les prix affichés sur la landing sont la source de
+ * Synchronise les produits/prix Stripe avec pricingSection et collectOffer
+ * (lib/landing-data.ts) — les prix affichés sur le site sont la source de
  * vérité, rien n'est dupliqué ici. Idempotent :
  *  - lookup_key absent → produit + prix créés ;
  *  - montant identique → rien ;
  *  - montant différent → nouveau prix avec transfer_lookup_key (le checkout
  *    résout par lookup_key, il bascule donc immédiatement), ancien prix
  *    désactivé. Les abonnements en cours conservent leur ancien tarif.
- * La route /api/stripe/checkout retrouve les prix par ces mêmes lookup_keys.
+ * Les routes /api/stripe/checkout retrouvent les prix par ces mêmes lookup_keys.
  *
  * Usage, depuis frontend/ :  npm run setup:stripe
  * Lit STRIPE_SECRET_KEY depuis ../backend/.env.
  */
 
 import Stripe from "stripe";
-import { pricingSection } from "../lib/landing-data";
+import { collectOffer, pricingSection } from "../lib/landing-data";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
@@ -22,14 +22,20 @@ if (!key) {
 }
 const stripe = new Stripe(key);
 
+const plans = [
+  ...pricingSection.plans,
+  collectOffer,
+  { ...collectOffer.bundle },
+].map(({ id, name, price, tagline }) => ({ id, name, price, tagline }));
+
 async function main() {
   const { data: existing } = await stripe.prices.list({
-    lookup_keys: pricingSection.plans.map((plan) => plan.id),
+    lookup_keys: plans.map((plan) => plan.id),
     active: true,
   });
   const byLookup = new Map(existing.map((price) => [price.lookup_key, price]));
 
-  for (const plan of pricingSection.plans) {
+  for (const plan of plans) {
     const target = plan.price * 100;
     const current = byLookup.get(plan.id);
 

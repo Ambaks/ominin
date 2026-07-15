@@ -24,8 +24,8 @@ export default function TablesPage() {
   const takenIds = new Set(state.groups.flatMap((group) => group.tableIds));
   const activeOrderTableIds = new Set(
     state.orders
-      .filter((order) => order.status !== "payee" && order.status !== "annulee")
-      .map((order) => order.tableId)
+      .filter((order) => order.status !== "payee" && order.status !== "annulee" && order.status !== "retiree" && order.tableId)
+      .map((order) => order.tableId!)
   );
   const free = freeTables(state);
 

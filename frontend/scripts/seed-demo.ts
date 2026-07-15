@@ -171,10 +171,14 @@ async function main() {
       .insert(
         state.orders.map((order) => ({
           etablissement_id: etab.id,
-          table_id: tableIds.get(order.tableId)!,
+          type: order.type,
+          table_id: order.tableId ? (tableIds.get(order.tableId) ?? null) : null,
           group_id: order.groupeId ? groupIds.get(order.groupeId)! : null,
           status: order.status,
           payment_mode: order.paymentMode ?? null,
+          customer_name: order.customerName ?? null,
+          customer_phone: order.customerPhone ?? null,
+          pickup_at: order.pickupAt ?? null,
           created_at: order.createdAt,
         }))
       )

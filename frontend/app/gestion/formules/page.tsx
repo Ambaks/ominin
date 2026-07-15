@@ -5,7 +5,7 @@ import { FormuleCard } from "@/components/gestion/formules/formule-card";
 import { FormuleFormModal } from "@/components/gestion/formules/formule-form-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { useToast } from "@/components/ui/toast";
+import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
@@ -13,7 +13,7 @@ import type { Formule } from "@/lib/gestion/types";
 export default function FormulesPage() {
   const state = useGestion();
   const { can } = useGestionAccess();
-  const toast = useToast();
+  const run = useRunMutation();
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Formule | null>(null);
   const [deleting, setDeleting] = useState<Formule | null>(null);
@@ -93,11 +93,12 @@ export default function FormulesPage() {
           confirmLabel="Supprimer"
           destructive
           onClose={() => setDeleting(null)}
-          onConfirm={async () => {
-            await api.deleteFormule(deleting.id);
-            setDeleting(null);
-            toast.success("Formule supprimée.");
-          }}
+          onConfirm={() =>
+            void run(async () => {
+              await api.deleteFormule(deleting.id);
+              setDeleting(null);
+            }, "Formule supprimée.")
+          }
         />
       )}
     </div>

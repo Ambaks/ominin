@@ -11,7 +11,7 @@
   "9": "Next.js Config",
   "10": "PostCSS Config",
   "11": "FastAPI Backend 2",
-  "12": "store.ts",
+  "12": "Template Icon Asset",
   "13": "Template Icon Asset 2",
   "14": "Template Icon Asset 3",
   "15": "Template Icon Asset 4",
@@ -91,7 +91,10 @@
   "89": "shell.tsx",
   "90": "Verifying the Ominin frontend",
   "91": "selectors.ts",
-  "92": "getStripe",
-  "93": "proxy.ts",
-  "94": "eslint.config.mjs"
+  "92": "store.ts",
+  "93": "client.ts",
+  "94": "page.tsx",
+  "95": "section-heading.tsx",
+  "96": "demo-showcase.tsx",
+  "97": "nav.tsx"
 }

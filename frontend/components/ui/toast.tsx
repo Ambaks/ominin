@@ -29,6 +29,28 @@ export function useToast(): ToastApi {
   return api;
 }
 
+/*
+ * Exécute une mutation en signalant l'erreur éventuelle via un toast (et un
+ * toast de succès facultatif). Évite de répéter le même try/catch autour de
+ * chaque appel à l'API de gestion.
+ */
+export function useRunMutation() {
+  const toast = useToast();
+  return useCallback(
+    async (action: () => Promise<unknown>, success?: string) => {
+      try {
+        await action();
+        if (success) toast.success(success);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Une erreur est survenue."
+        );
+      }
+    },
+    [toast]
+  );
+}
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
   const nextId = useRef(0);
