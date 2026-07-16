@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { LinkIcon } from "@/components/clip/espace/icons";
 import { useToast } from "@/components/ui/toast";
-import { refreshAccounts, requestLinkUrl } from "@/lib/clip/api";
+import { useClipData } from "@/lib/clip/context";
 import { PLATFORM_LABELS } from "@/lib/clip/constants";
 import { CLIP_PLATFORMS } from "@/lib/clip/provider/types";
-import { useClip } from "@/lib/clip/store";
 
 /*
  * Comptes sociaux connectés. La connexion passe par la page hébergée du
@@ -14,19 +13,19 @@ import { useClip } from "@/lib/clip/store";
  * fenêtre — la liste est relue pour refléter les liaisons faites là-bas.
  */
 export default function ComptesPage() {
-  const state = useClip();
+  const { state, actions } = useClipData();
   const toast = useToast();
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     const onFocus = () => {
-      refreshAccounts().catch(() => {
+      actions.refreshAccounts().catch(() => {
         // Silencieux : la liste actuelle reste affichée.
       });
     };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, []);
+  }, [actions]);
 
   if (!state) return null;
 
@@ -36,24 +35,15 @@ export default function ComptesPage() {
 
   const connect = () => {
     setConnecting(true);
-    // Onglet ouvert avant l'await : un window.open différé serait bloqué
-    // comme popup hors geste utilisateur (Safari notamment).
-    const tab = window.open("", "_blank");
-    requestLinkUrl()
-      .then((url) => {
-        if (tab) tab.location.href = url;
-        else window.location.assign(url);
-      })
-      .catch((error: Error) => {
-        tab?.close();
-        toast.error(error.message);
-      })
+    actions
+      .connectAccounts()
+      .catch((error: Error) => toast.error(error.message))
       .finally(() => setConnecting(false));
   };
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="rise flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight">
             Comptes
@@ -66,20 +56,25 @@ export default function ComptesPage() {
           type="button"
           disabled={connecting}
           onClick={connect}
-          className="ember-gradient flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+          className="ember-gradient flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-background transition-transform active:scale-[0.98] disabled:opacity-60"
         >
           <LinkIcon className="size-4" />
-          {connecting ? "Ouverture…" : "Connecter mes comptes"}
+          {connecting ? (
+            <span className="animate-pulse">Connexion…</span>
+          ) : (
+            "Connecter mes comptes"
+          )}
         </button>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {CLIP_PLATFORMS.map((platform) => {
+        {CLIP_PLATFORMS.map((platform, index) => {
           const account = connected.get(platform);
           return (
             <div
               key={platform}
-              className={`flex flex-col gap-1.5 rounded-2xl border p-5 ${
+              style={{ animationDelay: `${60 + index * 60}ms` }}
+              className={`rise flex flex-col gap-1.5 rounded-2xl border p-5 ${
                 account ? "border-hairline bg-surface" : "border-dashed border-hairline"
               }`}
             >

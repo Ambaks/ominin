@@ -15,6 +15,7 @@ tracking, forecasting, invoice processing, and back-office automation.
 > access): paste the branded signup-confirmation email into the Supabase
 > dashboard, add the two Stripe env vars in Vercel + redeploy, and set the
 > Supabase auth URLs. The sales funnel isn't fully live until these are done.
+> For Clip: create the upload-post account and populate `UPLOAD_POST_API_KEY`.
 
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
 French-language, warm premium design with dark/light theme toggle (same
@@ -227,35 +228,8 @@ to `/clip/*` routes, /auth/* paths pass through un-rewritten for OAuth callbacks
 /espace is protected. Verified: `npm run build` + `npm run lint` pass; 28
 Playwright tests covering clip homepage content, host rewrite, login/signup
 modes, auth flow, protected routes, and cross-host non-regression.
-**Ominin Clip phase 2** (`/clip/espace`): the clipper dashboard is live —
-social-account connections, publishing and analytics in one place. Posting
-goes through upload-post (budget unified social-posting API: hosted OAuth
-linking page per clipper, TikTok/Instagram Reels/YouTube Shorts/X) behind a
-provider adapter (`frontend/lib/clip/provider/` — the only provider-aware
-code, so a later switch to direct platform APIs stays contained). Publish
-flow: the browser uploads the clip straight to the private Storage bucket
-`clips` via signed URL (50 MB cap — Supabase free-tier limit), Claude
-(`claude-opus-4-8` by default, `CLIP_CAPTION_MODEL` to override) generates
-per-platform titles/descriptions (editable in the UI), then
-`/api/clip/publish` hands the provider a signed download URL in async mode;
-the Publications page polls `/api/clip/posts/[id]/status` until
-`publie`/`partiel`/`echec` (retry re-submits every platform — a `partiel`
-retry can double-post the platform that succeeded, assumed v1 limitation).
-Analytics are read live from the provider (followers, vues, portée, j'aime…
-per platform, CSS bar chart on the `--chart-mark` token). DB: migration
-`20260715000001_clip.sql` (`clip_profiles`, `clip_posts` + owner-only RLS,
-private `clips` bucket); the matching `database.types.ts` entries were added
-by hand — regenerate with `supabase gen types` when linked. All server logic
-lives in Next route handlers (`app/api/clip/*`, per the Render cold-start
-rule); no CSP change (provider + Anthropic traffic is server-side only). New
-env vars in `frontend/.env.local` / Vercel (server-side): `UPLOAD_POST_API_KEY`,
-`ANTHROPIC_API_KEY`; optional `UPLOAD_POST_API_URL`, `CLIP_CAPTION_MODEL`.
-Verified: `npm run lint` + `npm run build` pass. Still deferred: Stripe
-billing for clip, direct platform APIs, per-post analytics, provider
-webhooks (polling suffices), DNS/domain setup (Vercel domain binding, CNAME,
-Supabase redirect URL) — plus one new owner step: create the upload-post
-account and set `UPLOAD_POST_API_KEY`. Implementation plan for collaborators:
-`.claude/plans/clip-phase2-espace.md`.
+**Ominin Clip phase 2** (`/clip/espace`): the clipper dashboard is fully built and polished —
+social-account connections, publishing and analytics in one place. UI: four-tab navigation (Publier, Publications, Comptes, Analytique) under a shared shell with sticky header, desktop sidebar + mobile bottom tabs, matching the gestion design system. All transitions have staggered entrance animations (`.rise` class, 60ms+ delays). Loading states use a dedicated `ClipLoader` component. Both authenticated and public-demo modes supported (`/clip/demo`): demo mode shows "Démo de l'espace" header with "Créer mon espace" CTA instead of email + logout, and navigation paths are relative to `basePath` so demo and authenticated versions share component code. State management: single `useClipData` context (`frontend/lib/clip/context.tsx`) centralizes store + actions + flags (demo, basePath, loadError, retryLoad). Posting goes through upload-post (budget unified social-posting API: hosted OAuth linking page per clipper, TikTok/Instagram Reels/YouTube Shorts/X) behind a provider adapter (`frontend/lib/clip/provider/` — the only provider-aware code, so a later switch to direct platform APIs stays contained). Publish flow: the browser uploads the clip straight to the private Storage bucket `clips` via signed URL (50 MB cap — Supabase free-tier limit), Claude (`claude-opus-4-8` by default, `CLIP_CAPTION_MODEL` to override) generates per-platform titles/descriptions (editable in the UI), then `/api/clip/publish` hands the provider a signed download URL in async mode; the Publications page polls `/api/clip/posts/[id]/status` until `publie`/`partiel`/`echec` (retry re-submits every platform — a `partiel` retry can double-post the platform that succeeded, assumed v1 limitation). Analytics are read live from the provider (followers, vues, portée, j'aime… per platform, CSS bar chart on the `--chart-mark` token) with manual refresh button. DB: migration `20260715000001_clip.sql` (`clip_profiles`, `clip_posts` + owner-only RLS, private `clips` bucket); the matching `database.types.ts` entries were added by hand — regenerate with `supabase gen types` when linked. All server logic lives in Next route handlers (`app/api/clip/*`, per the Render cold-start rule); no CSP change (provider + Anthropic traffic is server-side only). New env vars in `frontend/.env.local` / Vercel (server-side): `UPLOAD_POST_API_KEY`, `ANTHROPIC_API_KEY`; optional `UPLOAD_POST_API_URL`, `CLIP_CAPTION_MODEL`. Verified: `npm run lint` + `npm run build` pass. Still deferred: Stripe billing for clip, direct platform APIs, per-post analytics, provider webhooks (polling suffices), DNS/domain setup (Vercel domain binding, CNAME, Supabase redirect URL) — plus one new owner step: create the upload-post account and set `UPLOAD_POST_API_KEY`. Implementation plan for collaborators: `.claude/plans/clip-phase2-espace.md`.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.

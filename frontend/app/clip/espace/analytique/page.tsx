@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { RefreshIcon } from "@/components/clip/espace/icons";
+import { ClipLoader } from "@/components/clip/espace/loader";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { fetchAnalytics } from "@/lib/clip/api";
+import { useClipData } from "@/lib/clip/context";
 import { PLATFORM_LABELS } from "@/lib/clip/constants";
 import type { PlatformAnalytics } from "@/lib/clip/provider/types";
-import { useClip } from "@/lib/clip/store";
 
 /*
  * Analytics par plateforme, lues en direct chez le prestataire à l'arrivée
@@ -22,20 +22,21 @@ const compact = new Intl.NumberFormat("fr-FR", {
 });
 
 export default function AnalytiquePage() {
-  const state = useClip();
+  const { state, basePath, actions } = useClipData();
   const [analytics, setAnalytics] = useState<PlatformAnalytics[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
-    fetchAnalytics()
+    actions
+      .fetchAnalytics()
       .then((next) => {
         setAnalytics(next);
         setError(null);
       })
       .catch((cause: Error) => setError(cause.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [actions]);
 
   useEffect(() => {
     load();
@@ -60,7 +61,7 @@ export default function AnalytiquePage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="rise flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight">
             Analytique
@@ -86,7 +87,7 @@ export default function AnalytiquePage() {
           body="Connectez vos réseaux pour suivre abonnés, vues et engagement ici."
           action={
             <Link
-              href="/espace/comptes"
+              href={`${basePath}/comptes`}
               className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
             >
               Connecter mes comptes
@@ -99,26 +100,27 @@ export default function AnalytiquePage() {
             {error}
           </p>
         ) : (
-          <div aria-busy className="flex flex-col gap-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="shimmer h-28 rounded-2xl" />
-              <div className="shimmer h-28 rounded-2xl" />
-              <div className="shimmer h-28 rounded-2xl" />
-              <div className="shimmer h-28 rounded-2xl" />
-            </div>
-            <div className="shimmer h-44 rounded-2xl" />
-          </div>
+          <ClipLoader label="Lecture de vos audiences…" />
         )
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Abonnés" value={compact.format(totals.followers)} />
-            <StatCard label="Vues" value={compact.format(totals.views)} />
-            <StatCard label="J'aime" value={compact.format(totals.likes)} />
-            <StatCard
-              label="Commentaires"
-              value={compact.format(totals.comments)}
-            />
+            {(
+              [
+                ["Abonnés", totals.followers],
+                ["Vues", totals.views],
+                ["J'aime", totals.likes],
+                ["Commentaires", totals.comments],
+              ] as const
+            ).map(([label, value], index) => (
+              <div
+                key={label}
+                className="rise"
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <StatCard label={label} value={compact.format(value)} />
+              </div>
+            ))}
           </div>
 
           {error && (
@@ -127,10 +129,11 @@ export default function AnalytiquePage() {
             </p>
           )}
 
-          {analytics.map((entry) => (
+          {analytics.map((entry, index) => (
             <section
               key={entry.platform}
-              className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5"
+              style={{ animationDelay: `${240 + index * 80}ms` }}
+              className="rise flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5"
             >
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="font-display text-lg font-medium">
@@ -176,8 +179,8 @@ function ReachChart({ points }: { points: { date: string; value: number }[] }) {
   const max = Math.max(...points.map((point) => point.value), 1);
   return (
     <div>
-      <div className="flex h-24 items-end gap-[2px]">
-        {points.map((point) => (
+      <div className="flex h-24 items-end gap-0.5">
+        {points.map((point, index) => (
           <div
             key={point.date}
             className="flex h-full flex-1 items-end"
@@ -187,8 +190,11 @@ function ReachChart({ points }: { points: { date: string; value: number }[] }) {
             })} — ${compact.format(point.value)}`}
           >
             <div
-              className="w-full rounded-t bg-chart-mark transition-opacity hover:opacity-80"
-              style={{ height: `${Math.max((point.value / max) * 100, 2)}%` }}
+              className="bar-rise w-full rounded-t bg-chart-mark transition-opacity hover:opacity-80"
+              style={{
+                height: `${Math.max((point.value / max) * 100, 2)}%`,
+                animationDelay: `${index * 18}ms`,
+              }}
             />
           </div>
         ))}

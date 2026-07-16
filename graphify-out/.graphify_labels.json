@@ -104,5 +104,17 @@
   "102": "collect-experience.tsx",
   "103": "public-menu.ts",
   "104": "seed-demo.ts",
-  "105": "qr-showcase.tsx"
+  "105": "qr-showcase.tsx",
+  "106": "data.ts",
+  "107": "types.ts",
+  "108": "types.ts",
+  "109": "store.ts",
+  "110": "page.tsx",
+  "111": "shell.tsx",
+  "112": "icons.tsx",
+  "113": "demo-showcase.tsx",
+  "114": "auth-form.tsx",
+  "115": "theme-toggle.tsx",
+  "116": "page.tsx",
+  "117": "layout.tsx"
 }

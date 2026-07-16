@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PostCard } from "@/components/clip/espace/post-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
-import { pollPostStatus, retryPost } from "@/lib/clip/api";
+import { useClipData } from "@/lib/clip/context";
 import { POLL_INTERVAL_MS, POLL_TIMEOUT_MS } from "@/lib/clip/constants";
-import { getState, useClip } from "@/lib/clip/store";
+import type { ClipPost } from "@/lib/clip/types";
 
 /*
  * Historique des publications. Tant qu'une ligne est en_cours, la page
@@ -15,10 +15,19 @@ import { getState, useClip } from "@/lib/clip/store";
  * délai, elle s'arrête (le prochain passage sur la page reprendra).
  */
 export default function PublicationsPage() {
-  const state = useClip();
+  const { state, basePath, actions } = useClipData();
   const toast = useToast();
   const [retrying, setRetrying] = useState<string | null>(null);
   const [timedOut, setTimedOut] = useState(false);
+
+  // Le tick lit les posts via cette ref : l'intervalle voit toujours l'état
+  // courant sans dépendre du store singleton (la démo n'en a pas). Synchronisée
+  // avant l'effet de polling — les effets s'exécutent dans l'ordre de
+  // déclaration.
+  const postsRef = useRef<ClipPost[]>([]);
+  useEffect(() => {
+    postsRef.current = state?.posts ?? [];
+  }, [state]);
 
   const hasPending =
     state?.posts.some((post) => post.status === "en_cours") ?? false;
@@ -35,11 +44,11 @@ export default function PublicationsPage() {
       }
       busy = true;
       try {
-        const pending = getState().posts.filter(
+        const pending = postsRef.current.filter(
           (post) => post.status === "en_cours"
         );
         for (const post of pending) {
-          await pollPostStatus(post.id);
+          await actions.pollPostStatus(post.id);
         }
       } catch {
         // Réessaie au tick suivant — un raté de polling n'est pas une erreur.
@@ -50,14 +59,15 @@ export default function PublicationsPage() {
     void tick();
     const interval = setInterval(() => void tick(), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [hasPending, timedOut]);
+  }, [hasPending, timedOut, actions]);
 
   if (!state) return null;
 
   const retry = (id: string) => {
     setRetrying(id);
     setTimedOut(false);
-    retryPost(id)
+    actions
+      .retryPost(id)
       .then(() => toast.success("Publication relancée."))
       .catch((error: Error) => toast.error(error.message))
       .finally(() => setRetrying(null));
@@ -65,7 +75,7 @@ export default function PublicationsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
+      <header className="rise">
         <h1 className="font-display text-2xl font-medium tracking-tight">
           Publications
         </h1>
@@ -87,7 +97,7 @@ export default function PublicationsPage() {
           body="Votre premier clip publié apparaîtra ici avec son statut par plateforme."
           action={
             <Link
-              href="/espace"
+              href={basePath}
               className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
             >
               Publier un clip
@@ -96,12 +106,13 @@ export default function PublicationsPage() {
         />
       ) : (
         <div className="flex flex-col gap-4">
-          {state.posts.map((post) => (
+          {state.posts.map((post, index) => (
             <PostCard
               key={post.id}
               post={post}
               onRetry={retry}
               retrying={retrying === post.id}
+              style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
             />
           ))}
         </div>

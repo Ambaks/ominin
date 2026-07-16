@@ -49,6 +49,14 @@ export function LinkIcon(props: IconProps) {
   );
 }
 
+export function CheckIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m4.5 12.5 5 5 10-11" />
+    </Svg>
+  );
+}
+
 export function RefreshIcon(props: IconProps) {
   return (
     <Svg {...props}>

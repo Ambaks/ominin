@@ -29,6 +29,7 @@ export const seo = {
 
 export const nav = {
   links: [
+    { label: "Démo", href: "#demo" },
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Scaling", href: "#scaling" },
     { label: "Tarifs", href: "#tarifs" },
@@ -86,6 +87,24 @@ export const heroShowcase = {
       live: false,
     },
   ],
+};
+
+/** Vitrine de la démo interactive : /demo en iframe dans les cadres appareil. */
+export const demoSection = {
+  id: "demo",
+  eyebrow: "Démo interactive",
+  title: "L'espace clipper, en conditions réelles.",
+  subtitle:
+    "Un espace de démonstration avec des données fictives : déposez le clip d'exemple, générez les titres, publiez — tout est jouable, rien n'est réel.",
+  urlLabel: "clip.ominin.com/espace",
+  href: "/demo",
+  overlayLabel: "Cliquer pour essayer la démo",
+  fullscreenLabel: "Ouvrir la démo en plein écran",
+  mobileTitle: "Essayez l'espace clipper",
+  mobileHint:
+    "Démo interactive, données fictives — directement dans votre navigateur.",
+  desktopIframeTitle: "Démo de l'espace clipper — vue ordinateur",
+  phoneIframeTitle: "Démo de l'espace clipper — vue mobile",
 };
 
 export const howItWorks = {
