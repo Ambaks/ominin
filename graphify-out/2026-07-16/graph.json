@@ -723,7 +723,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page",
-      "community": 89,
+      "community": 88,
       "norm_label": "page.tsx"
     },
     {
@@ -733,7 +733,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page_metadata",
-      "community": 89,
+      "community": 88,
       "norm_label": "metadata"
     },
     {
@@ -743,7 +743,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page_cliploginpage",
-      "community": 89,
+      "community": 88,
       "norm_label": "cliploginpage()"
     },
     {
@@ -1303,7 +1303,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_login_page",
-      "community": 89,
+      "community": 88,
       "norm_label": "page.tsx"
     },
     {
@@ -1313,7 +1313,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_login_page_metadata",
-      "community": 89,
+      "community": 88,
       "norm_label": "metadata"
     },
     {
@@ -1323,7 +1323,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_app_login_page_loginpage",
-      "community": 89,
+      "community": 88,
       "norm_label": "loginpage()"
     },
     {
@@ -1563,7 +1563,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_auth_auth_form",
-      "community": 89,
+      "community": 88,
       "norm_label": "auth-form.tsx"
     },
     {
@@ -1573,7 +1573,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_components_auth_auth_form_googleicon",
-      "community": 89,
+      "community": 88,
       "norm_label": "googleicon()"
     },
     {
@@ -1583,7 +1583,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_components_auth_auth_form_mailicon",
-      "community": 89,
+      "community": 88,
       "norm_label": "mailicon()"
     },
     {
@@ -1593,7 +1593,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_components_auth_auth_form_authform",
-      "community": 89,
+      "community": 88,
       "norm_label": "authform()"
     },
     {
@@ -2993,7 +2993,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_faq",
-      "community": 94,
+      "community": 95,
       "norm_label": "faq.tsx"
     },
     {
@@ -3003,7 +3003,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_faq_faq",
-      "community": 94,
+      "community": 95,
       "norm_label": "faq()"
     },
     {
@@ -3013,7 +3013,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_features",
-      "community": 94,
+      "community": 95,
       "norm_label": "features.tsx"
     },
     {
@@ -3023,7 +3023,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_features_features",
-      "community": 94,
+      "community": 95,
       "norm_label": "features()"
     },
     {
@@ -3153,7 +3153,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_pricing",
-      "community": 94,
+      "community": 19,
       "norm_label": "pricing.tsx"
     },
     {
@@ -3163,7 +3163,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_landing_pricing_pricing",
-      "community": 94,
+      "community": 19,
       "norm_label": "pricing()"
     },
     {
@@ -3213,7 +3213,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_live",
-      "community": 105,
+      "community": 94,
       "norm_label": "qr-live.tsx"
     },
     {
@@ -3223,7 +3223,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_live_qrlive",
-      "community": 105,
+      "community": 94,
       "norm_label": "qrlive()"
     },
     {
@@ -3233,7 +3233,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_showcase",
-      "community": 105,
+      "community": 94,
       "norm_label": "qr-showcase.tsx"
     },
     {
@@ -3243,7 +3243,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_showcase_qrshowcase",
-      "community": 105,
+      "community": 94,
       "norm_label": "qrshowcase()"
     },
     {
@@ -6053,7 +6053,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_landing_data",
-      "community": 94,
+      "community": 19,
       "norm_label": "landing-data.ts"
     },
     {
@@ -6063,7 +6063,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_cta",
-      "community": 94,
+      "community": 19,
       "norm_label": "cta"
     },
     {
@@ -6103,7 +6103,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_proofstat",
-      "community": 94,
+      "community": 19,
       "norm_label": "proofstat"
     },
     {
@@ -6113,7 +6113,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_plan",
-      "community": 94,
+      "community": 19,
       "norm_label": "plan"
     },
     {
@@ -6123,7 +6123,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_clientref",
-      "community": 94,
+      "community": 19,
       "norm_label": "clientref"
     },
     {
@@ -6133,7 +6133,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_qrshowcasepoint",
-      "community": 94,
+      "community": 19,
       "norm_label": "qrshowcasepoint"
     },
     {
@@ -6163,7 +6163,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_signupcta",
-      "community": 94,
+      "community": 19,
       "norm_label": "signupcta"
     },
     {
@@ -6173,7 +6173,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_plansignuphref",
-      "community": 94,
+      "community": 19,
       "norm_label": "plansignuphref()"
     },
     {
@@ -6223,7 +6223,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_featuressection",
-      "community": 94,
+      "community": 95,
       "norm_label": "featuressection"
     },
     {
@@ -6253,7 +6253,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_pricingsection",
-      "community": 94,
+      "community": 19,
       "norm_label": "pricingsection"
     },
     {
@@ -6283,7 +6283,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_qrshowcase",
-      "community": 105,
+      "community": 94,
       "norm_label": "qrshowcase"
     },
     {
@@ -6293,7 +6293,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_faqsection",
-      "community": 94,
+      "community": 95,
       "norm_label": "faqsection"
     },
     {
@@ -6623,7 +6623,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_supabase_client",
-      "community": 89,
+      "community": 87,
       "norm_label": "client.ts"
     },
     {
@@ -8808,7 +8808,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -9669,7 +9669,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/accounts/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_clip_accounts_route",
       "target": "frontend_lib_clip_server",
@@ -9695,6 +9695,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_accounts_route",
       "target": "frontend_lib_clip_server_requireclipuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/accounts/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_accounts_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -9756,7 +9767,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/analytics/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_clip_analytics_route",
       "target": "frontend_lib_clip_server",
@@ -9782,6 +9793,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_analytics_route",
       "target": "frontend_lib_clip_server_requireclipuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/analytics/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_analytics_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -9876,7 +9898,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/captions/route.ts",
-      "source_location": "L1",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_app_api_clip_captions_route",
       "target": "frontend_lib_clip_server",
@@ -9891,6 +9913,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_captions_route",
       "target": "frontend_lib_clip_server_requireclipuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/captions/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_captions_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -9952,7 +9985,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/link/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_clip_link_route",
       "target": "frontend_lib_clip_server",
@@ -10000,6 +10033,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_link_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/link/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_link_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -10116,7 +10160,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/posts/[id]/retry/route.ts",
-      "source_location": "L1",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_retry_route",
       "target": "frontend_lib_clip_server",
@@ -10164,6 +10208,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_retry_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/retry/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_retry_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -10236,7 +10291,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/posts/[id]/status/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_status_route",
       "target": "frontend_lib_clip_server",
@@ -10306,6 +10361,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_status_route",
       "target": "frontend_lib_supabase_database_types_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/status/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_status_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -10433,7 +10499,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/publish/route.ts",
-      "source_location": "L1",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_app_api_clip_publish_route",
       "target": "frontend_lib_clip_server",
@@ -10517,6 +10583,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/publish/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_publish_route",
+      "target": "frontend_lib_collect_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -10597,7 +10674,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/upload-url/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_clip_upload_url_route",
       "target": "frontend_lib_clip_server",
@@ -10634,6 +10711,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_upload_url_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/upload-url/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_upload_url_route",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -10693,7 +10781,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/collect/checkout/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_collect_server",
@@ -10829,17 +10917,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/collect/checkout/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_collect_checkout_route",
-      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -10981,7 +11058,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_collect_order_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11067,7 +11144,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_photos_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11206,7 +11283,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11355,7 +11432,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_connect_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11529,7 +11606,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_pay_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11616,7 +11693,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_connect_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11755,7 +11832,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -11853,7 +11930,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -25266,18 +25343,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_lib_clip_server",
-      "target": "frontend_lib_clip_server",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_proxy",
-      "target": "frontend_lib_clip_server",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -25787,6 +25853,17 @@
       "weight": 1.0,
       "source": "frontend_lib_collect_server",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_proxy",
+      "target": "frontend_lib_collect_server",
       "confidence_score": 1.0
     },
     {
