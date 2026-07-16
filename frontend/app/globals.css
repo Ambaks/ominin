@@ -179,6 +179,85 @@ body {
   animation: loader-slide 1.4s ease-in-out infinite;
 }
 
+/*
+  Générateur de clips (page « bientôt disponible ») : un curseur de lecture
+  balaie la timeline de la VOD en boucle ; chaque moment fort s'embrase à son
+  passage — les pourcentages d'ignite-1/2/3 sont calés sur la position des
+  segments dans le visuel — puis tout s'éteint en fin de cycle.
+*/
+@keyframes sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.sweep {
+  animation: sweep 7s linear infinite;
+}
+
+@keyframes ignite-1 {
+  0%,
+  18% {
+    opacity: 0.15;
+  }
+  22%,
+  92% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes ignite-2 {
+  0%,
+  48% {
+    opacity: 0.15;
+  }
+  52%,
+  92% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes ignite-3 {
+  0%,
+  78% {
+    opacity: 0.15;
+  }
+  82%,
+  92% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.ignite-1 {
+  opacity: 0.15;
+  animation: ignite-1 7s linear infinite;
+}
+
+.ignite-2 {
+  opacity: 0.15;
+  animation: ignite-2 7s linear infinite;
+}
+
+.ignite-3 {
+  opacity: 0.15;
+  animation: ignite-3 7s linear infinite;
+}
+
 /* Chart bars growing from the baseline on reveal (analytique) */
 @keyframes bar-grow {
   from {
@@ -219,12 +298,25 @@ body {
   .shimmer,
   .rise,
   .loader-bar,
-  .bar-rise {
+  .bar-rise,
+  .sweep,
+  .ignite-1,
+  .ignite-2,
+  .ignite-3 {
     animation: none;
   }
   .rise {
     opacity: 1;
     transform: none;
+  }
+  /* Sans mouvement : curseur masqué, tous les moments forts révélés. */
+  .sweep {
+    display: none;
+  }
+  .ignite-1,
+  .ignite-2,
+  .ignite-3 {
+    opacity: 1;
   }
   .loader-bar {
     width: 100%;

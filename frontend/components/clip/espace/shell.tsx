@@ -28,10 +28,12 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<IconProps>;
+  /** Sous-pages rattachées : l'onglet reste actif quand elles sont ouvertes. */
+  also?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "", label: "Publier", icon: UploadIcon },
+  { href: "", label: "Publier", icon: UploadIcon, also: ["/generateur"] },
   { href: "/publications", label: "Publications", icon: ListIcon },
   { href: "/comptes", label: "Comptes", icon: LinkIcon },
   { href: "/analytique", label: "Analytique", icon: ChartIcon },
@@ -43,10 +45,12 @@ async function signOut() {
   window.location.assign("/login");
 }
 
-function isActive(pathname: string, basePath: string, suffix: string): boolean {
-  return suffix === ""
-    ? pathname === basePath
-    : pathname.startsWith(basePath + suffix);
+function isActive(pathname: string, basePath: string, item: NavItem): boolean {
+  return [item.href, ...(item.also ?? [])].some((suffix) =>
+    suffix === ""
+      ? pathname === basePath
+      : pathname.startsWith(basePath + suffix)
+  );
 }
 
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
@@ -117,7 +121,7 @@ export function ClipShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
           <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex">
             {NAV_ITEMS.map((item) => {
-              const active = isActive(pathname, basePath, item.href);
+              const active = isActive(pathname, basePath, item);
               return (
                 <Link
                   key={item.href}
@@ -153,7 +157,7 @@ export function ClipShell({ children }: { children: React.ReactNode }) {
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
           <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
             {NAV_ITEMS.map((item) => {
-              const active = isActive(pathname, basePath, item.href);
+              const active = isActive(pathname, basePath, item);
               return (
                 <Link
                   key={item.href}

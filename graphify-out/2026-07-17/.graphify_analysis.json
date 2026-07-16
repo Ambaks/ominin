@@ -1,0 +1,98 @@
+{
+  "communities": {
+    "0": [
+      "frontend_lib_landing_data",
+      "frontend_lib_landing_data_clientref",
+      "frontend_lib_landing_data_clientssection",
+      "frontend_lib_landing_data_cta",
+      "frontend_lib_landing_data_democta",
+      "frontend_lib_landing_data_demosection",
+      "frontend_lib_landing_data_faqitem",
+      "frontend_lib_landing_data_faqsection",
+      "frontend_lib_landing_data_feature",
+      "frontend_lib_landing_data_featuressection",
+      "frontend_lib_landing_data_finalcta",
+      "frontend_lib_landing_data_footer",
+      "frontend_lib_landing_data_hero",
+      "frontend_lib_landing_data_howitworks",
+      "frontend_lib_landing_data_nav",
+      "frontend_lib_landing_data_navlink",
+      "frontend_lib_landing_data_plan",
+      "frontend_lib_landing_data_plansignuphref",
+      "frontend_lib_landing_data_pricingsection",
+      "frontend_lib_landing_data_qrshowcase",
+      "frontend_lib_landing_data_qrshowcasepoint",
+      "frontend_lib_landing_data_seo",
+      "frontend_lib_landing_data_signupcta",
+      "frontend_lib_landing_data_step"
+    ]
+  },
+  "cohesion": {
+    "0": 0.08333333333333333
+  },
+  "gods": [
+    {
+      "id": "frontend_lib_landing_data_cta",
+      "label": "Cta",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_navlink",
+      "label": "NavLink",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_step",
+      "label": "Step",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_feature",
+      "label": "Feature",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_plan",
+      "label": "Plan",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_clientref",
+      "label": "ClientRef",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_qrshowcasepoint",
+      "label": "QrShowcasePoint",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_faqitem",
+      "label": "FaqItem",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_democta",
+      "label": "demoCta",
+      "degree": 1
+    },
+    {
+      "id": "frontend_lib_landing_data_signupcta",
+      "label": "signupCta",
+      "degree": 1
+    }
+  ],
+  "surprises": [],
+  "questions": [
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Cta`, `NavLink`, `Step` to the rest of the system?",
+      "why": "22 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08333333333333333 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

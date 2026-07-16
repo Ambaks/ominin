@@ -4,6 +4,7 @@ import type {
   ClipPlatform,
   ConnectedAccount,
   PlatformAnalytics,
+  PostAnalytics,
 } from "./provider/types";
 import { commit, fetchApi, getState } from "./store";
 import { rowToClipPost, type ClipPost, type ClipState } from "./types";
@@ -141,6 +142,14 @@ export async function retryPost(id: string): Promise<ClipPost> {
 export async function fetchAnalytics(): Promise<PlatformAnalytics[]> {
   const { analytics } = await fetchApi<{ analytics: PlatformAnalytics[] }>(
     "/api/clip/analytics"
+  );
+  return analytics;
+}
+
+/** Métriques d'une publication chez le prestataire (onglet Par publication). */
+export async function fetchPostAnalytics(id: string): Promise<PostAnalytics[]> {
+  const { analytics } = await fetchApi<{ analytics: PostAnalytics[] }>(
+    `/api/clip/posts/${id}/analytics`
   );
   return analytics;
 }

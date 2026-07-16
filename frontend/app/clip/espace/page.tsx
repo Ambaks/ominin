@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CaptionEditor } from "@/components/clip/espace/caption-editor";
 import { Dropzone } from "@/components/clip/espace/dropzone";
+import { PublierTabs } from "@/components/clip/espace/publier-tabs";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
@@ -50,6 +51,7 @@ export default function PublierPage() {
   if (state.accounts.length === 0) {
     return (
       <div className="flex flex-col gap-6">
+        <PublierTabs active="clip" />
         <PageHeader />
         <EmptyState
           title="Aucun compte connecté"
@@ -123,6 +125,7 @@ export default function PublierPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PublierTabs active="clip" />
       <PageHeader />
 
       <section

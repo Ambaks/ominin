@@ -1,7 +1,10 @@
 import type {
   CaptionSet,
+  ClipPlatform,
   ConnectedAccount,
   PlatformAnalytics,
+  PostAnalytics,
+  PostPlatformMetrics,
 } from "../provider/types";
 import type { ClipPost, ClipState } from "../types";
 
@@ -34,6 +37,8 @@ export const DEMO_TIMINGS = {
   connectDelayMs: 1800,
   /** Lecture des analytics à l'arrivée sur la page. */
   analyticsDelayMs: 1100,
+  /** Lecture des métriques d'une carte de l'onglet Par publication. */
+  postAnalyticsDelayMs: 900,
 } as const;
 
 export const DEMO_EMAIL = "demo@ominin.com";
@@ -317,6 +322,71 @@ export function buildDemoAnalytics(now: number): PlatformAnalytics[] {
       value: Math.round(fraction * DAILY_REACH_PEAK[base.platform]),
     })),
   }));
+}
+
+/*
+ * Métriques par publication (onglet Par publication) : cohérentes avec le
+ * fixture — les posts anciens cumulent plus de vues, TikTok domine.
+ */
+const DEMO_POST_METRICS: Record<
+  string,
+  Partial<Record<ClipPlatform, PostPlatformMetrics>>
+> = {
+  "demo-post-2": {
+    tiktok: { views: 412_000, likes: 38_200, comments: 1_460, shares: 5_230, saves: 2_110 },
+    youtube: { views: 188_400, likes: 12_600, comments: 842, shares: 1_130, saves: 690 },
+    instagram: { views: 96_700, likes: 8_940, comments: 512, shares: 1_480, saves: 1_020 },
+  },
+  "demo-post-3": {
+    tiktok: { views: 268_500, likes: 21_700, comments: 903, shares: 3_150, saves: 1_240 },
+    youtube: { views: 121_300, likes: 8_020, comments: 517, shares: 640, saves: 380 },
+  },
+  "demo-post-4": {
+    tiktok: { views: 351_800, likes: 30_400, comments: 1_210, shares: 4_060, saves: 1_680 },
+    youtube: { views: 164_900, likes: 10_900, comments: 734, shares: 980, saves: 560 },
+    instagram: { views: 84_200, likes: 7_610, comments: 448, shares: 1_260, saves: 870 },
+  },
+  "demo-post-5": {
+    tiktok: { views: 489_300, likes: 45_100, comments: 1_890, shares: 6_420, saves: 2_540 },
+    youtube: { views: 203_700, likes: 14_200, comments: 918, shares: 1_310, saves: 760 },
+    instagram: { views: 112_400, likes: 10_300, comments: 587, shares: 1_720, saves: 1_190 },
+  },
+  "demo-post-6": {
+    tiktok: { views: 297_600, likes: 24_800, comments: 1_040, shares: 3_540, saves: 1_390 },
+    youtube: { views: 139_500, likes: 9_150, comments: 601, shares: 740, saves: 430 },
+    instagram: { views: 71_900, likes: 6_480, comments: 382, shares: 1_080, saves: 740 },
+  },
+};
+
+/** Un post publié pendant la démo : ses premières heures de diffusion. */
+const DEMO_FRESH_METRICS: Partial<Record<ClipPlatform, PostPlatformMetrics>> = {
+  tiktok: { views: 12_400, likes: 1_380, comments: 64, shares: 210, saves: 96 },
+  youtube: { views: 4_180, likes: 356, comments: 28, shares: 41, saves: 19 },
+  instagram: { views: 2_960, likes: 301, comments: 17, shares: 52, saves: 44 },
+  x: { views: 1_540, likes: 118, comments: 9, shares: 33, saves: 0 },
+};
+
+export function buildDemoPostAnalytics(post: ClipPost): PostAnalytics[] {
+  const metricsByPlatform = DEMO_POST_METRICS[post.id] ?? DEMO_FRESH_METRICS;
+  const succeeded =
+    post.results.length > 0
+      ? new Set(
+          post.results
+            .filter((result) => result.success)
+            .map((result) => result.platform)
+        )
+      : new Set(post.platforms);
+  return post.platforms
+    .filter((platform) => succeeded.has(platform))
+    .map((platform) => {
+      const metrics = metricsByPlatform[platform];
+      return {
+        platform,
+        postUrl: null,
+        metrics: metrics ? { ...metrics } : null,
+        error: metrics ? null : "Statistiques en cours de collecte.",
+      };
+    });
 }
 
 export function buildDemoState(now: number): ClipState {

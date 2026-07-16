@@ -10,6 +10,7 @@ import type { CaptionSet } from "../provider/types";
 import type { ClipPost, ClipState } from "../types";
 import {
   buildDemoAnalytics,
+  buildDemoPostAnalytics,
   buildDemoState,
   DEMO_CAPTIONS,
   DEMO_SAMPLE_CLIP,
@@ -206,6 +207,17 @@ export function DemoClipProvider({ children }: { children: React.ReactNode }) {
                 connected.has(entry.platform)
               )
             );
+          })
+        ),
+
+      fetchPostAnalytics: (id) =>
+        new Promise((resolve, reject) =>
+          after(DEMO_TIMINGS.postAnalyticsDelayMs, () => {
+            const post = stateRef.current?.posts.find(
+              (entry) => entry.id === id
+            );
+            if (post) resolve(buildDemoPostAnalytics(post));
+            else reject(new Error("Publication introuvable."));
           })
         ),
     }),

@@ -10,6 +10,7 @@ import {
   type ConnectedAccount,
   type PlatformAnalytics,
   type PlatformResult,
+  type PostAnalytics,
   type PostStatus,
   type PostSubmission,
 } from "./types";
@@ -220,6 +221,49 @@ async function getAnalytics(
   return analytics;
 }
 
+interface RawPostPlatform {
+  success?: boolean;
+  post_url?: string;
+  post_metrics?: {
+    views?: number;
+    likes?: number;
+    comments?: number;
+    shares?: number;
+    saves?: number;
+  };
+  post_metrics_error?: string | null;
+}
+
+/** Métriques en direct d'une publication, par plateforme où elle a abouti. */
+async function getPostAnalytics(requestId: string): Promise<PostAnalytics[]> {
+  const data = await requestJson<{
+    post?: { platforms?: Record<string, RawPostPlatform | null> };
+  }>(`/uploadposts/post-analytics/${encodeURIComponent(requestId)}`);
+
+  const raw = data.post?.platforms ?? {};
+  const analytics: PostAnalytics[] = [];
+  for (const platform of CLIP_PLATFORMS) {
+    const value = raw[platform];
+    if (!value || value.success === false) continue;
+    const metrics = value.post_metrics;
+    analytics.push({
+      platform,
+      postUrl: value.post_url ?? null,
+      metrics: metrics
+        ? {
+            views: metrics.views ?? 0,
+            likes: metrics.likes ?? 0,
+            comments: metrics.comments ?? 0,
+            shares: metrics.shares ?? 0,
+            saves: metrics.saves ?? 0,
+          }
+        : null,
+      error: value.post_metrics_error ?? null,
+    });
+  }
+  return analytics;
+}
+
 export const uploadPostProvider = {
   ensureProfile,
   createLinkUrl,
@@ -227,6 +271,7 @@ export const uploadPostProvider = {
   submitPost,
   getPostStatus,
   getAnalytics,
+  getPostAnalytics,
 };
 
 export type ClipProvider = typeof uploadPostProvider;

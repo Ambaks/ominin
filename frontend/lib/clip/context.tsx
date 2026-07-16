@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo } from "react";
 import {
   fetchAnalytics,
+  fetchPostAnalytics,
   generateCaptions,
   pollPostStatus,
   publishClip,
@@ -16,6 +17,7 @@ import type {
   ClipPlatform,
   ConnectedAccount,
   PlatformAnalytics,
+  PostAnalytics,
 } from "./provider/types";
 import { retryLoad, useClip, useClipLoadError } from "./store";
 import type { ClipPost, ClipState } from "./types";
@@ -54,6 +56,7 @@ export interface ClipActions {
   connectAccounts(): Promise<void>;
   refreshAccounts(): Promise<ConnectedAccount[]>;
   fetchAnalytics(): Promise<PlatformAnalytics[]>;
+  fetchPostAnalytics(id: string): Promise<PostAnalytics[]>;
 }
 
 export interface ClipData {
@@ -105,6 +108,7 @@ const realActions: ClipActions = {
   connectAccounts,
   refreshAccounts,
   fetchAnalytics,
+  fetchPostAnalytics,
 };
 
 export function ClipDataProvider({ children }: { children: React.ReactNode }) {

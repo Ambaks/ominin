@@ -1,16 +1,16 @@
-# Graph Report - ominin  (2026-07-17)
+# Graph Report - ominin  (2026-07-16)
 
 ## Corpus Check
-- 216 files · ~168,122 words
+- 211 files · ~165,291 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1026 nodes · 2381 edges · 114 communities (49 shown, 65 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 50 edges (avg confidence: 0.63)
+- 993 nodes · 2309 edges · 118 communities (50 shown, 68 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 45 edges (avg confidence: 0.64)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bcb61c60`
+- Built from commit: `2311ff5f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -109,6 +109,7 @@
 - [[_COMMUNITY_page.tsx|page.tsx]]
 - [[_COMMUNITY_section-heading.tsx|section-heading.tsx]]
 - [[_COMMUNITY_demo-showcase.tsx|demo-showcase.tsx]]
+- [[_COMMUNITY_nav.tsx|nav.tsx]]
 - [[_COMMUNITY_order-confirmation.tsx|order-confirmation.tsx]]
 - [[_COMMUNITY_add-to-order.tsx|add-to-order.tsx]]
 - [[_COMMUNITY_Ominin Clip — Phase 2  Espace clipper (connexions, publication, analytics)|Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)]]
@@ -122,10 +123,13 @@
 - [[_COMMUNITY_types.ts|types.ts]]
 - [[_COMMUNITY_store.ts|store.ts]]
 - [[_COMMUNITY_page.tsx|page.tsx]]
+- [[_COMMUNITY_shell.tsx|shell.tsx]]
+- [[_COMMUNITY_icons.tsx|icons.tsx]]
 - [[_COMMUNITY_demo-showcase.tsx|demo-showcase.tsx]]
 - [[_COMMUNITY_auth-form.tsx|auth-form.tsx]]
 - [[_COMMUNITY_theme-toggle.tsx|theme-toggle.tsx]]
 - [[_COMMUNITY_page.tsx|page.tsx]]
+- [[_COMMUNITY_layout.tsx|layout.tsx]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 40 edges
@@ -136,29 +140,29 @@
 6. `formatPrice()` - 26 edges
 7. `useGestion()` - 25 edges
 8. `check()` - 21 edges
-9. `requireClipUser()` - 20 edges
-10. `useClipData()` - 18 edges
+9. `requireClipUser()` - 18 edges
+10. `createClient()` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `ClipEspaceLayout()` --calls--> `createClient()`  [EXTRACTED]
-  frontend/app/clip/espace/layout.tsx → frontend/lib/supabase/server.ts
+- `GET()` --calls--> `createAdminClient()`  [EXTRACTED]
+  frontend/app/api/collect/order/route.ts → frontend/lib/supabase/admin.ts
 - `AnalytiquePage()` --calls--> `hasFeature()`  [INFERRED]
   frontend/app/gestion/analytique/page.tsx → frontend/lib/gestion/permissions.ts
 - `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
   frontend/app/gestion/page.tsx → frontend/lib/gestion/permissions.ts
 - `OnboardingPage()` --calls--> `createClient()`  [EXTRACTED]
   frontend/app/onboarding/page.tsx → frontend/lib/supabase/server.ts
-- `signOut()` --calls--> `createClient()`  [EXTRACTED]
-  frontend/components/clip/espace/shell.tsx → frontend/lib/supabase/client.ts
+- `sitemap()` --calls--> `createClient()`  [EXTRACTED]
+  frontend/app/sitemap.ts → frontend/lib/supabase/server.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (114 total, 65 thin omitted)
+## Communities (118 total, 68 thin omitted)
 
 ### Community 1 - "page.tsx"
-Cohesion: 0.13
-Nodes (12): DishCard(), FeaturedCard(), MenuSection(), ItemInput, GestionState, Badge, BADGE_LABELS, MenuCategory (+4 more)
+Cohesion: 0.14
+Nodes (11): DishCard(), FeaturedCard(), ItemInput, Article, Badge, BADGE_LABELS, OptionChoice, OptionGroup (+3 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.06
@@ -176,13 +180,9 @@ Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModu
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
-### Community 6 - "FastAPI Backend"
-Cohesion: 0.29
-Nodes (3): Settings, BaseSettings, eslintConfig
-
 ### Community 7 - "Root Layout & Fonts"
-Cohesion: 0.19
-Nodes (7): fraunces, instrumentSans, metadata, viewport, Providers(), seo, siteUrl
+Cohesion: 0.17
+Nodes (8): fraunces, instrumentSans, metadata, viewport, Providers(), sitemap(), seo, siteUrl
 
 ### Community 9 - "Next.js Config"
 Cohesion: 0.50
@@ -193,8 +193,8 @@ Cohesion: 0.17
 Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & auth), 5. Graphify (knowledge-graph CLI), 6. Project skills (nothing to install), 7. Final checklist, Ominin (+3 more)
 
 ### Community 19 - "/graphify"
-Cohesion: 0.22
-Nodes (6): Pricing(), collectOffer, planSignupHref(), pricingSection, plans, stripe
+Cohesion: 0.33
+Nodes (4): collectOffer, pricingSection, plans, stripe
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.20
@@ -230,7 +230,7 @@ Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed
 
 ### Community 85 - "types.ts"
 Cohesion: 0.07
-Nodes (56): OnboardingForm(), metadata, OnboardingPage(), OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), ACTIVE_ORDER_STATUSES (+48 more)
+Nodes (57): OnboardingForm(), metadata, OnboardingPage(), OrderCard(), PaymentDialog(), STATUS_CLASSES, StatusBadge(), ACTIVE_ORDER_STATUSES (+49 more)
 
 ### Community 86 - "useToast"
 Cohesion: 0.07
@@ -241,12 +241,12 @@ Cohesion: 0.15
 Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.14
-Nodes (18): AnalytiquePage(), Period, ApercuPage(), StatCard(), ANALYTICS_PERIOD_DAYS, DayPoint, dayStart(), groupTableNumbers() (+10 more)
+Cohesion: 0.15
+Nodes (17): AnalytiquePage(), Period, ApercuPage(), StatCard(), ANALYTICS_PERIOD_DAYS, DayPoint, dayStart(), inProgressOrders() (+9 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.05
-Nodes (38): metadata, ClipEspaceLayout(), metadata, metadata, DemoBanner(), emptySubscribe(), Dropzone(), formatSize() (+30 more)
+Cohesion: 0.16
+Nodes (13): ApercuIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), MenuIcon(), QrIcon() (+5 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
@@ -254,31 +254,35 @@ Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
 Cohesion: 0.07
-Nodes (55): GET(), GET(), POST(), GET(), POST(), GET(), POST(), POST() (+47 more)
+Nodes (52): GET(), GET(), POST(), POST(), GET(), POST(), POST(), POST() (+44 more)
 
 ### Community 92 - "store.ts"
 Cohesion: 0.09
-Nodes (28): metadata, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipHero(), ClipHowItWorks(), ClipPricing(), PriceCard() (+20 more)
+Nodes (28): metadata, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipFooter(), ClipHero(), ClipHowItWorks(), ClipNav() (+20 more)
 
 ### Community 93 - "client.ts"
-Cohesion: 0.13
-Nodes (13): providerApiKey(), PostStatus, PostSubmission, CAPTION_FIELDS, ClipProvider, ensureProfile(), isClipPlatform(), listConnectedAccounts() (+5 more)
+Cohesion: 0.15
+Nodes (12): providerApiKey(), PostStatus, PostSubmission, CAPTION_FIELDS, ClipProvider, ensureProfile(), isClipPlatform(), listConnectedAccounts() (+4 more)
 
 ### Community 94 - "page.tsx"
-Cohesion: 0.10
-Nodes (24): metadata, Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter(), LandingNav() (+16 more)
+Cohesion: 0.11
+Nodes (21): metadata, Features(), LandingFooter(), LandingNav(), Pricing(), Proof(), QrLive(), QrShowcase() (+13 more)
 
 ### Community 95 - "section-heading.tsx"
-Cohesion: 0.25
-Nodes (4): ClipActions, CaptionSet, PlatformResult, ClipPost
+Cohesion: 0.23
+Nodes (7): Faq(), HowItWorks(), SectionHeading(), faqSection, howItWorks, faqSection, howItWorks
 
 ### Community 96 - "demo-showcase.tsx"
-Cohesion: 0.50
-Nodes (3): QrLive(), QrShowcase(), qrShowcase
+Cohesion: 0.19
+Nodes (9): DemoShowcase(), FinalCta(), Hero(), IphoneFrame(), QrCorners(), demoCta, demoSection, finalCta (+1 more)
+
+### Community 97 - "nav.tsx"
+Cohesion: 0.31
+Nodes (3): metadata, ClipLoader(), ClipWordmark()
 
 ### Community 98 - "order-confirmation.tsx"
-Cohesion: 0.47
-Nodes (4): OrderConfirmation(), STATUS_COPY, collectHref(), formatTime()
+Cohesion: 0.24
+Nodes (9): GET(), OrderConfirmation(), STATUS_COPY, CartChoice, CollectCheckoutPayload, collectHref(), CollectOrderView, formatTime() (+1 more)
 
 ### Community 99 - "add-to-order.tsx"
 Cohesion: 0.18
@@ -289,8 +293,8 @@ Cohesion: 0.13
 Nodes (14): 1. DB migration — `supabase/migrations/20260715000001_clip.sql`, 2. Provider adapter — `frontend/lib/clip/provider/` (server-only), 3. Route handlers — `frontend/app/api/clip/*`, 4. Storage & upload flow, 5. Claude captions, 6. Dashboard UI — replaces the stub, 7. Post lifecycle, 8. Analytics page (+6 more)
 
 ### Community 101 - "page.tsx"
-Cohesion: 0.23
-Nodes (9): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), Hero(), LANGUAGES, MenuFooter() (+1 more)
+Cohesion: 0.27
+Nodes (8): generateMetadata(), getRestaurant, MenuPage(), Hero(), LANGUAGES, MenuFooter(), MenuSection(), Restaurant
 
 ### Community 102 - "collect-experience.tsx"
 Cohesion: 0.26
@@ -305,60 +309,64 @@ Cohesion: 0.43
 Nodes (5): seed(), OrderItem, getRestaurant(), db, main()
 
 ### Community 105 - "qr-showcase.tsx"
-Cohesion: 0.20
-Nodes (16): apply(), fetchAnalytics(), fetchPostAnalytics(), generateCaptions(), pollPostStatus(), publishClip(), refreshAccounts(), requestLinkUrl() (+8 more)
+Cohesion: 0.15
+Nodes (17): apply(), fetchAnalytics(), generateCaptions(), pollPostStatus(), publishClip(), refreshAccounts(), requestLinkUrl(), retryPost() (+9 more)
 
 ### Community 106 - "data.ts"
-Cohesion: 0.14
-Nodes (19): ClipData, ClipDataContext, ANALYTICS_BASE, buildDemoAnalytics(), buildDemoPostAnalytics(), buildDemoPosts(), buildDemoState(), DAILY_REACH_PEAK (+11 more)
+Cohesion: 0.12
+Nodes (20): metadata, DemoBanner(), emptySubscribe(), ClipData, ClipDataContext, ANALYTICS_BASE, buildDemoAnalytics(), buildDemoPosts() (+12 more)
 
 ### Community 107 - "types.ts"
-Cohesion: 0.16
-Nodes (11): PublicationsPage(), CaptionEditor(), PlatformBadge(), PostCard(), STATUS_CLASSES, PLATFORM_LABELS, STATUS_LABELS, ClipUploadInput (+3 more)
+Cohesion: 0.25
+Nodes (9): PlatformBadge(), PostCard(), STATUS_CLASSES, PLATFORM_LABELS, STATUS_LABELS, ClipPlatform, PlatformResult, ClipPost (+1 more)
 
 ### Community 108 - "types.ts"
-Cohesion: 0.29
-Nodes (6): POST(), ComptesPage(), LinkIcon(), captionsSchema(), generateCaptions(), CLIP_PLATFORMS
+Cohesion: 0.24
+Nodes (7): POST(), CaptionEditor(), captionsSchema(), generateCaptions(), ClipUploadInput, CaptionSet, CLIP_PLATFORMS
 
 ### Community 109 - "store.ts"
 Cohesion: 0.27
 Nodes (14): ClipDataProvider(), commit(), fetchApi(), getClientSnapshot(), getErrorSnapshot(), getServerSnapshot(), listeners, load() (+6 more)
 
 ### Community 110 - "page.tsx"
-Cohesion: 0.08
-Nodes (19): AnalyticsView, AnalytiquePage(), compact, PostAnalyticsList(), VIEW_SUBTITLES, VIEWS, GenerateurPage(), MOMENTS (+11 more)
+Cohesion: 0.18
+Nodes (7): AnalytiquePage(), compact, ComptesPage(), PublierPage(), PublicationsPage(), LinkIcon(), useClipData()
+
+### Community 111 - "shell.tsx"
+Cohesion: 0.20
+Nodes (8): NAV_ITEMS, NavItem, signOut(), ChartIcon(), IconProps, LogoutIcon(), NavItem, ToastProvider()
+
+### Community 112 - "icons.tsx"
+Cohesion: 0.27
+Nodes (7): Dropzone(), formatSize(), CheckIcon(), ListIcon(), RefreshIcon(), UploadIcon(), ACCEPTED_VIDEO_TYPES
 
 ### Community 113 - "demo-showcase.tsx"
-Cohesion: 0.16
-Nodes (9): ClipDemoShowcase(), DESKTOP_VIEWPORT, PHONE_SIZE, BrowserFrame(), DemoShowcase(), IphoneFrame(), QrCorners(), demoSection (+1 more)
-
-### Community 114 - "auth-form.tsx"
-Cohesion: 0.24
-Nodes (3): metadata, metadata, AuthForm()
+Cohesion: 0.25
+Nodes (5): ClipDemoShowcase(), DESKTOP_VIEWPORT, PHONE_SIZE, BrowserFrame(), demoSection
 
 ### Community 115 - "theme-toggle.tsx"
-Cohesion: 0.23
-Nodes (6): ClipFooter(), ClipNav(), ClipWordmark(), ThemeToggle(), footer, nav
+Cohesion: 0.33
+Nodes (3): CategoryLink, CategoryNav(), ThemeToggle()
 
 ## Knowledge Gaps
-- **293 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+288 more)
+- **280 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+275 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **68 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `createClient()` connect `api.ts` to `add-to-order.tsx`, `store.ts`, `auth-form.tsx`, `types.ts`, `useToast`, `shell.tsx`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `useToast()` connect `useToast` to `types.ts`, `types.ts`, `types.ts`, `page.tsx`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `api.ts` to `add-to-order.tsx`, `store.ts`, `shell.tsx`, `auth-form.tsx`, `types.ts`, `useToast`, `shell.tsx`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `createAdminClient()` connect `selectors.ts` to `order-confirmation.tsx`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `formatPrice()` connect `collect-experience.tsx` to `page.tsx`, `order-confirmation.tsx`, `add-to-order.tsx`, `types.ts`, `useToast`, `formule-form-modal.tsx`, `page.tsx`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `backend`, `ResolvedLine`, `EXTENSIONS` to the rest of the system?**
-  _294 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _281 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.13450292397660818 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1437908496732026 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.0625 - nodes in this community are weakly interconnected._
 - **Should `TypeScript Config` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
-- **Should `Menu Data & Components 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
