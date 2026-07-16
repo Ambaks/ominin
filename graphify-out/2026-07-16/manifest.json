@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/page.tsx": {
-    "mtime": 1784160515.5776215,
-    "ast_hash": "c1bb7ddb2bedb07e2111c621aa85d23a",
+    "mtime": 1784201296.8874447,
+    "ast_hash": "034fb4cbeb63ffebc35ff66d3c4a2234",
     "semantic_hash": ""
   },
   "frontend/app/clip/login/page.tsx": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/page.tsx": {
-    "mtime": 1784109871.6181064,
-    "ast_hash": "45eaaba1bfab0acef3047d0aa0695919",
+    "mtime": 1784201214.15712,
+    "ast_hash": "ddc39333b6810e8671fe1557aca2ff26",
     "semantic_hash": ""
   },
   "frontend/app/gestion/analytique/page.tsx": {
@@ -850,8 +850,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/clip-landing-data.ts": {
-    "mtime": 1784109871.6280556,
-    "ast_hash": "41467ad518f046652f66a3d6796e20ec",
+    "mtime": 1784201181.7083871,
+    "ast_hash": "587a2b4b676a6b6639a7d54347924645",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/photo.ts": {
@@ -940,38 +940,38 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/analytique/page.tsx": {
-    "mtime": 1784160636.5562148,
-    "ast_hash": "ebae70febd7fc5a23c06bcc253a77dbc",
+    "mtime": 1784201346.1373634,
+    "ast_hash": "49674e302794d393ccb039b843c71505",
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/comptes/page.tsx": {
-    "mtime": 1784160550.182111,
-    "ast_hash": "c7b7b0eaf2136fedf9e2a035e592d869",
+    "mtime": 1784201323.232204,
+    "ast_hash": "91592888077138bf57d781f711548911",
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/layout.tsx": {
-    "mtime": 1784160488.5373187,
-    "ast_hash": "507527c0a51507532c82d9ccd3b691e3",
+    "mtime": 1784200550.7636323,
+    "ast_hash": "887769f99d9be6195466fd304181c0dd",
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/publications/page.tsx": {
-    "mtime": 1784160536.4115741,
-    "ast_hash": "12e71326e2d20f1725ccfa8bf9823e29",
+    "mtime": 1784201406.7641964,
+    "ast_hash": "702aec2ad383141ffa7429a395346c32",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/caption-editor.tsx": {
-    "mtime": 1784160432.5659523,
-    "ast_hash": "5e4a00b5bc83c870efd0be15ea8f79c5",
+    "mtime": 1784201298.2939887,
+    "ast_hash": "90059f957bfed838c53e3ac1b4d93c49",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/dropzone.tsx": {
-    "mtime": 1784160426.2850022,
-    "ast_hash": "d6a8b3d506939a332456a64133bc3650",
+    "mtime": 1784201268.428415,
+    "ast_hash": "a0420a7d2691eae6f5027796d34b5ee8",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/icons.tsx": {
-    "mtime": 1784160323.2045228,
-    "ast_hash": "3fd0c4193bba944b9189f3e4d9b0929e",
+    "mtime": 1784201264.6574347,
+    "ast_hash": "7af314bdb23f5f3aa989b0cc690d37a3",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/platform-badge.tsx": {
@@ -980,13 +980,13 @@
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/post-card.tsx": {
-    "mtime": 1784160405.8752418,
-    "ast_hash": "f555aa0716730e721c38fa3f8decfcc0",
+    "mtime": 1784201304.6077702,
+    "ast_hash": "2f894d39f4a5761fb46d7c044efd8658",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/shell.tsx": {
-    "mtime": 1784160349.2552648,
-    "ast_hash": "60d3af0f6ce001a5beb60e71b437ae6f",
+    "mtime": 1784201347.9422107,
+    "ast_hash": "96c26e5dada6d823b67a7b2921e56b3a",
     "semantic_hash": ""
   },
   "frontend/lib/clip/api.ts": {
@@ -1047,6 +1047,71 @@
   ".claude/plans/clip-phase2-espace.md": {
     "mtime": 1784110090.484508,
     "ast_hash": "f97891447ca660bf20bdaeefdaf23382",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/analytique/page.tsx": {
+    "mtime": 1784201020.2541063,
+    "ast_hash": "d84408396861eacd944d8ea3ec3eb12b",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/comptes/page.tsx": {
+    "mtime": 1784201019.2294276,
+    "ast_hash": "0f5742f82c365405f04d30dcd19def50",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/layout.tsx": {
+    "mtime": 1784201016.1269917,
+    "ast_hash": "846aefb7385ca7c9e46f7c4cbbd2402f",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/page.tsx": {
+    "mtime": 1784201017.1571612,
+    "ast_hash": "8b6d3d92137b2e756b0a17e603f8641b",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/publications/page.tsx": {
+    "mtime": 1784201018.1886888,
+    "ast_hash": "d746e10b2ce42f628aa4d265606b695d",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/espace/loading.tsx": {
+    "mtime": 1784200789.442194,
+    "ast_hash": "2e8dd675d933b4e88a059b1d9a44385c",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/demo-banner.tsx": {
+    "mtime": 1784201412.0421462,
+    "ast_hash": "738d698c6ac6ab5437402536eaef8816",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/demo-showcase.tsx": {
+    "mtime": 1784201212.1165354,
+    "ast_hash": "08853fb01cb24a722f1708df401f4b61",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/loader.tsx": {
+    "mtime": 1784200788.4260488,
+    "ast_hash": "3a6aa2b433a0e0364f30cf2d5c0e2007",
+    "semantic_hash": ""
+  },
+  "frontend/components/landing/browser-frame.tsx": {
+    "mtime": 1784201176.3379474,
+    "ast_hash": "276260536dde93696938ea5f6b4717c6",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/context.tsx": {
+    "mtime": 1784200540.121161,
+    "ast_hash": "8cc1efb5a940149e457b583fbe07572c",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/demo/data.ts": {
+    "mtime": 1784200901.0319629,
+    "ast_hash": "387bf502bd96675fe825abf0aae5265d",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/demo/provider.tsx": {
+    "mtime": 1784201006.5290413,
+    "ast_hash": "1c06430eabc66186af17397658a411a9",
     "semantic_hash": ""
   }
 }

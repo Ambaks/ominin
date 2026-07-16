@@ -165,6 +165,35 @@ body {
   animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Indeterminate gradient bar for the branded loading screen (ClipLoader) */
+@keyframes loader-slide {
+  from {
+    transform: translateX(-150%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
+
+.loader-bar {
+  animation: loader-slide 1.4s ease-in-out infinite;
+}
+
+/* Chart bars growing from the baseline on reveal (analytique) */
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.bar-rise {
+  transform-origin: bottom;
+  animation: bar-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Soft radial glow for hero/CTA atmosphere */
 .ember-glow {
   background-image: radial-gradient(
@@ -188,11 +217,19 @@ body {
     scroll-behavior: auto;
   }
   .shimmer,
-  .rise {
+  .rise,
+  .loader-bar,
+  .bar-rise {
     animation: none;
   }
   .rise {
     opacity: 1;
+    transform: none;
+  }
+  .loader-bar {
+    width: 100%;
+  }
+  .bar-rise {
     transform: none;
   }
 }

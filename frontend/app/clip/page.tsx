@@ -3,6 +3,7 @@ import { clipBrand, seo } from "@/lib/clip-landing-data";
 import { clipSiteUrl } from "@/lib/site";
 import { ClipNav } from "@/components/clip/nav";
 import { ClipHero } from "@/components/clip/hero";
+import { ClipDemoShowcase } from "@/components/clip/demo-showcase";
 import { ClipHowItWorks } from "@/components/clip/how-it-works";
 import { ClipFeatures } from "@/components/clip/features";
 import { ClipScale } from "@/components/clip/scale";
@@ -40,6 +41,7 @@ export default function ClipHome() {
       <ClipNav />
       <main>
         <ClipHero />
+        <ClipDemoShowcase />
         <ClipHowItWorks />
         <ClipFeatures />
         <ClipScale />

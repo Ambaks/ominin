@@ -28,7 +28,7 @@ export function CaptionEditor({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="rise flex flex-col gap-4">
       {platforms.map((platform) => (
         <div key={platform} className="flex flex-col gap-3">
           <Field label={`Titre ${PLATFORM_LABELS[platform]}`}>

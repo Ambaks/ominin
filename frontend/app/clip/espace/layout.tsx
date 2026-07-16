@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ClipShell } from "@/components/clip/espace/shell";
+import { ClipDataProvider } from "@/lib/clip/context";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -24,5 +25,9 @@ export default async function ClipEspaceLayout({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  return <ClipShell>{children}</ClipShell>;
+  return (
+    <ClipDataProvider>
+      <ClipShell>{children}</ClipShell>
+    </ClipDataProvider>
+  );
 }

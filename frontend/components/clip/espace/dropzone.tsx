@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ACCEPTED_VIDEO_TYPES, MAX_CLIP_BYTES } from "@/lib/clip/constants";
-import { UploadIcon } from "./icons";
+import { CheckIcon, UploadIcon } from "./icons";
 
 /*
  * Zone de dépôt du clip : valide format et taille côté client (le serveur
@@ -20,13 +20,19 @@ export function Dropzone({
   uploaded,
   disabled,
   onSelect,
+  onPick,
 }: {
-  file: File | null;
+  file: { name: string; size: number } | null;
   /** Fraction 0–1 pendant l'envoi, null sinon. */
   progress: number | null;
   uploaded: boolean;
   disabled: boolean;
   onSelect: (file: File) => void;
+  /**
+   * Remplace l'ouverture du sélecteur de fichiers au clic (démo : un clip
+   * d'exemple est fourni). Le glisser-déposer d'un vrai fichier reste actif.
+   */
+  onPick?: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -51,7 +57,7 @@ export function Dropzone({
       <button
         type="button"
         disabled={disabled}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => (onPick ? onPick() : inputRef.current?.click())}
         onDragOver={(event) => {
           event.preventDefault();
           if (!disabled) setDragging(true);
@@ -105,7 +111,10 @@ export function Dropzone({
         </div>
       )}
       {uploaded && progress == null && (
-        <p className="text-xs font-medium text-ember-1">Clip importé.</p>
+        <p className="rise flex items-center gap-1.5 text-xs font-medium text-ember-1">
+          <CheckIcon className="size-3.5" />
+          Clip importé.
+        </p>
       )}
       {error && <p className="text-xs text-ember-3">{error}</p>}
     </div>
