@@ -215,8 +215,8 @@ FAQ) lives at `/clip` and is reachable via the subdomain proxy rewrite. All
 copy (French) and pricing (1 500 € one-time base product + 50 €/month per 10
 social accounts, first month free) source from `lib/clip-landing-data.ts`. Auth:
 clipper signups via `/clip/login` (tagged with product metadata) tag users as
-`product:"clip"` in Supabase; protected `/clip/espace` space is a stub for
-phase 2. Shared auth form (`components/auth/auth-form.tsx`, parameterized by
+`product:"clip"` in Supabase; protected `/clip/espace` is the phase-2
+dashboard (next paragraph). Shared auth form (`components/auth/auth-form.tsx`, parameterized by
 brand/destination/signup mode) extracted from `/login/login-form.tsx` — reused
 for both restaurant and clipper signups. Bug fix: `app/auth/callback/route.ts`
 now uses `x-forwarded-host`/`host` headers to preserve subdomain through
@@ -227,9 +227,35 @@ to `/clip/*` routes, /auth/* paths pass through un-rewritten for OAuth callbacks
 /espace is protected. Verified: `npm run build` + `npm run lint` pass; 28
 Playwright tests covering clip homepage content, host rewrite, login/signup
 modes, auth flow, protected routes, and cross-host non-regression.
-Deliberately deferred (phase 2): full clipper platform (social account
-connections, clip uploads, posting agents, Stripe billing), DNS/domain setup
-(Vercel domain binding, CNAME, Supabase redirect URL for clip.ominin.com).
+**Ominin Clip phase 2** (`/clip/espace`): the clipper dashboard is live —
+social-account connections, publishing and analytics in one place. Posting
+goes through upload-post (budget unified social-posting API: hosted OAuth
+linking page per clipper, TikTok/Instagram Reels/YouTube Shorts/X) behind a
+provider adapter (`frontend/lib/clip/provider/` — the only provider-aware
+code, so a later switch to direct platform APIs stays contained). Publish
+flow: the browser uploads the clip straight to the private Storage bucket
+`clips` via signed URL (50 MB cap — Supabase free-tier limit), Claude
+(`claude-opus-4-8` by default, `CLIP_CAPTION_MODEL` to override) generates
+per-platform titles/descriptions (editable in the UI), then
+`/api/clip/publish` hands the provider a signed download URL in async mode;
+the Publications page polls `/api/clip/posts/[id]/status` until
+`publie`/`partiel`/`echec` (retry re-submits every platform — a `partiel`
+retry can double-post the platform that succeeded, assumed v1 limitation).
+Analytics are read live from the provider (followers, vues, portée, j'aime…
+per platform, CSS bar chart on the `--chart-mark` token). DB: migration
+`20260715000001_clip.sql` (`clip_profiles`, `clip_posts` + owner-only RLS,
+private `clips` bucket); the matching `database.types.ts` entries were added
+by hand — regenerate with `supabase gen types` when linked. All server logic
+lives in Next route handlers (`app/api/clip/*`, per the Render cold-start
+rule); no CSP change (provider + Anthropic traffic is server-side only). New
+env vars in `frontend/.env.local` / Vercel (server-side): `UPLOAD_POST_API_KEY`,
+`ANTHROPIC_API_KEY`; optional `UPLOAD_POST_API_URL`, `CLIP_CAPTION_MODEL`.
+Verified: `npm run lint` + `npm run build` pass. Still deferred: Stripe
+billing for clip, direct platform APIs, per-post analytics, provider
+webhooks (polling suffices), DNS/domain setup (Vercel domain binding, CNAME,
+Supabase redirect URL) — plus one new owner step: create the upload-post
+account and set `UPLOAD_POST_API_KEY`. Implementation plan for collaborators:
+`.claude/plans/clip-phase2-espace.md`.
 
 Committed project skills in `.claude/skills/`: graphify (knowledge graph),
 `/commit` (required commit/push workflow). `CLAUDE.md` defines agent rules.

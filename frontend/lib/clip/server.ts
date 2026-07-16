@@ -49,7 +49,11 @@ export async function purgeStaleClips(
   const cutoff = Date.now() - STORAGE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
   const { data } = await admin.storage.from("clips").list(userId);
   const stale = (data ?? [])
-    .filter((object) => new Date(object.created_at).getTime() < cutoff)
+    .filter(
+      (object) =>
+        object.created_at != null &&
+        new Date(object.created_at).getTime() < cutoff
+    )
     .map((object) => `${userId}/${object.name}`);
   if (stale.length > 0) {
     await admin.storage.from("clips").remove(stale);

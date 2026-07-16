@@ -1,54 +1,251 @@
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { contactEmail } from "@/lib/landing-data";
-import { createClient } from "@/lib/supabase/server";
-import { ClipWordmark } from "@/components/clip/wordmark";
-import { SignOutButton } from "./sign-out-button";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Votre espace — Ominin Clip",
-  robots: { index: false, follow: false },
-};
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { CaptionEditor } from "@/components/clip/espace/caption-editor";
+import { Dropzone } from "@/components/clip/espace/dropzone";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Field, inputClass } from "@/components/ui/field";
+import { useToast } from "@/components/ui/toast";
+import {
+  generateCaptions,
+  publishClip,
+  uploadClip,
+} from "@/lib/clip/api";
+import { PLATFORM_LABELS } from "@/lib/clip/constants";
+import {
+  CLIP_PLATFORMS,
+  type CaptionSet,
+  type ClipPlatform,
+} from "@/lib/clip/provider/types";
+import { useClip } from "@/lib/clip/store";
 
 /*
- * Espace clipper, version d'attente : le compte existe, le setup sur mesure
- * (connexion des comptes, agents) est construit avec le client. La vraie
- * plateforme remplacera cette page en phase 2.
+ * Page « Publier » : dépôt du clip (upload direct vers le bucket), choix des
+ * plateformes connectées, titres générés par l'IA puis édités, publication.
  */
-export default async function ClipEspacePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+export default function PublierPage() {
+  const state = useClip();
+  const toast = useToast();
+  const router = useRouter();
+
+  const [file, setFile] = useState<File | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
+  const [path, setPath] = useState<string | null>(null);
+  const [context, setContext] = useState("");
+  const [selected, setSelected] = useState<ClipPlatform[]>([]);
+  const [captions, setCaptions] = useState<CaptionSet | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
+  // Le shell ne rend les enfants qu'une fois le store chargé.
+  if (!state) return null;
+
+  const connected = new Map(
+    state.accounts.map((account) => [account.platform, account])
+  );
+
+  if (state.accounts.length === 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageHeader />
+        <EmptyState
+          title="Aucun compte connecté"
+          body="Reliez d'abord vos comptes sociaux : vos clips seront ensuite publiés partout en une fois."
+          action={
+            <Link
+              href="/espace/comptes"
+              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+            >
+              Connecter mes comptes
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  const selectClip = (candidate: File) => {
+    setFile(candidate);
+    setPath(null);
+    setProgress(0);
+    uploadClip(candidate, setProgress)
+      .then((uploadedPath) => setPath(uploadedPath))
+      .catch((error: Error) => {
+        setFile(null);
+        toast.error(error.message);
+      })
+      .finally(() => setProgress(null));
+  };
+
+  const togglePlatform = (platform: ClipPlatform) => {
+    setSelected((current) =>
+      current.includes(platform)
+        ? current.filter((entry) => entry !== platform)
+        : [...current, platform]
+    );
+  };
+
+  const generate = () => {
+    setGenerating(true);
+    generateCaptions(context, selected)
+      .then((next) => setCaptions((current) => ({ ...current, ...next })))
+      .catch((error: Error) => toast.error(error.message))
+      .finally(() => setGenerating(false));
+  };
+
+  const missingTitle = selected.some((platform) => !captions?.[platform]?.title?.trim());
+  const canGenerate = context.trim().length > 0 && selected.length > 0 && !generating;
+  const canPublish =
+    path != null && selected.length > 0 && captions != null && !missingTitle && !publishing;
+
+  const publish = () => {
+    if (!path || !captions) return;
+    // Titre principal (fallback du prestataire) : celui de la première
+    // plateforme sélectionnée.
+    const title = captions[selected[0]]?.title?.trim() ?? "";
+    setPublishing(true);
+    publishClip({ path, title, captions, platforms: selected })
+      .then(() => {
+        toast.success("Publication lancée.");
+        router.push("/espace/publications");
+      })
+      .catch((error: Error) => {
+        toast.error(error.message);
+        setPublishing(false);
+      });
+  };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10 text-center">
-      <ClipWordmark className="text-2xl" />
+    <div className="flex flex-col gap-8">
+      <PageHeader />
 
-      <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface p-8">
-        <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-          Votre espace
-        </p>
-        <h1 className="mt-3 font-display text-2xl font-medium tracking-tight">
-          Votre setup est en préparation.
-        </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          Votre compte{" "}
-          <span className="font-medium text-foreground">{user.email}</span> est
-          bien créé. Chaque setup Ominin Clip est construit sur mesure : nous
-          revenons vers vous sous 24 heures pour brancher vos comptes et
-          configurer vos agents.
-        </p>
-        <a
-          href={`mailto:${contactEmail}`}
-          className="ember-gradient mt-6 inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+      <section className="flex flex-col gap-3">
+        <SectionTitle index={1} label="Votre clip" />
+        <Dropzone
+          file={file}
+          progress={progress}
+          uploaded={path != null}
+          disabled={progress != null || publishing}
+          onSelect={selectClip}
+        />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <SectionTitle index={2} label="Plateformes" />
+        <div className="flex flex-wrap gap-2">
+          {CLIP_PLATFORMS.map((platform) => {
+            const account = connected.get(platform);
+            if (!account) {
+              return (
+                <Link
+                  key={platform}
+                  href="/espace/comptes"
+                  className="rounded-full border border-dashed border-hairline px-4 py-2 text-sm text-faint transition-colors hover:border-ember-2/40 hover:text-muted"
+                >
+                  {PLATFORM_LABELS[platform]} — connecter
+                </Link>
+              );
+            }
+            const active = selected.includes(platform);
+            return (
+              <button
+                key={platform}
+                type="button"
+                onClick={() => togglePlatform(platform)}
+                className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? "border-ember-2/50 bg-surface text-foreground"
+                    : "border-hairline text-muted hover:text-foreground"
+                }`}
+              >
+                {PLATFORM_LABELS[platform]}
+                {account.reauthRequired && (
+                  <span className="ml-1.5 text-[10px] font-semibold uppercase text-ember-3">
+                    reconnexion requise
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <SectionTitle index={3} label="Titres" />
+        <Field
+          label="Décrivez votre clip"
+          hint="Streamer, jeu, moment fort… l'IA s'appuie uniquement sur cette description."
         >
-          Nous écrire
-        </a>
-      </div>
+          <textarea
+            className={`${inputClass} min-h-24 resize-y`}
+            value={context}
+            onChange={(event) => setContext(event.target.value)}
+            placeholder="Ex. : Kameto rage-quit après un 1v4 raté sur Valorant, chat en folie"
+          />
+        </Field>
+        <button
+          type="button"
+          disabled={!canGenerate}
+          onClick={generate}
+          className="self-start rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40 disabled:opacity-50"
+        >
+          {generating
+            ? "Génération…"
+            : captions
+              ? "Régénérer les titres"
+              : "Générer les titres"}
+        </button>
+        {captions && selected.length > 0 && (
+          <CaptionEditor
+            platforms={selected}
+            captions={captions}
+            onChange={setCaptions}
+          />
+        )}
+      </section>
 
-      <SignOutButton />
+      <section className="flex flex-col gap-2">
+        <button
+          type="button"
+          disabled={!canPublish}
+          onClick={publish}
+          className="ember-gradient self-start rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-50"
+        >
+          {publishing ? "Publication…" : "Publier"}
+        </button>
+        {selected.length > 0 && captions != null && missingTitle && (
+          <p className="text-xs text-faint">
+            Chaque plateforme sélectionnée doit avoir un titre.
+          </p>
+        )}
+      </section>
     </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <header>
+      <h1 className="font-display text-2xl font-medium tracking-tight">
+        Publier un clip
+      </h1>
+      <p className="mt-1 text-sm text-muted">
+        Un clip, tous vos réseaux : déposez la vidéo, validez les titres,
+        publiez.
+      </p>
+    </header>
+  );
+}
+
+function SectionTitle({ index, label }: { index: number; label: string }) {
+  return (
+    <h2 className="flex items-center gap-2 text-sm font-semibold">
+      <span className="ember-gradient flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-background">
+        {index}
+      </span>
+      {label}
+    </h2>
   );
 }

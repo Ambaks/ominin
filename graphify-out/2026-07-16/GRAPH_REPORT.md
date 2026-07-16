@@ -5,7 +5,7 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 936 nodes · 2177 edges · 106 communities (41 shown, 65 thin omitted)
+- 936 nodes · 2184 edges · 105 communities (40 shown, 65 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 37 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
@@ -117,7 +117,6 @@
 - [[_COMMUNITY_collect-experience.tsx|collect-experience.tsx]]
 - [[_COMMUNITY_public-menu.ts|public-menu.ts]]
 - [[_COMMUNITY_seed-demo.ts|seed-demo.ts]]
-- [[_COMMUNITY_qr-showcase.tsx|qr-showcase.tsx]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 40 edges
@@ -144,9 +143,9 @@
   frontend/components/collect/collect-experience.tsx → frontend/lib/menu-data.ts
 
 ## Import Cycles
-- 1-file cycle: `frontend/lib/clip/server.ts -> frontend/lib/clip/server.ts`
+- None detected.
 
-## Communities (106 total, 65 thin omitted)
+## Communities (105 total, 65 thin omitted)
 
 ### Community 1 - "page.tsx"
 Cohesion: 0.15
@@ -181,8 +180,8 @@ Cohesion: 0.17
 Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & auth), 5. Graphify (knowledge-graph CLI), 6. Project skills (nothing to install), 7. Final checklist, Ominin (+3 more)
 
 ### Community 19 - "/graphify"
-Cohesion: 0.21
-Nodes (4): metadata, collectOffer, plans, stripe
+Cohesion: 0.13
+Nodes (13): metadata, Pricing(), ClientRef, collectOffer, Cta, Plan, planSignupHref(), pricingSection (+5 more)
 
 ### Community 20 - "What you must do when invoked"
 Cohesion: 0.20
@@ -229,12 +228,12 @@ Cohesion: 0.15
 Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
 
 ### Community 88 - "formule-form-modal.tsx"
-Cohesion: 0.18
-Nodes (23): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+15 more)
+Cohesion: 0.12
+Nodes (26): metadata, metadata, AuthForm(), ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft (+18 more)
 
 ### Community 89 - "shell.tsx"
-Cohesion: 0.05
-Nodes (34): metadata, metadata, metadata, AuthForm(), Dropzone(), formatSize(), LinkIcon(), ListIcon() (+26 more)
+Cohesion: 0.06
+Nodes (31): metadata, Dropzone(), formatSize(), LinkIcon(), ListIcon(), RefreshIcon(), UploadIcon(), NAV_ITEMS (+23 more)
 
 ### Community 90 - "Verifying the Ominin frontend"
 Cohesion: 0.40
@@ -253,12 +252,12 @@ Cohesion: 0.06
 Nodes (61): POST(), AnalytiquePage(), compact, ComptesPage(), PublierPage(), PublicationsPage(), CaptionEditor(), PlatformBadge() (+53 more)
 
 ### Community 94 - "page.tsx"
-Cohesion: 0.11
-Nodes (22): metadata, Faq(), Features(), FinalCta(), LandingFooter(), LandingNav(), Pricing(), Proof() (+14 more)
+Cohesion: 0.14
+Nodes (12): metadata, FinalCta(), LandingFooter(), LandingNav(), Proof(), QrLive(), QrShowcase(), finalCta (+4 more)
 
 ### Community 95 - "section-heading.tsx"
-Cohesion: 0.27
-Nodes (6): HowItWorks(), SectionHeading(), Testimonials(), featuresSection, clientsSection, howItWorks
+Cohesion: 0.17
+Nodes (10): Faq(), Features(), HowItWorks(), SectionHeading(), Testimonials(), featuresSection, clientsSection, faqSection (+2 more)
 
 ### Community 96 - "demo-showcase.tsx"
 Cohesion: 0.25
@@ -296,10 +295,6 @@ Nodes (6): ConfirmationPage(), CollectPage(), generateMetadata(), getPage, fetch
 Cohesion: 0.43
 Nodes (5): seed(), OrderItem, getRestaurant(), db, main()
 
-### Community 105 - "qr-showcase.tsx"
-Cohesion: 0.50
-Nodes (3): QrLive(), QrShowcase(), qrShowcase
-
 ## Knowledge Gaps
 - **272 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+267 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -308,12 +303,12 @@ Nodes (3): QrLive(), QrShowcase(), qrShowcase
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `createClient()` connect `api.ts` to `add-to-order.tsx`, `types.ts`, `useToast`, `shell.tsx`, `client.ts`?**
+- **Why does `createClient()` connect `api.ts` to `add-to-order.tsx`, `types.ts`, `useToast`, `formule-form-modal.tsx`, `shell.tsx`, `client.ts`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `formatPrice()` connect `useToast` to `page.tsx`, `order-confirmation.tsx`, `add-to-order.tsx`, `collect-experience.tsx`, `page.tsx`?**
+- **Why does `formatPrice()` connect `useToast` to `page.tsx`, `order-confirmation.tsx`, `add-to-order.tsx`, `collect-experience.tsx`, `/graphify`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Why does `createAdminClient()` connect `selectors.ts` to `order-confirmation.tsx`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **What connects `backend`, `ResolvedLine`, `EXTENSIONS` to the rest of the system?**
   _273 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `page.tsx` be split into smaller, more focused modules?**

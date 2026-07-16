@@ -31,6 +31,17 @@ export async function POST(
       { status: 404 }
     );
   }
+  const { data: profile } = await supabase
+    .from("clip_profiles")
+    .select("provider_username")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Connectez d'abord vos comptes depuis la page Comptes." },
+      { status: 409 }
+    );
+  }
   if (
     (post.status !== "echec" && post.status !== "partiel") ||
     !post.storage_path
@@ -54,7 +65,7 @@ export async function POST(
   const attempt = post.attempt + 1;
   try {
     const requestId = await clipProvider.submitPost({
-      username: user.id,
+      username: profile.provider_username,
       videoUrl: signed.signedUrl,
       title: post.title,
       captions: (post.captions ?? {}) as CaptionSet,
