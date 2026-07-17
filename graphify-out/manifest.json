@@ -565,13 +565,13 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1784243254.6446872,
-    "ast_hash": "2bad35c906bb46c14f25638eaa178a6e",
+    "mtime": 1784244960.7096646,
+    "ast_hash": "c6d79676580d23879034ad9eaead30d4",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
-    "mtime": 1783351244.4761355,
-    "ast_hash": "6518d6abf2186b0b1694c76b6927d949",
+    "mtime": 1784319543.933019,
+    "ast_hash": "0fd2591569a60baff42001cc09cb37bf",
     "semantic_hash": ""
   },
   "frontend/AGENTS.md": {
@@ -945,8 +945,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/comptes/page.tsx": {
-    "mtime": 1784243254.64924,
-    "ast_hash": "91592888077138bf57d781f711548911",
+    "mtime": 1784319266.432034,
+    "ast_hash": "4d89e3e3f590aa35112bb0ba3a8e8846",
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/layout.tsx": {
@@ -1135,8 +1135,28 @@
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/publier-tabs.tsx": {
-    "mtime": 1784244176.6005993,
-    "ast_hash": "4925fb3afe91ad2346754c7599b9070c",
+    "mtime": 1784319263.2401793,
+    "ast_hash": "96aab97713b9434cb3b09a237554516d",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/demo/comptes/creation/page.tsx": {
+    "mtime": 1784319282.1825066,
+    "ast_hash": "5191b747862e9271c83dcfe73db5b1e5",
+    "semantic_hash": ""
+  },
+  "frontend/app/clip/espace/comptes/creation/page.tsx": {
+    "mtime": 1784319300.4898992,
+    "ast_hash": "9dccc139bd2ca3dd20dd1f0e49df98dd",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/comptes-tabs.tsx": {
+    "mtime": 1784319256.7963154,
+    "ast_hash": "d4b1c59107d20c5f95e45809f3a095a8",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/sub-tabs.tsx": {
+    "mtime": 1784319253.5848832,
+    "ast_hash": "89c7435ac1b908c93e3562d41bdebaad",
     "semantic_hash": ""
   }
 }

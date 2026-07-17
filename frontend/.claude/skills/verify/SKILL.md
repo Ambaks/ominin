@@ -26,6 +26,10 @@ Write driver scripts in the session scratchpad, not the repo.
 
 ## Gotchas
 
+- Clip espace/demo pages link with subdomain-relative paths (`/espace/...`,
+  `/demo/...`) that only resolve behind the proxy.ts rewrite — drive them via
+  http://clip.localhost:3000 (`NEXT_PUBLIC_CLIP_HOST` in `.env.local`), never
+  plain localhost:3000, or every internal link 404s.
 - /gestion pages are client-rendered from localStorage (`ominin.gestion`,
   versioned — see `lib/gestion/constants.ts`). A fresh browser context seeds
   demo data automatically; curl only shows the skeleton.

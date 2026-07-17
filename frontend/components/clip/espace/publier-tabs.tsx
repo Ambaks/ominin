@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useClipData } from "@/lib/clip/context";
+import { SubTabs } from "./sub-tabs";
 
 /*
  * Sous-navigation de l'onglet « Publier » : le flux actuel (dépôt d'un clip
@@ -10,41 +9,13 @@ import { useClipData } from "@/lib/clip/context";
 
 export type PublierTab = "clip" | "vod";
 
-const TABS: { id: PublierTab; suffix: string; label: string; soon?: boolean }[] = [
+const TABS = [
   { id: "clip", suffix: "", label: "Depuis un clip" },
   { id: "vod", suffix: "/generateur", label: "Depuis une VOD", soon: true },
-];
+] as const;
 
 export function PublierTabs({ active }: { active: PublierTab }) {
-  const { basePath } = useClipData();
-
   return (
-    <nav
-      aria-label="Mode de publication"
-      className="rise flex self-start rounded-full border border-hairline bg-surface p-1"
-    >
-      {TABS.map((tab) => {
-        const current = tab.id === active;
-        return (
-          <Link
-            key={tab.id}
-            href={`${basePath}${tab.suffix}`}
-            aria-current={current ? "page" : undefined}
-            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors sm:text-sm ${
-              current
-                ? "border-hairline bg-surface-raised text-foreground"
-                : "border-transparent text-muted hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-            {tab.soon && (
-              <span className="ember-gradient rounded-full px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-background">
-                Bientôt
-              </span>
-            )}
-          </Link>
-        );
-      })}
-    </nav>
+    <SubTabs ariaLabel="Mode de publication" tabs={TABS} active={active} />
   );
 }

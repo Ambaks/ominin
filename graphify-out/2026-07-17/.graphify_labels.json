@@ -96,7 +96,7 @@
   "94": "page.tsx",
   "95": "section-heading.tsx",
   "96": "demo-showcase.tsx",
-  "97": "nav.tsx",
+  "97": "shell.tsx",
   "98": "order-confirmation.tsx",
   "99": "add-to-order.tsx",
   "100": "Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)",
@@ -110,11 +110,9 @@
   "108": "types.ts",
   "109": "store.ts",
   "110": "page.tsx",
-  "111": "shell.tsx",
-  "112": "icons.tsx",
+  "111": "GestionShell",
+  "112": "IconProps",
   "113": "demo-showcase.tsx",
   "114": "auth-form.tsx",
-  "115": "theme-toggle.tsx",
-  "116": "page.tsx",
-  "117": "layout.tsx"
+  "115": "theme-toggle.tsx"
 }

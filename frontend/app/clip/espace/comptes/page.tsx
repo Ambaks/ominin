@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ComptesTabs } from "@/components/clip/espace/comptes-tabs";
 import { LinkIcon } from "@/components/clip/espace/icons";
 import { useToast } from "@/components/ui/toast";
 import { useClipData } from "@/lib/clip/context";
@@ -43,7 +44,12 @@ export default function ComptesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="rise flex flex-wrap items-end justify-between gap-4">
+      <ComptesTabs active="connectes" />
+
+      <header
+        className="rise flex flex-wrap items-end justify-between gap-4"
+        style={{ animationDelay: "40ms" }}
+      >
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight">
             Comptes

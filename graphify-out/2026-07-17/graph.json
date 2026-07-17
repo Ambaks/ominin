@@ -123,7 +123,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_api_clip_captions_route",
-      "community": 108,
+      "community": 93,
       "norm_label": "route.ts"
     },
     {
@@ -133,7 +133,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_app_api_clip_captions_route_post",
-      "community": 108,
+      "community": 93,
       "norm_label": "post()"
     },
     {
@@ -155,6 +155,26 @@
       "id": "frontend_app_api_clip_link_route_post",
       "community": 91,
       "norm_label": "post()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_app_api_clip_posts_id_analytics_route",
+      "community": 91,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "frontend_app_api_clip_posts_id_analytics_route_get",
+      "community": 91,
+      "norm_label": "get()"
     },
     {
       "label": "route.ts",
@@ -569,11 +589,31 @@
     {
       "label": "page.tsx",
       "file_type": "code",
+      "source_file": "frontend/app/clip/demo/comptes/creation/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_app_clip_demo_comptes_creation_page",
+      "community": 110,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
       "source_file": "frontend/app/clip/demo/comptes/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_comptes_page",
       "community": 110,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/demo/generateur/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_app_clip_demo_generateur_page",
+      "community": 95,
       "norm_label": "page.tsx"
     },
     {
@@ -583,7 +623,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_layout",
-      "community": 106,
+      "community": 108,
       "norm_label": "layout.tsx"
     },
     {
@@ -593,7 +633,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_layout_metadata",
-      "community": 106,
+      "community": 108,
       "norm_label": "metadata"
     },
     {
@@ -603,7 +643,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_layout_clipdemolayout",
-      "community": 106,
+      "community": 108,
       "norm_label": "clipdemolayout()"
     },
     {
@@ -613,7 +653,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_page",
-      "community": 108,
+      "community": 107,
       "norm_label": "page.tsx"
     },
     {
@@ -640,27 +680,67 @@
       "label": "compact",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L19",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_analytique_page_compact",
       "community": 110,
       "norm_label": "compact"
     },
     {
+      "label": "VIEWS",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_analytique_page_views",
+      "community": 110,
+      "norm_label": "views"
+    },
+    {
+      "label": "AnalyticsView",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_analytique_page_analyticsview",
+      "community": 110,
+      "norm_label": "analyticsview"
+    },
+    {
+      "label": "VIEW_SUBTITLES",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_analytique_page_view_subtitles",
+      "community": 110,
+      "norm_label": "view_subtitles"
+    },
+    {
       "label": "AnalytiquePage()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L24",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_analytique_page_analytiquepage",
       "community": 110,
       "norm_label": "analytiquepage()"
     },
     {
+      "label": "PostAnalyticsList()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L205",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_analytique_page_postanalyticslist",
+      "community": 110,
+      "norm_label": "postanalyticslist()"
+    },
+    {
       "label": "MiniStat()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L165",
+      "source_location": "L241",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_analytique_page_ministat",
       "community": 110,
@@ -670,11 +750,31 @@
       "label": "ReachChart()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L178",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_analytique_page_reachchart",
       "community": 110,
       "norm_label": "reachchart()"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_comptes_creation_page",
+      "community": 110,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "CreationComptesPage()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_comptes_creation_page_creationcomptespage",
+      "community": 110,
+      "norm_label": "creationcomptespage()"
     },
     {
       "label": "page.tsx",
@@ -690,11 +790,91 @@
       "label": "ComptesPage()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_comptes_page_comptespage",
       "community": 110,
       "norm_label": "comptespage()"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page",
+      "community": 95,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "MOMENTS",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_moments",
+      "community": 95,
+      "norm_label": "moments"
+    },
+    {
+      "label": "STEPS",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_steps",
+      "community": 95,
+      "norm_label": "steps"
+    },
+    {
+      "label": "GenerateurPage()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_generateurpage",
+      "community": 95,
+      "norm_label": "generateurpage()"
+    },
+    {
+      "label": "IllustrationSvg()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L161",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_illustrationsvg",
+      "community": 95,
+      "norm_label": "illustrationsvg()"
+    },
+    {
+      "label": "VodIllustration()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L177",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_vodillustration",
+      "community": 95,
+      "norm_label": "vodillustration()"
+    },
+    {
+      "label": "DetectIllustration()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L194",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_detectillustration",
+      "community": 95,
+      "norm_label": "detectillustration()"
+    },
+    {
+      "label": "ClipsIllustration()",
+      "file_type": "code",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L208",
+      "_origin": "ast",
+      "id": "frontend_app_clip_espace_generateur_page_clipsillustration",
+      "community": 95,
+      "norm_label": "clipsillustration()"
     },
     {
       "label": "layout.tsx",
@@ -753,14 +933,14 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_page",
-      "community": 108,
+      "community": 107,
       "norm_label": "page.tsx"
     },
     {
       "label": "PublierPage()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_page_publierpage",
       "community": 110,
@@ -770,20 +950,20 @@
       "label": "PageHeader()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L253",
+      "source_location": "L256",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_page_pageheader",
-      "community": 108,
+      "community": 107,
       "norm_label": "pageheader()"
     },
     {
       "label": "SectionTitle()",
       "file_type": "code",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L267",
+      "source_location": "L270",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_page_sectiontitle",
-      "community": 108,
+      "community": 107,
       "norm_label": "sectiontitle()"
     },
     {
@@ -803,7 +983,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_publications_page_publicationspage",
-      "community": 110,
+      "community": 107,
       "norm_label": "publicationspage()"
     },
     {
@@ -813,7 +993,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page",
-      "community": 97,
+      "community": 114,
       "norm_label": "page.tsx"
     },
     {
@@ -823,7 +1003,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page_metadata",
-      "community": 97,
+      "community": 114,
       "norm_label": "metadata"
     },
     {
@@ -833,7 +1013,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_app_clip_login_page_cliploginpage",
-      "community": 97,
+      "community": 114,
       "norm_label": "cliploginpage()"
     },
     {
@@ -943,7 +1123,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_collect_page",
-      "community": 116,
+      "community": 94,
       "norm_label": "page.tsx"
     },
     {
@@ -953,7 +1133,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_collect_page_metadata",
-      "community": 116,
+      "community": 94,
       "norm_label": "metadata"
     },
     {
@@ -963,7 +1143,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_app_collect_page_collecthome",
-      "community": 116,
+      "community": 94,
       "norm_label": "collecthome()"
     },
     {
@@ -973,7 +1153,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page",
-      "community": 88,
+      "community": 85,
       "norm_label": "page.tsx"
     },
     {
@@ -983,7 +1163,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_period",
-      "community": 88,
+      "community": 85,
       "norm_label": "period"
     },
     {
@@ -993,7 +1173,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_tooltip",
-      "community": 88,
+      "community": 85,
       "norm_label": "tooltip()"
     },
     {
@@ -1003,7 +1183,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_revenuechart",
-      "community": 88,
+      "community": 85,
       "norm_label": "revenuechart()"
     },
     {
@@ -1013,7 +1193,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_topventeschart",
-      "community": 88,
+      "community": 85,
       "norm_label": "topventeschart()"
     },
     {
@@ -1023,7 +1203,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_hourschart",
-      "community": 88,
+      "community": 85,
       "norm_label": "hourschart()"
     },
     {
@@ -1033,7 +1213,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_section",
-      "community": 88,
+      "community": 85,
       "norm_label": "section()"
     },
     {
@@ -1043,7 +1223,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "frontend_app_gestion_analytique_page_analytiquepage",
-      "community": 88,
+      "community": 85,
       "norm_label": "analytiquepage()"
     },
     {
@@ -1203,7 +1383,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_layout",
-      "community": 117,
+      "community": 111,
       "norm_label": "layout.tsx"
     },
     {
@@ -1213,7 +1393,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_gestion_layout_metadata",
-      "community": 117,
+      "community": 111,
       "norm_label": "metadata"
     },
     {
@@ -1223,7 +1403,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_app_gestion_layout_gestionlayout",
-      "community": 117,
+      "community": 111,
       "norm_label": "gestionlayout()"
     },
     {
@@ -1253,7 +1433,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_gestion_page",
-      "community": 88,
+      "community": 85,
       "norm_label": "page.tsx"
     },
     {
@@ -1263,7 +1443,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_app_gestion_page_apercupage",
-      "community": 88,
+      "community": 85,
       "norm_label": "apercupage()"
     },
     {
@@ -1563,7 +1743,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_page",
-      "community": 94,
+      "community": 19,
       "norm_label": "page.tsx"
     },
     {
@@ -1573,7 +1753,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_page_metadata",
-      "community": 94,
+      "community": 19,
       "norm_label": "metadata"
     },
     {
@@ -1583,7 +1763,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_app_page_home",
-      "community": 94,
+      "community": 19,
       "norm_label": "home()"
     },
     {
@@ -1693,7 +1873,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_banner",
-      "community": 106,
+      "community": 108,
       "norm_label": "demo-banner.tsx"
     },
     {
@@ -1703,7 +1883,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_banner_emptysubscribe",
-      "community": 106,
+      "community": 108,
       "norm_label": "emptysubscribe()"
     },
     {
@@ -1713,7 +1893,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_banner_demobanner",
-      "community": 106,
+      "community": 108,
       "norm_label": "demobanner()"
     },
     {
@@ -1783,7 +1963,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_caption_editor",
-      "community": 108,
+      "community": 107,
       "norm_label": "caption-editor.tsx"
     },
     {
@@ -1793,8 +1973,48 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_caption_editor_captioneditor",
-      "community": 108,
+      "community": 107,
       "norm_label": "captioneditor()"
+    },
+    {
+      "label": "comptes-tabs.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_comptes_tabs",
+      "community": 110,
+      "norm_label": "comptes-tabs.tsx"
+    },
+    {
+      "label": "ComptesTab",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_comptes_tabs_comptestab",
+      "community": 110,
+      "norm_label": "comptestab"
+    },
+    {
+      "label": "TABS",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_comptes_tabs_tabs",
+      "community": 110,
+      "norm_label": "tabs"
+    },
+    {
+      "label": "ComptesTabs()",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_comptes_tabs_comptestabs",
+      "community": 110,
+      "norm_label": "comptestabs()"
     },
     {
       "label": "dropzone.tsx",
@@ -1803,7 +2023,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_dropzone",
-      "community": 112,
+      "community": 104,
       "norm_label": "dropzone.tsx"
     },
     {
@@ -1813,7 +2033,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_dropzone_formatsize",
-      "community": 112,
+      "community": 104,
       "norm_label": "formatsize()"
     },
     {
@@ -1823,7 +2043,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_dropzone_dropzone",
-      "community": 112,
+      "community": 104,
       "norm_label": "dropzone()"
     },
     {
@@ -1833,7 +2053,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons",
-      "community": 112,
+      "community": 104,
       "norm_label": "icons.tsx"
     },
     {
@@ -1843,7 +2063,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons_svg",
-      "community": 112,
+      "community": 104,
       "norm_label": "svg()"
     },
     {
@@ -1853,7 +2073,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons_uploadicon",
-      "community": 112,
+      "community": 104,
       "norm_label": "uploadicon()"
     },
     {
@@ -1863,7 +2083,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons_listicon",
-      "community": 112,
+      "community": 104,
       "norm_label": "listicon()"
     },
     {
@@ -1883,7 +2103,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons_checkicon",
-      "community": 112,
+      "community": 104,
       "norm_label": "checkicon()"
     },
     {
@@ -1893,7 +2113,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_icons_refreshicon",
-      "community": 112,
+      "community": 110,
       "norm_label": "refreshicon()"
     },
     {
@@ -1937,6 +2157,56 @@
       "norm_label": "platformbadge()"
     },
     {
+      "label": "post-analytics-card.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_post_analytics_card",
+      "community": 110,
+      "norm_label": "post-analytics-card.tsx"
+    },
+    {
+      "label": "compact",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_post_analytics_card_compact",
+      "community": 110,
+      "norm_label": "compact"
+    },
+    {
+      "label": "METRIC_COLUMNS",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_post_analytics_card_metric_columns",
+      "community": 110,
+      "norm_label": "metric_columns"
+    },
+    {
+      "label": "LoadedRow",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_post_analytics_card_loadedrow",
+      "community": 110,
+      "norm_label": "loadedrow"
+    },
+    {
+      "label": "PostAnalyticsCard()",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_post_analytics_card_postanalyticscard",
+      "community": 110,
+      "norm_label": "postanalyticscard()"
+    },
+    {
       "label": "post-card.tsx",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/post-card.tsx",
@@ -1977,13 +2247,53 @@
       "norm_label": "postcard()"
     },
     {
+      "label": "publier-tabs.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_publier_tabs",
+      "community": 95,
+      "norm_label": "publier-tabs.tsx"
+    },
+    {
+      "label": "PublierTab",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_publier_tabs_publiertab",
+      "community": 95,
+      "norm_label": "publiertab"
+    },
+    {
+      "label": "TABS",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_publier_tabs_tabs",
+      "community": 95,
+      "norm_label": "tabs"
+    },
+    {
+      "label": "PublierTabs()",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_publier_tabs_publiertabs",
+      "community": 95,
+      "norm_label": "publiertabs()"
+    },
+    {
       "label": "shell.tsx",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell",
-      "community": 111,
+      "community": 97,
       "norm_label": "shell.tsx"
     },
     {
@@ -1993,58 +2303,88 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_navitem",
-      "community": 111,
+      "community": 112,
       "norm_label": "navitem"
     },
     {
       "label": "NAV_ITEMS",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L33",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_nav_items",
-      "community": 111,
+      "community": 97,
       "norm_label": "nav_items"
     },
     {
       "label": "signOut()",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L40",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_signout",
-      "community": 111,
+      "community": 97,
       "norm_label": "signout()"
     },
     {
       "label": "isActive()",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_isactive",
-      "community": 111,
+      "community": 97,
       "norm_label": "isactive()"
     },
     {
       "label": "LoadError()",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L52",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_loaderror",
-      "community": 111,
+      "community": 97,
       "norm_label": "loaderror()"
     },
     {
       "label": "ClipShell()",
       "file_type": "code",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L71",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_shell_clipshell",
       "community": 91,
       "norm_label": "clipshell()"
+    },
+    {
+      "label": "sub-tabs.tsx",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_sub_tabs",
+      "community": 110,
+      "norm_label": "sub-tabs.tsx"
+    },
+    {
+      "label": "SubTab",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_sub_tabs_subtab",
+      "community": 110,
+      "norm_label": "subtab"
+    },
+    {
+      "label": "SubTabs()",
+      "file_type": "code",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "frontend_components_clip_espace_sub_tabs_subtabs",
+      "community": 110,
+      "norm_label": "subtabs()"
     },
     {
       "label": "faq.tsx",
@@ -2053,7 +2393,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_faq",
-      "community": 95,
+      "community": 92,
       "norm_label": "faq.tsx"
     },
     {
@@ -2073,7 +2413,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_features",
-      "community": 92,
+      "community": 19,
       "norm_label": "features.tsx"
     },
     {
@@ -2173,7 +2513,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_how_it_works",
-      "community": 95,
+      "community": 19,
       "norm_label": "how-it-works.tsx"
     },
     {
@@ -2433,7 +2773,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card",
-      "community": 88,
+      "community": 85,
       "norm_label": "stat-card.tsx"
     },
     {
@@ -2443,7 +2783,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_components_gestion_apercu_stat_card_statcard",
-      "community": 88,
+      "community": 85,
       "norm_label": "statcard()"
     },
     {
@@ -2713,7 +3053,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_iconprops",
-      "community": 111,
+      "community": 112,
       "norm_label": "iconprops"
     },
     {
@@ -2753,7 +3093,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_charticon",
-      "community": 111,
+      "community": 89,
       "norm_label": "charticon()"
     },
     {
@@ -2833,7 +3173,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_editicon",
-      "community": 86,
+      "community": 89,
       "norm_label": "editicon()"
     },
     {
@@ -2853,7 +3193,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_chevrondownicon",
-      "community": 89,
+      "community": 86,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -2873,7 +3213,7 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "frontend_components_gestion_icons_logouticon",
-      "community": 111,
+      "community": 89,
       "norm_label": "logouticon()"
     },
     {
@@ -3043,7 +3383,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_navitem",
-      "community": 111,
+      "community": 112,
       "norm_label": "navitem"
     },
     {
@@ -3103,7 +3443,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "frontend_components_gestion_shell_gestionshell",
-      "community": 86,
+      "community": 111,
       "norm_label": "gestionshell()"
     },
     {
@@ -3193,7 +3533,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_demo_showcase",
-      "community": 96,
+      "community": 88,
       "norm_label": "demo-showcase.tsx"
     },
     {
@@ -3203,7 +3543,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_components_landing_demo_showcase_demoshowcase",
-      "community": 96,
+      "community": 88,
       "norm_label": "demoshowcase()"
     },
     {
@@ -3213,7 +3553,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_faq",
-      "community": 95,
+      "community": 19,
       "norm_label": "faq.tsx"
     },
     {
@@ -3223,7 +3563,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_faq_faq",
-      "community": 95,
+      "community": 19,
       "norm_label": "faq()"
     },
     {
@@ -3233,7 +3573,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_features",
-      "community": 94,
+      "community": 19,
       "norm_label": "features.tsx"
     },
     {
@@ -3243,7 +3583,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_features_features",
-      "community": 94,
+      "community": 19,
       "norm_label": "features()"
     },
     {
@@ -3253,7 +3593,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_final_cta",
-      "community": 96,
+      "community": 88,
       "norm_label": "final-cta.tsx"
     },
     {
@@ -3263,7 +3603,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_final_cta_finalcta",
-      "community": 96,
+      "community": 88,
       "norm_label": "finalcta()"
     },
     {
@@ -3273,7 +3613,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_hero",
-      "community": 96,
+      "community": 88,
       "norm_label": "hero.tsx"
     },
     {
@@ -3283,7 +3623,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_hero_hero",
-      "community": 96,
+      "community": 88,
       "norm_label": "hero()"
     },
     {
@@ -3293,7 +3633,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_how_it_works",
-      "community": 95,
+      "community": 19,
       "norm_label": "how-it-works.tsx"
     },
     {
@@ -3303,7 +3643,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_landing_how_it_works_howitworks",
-      "community": 95,
+      "community": 19,
       "norm_label": "howitworks()"
     },
     {
@@ -3313,7 +3653,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_iphone_frame",
-      "community": 96,
+      "community": 88,
       "norm_label": "iphone-frame.tsx"
     },
     {
@@ -3323,7 +3663,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_landing_iphone_frame_iphoneframe",
-      "community": 96,
+      "community": 88,
       "norm_label": "iphoneframe()"
     },
     {
@@ -3353,7 +3693,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_landing_nav",
-      "community": 94,
+      "community": 115,
       "norm_label": "landing-nav.tsx"
     },
     {
@@ -3363,7 +3703,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_landing_nav_landingnav",
-      "community": 94,
+      "community": 115,
       "norm_label": "landingnav()"
     },
     {
@@ -3413,7 +3753,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_corners",
-      "community": 96,
+      "community": 88,
       "norm_label": "qr-corners.tsx"
     },
     {
@@ -3423,7 +3763,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_corners_qrcorners",
-      "community": 96,
+      "community": 88,
       "norm_label": "qrcorners()"
     },
     {
@@ -3433,7 +3773,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_live",
-      "community": 94,
+      "community": 96,
       "norm_label": "qr-live.tsx"
     },
     {
@@ -3443,7 +3783,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_live_qrlive",
-      "community": 94,
+      "community": 96,
       "norm_label": "qrlive()"
     },
     {
@@ -3453,7 +3793,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_showcase",
-      "community": 94,
+      "community": 96,
       "norm_label": "qr-showcase.tsx"
     },
     {
@@ -3463,7 +3803,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_landing_qr_showcase_qrshowcase",
-      "community": 94,
+      "community": 96,
       "norm_label": "qrshowcase()"
     },
     {
@@ -3473,7 +3813,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_section_heading",
-      "community": 95,
+      "community": 19,
       "norm_label": "section-heading.tsx"
     },
     {
@@ -3483,7 +3823,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_section_heading_sectionheading",
-      "community": 95,
+      "community": 19,
       "norm_label": "sectionheading()"
     },
     {
@@ -3493,7 +3833,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_testimonials",
-      "community": 94,
+      "community": 19,
       "norm_label": "testimonials.tsx"
     },
     {
@@ -3503,7 +3843,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_landing_testimonials_testimonials",
-      "community": 94,
+      "community": 19,
       "norm_label": "testimonials()"
     },
     {
@@ -3593,7 +3933,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav",
-      "community": 115,
+      "community": 101,
       "norm_label": "category-nav.tsx"
     },
     {
@@ -3603,7 +3943,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorylink",
-      "community": 115,
+      "community": 101,
       "norm_label": "categorylink"
     },
     {
@@ -3613,7 +3953,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_menu_category_nav_categorynav",
-      "community": 115,
+      "community": 101,
       "norm_label": "categorynav()"
     },
     {
@@ -3653,7 +3993,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_components_menu_dish_card_featuredcard",
-      "community": 1,
+      "community": 102,
       "norm_label": "featuredcard()"
     },
     {
@@ -3733,7 +4073,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_menu_menu_section_menusection",
-      "community": 101,
+      "community": 1,
       "norm_label": "menusection()"
     },
     {
@@ -3973,7 +4313,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_components_ui_toast_toastprovider",
-      "community": 111,
+      "community": 86,
       "norm_label": "toastprovider()"
     },
     {
@@ -4003,7 +4343,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_eslint_config",
-      "community": 91,
+      "community": 6,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -4013,7 +4353,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_eslint_config_eslintconfig",
-      "community": 91,
+      "community": 6,
       "norm_label": "eslintconfig"
     },
     {
@@ -4103,7 +4443,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "frontend_lib_clip_landing_data_howitworks",
-      "community": 95,
+      "community": 92,
       "norm_label": "howitworks"
     },
     {
@@ -4143,7 +4483,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "frontend_lib_clip_landing_data_faqsection",
-      "community": 95,
+      "community": 92,
       "norm_label": "faqsection"
     },
     {
@@ -4180,7 +4520,7 @@
       "label": "apply()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L17",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_apply",
       "community": 105,
@@ -4190,7 +4530,7 @@
       "label": "replacePost()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L24",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_replacepost",
       "community": 105,
@@ -4200,7 +4540,7 @@
       "label": "requestLinkUrl()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L31",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_requestlinkurl",
       "community": 105,
@@ -4210,7 +4550,7 @@
       "label": "refreshAccounts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L39",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_refreshaccounts",
       "community": 105,
@@ -4220,7 +4560,7 @@
       "label": "uploadClip()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L53",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_uploadclip",
       "community": 105,
@@ -4230,7 +4570,7 @@
       "label": "generateCaptions()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L87",
+      "source_location": "L88",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_generatecaptions",
       "community": 105,
@@ -4240,7 +4580,7 @@
       "label": "publishClip()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L102",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_publishclip",
       "community": 105,
@@ -4250,7 +4590,7 @@
       "label": "pollPostStatus()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L122",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_pollpoststatus",
       "community": 105,
@@ -4260,7 +4600,7 @@
       "label": "retryPost()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L131",
+      "source_location": "L132",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_retrypost",
       "community": 105,
@@ -4270,11 +4610,21 @@
       "label": "fetchAnalytics()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L141",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "frontend_lib_clip_api_fetchanalytics",
       "community": 105,
       "norm_label": "fetchanalytics()"
+    },
+    {
+      "label": "fetchPostAnalytics()",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/api.ts",
+      "source_location": "L150",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_api_fetchpostanalytics",
+      "community": 105,
+      "norm_label": "fetchpostanalytics()"
     },
     {
       "label": "captions.ts",
@@ -4283,7 +4633,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_clip_captions",
-      "community": 108,
+      "community": 93,
       "norm_label": "captions.ts"
     },
     {
@@ -4293,7 +4643,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_lib_clip_captions_captionsschema",
-      "community": 108,
+      "community": 93,
       "norm_label": "captionsschema()"
     },
     {
@@ -4303,7 +4653,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "frontend_lib_clip_captions_generatecaptions",
-      "community": 108,
+      "community": 93,
       "norm_label": "generatecaptions()"
     },
     {
@@ -4323,7 +4673,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_lib_clip_constants_accepted_video_types",
-      "community": 112,
+      "community": 104,
       "norm_label": "accepted_video_types"
     },
     {
@@ -4360,17 +4710,17 @@
       "label": "ClipUploadInput",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L31",
+      "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipuploadinput",
-      "community": 108,
+      "community": 107,
       "norm_label": "clipuploadinput"
     },
     {
       "label": "ClipActions",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L37",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions",
       "community": 105,
@@ -4380,7 +4730,7 @@
       "label": ".uploadClip()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L38",
+      "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_uploadclip",
       "community": 105,
@@ -4390,7 +4740,7 @@
       "label": ".generateCaptions()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L42",
+      "source_location": "L44",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_generatecaptions",
       "community": 105,
@@ -4400,17 +4750,17 @@
       "label": ".publishClip()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_publishclip",
-      "community": 107,
+      "community": 105,
       "norm_label": ".publishclip()"
     },
     {
       "label": ".pollPostStatus()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L52",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_pollpoststatus",
       "community": 105,
@@ -4420,7 +4770,7 @@
       "label": ".retryPost()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L53",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_retrypost",
       "community": 105,
@@ -4430,7 +4780,7 @@
       "label": ".connectAccounts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L54",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_connectaccounts",
       "community": 105,
@@ -4440,7 +4790,7 @@
       "label": ".refreshAccounts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L55",
+      "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_refreshaccounts",
       "community": 105,
@@ -4450,17 +4800,27 @@
       "label": ".fetchAnalytics()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L56",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_fetchanalytics",
       "community": 105,
       "norm_label": ".fetchanalytics()"
     },
     {
-      "label": "ClipData",
+      "label": ".fetchPostAnalytics()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
       "source_location": "L59",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_context_clipactions_fetchpostanalytics",
+      "community": 105,
+      "norm_label": ".fetchpostanalytics()"
+    },
+    {
+      "label": "ClipData",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L62",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdata",
       "community": 106,
@@ -4470,7 +4830,7 @@
       "label": ".retryLoad()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L62",
+      "source_location": "L65",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdata_retryload",
       "community": 106,
@@ -4480,7 +4840,7 @@
       "label": "ClipDataContext",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L70",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdatacontext",
       "community": 106,
@@ -4490,7 +4850,7 @@
       "label": "useClipData()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L72",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_useclipdata",
       "community": 110,
@@ -4500,7 +4860,7 @@
       "label": "connectAccounts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L80",
+      "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_connectaccounts",
       "community": 105,
@@ -4510,7 +4870,7 @@
       "label": "realActions",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L94",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_realactions",
       "community": 105,
@@ -4520,7 +4880,7 @@
       "label": "ClipDataProvider()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L110",
+      "source_location": "L114",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdataprovider",
       "community": 109,
@@ -4540,7 +4900,7 @@
       "label": "DEMO_TIMINGS",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L16",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_timings",
       "community": 106,
@@ -4550,7 +4910,7 @@
       "label": "DEMO_ACCOUNTS",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L42",
+      "source_location": "L47",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_accounts",
       "community": 106,
@@ -4560,7 +4920,7 @@
       "label": "DEMO_X_ACCOUNT",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L64",
+      "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_x_account",
       "community": 106,
@@ -4570,7 +4930,7 @@
       "label": "DEMO_SAMPLE_CLIP",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L72",
+      "source_location": "L77",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_sample_clip",
       "community": 106,
@@ -4580,17 +4940,17 @@
       "label": "DEMO_BANNER",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L79",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_banner",
-      "community": 106,
+      "community": 108,
       "norm_label": "demo_banner"
     },
     {
       "label": "DEMO_CAPTIONS",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L86",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_demo_captions",
       "community": 106,
@@ -4600,7 +4960,7 @@
       "label": "iso()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L107",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_iso",
       "community": 106,
@@ -4610,7 +4970,7 @@
       "label": "buildDemoPosts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L110",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_builddemoposts",
       "community": 106,
@@ -4620,7 +4980,7 @@
       "label": "REACH_PATTERNS",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L258",
+      "source_location": "L263",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_reach_patterns",
       "community": 106,
@@ -4630,7 +4990,7 @@
       "label": "ANALYTICS_BASE",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L265",
+      "source_location": "L270",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_analytics_base",
       "community": 106,
@@ -4640,7 +5000,7 @@
       "label": "DAILY_REACH_PEAK",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L305",
+      "source_location": "L310",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_daily_reach_peak",
       "community": 106,
@@ -4650,17 +5010,47 @@
       "label": "buildDemoAnalytics()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L312",
+      "source_location": "L317",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_builddemoanalytics",
       "community": 106,
       "norm_label": "builddemoanalytics()"
     },
     {
+      "label": "DEMO_POST_METRICS",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L331",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_demo_data_demo_post_metrics",
+      "community": 106,
+      "norm_label": "demo_post_metrics"
+    },
+    {
+      "label": "DEMO_FRESH_METRICS",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L362",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_demo_data_demo_fresh_metrics",
+      "community": 106,
+      "norm_label": "demo_fresh_metrics"
+    },
+    {
+      "label": "buildDemoPostAnalytics()",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L369",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_demo_data_builddemopostanalytics",
+      "community": 106,
+      "norm_label": "builddemopostanalytics()"
+    },
+    {
       "label": "buildDemoState()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L322",
+      "source_location": "L392",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_data_builddemostate",
       "community": 106,
@@ -4680,10 +5070,10 @@
       "label": "DemoClipProvider()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/demo/provider.tsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_lib_clip_demo_provider_democlipprovider",
-      "community": 106,
+      "community": 108,
       "norm_label": "democlipprovider()"
     },
     {
@@ -4723,7 +5113,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types",
-      "community": 108,
+      "community": 93,
       "norm_label": "types.ts"
     },
     {
@@ -4733,7 +5123,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_clip_platforms",
-      "community": 108,
+      "community": 93,
       "norm_label": "clip_platforms"
     },
     {
@@ -4753,7 +5143,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_connectedaccount",
-      "community": 105,
+      "community": 93,
       "norm_label": "connectedaccount"
     },
     {
@@ -4763,7 +5153,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_captionset",
-      "community": 108,
+      "community": 105,
       "norm_label": "captionset"
     },
     {
@@ -4783,7 +5173,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_platformresult",
-      "community": 107,
+      "community": 93,
       "norm_label": "platformresult"
     },
     {
@@ -4807,6 +5197,26 @@
       "norm_label": "platformanalytics"
     },
     {
+      "label": "PostPlatformMetrics",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/provider/types.ts",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_provider_types_postplatformmetrics",
+      "community": 110,
+      "norm_label": "postplatformmetrics"
+    },
+    {
+      "label": "PostAnalytics",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/provider/types.ts",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_provider_types_postanalytics",
+      "community": 105,
+      "norm_label": "postanalytics"
+    },
+    {
       "label": "upload-post.ts",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
@@ -4820,7 +5230,7 @@
       "label": "request()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L23",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_request",
       "community": 93,
@@ -4830,7 +5240,7 @@
       "label": "requestJson()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L34",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_requestjson",
       "community": 93,
@@ -4840,7 +5250,7 @@
       "label": "isClipPlatform()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L45",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_isclipplatform",
       "community": 93,
@@ -4850,7 +5260,7 @@
       "label": "ensureProfile()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L50",
+      "source_location": "L51",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_ensureprofile",
       "community": 93,
@@ -4860,7 +5270,7 @@
       "label": "createLinkUrl()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L65",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_createlinkurl",
       "community": 93,
@@ -4870,7 +5280,7 @@
       "label": "RawSocialAccount",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L88",
+      "source_location": "L89",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_rawsocialaccount",
       "community": 93,
@@ -4880,7 +5290,7 @@
       "label": "listConnectedAccounts()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L95",
+      "source_location": "L96",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_listconnectedaccounts",
       "community": 93,
@@ -4890,7 +5300,7 @@
       "label": "CAPTION_FIELDS",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L123",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_caption_fields",
       "community": 93,
@@ -4900,7 +5310,7 @@
       "label": "submitPost()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L130",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_submitpost",
       "community": 93,
@@ -4910,7 +5320,7 @@
       "label": "getPostStatus()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L156",
+      "source_location": "L157",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_getpoststatus",
       "community": 93,
@@ -4920,7 +5330,7 @@
       "label": "RawAnalytics",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L183",
+      "source_location": "L184",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_rawanalytics",
       "community": 93,
@@ -4930,17 +5340,37 @@
       "label": "getAnalytics()",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L194",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_getanalytics",
       "community": 93,
       "norm_label": "getanalytics()"
     },
     {
+      "label": "RawPostPlatform",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/provider/upload-post.ts",
+      "source_location": "L224",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_provider_upload_post_rawpostplatform",
+      "community": 93,
+      "norm_label": "rawpostplatform"
+    },
+    {
+      "label": "getPostAnalytics()",
+      "file_type": "code",
+      "source_file": "frontend/lib/clip/provider/upload-post.ts",
+      "source_location": "L238",
+      "_origin": "ast",
+      "id": "frontend_lib_clip_provider_upload_post_getpostanalytics",
+      "community": 93,
+      "norm_label": "getpostanalytics()"
+    },
+    {
       "label": "uploadPostProvider",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L223",
+      "source_location": "L267",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_uploadpostprovider",
       "community": 91,
@@ -4950,7 +5380,7 @@
       "label": "ClipProvider",
       "file_type": "code",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L232",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_upload_post_clipprovider",
       "community": 93,
@@ -5143,7 +5573,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_commit",
-      "community": 109,
+      "community": 105,
       "norm_label": "commit()"
     },
     {
@@ -5183,7 +5613,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_lib_clip_types_clippost",
-      "community": 107,
+      "community": 105,
       "norm_label": "clippost"
     },
     {
@@ -5683,7 +6113,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_lib_gestion_constants_analytics_period_days",
-      "community": 88,
+      "community": 85,
       "norm_label": "analytics_period_days"
     },
     {
@@ -5753,7 +6183,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_lib_gestion_constants_role_labels",
-      "community": 85,
+      "community": 86,
       "norm_label": "role_labels"
     },
     {
@@ -5883,7 +6313,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_assemblecategories",
-      "community": 85,
+      "community": 103,
       "norm_label": "assemblecategories()"
     },
     {
@@ -5893,7 +6323,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "frontend_lib_gestion_mappers_rowtoformule",
-      "community": 85,
+      "community": 87,
       "norm_label": "rowtoformule()"
     },
     {
@@ -5953,7 +6383,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_lib_gestion_permissions_hasfeature",
-      "community": 86,
+      "community": 85,
       "norm_label": "hasfeature()"
     },
     {
@@ -6013,7 +6443,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_seed",
-      "community": 104,
+      "community": 85,
       "norm_label": "seed.ts"
     },
     {
@@ -6023,7 +6453,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_lib_gestion_seed_seed",
-      "community": 104,
+      "community": 87,
       "norm_label": "seed()"
     },
     {
@@ -6033,7 +6463,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors",
-      "community": 88,
+      "community": 85,
       "norm_label": "selectors.ts"
     },
     {
@@ -6043,7 +6473,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_linetotal",
-      "community": 88,
+      "community": 85,
       "norm_label": "linetotal()"
     },
     {
@@ -6073,7 +6503,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_inprogressorders",
-      "community": 88,
+      "community": 85,
       "norm_label": "inprogressorders()"
     },
     {
@@ -6083,7 +6513,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_revenuetoday",
-      "community": 88,
+      "community": 85,
       "norm_label": "revenuetoday()"
     },
     {
@@ -6093,7 +6523,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_daystart",
-      "community": 88,
+      "community": 85,
       "norm_label": "daystart()"
     },
     {
@@ -6103,7 +6533,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ordersinperiod",
-      "community": 88,
+      "community": 85,
       "norm_label": "ordersinperiod()"
     },
     {
@@ -6113,7 +6543,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_topventes",
-      "community": 88,
+      "community": 85,
       "norm_label": "topventes()"
     },
     {
@@ -6123,7 +6553,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_topventestoday",
-      "community": 88,
+      "community": 85,
       "norm_label": "topventestoday()"
     },
     {
@@ -6133,7 +6563,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_daypoint",
-      "community": 88,
+      "community": 85,
       "norm_label": "daypoint"
     },
     {
@@ -6143,7 +6573,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_revenuebyday",
-      "community": 88,
+      "community": 85,
       "norm_label": "revenuebyday()"
     },
     {
@@ -6153,7 +6583,7 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_periodstats",
-      "community": 88,
+      "community": 85,
       "norm_label": "periodstats()"
     },
     {
@@ -6163,7 +6593,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_ordersbyhour",
-      "community": 88,
+      "community": 85,
       "norm_label": "ordersbyhour()"
     },
     {
@@ -6183,7 +6613,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_unavailableitems",
-      "community": 88,
+      "community": 85,
       "norm_label": "unavailableitems()"
     },
     {
@@ -6203,7 +6633,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "frontend_lib_gestion_selectors_tablenumber",
-      "community": 88,
+      "community": 85,
       "norm_label": "tablenumber()"
     },
     {
@@ -6343,7 +6773,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getclientsnapshot",
-      "community": 85,
+      "community": 86,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -6353,7 +6783,7 @@
       "source_location": "L284",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_getserversnapshot",
-      "community": 85,
+      "community": 86,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -6393,7 +6823,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "frontend_lib_gestion_store_commit",
-      "community": 85,
+      "community": 87,
       "norm_label": "commit()"
     },
     {
@@ -6523,7 +6953,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_etablissement",
-      "community": 85,
+      "community": 86,
       "norm_label": "etablissement"
     },
     {
@@ -6543,7 +6973,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_orderitem",
-      "community": 104,
+      "community": 85,
       "norm_label": "orderitem"
     },
     {
@@ -6573,7 +7003,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "frontend_lib_gestion_types_tablegroup",
-      "community": 85,
+      "community": 86,
       "norm_label": "tablegroup"
     },
     {
@@ -6723,7 +7153,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_democta",
-      "community": 96,
+      "community": 88,
       "norm_label": "democta"
     },
     {
@@ -6773,7 +7203,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_hero",
-      "community": 96,
+      "community": 88,
       "norm_label": "hero"
     },
     {
@@ -6783,7 +7213,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_howitworks",
-      "community": 95,
+      "community": 19,
       "norm_label": "howitworks"
     },
     {
@@ -6793,7 +7223,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_featuressection",
-      "community": 94,
+      "community": 19,
       "norm_label": "featuressection"
     },
     {
@@ -6803,7 +7233,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_demosection",
-      "community": 96,
+      "community": 88,
       "norm_label": "demosection"
     },
     {
@@ -6823,7 +7253,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_pricingsection",
-      "community": 19,
+      "community": 94,
       "norm_label": "pricingsection"
     },
     {
@@ -6833,7 +7263,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_collectoffer",
-      "community": 19,
+      "community": 94,
       "norm_label": "collectoffer"
     },
     {
@@ -6843,7 +7273,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_clientssection",
-      "community": 94,
+      "community": 19,
       "norm_label": "clientssection"
     },
     {
@@ -6853,7 +7283,7 @@
       "source_location": "L342",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_qrshowcase",
-      "community": 94,
+      "community": 96,
       "norm_label": "qrshowcase"
     },
     {
@@ -6863,7 +7293,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_faqsection",
-      "community": 95,
+      "community": 19,
       "norm_label": "faqsection"
     },
     {
@@ -6873,7 +7303,7 @@
       "source_location": "L430",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_finalcta",
-      "community": 96,
+      "community": 88,
       "norm_label": "finalcta"
     },
     {
@@ -7003,7 +7433,7 @@
       "source_location": "L423",
       "_origin": "ast",
       "id": "frontend_lib_menu_data_getrestaurant",
-      "community": 104,
+      "community": 87,
       "norm_label": "getrestaurant()"
     },
     {
@@ -7263,7 +7693,7 @@
       "source_location": "L693",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tables",
-      "community": 105,
+      "community": 85,
       "norm_label": "tables"
     },
     {
@@ -7273,7 +7703,7 @@
       "source_location": "L722",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesinsert",
-      "community": 91,
+      "community": 87,
       "norm_label": "tablesinsert"
     },
     {
@@ -7803,7 +8233,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo",
-      "community": 104,
+      "community": 87,
       "norm_label": "seed-demo.ts"
     },
     {
@@ -7813,7 +8243,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_db",
-      "community": 104,
+      "community": 87,
       "norm_label": "db"
     },
     {
@@ -7823,7 +8253,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_tojson",
-      "community": 104,
+      "community": 87,
       "norm_label": "tojson()"
     },
     {
@@ -7833,7 +8263,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_scripts_seed_demo_main",
-      "community": 104,
+      "community": 87,
       "norm_label": "main()"
     },
     {
@@ -7843,7 +8273,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_scripts_setup_stripe",
-      "community": 19,
+      "community": 94,
       "norm_label": "setup-stripe.ts"
     },
     {
@@ -7853,7 +8283,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_scripts_setup_stripe_stripe",
-      "community": 19,
+      "community": 94,
       "norm_label": "stripe"
     },
     {
@@ -7863,7 +8293,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_scripts_setup_stripe_plans",
-      "community": 19,
+      "community": 94,
       "norm_label": "plans"
     },
     {
@@ -7873,7 +8303,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_scripts_setup_stripe_main",
-      "community": 19,
+      "community": 94,
       "norm_label": "main()"
     },
     {
@@ -9170,7 +9600,7 @@
       "label": "Setup guide (written for an LLM agent)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L290",
+      "source_location": "L266",
       "_origin": "ast",
       "id": "readme_setup_guide_written_for_an_llm_agent",
       "community": 18,
@@ -9180,7 +9610,7 @@
       "label": "1. Prerequisites",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L297",
+      "source_location": "L273",
       "_origin": "ast",
       "id": "readme_1_prerequisites",
       "community": 18,
@@ -9190,7 +9620,7 @@
       "label": "2. Frontend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L307",
+      "source_location": "L283",
       "_origin": "ast",
       "id": "readme_2_frontend",
       "community": 18,
@@ -9200,7 +9630,7 @@
       "label": "3. Backend",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L317",
+      "source_location": "L293",
       "_origin": "ast",
       "id": "readme_3_backend",
       "community": 18,
@@ -9210,7 +9640,7 @@
       "label": "4. Supabase (database & auth)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L340",
+      "source_location": "L316",
       "_origin": "ast",
       "id": "readme_4_supabase_database_auth",
       "community": 18,
@@ -9220,7 +9650,7 @@
       "label": "5. Graphify (knowledge-graph CLI)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L365",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "readme_5_graphify_knowledge_graph_cli",
       "community": 18,
@@ -9230,7 +9660,7 @@
       "label": "6. Project skills (nothing to install)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L380",
+      "source_location": "L356",
       "_origin": "ast",
       "id": "readme_6_project_skills_nothing_to_install",
       "community": 18,
@@ -9240,7 +9670,7 @@
       "label": "7. Final checklist",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L393",
+      "source_location": "L369",
       "_origin": "ast",
       "id": "readme_7_final_checklist",
       "community": 18,
@@ -9378,7 +9808,7 @@
       "rationale": "Registers the /graphify and /commit triggers so the skills are invoked before anything else when typed.",
       "community": 69,
       "norm_label": "project skill trigger registry",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_skill_registry"
     },
     {
       "label": "/commit Skill",
@@ -10183,6 +10613,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/eslint.config.mjs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_eslint_config",
+      "target": "backend_app_config",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/config.py",
@@ -10239,7 +10680,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/accounts/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_accounts_route",
       "target": "frontend_lib_clip_server",
@@ -10265,17 +10706,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_accounts_route",
       "target": "frontend_lib_clip_server_requireclipuser",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/accounts/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_accounts_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -10337,7 +10767,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/analytics/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_analytics_route",
       "target": "frontend_lib_clip_server",
@@ -10363,17 +10793,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_analytics_route",
       "target": "frontend_lib_clip_server_requireclipuser",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/analytics/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_analytics_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -10468,7 +10887,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/captions/route.ts",
-      "source_location": "L4",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_captions_route",
       "target": "frontend_lib_clip_server",
@@ -10483,17 +10902,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_captions_route",
       "target": "frontend_lib_clip_server_requireclipuser",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/captions/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_captions_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -10555,7 +10963,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/link/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_link_route",
       "target": "frontend_lib_clip_server",
@@ -10606,17 +11014,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/link/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_link_route",
-      "target": "frontend_lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -10648,6 +11045,93 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_link_route_post",
       "target": "frontend_lib_supabase_admin_createadminclient"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_app_api_clip_posts_id_analytics_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_lib_clip_provider_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_lib_clip_provider_upload_post_uploadpostprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_lib_clip_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_lib_clip_server_providerunavailable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route",
+      "target": "frontend_lib_clip_server_requireclipuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route_get",
+      "target": "frontend_lib_clip_server_providerunavailable"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/api/clip/posts/[id]/analytics/route.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "frontend_app_api_clip_posts_id_analytics_route_get",
+      "target": "frontend_lib_clip_server_requireclipuser"
     },
     {
       "relation": "contains",
@@ -10730,7 +11214,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/posts/[id]/retry/route.ts",
-      "source_location": "L5",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_retry_route",
       "target": "frontend_lib_clip_server",
@@ -10778,17 +11262,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_retry_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/posts/[id]/retry/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_posts_id_retry_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -10861,7 +11334,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/posts/[id]/status/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_status_route",
       "target": "frontend_lib_clip_server",
@@ -10931,17 +11404,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_posts_id_status_route",
       "target": "frontend_lib_supabase_database_types_json",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/posts/[id]/status/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_posts_id_status_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -11069,7 +11531,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/publish/route.ts",
-      "source_location": "L9",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_publish_route",
       "target": "frontend_lib_clip_server",
@@ -11153,17 +11615,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/publish/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_publish_route",
-      "target": "frontend_lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -11244,7 +11695,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/clip/upload-url/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_clip_upload_url_route",
       "target": "frontend_lib_clip_server",
@@ -11281,17 +11732,6 @@
       "weight": 1.0,
       "source": "frontend_app_api_clip_upload_url_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app/api/clip/upload-url/route.ts",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_app_api_clip_upload_url_route",
-      "target": "frontend_lib_stripe_server",
       "confidence_score": 1.0
     },
     {
@@ -11450,7 +11890,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/collect/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -11487,6 +11927,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_collect_checkout_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/collect/checkout/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_collect_checkout_route",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -11628,7 +12079,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_collect_order_route",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -11714,7 +12165,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_api_photos_route",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -11784,7 +12235,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_stripe_server",
@@ -11843,6 +12294,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_checkout_route",
       "target": "frontend_lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/checkout/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_checkout_route",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -11922,7 +12384,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/connect/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_connect_route",
       "target": "frontend_lib_stripe_server",
@@ -11981,6 +12443,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_connect_route",
       "target": "frontend_lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/connect/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_connect_route",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -12107,7 +12580,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/pay/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_pay_route",
       "target": "frontend_lib_stripe_server",
@@ -12147,6 +12620,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/pay/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_pay_route",
+      "target": "frontend_lib_clip_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -12183,7 +12667,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/webhook-connect/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_connect_route",
       "target": "frontend_lib_stripe_server",
@@ -12220,6 +12704,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_connect_route",
       "target": "frontend_lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/webhook-connect/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_webhook_connect_route",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -12289,7 +12784,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/api/stripe/webhook/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_stripe_server",
@@ -12348,6 +12843,17 @@
       "weight": 1.0,
       "source": "frontend_app_api_stripe_webhook_route",
       "target": "frontend_lib_supabase_database_types_database",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/api/stripe/webhook/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_api_stripe_webhook_route",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -12445,7 +12951,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_auth_callback_route",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -12474,11 +12980,33 @@
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/demo/comptes/creation/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_clip_demo_comptes_creation_page",
+      "target": "frontend_app_clip_espace_comptes_creation_page",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/demo/comptes/page.tsx",
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_app_clip_demo_comptes_page",
       "target": "frontend_app_clip_espace_comptes_page",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/demo/generateur/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_app_clip_demo_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page",
       "confidence_score": 1.0
     },
     {
@@ -12593,7 +13121,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L24",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_app_clip_espace_analytique_page_analyticsview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L38",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_app_clip_espace_analytique_page_analytiquepage",
@@ -12603,7 +13141,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L19",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_app_clip_espace_analytique_page_compact",
@@ -12613,7 +13151,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L165",
+      "source_location": "L241",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_app_clip_espace_analytique_page_ministat",
@@ -12623,10 +13161,40 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L178",
+      "source_location": "L205",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_app_clip_espace_analytique_page_postanalyticslist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L254",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_app_clip_espace_analytique_page_reachchart",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_app_clip_espace_analytique_page_view_subtitles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_app_clip_espace_analytique_page_views",
       "confidence_score": 1.0
     },
     {
@@ -12681,7 +13249,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
-      "target": "frontend_components_gestion_apercu_stat_card",
+      "target": "frontend_components_clip_espace_post_analytics_card",
       "confidence_score": 1.0
     },
     {
@@ -12692,7 +13260,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
-      "target": "frontend_components_gestion_apercu_stat_card_statcard",
+      "target": "frontend_components_clip_espace_post_analytics_card_postanalyticscard",
       "confidence_score": 1.0
     },
     {
@@ -12701,6 +13269,28 @@
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
       "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_components_gestion_apercu_stat_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page",
+      "target": "frontend_components_gestion_apercu_stat_card_statcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_components_ui_empty_state",
@@ -12711,7 +13301,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_components_ui_empty_state_emptystate",
@@ -12722,7 +13312,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_constants",
@@ -12733,7 +13323,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_constants_platform_labels",
@@ -12744,7 +13334,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_context",
@@ -12755,7 +13345,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_context_useclipdata",
@@ -12766,7 +13356,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_provider_types",
@@ -12777,7 +13367,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page",
       "target": "frontend_lib_clip_provider_types_platformanalytics",
@@ -12789,16 +13379,136 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/clip/espace/analytique/page.tsx",
-      "source_location": "L25",
+      "source_location": "L39",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_analytique_page_analytiquepage",
+      "target": "frontend_lib_clip_context_useclipdata"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/clip/espace/analytique/page.tsx",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_analytique_page_postanalyticslist",
+      "target": "frontend_lib_clip_context_useclipdata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_app_clip_espace_comptes_creation_page_creationcomptespage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_components_clip_espace_comptes_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_components_clip_espace_comptes_tabs_comptestabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_constants_platform_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_context_useclipdata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_provider_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page",
+      "target": "frontend_lib_clip_provider_types_clip_platforms",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/clip/espace/comptes/creation/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_creation_page_creationcomptespage",
       "target": "frontend_lib_clip_context_useclipdata"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_app_clip_espace_comptes_page_comptespage",
@@ -12812,7 +13522,7 @@
       "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
-      "target": "frontend_components_clip_espace_icons",
+      "target": "frontend_components_clip_espace_comptes_tabs",
       "confidence_score": 1.0
     },
     {
@@ -12823,7 +13533,7 @@
       "source_location": "L4",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
-      "target": "frontend_components_clip_espace_icons_linkicon",
+      "target": "frontend_components_clip_espace_comptes_tabs_comptestabs",
       "confidence_score": 1.0
     },
     {
@@ -12832,6 +13542,28 @@
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
       "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_page",
+      "target": "frontend_components_clip_espace_icons",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_comptes_page",
+      "target": "frontend_components_clip_espace_icons_linkicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/comptes/page.tsx",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_components_ui_toast",
@@ -12842,7 +13574,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L5",
+      "source_location": "L6",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_components_ui_toast_usetoast",
@@ -12853,7 +13585,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_constants",
@@ -12864,7 +13596,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_constants_platform_labels",
@@ -12875,7 +13607,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_context",
@@ -12886,7 +13618,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_context_useclipdata",
@@ -12897,7 +13629,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_provider_types",
@@ -12908,7 +13640,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page",
       "target": "frontend_lib_clip_provider_types_clip_platforms",
@@ -12920,7 +13652,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page_comptespage",
       "target": "frontend_components_ui_toast_usetoast"
@@ -12931,9 +13663,137 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/clip/espace/comptes/page.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_comptes_page_comptespage",
+      "target": "frontend_lib_clip_context_useclipdata"
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_clipsillustration",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_detectillustration",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_generateurpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L161",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_illustrationsvg",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_moments",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_steps",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_app_clip_espace_generateur_page_vodillustration",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_components_clip_espace_publier_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_components_clip_espace_publier_tabs_publiertabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_lib_clip_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page",
+      "target": "frontend_lib_clip_context_useclipdata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/clip/espace/generateur/page.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_generateur_page_generateurpage",
       "target": "frontend_lib_clip_context_useclipdata"
     },
     {
@@ -13069,7 +13929,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L253",
+      "source_location": "L256",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_app_clip_espace_page_pageheader",
@@ -13079,7 +13939,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_app_clip_espace_page_publierpage",
@@ -13089,7 +13949,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L267",
+      "source_location": "L270",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_app_clip_espace_page_sectiontitle",
@@ -13147,7 +14007,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
-      "target": "frontend_components_ui_empty_state",
+      "target": "frontend_components_clip_espace_publier_tabs",
       "confidence_score": 1.0
     },
     {
@@ -13158,7 +14018,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
-      "target": "frontend_components_ui_empty_state_emptystate",
+      "target": "frontend_components_clip_espace_publier_tabs_publiertabs",
       "confidence_score": 1.0
     },
     {
@@ -13167,6 +14027,28 @@
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
       "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_page",
+      "target": "frontend_components_ui_empty_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "frontend_app_clip_espace_page",
+      "target": "frontend_components_ui_empty_state_emptystate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app/clip/espace/page.tsx",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_components_ui_field",
@@ -13177,7 +14059,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_components_ui_field_field",
@@ -13188,7 +14070,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_components_ui_toast",
@@ -13199,7 +14081,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L10",
+      "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_components_ui_toast_usetoast",
@@ -13210,7 +14092,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_constants",
@@ -13221,7 +14103,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_constants_platform_labels",
@@ -13232,7 +14114,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_context",
@@ -13243,7 +14125,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_context_clipuploadinput",
@@ -13254,7 +14136,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_context_useclipdata",
@@ -13265,7 +14147,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_provider_types",
@@ -13276,7 +14158,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_provider_types_captionset",
@@ -13287,7 +14169,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_provider_types_clip_platforms",
@@ -13298,7 +14180,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page",
       "target": "frontend_lib_clip_provider_types_clipplatform",
@@ -13310,7 +14192,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page_publierpage",
       "target": "frontend_components_ui_toast_usetoast"
@@ -13321,7 +14203,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/clip/espace/page.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "source": "frontend_app_clip_espace_page_publierpage",
       "target": "frontend_lib_clip_context_useclipdata"
@@ -17835,6 +18717,58 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_comptes_tabs",
+      "target": "frontend_components_clip_espace_comptes_tabs_comptestab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_comptes_tabs",
+      "target": "frontend_components_clip_espace_comptes_tabs_comptestabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_comptes_tabs",
+      "target": "frontend_components_clip_espace_comptes_tabs_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_comptes_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/comptes-tabs.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_comptes_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs_subtabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/dropzone.tsx",
       "source_location": "L17",
       "weight": 1.0,
@@ -18004,6 +18938,17 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_icons",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
       "source_location": "L15",
       "weight": 1.0,
@@ -18042,6 +18987,17 @@
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_icons_linkicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_icons_refreshicon",
       "confidence_score": 1.0
     },
     {
@@ -18177,6 +19133,156 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_post_analytics_card_compact",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_post_analytics_card_loadedrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_post_analytics_card_metric_columns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_components_clip_espace_post_analytics_card_postanalyticscard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_constants",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_constants_platform_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_context_useclipdata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_provider_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_provider_types_postplatformmetrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_types",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card",
+      "target": "frontend_lib_clip_types_clippost",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/clip/espace/post-analytics-card.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_post_analytics_card_postanalyticscard",
+      "target": "frontend_lib_clip_context_useclipdata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/post-card.tsx",
       "source_location": "L24",
       "weight": 1.0,
@@ -18273,8 +19379,60 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_publier_tabs",
+      "target": "frontend_components_clip_espace_publier_tabs_publiertab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_publier_tabs",
+      "target": "frontend_components_clip_espace_publier_tabs_publiertabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_publier_tabs",
+      "target": "frontend_components_clip_espace_publier_tabs_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_publier_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/publier-tabs.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_publier_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs_subtabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L71",
+      "source_location": "L75",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_shell_clipshell",
@@ -18284,7 +19442,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_shell_isactive",
@@ -18294,7 +19452,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L52",
+      "source_location": "L56",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_shell_loaderror",
@@ -18304,7 +19462,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L33",
+      "source_location": "L35",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_shell_nav_items",
@@ -18324,7 +19482,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L40",
+      "source_location": "L42",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell",
       "target": "frontend_components_clip_espace_shell_signout",
@@ -18500,7 +19658,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L41",
+      "source_location": "L43",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell_signout",
       "target": "frontend_lib_supabase_client_createclient",
@@ -18512,9 +19670,62 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/clip/espace/shell.tsx",
-      "source_location": "L72",
+      "source_location": "L76",
       "weight": 1.0,
       "source": "frontend_components_clip_espace_shell_clipshell",
+      "target": "frontend_lib_clip_context_useclipdata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_sub_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs_subtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_sub_tabs",
+      "target": "frontend_components_clip_espace_sub_tabs_subtabs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_sub_tabs",
+      "target": "frontend_lib_clip_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_sub_tabs",
+      "target": "frontend_lib_clip_context_useclipdata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/components/clip/espace/sub-tabs.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "frontend_components_clip_espace_sub_tabs_subtabs",
       "target": "frontend_lib_clip_context_useclipdata"
     },
     {
@@ -24833,17 +26044,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/eslint.config.mjs",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "frontend_eslint_config",
-      "target": "frontend_lib_clip_provider_config",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/eslint.config.mjs",
@@ -25063,7 +26263,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_apply",
@@ -25073,7 +26273,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L141",
+      "source_location": "L142",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_fetchanalytics",
@@ -25083,7 +26283,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L87",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_api",
+      "target": "frontend_lib_clip_api_fetchpostanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/api.ts",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_generatecaptions",
@@ -25093,7 +26303,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_pollpoststatus",
@@ -25103,7 +26313,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L102",
+      "source_location": "L103",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_publishclip",
@@ -25113,7 +26323,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L39",
+      "source_location": "L40",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_refreshaccounts",
@@ -25123,7 +26333,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_replacepost",
@@ -25133,7 +26343,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L31",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_requestlinkurl",
@@ -25143,7 +26353,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L131",
+      "source_location": "L132",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_retrypost",
@@ -25153,7 +26363,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_api_uploadclip",
@@ -25215,11 +26425,22 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/api.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_api",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_store",
@@ -25230,7 +26451,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_store_commit",
@@ -25241,7 +26462,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_store_fetchapi",
@@ -25252,7 +26473,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_store_getstate",
@@ -25263,7 +26484,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_types",
@@ -25274,7 +26495,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_types_clippost",
@@ -25285,7 +26506,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_types_clipstate",
@@ -25296,7 +26517,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "frontend_lib_clip_api",
       "target": "frontend_lib_clip_types_rowtoclippost",
@@ -25340,7 +26561,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_apply",
       "target": "frontend_lib_clip_store_commit",
@@ -25351,7 +26572,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_apply",
       "target": "frontend_lib_clip_store_getstate",
@@ -25362,7 +26583,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L127",
+      "source_location": "L128",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_pollpoststatus",
       "target": "frontend_lib_clip_api_apply",
@@ -25373,7 +26594,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L117",
+      "source_location": "L118",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_publishclip",
       "target": "frontend_lib_clip_api_apply",
@@ -25384,7 +26605,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_refreshaccounts",
       "target": "frontend_lib_clip_api_apply",
@@ -25395,7 +26616,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L137",
+      "source_location": "L138",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_retrypost",
       "target": "frontend_lib_clip_api_apply",
@@ -25417,7 +26638,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L85",
+      "source_location": "L88",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_connectaccounts",
       "target": "frontend_lib_clip_api_requestlinkurl",
@@ -25462,7 +26683,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L116",
+      "source_location": "L117",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_publishclip",
       "target": "frontend_lib_clip_types_rowtoclippost"
@@ -25484,7 +26705,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L126",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_pollpoststatus",
       "target": "frontend_lib_clip_types_rowtoclippost"
@@ -25506,7 +26727,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/clip/api.ts",
-      "source_location": "L136",
+      "source_location": "L137",
       "weight": 1.0,
       "source": "frontend_lib_clip_api_retrypost",
       "target": "frontend_lib_clip_types_rowtoclippost"
@@ -25531,6 +26752,17 @@
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_api_fetchanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_api_fetchpostanalytics",
       "confidence_score": 1.0
     },
     {
@@ -25686,7 +26918,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L37",
+      "source_location": "L39",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipactions",
@@ -25697,7 +26929,7 @@
       "context": "collection",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L107",
+      "source_location": "L110",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipactions_fetchanalytics",
@@ -25708,43 +26940,10 @@
       "context": "collection",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L101",
+      "source_location": "L111",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
-      "target": "frontend_lib_clip_context_clipactions_generatecaptions",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "context": "collection",
-      "confidence": "INFERRED",
-      "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L103",
-      "weight": 1.0,
-      "source": "frontend_lib_clip_context",
-      "target": "frontend_lib_clip_context_clipactions_pollpoststatus",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "context": "collection",
-      "confidence": "INFERRED",
-      "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L102",
-      "weight": 1.0,
-      "source": "frontend_lib_clip_context",
-      "target": "frontend_lib_clip_context_clipactions_publishclip",
-      "confidence_score": 0.5
-    },
-    {
-      "relation": "indirect_call",
-      "context": "collection",
-      "confidence": "INFERRED",
-      "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L106",
-      "weight": 1.0,
-      "source": "frontend_lib_clip_context",
-      "target": "frontend_lib_clip_context_clipactions_refreshaccounts",
+      "target": "frontend_lib_clip_context_clipactions_fetchpostanalytics",
       "confidence_score": 0.5
     },
     {
@@ -25755,6 +26954,50 @@
       "source_location": "L104",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_context_clipactions_generatecaptions",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "context": "collection",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_context_clipactions_pollpoststatus",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "context": "collection",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_context_clipactions_publishclip",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "context": "collection",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_context_clipactions_refreshaccounts",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "context": "collection",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipactions_retrypost",
       "confidence_score": 0.5
     },
@@ -25762,7 +27005,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L59",
+      "source_location": "L62",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipdata",
@@ -25772,7 +27015,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L70",
+      "source_location": "L73",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipdatacontext",
@@ -25782,7 +27025,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L110",
+      "source_location": "L114",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipdataprovider",
@@ -25792,7 +27035,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L31",
+      "source_location": "L33",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_clipuploadinput",
@@ -25802,7 +27045,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L105",
+      "source_location": "L108",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_context",
@@ -25813,7 +27056,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L94",
+      "source_location": "L97",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_realactions",
@@ -25823,7 +27066,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L72",
+      "source_location": "L75",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_context_useclipdata",
@@ -25834,7 +27077,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_provider_types",
@@ -25845,7 +27088,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_provider_types_captionset",
@@ -25856,7 +27099,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_provider_types_clipplatform",
@@ -25867,7 +27110,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_provider_types_connectedaccount",
@@ -25878,10 +27121,21 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_provider_types_platformanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
       "confidence_score": 1.0
     },
     {
@@ -25889,7 +27143,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L20",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_store",
@@ -25900,7 +27154,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L20",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_store_retryload",
@@ -25911,7 +27165,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L20",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_store_useclip",
@@ -25922,7 +27176,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L20",
+      "source_location": "L22",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_store_usecliploaderror",
@@ -25933,7 +27187,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_types",
@@ -25944,7 +27198,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_types_clippost",
@@ -25955,7 +27209,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "frontend_lib_clip_context",
       "target": "frontend_lib_clip_types_clipstate",
@@ -25976,7 +27230,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L54",
+      "source_location": "L56",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_connectaccounts",
@@ -25986,7 +27240,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L56",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_fetchanalytics",
@@ -25996,7 +27250,17 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L42",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context_clipactions",
+      "target": "frontend_lib_clip_context_clipactions_fetchpostanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_generatecaptions",
@@ -26006,7 +27270,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L52",
+      "source_location": "L54",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_pollpoststatus",
@@ -26016,7 +27280,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_publishclip",
@@ -26026,7 +27290,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L55",
+      "source_location": "L57",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_refreshaccounts",
@@ -26036,7 +27300,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L53",
+      "source_location": "L55",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_retrypost",
@@ -26046,7 +27310,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L38",
+      "source_location": "L40",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions",
       "target": "frontend_lib_clip_context_clipactions_uploadclip",
@@ -26068,7 +27332,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_generatecaptions",
       "target": "frontend_lib_clip_provider_types_captionset",
@@ -26079,7 +27343,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_generatecaptions",
       "target": "frontend_lib_clip_provider_types_clipplatform",
@@ -26090,7 +27354,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_publishclip",
       "target": "frontend_lib_clip_provider_types_captionset",
@@ -26101,7 +27365,7 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_publishclip",
       "target": "frontend_lib_clip_provider_types_clipplatform",
@@ -26112,7 +27376,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_publishclip",
       "target": "frontend_lib_clip_types_clippost",
@@ -26123,7 +27387,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L52",
+      "source_location": "L54",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_pollpoststatus",
       "target": "frontend_lib_clip_types_clippost",
@@ -26134,7 +27398,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L53",
+      "source_location": "L55",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_retrypost",
       "target": "frontend_lib_clip_types_clippost",
@@ -26145,7 +27409,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L55",
+      "source_location": "L57",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_refreshaccounts",
       "target": "frontend_lib_clip_provider_types_connectedaccount",
@@ -26156,17 +27420,28 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L56",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipactions_fetchanalytics",
       "target": "frontend_lib_clip_provider_types_platformanalytics",
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/context.tsx",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_context_clipactions_fetchpostanalytics",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L62",
+      "source_location": "L65",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipdata",
       "target": "frontend_lib_clip_context_clipdata_retryload",
@@ -26177,7 +27452,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L60",
+      "source_location": "L63",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipdata",
       "target": "frontend_lib_clip_types_clipstate",
@@ -26211,7 +27486,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L111",
+      "source_location": "L115",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipdataprovider",
       "target": "frontend_lib_clip_store_useclip"
@@ -26222,7 +27497,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/clip/context.tsx",
-      "source_location": "L112",
+      "source_location": "L116",
       "weight": 1.0,
       "source": "frontend_lib_clip_context_clipdataprovider",
       "target": "frontend_lib_clip_store_usecliploaderror"
@@ -26231,7 +27506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L265",
+      "source_location": "L270",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_analytics_base",
@@ -26241,7 +27516,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L312",
+      "source_location": "L317",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_builddemoanalytics",
@@ -26251,7 +27526,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L110",
+      "source_location": "L369",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_demo_data_builddemopostanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L115",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_builddemoposts",
@@ -26261,7 +27546,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L322",
+      "source_location": "L392",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_builddemostate",
@@ -26271,7 +27556,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L305",
+      "source_location": "L310",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_daily_reach_peak",
@@ -26281,7 +27566,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L42",
+      "source_location": "L47",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_accounts",
@@ -26291,7 +27576,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L79",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_banner",
@@ -26301,7 +27586,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L86",
+      "source_location": "L91",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_captions",
@@ -26311,7 +27596,27 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L72",
+      "source_location": "L362",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_demo_data_demo_fresh_metrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L331",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_demo_data_demo_post_metrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L77",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_sample_clip",
@@ -26321,7 +27626,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L16",
+      "source_location": "L19",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_timings",
@@ -26331,7 +27636,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L64",
+      "source_location": "L69",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_demo_x_account",
@@ -26341,7 +27646,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L107",
+      "source_location": "L112",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_iso",
@@ -26351,7 +27656,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L258",
+      "source_location": "L263",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_demo_data_reach_patterns",
@@ -26387,6 +27692,17 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_provider_types_clipplatform",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_provider_types_connectedaccount",
       "confidence_score": 1.0
     },
@@ -26402,11 +27718,33 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/data.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_data",
+      "target": "frontend_lib_clip_provider_types_postplatformmetrics",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L6",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_types",
@@ -26417,7 +27755,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L6",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_types_clippost",
@@ -26428,7 +27766,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L6",
+      "source_location": "L9",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data",
       "target": "frontend_lib_clip_types_clipstate",
@@ -26494,7 +27832,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L128",
+      "source_location": "L133",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data_builddemoposts",
       "target": "frontend_lib_clip_demo_data_iso",
@@ -26505,7 +27843,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/data.ts",
-      "source_location": "L326",
+      "source_location": "L396",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_data_builddemostate",
       "target": "frontend_lib_clip_demo_data_builddemoposts",
@@ -26530,6 +27868,17 @@
       "source_location": "L11",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_provider",
+      "target": "frontend_lib_clip_demo_data_builddemopostanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/demo/provider.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_demo_provider",
       "target": "frontend_lib_clip_demo_data_builddemostate",
       "confidence_score": 1.0
     },
@@ -26537,7 +27886,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/demo/provider.tsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0,
       "source": "frontend_lib_clip_demo_provider",
       "target": "frontend_lib_clip_demo_provider_democlipprovider",
@@ -26646,7 +27995,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post_request",
       "target": "frontend_lib_clip_provider_config_providerapikey",
@@ -26738,6 +28087,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/types.ts",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_provider_types",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/provider/types.ts",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_provider_types",
+      "target": "frontend_lib_clip_provider_types_postplatformmetrics",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/provider/types.ts",
       "source_location": "L37",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_types",
@@ -26759,7 +28128,7 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L233",
+      "source_location": "L278",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_types",
@@ -26975,10 +28344,21 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/provider/upload-post.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_provider_upload_post",
+      "target": "frontend_lib_clip_provider_types_postanalytics",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L123",
+      "source_location": "L124",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_caption_fields",
@@ -26988,7 +28368,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L232",
+      "source_location": "L277",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_clipprovider",
@@ -26998,7 +28378,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L225",
+      "source_location": "L269",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27009,7 +28389,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L224",
+      "source_location": "L268",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27020,7 +28400,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L229",
+      "source_location": "L273",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27031,7 +28411,18 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L228",
+      "source_location": "L274",
+      "weight": 1.0,
+      "context": "collection",
+      "source": "frontend_lib_clip_provider_upload_post",
+      "target": "frontend_lib_clip_provider_upload_post_getpostanalytics",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "indirect_call",
+      "confidence": "INFERRED",
+      "source_file": "frontend/lib/clip/provider/upload-post.ts",
+      "source_location": "L272",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27042,7 +28433,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L45",
+      "source_location": "L46",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_isclipplatform",
@@ -27052,7 +28443,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L226",
+      "source_location": "L270",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27063,7 +28454,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L183",
+      "source_location": "L184",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_rawanalytics",
@@ -27073,7 +28464,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L88",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "frontend_lib_clip_provider_upload_post",
+      "target": "frontend_lib_clip_provider_upload_post_rawpostplatform",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/lib/clip/provider/upload-post.ts",
+      "source_location": "L89",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_rawsocialaccount",
@@ -27083,7 +28484,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_request",
@@ -27093,7 +28494,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L34",
+      "source_location": "L35",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_requestjson",
@@ -27103,7 +28504,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L227",
+      "source_location": "L271",
       "weight": 1.0,
       "context": "collection",
       "source": "frontend_lib_clip_provider_upload_post",
@@ -27114,7 +28515,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L223",
+      "source_location": "L267",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post",
       "target": "frontend_lib_clip_provider_upload_post_uploadpostprovider",
@@ -27125,7 +28526,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L51",
+      "source_location": "L52",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post_ensureprofile",
       "target": "frontend_lib_clip_provider_upload_post_request",
@@ -27136,7 +28537,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L35",
+      "source_location": "L36",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post_requestjson",
       "target": "frontend_lib_clip_provider_upload_post_request",
@@ -27147,7 +28548,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/clip/provider/upload-post.ts",
-      "source_location": "L108",
+      "source_location": "L109",
       "weight": 1.0,
       "source": "frontend_lib_clip_provider_upload_post_listconnectedaccounts",
       "target": "frontend_lib_clip_provider_upload_post_isclipplatform",
@@ -27245,7 +28646,18 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_lib_clip_server",
-      "target": "frontend_lib_stripe_server",
+      "target": "frontend_lib_clip_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "frontend_proxy",
+      "target": "frontend_lib_clip_server",
       "confidence_score": 1.0
     },
     {
@@ -32773,17 +34185,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "frontend_proxy",
-      "target": "frontend_lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/admin.ts",
@@ -34662,7 +36063,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L290",
+      "source_location": "L266",
       "weight": 1.0,
       "source": "readme_ominin",
       "target": "readme_setup_guide_written_for_an_llm_agent",
@@ -34682,7 +36083,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L297",
+      "source_location": "L273",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_1_prerequisites",
@@ -34692,7 +36093,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L307",
+      "source_location": "L283",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_2_frontend",
@@ -34702,7 +36103,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L317",
+      "source_location": "L293",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_3_backend",
@@ -34712,7 +36113,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L340",
+      "source_location": "L316",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_4_supabase_database_auth",
@@ -34722,7 +36123,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L365",
+      "source_location": "L341",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_5_graphify_knowledge_graph_cli",
@@ -34732,7 +36133,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L380",
+      "source_location": "L356",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_6_project_skills_nothing_to_install",
@@ -34742,7 +36143,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
-      "source_location": "L393",
+      "source_location": "L369",
       "weight": 1.0,
       "source": "readme_setup_guide_written_for_an_llm_agent",
       "target": "readme_7_final_checklist",
@@ -34830,5 +36231,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2311ff5f6988054b7a8d13533b19b815c61de945"
+  "built_at_commit": "2985f8fb25d66d5bf3ebacfd0781f9b5209958cf"
 }
