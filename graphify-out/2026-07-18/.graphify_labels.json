@@ -135,5 +135,10 @@
   "133": "__init__.py",
   "134": "__init__.py",
   "135": "__init__.py",
-  "136": "clipper"
+  "136": "clipper",
+  "137": "auth-form.tsx",
+  "138": "run",
+  "139": "route.ts",
+  "140": "photo.ts",
+  "141": "proxy.ts"
 }
