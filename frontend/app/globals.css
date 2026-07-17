@@ -258,6 +258,37 @@ body {
   animation: ignite-3 7s linear infinite;
 }
 
+/*
+  Création de comptes (page « bientôt disponible ») : une semaine dans la vie
+  d'un compte piloté par l'IA. Le même curseur .sweep balaie la bande sur 7 s ;
+  chaque jour s'anime à son passage — day-live est calé par animation-delay
+  = (n − 0,5) s, donc verrouillé sur la position du curseur — puis la semaine
+  se réinitialise et le cycle recommence.
+*/
+@keyframes day-live {
+  0% {
+    opacity: 0.25;
+    transform: translateY(3px);
+  }
+  4% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  88% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(3px);
+  }
+}
+
+.day-live {
+  opacity: 0.25;
+  animation: day-live 7s linear infinite;
+}
+
 /* Chart bars growing from the baseline on reveal (analytique) */
 @keyframes bar-grow {
   from {
@@ -302,8 +333,13 @@ body {
   .sweep,
   .ignite-1,
   .ignite-2,
-  .ignite-3 {
+  .ignite-3,
+  .day-live {
     animation: none;
+  }
+  .day-live {
+    opacity: 1;
+    transform: none;
   }
   .rise {
     opacity: 1;

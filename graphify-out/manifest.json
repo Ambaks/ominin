@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1784244960.7096646,
-    "ast_hash": "c6d79676580d23879034ad9eaead30d4",
+    "mtime": 1784319650.3627245,
+    "ast_hash": "0f3050912743931705b856728d7f6345",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1145,8 +1145,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/comptes/creation/page.tsx": {
-    "mtime": 1784319300.4898992,
-    "ast_hash": "9dccc139bd2ca3dd20dd1f0e49df98dd",
+    "mtime": 1784320533.3392298,
+    "ast_hash": "b25b5c7b8c09d8fb055fd3e40244ef88",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/comptes-tabs.tsx": {
