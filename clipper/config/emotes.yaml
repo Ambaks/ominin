@@ -1,0 +1,48 @@
+# Chatsense configuration.
+#
+# lag_s: chat reacts after the on-screen moment (typing + stream delay);
+# message timestamps are shifted back by this amount before scoring.
+lag_s: 4.0
+
+# Reaction emotes / expressions counted toward emote-burst detection.
+# Single words are matched as whole chat tokens (case-insensitive);
+# entries containing a space are matched as substrings.
+twitch:
+  - LUL
+  - LULW
+  - KEKW
+  - KEKL
+  - OMEGALUL
+  - PepeLaugh
+  - ICANT
+  - PogChamp
+  - Pog
+  - PogU
+  - POGGERS
+  - Pogey
+  - WICKED
+  - monkaS
+  - monkaW
+  - Sadge
+  - AYAYA
+  - Clap
+  - EZ
+  - xdd
+  - "D:"
+  - "+2"
+
+youtube:
+  - lol
+  - lmao
+  - mdr
+  - ptdr
+  - xd
+  - wtf
+  - omg
+  - gg
+  - "no way"
+  - "let's go"
+  - "😂"
+  - "🤣"
+  - "💀"
+  - "🔥"

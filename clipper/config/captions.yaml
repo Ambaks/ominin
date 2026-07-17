@@ -1,0 +1,11 @@
+# ASS subtitle style for burned-in word-level captions.
+
+font_name: "Arial"
+font_size: 58
+primary_color: "&H00FFFFFF"
+highlight_color: "&H0000BFFF"
+outline_color: "&H00000000"
+outline_width: 3
+shadow_depth: 1
+margin_bottom: 280
+words_per_group: 2

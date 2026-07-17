@@ -1,0 +1,73 @@
+# Per-content-type sensor weight profiles for composite scoring.
+# Weights are relative — they are normalized to sum to 1.0 at runtime,
+# over the sensors actually present (chatsense drops out when no chat).
+# Content types match prompts/classify.md.
+
+default:
+  semantic_topic_shift: 1.0
+  semantic_narrative_marker: 1.5
+  semantic_qa: 0.8
+  prosody: 1.0
+  chatsense: 1.0
+
+gaming:
+  semantic_topic_shift: 0.6
+  semantic_narrative_marker: 1.2
+  semantic_qa: 0.5
+  prosody: 1.5
+  chatsense: 2.0
+
+podcast:
+  semantic_topic_shift: 1.2
+  semantic_narrative_marker: 1.8
+  semantic_qa: 1.0
+  prosody: 1.0
+  chatsense: 0.3
+
+interview:
+  semantic_topic_shift: 1.0
+  semantic_narrative_marker: 1.5
+  semantic_qa: 1.2
+  prosody: 0.8
+  chatsense: 0.3
+
+educational:
+  semantic_topic_shift: 1.4
+  semantic_narrative_marker: 1.2
+  semantic_qa: 1.0
+  prosody: 0.6
+  chatsense: 0.3
+
+debate:
+  semantic_topic_shift: 0.8
+  semantic_narrative_marker: 1.5
+  semantic_qa: 1.2
+  prosody: 1.5
+  chatsense: 0.8
+
+just_chatting:
+  semantic_topic_shift: 0.8
+  semantic_narrative_marker: 1.2
+  semantic_qa: 0.6
+  prosody: 1.5
+  chatsense: 2.0
+
+# Event bonuses (added to composite score when an event overlaps a window)
+event_bonuses:
+  narrative_marker: 0.8
+  question_answer: 0.5
+  topic_shift: 0.3
+  energy_burst: 0.4
+  pitch_spike: 0.3
+  rapid_speech: 0.2
+  chat_spike: 0.6
+  emote_burst: 0.5
+
+# Peak detection parameters
+peak_detection:
+  min_prominence: 0.5
+  min_distance_s: 30.0
+  candidate_expand_s: 15.0
+  candidate_min_s: 15.0
+  candidate_max_s: 120.0
+  over_generation_factor: 5

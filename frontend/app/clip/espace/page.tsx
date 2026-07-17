@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { CaptionEditor } from "@/components/clip/espace/caption-editor";
 import { Dropzone } from "@/components/clip/espace/dropzone";
@@ -25,13 +25,17 @@ export default function PublierPage() {
   const { state, demo, basePath, sampleClip, actions } = useClipData();
   const toast = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const vodClipPath = searchParams.get("vodClipPath");
+  const vodClipTitle = searchParams.get("vodClipTitle");
 
   const [fileMeta, setFileMeta] = useState<{ name: string; size: number } | null>(
-    null
+    () => vodClipPath ? { name: vodClipTitle ?? "Clip VOD", size: 0 } : null
   );
   const [progress, setProgress] = useState<number | null>(null);
-  const [path, setPath] = useState<string | null>(null);
-  const [context, setContext] = useState("");
+  const [path, setPath] = useState<string | null>(() => vodClipPath);
+  const [context, setContext] = useState(() => vodClipTitle ?? "");
   // En démo, toutes les plateformes connectées sont présélectionnées : le
   // visiteur voit le parcours complet sans avoir à cliquer chaque réseau.
   const [selected, setSelected] = useState<ClipPlatform[]>(() =>
@@ -133,20 +137,24 @@ export default function PublierPage() {
         style={{ animationDelay: "60ms" }}
       >
         <SectionTitle index={1} label="Votre clip" />
-        <Dropzone
-          file={fileMeta}
-          progress={progress}
-          uploaded={path != null}
-          disabled={progress != null || publishing}
-          onSelect={(candidate) =>
-            selectClip({
-              name: candidate.name,
-              size: candidate.size,
-              file: candidate,
-            })
-          }
-          onPick={sampleClip ? () => selectClip(sampleClip) : undefined}
-        />
+        {vodClipPath ? (
+          <VodClipBanner title={vodClipTitle} />
+        ) : (
+          <Dropzone
+            file={fileMeta}
+            progress={progress}
+            uploaded={path != null}
+            disabled={progress != null || publishing}
+            onSelect={(candidate) =>
+              selectClip({
+                name: candidate.name,
+                size: candidate.size,
+                file: candidate,
+              })
+            }
+            onPick={sampleClip ? () => selectClip(sampleClip) : undefined}
+          />
+        )}
       </section>
 
       <section
@@ -275,5 +283,35 @@ function SectionTitle({ index, label }: { index: number; label: string }) {
       </span>
       {label}
     </h2>
+  );
+}
+
+function VodClipBanner({ title }: { title: string | null }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/5 px-5 py-4">
+      <CheckIcon />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium">Clip importé depuis le générateur</p>
+        {title && (
+          <p className="mt-0.5 truncate text-xs text-muted">{title}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="size-4 shrink-0 text-ember-1"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m3.5 8.5 3 3 6-7" />
+    </svg>
   );
 }

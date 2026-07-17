@@ -102,6 +102,122 @@ export type Database = {
         }
         Relationships: []
       }
+      clipper_clips: {
+        Row: {
+          approved: boolean | null
+          clip_type: string | null
+          created_at: string
+          duration_s: number
+          id: string
+          job_id: string
+          judge_reasoning: string | null
+          judge_scores: Json | null
+          rank: number
+          risk_flags: string[] | null
+          signal_summary: Json | null
+          source_end_s: number
+          source_start_s: number
+          storage_path: string | null
+          thumbnail_path: string | null
+          title: string
+          title_alternatives: string[] | null
+        }
+        Insert: {
+          approved?: boolean | null
+          clip_type?: string | null
+          created_at?: string
+          duration_s: number
+          id?: string
+          job_id: string
+          judge_reasoning?: string | null
+          judge_scores?: Json | null
+          rank: number
+          risk_flags?: string[] | null
+          signal_summary?: Json | null
+          source_end_s: number
+          source_start_s: number
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          title: string
+          title_alternatives?: string[] | null
+        }
+        Update: {
+          approved?: boolean | null
+          clip_type?: string | null
+          created_at?: string
+          duration_s?: number
+          id?: string
+          job_id?: string
+          judge_reasoning?: string | null
+          judge_scores?: Json | null
+          rank?: number
+          risk_flags?: string[] | null
+          signal_summary?: Json | null
+          source_end_s?: number
+          source_start_s?: number
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          title?: string
+          title_alternatives?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clipper_clips_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "clipper_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clipper_jobs: {
+        Row: {
+          clip_count: number
+          completed_at: string | null
+          config: Json
+          created_at: string
+          current_stage: string | null
+          error_message: string | null
+          id: string
+          source_duration_s: number | null
+          source_title: string | null
+          source_url: string
+          stage_progress: number
+          status: Database["public"]["Enums"]["clipper_job_status"]
+          user_id: string
+        }
+        Insert: {
+          clip_count?: number
+          completed_at?: string | null
+          config?: Json
+          created_at?: string
+          current_stage?: string | null
+          error_message?: string | null
+          id?: string
+          source_duration_s?: number | null
+          source_title?: string | null
+          source_url: string
+          stage_progress?: number
+          status?: Database["public"]["Enums"]["clipper_job_status"]
+          user_id: string
+        }
+        Update: {
+          clip_count?: number
+          completed_at?: string | null
+          config?: Json
+          created_at?: string
+          current_stage?: string | null
+          error_message?: string | null
+          id?: string
+          source_duration_s?: number | null
+          source_title?: string | null
+          source_url?: string
+          stage_progress?: number
+          status?: Database["public"]["Enums"]["clipper_job_status"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       collect_pending: {
         Row: {
           created_at: string
@@ -666,6 +782,7 @@ export type Database = {
     Enums: {
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
+      clipper_job_status: "en_attente" | "en_cours" | "termine" | "echec"
       member_role: "gerant" | "cuisinier" | "serveur"
       offre: "digital" | "smart" | "connect"
       order_status:

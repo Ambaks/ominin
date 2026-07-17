@@ -221,6 +221,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Clipper pipeline runtime output
+clipper/jobs/
+
 # Node / Next.js
 node_modules/
 .next/

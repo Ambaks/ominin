@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1784243254.6534388,
-    "ast_hash": "ab5f38c9387db6d92207cb9953c9e07b",
+    "mtime": 1784323907.9742982,
+    "ast_hash": "dc6233859454bba5e08c0eb235d9c0d7",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/result.ts": {
@@ -565,8 +565,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1784319650.3627245,
-    "ast_hash": "0f3050912743931705b856728d7f6345",
+    "mtime": 1784320824.9338162,
+    "ast_hash": "76fbf32b0d3cc7a3bc05a3a78f357be8",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/page.tsx": {
-    "mtime": 1784244226.9670513,
-    "ast_hash": "dace38af40f59aa2789fe56b8b135e6a",
+    "mtime": 1784326997.5948546,
+    "ast_hash": "b5fa4d176c980251b1f4d48e36d52b1d",
     "semantic_hash": ""
   },
   "frontend/app/clip/login/page.tsx": {
@@ -1125,8 +1125,8 @@
     "semantic_hash": ""
   },
   "frontend/app/clip/espace/generateur/page.tsx": {
-    "mtime": 1784244214.7981362,
-    "ast_hash": "296a408e1f8d4cdbcd7b401a19ae6290",
+    "mtime": 1784328082.9734251,
+    "ast_hash": "c3af07298e574f8f4da1dc0c8f4f796e",
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/post-analytics-card.tsx": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "frontend/components/clip/espace/publier-tabs.tsx": {
-    "mtime": 1784319263.2401793,
-    "ast_hash": "96aab97713b9434cb3b09a237554516d",
+    "mtime": 1784324106.6418276,
+    "ast_hash": "2f0842fcf3a21ab8b35042eecf728a10",
     "semantic_hash": ""
   },
   "frontend/app/clip/demo/comptes/creation/page.tsx": {
@@ -1157,6 +1157,296 @@
   "frontend/components/clip/espace/sub-tabs.tsx": {
     "mtime": 1784319253.5848832,
     "ast_hash": "89c7435ac1b908c93e3562d41bdebaad",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/__init__.py": {
+    "mtime": 1784325290.884602,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/__main__.py": {
+    "mtime": 1784325610.7223163,
+    "ast_hash": "aac1119699959471e6cf8bf014ca5e31",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/common/__init__.py": {
+    "mtime": 1784325291.8982894,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/common/ffmpeg.py": {
+    "mtime": 1784325333.9249358,
+    "ast_hash": "04f8c241af6debb008868b815c2b2bbe",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/common/llm.py": {
+    "mtime": 1784325350.009092,
+    "ast_hash": "5efa6a319e556441622a11762563445c",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/common/settings.py": {
+    "mtime": 1784325323.3513968,
+    "ast_hash": "6bc2a3082d9ec359f84cb472c1ef3be4",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/common/supabase_client.py": {
+    "mtime": 1784325343.7882125,
+    "ast_hash": "1476246113388ae99caffff8699ef3c4",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/judges/__init__.py": {
+    "mtime": 1784325294.9868453,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/judges/base.py": {
+    "mtime": 1784325422.370066,
+    "ast_hash": "85aa5879a788e891e35b99d28418c6cb",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/judges/text_only.py": {
+    "mtime": 1784325435.5592365,
+    "ast_hash": "7fd09bc7de683c076f03cdd3448ad8ce",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/pipeline.py": {
+    "mtime": 1784325592.2831163,
+    "ast_hash": "8c5f44120f2be3063f842c1d1fa6cc12",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/schemas.py": {
+    "mtime": 1784325320.55671,
+    "ast_hash": "fe2f03330e811b6dd6bf7b7549093753",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/sensors/__init__.py": {
+    "mtime": 1784325293.9621801,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/sensors/base.py": {
+    "mtime": 1784327482.8623025,
+    "ast_hash": "8295674bf3c0924f1130acd9884c51d5",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/sensors/chatsense.py": {
+    "mtime": 1784327511.8652892,
+    "ast_hash": "160cbe22004bf31586d6ef4f46076b4b",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/sensors/prosody.py": {
+    "mtime": 1784327498.5641656,
+    "ast_hash": "05bbaec721c99c0e3a4ea4d9c0c9c99f",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/sensors/semantic.py": {
+    "mtime": 1784327517.9989774,
+    "ast_hash": "0816e506210eeee6dcb14b936e8ffb31",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/__init__.py": {
+    "mtime": 1784325292.9245193,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/fuse.py": {
+    "mtime": 1784325508.5434763,
+    "ast_hash": "2bc8b5621b567f708d790321cd26b925",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/ingest.py": {
+    "mtime": 1784327431.1307387,
+    "ast_hash": "6bcdf2c7a5a81bbcd8fa8a0dce64ec1b",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/judge.py": {
+    "mtime": 1784325531.073429,
+    "ast_hash": "a047cb1acc8f2a2c6df8f9c24a12b51d",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/package.py": {
+    "mtime": 1784325586.0015254,
+    "ast_hash": "7d11219414b01a319d5a0c1ebc4de853",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/rank.py": {
+    "mtime": 1784325544.8893366,
+    "ast_hash": "ddc4e5833ba31e0b96fa18607b4f7dbe",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/refine.py": {
+    "mtime": 1784325524.5327134,
+    "ast_hash": "c182e90289720484459f6cbb78fa60aa",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/reformat.py": {
+    "mtime": 1784325576.0930612,
+    "ast_hash": "bbe7f01eea47e395863bc51bbb93299d",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/sense.py": {
+    "mtime": 1784327525.5095546,
+    "ast_hash": "4692735949ed5ea37e4e4110b3911954",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/stages/transcribe.py": {
+    "mtime": 1784325472.546214,
+    "ast_hash": "9b5c73d32f1acff8c05a5216472226c6",
+    "semantic_hash": ""
+  },
+  "clipper/clipper/worker.py": {
+    "mtime": 1784325599.4798415,
+    "ast_hash": "96d905c88e943a822c930ccefcfac18c",
+    "semantic_hash": ""
+  },
+  "clipper/pyproject.toml": {
+    "mtime": 1784327300.3134043,
+    "ast_hash": "813daa487cccf423fba1b6327db9d3ff",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/clip/vod/clips/review/route.ts": {
+    "mtime": 1784324008.431035,
+    "ast_hash": "a5c8f77b8d5205d069af02cb03e1ca93",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/clip/vod/jobs/[id]/clips/route.ts": {
+    "mtime": 1784323998.4053435,
+    "ast_hash": "dfb0205ec7abff33ff7bd23b54cbd69b",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/clip/vod/jobs/[id]/route.ts": {
+    "mtime": 1784323991.8565729,
+    "ast_hash": "52aa33e6621897b61387cdea1f272ce5",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/clip/vod/jobs/route.ts": {
+    "mtime": 1784323989.4804394,
+    "ast_hash": "8608c888ffdf639fa869b1737e5d9123",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/clip/vod/prepare-publish/route.ts": {
+    "mtime": 1784324013.165551,
+    "ast_hash": "975a6d7744b12d19ad641140c83f09bb",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/clip-review-card.tsx": {
+    "mtime": 1784327977.032339,
+    "ast_hash": "23630e758d4e90410b354c7275045028",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/clip-review-grid.tsx": {
+    "mtime": 1784328043.1780422,
+    "ast_hash": "712d6033ce3705316c8aa2d3aa114648",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/job-progress.tsx": {
+    "mtime": 1784323955.367053,
+    "ast_hash": "2a5e034c6b62d7e4c187576d04143c66",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/vod-url-input.tsx": {
+    "mtime": 1784327989.7814152,
+    "ast_hash": "c68c0eeacd0bb93c07715e17473bc802",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/vod/api.ts": {
+    "mtime": 1784327831.3165967,
+    "ast_hash": "81ea4f2803a509a12ea650f6f892f700",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/vod/constants.ts": {
+    "mtime": 1784327990.7987714,
+    "ast_hash": "6ebd603e0732411b660f131433327c9f",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/vod/types.ts": {
+    "mtime": 1784323808.5458817,
+    "ast_hash": "98454c39a9bd0f18898a8706c25a16f1",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/vod/use-poll-job.ts": {
+    "mtime": 1784324158.6409588,
+    "ast_hash": "64435554f122f3af9dab0e2b88422513",
+    "semantic_hash": ""
+  },
+  "frontend/lib/clip/vod/validation.ts": {
+    "mtime": 1784323801.235236,
+    "ast_hash": "35dff8b4d595937139b6325c74d2adc4",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260718000001_clipper.sql": {
+    "mtime": 1784323781.7766469,
+    "ast_hash": "711fd84f83f4e05211e2e375b62765e7",
+    "semantic_hash": ""
+  },
+  "clipper/config/captions.yaml": {
+    "mtime": 1784325372.2338862,
+    "ast_hash": "df8741360fb88007c33e80df75b221b3",
+    "semantic_hash": ""
+  },
+  "clipper/config/emotes.yaml": {
+    "mtime": 1784327445.5154738,
+    "ast_hash": "c52580edcee525bdf445d8a7d0bf84ca",
+    "semantic_hash": ""
+  },
+  "clipper/config/fusion.yaml": {
+    "mtime": 1784327537.4628649,
+    "ast_hash": "b66cd746824295d15d0c9481ae79c69c",
+    "semantic_hash": ""
+  },
+  "clipper/config/markers.yaml": {
+    "mtime": 1784325379.9158072,
+    "ast_hash": "ccc10c2abe07b7221dc8079fa9038608",
+    "semantic_hash": ""
+  },
+  "clipper/config/ranking.yaml": {
+    "mtime": 1784325369.852332,
+    "ast_hash": "8c90bd9558f94d39b38fc2f2dd3d3c2a",
+    "semantic_hash": ""
+  },
+  "clipper/prompts/classify.md": {
+    "mtime": 1784325383.3798854,
+    "ast_hash": "981b71a3a3ca8b16ab8f4b33653d8b31",
+    "semantic_hash": ""
+  },
+  "clipper/prompts/judge_default.md": {
+    "mtime": 1784325402.8337886,
+    "ast_hash": "c835debf3e4ebe8aceff4b44e6757e08",
+    "semantic_hash": ""
+  },
+  "clipper/prompts/judge_gaming.md": {
+    "mtime": 1784325445.4846573,
+    "ast_hash": "ad8c7721283a1964ddfc52b1ff4a842d",
+    "semantic_hash": ""
+  },
+  "clipper/prompts/judge_podcast.md": {
+    "mtime": 1784325445.4824042,
+    "ast_hash": "712c00cec583011cbf12ce62298830b1",
+    "semantic_hash": ""
+  },
+  "docs/CLAUDE.md": {
+    "mtime": 1784321216.5196157,
+    "ast_hash": "4e4c806ccf9f65cf2aabf6708f073222",
+    "semantic_hash": ""
+  },
+  "docs/SPEC.md": {
+    "mtime": 1784321216.523174,
+    "ast_hash": "1ad833724f029f862378cf5ae2fff833",
+    "semantic_hash": ""
+  },
+  "docs/judge gaming.md": {
+    "mtime": 1784321216.5080173,
+    "ast_hash": "ad8c7721283a1964ddfc52b1ff4a842d",
+    "semantic_hash": ""
+  },
+  "docs/judge podcast.md": {
+    "mtime": 1784321216.512383,
+    "ast_hash": "712c00cec583011cbf12ce62298830b1",
+    "semantic_hash": ""
+  },
+  "frontend/components/clip/espace/job-history.tsx": {
+    "mtime": 1784327843.130955,
+    "ast_hash": "43f6fc2536681d07328b98e5afb9e68e",
     "semantic_hash": ""
   }
 }

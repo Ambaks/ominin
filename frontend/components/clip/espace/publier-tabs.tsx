@@ -11,7 +11,7 @@ export type PublierTab = "clip" | "vod";
 
 const TABS = [
   { id: "clip", suffix: "", label: "Depuis un clip" },
-  { id: "vod", suffix: "/generateur", label: "Depuis une VOD", soon: true },
+  { id: "vod", suffix: "/generateur", label: "Depuis une VOD" },
 ] as const;
 
 export function PublierTabs({ active }: { active: PublierTab }) {
