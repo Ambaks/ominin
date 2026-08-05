@@ -21,6 +21,12 @@ export const HISTORY_PAGE_SIZE = 50;
 /** Statuts d'historique : commandes clôturées. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 
+/**
+ * Délais proposés à l'acceptation d'une commande collect « dès que
+ * possible » (minutes avant que la commande soit prête).
+ */
+export const COLLECT_ETA_CHOICES_MIN = [5, 15, 25, 40] as const;
+
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   en_attente: "En attente",
   en_preparation: "En préparation",

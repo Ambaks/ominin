@@ -429,6 +429,7 @@ export type Database = {
           created_at: string
           customer_name: string | null
           customer_phone: string | null
+          estimated_ready_at: string | null
           etablissement_id: string
           group_id: string | null
           id: string
@@ -444,6 +445,7 @@ export type Database = {
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
+          estimated_ready_at?: string | null
           etablissement_id: string
           group_id?: string | null
           id?: string
@@ -459,6 +461,7 @@ export type Database = {
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
+          estimated_ready_at?: string | null
           etablissement_id?: string
           group_id?: string | null
           id?: string

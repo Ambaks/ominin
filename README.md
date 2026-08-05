@@ -209,6 +209,35 @@ subscriptions. DB migrations: `20260710000002_collect_enums.sql` (new enum
 values), `20260710000003_collect.sql` (schema changes, `collect_pending` table,
 RPC function, updated order transition triggers).
 
+**Phase 2 upgrades** (new): Restaurant dashboard now supports **per-order ETA chips**
+(5/15/25/40 min) when accepting a "dès que possible" order — a 2-tap flow replaces
+the action row in place (no overlay); unaccepted collect orders show a relabeled
+"Refuser" cancel affordance with polished refusal state (honest refund copy, `tel:`
+link for customer contact). Customer confirmation tracker displays "Prête vers HH:MM"
+and a minutes-left countdown derived per poll (no separate timer); an "Itinéraire"
+card links to Google Maps directions with the restaurant location as destination
+(origin omitted so maps uses device position). Database: new nullable `orders.estimated_ready_at`
+column + trigger `enforce_order_update_rights()` allows cuisinier role to write ETA
+and status in one atomic update. **Reserved slugs**: the check constraint on
+`etablissements.slug` reserves "demo" and "collect" (static routes/proxy prefix
+collisions); the `create_etablissement()` RPC function guards with a clean French
+error message, mirrored client-side in onboarding form (`23514` error mapping).
+**Marketing landing + interactive demo** at the collect subdomain root: full-page
+landing (nav, hero with TicketRelay mockup, demo-showcase, how-it-works, features,
+pricing from existing `collectOffer`, FAQ, footer) replaces the placeholder.
+Interactive dual-pane demo at `/collect/demo` (full-screen, noindex): shared in-memory
+state machine with configurable timings, customer pane displays order status + ETA chips,
+restaurant pane shows acceptance/refusal/ready actions; mobile-responsive with
+theme support (dark+light). All demo timings are centralized in `COLLECT_DEMO` config;
+menu subset sourced by id (never duplicated). Verified: 17/17 Playwright end-to-end
+checks passed (landing flow, demo order→accept→ready→pickup, refusal path, replay,
+mobile 390px viewport, dark+light themes, /collect/demo switcher); `npm run lint`
++ `npm run build` green; reduced-motion accessibility coverage across animations.
+**Pending**: `supabase db push` to apply two new migrations
+(`20260805000001_collect_eta.sql`, `20260805000002_reserved_slugs.sql`); `NEXT_PUBLIC_COLLECT_HOST`
+env var not yet set so subdomain rewrite stays inert; Supabase types regeneration with
+`supabase gen types typescript --linked`.
+
 **Ominin Clip** (`clip.ominin.com`): livestream-clipper subdomain product —
 automated social posting of clip videos. Conversion landing page (hero with
 product mockup, how-it-works flow, time-savings features, pricing section with

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   COLLECT_ORDER_POLL_MS,
   collectHref,
+  mapsDirectionsHref,
   type CollectOrderView,
 } from "@/lib/collect/shared";
 import { formatTime } from "@/lib/gestion/format";
@@ -37,7 +38,7 @@ const STATUS_COPY: Partial<
   },
   annulee: {
     title: "Commande annulée",
-    hint: "Contactez le restaurant pour en savoir plus.",
+    hint: "Le restaurant n'a pas pu honorer votre commande. Pour toute question — remboursement compris — contactez-le directement.",
   },
 };
 
@@ -47,12 +48,21 @@ const isTerminal = (status: OrderStatus) =>
 export function OrderConfirmation({
   sessionId,
   slug,
+  restaurantName,
+  address,
+  phone,
 }: {
   sessionId: string;
   slug: string;
+  restaurantName: string;
+  address: string;
+  phone?: string | null;
 }) {
   const [order, setOrder] = useState<CollectOrderView | null>(null);
   const [failed, setFailed] = useState(false);
+  // Horloge du compte à rebours, avancée à chaque relecture (le polling
+  // re-rend déjà le composant : précision à la minute sans timer dédié).
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
     let stopped = false;
@@ -70,6 +80,7 @@ export function OrderConfirmation({
         if (stopped) return;
         if (body.found && body.order) {
           setOrder(body.order);
+          setNow(Date.now());
           if (isTerminal(body.order.status)) stopped = true;
         }
       } catch {
@@ -114,20 +125,85 @@ export function OrderConfirmation({
   }
 
   const copy = STATUS_COPY[order.status] ?? STATUS_COPY.en_attente!;
+  const cancelled = order.status === "annulee";
+  const showEta = order.status === "en_preparation" && order.estimatedReadyAt;
+  const minutesLeft = order.estimatedReadyAt
+    ? Math.round((Date.parse(order.estimatedReadyAt) - now) / 60_000)
+    : 0;
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-hairline bg-surface p-6 text-center">
+      <div
+        className={`rounded-2xl border bg-surface p-6 text-center ${
+          cancelled ? "border-ember-3/40" : "border-hairline"
+        }`}
+      >
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
           {order.customerName} · {formatTime(order.createdAt)}
         </p>
-        <h2 className="mt-2 font-display text-2xl font-medium">{copy.title}</h2>
-        <p className="mt-1 text-sm text-muted">{copy.hint}</p>
-        <p className="mt-3 text-sm font-semibold">
-          Retrait :{" "}
-          {order.pickupAt ? formatTime(order.pickupAt) : "dès que possible"}
-        </p>
+        {/* aria-live sur le seul bloc de statut : les changements d'état sont
+            annoncés, pas le compte à rebours qui bouge à chaque relecture. */}
+        <div aria-live="polite">
+          <h2 className="mt-2 font-display text-2xl font-medium">{copy.title}</h2>
+          <p className="mt-1 text-sm text-muted">{copy.hint}</p>
+        </div>
+        {showEta ? (
+          <>
+            <p className="mt-3 font-display text-lg font-semibold">
+              Prête vers {formatTime(order.estimatedReadyAt!)}
+            </p>
+            <p className="mt-0.5 text-xs tabular-nums text-muted">
+              {minutesLeft > 0
+                ? `dans ~${minutesLeft} min`
+                : "Plus que quelques instants"}
+            </p>
+          </>
+        ) : (
+          !cancelled && (
+            <p className="mt-3 text-sm font-semibold">
+              Retrait :{" "}
+              {order.pickupAt ? formatTime(order.pickupAt) : "dès que possible"}
+            </p>
+          )
+        )}
+        {cancelled && phone && (
+          <a
+            href={`tel:${phone.replace(/\s/g, "")}`}
+            className="mt-4 inline-flex items-center rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
+          >
+            Appeler le restaurant
+          </a>
+        )}
       </div>
+
+      {!cancelled && order.status !== "retiree" && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface p-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold">{restaurantName}</p>
+            <p className="mt-0.5 text-xs text-muted">{address}</p>
+          </div>
+          <a
+            href={mapsDirectionsHref(`${restaurantName}, ${address}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex shrink-0 items-center gap-1.5 rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="size-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M3 11 21 3l-8 18-2.5-7.5L3 11z" />
+            </svg>
+            Itinéraire
+          </a>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-hairline bg-surface p-5">
         <ul className="flex flex-col gap-1.5">

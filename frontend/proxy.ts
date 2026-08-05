@@ -20,6 +20,13 @@ export async function proxy(request: NextRequest) {
   const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST;
   if (collectHost && host === collectHost) {
     const url = request.nextUrl.clone();
+    // Un chemin déjà préfixé « /collect/... » (href pré-hydratation, lien
+    // copié depuis ominin.com) redirige vers sa forme canonique sans préfixe
+    // — sinon la réécriture le doublerait en /collect/collect/...
+    if (pathname === "/collect" || pathname.startsWith("/collect/")) {
+      url.pathname = pathname.slice("/collect".length) || "/";
+      return NextResponse.redirect(url, 308);
+    }
     url.pathname = pathname === "/" ? "/collect" : `/collect${pathname}`;
     return NextResponse.rewrite(url);
   }
