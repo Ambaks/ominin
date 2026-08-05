@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   const { data: order, error } = await db
     .from("orders")
     .select(
-      "id, status, created_at, pickup_at, customer_name, order_items(name, quantity, unit_price, options)"
+      "id, status, created_at, pickup_at, estimated_ready_at, customer_name, order_items(name, quantity, unit_price, options)"
     )
     .eq("stripe_session_id", sessionId)
     .maybeSingle();
@@ -53,6 +53,7 @@ export async function GET(request: Request) {
     status: order.status,
     createdAt: order.created_at,
     pickupAt: order.pickup_at,
+    estimatedReadyAt: order.estimated_ready_at,
     customerName: order.customer_name ?? "",
     items,
     total,

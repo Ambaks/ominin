@@ -1,11 +1,11 @@
 # Graph Report - ominin  (2026-08-05)
 
 ## Corpus Check
-- 192 files · ~235,426 words
+- 192 files · ~235,424 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 914 nodes · 2038 edges · 97 communities (33 shown, 64 thin omitted)
+- 914 nodes · 2041 edges · 98 communities (34 shown, 64 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 27 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
@@ -22,6 +22,7 @@
 - [[_COMMUNITY_TypeScript Config|TypeScript Config]]
 - [[_COMMUNITY_Menu Data & Components 2|Menu Data & Components 2]]
 - [[_COMMUNITY_FastAPI Backend|FastAPI Backend]]
+- [[_COMMUNITY_Root Layout & Fonts|Root Layout & Fonts]]
 - [[_COMMUNITY_Next.js Config|Next.js Config]]
 - [[_COMMUNITY_PostCSS Config|PostCSS Config]]
 - [[_COMMUNITY_Template Icon Asset|Template Icon Asset]]
@@ -129,19 +130,19 @@
   frontend/app/gestion/page.tsx → frontend/lib/gestion/permissions.ts
 - `CartLine` --references--> `MenuItem`  [EXTRACTED]
   frontend/components/collect/collect-experience.tsx → frontend/lib/menu-data.ts
-- `FormuleFormModal()` --calls--> `hasFeature()`  [INFERRED]
-  frontend/components/gestion/formules/formule-form-modal.tsx → frontend/lib/gestion/permissions.ts
-- `ItemFormModal()` --calls--> `hasFeature()`  [INFERRED]
-  frontend/components/gestion/menu/item-form-modal.tsx → frontend/lib/gestion/permissions.ts
+- `signOut()` --calls--> `createClient()`  [EXTRACTED]
+  frontend/components/gestion/shell.tsx → frontend/lib/supabase/client.ts
+- `DemoOrder` --references--> `MenuItem`  [EXTRACTED]
+  frontend/lib/collect/demo/provider.tsx → frontend/lib/menu-data.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (97 total, 64 thin omitted)
+## Communities (98 total, 64 thin omitted)
 
 ### Community 1 - "page.tsx"
 Cohesion: 0.06
-Nodes (41): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, generateMetadata(), getRestaurant, MenuPage() (+33 more)
+Nodes (38): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, generateMetadata(), getRestaurant, MenuPage() (+30 more)
 
 ### Community 2 - "Package Dependencies"
 Cohesion: 0.06
@@ -162,6 +163,10 @@ Nodes (24): For /graphify add and --watch, For /graphify query, For the commit h
 ### Community 6 - "FastAPI Backend"
 Cohesion: 0.29
 Nodes (3): Settings, BaseSettings, eslintConfig
+
+### Community 7 - "Root Layout & Fonts"
+Cohesion: 0.25
+Nodes (6): fraunces, instrumentSans, metadata, viewport, Providers(), seo
 
 ### Community 9 - "Next.js Config"
 Cohesion: 0.50
@@ -208,16 +213,16 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 85 - "types.ts"
-Cohesion: 0.19
-Nodes (9): ClipFaq(), ClipFeatures(), Features(), HowItWorks(), SectionHeading(), faqSection, featuresSection, featuresSection (+1 more)
+Cohesion: 0.21
+Nodes (8): ClipHowItWorks(), Features(), HowItWorks(), SectionHeading(), faqSection, howItWorks, featuresSection, howItWorks
 
 ### Community 86 - "useToast"
-Cohesion: 0.09
-Nodes (44): CommandesPage(), dedupeById(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager() (+36 more)
+Cohesion: 0.07
+Nodes (67): CommandesPage(), dedupeById(), FilterId, FILTERS, matchesFilter(), EquipePage(), ROLES, TeamManager() (+59 more)
 
 ### Community 87 - "api.ts"
-Cohesion: 0.07
-Nodes (78): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+70 more)
+Cohesion: 0.08
+Nodes (67): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+59 more)
 
 ### Community 88 - "formule-form-modal.tsx"
 Cohesion: 0.28
@@ -232,28 +237,28 @@ Cohesion: 0.40
 Nodes (4): Drive (Playwright), Gotchas, Launch, Verifying the Ominin frontend
 
 ### Community 91 - "selectors.ts"
-Cohesion: 0.09
-Nodes (34): POST(), ResolvedLine, resolveOptions(), GET(), EXTENSIONS, POST(), POST(), Product (+26 more)
+Cohesion: 0.07
+Nodes (44): POST(), ResolvedLine, resolveOptions(), GET(), EXTENSIONS, POST(), POST(), Product (+36 more)
 
 ### Community 92 - "store.ts"
 Cohesion: 0.09
-Nodes (27): metadata, ClipFinalCta(), ClipFooter(), ClipHero(), ClipHowItWorks(), ClipNav(), ClipPricing(), PriceCard() (+19 more)
+Nodes (28): metadata, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipFooter(), ClipHero(), ClipNav(), ClipPricing() (+20 more)
 
 ### Community 93 - "client.ts"
-Cohesion: 0.06
-Nodes (54): AnalytiquePage(), Period, ApercuPage(), OrderCardDemo(), OrderConfirmation(), STATUS_COPY, StatCard(), OrderCard() (+46 more)
+Cohesion: 0.05
+Nodes (58): AnalytiquePage(), Period, ApercuPage(), OrderCardDemo(), OrderConfirmation(), STATUS_COPY, StatCard(), OrderCard() (+50 more)
 
 ### Community 94 - "page.tsx"
 Cohesion: 0.22
 Nodes (6): Pricing(), collectOffer, planSignupHref(), pricingSection, plans, stripe
 
 ### Community 95 - "section-heading.tsx"
-Cohesion: 0.06
-Nodes (37): metadata, metadata, fraunces, instrumentSans, metadata, viewport, Providers(), BackToLandingLink() (+29 more)
+Cohesion: 0.07
+Nodes (31): metadata, metadata, BackToLandingLink(), CollectDemoStage(), CollectDemoShowcase(), CollectFaq(), CollectFeatures(), CollectFinalCta() (+23 more)
 
 ### Community 97 - "nav.tsx"
-Cohesion: 0.12
-Nodes (26): metadata, metadata, AuthForm(), ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft (+18 more)
+Cohesion: 0.24
+Nodes (3): metadata, metadata, AuthForm()
 
 ### Community 100 - "customer-pane.tsx"
 Cohesion: 0.07
@@ -269,15 +274,15 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `formatPrice()` connect `client.ts` to `page.tsx`, `customer-pane.tsx`, `useToast`, `page.tsx`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Why does `MenuItem` connect `nav.tsx` to `page.tsx`, `customer-pane.tsx`, `useToast`, `api.ts`, `client.ts`?**
+- **Why does `MenuItem` connect `useToast` to `page.tsx`, `customer-pane.tsx`, `client.ts`, `api.ts`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Why does `CollectDemoValue` connect `customer-pane.tsx` to `nav.tsx`?**
+- **Why does `CollectDemoValue` connect `customer-pane.tsx` to `useToast`?**
   _High betweenness centrality (0.016) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `useGestion()` (e.g. with `getClientSnapshot()` and `getServerSnapshot()`) actually correct?**
   _`useGestion()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `backend`, `ResolvedLine`, `EXTENSIONS` to the rest of the system?**
   _270 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.055523085914669784 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06334841628959276 - nodes in this community are weakly interconnected._
 - **Should `Package Dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.06451612903225806 - nodes in this community are weakly interconnected._

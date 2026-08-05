@@ -15,6 +15,9 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Slugs réservés par des routes statiques (miroir de la contrainte SQL). */
+const RESERVED_SLUGS = ["demo", "collect"];
+
 export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -27,6 +30,10 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
+    if (RESERVED_SLUGS.includes(slug)) {
+      setError("Cette adresse est réservée, choisissez-en une autre.");
+      return;
+    }
     setBusy(true);
     const supabase = createClient();
     const { error } = await supabase.rpc("create_etablissement", {
@@ -37,10 +44,12 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
     });
     if (error) {
       setError(
-        // 23505 : violation d'unicité Postgres (slug déjà pris).
+        // 23505 : unicité (slug pris) ; 23514 : contrainte de check (réservé).
         error.code === "23505"
           ? "Cette adresse de menu est déjà prise, choisissez-en une autre."
-          : error.message
+          : error.code === "23514"
+            ? "Cette adresse est réservée, choisissez-en une autre."
+            : error.message
       );
       setBusy(false);
       return;

@@ -183,16 +183,137 @@ body {
   display: none;
 }
 
+/* Indeterminate gradient bar for branded loading screens */
+@keyframes loader-slide {
+  from {
+    transform: translateX(-150%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
+
+.loader-bar {
+  animation: loader-slide 1.4s ease-in-out infinite;
+}
+
+/*
+  Trame collect — signature graphique d'Ominin Collect : des pointillés en
+  diagonale, le trajet du retrait, en filigrane. Même gris neutre que les
+  trames QR et timeline.
+*/
+.collect-dash-motif {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 18px,
+    rgba(128, 128, 128, 0.14) 18px 26px,
+    transparent 26px 64px
+  );
+}
+
+/* Arrivée d'une commande côté restaurant : la carte surgit, léger rebond. */
+@keyframes order-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.01);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.order-pop {
+  animation: order-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Célébration « c'est prêt » : anneau braise qui s'évase depuis la coche. */
+@keyframes pulse-ring {
+  from {
+    opacity: 0.5;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 1.3s ease-out infinite;
+}
+
+/*
+  Relais entre les deux volets de la démo collect : un point braise traverse
+  le lien téléphone ↔ dashboard. Distance passée en inline (--relay-distance),
+  négative pour le trajet retour.
+*/
+@keyframes relay {
+  from {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(var(--relay-distance, 160px));
+    opacity: 0;
+  }
+}
+
+.relay-dot {
+  animation: relay 0.9s ease-in-out both;
+}
+
+/* Guide de la démo : le prochain bouton respire après un temps d'inactivité. */
+@keyframes soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ember-2) 45%, transparent);
+  }
+  60% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+.soft-pulse {
+  animation: soft-pulse 1.6s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .shimmer,
-  .rise {
+  .rise,
+  .loader-bar,
+  .order-pop,
+  .pulse-ring,
+  .relay-dot,
+  .soft-pulse,
+  .animate-pulse {
     animation: none;
   }
   .rise {
     opacity: 1;
     transform: none;
+  }
+  .loader-bar {
+    width: 100%;
+  }
+  .order-pop {
+    opacity: 1;
+    transform: none;
+  }
+  .pulse-ring,
+  .relay-dot {
+    display: none;
   }
 }

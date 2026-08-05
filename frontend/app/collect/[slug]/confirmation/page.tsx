@@ -37,7 +37,13 @@ export default async function ConfirmationPage({
           {data.restaurant.phone && ` · ${data.restaurant.phone}`}
         </p>
       </header>
-      <OrderConfirmation sessionId={session_id} slug={slug} />
+      <OrderConfirmation
+        sessionId={session_id}
+        slug={slug}
+        restaurantName={data.restaurant.name}
+        address={data.restaurant.address}
+        phone={data.restaurant.phone}
+      />
     </div>
   );
 }

@@ -1,36 +1,53 @@
 import type { Metadata } from "next";
-import { brand, contactEmail } from "@/lib/landing-data";
+import { CollectDemoShowcase } from "@/components/collect/landing/demo-showcase";
+import { CollectFaq } from "@/components/collect/landing/faq";
+import { CollectFeatures } from "@/components/collect/landing/features";
+import { CollectFinalCta } from "@/components/collect/landing/final-cta";
+import { CollectFooter } from "@/components/collect/landing/footer";
+import { CollectHero } from "@/components/collect/landing/hero";
+import { CollectHowItWorks } from "@/components/collect/landing/how-it-works";
+import { CollectNav } from "@/components/collect/landing/nav";
+import { CollectPricing } from "@/components/collect/landing/pricing";
+import { collectBrand, seo } from "@/lib/collect-landing-data";
+import { collectSiteUrl } from "@/lib/site";
 
+// Canonical absolu : la réécriture du proxy rend cette page accessible à la
+// fois sur collect.ominin.com et ominin.com/collect — une seule URL fait foi.
 export const metadata: Metadata = {
-  title: `${brand} — Click & collect`,
-  description:
-    "Commandez à emporter auprès des restaurants partenaires Ominin.",
+  title: seo.title,
+  description: seo.description,
+  alternates: { canonical: collectSiteUrl },
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
+    type: "website",
+    siteName: collectBrand,
+    locale: "fr_FR",
+    url: collectSiteUrl,
+    images: [{ url: "/logo.png", width: 512, height: 512, alt: collectBrand }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seo.title,
+    description: seo.description,
+    images: ["/logo.png"],
+  },
 };
 
-/*
- * Racine du sous-domaine collect : aucun établissement dans l'URL. Chaque
- * restaurant diffuse son propre lien (/son-slug) — cette page ne sert que de
- * point de chute.
- */
 export default function CollectHome() {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-5 px-5 text-center">
-      <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-        {brand} · Click & collect
-      </p>
-      <h1 className="max-w-md font-display text-3xl font-medium tracking-tight">
-        Commandez à emporter, directement auprès de votre restaurant.
-      </h1>
-      <p className="max-w-sm text-sm leading-relaxed text-muted">
-        Chaque établissement partenaire dispose de sa propre page de
-        commande — utilisez le lien qu&apos;il vous a communiqué.
-      </p>
-      <a
-        href={`mailto:${contactEmail}`}
-        className="text-sm font-semibold text-ember-1 transition-opacity hover:opacity-80"
-      >
-        Vous êtes restaurateur ? Contactez-nous
-      </a>
-    </div>
+    <>
+      <CollectNav />
+      <main>
+        <CollectHero />
+        <CollectDemoShowcase />
+        <CollectHowItWorks />
+        <CollectFeatures />
+        <CollectPricing />
+        <CollectFinalCta />
+        <CollectFaq />
+      </main>
+      <CollectFooter />
+    </>
   );
 }

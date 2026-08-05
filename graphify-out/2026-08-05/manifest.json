@@ -930,8 +930,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
-    "mtime": 1785932265.0833929,
-    "ast_hash": "d6a8370bb54f11b5580602f294728560",
+    "mtime": 1785932022.042564,
+    "ast_hash": "e1ac30edb6147be8ec6555f7582eb03a",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/stage.tsx": {

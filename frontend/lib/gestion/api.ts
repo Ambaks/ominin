@@ -440,14 +440,26 @@ function findOrder(state: GestionState, orderId: string): Order {
 
 export async function updateOrderStatus(
   orderId: string,
-  status: OrderStatus
+  status: OrderStatus,
+  /** ISO — estimation « prête vers » posée avec le passage en préparation. */
+  estimatedReadyAt?: string
 ): Promise<Order> {
   assertTransition(findOrder(getState(), orderId), status);
   const supabase = createClient();
-  check(await supabase.from("orders").update({ status }).eq("id", orderId));
+  check(
+    await supabase
+      .from("orders")
+      .update(
+        estimatedReadyAt !== undefined
+          ? { status, estimated_ready_at: estimatedReadyAt }
+          : { status }
+      )
+      .eq("id", orderId)
+  );
   return apply((draft) => {
     const order = findOrder(draft, orderId);
     order.status = status;
+    if (estimatedReadyAt !== undefined) order.estimatedReadyAt = estimatedReadyAt;
     return order;
   });
 }

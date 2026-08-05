@@ -67,6 +67,8 @@ export interface Order {
   customerName?: string;
   customerPhone?: string;
   pickupAt?: string;
+  /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
+  estimatedReadyAt?: string;
 }
 
 export interface Table {

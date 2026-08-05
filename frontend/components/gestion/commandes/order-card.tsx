@@ -5,6 +5,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import {
+  COLLECT_ETA_CHOICES_MIN,
   ORDER_ACTION_LABELS,
   PAYMENT_MODE_LABELS,
 } from "@/lib/gestion/constants";
@@ -31,14 +32,17 @@ export function OrderCard({
   const toast = useToast();
   const [paying, setPaying] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [choosingEta, setChoosingEta] = useState(false);
 
   const isCollect = order.type === "collect";
   const targets = nextStatuses(order.status, role, order.type);
+  /** Refus (et non annulation) : commande collect pas encore acceptée. */
+  const declining = isCollect && order.status === "en_attente";
 
-  const transition = async (target: OrderStatus) => {
+  const transition = async (target: OrderStatus, estimatedReadyAt?: string) => {
     try {
-      await api.updateOrderStatus(order.id, target);
-      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : "annulée"}.`);
+      await api.updateOrderStatus(order.id, target, estimatedReadyAt);
+      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : declining ? "refusée" : "annulée"}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -60,9 +64,11 @@ export function OrderCard({
   const heading = isCollect
     ? order.customerName ?? "Client"
     : `Table ${tableNo}`;
-  const cancelMessage = isCollect
-    ? `La commande de ${order.customerName ?? "ce client"} sera annulée définitivement.`
-    : `La commande de la table ${tableNo} sera annulée définitivement.`;
+  const cancelMessage = declining
+    ? `La commande de ${order.customerName ?? "ce client"} sera refusée et le client en sera informé.`
+    : isCollect
+      ? `La commande de ${order.customerName ?? "ce client"} sera annulée définitivement.`
+      : `La commande de la table ${tableNo} sera annulée définitivement.`;
 
   return (
     <article
@@ -88,6 +94,11 @@ export function OrderCard({
       {isCollect && order.pickupAt && (
         <p className="mt-1 text-xs text-muted">
           Retrait : {formatTime(order.pickupAt)}
+        </p>
+      )}
+      {isCollect && order.estimatedReadyAt && order.status === "en_preparation" && (
+        <p className="mt-1 text-xs text-muted">
+          Prête vers&nbsp;: {formatTime(order.estimatedReadyAt)}
         </p>
       )}
 
@@ -130,7 +141,45 @@ export function OrderCard({
             )
           )}
         </div>
-        {targets.length > 0 && (
+        {choosingEta && order.status === "en_attente" ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted">Prête dans&nbsp;:</span>
+            {COLLECT_ETA_CHOICES_MIN.map((minutes) => (
+              <button
+                key={minutes}
+                type="button"
+                onClick={() => {
+                  setChoosingEta(false);
+                  void transition(
+                    "en_preparation",
+                    new Date(Date.now() + minutes * 60_000).toISOString()
+                  );
+                }}
+                className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold tabular-nums transition-colors hover:border-ember-2/40 hover:text-ember-1"
+              >
+                {minutes} min
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setChoosingEta(false);
+                void transition("en_preparation");
+              }}
+              className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40"
+            >
+              Sans estimation
+            </button>
+            <button
+              type="button"
+              onClick={() => setChoosingEta(false)}
+              aria-label="Fermer le choix de délai"
+              className="px-1 text-sm text-faint transition-colors hover:text-foreground"
+            >
+              ✕
+            </button>
+          </div>
+        ) : targets.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {targets
               .filter((target) => target !== "annulee")
@@ -138,13 +187,20 @@ export function OrderCard({
                 <button
                   key={target}
                   type="button"
-                  onClick={() =>
-                    target === "payee"
-                      ? order.paidOnline
-                        ? void settleOnline()
-                        : setPaying(true)
-                      : transition(target)
-                  }
+                  onClick={() => {
+                    if (target === "payee") {
+                      if (order.paidOnline) void settleOnline();
+                      else setPaying(true);
+                    } else if (
+                      target === "en_preparation" &&
+                      isCollect &&
+                      !order.pickupAt
+                    ) {
+                      setChoosingEta(true);
+                    } else {
+                      void transition(target);
+                    }
+                  }}
                   className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
                 >
                   {target === "payee" && order.paidOnline
@@ -158,11 +214,11 @@ export function OrderCard({
                 onClick={() => setCancelling(true)}
                 className="rounded-full border border-ember-3/40 px-4 py-2 text-xs font-semibold text-ember-3 transition-colors hover:bg-ember-3/10"
               >
-                Annuler
+                {declining ? "Refuser" : "Annuler"}
               </button>
             )}
           </div>
-        )}
+        ) : null}
       </div>
 
       {paying && (
@@ -183,9 +239,9 @@ export function OrderCard({
       )}
       {cancelling && (
         <ConfirmDialog
-          title="Annuler la commande ?"
+          title={declining ? "Refuser la commande ?" : "Annuler la commande ?"}
           message={cancelMessage}
-          confirmLabel="Annuler la commande"
+          confirmLabel={declining ? "Refuser la commande" : "Annuler la commande"}
           destructive
           onClose={() => setCancelling(false)}
           onConfirm={async () => {

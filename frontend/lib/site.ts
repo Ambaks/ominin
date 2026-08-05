@@ -15,3 +15,11 @@ export const siteUrl = (
 export const clipSiteUrl = `https://${
   process.env.NEXT_PUBLIC_CLIP_HOST ?? "clip.ominin.com"
 }`;
+
+/**
+ * Origine publique du sous-domaine click & collect, pour le canonical de la
+ * landing /collect (accessible aussi via ominin.com/collect).
+ */
+export const collectSiteUrl = `https://${
+  process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com"
+}`;
