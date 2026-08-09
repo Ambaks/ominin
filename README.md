@@ -233,6 +233,13 @@ menu subset sourced by id (never duplicated). Verified: 17/17 Playwright end-to-
 checks passed (landing flow, demo order→accept→ready→pickup, refusal path, replay,
 mobile 390px viewport, dark+light themes, /collect/demo switcher); `npm run lint`
 + `npm run build` green; reduced-motion accessibility coverage across animations.
+**Landing page polish** (new): comparison section added — interactive slider shows
+monthly takeaway revenue (min 1k € to max 15k €); two cost-bar charts animate to show
+delivery platform fee vs. Ominin Collect monthly fee + transaction rate; annual savings
+calculated and prominently displayed (EUR format, locale-aware). Design: ember-gradient
+accent, motion-reduced support, accessibility (all values numeric, color never sole signal).
+Cost bars use relative scaling (platform cost = 100% width, Ominin scaled to max).
+Comparison data sourced from `comparisonSection` in `lib/collect-landing-data.ts`.
 **Pending**: `supabase db push` to apply two new migrations
 (`20260805000001_collect_eta.sql`, `20260805000002_reserved_slugs.sql`); `NEXT_PUBLIC_COLLECT_HOST`
 env var not yet set so subdomain rewrite stays inert; Supabase types regeneration with

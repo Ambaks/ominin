@@ -286,12 +286,12 @@ export const collectOffer = {
   id: "collect",
   name: "Click & collect",
   price: 100,
-  tagline: "La vente à emporter, sans commission.",
+  tagline: "L'emporter à 10 %, pas 30.",
   features: [
-    "Votre page de commande à emporter",
+    "Votre page de commande à votre nom",
     "Paiement en ligne à la commande",
-    "Commandes reçues dans votre espace de gestion",
-    "Aucune commission sur les ventes",
+    "Commandes en temps réel dans votre espace de gestion",
+    "10 % par commande — 3× moins que la livraison",
   ],
   bundle: {
     id: "collect_connect",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CollectComparison } from "@/components/collect/landing/comparison";
 import { CollectDemoShowcase } from "@/components/collect/landing/demo-showcase";
 import { CollectFaq } from "@/components/collect/landing/faq";
 import { CollectFeatures } from "@/components/collect/landing/features";
@@ -40,6 +41,7 @@ export default function CollectHome() {
       <CollectNav />
       <main>
         <CollectHero />
+        <CollectComparison />
         <CollectDemoShowcase />
         <CollectHowItWorks />
         <CollectFeatures />

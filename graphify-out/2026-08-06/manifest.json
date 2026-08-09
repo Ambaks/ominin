@@ -220,8 +220,8 @@
     "semantic_hash": ""
   },
   "frontend/app/collect/page.tsx": {
-    "mtime": 1785976597.7522998,
-    "ast_hash": "9a40b6b13dad384495c5886c0711240b",
+    "mtime": 1785972771.0595791,
+    "ast_hash": "10f6390a0a3fbc4ea31b72a6d919482b",
     "semantic_hash": ""
   },
   "frontend/app/gestion/analytique/page.tsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/customer-pane.tsx": {
-    "mtime": 1785978253.267977,
-    "ast_hash": "dafdb1d3eb2c2bd1b583dbb28ffe67de",
+    "mtime": 1785972771.060302,
+    "ast_hash": "fb656ef16395270fadcfddd45b6a1d17",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/pricing.tsx": {
-    "mtime": 1785978206.0053816,
-    "ast_hash": "bbf4affcffd9420ed860c44d477cbcdd",
+    "mtime": 1785972771.0617301,
+    "ast_hash": "d5b6935c610319fdb8ef7fcfe473ddf4",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/wordmark.tsx": {
@@ -660,8 +660,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/iphone-frame.tsx": {
-    "mtime": 1785977058.833075,
-    "ast_hash": "386eaaba12b7701072b8a78fa1590b97",
+    "mtime": 1783558533.1636152,
+    "ast_hash": "b2af6bad8cf21dbcc5368c1cb56c3d27",
     "semantic_hash": ""
   },
   "frontend/components/landing/landing-footer.tsx": {
@@ -865,18 +865,18 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect-landing-data.ts": {
-    "mtime": 1785978203.8289092,
-    "ast_hash": "e37fcc39ca6c6287ee3dccdae264c3ea",
+    "mtime": 1785972771.0627034,
+    "ast_hash": "ff7a4b364ae262b1240639a7a0be16b9",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
-    "mtime": 1785976662.4314435,
-    "ast_hash": "75c2fec8d05ea0fda16734a7ddf01126",
+    "mtime": 1785972771.0628414,
+    "ast_hash": "4f80e1493481995857578536944c3d43",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/provider.tsx": {
-    "mtime": 1785976670.0901313,
-    "ast_hash": "0d3028600a72217df1f7a404d8555200",
+    "mtime": 1785972771.0629547,
+    "ast_hash": "27afcef1338ecb098cff3b2fb0b1982d",
     "semantic_hash": ""
   },
   "frontend/lib/collect/server.ts": {
@@ -945,8 +945,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1785976519.7011814,
-    "ast_hash": "224cb98529e7bd567c38844a835bf59b",
+    "mtime": 1784109871.6321123,
+    "ast_hash": "12ba6d56e5c3486f3b265f0e3461f474",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -1267,11 +1267,6 @@
   "logo.png": {
     "mtime": 1783215887.5391011,
     "ast_hash": "5629fb983a87f35462f98d85796f92f7",
-    "semantic_hash": ""
-  },
-  "frontend/components/collect/landing/comparison.tsx": {
-    "mtime": 1785976587.6212559,
-    "ast_hash": "159ce2a77510c91eb4ef736d48eefdc7",
     "semantic_hash": ""
   }
 }

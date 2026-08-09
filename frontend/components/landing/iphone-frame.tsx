@@ -30,9 +30,9 @@ export function IphoneFrame({ children }: { children: ReactNode }) {
           <div className="relative overflow-hidden rounded-[3.3rem] bg-background ring-1 ring-white/5">
             {children}
 
-            {/* Dynamic Island */}
+            {/* Dynamic Island — au-dessus de tout contenu collant de l'écran */}
             <div
-              className="pointer-events-none absolute left-1/2 top-3 flex h-8 min-w-32 -translate-x-1/2 items-center justify-end rounded-full bg-black pr-3.5"
+              className="pointer-events-none absolute left-1/2 top-3 z-20 flex h-8 min-w-32 -translate-x-1/2 items-center justify-end rounded-full bg-black pr-3.5"
               aria-hidden
             >
               <span className="size-2.5 rounded-full bg-zinc-900 ring-1 ring-inset ring-zinc-700" />

@@ -23,23 +23,30 @@ export type DemoStep =
 
 const restaurant = getRestaurant(DEMO_SLUG)!;
 
-/** Plats de la démo : un par famille, tous sans options (ajout en un tap). */
-const DEMO_MENU_ITEM_IDS = [
-  "planche-lucia",
-  "burrata",
-  "margherita",
-  "carbonara",
-  "tiramisu",
-  "spritz",
+/** Sections de la démo : catégories de la Trattoria, N plats chacune —
+ * assez pour que la navigation par catégories ait du sens dans un écran
+ * de téléphone, sans noyer le visiteur. */
+const DEMO_MENU_CATEGORIES = [
+  { id: "antipasti", take: 3 },
+  { id: "pizzas", take: 3 },
+  { id: "pates", take: 2 },
+  { id: "desserts", take: 2 },
+  { id: "cocktails", take: 2 },
 ];
 
-export function buildDemoMenu(): MenuItem[] {
-  const byId = new Map(
-    restaurant.categories.flatMap((category) =>
-      category.items.map((item) => [item.id, item] as const)
-    )
-  );
-  return DEMO_MENU_ITEM_IDS.flatMap((id) => byId.get(id) ?? []);
+export interface DemoMenuSection {
+  id: string;
+  name: string;
+  items: MenuItem[];
+}
+
+export function buildDemoMenu(): DemoMenuSection[] {
+  return DEMO_MENU_CATEGORIES.flatMap(({ id, take }) => {
+    const category = restaurant.categories.find((entry) => entry.id === id);
+    return category
+      ? [{ id, name: category.name, items: category.items.slice(0, take) }]
+      : [];
+  });
 }
 
 export const COLLECT_DEMO = {
@@ -47,6 +54,7 @@ export const COLLECT_DEMO = {
     name: restaurant.name,
     tagline: restaurant.tagline,
     address: restaurant.address,
+    coverImage: restaurant.coverImage,
   },
   timings: {
     /** Faux paiement Stripe côté téléphone. */

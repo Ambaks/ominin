@@ -7,6 +7,7 @@ function PriceCard({
   tagline,
   features,
   badge,
+  note,
   highlighted,
 }: {
   name: string;
@@ -14,6 +15,7 @@ function PriceCard({
   tagline: string;
   features: string[];
   badge?: string;
+  note?: string;
   highlighted?: boolean;
 }) {
   return (
@@ -35,11 +37,14 @@ function PriceCard({
         <p className="mt-1 text-sm text-muted">{tagline}</p>
       </div>
 
-      <div className="flex items-baseline gap-1.5">
-        <span className="ember-text font-display text-4xl font-medium">
-          {price} €
-        </span>
-        <span className="text-sm text-faint">{pricingSection.perMonth}</span>
+      <div>
+        <div className="flex items-baseline gap-1.5">
+          <span className="ember-text font-display text-4xl font-medium">
+            {price} €
+          </span>
+          <span className="text-sm text-faint">{pricingSection.perMonth}</span>
+        </div>
+        {note && <p className="mt-1 text-xs font-semibold text-muted">{note}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -83,6 +88,7 @@ export function CollectPricing() {
             price={offer.price}
             tagline={offer.tagline}
             features={offer.features}
+            note={pricingSection.commissionLabel}
           />
           <div
             className="flex items-center justify-center font-display text-xl text-faint"
@@ -96,6 +102,7 @@ export function CollectPricing() {
             tagline={offer.bundle.tagline}
             features={pricingSection.bundleFeatures}
             badge={pricingSection.bundleBadge}
+            note={pricingSection.bundleCommissionLabel}
             highlighted
           />
         </div>

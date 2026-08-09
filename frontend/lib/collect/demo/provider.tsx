@@ -10,7 +10,12 @@ import {
   useState,
 } from "react";
 import type { MenuItem } from "@/lib/menu-data";
-import { buildDemoMenu, COLLECT_DEMO, type DemoStep } from "./data";
+import {
+  buildDemoMenu,
+  COLLECT_DEMO,
+  type DemoMenuSection,
+  type DemoStep,
+} from "./data";
 
 /*
  * Machine à états de la démo interactive Collect : tout vit en mémoire, les
@@ -47,6 +52,9 @@ interface CollectDemoState {
 }
 
 interface CollectDemoValue extends CollectDemoState {
+  /** Menu de la démo groupé par catégorie (navigation du volet client). */
+  sections: DemoMenuSection[];
+  /** Le même menu à plat, pour les calculs de panier. */
   menu: MenuItem[];
   addItem(id: string): void;
   removeItem(id: string): void;
@@ -84,7 +92,11 @@ export function CollectDemoProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const menu = useMemo(() => buildDemoMenu(), []);
+  const sections = useMemo(() => buildDemoMenu(), []);
+  const menu = useMemo(
+    () => sections.flatMap((section) => section.items),
+    [sections]
+  );
   const [state, setState] = useState<CollectDemoState>(initialState);
   // Annulations des minuteries en vol — purgées au démontage et au replay.
   const cleanupsRef = useRef(new Set<() => void>());
@@ -271,6 +283,7 @@ export function CollectDemoProvider({
   const value = useMemo<CollectDemoValue>(
     () => ({
       ...state,
+      sections,
       menu,
       addItem,
       removeItem,
@@ -285,6 +298,7 @@ export function CollectDemoProvider({
     }),
     [
       state,
+      sections,
       menu,
       addItem,
       removeItem,

@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/customer-pane.tsx": {
-    "mtime": 1785978253.267977,
-    "ast_hash": "dafdb1d3eb2c2bd1b583dbb28ffe67de",
+    "mtime": 1785977163.6281583,
+    "ast_hash": "c446676c87fefdd7f69f441f410ef027",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/pricing.tsx": {
-    "mtime": 1785978206.0053816,
-    "ast_hash": "bbf4affcffd9420ed860c44d477cbcdd",
+    "mtime": 1785976594.3502946,
+    "ast_hash": "0ad18ad1fea5759bac7b215aab180522",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/wordmark.tsx": {
@@ -865,8 +865,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect-landing-data.ts": {
-    "mtime": 1785978203.8289092,
-    "ast_hash": "e37fcc39ca6c6287ee3dccdae264c3ea",
+    "mtime": 1785976516.5245886,
+    "ast_hash": "e7c1c42413f2a2ef260f87e9c1cb6cc8",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
