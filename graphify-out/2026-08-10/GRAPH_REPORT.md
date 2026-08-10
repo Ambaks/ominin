@@ -1,16 +1,16 @@
-# Graph Report - ominin  (2026-08-06)
+# Graph Report - ominin  (2026-08-10)
 
 ## Corpus Check
-- 243 files · ~180,445 words
+- 258 files · ~185,936 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1098 nodes · 2684 edges · 59 communities (50 shown, 9 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.62)
+- 1163 nodes · 2920 edges · 65 communities (54 shown, 11 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 64 edges (avg confidence: 0.61)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `9c30c934`
+- Built from commit: `0b26e733`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,9 +50,12 @@
 - [[_COMMUNITY_page.tsx|page.tsx]]
 - [[_COMMUNITY_shell.tsx|shell.tsx]]
 - [[_COMMUNITY_order-card.tsx|order-card.tsx]]
+- [[_COMMUNITY_layout.tsx|layout.tsx]]
 - [[_COMMUNITY_Setup guide (written for an LLM agent)|Setup guide (written for an LLM agent)]]
 - [[_COMMUNITY_Ominin|Ominin]]
+- [[_COMMUNITY_layout.tsx|layout.tsx]]
 - [[_COMMUNITY_What you must do when invoked|What you must do when invoked]]
+- [[_COMMUNITY_qr-showcase.tsx|qr-showcase.tsx]]
 - [[_COMMUNITY_graphify reference extra exports and benchmark|graphify reference: extra exports and benchmark]]
 - [[_COMMUNITY_demo-showcase.tsx|demo-showcase.tsx]]
 - [[_COMMUNITY_graphify reference query, path, explain|graphify reference: query, path, explain]]
@@ -67,16 +70,19 @@
 - [[_COMMUNITY_CLAUDE|CLAUDE.md]]
 - [[_COMMUNITY_graphify reference GitHub clone and cross-repo merge|graphify reference: GitHub clone and cross-repo merge]]
 - [[_COMMUNITY_graphify reference transcribe video and audio|graphify reference: transcribe video and audio]]
+- [[_COMMUNITY_proxy.ts|proxy.ts]]
 - [[_COMMUNITY_extraction-spec|extraction-spec.md]]
 - [[_COMMUNITY_AGENTS|AGENTS.md]]
+- [[_COMMUNITY_loading.tsx|loading.tsx]]
 - [[_COMMUNITY_postcss.config.mjs|postcss.config.mjs]]
 - [[_COMMUNITY_backend|backend]]
+- [[_COMMUNITY_eslint.config.mjs|eslint.config.mjs]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `createClient()` - 41 edges
-2. `formatPrice()` - 32 edges
-3. `useGestionAccess()` - 30 edges
-4. `createAdminClient()` - 30 edges
+1. `createClient()` - 46 edges
+2. `formatPrice()` - 36 edges
+3. `useGestionAccess()` - 32 edges
+4. `createAdminClient()` - 32 edges
 5. `useToast()` - 28 edges
 6. `apply()` - 27 edges
 7. `useGestion()` - 25 edges
@@ -87,95 +93,95 @@
 ## Surprising Connections (you probably didn't know these)
 - `GET()` --calls--> `createAdminClient()`  [EXTRACTED]
   frontend/app/api/collect/order/route.ts → frontend/lib/supabase/admin.ts
-- `GenerateurPage()` --calls--> `useClipData()`  [EXTRACTED]
-  frontend/app/clip/espace/generateur/page.tsx → frontend/lib/clip/context.tsx
-- `sitemap()` --calls--> `createClient()`  [EXTRACTED]
-  frontend/app/sitemap.ts → frontend/lib/supabase/server.ts
-- `signOut()` --calls--> `createClient()`  [EXTRACTED]
-  frontend/components/clip/espace/shell.tsx → frontend/lib/supabase/client.ts
-- `RelayConnector()` --calls--> `useCollectDemo()`  [EXTRACTED]
-  frontend/components/collect/demo/stage.tsx → frontend/lib/collect/demo/provider.tsx
+- `RevenueChart()` --calls--> `formatPrice()`  [EXTRACTED]
+  frontend/app/menu/gestion/analytique/page.tsx → frontend/lib/menu-data.ts
+- `TopVentesChart()` --calls--> `formatPrice()`  [EXTRACTED]
+  frontend/app/menu/gestion/analytique/page.tsx → frontend/lib/menu-data.ts
+- `AnalytiquePage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/menu/gestion/analytique/page.tsx → frontend/lib/gestion/permissions.ts
+- `ApercuPage()` --calls--> `hasFeature()`  [INFERRED]
+  frontend/app/menu/gestion/page.tsx → frontend/lib/gestion/permissions.ts
 
 ## Import Cycles
-- 1-file cycle: `frontend/lib/clip/server.ts -> frontend/lib/clip/server.ts`
+- None detected.
 
-## Communities (59 total, 9 thin omitted)
+## Communities (65 total, 11 thin omitted)
 
 ### Community 0 - "useGestionAccess"
-Cohesion: 0.06
-Nodes (70): AnalytiquePage(), Period, CommandesPage(), dedupeById(), FilterId, FILTERS, matchesFilter(), EquipePage() (+62 more)
+Cohesion: 0.14
+Nodes (22): ROLES, TeamManager(), EtablissementForm(), FeatureLocked(), EditIcon(), TrashIcon(), CategoryManager(), MenuItemCard() (+14 more)
 
 ### Community 1 - "createAdminClient"
-Cohesion: 0.07
-Nodes (54): GET(), GET(), POST(), GET(), POST(), GET(), POST(), POST() (+46 more)
+Cohesion: 0.06
+Nodes (59): GET(), GET(), POST(), GET(), POST(), GET(), POST(), POST() (+51 more)
 
 ### Community 2 - "landing-data.ts"
-Cohesion: 0.08
-Nodes (33): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+25 more)
+Cohesion: 0.17
+Nodes (12): Pricing(), ClientRef, collectOffer, Plan, planSignupHref(), pricingSection, ProofStat, QrShowcasePoint (+4 more)
 
 ### Community 3 - "api.ts"
-Cohesion: 0.14
-Nodes (41): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+33 more)
+Cohesion: 0.06
+Nodes (97): SignOutButton(), QrPage(), useQrCodes(), OnboardingForm(), RESERVED_SLUGS, slugify(), metadata, ConnectStatus (+89 more)
 
 ### Community 4 - "collect-landing-data.ts"
-Cohesion: 0.08
-Nodes (29): metadata, CollectComparison(), CostBar(), euros(), CollectFaq(), CollectFeatures(), CollectFinalCta(), CollectHero() (+21 more)
+Cohesion: 0.07
+Nodes (34): metadata, metadata, BackToLandingLink(), CollectDemoStage(), CollectComparison(), CostBar(), euros(), CollectDemoShowcase() (+26 more)
 
 ### Community 5 - "devDependencies"
 Cohesion: 0.06
-Nodes (31): dependencies, @anthropic-ai/sdk, next, next-themes, qrcode, react, react-dom, stripe (+23 more)
+Nodes (30): dependencies, @anthropic-ai/sdk, next, next-themes, react, react-dom, stripe, @supabase/ssr (+22 more)
 
 ### Community 6 - "page.tsx"
-Cohesion: 0.10
-Nodes (20): AnalyticsView, AnalytiquePage(), compact, PostAnalyticsList(), VIEW_SUBTITLES, VIEWS, CreationComptesPage(), PublicationsPage() (+12 more)
+Cohesion: 0.15
+Nodes (10): AnalyticsView, compact, VIEW_SUBTITLES, VIEWS, RefreshIcon(), compact, LoadedRow, METRIC_COLUMNS (+2 more)
 
 ### Community 7 - "data.ts"
-Cohesion: 0.11
-Nodes (24): metadata, DemoBanner(), emptySubscribe(), ClipData, ClipDataContext, ANALYTICS_BASE, buildDemoAnalytics(), buildDemoPostAnalytics() (+16 more)
+Cohesion: 0.18
+Nodes (17): ClipDataContext, ANALYTICS_BASE, buildDemoAnalytics(), buildDemoPostAnalytics(), buildDemoPosts(), buildDemoState(), DAILY_REACH_PEAK, DEMO_ACCOUNTS (+9 more)
 
 ### Community 8 - "clip-landing-data.ts"
 Cohesion: 0.10
-Nodes (25): metadata, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipFooter(), ClipHero(), ClipHowItWorks(), ClipNav() (+17 more)
+Nodes (22): metadata, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipFooter(), ClipHero(), ClipHowItWorks(), faqSection (+14 more)
 
 ### Community 9 - "selectors.ts"
-Cohesion: 0.22
-Nodes (20): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+12 more)
+Cohesion: 0.23
+Nodes (22): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+14 more)
 
 ### Community 10 - "formatPrice"
-Cohesion: 0.14
-Nodes (17): CheckoutView(), CustomerPane(), DishRow(), MenuView(), TIMELINE, TrackingView(), useNow(), OrderCardDemo() (+9 more)
+Cohesion: 0.05
+Nodes (44): GET(), CheckoutView(), CustomerPane(), DishRow(), MenuView(), TIMELINE, TrackingView(), useNow() (+36 more)
 
 ### Community 11 - "context.tsx"
-Cohesion: 0.15
-Nodes (18): apply(), fetchAnalytics(), fetchPostAnalytics(), generateCaptions(), pollPostStatus(), publishClip(), refreshAccounts(), requestLinkUrl() (+10 more)
+Cohesion: 0.14
+Nodes (23): apply(), fetchAnalytics(), fetchPostAnalytics(), generateCaptions(), pollPostStatus(), publishClip(), refreshAccounts(), replacePost() (+15 more)
 
 ### Community 12 - "store.ts"
-Cohesion: 0.07
-Nodes (51): OnboardingForm(), RESERVED_SLUGS, metadata, ACTIVE_ORDER_STATUSES, EXCLUDED_STATUSES, HISTORY_ORDER_STATUSES, OFFRE_FEATURES, OFFRE_LABELS (+43 more)
+Cohesion: 0.16
+Nodes (21): AnalytiquePage(), Period, RevenueChart(), TopVentesChart(), ApercuPage(), StatCard(), DayPoint, dayStart() (+13 more)
 
 ### Community 13 - "types.ts"
-Cohesion: 0.25
-Nodes (10): GET(), OrderConfirmation(), STATUS_COPY, CartChoice, CartLinePayload, collectHref(), CollectOrderView, mapsDirectionsHref() (+2 more)
+Cohesion: 0.16
+Nodes (14): Dropzone(), formatSize(), CheckIcon(), LinkIcon(), ListIcon(), UploadIcon(), ClipShell(), isActive() (+6 more)
 
 ### Community 14 - "What You Must Do When Invoked"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 15 - "MenuItem"
-Cohesion: 0.22
-Nodes (11): buildDemoMenu(), COLLECT_DEMO, DEMO_MENU_CATEGORIES, DemoMenuSection, DemoStep, CollectDemoContext, CollectDemoProvider(), CollectDemoState (+3 more)
+Cohesion: 0.16
+Nodes (13): dedupeById(), FilterId, FILTERS, matchesFilter(), OrderCard(), PaymentDialog(), PillTab, PillTabs() (+5 more)
 
 ### Community 16 - "page.tsx"
-Cohesion: 0.09
-Nodes (8): FLEET, PILLARS, STEPS, WEEK, ComptesPage(), ComptesTab, ComptesTabs(), TABS
+Cohesion: 0.12
+Nodes (4): FLEET, PILLARS, STEPS, WEEK
 
 ### Community 17 - "types.ts"
-Cohesion: 0.18
-Nodes (11): POST(), PublierPage(), CaptionEditor(), captionsSchema(), generateCaptions(), ClipUploadInput, CaptionSet, CLIP_PLATFORMS (+3 more)
+Cohesion: 0.14
+Nodes (17): POST(), PublierPage(), CaptionEditor(), PlatformBadge(), PostCard(), STATUS_CLASSES, captionsSchema(), generateCaptions() (+9 more)
 
 ### Community 18 - "shell.tsx"
-Cohesion: 0.05
-Nodes (34): metadata, metadata, metadata, AuthForm(), Dropzone(), formatSize(), CheckIcon(), LinkIcon() (+26 more)
+Cohesion: 0.14
+Nodes (19): ApercuIcon(), ChartIcon(), ChevronDownIcon(), CommandesIcon(), ExternalLinkIcon(), FormulesIcon(), GearIcon(), LogoutIcon() (+11 more)
 
 ### Community 19 - "compilerOptions"
 Cohesion: 0.10
@@ -183,55 +189,63 @@ Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModu
 
 ### Community 20 - "upload-post.ts"
 Cohesion: 0.13
-Nodes (13): providerApiKey(), PostStatus, PostSubmission, CAPTION_FIELDS, ClipProvider, ensureProfile(), isClipPlatform(), listConnectedAccounts() (+5 more)
+Nodes (15): providerApiKey(), PostStatus, PostSubmission, CAPTION_FIELDS, ClipProvider, createLinkUrl(), ensureProfile(), getPostStatus() (+7 more)
 
 ### Community 21 - "add-to-order.tsx"
-Cohesion: 0.18
-Nodes (14): AddToOrder(), isUnavailable(), OptionsModal(), CartBar(), PaymentChoice, SubmitState, CartChoice, CartConfig (+6 more)
+Cohesion: 0.09
+Nodes (29): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, generateMetadata(), getRestaurant, MenuPage() (+21 more)
 
 ### Community 22 - "page.tsx"
-Cohesion: 0.14
-Nodes (8): GenerateurPage(), MOMENTS, STEPS, PublierTab, PublierTabs(), TABS, SubTab, SubTabs()
+Cohesion: 0.10
+Nodes (17): AnalytiquePage(), PostAnalyticsList(), CreationComptesPage(), ComptesPage(), GenerateurPage(), MOMENTS, STEPS, PublicationsPage() (+9 more)
 
 ### Community 23 - "Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)"
 Cohesion: 0.13
 Nodes (14): 1. DB migration — `supabase/migrations/20260715000001_clip.sql`, 2. Provider adapter — `frontend/lib/clip/provider/` (server-only), 3. Route handlers — `frontend/app/api/clip/*`, 4. Storage & upload flow, 5. Claude captions, 6. Dashboard UI — replaces the stub, 7. Post lifecycle, 8. Analytics page (+6 more)
 
 ### Community 24 - "menu-data.ts"
-Cohesion: 0.17
-Nodes (9): DishCard(), ItemInput, Badge, BADGE_LABELS, MenuCategory, OptionChoice, OptionGroup, restaurants (+1 more)
+Cohesion: 0.13
+Nodes (18): CartLine, cartTotal(), CheckoutDialog(), CollectExperience(), ItemRow(), lineKey(), lineUnitPrice(), OptionsDialog() (+10 more)
 
 ### Community 25 - "demo-showcase.tsx"
-Cohesion: 0.26
-Nodes (9): metadata, BackToLandingLink(), CollectDemoStage(), CollectDemoShowcase(), demoSection, collectDemoHref(), collectLandingHref(), emptySubscribe() (+1 more)
+Cohesion: 0.25
+Nodes (4): metadata, ClipLoader(), ClipNav(), ClipWordmark()
 
 ### Community 26 - "collect-experience.tsx"
-Cohesion: 0.21
-Nodes (9): CartLine, cartTotal(), CheckoutDialog(), CollectExperience(), ItemRow(), SelectedChoice, CollectCheckoutPayload, isItemAvailable() (+1 more)
+Cohesion: 0.30
+Nodes (14): CommandesPage(), EquipePage(), EtablissementPage(), FormulesPage(), MenuPage(), TablesPage(), OrderGroupCard(), FormuleCard() (+6 more)
 
 ### Community 28 - "store.ts"
-Cohesion: 0.29
+Cohesion: 0.26
 Nodes (13): ClipDataProvider(), fetchApi(), getClientSnapshot(), getErrorSnapshot(), getServerSnapshot(), listeners, load(), notify() (+5 more)
 
 ### Community 29 - "client.ts"
-Cohesion: 0.24
-Nodes (6): DemoHint(), LiveRegion(), RelayConnector(), Side, BrowserFrame(), nextActionSide()
+Cohesion: 0.17
+Nodes (10): metadata, Faq(), HowItWorks(), LandingFooter(), LandingNav(), Proof(), footer, nav (+2 more)
 
 ### Community 30 - "order-confirmation.tsx"
-Cohesion: 0.31
-Nodes (7): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, fetchRestaurant(), createPublicClient()
+Cohesion: 0.30
+Nodes (9): invalid(), POST(), readString(), CONTACT_LIMITS, ContactField, ContactPayload, escapeHtml(), MailConfig (+1 more)
 
 ### Community 31 - "layout.tsx"
-Cohesion: 0.17
-Nodes (8): fraunces, instrumentSans, metadata, viewport, Providers(), sitemap(), seo, siteUrl
+Cohesion: 0.07
+Nodes (42): fraunces, instrumentSans, metadata, viewport, metadata, MENU_PATHS, Providers(), PRIVATE_PATHS (+34 more)
 
 ### Community 32 - "page.tsx"
 Cohesion: 0.21
-Nodes (10): generateMetadata(), getRestaurant, MenuPage(), CategoryLink, CategoryNav(), Hero(), LANGUAGES, MenuFooter() (+2 more)
+Nodes (8): DemoShowcase(), FinalCta(), Hero(), QrCorners(), demoCta, demoSection, finalCta, hero
 
 ### Community 33 - "shell.tsx"
-Cohesion: 0.18
-Nodes (8): CollectFooter(), CollectNav(), CollectWordmark(), LandingNav(), ThemeToggle(), footer, nav, nav
+Cohesion: 0.33
+Nodes (3): CategoryLink, CategoryNav(), ThemeToggle()
+
+### Community 34 - "order-card.tsx"
+Cohesion: 0.23
+Nodes (7): Features(), SectionHeading(), Testimonials(), clientsSection, faqSection, featuresSection, howItWorks
+
+### Community 35 - "layout.tsx"
+Cohesion: 0.28
+Nodes (7): ClipPricing(), PriceCard(), BAR_WIDTHS, ClipScale(), formatEuros(), pricingSection, scaleSection
 
 ### Community 36 - "Setup guide (written for an LLM agent)"
 Cohesion: 0.17
@@ -241,9 +255,17 @@ Nodes (11): 1. Prerequisites, 2. Frontend, 3. Backend, 4. Supabase (database & a
 Cohesion: 0.18
 Nodes (10): Business constraints, Code quality, Commands, Conventions, graphify, Ominin, Repo structure, Stack (+2 more)
 
+### Community 38 - "layout.tsx"
+Cohesion: 0.38
+Nodes (4): metadata, DemoBanner(), emptySubscribe(), DEMO_BANNER
+
 ### Community 39 - "What you must do when invoked"
 Cohesion: 0.20
 Nodes (9): /commit, Execution requirement, Step 1 — Understand what changed, Step 2 — Project upkeep (required before every push), Step 3 — Safety checks, Step 4 — Write the commit message, Step 5 — Commit and push, Step 6 — Report back (+1 more)
+
+### Community 40 - "qr-showcase.tsx"
+Cohesion: 0.40
+Nodes (4): QrLive(), QrShowcase(), qrShowcase, qrcode
 
 ### Community 41 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -260,10 +282,6 @@ Nodes (5): For /graphify explain, For /graphify path, graphify reference: query,
 ### Community 44 - "/marwan"
 Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
-
-### Community 45 - "config.py"
-Cohesion: 0.29
-Nodes (3): Settings, BaseSettings, eslintConfig
 
 ### Community 46 - "Verifying the Ominin frontend"
 Cohesion: 0.40
@@ -289,25 +307,29 @@ Nodes (3): csp, nextConfig, securityHeaders
 Cohesion: 0.50
 Nodes (3): Deploy on Vercel, Getting Started, Learn More
 
+### Community 55 - "proxy.ts"
+Cohesion: 0.60
+Nodes (4): ACCOUNT_SUBDOMAINS, config, MOVED_TO_MENU, proxy()
+
 ## Knowledge Gaps
-- **252 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+247 more)
+- **259 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+254 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `createClient()` connect `api.ts` to `useGestionAccess`, `store.ts`, `shell.tsx`, `add-to-order.tsx`, `store.ts`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `ThemeToggle()` connect `shell.tsx` to `clip-landing-data.ts`, `shell.tsx`, `page.tsx`?**
+- **Why does `createClient()` connect `api.ts` to `useGestionAccess`, `types.ts`, `shell.tsx`, `add-to-order.tsx`, `section-heading.tsx`, `store.ts`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+- **Why does `ThemeToggle()` connect `shell.tsx` to `collect-landing-data.ts`, `types.ts`, `shell.tsx`, `demo-showcase.tsx`, `client.ts`, `layout.tsx`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `MenuItem` connect `selectors.ts` to `useGestionAccess`, `api.ts`, `formatPrice`, `store.ts`, `add-to-order.tsx`, `menu-data.ts`?**
   _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `useToast()` connect `useGestionAccess` to `page.tsx`, `types.ts`, `page.tsx`, `selectors.ts`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **What connects `backend`, `ResolvedLine`, `EXTENSIONS` to the rest of the system?**
-  _252 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _259 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `useGestionAccess` be split into smaller, more focused modules?**
-  _Cohesion score 0.05549450549450549 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13663663663663664 - nodes in this community are weakly interconnected._
 - **Should `createAdminClient` be split into smaller, more focused modules?**
-  _Cohesion score 0.06684733514001806 - nodes in this community are weakly interconnected._
-- **Should `landing-data.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07653061224489796 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.060678962844159315 - nodes in this community are weakly interconnected._
+- **Should `api.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.05694980694980695 - nodes in this community are weakly interconnected._

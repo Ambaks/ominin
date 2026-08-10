@@ -106,6 +106,25 @@ body {
   );
 }
 
+/*
+  Trame sur mesure — signature du quatrième cube du portail : le quadrillage
+  d'une feuille de calque, ce qui n'est pas encore construit. Même gris neutre
+  que les trames QR, timeline et collect.
+*/
+.grid-motif {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 23px,
+      rgba(128, 128, 128, 0.14) 23px 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 23px,
+      rgba(128, 128, 128, 0.14) 23px 24px
+    );
+}
+
 /* Ember gradient, reused by text, bars, borders */
 .ember-gradient {
   background-image: linear-gradient(

@@ -39,6 +39,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          position: number
+          tagline: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          position: number
+          tagline?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          position?: number
+          tagline?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clip_posts: {
         Row: {
           attempt: number
@@ -131,40 +166,35 @@ export type Database = {
           },
         ]
       }
-      categories: {
+      contact_requests: {
         Row: {
+          company: string | null
           created_at: string
-          etablissement_id: string
+          email: string
           id: string
+          locale: string
+          message: string
           name: string
-          position: number
-          tagline: string | null
         }
         Insert: {
+          company?: string | null
           created_at?: string
-          etablissement_id: string
+          email: string
           id?: string
+          locale?: string
+          message: string
           name: string
-          position: number
-          tagline?: string | null
         }
         Update: {
+          company?: string | null
           created_at?: string
-          etablissement_id?: string
+          email?: string
           id?: string
+          locale?: string
+          message?: string
           name?: string
-          position?: number
-          tagline?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "categories_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       etablissements: {
         Row: {

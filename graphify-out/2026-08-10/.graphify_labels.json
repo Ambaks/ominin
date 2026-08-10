@@ -34,9 +34,12 @@
   "32": "page.tsx",
   "33": "shell.tsx",
   "34": "order-card.tsx",
+  "35": "layout.tsx",
   "36": "Setup guide (written for an LLM agent)",
   "37": "Ominin",
+  "38": "layout.tsx",
   "39": "What you must do when invoked",
+  "40": "qr-showcase.tsx",
   "41": "graphify reference: extra exports and benchmark",
   "42": "demo-showcase.tsx",
   "43": "graphify reference: query, path, explain",
@@ -51,11 +54,14 @@
   "52": "CLAUDE.md",
   "53": "graphify reference: GitHub clone and cross-repo merge",
   "54": "graphify reference: transcribe video and audio",
+  "55": "proxy.ts",
   "56": "extraction-spec.md",
   "57": "AGENTS.md",
   "58": "loading.tsx",
   "59": "postcss.config.mjs",
   "60": "__init__.py",
   "61": "CLAUDE.md",
-  "62": "backend"
+  "62": "backend",
+  "63": "loading.tsx",
+  "64": "eslint.config.mjs"
 }

@@ -1,6 +1,6 @@
 import type { Cta, FaqItem, Feature, NavLink, Step } from "@/lib/landing-data";
 import { collectOffer } from "@/lib/landing-data";
-import { siteUrl } from "@/lib/site";
+import { menuSiteUrl } from "@/lib/site";
 
 /*
  * Copy de la landing Ominin Collect (collect.ominin.com). Comme les autres
@@ -17,16 +17,17 @@ import { siteUrl } from "@/lib/site";
  *
  * La page est servie sur deux hôtes (collect.ominin.com et ominin.com/collect,
  * réécriture du proxy) : les liens de section sont des ancres, les CTA de
- * conversion sont absolus vers ominin.com — il n'existe pas de /login sous
- * le sous-domaine collect.
+ * conversion sont absolus vers menu.ominin.com — le compte restaurateur et
+ * l'espace de gestion (où atterrissent les commandes collect) vivent là, et
+ * il n'existe pas de /login sous le sous-domaine collect.
  */
 
 export const collectBrand = "Ominin Collect";
 
-/** CTA de conversion : l'espace de gestion vit sur le domaine principal. */
+/** CTA de conversion : l'espace de gestion vit sur le sous-domaine menu. */
 export const signupCta: Cta = {
   label: "Commencer",
-  href: `${siteUrl}/login`,
+  href: `${menuSiteUrl}/login`,
 };
 
 export const seo = {
@@ -42,7 +43,7 @@ export const nav = {
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: `${siteUrl}/login` },
+    { label: "Connexion", href: `${menuSiteUrl}/login` },
   ] satisfies NavLink[],
   cta: { label: "Essayer la démo", href: "#demo" } satisfies Cta,
 };

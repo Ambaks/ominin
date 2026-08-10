@@ -11,13 +11,76 @@ tracking, forecasting, invoice processing, and back-office automation.
 ## Project status
 
 > ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
-> Dashboard-only steps the coding agent can't do (no Supabase/Vercel/Stripe
-> access): paste the branded signup-confirmation email into the Supabase
-> dashboard, add the two Stripe env vars in Vercel + redeploy, and set the
-> Supabase auth URLs. The sales funnel isn't fully live until these are done.
-> For Clip: create the upload-post account and populate `UPLOAD_POST_API_KEY`.
+> Dashboard-only steps the coding agent can't do (no DNS/Supabase/Vercel/Stripe
+> access). **Blocking for the subdomain split**: create the `menu` DNS record,
+> bind `menu.ominin.com` in Vercel with `NEXT_PUBLIC_MENU_HOST`, and add
+> `https://menu.ominin.com/**` to the Supabase redirect URLs — login breaks at
+> cutover without that last one. Also pending: `supabase db push` (three
+> migrations), a Resend account for the contact form, the branded
+> signup-confirmation email template, and the upload-post account for Clip.
 
-**Homepage / marketing landing page** is now live at `/`. Conversion-focused,
+**Site architecture: one portal, one subdomain per product.** `ominin.com`
+serves only the corporate portal; every product lives on its own host, which
+`frontend/proxy.ts` rewrites onto its own route tree:
+
+| Host | Route tree | Content |
+|---|---|---|
+| `ominin.com` | `app/page.tsx`, `app/sur-mesure/` | Portal + custom-build enquiry |
+| `menu.ominin.com` | `app/menu/**` | QR menu landing, `/login`, `/onboarding`, `/gestion/**`, `/m/<slug>` |
+| `collect.ominin.com` | `app/collect/**` | Click & collect |
+| `clip.ominin.com` | `app/clip/**` | Livestream clipper |
+
+An empty `NEXT_PUBLIC_*_HOST` makes a subdomain inert, its pages staying
+reachable under their prefix (`ominin.com/menu`) — that is the dev mode and the
+rollback switch. Legacy apex URLs (`/m/<slug>`, `/gestion`, `/login`,
+`/onboarding`) are handled in both states: with the menu host set they
+308-redirect to it (already-printed Cachets keep working — keep those redirects
+as long as old stickers circulate); with it unset they are **rewritten** onto
+the `/menu` tree, so deploying this code before the DNS/Vercel cutover breaks
+no existing URL, and `menuSiteUrl` likewise falls back to `${siteUrl}/menu` so
+no link ever points at an unresolvable host. When an account subdomain's host
+is set, its apex prefix form converges too (`ominin.com/clip/espace` →
+`clip.ominin.com/espace`, same for `/menu/*`): each product's session cookies
+live on exactly one host. In local development, setting
+`NEXT_PUBLIC_MENU_HOST=menu.localhost:3000` (`*.localhost` resolves to
+127.0.0.1 with no hosts-file edit) exercises the real subdomain routing;
+without it the legacy-path rewrite keeps the gestion dashboard's absolute
+links (`/gestion/…`, `/login`) working at the apex.
+
+**Portal** at `ominin.com`: bilingual FR/EN single page — hero ("Facilitez vos
+opérations, propulsées par l'IA" / "Facilitate your operations, powered by AI")
+over an inverted ember glow, then a 2×2 grid of product cubes. Each cube is
+unlit at rest, showing only its product's signature motif in filigree
+(`.qr-motif`, `.collect-dash-motif`, `.clip-timeline-motif`, and the new
+`.grid-motif` for the custom-build cube); pointing at one — or focusing it with
+the keyboard, the whole card being the link — ignites an ember filament along
+its top edge, raises the motif and lifts a glow from below. The destination host
+is printed on every cube, so where a click leads is explicit beforehand.
+Language is client state (`lib/portal/language.tsx`) read from localStorage via
+`useSyncExternalStore` — French is server-rendered by default (the real market,
+and what crawlers get), English is opt-in and syncs across tabs; the toggle sits
+next to the theme toggle and drives `document.documentElement.lang`. All copy
+lives in `lib/portal-data.ts` as `{ fr, en }` pairs. Portal sections are client
+components (unlike the fully-server product landings) because the language is
+client state.
+
+**Custom-build enquiry** at `/sur-mesure`: the fourth cube's destination —
+positioning, three concrete examples (invoice processing, forecasting, internal
+tools), and a contact form. `contact_requests` (migration
+`20260810000001`) has RLS enabled and **no policy at all**: neither the anon key
+nor a signed-in user can read or write it, and the sole insertion path is
+`/api/contact` using `service_role`. That closes the direct Supabase REST
+surface; the route itself is guarded by a honeypot (dropped silently) plus a
+sliding-window in-memory rate limit (5 per IP per 10 min, per serverless
+instance — enough against naive scripted abuse, not against a distributed
+attacker, an accepted free-tier tradeoff). The route validates against
+`CONTACT_LIMITS` (`lib/portal/contact.ts`, mirroring the migration's CHECK
+constraints), writes the row, then fires a Resend notification
+best-effort — a mail failure is logged and still returns success, because the
+request is already durably stored. Verified: honeypot, short message, bad email,
+empty name and unparseable body all return the right status.
+
+**QR menu marketing landing page** now lives at `menu.ominin.com`. Conversion-focused,
 French-language, warm premium design with dark/light theme toggle (same
 ember-gradient system as the menu page). Sections: sticky nav, hero (full-bleed
 restaurant-room photo behind gradient scrims, H1 "Vos tables prennent les commandes.",
@@ -376,9 +439,11 @@ For Google sign-in, create an OAuth Client ID in Google Cloud Console and
 enable the Google provider in Supabase → Authentication → Providers (use the
 callback URL shown there).
 
-Verify: `npm run dev` in `frontend/`, then `/m/trattoria-lucia` shows the
-demo menu from the database, and `/login` → sign-up → `/onboarding` creates
-a working `/gestion` space.
+Verify: set `NEXT_PUBLIC_MENU_HOST=menu.localhost:3000` in
+`frontend/.env.local`, run `npm run dev`, then `http://localhost:3000` shows
+the portal and `http://menu.localhost:3000/m/trattoria-lucia` shows the demo
+menu from the database. On that same host, `/login` → sign-up → `/onboarding`
+creates a working `/gestion` space.
 
 ### 5. Graphify (knowledge-graph CLI)
 
