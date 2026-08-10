@@ -54,6 +54,7 @@ function MailIcon() {
  */
 export function AuthForm({
   brand,
+  space,
   destination,
   initialMode,
   signinSubtitle,
@@ -63,6 +64,8 @@ export function AuthForm({
 }: {
   /** Contenu du lien-logo au-dessus de la carte (pointe vers /). */
   brand: React.ReactNode;
+  /** Espace auquel on se connecte — les produits partagent ce formulaire. */
+  space: string;
   /** Chemin (même host) après connexion réussie. */
   destination: string;
   initialMode: "signin" | "signup";
@@ -134,15 +137,26 @@ export function AuthForm({
     }
   };
 
+  // Marque + espace : sur un formulaire partagé par trois produits, dire
+  // lequel on rejoint évite d'arriver dans le mauvais espace.
+  const header = (
+    <div className="flex flex-col items-center gap-1.5">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-faint">
+        {space}
+      </p>
+      <Link
+        href="/"
+        className="font-display text-2xl font-medium tracking-tight"
+      >
+        {brand}
+      </Link>
+    </div>
+  );
+
   if (pendingEmail) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
-        <Link
-          href="/"
-          className="font-display text-2xl font-medium tracking-tight"
-        >
-          {brand}
-        </Link>
+        {header}
 
         <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6 text-center">
           <div className="ember-gradient mx-auto flex size-12 items-center justify-center rounded-full text-background">
@@ -180,9 +194,7 @@ export function AuthForm({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
-      <Link href="/" className="font-display text-2xl font-medium tracking-tight">
-        {brand}
-      </Link>
+      {header}
 
       <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6">
         <h1 className="font-display text-xl font-medium">

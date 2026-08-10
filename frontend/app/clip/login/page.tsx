@@ -14,6 +14,7 @@ export default async function ClipLoginPage({
   return (
     <AuthForm
       brand={<ClipWordmark className="text-2xl" />}
+      space="Espace clippers"
       destination="/espace"
       // Les CTA de conversion de la landing arrivent avec ?inscription=1.
       initialMode={inscription === "1" ? "signup" : "signin"}

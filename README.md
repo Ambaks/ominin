@@ -100,17 +100,43 @@ add/remove/dissolve), Menu (categories with inline taglines, item CRUD with **ph
 Formules (step-based set menus, articles linkable to menu items), **Produits** (new:
 subscription tier display, role-based action list, links to other Ominin products),
 and Équipe (gérant only: invite members by email with a role, change roles, remove).
-**Produits page** (`/gestion/produits`): new tab showing the user's subscription
-(tier name, tagline, price, cumulative feature list), role description with exact
-allowed actions (filtered per tier), and other Ominin products (Click & collect
-with gérant-only Stripe activation, plan-upgrade mailto links, Clip landing link).
+
+**Shared product catalog**: All Ominin products (Digital/Smart/Connect, Collect, Clip)
+now share a single product data model (`frontend/lib/products.ts`): `Product` interface,
+`offreProducts` array, `collectProduct`, `clipProduct`, and `currentOffreProduct(offre)` helper
+that returns the subscribed tier with cumulative feature lists (since landing tiers only list
+their delta, which would under-sell what clients actually have). All prices and descriptions
+source from existing landing data — no text is restated. Shared presentational card component
+(`frontend/components/products/product-card.tsx`) + named exports for Pill, FeatureList,
+DiscoverLink used by both gestion and clip spaces. Generic wordmark component
+(`frontend/components/brand/wordmark.tsx`) renders "Ominin" + optional product suffix.
+
+**Login screens identify the product**: `AuthForm` now requires a `space` prop (rendered as
+an eyebrow above the brand); header extracted so both the form and post-signup confirmation
+show it. `/login` shows "ESPACE RESTAURANTS" + Ominin wordmark; `/clip/login` shows "ESPACE CLIPPERS";
+`/login?produit=collect` shows "Ominin Collect" + subtitle about click & collect being managed from gestion.
+Collect landing CTAs carry `?produit=collect` (built from `collectOffer.id`).
+
+**Logged-in product identity**: Gestion header eyebrow now reads full product name + role ("OMININ CONNECT · GÉRANT"),
+still linking to /gestion/produits. **Produits page** (`/gestion/produits`): rewritten on the shared card,
+showing the user's subscription (tier name, tagline, price, cumulative feature list), role description with exact
+allowed actions (filtered per tier), and active Collect subscription (if any) as a product they *have* with a link
+to their public ordering page. "Autres produits Ominin" catalog section is gérant-only: cuisiniers and serveurs
+see their offer + role + any active Collect, but no upsell. Page subtitle adapts to role.
 All prices and feature lists source from existing landing data (`lib/landing-data.ts`,
 `lib/clip-landing-data.ts`); role permissions defined in `lib/gestion/permissions.ts`.
 Stripe success/cancel URLs now return to `/gestion/produits` for collect purchases,
 `/gestion` otherwise. Checkout polling added for webhook latency (refreshes on
 `?checkout=succes`). Desktop sidebar + header eyebrow link; mobile routed via header
-eyebrow (bottom bar already at capacity). Verified: `npm run lint` + `npm run build`
-pass; end-to-end browser testing across tier/role combos, mobile 390px + desktop 1280px.
+eyebrow (bottom bar already at capacity).
+
+**Clip espace products**: Clippers get a fifth "Produits" tab (`/clip/espace/produits`, also at `/clip/demo/produits`
+for the public demo) showing Ominin Clip as their product plus the restaurant catalog. Page needs no session data.
+
+Verified: `npx tsc --noEmit`, `npm run lint` and `npm run build` all pass.
+End-to-end browser testing: three login screens (Ominin, Ominin Collect, Ominin Clip);
+Clip products page at 1280px and 390px; gestion page as gérant (offer + role + active Collect + catalog)
+versus serveur (offer + role + active Collect only, no catalog). No horizontal overflow at 390px.
 Tier gating mirrors the landing pricing (digital → Menu+Formules only;
 smart/connect add Commandes/Tables/Analytique/options/roles gérant-cuisinier-serveur);
 the offre lives on the etablissement row, the role on the user's membership

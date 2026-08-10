@@ -6,6 +6,7 @@ import { ClipWordmark } from "@/components/clip/wordmark";
 import {
   ChartIcon,
   LogoutIcon,
+  ProductsIcon,
   type IconProps,
 } from "@/components/gestion/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -37,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/publications", label: "Publications", icon: ListIcon },
   { href: "/comptes", label: "Comptes", icon: LinkIcon },
   { href: "/analytique", label: "Analytique", icon: ChartIcon },
+  { href: "/produits", label: "Produits", icon: ProductsIcon },
 ];
 
 async function signOut() {

@@ -23,10 +23,15 @@ import { siteUrl } from "@/lib/site";
 
 export const collectBrand = "Ominin Collect";
 
-/** CTA de conversion : l'espace de gestion vit sur le domaine principal. */
+/*
+ * CTA de conversion : l'espace de gestion vit sur le domaine principal.
+ * ?produit=collect fait nommer le produit par l'écran de connexion — sans
+ * quoi le visiteur venu pour le click & collect atterrit sur une page qui ne
+ * parle que de l'espace de gestion.
+ */
 export const signupCta: Cta = {
   label: "Commencer",
-  href: `${siteUrl}/login`,
+  href: `${siteUrl}/login?produit=${collectOffer.id}`,
 };
 
 export const seo = {
@@ -42,7 +47,7 @@ export const nav = {
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: `${siteUrl}/login` },
+    { label: "Connexion", href: signupCta.href },
   ] satisfies NavLink[],
   cta: { label: "Essayer la démo", href: "#demo" } satisfies Cta,
 };

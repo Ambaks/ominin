@@ -118,17 +118,18 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden">
           <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 lg:max-w-5xl lg:px-10">
             <div className="min-w-0">
-              {/* Offre et rôle en surtitre : l'information tient dans la place
-                  du libellé qu'elle remplace, et mène à la page Produits —
-                  seul chemin vers elle sur mobile, où la barre du bas est
-                  réservée au service. */}
+              {/* Produit et rôle en surtitre : nomme l'espace où l'on est
+                  (« Ominin Connect », face à Ominin Collect ou Ominin Clip),
+                  tient dans la place du libellé qu'il remplace, et mène à la
+                  page Produits — seul chemin vers elle sur mobile, où la
+                  barre du bas est réservée au service. */}
               {state ? (
                 <Link
                   href={PRODUITS_ITEM.href}
-                  title="Votre offre et votre rôle"
+                  title="Votre produit et votre rôle"
                   className="ember-text inline-block truncate text-[10px] font-semibold uppercase tracking-[0.28em] transition-opacity hover:opacity-80"
                 >
-                  {OFFRE_LABELS[state.etablissement.offre]} ·{" "}
+                  Ominin {OFFRE_LABELS[state.etablissement.offre]} ·{" "}
                   {ROLE_LABELS[state.role]}
                 </Link>
               ) : (
