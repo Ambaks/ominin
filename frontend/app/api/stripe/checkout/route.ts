@@ -123,6 +123,9 @@ export async function POST(request: Request) {
     products: products.join(","),
   };
   const origin = new URL(request.url).origin;
+  // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
+  // collect part de la page Produits, l'ouverture de l'offre de l'espace.
+  const returnPath = choice === "collect" ? "/gestion/produits" : "/gestion";
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: price.id, quantity: 1 }],
@@ -132,8 +135,8 @@ export async function POST(request: Request) {
     metadata,
     subscription_data: { metadata },
     locale: "fr",
-    success_url: `${origin}/gestion?checkout=succes`,
-    cancel_url: `${origin}/gestion?checkout=annule`,
+    success_url: `${origin}${returnPath}?checkout=succes`,
+    cancel_url: `${origin}${returnPath}?checkout=annule`,
   });
 
   return NextResponse.json({ url: session.url });

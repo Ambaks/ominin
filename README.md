@@ -87,7 +87,7 @@ All `place_order` + RLS performance migrations applied to live Supabase.
 
 **Back-office dashboard ("Espace de gestion")** at `/gestion` — the v1 of the
 page restaurants use after logging in. French UI, same ember design system.
-Six routes under a shared shell (desktop sidebar / mobile bottom tabs):
+Seven routes under a shared shell (desktop sidebar / mobile bottom tabs):
 Aperçu (stats + out-of-stock list), Commandes (status lifecycle en_attente →
 payée with cancel, filter pills, grouped-table orders with bulk serve/pay,
 payment-mode dialog), **Analytique** (7/30-day period toggle, stat tiles for CA
@@ -97,8 +97,20 @@ Heures de pointe order-by-hour, plus accessible `<details>` data table; gated
 to Smart/Connect, live-updating via realtime store; chart colors use a dedicated
 validated theme-aware token `--chart-mark`), Tables (grid selection → table groups,
 add/remove/dissolve), Menu (categories with inline taglines, item CRUD with **photo upload**—gérant-only, client-side compression, public Supabase Storage bucket—plus photo URL input, badges, pairing, stock/availability, options-variantes editor with import),
-Formules (step-based set menus, articles linkable to menu items), plus Équipe
-(gérant only: invite members by email with a role, change roles, remove).
+Formules (step-based set menus, articles linkable to menu items), **Produits** (new:
+subscription tier display, role-based action list, links to other Ominin products),
+and Équipe (gérant only: invite members by email with a role, change roles, remove).
+**Produits page** (`/gestion/produits`): new tab showing the user's subscription
+(tier name, tagline, price, cumulative feature list), role description with exact
+allowed actions (filtered per tier), and other Ominin products (Click & collect
+with gérant-only Stripe activation, plan-upgrade mailto links, Clip landing link).
+All prices and feature lists source from existing landing data (`lib/landing-data.ts`,
+`lib/clip-landing-data.ts`); role permissions defined in `lib/gestion/permissions.ts`.
+Stripe success/cancel URLs now return to `/gestion/produits` for collect purchases,
+`/gestion` otherwise. Checkout polling added for webhook latency (refreshes on
+`?checkout=succes`). Desktop sidebar + header eyebrow link; mobile routed via header
+eyebrow (bottom bar already at capacity). Verified: `npm run lint` + `npm run build`
+pass; end-to-end browser testing across tier/role combos, mobile 390px + desktop 1280px.
 Tier gating mirrors the landing pricing (digital → Menu+Formules only;
 smart/connect add Commandes/Tables/Analytique/options/roles gérant-cuisinier-serveur);
 the offre lives on the etablissement row, the role on the user's membership

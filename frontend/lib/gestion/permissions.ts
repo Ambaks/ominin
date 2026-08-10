@@ -1,4 +1,11 @@
-import { EXCLUDED_STATUSES, OFFRE_FEATURES, ORDER_STATUS_FLOW, ROLE_ACTIONS } from "./constants";
+import {
+  ACTION_FEATURE,
+  ACTION_LABELS,
+  EXCLUDED_STATUSES,
+  OFFRE_FEATURES,
+  ORDER_STATUS_FLOW,
+  ROLE_ACTIONS,
+} from "./constants";
 import type { Action, Feature, Offre, OrderStatus, OrderType, Role } from "./types";
 
 export function hasFeature(offre: Offre, feature: Feature): boolean {
@@ -8,6 +15,21 @@ export function hasFeature(offre: Offre, feature: Feature): boolean {
 export function can(role: Role, action: Action): boolean {
   const actions = ROLE_ACTIONS[role];
   return actions === "all" || actions.includes(action);
+}
+
+/**
+ * Droits effectifs d'un membre : le raccourci "all" du gérant est développé,
+ * et les actions dont la fonctionnalité n'est pas comprise dans l'offre sont
+ * retirées — sinon la page Produits promettrait des droits inaccessibles.
+ */
+export function allowedActions(role: Role, offre: Offre): Action[] {
+  const actions = ROLE_ACTIONS[role];
+  const granted =
+    actions === "all" ? (Object.keys(ACTION_LABELS) as Action[]) : actions;
+  return granted.filter((action) => {
+    const feature = ACTION_FEATURE[action];
+    return !feature || hasFeature(offre, feature);
+  });
 }
 
 /** Statuts atteignables depuis `status` pour ce rôle et ce type de commande. */

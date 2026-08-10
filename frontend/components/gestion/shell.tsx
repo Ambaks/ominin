@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
+import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can, hasFeature } from "@/lib/gestion/permissions";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
@@ -17,6 +18,7 @@ import {
   GearIcon,
   LogoutIcon,
   MenuIcon,
+  ProductsIcon,
   QrIcon,
   TablesIcon,
   TeamIcon,
@@ -41,6 +43,18 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/qr", label: "QR codes", feature: null, icon: QrIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon },
 ];
+
+/**
+ * Onglet compte : barre latérale uniquement. La barre mobile est celle du
+ * service — y ajouter un neuvième onglet la rendrait illisible ; sur mobile,
+ * la pastille offre · rôle de l'en-tête mène à la même page.
+ */
+const PRODUITS_ITEM: NavItem = {
+  href: "/gestion/produits",
+  label: "Produits",
+  feature: null,
+  icon: ProductsIcon,
+};
 
 async function signOut() {
   await createClient().auth.signOut();
@@ -104,9 +118,24 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden">
           <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 lg:max-w-5xl lg:px-10">
             <div className="min-w-0">
-              <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
-                Espace de gestion
-              </p>
+              {/* Offre et rôle en surtitre : l'information tient dans la place
+                  du libellé qu'elle remplace, et mène à la page Produits —
+                  seul chemin vers elle sur mobile, où la barre du bas est
+                  réservée au service. */}
+              {state ? (
+                <Link
+                  href={PRODUITS_ITEM.href}
+                  title="Votre offre et votre rôle"
+                  className="ember-text inline-block truncate text-[10px] font-semibold uppercase tracking-[0.28em] transition-opacity hover:opacity-80"
+                >
+                  {OFFRE_LABELS[state.etablissement.offre]} ·{" "}
+                  {ROLE_LABELS[state.role]}
+                </Link>
+              ) : (
+                <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
+                  Espace de gestion
+                </p>
+              )}
               <p className="truncate font-display text-lg font-medium">
                 {state?.etablissement.name ?? "Ominin"}
               </p>
@@ -151,7 +180,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
           <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex print:hidden">
-            {items.map((item) => {
+            {[...items, PRODUITS_ITEM].map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link

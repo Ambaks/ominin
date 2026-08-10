@@ -147,6 +147,23 @@ export function TeamIcon(props: IconProps) {
   );
 }
 
+export function ProductsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5z" />
+      <path d="M3.5 7 12 11.5 20.5 7M12 11.5v10" />
+    </Svg>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m5 12.5 4.5 4.5L19 7" />
+    </Svg>
+  );
+}
+
 export function LogoutIcon(props: IconProps) {
   return (
     <Svg {...props}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { startCheckout } from "@/lib/gestion/checkout";
 import {
   OFFRE_LABELS,
   SUBSCRIPTION_POLL_MS,
@@ -37,12 +38,7 @@ export function SubscriptionGate({ role, offre }: { role: Role; offre: Offre }) 
     setBusy(true);
     setError(null);
     try {
-      const response = await fetch("/api/stripe/checkout", { method: "POST" });
-      const body = (await response.json()) as { url?: string; error?: string };
-      if (!response.ok || !body.url) {
-        throw new Error(body.error ?? "Une erreur est survenue.");
-      }
-      window.location.assign(body.url);
+      await startCheckout();
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue."

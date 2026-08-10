@@ -78,6 +78,12 @@ export const ROLE_LABELS: Record<Role, string> = {
   serveur: "Serveur",
 };
 
+export const ROLE_TAGLINES: Record<Role, string> = {
+  gerant: "Accès complet : menu, équipe, abonnements et service.",
+  cuisinier: "La cuisine : préparation des commandes et disponibilité des articles.",
+  serveur: "La salle : tables, service et clôture des commandes.",
+};
+
 export const OFFRE_LABELS: Record<Offre, string> = {
   digital: "Digital",
   smart: "Smart",
@@ -94,6 +100,33 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
   digital: [],
   smart: ["commandes", "tables", "options", "roles"],
   connect: ["commandes", "tables", "options", "roles"],
+};
+
+/** Libellés des droits, pour présenter ce qu'un rôle autorise. */
+export const ACTION_LABELS: Record<Action, string> = {
+  ...(Object.fromEntries(
+    Object.entries(ORDER_ACTION_LABELS).map(([status, label]) => [
+      `orders.setStatus:${status}`,
+      label,
+    ])
+  ) as Record<Extract<Action, `orders.${string}`>, string>),
+  "tables.group": "Grouper des tables",
+  "menu.edit": "Modifier le menu",
+  "menu.availability": "Gérer les disponibilités",
+  "formules.edit": "Modifier les formules",
+  "categories.edit": "Modifier les catégories",
+  "etablissement.edit": "Modifier l'établissement",
+};
+
+/** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
+export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
+  ...(Object.fromEntries(
+    Object.keys(ORDER_ACTION_LABELS).map((status) => [
+      `orders.setStatus:${status}`,
+      "commandes",
+    ])
+  ) as Record<Extract<Action, `orders.${string}`>, Feature>),
+  "tables.group": "tables",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {

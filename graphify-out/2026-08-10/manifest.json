@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/checkout/route.ts": {
-    "mtime": 1784109871.6150968,
-    "ast_hash": "6cd0a60e0c70d034f15bbe91af063611",
+    "mtime": 1786320533.8776593,
+    "ast_hash": "4a62573ce61e2a47047f7ae42044e9e9",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/connect/route.ts": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "frontend/app/onboarding/onboarding-form.tsx": {
-    "mtime": 1785972771.0599887,
-    "ast_hash": "4a19e48e37071fc6328d552691483eb2",
+    "mtime": 1786320635.447353,
+    "ast_hash": "b30068c6fe0b5e0381e79e231ce3aaa0",
     "semantic_hash": ""
   },
   "frontend/app/onboarding/page.tsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/customer-pane.tsx": {
-    "mtime": 1785977163.6281583,
-    "ast_hash": "c446676c87fefdd7f69f441f410ef027",
+    "mtime": 1785978253.267977,
+    "ast_hash": "dafdb1d3eb2c2bd1b583dbb28ffe67de",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/pricing.tsx": {
-    "mtime": 1785976594.3502946,
-    "ast_hash": "0ad18ad1fea5759bac7b215aab180522",
+    "mtime": 1785978206.0053816,
+    "ast_hash": "bbf4affcffd9420ed860c44d477cbcdd",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/wordmark.tsx": {
@@ -575,8 +575,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/icons.tsx": {
-    "mtime": 1783989942.9236035,
-    "ast_hash": "12d00baccde50cb5a75fea1de948e44d",
+    "mtime": 1786320516.3424726,
+    "ast_hash": "d7472cfbd65f1e53b80640e264c31ef6",
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/category-manager.tsx": {
@@ -605,13 +605,13 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1784109871.62727,
-    "ast_hash": "9c17e007f369b6f1004fec7a762fdf59",
+    "mtime": 1786321153.0926306,
+    "ast_hash": "023ffa819d7bde6b3710f057b22ca920",
     "semantic_hash": ""
   },
   "frontend/components/gestion/subscription-gate.tsx": {
-    "mtime": 1783447815.9430091,
-    "ast_hash": "e556b46954d4744af3fb8ee3d5426b68",
+    "mtime": 1786320617.4761117,
+    "ast_hash": "70b3bc426b08744661806dbbe0bb4970",
     "semantic_hash": ""
   },
   "frontend/components/gestion/tables/table-grid.tsx": {
@@ -865,8 +865,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect-landing-data.ts": {
-    "mtime": 1785976516.5245886,
-    "ast_hash": "e7c1c42413f2a2ef260f87e9c1cb6cc8",
+    "mtime": 1785978203.8289092,
+    "ast_hash": "e37fcc39ca6c6287ee3dccdae264c3ea",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
@@ -900,8 +900,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/constants.ts": {
-    "mtime": 1785972771.0641534,
-    "ast_hash": "54b8578aad11c4765a89aa2459bb39a6",
+    "mtime": 1786320503.290265,
+    "ast_hash": "8410c519617d62b83ce678128e2c8a1d",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/format.ts": {
@@ -915,8 +915,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/permissions.ts": {
-    "mtime": 1784109871.630459,
-    "ast_hash": "4cdb9d56f4b24a3720dad72ab19c3f99",
+    "mtime": 1786320512.95532,
+    "ast_hash": "b893bb9e14402529186bb632db7bcbc4",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/photo.ts": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1785972921.4851546,
-    "ast_hash": "a20233c259e6b03e400c1c717faa3be7",
+    "mtime": 1786319419.2607055,
+    "ast_hash": "a476eef5dd7b500aa726abf95dd656ed",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1272,6 +1272,16 @@
   "frontend/components/collect/landing/comparison.tsx": {
     "mtime": 1785976587.6212559,
     "ast_hash": "159ce2a77510c91eb4ef736d48eefdc7",
+    "semantic_hash": ""
+  },
+  "frontend/app/gestion/produits/page.tsx": {
+    "mtime": 1786321162.4065645,
+    "ast_hash": "31fb6db77024a9d42518d569cb307eaf",
+    "semantic_hash": ""
+  },
+  "frontend/lib/gestion/checkout.ts": {
+    "mtime": 1786320606.1987517,
+    "ast_hash": "fdd30e549e27ad80507d6d0491957746",
     "semantic_hash": ""
   }
 }

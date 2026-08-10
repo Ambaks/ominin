@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
+import { startCheckout } from "@/lib/gestion/checkout";
 import { OFFRE_LABELS } from "@/lib/gestion/constants";
 import type { Offre } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
@@ -58,12 +59,8 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
     // Enchaîne sur le paiement ; en cas d'échec (Stripe non configuré…),
     // /gestion affiche l'écran « Activer mon abonnement ».
     try {
-      const response = await fetch("/api/stripe/checkout", { method: "POST" });
-      const body = (await response.json()) as { url?: string };
-      if (response.ok && body.url) {
-        window.location.assign(body.url);
-        return;
-      }
+      await startCheckout();
+      return;
     } catch {
       // Le verrou d'abonnement prend le relais.
     }
