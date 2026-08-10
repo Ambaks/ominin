@@ -34,9 +34,9 @@ export const nav = {
     { label: "Scaling", href: "#scaling" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: "/connexion" },
   ] satisfies NavLink[],
   cta: { label: "Essai gratuit 1 mois", href: signupCta.href } satisfies Cta,
+  login: { label: "Connexion", href: "/connexion" } satisfies Cta,
 };
 
 export const hero = {

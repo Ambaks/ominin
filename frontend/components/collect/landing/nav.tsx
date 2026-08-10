@@ -32,6 +32,12 @@ export function CollectNav() {
           >
             {nav.cta.label}
           </a>
+          <a
+            href={nav.login.href}
+            className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm"
+          >
+            {nav.login.label}
+          </a>
         </div>
       </div>
     </nav>

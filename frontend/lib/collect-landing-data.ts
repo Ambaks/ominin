@@ -49,9 +49,9 @@ export const nav = {
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: signinHref },
   ] satisfies NavLink[],
   cta: { label: "Essayer la démo", href: "#demo" } satisfies Cta,
+  login: { label: "Connexion", href: signinHref } satisfies Cta,
 };
 
 export const hero = {

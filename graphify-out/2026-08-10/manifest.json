@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "frontend/components/clip/nav.tsx": {
-    "mtime": 1784109871.6238947,
-    "ast_hash": "2ceca3447e334b4d72b134114e83b666",
+    "mtime": 1786376821.6992726,
+    "ast_hash": "7480295fa5e595173fc95b138ad538e1",
     "semantic_hash": ""
   },
   "frontend/components/clip/pricing.tsx": {
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/nav.tsx": {
-    "mtime": 1785972771.0615993,
-    "ast_hash": "74fcd45b9a1960e0edb2e4ea043da728",
+    "mtime": 1786376818.9174716,
+    "ast_hash": "54e12d19ba8968239ef3315f2a019404",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/pricing.tsx": {
@@ -795,8 +795,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/clip-landing-data.ts": {
-    "mtime": 1786361213.2278504,
-    "ast_hash": "fa7a9a1b97b644743a0f4492f0a8d1ec",
+    "mtime": 1786376811.2779768,
+    "ast_hash": "74810ed048e84e4943feb7bd1989db69",
     "semantic_hash": ""
   },
   "frontend/lib/clip/api.ts": {
@@ -865,8 +865,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect-landing-data.ts": {
-    "mtime": 1786361311.3151002,
-    "ast_hash": "0e8a00d12efc71cbbfbbe4e059c197f7",
+    "mtime": 1786376809.9829082,
+    "ast_hash": "5b65626399d6caf7506e97ac6a14a6ed",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786364358.3091617,
-    "ast_hash": "82e785038ea0a09a4a2e493a6cbd4680",
+    "mtime": 1786365175.200314,
+    "ast_hash": "848ad7c6fec7887f35567834499645e1",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1352,6 +1352,21 @@
   "supabase/migrations/20260810000001_collect_standalone.sql": {
     "mtime": 1786324702.2926495,
     "ast_hash": "d552382d900b4f05cde8a1af39229681",
+    "semantic_hash": ""
+  },
+  "NFC_FOR_YOU_Sales_Playbook_v2.pdf": {
+    "mtime": 1786375438.9755824,
+    "ast_hash": "c9f48f54cabd357bcd1f6a269f92cf81",
+    "semantic_hash": ""
+  },
+  "Ominin_Playbook_Commercial_v3.pdf": {
+    "mtime": 1786378258.201705,
+    "ast_hash": "aad9817b8822efc76cc6b29a40f4e3b7",
+    "semantic_hash": ""
+  },
+  "Screenshot 2026-08-10 at 15.08.07.png": {
+    "mtime": 1786374560.5558162,
+    "ast_hash": "20e3670846eb6a02a44f195424d6606f",
     "semantic_hash": ""
   }
 }
