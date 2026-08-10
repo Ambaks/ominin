@@ -24,6 +24,7 @@
   "22": "page.tsx",
   "23": "Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)",
   "24": "menu-data.ts",
+  "25": "icons.tsx",
   "26": "collect-experience.tsx",
   "27": "page.tsx",
   "28": "store.ts",
@@ -31,9 +32,12 @@
   "30": "order-confirmation.tsx",
   "31": "layout.tsx",
   "32": "shell.tsx",
+  "33": "page.tsx",
   "34": "auth-form.tsx",
+  "35": "loading.tsx",
   "36": "Setup guide (written for an LLM agent)",
   "37": "Ominin",
+  "38": "eslint.config.mjs",
   "39": "What you must do when invoked",
   "40": "qr-showcase.tsx",
   "41": "graphify reference: extra exports and benchmark",
@@ -53,11 +57,9 @@
   "55": "constants.ts",
   "56": "extraction-spec.md",
   "57": "AGENTS.md",
-  "58": "loading.tsx",
   "59": "postcss.config.mjs",
   "60": "__init__.py",
   "61": "CLAUDE.md",
   "62": "backend",
-  "66": "page.tsx",
-  "67": "page.tsx"
+  "66": "page.tsx"
 }

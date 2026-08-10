@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/checkout/route.ts": {
-    "mtime": 1786361311.3113506,
-    "ast_hash": "652cd8e89d47d359b110fc481280f5f3",
+    "mtime": 1786364259.9122112,
+    "ast_hash": "ee79cb594f149791df6018ef603d0a0f",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/connect/route.ts": {
@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "frontend/app/auth/callback/route.ts": {
-    "mtime": 1786361213.2321584,
-    "ast_hash": "2848a7cb7e73f15939d682f76bf37df3",
+    "mtime": 1786364279.265346,
+    "ast_hash": "89c364cb1b56ff10b951d25f0fd8e208",
     "semantic_hash": ""
   },
   "frontend/app/clip/demo/analytique/page.tsx": {
@@ -330,8 +330,8 @@
     "semantic_hash": ""
   },
   "frontend/components/auth/auth-form.tsx": {
-    "mtime": 1786324957.87963,
-    "ast_hash": "8e60f36b4fc94036aa4e786a994b6ddb",
+    "mtime": 1786364244.83436,
+    "ast_hash": "ff7210c61090424a48e123a31fc7faf0",
     "semantic_hash": ""
   },
   "frontend/components/clip/demo-banner.tsx": {
@@ -670,8 +670,8 @@
     "semantic_hash": ""
   },
   "frontend/components/landing/landing-nav.tsx": {
-    "mtime": 1783366007.373944,
-    "ast_hash": "e07ddc4616b3ecd3c47bf67d54ef222e",
+    "mtime": 1786364224.6432478,
+    "ast_hash": "15ed68fbd70a74536c610c39e00d8575",
     "semantic_hash": ""
   },
   "frontend/components/landing/pricing.tsx": {
@@ -935,8 +935,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/store.ts": {
-    "mtime": 1786361213.2292123,
-    "ast_hash": "918c0a6477d4f44cef88578b5f1508a1",
+    "mtime": 1786364324.2835393,
+    "ast_hash": "cdb9680ee35d463da77e9e968899c27c",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
@@ -945,8 +945,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1786361213.2269099,
-    "ast_hash": "ab5dc3b3536e4656e8fc9caef9f5245a",
+    "mtime": 1786364217.356163,
+    "ast_hash": "62de112d946d8c18520ee0b42558bedf",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -980,8 +980,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/client.ts": {
-    "mtime": 1786361188.749544,
-    "ast_hash": "3e23a4b60a610aaca66b99036ea8008c",
+    "mtime": 1786364179.3728237,
+    "ast_hash": "4baecc4f62e557322e3d162d3793ef8c",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
@@ -1000,8 +1000,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/server.ts": {
-    "mtime": 1786361195.615738,
-    "ast_hash": "312d596126c4dce5e72c4f71795ebb3f",
+    "mtime": 1786364185.140992,
+    "ast_hash": "ce67b7bff2cd8f30e9dc596bc3ffc8ba",
     "semantic_hash": ""
   },
   "frontend/next.config.ts": {
@@ -1020,8 +1020,8 @@
     "semantic_hash": ""
   },
   "frontend/proxy.ts": {
-    "mtime": 1786361180.8823924,
-    "ast_hash": "bc71e65e42eba203bb93fa7f81ddf4cd",
+    "mtime": 1786364448.4347148,
+    "ast_hash": "6c004eb86f53b8f4e8628771727eb8ba",
     "semantic_hash": ""
   },
   "frontend/scripts/seed-demo.ts": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786363006.2147539,
-    "ast_hash": "d13a36435934b80f24d1bee91055348a",
+    "mtime": 1786364358.3091617,
+    "ast_hash": "82e785038ea0a09a4a2e493a6cbd4680",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1320,8 +1320,8 @@
     "semantic_hash": ""
   },
   "frontend/app/collect/connexion/page.tsx": {
-    "mtime": 1786361122.1771717,
-    "ast_hash": "2439c56dfbc2533ccf67830e9037e39f",
+    "mtime": 1786364232.7110567,
+    "ast_hash": "ddfcc81ea12e956be8ecd6f5da77421b",
     "semantic_hash": ""
   },
   "frontend/app/collect/inscription/etablissement/form.tsx": {
@@ -1347,11 +1347,6 @@
   "frontend/app/inscription/page.tsx": {
     "mtime": 1786361084.8976672,
     "ast_hash": "05bdc8dfcd290277701b34f7780f77b8",
-    "semantic_hash": ""
-  },
-  "frontend/lib/supabase/cookies.ts": {
-    "mtime": 1786361084.8914735,
-    "ast_hash": "948d3ee33204dd92f3406224bc3bae37",
     "semantic_hash": ""
   },
   "supabase/migrations/20260810000001_collect_standalone.sql": {

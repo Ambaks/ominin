@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Instrument_Sans } from "next/font/google";
-import { seo } from "@/lib/landing-data";
+import { seo } from "@/lib/portal-data";
 import { siteUrl } from "@/lib/site";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -17,7 +17,9 @@ const instrumentSans = Instrument_Sans({
 });
 
 // Défauts hérités par toutes les pages (title/description/OG/Twitter) sauf
-// override explicite. metadataBase résout les URLs relatives des images OG.
+// override explicite : ceux du portail, la racine du domaine principal. Chaque
+// landing produit pose les siens. metadataBase résout les URLs relatives des
+// images OG.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: seo.title,

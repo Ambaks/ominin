@@ -10,12 +10,15 @@ import {
   useCollectDemo,
 } from "@/lib/collect/demo/provider";
 import { demoSection } from "@/lib/collect-landing-data";
-import { siteUrl } from "@/lib/site";
+import { menuSiteUrl } from "@/lib/site";
 import { CustomerPane } from "./customer-pane";
 import { RestaurantPane } from "./restaurant-pane";
 
 /** Barre d'adresse du faux navigateur : le vrai dashboard, sans protocole. */
-const dashboardUrl = `${siteUrl.replace(/^https?:\/\//, "")}/gestion/commandes`;
+const dashboardUrl = `${menuSiteUrl.replace(
+  /^https?:\/\//,
+  ""
+)}/gestion/commandes`;
 
 /*
  * Scène de la démo Collect. Deux variantes :

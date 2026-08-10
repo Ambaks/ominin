@@ -1,50 +1,42 @@
 import type { Metadata } from "next";
-import { seo } from "@/lib/landing-data";
-import { LandingNav } from "@/components/landing/landing-nav";
-import { Hero } from "@/components/landing/hero";
-import { HowItWorks } from "@/components/landing/how-it-works";
-import { QrShowcase } from "@/components/landing/qr-showcase";
-import { Features } from "@/components/landing/features";
-import { DemoShowcase } from "@/components/landing/demo-showcase";
-import { Proof } from "@/components/landing/proof";
-import { Testimonials } from "@/components/landing/testimonials";
-import { Pricing } from "@/components/landing/pricing";
-import { Faq } from "@/components/landing/faq";
-import { FinalCta } from "@/components/landing/final-cta";
-import { LandingFooter } from "@/components/landing/landing-footer";
+import { PortalFooter } from "@/components/portal/footer";
+import { PortalHero } from "@/components/portal/hero";
+import { PortalNav } from "@/components/portal/nav";
+import { PortalProducts } from "@/components/portal/products";
+import { LanguageProvider } from "@/lib/portal/language";
+import { seo } from "@/lib/portal-data";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
-  alternates: { canonical: "/" },
+  alternates: { canonical: siteUrl },
   openGraph: {
     title: seo.title,
     description: seo.description,
     type: "website",
     siteName: "Ominin",
     locale: "fr_FR",
-    url: "/",
+    url: siteUrl,
     images: [{ url: "/logo.png", width: 512, height: 512, alt: "Ominin" }],
   },
 };
 
-export default function Home() {
+/*
+ * Portail ominin.com : ce que fait l'entreprise, puis un cube par produit vers
+ * son sous-domaine. Le contenu est bilingue et la langue est un état client,
+ * d'où le provider ici — les sections sont donc des composants client, à la
+ * différence des landings produits qui sont entièrement serveur.
+ */
+export default function Portal() {
   return (
-    <>
-      <LandingNav />
+    <LanguageProvider>
+      <PortalNav />
       <main>
-        <Hero />
-        <HowItWorks />
-        <QrShowcase />
-        <Features />
-        <DemoShowcase />
-        <Proof />
-        <Testimonials />
-        <Pricing />
-        <FinalCta />
-        <Faq />
+        <PortalHero />
+        <PortalProducts />
       </main>
-      <LandingFooter />
-    </>
+      <PortalFooter />
+    </LanguageProvider>
   );
 }

@@ -10,8 +10,14 @@ import { ThemeProvider } from "next-themes";
 // (and vice versa). A dedicated menu key makes the two independent.
 const MENU_STORAGE_KEY = "ominin-menu-theme";
 
+// Deux formes selon le host : /m/... sur menu.ominin.com (chemin réécrit par
+// le proxy), /menu/m/... sur le domaine principal quand le sous-domaine est
+// inerte.
+const MENU_PATHS = ["/m/", "/menu/m/"];
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  const isMenu = usePathname().startsWith("/m/");
+  const pathname = usePathname();
+  const isMenu = MENU_PATHS.some((p) => pathname.startsWith(p));
   return (
     <ThemeProvider
       attribute="class"

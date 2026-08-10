@@ -6,7 +6,7 @@ import {
 import { collectBrand } from "@/lib/collect-landing-data";
 import type { Offre } from "@/lib/gestion/types";
 import { collectOffer, pricingSection } from "@/lib/landing-data";
-import { clipSiteUrl, collectSiteUrl, siteUrl } from "@/lib/site";
+import { clipSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
  * Catalogue Ominin présenté aux clients connectés : espace de gestion
@@ -46,7 +46,9 @@ export const offreProducts: Product[] = pricingSection.plans.map((plan) => ({
   priceUnit: pricingSection.perMonth,
   featuresLabel: plan.featuresLabel,
   features: plan.features,
-  href: `${siteUrl}/#${pricingSection.id}`,
+  // La landing des offres menu & salle vit sur le sous-domaine menu depuis
+  // l'éclatement — l'apex ne sert plus que le portail.
+  href: `${menuSiteUrl}/#${pricingSection.id}`,
 }));
 
 export const collectProduct: Product = {

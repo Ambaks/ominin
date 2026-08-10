@@ -2,38 +2,98 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /*
- * Réécrit les sous-domaines produits vers leur arborescence et garde les
- * routes privées.
- *  1. collect.ominin.com → /collect/... (pages de commande publiques, plus
- *     depuis la séparation des funnels : /connexion, /inscription et
- *     l'inscription d'établissement, qui exigent une session), et l'espace
- *     de gestion servi tel quel (voir plus bas).
- *  2. clip.ominin.com → /clip/... avec la garde de /espace.
- *  3. Domaine principal : session Supabase et garde de /gestion, /onboarding.
+ * Chaque produit vit sur son sous-domaine et son arborescence de routes ;
+ * ominin.com ne sert plus que le portail. Rôles :
+ *  1. Sous-domaines produits (collect, clip, menu) : réécriture de tout
+ *     chemin vers l'arborescence du produit, session Supabase et garde des
+ *     routes privées. Depuis la séparation des funnels, collect a aussi ses
+ *     comptes (/connexion, /inscription, inscription d'établissement) et
+ *     sert lui-même l'espace de gestion — réécrit vers l'arborescence menu,
+ *     qui héberge l'app de gestion partagée.
+ *  2. Domaine principal : portail public. Quand le sous-domaine d'un produit
+ *     est actif, sa forme préfixée et ses anciennes URLs y redirigent — un
+ *     seul host de session par produit. Quand il est inerte, les anciennes
+ *     URLs sont réécrites vers l'arborescence préfixée : rien ne casse.
  * La session est attachée à l'hôte qui l'a posée : chaque produit a la
- * sienne, aucune redirection inter-domaines n'emporte la connexion.
- * Contrôle optimiste seulement : la vraie autorisation est portée par les
- * policies RLS côté Postgres.
+ * sienne, aucune redirection de garde n'emporte la connexion vers un autre
+ * domaine. Contrôle optimiste seulement : la vraie autorisation est portée
+ * par les policies RLS côté Postgres.
  */
+
+type ProductConfig = {
+  /** Host public du sous-domaine ; non défini ⇒ sous-domaine inerte. */
+  host: string | undefined;
+  prefix: string;
+  privatePaths: readonly string[];
+  afterLogin: string;
+  /**
+   * Chemins que le produit servait à la racine de ominin.com avant
+   * l'éclatement en sous-domaines. Les Cachets déjà imprimés encodent
+   * ominin.com/m/<slug> : ces chemins doivent rester vivants tant qu'ils
+   * circulent — redirigés vers le sous-domaine quand il est actif, réécrits
+   * vers l'arborescence préfixée sinon. Un déploiement avant la bascule
+   * DNS/Vercel ne casse donc aucune URL existante.
+   */
+  legacyPaths: readonly string[];
+  /** Chemins servis par l'arborescence d'un autre produit sur ce host. */
+  rewriteOverrides?: readonly { path: string; prefix: string }[];
+};
+
+const PRODUCTS: readonly ProductConfig[] = [
+  {
+    host: process.env.NEXT_PUBLIC_COLLECT_HOST,
+    prefix: "/collect",
+    // L'espace de gestion est commun à tous les produits, mais la session du
+    // sous-domaine collect ne suivrait pas jusqu'à un autre host : celui-ci
+    // le sert donc lui-même, via l'arborescence menu (il n'existe pas de
+    // /collect/gestion). Pas /onboarding en revanche : le funnel click &
+    // collect est /inscription/etablissement.
+    privatePaths: ["/gestion", "/inscription/etablissement"],
+    afterLogin: "/gestion",
+    legacyPaths: [],
+    rewriteOverrides: [{ path: "/gestion", prefix: "/menu" }],
+  },
+  {
+    host: process.env.NEXT_PUBLIC_CLIP_HOST,
+    prefix: "/clip",
+    privatePaths: ["/espace"],
+    afterLogin: "/espace",
+    legacyPaths: [],
+  },
+  {
+    host: process.env.NEXT_PUBLIC_MENU_HOST,
+    prefix: "/menu",
+    privatePaths: ["/gestion", "/onboarding"],
+    afterLogin: "/gestion",
+    legacyPaths: [
+      "/m",
+      "/gestion",
+      "/login",
+      "/connexion",
+      "/inscription",
+      "/onboarding",
+    ],
+  },
+];
+
+/** Adresse de connexion, identique dans chaque arborescence produit. */
+const LOGIN_PATH = "/connexion";
+
+const matchesPath = (pathname: string, base: string) =>
+  pathname === base || pathname.startsWith(`${base}/`);
+
+const rewritePrefixFor = (product: ProductConfig, pathname: string) =>
+  product.rewriteOverrides?.find((o) => matchesPath(pathname, o.path))
+    ?.prefix ?? product.prefix;
+
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host");
   const { pathname } = request.nextUrl;
 
-  const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST;
-  const clipHost = process.env.NEXT_PUBLIC_CLIP_HOST;
-  const isCollect = Boolean(collectHost && host === collectHost);
-  const isClip = Boolean(clipHost && host === clipHost);
-
-  // Sur les sous-domaines, /auth/* passe sans réécriture : le callback OAuth
-  // partagé (app/auth/callback) répond, puis redirige en relatif — donc
-  // reste sur cet hôte.
-  if ((isCollect || isClip) && pathname.startsWith("/auth")) {
-    return NextResponse.next({ request });
-  }
-
-  // Toute redirection reste sur l'hôte demandé : la session y est attachée,
-  // repartir sur un autre domaine y arriverait déconnecté — or request.nextUrl
-  // peut porter l'hôte interne selon le routage.
+  // Toute redirection de garde reste sur l'hôte demandé : la session y est
+  // attachée, repartir sur un autre domaine y arriverait déconnecté — or
+  // request.nextUrl peut porter l'hôte interne selon le routage (localhost en
+  // dev, routage Vercel en prod).
   const sameHostUrl = (target: string) => {
     const url = request.nextUrl.clone();
     url.pathname = target;
@@ -41,36 +101,55 @@ export async function proxy(request: NextRequest) {
     return url;
   };
 
-  // Un chemin déjà préfixé « /collect/... » (href pré-hydratation, lien copié
-  // depuis ominin.com) redirige vers sa forme canonique sans préfixe — sinon
-  // la réécriture le doublerait en /collect/collect/...
-  if (isCollect && (pathname === "/collect" || pathname.startsWith("/collect/"))) {
-    return NextResponse.redirect(
-      sameHostUrl(pathname.slice("/collect".length) || "/"),
-      308
-    );
+  const subdomain = PRODUCTS.find((p) => p.host && host === p.host);
+  // Produit dont la requête apex emprunte une ancienne URL alors que son
+  // sous-domaine est inerte : servie par réécriture vers son arborescence.
+  let legacyProduct: ProductConfig | undefined;
+
+  if (subdomain) {
+    // Un chemin déjà préfixé « /collect/... » (href pré-hydratation, lien
+    // copié depuis ominin.com) redirige vers sa forme canonique sans préfixe
+    // — sinon la réécriture le doublerait en /collect/collect/...
+    if (matchesPath(pathname, subdomain.prefix)) {
+      return NextResponse.redirect(
+        sameHostUrl(pathname.slice(subdomain.prefix.length) || "/"),
+        308
+      );
+    }
+    // /auth/* passe sans réécriture : le callback OAuth partagé
+    // (app/auth/callback) répond, puis redirige en relatif — donc reste sur
+    // ce host.
+    if (pathname.startsWith("/auth")) {
+      return NextResponse.next({ request });
+    }
+  } else {
+    for (const p of PRODUCTS) {
+      const prefixed = matchesPath(pathname, p.prefix);
+      const legacy = p.legacyPaths.some((l) => matchesPath(pathname, l));
+      if (!prefixed && !legacy) continue;
+      if (p.host) {
+        // Sous-domaine actif : le produit n'a plus qu'une adresse — forme
+        // préfixée et anciennes URLs y convergent, sinon son espace connecté
+        // resterait joignable sur deux hosts, donc avec deux jeux de cookies
+        // de session.
+        const url = request.nextUrl.clone();
+        url.host = p.host;
+        if (prefixed) url.pathname = pathname.slice(p.prefix.length) || "/";
+        return NextResponse.redirect(url, 308);
+      }
+      if (legacy) legacyProduct = p;
+      break;
+    }
   }
 
-  // L'espace de gestion est le même pour tous les produits, mais la session
-  // du sous-domaine collect ne suivrait pas jusqu'à ominin.com : cet hôte le
-  // sert donc lui-même, sans réécriture (il n'existe pas de /collect/gestion).
-  // Pas /onboarding en revanche : le funnel d'inscription du click & collect
-  // est /inscription/etablissement.
-  const collectSpace = isCollect && pathname.startsWith("/gestion");
-
-  const prefix = collectSpace
-    ? null
-    : isCollect
-      ? "/collect"
-      : isClip
-        ? "/clip"
-        : null;
-  // Réponse par défaut : réécriture vers le sous-arbre du produit sur un
-  // sous-domaine, passage direct sinon. Recréée dans setAll pour porter les
-  // cookies rafraîchis.
+  // Réponse par défaut : réécriture vers l'arborescence du produit (chemin nu
+  // sur son sous-domaine, ancienne URL sur l'apex en mode inerte), passage
+  // direct sinon. Recréée dans setAll pour porter les cookies rafraîchis.
   const passthrough = () => {
-    if (!prefix) return NextResponse.next({ request });
+    const target = subdomain ?? legacyProduct;
+    if (!target) return NextResponse.next({ request });
     const url = request.nextUrl.clone();
+    const prefix = rewritePrefixFor(target, pathname);
     url.pathname = pathname === "/" ? prefix : `${prefix}${pathname}`;
     return NextResponse.rewrite(url, { request });
   };
@@ -97,15 +176,29 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const isProtected = isClip
-    ? pathname.startsWith("/espace")
-    : isCollect
-      ? collectSpace || pathname.startsWith("/inscription/etablissement")
-      : pathname.startsWith("/gestion") || pathname.startsWith("/onboarding");
-  // Hors des routes gardées et de la connexion (le matcher laisse passer tout
-  // chemin de page, pour les réécritures de sous-domaines) : ne pas payer
-  // l'appel session.
-  if (!isProtected && pathname !== "/connexion") {
+  /*
+   * Garde de session. Une requête se rattache à un produit de trois façons —
+   * son sous-domaine, une ancienne URL réécrite (mode inerte), ou son préfixe
+   * sur le domaine principal (mode inerte aussi). Dans les deux premières le
+   * chemin visiteur est déjà le chemin interne au produit ; dans la dernière
+   * il faut retirer le préfixe. Les redirections reprennent la forme d'URL
+   * que voit le visiteur, sur le host demandé.
+   */
+  const prefixProduct =
+    !subdomain && !legacyProduct
+      ? PRODUCTS.find((p) => matchesPath(pathname, p.prefix))
+      : undefined;
+  const product = subdomain ?? legacyProduct ?? prefixProduct;
+  const prefix = prefixProduct?.prefix ?? "";
+  const localPath = pathname.slice(prefix.length) || "/";
+
+  const isPrivate = Boolean(
+    product?.privatePaths.some((p) => matchesPath(localPath, p))
+  );
+  const isLogin = localPath === LOGIN_PATH;
+  // Hors des routes gardées (le matcher laisse passer tout chemin de page,
+  // pour les réécritures de sous-domaines) : ne pas payer l'appel session.
+  if (!product || (!isPrivate && !isLogin)) {
     return response;
   }
 
@@ -113,13 +206,13 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && isProtected) {
-    const url = sameHostUrl("/connexion");
+  if (!user && isPrivate) {
+    const url = sameHostUrl(`${prefix}${LOGIN_PATH}`);
     url.search = "";
     return NextResponse.redirect(url);
   }
-  if (user && pathname === "/connexion") {
-    const url = sameHostUrl(isClip ? "/espace" : "/gestion");
+  if (user && isLogin) {
+    const url = sameHostUrl(`${prefix}${product.afterLogin}`);
     url.search = "";
     return NextResponse.redirect(url);
   }
