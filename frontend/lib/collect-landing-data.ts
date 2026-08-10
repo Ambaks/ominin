@@ -1,6 +1,6 @@
 import type { Cta, FaqItem, Feature, NavLink, Step } from "@/lib/landing-data";
 import { collectOffer } from "@/lib/landing-data";
-import { siteUrl } from "@/lib/site";
+import { collectSiteUrl } from "@/lib/site";
 
 /*
  * Copy de la landing Ominin Collect (collect.ominin.com). Comme les autres
@@ -24,15 +24,17 @@ import { siteUrl } from "@/lib/site";
 export const collectBrand = "Ominin Collect";
 
 /*
- * CTA de conversion : l'espace de gestion vit sur le domaine principal.
- * ?produit=collect fait nommer le produit par l'écran de connexion — sans
- * quoi le visiteur venu pour le click & collect atterrit sur une page qui ne
- * parle que de l'espace de gestion.
+ * CTA de conversion : l'inscription click & collect vit sur ce sous-domaine
+ * (trois champs, tarif du click & collect). Le lien est absolu parce que la
+ * landing est aussi servie sur ominin.com/collect, d'où « /inscription »
+ * mènerait au funnel des offres menu & salle — et à leur tarif.
  */
 export const signupCta: Cta = {
   label: "Commencer",
-  href: `${siteUrl}/login?produit=${collectOffer.id}`,
+  href: `${collectSiteUrl}/inscription`,
 };
+
+export const signinHref = `${collectSiteUrl}/connexion`;
 
 export const seo = {
   title: "Ominin Collect — Le click & collect à 10 %, pas 30",
@@ -47,7 +49,7 @@ export const nav = {
     { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: signupCta.href },
+    { label: "Connexion", href: signinHref },
   ] satisfies NavLink[],
   cta: { label: "Essayer la démo", href: "#demo" } satisfies Cta,
 };
@@ -170,7 +172,7 @@ export const featuresSection = {
       stat: "3×",
       title: "Moins cher que la livraison",
       description:
-        "10 % par commande contre jusqu'à 30 % sur les plateformes : sur 1 000 € d'emporter, une plateforme de livraison prélèverait jusqu'à 300 € de commission — nous, 100 €.",
+        "10 % par commande contre jusqu'à 30 % sur les plateformes : sur 1 000 € d'emporter, une plateforme de livraison prélèverait jusqu'à 300 € de commission — nous, 100 € d'abonnement compris.",
     },
     {
       stat: "Prépayé",

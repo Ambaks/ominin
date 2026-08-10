@@ -13,8 +13,18 @@ export type OrderStatus =
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne";
 
-/** Capacités débloquées par l'offre (le menu et les formules sont toujours inclus). */
-export type Feature = "commandes" | "tables" | "options" | "roles";
+/**
+ * Capacités débloquées par les produits souscrits (le menu et les formules
+ * sont toujours inclus — sans carte, aucun produit ne sert à rien).
+ */
+export type Feature = "commandes" | "tables" | "options" | "roles" | "qr";
+
+/** Produits actifs sur l'établissement : ils déterminent les capacités. */
+export interface ActiveProducts {
+  /** Offre menu & salle souscrite, ou null pour un click & collect seul. */
+  offre: Offre | null;
+  collect: boolean;
+}
 
 /** Actions soumises au rôle de l'utilisateur. */
 export type Action =
@@ -34,7 +44,9 @@ export interface Etablissement {
   address: string;
   phone: string;
   hours: string;
-  offre: Offre;
+  /** Null quand l'établissement n'a que le click & collect. */
+  offre: Offre | null;
+  siret?: string;
   /** Le menu QR propose le règlement par carte (Stripe Connect relié). */
   onlinePayment: boolean;
 }

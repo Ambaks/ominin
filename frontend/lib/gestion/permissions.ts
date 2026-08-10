@@ -1,15 +1,30 @@
 import {
   ACTION_FEATURE,
   ACTION_LABELS,
+  COLLECT_FEATURES,
   EXCLUDED_STATUSES,
   OFFRE_FEATURES,
   ORDER_STATUS_FLOW,
   ROLE_ACTIONS,
 } from "./constants";
-import type { Action, Feature, Offre, OrderStatus, OrderType, Role } from "./types";
+import type {
+  Action,
+  ActiveProducts,
+  Feature,
+  OrderStatus,
+  OrderType,
+  Role,
+} from "./types";
 
-export function hasFeature(offre: Offre, feature: Feature): boolean {
-  return OFFRE_FEATURES[offre].includes(feature);
+/** Une capacité est ouverte dès qu'un des produits souscrits la porte. */
+export function hasFeature(
+  products: ActiveProducts,
+  feature: Feature
+): boolean {
+  return (
+    (products.offre != null && OFFRE_FEATURES[products.offre].includes(feature)) ||
+    (products.collect && COLLECT_FEATURES.includes(feature))
+  );
 }
 
 export function can(role: Role, action: Action): boolean {
@@ -22,13 +37,16 @@ export function can(role: Role, action: Action): boolean {
  * et les actions dont la fonctionnalité n'est pas comprise dans l'offre sont
  * retirées — sinon la page Produits promettrait des droits inaccessibles.
  */
-export function allowedActions(role: Role, offre: Offre): Action[] {
+export function allowedActions(
+  role: Role,
+  products: ActiveProducts
+): Action[] {
   const actions = ROLE_ACTIONS[role];
   const granted =
     actions === "all" ? (Object.keys(ACTION_LABELS) as Action[]) : actions;
   return granted.filter((action) => {
     const feature = ACTION_FEATURE[action];
-    return !feature || hasFeature(offre, feature);
+    return !feature || hasFeature(products, feature);
   });
 }
 

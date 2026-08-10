@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { siteUrl } from "@/lib/site";
 import { getStripe } from "@/lib/stripe/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -21,6 +22,10 @@ const PRODUCTS_BY_CHOICE: Record<string, Product[]> = {
   collect: ["collect"],
   collect_connect: ["offre", "collect"],
 };
+
+/** Formule groupée : le tarif unique, et l'offre qui y donne droit. */
+const BUNDLE_CHOICE = "collect_connect";
+const BUNDLE_OFFRE = "connect";
 
 /** Statuts Stripe terminaux : seuls états autorisant un nouveau checkout. */
 const isTerminal = (status: string | null) =>
@@ -81,7 +86,7 @@ export async function POST(request: Request) {
 
   const { data: subscriptions } = await supabase
     .from("subscriptions")
-    .select("product, status, stripe_customer_id")
+    .select("product, status, stripe_customer_id, stripe_subscription_id")
     .eq("etablissement_id", etablissement.id);
   // Un abonnement existant qui n'est pas dans un état terminal (annulé /
   // incomplet expiré) reste vivant côté Stripe — en créer un nouveau pour le
@@ -101,14 +106,67 @@ export async function POST(request: Request) {
     subscriptions?.find((row) => row.stripe_customer_id)?.stripe_customer_id ??
     undefined;
 
-  const lookupKey = choice === "offre" ? etablissement.offre : choice;
+  // L'offre se facture au tarif de son palier ; les autres produits ont leur
+  // propre lookup_key. Un établissement en click & collect seul n'a pas de
+  // palier à facturer.
+  if (choice === "offre" && !etablissement.offre) {
+    return NextResponse.json(
+      { error: "Aucune offre menu & salle à activer pour cet établissement." },
+      { status: 409 }
+    );
+  }
   const stripe = getStripe();
-  const prices = await stripe.prices.list({
-    lookup_keys: [lookupKey],
-    active: true,
-    limit: 1,
-  });
-  const price = prices.data[0];
+  const priceByLookupKey = async (key: string) => {
+    const prices = await stripe.prices.list({
+      lookup_keys: [key],
+      active: true,
+      limit: 1,
+    });
+    return prices.data[0];
+  };
+
+  /*
+   * Formule groupée. Un client Connect qui ajoute le click & collect doit
+   * payer les 150 € annoncés sur la landing, pas 99 € + 100 € : on bascule
+   * son abonnement existant sur le tarif groupé (proratisé) au lieu d'en
+   * ouvrir un second. Rien à ressaisir — d'où une réponse sans URL de
+   * checkout. Le webhook customer.subscription.updated écrit les deux lignes
+   * d'abonnement à partir de metadata.products.
+   */
+  const offreRow = subscriptions?.find(
+    (row) => row.product === "offre" && !isTerminal(row.status)
+  );
+  if (
+    choice === "collect" &&
+    etablissement.offre === BUNDLE_OFFRE &&
+    offreRow?.stripe_subscription_id
+  ) {
+    const bundlePrice = await priceByLookupKey(BUNDLE_CHOICE);
+    if (!bundlePrice) {
+      return NextResponse.json(
+        {
+          error: `Tarif « ${BUNDLE_CHOICE} » introuvable dans Stripe — exécuter npm run setup:stripe.`,
+        },
+        { status: 500 }
+      );
+    }
+    const current = await stripe.subscriptions.retrieve(
+      offreRow.stripe_subscription_id
+    );
+    const metadata = {
+      etablissement_id: etablissement.id,
+      products: PRODUCTS_BY_CHOICE[BUNDLE_CHOICE].join(","),
+    };
+    await stripe.subscriptions.update(current.id, {
+      items: [{ id: current.items.data[0].id, price: bundlePrice.id }],
+      proration_behavior: "create_prorations",
+      metadata,
+    });
+    return NextResponse.json({ bundled: true });
+  }
+
+  const lookupKey = choice === "offre" ? etablissement.offre! : choice;
+  const price = await priceByLookupKey(lookupKey);
   if (!price) {
     return NextResponse.json(
       {
@@ -122,10 +180,17 @@ export async function POST(request: Request) {
     etablissement_id: etablissement.id,
     products: products.join(","),
   };
-  const origin = new URL(request.url).origin;
   // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
   // collect part de la page Produits, l'ouverture de l'offre de l'espace.
   const returnPath = choice === "collect" ? "/gestion/produits" : "/gestion";
+  // L'espace de gestion ne vit que sur le domaine principal : un paiement
+  // lancé depuis un sous-domaine produit (inscription click & collect) doit y
+  // ramener, pas sur un chemin que la réécriture du proxy ne sert pas.
+  const requestUrl = new URL(request.url);
+  const onProductSubdomain =
+    requestUrl.host === process.env.NEXT_PUBLIC_COLLECT_HOST ||
+    requestUrl.host === process.env.NEXT_PUBLIC_CLIP_HOST;
+  const origin = onProductSubdomain ? siteUrl : requestUrl.origin;
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: price.id, quantity: 1 }],

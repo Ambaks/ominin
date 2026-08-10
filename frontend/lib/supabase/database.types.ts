@@ -174,9 +174,10 @@ export type Database = {
           hours: string
           id: string
           name: string
-          offre: Database["public"]["Enums"]["offre"]
+          offre: Database["public"]["Enums"]["offre"] | null
           online_payment: boolean
           phone: string
+          siret: string | null
           slug: string
           tagline: string
         }
@@ -187,9 +188,10 @@ export type Database = {
           hours?: string
           id?: string
           name: string
-          offre: Database["public"]["Enums"]["offre"]
+          offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
           phone?: string
+          siret?: string | null
           slug: string
           tagline?: string
         }
@@ -200,9 +202,10 @@ export type Database = {
           hours?: string
           id?: string
           name?: string
-          offre?: Database["public"]["Enums"]["offre"]
+          offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
           phone?: string
+          siret?: string | null
           slug?: string
           tagline?: string
         }
@@ -630,10 +633,12 @@ export type Database = {
     Functions: {
       create_etablissement: {
         Args: {
+          p_address?: string
           p_name: string
-          p_offre: Database["public"]["Enums"]["offre"]
+          p_offre?: Database["public"]["Enums"]["offre"] | null
+          p_siret?: string | null
           p_slug: string
-          p_table_count: number
+          p_table_count?: number
         }
         Returns: string
       }

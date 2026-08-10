@@ -68,12 +68,12 @@ export const demoCta: Cta = {
 
 export const signupCta: Cta = {
   label: "Commencer",
-  href: "/login",
+  href: "/inscription",
 };
 
 /** CTA d'une carte tarif : l'offre choisie suit tout le funnel d'inscription. */
 export const planSignupHref = (planId: string) =>
-  `/login?plan=${encodeURIComponent(planId)}`;
+  `/inscription?plan=${encodeURIComponent(planId)}`;
 
 export const seo = {
   title:
@@ -88,7 +88,7 @@ export const nav = {
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: "/login" },
+    { label: "Connexion", href: "/connexion" },
   ] satisfies NavLink[],
   cta: { label: "Voir la démo", href: `/m/${DEMO_SLUG}` } satisfies Cta,
 };

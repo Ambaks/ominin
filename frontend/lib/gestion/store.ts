@@ -20,12 +20,12 @@ import {
   rowToTable,
 } from "./mappers";
 import { can, hasFeature } from "./permissions";
-import { dayStart } from "./selectors";
+import { activeProducts, dayStart } from "./selectors";
 import type {
   Action,
+  ActiveProducts,
   Feature,
   GestionState,
-  Offre,
   Order,
   Role,
 } from "./types";
@@ -151,7 +151,7 @@ async function load(): Promise<void> {
   } = await supabase.auth.getUser();
   if (userError) throw new Error(userError.message);
   if (!user) {
-    window.location.assign("/login");
+    window.location.assign("/connexion");
     return;
   }
 
@@ -333,7 +333,7 @@ export function useGestion(): GestionState | null {
 
 export interface GestionAccess {
   role: Role;
-  offre: Offre;
+  products: ActiveProducts;
   can: (action: Action) => boolean;
   hasFeature: (feature: Feature) => boolean;
 }
@@ -341,13 +341,13 @@ export interface GestionAccess {
 export function useGestionAccess(): GestionAccess {
   const snapshot = useGestion();
   const role = snapshot?.role ?? "gerant";
-  const offre = snapshot?.etablissement.offre ?? "connect";
+  const products = activeProducts(snapshot);
   return {
     role,
-    offre,
+    products,
     // Fermé par défaut avant chargement : pas de droits tant que l'état
     // (donc le rôle réel) n'est pas connu.
     can: (action) => snapshot != null && can(role, action),
-    hasFeature: (feature) => snapshot != null && hasFeature(offre, feature),
+    hasFeature: (feature) => snapshot != null && hasFeature(products, feature),
   };
 }

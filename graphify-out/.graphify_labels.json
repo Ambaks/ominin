@@ -33,6 +33,8 @@
   "31": "layout.tsx",
   "32": "shell.tsx",
   "33": "auth-form.tsx",
+  "34": "auth-form.tsx",
+  "35": "page.tsx",
   "36": "Setup guide (written for an LLM agent)",
   "37": "Ominin",
   "38": "theme-toggle.tsx",
@@ -52,11 +54,18 @@
   "52": "CLAUDE.md",
   "53": "graphify reference: GitHub clone and cross-repo merge",
   "54": "graphify reference: transcribe video and audio",
+  "55": "constants.ts",
   "56": "extraction-spec.md",
   "57": "AGENTS.md",
   "58": "loading.tsx",
   "59": "postcss.config.mjs",
   "60": "__init__.py",
   "61": "CLAUDE.md",
-  "62": "backend"
+  "62": "backend",
+  "63": "shell.tsx",
+  "64": "icons.tsx",
+  "65": "layout.tsx",
+  "66": "page.tsx",
+  "67": "page.tsx",
+  "68": "comparison.tsx"
 }

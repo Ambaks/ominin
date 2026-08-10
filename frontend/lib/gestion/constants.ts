@@ -97,10 +97,17 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
 };
 
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
-  digital: [],
-  smart: ["commandes", "tables", "options", "roles"],
-  connect: ["commandes", "tables", "options", "roles"],
+  digital: ["qr"],
+  smart: ["qr", "commandes", "tables", "options", "roles"],
+  connect: ["qr", "commandes", "tables", "options", "roles"],
 };
+
+/**
+ * Capacités du click & collect seul : vendre en ligne (suivi des commandes,
+ * options des articles), sans rien de la salle — ni tables, ni Cachets, ni
+ * équipe, qui restent l'apanage des offres menu & salle.
+ */
+export const COLLECT_FEATURES: Feature[] = ["commandes", "options"];
 
 /** Libellés des droits, pour présenter ce qu'un rôle autorise. */
 export const ACTION_LABELS: Record<Action, string> = {

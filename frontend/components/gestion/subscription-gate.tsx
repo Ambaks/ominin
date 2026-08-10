@@ -2,22 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { startCheckout } from "@/lib/gestion/checkout";
-import {
-  OFFRE_LABELS,
-  SUBSCRIPTION_POLL_MS,
-} from "@/lib/gestion/constants";
+import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
 import type { Offre, Role } from "@/lib/gestion/types";
-import { pricingSection } from "@/lib/landing-data";
+import { collectProduct, offreProducts } from "@/lib/products";
 
 /*
- * Écran affiché à la place de l'espace de gestion tant que l'abonnement
- * n'est pas actif. Au retour de Stripe Checkout (?checkout=succes), le
- * webhook peut mettre quelques secondes à écrire en base : on relit le
- * statut périodiquement — dès qu'il passe actif, le shell réaffiche
- * l'espace et ce composant est démonté (l'intervalle est nettoyé).
+ * Écran affiché à la place de l'espace de gestion tant qu'aucun produit
+ * n'est actif. Au retour de Stripe Checkout (?checkout=succes), le webhook
+ * peut mettre quelques secondes à écrire en base : on relit le statut
+ * périodiquement — dès qu'il passe actif, le shell réaffiche l'espace et ce
+ * composant est démonté (l'intervalle est nettoyé).
  */
-export function SubscriptionGate({ role, offre }: { role: Role; offre: Offre }) {
+export function SubscriptionGate({
+  role,
+  offre,
+}: {
+  role: Role;
+  /** Null ⇒ inscription par le click & collect : c'est lui qu'on active. */
+  offre: Offre | null;
+}) {
   // Jamais rendu côté serveur (le shell attend l'état) : window est sûr.
   const [confirming] = useState(() =>
     window.location.search.includes("checkout=succes")
@@ -34,11 +38,15 @@ export function SubscriptionGate({ role, offre }: { role: Role; offre: Offre }) 
     return () => clearInterval(timer);
   }, [confirming]);
 
+  const product = offre
+    ? offreProducts.find((candidate) => candidate.id === offre)
+    : collectProduct;
+
   const activate = async () => {
     setBusy(true);
     setError(null);
     try {
-      await startCheckout();
+      await startCheckout(offre ? undefined : collectProduct.id);
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue."
@@ -47,17 +55,13 @@ export function SubscriptionGate({ role, offre }: { role: Role; offre: Offre }) 
     }
   };
 
-  const plan = pricingSection.plans.find((candidate) => candidate.id === offre);
-
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-hairline bg-surface p-8 text-center">
       <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
         {confirming ? "Paiement reçu" : "Dernière étape"}
       </p>
       <h1 className="font-display text-2xl font-medium tracking-tight">
-        {confirming
-          ? "Activation en cours…"
-          : "Activez votre abonnement"}
+        {confirming ? "Activation en cours…" : "Activez votre abonnement"}
       </h1>
       {confirming ? (
         <p className="text-sm leading-relaxed text-muted">
@@ -67,16 +71,16 @@ export function SubscriptionGate({ role, offre }: { role: Role; offre: Offre }) 
       ) : (
         <>
           <p className="text-sm leading-relaxed text-muted">
-            Votre établissement est prêt. Il ne reste qu’à activer l’offre{" "}
-            <span className="font-semibold text-foreground">
-              {OFFRE_LABELS[offre]}
-            </span>
-            {plan && (
+            Votre établissement est prêt. Il ne reste qu’à activer{" "}
+            {product && (
               <>
-                {" "}
+                <span className="font-semibold text-foreground">
+                  {product.name}
+                </span>{" "}
                 à{" "}
                 <span className="font-semibold text-foreground">
-                  {plan.price} €{pricingSection.perMonth}
+                  {product.price}
+                  {product.priceUnit}
                 </span>
               </>
             )}

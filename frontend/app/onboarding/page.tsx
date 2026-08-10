@@ -17,7 +17,7 @@ export default async function OnboardingPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/connexion");
 
   const { data: membership } = await supabase
     .from("memberships")

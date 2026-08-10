@@ -11,7 +11,8 @@ import { createPublicClient } from "@/lib/supabase/public";
  */
 export async function fetchRestaurant(slug: string): Promise<{
   id: string;
-  offre: string;
+  /** Null pour un établissement en click & collect seul (pas de salle). */
+  offre: string | null;
   onlinePayment: boolean;
   restaurant: Restaurant;
 } | null> {

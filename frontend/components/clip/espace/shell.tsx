@@ -44,7 +44,7 @@ const NAV_ITEMS: NavItem[] = [
 async function signOut() {
   await createClient().auth.signOut();
   // Navigation complète : purge le store et repasse par le proxy.
-  window.location.assign("/login");
+  window.location.assign("/connexion");
 }
 
 function isActive(pathname: string, basePath: string, item: NavItem): boolean {
@@ -92,7 +92,7 @@ export function ClipShell({ children }: { children: React.ReactNode }) {
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
               {demo ? (
                 <Link
-                  href="/login?inscription=1"
+                  href="/inscription"
                   className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background transition-transform active:scale-[0.98]"
                 >
                   Créer mon espace

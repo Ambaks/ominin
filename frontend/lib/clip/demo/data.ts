@@ -84,7 +84,7 @@ export const DEMO_UPLOAD_PATH = "demo/meilleur-moment-du-live.mp4";
 export const DEMO_BANNER = {
   message: "Démo interactive — données fictives",
   ctaLabel: "Créer mon espace",
-  ctaHref: "/login?inscription=1",
+  ctaHref: "/inscription",
 };
 
 /** Titres rendus par « Générer les titres » après captionDelayMs. */

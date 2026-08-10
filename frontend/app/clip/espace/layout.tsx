@@ -23,7 +23,7 @@ export default async function ClipEspaceLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/connexion");
 
   return (
     <ClipDataProvider>

@@ -56,9 +56,9 @@ export function AuthForm({
   brand,
   space,
   destination,
-  initialMode,
-  signinSubtitle,
-  signupSubtitle,
+  mode,
+  otherHref,
+  subtitle,
   signUpData,
   authError,
 }: {
@@ -68,14 +68,15 @@ export function AuthForm({
   space: string;
   /** Chemin (même host) après connexion réussie. */
   destination: string;
-  initialMode: "signin" | "signup";
-  signinSubtitle: string;
-  signupSubtitle: string;
+  /** Fixé par la route : connexion et inscription sont deux pages. */
+  mode: "signin" | "signup";
+  /** Chemin de l'autre page (même host, même produit). */
+  otherHref: string;
+  subtitle: string;
   /** user_metadata posé à l'inscription (ex. { product: "clip" }). */
   signUpData?: Record<string, unknown>;
   authError: boolean;
 }) {
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
@@ -176,18 +177,12 @@ export function AuthForm({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setPendingEmail(null);
-            setMode("signin");
-            setPassword("");
-            setBusy(false);
-          }}
+        <Link
+          href={otherHref}
           className="text-sm text-muted transition-colors hover:text-foreground"
         >
           Retour à la connexion
-        </button>
+        </Link>
       </div>
     );
   }
@@ -200,9 +195,7 @@ export function AuthForm({
         <h1 className="font-display text-xl font-medium">
           {mode === "signin" ? "Connexion" : "Créer un compte"}
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          {mode === "signin" ? signinSubtitle : signupSubtitle}
-        </p>
+        <p className="mt-1 text-sm text-muted">{subtitle}</p>
 
         <button
           type="button"
@@ -256,18 +249,14 @@ export function AuthForm({
         </form>
       </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          setMode(mode === "signin" ? "signup" : "signin");
-          setError(null);
-        }}
+      <Link
+        href={otherHref}
         className="text-sm text-muted transition-colors hover:text-foreground"
       >
         {mode === "signin"
           ? "Pas encore de compte ? Créer un compte"
           : "Déjà un compte ? Se connecter"}
-      </button>
+      </Link>
     </div>
   );
 }

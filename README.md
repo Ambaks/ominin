@@ -10,12 +10,21 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
-> ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
-> Dashboard-only steps the coding agent can't do (no Supabase/Vercel/Stripe
-> access): paste the branded signup-confirmation email into the Supabase
-> dashboard, add the two Stripe env vars in Vercel + redeploy, and set the
-> Supabase auth URLs. The sales funnel isn't fully live until these are done.
-> For Clip: create the upload-post account and populate `UPLOAD_POST_API_KEY`.
+> ⚠️ **Two production steps required before this works end-to-end**:
+> 1. **Apply the database migration** to live Supabase: `supabase/migrations/20260810000001_collect_standalone.sql` adds nullable `offre`/`siret` columns, extends reserved slugs, and prevents collect-only establishments from accepting table orders.
+> 2. **Set `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN=.ominin.com`** in Vercel environment variables and redeploy. This allows sessions opened on `collect.ominin.com` to carry to `ominin.com/gestion`. Deliberately unset locally (no shared parent domain for localhost).
+
+**Product domain auth flows** (new): login and signup are now separate pages (`/connexion`, `/inscription`) hosted on the main domain *and* on each product subdomain (`/collect/connexion`, `/collect/inscription`, `/clip/connexion`, `/clip/inscription`). Visitors arriving from a product landing hit their product-specific funnel: the brand (Ominin vs. Collect vs. Clip), pricing, and destination differ by domain. The old `/login` path now redirects to the appropriate page, keeping existing links working (`?plan=` and `?inscription=1` query params are honoured). `AuthForm` component no longer toggles mode in place — the mode (signin/signup) is fixed by the route, with a link to the sibling page. Sessions are shared across domains via `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` env var (applied to browser, server, and proxy Supabase clients).
+
+**Collect standalone signup** (new): restaurants can now subscribe to click & collect alone without a menu offer. The flow at `collect.ominin.com/inscription` asks only three fields: establishment name, address, and SIRET (optional). The menu slug is derived programmatically from the name with numeric-suffix collision retries. Database: `etablissements.offre` is now nullable; `etablissements.siret` added (14-digit check constraint); a new trigger `check_sur_place_offre` prevents collect-only establishments from accepting table orders (blocking place_order inserts).
+
+**Product pricing per funnel**: each signup funnel charges the rate that matches the product being bought. Collect-only establishments pay 100 €/month at signup; existing customers adding Collect don't pay twice. **Bundle pricing**: a Connect customer adding Collect no longer stacks 99€ + 100€ = 199€. Instead, the existing Stripe subscription is switched to the `collect_connect` price (150 €/month) with proration — the webhook sees `metadata.products="offre,collect"` and writes both subscription rows. The checkout endpoint returns `{bundled: true}` (no redirect), so the Produits page just re-reads state.
+
+**Feature gating by product** (refactored): authorization no longer derives from the `offre` column. A new `ActiveProducts` type and `activeProducts()` selector read what products are actually *paid for* (from `subscriptions`). Tabs and features are gated via `hasFeature(products)` and `allowedActions(products, role)` — QR codes (Cachet) are tied to Digital/Smart/Connect offers, not available to collect-only. The espace opens when *either* `offre` or `collect` is active.
+
+**Price-copy fixes**: Collect landing incorrectly stated "100 €" commission; the page now correctly shows 200 € (100 € subscription + 10 % commission, matching the calculator). Funnel links are now absolute to the collect subdomain (e.g., `/collect/inscription`) so the landing, if served at `ominin.com/collect`, doesn't redirect visitors into the menu-offer funnel.
+
+Verified: `npx tsc --noEmit`, `npm run lint`, and `npm run build` all pass. Routes `/connexion`, `/inscription`, `/collect/connexion`, `/collect/inscription`, `/collect/inscription/etablissement`, `/clip/connexion`, `/clip/inscription` all render. Driven in browser (Playwright) against local Supabase mock: all four auth screens show the correct product, brand, and price ("Ominin Collect … 100 €/mois"); `/login` redirects correctly; collect signup renders exactly three fields; a collect-only establishment sees Collect-appropriate tabs (no QR codes) and header ("OMININ COLLECT · GÉRANT"); a Digital establishment sees menu-tier features and tabs. Deliberately deferred: the 10 % collect commission still isn't charged to restaurants (no application_fee or payout path from platform account) — that needs Stripe Connect connect-account work.
 
 **Homepage / marketing landing page** is now live at `/`. Conversion-focused,
 French-language, warm premium design with dark/light theme toggle (same

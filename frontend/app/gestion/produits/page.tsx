@@ -18,6 +18,7 @@ import {
   SUBSCRIPTION_POLL_MS,
 } from "@/lib/gestion/constants";
 import { allowedActions } from "@/lib/gestion/permissions";
+import { activeProducts } from "@/lib/gestion/selectors";
 import { refreshSubscription, useGestion } from "@/lib/gestion/store";
 import { contactEmail } from "@/lib/landing-data";
 import {
@@ -55,7 +56,8 @@ export default function ProduitsPage() {
   // Le catalogue ne se propose qu'à qui peut l'acheter : les membres de
   // l'équipe voient leur offre et leur rôle, pas les produits à vendre.
   const isGerant = state.role === "gerant";
-  const offreProduct = currentOffreProduct(offre);
+  const products = activeProducts(state);
+  const offreProduct = offre ? currentOffreProduct(offre) : undefined;
   const otherOffres = offreProducts.filter((product) => product.id !== offre);
   const changeOffreHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
     `Changement d'offre — ${state.etablissement.name}`
@@ -65,7 +67,12 @@ export default function ProduitsPage() {
     setBusy(true);
     setError(null);
     try {
-      await startCheckout(collectProduct.id);
+      // Client Connect : l'API bascule l'abonnement sur la formule groupée
+      // sans repasser par un paiement — il ne reste qu'à relire l'état.
+      if (await startCheckout(collectProduct.id)) {
+        await refreshSubscription();
+        setBusy(false);
+      }
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue."
@@ -105,7 +112,7 @@ export default function ProduitsPage() {
               Ce que vous pouvez faire
             </p>
             <ul className="flex flex-wrap gap-1.5">
-              {allowedActions(state.role, offre).map((action) => (
+              {allowedActions(state.role, products).map((action) => (
                 <li
                   key={action}
                   className="rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs text-muted"

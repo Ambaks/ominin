@@ -17,7 +17,7 @@ export const formatEuros = (amount: number) =>
 /** Les CTA de conversion ouvrent le formulaire directement en mode inscription. */
 export const signupCta: Cta = {
   label: "Commencer l'essai gratuit",
-  href: "/login?inscription=1",
+  href: "/inscription",
 };
 
 export const seo = {
@@ -34,7 +34,7 @@ export const nav = {
     { label: "Scaling", href: "#scaling" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: "/login" },
+    { label: "Connexion", href: "/connexion" },
   ] satisfies NavLink[],
   cta: { label: "Essai gratuit 1 mois", href: signupCta.href } satisfies Cta,
 };

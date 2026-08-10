@@ -43,7 +43,7 @@ async function load(): Promise<void> {
   } = await supabase.auth.getUser();
   if (userError) throw new Error(userError.message);
   if (!user) {
-    window.location.assign("/login");
+    window.location.assign("/connexion");
     return;
   }
 

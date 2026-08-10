@@ -1,6 +1,25 @@
 import type { MenuItem } from "@/lib/menu-data";
 import { TOP_VENTES_COUNT } from "./constants";
-import type { GestionState, Order, OrderItem, Table } from "./types";
+import type {
+  ActiveProducts,
+  GestionState,
+  Order,
+  OrderItem,
+  Table,
+} from "./types";
+
+/**
+ * Produits réellement payés. Les capacités en découlent — pas de la seule
+ * colonne offre : depuis le click & collect autonome, un établissement peut
+ * porter une offre jamais activée, ou aucune offre du tout.
+ */
+export function activeProducts(state: GestionState | null): ActiveProducts {
+  return {
+    offre:
+      state?.subscriptionStatus === "active" ? state.etablissement.offre : null,
+    collect: state?.collectSubscriptionStatus === "active",
+  };
+}
 
 /** unitPrice est figé suppléments inclus par place_order : rien à rajouter. */
 export function lineTotal(line: OrderItem): number {

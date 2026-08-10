@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
+import { collectBrand } from "@/lib/collect-landing-data";
 import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can, hasFeature } from "@/lib/gestion/permissions";
+import { activeProducts } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
@@ -40,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },
-  { href: "/gestion/qr", label: "QR codes", feature: null, icon: QrIcon },
+  { href: "/gestion/qr", label: "QR codes", feature: "qr", icon: QrIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon },
 ];
 
@@ -59,7 +61,7 @@ const PRODUITS_ITEM: NavItem = {
 async function signOut() {
   await createClient().auth.signOut();
   // Navigation complète : purge le store et repasse par le proxy.
-  window.location.assign("/login");
+  window.location.assign("/connexion");
 }
 
 function isActive(pathname: string, href: string): boolean {
@@ -105,9 +107,12 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   const loadError = useGestionLoadError();
   const pathname = usePathname();
 
-  const offre = state?.etablissement.offre;
+  const products = activeProducts(state);
+  // Le click & collect seul ouvre l'espace : la garde porte sur les produits
+  // payés, plus sur le seul abonnement à l'offre.
+  const subscribed = products.offre != null || products.collect;
   const items = NAV_ITEMS.filter(
-    (item) => !item.feature || (offre && hasFeature(offre, item.feature))
+    (item) => !item.feature || hasFeature(products, item.feature)
   );
   const pendingCount =
     state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
@@ -129,8 +134,10 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   title="Votre produit et votre rôle"
                   className="ember-text inline-block truncate text-[10px] font-semibold uppercase tracking-[0.28em] transition-opacity hover:opacity-80"
                 >
-                  Ominin {OFFRE_LABELS[state.etablissement.offre]} ·{" "}
-                  {ROLE_LABELS[state.role]}
+                  {state.etablissement.offre
+                    ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
+                    : collectBrand}{" "}
+                  · {ROLE_LABELS[state.role]}
                 </Link>
               ) : (
                 <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
@@ -214,7 +221,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               ) : (
                 <ShellSkeleton />
               )
-            ) : state.subscriptionStatus === "active" ? (
+            ) : subscribed ? (
               children
             ) : (
               <SubscriptionGate

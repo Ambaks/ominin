@@ -1,27 +1,9 @@
-import type { Metadata } from "next";
-import { AuthForm } from "@/components/auth/auth-form";
-import { ClipWordmark } from "@/components/clip/wordmark";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Connexion — Ominin Clip",
-  robots: { index: false, follow: false },
-};
-
+/** Ancienne adresse du sous-domaine clippers : chemins relatifs à cet hôte. */
 export default async function ClipLoginPage({
   searchParams,
 }: PageProps<"/clip/login">) {
-  const { error, inscription } = await searchParams;
-  return (
-    <AuthForm
-      brand={<ClipWordmark className="text-2xl" />}
-      space="Espace clippers"
-      destination="/espace"
-      // Les CTA de conversion de la landing arrivent avec ?inscription=1.
-      initialMode={inscription === "1" ? "signup" : "signin"}
-      signinSubtitle="Accédez à votre espace Ominin Clip."
-      signupSubtitle="Vos clips, publiés partout, automatiquement."
-      signUpData={{ product: "clip" }}
-      authError={error === "auth"}
-    />
-  );
+  const { inscription } = await searchParams;
+  redirect(inscription === "1" ? "/inscription" : "/connexion");
 }

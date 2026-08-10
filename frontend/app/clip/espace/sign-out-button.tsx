@@ -6,7 +6,7 @@ export function SignOutButton() {
   const signOut = async () => {
     await createClient().auth.signOut();
     // Navigation complète : repasse par le proxy (garde de /espace).
-    window.location.assign("/login");
+    window.location.assign("/connexion");
   };
 
   return (
