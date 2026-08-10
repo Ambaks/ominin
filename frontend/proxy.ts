@@ -1,16 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { siteUrl } from "@/lib/site";
-import { authCookieOptions } from "@/lib/supabase/cookies";
 
 /*
  * Réécrit les sous-domaines produits vers leur arborescence et garde les
  * routes privées.
  *  1. collect.ominin.com → /collect/... (pages de commande publiques, plus
  *     depuis la séparation des funnels : /connexion, /inscription et
- *     l'inscription d'établissement, qui exigent une session).
+ *     l'inscription d'établissement, qui exigent une session), et l'espace
+ *     de gestion servi tel quel (voir plus bas).
  *  2. clip.ominin.com → /clip/... avec la garde de /espace.
  *  3. Domaine principal : session Supabase et garde de /gestion, /onboarding.
+ * La session est attachée à l'hôte qui l'a posée : chaque produit a la
+ * sienne, aucune redirection inter-domaines n'emporte la connexion.
  * Contrôle optimiste seulement : la vraie autorisation est portée par les
  * policies RLS côté Postgres.
  */
@@ -30,16 +31,40 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Toute redirection reste sur l'hôte demandé : la session y est attachée,
+  // repartir sur un autre domaine y arriverait déconnecté — or request.nextUrl
+  // peut porter l'hôte interne selon le routage.
+  const sameHostUrl = (target: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = target;
+    if (host) url.host = host;
+    return url;
+  };
+
   // Un chemin déjà préfixé « /collect/... » (href pré-hydratation, lien copié
   // depuis ominin.com) redirige vers sa forme canonique sans préfixe — sinon
   // la réécriture le doublerait en /collect/collect/...
   if (isCollect && (pathname === "/collect" || pathname.startsWith("/collect/"))) {
-    const url = request.nextUrl.clone();
-    url.pathname = pathname.slice("/collect".length) || "/";
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(
+      sameHostUrl(pathname.slice("/collect".length) || "/"),
+      308
+    );
   }
 
-  const prefix = isCollect ? "/collect" : isClip ? "/clip" : null;
+  // L'espace de gestion est le même pour tous les produits, mais la session
+  // du sous-domaine collect ne suivrait pas jusqu'à ominin.com : cet hôte le
+  // sert donc lui-même, sans réécriture (il n'existe pas de /collect/gestion).
+  // Pas /onboarding en revanche : le funnel d'inscription du click & collect
+  // est /inscription/etablissement.
+  const collectSpace = isCollect && pathname.startsWith("/gestion");
+
+  const prefix = collectSpace
+    ? null
+    : isCollect
+      ? "/collect"
+      : isClip
+        ? "/clip"
+        : null;
   // Réponse par défaut : réécriture vers le sous-arbre du produit sur un
   // sous-domaine, passage direct sinon. Recréée dans setAll pour porter les
   // cookies rafraîchis.
@@ -55,7 +80,6 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookieOptions: authCookieOptions,
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -76,7 +100,7 @@ export async function proxy(request: NextRequest) {
   const isProtected = isClip
     ? pathname.startsWith("/espace")
     : isCollect
-      ? pathname.startsWith("/inscription/etablissement")
+      ? collectSpace || pathname.startsWith("/inscription/etablissement")
       : pathname.startsWith("/gestion") || pathname.startsWith("/onboarding");
   // Hors des routes gardées et de la connexion (le matcher laisse passer tout
   // chemin de page, pour les réécritures de sous-domaines) : ne pas payer
@@ -90,18 +114,12 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user && isProtected) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/connexion";
+    const url = sameHostUrl("/connexion");
     url.search = "";
     return NextResponse.redirect(url);
   }
   if (user && pathname === "/connexion") {
-    // L'espace de gestion ne vit que sur le domaine principal : depuis le
-    // sous-domaine collect, la redirection le rejoint (la session suit grâce
-    // au cookie de domaine parent).
-    if (isCollect) return NextResponse.redirect(`${siteUrl}/gestion`);
-    const url = request.nextUrl.clone();
-    url.pathname = isClip ? "/espace" : "/gestion";
+    const url = sameHostUrl(isClip ? "/espace" : "/gestion");
     url.search = "";
     return NextResponse.redirect(url);
   }

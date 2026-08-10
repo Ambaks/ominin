@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
-import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Connexion — Ominin Collect",
@@ -9,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 /*
- * Connexion du sous-domaine click & collect. L'espace de gestion ne vit que
- * sur le domaine principal : la destination est donc absolue, et la session
- * la suit grâce au cookie posé sur le domaine parent (lib/supabase/cookies).
+ * Connexion du sous-domaine click & collect. La session reste attachée à cet
+ * hôte : la destination est relative, et l'espace de gestion est servi ici
+ * même (voir la réécriture du proxy).
  */
 export default async function CollectConnexionPage({
   searchParams,
@@ -21,7 +20,7 @@ export default async function CollectConnexionPage({
     <AuthForm
       brand={<Wordmark suffix="Collect" className="text-2xl" />}
       space="Espace restaurants"
-      destination={`${siteUrl}/gestion`}
+      destination="/gestion"
       mode="signin"
       otherHref="/inscription"
       subtitle="Vos commandes à emporter vous attendent dans votre espace de gestion."

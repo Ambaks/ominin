@@ -167,8 +167,14 @@ async function load(): Promise<void> {
     .maybeSingle();
   if (membershipError) throw new Error(membershipError.message);
   if (!membership) {
-    // Connecté mais sans établissement : premier passage → onboarding.
-    window.location.assign("/onboarding");
+    // Connecté mais sans établissement : premier passage → l'inscription du
+    // produit dont on porte l'hôte. Sur le sous-domaine collect, l'onboarding
+    // menu & salle n'a pas de sens (et n'y est pas servi).
+    window.location.assign(
+      window.location.host === process.env.NEXT_PUBLIC_COLLECT_HOST
+        ? "/inscription/etablissement"
+        : "/onboarding"
+    );
     return;
   }
   const etablissementId = membership.etablissement_id;

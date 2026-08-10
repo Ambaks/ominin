@@ -88,9 +88,9 @@ export const nav = {
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
     { label: "FAQ", href: "#faq" },
-    { label: "Connexion", href: "/connexion" },
   ] satisfies NavLink[],
   cta: { label: "Voir la démo", href: `/m/${DEMO_SLUG}` } satisfies Cta,
+  login: { label: "Connexion", href: "/connexion" } satisfies Cta,
 };
 
 export const hero = {

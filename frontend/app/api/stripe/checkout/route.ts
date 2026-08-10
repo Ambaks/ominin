@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { siteUrl } from "@/lib/site";
 import { getStripe } from "@/lib/stripe/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -183,14 +182,12 @@ export async function POST(request: Request) {
   // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
   // collect part de la page Produits, l'ouverture de l'offre de l'espace.
   const returnPath = choice === "collect" ? "/gestion/produits" : "/gestion";
-  // L'espace de gestion ne vit que sur le domaine principal : un paiement
-  // lancé depuis un sous-domaine produit (inscription click & collect) doit y
-  // ramener, pas sur un chemin que la réécriture du proxy ne sert pas.
+  // Retour sur l'hôte qui a lancé le paiement : la session lui est attachée,
+  // un retour sur un autre domaine y arriverait déconnecté. request.url peut
+  // porter le host interne (routage Vercel), d'où l'en-tête transmis.
   const requestUrl = new URL(request.url);
-  const onProductSubdomain =
-    requestUrl.host === process.env.NEXT_PUBLIC_COLLECT_HOST ||
-    requestUrl.host === process.env.NEXT_PUBLIC_CLIP_HOST;
-  const origin = onProductSubdomain ? siteUrl : requestUrl.origin;
+  const host = request.headers.get("x-forwarded-host") ?? requestUrl.host;
+  const origin = `${requestUrl.protocol}//${host}`;
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [{ price: price.id, quantity: 1 }],

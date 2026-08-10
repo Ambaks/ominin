@@ -50,7 +50,7 @@ function MailIcon() {
  * Formulaire connexion/inscription partagé entre les produits (restaurant sur
  * ominin.com, clippers sur clip.ominin.com). Les chemins (destination,
  * callback) sont relatifs au host courant : chaque sous-domaine garde son
- * propre funnel.
+ * propre funnel, et la session qu'il ouvre ne vaut que pour lui.
  */
 export function AuthForm({
   brand,
@@ -130,6 +130,10 @@ export function AuthForm({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`,
+        // Chaque produit a sa propre session : sans cela Google réutiliserait
+        // en silence le compte déjà connecté ailleurs, et « Continuer avec
+        // Google » connecterait sans laisser choisir.
+        queryParams: { prompt: "select_account" },
       },
     });
     if (error) {

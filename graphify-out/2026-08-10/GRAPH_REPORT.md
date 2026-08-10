@@ -1,11 +1,11 @@
 # Graph Report - ominin  (2026-08-10)
 
 ## Corpus Check
-- 260 files · ~185,479 words
+- 260 files · ~185,961 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1151 nodes · 2847 edges · 68 communities (58 shown, 10 thin omitted)
+- 1151 nodes · 2847 edges · 69 communities (59 shown, 10 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.62)
 - Token cost: 0 input · 0 output
 
@@ -78,6 +78,7 @@
 - [[_COMMUNITY_shell.tsx|shell.tsx]]
 - [[_COMMUNITY_icons.tsx|icons.tsx]]
 - [[_COMMUNITY_layout.tsx|layout.tsx]]
+- [[_COMMUNITY_comparison.tsx|comparison.tsx]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 42 edges
@@ -106,7 +107,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (68 total, 10 thin omitted)
+## Communities (69 total, 10 thin omitted)
 
 ### Community 0 - "useGestionAccess"
 Cohesion: 0.19
@@ -125,8 +126,8 @@ Cohesion: 0.10
 Nodes (53): addTableToGroup(), apply(), assertTransition(), createCategory(), createFormule(), createGroup(), createItem(), deleteCategory() (+45 more)
 
 ### Community 4 - "collect-landing-data.ts"
-Cohesion: 0.08
-Nodes (30): metadata, CollectComparison(), CostBar(), euros(), CollectFaq(), CollectFeatures(), CollectFinalCta(), CollectFooter() (+22 more)
+Cohesion: 0.09
+Nodes (26): metadata, CollectFaq(), CollectFeatures(), CollectFinalCta(), CollectFooter(), CollectHero(), CollectHowItWorks(), CollectNav() (+18 more)
 
 ### Community 5 - "devDependencies"
 Cohesion: 0.06
@@ -319,6 +320,10 @@ Nodes (6): ClipLoader(), NAV_ITEMS, signOut(), ChartIcon(), ProductsIcon(), Toas
 ### Community 64 - "icons.tsx"
 Cohesion: 0.31
 Nodes (6): Dropzone(), formatSize(), CheckIcon(), ListIcon(), UploadIcon(), ACCEPTED_VIDEO_TYPES
+
+### Community 68 - "comparison.tsx"
+Cohesion: 0.60
+Nodes (4): CollectComparison(), CostBar(), euros(), comparisonSection
 
 ## Knowledge Gaps
 - **258 isolated node(s):** `backend`, `ResolvedLine`, `EXTENSIONS`, `Product`, `PRODUCTS_BY_CHOICE` (+253 more)
