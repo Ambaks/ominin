@@ -136,5 +136,15 @@
   "134": "Ml",
   "135": "nt",
   "136": "zb",
-  "137": "nb"
+  "137": "nb",
+  "138": "order-confirmation.tsx",
+  "139": "writeVarint",
+  "140": "hasDebugData",
+  "141": "writeMessage",
+  "142": "addFeature",
+  "143": "update",
+  "144": "replace",
+  "145": "splitTile",
+  "146": "update",
+  "147": "loadVectorTile"
 }

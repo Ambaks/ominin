@@ -513,6 +513,7 @@ export type Database = {
           owner_name?: string | null
           owner_phone?: string | null
           phone?: string | null
+          phone_normalized?: string | null
           postal_code?: string | null
           slug: string
           source?: string
@@ -541,6 +542,7 @@ export type Database = {
           owner_name?: string | null
           owner_phone?: string | null
           phone?: string | null
+          phone_normalized?: string | null
           postal_code?: string | null
           slug?: string
           source?: string
@@ -630,6 +632,7 @@ export type Database = {
       etablissements: {
         Row: {
           address: string
+          collect_slot_capacity: number
           cover_image: string | null
           created_at: string
           hours: string
@@ -644,6 +647,7 @@ export type Database = {
         }
         Insert: {
           address?: string
+          collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
           hours?: string
@@ -658,6 +662,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
           hours?: string
@@ -1092,51 +1097,52 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_collect_order: {
+        Args: { p_pending_id: string; p_stripe_session_id: string }
+        Returns: string
+      }
       create_etablissement: {
         Args: {
           p_address?: string
           p_name: string
-          p_offre?: Database["public"]["Enums"]["offre"] | null
-          p_siret?: string | null
+          p_offre?: Database["public"]["Enums"]["offre"]
+          p_siret?: string
           p_slug: string
           p_table_count?: number
         }
         Returns: string
       }
-      create_collect_order: {
-        Args: {
-          p_pending_id: string
-          p_stripe_session_id: string
-        }
-        Returns: string
-      }
       create_table_group: {
-        Args: {
-          p_integrate_orders: boolean
-          p_table_ids: string[]
-        }
+        Args: { p_integrate_orders: boolean; p_table_ids: string[] }
         Returns: {
           created_at: string
           etablissement_id: string
           id: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "table_groups"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       crm_find_duplicates: {
         Args: {
-          p_city?: string | null
-          p_email?: string | null
-          p_lat?: number | null
-          p_lng?: number | null
+          p_city?: string
+          p_email?: string
+          p_lat?: number
+          p_lng?: number
           p_name: string
-          p_phone?: string | null
+          p_phone?: string
         }
         Returns: {
-          city: string | null
+          city: string
           name: string
           reason: string
           restaurant_id: string
         }[]
       }
+      crm_recompute_follow_up: { Args: { p_lead: string }; Returns: undefined }
       current_member_role: {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
@@ -1162,7 +1168,11 @@ export type Database = {
         | "demo"
         | "follow_up"
         | "status_change"
-      crm_appointment_status: "scheduled" | "completed" | "cancelled" | "no_show"
+      crm_appointment_status:
+        | "scheduled"
+        | "completed"
+        | "cancelled"
+        | "no_show"
       crm_appointment_type: "visit" | "demo" | "signing" | "follow_up" | "other"
       crm_lead_status:
         | "new"
@@ -1332,6 +1342,49 @@ export const Constants = {
     Enums: {
       badge: ["maison", "top", "nouveau"],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
+      crm_activity_type: [
+        "note",
+        "call",
+        "email",
+        "visit",
+        "whatsapp",
+        "appointment",
+        "demo",
+        "follow_up",
+        "status_change",
+      ],
+      crm_appointment_status: [
+        "scheduled",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
+      crm_appointment_type: ["visit", "demo", "signing", "follow_up", "other"],
+      crm_lead_status: [
+        "new",
+        "to_contact",
+        "contacted",
+        "visited",
+        "appointment_scheduled",
+        "proposal",
+        "negotiation",
+        "signed",
+        "lost",
+        "not_interested",
+      ],
+      crm_priority: ["low", "medium", "high"],
+      crm_restaurant_category: [
+        "restaurant",
+        "fast_food",
+        "cafe",
+        "bar",
+        "bakery",
+        "pizzeria",
+        "brasserie",
+        "hotel_restaurant",
+        "other",
+      ],
+      crm_task_status: ["open", "done", "cancelled"],
       member_role: ["gerant", "cuisinier", "serveur"],
       offre: ["digital", "smart", "connect"],
       order_status: [

@@ -20,7 +20,7 @@ respecter** : la bascule Vercel en dernier.
       puis dans Supabase → SQL editor :
       `insert into public.admin_users (user_id, email)
        select id, email from auth.users
-       where email in ('marwan.almasri11@gmail.com', '<2e email — à compléter>')
+       where email in ('marwan.almasri11@gmail.com', 'omininsupport@gmail.com')
        on conflict do nothing;`
       Sans cette étape, un compte connecté voit « Ce compte n'est pas dans
       l'allowlist admin ». Re-exécuter pour tout compte ajouté plus tard.
