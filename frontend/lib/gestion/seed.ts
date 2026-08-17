@@ -189,6 +189,7 @@ export function seed(): GestionState {
       hours: restaurant.hours,
       offre: "connect",
       onlinePayment: false,
+      collectSlotCapacity: 5,
     },
     subscriptionStatus: "active",
     collectSubscriptionStatus: null,

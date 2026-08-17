@@ -39,6 +39,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -195,6 +213,419 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      crm_activities: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          lead_id: string | null
+          metadata: Json
+          restaurant_id: string
+          title: string | null
+          type: Database["public"]["Enums"]["crm_activity_type"]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          restaurant_id: string
+          title?: string | null
+          type: Database["public"]["Enums"]["crm_activity_type"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json
+          restaurant_id?: string
+          title?: string | null
+          type?: Database["public"]["Enums"]["crm_activity_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_appointments: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          end_at: string | null
+          google_event_id: string | null
+          id: string
+          location: string | null
+          notes: string | null
+          restaurant_id: string
+          start_at: string
+          status: Database["public"]["Enums"]["crm_appointment_status"]
+          title: string
+          type: Database["public"]["Enums"]["crm_appointment_type"]
+          updated_at: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_at?: string | null
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          restaurant_id: string
+          start_at: string
+          status?: Database["public"]["Enums"]["crm_appointment_status"]
+          title: string
+          type?: Database["public"]["Enums"]["crm_appointment_type"]
+          updated_at?: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_at?: string | null
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          notes?: string | null
+          restaurant_id?: string
+          start_at?: string
+          status?: Database["public"]["Enums"]["crm_appointment_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["crm_appointment_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_appointments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_appointments_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          is_decision_maker: boolean
+          last_name: string | null
+          notes: string | null
+          phone: string | null
+          restaurant_id: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          is_decision_maker?: boolean
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          restaurant_id: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          is_decision_maker?: boolean
+          last_name?: string | null
+          notes?: string | null
+          phone?: string | null
+          restaurant_id?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_contacts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          estimated_value: number | null
+          id: string
+          last_contact_at: string | null
+          lost_reason: string | null
+          next_follow_up_at: string | null
+          priority: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id: string
+          status: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          last_contact_at?: string | null
+          lost_reason?: string | null
+          next_follow_up_at?: string | null
+          priority?: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id: string
+          status?: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          last_contact_at?: string | null
+          lost_reason?: string | null
+          next_follow_up_at?: string | null
+          priority?: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id?: string
+          status?: Database["public"]["Enums"]["crm_lead_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_restaurant_tags: {
+        Row: {
+          restaurant_id: string
+          tag_id: string
+        }
+        Insert: {
+          restaurant_id: string
+          tag_id: string
+        }
+        Update: {
+          restaurant_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_restaurant_tags_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_restaurant_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "crm_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_restaurants: {
+        Row: {
+          address: string | null
+          category: Database["public"]["Enums"]["crm_restaurant_category"]
+          city: string | null
+          created_at: string
+          cuisine: string | null
+          deleted_at: string | null
+          description: string | null
+          email: string | null
+          external_id: string | null
+          google_maps_url: string | null
+          id: string
+          important_notes: string | null
+          instagram_url: string | null
+          latitude: number | null
+          longitude: number | null
+          menu_url: string | null
+          name: string
+          owner_email: string | null
+          owner_name: string | null
+          owner_phone: string | null
+          phone: string | null
+          phone_normalized: string | null
+          postal_code: string | null
+          slug: string
+          source: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          category?: Database["public"]["Enums"]["crm_restaurant_category"]
+          city?: string | null
+          created_at?: string
+          cuisine?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          email?: string | null
+          external_id?: string | null
+          google_maps_url?: string | null
+          id?: string
+          important_notes?: string | null
+          instagram_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          menu_url?: string | null
+          name: string
+          owner_email?: string | null
+          owner_name?: string | null
+          owner_phone?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          slug: string
+          source?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          category?: Database["public"]["Enums"]["crm_restaurant_category"]
+          city?: string | null
+          created_at?: string
+          cuisine?: string | null
+          deleted_at?: string | null
+          description?: string | null
+          email?: string | null
+          external_id?: string | null
+          google_maps_url?: string | null
+          id?: string
+          important_notes?: string | null
+          instagram_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          menu_url?: string | null
+          name?: string
+          owner_email?: string | null
+          owner_name?: string | null
+          owner_phone?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          slug?: string
+          source?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      crm_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      crm_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_at: string | null
+          id: string
+          lead_id: string | null
+          priority: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id: string | null
+          status: Database["public"]["Enums"]["crm_task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id?: string | null
+          priority?: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id?: string | null
+          status?: Database["public"]["Enums"]["crm_task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          lead_id?: string | null
+          priority?: Database["public"]["Enums"]["crm_priority"]
+          restaurant_id?: string | null
+          status?: Database["public"]["Enums"]["crm_task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       etablissements: {
         Row: {
@@ -690,10 +1121,27 @@ export type Database = {
           id: string
         }
       }
+      crm_find_duplicates: {
+        Args: {
+          p_city?: string | null
+          p_email?: string | null
+          p_lat?: number | null
+          p_lng?: number | null
+          p_name: string
+          p_phone?: string | null
+        }
+        Returns: {
+          city: string | null
+          name: string
+          reason: string
+          restaurant_id: string
+        }[]
+      }
       current_member_role: {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
       }
+      is_admin: { Args: never; Returns: boolean }
       member_etablissements: { Args: never; Returns: string[] }
       place_order: {
         Args: { p_items: Json; p_slug: string; p_table_number: number }
@@ -704,6 +1152,41 @@ export type Database = {
     Enums: {
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
+      crm_activity_type:
+        | "note"
+        | "call"
+        | "email"
+        | "visit"
+        | "whatsapp"
+        | "appointment"
+        | "demo"
+        | "follow_up"
+        | "status_change"
+      crm_appointment_status: "scheduled" | "completed" | "cancelled" | "no_show"
+      crm_appointment_type: "visit" | "demo" | "signing" | "follow_up" | "other"
+      crm_lead_status:
+        | "new"
+        | "to_contact"
+        | "contacted"
+        | "visited"
+        | "appointment_scheduled"
+        | "proposal"
+        | "negotiation"
+        | "signed"
+        | "lost"
+        | "not_interested"
+      crm_priority: "low" | "medium" | "high"
+      crm_restaurant_category:
+        | "restaurant"
+        | "fast_food"
+        | "cafe"
+        | "bar"
+        | "bakery"
+        | "pizzeria"
+        | "brasserie"
+        | "hotel_restaurant"
+        | "other"
+      crm_task_status: "open" | "done" | "cancelled"
       member_role: "gerant" | "cuisinier" | "serveur"
       offre: "digital" | "smart" | "connect"
       order_status:

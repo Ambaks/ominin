@@ -12,14 +12,65 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 > ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
 > Dashboard-only steps the coding agent can't do (no DNS/Supabase/Vercel/Stripe
-> access). Highest-priority: `supabase db push` (four migrations, incl.
-> collect-standalone and the contact-requests table), **remove
-> `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host now —
-> leaving it set silently re-shares them across subdomains), and the
-> `menu.ominin.com` cutover (DNS + Vercel domain + `NEXT_PUBLIC_MENU_HOST` +
-> Supabase redirect URLs, in the order the checklist gives). Also pending: a
-> Resend account for the contact form, the branded signup-confirmation email
-> template, and the upload-post account for Clip.
+> access). Highest-priority: `supabase db push` (**five** migrations now, incl.
+> collect-standalone, contact-requests, and the new `crm` migration), **seed the
+> `admin_users` allowlist** (the internal CRM shows nothing to anyone else),
+> **remove `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host
+> now — leaving it set silently re-shares them across subdomains), and the
+> `menu.ominin.com` + `admin.ominin.com` cutovers (DNS + Vercel domain +
+> `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs, in the order the checklist
+> gives). Also pending: a Resend account for the contact form, the branded
+> signup-confirmation email template, and the upload-post account for Clip.
+
+**Internal sales CRM** (new) at `admin.ominin.com` — `app/admin/**`, the fourth
+`PRODUCTS` entry in `frontend/proxy.ts` (whole tree private via
+`privatePaths: ["/"]`; the guard now excludes `/connexion` so the login page
+stays reachable). Field-sales lead management for Montpellier + coast: a
+MapLibre map (`/carte`, OpenFreeMap Positron tiles, clustered status-colored
+markers, optional geolocation — `Permissions-Policy` relaxed to
+`geolocation=(self)` and the tile host added to CSP), a lead panel opened by
+`?lead=<id>` from any page (activity timeline, notes, important-info field,
+quick actions), a ≤30 s "Visité" field flow (status + geotagged visit activity
++ optional note/follow-up), a drag-and-drop pipeline (hand-rolled pointer
+events + tap-to-move fallback), tasks with an overdue nav badge, appointments,
+a dashboard (funnel + weekly activity), a sortable restaurant table, and CSV
+import (RFC 4180 parser, `,`/`;` auto-detect, per-row validation + duplicate
+detection against the store) / export (same technical headers, so an export
+re-imports as-is). Data layer: migration `20260810000003_crm.sql` — 8 `crm_*`
+tables + `admin_users` allowlist, one `(select is_admin())` RLS policy per
+table (browser supabase-js reads/writes directly, /gestion-style), triggers for
+`updated_at`, lead auto-creation, status-change activity logging, and
+`next_follow_up_at` derivation from open tasks; `crm_find_duplicates()` RPC
+(pg_trgm) backs the manual-creation duplicate warning. State: light global
+snapshot (`lib/admin/store.ts`, paginated past PostgREST's 1000-row cap) +
+lazy per-lead detail cache; mutations in `lib/admin/api.ts` (write first, patch
+snapshot). French UI, no new deps besides `maplibre-gl`. Seed:
+`npm run seed:crm` (25 fake restaurants Montpellier→Grau-du-Roi, all 10
+statuses, purge-by-`source='seed'` idempotent). Until the DNS cutover the CRM
+is served at `ominin.com/admin` / `localhost:3000/admin`.
+**Turbopack × maplibre worker gotcha**: maplibre v6 loads its tile worker via
+an internal `new URL(…, import.meta.url)` that Turbopack doesn't rewrite — the
+worker URL comes out empty and no vector tile ever loads (gray basemap, zero
+requests, zero console errors). Fixed by serving the worker and its single
+dependency from `public/maplibre/` (gitignored), copied from `node_modules` by
+the `sync:maplibre` script wired as `predev`/`prebuild` hooks, and
+`setWorkerUrl("/maplibre/maplibre-gl-worker.mjs")` in `map-canvas.tsx`.
+Verified: `tsc --noEmit`, `npm run lint`, `npm run build` pass; driven in a
+real browser (Playwright) against a local Supabase mock — 23/23 checks: login
+gate + allowlist refusal path, map tiles and status-colored markers/clusters,
+lead panel via `?lead=`, the ≤30 s Visité flow (note + relance + toast),
+one-tap status change, pipeline drag & tap-to-move fallback, task completion,
+grouped RDV, sortable table, CSV export (BOM, re-importable headers), CSV
+import (valid/warning/duplicate/invalid classification + report), search
+filter, mobile viewport (bottom nav, full-screen panel), and no regression on
+portal//gestion//clip. A multi-agent adversarial review pass then surfaced and
+fixed 14 defects — notably: `.range()` pagination without a unique `.order()`
+tiebreaker (duplicated/dropped rows past 1000), the export's open-task count
+including completed tasks, a stale-refresh race in the lead-detail cache,
+post-drag click swallowing on the pipeline, CSV formula-injection
+neutralization on export, import line numbers drifting past blank lines, and
+`javascript:` URL hardening on the website link. `database.types.ts` `crm_*`
+entries are hand-written pending `supabase gen types`.
 
 **Per-subdomain sessions** (new): `ominin.com`, `collect.ominin.com`, and `clip.ominin.com` each hold their own session. The auth cookie is no longer pinned to the `.ominin.com` parent domain, so signing in on one product does not sign you in on the others, and "Continuer avec Google" now passes `prompt=select_account` so Google always asks which account instead of silently reusing the one already signed in elsewhere. Consequences, all handled: the collect subdomain serves `/gestion` itself (the proxy skips the `/collect` rewrite for it) instead of redirecting to `ominin.com/gestion`; Stripe checkout returns to the host that started it; a signed-in collect user with no establishment goes to `/inscription/etablissement` rather than the menu-offer `/onboarding`; and the OAuth callback only accepts relative `next` paths.
 
@@ -57,6 +108,7 @@ serves only the corporate portal; every product lives on its own host, which
 | `menu.ominin.com` | `app/menu/**` | QR menu landing, `/login`, `/onboarding`, `/gestion/**`, `/m/<slug>` |
 | `collect.ominin.com` | `app/collect/**` | Click & collect |
 | `clip.ominin.com` | `app/clip/**` | Livestream clipper |
+| `admin.ominin.com` | `app/admin/**` | Internal sales CRM (allowlist-only) |
 
 An empty `NEXT_PUBLIC_*_HOST` makes a subdomain inert, its pages staying
 reachable under their prefix (`ominin.com/menu`) — that is the dev mode and the

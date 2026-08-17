@@ -31,9 +31,13 @@
   "29": "client.ts",
   "30": "order-confirmation.tsx",
   "31": "layout.tsx",
+  "32": "route.ts",
+  "33": "CollectDemoValue",
   "34": "auth-form.tsx",
+  "35": "proxy.ts",
   "36": "Setup guide (written for an LLM agent)",
   "37": "Ominin",
+  "38": "layout.tsx",
   "39": "What you must do when invoked",
   "40": "qr-showcase.tsx",
   "41": "graphify reference: extra exports and benchmark",
@@ -58,6 +62,6 @@
   "60": "__init__.py",
   "61": "CLAUDE.md",
   "62": "backend",
-  "66": "page.tsx",
-  "67": "page.tsx"
+  "63": "loading.tsx",
+  "66": "page.tsx"
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CollectSettings } from "@/components/gestion/collect-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
@@ -91,7 +92,7 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
 
 export default function EtablissementPage() {
   const state = useGestion();
-  const { can } = useGestionAccess();
+  const { can, products } = useGestionAccess();
 
   if (!state) return null;
 
@@ -113,6 +114,11 @@ export default function EtablissementPage() {
             etablissement={state.etablissement}
           />
           <PaymentSettings initialEnabled={state.etablissement.onlinePayment} />
+          {products.collect && (
+            <CollectSettings
+              initialSlotCapacity={state.etablissement.collectSlotCapacity}
+            />
+          )}
         </>
       ) : (
         <EmptyState

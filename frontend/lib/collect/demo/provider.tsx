@@ -28,6 +28,8 @@ export interface DemoOrder {
   lines: { item: MenuItem; quantity: number }[];
   total: number;
   customerName: string;
+  /** Label du créneau choisi (ex. "Dès que possible", "12:30"). */
+  pickupLabel: string;
   createdAt: string;
   etaMinutes: number | null;
   /** « Prête vers » (ISO), posée par accept(). */
@@ -43,6 +45,9 @@ export interface DemoRelayEvent {
 interface CollectDemoState {
   step: DemoStep;
   cart: Record<string, number>;
+  customerName: string;
+  /** Index du créneau choisi : null = « Dès que possible ». */
+  pickupSlot: number | null;
   order: DemoOrder | null;
   /** La commande est visible côté restaurant (après le différé « webhook »). */
   orderVisible: boolean;
@@ -58,6 +63,8 @@ interface CollectDemoValue extends CollectDemoState {
   menu: MenuItem[];
   addItem(id: string): void;
   removeItem(id: string): void;
+  setCustomerName(name: string): void;
+  setPickupSlot(slot: number | null): void;
   openCheckout(): void;
   backToMenu(): void;
   pay(): void;
@@ -71,11 +78,26 @@ interface CollectDemoValue extends CollectDemoState {
 const initialState: CollectDemoState = {
   step: "menu",
   cart: {},
+  customerName: COLLECT_DEMO.customer.name,
+  pickupSlot: null,
   order: null,
   orderVisible: false,
   lastEvent: null,
   hintActive: false,
 };
+
+export function formatSlotTime(slotIndex: number): string {
+  const { prepMinutes, intervalMinutes } = COLLECT_DEMO.slots;
+  const base = new Date();
+  base.setMinutes(
+    base.getMinutes() + prepMinutes + slotIndex * intervalMinutes
+  );
+  // Arrondi au prochain multiple de intervalMinutes
+  const remainder = base.getMinutes() % intervalMinutes;
+  if (remainder > 0) base.setMinutes(base.getMinutes() + intervalMinutes - remainder);
+  base.setSeconds(0, 0);
+  return `${String(base.getHours()).padStart(2, "0")}:${String(base.getMinutes()).padStart(2, "0")}`;
+}
 
 const CollectDemoContext = createContext<CollectDemoValue | null>(null);
 
@@ -168,6 +190,14 @@ export function CollectDemoProvider({
     );
   }, []);
 
+  const setCustomerName = useCallback((name: string) => {
+    setState((current) => ({ ...current, customerName: name }));
+  }, []);
+
+  const setPickupSlot = useCallback((slot: number | null) => {
+    setState((current) => ({ ...current, pickupSlot: slot }));
+  }, []);
+
   const backToMenu = useCallback(() => {
     setState((current) =>
       current.step === "checkout"
@@ -187,13 +217,18 @@ export function CollectDemoProvider({
         const lines = menu
           .filter((item) => (current.cart[item.id] ?? 0) > 0)
           .map((item) => ({ item, quantity: current.cart[item.id] }));
+        const pickupLabel =
+          current.pickupSlot === null
+            ? "Dès que possible"
+            : formatSlotTime(current.pickupSlot);
         const order: DemoOrder = {
           lines,
           total: lines.reduce(
             (sum, line) => sum + line.quantity * line.item.price,
             0
           ),
-          customerName: COLLECT_DEMO.customer.name,
+          customerName: current.customerName || COLLECT_DEMO.customer.name,
+          pickupLabel,
           createdAt: new Date().toISOString(),
           etaMinutes: null,
           readyAt: null,
@@ -287,6 +322,8 @@ export function CollectDemoProvider({
       menu,
       addItem,
       removeItem,
+      setCustomerName,
+      setPickupSlot,
       openCheckout,
       backToMenu,
       pay,
@@ -302,6 +339,8 @@ export function CollectDemoProvider({
       menu,
       addItem,
       removeItem,
+      setCustomerName,
+      setPickupSlot,
       openCheckout,
       backToMenu,
       pay,

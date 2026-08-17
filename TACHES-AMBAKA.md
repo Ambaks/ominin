@@ -5,6 +5,43 @@ des dashboards (Vercel, Supabase, Stripe, registrar DNS) auxquels il n'a pas
 accès. Tant qu'elles ne sont pas faites, les fonctionnalités correspondantes
 restent inertes en production — le code, lui, est en place.
 
+## 0. CRM admin — admin.ominin.com (nouveau)
+
+Le CRM de prospection terrain vit dans `app/admin/**`. Avant la bascule DNS,
+il est servi sur `ominin.com/admin` (et en local sur `localhost:3000/admin`
+ou `admin.localhost:3000`) — tout fonctionne dès l'étape 2. **Ordre à
+respecter** : la bascule Vercel en dernier.
+
+- [ ] **Supabase** : `supabase db push` — applique `20260810000003_crm.sql`
+      (tables `crm_*`, allowlist `admin_users`, RLS, triggers) en plus des
+      quatre migrations déjà en attente (§2).
+- [ ] **Allowlist** : se connecter une première fois sur `/admin/connexion`
+      avec chacun des deux comptes (« Continuer avec Google » crée le compte),
+      puis dans Supabase → SQL editor :
+      `insert into public.admin_users (user_id, email)
+       select id, email from auth.users
+       where email in ('marwan.almasri11@gmail.com', '<2e email — à compléter>')
+       on conflict do nothing;`
+      Sans cette étape, un compte connecté voit « Ce compte n'est pas dans
+      l'allowlist admin ». Re-exécuter pour tout compte ajouté plus tard.
+- [ ] **Types** : régénérer après le push —
+      `supabase gen types typescript --linked > frontend/lib/supabase/database.types.ts`
+      (les entrées `crm_*` ont été écrites à la main en attendant).
+- [ ] **Données de démo** (facultatif) : depuis `frontend/`, `npm run seed:crm`
+      — 25 restaurants fictifs de Montpellier au Grau-du-Roi, tous statuts,
+      avec activités, tâches, RDV et tags. Réexécutable (purge par
+      `source = 'seed'`).
+- [ ] **DNS** : créer l'enregistrement `admin` (CNAME vers
+      `cname.vercel-dns.com`, comme `collect` et `clip`).
+- [ ] **Supabase → Authentication → URL Configuration** : ajouter
+      `https://admin.ominin.com/**` aux *Redirect URLs* — **avant** la bascule.
+- [ ] **Google Cloud Console** : ajouter `https://admin.ominin.com` aux
+      origines JavaScript autorisées.
+- [ ] **Vercel — la bascule** : ajouter le domaine `admin.ominin.com` au
+      projet, poser `NEXT_PUBLIC_ADMIN_HOST=admin.ominin.com`, redéployer.
+- [ ] **Vérifier après bascule** : `admin.ominin.com` anonyme redirige vers
+      `/connexion` ; connecté + allowlisté, la carte affiche les marqueurs.
+
 ## 1. Éclatement en sous-domaines (nouveau)
 
 `ominin.com` ne sert plus que le portail. Le produit menu QR (landing, espace

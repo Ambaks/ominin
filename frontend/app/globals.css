@@ -29,6 +29,19 @@
   /* Marque des graphiques (analytique) : ember recalé dans la bande de
      luminance OKLCH admise sur surface sombre (contraste ≥ 3:1 validé). */
   --chart-mark: #d4693f;
+
+  /* Statuts du CRM admin : 10 teintes distinctes, réchauffées vers la
+     palette candlelit, lisibles sur surface sombre. */
+  --status-new: #8a8577;
+  --status-to-contact: #64a7d9;
+  --status-contacted: #7d8fe0;
+  --status-visited: #a97fd6;
+  --status-appointment: #e8b04f;
+  --status-proposal: #4fb39b;
+  --status-negotiation: #e88a56;
+  --status-signed: #6cbf6c;
+  --status-lost: #d95f5f;
+  --status-not-interested: #7f8fa0;
 }
 
 html.light {
@@ -52,6 +65,17 @@ html.light {
 
   --chart-mark: #c05a32;
 
+  --status-new: #6f6a5e;
+  --status-to-contact: #2f6f9f;
+  --status-contacted: #4a5cb8;
+  --status-visited: #7444ab;
+  --status-appointment: #9a6b12;
+  --status-proposal: #1f7a66;
+  --status-negotiation: #b25422;
+  --status-signed: #2e7d32;
+  --status-lost: #a33030;
+  --status-not-interested: #5c6b7a;
+
   color-scheme: light;
 }
 
@@ -67,6 +91,17 @@ html.light {
   --color-ember-2: var(--ember-2);
   --color-ember-3: var(--ember-3);
   --color-chart-mark: var(--chart-mark);
+
+  --color-status-new: var(--status-new);
+  --color-status-to-contact: var(--status-to-contact);
+  --color-status-contacted: var(--status-contacted);
+  --color-status-visited: var(--status-visited);
+  --color-status-appointment: var(--status-appointment);
+  --color-status-proposal: var(--status-proposal);
+  --color-status-negotiation: var(--status-negotiation);
+  --color-status-signed: var(--status-signed);
+  --color-status-lost: var(--status-lost);
+  --color-status-not-interested: var(--status-not-interested);
 
   --font-sans: var(--font-instrument-sans);
   --font-display: var(--font-fraunces);

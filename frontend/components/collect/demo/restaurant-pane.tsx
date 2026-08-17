@@ -56,7 +56,7 @@ function OrderCardDemo() {
       <p className="mt-1 text-xs text-muted">
         {order.readyAt && status === "en_preparation"
           ? `Prête vers : ${formatTime(order.readyAt)}`
-          : "Retrait : dès que possible"}
+          : `Retrait : ${order.pickupLabel.toLowerCase()}`}
       </p>
 
       <ul className="mt-3 flex flex-col gap-1.5">

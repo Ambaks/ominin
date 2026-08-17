@@ -70,8 +70,9 @@ export function AuthForm({
   destination: string;
   /** Fixé par la route : connexion et inscription sont deux pages. */
   mode: "signin" | "signup";
-  /** Chemin de l'autre page (même host, même produit). */
-  otherHref: string;
+  /** Chemin de l'autre page (même host, même produit). Absent = pas
+   * d'inscription publique (espace admin) : le lien n'est pas rendu. */
+  otherHref?: string;
   subtitle: string;
   /** user_metadata posé à l'inscription (ex. { product: "clip" }). */
   signUpData?: Record<string, unknown>;
@@ -181,12 +182,14 @@ export function AuthForm({
           </p>
         </div>
 
-        <Link
-          href={otherHref}
-          className="text-sm text-muted transition-colors hover:text-foreground"
-        >
-          Retour à la connexion
-        </Link>
+        {otherHref && (
+          <Link
+            href={otherHref}
+            className="text-sm text-muted transition-colors hover:text-foreground"
+          >
+            Retour à la connexion
+          </Link>
+        )}
       </div>
     );
   }
@@ -253,14 +256,16 @@ export function AuthForm({
         </form>
       </div>
 
-      <Link
-        href={otherHref}
-        className="text-sm text-muted transition-colors hover:text-foreground"
-      >
-        {mode === "signin"
-          ? "Pas encore de compte ? Créer un compte"
-          : "Déjà un compte ? Se connecter"}
-      </Link>
+      {otherHref && (
+        <Link
+          href={otherHref}
+          className="text-sm text-muted transition-colors hover:text-foreground"
+        >
+          {mode === "signin"
+            ? "Pas encore de compte ? Créer un compte"
+            : "Déjà un compte ? Se connecter"}
+        </Link>
+      )}
     </div>
   );
 }

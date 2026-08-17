@@ -33,6 +33,8 @@ export function rowToEtablissement(
     // Colonne de la migration 20260709000002 (types à régénérer) ; absente ⇒ false.
     onlinePayment:
       (row as { online_payment?: boolean }).online_payment ?? false,
+    collectSlotCapacity:
+      (row as { collect_slot_capacity?: number }).collect_slot_capacity ?? 5,
   };
 }
 

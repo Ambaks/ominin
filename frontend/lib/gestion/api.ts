@@ -551,7 +551,7 @@ export async function markGroupPaid(
 
 export type EtablissementInput = Omit<
   Etablissement,
-  "id" | "slug" | "offre" | "onlinePayment"
+  "id" | "slug" | "offre" | "onlinePayment" | "collectSlotCapacity"
 >;
 
 export async function updateEtablissement(
@@ -583,5 +583,20 @@ export async function setOnlinePayment(enabled: boolean): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.onlinePayment = enabled;
+  });
+}
+
+export async function setCollectSlotCapacity(capacity: number): Promise<void> {
+  const supabase = createClient();
+  check(
+    await (supabase as unknown as {
+      from: (t: string) => ReturnType<typeof supabase.from>;
+    })
+      .from("etablissements")
+      .update({ collect_slot_capacity: capacity })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.collectSlotCapacity = capacity;
   });
 }

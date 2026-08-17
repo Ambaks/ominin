@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { COLLECT_DEMO } from "@/lib/collect/demo/data";
-import { useCollectDemo } from "@/lib/collect/demo/provider";
+import { formatSlotTime, useCollectDemo } from "@/lib/collect/demo/provider";
 import { formatTime } from "@/lib/gestion/format";
 import { formatPrice, type MenuItem } from "@/lib/menu-data";
 
@@ -329,19 +329,75 @@ function CheckoutView({ topPad }: { topPad: string }) {
             </span>
           </li>
         </ul>
-        <div className="flex flex-wrap gap-1.5">
-          {[
-            COLLECT_DEMO.customer.name,
-            COLLECT_DEMO.customer.phone,
-            "Dès que possible",
-          ].map((chip) => (
-            <span
-              key={chip}
-              className="rounded-full border border-hairline bg-surface px-3 py-1 text-xs text-muted"
-            >
-              {chip}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-semibold text-muted">
+              Votre nom
+            </label>
+            <input
+              value={demo.customerName}
+              onChange={(e) => demo.setCustomerName(e.target.value)}
+              placeholder="Votre nom"
+              className="rounded-xl border border-hairline bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-ember-2/50"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full border border-hairline bg-surface px-3 py-1 text-xs text-muted">
+              {COLLECT_DEMO.customer.phone}
             </span>
-          ))}
+          </div>
+          <fieldset className="flex flex-col gap-1.5">
+            <legend className="text-[11px] font-semibold text-muted">
+              Retrait
+            </legend>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => demo.setPickupSlot(null)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                  demo.pickupSlot === null
+                    ? "ember-gradient text-background"
+                    : "border border-hairline text-muted hover:border-ember-2/40"
+                }`}
+              >
+                Dès que possible
+              </button>
+              {Array.from(
+                { length: COLLECT_DEMO.slots.count },
+                (_, i) => {
+                  const taken = COLLECT_DEMO.slots.takenBySlot[i] ?? 0;
+                  const remaining = COLLECT_DEMO.slots.capacity - taken;
+                  const full = remaining <= 0;
+                  const selected = demo.pickupSlot === i;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={full}
+                      onClick={() => demo.setPickupSlot(i)}
+                      className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                        full
+                          ? "border border-hairline text-faint opacity-50"
+                          : selected
+                            ? "ember-gradient text-background"
+                            : "border border-hairline text-muted hover:border-ember-2/40"
+                      }`}
+                    >
+                      {formatSlotTime(i)}
+                      {!full && (
+                        <span className={`text-[10px] ${selected ? "text-background/70" : "text-faint"}`}>
+                          ({remaining})
+                        </span>
+                      )}
+                      {full && (
+                        <span className="text-[10px]">complet</span>
+                      )}
+                    </button>
+                  );
+                }
+              )}
+            </div>
+          </fieldset>
         </div>
       </div>
       <div className="flex flex-col gap-2 px-5 pb-6 pt-1">

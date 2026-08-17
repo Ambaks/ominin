@@ -61,6 +61,15 @@ const PRODUCTS: readonly ProductConfig[] = [
     legacyPaths: [],
   },
   {
+    host: process.env.NEXT_PUBLIC_ADMIN_HOST,
+    prefix: "/admin",
+    // CRM interne : tout est privé sauf /connexion (exclu par la garde) et
+    // /auth/* (bypass du callback OAuth en mode sous-domaine).
+    privatePaths: ["/"],
+    afterLogin: "/",
+    legacyPaths: [],
+  },
+  {
     host: process.env.NEXT_PUBLIC_MENU_HOST,
     prefix: "/menu",
     privatePaths: ["/gestion", "/onboarding"],
@@ -79,8 +88,9 @@ const PRODUCTS: readonly ProductConfig[] = [
 /** Adresse de connexion, identique dans chaque arborescence produit. */
 const LOGIN_PATH = "/connexion";
 
+// base "/" = arbre entier (produit entièrement privé, ex. admin).
 const matchesPath = (pathname: string, base: string) =>
-  pathname === base || pathname.startsWith(`${base}/`);
+  base === "/" || pathname === base || pathname.startsWith(`${base}/`);
 
 const rewritePrefixFor = (product: ProductConfig, pathname: string) =>
   product.rewriteOverrides?.find((o) => matchesPath(pathname, o.path))
@@ -192,10 +202,11 @@ export async function proxy(request: NextRequest) {
   const prefix = prefixProduct?.prefix ?? "";
   const localPath = pathname.slice(prefix.length) || "/";
 
-  const isPrivate = Boolean(
-    product?.privatePaths.some((p) => matchesPath(localPath, p))
-  );
   const isLogin = localPath === LOGIN_PATH;
+  // Le chemin de connexion reste joignable même sous privatePaths: ["/"].
+  const isPrivate =
+    !isLogin &&
+    Boolean(product?.privatePaths.some((p) => matchesPath(localPath, p)));
   // Hors des routes gardées (le matcher laisse passer tout chemin de page,
   // pour les réécritures de sous-domaines) : ne pas payer l'appel session.
   if (!product || (!isPrivate && !isLogin)) {

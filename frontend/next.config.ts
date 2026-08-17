@@ -9,6 +9,8 @@ const isDev = process.env.NODE_ENV !== "production";
  *    autorisés en frame-src par sécurité future.
  *  - Polices : next/font auto-héberge au build → aucun domaine Google requis.
  *  - Images d'illustration : Unsplash.
+ *  - OpenFreeMap (carte du CRM admin) : style, tuiles vectorielles, glyphes et
+ *    sprites arrivent tous par fetch → connect-src ; img-src par précaution.
  * script/style gardent 'unsafe-inline' : Next (App Router) et next-themes
  * injectent des scripts inline sans nonce. En dev, 'unsafe-eval' + ws pour le HMR.
  */
@@ -18,11 +20,11 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co",
+  "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com${
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org${
     isDev ? " ws: http://localhost:*" : ""
   }`,
   "frame-src 'self' https://js.stripe.com https://checkout.stripe.com",
@@ -37,8 +39,11 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
+    // geolocation=(self) : la carte du CRM admin propose « ma position » en
+    // prospection terrain — n'autorise que le site lui-même à demander la
+    // permission, le navigateur garde le dernier mot.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+    value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
   },
   // HSTS : ignoré par les navigateurs hors HTTPS (dev/local), actif en prod.
   {

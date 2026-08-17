@@ -41,3 +41,12 @@ export const clipSiteUrl = `https://${
 export const collectSiteUrl = `https://${
   process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com"
 }`;
+
+/**
+ * Origine publique du CRM admin interne. Même logique de repli que menu :
+ * host absent ⇒ sous-domaine inerte, l'app est servie sur ominin.com/admin.
+ */
+const adminHost = process.env.NEXT_PUBLIC_ADMIN_HOST;
+export const adminSiteUrl = adminHost
+  ? `${adminHost.includes("localhost") ? "http" : "https"}://${adminHost}`
+  : `${siteUrl}/admin`;

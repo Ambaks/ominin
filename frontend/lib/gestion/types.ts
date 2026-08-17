@@ -49,6 +49,8 @@ export interface Etablissement {
   siret?: string;
   /** Le menu QR propose le règlement par carte (Stripe Connect relié). */
   onlinePayment: boolean;
+  /** Commandes collect max par créneau de retrait (défaut 5). */
+  collectSlotCapacity: number;
 }
 
 export interface OrderItemOption {

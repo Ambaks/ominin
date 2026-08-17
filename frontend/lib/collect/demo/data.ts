@@ -66,7 +66,20 @@ export const COLLECT_DEMO = {
     /** Tic du compte à rebours affiché sur le téléphone. */
     countdownTickMs: 1000,
   },
-  customer: { name: "Camille", phone: "06 12 34 56 78" },
+  customer: { name: "Camille", phone: "06 12 34 56 78" } as const,
+  /** Réglages des créneaux de retrait pour la démo. */
+  slots: {
+    /** Temps de préparation de base (minutes) — décale le premier créneau. */
+    prepMinutes: 15,
+    /** Intervalle entre chaque créneau (minutes). */
+    intervalMinutes: 15,
+    /** Nombre de créneaux proposés après « Dès que possible ». */
+    count: 4,
+    /** Capacité par créneau (commandes). */
+    capacity: 5,
+    /** Commandes déjà « prises » sur certains créneaux (index 0-based). */
+    takenBySlot: [2, 4, 5, 1] as readonly number[],
+  },
   itineraryUrl: mapsDirectionsHref(`${restaurant.name}, ${restaurant.address}`),
   /** Puce guide : la prochaine action, nommée — jamais d'auto-play. */
   hints: {
