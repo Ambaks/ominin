@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { StatusBadge } from "@/components/gestion/commandes/status-badge";
-import { COLLECT_DEMO } from "@/lib/collect/demo/data";
 import { useCollectDemo } from "@/lib/collect/demo/provider";
 import { COLLECT_ETA_CHOICES_MIN } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
@@ -187,7 +186,7 @@ export function RestaurantPane() {
       <div className="flex items-center justify-between border-b border-hairline pb-3">
         <div>
           <p className="font-display text-lg font-medium">Commandes</p>
-          <p className="text-xs text-muted">{COLLECT_DEMO.restaurant.name}</p>
+          <p className="text-xs text-muted">{demo.restaurant.name}</p>
         </div>
         <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
           <span className="size-1.5 animate-pulse rounded-full bg-ember-2" />

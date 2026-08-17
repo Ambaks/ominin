@@ -416,9 +416,187 @@ const trattoriaLucia: Restaurant = {
   ],
 };
 
+/*
+ * BOHO (Toulouse) — prospect Connect, démo de visite commerciale.
+ * Carte provisoire : plats marocains plausibles en attendant la vraie carte
+ * (voir demos/boho/profile.json, source de vérité du profil client).
+ * À remplacer via /new-restaurant update boho dès réception.
+ */
+const boho: Restaurant = {
+  slug: "boho",
+  name: "BOHO",
+  tagline: "L'âme de Marrakech à Toulouse",
+  coverImage: unsplash("photo-1539020140153-e479b8c22e70", 1800),
+  address: "72 Avenue des États Unis, 31200 Toulouse",
+  phone: "+33 7 72 29 62 98",
+  hours: "Horaires à confirmer",
+  categories: [
+    {
+      id: "entrees",
+      name: "Entrées & Mezzés",
+      tagline: "Pour ouvrir l'appétit, à partager",
+      items: [
+        {
+          id: "zaalouk",
+          name: "Zaalouk d'aubergines",
+          description:
+            "Caviar d'aubergines fumées, tomates confites, cumin et huile d'olive, servi avec khobz maison.",
+          price: 7.5,
+        },
+        {
+          id: "briouates",
+          name: "Briouates croustillantes",
+          description:
+            "Feuilletés dorés au fromage frais et à la menthe, filet de miel à la fleur d'oranger.",
+          price: 8,
+        },
+        {
+          id: "harira",
+          name: "Harira traditionnelle",
+          description:
+            "Soupe onctueuse de tomates, lentilles et pois chiches, coriandre fraîche.",
+          price: 6.5,
+        },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Tajines & Couscous",
+      tagline: "Mijotés comme à Marrakech",
+      items: [
+        {
+          id: "tajine-poulet",
+          name: "Tajine poulet citron confit",
+          description:
+            "Poulet fermier mijoté aux citrons confits et olives violettes, gingembre et safran.",
+          price: 16,
+          badges: ["top"],
+        },
+        {
+          id: "tajine-kefta",
+          name: "Tajine kefta à l'œuf",
+          description:
+            "Boulettes de bœuf épicées, sauce tomate au paprika fumé, œuf poché au dernier moment.",
+          price: 15,
+          image: unsplash("photo-1596797038530-2c107229654b", 800),
+        },
+        {
+          id: "couscous-royal",
+          name: "Couscous royal",
+          description:
+            "Semoule roulée main, agneau, poulet, merguez et légumes du marché, bouillon parfumé.",
+          price: 19,
+          badges: ["maison"],
+          image: unsplash("photo-1541518763669-27fef04b14ea", 800),
+        },
+        {
+          id: "tanjia",
+          name: "Tanjia marrakchia",
+          description:
+            "Jarret d'agneau confit sept heures aux épices douces, cuisson lente à l'étouffée.",
+          price: 18,
+          badges: ["nouveau"],
+        },
+      ],
+    },
+    {
+      id: "snacking",
+      name: "Snacking BOHO",
+      tagline: "L'esprit street-food de la médina",
+      items: [
+        {
+          id: "msemen-garni",
+          name: "Msemen garni",
+          description:
+            "Crêpe feuilletée grillée, kefta d'agneau, oignons caramélisés et chermoula.",
+          price: 9.5,
+        },
+        {
+          id: "batbout-poulet",
+          name: "Batbout poulet crousti",
+          description:
+            "Pain moelleux cuit à la poêle, poulet croustillant, crudités et sauce blanche maison.",
+          price: 10,
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      tagline: "La douceur de l'Orient",
+      items: [
+        {
+          id: "cornes-gazelle",
+          name: "Cornes de gazelle",
+          description:
+            "Pâtisserie fine aux amandes et à la fleur d'oranger, façonnée à la main.",
+          price: 6,
+        },
+        {
+          id: "pastilla-lait",
+          name: "Pastilla au lait",
+          description:
+            "Feuilles croustillantes, crème à la fleur d'oranger, amandes torréfiées.",
+          price: 7,
+        },
+        {
+          id: "fondant-cannelle",
+          name: "Fondant chocolat-cannelle",
+          description:
+            "Cœur coulant au chocolat noir relevé d'une pointe de cannelle.",
+          price: 7.5,
+          image: unsplash("photo-1541783245831-57d6fb0926d3", 800),
+        },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Thés & Boissons",
+      tagline: "Le rituel du thé, versé haut",
+      items: [
+        {
+          id: "the-menthe",
+          name: "Thé à la menthe",
+          description:
+            "Thé vert gunpowder infusé à la menthe fraîche, servi sucré.",
+          price: 4,
+          detail: "Théière · 2 pers.",
+          badges: ["maison"],
+        },
+        {
+          id: "citronnade-gingembre",
+          name: "Citronnade au gingembre",
+          description: "Citrons pressés minute, gingembre frais, menthe pilée.",
+          price: 4.5,
+          detail: "33 cl",
+        },
+        {
+          id: "jus-orange",
+          name: "Jus d'orange pressé",
+          description: "Oranges pressées à la commande.",
+          price: 5,
+          detail: "25 cl",
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
+  [boho.slug]: boho,
 };
+
+/** Classe de thème CSS par établissement (voir globals.css) : habille le
+ * menu public et les démos aux couleurs du restaurant. Absente ⇒ thème
+ * Ominin par défaut. */
+const themeClasses: Record<string, string> = {
+  [boho.slug]: "theme-boho",
+};
+
+export function restaurantThemeClass(slug: string): string | undefined {
+  return themeClasses[slug];
+}
 
 export function getRestaurant(slug: string): Restaurant | undefined {
   return restaurants[slug];

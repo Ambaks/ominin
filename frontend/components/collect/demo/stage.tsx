@@ -171,9 +171,16 @@ function SwitchStage() {
   );
 }
 
-export function CollectDemoStage({ variant }: { variant: "dual" | "switch" }) {
+export function CollectDemoStage({
+  variant,
+  slug,
+}: {
+  variant: "dual" | "switch";
+  /** Slug du restaurant joué (défaut : la Trattoria de la landing). */
+  slug?: string;
+}) {
   return (
-    <CollectDemoProvider>
+    <CollectDemoProvider slug={slug}>
       {variant === "dual" ? (
         <div className="flex flex-col gap-6">
           <DualStage />

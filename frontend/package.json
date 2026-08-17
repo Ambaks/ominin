@@ -12,6 +12,7 @@
     "sync:maplibre": "node -e \"const fs=require('fs');fs.mkdirSync('public/maplibre',{recursive:true});for(const f of['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs'])fs.copyFileSync('node_modules/maplibre-gl/dist/'+f,'public/maplibre/'+f)\"",
     "seed:crm": "tsx --env-file=../backend/.env scripts/seed-crm.ts",
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
+    "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts"
   },
   "dependencies": {
