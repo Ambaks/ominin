@@ -1,3 +1,4 @@
+import { unsplash } from "@/lib/menu-data";
 import { clipSiteUrl, collectSiteUrl, menuSiteUrl, siteUrl } from "@/lib/site";
 
 /*
@@ -54,6 +55,18 @@ export const hero = {
     fr: "Nous construisons des outils qui enlèvent le travail répétitif du quotidien des commerces — la prise de commande, la paperasse, la publication. Chaque produit règle un problème précis et s'utilise seul.",
     en: "We build tools that take the repetitive work out of running a business — taking orders, paperwork, publishing. Each product solves one problem, and works on its own.",
   },
+  primaryCta: {
+    label: { fr: "Découvrir nos produits", en: "See our products" },
+    href: "#produits",
+  },
+  secondaryCta: {
+    label: { fr: "Parler de votre besoin", en: "Tell us what you need" },
+    href: "/sur-mesure",
+  },
+  meta: {
+    fr: "Trois produits en production, un quatrième sur mesure.",
+    en: "Three products in production, a fourth built to order.",
+  },
   scrollHint: { fr: "Nos produits", en: "Our products" },
 };
 
@@ -67,6 +80,10 @@ export type Product = {
   body: Localized;
   /** Utilitaire CSS de la trame de signature du produit (globals.css). */
   motif: string;
+  /** Photo du cube, traitée en duotone braise par le composant. */
+  photo: { src: string; alt: Localized };
+  /** Trois traits saillants, en puces sous le descriptif. */
+  chips: Localized[];
   /** Ancre du lien pour les lecteurs d'écran : « Ouvrir <name> ». */
   action: Localized;
 };
@@ -88,6 +105,18 @@ export const products: Product[] = [
       fr: "Menu digital derrière un QR code, commande et paiement à table. Sans application à installer pour le client.",
       en: "A digital menu behind a QR code, with ordering and payment at the table. No app for the guest to install.",
     },
+    photo: {
+      src: unsplash("photo-1552566626-52f8b828add9", 1600),
+      alt: {
+        fr: "Salle de restaurant chaleureuse, tables dressées",
+        en: "Warm dining room with set tables",
+      },
+    },
+    chips: [
+      { fr: "QR à table", en: "QR at the table" },
+      { fr: "Paiement à table", en: "Pay at the table" },
+      { fr: "Commandes en direct", en: "Live orders" },
+    ],
     motif: "qr-motif",
     action: openLabel,
   },
@@ -104,6 +133,18 @@ export const products: Product[] = [
       fr: "Votre page de commande à emporter, vos clients, vos données. À 10 % la commande là où les plateformes prennent jusqu'à 30 %.",
       en: "Your own takeaway ordering page, your customers, your data. 10% per order where the platforms take up to 30%.",
     },
+    photo: {
+      src: unsplash("photo-1778792331936-4a408b81c8ef", 1200),
+      alt: {
+        fr: "Remise d'un sac à emporter au comptoir",
+        en: "Handing a takeaway bag over the counter",
+      },
+    },
+    chips: [
+      { fr: "Commande en ligne", en: "Online ordering" },
+      { fr: "10 % par commande", en: "10% per order" },
+      { fr: "Vos clients, vos données", en: "Your customers, your data" },
+    ],
     motif: "collect-dash-motif",
     action: openLabel,
   },
@@ -120,6 +161,18 @@ export const products: Product[] = [
       fr: "Les clips partent sur TikTok, Reels, Shorts et X. Titres et descriptions écrits par l'IA, adaptés à chaque plateforme.",
       en: "Clips go out to TikTok, Reels, Shorts and X. Titles and descriptions written by AI, tuned per platform.",
     },
+    photo: {
+      src: unsplash("photo-1574717024653-61fd2cf4d44d", 1200),
+      alt: {
+        fr: "Timeline de montage vidéo à l'écran",
+        en: "Video editing timeline on screen",
+      },
+    },
+    chips: [
+      { fr: "4 plateformes", en: "4 platforms" },
+      { fr: "Légendes par l'IA", en: "AI-written captions" },
+      { fr: "Publication automatique", en: "Automatic publishing" },
+    ],
     motif: "clip-timeline-motif",
     action: openLabel,
   },
@@ -136,10 +189,77 @@ export const products: Product[] = [
       fr: "Un traitement de factures, une prévision, un outil interne. Décrivez le travail répétitif qui vous coûte le plus — on regarde s'il s'automatise.",
       en: "Invoice processing, forecasting, an internal tool. Tell us which repetitive work costs you most — we'll see if it can be automated.",
     },
+    photo: {
+      src: unsplash("photo-1581291518857-4e27b48ff24e", 1600),
+      alt: {
+        fr: "Main dessinant une maquette d'interface au stylo",
+        en: "Hand sketching an interface wireframe in pen",
+      },
+    },
+    chips: [
+      { fr: "Factures", en: "Invoices" },
+      { fr: "Prévisions", en: "Forecasting" },
+      { fr: "Outils internes", en: "Internal tools" },
+    ],
     motif: "grid-motif",
     action: buildLabel,
   },
 ];
+
+/*
+ * Section « approche » : trois engagements numérotés, la seule partie du
+ * portail qui parle de la maison plutôt que des produits. Volontairement
+ * courte — la crédibilité passe par la précision, pas par le volume.
+ */
+export const approach = {
+  eyebrow: { fr: "Notre approche", en: "How we work" },
+  title: {
+    fr: "Des outils qu'on utilise dès le premier jour.",
+    en: "Tools you use from day one.",
+  },
+  points: [
+    {
+      title: { fr: "Simples par principe", en: "Simple on principle" },
+      body: {
+        fr: "Pas de formation, pas de manuel. Si votre équipe ne s'en sert pas le premier soir, c'est raté — on conçoit à partir de là.",
+        en: "No training, no manual. If your team isn't using it by the first evening, we've failed — we design from that constraint.",
+      },
+    },
+    {
+      title: { fr: "L'IA là où elle sert", en: "AI where it earns its keep" },
+      body: {
+        fr: "Elle rédige, trie, prévoit, relit — jamais pour faire joli. Quand une règle simple suffit, on écrit une règle simple.",
+        en: "It writes, sorts, forecasts, reviews — never for show. When a simple rule is enough, we write a simple rule.",
+      },
+    },
+    {
+      title: { fr: "Un seul interlocuteur", en: "One person to call" },
+      body: {
+        fr: "Conçu, développé et maintenu par Ominin. Vous parlez à ceux qui construisent, pas à un support qui transmet.",
+        en: "Designed, built and maintained by Ominin. You talk to the people who build it, not a help desk relaying tickets.",
+      },
+    },
+  ],
+};
+
+/*
+ * Bande finale : le portail se referme sur l'appel au sur-mesure — les trois
+ * produits ont leurs propres funnels, c'est la demande libre qu'on capte ici.
+ */
+export const finalCta = {
+  titleLead: {
+    fr: "Le travail répétitif n'est pas une fatalité.",
+    en: "Repetitive work is not a given.",
+  },
+  body: {
+    fr: "Décrivez le vôtre en quelques lignes — on vous répond sous deux jours ouvrés, franchement, y compris quand la réponse est non.",
+    en: "Describe yours in a few lines — we reply within two business days, honestly, including when the answer is no.",
+  },
+  cta: {
+    label: { fr: "Décrire mon besoin", en: "Describe my need" },
+    href: "/sur-mesure",
+  },
+};
 
 /*
  * Page /sur-mesure : la destination du quatrième cube. Elle explique ce qu'on
@@ -235,6 +355,8 @@ export const footer = {
     fr: "Solutions informatiques et IA pour les commerces.",
     en: "Software and AI solutions for local businesses.",
   },
+  productsHeading: { fr: "Produits", en: "Products" },
+  contactHeading: { fr: "Contact", en: "Contact" },
   /* Année du copyright : figée ici plutôt que calculée, la page étant
      prérendue au build — un new Date() côté client désynchroniserait
      l'hydratation au passage à l'année suivante. À mettre à jour à la main. */
