@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { PortalApproach } from "@/components/portal/approach";
+import { PortalFinalCta } from "@/components/portal/final-cta";
 import { PortalFooter } from "@/components/portal/footer";
 import { PortalHero } from "@/components/portal/hero";
 import { PortalNav } from "@/components/portal/nav";
@@ -35,6 +37,8 @@ export default function Portal() {
       <main>
         <PortalHero />
         <PortalProducts />
+        <PortalApproach />
+        <PortalFinalCta />
       </main>
       <PortalFooter />
     </LanguageProvider>

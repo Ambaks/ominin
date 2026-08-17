@@ -168,6 +168,75 @@ body {
   animation: shimmer 1.8s linear infinite;
 }
 
+/*
+  Révélation au scroll (portail) : l'élément attend hors champ, puis monte en
+  fondu quand il entre dans le viewport (IntersectionObserver ajoute
+  .is-visible). L'état masqué n'est appliqué que si un moteur de script est
+  actif — sans JavaScript, tout reste visible. Les préférences de mouvement
+  réduites court-circuitent la translation.
+*/
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+.reveal {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/*
+  Particules braise du héro du portail : quelques étincelles montent lentement
+  de la lueur inférieure et s'éteignent. Position, taille et délai sont posés
+  en inline par le composant ; ici le trajet et la respiration d'opacité.
+*/
+@keyframes ember-drift {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--particle-peak, 0.5);
+  }
+  85% {
+    opacity: 0.08;
+  }
+  100% {
+    transform: translateY(-46vh);
+    opacity: 0;
+  }
+}
+
+.ember-particle {
+  position: absolute;
+  bottom: 0;
+  border-radius: 9999px;
+  filter: blur(1px);
+  animation: ember-drift var(--particle-duration, 11s) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-particle {
+    display: none;
+  }
+}
+
 /* Staggered entrance for menu sections */
 @keyframes rise {
   from {

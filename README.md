@@ -75,22 +75,38 @@ live on exactly one host. In local development, setting
 without it the legacy-path rewrite keeps the gestion dashboard's absolute
 links (`/gestion/…`, `/login`) working at the apex.
 
-**Portal** at `ominin.com`: bilingual FR/EN single page — hero ("Facilitez vos
+**Portal** at `ominin.com`: bilingual FR/EN single page. Hero ("Facilitez vos
 opérations, propulsées par l'IA" / "Facilitate your operations, powered by AI")
-over an inverted ember glow, then a 2×2 grid of product cubes. Each cube is
-unlit at rest, showing only its product's signature motif in filigree
-(`.qr-motif`, `.collect-dash-motif`, `.clip-timeline-motif`, and the new
-`.grid-motif` for the custom-build cube); pointing at one — or focusing it with
-the keyboard, the whole card being the link — ignites an ember filament along
-its top edge, raises the motif and lifts a glow from below. The destination host
-is printed on every cube, so where a click leads is explicit beforehand.
-Language is client state (`lib/portal/language.tsx`) read from localStorage via
+in oversized editorial Fraunces over an inverted ember glow, five slow-drifting
+ember-spark particles (desynchronized cycles, hidden under reduced motion), a
+primary/secondary CTA pair and a factual status line ("Trois produits en
+production, un quatrième sur mesure" with a pulsing ember dot). Products render
+as an asymmetric bento grid (flagship menu and custom-build span 7/12 columns,
+collect and clip 5/12): each card carries a photo treated as an "ember duotone"
+(desaturated, veiled by a surface gradient, warmed by an ember overlay) so four
+unrelated Unsplash photos read as one series — dining room for Menu, a takeaway
+bag handed over the counter for Collect, an editing timeline for Clip, a hand
+sketching a wireframe for custom build — with the product's signature motif
+(`.qr-motif`, `.collect-dash-motif`, `.clip-timeline-motif`, `.grid-motif`)
+blended on top, a numbered `01`–`04` frosted badge, three feature chips, and
+the destination host printed before the click. Hover/keyboard-focus ignites an
+ember filament along the top edge, scales the photo and advances the arrow.
+Below the grid: a numbered 3-point "Notre approche" section, then a final CTA
+band toward `/sur-mesure`, then a 3-column corporate footer (brand, product
+links derived from the same array as the cubes, contact). Sections reveal on
+scroll via IntersectionObserver (`components/portal/reveal.tsx`): the hidden
+state only exists under `@media (scripting: enabled)` so no-JS visitors see
+everything, reduced-motion shows everything immediately, and the reveal lives
+on a wrapper node so it never fights the cards' hover transform. Language is
+client state (`lib/portal/language.tsx`) read from localStorage via
 `useSyncExternalStore` — French is server-rendered by default (the real market,
-and what crawlers get), English is opt-in and syncs across tabs; the toggle sits
-next to the theme toggle and drives `document.documentElement.lang`. All copy
-lives in `lib/portal-data.ts` as `{ fr, en }` pairs. Portal sections are client
-components (unlike the fully-server product landings) because the language is
-client state.
+and what crawlers get), English is opt-in and syncs across tabs; the toggle
+sits next to the theme toggle and drives `document.documentElement.lang`. All
+copy lives in `lib/portal-data.ts` as `{ fr, en }` pairs. Portal sections are
+client components (unlike the fully-server product landings) because the
+language is client state. Decision (2026-08-11): the bilingual surface stays
+portal-only for now — product landings, customer flows and dashboards remain
+French.
 
 **Custom-build enquiry** at `/sur-mesure`: the fourth cube's destination —
 positioning, three concrete examples (invoice processing, forecasting, internal
