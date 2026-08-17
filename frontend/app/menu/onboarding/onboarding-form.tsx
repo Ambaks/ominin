@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { startCheckout } from "@/lib/gestion/checkout";
-import { OFFRE_LABELS } from "@/lib/gestion/constants";
-import type { Offre } from "@/lib/gestion/types";
+import { OFFRE_LABELS, PAYMENT_PROVIDER_LABELS } from "@/lib/gestion/constants";
+import type { Offre, PaymentProvider } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 
 function slugify(value: string): string {
@@ -24,6 +24,7 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
   const [offre, setOffre] = useState<Offre>(initialOffre ?? "digital");
+  const [caisse, setCaisse] = useState<PaymentProvider | "">("");
   const [tableCount, setTableCount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -54,6 +55,19 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
       );
       setBusy(false);
       return;
+    }
+
+    // Caisse choisie pendant l'onboarding (offre Connect). Non bloquant : la
+    // page Établissement permet de (re)faire ce choix à tout moment.
+    // payment_provider arrive avec la migration 20260817000001 (types à
+    // régénérer) — accès non typé en attendant.
+    if (offre === "connect" && caisse) {
+      await (supabase as unknown as {
+        from: (t: string) => ReturnType<typeof supabase.from>;
+      })
+        .from("etablissements")
+        .update({ payment_provider: caisse })
+        .eq("slug", slug);
     }
 
     // Enchaîne sur le paiement ; en cas d'échec (Stripe non configuré…),
@@ -121,6 +135,29 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
             ))}
           </select>
         </Field>
+        {offre === "connect" && (
+          <Field
+            label="Caisse enregistreuse"
+            hint="Encaissez les paiements du menu QR sur votre propre compte. Modifiable plus tard."
+          >
+            <select
+              value={caisse}
+              onChange={(event) =>
+                setCaisse(event.target.value as PaymentProvider | "")
+              }
+              className={inputClass}
+            >
+              <option value="">Je déciderai plus tard</option>
+              {(
+                Object.keys(PAYMENT_PROVIDER_LABELS) as PaymentProvider[]
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {PAYMENT_PROVIDER_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field label="Nombre de tables" required>
           <input
             type="number"

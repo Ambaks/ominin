@@ -11,6 +11,9 @@ const isDev = process.env.NODE_ENV !== "production";
  *  - Images d'illustration : Unsplash.
  *  - OpenFreeMap (carte du CRM admin) : style, tuiles vectorielles, glyphes et
  *    sprites arrivent tous par fetch → connect-src ; img-src par précaution.
+ *  - SumUp : widget de paiement embarqué sur le menu QR — SDK (script-src) et
+ *    appels du widget (connect-src) sur gateway.sumup.com, iframe 3-D Secure
+ *    (frame-src), visuels cartes (img-src static.sumup.com).
  * script/style gardent 'unsafe-inline' : Next (App Router) et next-themes
  * injectent des scripts inline sans nonce. En dev, 'unsafe-eval' + ws pour le HMR.
  */
@@ -20,14 +23,14 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org",
+  "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org${
+  `script-src 'self' 'unsafe-inline' https://gateway.sumup.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com${
     isDev ? " ws: http://localhost:*" : ""
   }`,
-  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com",
+  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),

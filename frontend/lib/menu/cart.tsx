@@ -35,6 +35,8 @@ export interface CartConfig {
   orderingEnabled: boolean;
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
+  /** Fournisseur qui encaisse le règlement par carte. */
+  paymentProvider: "stripe" | "sumup";
 }
 
 interface CartContextValue extends CartConfig {

@@ -67,7 +67,10 @@ async function main() {
         hours: restaurant!.hours,
         offre: "connect",
         cover_image: restaurant!.coverImage ?? null,
-      })
+        // payment_provider arrive avec la migration 20260817000001 (types à
+        // régénérer) — le cast disparaîtra avec la régénération.
+        payment_provider: restaurant!.paymentProvider ?? null,
+      } as TablesInsert<"etablissements">)
       .select("id")
       .single()
   );

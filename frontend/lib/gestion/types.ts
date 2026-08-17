@@ -12,6 +12,8 @@ export type OrderStatus =
   | "retiree";
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne";
+/** Fournisseur du paiement à table, au choix du gérant. */
+export type PaymentProvider = "stripe" | "sumup";
 
 /**
  * Capacités débloquées par les produits souscrits (le menu et les formules
@@ -47,8 +49,10 @@ export interface Etablissement {
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
   siret?: string;
-  /** Le menu QR propose le règlement par carte (Stripe Connect relié). */
+  /** Le menu QR propose le règlement par carte (compte de paiement relié). */
   onlinePayment: boolean;
+  /** Null tant que le gérant n'a pas choisi ⇒ comportement Stripe historique. */
+  paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
 }

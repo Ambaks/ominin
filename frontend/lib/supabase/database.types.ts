@@ -640,6 +640,9 @@ export type Database = {
           name: string
           offre: Database["public"]["Enums"]["offre"] | null
           online_payment: boolean
+          payment_provider:
+            | Database["public"]["Enums"]["payment_provider"]
+            | null
           phone: string
           siret: string | null
           slug: string
@@ -655,6 +658,9 @@ export type Database = {
           name: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
+          payment_provider?:
+            | Database["public"]["Enums"]["payment_provider"]
+            | null
           phone?: string
           siret?: string | null
           slug: string
@@ -670,6 +676,9 @@ export type Database = {
           name?: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
+          payment_provider?:
+            | Database["public"]["Enums"]["payment_provider"]
+            | null
           phone?: string
           siret?: string | null
           slug?: string
@@ -766,6 +775,7 @@ export type Database = {
           pairing: string | null
           price: number
           stock: number | null
+          vat_rate: number
         }
         Insert: {
           badges?: Database["public"]["Enums"]["badge"][]
@@ -782,6 +792,7 @@ export type Database = {
           pairing?: string | null
           price: number
           stock?: number | null
+          vat_rate?: number
         }
         Update: {
           badges?: Database["public"]["Enums"]["badge"][]
@@ -798,6 +809,7 @@ export type Database = {
           pairing?: string | null
           price?: number
           stock?: number | null
+          vat_rate?: number
         }
         Relationships: [
           {
@@ -857,6 +869,7 @@ export type Database = {
           order_id: string
           quantity: number
           unit_price: number
+          vat_rate: number | null
         }
         Insert: {
           id?: string
@@ -866,6 +879,7 @@ export type Database = {
           order_id: string
           quantity: number
           unit_price: number
+          vat_rate?: number | null
         }
         Update: {
           id?: string
@@ -875,6 +889,7 @@ export type Database = {
           order_id?: string
           quantity?: number
           unit_price?: number
+          vat_rate?: number | null
         }
         Relationships: [
           {
@@ -907,6 +922,7 @@ export type Database = {
           pickup_at: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_session_id: string | null
+          sumup_checkout_id: string | null
           table_id: string | null
           type: Database["public"]["Enums"]["order_type"]
         }
@@ -923,6 +939,7 @@ export type Database = {
           pickup_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
+          sumup_checkout_id?: string | null
           table_id?: string | null
           type?: Database["public"]["Enums"]["order_type"]
         }
@@ -939,6 +956,7 @@ export type Database = {
           pickup_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
+          sumup_checkout_id?: string | null
           table_id?: string | null
           type?: Database["public"]["Enums"]["order_type"]
         }
@@ -1025,6 +1043,41 @@ export type Database = {
             foreignKeyName: "subscriptions_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sumup_accounts: {
+        Row: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_code: string
+          refresh_token: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_code: string
+          refresh_token: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          access_token_expires_at?: string
+          etablissement_id?: string
+          merchant_code?: string
+          refresh_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sumup_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
@@ -1209,6 +1262,7 @@ export type Database = {
         | "retiree"
       order_type: "sur_place" | "collect"
       payment_mode: "especes" | "carte" | "en_ligne"
+      payment_provider: "stripe" | "sumup"
       product: "offre" | "collect"
     }
     CompositeTypes: {
@@ -1398,6 +1452,7 @@ export const Constants = {
       ],
       order_type: ["sur_place", "collect"],
       payment_mode: ["especes", "carte", "en_ligne"],
+      payment_provider: ["stripe", "sumup"],
       product: ["offre", "collect"],
     },
   },

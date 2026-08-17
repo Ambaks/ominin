@@ -12,6 +12,7 @@ import type {
   Order,
   OrderStatus,
   PaymentMode,
+  PaymentProvider,
   TableGroup,
 } from "./types";
 
@@ -66,6 +67,7 @@ export interface ItemInput {
   pairing?: string;
   options: OptionGroup[];
   categoryId: string;
+  vatRate: number;
 }
 
 function itemColumns(
@@ -82,7 +84,9 @@ function itemColumns(
     detail: input.detail || null,
     stock: input.stock,
     options: toJson(input.options),
-  };
+    // vat_rate arrive avec la migration 20260817000001 (types à régénérer).
+    vat_rate: input.vatRate,
+  } as Omit<TablesInsert<"items">, "etablissement_id">;
 }
 
 export async function createItem(input: ItemInput): Promise<MenuItem> {
@@ -551,7 +555,12 @@ export async function markGroupPaid(
 
 export type EtablissementInput = Omit<
   Etablissement,
-  "id" | "slug" | "offre" | "onlinePayment" | "collectSlotCapacity"
+  | "id"
+  | "slug"
+  | "offre"
+  | "onlinePayment"
+  | "paymentProvider"
+  | "collectSlotCapacity"
 >;
 
 export async function updateEtablissement(
@@ -583,6 +592,24 @@ export async function setOnlinePayment(enabled: boolean): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.onlinePayment = enabled;
+  });
+}
+
+export async function setPaymentProvider(
+  provider: PaymentProvider | null
+): Promise<void> {
+  const supabase = createClient();
+  // Colonne ajoutée par la migration 20260817000001 (types à régénérer).
+  check(
+    await (supabase as unknown as {
+      from: (t: string) => ReturnType<typeof supabase.from>;
+    })
+      .from("etablissements")
+      .update({ payment_provider: provider })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.paymentProvider = provider;
   });
 }
 

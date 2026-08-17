@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +18,12 @@ export function CartBar() {
   // Paiement carte choisi mais impossible à démarrer : la commande reste
   // valable, il faut le dire au client (il paiera au comptoir).
   const [cardFailed, setCardFailed] = useState(false);
+  // Règlement SumUp en cours : le widget s'affiche dans la feuille à la place
+  // de l'écran « commande envoyée » (Stripe redirige, SumUp encaisse en page).
+  const [sumupPayment, setSumupPayment] = useState<{
+    orderId: string;
+    checkoutId: string;
+  } | null>(null);
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
   if (!cart.orderingEnabled || cart.tableNumber === null) return null;
@@ -49,7 +56,7 @@ export function CartBar() {
       return;
     }
 
-    if (payment === "carte") {
+    if (payment === "carte" && cart.paymentProvider === "stripe") {
       // La commande est en cuisine ; on enchaîne sur le règlement Stripe.
       try {
         const response = await fetch("/api/stripe/pay", {
@@ -71,13 +78,40 @@ export function CartBar() {
       }
     }
 
+    if (payment === "carte" && cart.paymentProvider === "sumup") {
+      // La commande est en cuisine ; le règlement se fait dans la page via
+      // le widget SumUp (le checkout est créé côté serveur, montant relu en
+      // base). En cas d'échec de démarrage : règlement au comptoir.
+      try {
+        const response = await fetch("/api/sumup/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId }),
+        });
+        const body = (await response.json()) as { checkoutId?: string };
+        if (response.ok && body.checkoutId) {
+          setSumupPayment({
+            orderId: orderId as string,
+            checkoutId: body.checkoutId,
+          });
+        } else {
+          setCardFailed(true);
+        }
+      } catch {
+        setCardFailed(true);
+      }
+    }
+
     cart.clear();
     setState("sent");
   };
 
   const close = () => {
     setOpen(false);
-    if (state === "sent") setState("idle");
+    if (state === "sent") {
+      setState("idle");
+      setSumupPayment(null);
+    }
   };
 
   return (
@@ -107,7 +141,16 @@ export function CartBar() {
             className="flex max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl"
             onClick={(event) => event.stopPropagation()}
           >
-            {state === "sent" ? (
+            {state === "sent" && sumupPayment ? (
+              <SumUpPayment
+                orderId={sumupPayment.orderId}
+                initialCheckoutId={sumupPayment.checkoutId}
+                onDone={(paid) => {
+                  setSumupPayment(null);
+                  if (!paid) setCardFailed(true);
+                }}
+              />
+            ) : state === "sent" ? (
               <div className="flex flex-col items-center gap-4 p-10 text-center">
                 <span className="ember-text font-display text-5xl">✓</span>
                 <h3 className="font-display text-2xl font-medium">

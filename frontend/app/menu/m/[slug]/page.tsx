@@ -57,7 +57,7 @@ export default async function MenuPage({
   const { embed, table } = await searchParams;
   const data = await getRestaurant(slug);
   if (!data) notFound();
-  const { restaurant, offre, onlinePayment } = data;
+  const { restaurant, offre, onlinePayment, paymentProvider } = data;
 
   const parsedTable = Number(Array.isArray(table) ? table[0] : table);
   const tableNumber =
@@ -76,6 +76,7 @@ export default async function MenuPage({
         tableNumber,
         orderingEnabled,
         onlinePayment: orderingEnabled && onlinePayment,
+        paymentProvider,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :

@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { uploadPhoto } from "@/lib/gestion/photo";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -47,6 +48,9 @@ export function ItemFormModal({
   const [image, setImage] = useState(item?.image ?? "");
   const [badges, setBadges] = useState<Badge[]>(item?.badges ?? []);
   const [pairing, setPairing] = useState(item?.pairing ?? "");
+  const [vatRate, setVatRate] = useState(
+    String(item?.vatRate ?? DEFAULT_VAT_RATE)
+  );
   const [categoryId, setCategoryId] = useState(initialCategoryId);
   const [options, setOptions] = useState<OptionGroupDraft[]>(
     optionsToDraft(item?.options)
@@ -95,6 +99,7 @@ export function ItemFormModal({
       pairing: pairing.trim(),
       options: draftToOptions(options),
       categoryId,
+      vatRate: Number(vatRate),
     };
     try {
       if (item) {
@@ -154,7 +159,7 @@ export function ItemFormModal({
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
+        <div className="grid gap-4 sm:grid-cols-[1fr_8rem_8rem]">
           <Field label="Catégorie" required>
             <select
               value={categoryId}
@@ -176,6 +181,19 @@ export function ItemFormModal({
               placeholder="∞"
               className={`${inputClass} ${submitted && !stockValid ? "border-ember-3/60" : ""}`}
             />
+          </Field>
+          <Field label="TVA" hint="Taux envoyé en caisse">
+            <select
+              value={vatRate}
+              onChange={(event) => setVatRate(event.target.value)}
+              className={inputClass}
+            >
+              {VAT_RATES.map((rate) => (
+                <option key={rate} value={String(rate)}>
+                  {String(rate).replace(".", ",")} %
+                </option>
+              ))}
+            </select>
           </Field>
         </div>
 

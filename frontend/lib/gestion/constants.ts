@@ -5,6 +5,7 @@ import type {
   OrderStatus,
   OrderType,
   PaymentMode,
+  PaymentProvider,
   Role,
 } from "./types";
 
@@ -95,6 +96,19 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   carte: "Carte",
   en_ligne: "En ligne",
 };
+
+export const PAYMENT_PROVIDER_LABELS: Record<PaymentProvider, string> = {
+  stripe: "Stripe",
+  sumup: "SumUp",
+};
+
+/**
+ * Taux de TVA de la restauration française : 5,5 % (emporter différé /
+ * scellé), 10 % (sur place et emporter immédiat), 20 % (alcools).
+ */
+export const VAT_RATES = [5.5, 10, 20] as const;
+/** Taux par défaut d'un article (miroir du défaut SQL de items.vat_rate). */
+export const DEFAULT_VAT_RATE = 10;
 
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
   digital: ["qr"],

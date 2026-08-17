@@ -33,6 +33,10 @@ export function rowToEtablissement(
     // Colonne de la migration 20260709000002 (types à régénérer) ; absente ⇒ false.
     onlinePayment:
       (row as { online_payment?: boolean }).online_payment ?? false,
+    // Colonne de la migration 20260817000001 (types à régénérer).
+    paymentProvider:
+      (row as { payment_provider?: Etablissement["paymentProvider"] })
+        .payment_provider ?? null,
     collectSlotCapacity:
       (row as { collect_slot_capacity?: number }).collect_slot_capacity ?? 5,
   };
@@ -52,6 +56,11 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
+    // Colonne de la migration 20260817000001 (types à régénérer).
+    vatRate:
+      (row as { vat_rate?: number | string }).vat_rate != null
+        ? Number((row as { vat_rate?: number | string }).vat_rate)
+        : undefined,
   };
 }
 

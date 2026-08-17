@@ -855,8 +855,8 @@
     "semantic_hash": ""
   },
   "lib/menu-data.ts": {
-    "mtime": 1786971265.654628,
-    "ast_hash": "932bf0cacd93a144331ffede422c9eaf",
+    "mtime": 1786972408.3448145,
+    "ast_hash": "e3f134dc537444a2834afce72f2a442d",
     "semantic_hash": ""
   },
   "lib/menu/cart.tsx": {
@@ -915,8 +915,8 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1786966902.5350978,
-    "ast_hash": "b36faa8b815272cd74db0c2e186aa36e",
+    "mtime": 1786972399.7804005,
+    "ast_hash": "141b342c7959e17f873321e34fba0819",
     "semantic_hash": ""
   },
   "postcss.config.mjs": {
@@ -1175,8 +1175,8 @@
     "semantic_hash": ""
   },
   "app/menu/m/[slug]/page.tsx": {
-    "mtime": 1786378603.3107362,
-    "ast_hash": "5bab1ef1e0ae22f72900a79e5f5243be",
+    "mtime": 1786972436.1516798,
+    "ast_hash": "7ba103680a66603fa1f1b7dd3e78c2b4",
     "semantic_hash": ""
   },
   "app/menu/onboarding/onboarding-form.tsx": {
@@ -1455,8 +1455,13 @@
     "semantic_hash": ""
   },
   "app/collect/demo/[slug]/page.tsx": {
-    "mtime": 1786971436.3186471,
-    "ast_hash": "3c69d63cd4ef810a4442de75e10c4a34",
+    "mtime": 1786972449.8482893,
+    "ast_hash": "d4156e8ded834df679ecf3784f45fd12",
+    "semantic_hash": ""
+  },
+  "scripts/seed-restaurant.ts": {
+    "mtime": 1786972386.1713605,
+    "ast_hash": "7c7a5765599870e661b7260b2f7e8b96",
     "semantic_hash": ""
   }
 }

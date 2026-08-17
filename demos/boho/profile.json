@@ -42,5 +42,5 @@
     "slot_count": 4,
     "slot_capacity": 5
   },
-  "notes": "Restaurant indépendant (aucun lien avec BOHO Marrakech). TikTok @bohotoulouse (137.8K abonnés) seule source sociale confirmée. À confirmer avec le client : handle Instagram, mojito multi-parfums ou recette unique (le menu liste 6 fruits), orthographes imprimées conservées (« Margarita », « Terracota », « mango »). Démo : /m/boho (menu QR, thème .theme-boho) + /collect/demo/boho ; seed via npm run seed:restaurant -- boho (bloqué tant que SUPABASE_SERVICE_ROLE_KEY de frontend/.env.local reste tronquée)."
+  "notes": "Restaurant indépendant (aucun lien avec BOHO Marrakech). TikTok @bohotoulouse (137.8K abonnés) seule source sociale confirmée. À confirmer avec le client : handle Instagram, mojito multi-parfums ou recette unique (le menu liste 6 fruits), orthographes imprimées conservées (« Margarita », « Terracota », « mango »). Démo : /m/boho (menu QR, thème .theme-boho) + /collect/demo/boho ; seed via npm run seed:restaurant -- boho (bloqué tant que SUPABASE_SERVICE_ROLE_KEY de frontend/.env.local reste tronquée). Caisse : SumUp présélectionné (payment_provider) au seed et par la migration 20260817000001 — l'OAuth SumUp reste à terminer par le gérant dans /gestion/etablissement (bouton « Connecter SumUp »)."
 }

@@ -113,7 +113,10 @@ export default function EtablissementPage() {
             key={state.etablissement.slug}
             etablissement={state.etablissement}
           />
-          <PaymentSettings initialEnabled={state.etablissement.onlinePayment} />
+          <PaymentSettings
+            initialEnabled={state.etablissement.onlinePayment}
+            initialProvider={state.etablissement.paymentProvider}
+          />
           {products.collect && (
             <CollectSettings
               initialSlotCapacity={state.etablissement.collectSlotCapacity}

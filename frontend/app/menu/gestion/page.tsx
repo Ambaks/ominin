@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
+import { SumUpPrompt } from "@/components/gestion/sumup-prompt";
 import { formatPrice } from "@/lib/menu-data";
 import {
   inProgressOrders,
@@ -36,6 +37,8 @@ export default function ApercuPage() {
         </h1>
         <p className="mt-1 text-sm capitalize text-muted">{today}</p>
       </div>
+
+      <SumUpPrompt />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {hasFeature("commandes") && (
