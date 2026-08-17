@@ -17,6 +17,14 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
       <div className="absolute inset-0 bg-linear-to-b from-background/40 via-background/55 to-background" />
 
       <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-2xl px-5 pb-6 lg:max-w-5xl lg:px-10 lg:pb-10">
+        {restaurant.logo && (
+          // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+          <img
+            src={restaurant.logo}
+            alt=""
+            className="mb-3 size-14 lg:mb-4 lg:size-16"
+          />
+        )}
         <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em] lg:text-xs lg:tracking-[0.35em]">
           {restaurant.tagline}
         </p>

@@ -87,27 +87,28 @@ html.light {
   Correspondance slug → classe : restaurantThemeClass (lib/menu-data.ts) ;
   palette issue de demos/<slug>/profile.json (source de vérité du client).
 
-  BOHO (Toulouse) — lounge marocain nocturne : nuit assumée quel que soit le
-  mode clair/sombre du site. Laiton → terracotta → argile en accent.
+  BOHO (Toulouse) — terrasse bohème au crépuscule (couverture du menu papier,
+  demos/boho/docs/) : nuit prune, crème rosée, accent lampes rotin → couchant
+  → rouge brique de la marque. Nuit assumée quel que soit le mode du site.
 */
 .theme-boho {
-  --background: #1a1714;
-  --foreground: #f5ede4;
+  --background: #251b20;
+  --foreground: #f6e9e6;
 
-  --surface: #231d17;
-  --surface-raised: #2c241c;
-  --hairline: rgba(245, 237, 228, 0.1);
+  --surface: #2f242a;
+  --surface-raised: #3a2c33;
+  --hairline: rgba(246, 233, 230, 0.11);
 
-  --muted: #b09c83;
-  --faint: #7d6d5b;
+  --muted: #c5a8a4;
+  --faint: #8d7173;
 
-  --ember-1: #d4a76a;
-  --ember-2: #c4713b;
-  --ember-3: #a04a31;
+  --ember-1: #e5b072;
+  --ember-2: #d97f6a;
+  --ember-3: #b5443a;
 
-  --shimmer-highlight: rgba(212, 167, 106, 0.14);
-  --glow-inner: rgba(212, 167, 106, 0.08);
-  --glow-outer: rgba(196, 113, 59, 0.05);
+  --shimmer-highlight: rgba(229, 176, 114, 0.14);
+  --glow-inner: rgba(229, 176, 114, 0.09);
+  --glow-outer: rgba(217, 127, 106, 0.05);
 
   color-scheme: dark;
 }

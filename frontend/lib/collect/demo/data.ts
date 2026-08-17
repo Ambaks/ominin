@@ -36,6 +36,13 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take: number }[]> = {
     { id: "desserts", take: 2 },
     { id: "cocktails", take: 2 },
   ],
+  boho: [
+    { id: "a-partager", take: 3 },
+    { id: "grillades", take: 3 },
+    { id: "pizzas", take: 2 },
+    { id: "desserts", take: 3 },
+    { id: "cocktails", take: 3 },
+  ],
 };
 
 export interface DemoMenuSection {

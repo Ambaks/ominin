@@ -65,17 +65,25 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
     event.preventDefault();
     setBusy(true);
     try {
-      const supabase = createClient();
       const email = inviteEmail.trim().toLowerCase();
-      const { error } = await supabase.from("invitations").insert({
-        etablissement_id: etablissementId,
-        email,
-        role: inviteRole,
+      const response = await fetch("/api/gestion/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          etablissement_id: etablissementId,
+          email,
+          role: inviteRole,
+        }),
       });
-      if (error) throw new Error(error.message);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
       setInviteEmail("");
       await load();
-      toast.success(`Invitation enregistrée pour ${email}.`);
+      toast.success(
+        result.existing_user
+          ? `${email} a rejoint l'équipe immédiatement.`
+          : `Invitation envoyée à ${email}.`,
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -158,7 +166,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
         <Field
           label="Email"
           required
-          hint="S'il a déjà un compte Ominin, il rejoint l'équipe immédiatement ; sinon l'accès s'activera à la création de son compte."
+          hint="S'il a déjà un compte Ominin, il rejoint l'équipe immédiatement ; sinon il recevra un email pour créer son accès."
         >
           <input
             type="email"

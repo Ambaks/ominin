@@ -2,12 +2,12 @@
   "$schema": "../_template/profile.schema.json",
   "slug": "boho",
   "name": "BOHO",
-  "tagline": "L'âme de Marrakech à Toulouse",
-  "cuisine": "Marocain · Lounge · Chicha",
-  "address": "72 Avenue des États Unis, 31200 Toulouse",
+  "tagline": "Ambiance bohème · L'élégance de la simplicité",
+  "cuisine": "Grillades · Pizzas · Street-food à partager · Cocktails",
+  "address": "72 Avenue des États-Unis, 31200 Toulouse",
   "city": "Toulouse",
   "phone": "+33 7 72 29 62 98",
-  "hours": "",
+  "hours": "Lun–Ven 12h–14h · 16h–2h / Sam 18h–3h / Dim 16h–2h",
   "website": "",
   "socials": {
     "tiktok": "https://www.tiktok.com/@bohotoulouse",
@@ -16,15 +16,25 @@
     "google_maps": "https://share.google/EIUzbXbXysu7yPcXN"
   },
   "design": {
-    "primary_color": "#C4713B",
-    "secondary_color": "#1A1714",
-    "accent_color": "#D4A76A",
-    "style_notes": "Bohème marocain : terracotta, noir chaud, laiton/or, vert riad (#4A7C5E), crème sable (#F5EDE4). Lounge nocturne, éclairage tamisé, zellige, bois sombre, végétation. Palette proposée d'après le concept — à valider sur place avec les photos de l'intérieur.",
-    "interior_vibe": "Riad revisité, chic décontracté, ambiance chill et cosy",
-    "reference_images": []
+    "primary_color": "#B5443A",
+    "secondary_color": "#251B20",
+    "accent_color": "#E5B072",
+    "style_notes": "Identité tirée du menu papier (demos/boho/docs/) : logo kilim (treillis 45° + losange, recréé en SVG dans frontend/public/boho/logo.svg), wordmark serif, rouge brique + doré sur papier crème rosé, couverture terrasse bohème au crépuscule (recadrée dans frontend/public/boho/cover.jpg). Palette web : nuit prune #251B20, crème rosée #F6E9E6, accent lampes #E5B072 → couchant #D97F6A → rouge BOHO #B5443A (classe .theme-boho, globals.css).",
+    "interior_vibe": "Terrasse bohème : pergola bois, suspensions rotin, guirlandes guinguette, palmiers, coucher de soleil rosé",
+    "reference_images": ["docs/IMG_0512.jpeg (couverture)", "docs/IMG_0517.jpeg (4e de couverture, logo rouge + horaires)"]
   },
   "menu": {
-    "categories": []
+    "source": "Menu papier photographié (docs/IMG_0512–0517.jpeg), transcrit le 2026-08-17. Registre applicatif : frontend/lib/menu-data.ts (const boho) — source unique de la carte, non dupliquée ici.",
+    "categories_summary": [
+      "À partager (nems, tempura, samoussas, yakitori, assortiment BOHO — 6–9 €)",
+      "L'Entrecôte « La Fameuse » 20 € + incontournables 16,90 € (bœuf, poulet, magret, saumon plancha, burger Boho)",
+      "Pizzas (Margarita 13 €, Saumon Norvégienne / Poulet Indienne / Chèvre Miel 15 €)",
+      "Salades gourmandes (carpaccio 16,50 €, burrata / César 14,50 €)",
+      "Desserts (8 € ; coupe de glace 6 € avec options boules/coulis/chantilly ; plateau fruits 15 €)",
+      "Menu enfant 9,90 € (options plat + dessert)",
+      "Cocktails 8 € (citronnade 6 €), Smoothies 7 €, Milkshakes 9 €",
+      "Boissons soft 3,50 € / Redbull 5 € / jus pressés 6 € / cafés Nespresso 2–4,50 €"
+    ]
   },
   "collect_settings": {
     "prep_minutes": 15,
@@ -32,5 +42,5 @@
     "slot_count": 4,
     "slot_capacity": 5
   },
-  "notes": "EN ATTENTE : menu complet (le partenaire le récupère sur place) + horaires + photos intérieur. Indépendant de BOHO Marrakech — seule source fiable : le TikTok @bohotoulouse (137.8K abonnés). Positionnement du client : « Ils veulent prendre l'âme de Marrakech et l'installer à Toulouse. » Ancien occupant de l'adresse : La Pelouse Interdite."
+  "notes": "Restaurant indépendant (aucun lien avec BOHO Marrakech). TikTok @bohotoulouse (137.8K abonnés) seule source sociale confirmée. À confirmer avec le client : handle Instagram, mojito multi-parfums ou recette unique (le menu liste 6 fruits), orthographes imprimées conservées (« Margarita », « Terracota », « mango »). Démo : /m/boho (menu QR, thème .theme-boho) + /collect/demo/boho ; seed via npm run seed:restaurant -- boho (bloqué tant que SUPABASE_SERVICE_ROLE_KEY de frontend/.env.local reste tronquée)."
 }

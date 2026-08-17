@@ -1,5 +1,5 @@
 import { assembleCategories } from "@/lib/gestion/mappers";
-import type { Restaurant } from "@/lib/menu-data";
+import { getRestaurant, type Restaurant } from "@/lib/menu-data";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /*
@@ -39,6 +39,8 @@ export async function fetchRestaurant(slug: string): Promise<{
       name: etablissement.name,
       tagline: etablissement.tagline,
       coverImage: etablissement.cover_image ?? undefined,
+      // Actif de marque géré côté code (comme le thème), pas en base.
+      logo: getRestaurant(etablissement.slug)?.logo,
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,

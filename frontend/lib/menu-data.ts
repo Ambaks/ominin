@@ -49,6 +49,8 @@ export interface Restaurant {
   tagline: string;
   /** undefined ⇒ fond dégradé de repli dans le hero. */
   coverImage?: string;
+  /** Logo de l'établissement (chemin public), affiché dans le hero du menu. */
+  logo?: string;
   address: string;
   phone: string;
   hours: string;
@@ -418,165 +420,352 @@ const trattoriaLucia: Restaurant = {
 
 /*
  * BOHO (Toulouse) — prospect Connect, démo de visite commerciale.
- * Carte provisoire : plats marocains plausibles en attendant la vraie carte
- * (voir demos/boho/profile.json, source de vérité du profil client).
- * À remplacer via /new-restaurant update boho dès réception.
+ * Carte transcrite du menu papier fourni par le client (demos/boho/docs/),
+ * identité issue de la couverture : logo kilim + terrasse bohème au
+ * crépuscule (actifs dans public/boho/). Source de vérité du profil :
+ * demos/boho/profile.json.
  */
 const boho: Restaurant = {
   slug: "boho",
   name: "BOHO",
-  tagline: "L'âme de Marrakech à Toulouse",
-  coverImage: unsplash("photo-1539020140153-e479b8c22e70", 1800),
-  address: "72 Avenue des États Unis, 31200 Toulouse",
+  tagline: "Ambiance bohème · L'élégance de la simplicité",
+  coverImage: "/boho/cover.jpg",
+  logo: "/boho/logo.svg",
+  address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
-  hours: "Horaires à confirmer",
+  hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
   categories: [
     {
-      id: "entrees",
-      name: "Entrées & Mezzés",
-      tagline: "Pour ouvrir l'appétit, à partager",
+      id: "a-partager",
+      name: "À partager",
       items: [
+        { id: "nems-legumes", name: "Nems légumes (x4)", price: 6 },
+        { id: "nems-poulet", name: "Nems poulet (x4)", price: 6 },
+        { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7 },
+        { id: "samoussas-boeuf", name: "Samoussas bœuf (x4)", price: 6 },
+        { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6 },
         {
-          id: "zaalouk",
-          name: "Zaalouk d'aubergines",
+          id: "assortiment-boho",
+          name: "Assortiment BOHO",
           description:
-            "Caviar d'aubergines fumées, tomates confites, cumin et huile d'olive, servi avec khobz maison.",
-          price: 7.5,
-        },
-        {
-          id: "briouates",
-          name: "Briouates croustillantes",
-          description:
-            "Feuilletés dorés au fromage frais et à la menthe, filet de miel à la fleur d'oranger.",
-          price: 8,
-        },
-        {
-          id: "harira",
-          name: "Harira traditionnelle",
-          description:
-            "Soupe onctueuse de tomates, lentilles et pois chiches, coriandre fraîche.",
-          price: 6.5,
+            "1 nem poulet, 1 nem crevette, 1 samoussa bœuf, 1 nem légumes.",
+          price: 9,
         },
       ],
     },
     {
-      id: "plats",
-      name: "Tajines & Couscous",
-      tagline: "Mijotés comme à Marrakech",
+      id: "grillades",
+      name: "L'Entrecôte & grillades",
+      tagline: "Le produit phare, frites fraîches maison et salade",
       items: [
         {
-          id: "tajine-poulet",
-          name: "Tajine poulet citron confit",
+          id: "entrecote",
+          name: "L'Entrecôte « La Fameuse »",
           description:
-            "Poulet fermier mijoté aux citrons confits et olives violettes, gingembre et safran.",
-          price: 16,
+            "Grillée à la perfection, notre sauce verte maison, frites fraîches et salade.",
+          price: 20,
           badges: ["top"],
         },
         {
-          id: "tajine-kefta",
-          name: "Tajine kefta à l'œuf",
-          description:
-            "Boulettes de bœuf épicées, sauce tomate au paprika fumé, œuf poché au dernier moment.",
-          price: 15,
-          image: unsplash("photo-1596797038530-2c107229654b", 800),
+          id: "piece-boeuf",
+          name: "Pièce de bœuf grillée",
+          description: "Servie avec frites fraîches maison et salade assaisonnée.",
+          price: 16.9,
         },
         {
-          id: "couscous-royal",
-          name: "Couscous royal",
-          description:
-            "Semoule roulée main, agneau, poulet, merguez et légumes du marché, bouillon parfumé.",
-          price: 19,
+          id: "piece-poulet",
+          name: "Pièce de poulet grillée",
+          description: "Servie avec frites fraîches maison et salade assaisonnée.",
+          price: 16.9,
+        },
+        {
+          id: "magret-canard",
+          name: "Magret de canard grillé",
+          description: "Servi avec frites fraîches maison et salade assaisonnée.",
+          price: 16.9,
+        },
+        {
+          id: "saumon-plancha",
+          name: "Escalope de saumon frais à la plancha",
+          description: "Servie avec frites fraîches maison et salade assaisonnée.",
+          price: 16.9,
+        },
+        {
+          id: "burger-boho",
+          name: "Burger original Boho",
+          description: "Servi avec frites fraîches maison et salade assaisonnée.",
+          price: 16.9,
           badges: ["maison"],
-          image: unsplash("photo-1541518763669-27fef04b14ea", 800),
-        },
-        {
-          id: "tanjia",
-          name: "Tanjia marrakchia",
-          description:
-            "Jarret d'agneau confit sept heures aux épices douces, cuisson lente à l'étouffée.",
-          price: 18,
-          badges: ["nouveau"],
         },
       ],
     },
     {
-      id: "snacking",
-      name: "Snacking BOHO",
-      tagline: "L'esprit street-food de la médina",
+      id: "pizzas",
+      name: "Pizzas",
       items: [
         {
-          id: "msemen-garni",
-          name: "Msemen garni",
-          description:
-            "Crêpe feuilletée grillée, kefta d'agneau, oignons caramélisés et chermoula.",
-          price: 9.5,
+          id: "pizza-margarita",
+          name: "Pizza Margarita",
+          description: "Base tomate, mozzarella et basilic.",
+          price: 13,
         },
         {
-          id: "batbout-poulet",
-          name: "Batbout poulet crousti",
+          id: "pizza-saumon",
+          name: "Pizza Saumon Norvégienne",
+          description: "Base crème fraîche, mozzarella, saumon, aneth.",
+          price: 15,
+        },
+        {
+          id: "pizza-poulet-indienne",
+          name: "Pizza Poulet Indienne",
+          description: "Base crème, poulet, sauce curry, mozzarella.",
+          price: 15,
+        },
+        {
+          id: "pizza-chevre-miel",
+          name: "Pizza Chèvre Miel",
+          description: "Base crème, mozzarella, fromage de chèvre, miel.",
+          price: 15,
+        },
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades gourmandes",
+      items: [
+        {
+          id: "carpaccio-boeuf",
+          name: "Carpaccio de bœuf",
           description:
-            "Pain moelleux cuit à la poêle, poulet croustillant, crudités et sauce blanche maison.",
-          price: 10,
+            "Roquette, parmesan, tomates cerises, copeaux de parmesan, huile d'olive.",
+          price: 16.5,
+        },
+        {
+          id: "tomate-burrata",
+          name: "Tomate burrata",
+          description: "Tomates anciennes, burrata crémeuse, pesto, roquette.",
+          price: 14.5,
+        },
+        {
+          id: "salade-cesar",
+          name: "Salade César",
+          description:
+            "Poulet grillé, salade romaine, parmesan, sauce César, croûtons.",
+          price: 14.5,
         },
       ],
     },
     {
       id: "desserts",
       name: "Desserts",
-      tagline: "La douceur de l'Orient",
       items: [
+        { id: "creme-brulee", name: "Crème brûlée", price: 8 },
+        { id: "tiramisu-cafe", name: "Tiramisu au café", price: 8 },
+        { id: "brioche-pain-perdu", name: "Brioche façon pain perdu", price: 8 },
+        { id: "coupe-fruits", name: "Coupe de fruits", price: 8 },
+        { id: "crepes-nutella", name: "Crêpes Nutella", price: 8 },
+        { id: "gaufre-nutella", name: "Gaufre Nutella", price: 8 },
         {
-          id: "cornes-gazelle",
-          name: "Cornes de gazelle",
-          description:
-            "Pâtisserie fine aux amandes et à la fleur d'oranger, façonnée à la main.",
+          id: "coupe-glace",
+          name: "Coupe de glace (2 boules)",
+          description: "Et son coulis au choix.",
           price: 6,
+          options: [
+            {
+              id: "boule-1",
+              name: "1re boule",
+              obligatoire: true,
+              choices: [
+                { id: "b1-vanille", name: "Vanille", supplement: 0 },
+                { id: "b1-chocolat", name: "Chocolat", supplement: 0 },
+                { id: "b1-fraise", name: "Fraise", supplement: 0 },
+                { id: "b1-caramel", name: "Caramel", supplement: 0 },
+              ],
+            },
+            {
+              id: "boule-2",
+              name: "2e boule",
+              obligatoire: true,
+              choices: [
+                { id: "b2-vanille", name: "Vanille", supplement: 0 },
+                { id: "b2-chocolat", name: "Chocolat", supplement: 0 },
+                { id: "b2-fraise", name: "Fraise", supplement: 0 },
+                { id: "b2-caramel", name: "Caramel", supplement: 0 },
+              ],
+            },
+            {
+              id: "coulis",
+              name: "Coulis",
+              obligatoire: true,
+              choices: [
+                { id: "coulis-pistache", name: "Pistache", supplement: 0 },
+                { id: "coulis-chocolat", name: "Chocolat", supplement: 0 },
+                { id: "coulis-fruit-rouge", name: "Fruit rouge", supplement: 0 },
+                { id: "coulis-caramel", name: "Caramel", supplement: 0 },
+              ],
+            },
+            {
+              id: "chantilly",
+              name: "Chantilly",
+              obligatoire: false,
+              choices: [
+                { id: "chantilly-supp", name: "Chantilly supplémentaire", supplement: 1 },
+              ],
+            },
+          ],
         },
         {
-          id: "pastilla-lait",
-          name: "Pastilla au lait",
-          description:
-            "Feuilles croustillantes, crème à la fleur d'oranger, amandes torréfiées.",
-          price: 7,
-        },
-        {
-          id: "fondant-cannelle",
-          name: "Fondant chocolat-cannelle",
-          description:
-            "Cœur coulant au chocolat noir relevé d'une pointe de cannelle.",
-          price: 7.5,
-          image: unsplash("photo-1541783245831-57d6fb0926d3", 800),
+          id: "plateau-fruits",
+          name: "Plateau de fruits frais",
+          description: "Fruits de saison, frais découpés.",
+          price: 15,
         },
       ],
     },
     {
-      id: "boissons",
-      name: "Thés & Boissons",
-      tagline: "Le rituel du thé, versé haut",
+      id: "menu-enfant",
+      name: "Menu enfant",
+      tagline: "Jusqu'à 10 ans",
       items: [
         {
-          id: "the-menthe",
-          name: "Thé à la menthe",
+          id: "menu-enfant-plat",
+          name: "Menu enfant",
           description:
-            "Thé vert gunpowder infusé à la menthe fraîche, servi sucré.",
-          price: 4,
-          detail: "Théière · 2 pers.",
-          badges: ["maison"],
+            "Plat au choix, frites fraîches et salade, dessert au choix.",
+          price: 9.9,
+          options: [
+            {
+              id: "plat-enfant",
+              name: "Plat",
+              obligatoire: true,
+              choices: [
+                { id: "enfant-poulet", name: "Poulet grillé", supplement: 0 },
+                { id: "enfant-steak", name: "Steak haché", supplement: 0 },
+              ],
+            },
+            {
+              id: "dessert-enfant",
+              name: "Dessert",
+              obligatoire: true,
+              choices: [
+                {
+                  id: "enfant-glace",
+                  name: "Coupe de glace et son coulis",
+                  supplement: 0,
+                },
+                { id: "enfant-fruits", name: "Coupe de fruits", supplement: 0 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      items: [
+        {
+          id: "mojito",
+          name: "Mojito",
+          description: "Fraise, framboise, passion, mango, ananas, menthe.",
+          price: 8,
         },
         {
-          id: "citronnade-gingembre",
-          name: "Citronnade au gingembre",
-          description: "Citrons pressés minute, gingembre frais, menthe pilée.",
-          price: 4.5,
-          detail: "33 cl",
+          id: "sex-on-the-beach",
+          name: "Sex on the Beach",
+          description: "Orange, ananas, pêche, cranberry.",
+          price: 8,
         },
         {
-          id: "jus-orange",
-          name: "Jus d'orange pressé",
-          description: "Oranges pressées à la commande.",
-          price: 5,
-          detail: "25 cl",
+          id: "blue-lagoon",
+          name: "Blue Lagoon",
+          description: "Ananas, curaçao blue, coco, crème.",
+          price: 8,
         },
+        {
+          id: "ginger-lemonade",
+          name: "Ginger Lemonade",
+          description: "Ginger, lemon, miel, soda.",
+          price: 8,
+        },
+        { id: "terracota", name: "Terracota", description: "Fraise, orange.", price: 8 },
+        {
+          id: "latina-passion",
+          name: "Latina Passion",
+          description: "Passion, citron vert.",
+          price: 8,
+        },
+        {
+          id: "citronnade-maison",
+          name: "Citronnade maison",
+          description: "Citron, menthe, sucre.",
+          price: 6,
+        },
+      ],
+    },
+    {
+      id: "smoothies",
+      name: "Smoothies",
+      items: [
+        { id: "pina-colada", name: "Pina Colada", description: "Ananas, coco.", price: 7 },
+        {
+          id: "coco-mango",
+          name: "Coco Mango",
+          description: "Mangue, noix de coco, fruit de la passion.",
+          price: 7,
+        },
+        {
+          id: "red-dragon",
+          name: "Red Dragon",
+          description: "Fraise, framboise, ananas.",
+          price: 7,
+        },
+        {
+          id: "rose-garden",
+          name: "Rose Garden",
+          description: "Fraise, orange, banane, citron.",
+          price: 7,
+        },
+      ],
+    },
+    {
+      id: "milkshakes",
+      name: "Milkshakes",
+      items: [
+        { id: "milkshake-popcorn", name: "Pop Corn", price: 9 },
+        { id: "fraise-tagada", name: "Fraise Tagada", price: 9 },
+        { id: "banoffee", name: "Banoffee", price: 9 },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "jus-fruits-frais",
+          name: "Jus de fruits naturel",
+          description: "Fruits frais pressés à la minute.",
+          price: 6,
+        },
+        { id: "coca-cola", name: "Coca Cola", price: 3.5 },
+        { id: "coca-zero", name: "Coca Zero", price: 3.5 },
+        { id: "ice-tea", name: "Ice Tea", price: 3.5 },
+        { id: "perrier", name: "Perrier", price: 3.5 },
+        { id: "evian", name: "Evian", price: 3.5 },
+        { id: "redbull", name: "Redbull", price: 5 },
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      tagline: "Nespresso — carte complète sur demande",
+      items: [
+        { id: "ristretto", name: "Ristretto", price: 2 },
+        { id: "espresso", name: "Espresso", price: 2 },
+        { id: "lungo", name: "Lungo", price: 2 },
+        { id: "noisette", name: "Noisette", price: 2.2 },
+        { id: "cappuccino", name: "Cappuccino", price: 4 },
+        { id: "latte-macchiato", name: "Latte Macchiato", price: 4.5 },
       ],
     },
   ],
