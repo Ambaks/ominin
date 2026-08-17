@@ -12,6 +12,7 @@
     "sync:maplibre": "mkdir -p public/maplibre && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/maplibre/",
     "seed:crm": "tsx --env-file=../backend/.env scripts/seed-crm.ts",
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
+    "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts"
   },
   "dependencies": {

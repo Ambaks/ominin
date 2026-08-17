@@ -79,6 +79,39 @@ html.light {
   color-scheme: light;
 }
 
+/*
+  Thèmes par établissement (menu public /m/<slug> et démos client) : la
+  classe theme-<slug> posée sur le conteneur de la page redéfinit les jetons
+  bruts pour son sous-arbre — @theme inline fait référencer ces variables
+  directement par les utilitaires, l'ancêtre le plus proche gagne.
+  Correspondance slug → classe : restaurantThemeClass (lib/menu-data.ts) ;
+  palette issue de demos/<slug>/profile.json (source de vérité du client).
+
+  BOHO (Toulouse) — lounge marocain nocturne : nuit assumée quel que soit le
+  mode clair/sombre du site. Laiton → terracotta → argile en accent.
+*/
+.theme-boho {
+  --background: #1a1714;
+  --foreground: #f5ede4;
+
+  --surface: #231d17;
+  --surface-raised: #2c241c;
+  --hairline: rgba(245, 237, 228, 0.1);
+
+  --muted: #b09c83;
+  --faint: #7d6d5b;
+
+  --ember-1: #d4a76a;
+  --ember-2: #c4713b;
+  --ember-3: #a04a31;
+
+  --shimmer-highlight: rgba(212, 167, 106, 0.14);
+  --glow-inner: rgba(212, 167, 106, 0.08);
+  --glow-outer: rgba(196, 113, 59, 0.05);
+
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

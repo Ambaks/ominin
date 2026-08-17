@@ -154,9 +154,9 @@ function MenuView({ framed }: { framed: boolean }) {
       <div ref={scrollRef} className="flex flex-1 flex-col overflow-y-auto">
         {/* Couverture pleine largeur, fondue vers le fond — file sous l'île */}
         <div className="relative h-28 shrink-0">
-          {COLLECT_DEMO.restaurant.coverImage && (
+          {demo.restaurant.coverImage && (
             <Image
-              src={COLLECT_DEMO.restaurant.coverImage}
+              src={demo.restaurant.coverImage}
               alt=""
               fill
               sizes="384px"
@@ -181,10 +181,10 @@ function MenuView({ framed }: { framed: boolean }) {
         >
           <div className="px-1">
             <p className="font-display text-lg font-medium leading-tight">
-              {COLLECT_DEMO.restaurant.name}
+              {demo.restaurant.name}
             </p>
             <p className="text-[11px] text-muted">
-              {COLLECT_DEMO.restaurant.tagline}
+              {demo.restaurant.tagline}
             </p>
           </div>
           <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
@@ -454,9 +454,10 @@ const TIMELINE = [
 ] as const;
 
 function ItineraryButton() {
+  const demo = useCollectDemo();
   return (
     <a
-      href={COLLECT_DEMO.itineraryUrl}
+      href={demo.restaurant.itineraryUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
@@ -633,10 +634,10 @@ function TrackingView({ topPad }: { topPad: string }) {
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">
-              {COLLECT_DEMO.restaurant.name}
+              {demo.restaurant.name}
             </p>
             <p className="truncate text-xs text-muted">
-              {COLLECT_DEMO.restaurant.address}
+              {demo.restaurant.address}
             </p>
           </div>
           <ItineraryButton />

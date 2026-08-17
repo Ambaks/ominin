@@ -142,9 +142,6 @@
   "140": "hasDebugData",
   "141": "writeMessage",
   "142": "addFeature",
-  "143": "update",
   "144": "replace",
-  "145": "splitTile",
-  "146": "update",
   "147": "loadVectorTile"
 }

@@ -9,11 +9,13 @@ import {
   useRef,
   useState,
 } from "react";
-import type { MenuItem } from "@/lib/menu-data";
+import { DEMO_SLUG, type MenuItem } from "@/lib/menu-data";
 import {
   buildDemoMenu,
   COLLECT_DEMO,
   type DemoMenuSection,
+  demoRestaurantInfo,
+  type DemoRestaurantInfo,
   type DemoStep,
 } from "./data";
 
@@ -57,6 +59,8 @@ interface CollectDemoState {
 }
 
 interface CollectDemoValue extends CollectDemoState {
+  /** Restaurant joué par la démo (identité, couverture, itinéraire). */
+  restaurant: DemoRestaurantInfo;
   /** Menu de la démo groupé par catégorie (navigation du volet client). */
   sections: DemoMenuSection[];
   /** Le même menu à plat, pour les calculs de panier. */
@@ -110,11 +114,15 @@ export function useCollectDemo(): CollectDemoValue {
 }
 
 export function CollectDemoProvider({
+  slug = DEMO_SLUG,
   children,
 }: {
+  /** Slug du restaurant joué (défaut : la Trattoria de la landing). */
+  slug?: string;
   children: React.ReactNode;
 }) {
-  const sections = useMemo(() => buildDemoMenu(), []);
+  const restaurant = useMemo(() => demoRestaurantInfo(slug), [slug]);
+  const sections = useMemo(() => buildDemoMenu(slug), [slug]);
   const menu = useMemo(
     () => sections.flatMap((section) => section.items),
     [sections]
@@ -318,6 +326,7 @@ export function CollectDemoProvider({
   const value = useMemo<CollectDemoValue>(
     () => ({
       ...state,
+      restaurant,
       sections,
       menu,
       addItem,
@@ -335,6 +344,7 @@ export function CollectDemoProvider({
     }),
     [
       state,
+      restaurant,
       sections,
       menu,
       addItem,

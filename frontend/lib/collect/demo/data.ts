@@ -3,9 +3,12 @@ import type { OrderStatus } from "@/lib/gestion/types";
 import { DEMO_SLUG, getRestaurant, type MenuItem } from "@/lib/menu-data";
 
 /*
- * Fixtures et réglages de la démo interactive Collect (landing). L'unique
- * endroit avec des nombres : minuteries, persona, sous-ensemble du menu.
- * Le menu vient de la Trattoria Lucia (lib/menu-data.ts), jamais dupliqué.
+ * Fixtures et réglages de la démo interactive Collect. L'unique endroit
+ * avec des nombres : minuteries, persona, sous-ensemble du menu. Les menus
+ * viennent de lib/menu-data.ts, jamais dupliqués. La même scène sert la
+ * landing (Trattoria Lucia) et les démos client (/collect/demo/[slug]) :
+ * tout ce qui dépend du restaurant passe par demoRestaurantInfo(slug) et
+ * buildDemoMenu(slug), le reste (copy, minuteries) est partagé.
  */
 
 /** Étapes de la démo : parcours client puis cycle de vie de la commande
@@ -21,18 +24,19 @@ export type DemoStep =
   | "retiree"
   | "annulee";
 
-const restaurant = getRestaurant(DEMO_SLUG)!;
-
-/** Sections de la démo : catégories de la Trattoria, N plats chacune —
- * assez pour que la navigation par catégories ait du sens dans un écran
- * de téléphone, sans noyer le visiteur. */
-const DEMO_MENU_CATEGORIES = [
-  { id: "antipasti", take: 3 },
-  { id: "pizzas", take: 3 },
-  { id: "pates", take: 2 },
-  { id: "desserts", take: 2 },
-  { id: "cocktails", take: 2 },
-];
+/** Sous-ensemble du menu par restaurant : la démo de la landing montre un
+ * extrait de la Trattoria (assez pour que la navigation par catégories ait
+ * du sens dans un écran de téléphone, sans noyer le visiteur). Un client
+ * démo sans entrée ici joue sa carte complète. */
+const DEMO_MENU_SPEC: Record<string, { id: string; take: number }[]> = {
+  [DEMO_SLUG]: [
+    { id: "antipasti", take: 3 },
+    { id: "pizzas", take: 3 },
+    { id: "pates", take: 2 },
+    { id: "desserts", take: 2 },
+    { id: "cocktails", take: 2 },
+  ],
+};
 
 export interface DemoMenuSection {
   id: string;
@@ -40,8 +44,18 @@ export interface DemoMenuSection {
   items: MenuItem[];
 }
 
-export function buildDemoMenu(): DemoMenuSection[] {
-  return DEMO_MENU_CATEGORIES.flatMap(({ id, take }) => {
+export function buildDemoMenu(slug: string = DEMO_SLUG): DemoMenuSection[] {
+  const restaurant = getRestaurant(slug);
+  if (!restaurant) return [];
+  const spec = DEMO_MENU_SPEC[slug];
+  if (!spec) {
+    return restaurant.categories.map(({ id, name, items }) => ({
+      id,
+      name,
+      items,
+    }));
+  }
+  return spec.flatMap(({ id, take }) => {
     const category = restaurant.categories.find((entry) => entry.id === id);
     return category
       ? [{ id, name: category.name, items: category.items.slice(0, take) }]
@@ -49,13 +63,27 @@ export function buildDemoMenu(): DemoMenuSection[] {
   });
 }
 
-export const COLLECT_DEMO = {
-  restaurant: {
+/** Identité du restaurant joué par la démo (volets client et restaurant). */
+export interface DemoRestaurantInfo {
+  name: string;
+  tagline: string;
+  address: string;
+  coverImage?: string;
+  itineraryUrl: string;
+}
+
+export function demoRestaurantInfo(slug: string = DEMO_SLUG): DemoRestaurantInfo {
+  const restaurant = getRestaurant(slug)!;
+  return {
     name: restaurant.name,
     tagline: restaurant.tagline,
     address: restaurant.address,
     coverImage: restaurant.coverImage,
-  },
+    itineraryUrl: mapsDirectionsHref(`${restaurant.name}, ${restaurant.address}`),
+  };
+}
+
+export const COLLECT_DEMO = {
   timings: {
     /** Faux paiement Stripe côté téléphone. */
     paymentMs: 1600,
@@ -80,7 +108,6 @@ export const COLLECT_DEMO = {
     /** Commandes déjà « prises » sur certains créneaux (index 0-based). */
     takenBySlot: [2, 4, 5, 1] as readonly number[],
   },
-  itineraryUrl: mapsDirectionsHref(`${restaurant.name}, ${restaurant.address}`),
   /** Puce guide : la prochaine action, nommée — jamais d'auto-play. */
   hints: {
     menu: "Composez la commande sur le téléphone.",

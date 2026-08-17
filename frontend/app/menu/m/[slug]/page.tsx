@@ -7,6 +7,7 @@ import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuSection } from "@/components/menu/menu-section";
 import { CartProvider } from "@/lib/menu/cart";
+import { restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -77,7 +78,11 @@ export default async function MenuPage({
         onlinePayment: orderingEnabled && onlinePayment,
       }}
     >
-      <div className="flex flex-1 flex-col">
+      {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
+          la barre est fixed mais reste dans le sous-arbre des variables. */}
+      <div
+        className={`${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
+      >
         <Hero restaurant={restaurant} />
         <CategoryNav categories={categoryLinks} embedded={embed === "1"} />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
@@ -86,8 +91,8 @@ export default async function MenuPage({
           ))}
         </main>
         <MenuFooter restaurant={restaurant} />
+        <CartBar />
       </div>
-      <CartBar />
     </CartProvider>
   );
 }
