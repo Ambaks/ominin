@@ -22,6 +22,19 @@ tracking, forecasting, invoice processing, and back-office automation.
 > gives). Also pending: a Resend account for the contact form, the branded
 > signup-confirmation email template, and the upload-post account for Clip.
 
+**Menu image audit — BOHO restaurant** (completed): Audited all Unsplash food
+photography IDs in the BOHO demo restaurant menu (`frontend/lib/menu-data.ts`).
+Replaced 5 static code images that showed completely wrong food: Nems poulet
+(showed clam pasta → fried spring rolls), Yakitori bœuf fromage (brisket →
+glazed meat skewers), Pizza Saumon Norvégienne (BBQ chicken → smoked salmon),
+Pizza Poulet Indienne (salami/olive → chicken pizza), Fraise Tagada milkshake
+(ice cream sundae → pink strawberry shake). Additionally, 9 items were corrected
+directly in Supabase DB (not code changes): Tajine poulet citron confit, Briouates,
+Zaalouk, Batbout, Msemen, Cornes de gazelle, Pastilla au lait, Thé à la menthe,
+Jus d'orange — all had images showing wrong food (tacos, cookies, chef, etc.).
+Every replacement was visually verified by downloading and inspecting each
+image. No regression in existing food photography on other menu items.
+
 **Internal sales CRM** (new) at `admin.ominin.com` — `app/admin/**`, the fourth
 `PRODUCTS` entry in `frontend/proxy.ts` (whole tree private via
 `privatePaths: ["/"]`; the guard now excludes `/connexion` so the login page

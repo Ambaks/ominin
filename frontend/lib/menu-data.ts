@@ -445,10 +445,10 @@ const boho: Restaurant = {
       name: "À partager",
       items: [
         { id: "nems-legumes", name: "Nems légumes (x4)", price: 6, image: unsplash("photo-1544025162-d76694265947", 400) },
-        { id: "nems-poulet", name: "Nems poulet (x4)", price: 6, image: unsplash("photo-1595295333158-4742f28fbd85", 400) },
+        { id: "nems-poulet", name: "Nems poulet (x4)", price: 6, image: unsplash("photo-1515022376298-7333f33e704b", 400) },
         { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7, image: unsplash("photo-1565680018434-b513d5e5fd47", 400) },
         { id: "samoussas-boeuf", name: "Samoussas bœuf (x4)", price: 6, image: unsplash("photo-1601050690597-df0568f70950", 400) },
-        { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6, image: unsplash("photo-1529692236671-f1f6cf9683ba", 400) },
+        { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6, image: unsplash("photo-1778327564625-abda522078de", 400) },
         {
           id: "assortiment-boho",
           image: unsplash("photo-1541529086526-db283c563270", 400),
@@ -524,14 +524,14 @@ const boho: Restaurant = {
         },
         {
           id: "pizza-saumon",
-          image: unsplash("photo-1565299624946-b28f40a0ae38", 400),
+          image: unsplash("photo-1786175307135-f07babbf501b", 400),
           name: "Pizza Saumon Norvégienne",
           description: "Base crème fraîche, mozzarella, saumon, aneth.",
           price: 15,
         },
         {
           id: "pizza-poulet-indienne",
-          image: unsplash("photo-1604382354936-07c5d9983bd3", 400),
+          image: unsplash("photo-1613564834361-9436948817d1", 400),
           name: "Pizza Poulet Indienne",
           description: "Base crème, poulet, sauce curry, mozzarella.",
           price: 15,
@@ -763,7 +763,7 @@ const boho: Restaurant = {
       name: "Milkshakes",
       items: [
         { id: "milkshake-popcorn", name: "Pop Corn", price: 9, image: unsplash("photo-1572490122747-3968b75cc699", 400) },
-        { id: "fraise-tagada", name: "Fraise Tagada", price: 9, image: unsplash("photo-1579954115563-e72bf1381629", 400) },
+        { id: "fraise-tagada", name: "Fraise Tagada", price: 9, image: unsplash("photo-1686638745403-d21193f16b2f", 400) },
         { id: "banoffee", name: "Banoffee", price: 9, image: unsplash("photo-1541658016709-82535e94bc69", 400) },
       ],
     },
