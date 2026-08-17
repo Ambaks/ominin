@@ -335,9 +335,11 @@ export async function findDuplicates(input: {
   const rows = must(
     await supabase.rpc("crm_find_duplicates", {
       p_name: input.name,
-      p_city: input.city || null,
-      p_phone: input.phone || null,
-      p_email: input.email || null,
+      // Types régénérés : les arguments facultatifs du RPC s'omettent
+      // (undefined), ils ne se passent pas à null.
+      p_city: input.city || undefined,
+      p_phone: input.phone || undefined,
+      p_email: input.email || undefined,
     })
   );
   return rows.map((row) => ({

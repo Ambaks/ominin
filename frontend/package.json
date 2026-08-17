@@ -9,7 +9,7 @@
     "lint": "eslint",
     "predev": "npm run sync:maplibre",
     "prebuild": "npm run sync:maplibre",
-    "sync:maplibre": "mkdir -p public/maplibre && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/maplibre/",
+    "sync:maplibre": "node -e \"const fs=require('fs');fs.mkdirSync('public/maplibre',{recursive:true});for(const f of['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs'])fs.copyFileSync('node_modules/maplibre-gl/dist/'+f,'public/maplibre/'+f)\"",
     "seed:crm": "tsx --env-file=../backend/.env scripts/seed-crm.ts",
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts"
