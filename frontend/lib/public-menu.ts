@@ -14,6 +14,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   /** Null pour un établissement en click & collect seul (pas de salle). */
   offre: string | null;
   onlinePayment: boolean;
+  /** Fournisseur du paiement à table ; non choisi ⇒ Stripe (historique). */
+  paymentProvider: "stripe" | "sumup";
   restaurant: Restaurant;
 } | null> {
   const supabase = createPublicClient();
@@ -30,17 +32,25 @@ export async function fetchRestaurant(slug: string): Promise<{
   if (error) throw new Error(error.message);
   if (!etablissement) return null;
 
+  // Actifs de marque gérés côté code pour les démos (comme le thème).
+  const staticData = getRestaurant(etablissement.slug);
+
   return {
     id: etablissement.id,
     offre: etablissement.offre,
     onlinePayment: etablissement.online_payment,
+    // Colonne de la migration 20260817000001 (types à régénérer).
+    paymentProvider:
+      (etablissement as { payment_provider?: "stripe" | "sumup" | null })
+        .payment_provider ?? "stripe",
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,
       tagline: etablissement.tagline,
-      coverImage: etablissement.cover_image ?? undefined,
-      // Actif de marque géré côté code (comme le thème), pas en base.
-      logo: getRestaurant(etablissement.slug)?.logo,
+      coverImage: staticData
+        ? staticData.coverImage
+        : (etablissement.cover_image ?? undefined),
+      logo: staticData?.logo,
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,

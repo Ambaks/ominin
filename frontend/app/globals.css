@@ -605,6 +605,74 @@ body {
   animation: soft-pulse 1.6s ease-out infinite;
 }
 
+/* Logo-centric hero: staggered entrance */
+@keyframes hero-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-entrance {
+  opacity: 0;
+  animation: hero-entrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes logo-breathe {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.38;
+    transform: scale(1.1);
+  }
+}
+
+.logo-breathe {
+  animation: logo-breathe 5s ease-in-out infinite;
+}
+
+@keyframes gradient-drift {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.hero-gradient-drift {
+  background: radial-gradient(
+    ellipse 40% 30% at 55% 42%,
+    color-mix(in srgb, var(--ember-2) 6%, transparent),
+    transparent 70%
+  );
+  animation: gradient-drift 8s ease-in-out infinite;
+}
+
+@keyframes scroll-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+.scroll-bounce {
+  animation: scroll-bounce 2.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -624,7 +692,15 @@ body {
   .soft-pulse,
   .pop,
   .steam,
-  .animate-pulse {
+  .animate-pulse,
+  .logo-breathe,
+  .hero-gradient-drift,
+  .scroll-bounce {
+    animation: none;
+  }
+  .hero-entrance {
+    opacity: 1;
+    transform: none;
     animation: none;
   }
   .pop {

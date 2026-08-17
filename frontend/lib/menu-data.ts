@@ -34,6 +34,8 @@ export interface MenuItem {
   /** undefined/null ⇒ stock illimité. */
   stock?: number | null;
   options?: OptionGroup[];
+  /** Taux de TVA (%), pour l'envoi en caisse. undefined ⇒ 10 (défaut base). */
+  vatRate?: number;
 }
 
 export interface MenuCategory {
@@ -55,6 +57,8 @@ export interface Restaurant {
   phone: string;
   hours: string;
   categories: MenuCategory[];
+  /** Fournisseur de paiement présélectionné au seed (démos clients). */
+  paymentProvider?: "stripe" | "sumup";
 }
 
 export const unsplash = (id: string, w = 1200) =>
@@ -429,23 +433,25 @@ const boho: Restaurant = {
   slug: "boho",
   name: "BOHO",
   tagline: "Ambiance bohème · L'élégance de la simplicité",
-  coverImage: "/boho/cover.jpg",
   logo: "/boho/logo.svg",
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
+  // SumUp présélectionné : le gérant termine l'OAuth dans /gestion/etablissement.
+  paymentProvider: "sumup",
   categories: [
     {
       id: "a-partager",
       name: "À partager",
       items: [
-        { id: "nems-legumes", name: "Nems légumes (x4)", price: 6 },
-        { id: "nems-poulet", name: "Nems poulet (x4)", price: 6 },
-        { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7 },
-        { id: "samoussas-boeuf", name: "Samoussas bœuf (x4)", price: 6 },
-        { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6 },
+        { id: "nems-legumes", name: "Nems légumes (x4)", price: 6, image: unsplash("photo-1544025162-d76694265947", 400) },
+        { id: "nems-poulet", name: "Nems poulet (x4)", price: 6, image: unsplash("photo-1595295333158-4742f28fbd85", 400) },
+        { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7, image: unsplash("photo-1565680018434-b513d5e5fd47", 400) },
+        { id: "samoussas-boeuf", name: "Samoussas bœuf (x4)", price: 6, image: unsplash("photo-1601050690597-df0568f70950", 400) },
+        { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6, image: unsplash("photo-1529692236671-f1f6cf9683ba", 400) },
         {
           id: "assortiment-boho",
+          image: unsplash("photo-1541529086526-db283c563270", 400),
           name: "Assortiment BOHO",
           description:
             "1 nem poulet, 1 nem crevette, 1 samoussa bœuf, 1 nem légumes.",
@@ -460,6 +466,7 @@ const boho: Restaurant = {
       items: [
         {
           id: "entrecote",
+          image: unsplash("photo-1600891964092-4316c288032e", 400),
           name: "L'Entrecôte « La Fameuse »",
           description:
             "Grillée à la perfection, notre sauce verte maison, frites fraîches et salade.",
@@ -468,30 +475,35 @@ const boho: Restaurant = {
         },
         {
           id: "piece-boeuf",
+          image: unsplash("photo-1546964124-0cce460f38ef", 400),
           name: "Pièce de bœuf grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
         },
         {
           id: "piece-poulet",
+          image: unsplash("photo-1598515214211-89d3c73ae83b", 400),
           name: "Pièce de poulet grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
         },
         {
           id: "magret-canard",
+          image: unsplash("photo-1580554530778-ca36943938b2", 400),
           name: "Magret de canard grillé",
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
         },
         {
           id: "saumon-plancha",
+          image: unsplash("photo-1467003909585-2f8a72700288", 400),
           name: "Escalope de saumon frais à la plancha",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
         },
         {
           id: "burger-boho",
+          image: unsplash("photo-1568901346375-23c9450c58cd", 400),
           name: "Burger original Boho",
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
@@ -505,24 +517,28 @@ const boho: Restaurant = {
       items: [
         {
           id: "pizza-margarita",
+          image: unsplash("photo-1574071318508-1cdbab80d002", 400),
           name: "Pizza Margarita",
           description: "Base tomate, mozzarella et basilic.",
           price: 13,
         },
         {
           id: "pizza-saumon",
+          image: unsplash("photo-1565299624946-b28f40a0ae38", 400),
           name: "Pizza Saumon Norvégienne",
           description: "Base crème fraîche, mozzarella, saumon, aneth.",
           price: 15,
         },
         {
           id: "pizza-poulet-indienne",
+          image: unsplash("photo-1604382354936-07c5d9983bd3", 400),
           name: "Pizza Poulet Indienne",
           description: "Base crème, poulet, sauce curry, mozzarella.",
           price: 15,
         },
         {
           id: "pizza-chevre-miel",
+          image: unsplash("photo-1513104890138-7c749659a591", 400),
           name: "Pizza Chèvre Miel",
           description: "Base crème, mozzarella, fromage de chèvre, miel.",
           price: 15,
@@ -535,6 +551,7 @@ const boho: Restaurant = {
       items: [
         {
           id: "carpaccio-boeuf",
+          image: unsplash("photo-1546549032-9571cd6b27df", 400),
           name: "Carpaccio de bœuf",
           description:
             "Roquette, parmesan, tomates cerises, copeaux de parmesan, huile d'olive.",
@@ -542,12 +559,14 @@ const boho: Restaurant = {
         },
         {
           id: "tomate-burrata",
+          image: unsplash("photo-1608897013039-887f21d8c804", 400),
           name: "Tomate burrata",
           description: "Tomates anciennes, burrata crémeuse, pesto, roquette.",
           price: 14.5,
         },
         {
           id: "salade-cesar",
+          image: unsplash("photo-1512621776951-a57141f2eefd", 400),
           name: "Salade César",
           description:
             "Poulet grillé, salade romaine, parmesan, sauce César, croûtons.",
@@ -559,14 +578,15 @@ const boho: Restaurant = {
       id: "desserts",
       name: "Desserts",
       items: [
-        { id: "creme-brulee", name: "Crème brûlée", price: 8 },
-        { id: "tiramisu-cafe", name: "Tiramisu au café", price: 8 },
-        { id: "brioche-pain-perdu", name: "Brioche façon pain perdu", price: 8 },
-        { id: "coupe-fruits", name: "Coupe de fruits", price: 8 },
-        { id: "crepes-nutella", name: "Crêpes Nutella", price: 8 },
-        { id: "gaufre-nutella", name: "Gaufre Nutella", price: 8 },
+        { id: "creme-brulee", name: "Crème brûlée", price: 8, image: unsplash("photo-1470124182917-cc6e71b22ecc", 400) },
+        { id: "tiramisu-cafe", name: "Tiramisu au café", price: 8, image: unsplash("photo-1571877227200-a0d98ea607e9", 400) },
+        { id: "brioche-pain-perdu", name: "Brioche façon pain perdu", price: 8, image: unsplash("photo-1484723091739-30a097e8f929", 400) },
+        { id: "coupe-fruits", name: "Coupe de fruits", price: 8, image: unsplash("photo-1490474418585-ba9bad8fd0ea", 400) },
+        { id: "crepes-nutella", name: "Crêpes Nutella", price: 8, image: unsplash("photo-1519676867240-f03562e64548", 400) },
+        { id: "gaufre-nutella", name: "Gaufre Nutella", price: 8, image: unsplash("photo-1562376552-0d160a2f238d", 400) },
         {
           id: "coupe-glace",
+          image: unsplash("photo-1497034825429-c343d7c6a68f", 400),
           name: "Coupe de glace (2 boules)",
           description: "Et son coulis au choix.",
           price: 6,
@@ -616,6 +636,7 @@ const boho: Restaurant = {
         },
         {
           id: "plateau-fruits",
+          image: unsplash("photo-1498837167922-ddd27525d352", 400),
           name: "Plateau de fruits frais",
           description: "Fruits de saison, frais découpés.",
           price: 15,
@@ -666,37 +687,43 @@ const boho: Restaurant = {
       items: [
         {
           id: "mojito",
+          image: unsplash("photo-1551024709-8f23befc6f87", 400),
           name: "Mojito",
           description: "Fraise, framboise, passion, mango, ananas, menthe.",
           price: 8,
         },
         {
           id: "sex-on-the-beach",
+          image: unsplash("photo-1514362545857-3bc16c4c7d1b", 400),
           name: "Sex on the Beach",
           description: "Orange, ananas, pêche, cranberry.",
           price: 8,
         },
         {
           id: "blue-lagoon",
+          image: unsplash("photo-1560512823-829485b8bf24", 400),
           name: "Blue Lagoon",
           description: "Ananas, curaçao blue, coco, crème.",
           price: 8,
         },
         {
           id: "ginger-lemonade",
+          image: unsplash("photo-1625772299848-391b6a87d7b3", 400),
           name: "Ginger Lemonade",
           description: "Ginger, lemon, miel, soda.",
           price: 8,
         },
-        { id: "terracota", name: "Terracota", description: "Fraise, orange.", price: 8 },
+        { id: "terracota", name: "Terracota", description: "Fraise, orange.", price: 8, image: unsplash("photo-1536935338788-846bb9981813", 400) },
         {
           id: "latina-passion",
+          image: unsplash("photo-1541807084-5c52b6b3adef", 400),
           name: "Latina Passion",
           description: "Passion, citron vert.",
           price: 8,
         },
         {
           id: "citronnade-maison",
+          image: unsplash("photo-1621263764928-df1444c5e859", 400),
           name: "Citronnade maison",
           description: "Citron, menthe, sucre.",
           price: 6,
@@ -707,21 +734,24 @@ const boho: Restaurant = {
       id: "smoothies",
       name: "Smoothies",
       items: [
-        { id: "pina-colada", name: "Pina Colada", description: "Ananas, coco.", price: 7 },
+        { id: "pina-colada", name: "Pina Colada", description: "Ananas, coco.", price: 7, image: unsplash("photo-1589733955941-5eeaf752f6dd", 400) },
         {
           id: "coco-mango",
+          image: unsplash("photo-1623065422902-30a2d299bbe4", 400),
           name: "Coco Mango",
           description: "Mangue, noix de coco, fruit de la passion.",
           price: 7,
         },
         {
           id: "red-dragon",
+          image: unsplash("photo-1553530666-ba11a7da3888", 400),
           name: "Red Dragon",
           description: "Fraise, framboise, ananas.",
           price: 7,
         },
         {
           id: "rose-garden",
+          image: unsplash("photo-1505252585461-04db1eb84571", 400),
           name: "Rose Garden",
           description: "Fraise, orange, banane, citron.",
           price: 7,
@@ -732,9 +762,9 @@ const boho: Restaurant = {
       id: "milkshakes",
       name: "Milkshakes",
       items: [
-        { id: "milkshake-popcorn", name: "Pop Corn", price: 9 },
-        { id: "fraise-tagada", name: "Fraise Tagada", price: 9 },
-        { id: "banoffee", name: "Banoffee", price: 9 },
+        { id: "milkshake-popcorn", name: "Pop Corn", price: 9, image: unsplash("photo-1572490122747-3968b75cc699", 400) },
+        { id: "fraise-tagada", name: "Fraise Tagada", price: 9, image: unsplash("photo-1579954115563-e72bf1381629", 400) },
+        { id: "banoffee", name: "Banoffee", price: 9, image: unsplash("photo-1541658016709-82535e94bc69", 400) },
       ],
     },
     {
@@ -743,6 +773,7 @@ const boho: Restaurant = {
       items: [
         {
           id: "jus-fruits-frais",
+          image: unsplash("photo-1622597467836-f3285f2131b8", 400),
           name: "Jus de fruits naturel",
           description: "Fruits frais pressés à la minute.",
           price: 6,
@@ -764,8 +795,8 @@ const boho: Restaurant = {
         { id: "espresso", name: "Espresso", price: 2 },
         { id: "lungo", name: "Lungo", price: 2 },
         { id: "noisette", name: "Noisette", price: 2.2 },
-        { id: "cappuccino", name: "Cappuccino", price: 4 },
-        { id: "latte-macchiato", name: "Latte Macchiato", price: 4.5 },
+        { id: "cappuccino", name: "Cappuccino", price: 4, image: unsplash("photo-1572442388796-11668a67e53d", 400) },
+        { id: "latte-macchiato", name: "Latte Macchiato", price: 4.5, image: unsplash("photo-1485808191679-5f86510681a1", 400) },
       ],
     },
   ],
