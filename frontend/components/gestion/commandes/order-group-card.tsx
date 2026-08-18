@@ -84,10 +84,14 @@ export function OrderGroupCard({
 
       {paying && (
         <PaymentDialog
+          total={total}
           onClose={() => setPaying(false)}
-          onSelect={(mode) => {
+          onSelect={(mode, cashDetails) => {
             setPaying(false);
-            void run(() => api.markGroupPaid(groupeId, mode), "Groupe encaissé.");
+            void run(
+              () => api.markGroupPaid(groupeId, mode, cashDetails),
+              "Groupe encaissé."
+            );
           }}
         />
       )}

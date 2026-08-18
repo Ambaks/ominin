@@ -87,6 +87,8 @@ export interface Order {
   pickupAt?: string;
   /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
   estimatedReadyAt?: string;
+  cashGiven?: number;
+  cashChange?: number;
 }
 
 export interface Table {

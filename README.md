@@ -12,8 +12,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 > ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
 > Dashboard-only steps the coding agent can't do (no DNS/Supabase/Vercel/Stripe
-> access). Highest-priority: `supabase db push` (**five** migrations now, incl.
-> collect-standalone, contact-requests, and the new `crm` migration), **seed the
+> access). Highest-priority: `supabase db push` (**six** migrations now, incl.
+> collect-standalone, contact-requests, crm, and the new `cash_payment` migration), **seed the
 > `admin_users` allowlist** (the internal CRM shows nothing to anyone else),
 > **remove `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host
 > now — leaving it set silently re-shares them across subdomains), and the
@@ -21,6 +21,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 > `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs, in the order the checklist
 > gives). Also pending: a Resend account for the contact form, the branded
 > signup-confirmation email template, and the upload-post account for Clip.
+
+**Cash payment tracking** (completed, commit 4809ce0 promised this but shipped unrelated SumUp OAuth changes; this commit delivers the actual feature): Restaurants can now record cash payments for in-person table orders. When a manager marks an order or group as paid via cash, a secondary modal collects the amount received and calculates change. Database: migration `20260818000001_cash_payment.sql` adds `cash_given` and `cash_change` columns to the `orders` table with a CHECK constraint requiring them to be non-null only for cash payments (`payment_mode = 'especes'`). UI: `PaymentDialog` component (`frontend/components/gestion/commandes/payment-dialog.tsx`) now has a two-step flow — first step selects payment mode (cash/card), second step (for cash only) collects amount received with real-time change calculation and validates that the amount is ≥ total. API: `markOrderPaid()` and `markGroupPaid()` functions in `frontend/lib/gestion/api.ts` accept an optional `cashDetails` parameter and write `cash_given` and `cash_change` to Supabase, then sync to local store. Order/payment types in `frontend/lib/gestion/types.ts` now include optional `cashGiven` and `cashChange` fields. Tested: cash flow captures received amount and calculates change correctly; validation blocks insufficient amounts; card payments work as before; change calculation rounds to nearest centime.
 
 **Menu image audit — BOHO restaurant** (completed): Audited all Unsplash food
 photography IDs in the BOHO demo restaurant menu (`frontend/lib/menu-data.ts`).

@@ -110,7 +110,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "app_admin_crm_import_page_importpage",
-      "community": 49,
+      "community": 11,
       "norm_label": "importpage()"
     },
     {
@@ -130,7 +130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_admin_crm_layout",
-      "community": 39,
+      "community": 37,
       "norm_label": "layout.tsx"
     },
     {
@@ -140,7 +140,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "app_admin_crm_layout_metadata",
-      "community": 39,
+      "community": 37,
       "norm_label": "metadata"
     },
     {
@@ -150,7 +150,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_admin_crm_layout_adminlayout",
-      "community": 39,
+      "community": 37,
       "norm_label": "adminlayout()"
     },
     {
@@ -290,7 +290,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "app_admin_crm_restaurants_page_restaurantspage",
-      "community": 49,
+      "community": 11,
       "norm_label": "restaurantspage()"
     },
     {
@@ -320,7 +320,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_admin_crm_taches_page_tachespage",
-      "community": 49,
+      "community": 11,
       "norm_label": "tachespage()"
     },
     {
@@ -580,7 +580,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_api_collect_order_route",
-      "community": 56,
+      "community": 26,
       "norm_label": "route.ts"
     },
     {
@@ -590,7 +590,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_api_collect_order_route_get",
-      "community": 56,
+      "community": 26,
       "norm_label": "get()"
     },
     {
@@ -1030,7 +1030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_api_sumup_verify_route",
-      "community": 32,
+      "community": 20,
       "norm_label": "route.ts"
     },
     {
@@ -1040,7 +1040,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_api_sumup_verify_route_post",
-      "community": 32,
+      "community": 20,
       "norm_label": "post()"
     },
     {
@@ -1050,7 +1050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_api_sumup_webhook_route",
-      "community": 32,
+      "community": 20,
       "norm_label": "route.ts"
     },
     {
@@ -1060,7 +1060,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_api_sumup_webhook_route_post",
-      "community": 32,
+      "community": 20,
       "norm_label": "post()"
     },
     {
@@ -1140,7 +1140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_demo_comptes_page",
-      "community": 23,
+      "community": 8,
       "norm_label": "page.tsx"
     },
     {
@@ -1150,7 +1150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_demo_generateur_page",
-      "community": 65,
+      "community": 23,
       "norm_label": "page.tsx"
     },
     {
@@ -1210,7 +1210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_demo_publications_page",
-      "community": 58,
+      "community": 29,
       "norm_label": "page.tsx"
     },
     {
@@ -1470,7 +1470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_espace_comptes_page",
-      "community": 23,
+      "community": 8,
       "norm_label": "page.tsx"
     },
     {
@@ -1480,7 +1480,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_clip_espace_comptes_page_comptespage",
-      "community": 23,
+      "community": 8,
       "norm_label": "comptespage()"
     },
     {
@@ -1490,7 +1490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page",
-      "community": 65,
+      "community": 23,
       "norm_label": "page.tsx"
     },
     {
@@ -1500,7 +1500,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_moments",
-      "community": 65,
+      "community": 23,
       "norm_label": "moments"
     },
     {
@@ -1510,7 +1510,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_steps",
-      "community": 65,
+      "community": 23,
       "norm_label": "steps"
     },
     {
@@ -1520,7 +1520,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_generateurpage",
-      "community": 65,
+      "community": 23,
       "norm_label": "generateurpage()"
     },
     {
@@ -1530,7 +1530,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_illustrationsvg",
-      "community": 65,
+      "community": 23,
       "norm_label": "illustrationsvg()"
     },
     {
@@ -1540,7 +1540,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_vodillustration",
-      "community": 65,
+      "community": 23,
       "norm_label": "vodillustration()"
     },
     {
@@ -1550,7 +1550,7 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_detectillustration",
-      "community": 65,
+      "community": 23,
       "norm_label": "detectillustration()"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "app_clip_espace_generateur_page_clipsillustration",
-      "community": 65,
+      "community": 23,
       "norm_label": "clipsillustration()"
     },
     {
@@ -1600,7 +1600,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_espace_loading",
-      "community": 36,
+      "community": 56,
       "norm_label": "loading.tsx"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "app_clip_espace_loading_loading",
-      "community": 36,
+      "community": 56,
       "norm_label": "loading()"
     },
     {
@@ -1630,7 +1630,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "app_clip_espace_page_publierpage",
-      "community": 23,
+      "community": 29,
       "norm_label": "publierpage()"
     },
     {
@@ -1680,7 +1680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_espace_publications_page",
-      "community": 58,
+      "community": 29,
       "norm_label": "page.tsx"
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "app_clip_espace_publications_page_publicationspage",
-      "community": 58,
+      "community": 23,
       "norm_label": "publicationspage()"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_clip_inscription_page",
-      "community": 36,
+      "community": 56,
       "norm_label": "page.tsx"
     },
     {
@@ -1730,7 +1730,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_clip_inscription_page_metadata",
-      "community": 36,
+      "community": 56,
       "norm_label": "metadata"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "app_clip_inscription_page_clipinscriptionpage",
-      "community": 36,
+      "community": 56,
       "norm_label": "clipinscriptionpage()"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "app_collect_inscription_etablissement_form_collectsignupform",
-      "community": 36,
+      "community": 41,
       "norm_label": "collectsignupform()"
     },
     {
@@ -1990,7 +1990,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_collect_inscription_etablissement_page",
-      "community": 36,
+      "community": 41,
       "norm_label": "page.tsx"
     },
     {
@@ -2000,7 +2000,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "app_collect_inscription_etablissement_page_metadata",
-      "community": 36,
+      "community": 41,
       "norm_label": "metadata"
     },
     {
@@ -2010,7 +2010,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_collect_inscription_etablissement_page_collectetablissementpage",
-      "community": 36,
+      "community": 41,
       "norm_label": "collectetablissementpage()"
     },
     {
@@ -2290,7 +2290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page",
-      "community": 33,
+      "community": 6,
       "norm_label": "page.tsx"
     },
     {
@@ -2300,7 +2300,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page_filters",
-      "community": 33,
+      "community": 6,
       "norm_label": "filters"
     },
     {
@@ -2310,7 +2310,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page_filterid",
-      "community": 33,
+      "community": 6,
       "norm_label": "filterid"
     },
     {
@@ -2320,7 +2320,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page_matchesfilter",
-      "community": 33,
+      "community": 6,
       "norm_label": "matchesfilter()"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page_dedupebyid",
-      "community": 33,
+      "community": 6,
       "norm_label": "dedupebyid()"
     },
     {
@@ -2340,7 +2340,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "app_menu_gestion_commandes_page_commandespage",
-      "community": 33,
+      "community": 6,
       "norm_label": "commandespage()"
     },
     {
@@ -2350,7 +2350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_gestion_equipe_page",
-      "community": 55,
+      "community": 6,
       "norm_label": "page.tsx"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_menu_gestion_equipe_page_roles",
-      "community": 55,
+      "community": 6,
       "norm_label": "roles"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "app_menu_gestion_equipe_page_teammanager",
-      "community": 55,
+      "community": 6,
       "norm_label": "teammanager()"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_gestion_etablissement_page",
-      "community": 6,
+      "community": 12,
       "norm_label": "page.tsx"
     },
     {
@@ -2400,7 +2400,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_menu_gestion_etablissement_page_etablissementform",
-      "community": 6,
+      "community": 12,
       "norm_label": "etablissementform()"
     },
     {
@@ -2440,7 +2440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_gestion_layout",
-      "community": 9,
+      "community": 59,
       "norm_label": "layout.tsx"
     },
     {
@@ -2450,7 +2450,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "app_menu_gestion_layout_metadata",
-      "community": 9,
+      "community": 59,
       "norm_label": "metadata"
     },
     {
@@ -2460,7 +2460,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "app_menu_gestion_layout_gestionlayout",
-      "community": 9,
+      "community": 59,
       "norm_label": "gestionlayout()"
     },
     {
@@ -2530,7 +2530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_gestion_qr_page",
-      "community": 55,
+      "community": 6,
       "norm_label": "page.tsx"
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_menu_gestion_qr_page_useqrcodes",
-      "community": 55,
+      "community": 6,
       "norm_label": "useqrcodes()"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "app_menu_gestion_qr_page_qrimage",
-      "community": 55,
+      "community": 6,
       "norm_label": "qrimage()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "app_menu_gestion_qr_page_qrpage",
-      "community": 55,
+      "community": 6,
       "norm_label": "qrpage()"
     },
     {
@@ -2580,7 +2580,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_menu_gestion_tables_page_tablespage",
-      "community": 6,
+      "community": 55,
       "norm_label": "tablespage()"
     },
     {
@@ -2700,7 +2700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_onboarding_onboarding_form",
-      "community": 59,
+      "community": 12,
       "norm_label": "onboarding-form.tsx"
     },
     {
@@ -2710,7 +2710,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "app_menu_onboarding_onboarding_form_slugify",
-      "community": 59,
+      "community": 12,
       "norm_label": "slugify()"
     },
     {
@@ -2720,7 +2720,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "app_menu_onboarding_onboarding_form_reserved_slugs",
-      "community": 59,
+      "community": 12,
       "norm_label": "reserved_slugs"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "app_menu_onboarding_onboarding_form_onboardingform",
-      "community": 59,
+      "community": 12,
       "norm_label": "onboardingform()"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_menu_onboarding_page",
-      "community": 59,
+      "community": 12,
       "norm_label": "page.tsx"
     },
     {
@@ -2750,7 +2750,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "app_menu_onboarding_page_metadata",
-      "community": 59,
+      "community": 12,
       "norm_label": "metadata"
     },
     {
@@ -2760,7 +2760,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_menu_onboarding_page_onboardingpage",
-      "community": 59,
+      "community": 12,
       "norm_label": "onboardingpage()"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_not_found",
-      "community": 54,
+      "community": 19,
       "norm_label": "not-found.tsx"
     },
     {
@@ -2810,7 +2810,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "app_not_found_notfound",
-      "community": 54,
+      "community": 19,
       "norm_label": "notfound()"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_sitemap",
-      "community": 25,
+      "community": 27,
       "norm_label": "sitemap.ts"
     },
     {
@@ -2920,7 +2920,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_sitemap_sitemap",
-      "community": 25,
+      "community": 27,
       "norm_label": "sitemap()"
     },
     {
@@ -3100,7 +3100,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "components_admin_icons_pipelineicon",
-      "community": 39,
+      "community": 37,
       "norm_label": "pipelineicon()"
     },
     {
@@ -3110,7 +3110,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "components_admin_icons_taskicon",
-      "community": 39,
+      "community": 37,
       "norm_label": "taskicon()"
     },
     {
@@ -3130,7 +3130,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "components_admin_icons_storeicon",
-      "community": 39,
+      "community": 37,
       "norm_label": "storeicon()"
     },
     {
@@ -3220,7 +3220,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "components_admin_icons_crosshairicon",
-      "community": 49,
+      "community": 37,
       "norm_label": "crosshairicon()"
     },
     {
@@ -3340,7 +3340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_lead_lead_panel_host",
-      "community": 39,
+      "community": 37,
       "norm_label": "lead-panel-host.tsx"
     },
     {
@@ -3350,7 +3350,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "components_admin_lead_lead_panel_host_leadpanelhost",
-      "community": 39,
+      "community": 37,
       "norm_label": "leadpanelhost()"
     },
     {
@@ -3450,7 +3450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_lead_visited_flow",
-      "community": 30,
+      "community": 11,
       "norm_label": "visited-flow.tsx"
     },
     {
@@ -3460,7 +3460,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_admin_lead_visited_flow_followupchoice",
-      "community": 30,
+      "community": 11,
       "norm_label": "followupchoice"
     },
     {
@@ -3470,7 +3470,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "components_admin_lead_visited_flow_visitedflow",
-      "community": 30,
+      "community": 11,
       "norm_label": "visitedflow()"
     },
     {
@@ -3500,7 +3500,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "components_admin_pipeline_board_leadcard",
-      "community": 48,
+      "community": 24,
       "norm_label": "leadcard()"
     },
     {
@@ -3550,7 +3550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_rdv_appointment_form_modal",
-      "community": 30,
+      "community": 11,
       "norm_label": "appointment-form-modal.tsx"
     },
     {
@@ -3560,7 +3560,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "components_admin_rdv_appointment_form_modal_appointmentformmodal",
-      "community": 37,
+      "community": 11,
       "norm_label": "appointmentformmodal()"
     },
     {
@@ -3570,7 +3570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_restaurant_picker",
-      "community": 30,
+      "community": 11,
       "norm_label": "restaurant-picker.tsx"
     },
     {
@@ -3580,7 +3580,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "components_admin_restaurant_picker_restaurantpicker",
-      "community": 30,
+      "community": 11,
       "norm_label": "restaurantpicker()"
     },
     {
@@ -3590,7 +3590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_restaurants_create_modal",
-      "community": 30,
+      "community": 11,
       "norm_label": "create-modal.tsx"
     },
     {
@@ -3600,7 +3600,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "components_admin_restaurants_create_modal_duplicate_reason_labels",
-      "community": 30,
+      "community": 11,
       "norm_label": "duplicate_reason_labels"
     },
     {
@@ -3610,7 +3610,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "components_admin_restaurants_create_modal_createrestaurantmodal",
-      "community": 38,
+      "community": 11,
       "norm_label": "createrestaurantmodal()"
     },
     {
@@ -3620,7 +3620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_shell",
-      "community": 39,
+      "community": 37,
       "norm_label": "shell.tsx"
     },
     {
@@ -3630,7 +3630,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "components_admin_shell_navitem",
-      "community": 39,
+      "community": 9,
       "norm_label": "navitem"
     },
     {
@@ -3640,7 +3640,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "components_admin_shell_nav_items",
-      "community": 39,
+      "community": 37,
       "norm_label": "nav_items"
     },
     {
@@ -3650,7 +3650,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "components_admin_shell_desktop_items",
-      "community": 39,
+      "community": 37,
       "norm_label": "desktop_items"
     },
     {
@@ -3660,7 +3660,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "components_admin_shell_full_bleed_paths",
-      "community": 39,
+      "community": 37,
       "norm_label": "full_bleed_paths"
     },
     {
@@ -3670,7 +3670,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "components_admin_shell_signout",
-      "community": 39,
+      "community": 37,
       "norm_label": "signout()"
     },
     {
@@ -3680,7 +3680,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "components_admin_shell_isactive",
-      "community": 39,
+      "community": 37,
       "norm_label": "isactive()"
     },
     {
@@ -3690,7 +3690,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "components_admin_shell_shellskeleton",
-      "community": 39,
+      "community": 37,
       "norm_label": "shellskeleton()"
     },
     {
@@ -3700,7 +3700,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "components_admin_shell_loaderror",
-      "community": 39,
+      "community": 37,
       "norm_label": "loaderror()"
     },
     {
@@ -3710,7 +3710,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "components_admin_shell_adminshell",
-      "community": 39,
+      "community": 48,
       "norm_label": "adminshell()"
     },
     {
@@ -3750,7 +3750,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "components_admin_status_badge_leadstatusbadge",
-      "community": 48,
+      "community": 24,
       "norm_label": "leadstatusbadge()"
     },
     {
@@ -3760,7 +3760,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "components_admin_status_badge_prioritybadge",
-      "community": 48,
+      "community": 24,
       "norm_label": "prioritybadge()"
     },
     {
@@ -3770,7 +3770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_admin_tasks_task_form_modal",
-      "community": 30,
+      "community": 11,
       "norm_label": "task-form-modal.tsx"
     },
     {
@@ -3780,7 +3780,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "components_admin_tasks_task_form_modal_taskformmodal",
-      "community": 48,
+      "community": 11,
       "norm_label": "taskformmodal()"
     },
     {
@@ -4020,7 +4020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_dropzone",
-      "community": 23,
+      "community": 54,
       "norm_label": "dropzone.tsx"
     },
     {
@@ -4030,7 +4030,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "components_clip_espace_dropzone_formatsize",
-      "community": 23,
+      "community": 54,
       "norm_label": "formatsize()"
     },
     {
@@ -4040,7 +4040,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_clip_espace_dropzone_dropzone",
-      "community": 23,
+      "community": 54,
       "norm_label": "dropzone()"
     },
     {
@@ -4050,7 +4050,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_icons",
-      "community": 23,
+      "community": 54,
       "norm_label": "icons.tsx"
     },
     {
@@ -4060,7 +4060,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "components_clip_espace_icons_svg",
-      "community": 23,
+      "community": 54,
       "norm_label": "svg()"
     },
     {
@@ -4070,7 +4070,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "components_clip_espace_icons_uploadicon",
-      "community": 23,
+      "community": 54,
       "norm_label": "uploadicon()"
     },
     {
@@ -4080,7 +4080,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "components_clip_espace_icons_listicon",
-      "community": 23,
+      "community": 54,
       "norm_label": "listicon()"
     },
     {
@@ -4090,7 +4090,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "components_clip_espace_icons_linkicon",
-      "community": 23,
+      "community": 54,
       "norm_label": "linkicon()"
     },
     {
@@ -4100,7 +4100,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "components_clip_espace_icons_checkicon",
-      "community": 23,
+      "community": 54,
       "norm_label": "checkicon()"
     },
     {
@@ -4110,7 +4110,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "components_clip_espace_icons_refreshicon",
-      "community": 23,
+      "community": 54,
       "norm_label": "refreshicon()"
     },
     {
@@ -4120,7 +4120,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_loader",
-      "community": 36,
+      "community": 56,
       "norm_label": "loader.tsx"
     },
     {
@@ -4130,7 +4130,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "components_clip_espace_loader_cliploader",
-      "community": 36,
+      "community": 56,
       "norm_label": "cliploader()"
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_platform_badge",
-      "community": 58,
+      "community": 29,
       "norm_label": "platform-badge.tsx"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_clip_espace_platform_badge_platformbadge",
-      "community": 58,
+      "community": 29,
       "norm_label": "platformbadge()"
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_post_card",
-      "community": 58,
+      "community": 29,
       "norm_label": "post-card.tsx"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_clip_espace_post_card_status_classes",
-      "community": 58,
+      "community": 29,
       "norm_label": "status_classes"
     },
     {
@@ -4230,7 +4230,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "components_clip_espace_post_card_statuspill",
-      "community": 58,
+      "community": 29,
       "norm_label": "statuspill()"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "components_clip_espace_post_card_postcard",
-      "community": 58,
+      "community": 29,
       "norm_label": "postcard()"
     },
     {
@@ -4250,7 +4250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_publier_tabs",
-      "community": 29,
+      "community": 23,
       "norm_label": "publier-tabs.tsx"
     },
     {
@@ -4260,7 +4260,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "components_clip_espace_publier_tabs_publiertab",
-      "community": 29,
+      "community": 23,
       "norm_label": "publiertab"
     },
     {
@@ -4270,7 +4270,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "components_clip_espace_publier_tabs_tabs",
-      "community": 29,
+      "community": 23,
       "norm_label": "tabs"
     },
     {
@@ -4280,7 +4280,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_clip_espace_publier_tabs_publiertabs",
-      "community": 29,
+      "community": 23,
       "norm_label": "publiertabs()"
     },
     {
@@ -4360,7 +4360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_espace_sub_tabs",
-      "community": 8,
+      "community": 23,
       "norm_label": "sub-tabs.tsx"
     },
     {
@@ -4370,7 +4370,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "components_clip_espace_sub_tabs_subtab",
-      "community": 8,
+      "community": 23,
       "norm_label": "subtab"
     },
     {
@@ -4380,7 +4380,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "components_clip_espace_sub_tabs_subtabs",
-      "community": 8,
+      "community": 23,
       "norm_label": "subtabs()"
     },
     {
@@ -4390,7 +4390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_faq",
-      "community": 60,
+      "community": 4,
       "norm_label": "faq.tsx"
     },
     {
@@ -4610,7 +4610,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_clip_wordmark",
-      "community": 36,
+      "community": 56,
       "norm_label": "wordmark.tsx"
     },
     {
@@ -4620,7 +4620,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_clip_wordmark_clipwordmark",
-      "community": 36,
+      "community": 56,
       "norm_label": "clipwordmark()"
     },
     {
@@ -4650,7 +4650,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "components_collect_collect_experience_cartline",
-      "community": 31,
+      "community": 35,
       "norm_label": "cartline"
     },
     {
@@ -4860,7 +4860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_collect_demo_restaurant_pane",
-      "community": 12,
+      "community": 16,
       "norm_label": "restaurant-pane.tsx"
     },
     {
@@ -4870,7 +4870,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_collect_demo_restaurant_pane_emptystate",
-      "community": 12,
+      "community": 16,
       "norm_label": "emptystate()"
     },
     {
@@ -4880,7 +4880,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "components_collect_demo_restaurant_pane_ordercarddemo",
-      "community": 12,
+      "community": 16,
       "norm_label": "ordercarddemo()"
     },
     {
@@ -5250,7 +5250,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_collect_order_confirmation",
-      "community": 56,
+      "community": 26,
       "norm_label": "order-confirmation.tsx"
     },
     {
@@ -5260,7 +5260,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "components_collect_order_confirmation_status_copy",
-      "community": 56,
+      "community": 26,
       "norm_label": "status_copy"
     },
     {
@@ -5270,7 +5270,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "components_collect_order_confirmation_isterminal",
-      "community": 56,
+      "community": 26,
       "norm_label": "isterminal()"
     },
     {
@@ -5280,7 +5280,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "components_collect_order_confirmation_orderconfirmation",
-      "community": 56,
+      "community": 26,
       "norm_label": "orderconfirmation()"
     },
     {
@@ -5310,7 +5310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_collect_settings",
-      "community": 6,
+      "community": 11,
       "norm_label": "collect-settings.tsx"
     },
     {
@@ -5320,7 +5320,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "components_gestion_collect_settings_collectsettings",
-      "community": 6,
+      "community": 11,
       "norm_label": "collectsettings()"
     },
     {
@@ -5330,7 +5330,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_commandes_order_card",
-      "community": 12,
+      "community": 33,
       "norm_label": "order-card.tsx"
     },
     {
@@ -5340,7 +5340,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "components_gestion_commandes_order_card_ordercard",
-      "community": 12,
+      "community": 33,
       "norm_label": "ordercard()"
     },
     {
@@ -5350,7 +5350,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_commandes_order_group_card",
-      "community": 6,
+      "community": 33,
       "norm_label": "order-group-card.tsx"
     },
     {
@@ -5370,47 +5370,37 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_commandes_payment_dialog",
-      "community": 12,
+      "community": 33,
       "norm_label": "payment-dialog.tsx"
     },
     {
       "label": "CashIcon()",
       "file_type": "code",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L9",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "components_gestion_commandes_payment_dialog_cashicon",
-      "community": 12,
+      "community": 33,
       "norm_label": "cashicon()"
     },
     {
       "label": "CardIcon()",
       "file_type": "code",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L19",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "components_gestion_commandes_payment_dialog_cardicon",
-      "community": 12,
+      "community": 33,
       "norm_label": "cardicon()"
-    },
-    {
-      "label": "CashDetails",
-      "file_type": "code",
-      "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "components_gestion_commandes_payment_dialog_cashdetails",
-      "community": 12,
-      "norm_label": "cashdetails"
     },
     {
       "label": "PaymentDialog()",
       "file_type": "code",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L33",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "components_gestion_commandes_payment_dialog_paymentdialog",
-      "community": 6,
+      "community": 33,
       "norm_label": "paymentdialog()"
     },
     {
@@ -5450,7 +5440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_feature_locked",
-      "community": 55,
+      "community": 6,
       "norm_label": "feature-locked.tsx"
     },
     {
@@ -5460,7 +5450,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_gestion_feature_locked_featurelocked",
-      "community": 55,
+      "community": 6,
       "norm_label": "featurelocked()"
     },
     {
@@ -5580,7 +5570,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "components_gestion_formules_formule_form_modal_formuleformmodal",
-      "community": 6,
+      "community": 21,
       "norm_label": "formuleformmodal()"
     },
     {
@@ -5720,7 +5710,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "components_gestion_icons_editicon",
-      "community": 9,
+      "community": 6,
       "norm_label": "editicon()"
     },
     {
@@ -5730,7 +5720,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "components_gestion_icons_trashicon",
-      "community": 9,
+      "community": 6,
       "norm_label": "trashicon()"
     },
     {
@@ -5740,7 +5730,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "components_gestion_icons_chevrondownicon",
-      "community": 55,
+      "community": 9,
       "norm_label": "chevrondownicon()"
     },
     {
@@ -5770,7 +5760,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "components_gestion_icons_checkicon",
-      "community": 9,
+      "community": 41,
       "norm_label": "checkicon()"
     },
     {
@@ -5790,7 +5780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_menu_category_manager",
-      "community": 55,
+      "community": 6,
       "norm_label": "category-manager.tsx"
     },
     {
@@ -5820,7 +5810,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "components_gestion_menu_item_form_modal_itemformmodal",
-      "community": 6,
+      "community": 21,
       "norm_label": "itemformmodal()"
     },
     {
@@ -5830,7 +5820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_menu_menu_item_card",
-      "community": 9,
+      "community": 6,
       "norm_label": "menu-item-card.tsx"
     },
     {
@@ -5910,7 +5900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_gestion_payment_settings",
-      "community": 59,
+      "community": 12,
       "norm_label": "payment-settings.tsx"
     },
     {
@@ -5920,7 +5910,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_gestion_payment_settings_stripestatus",
-      "community": 59,
+      "community": 12,
       "norm_label": "stripestatus"
     },
     {
@@ -5930,7 +5920,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "components_gestion_payment_settings_sumupstatus",
-      "community": 59,
+      "community": 12,
       "norm_label": "sumupstatus"
     },
     {
@@ -5940,7 +5930,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "components_gestion_payment_settings_provider_taglines",
-      "community": 59,
+      "community": 12,
       "norm_label": "provider_taglines"
     },
     {
@@ -5950,7 +5940,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "components_gestion_payment_settings_paymentsettings",
-      "community": 6,
+      "community": 12,
       "norm_label": "paymentsettings()"
     },
     {
@@ -6040,7 +6030,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "components_gestion_shell_gestionshell",
-      "community": 9,
+      "community": 41,
       "norm_label": "gestionshell()"
     },
     {
@@ -6060,7 +6050,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_gestion_subscription_gate_subscriptiongate",
-      "community": 9,
+      "community": 41,
       "norm_label": "subscriptiongate()"
     },
     {
@@ -6150,7 +6140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_demo_showcase",
-      "community": 3,
+      "community": 14,
       "norm_label": "demo-showcase.tsx"
     },
     {
@@ -6160,7 +6150,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "components_landing_demo_showcase_demoshowcase",
-      "community": 3,
+      "community": 14,
       "norm_label": "demoshowcase()"
     },
     {
@@ -6190,7 +6180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_features",
-      "community": 60,
+      "community": 3,
       "norm_label": "features.tsx"
     },
     {
@@ -6200,7 +6190,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_landing_features_features",
-      "community": 60,
+      "community": 3,
       "norm_label": "features()"
     },
     {
@@ -6250,7 +6240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_how_it_works",
-      "community": 60,
+      "community": 3,
       "norm_label": "how-it-works.tsx"
     },
     {
@@ -6260,7 +6250,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_landing_how_it_works_howitworks",
-      "community": 60,
+      "community": 3,
       "norm_label": "howitworks()"
     },
     {
@@ -6310,7 +6300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_landing_nav",
-      "community": 3,
+      "community": 51,
       "norm_label": "landing-nav.tsx"
     },
     {
@@ -6320,7 +6310,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "components_landing_landing_nav_landingnav",
-      "community": 3,
+      "community": 51,
       "norm_label": "landingnav()"
     },
     {
@@ -6370,7 +6360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_qr_corners",
-      "community": 3,
+      "community": 14,
       "norm_label": "qr-corners.tsx"
     },
     {
@@ -6380,7 +6370,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "components_landing_qr_corners_qrcorners",
-      "community": 3,
+      "community": 14,
       "norm_label": "qrcorners()"
     },
     {
@@ -6430,7 +6420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_section_heading",
-      "community": 60,
+      "community": 4,
       "norm_label": "section-heading.tsx"
     },
     {
@@ -6440,7 +6430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_section_heading_sectionheading",
-      "community": 60,
+      "community": 4,
       "norm_label": "sectionheading()"
     },
     {
@@ -6450,7 +6440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_landing_testimonials",
-      "community": 60,
+      "community": 3,
       "norm_label": "testimonials.tsx"
     },
     {
@@ -6460,7 +6450,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "components_landing_testimonials_testimonials",
-      "community": 60,
+      "community": 3,
       "norm_label": "testimonials()"
     },
     {
@@ -6550,7 +6540,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_menu_category_nav",
-      "community": 51,
+      "community": 28,
       "norm_label": "category-nav.tsx"
     },
     {
@@ -6560,7 +6550,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "components_menu_category_nav_categorylink",
-      "community": 51,
+      "community": 28,
       "norm_label": "categorylink"
     },
     {
@@ -6570,7 +6560,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "components_menu_category_nav_categorynav",
-      "community": 51,
+      "community": 28,
       "norm_label": "categorynav()"
     },
     {
@@ -6580,7 +6570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_menu_dish_card",
-      "community": 54,
+      "community": 22,
       "norm_label": "dish-card.tsx"
     },
     {
@@ -6590,7 +6580,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "components_menu_dish_card_badges",
-      "community": 54,
+      "community": 22,
       "norm_label": "badges()"
     },
     {
@@ -6600,7 +6590,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "components_menu_dish_card_pairing",
-      "community": 54,
+      "community": 22,
       "norm_label": "pairing()"
     },
     {
@@ -6610,7 +6600,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "components_menu_dish_card_featuredcard",
-      "community": 6,
+      "community": 22,
       "norm_label": "featuredcard()"
     },
     {
@@ -6620,7 +6610,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "components_menu_dish_card_dishcard",
-      "community": 54,
+      "community": 28,
       "norm_label": "dishcard()"
     },
     {
@@ -6700,7 +6690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_menu_menu_section",
-      "community": 54,
+      "community": 28,
       "norm_label": "menu-section.tsx"
     },
     {
@@ -7080,7 +7070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_confirm_dialog",
-      "community": 55,
+      "community": 6,
       "norm_label": "confirm-dialog.tsx"
     },
     {
@@ -7090,7 +7080,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "components_ui_confirm_dialog_confirmdialog",
-      "community": 55,
+      "community": 6,
       "norm_label": "confirmdialog()"
     },
     {
@@ -7100,7 +7090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_empty_state",
-      "community": 55,
+      "community": 6,
       "norm_label": "empty-state.tsx"
     },
     {
@@ -7110,7 +7100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_empty_state_emptystate",
-      "community": 55,
+      "community": 6,
       "norm_label": "emptystate()"
     },
     {
@@ -7120,7 +7110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_field",
-      "community": 30,
+      "community": 11,
       "norm_label": "field.tsx"
     },
     {
@@ -7130,7 +7120,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "components_ui_field_field",
-      "community": 30,
+      "community": 11,
       "norm_label": "field()"
     },
     {
@@ -7140,7 +7130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_modal",
-      "community": 30,
+      "community": 11,
       "norm_label": "modal.tsx"
     },
     {
@@ -7150,7 +7140,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "components_ui_modal_modal",
-      "community": 30,
+      "community": 11,
       "norm_label": "modal()"
     },
     {
@@ -7160,7 +7150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_pill_tabs",
-      "community": 33,
+      "community": 6,
       "norm_label": "pill-tabs.tsx"
     },
     {
@@ -7170,7 +7160,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "components_ui_pill_tabs_pilltab",
-      "community": 33,
+      "community": 6,
       "norm_label": "pilltab"
     },
     {
@@ -7180,7 +7170,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "components_ui_pill_tabs_pilltabs",
-      "community": 33,
+      "community": 6,
       "norm_label": "pilltabs()"
     },
     {
@@ -7250,7 +7240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_ui_toast",
-      "community": 6,
+      "community": 24,
       "norm_label": "toast.tsx"
     },
     {
@@ -7260,7 +7250,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "components_ui_toast_toastentry",
-      "community": 6,
+      "community": 24,
       "norm_label": "toastentry"
     },
     {
@@ -7270,7 +7260,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "components_ui_toast_toastapi",
-      "community": 6,
+      "community": 24,
       "norm_label": "toastapi"
     },
     {
@@ -7280,7 +7270,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "components_ui_toast_toastcontext",
-      "community": 6,
+      "community": 24,
       "norm_label": "toastcontext"
     },
     {
@@ -7290,7 +7280,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "components_ui_toast_usetoast",
-      "community": 6,
+      "community": 11,
       "norm_label": "usetoast()"
     },
     {
@@ -7580,7 +7570,7 @@
       "source_location": "L471",
       "_origin": "ast",
       "id": "lib_admin_api_fetchclosedtasks",
-      "community": 11,
+      "community": 30,
       "norm_label": "fetchclosedtasks()"
     },
     {
@@ -7660,7 +7650,7 @@
       "source_location": "L636",
       "_origin": "ast",
       "id": "lib_admin_api_fetchexportrows",
-      "community": 11,
+      "community": 2,
       "norm_label": "fetchexportrows()"
     },
     {
@@ -7700,7 +7690,7 @@
       "source_location": "L702",
       "_origin": "ast",
       "id": "lib_admin_api_importrestaurants",
-      "community": 39,
+      "community": 30,
       "norm_label": "importrestaurants()"
     },
     {
@@ -7710,7 +7700,7 @@
       "source_location": "L737",
       "_origin": "ast",
       "id": "lib_admin_api_fetchallslugs",
-      "community": 39,
+      "community": 30,
       "norm_label": "fetchallslugs()"
     },
     {
@@ -7740,7 +7730,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_admin_base_path_adminloginpath",
-      "community": 39,
+      "community": 37,
       "norm_label": "adminloginpath()"
     },
     {
@@ -7780,7 +7770,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "lib_admin_constants_closed_statuses",
-      "community": 48,
+      "community": 24,
       "norm_label": "closed_statuses"
     },
     {
@@ -7790,7 +7780,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "lib_admin_constants_category_labels",
-      "community": 52,
+      "community": 11,
       "norm_label": "category_labels"
     },
     {
@@ -7810,7 +7800,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "lib_admin_constants_contact_activity_types",
-      "community": 30,
+      "community": 24,
       "norm_label": "contact_activity_types"
     },
     {
@@ -7820,7 +7810,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "lib_admin_constants_activity_type_labels",
-      "community": 24,
+      "community": 37,
       "norm_label": "activity_type_labels"
     },
     {
@@ -7900,7 +7890,7 @@
       "source_location": "L180",
       "_origin": "ast",
       "id": "lib_admin_constants_follow_up_quick_options",
-      "community": 24,
+      "community": 11,
       "norm_label": "follow_up_quick_options"
     },
     {
@@ -8300,7 +8290,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "lib_admin_format_todatetimelocalvalue",
-      "community": 48,
+      "community": 11,
       "norm_label": "todatetimelocalvalue()"
     },
     {
@@ -8310,7 +8300,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "lib_admin_format_fromdatetimelocalvalue",
-      "community": 30,
+      "community": 11,
       "norm_label": "fromdatetimelocalvalue()"
     },
     {
@@ -8360,7 +8350,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "lib_admin_geo_captureposition",
-      "community": 49,
+      "community": 11,
       "norm_label": "captureposition()"
     },
     {
@@ -8460,7 +8450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_admin_lead_cache",
-      "community": 11,
+      "community": 2,
       "norm_label": "lead-cache.ts"
     },
     {
@@ -8470,7 +8460,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_cache",
-      "community": 11,
+      "community": 2,
       "norm_label": "cache"
     },
     {
@@ -8480,7 +8470,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_pending",
-      "community": 11,
+      "community": 2,
       "norm_label": "pending"
     },
     {
@@ -8490,7 +8480,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_errors",
-      "community": 11,
+      "community": 2,
       "norm_label": "errors"
     },
     {
@@ -8500,7 +8490,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_listeners",
-      "community": 11,
+      "community": 2,
       "norm_label": "listeners"
     },
     {
@@ -8510,7 +8500,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_freshness",
-      "community": 11,
+      "community": 2,
       "norm_label": "freshness"
     },
     {
@@ -8520,7 +8510,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_notify",
-      "community": 11,
+      "community": 2,
       "norm_label": "notify()"
     },
     {
@@ -8530,7 +8520,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_fetchdetail",
-      "community": 11,
+      "community": 2,
       "norm_label": "fetchdetail()"
     },
     {
@@ -8540,7 +8530,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_startfetch",
-      "community": 11,
+      "community": 2,
       "norm_label": "startfetch()"
     },
     {
@@ -8570,7 +8560,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_subscribe",
-      "community": 37,
+      "community": 2,
       "norm_label": "subscribe()"
     },
     {
@@ -8580,7 +8570,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_leaddetailstate",
-      "community": 11,
+      "community": 2,
       "norm_label": "leaddetailstate"
     },
     {
@@ -8590,7 +8580,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "lib_admin_lead_cache_useleaddetail",
-      "community": 37,
+      "community": 2,
       "norm_label": "useleaddetail()"
     },
     {
@@ -8620,7 +8610,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "lib_admin_mappers_lead_lite_select",
-      "community": 39,
+      "community": 30,
       "norm_label": "lead_lite_select"
     },
     {
@@ -8650,7 +8640,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtorestaurant",
-      "community": 11,
+      "community": 2,
       "norm_label": "rowtorestaurant()"
     },
     {
@@ -8660,7 +8650,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtolead",
-      "community": 11,
+      "community": 2,
       "norm_label": "rowtolead()"
     },
     {
@@ -8670,7 +8660,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtoactivity",
-      "community": 11,
+      "community": 30,
       "norm_label": "rowtoactivity()"
     },
     {
@@ -8680,7 +8670,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtocontact",
-      "community": 11,
+      "community": 2,
       "norm_label": "rowtocontact()"
     },
     {
@@ -8690,7 +8680,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtotask",
-      "community": 11,
+      "community": 30,
       "norm_label": "rowtotask()"
     },
     {
@@ -8700,7 +8690,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "lib_admin_mappers_rowtoappointment",
-      "community": 11,
+      "community": 30,
       "norm_label": "rowtoappointment()"
     },
     {
@@ -8710,7 +8700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_admin_selectors",
-      "community": 48,
+      "community": 11,
       "norm_label": "selectors.ts"
     },
     {
@@ -8720,7 +8710,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "lib_admin_selectors_selectstatuscounts",
-      "community": 48,
+      "community": 11,
       "norm_label": "selectstatuscounts()"
     },
     {
@@ -8740,7 +8730,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "lib_admin_selectors_funnelstage",
-      "community": 48,
+      "community": 11,
       "norm_label": "funnelstage"
     },
     {
@@ -8750,7 +8740,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "lib_admin_selectors_selectfunnel",
-      "community": 48,
+      "community": 11,
       "norm_label": "selectfunnel()"
     },
     {
@@ -8760,7 +8750,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "lib_admin_selectors_followupbuckets",
-      "community": 48,
+      "community": 11,
       "norm_label": "followupbuckets"
     },
     {
@@ -8780,7 +8770,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "lib_admin_selectors_selecttasksduebadge",
-      "community": 39,
+      "community": 48,
       "norm_label": "selecttasksduebadge()"
     },
     {
@@ -8800,7 +8790,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "lib_admin_selectors_leadsortkey",
-      "community": 48,
+      "community": 38,
       "norm_label": "leadsortkey"
     },
     {
@@ -8810,7 +8800,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "lib_admin_selectors_sortleads",
-      "community": 48,
+      "community": 38,
       "norm_label": "sortleads()"
     },
     {
@@ -9000,7 +8990,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "lib_admin_store_getclientsnapshot",
-      "community": 49,
+      "community": 11,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -9010,7 +9000,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "lib_admin_store_getserversnapshot",
-      "community": 49,
+      "community": 11,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -9060,7 +9050,7 @@
       "source_location": "L184",
       "_origin": "ast",
       "id": "lib_admin_store_useadmin",
-      "community": 49,
+      "community": 11,
       "norm_label": "useadmin()"
     },
     {
@@ -9160,7 +9150,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_admin_types_leadlite",
-      "community": 30,
+      "community": 11,
       "norm_label": "leadlite"
     },
     {
@@ -9230,7 +9220,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "lib_admin_types_leaddetail",
-      "community": 11,
+      "community": 2,
       "norm_label": "leaddetail"
     },
     {
@@ -9240,7 +9230,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "lib_admin_types_adminstate",
-      "community": 52,
+      "community": 30,
       "norm_label": "adminstate"
     },
     {
@@ -9390,7 +9380,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "lib_clip_landing_data_faqsection",
-      "community": 60,
+      "community": 4,
       "norm_label": "faqsection"
     },
     {
@@ -9570,7 +9560,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_clip_constants",
-      "community": 58,
+      "community": 29,
       "norm_label": "constants.ts"
     },
     {
@@ -9580,7 +9570,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "lib_clip_constants_accepted_video_types",
-      "community": 23,
+      "community": 54,
       "norm_label": "accepted_video_types"
     },
     {
@@ -9590,7 +9580,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "lib_clip_constants_status_labels",
-      "community": 58,
+      "community": 29,
       "norm_label": "status_labels"
     },
     {
@@ -9600,7 +9590,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "lib_clip_constants_platform_labels",
-      "community": 58,
+      "community": 29,
       "norm_label": "platform_labels"
     },
     {
@@ -9660,7 +9650,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "lib_clip_context_clipactions_publishclip",
-      "community": 45,
+      "community": 29,
       "norm_label": ".publishclip()"
     },
     {
@@ -9730,7 +9720,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "lib_clip_context_clipdata",
-      "community": 45,
+      "community": 15,
       "norm_label": "clipdata"
     },
     {
@@ -9740,7 +9730,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "lib_clip_context_clipdata_retryload",
-      "community": 45,
+      "community": 15,
       "norm_label": ".retryload()"
     },
     {
@@ -10030,7 +10020,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "lib_clip_provider_types_clip_platforms",
-      "community": 29,
+      "community": 8,
       "norm_label": "clip_platforms"
     },
     {
@@ -10050,7 +10040,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "lib_clip_provider_types_connectedaccount",
-      "community": 45,
+      "community": 15,
       "norm_label": "connectedaccount"
     },
     {
@@ -10080,7 +10070,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "lib_clip_provider_types_platformresult",
-      "community": 45,
+      "community": 29,
       "norm_label": "platformresult"
     },
     {
@@ -10500,7 +10490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_clip_types",
-      "community": 58,
+      "community": 29,
       "norm_label": "types.ts"
     },
     {
@@ -10510,7 +10500,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "lib_clip_types_clippoststatus",
-      "community": 58,
+      "community": 29,
       "norm_label": "clippoststatus"
     },
     {
@@ -10520,7 +10510,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "lib_clip_types_clippost",
-      "community": 45,
+      "community": 29,
       "norm_label": "clippost"
     },
     {
@@ -10540,7 +10530,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "lib_clip_types_clipstate",
-      "community": 45,
+      "community": 15,
       "norm_label": "clipstate"
     },
     {
@@ -10690,7 +10680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_collect_demo_data",
-      "community": 64,
+      "community": 35,
       "norm_label": "data.ts"
     },
     {
@@ -10700,7 +10690,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "lib_collect_demo_data_demostep",
-      "community": 64,
+      "community": 35,
       "norm_label": "demostep"
     },
     {
@@ -10710,7 +10700,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "lib_collect_demo_data_demo_menu_spec",
-      "community": 64,
+      "community": 35,
       "norm_label": "demo_menu_spec"
     },
     {
@@ -10720,7 +10710,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "lib_collect_demo_data_demomenusection",
-      "community": 64,
+      "community": 35,
       "norm_label": "demomenusection"
     },
     {
@@ -10730,7 +10720,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "lib_collect_demo_data_builddemomenu",
-      "community": 19,
+      "community": 35,
       "norm_label": "builddemomenu()"
     },
     {
@@ -10740,7 +10730,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "lib_collect_demo_data_demorestaurantinfo",
-      "community": 56,
+      "community": 35,
       "norm_label": "demorestaurantinfo"
     },
     {
@@ -10750,7 +10740,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "lib_collect_demo_data_collect_demo",
-      "community": 64,
+      "community": 35,
       "norm_label": "collect_demo"
     },
     {
@@ -10760,7 +10750,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_collect_demo_provider",
-      "community": 64,
+      "community": 35,
       "norm_label": "provider.tsx"
     },
     {
@@ -10770,7 +10760,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_demoorder",
-      "community": 64,
+      "community": 35,
       "norm_label": "demoorder"
     },
     {
@@ -10780,7 +10770,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_demorelayevent",
-      "community": 64,
+      "community": 35,
       "norm_label": "demorelayevent"
     },
     {
@@ -10790,7 +10780,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_collectdemostate",
-      "community": 64,
+      "community": 35,
       "norm_label": "collectdemostate"
     },
     {
@@ -10930,7 +10920,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_initialstate",
-      "community": 64,
+      "community": 35,
       "norm_label": "initialstate"
     },
     {
@@ -10940,7 +10930,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_formatslottime",
-      "community": 64,
+      "community": 35,
       "norm_label": "formatslottime()"
     },
     {
@@ -10950,7 +10940,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_collectdemocontext",
-      "community": 64,
+      "community": 35,
       "norm_label": "collectdemocontext"
     },
     {
@@ -10970,7 +10960,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "lib_collect_demo_provider_collectdemoprovider",
-      "community": 64,
+      "community": 16,
       "norm_label": "collectdemoprovider()"
     },
     {
@@ -10990,7 +10980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_collect_server",
-      "community": 20,
+      "community": 0,
       "norm_label": "server.ts"
     },
     {
@@ -11010,7 +11000,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_collect_shared",
-      "community": 56,
+      "community": 26,
       "norm_label": "shared.ts"
     },
     {
@@ -11020,7 +11010,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "lib_collect_shared_cartchoice",
-      "community": 56,
+      "community": 26,
       "norm_label": "cartchoice"
     },
     {
@@ -11030,7 +11020,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "lib_collect_shared_cartlinepayload",
-      "community": 56,
+      "community": 20,
       "norm_label": "cartlinepayload"
     },
     {
@@ -11040,7 +11030,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_collect_shared_collectcheckoutpayload",
-      "community": 56,
+      "community": 20,
       "norm_label": "collectcheckoutpayload"
     },
     {
@@ -11050,7 +11040,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "lib_collect_shared_collectorderview",
-      "community": 56,
+      "community": 26,
       "norm_label": "collectorderview"
     },
     {
@@ -11060,7 +11050,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "lib_collect_shared_mapsdirectionshref",
-      "community": 56,
+      "community": 26,
       "norm_label": "mapsdirectionshref()"
     },
     {
@@ -11070,7 +11060,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "lib_collect_shared_collecthref",
-      "community": 56,
+      "community": 26,
       "norm_label": "collecthref()"
     },
     {
@@ -11190,7 +11180,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "lib_gestion_api_iteminput",
-      "community": 12,
+      "community": 19,
       "norm_label": "iteminput"
     },
     {
@@ -11447,7 +11437,7 @@
       "label": "groupEligibleOrders()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L502",
+      "source_location": "L492",
       "_origin": "ast",
       "id": "lib_gestion_api_groupeligibleorders",
       "community": 2,
@@ -11457,7 +11447,7 @@
       "label": "markGroupServed()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L510",
+      "source_location": "L500",
       "_origin": "ast",
       "id": "lib_gestion_api_markgroupserved",
       "community": 2,
@@ -11467,7 +11457,7 @@
       "label": "markGroupPaid()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L524",
+      "source_location": "L514",
       "_origin": "ast",
       "id": "lib_gestion_api_markgrouppaid",
       "community": 2,
@@ -11477,7 +11467,7 @@
       "label": "EtablissementInput",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L571",
+      "source_location": "L556",
       "_origin": "ast",
       "id": "lib_gestion_api_etablissementinput",
       "community": 2,
@@ -11487,7 +11477,7 @@
       "label": "updateEtablissement()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L581",
+      "source_location": "L566",
       "_origin": "ast",
       "id": "lib_gestion_api_updateetablissement",
       "community": 2,
@@ -11497,7 +11487,7 @@
       "label": "setOnlinePayment()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L597",
+      "source_location": "L582",
       "_origin": "ast",
       "id": "lib_gestion_api_setonlinepayment",
       "community": 2,
@@ -11507,7 +11497,7 @@
       "label": "setPaymentProvider()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L613",
+      "source_location": "L598",
       "_origin": "ast",
       "id": "lib_gestion_api_setpaymentprovider",
       "community": 2,
@@ -11517,7 +11507,7 @@
       "label": "setCollectSlotCapacity()",
       "file_type": "code",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L631",
+      "source_location": "L616",
       "_origin": "ast",
       "id": "lib_gestion_api_setcollectslotcapacity",
       "community": 2,
@@ -11580,7 +11570,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "lib_gestion_constants_collect_eta_choices_min",
-      "community": 12,
+      "community": 33,
       "norm_label": "collect_eta_choices_min"
     },
     {
@@ -11630,7 +11620,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "lib_gestion_constants_order_action_labels",
-      "community": 12,
+      "community": 33,
       "norm_label": "order_action_labels"
     },
     {
@@ -11650,7 +11640,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "lib_gestion_constants_role_taglines",
-      "community": 12,
+      "community": 41,
       "norm_label": "role_taglines"
     },
     {
@@ -11660,7 +11650,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "lib_gestion_constants_offre_labels",
-      "community": 59,
+      "community": 12,
       "norm_label": "offre_labels"
     },
     {
@@ -11670,7 +11660,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "lib_gestion_constants_payment_mode_labels",
-      "community": 12,
+      "community": 33,
       "norm_label": "payment_mode_labels"
     },
     {
@@ -11680,7 +11670,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "lib_gestion_constants_payment_provider_labels",
-      "community": 59,
+      "community": 12,
       "norm_label": "payment_provider_labels"
     },
     {
@@ -11780,7 +11770,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "lib_gestion_format_formattime",
-      "community": 12,
+      "community": 16,
       "norm_label": "formattime()"
     },
     {
@@ -11870,7 +11860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_gestion_mappers",
-      "community": 2,
+      "community": 1,
       "norm_label": "mappers.ts"
     },
     {
@@ -11890,7 +11880,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_gestion_mappers_rowtoetablissement",
-      "community": 2,
+      "community": 1,
       "norm_label": "rowtoetablissement()"
     },
     {
@@ -11910,7 +11900,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "lib_gestion_mappers_assemblecategories",
-      "community": 2,
+      "community": 1,
       "norm_label": "assemblecategories()"
     },
     {
@@ -11920,7 +11910,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "lib_gestion_mappers_rowtoformule",
-      "community": 2,
+      "community": 1,
       "norm_label": "rowtoformule()"
     },
     {
@@ -11930,7 +11920,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "lib_gestion_mappers_rowtotable",
-      "community": 2,
+      "community": 1,
       "norm_label": "rowtotable()"
     },
     {
@@ -11940,7 +11930,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "lib_gestion_mappers_assemblegroups",
-      "community": 2,
+      "community": 1,
       "norm_label": "assemblegroups()"
     },
     {
@@ -11950,7 +11940,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "lib_gestion_mappers_orderrow",
-      "community": 2,
+      "community": 1,
       "norm_label": "orderrow"
     },
     {
@@ -11960,7 +11950,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "lib_gestion_mappers_rowtoorder",
-      "community": 2,
+      "community": 1,
       "norm_label": "rowtoorder()"
     },
     {
@@ -11980,7 +11970,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_gestion_permissions_hasfeature",
-      "community": 6,
+      "community": 13,
       "norm_label": "hasfeature()"
     },
     {
@@ -12010,7 +12000,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "lib_gestion_permissions_nextstatuses",
-      "community": 12,
+      "community": 33,
       "norm_label": "nextstatuses()"
     },
     {
@@ -12020,7 +12010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_gestion_photo",
-      "community": 66,
+      "community": 21,
       "norm_label": "photo.ts"
     },
     {
@@ -12030,7 +12020,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "lib_gestion_photo_compressphoto",
-      "community": 66,
+      "community": 21,
       "norm_label": "compressphoto()"
     },
     {
@@ -12040,7 +12030,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "lib_gestion_photo_uploadphoto",
-      "community": 66,
+      "community": 21,
       "norm_label": "uploadphoto()"
     },
     {
@@ -12100,7 +12090,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "lib_gestion_selectors_ordertotal",
-      "community": 13,
+      "community": 33,
       "norm_label": "ordertotal()"
     },
     {
@@ -12110,7 +12100,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "lib_gestion_selectors_ishistorystatus",
-      "community": 33,
+      "community": 6,
       "norm_label": "ishistorystatus()"
     },
     {
@@ -12300,7 +12290,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "lib_gestion_store_notify",
-      "community": 2,
+      "community": 1,
       "norm_label": "notify()"
     },
     {
@@ -12310,7 +12300,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "lib_gestion_store_fetchorders",
-      "community": 2,
+      "community": 1,
       "norm_label": "fetchorders()"
     },
     {
@@ -12330,7 +12320,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "lib_gestion_store_refreshorders",
-      "community": 2,
+      "community": 1,
       "norm_label": "refreshorders()"
     },
     {
@@ -12350,7 +12340,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "lib_gestion_store_load",
-      "community": 2,
+      "community": 1,
       "norm_label": "load()"
     },
     {
@@ -12360,7 +12350,7 @@
       "source_location": "L259",
       "_origin": "ast",
       "id": "lib_gestion_store_startload",
-      "community": 2,
+      "community": 1,
       "norm_label": "startload()"
     },
     {
@@ -12380,7 +12370,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "lib_gestion_store_retryload",
-      "community": 2,
+      "community": 1,
       "norm_label": "retryload()"
     },
     {
@@ -12390,7 +12380,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "lib_gestion_store_getclientsnapshot",
-      "community": 1,
+      "community": 6,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -12400,7 +12390,7 @@
       "source_location": "L290",
       "_origin": "ast",
       "id": "lib_gestion_store_getserversnapshot",
-      "community": 1,
+      "community": 6,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -12440,7 +12430,7 @@
       "source_location": "L305",
       "_origin": "ast",
       "id": "lib_gestion_store_commit",
-      "community": 2,
+      "community": 1,
       "norm_label": "commit()"
     },
     {
@@ -12450,7 +12440,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "lib_gestion_store_refreshsubscription",
-      "community": 41,
+      "community": 1,
       "norm_label": "refreshsubscription()"
     },
     {
@@ -12500,7 +12490,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_gestion_types_offre",
-      "community": 41,
+      "community": 12,
       "norm_label": "offre"
     },
     {
@@ -12550,7 +12540,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "lib_gestion_types_paymentprovider",
-      "community": 59,
+      "community": 12,
       "norm_label": "paymentprovider"
     },
     {
@@ -12590,7 +12580,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "lib_gestion_types_etablissement",
-      "community": 2,
+      "community": 12,
       "norm_label": "etablissement"
     },
     {
@@ -12600,7 +12590,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "lib_gestion_types_orderitemoption",
-      "community": 56,
+      "community": 26,
       "norm_label": "orderitemoption"
     },
     {
@@ -12627,7 +12617,7 @@
       "label": "Table",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L94",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "lib_gestion_types_table",
       "community": 55,
@@ -12637,37 +12627,37 @@
       "label": "TableGroup",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L99",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "lib_gestion_types_tablegroup",
-      "community": 2,
+      "community": 55,
       "norm_label": "tablegroup"
     },
     {
       "label": "Article",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L105",
+      "source_location": "L103",
       "_origin": "ast",
       "id": "lib_gestion_types_article",
-      "community": 12,
+      "community": 19,
       "norm_label": "article"
     },
     {
       "label": "Etape",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L114",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "lib_gestion_types_etape",
-      "community": 2,
+      "community": 21,
       "norm_label": "etape"
     },
     {
       "label": "Formule",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L121",
+      "source_location": "L119",
       "_origin": "ast",
       "id": "lib_gestion_types_formule",
       "community": 6,
@@ -12677,7 +12667,7 @@
       "label": "GestionState",
       "file_type": "code",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L130",
+      "source_location": "L128",
       "_origin": "ast",
       "id": "lib_gestion_types_gestionstate",
       "community": 19,
@@ -12730,7 +12720,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "lib_landing_data_feature",
-      "community": 5,
+      "community": 4,
       "norm_label": "feature"
     },
     {
@@ -12780,7 +12770,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "lib_landing_data_faqitem",
-      "community": 4,
+      "community": 5,
       "norm_label": "faqitem"
     },
     {
@@ -12850,7 +12840,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "lib_landing_data_howitworks",
-      "community": 60,
+      "community": 3,
       "norm_label": "howitworks"
     },
     {
@@ -12860,7 +12850,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "lib_landing_data_featuressection",
-      "community": 60,
+      "community": 3,
       "norm_label": "featuressection"
     },
     {
@@ -12870,7 +12860,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "lib_landing_data_demosection",
-      "community": 3,
+      "community": 14,
       "norm_label": "demosection"
     },
     {
@@ -12900,7 +12890,7 @@
       "source_location": "L285",
       "_origin": "ast",
       "id": "lib_landing_data_collectoffer",
-      "community": 3,
+      "community": 58,
       "norm_label": "collectoffer"
     },
     {
@@ -12910,7 +12900,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "lib_landing_data_clientssection",
-      "community": 60,
+      "community": 3,
       "norm_label": "clientssection"
     },
     {
@@ -12960,7 +12950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_menu_data",
-      "community": 54,
+      "community": 19,
       "norm_label": "menu-data.ts"
     },
     {
@@ -12970,7 +12960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_menu_data_badge",
-      "community": 54,
+      "community": 19,
       "norm_label": "badge"
     },
     {
@@ -12980,7 +12970,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "lib_menu_data_badge_labels",
-      "community": 54,
+      "community": 22,
       "norm_label": "badge_labels"
     },
     {
@@ -12990,7 +12980,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "lib_menu_data_optionchoice",
-      "community": 54,
+      "community": 19,
       "norm_label": "optionchoice"
     },
     {
@@ -13000,7 +12990,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "lib_menu_data_optiongroup",
-      "community": 12,
+      "community": 19,
       "norm_label": "optiongroup"
     },
     {
@@ -13010,7 +13000,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "lib_menu_data_menuitem",
-      "community": 31,
+      "community": 35,
       "norm_label": "menuitem"
     },
     {
@@ -13020,7 +13010,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "lib_menu_data_menucategory",
-      "community": 54,
+      "community": 19,
       "norm_label": "menucategory"
     },
     {
@@ -13050,7 +13040,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "lib_menu_data_trattorialucia",
-      "community": 54,
+      "community": 19,
       "norm_label": "trattorialucia"
     },
     {
@@ -13060,7 +13050,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "lib_menu_data_boho",
-      "community": 54,
+      "community": 19,
       "norm_label": "boho"
     },
     {
@@ -13070,7 +13060,7 @@
       "source_location": "L805",
       "_origin": "ast",
       "id": "lib_menu_data_restaurants",
-      "community": 54,
+      "community": 19,
       "norm_label": "restaurants"
     },
     {
@@ -13080,7 +13070,7 @@
       "source_location": "L813",
       "_origin": "ast",
       "id": "lib_menu_data_themeclasses",
-      "community": 54,
+      "community": 19,
       "norm_label": "themeclasses"
     },
     {
@@ -13110,7 +13100,7 @@
       "source_location": "L827",
       "_origin": "ast",
       "id": "lib_menu_data_formatprice",
-      "community": 6,
+      "community": 22,
       "norm_label": "formatprice()"
     },
     {
@@ -13670,7 +13660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_stripe_server",
-      "community": 0,
+      "community": 20,
       "norm_label": "server.ts"
     },
     {
@@ -13697,7 +13687,7 @@
       "label": "getSumUpCredentials()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L24",
+      "source_location": "L20",
       "_origin": "ast",
       "id": "lib_sumup_server_getsumupcredentials",
       "community": 32,
@@ -13707,7 +13697,7 @@
       "label": "sumupAuthorizeUrl()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L35",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "lib_sumup_server_sumupauthorizeurl",
       "community": 32,
@@ -13717,7 +13707,7 @@
       "label": "SumUpTokens",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L46",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "lib_sumup_server_sumuptokens",
       "community": 32,
@@ -13727,7 +13717,7 @@
       "label": "requestTokens()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L52",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "lib_sumup_server_requesttokens",
       "community": 32,
@@ -13737,7 +13727,7 @@
       "label": "exchangeCode()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L71",
+      "source_location": "L67",
       "_origin": "ast",
       "id": "lib_sumup_server_exchangecode",
       "community": 32,
@@ -13747,7 +13737,7 @@
       "label": "sumupApi()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L82",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "lib_sumup_server_sumupapi",
       "community": 32,
@@ -13757,7 +13747,7 @@
       "label": "fetchMerchantCode()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L103",
+      "source_location": "L99",
       "_origin": "ast",
       "id": "lib_sumup_server_fetchmerchantcode",
       "community": 32,
@@ -13767,7 +13757,7 @@
       "label": "SumUpCheckout",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L112",
+      "source_location": "L108",
       "_origin": "ast",
       "id": "lib_sumup_server_sumupcheckout",
       "community": 32,
@@ -13777,7 +13767,7 @@
       "label": "createCheckout()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L118",
+      "source_location": "L114",
       "_origin": "ast",
       "id": "lib_sumup_server_createcheckout",
       "community": 32,
@@ -13787,7 +13777,7 @@
       "label": "fetchCheckout()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L135",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "lib_sumup_server_fetchcheckout",
       "community": 32,
@@ -13797,7 +13787,7 @@
       "label": "SumUpAccountRow",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L142",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "lib_sumup_server_sumupaccountrow",
       "community": 32,
@@ -13807,7 +13797,7 @@
       "label": "sumupAccounts()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L151",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "lib_sumup_server_sumupaccounts",
       "community": 32,
@@ -13817,7 +13807,7 @@
       "label": "upsertSumUpAccount()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L159",
+      "source_location": "L155",
       "_origin": "ast",
       "id": "lib_sumup_server_upsertsumupaccount",
       "community": 32,
@@ -13827,7 +13817,7 @@
       "label": "getMerchantToken()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L185",
+      "source_location": "L181",
       "_origin": "ast",
       "id": "lib_sumup_server_getmerchanttoken",
       "community": 32,
@@ -13837,7 +13827,7 @@
       "label": "requireGerant()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L219",
+      "source_location": "L215",
       "_origin": "ast",
       "id": "lib_sumup_server_requiregerant",
       "community": 32,
@@ -13847,10 +13837,10 @@
       "label": "confirmOrderPaid()",
       "file_type": "code",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L246",
+      "source_location": "L242",
       "_origin": "ast",
       "id": "lib_sumup_server_confirmorderpaid",
-      "community": 32,
+      "community": 20,
       "norm_label": "confirmorderpaid()"
     },
     {
@@ -13910,7 +13900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_supabase_database_types_json",
-      "community": 30,
+      "community": 0,
       "norm_label": "json"
     },
     {
@@ -13927,7 +13917,7 @@
       "label": "DatabaseWithoutInternals",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1280",
+      "source_location": "L1220",
       "_origin": "ast",
       "id": "lib_supabase_database_types_databasewithoutinternals",
       "community": 27,
@@ -13937,7 +13927,7 @@
       "label": "DefaultSchema",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1282",
+      "source_location": "L1222",
       "_origin": "ast",
       "id": "lib_supabase_database_types_defaultschema",
       "community": 27,
@@ -13947,27 +13937,27 @@
       "label": "Tables",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1284",
+      "source_location": "L1224",
       "_origin": "ast",
       "id": "lib_supabase_database_types_tables",
-      "community": 58,
+      "community": 45,
       "norm_label": "tables"
     },
     {
       "label": "TablesInsert",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1313",
+      "source_location": "L1253",
       "_origin": "ast",
       "id": "lib_supabase_database_types_tablesinsert",
-      "community": 19,
+      "community": 2,
       "norm_label": "tablesinsert"
     },
     {
       "label": "TablesUpdate",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1338",
+      "source_location": "L1278",
       "_origin": "ast",
       "id": "lib_supabase_database_types_tablesupdate",
       "community": 27,
@@ -13977,7 +13967,7 @@
       "label": "Enums",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1363",
+      "source_location": "L1303",
       "_origin": "ast",
       "id": "lib_supabase_database_types_enums",
       "community": 27,
@@ -13987,7 +13977,7 @@
       "label": "CompositeTypes",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1380",
+      "source_location": "L1320",
       "_origin": "ast",
       "id": "lib_supabase_database_types_compositetypes",
       "community": 27,
@@ -13997,7 +13987,7 @@
       "label": "Constants",
       "file_type": "code",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1397",
+      "source_location": "L1337",
       "_origin": "ast",
       "id": "lib_supabase_database_types_constants",
       "community": 27,
@@ -14750,7 +14740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_seed_restaurant",
-      "community": 19,
+      "community": 2,
       "norm_label": "seed-restaurant.ts"
     },
     {
@@ -14760,7 +14750,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "scripts_seed_restaurant_slug_email_password",
-      "community": 19,
+      "community": 2,
       "norm_label": "[slug, email, password]"
     },
     {
@@ -14770,7 +14760,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "scripts_seed_restaurant_db",
-      "community": 19,
+      "community": 2,
       "norm_label": "db"
     },
     {
@@ -14780,7 +14770,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "scripts_seed_restaurant_tojson",
-      "community": 19,
+      "community": 2,
       "norm_label": "tojson()"
     },
     {
@@ -14790,7 +14780,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "scripts_seed_restaurant_main",
-      "community": 19,
+      "community": 2,
       "norm_label": "main()"
     },
     {
@@ -14800,7 +14790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "scripts_setup_stripe",
-      "community": 3,
+      "community": 58,
       "norm_label": "setup-stripe.ts"
     },
     {
@@ -14810,7 +14800,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "scripts_setup_stripe_stripe",
-      "community": 3,
+      "community": 58,
       "norm_label": "stripe"
     },
     {
@@ -14820,7 +14810,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "scripts_setup_stripe_plans",
-      "community": 3,
+      "community": 58,
       "norm_label": "plans"
     },
     {
@@ -14830,7 +14820,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "scripts_setup_stripe_main",
-      "community": 3,
+      "community": 58,
       "norm_label": "main()"
     },
     {
@@ -17501,7 +17491,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_accounts_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -17599,7 +17589,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_analytics_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -17719,7 +17709,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_captions_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -17839,7 +17829,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_link_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -17948,7 +17938,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_posts_id_analytics_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -18112,7 +18102,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_posts_id_retry_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -18265,7 +18255,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_posts_id_status_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -18484,7 +18474,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_publish_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -18615,7 +18605,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_clip_upload_url_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -18675,7 +18665,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/collect/checkout/route.ts",
-      "source_location": "L3",
+      "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_collect_checkout_route",
       "target": "lib_collect_server",
@@ -18774,7 +18764,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/collect/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "app_api_collect_checkout_route",
       "target": "lib_stripe_server",
@@ -18952,7 +18942,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_collect_order_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19111,7 +19101,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_contact_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19296,7 +19286,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_gestion_invite_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19415,7 +19405,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_photos_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19485,7 +19475,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/stripe/checkout/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "app_api_stripe_checkout_route",
       "target": "lib_stripe_server",
@@ -19544,6 +19534,17 @@
       "weight": 1.0,
       "source": "app_api_stripe_checkout_route",
       "target": "lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/api/stripe/checkout/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_api_stripe_checkout_route",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19623,7 +19624,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/stripe/connect/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "app_api_stripe_connect_route",
       "target": "lib_stripe_server",
@@ -19682,6 +19683,17 @@
       "weight": 1.0,
       "source": "app_api_stripe_connect_route",
       "target": "lib_supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/api/stripe/connect/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_api_stripe_connect_route",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19808,7 +19820,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/stripe/pay/route.ts",
-      "source_location": "L1",
+      "source_location": "L2",
       "weight": 1.0,
       "source": "app_api_stripe_pay_route",
       "target": "lib_stripe_server",
@@ -19848,6 +19860,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/api/stripe/pay/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_api_stripe_pay_route",
+      "target": "lib_collect_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -19884,7 +19907,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/stripe/webhook-connect/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "app_api_stripe_webhook_connect_route",
       "target": "lib_stripe_server",
@@ -19921,6 +19944,17 @@
       "weight": 1.0,
       "source": "app_api_stripe_webhook_connect_route",
       "target": "lib_supabase_admin_createadminclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/api/stripe/webhook-connect/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_api_stripe_webhook_connect_route",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -19990,7 +20024,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/api/stripe/webhook/route.ts",
-      "source_location": "L1",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "app_api_stripe_webhook_route",
       "target": "lib_stripe_server",
@@ -20049,6 +20083,17 @@
       "weight": 1.0,
       "source": "app_api_stripe_webhook_route",
       "target": "lib_supabase_database_types_database",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/api/stripe/webhook/route.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_api_stripe_webhook_route",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20211,7 +20256,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_sumup_callback_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20374,7 +20419,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_sumup_connect_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20515,7 +20560,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_sumup_pay_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20613,7 +20658,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_sumup_verify_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20700,7 +20745,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_api_sumup_webhook_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -20765,7 +20810,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "app_auth_callback_route",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -37693,7 +37738,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L19",
+      "source_location": "L17",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "components_gestion_commandes_payment_dialog_cardicon",
@@ -37703,17 +37748,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "components_gestion_commandes_payment_dialog",
-      "target": "components_gestion_commandes_payment_dialog_cashdetails",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L9",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "components_gestion_commandes_payment_dialog_cashicon",
@@ -37723,7 +37758,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L33",
+      "source_location": "L26",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "components_gestion_commandes_payment_dialog_paymentdialog",
@@ -37734,7 +37769,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L4",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "components_ui_modal",
@@ -37745,7 +37780,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L4",
+      "source_location": "L3",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "components_ui_modal_modal",
@@ -37756,7 +37791,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "lib_gestion_constants",
@@ -37767,7 +37802,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L5",
+      "source_location": "L4",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "lib_gestion_constants_payment_mode_labels",
@@ -37778,7 +37813,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "lib_gestion_types",
@@ -37789,44 +37824,11 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "components_gestion_commandes_payment_dialog",
       "target": "lib_gestion_types_paymentmode",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "components_gestion_commandes_payment_dialog",
-      "target": "lib_menu_data",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "components_gestion_commandes_payment_dialog",
-      "target": "lib_menu_data_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "components/gestion/commandes/payment-dialog.tsx",
-      "source_location": "L81",
-      "weight": 1.0,
-      "source": "components_gestion_commandes_payment_dialog_paymentdialog",
-      "target": "lib_menu_data_formatprice"
     },
     {
       "relation": "contains",
@@ -51453,7 +51455,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "lib_clip_server",
-      "target": "lib_stripe_server",
+      "target": "lib_collect_server",
       "confidence_score": 1.0
     },
     {
@@ -52750,6 +52752,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "proxy.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "proxy",
+      "target": "lib_collect_server",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -53061,7 +53074,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L571",
+      "source_location": "L556",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_etablissementinput",
@@ -53121,7 +53134,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L502",
+      "source_location": "L492",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_groupeligibleorders",
@@ -53161,7 +53174,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L524",
+      "source_location": "L514",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_markgrouppaid",
@@ -53171,7 +53184,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L510",
+      "source_location": "L500",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_markgroupserved",
@@ -53221,7 +53234,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L631",
+      "source_location": "L616",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_setcollectslotcapacity",
@@ -53261,7 +53274,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L597",
+      "source_location": "L582",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_setonlinepayment",
@@ -53271,7 +53284,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L613",
+      "source_location": "L598",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_setpaymentprovider",
@@ -53291,7 +53304,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L581",
+      "source_location": "L566",
       "weight": 1.0,
       "source": "lib_gestion_api",
       "target": "lib_gestion_api_updateetablissement",
@@ -53794,7 +53807,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L552",
+      "source_location": "L541",
       "weight": 1.0,
       "source": "lib_gestion_api_markgrouppaid",
       "target": "lib_gestion_api_apply",
@@ -53805,7 +53818,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L517",
+      "source_location": "L507",
       "weight": 1.0,
       "source": "lib_gestion_api_markgroupserved",
       "target": "lib_gestion_api_apply",
@@ -53816,7 +53829,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L489",
+      "source_location": "L483",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_gestion_api_apply",
@@ -53860,7 +53873,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L641",
+      "source_location": "L626",
       "weight": 1.0,
       "source": "lib_gestion_api_setcollectslotcapacity",
       "target": "lib_gestion_api_apply",
@@ -53904,7 +53917,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L608",
+      "source_location": "L593",
       "weight": 1.0,
       "source": "lib_gestion_api_setonlinepayment",
       "target": "lib_gestion_api_apply",
@@ -53915,7 +53928,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L626",
+      "source_location": "L611",
       "weight": 1.0,
       "source": "lib_gestion_api_setpaymentprovider",
       "target": "lib_gestion_api_apply",
@@ -53937,7 +53950,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L591",
+      "source_location": "L576",
       "weight": 1.0,
       "source": "lib_gestion_api_updateetablissement",
       "target": "lib_gestion_api_apply",
@@ -54025,7 +54038,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L639",
+      "source_location": "L624",
       "weight": 1.0,
       "source": "lib_gestion_api_setcollectslotcapacity",
       "target": "lib_gestion_api_etablissementid",
@@ -54036,7 +54049,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L606",
+      "source_location": "L591",
       "weight": 1.0,
       "source": "lib_gestion_api_setonlinepayment",
       "target": "lib_gestion_api_etablissementid",
@@ -54047,7 +54060,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L624",
+      "source_location": "L609",
       "weight": 1.0,
       "source": "lib_gestion_api_setpaymentprovider",
       "target": "lib_gestion_api_etablissementid",
@@ -54058,7 +54071,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L589",
+      "source_location": "L574",
       "weight": 1.0,
       "source": "lib_gestion_api_updateetablissement",
       "target": "lib_gestion_api_etablissementid",
@@ -54102,7 +54115,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L476",
+      "source_location": "L475",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_gestion_api_asserttransition",
@@ -54685,7 +54698,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L476",
+      "source_location": "L475",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_gestion_api_findorder",
@@ -54741,7 +54754,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L476",
+      "source_location": "L475",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_gestion_store_getstate"
@@ -54752,7 +54765,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L477",
+      "source_location": "L476",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_supabase_client_createclient"
@@ -54763,7 +54776,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L478",
+      "source_location": "L477",
       "weight": 1.0,
       "source": "lib_gestion_api_markorderpaid",
       "target": "lib_supabase_result_check"
@@ -54773,7 +54786,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L503",
+      "source_location": "L493",
       "weight": 1.0,
       "source": "lib_gestion_api_groupeligibleorders",
       "target": "lib_gestion_store_getstate",
@@ -54784,7 +54797,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L529",
+      "source_location": "L518",
       "weight": 1.0,
       "source": "lib_gestion_api_markgrouppaid",
       "target": "lib_gestion_api_groupeligibleorders",
@@ -54795,7 +54808,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L511",
+      "source_location": "L501",
       "weight": 1.0,
       "source": "lib_gestion_api_markgroupserved",
       "target": "lib_gestion_api_groupeligibleorders",
@@ -54807,7 +54820,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L513",
+      "source_location": "L503",
       "weight": 1.0,
       "source": "lib_gestion_api_markgroupserved",
       "target": "lib_supabase_client_createclient"
@@ -54818,7 +54831,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L514",
+      "source_location": "L504",
       "weight": 1.0,
       "source": "lib_gestion_api_markgroupserved",
       "target": "lib_supabase_result_check"
@@ -54829,7 +54842,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L537",
+      "source_location": "L528",
       "weight": 1.0,
       "source": "lib_gestion_api_markgrouppaid",
       "target": "lib_supabase_client_createclient"
@@ -54840,7 +54853,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L551",
+      "source_location": "L540",
       "weight": 1.0,
       "source": "lib_gestion_api_markgrouppaid",
       "target": "lib_supabase_result_check"
@@ -54851,9 +54864,31 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L584",
+      "source_location": "L569",
       "weight": 1.0,
       "source": "lib_gestion_api_updateetablissement",
+      "target": "lib_supabase_client_createclient"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/gestion/api.ts",
+      "source_location": "L570",
+      "weight": 1.0,
+      "source": "lib_gestion_api_updateetablissement",
+      "target": "lib_supabase_result_check"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "lib/gestion/api.ts",
+      "source_location": "L583",
+      "weight": 1.0,
+      "source": "lib_gestion_api_setonlinepayment",
       "target": "lib_supabase_client_createclient"
     },
     {
@@ -54864,28 +54899,6 @@
       "source_file": "lib/gestion/api.ts",
       "source_location": "L585",
       "weight": 1.0,
-      "source": "lib_gestion_api_updateetablissement",
-      "target": "lib_supabase_result_check"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "lib/gestion/api.ts",
-      "source_location": "L598",
-      "weight": 1.0,
-      "source": "lib_gestion_api_setonlinepayment",
-      "target": "lib_supabase_client_createclient"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "lib/gestion/api.ts",
-      "source_location": "L600",
-      "weight": 1.0,
       "source": "lib_gestion_api_setonlinepayment",
       "target": "lib_supabase_result_check"
     },
@@ -54895,7 +54908,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L616",
+      "source_location": "L601",
       "weight": 1.0,
       "source": "lib_gestion_api_setpaymentprovider",
       "target": "lib_supabase_client_createclient"
@@ -54906,7 +54919,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L618",
+      "source_location": "L603",
       "weight": 1.0,
       "source": "lib_gestion_api_setpaymentprovider",
       "target": "lib_supabase_result_check"
@@ -54917,7 +54930,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L632",
+      "source_location": "L617",
       "weight": 1.0,
       "source": "lib_gestion_api_setcollectslotcapacity",
       "target": "lib_supabase_client_createclient"
@@ -54928,7 +54941,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/gestion/api.ts",
-      "source_location": "L633",
+      "source_location": "L618",
       "weight": 1.0,
       "source": "lib_gestion_api_setcollectslotcapacity",
       "target": "lib_supabase_result_check"
@@ -57456,7 +57469,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L105",
+      "source_location": "L103",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_article",
@@ -57476,7 +57489,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L114",
+      "source_location": "L112",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_etape",
@@ -57496,7 +57509,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L121",
+      "source_location": "L119",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_formule",
@@ -57506,7 +57519,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L130",
+      "source_location": "L128",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_gestionstate",
@@ -57606,7 +57619,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L94",
+      "source_location": "L92",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_table",
@@ -57616,7 +57629,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L99",
+      "source_location": "L97",
       "weight": 1.0,
       "source": "lib_gestion_types",
       "target": "lib_gestion_types_tablegroup",
@@ -57682,7 +57695,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L111",
+      "source_location": "L109",
       "weight": 1.0,
       "source": "lib_gestion_types_article",
       "target": "lib_menu_data_optiongroup",
@@ -57693,7 +57706,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "lib/gestion/types.ts",
-      "source_location": "L137",
+      "source_location": "L135",
       "weight": 1.0,
       "source": "lib_gestion_types_gestionstate",
       "target": "lib_menu_data_menucategory",
@@ -58997,21 +59010,10 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "proxy.ts",
-      "source_location": "L2",
-      "weight": 1.0,
-      "source": "proxy",
-      "target": "lib_stripe_server",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L246",
+      "source_location": "L242",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_confirmorderpaid",
@@ -59021,7 +59023,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L118",
+      "source_location": "L114",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_createcheckout",
@@ -59031,7 +59033,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L71",
+      "source_location": "L67",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_exchangecode",
@@ -59041,7 +59043,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L135",
+      "source_location": "L131",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_fetchcheckout",
@@ -59051,7 +59053,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L103",
+      "source_location": "L99",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_fetchmerchantcode",
@@ -59061,7 +59063,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L185",
+      "source_location": "L181",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_getmerchanttoken",
@@ -59071,7 +59073,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L24",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_getsumupcredentials",
@@ -59081,7 +59083,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L52",
+      "source_location": "L48",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_requesttokens",
@@ -59091,7 +59093,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L219",
+      "source_location": "L215",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_requiregerant",
@@ -59101,7 +59103,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L142",
+      "source_location": "L138",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumupaccountrow",
@@ -59111,7 +59113,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L151",
+      "source_location": "L147",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumupaccounts",
@@ -59121,7 +59123,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L82",
+      "source_location": "L78",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumupapi",
@@ -59131,7 +59133,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L35",
+      "source_location": "L31",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumupauthorizeurl",
@@ -59141,7 +59143,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L112",
+      "source_location": "L108",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumupcheckout",
@@ -59151,7 +59153,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L46",
+      "source_location": "L42",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_sumuptokens",
@@ -59161,7 +59163,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L159",
+      "source_location": "L155",
       "weight": 1.0,
       "source": "lib_sumup_server",
       "target": "lib_sumup_server_upsertsumupaccount",
@@ -59216,7 +59218,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L55",
+      "source_location": "L51",
       "weight": 1.0,
       "source": "lib_sumup_server_requesttokens",
       "target": "lib_sumup_server_getsumupcredentials",
@@ -59227,7 +59229,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L36",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "lib_sumup_server_sumupauthorizeurl",
       "target": "lib_sumup_server_getsumupcredentials",
@@ -59238,7 +59240,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L75",
+      "source_location": "L71",
       "weight": 1.0,
       "source": "lib_sumup_server_exchangecode",
       "target": "lib_sumup_server_requesttokens",
@@ -59249,7 +59251,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L203",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "lib_sumup_server_getmerchanttoken",
       "target": "lib_sumup_server_requesttokens",
@@ -59260,7 +59262,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L129",
+      "source_location": "L125",
       "weight": 1.0,
       "source": "lib_sumup_server_createcheckout",
       "target": "lib_sumup_server_sumupapi",
@@ -59271,7 +59273,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L139",
+      "source_location": "L135",
       "weight": 1.0,
       "source": "lib_sumup_server_fetchcheckout",
       "target": "lib_sumup_server_sumupapi",
@@ -59282,7 +59284,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L255",
+      "source_location": "L251",
       "weight": 1.0,
       "source": "lib_sumup_server_confirmorderpaid",
       "target": "lib_sumup_server_fetchcheckout",
@@ -59293,7 +59295,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L190",
+      "source_location": "L186",
       "weight": 1.0,
       "source": "lib_sumup_server_getmerchanttoken",
       "target": "lib_sumup_server_sumupaccounts",
@@ -59304,7 +59306,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L166",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "lib_sumup_server_upsertsumupaccount",
       "target": "lib_sumup_server_sumupaccounts",
@@ -59315,7 +59317,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L207",
+      "source_location": "L203",
       "weight": 1.0,
       "source": "lib_sumup_server_getmerchanttoken",
       "target": "lib_sumup_server_upsertsumupaccount",
@@ -59326,7 +59328,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L250",
+      "source_location": "L246",
       "weight": 1.0,
       "source": "lib_sumup_server_confirmorderpaid",
       "target": "lib_sumup_server_getmerchanttoken",
@@ -59338,7 +59340,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "lib/sumup/server.ts",
-      "source_location": "L220",
+      "source_location": "L216",
       "weight": 1.0,
       "source": "lib_sumup_server_requiregerant",
       "target": "lib_supabase_server_createclient"
@@ -59411,7 +59413,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1380",
+      "source_location": "L1320",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_compositetypes",
@@ -59421,7 +59423,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1397",
+      "source_location": "L1337",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_constants",
@@ -59441,7 +59443,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1280",
+      "source_location": "L1220",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_databasewithoutinternals",
@@ -59451,7 +59453,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1282",
+      "source_location": "L1222",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_defaultschema",
@@ -59461,7 +59463,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1363",
+      "source_location": "L1303",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_enums",
@@ -59481,7 +59483,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1284",
+      "source_location": "L1224",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_tables",
@@ -59491,7 +59493,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1313",
+      "source_location": "L1253",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_tablesinsert",
@@ -59501,7 +59503,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "lib/supabase/database.types.ts",
-      "source_location": "L1338",
+      "source_location": "L1278",
       "weight": 1.0,
       "source": "lib_supabase_database_types",
       "target": "lib_supabase_database_types_tablesupdate",
@@ -60796,5 +60798,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4809ce0e60a20c6937a5001180b05aad76570f4b"
+  "built_at_commit": "d03a832ce85496f525a79014f06f242aa459c4c1"
 }

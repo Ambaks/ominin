@@ -126,6 +126,8 @@ export function rowToOrder(row: OrderRow): Order {
     customerPhone: row.customer_phone ?? undefined,
     pickupAt: row.pickup_at ?? undefined,
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
+    cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
+    cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {

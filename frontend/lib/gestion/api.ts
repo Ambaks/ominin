@@ -470,20 +470,30 @@ export async function updateOrderStatus(
 
 export async function markOrderPaid(
   orderId: string,
-  mode: PaymentMode
+  mode: PaymentMode,
+  cashDetails?: { cashGiven: number; cashChange: number }
 ): Promise<Order> {
   assertTransition(findOrder(getState(), orderId), "payee");
   const supabase = createClient();
   check(
     await supabase
       .from("orders")
-      .update({ status: "payee", payment_mode: mode })
+      .update({
+        status: "payee",
+        payment_mode: mode,
+        cash_given: mode === "especes" && cashDetails ? cashDetails.cashGiven : null,
+        cash_change: mode === "especes" && cashDetails ? cashDetails.cashChange : null,
+      })
       .eq("id", orderId)
   );
   return apply((draft) => {
     const order = findOrder(draft, orderId);
     order.status = "payee";
     order.paymentMode = mode;
+    if (mode === "especes" && cashDetails) {
+      order.cashGiven = cashDetails.cashGiven;
+      order.cashChange = cashDetails.cashChange;
+    }
     return order;
   });
 }
@@ -513,12 +523,11 @@ export async function markGroupServed(groupeId: string): Promise<void> {
 
 export async function markGroupPaid(
   groupeId: string,
-  mode: PaymentMode
+  mode: PaymentMode,
+  cashDetails?: { cashGiven: number; cashChange: number }
 ): Promise<void> {
   const eligible = groupEligibleOrders(groupeId, "payee");
   if (!eligible.length) return;
-  // Les commandes déjà réglées en ligne gardent leur payment_mode « carte » :
-  // seul leur statut avance.
   const paidOnlineIds = eligible
     .filter((order) => order.paidOnline)
     .map((order) => order.id);
@@ -526,11 +535,13 @@ export async function markGroupPaid(
     .filter((order) => !order.paidOnline)
     .map((order) => order.id);
   const supabase = createClient();
+  const cashGiven = mode === "especes" && cashDetails ? cashDetails.cashGiven : null;
+  const cashChange = mode === "especes" && cashDetails ? cashDetails.cashChange : null;
   const results = await Promise.all([
     toChargeIds.length
       ? supabase
           .from("orders")
-          .update({ status: "payee", payment_mode: mode })
+          .update({ status: "payee", payment_mode: mode, cash_given: cashGiven, cash_change: cashChange })
           .in("id", toChargeIds)
       : null,
     paidOnlineIds.length
@@ -543,6 +554,10 @@ export async function markGroupPaid(
       if (toChargeIds.includes(order.id)) {
         order.status = "payee";
         order.paymentMode = mode;
+        if (mode === "especes" && cashDetails) {
+          order.cashGiven = cashDetails.cashGiven;
+          order.cashChange = cashDetails.cashChange;
+        }
       } else if (paidOnlineIds.includes(order.id)) {
         order.status = "payee";
       }

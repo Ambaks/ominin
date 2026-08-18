@@ -140,6 +140,12 @@ export function OrderCard({
               </span>
             )
           )}
+          {order.cashGiven != null && (
+            <span className="text-xs tabular-nums text-faint">
+              Reçu {formatPrice(order.cashGiven)}
+              {order.cashChange ? ` · Rendu ${formatPrice(order.cashChange)}` : ""}
+            </span>
+          )}
         </div>
         {choosingEta && order.status === "en_attente" ? (
           <div className="flex flex-wrap items-center gap-2">
@@ -223,11 +229,12 @@ export function OrderCard({
 
       {paying && (
         <PaymentDialog
+          total={orderTotal(order)}
           onClose={() => setPaying(false)}
-          onSelect={async (mode) => {
+          onSelect={async (mode, cashDetails) => {
             setPaying(false);
             try {
-              await api.markOrderPaid(order.id, mode);
+              await api.markOrderPaid(order.id, mode, cashDetails);
               toast.success("Commande encaissée.");
             } catch (error) {
               toast.error(

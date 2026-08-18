@@ -910,6 +910,8 @@ export type Database = {
       }
       orders: {
         Row: {
+          cash_change: number | null
+          cash_given: number | null
           created_at: string
           customer_name: string | null
           customer_phone: string | null
@@ -927,6 +929,8 @@ export type Database = {
           type: Database["public"]["Enums"]["order_type"]
         }
         Insert: {
+          cash_change?: number | null
+          cash_given?: number | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
@@ -944,6 +948,8 @@ export type Database = {
           type?: Database["public"]["Enums"]["order_type"]
         }
         Update: {
+          cash_change?: number | null
+          cash_given?: number | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
