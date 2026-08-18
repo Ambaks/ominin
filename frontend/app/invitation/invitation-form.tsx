@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ROLE_LABELS } from "@/lib/gestion/constants";
 import type { Role } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
@@ -44,6 +45,7 @@ export function InvitationForm({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <ThemeToggle className="fixed right-4 top-4" />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-faint">
           Espace de gestion

@@ -8,7 +8,17 @@ interface CategoryLink {
   name: string;
 }
 
-export function CategoryNav({ categories, embedded }: { categories: CategoryLink[]; embedded?: boolean }) {
+export function CategoryNav({
+  categories,
+  embedded,
+  themeLocked,
+}: {
+  categories: CategoryLink[];
+  embedded?: boolean;
+  /** Palette d'établissement verrouillée (.theme-<slug>) : le basculement
+      clair/sombre n'aurait aucun effet visible, on n'affiche pas le bouton. */
+  themeLocked?: boolean;
+}) {
   const [activeId, setActiveId] = useState(categories[0]?.id);
   const [progress, setProgress] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
@@ -83,7 +93,7 @@ export function CategoryNav({ categories, embedded }: { categories: CategoryLink
             );
           })}
         </div>
-        <ThemeToggle className="shrink-0" />
+        {!themeLocked && <ThemeToggle className="shrink-0" />}
       </div>
       <div
         aria-hidden

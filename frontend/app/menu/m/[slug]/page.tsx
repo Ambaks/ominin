@@ -85,7 +85,11 @@ export default async function MenuPage({
         className={`${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <Hero restaurant={restaurant} />
-        <CategoryNav categories={categoryLinks} embedded={embed === "1"} />
+        <CategoryNav
+          categories={categoryLinks}
+          embedded={embed === "1"}
+          themeLocked={Boolean(restaurantThemeClass(slug))}
+        />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
           {restaurant.categories.map((category, index) => (
             <MenuSection key={category.id} category={category} index={index} />

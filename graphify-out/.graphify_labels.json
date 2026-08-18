@@ -151,5 +151,8 @@
   "149": "getPaintAffectingGlobalStateRefs",
   "150": "_",
   "151": "getUniforms",
+  "152": "fromFeature",
+  "153": "createTree",
+  "154": "vh",
   "155": "loading.tsx"
 }

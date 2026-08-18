@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { startCheckout } from "@/lib/gestion/checkout";
 import { OFFRE_LABELS, PAYMENT_PROVIDER_LABELS } from "@/lib/gestion/constants";
 import type { Offre, PaymentProvider } from "@/lib/gestion/types";
@@ -83,6 +84,7 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <ThemeToggle className="fixed right-4 top-4" />
       <div className="text-center">
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
           Bienvenue sur Ominin

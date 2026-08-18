@@ -58,6 +58,18 @@ export default function RootLayout({
       className={`${fraunces.variable} ${instrumentSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Thème partagé entre produits : le cookie .ominin.com (posé par
+            ThemeCookieSync) est recopié dans le localStorage AVANT le script
+            de next-themes, qui applique donc le choix fait sur n'importe quel
+            sous-domaine. Le menu QR garde sa clé dédiée, non concernée. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var m=document.cookie.match(/(?:^|; )ominin-theme=(light|dark)/);if(m)localStorage.setItem("theme",m[1])}catch(e){}',
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
       </body>

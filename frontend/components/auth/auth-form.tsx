@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
@@ -162,6 +163,7 @@ export function AuthForm({
   if (pendingEmail) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+        <ThemeToggle className="fixed right-4 top-4" />
         {header}
 
         <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6 text-center">
@@ -196,6 +198,7 @@ export function AuthForm({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <ThemeToggle className="fixed right-4 top-4" />
       {header}
 
       <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6">
