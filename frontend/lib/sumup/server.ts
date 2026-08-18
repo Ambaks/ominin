@@ -11,7 +11,11 @@ import { createClient } from "@/lib/supabase/server";
 const SUMUP_API_URL = "https://api.sumup.com";
 const SUMUP_AUTHORIZE_URL = "https://api.sumup.com/authorize";
 const SUMUP_TOKEN_URL = "https://api.sumup.com/token";
-const SUMUP_OAUTH_SCOPES = "payments";
+// TEMPORAIRE — smoke test : « payments » est soumis à activation manuelle par
+// SumUp (invalid_scope tant qu'elle n'est pas accordée). Remettre "payments"
+// dès l'activation ; les comptes reliés entre-temps devront se reconnecter
+// (leur jeton ne portera pas le scope paiements).
+const SUMUP_OAUTH_SCOPES = "user.profile_readonly";
 /** Marge avant expiration sous laquelle le jeton d'accès est rafraîchi. */
 const TOKEN_REFRESH_MARGIN_MS = 60_000;
 /** Cookie httpOnly portant le state anti-CSRF du flux OAuth. */
