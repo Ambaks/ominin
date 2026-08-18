@@ -10,17 +10,66 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
-> ⚠️ **Manual setup pending — see [`TACHES-AMBAKA.md`](TACHES-AMBAKA.md).**
-> Dashboard-only steps the coding agent can't do (no DNS/Supabase/Vercel/Stripe
-> access). Highest-priority: `supabase db push` (**six** migrations now, incl.
-> collect-standalone, contact-requests, crm, and the new `cash_payment` migration), **seed the
-> `admin_users` allowlist** (the internal CRM shows nothing to anyone else),
-> **remove `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host
-> now — leaving it set silently re-shares them across subdomains), and the
+> ⚠️ **Manual setup pending.** Dashboard-only steps the coding agent can't do
+> (no DNS/Vercel/Stripe/Google-Cloud access). ~~`supabase db push`~~ **done —
+> all migrations through `20260819000002_outreach.sql` are applied** (verified
+> via `supabase migration list`). Still pending: **seed the `admin_users`
+> allowlist** (the internal CRM shows nothing to anyone else), **remove
+> `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host now —
+> leaving it set silently re-shares them across subdomains), the
 > `menu.ominin.com` + `admin.ominin.com` cutovers (DNS + Vercel domain +
-> `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs, in the order the checklist
-> gives). Also pending: a Resend account for the contact form, the branded
-> signup-confirmation email template, and the upload-post account for Clip.
+> `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs), a Resend account for the
+> contact form, the branded signup-confirmation email template, the upload-post
+> account for Clip, and the **prospecting-agent setup** (Google Cloud, Render,
+> GitHub secrets — see "Outreach agent" in the setup guide below).
+
+**AI sales-prospecting agent « Léa »** (new — code complete, deployment
+pending): the FastAPI backend's first real feature. Claude calls go through
+the **Claude Agent SDK** (`claude-agent-sdk`, bundled binary, no Node
+needed): single-turn tool-less `query()` with native
+`output_format json_schema` → `ResultMessage.structured_output`, so they
+**bill the Claude Code subscription** via `CLAUDE_CODE_OAUTH_TOKEN` from
+`claude setup-token` (an `ANTHROPIC_API_KEY` in env switches the same code
+path to pay-per-use; locally with neither set, the machine's `claude` login
+is used — all three call sites live-tested that way on real prompts). A
+persona-driven agent (Léa Moreau, responsable commerciale —
+`backend/app/prompts/persona.py`) that
+prospects restaurants in Montpellier + Toulouse end-to-end: **discovery**
+(Google Places API (New) text search, `source='google_places'`,
+check-then-insert because the `(source, external_id)` unique index is partial
+and PostgREST upserts can't target it; cross-source dedupe via
+`crm_find_duplicates` now granted to `service_role`) → **enrichment** (website
+scrape for email + mentions-légales pages, QR-provider fingerprint detection,
+one Claude `messages.parse` call → `Qualification{has_digital_menu,
+worth_contacting, ai_notes}`) → **cold outreach** (≤25/day Europe/Paris,
+env-capped; Claude writes a ≤120-word personalized French email, no pricing;
+service appends the fixed signature + CNIL footer with an HMAC unsubscribe
+link; one cold email per restaurant, ever) → **hourly inbox** (sends approved
+drafts, ingests only replies on agent-owned Gmail threads, classifies —
+interested / meeting_request / question / not_interested / opt_out / bounce —
+updates lead status, and files a **reply draft for human approval**; nothing
+conversational is ever auto-sent). Data: migrations
+`20260819000001` (new `interested` lead status, isolated file because
+`ALTER TYPE ADD VALUE` can't be referenced in its own transaction) +
+`20260819000002` (`outreach_prospects`, `outreach_emails` with a
+draft→pending_approval→approved→sending→sent lifecycle and an at-most-once
+`sending` fence, `outreach_suppressions` service-role-only, `outreach_runs`
+job log; both **applied to prod**, types regenerated). Backend layout:
+`app/clients/` (supabase, claude, gmail OAuth-refresh-token, places),
+`app/prompts/`, `app/services/` (runs single-flight guard, discovery,
+enrichment, emailing, outreach, inbox), `app/routers/agent.py` — four
+`POST /agent/*` endpoints, `X-Agent-Secret` header, 202 + BackgroundTasks,
+409 on overlap. All tunables in `app/config.py` env settings. Frontend:
+`/admin/emails` page (approve/edit/reject reply drafts, sent/received lists
+with classification chips, run log), `interested` pipeline column + status
+tokens (both themes), `app/api/desinscription` route (HMAC-verified, RFC 8058
+one-click; Python↔Node token parity verified byte-for-byte). Cron:
+`.github/workflows/agent-{inbox,discovery,outreach}.yml` curl the Render
+service with retries absorbing the free-tier cold start. Verified locally
+against prod Supabase: 401 on bad secret, run rows open/close with stats,
+overlap guard 409s, `tsc`/lint/`next build` green. **Not yet live** — needs
+the one-time setup in the guide below (Google Cloud keys + Gmail consent,
+Render service, GitHub + Vercel secrets).
 
 **Light/dark theme consistency** (completed): The theme choice is now synced across all Ominin subdomains via a shared `.ominin.com` cookie. When a user toggles theme on any product (ominin.com, menu., collect., clip., admin.), the choice immediately propagates to all others on their next load. Mechanism: `frontend/app/providers.tsx` mirrors every theme change into an `ominin-theme` cookie (1-year, SameSite=Lax, Secure on https), and an inline script in `frontend/app/layout.tsx` `<head>` copies that cookie into localStorage BEFORE next-themes boots, so the choice syncs with no flash. The QR guest menu keeps its dedicated storage key (intentional: the landing demo iframe must not flip the marketing site, and guests don't inherit the restaurateur's choice). Theme-locked restaurant menus (BOHO) now hide the toggle via a `themeLocked` prop on `CategoryNav`. Chrome-less auth pages (login, signup, onboarding, invitations) gained a fixed top-right ThemeToggle. Verified end-to-end: toggle on `/connexion` writes the cookie, theme persists across reload; `/m/boho` hides the toggle; `/m/trattoria-lucia` keeps a working toggle.
 
@@ -632,14 +681,62 @@ them automatically with the clone:
 When asked to commit work in this repo, always go through `/commit`
 (`.claude/skills/commit/SKILL.md`) rather than raw git commands.
 
-### 7. Final checklist
+### 7. Outreach agent « Léa » (one-time setup, human-only)
+
+The prospecting agent's code is complete; these dashboard steps make it live.
+Order matters.
+
+1. **Google Cloud** (one project for both APIs):
+   - Enable **Places API (New)** → create an API key restricted to it →
+     `GOOGLE_PLACES_API_KEY`.
+   - Enable **Gmail API** → OAuth consent screen (External), publishing
+     status **"In production"** (in "Testing" the refresh token dies after
+     7 days) → create an OAuth client of type **Desktop app** →
+     `GMAIL_CLIENT_ID` / `GMAIL_CLIENT_SECRET`.
+   - From `backend/` with those two values in `.env`, run
+     `uv run python scripts/gmail_auth.py`, sign in as
+     **omininsupport@gmail.com**, accept, and paste the printed
+     `GMAIL_REFRESH_TOKEN` into `.env`.
+2. **Claude subscription token**: on your own machine (where `claude` is
+   logged in), run `claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN` (valid
+   one year, bills your Claude Code subscription — no Anthropic API key
+   needed; the agent's usage shares your plan's rate windows with your
+   interactive Claude Code sessions).
+3. **Secrets**: `openssl rand -hex 32` twice → `AGENT_TRIGGER_SECRET` and
+   `OUTREACH_UNSUBSCRIBE_SECRET`.
+4. **Render**: new free web service on `backend/` — build `uv sync`, start
+   `uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT` — with every
+   var from `backend/.env.example` (Supabase, `CLAUDE_CODE_OAUTH_TOKEN`,
+   Google, Gmail, both secrets; leave `OUTREACH_REDIRECT_TO` **set to your
+   own address** for the first days of testing). Note the free tier's 512 MB
+   RAM: each Claude call spawns the Agent SDK's bundled Claude Code binary
+   (calls are sequential, so one at a time) — if the instance OOMs, the
+   Starter tier or switching to `ANTHROPIC_API_KEY`-billed direct API calls
+   are the escape hatches.
+5. **Vercel**: add `OUTREACH_UNSUBSCRIBE_SECRET` (same value as Render).
+6. **GitHub** repo secrets: `BACKEND_URL` (the Render URL, no trailing
+   slash) + `AGENT_TRIGGER_SECRET`. The three workflows in
+   `.github/workflows/agent-*.yml` then run on schedule; each also has a
+   manual "Run workflow" button for testing.
+7. **First live test**: trigger agent-discovery manually → check the Runs
+   tab of `/admin/emails`; then agent-outreach with `OUTREACH_REDIRECT_TO`
+   still set — the cold emails land in your own inbox. Reply to one, run
+   agent-inbox, approve the draft in "À approuver", run agent-inbox again
+   and confirm the reply threads in Gmail. Only then clear
+   `OUTREACH_REDIRECT_TO`.
+
+Config knobs (env, defaults in `backend/app/config.py`): `OUTREACH_CITIES`,
+`OUTREACH_DAILY_LIMIT` (25), `OUTREACH_MODEL` (`claude-opus-5`),
+`OUTREACH_SEND_DELAY_SECONDS` (45), batch sizes, scrape timeouts.
+
+### 8. Final checklist
 
 - [ ] `npm run build` succeeds in `frontend/`
 - [ ] `curl http://localhost:8000/health` returns `{"status":"ok"}`
 - [ ] `graphify --version` prints a version
 - [ ] `backend/.env` exists (keys may be pending from the human)
 - [ ] `frontend/.env.local` exists with the Supabase URL + anon key
-- [ ] `supabase db push` applied (pending the human-created cloud project)
+- [x] `supabase db push` applied (all migrations through `20260819000002`)
 
 Read `CLAUDE.md` at the repo root for stack rationale, commands, and project
 conventions before writing any code.

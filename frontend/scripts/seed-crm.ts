@@ -115,6 +115,7 @@ const STATUS_DEPTH: Record<LeadStatus, number> = {
   new: 0,
   to_contact: 0,
   contacted: 1,
+  interested: 1,
   visited: 2,
   appointment_scheduled: 3,
   proposal: 4,

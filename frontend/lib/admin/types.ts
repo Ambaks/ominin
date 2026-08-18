@@ -164,3 +164,42 @@ export interface GeoPoint {
   lng: number;
   accuracy?: number;
 }
+
+// ---------------------------------------------------------------------------
+// Prospection automatisée (agent « Léa »)
+
+export type OutreachDirection =
+  Database["public"]["Enums"]["outreach_email_direction"];
+export type OutreachEmailStatus =
+  Database["public"]["Enums"]["outreach_email_status"];
+export type OutreachClassification =
+  Database["public"]["Enums"]["outreach_classification"];
+
+export interface OutreachEmail {
+  id: string;
+  restaurantId: string;
+  leadId: string | null;
+  direction: OutreachDirection;
+  kind: "cold" | "reply";
+  status: OutreachEmailStatus;
+  toEmail: string | null;
+  fromEmail: string | null;
+  subject: string | null;
+  bodyText: string | null;
+  inReplyTo: string | null;
+  classification: OutreachClassification | null;
+  error: string | null;
+  sentAt: string | null;
+  receivedAt: string | null;
+  createdAt: string;
+}
+
+export interface OutreachRun {
+  id: string;
+  job: string;
+  status: string;
+  stats: Json;
+  error: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+}

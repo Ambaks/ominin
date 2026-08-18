@@ -3,6 +3,8 @@ import type {
   AppointmentStatus,
   AppointmentType,
   LeadStatus,
+  OutreachClassification,
+  OutreachEmailStatus,
   Priority,
   RestaurantCategory,
   TaskStatus,
@@ -18,6 +20,7 @@ export const STATUS_ORDER: readonly LeadStatus[] = [
   "new",
   "to_contact",
   "contacted",
+  "interested",
   "visited",
   "appointment_scheduled",
   "proposal",
@@ -31,6 +34,7 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
   new: "Nouveau",
   to_contact: "À contacter",
   contacted: "Contacté",
+  interested: "Intéressé",
   visited: "Visité",
   appointment_scheduled: "RDV planifié",
   proposal: "Proposition",
@@ -129,6 +133,12 @@ export const PIPELINE_COLUMNS: readonly PipelineColumn[] = [
     dropStatus: "to_contact",
   },
   { id: "contacted", label: "Contacté", statuses: ["contacted"], dropStatus: "contacted" },
+  {
+    id: "interested",
+    label: "Intéressé",
+    statuses: ["interested"],
+    dropStatus: "interested",
+  },
   { id: "visited", label: "Visité", statuses: ["visited"], dropStatus: "visited" },
   {
     id: "appointment",
@@ -158,6 +168,41 @@ export const PIPELINE_RAIL_COLUMNS: readonly PipelineColumn[] = [
 
 /** Au-delà, la colonne coupe le rendu (« Voir les N autres »). */
 export const PIPELINE_COLUMN_CAP = 50;
+
+// ---------------------------------------------------------------------------
+// Prospection automatisée (agent « Léa »)
+
+export const CLASSIFICATION_LABELS: Record<OutreachClassification, string> = {
+  interested: "Intéressé",
+  meeting_request: "Demande de RDV",
+  question: "Question",
+  not_interested: "Pas intéressé",
+  opt_out: "Désinscription",
+  bounce: "Non remis",
+  other: "Autre",
+};
+
+export const OUTREACH_STATUS_LABELS: Record<OutreachEmailStatus, string> = {
+  draft: "Brouillon",
+  pending_approval: "À approuver",
+  approved: "Approuvé",
+  sending: "Envoi en cours",
+  sent: "Envoyé",
+  received: "Reçu",
+  failed: "Échec",
+  cancelled: "Annulé",
+};
+
+export const OUTREACH_JOB_LABELS: Record<string, string> = {
+  discover: "Découverte",
+  enrich: "Qualification",
+  outreach: "Prospection",
+  inbox: "Boîte de réception",
+};
+
+/** Fenêtre de chargement de la page E-mails (lignes les plus récentes). */
+export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
+export const OUTREACH_RUNS_FETCH_LIMIT = 50;
 
 // ---------------------------------------------------------------------------
 // Carte

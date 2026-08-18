@@ -3,6 +3,8 @@ import { check, must } from "@/lib/supabase/result";
 import {
   CONTACT_ACTIVITY_TYPES,
   CSV_IMPORT_CHUNK_SIZE,
+  OUTREACH_EMAILS_FETCH_LIMIT,
+  OUTREACH_RUNS_FETCH_LIMIT,
 } from "./constants";
 import { addDays, dayStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
@@ -13,6 +15,8 @@ import {
   rowToContact,
   rowToLead,
   rowToLeadLite,
+  rowToOutreachEmail,
+  rowToOutreachRun,
   rowToRestaurant,
   rowToTask,
   toJson,
@@ -30,6 +34,8 @@ import type {
   Lead,
   LeadLite,
   LeadStatus,
+  OutreachEmail,
+  OutreachRun,
   Priority,
   Restaurant,
   RestaurantCategory,
@@ -751,4 +757,74 @@ async function fetchAllSlugs(): Promise<string[]> {
     slugs.push(...batch.map((row) => row.slug));
     if (batch.length < PAGE) return slugs;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Prospection automatisée (agent « Léa »)
+//
+// Les lignes outreach ne vivent pas dans le snapshot du store : la page
+// E-mails charge à la demande, comme les tâches terminées. L'approbation
+// d'un brouillon ne déclenche aucun appel backend : la ligne passe à
+// « approved » sous RLS et le prochain run horaire /agent/inbox l'envoie.
+
+export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase
+      .from("outreach_emails")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(OUTREACH_EMAILS_FETCH_LIMIT)
+  );
+  return rows.map(rowToOutreachEmail);
+}
+
+export async function fetchOutreachRuns(): Promise<OutreachRun[]> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase
+      .from("outreach_runs")
+      .select("*")
+      .order("started_at", { ascending: false })
+      .limit(OUTREACH_RUNS_FETCH_LIMIT)
+  );
+  return rows.map(rowToOutreachRun);
+}
+
+/** Édite un brouillon encore en attente. Garde .eq("status") : si le run
+ * horaire vient de le prendre, l'édition ne touche rien. */
+export async function updateOutreachDraft(
+  id: string,
+  input: { subject: string; bodyText: string }
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("outreach_emails")
+      .update({ subject: input.subject, body_text: input.bodyText })
+      .eq("id", id)
+      .eq("status", "pending_approval")
+  );
+}
+
+export async function approveOutreachEmail(id: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("outreach_emails")
+      .update({ status: "approved", approved_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("status", "pending_approval")
+  );
+}
+
+export async function rejectOutreachEmail(id: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("outreach_emails")
+      .update({ status: "cancelled" })
+      .eq("id", id)
+      .eq("status", "pending_approval")
+  );
 }

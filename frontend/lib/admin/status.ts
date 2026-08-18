@@ -1,4 +1,4 @@
-import type { LeadStatus } from "./types";
+import type { LeadStatus, OutreachClassification } from "./types";
 
 /*
  * Système de couleurs des 10 statuts, en deux exemplaires coordonnés :
@@ -18,6 +18,8 @@ export const STATUS_BADGE_CLASSES: Record<LeadStatus, string> = {
     "border-status-to-contact/40 bg-status-to-contact/10 text-status-to-contact",
   contacted:
     "border-status-contacted/40 bg-status-contacted/10 text-status-contacted",
+  interested:
+    "border-status-interested/40 bg-status-interested/10 text-status-interested",
   visited: "border-status-visited/40 bg-status-visited/10 text-status-visited",
   appointment_scheduled:
     "border-status-appointment/40 bg-status-appointment/10 text-status-appointment",
@@ -36,6 +38,7 @@ export const STATUS_DOT_CLASSES: Record<LeadStatus, string> = {
   new: "bg-status-new",
   to_contact: "bg-status-to-contact",
   contacted: "bg-status-contacted",
+  interested: "bg-status-interested",
   visited: "bg-status-visited",
   appointment_scheduled: "bg-status-appointment",
   proposal: "bg-status-proposal",
@@ -45,11 +48,31 @@ export const STATUS_DOT_CLASSES: Record<LeadStatus, string> = {
   not_interested: "bg-status-not-interested",
 };
 
+/** Puces de classification des réponses (page E-mails), sur la même gamme
+ * que les statuts de lead correspondants. */
+export const CLASSIFICATION_BADGE_CLASSES: Record<
+  OutreachClassification,
+  string
+> = {
+  interested:
+    "border-status-interested/40 bg-status-interested/10 text-status-interested",
+  meeting_request:
+    "border-status-appointment/40 bg-status-appointment/10 text-status-appointment",
+  question:
+    "border-status-to-contact/40 bg-status-to-contact/10 text-status-to-contact",
+  not_interested:
+    "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
+  opt_out: "border-status-lost/40 bg-status-lost/10 text-status-lost",
+  bounce: "border-status-lost/40 bg-status-lost/10 text-status-lost",
+  other: "border-status-new/40 bg-status-new/10 text-status-new",
+};
+
 /** Couleurs des marqueurs sur le fond Positron. */
 export const STATUS_MAP_COLORS: Record<LeadStatus, string> = {
   new: "#857d6d",
   to_contact: "#4f94c9",
   contacted: "#5f74d2",
+  interested: "#c25a9b",
   visited: "#9163c4",
   appointment_scheduled: "#dfa32e",
   proposal: "#2f9b82",

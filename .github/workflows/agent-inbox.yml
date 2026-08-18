@@ -1,0 +1,19 @@
+# Boîte de réception de l'agent « Léa », toutes les heures : envoie les
+# brouillons approuvés, ingère et classe les réponses. Le curl retente
+# pendant ~2 min pour absorber le cold start de Render (tier gratuit).
+name: agent-inbox
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/inbox
+        run: |
+          curl -sf --max-time 120 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/inbox"

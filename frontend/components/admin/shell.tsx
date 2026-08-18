@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   CalendarIcon,
   ImportIcon,
+  MailIcon,
   MapPinIcon,
   PipelineIcon,
   StoreIcon,
@@ -39,9 +40,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/rdv", label: "RDV", icon: CalendarIcon },
 ];
 
-/** Barre latérale uniquement : écrans de bureau (table, import). */
+/** Barre latérale uniquement : écrans de bureau (table, e-mails, import). */
 const DESKTOP_ITEMS: NavItem[] = [
   { href: "/restaurants", label: "Restaurants", icon: StoreIcon },
+  { href: "/emails", label: "E-mails", icon: MailIcon },
   { href: "/import", label: "Import CSV", icon: ImportIcon },
 ];
 

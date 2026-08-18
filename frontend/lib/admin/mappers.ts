@@ -6,6 +6,8 @@ import type {
   Contact,
   Lead,
   LeadLite,
+  OutreachEmail,
+  OutreachRun,
   Restaurant,
   TaskRow,
 } from "./types";
@@ -154,6 +156,41 @@ export function rowToTask(row: Tables<"crm_tasks">): TaskRow {
     status: row.status,
     completedAt: row.completed_at,
     createdAt: row.created_at,
+  };
+}
+
+export function rowToOutreachEmail(
+  row: Tables<"outreach_emails">
+): OutreachEmail {
+  return {
+    id: row.id,
+    restaurantId: row.restaurant_id,
+    leadId: row.lead_id,
+    direction: row.direction,
+    kind: row.kind as OutreachEmail["kind"],
+    status: row.status,
+    toEmail: row.to_email,
+    fromEmail: row.from_email,
+    subject: row.subject,
+    bodyText: row.body_text,
+    inReplyTo: row.in_reply_to,
+    classification: row.classification,
+    error: row.error,
+    sentAt: row.sent_at,
+    receivedAt: row.received_at,
+    createdAt: row.created_at,
+  };
+}
+
+export function rowToOutreachRun(row: Tables<"outreach_runs">): OutreachRun {
+  return {
+    id: row.id,
+    job: row.job,
+    status: row.status,
+    stats: row.stats,
+    error: row.error,
+    startedAt: row.started_at,
+    finishedAt: row.finished_at,
   };
 }
 

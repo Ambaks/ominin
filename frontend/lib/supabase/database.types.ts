@@ -480,6 +480,7 @@ export type Database = {
           longitude: number | null
           menu_url: string | null
           name: string
+          outreach_opted_out_at: string | null
           owner_email: string | null
           owner_name: string | null
           owner_phone: string | null
@@ -509,6 +510,7 @@ export type Database = {
           longitude?: number | null
           menu_url?: string | null
           name: string
+          outreach_opted_out_at?: string | null
           owner_email?: string | null
           owner_name?: string | null
           owner_phone?: string | null
@@ -538,6 +540,7 @@ export type Database = {
           longitude?: number | null
           menu_url?: string | null
           name?: string
+          outreach_opted_out_at?: string | null
           owner_email?: string | null
           owner_name?: string | null
           owner_phone?: string | null
@@ -990,6 +993,209 @@ export type Database = {
           },
         ]
       }
+      outreach_emails: {
+        Row: {
+          approved_at: string | null
+          body_text: string | null
+          classification:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error: string | null
+          from_email: string | null
+          gmail_message_id: string | null
+          gmail_thread_id: string | null
+          id: string
+          in_reply_to: string | null
+          kind: string
+          lead_id: string | null
+          metadata: Json
+          received_at: string | null
+          restaurant_id: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject: string | null
+          to_email: string | null
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          lead_id?: string | null
+          metadata?: Json
+          received_at?: string | null
+          restaurant_id: string
+          sent_at?: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction?: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          lead_id?: string | null
+          metadata?: Json
+          received_at?: string | null
+          restaurant_id?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_emails_in_reply_to_fkey"
+            columns: ["in_reply_to"]
+            isOneToOne: false
+            referencedRelation: "outreach_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outreach_emails_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_prospects: {
+        Row: {
+          ai_notes: string | null
+          created_at: string
+          disqualify_reason: string | null
+          email_source: string | null
+          enriched_at: string | null
+          has_digital_menu: boolean | null
+          qualification: string
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_notes?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email_source?: string | null
+          enriched_at?: string | null
+          has_digital_menu?: boolean | null
+          qualification?: string
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_notes?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email_source?: string | null
+          enriched_at?: string | null
+          has_digital_menu?: boolean | null
+          qualification?: string
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_prospects_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_runs: {
+        Row: {
+          error: string | null
+          finished_at: string | null
+          id: string
+          job: string
+          started_at: string
+          stats: Json
+          status: string
+        }
+        Insert: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job: string
+          started_at?: string
+          stats?: Json
+          status?: string
+        }
+        Update: {
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          job?: string
+          started_at?: string
+          stats?: Json
+          status?: string
+        }
+        Relationships: []
+      }
+      outreach_suppressions: {
+        Row: {
+          created_at: string
+          email: string
+          reason: string
+          restaurant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          reason: string
+          restaurant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          reason?: string
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_suppressions_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_accounts: {
         Row: {
           charges_enabled: boolean
@@ -1237,6 +1443,7 @@ export type Database = {
         | "new"
         | "to_contact"
         | "contacted"
+        | "interested"
         | "visited"
         | "appointment_scheduled"
         | "proposal"
@@ -1267,6 +1474,24 @@ export type Database = {
         | "annulee"
         | "retiree"
       order_type: "sur_place" | "collect"
+      outreach_classification:
+        | "interested"
+        | "not_interested"
+        | "meeting_request"
+        | "question"
+        | "opt_out"
+        | "bounce"
+        | "other"
+      outreach_email_direction: "outbound" | "inbound"
+      outreach_email_status:
+        | "draft"
+        | "pending_approval"
+        | "approved"
+        | "sending"
+        | "sent"
+        | "received"
+        | "failed"
+        | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne"
       payment_provider: "stripe" | "sumup"
       product: "offre" | "collect"
@@ -1424,6 +1649,7 @@ export const Constants = {
         "new",
         "to_contact",
         "contacted",
+        "interested",
         "visited",
         "appointment_scheduled",
         "proposal",
@@ -1457,6 +1683,26 @@ export const Constants = {
         "retiree",
       ],
       order_type: ["sur_place", "collect"],
+      outreach_classification: [
+        "interested",
+        "not_interested",
+        "meeting_request",
+        "question",
+        "opt_out",
+        "bounce",
+        "other",
+      ],
+      outreach_email_direction: ["outbound", "inbound"],
+      outreach_email_status: [
+        "draft",
+        "pending_approval",
+        "approved",
+        "sending",
+        "sent",
+        "received",
+        "failed",
+        "cancelled",
+      ],
       payment_mode: ["especes", "carte", "en_ligne"],
       payment_provider: ["stripe", "sumup"],
       product: ["offre", "collect"],

@@ -35,6 +35,7 @@
   --status-new: #8a8577;
   --status-to-contact: #64a7d9;
   --status-contacted: #7d8fe0;
+  --status-interested: #d977b4;
   --status-visited: #a97fd6;
   --status-appointment: #e8b04f;
   --status-proposal: #4fb39b;
@@ -68,6 +69,7 @@ html.light {
   --status-new: #6f6a5e;
   --status-to-contact: #2f6f9f;
   --status-contacted: #4a5cb8;
+  --status-interested: #a83d7e;
   --status-visited: #7444ab;
   --status-appointment: #9a6b12;
   --status-proposal: #1f7a66;
@@ -129,6 +131,7 @@ html.light {
   --color-status-new: var(--status-new);
   --color-status-to-contact: var(--status-to-contact);
   --color-status-contacted: var(--status-contacted);
+  --color-status-interested: var(--status-interested);
   --color-status-visited: var(--status-visited);
   --color-status-appointment: var(--status-appointment);
   --color-status-proposal: var(--status-proposal);
