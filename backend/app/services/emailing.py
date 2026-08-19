@@ -97,6 +97,7 @@ def send_approved_batch(kinds: list[str]) -> dict:
     ).data
 
     first = True
+    consecutive = 0
     for row in rows:
         if row["kind"] == "cold":
             if quota <= 0:
@@ -105,7 +106,17 @@ def send_approved_batch(kinds: list[str]) -> dict:
         if not first:
             time.sleep(settings.outreach_send_delay_seconds)
         first = False
+        sent_before = stats["sent"]
         _send_one(sb, row, stats)
+        if stats["sent"] == sent_before:
+            consecutive += 1
+            if consecutive >= settings.max_consecutive_errors:
+                # Gmail outage: stop here so untouched rows stay 'approved'
+                # and go out on the next hourly run.
+                stats["aborted"] = "consecutive errors — systematic failure"
+                break
+        else:
+            consecutive = 0
 
     return stats
 
@@ -160,6 +171,7 @@ def _send_one(sb, row: dict, stats: dict) -> None:
             {"status": "failed", "error": f"{type(exc).__name__}: {exc}"}
         ).eq("id", row["id"]).execute()
         stats["failed"] += 1
+        stats["last_error"] = f"{type(exc).__name__}: {exc}"
         return
 
     now = datetime.now(UTC).isoformat()

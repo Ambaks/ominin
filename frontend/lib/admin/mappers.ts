@@ -7,6 +7,7 @@ import type {
   Lead,
   LeadLite,
   OutreachEmail,
+  OutreachProspect,
   OutreachRun,
   Restaurant,
   TaskRow,
@@ -179,6 +180,20 @@ export function rowToOutreachEmail(
     sentAt: row.sent_at,
     receivedAt: row.received_at,
     createdAt: row.created_at,
+  };
+}
+
+export function rowToOutreachProspect(
+  row: Tables<"outreach_prospects">
+): OutreachProspect {
+  return {
+    restaurantId: row.restaurant_id,
+    qualification: row.qualification as OutreachProspect["qualification"],
+    disqualifyReason: row.disqualify_reason,
+    hasDigitalMenu: row.has_digital_menu,
+    emailSource: row.email_source,
+    aiNotes: row.ai_notes,
+    enrichedAt: row.enriched_at,
   };
 }
 

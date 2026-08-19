@@ -35,6 +35,7 @@ def run_enrichment() -> dict:
         .execute()
     ).data
 
+    consecutive = 0
     for prospect in pending:
         restaurant = prospect.get("crm_restaurants")
         if not restaurant:
@@ -42,8 +43,14 @@ def run_enrichment() -> dict:
         try:
             _enrich_one(sb, restaurant, stats)
             stats["processed"] += 1
-        except Exception:  # noqa: BLE001 — stays pending, retried next run
+            consecutive = 0
+        except Exception as exc:  # noqa: BLE001 — stays pending, retried next run
             stats["errors"] += 1
+            stats["last_error"] = f"{type(exc).__name__}: {exc}"
+            consecutive += 1
+            if consecutive >= settings.max_consecutive_errors:
+                stats["aborted"] = "consecutive errors — systematic failure"
+                break
 
     return stats
 

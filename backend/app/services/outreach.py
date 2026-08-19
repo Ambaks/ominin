@@ -26,6 +26,7 @@ def run_outreach() -> dict:
         .execute()
     ).data
 
+    consecutive = 0
     for prospect in candidates:
         if stats["composed"] >= to_compose:
             break
@@ -39,8 +40,14 @@ def run_outreach() -> dict:
         try:
             _compose_one(sb, restaurant, prospect.get("ai_notes"))
             stats["composed"] += 1
-        except Exception:  # noqa: BLE001 — retried on the next run
+            consecutive = 0
+        except Exception as exc:  # noqa: BLE001 — retried on the next run
             stats["skipped"] += 1
+            stats["last_error"] = f"{type(exc).__name__}: {exc}"
+            consecutive += 1
+            if consecutive >= settings.max_consecutive_errors:
+                stats["aborted"] = "consecutive errors — systematic failure"
+                break
 
     send_stats = emailing.send_approved_batch(kinds=["cold"])
     return {**stats, **send_stats}

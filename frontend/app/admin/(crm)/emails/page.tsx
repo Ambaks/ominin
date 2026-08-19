@@ -10,13 +10,22 @@ import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
   CLASSIFICATION_LABELS,
+  DISQUALIFY_REASON_LABELS,
   OUTREACH_JOB_LABELS,
   OUTREACH_STATUS_LABELS,
+  QUALIFICATION_LABELS,
 } from "@/lib/admin/constants";
 import { formatDayTime, formatRelative } from "@/lib/admin/format";
-import { CLASSIFICATION_BADGE_CLASSES } from "@/lib/admin/status";
+import {
+  CLASSIFICATION_BADGE_CLASSES,
+  QUALIFICATION_BADGE_CLASSES,
+} from "@/lib/admin/status";
 import { useAdmin } from "@/lib/admin/store";
-import type { OutreachEmail, OutreachRun } from "@/lib/admin/types";
+import type {
+  OutreachEmail,
+  OutreachProspect,
+  OutreachRun,
+} from "@/lib/admin/types";
 
 /*
  * Boîte de prospection de l'agent « Léa ». Les brouillons approuvés ici ne
@@ -25,7 +34,7 @@ import type { OutreachEmail, OutreachRun } from "@/lib/admin/types";
  * instantanée ferait robot).
  */
 
-type TabId = "pending" | "sent" | "received" | "runs";
+type TabId = "pending" | "prospects" | "sent" | "received" | "runs";
 
 export default function EmailsPage() {
   const state = useAdmin();
@@ -36,6 +45,7 @@ export default function EmailsPage() {
 
   const [tab, setTab] = useState<TabId>("pending");
   const [emails, setEmails] = useState<OutreachEmail[] | null>(null);
+  const [prospects, setProspects] = useState<OutreachProspect[] | null>(null);
   const [runs, setRuns] = useState<OutreachRun[] | null>(null);
   const [drafts, setDrafts] = useState<
     Record<string, { subject: string; bodyText: string }>
@@ -67,7 +77,17 @@ export default function EmailsPage() {
           )
         );
     }
-  }, [tab, runs, toast]);
+    if (tab === "prospects" && prospects === null) {
+      api
+        .fetchOutreachProspects()
+        .then(setProspects)
+        .catch((error) =>
+          toast.error(
+            error instanceof Error ? error.message : "Une erreur est survenue."
+          )
+        );
+    }
+  }, [tab, runs, prospects, toast]);
 
   const nameById = useMemo(
     () =>
@@ -122,6 +142,7 @@ export default function EmailsPage() {
       <PillTabs
         tabs={[
           { id: "pending", label: "À approuver", count: pending.length },
+          { id: "prospects", label: "Prospection" },
           { id: "sent", label: "Envoyés", count: sent.length },
           { id: "received", label: "Reçus", count: received.length },
           { id: "runs", label: "Runs" },
@@ -217,6 +238,20 @@ export default function EmailsPage() {
           </div>
         ))}
 
+      {tab === "prospects" &&
+        (prospects === null || prospects.length === 0 ? (
+          <EmptyState
+            title={prospects === null ? "Chargement…" : "Aucun prospect"}
+            body="Les restaurants découverts par l'agent et leur verdict de qualification apparaissent ici après chaque run de découverte."
+          />
+        ) : (
+          <ProspectsPanel
+            prospects={prospects}
+            nameById={nameById}
+            onOpen={openLead}
+          />
+        ))}
+
       {tab === "sent" &&
         (sent.length === 0 ? (
           <EmptyState
@@ -285,6 +320,85 @@ export default function EmailsPage() {
           </table>
         </div>
       )}
+    </div>
+  );
+}
+
+function ProspectsPanel({
+  prospects,
+  nameById,
+  onOpen,
+}: {
+  prospects: OutreachProspect[];
+  nameById: Map<string, string>;
+  onOpen: (restaurantId: string) => void;
+}) {
+  const counts = {
+    qualified: prospects.filter((p) => p.qualification === "qualified").length,
+    pending: prospects.filter((p) => p.qualification === "pending").length,
+    no_email: prospects.filter((p) => p.disqualifyReason === "no_email").length,
+    has_digital_menu: prospects.filter(
+      (p) => p.disqualifyReason === "has_digital_menu"
+    ).length,
+  };
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {(
+          [
+            ["Qualifiés", counts.qualified],
+            ["Pas d'e-mail trouvé", counts.no_email],
+            ["Déjà digitalisés", counts.has_digital_menu],
+            ["En attente", counts.pending],
+          ] as const
+        ).map(([label, count]) => (
+          <div
+            key={label}
+            className="rounded-2xl border border-hairline bg-surface p-4"
+          >
+            <p className="text-2xl font-semibold tabular-nums">{count}</p>
+            <p className="text-xs text-faint">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <table className="w-full min-w-125 text-left text-sm">
+          <thead>
+            <tr className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+              <th className="px-4 py-3">Restaurant</th>
+              <th className="px-4 py-3">Verdict</th>
+              <th className="px-4 py-3">Notes de l&apos;agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            {prospects.map((prospect) => (
+              <tr
+                key={prospect.restaurantId}
+                onClick={() => onOpen(prospect.restaurantId)}
+                className="cursor-pointer border-t border-hairline transition-colors hover:bg-surface-raised"
+              >
+                <td className="px-4 py-3 font-medium">
+                  {nameById.get(prospect.restaurantId) ?? "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${QUALIFICATION_BADGE_CLASSES[prospect.qualification]}`}
+                  >
+                    {prospect.disqualifyReason
+                      ? (DISQUALIFY_REASON_LABELS[prospect.disqualifyReason] ??
+                        prospect.disqualifyReason)
+                      : QUALIFICATION_LABELS[prospect.qualification]}
+                  </span>
+                </td>
+                <td className="max-w-120 px-4 py-3 text-xs text-muted">
+                  <span className="line-clamp-2">{prospect.aiNotes ?? "—"}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

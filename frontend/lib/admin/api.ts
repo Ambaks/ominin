@@ -4,6 +4,7 @@ import {
   CONTACT_ACTIVITY_TYPES,
   CSV_IMPORT_CHUNK_SIZE,
   OUTREACH_EMAILS_FETCH_LIMIT,
+  OUTREACH_PROSPECTS_FETCH_LIMIT,
   OUTREACH_RUNS_FETCH_LIMIT,
 } from "./constants";
 import { addDays, dayStart } from "./format";
@@ -16,6 +17,7 @@ import {
   rowToLead,
   rowToLeadLite,
   rowToOutreachEmail,
+  rowToOutreachProspect,
   rowToOutreachRun,
   rowToRestaurant,
   rowToTask,
@@ -35,6 +37,7 @@ import type {
   LeadLite,
   LeadStatus,
   OutreachEmail,
+  OutreachProspect,
   OutreachRun,
   Priority,
   Restaurant,
@@ -777,6 +780,18 @@ export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
       .limit(OUTREACH_EMAILS_FETCH_LIMIT)
   );
   return rows.map(rowToOutreachEmail);
+}
+
+export async function fetchOutreachProspects(): Promise<OutreachProspect[]> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase
+      .from("outreach_prospects")
+      .select("*")
+      .order("enriched_at", { ascending: false, nullsFirst: false })
+      .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
+  );
+  return rows.map(rowToOutreachProspect);
 }
 
 export async function fetchOutreachRuns(): Promise<OutreachRun[]> {

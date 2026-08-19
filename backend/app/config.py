@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     # A 'running' run younger than this blocks a new run of the same job;
     # older ones are presumed killed (Render spin-down) and marked failed.
     run_stale_minutes: int = 30
+    # Abort a batch after this many consecutive per-item failures: a
+    # systematic outage (Claude rate limit exhausted, network down) must not
+    # burn through the whole batch retrying a lost cause.
+    max_consecutive_errors: int = 3
 
     # Website scraping (enrichment)
     places_timeout_seconds: int = 30

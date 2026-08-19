@@ -1,4 +1,8 @@
-import type { LeadStatus, OutreachClassification } from "./types";
+import type {
+  LeadStatus,
+  OutreachClassification,
+  ProspectQualification,
+} from "./types";
 
 /*
  * Système de couleurs des 10 statuts, en deux exemplaires coordonnés :
@@ -65,6 +69,17 @@ export const CLASSIFICATION_BADGE_CLASSES: Record<
   opt_out: "border-status-lost/40 bg-status-lost/10 text-status-lost",
   bounce: "border-status-lost/40 bg-status-lost/10 text-status-lost",
   other: "border-status-new/40 bg-status-new/10 text-status-new",
+};
+
+/** Verdicts de qualification de l'agent (onglet Prospection). */
+export const QUALIFICATION_BADGE_CLASSES: Record<
+  ProspectQualification,
+  string
+> = {
+  qualified: "border-status-signed/40 bg-status-signed/10 text-status-signed",
+  pending: "border-status-new/40 bg-status-new/10 text-status-new",
+  disqualified:
+    "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
 };
 
 /** Couleurs des marqueurs sur le fond Positron. */

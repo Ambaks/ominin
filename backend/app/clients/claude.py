@@ -51,7 +51,12 @@ async def _parse[T: BaseModel](
     async for message in query(prompt=content, options=options):
         if isinstance(message, ResultMessage):
             if message.is_error or message.structured_output is None:
-                error = f"claude call failed ({message.subtype}): {message.result}"
+                status = (
+                    f" [HTTP {message.api_error_status}]"
+                    if message.api_error_status
+                    else ""
+                )
+                error = f"claude call failed ({message.subtype}){status}: {message.result}"
             else:
                 result = output_model.model_validate(message.structured_output)
     if error:

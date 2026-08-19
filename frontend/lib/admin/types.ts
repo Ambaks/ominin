@@ -203,3 +203,15 @@ export interface OutreachRun {
   startedAt: string;
   finishedAt: string | null;
 }
+
+export type ProspectQualification = "pending" | "qualified" | "disqualified";
+
+export interface OutreachProspect {
+  restaurantId: string;
+  qualification: ProspectQualification;
+  disqualifyReason: string | null;
+  hasDigitalMenu: boolean | null;
+  emailSource: string | null;
+  aiNotes: string | null;
+  enrichedAt: string | null;
+}

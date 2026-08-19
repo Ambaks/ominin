@@ -6,6 +6,7 @@ import type {
   OutreachClassification,
   OutreachEmailStatus,
   Priority,
+  ProspectQualification,
   RestaurantCategory,
   TaskStatus,
 } from "./types";
@@ -200,9 +201,24 @@ export const OUTREACH_JOB_LABELS: Record<string, string> = {
   inbox: "Boîte de réception",
 };
 
+export const QUALIFICATION_LABELS: Record<ProspectQualification, string> = {
+  pending: "En attente",
+  qualified: "Qualifié",
+  disqualified: "Écarté",
+};
+
+/** Motifs d'écartement écrits par l'agent (outreach_prospects.disqualify_reason). */
+export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
+  no_email: "Pas d'e-mail trouvé",
+  has_digital_menu: "Déjà digitalisé",
+  not_worth: "Hors cible",
+  suppressed: "Désinscrit",
+};
+
 /** Fenêtre de chargement de la page E-mails (lignes les plus récentes). */
 export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
 export const OUTREACH_RUNS_FETCH_LIMIT = 50;
+export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
 
 // ---------------------------------------------------------------------------
 // Carte

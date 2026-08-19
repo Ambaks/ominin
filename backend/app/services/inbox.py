@@ -34,14 +34,21 @@ def run_inbox() -> dict:
 
     send_stats = emailing.send_approved_batch(kinds=["cold", "reply"])
 
+    consecutive = 0
     for stub in gmail.list_inbox(
         newer_than_days=settings.inbox_lookback_days,
         max_results=settings.inbox_max_messages,
     ):
         try:
             _process_message(sb, stub, stats)
-        except Exception:  # noqa: BLE001 — one bad message must not kill the run
+            consecutive = 0
+        except Exception as exc:  # noqa: BLE001 — one bad message must not kill the run
             stats["skipped"] += 1
+            stats["last_error"] = f"{type(exc).__name__}: {exc}"
+            consecutive += 1
+            if consecutive >= settings.max_consecutive_errors:
+                stats["aborted"] = "consecutive errors — systematic failure"
+                break
 
     return {**stats, **send_stats}
 
