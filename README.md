@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **One-shot agent run scheduled for 2026-08-19 at 20:30 Paris (18:30 UTC):** Full discovery → enrichment → outreach cycle runs once this evening to test the new batching and discovery-matrix flow end-to-end, then the workflow self-deletes so the normal schedule (nightly discovery 02:37 UTC, outreach 6×/day Tue–Fri) resumes untouched.
+
 > ⚠️ **Manual setup pending.** Dashboard-only steps the coding agent can't do
 > (no DNS/Vercel/Stripe/Google-Cloud access). ~~`supabase db push`~~ **done —
 > all migrations through `20260819000002_outreach.sql` are applied** (verified
