@@ -1,11 +1,13 @@
-# Envoi des e-mails à froid, du mardi au vendredi en matinée (08:23 UTC ≈
-# 09:23/10:23 Paris selon l'heure d'été — dérive DST assumée). Le plafond
-# quotidien (OUTREACH_DAILY_LIMIT) est appliqué côté backend.
+# Envoi des e-mails à froid, du mardi au vendredi, toutes les 2 heures de
+# 06:23 à 16:23 UTC (≈ 08:23-18:23 Paris en été — dérive DST assumée) : le
+# volume quotidien est étalé sur 6 runs. Chaque run compose et envoie au plus
+# OUTREACH_RUN_BATCH_SIZE e-mails ; le plafond quotidien (OUTREACH_DAILY_LIMIT)
+# reste appliqué côté backend.
 name: agent-outreach
 
 on:
   schedule:
-    - cron: "23 8 * * 2-5"
+    - cron: "23 6-16/2 * * 2-5"
   workflow_dispatch:
 
 jobs:

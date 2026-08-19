@@ -96,6 +96,16 @@ function fetchUpcomingAppointments() {
   ).then((rows) => rows.map(rowToAppointment));
 }
 
+async function fetchPendingDraftCount(): Promise<number> {
+  const supabase = createClient();
+  const { count, error } = await supabase
+    .from("outreach_emails")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending_approval");
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 async function load(): Promise<void> {
   const supabase = createClient();
 
@@ -119,13 +129,14 @@ async function load(): Promise<void> {
     );
   }
 
-  const [leads, tasks, appointments] = await Promise.all([
+  const [leads, tasks, appointments, pendingDrafts] = await Promise.all([
     fetchLeads(),
     fetchOpenTasks(),
     fetchUpcomingAppointments(),
+    fetchPendingDraftCount(),
   ]);
 
-  state = { userId: user.id, leads, tasks, appointments };
+  state = { userId: user.id, leads, tasks, appointments, pendingDrafts };
   notify();
 }
 
@@ -191,6 +202,17 @@ export async function reloadLeads(): Promise<void> {
   const leads = await fetchLeads();
   if (state) {
     state = { ...state, leads };
+    notify();
+  }
+}
+
+/** Recompte les brouillons en attente (badge E-mails) — appelé par la page
+ * E-mails à son chargement et après chaque approbation/rejet. */
+export async function refreshPendingDrafts(): Promise<void> {
+  if (!state) return;
+  const pendingDrafts = await fetchPendingDraftCount();
+  if (state) {
+    state = { ...state, pendingDrafts };
     notify();
   }
 }

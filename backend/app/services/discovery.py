@@ -1,9 +1,11 @@
 import re
 import unicodedata
+from datetime import UTC, datetime
 
 from app.clients import places
 from app.clients.supabase import get_supabase
 from app.config import settings
+from app.services import keepalive
 
 # Places types → crm_restaurant_category. First match wins; anything else
 # falls back to 'restaurant'.
@@ -43,14 +45,22 @@ def _address_component(place: dict, kind: str) -> str | None:
 
 def run_discovery() -> dict:
     sb = get_supabase()
-    stats = {"found": 0, "inserted": 0, "existing": 0, "duplicates": 0, "errors": 0}
-    cities = [c.strip() for c in settings.outreach_cities.split(",") if c.strip()]
+    stats = {
+        "found": 0,
+        "inserted": 0,
+        "existing": 0,
+        "duplicates": 0,
+        "errors": 0,
+        "queries": 0,
+    }
 
-    for city in cities:
-        query = f"{settings.outreach_search_query} à {city}"
+    for row in _next_queries(sb):
+        stats["queries"] += 1
+        keepalive.ping_if_due()
+        inserted_before = stats["inserted"]
         page_token: str | None = None
-        for _ in range(settings.discovery_max_pages_per_city):
-            data = places.search_text(query, page_token)
+        for _ in range(settings.discovery_max_pages_per_query):
+            data = places.search_text(row["query"], page_token)
             found = [
                 p
                 for p in data.get("places", [])
@@ -61,8 +71,59 @@ def run_discovery() -> dict:
             page_token = data.get("nextPageToken")
             if not page_token:
                 break
+        _close_query(sb, row, stats["inserted"] - inserted_before)
 
     return stats
+
+
+def _query_matrix() -> list[tuple[str, str]]:
+    """(query, city) combos from config: each term over the whole city, plus
+    each term per quartier."""
+    terms = [t.strip() for t in settings.discovery_query_terms.split(",") if t.strip()]
+    cities = [c.strip() for c in settings.outreach_cities.split(",") if c.strip()]
+    quartiers: dict[str, list[str]] = {}
+    for block in settings.discovery_neighborhoods.split(";"):
+        if ":" not in block:
+            continue
+        city, names = block.split(":", 1)
+        quartiers[city.strip()] = [n.strip() for n in names.split("|") if n.strip()]
+
+    combos: list[tuple[str, str]] = []
+    for city in cities:
+        for term in terms:
+            combos.append((f"{term} à {city}", city))
+            for zone in quartiers.get(city, []):
+                combos.append((f"{term} {zone} {city}", city))
+    return combos
+
+
+def _next_queries(sb) -> list[dict]:
+    """Sync the config matrix into outreach_discovery_queries, then pick the
+    least-recently-served active queries for this run."""
+    sb.table("outreach_discovery_queries").upsert(
+        [{"query": q, "city": city} for q, city in _query_matrix()],
+        on_conflict="query",
+        ignore_duplicates=True,
+    ).execute()
+    return (
+        sb.table("outreach_discovery_queries")
+        .select("id, query, consecutive_empty")
+        .eq("retired", False)
+        .order("last_run_at", desc=False, nullsfirst=True)
+        .limit(settings.discovery_queries_per_run)
+        .execute()
+    ).data
+
+
+def _close_query(sb, row: dict, inserted: int) -> None:
+    empty = 0 if inserted else row["consecutive_empty"] + 1
+    sb.table("outreach_discovery_queries").update(
+        {
+            "consecutive_empty": empty,
+            "retired": empty >= settings.discovery_query_max_empty,
+            "last_run_at": datetime.now(UTC).isoformat(),
+        }
+    ).eq("id", row["id"]).execute()
 
 
 def _ingest(sb, found: list[dict], stats: dict) -> None:

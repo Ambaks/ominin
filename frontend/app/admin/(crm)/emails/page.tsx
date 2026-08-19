@@ -20,7 +20,7 @@ import {
   CLASSIFICATION_BADGE_CLASSES,
   QUALIFICATION_BADGE_CLASSES,
 } from "@/lib/admin/status";
-import { useAdmin } from "@/lib/admin/store";
+import { refreshPendingDrafts, useAdmin } from "@/lib/admin/store";
 import type {
   OutreachEmail,
   OutreachProspect,
@@ -52,6 +52,8 @@ export default function EmailsPage() {
   >({});
 
   const reload = useCallback(() => {
+    // Recale aussi le badge de nav (compteur store) sur la réalité.
+    void refreshPendingDrafts();
     api
       .fetchOutreachEmails()
       .then(setEmails)

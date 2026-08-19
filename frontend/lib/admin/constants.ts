@@ -204,6 +204,7 @@ export const OUTREACH_JOB_LABELS: Record<string, string> = {
 export const QUALIFICATION_LABELS: Record<ProspectQualification, string> = {
   pending: "En attente",
   qualified: "Qualifié",
+  contacted: "Contacté",
   disqualified: "Écarté",
 };
 

@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 from app.clients.supabase import get_supabase
 from app.config import settings
+from app.services import notify
 
 
 def start(job: str) -> str | None:
@@ -33,8 +34,11 @@ def start(job: str) -> str | None:
     return inserted.data[0]["id"]
 
 
-def execute(run_id: str, fn: Callable[[], dict]) -> None:
-    """Run a job function and close its run row with stats or the error."""
+def execute(run_id: str, job: str, fn: Callable[[], dict]) -> None:
+    """Run a job function and close its run row with stats or the error.
+
+    Failures and systematic aborts alert the operator: a silently dead cron
+    means replies unclassified and zero sends for days."""
     sb = get_supabase()
     try:
         stats = fn()
@@ -45,11 +49,18 @@ def execute(run_id: str, fn: Callable[[], dict]) -> None:
                 "finished_at": datetime.now(UTC).isoformat(),
             }
         ).eq("id", run_id).execute()
+        if stats.get("aborted"):
+            notify.send(
+                f"Léa — run {job} interrompu",
+                f"{stats.get('aborted')}\nDernière erreur : {stats.get('last_error')}",
+            )
     except Exception as exc:  # noqa: BLE001 — the run row is the error report
+        error = f"{type(exc).__name__}: {exc}"
         sb.table("outreach_runs").update(
             {
                 "status": "failed",
-                "error": f"{type(exc).__name__}: {exc}",
+                "error": error,
                 "finished_at": datetime.now(UTC).isoformat(),
             }
         ).eq("id", run_id).execute()
+        notify.send(f"Léa — run {job} en échec", error)

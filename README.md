@@ -72,6 +72,46 @@ personalized cold emails sent to qualified Montpellier restaurants on
 explicit full-integration promise and three-axis benefits (modernization,
 savings, customer satisfaction).
 
+**Outreach agent scaling & automation (second wave, 2026-08-19)**: The agent now
+sends at scale with improved reliability and operator visibility. Changes:
+(1) **Batched sending**: `.github/workflows/agent-outreach.yml` cron scaled from
+once daily (08:23 UTC) to every 2 hours (06:23–16:23 UTC, Tue–Fri, 6 runs/day);
+`outreach_daily_limit` raised 25→100 (user-chosen; Gmail consumer ceiling ~500
+recipients/day shared with replies); new `outreach_run_batch_size=17` (per-run
+cold cap so 6 runs spread the volume); send delay 45s→12s. (2) **Keep-alive**:
+new `backend/app/services/keepalive.py` self-pings the service's public /health
+URL during long compose/send/classify loops, preventing Render free tier's 15-min
+idle spin-down from killing batches mid-run. (3) **Cold sends gated to outreach
+job**: `inbox.py` now sends `kinds=["reply"]` only — hourly cron previously could
+send cold emails at 3 a.m./weekends. (4) **Audit bug fixes**: (a) `outreach.py`
+`_eligible` filters prior-email check to statuses `approved/pending_approval/
+sending/sent` so a failed/cancelled send no longer permanently burns the
+restaurant; (b) prospects demoted out of 'qualified' pool post-send via new
+qualification value `'contacted'`, suppressing unbounded compose queries that
+silently stall at PostgREST's 1000-row cap. Migration
+`20260819000003_prospect_contacted.sql` relaxes the CHECK constraint. (5)
+**Discovery query matrix**: `discovery.py` rewritten — instead of one static
+"restaurant à {city}" query (Places caps ~60 results → ~120 total pool →
+funnel starvation), it upserts a config-driven matrix (~160 queries: terms ×
+quartiers × villes) into `outreach_discovery_queries` table; serves 8 LRU
+queries per nightly run; retires after 2 consecutive zero-insert runs.
+(6) **Operator notifications**: new `backend/app/services/notify.py` — best-effort
+push via ntfy.sh and/or email on: hot replies (interested/meeting_request/
+question), failed/aborted runs, and silently-cancelled sends. (7) **Reply sweep**:
+classification logic extracted into `_classify_and_apply`; new `_sweep_unclassified`
+retries inbound rows with `classification IS NULL` each run (Claude failures no
+longer drop replies). (8) **Unsubscribe hardening**: GET no longer mutates (link
+scanners were silently opting out leads); renders a confirm page whose POST does
+the opt-out (RFC 8058 one-click unchanged); demotion guarded to statuses
+new/to_contact/contacted/interested so human-advanced leads (RDV fixé, visited)
+never regress. (9) **Mobile approval UI**: E-mails moved into mobile bottom bar
+with a pending-drafts badge; `store.ts` loads and exposes `refreshPendingDrafts()`.
+Frontend `types.ts`/`constants.ts`/`status.ts` add 'contacted' label/badge. All
+verified: `uv run python -m compileall app`, backend imports, `npx tsc --noEmit`,
+`npm run lint` clean; `graphify update .` run. Deliberately deferred: sender
+migration to lea@ominin.com on Google Workspace before ramping volume; 3-touch
+follow-up sequence; rdv_confirmed meeting-loop automation.
+
 **Light/dark theme consistency** (completed): The theme choice is now synced across all Ominin subdomains via a shared `.ominin.com` cookie. When a user toggles theme on any product (ominin.com, menu., collect., clip., admin.), the choice immediately propagates to all others on their next load. Mechanism: `frontend/app/providers.tsx` mirrors every theme change into an `ominin-theme` cookie (1-year, SameSite=Lax, Secure on https), and an inline script in `frontend/app/layout.tsx` `<head>` copies that cookie into localStorage BEFORE next-themes boots, so the choice syncs with no flash. The QR guest menu keeps its dedicated storage key (intentional: the landing demo iframe must not flip the marketing site, and guests don't inherit the restaurateur's choice). Theme-locked restaurant menus (BOHO) now hide the toggle via a `themeLocked` prop on `CategoryNav`. Chrome-less auth pages (login, signup, onboarding, invitations) gained a fixed top-right ThemeToggle. Verified end-to-end: toggle on `/connexion` writes the cookie, theme persists across reload; `/m/boho` hides the toggle; `/m/trattoria-lucia` keeps a working toggle.
 
 **Cash payment tracking** (completed, commit 4809ce0 promised this but shipped unrelated SumUp OAuth changes; this commit delivers the actual feature): Restaurants can now record cash payments for in-person table orders. When a manager marks an order or group as paid via cash, a secondary modal collects the amount received and calculates change. Database: migration `20260818000001_cash_payment.sql` adds `cash_given` and `cash_change` columns to the `orders` table with a CHECK constraint requiring them to be non-null only for cash payments (`payment_mode = 'especes'`). UI: `PaymentDialog` component (`frontend/components/gestion/commandes/payment-dialog.tsx`) now has a two-step flow — first step selects payment mode (cash/card), second step (for cash only) collects amount received with real-time change calculation and validates that the amount is ≥ total. API: `markOrderPaid()` and `markGroupPaid()` functions in `frontend/lib/gestion/api.ts` accept an optional `cashDetails` parameter and write `cash_given` and `cash_change` to Supabase, then sync to local store. Order/payment types in `frontend/lib/gestion/types.ts` now include optional `cashGiven` and `cashChange` fields. Tested: cash flow captures received amount and calculates change correctly; validation blocks insufficient amounts; card payments work as before; change calculation rounds to nearest centime.

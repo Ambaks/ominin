@@ -78,6 +78,8 @@ export const QUALIFICATION_BADGE_CLASSES: Record<
 > = {
   qualified: "border-status-signed/40 bg-status-signed/10 text-status-signed",
   pending: "border-status-new/40 bg-status-new/10 text-status-new",
+  contacted:
+    "border-status-contacted/40 bg-status-contacted/10 text-status-contacted",
   disqualified:
     "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
 };

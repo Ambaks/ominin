@@ -142,6 +142,8 @@ export interface AdminState {
   tasks: TaskRow[];
   /** RDV prévus dans la fenêtre à venir (tableau de bord, filtres). */
   appointments: AppointmentRow[];
+  /** Brouillons de Léa en attente d'approbation (badge de nav E-mails). */
+  pendingDrafts: number;
 }
 
 /** Ensembles vides = pas de filtre sur cette dimension. */
@@ -204,7 +206,11 @@ export interface OutreachRun {
   finishedAt: string | null;
 }
 
-export type ProspectQualification = "pending" | "qualified" | "disqualified";
+export type ProspectQualification =
+  | "pending"
+  | "qualified"
+  | "contacted"
+  | "disqualified";
 
 export interface OutreachProspect {
   restaurantId: string;

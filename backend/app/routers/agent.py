@@ -19,7 +19,7 @@ def _trigger(job: str, background_tasks: BackgroundTasks) -> dict:
     run_id = runs.start(job)
     if run_id is None:
         raise HTTPException(status_code=409, detail=f"{job} already running")
-    background_tasks.add_task(runs.execute, run_id, JOBS[job])
+    background_tasks.add_task(runs.execute, run_id, job, JOBS[job])
     return {"run_id": run_id, "job": job}
 
 

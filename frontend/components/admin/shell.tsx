@@ -31,19 +31,20 @@ interface NavItem {
   icon: React.ComponentType<IconProps>;
 }
 
-/** Barre mobile : les 5 écrans du terrain. */
+/** Barre mobile : les écrans du terrain — E-mails inclus, car approuver un
+ * brouillon de Léa depuis le téléphone est le geste le plus urgent du CRM. */
 const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Aperçu", icon: ApercuIcon },
   { href: "/carte", label: "Carte", icon: MapPinIcon },
   { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
+  { href: "/emails", label: "E-mails", icon: MailIcon },
   { href: "/taches", label: "Tâches", icon: TaskIcon },
   { href: "/rdv", label: "RDV", icon: CalendarIcon },
 ];
 
-/** Barre latérale uniquement : écrans de bureau (table, e-mails, import). */
+/** Barre latérale uniquement : écrans de bureau (table, import). */
 const DESKTOP_ITEMS: NavItem[] = [
   { href: "/restaurants", label: "Restaurants", icon: StoreIcon },
-  { href: "/emails", label: "E-mails", icon: MailIcon },
   { href: "/import", label: "Import CSV", icon: ImportIcon },
 ];
 
@@ -100,9 +101,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const { basePath, localPath } = useAdminBasePath();
   const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
   const tasksDue = state ? selectTasksDueBadge(state.tasks) : 0;
+  const pendingDrafts = state?.pendingDrafts ?? 0;
 
-  const badge = (item: NavItem, compact: boolean) =>
-    item.href === "/taches" && tasksDue > 0 ? (
+  const badgeCount = (item: NavItem) =>
+    item.href === "/taches"
+      ? tasksDue
+      : item.href === "/emails"
+        ? pendingDrafts
+        : 0;
+
+  const badge = (item: NavItem, compact: boolean) => {
+    const count = badgeCount(item);
+    return count > 0 ? (
       <span
         className={
           compact
@@ -110,9 +120,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             : "ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
         }
       >
-        {tasksDue}
+        {count}
       </span>
     ) : null;
+  };
 
   const content = !state ? (
     loadError ? (

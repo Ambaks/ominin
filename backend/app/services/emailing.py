@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 from app.clients import gmail
 from app.clients.supabase import get_supabase
 from app.config import settings
+from app.services import keepalive, notify
 from app.services.tokens import unsubscribe_url
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -68,8 +69,12 @@ def log_email_activity(
     ).execute()
 
 
-def send_approved_batch(kinds: list[str]) -> dict:
+def send_approved_batch(kinds: list[str], cold_cap: int | None = None) -> dict:
     """Send every approved outbound email of the given kinds, oldest first.
+
+    cold_cap bounds the cold sends of THIS run below the daily quota, so the
+    2-hourly outreach runs spread the daily volume over the day instead of
+    draining it in one batch.
 
     At-most-once fence: a row is flipped to 'sending' before the Gmail call;
     if the process dies mid-send, the next run closes it as failed instead of
@@ -86,6 +91,8 @@ def send_approved_batch(kinds: list[str]) -> dict:
     stats["failed"] += len(stuck.data)
 
     quota = settings.outreach_daily_limit - daily_cold_count()
+    if cold_cap is not None:
+        quota = min(quota, cold_cap)
     rows = (
         sb.table("outreach_emails")
         .select("*")
@@ -103,6 +110,7 @@ def send_approved_batch(kinds: list[str]) -> dict:
             if quota <= 0:
                 continue
             quota -= 1
+        keepalive.ping_if_due()
         if not first:
             time.sleep(settings.outreach_send_delay_seconds)
         first = False
@@ -127,6 +135,15 @@ def _send_one(sb, row: dict, stats: dict) -> None:
             {"status": "cancelled", "error": "suppressed"}
         ).eq("id", row["id"]).execute()
         stats["cancelled"] += 1
+        if row["kind"] == "reply":
+            # A human approved this reply believing it would go out — a
+            # silent cancellation here is a warm conversation dying unseen.
+            notify.send(
+                "Léa — réponse approuvée NON envoyée (adresse désinscrite)",
+                f"Destinataire : {row['to_email']}\n"
+                f"Objet : {row.get('subject') or ''}\n\n"
+                f"{settings.frontend_origin}/admin/emails",
+            )
         return
 
     # The fence — guard on status so a concurrent approval-flip can't race.
@@ -195,6 +212,14 @@ def _send_one(sb, row: dict, stats: dict) -> None:
             sb.table("crm_leads").update({"status": "contacted"}).eq(
                 "id", row["lead_id"]
             ).in_("status", ["new", "to_contact"]).execute()
+
+    if row["kind"] == "cold":
+        # Leave the 'qualified' pool: the compose query must only ever see
+        # prospects still awaiting their cold email (see the 'contacted'
+        # migration — unbounded qualified sets stall at PostgREST's row cap).
+        sb.table("outreach_prospects").update({"qualification": "contacted"}).eq(
+            "restaurant_id", row["restaurant_id"]
+        ).execute()
 
     log_email_activity(
         row["restaurant_id"],

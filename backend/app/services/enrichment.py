@@ -9,6 +9,7 @@ from app.clients.claude import parse_structured
 from app.clients.supabase import get_supabase
 from app.config import settings
 from app.prompts.qualify import QUALIFY_SYSTEM, Qualification
+from app.services import keepalive
 from app.services.emailing import is_suppressed
 
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
@@ -40,6 +41,7 @@ def run_enrichment() -> dict:
         restaurant = prospect.get("crm_restaurants")
         if not restaurant:
             continue
+        keepalive.ping_if_due()
         try:
             _enrich_one(sb, restaurant, stats)
             stats["processed"] += 1

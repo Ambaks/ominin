@@ -21,11 +21,28 @@ class Settings(BaseSettings):
     # Outreach agent — shared secret required on every /agent/* trigger.
     agent_trigger_secret: str = ""
 
-    # Google Places API (New)
+    # Google Places API (New). Text Search caps at ~60 results per query, so
+    # coverage comes from query variety — terms × quartiers × villes — rotated
+    # a few combinations per nightly run, least recently served first. A query
+    # yielding zero new restaurants discovery_query_max_empty times in a row
+    # is retired (state in outreach_discovery_queries).
     google_places_api_key: str = ""
     outreach_cities: str = "Montpellier,Toulouse"
-    outreach_search_query: str = "restaurant"
-    discovery_max_pages_per_city: int = 3
+    discovery_query_terms: str = (
+        "restaurant,pizzeria,brasserie,bistrot,crêperie,restaurant italien,"
+        "restaurant japonais,restaurant asiatique,restaurant indien,burger"
+    )
+    # "Ville:Quartier|Quartier;Ville:…" — joués en plus des requêtes ville
+    # entière.
+    discovery_neighborhoods: str = (
+        "Montpellier:Écusson|Beaux-Arts|Boutonnet|Port Marianne|Antigone|"
+        "Figuerolles|Les Arceaux;"
+        "Toulouse:Capitole|Carmes|Saint-Cyprien|Saint-Michel|Saint-Aubin|"
+        "Les Chalets|Jeanne d'Arc"
+    )
+    discovery_queries_per_run: int = 8
+    discovery_query_max_empty: int = 2
+    discovery_max_pages_per_query: int = 3
 
     # Gmail (OAuth refresh token from scripts/gmail_auth.py)
     gmail_client_id: str = ""
@@ -37,17 +54,40 @@ class Settings(BaseSettings):
     # Claude model used for qualification, cold emails and reply drafts.
     outreach_model: str = "claude-opus-5"
 
-    # Batching / limits. Every job must finish well under Render free tier's
-    # 15-minute idle spin-down window; batch sizes are the mitigation.
-    outreach_daily_limit: int = 25
-    outreach_send_delay_seconds: int = 45
-    enrichment_batch_size: int = 30
-    compose_batch_size: int = 10
+    # Batching / limits. Cold sends spread over the day: the outreach cron
+    # fires every 2 h (6 runs, Tue-Fri), each run composes and sends at most
+    # outreach_run_batch_size cold emails, and the daily cap clips the total.
+    # Gmail's consumer ceiling (~500 recipients/day) is shared with replies —
+    # when raising the cap, ramp via env week by week; never jump a fresh
+    # mailbox straight up.
+    outreach_daily_limit: int = 100
+    outreach_run_batch_size: int = 17
+    outreach_send_delay_seconds: int = 12
+    # Nightly qualification budget (one Claude call per prospect) — sized to
+    # keep the qualified pool ahead of outreach_daily_limit, given that a
+    # share of prospects disqualifies (no email, already digital…).
+    enrichment_batch_size: int = 150
     inbox_max_messages: int = 50
     inbox_lookback_days: int = 7
     # A 'running' run younger than this blocks a new run of the same job;
     # older ones are presumed killed (Render spin-down) and marked failed.
     run_stale_minutes: int = 30
+    # Render free tier spins the service down after 15 min without inbound
+    # HTTP; a full compose+send batch runs longer than that. When set to the
+    # service's own public /health URL, long loops self-ping it on this
+    # interval so the instance stays awake for the whole run. Empty = off.
+    keepalive_url: str = ""
+    keepalive_interval_seconds: int = 600
+
+    # Operator alerts (hot reply, failed run, silently-cancelled send). Both
+    # channels are optional and independent: a private ntfy topic delivers
+    # phone push, the alert email rides the existing Gmail client. Empty =
+    # silent.
+    ntfy_url: str = "https://ntfy.sh"
+    ntfy_topic: str = ""
+    operator_alert_email: str = ""
+    # Timeout for the app's own best-effort HTTP calls (keepalive, ntfy).
+    internal_http_timeout_seconds: int = 10
     # Abort a batch after this many consecutive per-item failures: a
     # systematic outage (Claude rate limit exhausted, network down) must not
     # burn through the whole batch retrying a lost cause.
