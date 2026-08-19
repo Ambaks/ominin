@@ -7,7 +7,7 @@ from app.services import emailing, keepalive
 from app.services.tokens import unsubscribe_url
 
 
-def run_outreach() -> dict:
+def run_outreach(*, flush=None) -> dict:
     sb = get_supabase()
     quota = settings.outreach_daily_limit - emailing.daily_cold_count()
     stats = {"composed": 0, "skipped": 0}
@@ -49,6 +49,9 @@ def run_outreach() -> dict:
             if consecutive >= settings.max_consecutive_errors:
                 stats["aborted"] = "consecutive errors — systematic failure"
                 break
+
+    if flush:
+        flush(stats)
 
     send_stats = emailing.send_approved_batch(
         kinds=["cold"], cold_cap=settings.outreach_run_batch_size

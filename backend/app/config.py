@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     # service's own public /health URL, long loops self-ping it on this
     # interval so the instance stays awake for the whole run. Empty = off.
     keepalive_url: str = ""
-    keepalive_interval_seconds: int = 600
+    keepalive_interval_seconds: int = 480
 
     # Operator alerts (hot reply, failed run, silently-cancelled send). Both
     # channels are optional and independent: a private ntfy topic delivers

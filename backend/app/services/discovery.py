@@ -43,7 +43,7 @@ def _address_component(place: dict, kind: str) -> str | None:
     return None
 
 
-def run_discovery() -> dict:
+def run_discovery(*, flush=None) -> dict:
     sb = get_supabase()
     stats = {
         "found": 0,

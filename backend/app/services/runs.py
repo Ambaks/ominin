@@ -34,14 +34,23 @@ def start(job: str) -> str | None:
     return inserted.data[0]["id"]
 
 
-def execute(run_id: str, job: str, fn: Callable[[], dict]) -> None:
+def execute(run_id: str, job: str, fn: Callable[..., dict]) -> None:
     """Run a job function and close its run row with stats or the error.
 
     Failures and systematic aborts alert the operator: a silently dead cron
     means replies unclassified and zero sends for days."""
     sb = get_supabase()
+
+    def _flush(stats: dict) -> None:
+        try:
+            sb.table("outreach_runs").update({"stats": stats}).eq(
+                "id", run_id
+            ).execute()
+        except Exception:  # noqa: BLE001 — best-effort, must never abort the batch
+            pass
+
     try:
-        stats = fn()
+        stats = fn(flush=_flush)
         sb.table("outreach_runs").update(
             {
                 "status": "succeeded",

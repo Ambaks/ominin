@@ -28,7 +28,7 @@ CLASSIFICATION_TITLES = {
 INTERESTED_FROM = ["new", "to_contact", "contacted"]
 
 
-def run_inbox() -> dict:
+def run_inbox(*, flush=None) -> dict:
     sb = get_supabase()
     stats = {"ingested": 0, "classified": 0, "drafted": 0, "skipped": 0}
 

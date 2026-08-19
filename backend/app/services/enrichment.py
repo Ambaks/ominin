@@ -24,7 +24,7 @@ QR_KEYWORDS_RE = re.compile(
 )
 
 
-def run_enrichment() -> dict:
+def run_enrichment(*, flush=None) -> dict:
     sb = get_supabase()
     stats = {"processed": 0, "qualified": 0, "disqualified": 0, "errors": 0}
     pending = (
@@ -53,6 +53,8 @@ def run_enrichment() -> dict:
             if consecutive >= settings.max_consecutive_errors:
                 stats["aborted"] = "consecutive errors — systematic failure"
                 break
+        if flush and stats["processed"] % 10 == 0:
+            flush(stats)
 
     return stats
 

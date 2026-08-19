@@ -7,7 +7,7 @@ from app.services import discovery, enrichment, inbox, outreach, runs
 
 router = APIRouter(prefix="/agent", dependencies=[Depends(require_trigger_secret)])
 
-JOBS: dict[str, Callable[[], dict]] = {
+JOBS: dict[str, Callable[..., dict]] = {
     "discover": discovery.run_discovery,
     "enrich": enrichment.run_enrichment,
     "outreach": outreach.run_outreach,

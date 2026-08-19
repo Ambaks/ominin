@@ -10,7 +10,7 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
-> **One-shot agent run scheduled for 2026-08-19 at 20:30 Paris (18:30 UTC):** Full discovery → enrichment → outreach cycle runs once this evening to test the new batching and discovery-matrix flow end-to-end, then the workflow self-deletes so the normal schedule (nightly discovery 02:37 UTC, outreach 6×/day Tue–Fri) resumes untouched.
+> **Agent reliability audit (2026-08-20):** The one-shot run from 2026-08-19 got stuck in "running" status because Render's free tier killed the process mid-batch (no keepalive configured). Fixed: (1) added a flush callback mechanism to `runs.execute()` so partial stats persist to Supabase during long batches — if Render kills the process, we see what was accomplished; (2) enrichment flushes every 10 prospects, outreach flushes after compose phase; (3) tightened `keepalive_interval` from 600s to 480s for more margin under Render's 15-min idle timeout; (4) deleted the dead one-shot workflow. One operational fix remains: **set `KEEPALIVE_URL` on Render** to enable keepalive pings during batches.
 
 > ⚠️ **Manual setup pending.** Dashboard-only steps the coding agent can't do
 > (no DNS/Vercel/Stripe/Google-Cloud access). ~~`supabase db push`~~ **done —
