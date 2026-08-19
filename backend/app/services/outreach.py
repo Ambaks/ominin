@@ -94,13 +94,14 @@ def _compose_one(sb, restaurant: dict, ai_notes: str | None) -> None:
     )
 
     lead = _lead(sb, restaurant["id"])
-    # Cold emails are auto-approved by design; the human gate is on replies.
     sb.table("outreach_emails").insert(
         {
             "restaurant_id": restaurant["id"],
             "lead_id": lead["id"] if lead else None,
             "direction": "outbound",
             "kind": "cold",
+            # Cold emails are auto-approved by design; the human gate is on
+            # replies.
             "status": "approved",
             "to_email": restaurant["email"],
             "from_email": settings.gmail_sender_email,

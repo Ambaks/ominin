@@ -23,8 +23,7 @@ tracking, forecasting, invoice processing, and back-office automation.
 > account for Clip, and the **prospecting-agent setup** (Google Cloud, Render,
 > GitHub secrets — see "Outreach agent" in the setup guide below).
 
-**AI sales-prospecting agent « Léa »** (new — code complete, deployment
-pending): the FastAPI backend's first real feature. Claude calls go through
+**AI sales-prospecting agent « Léa »** (first campaign shipped 2026-08-19): the FastAPI backend's first real feature. Claude calls go through
 the **Claude Agent SDK** (`claude-agent-sdk`, bundled binary, no Node
 needed): single-turn tool-less `query()` with native
 `output_format json_schema` → `ResultMessage.structured_output`, so they
@@ -42,15 +41,15 @@ and PostgREST upserts can't target it; cross-source dedupe via
 scrape for email + mentions-légales pages, QR-provider fingerprint detection,
 one Claude `messages.parse` call → `Qualification{has_digital_menu,
 worth_contacting, ai_notes}`) → **cold outreach** (≤25/day Europe/Paris,
-env-capped; Claude writes a ≤120-word personalized French email, no pricing;
-service appends the fixed signature + CNIL footer with an HMAC unsubscribe
-link; one cold email per restaurant, ever) → **hourly inbox** (sends approved
-drafts, ingests only replies on agent-owned Gmail threads, classifies —
-interested / meeting_request / question / not_interested / opt_out / bounce —
-updates lead status, and files a **reply draft for human approval**; nothing
-conversational is ever auto-sent). Data: migrations
-`20260819000001` (new `interested` lead status, isolated file because
-`ALTER TYPE ADD VALUE` can't be referenced in its own transaction) +
+env-capped; Claude writes a ≤150-word personalized French email pitching the
+full order-and-pay platform, no pricing; service appends the fixed signature +
+CNIL footer with an HMAC unsubscribe link; one cold email per restaurant, ever)
+→ **hourly inbox** (sends approved drafts, ingests only replies on agent-owned
+Gmail threads, classifies — interested / meeting_request / question /
+not_interested / opt_out / bounce — updates lead status, and files a **reply
+draft for human approval**; nothing conversational is ever auto-sent). Data:
+migrations `20260819000001` (new `interested` lead status, isolated file
+because `ALTER TYPE ADD VALUE` can't be referenced in its own transaction) +
 `20260819000002` (`outreach_prospects`, `outreach_emails` with a
 draft→pending_approval→approved→sending→sent lifecycle and an at-most-once
 `sending` fence, `outreach_suppressions` service-role-only, `outreach_runs`
@@ -67,9 +66,11 @@ one-click; Python↔Node token parity verified byte-for-byte). Cron:
 `.github/workflows/agent-{inbox,discovery,outreach}.yml` curl the Render
 service with retries absorbing the free-tier cold start. Verified locally
 against prod Supabase: 401 on bad secret, run rows open/close with stats,
-overlap guard 409s, `tsc`/lint/`next build` green. **Not yet live** — needs
-the one-time setup in the guide below (Google Cloud keys + Gmail consent,
-Render service, GitHub + Vercel secrets).
+overlap guard 409s, `tsc`/lint/`next build` green. **First campaign**: 9
+personalized cold emails sent to qualified Montpellier restaurants on
+2026-08-19 after human review; prompts refined to professional register with
+explicit full-integration promise and three-axis benefits (modernization,
+savings, customer satisfaction).
 
 **Light/dark theme consistency** (completed): The theme choice is now synced across all Ominin subdomains via a shared `.ominin.com` cookie. When a user toggles theme on any product (ominin.com, menu., collect., clip., admin.), the choice immediately propagates to all others on their next load. Mechanism: `frontend/app/providers.tsx` mirrors every theme change into an `ominin-theme` cookie (1-year, SameSite=Lax, Secure on https), and an inline script in `frontend/app/layout.tsx` `<head>` copies that cookie into localStorage BEFORE next-themes boots, so the choice syncs with no flash. The QR guest menu keeps its dedicated storage key (intentional: the landing demo iframe must not flip the marketing site, and guests don't inherit the restaurateur's choice). Theme-locked restaurant menus (BOHO) now hide the toggle via a `themeLocked` prop on `CategoryNav`. Chrome-less auth pages (login, signup, onboarding, invitations) gained a fixed top-right ThemeToggle. Verified end-to-end: toggle on `/connexion` writes the cookie, theme persists across reload; `/m/boho` hides the toggle; `/m/trattoria-lucia` keeps a working toggle.
 

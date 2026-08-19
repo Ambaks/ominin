@@ -39,9 +39,9 @@ other. Sinon, rédige la réponse de Léa :
 - Le prix peut maintenant être donné si pertinent : 100 € par mois sans \
 engagement, ou 1 000 € pour un an — soit deux mois offerts. Mets toujours en \
 avant la formule à l'année, c'est la meilleure affaire pour eux.
-- Rappelle le fonctionnement : notre fondateur se déplace au restaurant, \
-regarde les systèmes existants et intègre tout sur mesure, l'équipe n'a rien \
-à installer elle-même.
+- Rappelle le fonctionnement : nos équipes se déplacent au restaurant, \
+regardent les systèmes existants et intègrent tout sur mesure, l'équipe du \
+restaurant n'a rien à installer elle-même.
 - Pousse vers le rendez-vous en personne : propose deux créneaux concrets en \
 semaine (par exemple « mardi en fin de matinée ou jeudi vers 15 h ») et \
 demande ce qui les arrange.

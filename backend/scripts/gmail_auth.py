@@ -8,6 +8,13 @@ accept. The OAuth app must be in "production" publishing status, otherwise
 Google expires the refresh token after 7 days.
 """
 
+import sys
+from pathlib import Path
+
+# Lancé par chemin (`uv run python scripts/gmail_auth.py`), sys.path[0] est
+# scripts/ — pas la racine du projet qui contient le paquet app.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 from app.clients.gmail import SCOPES, TOKEN_URI
