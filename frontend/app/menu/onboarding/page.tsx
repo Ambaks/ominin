@@ -4,6 +4,7 @@ import { OFFRE_LABELS } from "@/lib/gestion/constants";
 import type { Offre } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "./onboarding-form";
+import { StaffPending } from "./staff-pending";
 
 export const metadata: Metadata = {
   title: "Bienvenue — Ominin",
@@ -26,10 +27,12 @@ export default async function OnboardingPage({
     .limit(1)
     .maybeSingle();
 
-  // Déjà rattaché à un établissement (invitation ou onboarding passé).
   if (membership) redirect("/gestion");
 
-  // Offre choisie sur la landing, transportée par ?plan= tout au long du funnel.
+  if (user.user_metadata?.profile === "staff") {
+    return <StaffPending />;
+  }
+
   const { plan } = await searchParams;
   const initialOffre =
     typeof plan === "string" && plan in OFFRE_LABELS

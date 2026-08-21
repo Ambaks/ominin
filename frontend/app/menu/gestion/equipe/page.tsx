@@ -79,11 +79,17 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
       if (!response.ok) throw new Error(result.error);
       setInviteEmail("");
       await load();
-      toast.success(
-        result.existing_user
-          ? `${email} a rejoint l'équipe immédiatement.`
-          : `Invitation envoyée à ${email}.`,
-      );
+      if (result.email_sent === false) {
+        toast.error(
+          `Membre ajouté, mais l'email n'a pas pu être envoyé : ${result.email_error ?? "erreur inconnue"}. Partagez le lien de connexion manuellement.`,
+        );
+      } else {
+        toast.success(
+          result.existing_user
+            ? `${email} a rejoint l'équipe immédiatement.`
+            : `Invitation envoyée à ${email}.`,
+        );
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."

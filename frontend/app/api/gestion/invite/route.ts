@@ -116,10 +116,19 @@ export async function POST(request: Request) {
     }
   } catch (emailError) {
     console.error("Invitation email error:", emailError);
+    const reason =
+      emailError instanceof Error ? emailError.message : "Erreur inconnue";
+    return NextResponse.json({
+      invited: true,
+      existing_user: !pending,
+      email_sent: false,
+      email_error: reason,
+    });
   }
 
   return NextResponse.json({
     invited: true,
     existing_user: !pending,
+    email_sent: true,
   });
 }

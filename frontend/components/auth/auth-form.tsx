@@ -62,6 +62,7 @@ export function AuthForm({
   subtitle,
   signUpData,
   authError,
+  beforeCard,
 }: {
   /** Contenu du lien-logo au-dessus de la carte (pointe vers /). */
   brand: React.ReactNode;
@@ -78,6 +79,8 @@ export function AuthForm({
   /** user_metadata posé à l'inscription (ex. { product: "clip" }). */
   signUpData?: Record<string, unknown>;
   authError: boolean;
+  /** Contenu optionnel entre le logo et la carte (ex. tabs de profil). */
+  beforeCard?: React.ReactNode;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -165,6 +168,7 @@ export function AuthForm({
       <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
         <ThemeToggle className="fixed right-4 top-4" />
         {header}
+        {beforeCard}
 
         <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6 text-center">
           <div className="ember-gradient mx-auto flex size-12 items-center justify-center rounded-full text-background">
@@ -200,6 +204,7 @@ export function AuthForm({
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
       <ThemeToggle className="fixed right-4 top-4" />
       {header}
+      {beforeCard}
 
       <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6">
         <h1 className="font-display text-xl font-medium">
