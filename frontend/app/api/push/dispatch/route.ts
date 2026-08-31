@@ -26,16 +26,19 @@ export async function POST(request: Request) {
     );
   }
 
-  // Membre connecté à l'origine de l'action : on ne le notifie pas de son
-  // propre geste. Les appels anonymes (menu QR) passent sans session.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Nouvelle commande : tout le personnel doit être prévenu, même si le
+  // navigateur a une session gestion (gérant qui commande pour tester).
+  // Changement de statut (prête, annulée) : on écarte l'auteur du geste.
+  let skipUserId: string | undefined;
+  if (body.event !== "nouvelle_commande") {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    skipUserId = user?.id;
+  }
 
-  await dispatchOrderEvent(body.orderId, body.event, {
-    skipUserId: user?.id,
-  });
+  await dispatchOrderEvent(body.orderId, body.event, { skipUserId });
 
   return NextResponse.json({ ok: true }, { status: 202 });
 }
