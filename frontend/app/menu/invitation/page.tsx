@@ -7,7 +7,7 @@ export default async function InvitationPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/connexion");
+  if (!user) redirect("/menu/connexion");
 
   const { data: membership } = await supabase
     .from("memberships")
@@ -17,7 +17,7 @@ export default async function InvitationPage() {
     .limit(1)
     .maybeSingle();
 
-  if (!membership) redirect("/connexion");
+  if (!membership) redirect("/menu/connexion");
 
   const { data: etablissement } = await supabase
     .from("etablissements")

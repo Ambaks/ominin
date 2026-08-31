@@ -34,7 +34,7 @@ export function InvitationForm({
       const supabase = createClient();
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      window.location.assign("/gestion");
+      window.location.assign("/menu/gestion");
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue.",

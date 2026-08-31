@@ -99,14 +99,14 @@ export async function POST(request: Request) {
         });
       if (linkError) throw linkError;
 
-      const verifyUrl = `${origin}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=invite&next=/invitation`;
+      const verifyUrl = `${origin}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=invite&next=/menu/invitation`;
       await sendInviteEmail(email, etablissement.name, role, verifyUrl);
     } else {
       await sendTeamNotification(
         email,
         etablissement.name,
         role,
-        `${origin}/connexion`,
+        `${origin}/menu/connexion`,
       );
     }
   } catch (emailError) {
