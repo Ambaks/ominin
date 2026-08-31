@@ -189,7 +189,7 @@ export default function MenuPage() {
       {view === "formules" && (
         <>
           <p className="text-sm text-muted">
-            Les formules s'affichent au-dessus des catégories sur le menu
+            Les formules s&rsquo;affichent au-dessus des catégories sur le menu
             client — inutile de créer une catégorie pour elles.
           </p>
 

@@ -676,6 +676,50 @@ body {
   animation: scroll-bounce 2.2s ease-in-out infinite;
 }
 
+/*
+  Espace employés (cuisine & salle) : la braise en mouvement. Le même dégradé
+  de marque que .ember-gradient, mais qui dérive lentement — signature
+  cinétique des vues de service, là où le back-office du gérant reste posé.
+  Sans animation, il retombe sur le dégradé statique.
+*/
+@keyframes ember-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.ember-flow {
+  background-image: linear-gradient(
+    100deg,
+    var(--ember-1),
+    var(--ember-2) 30%,
+    var(--ember-3) 55%,
+    var(--ember-2) 80%,
+    var(--ember-1)
+  );
+  background-size: 250% 100%;
+  animation: ember-flow 7s ease-in-out infinite;
+}
+
+/* Bouton flottant « nouvelle commande » : halo braise qui respire. */
+@keyframes fab-breathe {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px -6px color-mix(in srgb, var(--ember-2) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 10px 36px -4px color-mix(in srgb, var(--ember-2) 85%, transparent);
+  }
+}
+
+.fab-breathe {
+  animation: fab-breathe 2.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -698,7 +742,9 @@ body {
   .animate-pulse,
   .logo-breathe,
   .hero-gradient-drift,
-  .scroll-bounce {
+  .scroll-bounce,
+  .ember-flow,
+  .fab-breathe {
     animation: none;
   }
   .hero-entrance {

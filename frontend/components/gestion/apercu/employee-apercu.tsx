@@ -1,0 +1,353 @@
+"use client";
+
+import Link from "next/link";
+import {
+  SERVICE_CLOCK_TICK_MS,
+  WAIT_TICK_MS,
+} from "@/lib/gestion/constants";
+import { orderTotal, unavailableItems } from "@/lib/gestion/selectors";
+import type { GestionState, Order } from "@/lib/gestion/types";
+import { formatWait, minutesSince, useNow } from "@/lib/gestion/use-now";
+import { formatTime } from "@/lib/gestion/format";
+import { formatPrice } from "@/lib/menu-data";
+
+/*
+ * Aperçu des employés : pas d'analytique — un poste de pilotage du service
+ * en direct, taillé pour le rôle. La cuisine voit ce qui l'attend au passe,
+ * la salle voit ce qui est prêt à partir.
+ */
+
+const RISE_STEP_MS = 70;
+
+function riseDelay(index: number) {
+  return { animationDelay: `${index * RISE_STEP_MS}ms` };
+}
+
+function ServiceClock() {
+  const now = useNow(SERVICE_CLOCK_TICK_MS);
+  return (
+    <p className="font-display text-3xl tabular-nums lg:text-4xl">
+      {now.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })}
+    </p>
+  );
+}
+
+function ServiceHero({ title, tagline }: { title: string; tagline: string }) {
+  const today = new Date().toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+  return (
+    <section className="rise relative overflow-hidden rounded-3xl border border-hairline bg-surface">
+      <div className="ember-flow h-1 w-full" aria-hidden />
+      <div className="hero-gradient-drift pointer-events-none absolute inset-0" aria-hidden />
+      <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-3 p-6">
+        <div>
+          <p className="ember-text flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em]">
+            Service en direct
+          </p>
+          <h1 className="mt-1.5 font-display text-2xl font-medium tracking-tight lg:text-3xl">
+            {title}
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            <span className="capitalize">{today}</span> · {tagline}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span
+            className="size-2 animate-pulse rounded-full bg-ember-2"
+            aria-hidden
+          />
+          <ServiceClock />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LiveTile({
+  label,
+  value,
+  hint,
+  urgent = false,
+  index,
+}: {
+  label: string;
+  value: number;
+  hint?: string;
+  urgent?: boolean;
+  index: number;
+}) {
+  const hot = urgent && value > 0;
+  return (
+    <Link
+      href="/gestion/commandes"
+      style={riseDelay(index)}
+      className={`rise rounded-2xl border p-5 transition-colors ${
+        hot
+          ? "border-ember-2/50 bg-ember-2/[0.07]"
+          : "border-hairline bg-surface hover:border-ember-2/30"
+      }`}
+    >
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+        {hot && (
+          <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
+        )}
+        {label}
+      </p>
+      <p
+        className={`mt-2 font-display text-4xl tabular-nums ${
+          hot ? "ember-text" : ""
+        }`}
+      >
+        {value}
+      </p>
+      {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
+    </Link>
+  );
+}
+
+function EmptyService({ body }: { body: string }) {
+  return (
+    <div className="rise flex flex-col gap-3" style={riseDelay(4)}>
+      <div className="rounded-2xl border border-dashed border-hairline p-6 text-center">
+        <p className="text-sm text-muted">Le calme avant le coup de feu.</p>
+        <p className="mt-1 text-xs text-faint">{body}</p>
+      </div>
+      <div className="shimmer h-20 rounded-2xl border border-hairline" aria-hidden />
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="font-display text-lg font-medium">{children}</h2>;
+}
+
+function orderItemCount(order: Order): number {
+  return order.items.reduce((sum, line) => sum + line.quantity, 0);
+}
+
+function CuisinierApercu({ state }: { state: GestionState }) {
+  const now = useNow(WAIT_TICK_MS);
+  const enAttente = state.orders.filter((o) => o.status === "en_attente");
+  const enPreparation = state.orders.filter((o) => o.status === "en_preparation");
+  const pretes = state.orders.filter((o) => o.status === "prete");
+  const indispo = unavailableItems(state);
+
+  // Retraits collect à venir : le tempo de la cuisine sur l'emporter.
+  const retraits = state.orders
+    .filter(
+      (o) =>
+        o.type === "collect" &&
+        (o.status === "en_attente" || o.status === "en_preparation") &&
+        (o.pickupAt || o.estimatedReadyAt)
+    )
+    .sort((a, b) =>
+      (a.pickupAt ?? a.estimatedReadyAt!).localeCompare(
+        b.pickupAt ?? b.estimatedReadyAt!
+      )
+    );
+
+  const oldest = enAttente[0];
+
+  return (
+    <div className="flex flex-col gap-8">
+      <ServiceHero
+        title="La cuisine"
+        tagline="préparation des commandes et disponibilité des articles"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <LiveTile
+          index={1}
+          label="À préparer"
+          value={enAttente.length}
+          urgent
+          hint={
+            oldest
+              ? `La plus ancienne attend depuis ${formatWait(minutesSince(oldest.createdAt, now))}`
+              : "Aucune commande en attente"
+          }
+        />
+        <LiveTile index={2} label="En préparation" value={enPreparation.length} />
+        <LiveTile
+          index={3}
+          label="Prêtes au passe"
+          value={pretes.length}
+          hint={pretes.length > 0 ? "À remettre en salle ou au comptoir" : undefined}
+        />
+      </div>
+
+      {enAttente.length + enPreparation.length + pretes.length === 0 && (
+        <EmptyService body="Les commandes du menu QR et du click & collect arrivent ici en temps réel." />
+      )}
+
+      {retraits.length > 0 && (
+        <section className="rise flex flex-col gap-3" style={riseDelay(4)}>
+          <SectionTitle>Retraits à venir</SectionTitle>
+          <div className="rounded-2xl border border-hairline bg-surface">
+            {retraits.map((order, index) => {
+              const at = order.pickupAt ?? order.estimatedReadyAt!;
+              return (
+                <Link
+                  key={order.id}
+                  href="/gestion/commandes"
+                  className={`flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-raised ${
+                    index > 0 ? "border-t border-hairline" : ""
+                  }`}
+                >
+                  <span className="ember-gradient flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-1.5 font-display text-sm font-medium tabular-nums text-background">
+                    {formatTime(at)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {order.customerName ?? "Client"}
+                    </p>
+                    <p className="text-xs text-faint">
+                      {orderItemCount(order)} article{orderItemCount(order) > 1 ? "s" : ""} ·{" "}
+                      {order.status === "en_attente" ? "à accepter" : "en préparation"}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {indispo.length > 0 && (
+        <section className="rise flex flex-col gap-3" style={riseDelay(5)}>
+          <SectionTitle>À remettre en vente</SectionTitle>
+          <div className="rounded-2xl border border-hairline bg-surface">
+            {indispo.map((item, index) => (
+              <div
+                key={item.id}
+                className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
+                  index > 0 ? "border-t border-hairline" : ""
+                }`}
+              >
+                <div>
+                  <p className="text-sm font-medium">{item.name}</p>
+                  <p className="text-xs text-faint">
+                    {item.stock === 0 ? "Stock épuisé" : "Retiré de la vente"}
+                  </p>
+                </div>
+                <Link
+                  href="/gestion/menu"
+                  className="text-xs font-semibold text-ember-1 transition-opacity hover:opacity-80"
+                >
+                  Gérer
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function ServeurApercu({ state }: { state: GestionState }) {
+  const now = useNow(WAIT_TICK_MS);
+  const enAttente = state.orders.filter((o) => o.status === "en_attente");
+  const enPreparation = state.orders.filter((o) => o.status === "en_preparation");
+  const pretes = state.orders.filter((o) => o.status === "prete");
+  const tableNumbersById = new Map(
+    state.tables.map((table) => [table.id, table.number])
+  );
+
+  return (
+    <div className="flex flex-col gap-8">
+      <ServiceHero
+        title="La salle"
+        tagline="tables, service et remise des commandes"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <LiveTile
+          index={1}
+          label="Prêtes à servir"
+          value={pretes.length}
+          urgent
+          hint={pretes.length > 0 ? "Le passe vous attend" : "Rien au passe pour l'instant"}
+        />
+        <LiveTile index={2} label="En attente" value={enAttente.length} />
+        <LiveTile index={3} label="En préparation" value={enPreparation.length} />
+      </div>
+
+      {pretes.length > 0 ? (
+        <section className="rise flex flex-col gap-3" style={riseDelay(4)}>
+          <SectionTitle>Au passe — à servir</SectionTitle>
+          <div className="rounded-2xl border border-hairline bg-surface">
+            {pretes.map((order, index) => {
+              const isCollect = order.type === "collect";
+              const tableNo = order.tableId
+                ? tableNumbersById.get(order.tableId)
+                : undefined;
+              return (
+                <Link
+                  key={order.id}
+                  href="/gestion/commandes"
+                  className={`flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-raised ${
+                    index > 0 ? "border-t border-hairline" : ""
+                  }`}
+                >
+                  <span className="ember-gradient flex size-9 shrink-0 items-center justify-center rounded-xl font-display text-base font-medium tabular-nums text-background">
+                    {isCollect ? "→" : tableNo}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {isCollect
+                        ? `Emporter · ${order.customerName ?? "Client"}`
+                        : `Table ${tableNo}`}
+                    </p>
+                    <p className="text-xs text-faint">
+                      {orderItemCount(order)} article{orderItemCount(order) > 1 ? "s" : ""} ·
+                      commandée il y a {formatWait(minutesSince(order.createdAt, now))}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-display text-ember-1">
+                    {formatPrice(orderTotal(order))}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : (
+        enAttente.length + enPreparation.length === 0 && (
+          <EmptyService body="Les commandes passées depuis le menu QR apparaîtront ici en temps réel." />
+        )
+      )}
+
+      {state.groups.length > 0 && (
+        <Link
+          href="/gestion/tables"
+          className="rise flex items-center justify-between rounded-2xl border border-hairline bg-surface px-5 py-4 transition-colors hover:border-ember-2/30"
+          style={riseDelay(5)}
+        >
+          <div>
+            <p className="text-sm font-medium">Groupes de tables actifs</p>
+            <p className="text-xs text-faint">Gérer les tables réunies</p>
+          </div>
+          <span className="font-display text-2xl tabular-nums text-ember-1">
+            {state.groups.length}
+          </span>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export function EmployeeApercu({ state }: { state: GestionState }) {
+  return state.role === "cuisinier" ? (
+    <CuisinierApercu state={state} />
+  ) : (
+    <ServeurApercu state={state} />
+  );
+}

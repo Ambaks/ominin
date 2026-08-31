@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-card.tsx": {
-    "mtime": 1787013174.595133,
-    "ast_hash": "b839da2b841f0fe8950bd9b746d1fb6f",
+    "mtime": 1788177077.6571963,
+    "ast_hash": "dcb10bf7f55d45a03a1f33d868945959",
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-group-card.tsx": {
@@ -530,8 +530,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1788174970.140467,
-    "ast_hash": "d8be89d9bbfa5ccf725b3c153156fb7d",
+    "mtime": 1788176754.9541082,
+    "ast_hash": "7e38384f64077b4fa418315ac3b6983f",
     "semantic_hash": ""
   },
   "frontend/components/gestion/subscription-gate.tsx": {
@@ -820,13 +820,13 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/api.ts": {
-    "mtime": 1788172978.835164,
-    "ast_hash": "ab8664742c3419b4605c17a45b951eef",
+    "mtime": 1788177091.4823947,
+    "ast_hash": "5750bf0b70d4e52252dd3f70999272d8",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/constants.ts": {
-    "mtime": 1788172978.8352923,
-    "ast_hash": "29dbb7e30af3702e56a3e13e61986b89",
+    "mtime": 1788176942.2634816,
+    "ast_hash": "b19337cd995641eefaf3718b75d75706",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/format.ts": {
@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/store.ts": {
-    "mtime": 1786364324.2835393,
-    "ast_hash": "cdb9680ee35d463da77e9e968899c27c",
+    "mtime": 1788176935.813621,
+    "ast_hash": "78b2dff3baad9c00d7b916e9ddd861da",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788175132.0409715,
-    "ast_hash": "e3df22a3778cbae6439691af4025d222",
+    "mtime": 1788178299.6221297,
+    "ast_hash": "daa06b042aa4d1720bc536f38bd47153",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/commandes/page.tsx": {
-    "mtime": 1788172978.8343356,
-    "ast_hash": "ab7de18b526fe61c72b1715dc51df29d",
+    "mtime": 1788177198.607819,
+    "ast_hash": "5167167e1989da01475032fce5820522",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/equipe/page.tsx": {
@@ -1290,13 +1290,13 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/menu/page.tsx": {
-    "mtime": 1788174950.8984878,
-    "ast_hash": "aa416c57bbcd58ec57d4765dc256b7b6",
+    "mtime": 1788177239.308818,
+    "ast_hash": "ed671249772d2f1a45adfb714be7cbaa",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/page.tsx": {
-    "mtime": 1788173066.3616052,
-    "ast_hash": "6fc46c69d11c3a3e525d983d196ace20",
+    "mtime": 1788177035.3744948,
+    "ast_hash": "45ddd4cad11bfbb4b159933cc4be6ca6",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/produits/page.tsx": {
@@ -1645,12 +1645,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788175691.2324274,
+    "mtime": 1788177424.5198133,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788175691.2292564,
+    "mtime": 1788177424.517118,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -2062,6 +2062,26 @@
   "frontend/app/menu/invitation/page.tsx": {
     "mtime": 1788175669.4045243,
     "ast_hash": "44b3167b0797a8c3d3c3cf71274910e5",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/apercu/employee-apercu.tsx": {
+    "mtime": 1788177025.2257817,
+    "ast_hash": "71fc0e0ee4de1fd2ea2ad2d5760fd772",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/commandes/create-order-fab.tsx": {
+    "mtime": 1788177165.1224446,
+    "ast_hash": "4bc192528ee651c0af68462c50773775",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/commandes/kitchen-board.tsx": {
+    "mtime": 1788177067.4570434,
+    "ast_hash": "6c610f8021c576ae8647a77a8b6bc46b",
+    "semantic_hash": ""
+  },
+  "frontend/lib/gestion/use-now.ts": {
+    "mtime": 1788176946.2529857,
+    "ast_hash": "44edad9760a296dce0038e90150bec98",
     "semantic_hash": ""
   }
 }

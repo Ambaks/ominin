@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { EmployeeApercu } from "@/components/gestion/apercu/employee-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { SumUpPrompt } from "@/components/gestion/sumup-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
@@ -172,6 +173,10 @@ export default function ApercuPage() {
   const [period, setPeriod] = useState<Period>(ANALYTICS_PERIOD_DAYS[0]);
 
   if (!state) return null;
+
+  // Les employés n'ont pas l'analytique : leur aperçu est un poste de
+  // pilotage du service, taillé pour leur rôle.
+  if (state.role !== "gerant") return <EmployeeApercu state={state} />;
 
   const indispo = unavailableItems(state);
   const hasCommandes = hasFeature("commandes");

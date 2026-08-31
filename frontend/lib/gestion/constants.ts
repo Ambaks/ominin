@@ -22,6 +22,11 @@ export const HISTORY_PAGE_SIZE = 50;
 /** Statuts d'historique : commandes clôturées. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 
+/** Horloge de service des vues employés : cadence d'affichage (seconde). */
+export const SERVICE_CLOCK_TICK_MS = 1000;
+/** Temps d'attente affichés (en minutes) : cadence de recalcul. */
+export const WAIT_TICK_MS = 30_000;
+
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
 /** Invite aux notifications push écartée sur cet appareil (page Commandes). */

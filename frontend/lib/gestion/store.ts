@@ -307,6 +307,12 @@ export function commit(next: GestionState) {
   notify();
 }
 
+/** Relit les commandes sans attendre l'événement realtime (après un place_order local). */
+export async function refreshOrdersNow(): Promise<void> {
+  if (!state) return;
+  await refreshOrders(createClient(), state.etablissement.id);
+}
+
 /** Relit les statuts d'abonnement (retour de Stripe Checkout, avant webhook). */
 export async function refreshSubscription(): Promise<void> {
   if (!state) return;

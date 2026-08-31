@@ -22,11 +22,14 @@ export function OrderCard({
   order,
   tableNo,
   embedded = false,
+  pulse = false,
 }: {
   order: Order;
   tableNo: number;
   /** true quand la carte est imbriquée dans une carte de groupe. */
   embedded?: boolean;
+  /** L'action principale respire (soft-pulse) : la prochaine chose à faire. */
+  pulse?: boolean;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
@@ -207,7 +210,9 @@ export function OrderCard({
                       void transition(target);
                     }
                   }}
-                  className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+                  className={`ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background ${
+                    pulse ? "soft-pulse" : ""
+                  }`}
                 >
                   {target === "payee" && order.paidOnline
                     ? "Clôturer (payée en ligne)"

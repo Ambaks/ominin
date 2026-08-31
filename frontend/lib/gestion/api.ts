@@ -5,7 +5,7 @@ import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import { rowToFormule, rowToMenuItem, toJson } from "./mappers";
-import { commit, getState } from "./store";
+import { commit, getState, refreshOrdersNow } from "./store";
 import type {
   Etablissement,
   Formule,
@@ -441,6 +441,40 @@ function findOrder(state: GestionState, orderId: string): Order {
   const order = state.orders.find((candidate) => candidate.id === orderId);
   if (!order) throw new Error("Commande introuvable.");
   return order;
+}
+
+export interface StaffOrderLine {
+  itemId: string;
+  quantity: number;
+  choices: { group_id: string; choice_id: string }[];
+}
+
+/**
+ * Commande prise en salle par un membre de l'équipe (client qui commande
+ * directement au serveur). Même RPC que le menu QR : place_order valide
+ * articles, stock et options, et notifie la cuisine comme une commande client.
+ */
+export async function createStaffOrder(
+  tableNumber: number,
+  lines: StaffOrderLine[]
+): Promise<void> {
+  const supabase = createClient();
+  const rpc = supabase.rpc.bind(supabase) as unknown as (
+    fn: string,
+    args: Record<string, unknown>
+  ) => Promise<{ data: unknown; error: { message: string } | null }>;
+  const { data: orderId, error } = await rpc("place_order", {
+    p_slug: getState().etablissement.slug,
+    p_table_number: tableNumber,
+    p_items: lines.map((line) => ({
+      item_id: line.itemId,
+      quantity: line.quantity,
+      choices: line.choices,
+    })),
+  });
+  if (error) throw new Error(error.message);
+  notifyOrderEvent(orderId as string, "en_attente");
+  await refreshOrdersNow();
 }
 
 export async function updateOrderStatus(

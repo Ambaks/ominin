@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
+import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
+import { KitchenBoard } from "@/components/gestion/commandes/kitchen-board";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
 import { OrderGroupCard } from "@/components/gestion/commandes/order-group-card";
 import { PushPrompt } from "@/components/gestion/push-prompt";
@@ -85,6 +87,11 @@ export default function CommandesPage() {
   if (!state) return null;
   if (!hasFeature("commandes")) return <FeatureLocked />;
 
+  // Le cuisinier a son passe : trois files, de la commande à l'assiette prête.
+  if (state.role === "cuisinier") return <KitchenBoard state={state} />;
+
+  const isServeur = state.role === "serveur";
+
   // Onglet Historique : les commandes clôturées du jour (déjà dans l'état) sont
   // fusionnées avec les pages plus anciennes chargées à la demande.
   const visible =
@@ -115,9 +122,22 @@ export default function CommandesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-        Commandes
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
+            Commandes
+          </h1>
+          {isServeur && (
+            <p className="mt-1 text-sm text-muted">La salle, en direct.</p>
+          )}
+        </div>
+        {isServeur && (
+          <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
+            En direct
+          </span>
+        )}
+      </div>
 
       <PushPrompt />
 
@@ -167,13 +187,22 @@ export default function CommandesPage() {
               />
             );
           })}
-          {singles.map((order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              tableNo={order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0}
-            />
-          ))}
+          {singles.map((order) =>
+            isServeur ? (
+              <div key={order.id} className="order-pop">
+                <OrderCard
+                  order={order}
+                  tableNo={order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0}
+                />
+              </div>
+            ) : (
+              <OrderCard
+                key={order.id}
+                order={order}
+                tableNo={order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0}
+              />
+            )
+          )}
           {filter === "historique" && cursor && (
             <div className="flex justify-center pt-2">
               <button
@@ -188,6 +217,9 @@ export default function CommandesPage() {
           )}
         </div>
       )}
+
+      {/* Prise de commande en salle : le client commande au serveur. */}
+      {isServeur && <CreateOrderFab state={state} />}
     </div>
   );
 }

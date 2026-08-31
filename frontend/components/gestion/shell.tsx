@@ -33,6 +33,8 @@ interface NavItem {
   label: string;
   feature: Feature | null;
   icon: React.ComponentType<IconProps>;
+  /** Onglet réservé au gérant : retiré de la navigation des employés. */
+  gerantOnly?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -40,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
-  { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon },
+  { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
 ];
 
 /**
@@ -112,7 +114,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // payés, plus sur le seul abonnement à l'offre.
   const subscribed = products.offre != null || products.collect;
   const items = NAV_ITEMS.filter(
-    (item) => !item.feature || hasFeature(products, item.feature)
+    (item) =>
+      (!item.feature || hasFeature(products, item.feature)) &&
+      (!item.gerantOnly || state?.role === "gerant")
   );
   const pendingCount =
     state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
