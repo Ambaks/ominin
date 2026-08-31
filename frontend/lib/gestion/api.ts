@@ -1,4 +1,5 @@
 import type { Badge, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
@@ -460,6 +461,9 @@ export async function updateOrderStatus(
       )
       .eq("id", orderId)
   );
+  // Push vers la salle (prête) ou la cuisine (annulée) ; la route écarte
+  // l'auteur du geste via sa session. Fire-and-forget : la mutation a réussi.
+  notifyOrderEvent(orderId, status);
   return apply((draft) => {
     const order = findOrder(draft, orderId);
     order.status = status;

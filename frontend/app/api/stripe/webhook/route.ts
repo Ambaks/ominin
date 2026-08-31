@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { dispatchOrderEvent } from "@/lib/push/server";
 import { getStripe } from "@/lib/stripe/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -74,11 +75,20 @@ export async function POST(request: Request) {
       if (session.metadata?.pending_id) {
         if (session.payment_status === "paid") {
           const db = createAdminClient();
-          const { error } = await db.rpc("create_collect_order", {
+          const { data: orderId, error } = await db.rpc("create_collect_order", {
             p_pending_id: session.metadata.pending_id,
             p_stripe_session_id: session.id,
           });
           if (error) throw new Error(error.message);
+          // Push cuisine : la commande naît payée, c'est son seul point
+          // d'entrée. Idempotent (push_notified) même si Stripe rejoue
+          // l'événement ; un échec d'envoi ne doit pas faire rejouer le
+          // webhook entier.
+          if (orderId) {
+            await dispatchOrderEvent(orderId, "nouvelle_commande").catch(
+              () => {}
+            );
+          }
         }
         break;
       }

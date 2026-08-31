@@ -40,9 +40,9 @@ class Settings(BaseSettings):
         "Toulouse:Capitole|Carmes|Saint-Cyprien|Saint-Michel|Saint-Aubin|"
         "Les Chalets|Jeanne d'Arc"
     )
-    discovery_queries_per_run: int = 8
+    discovery_queries_per_run: int = 20
     discovery_query_max_empty: int = 2
-    discovery_max_pages_per_query: int = 3
+    discovery_max_pages_per_query: int = 5
 
     # Gmail (OAuth refresh token from scripts/gmail_auth.py)
     gmail_client_id: str = ""
@@ -54,14 +54,13 @@ class Settings(BaseSettings):
     # Claude model used for qualification, cold emails and reply drafts.
     outreach_model: str = "claude-opus-5"
 
-    # Batching / limits. Cold sends spread over the day: the outreach cron
-    # fires every 2 h (6 runs, Tue-Fri), each run composes and sends at most
-    # outreach_run_batch_size cold emails, and the daily cap clips the total.
+    # Batching / limits. Each outreach run composes and sends up to the full
+    # daily cap in one pass; remaining cron runs that day exit immediately.
     # Gmail's consumer ceiling (~500 recipients/day) is shared with replies —
     # when raising the cap, ramp via env week by week; never jump a fresh
     # mailbox straight up.
     outreach_daily_limit: int = 100
-    outreach_run_batch_size: int = 17
+    outreach_run_batch_size: int = 100
     outreach_send_delay_seconds: int = 12
     # Nightly qualification budget (one Claude call per prospect) — sized to
     # keep the qualified pool ahead of outreach_daily_limit, given that a
@@ -71,7 +70,7 @@ class Settings(BaseSettings):
     inbox_lookback_days: int = 7
     # A 'running' run younger than this blocks a new run of the same job;
     # older ones are presumed killed (Render spin-down) and marked failed.
-    run_stale_minutes: int = 30
+    run_stale_minutes: int = 60
     # Render free tier spins the service down after 15 min without inbound
     # HTTP; a full compose+send batch runs longer than that. When set to the
     # service's own public /health URL, long loops self-ping it on this

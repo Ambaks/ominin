@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
 import { OrderGroupCard } from "@/components/gestion/commandes/order-group-card";
+import { PushPrompt } from "@/components/gestion/push-prompt";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
@@ -117,6 +118,8 @@ export default function CommandesPage() {
       <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
         Commandes
       </h1>
+
+      <PushPrompt />
 
       <PillTabs
         tabs={FILTERS.map(({ id, label }) => ({

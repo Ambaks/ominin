@@ -10,9 +10,11 @@ import { can, hasFeature } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature } from "@/lib/gestion/types";
+import { useOrderChime } from "@/lib/gestion/use-order-chime";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
+  BellIcon,
   ChartIcon,
   CommandesIcon,
   ExternalLinkIcon,
@@ -106,6 +108,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   const state = useGestion();
   const loadError = useGestionLoadError();
   const pathname = usePathname();
+  // Carillon des nouvelles commandes, actif sur tout l'espace (l'onglet
+  // ouvert en cuisine sonne quelle que soit la page affichée).
+  useOrderChime();
 
   const products = activeProducts(state);
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
@@ -162,6 +167,16 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   <ExternalLinkIcon className="size-3.5" />
                   <span className="hidden lg:inline">Voir mon menu</span>
                 </a>
+                {hasFeature(products, "commandes") && (
+                  <Link
+                    href="/gestion/notifications"
+                    title="Notifications"
+                    aria-label="Notifications"
+                    className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  >
+                    <BellIcon className="size-3.5" />
+                  </Link>
+                )}
                 {can(state.role, "etablissement.edit") && (
                   <Link
                     href="/gestion/etablissement"

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
+import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
 type SubmitState = "idle" | "sending" | "sent" | "error";
@@ -55,6 +56,9 @@ export function CartBar() {
       setError(rpcError.message);
       return;
     }
+    // Prévient la cuisine (push), sans bloquer ni gêner le parcours client —
+    // keepalive survit à la redirection Stripe qui peut suivre.
+    notifyOrderEvent(orderId as string, "en_attente");
 
     if (payment === "carte" && cart.paymentProvider === "stripe") {
       // La commande est en cuisine ; on enchaîne sur le règlement Stripe.

@@ -76,7 +76,17 @@ const nextConfig: NextConfig = {
   },
   // En-têtes de sécurité appliqués à toutes les routes (pages, API, assets).
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      {
+        // Le service worker (notifications push) doit se mettre à jour dès
+        // qu'une nouvelle version est déployée — jamais servi depuis un cache.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+        ],
+      },
+    ];
   },
 };
 

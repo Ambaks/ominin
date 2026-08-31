@@ -863,6 +863,41 @@ export type Database = {
           },
         ]
       }
+      notification_prefs: {
+        Row: {
+          commande_annulee: boolean
+          commande_prete: boolean
+          etablissement_id: string
+          nouvelle_commande: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commande_annulee: boolean
+          commande_prete: boolean
+          etablissement_id: string
+          nouvelle_commande: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commande_annulee?: boolean
+          commande_prete?: boolean
+          etablissement_id?: string
+          nouvelle_commande?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_prefs_user_id_etablissement_id_fkey"
+            columns: ["user_id", "etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "memberships"
+            referencedColumns: ["user_id", "etablissement_id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
@@ -1222,6 +1257,73 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_notified: {
+        Row: {
+          event: string
+          notified_at: string
+          order_id: string
+        }
+        Insert: {
+          event: string
+          notified_at?: string
+          order_id: string
+        }
+        Update: {
+          event?: string
+          notified_at?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_notified_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          etablissement_id: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          etablissement_id: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          etablissement_id?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_etablissement_id_fkey"
+            columns: ["user_id", "etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["user_id", "etablissement_id"]
           },
         ]
       }

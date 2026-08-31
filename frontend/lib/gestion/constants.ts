@@ -22,6 +22,11 @@ export const HISTORY_PAGE_SIZE = 50;
 /** Statuts d'historique : commandes clôturées. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 
+/** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
+export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
+/** Invite aux notifications push écartée sur cet appareil (page Commandes). */
+export const PUSH_PROMPT_DISMISSED_KEY = "ominin-push-prompt-dismissed";
+
 /**
  * Délais proposés à l'acceptation d'une commande collect « dès que
  * possible » (minutes avant que la commande soit prête).

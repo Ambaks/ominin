@@ -172,3 +172,12 @@ export function LogoutIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function BellIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3.5a5.5 5.5 0 0 0-5.5 5.5c0 4.2-1.5 5.6-2.5 6.5h16c-1-.9-2.5-2.3-2.5-6.5A5.5 5.5 0 0 0 12 3.5z" />
+      <path d="M10 19a2 2 0 0 0 4 0" />
+    </Svg>
+  );
+}

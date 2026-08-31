@@ -41,6 +41,13 @@ export const metadata: Metadata = {
     images: ["/logo.png"],
   },
   robots: { index: true, follow: true },
+  // Installation sur l'écran d'accueil iOS (prérequis des notifications push
+  // sur iPhone/iPad) : plein écran, barre de statut fondue dans le thème.
+  appleWebApp: {
+    capable: true,
+    title: "Ominin",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
