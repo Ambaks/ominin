@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
   BellIcon,
-  ChartIcon,
+
   CommandesIcon,
   ExternalLinkIcon,
   FormulesIcon,
@@ -40,7 +40,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
-  { href: "/gestion/analytique", label: "Analytique", feature: "commandes", icon: ChartIcon },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },

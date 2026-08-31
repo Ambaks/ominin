@@ -19,8 +19,20 @@ export async function GET(request: Request) {
       ? requestedNext
       : "/gestion";
 
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
+
+  const supabase = await createClient();
+
+  if (tokenHash && type) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: type as "invite" | "email",
+    });
+    if (!error) return NextResponse.redirect(`${base}${next}`);
+  }
+
   if (code) {
-    const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${base}${next}`);
   }

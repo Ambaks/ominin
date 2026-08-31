@@ -91,21 +91,16 @@ export async function POST(request: Request) {
 
   try {
     if (pending) {
-      const redirectTo = `${origin}/auth/callback?next=/invitation`;
       const { data: linkData, error: linkError } =
         await admin.auth.admin.generateLink({
           type: "invite",
           email,
-          options: { redirectTo },
+          options: { redirectTo: `${origin}/auth/callback` },
         });
       if (linkError) throw linkError;
 
-      await sendInviteEmail(
-        email,
-        etablissement.name,
-        role,
-        linkData.properties.action_link,
-      );
+      const verifyUrl = `${origin}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=invite&next=/invitation`;
+      await sendInviteEmail(email, etablissement.name, role, verifyUrl);
     } else {
       await sendTeamNotification(
         email,
