@@ -88,23 +88,30 @@ export async function dispatchOrderEvent(
 
   const db = createAdminClient();
 
-  const { data: order } = await db
+  const { data: order, error: orderError } = await db
     .from("orders")
     .select(
       "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number), order_items (quantity)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();
-  if (!order) return;
+  if (!order) {
+    console.error("[push] order not found", { orderId, orderError });
+    return;
+  }
 
   // Cohérence événement ↔ statut : la route est publique, seul l'état réel
   // de la commande fait foi. Un événement « nouvelle commande » trop vieux
   // est un rejeu, pas un service à rendre.
-  if (STATUS_PUSH_EVENT[order.status as keyof typeof STATUS_PUSH_EVENT] !== event) return;
+  if (STATUS_PUSH_EVENT[order.status as keyof typeof STATUS_PUSH_EVENT] !== event) {
+    console.error("[push] status mismatch", { status: order.status, event });
+    return;
+  }
   if (
     event === "nouvelle_commande" &&
     Date.now() - new Date(order.created_at).getTime() > NOUVELLE_COMMANDE_MAX_AGE_MS
   ) {
+    console.error("[push] order too old", { created_at: order.created_at });
     return;
   }
 
@@ -116,7 +123,10 @@ export async function dispatchOrderEvent(
       { onConflict: "order_id,event", ignoreDuplicates: true }
     )
     .select();
-  if (claimError || !claimed?.length) return;
+  if (claimError || !claimed?.length) {
+    console.error("[push] dedupe claim failed", { claimError, claimed });
+    return;
+  }
 
   const [subsResult, membResult, prefsResult] = await Promise.all([
     db
@@ -133,7 +143,11 @@ export async function dispatchOrderEvent(
       .eq("etablissement_id", order.etablissement_id),
   ]);
   if (subsResult.error || membResult.error || prefsResult.error) {
-    // Release the dedupe claim so a retry can succeed.
+    console.error("[push] recipient query error", {
+      subs: subsResult.error,
+      memb: membResult.error,
+      prefs: prefsResult.error,
+    });
     await db
       .from("push_notified")
       .delete()
@@ -144,7 +158,10 @@ export async function dispatchOrderEvent(
   const { data: subscriptions } = subsResult;
   const { data: memberships } = membResult;
   const { data: prefs } = prefsResult;
-  if (!subscriptions.length) return;
+  if (!subscriptions.length) {
+    console.error("[push] no subscriptions", { etablissement_id: order.etablissement_id });
+    return;
+  }
 
   const roleByUser = new Map(memberships?.map((m) => [m.user_id, m.role]));
   const prefsByUser = new Map(prefs?.map((p) => [p.user_id, p]));
@@ -155,7 +172,14 @@ export async function dispatchOrderEvent(
     const pref = prefsByUser.get(sub.user_id);
     return pref ? pref[event] : ROLE_DEFAULT_PREFS[role][event];
   });
-  if (!recipients.length) return;
+  if (!recipients.length) {
+    console.error("[push] no recipients after filtering", {
+      total: subscriptions.length,
+      skipUserId: options?.skipUserId,
+    });
+    return;
+  }
+  console.log("[push] dispatching", { event, recipients: recipients.length });
 
   await sendToSubscriptions(recipients, {
     title: EVENT_TITLES[event],
