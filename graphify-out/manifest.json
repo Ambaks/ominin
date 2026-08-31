@@ -530,8 +530,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1788173083.6698446,
-    "ast_hash": "a684a35f0800d64aac89b5f67fafc051",
+    "mtime": 1788174970.140467,
+    "ast_hash": "d8be89d9bbfa5ccf725b3c153156fb7d",
     "semantic_hash": ""
   },
   "frontend/components/gestion/subscription-gate.tsx": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788172978.833154,
-    "ast_hash": "5c7b55ab786e29235484c4eca1e6ce39",
+    "mtime": 1788174897.9622703,
+    "ast_hash": "e262fa27fdc51c3ebbfdede697005cb2",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1284,19 +1284,14 @@
     "ast_hash": "470f9a82dd5297e31c1545ab4a525dc2",
     "semantic_hash": ""
   },
-  "frontend/app/menu/gestion/formules/page.tsx": {
-    "mtime": 1786378603.3086042,
-    "ast_hash": "f86e2c5c02a2f11c94a5244c054c54e7",
-    "semantic_hash": ""
-  },
   "frontend/app/menu/gestion/layout.tsx": {
     "mtime": 1786378603.3087635,
     "ast_hash": "6525654a69f02ec3ca032de3367174d5",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/menu/page.tsx": {
-    "mtime": 1786378603.3090003,
-    "ast_hash": "c118c5b7c2af6fe3379890576106bbf9",
+    "mtime": 1788174950.8984878,
+    "ast_hash": "aa416c57bbcd58ec57d4765dc256b7b6",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/page.tsx": {
@@ -1307,11 +1302,6 @@
   "frontend/app/menu/gestion/produits/page.tsx": {
     "mtime": 1786378603.3095112,
     "ast_hash": "063d0ff1d920acb61d791b1cc0a23e12",
-    "semantic_hash": ""
-  },
-  "frontend/app/menu/gestion/qr/page.tsx": {
-    "mtime": 1786378603.309762,
-    "ast_hash": "c1e7f07d283043780a6e4910c3e75c99",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/tables/page.tsx": {

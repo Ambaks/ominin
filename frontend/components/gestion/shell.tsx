@@ -18,12 +18,10 @@ import {
 
   CommandesIcon,
   ExternalLinkIcon,
-  FormulesIcon,
   GearIcon,
   LogoutIcon,
   MenuIcon,
   ProductsIcon,
-  QrIcon,
   TablesIcon,
   TeamIcon,
   type IconProps,
@@ -42,8 +40,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
-  { href: "/gestion/formules", label: "Formules", feature: null, icon: FormulesIcon },
-  { href: "/gestion/qr", label: "QR codes", feature: "qr", icon: QrIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon },
 ];
 
