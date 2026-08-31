@@ -22,12 +22,12 @@ import {
 import type { Order } from "@/lib/gestion/types";
 
 const FILTERS = [
-  { id: "toutes", label: "Toutes" },
+  { id: "prete", label: "Prêtes" },
   { id: "en_attente", label: "En attente" },
   { id: "en_preparation", label: "En préparation" },
-  { id: "prete", label: "Prêtes" },
   { id: "servie", label: "Servies" },
   { id: "historique", label: "Historique" },
+  { id: "toutes", label: "Toutes" },
 ] as const;
 
 type FilterId = (typeof FILTERS)[number]["id"];
@@ -48,7 +48,7 @@ export default function CommandesPage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
   const toast = useToast();
-  const [filter, setFilter] = useState<FilterId>("toutes");
+  const [filter, setFilter] = useState<FilterId>("prete");
   // L'historique n'est pas dans le fetch initial borné : il se charge à la
   // demande, page par page, quand l'onglet Historique est ouvert.
   const [history, setHistory] = useState<Order[]>([]);

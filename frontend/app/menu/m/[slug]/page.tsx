@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { Hero } from "@/components/menu/hero";
@@ -97,6 +98,7 @@ export default async function MenuPage({
         </main>
         <MenuFooter restaurant={restaurant} />
         <CartBar />
+        <CallServerButton />
       </div>
     </CartProvider>
   );

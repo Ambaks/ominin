@@ -9,12 +9,18 @@ import { createClient } from "@/lib/supabase/client";
 
 type SubmitState = "idle" | "sending" | "sent" | "error";
 type PaymentChoice = "comptoir" | "carte";
+type TipChoice = number | "autre" | null;
+
+/** Pourboires proposés au règlement par carte (en % du total, arrondi au centime). */
+const TIP_PERCENTS = [5, 10, 15] as const;
 
 export function CartBar() {
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
   const [payment, setPayment] = useState<PaymentChoice>("comptoir");
+  const [tipChoice, setTipChoice] = useState<TipChoice>(null);
+  const [customTip, setCustomTip] = useState("");
   const [error, setError] = useState<string | null>(null);
   // Paiement carte choisi mais impossible à démarrer : la commande reste
   // valable, il faut le dire au client (il paiera au comptoir).
@@ -29,6 +35,18 @@ export function CartBar() {
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
   if (!cart.orderingEnabled || cart.tableNumber === null) return null;
   if (cart.count === 0 && state !== "sent") return null;
+
+  // Pourboire du règlement par carte : pourcentage du total arrondi au
+  // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
+  const tipAmount =
+    payment !== "carte" || tipChoice === null
+      ? 0
+      : tipChoice === "autre"
+        ? Math.max(
+            0,
+            Math.round(Number(customTip.replace(",", ".")) * 100) / 100 || 0
+          )
+        : Math.round(cart.total * tipChoice) / 100;
 
   const submit = async () => {
     setState("sending");
@@ -66,7 +84,9 @@ export function CartBar() {
         const response = await fetch("/api/stripe/pay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId }),
+          body: JSON.stringify(
+            tipAmount > 0 ? { orderId, tipAmount } : { orderId }
+          ),
         });
         const body = (await response.json()) as { url?: string };
         if (response.ok && body.url) {
@@ -90,7 +110,9 @@ export function CartBar() {
         const response = await fetch("/api/sumup/pay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId }),
+          body: JSON.stringify(
+            tipAmount > 0 ? { orderId, tipAmount } : { orderId }
+          ),
         });
         const body = (await response.json()) as { checkoutId?: string };
         if (response.ok && body.checkoutId) {
@@ -267,6 +289,64 @@ export function CartBar() {
                           {label}
                         </button>
                       ))}
+                    </div>
+                  )}
+                  {cart.onlinePayment && payment === "carte" && (
+                    <div className="mb-4 flex flex-col gap-2.5">
+                      <p className="text-xs font-medium text-muted">
+                        Un pourboire pour l&rsquo;équipe&nbsp;?
+                      </p>
+                      <div className="flex gap-2">
+                        {TIP_PERCENTS.map((percent) => (
+                          <button
+                            key={percent}
+                            type="button"
+                            onClick={() =>
+                              setTipChoice(
+                                tipChoice === percent ? null : percent
+                              )
+                            }
+                            className={`flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                              tipChoice === percent
+                                ? "border-ember-2/60 bg-surface-raised text-foreground"
+                                : "border-hairline text-muted"
+                            }`}
+                          >
+                            {percent}&nbsp;%
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTipChoice(tipChoice === "autre" ? null : "autre")
+                          }
+                          className={`flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                            tipChoice === "autre"
+                              ? "border-ember-2/60 bg-surface-raised text-foreground"
+                              : "border-hairline text-muted"
+                          }`}
+                        >
+                          Autre
+                        </button>
+                      </div>
+                      {tipChoice === "autre" && (
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={customTip}
+                          onChange={(event) => setCustomTip(event.target.value)}
+                          placeholder="Montant en €"
+                          aria-label="Montant du pourboire en euros"
+                          autoFocus
+                          className="rounded-xl border border-hairline bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-ember-2/50"
+                        />
+                      )}
+                      {tipAmount > 0 && (
+                        <p className="text-xs text-muted">
+                          Pourboire&nbsp;: {formatPrice(tipAmount)} — réglé avec
+                          l&rsquo;addition, reversé au service.
+                        </p>
+                      )}
                     </div>
                   )}
                   {state === "error" && (

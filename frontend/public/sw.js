@@ -31,9 +31,11 @@ self.addEventListener("push", (event) => {
       // Une même commande peut sonner plusieurs fois (prête après nouvelle) :
       // renotify fait vibrer même quand le tag remplace une notification.
       renotify: true,
-      // Une nouvelle commande reste affichée jusqu'à un geste : c'est un
-      // ordre de travail, pas une information.
-      requireInteraction: payload.event === "nouvelle_commande",
+      // Une nouvelle commande ou un appel client reste affiché jusqu'à un
+      // geste : c'est un ordre de travail, pas une information.
+      requireInteraction:
+        payload.event === "nouvelle_commande" ||
+        payload.event === "appel_serveur",
       vibrate: [200, 100, 200],
       data: { url: payload.url },
       timestamp: Date.now(),

@@ -1,6 +1,7 @@
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  CALL_THROTTLE_MS,
   ROLE_DEFAULT_PREFS,
   STATUS_PUSH_EVENT,
   type PushEvent,
@@ -40,6 +41,7 @@ const EVENT_TITLES: Record<PushEvent, string> = {
   nouvelle_commande: "Nouvelle commande",
   commande_prete: "Commande prête",
   commande_annulee: "Commande annulée",
+  appel_serveur: "Appel serveur",
 };
 
 interface OrderContext {
@@ -50,7 +52,7 @@ interface OrderContext {
   created_at: string;
   customer_name: string | null;
   pickup_at: string | null;
-  tables: { number: number } | null;
+  tables: { number: number; server_id: string | null } | null;
   order_items: { quantity: number }[];
 }
 
@@ -91,7 +93,7 @@ export async function dispatchOrderEvent(
   const { data: order, error: orderError } = await db
     .from("orders")
     .select(
-      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number), order_items (quantity)"
+      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number, server_id), order_items (quantity)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();
@@ -139,7 +141,9 @@ export async function dispatchOrderEvent(
       .eq("etablissement_id", order.etablissement_id),
     db
       .from("notification_prefs")
-      .select("user_id, nouvelle_commande, commande_prete, commande_annulee")
+      .select(
+        "user_id, nouvelle_commande, commande_prete, commande_annulee, appel_serveur"
+      )
       .eq("etablissement_id", order.etablissement_id),
   ]);
   if (subsResult.error || membResult.error || prefsResult.error) {
@@ -165,10 +169,23 @@ export async function dispatchOrderEvent(
 
   const roleByUser = new Map(memberships?.map((m) => [m.user_id, m.role]));
   const prefsByUser = new Map(prefs?.map((p) => [p.user_id, p]));
+  // Table affectée à un serveur : lui seul parmi les serveurs est prévenu
+  // (cuisine et gérant gardent leurs préférences). Si le serveur affecté n'a
+  // aucun appareil abonné, on retombe sur tous les serveurs — une table qui
+  // commande ne doit jamais sonner dans le vide.
+  const assignedServer = order.tables?.server_id ?? null;
+  const targetServer =
+    assignedServer &&
+    subscriptions.some((sub) => sub.user_id === assignedServer)
+      ? assignedServer
+      : null;
   const recipients = subscriptions.filter((sub) => {
     if (sub.user_id === options?.skipUserId) return false;
     const role = roleByUser.get(sub.user_id);
     if (!role) return false;
+    if (role === "serveur" && targetServer && sub.user_id !== targetServer) {
+      return false;
+    }
     const pref = prefsByUser.get(sub.user_id);
     return pref ? pref[event] : ROLE_DEFAULT_PREFS[role][event];
   });
@@ -187,6 +204,112 @@ export async function dispatchOrderEvent(
     tag: `commande-${order.id}`,
     url: "/gestion/commandes",
     event,
+  });
+}
+
+/**
+ * Appel serveur depuis le menu QR (route publique /api/push/call-server).
+ * Table affectée : seul le serveur affecté (et le gérant, selon ses
+ * préférences) est prévenu — s'il n'a aucun appareil abonné, tous les
+ * serveurs le sont. Table libre : tous les serveurs. call_throttle borne à
+ * un appel par table par fenêtre.
+ */
+export async function dispatchCallServer(
+  slug: string,
+  tableNumber: number
+): Promise<void> {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const subject = process.env.VAPID_SUBJECT;
+  if (!publicKey || !privateKey || !subject) return;
+
+  const db = createAdminClient();
+
+  const { data: etablissement } = await db
+    .from("etablissements")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!etablissement) return;
+
+  const { data: table } = await db
+    .from("tables")
+    .select("id, number, server_id")
+    .eq("etablissement_id", etablissement.id)
+    .eq("number", tableNumber)
+    .maybeSingle();
+  if (!table) return;
+
+  // Anti-spam : l'upsert conditionné à l'ancienneté sert de verrou — s'il ne
+  // touche aucune ligne alors qu'une existe, l'appel précédent est trop récent.
+  const threshold = new Date(Date.now() - CALL_THROTTLE_MS).toISOString();
+  const { data: refreshed, error: throttleError } = await db
+    .from("call_throttle")
+    .update({ called_at: new Date().toISOString() })
+    .eq("table_id", table.id)
+    .lt("called_at", threshold)
+    .select("table_id");
+  if (throttleError) {
+    console.error("[push] call throttle error", { throttleError });
+    return;
+  }
+  if (!refreshed.length) {
+    const { error: insertError } = await db
+      .from("call_throttle")
+      .insert({ table_id: table.id });
+    if (insertError) return; // Ligne récente déjà présente : appel étouffé.
+  }
+
+  const [subsResult, membResult, prefsResult] = await Promise.all([
+    db
+      .from("push_subscriptions")
+      .select("id, endpoint, p256dh, auth, user_id")
+      .eq("etablissement_id", etablissement.id),
+    db
+      .from("memberships")
+      .select("user_id, role")
+      .eq("etablissement_id", etablissement.id),
+    db
+      .from("notification_prefs")
+      .select("user_id, appel_serveur")
+      .eq("etablissement_id", etablissement.id),
+  ]);
+  if (subsResult.error || membResult.error || prefsResult.error) {
+    console.error("[push] call recipient query error", {
+      subs: subsResult.error,
+      memb: membResult.error,
+      prefs: prefsResult.error,
+    });
+    return;
+  }
+
+  const roleByUser = new Map(membResult.data.map((m) => [m.user_id, m.role]));
+  const prefsByUser = new Map(prefsResult.data.map((p) => [p.user_id, p]));
+  const targetServer =
+    table.server_id &&
+    subsResult.data.some((sub) => sub.user_id === table.server_id)
+      ? table.server_id
+      : null;
+  const recipients = subsResult.data.filter((sub) => {
+    const role = roleByUser.get(sub.user_id);
+    if (!role) return false;
+    if (role === "serveur" && targetServer && sub.user_id !== targetServer) {
+      return false;
+    }
+    const pref = prefsByUser.get(sub.user_id);
+    return pref
+      ? pref.appel_serveur
+      : ROLE_DEFAULT_PREFS[role].appel_serveur;
+  });
+  if (!recipients.length) return;
+  console.log("[push] call server", { table: table.number, recipients: recipients.length });
+
+  await sendToSubscriptions(recipients, {
+    title: "Appel serveur",
+    body: `La table ${table.number} vous appelle.`,
+    tag: `appel-${table.id}`,
+    url: "/gestion/commandes",
+    event: "appel_serveur",
   });
 }
 

@@ -9,7 +9,7 @@ import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can, hasFeature } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
-import type { Feature } from "@/lib/gestion/types";
+import type { Feature, Role } from "@/lib/gestion/types";
 import { useOrderChime } from "@/lib/gestion/use-order-chime";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -18,6 +18,7 @@ import {
 
   CommandesIcon,
   ExternalLinkIcon,
+  PaymentsIcon,
   GearIcon,
   LogoutIcon,
   MenuIcon,
@@ -26,6 +27,7 @@ import {
   TeamIcon,
   type IconProps,
 } from "./icons";
+import { NamePrompt } from "./name-prompt";
 import { SubscriptionGate } from "./subscription-gate";
 
 interface NavItem {
@@ -35,12 +37,14 @@ interface NavItem {
   icon: React.ComponentType<IconProps>;
   /** Onglet réservé au gérant : retiré de la navigation des employés. */
   gerantOnly?: boolean;
+  excludeRoles?: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
-  { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon },
+  { href: "/gestion/paiements", label: "Paiements", feature: "commandes", icon: PaymentsIcon, gerantOnly: true },
+  { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
 ];
@@ -116,7 +120,8 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   const items = NAV_ITEMS.filter(
     (item) =>
       (!item.feature || hasFeature(products, item.feature)) &&
-      (!item.gerantOnly || state?.role === "gerant")
+      (!item.gerantOnly || state?.role === "gerant") &&
+      (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
   );
   const pendingCount =
     state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
@@ -229,6 +234,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </aside>
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
+            <NamePrompt />
             {!state ? (
               loadError ? (
                 <LoadError message={loadError} />

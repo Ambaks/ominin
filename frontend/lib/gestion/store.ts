@@ -10,12 +10,14 @@ import {
   ANALYTICS_PERIOD_DAYS,
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
+  PAID_ORDER_STATUSES,
 } from "./constants";
 import {
   assembleCategories,
   assembleGroups,
   rowToEtablissement,
   rowToFormule,
+  rowToMember,
   rowToOrder,
   rowToTable,
 } from "./mappers";
@@ -87,6 +89,28 @@ export async function fetchOrderHistory(
   return { orders, nextCursor };
 }
 
+/** Historique des paiements (commandes encaissées), curseur = created_at décroissant. */
+export async function fetchPaidOrders(
+  before: string | null
+): Promise<{ orders: Order[]; nextCursor: string | null }> {
+  const supabase = createClient();
+  const etablissementId = getState().etablissement.id;
+  let query = supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("etablissement_id", etablissementId)
+    .in("status", PAID_ORDER_STATUSES)
+    .order("created_at", { ascending: false })
+    .limit(HISTORY_PAGE_SIZE);
+  if (before) query = query.lt("created_at", before);
+  const orders = must(await query).map(rowToOrder);
+  const nextCursor =
+    orders.length === HISTORY_PAGE_SIZE
+      ? orders[orders.length - 1].createdAt
+      : null;
+  return { orders, nextCursor };
+}
+
 /*
  * Refetch des commandes sur événement realtime, coalescé : un refetch en
  * vol absorbe les événements suivants au lieu d'empiler les requêtes.
@@ -139,7 +163,41 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       { event: "*", schema: "public", table: "order_items" },
       onChange
     )
+    // Affectations serveur et groupements faits sur un autre appareil (la
+    // dissolution d'un groupe arrive aussi en UPDATE via on delete set null).
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "tables",
+        filter: `etablissement_id=eq.${etablissementId}`,
+      },
+      () => void refreshTables(supabase, etablissementId)
+    )
     .subscribe();
+}
+
+async function refreshTables(supabase: Client, etablissementId: string) {
+  if (!state) return;
+  const [tablesResult, groupsResult] = await Promise.all([
+    supabase
+      .from("tables")
+      .select("*")
+      .eq("etablissement_id", etablissementId)
+      .order("number", { ascending: true }),
+    supabase
+      .from("table_groups")
+      .select("*")
+      .eq("etablissement_id", etablissementId),
+  ]);
+  if (tablesResult.error || groupsResult.error || !state) return;
+  state = {
+    ...state,
+    tables: tablesResult.data.map(rowToTable),
+    groups: assembleGroups(groupsResult.data, tablesResult.data),
+  };
+  notify();
 }
 
 async function load(): Promise<void> {
@@ -192,6 +250,7 @@ async function load(): Promise<void> {
     tables,
     groups,
     orders,
+    members,
   ] = await Promise.all([
       supabase
         .from("etablissements")
@@ -237,6 +296,12 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .then(must),
       fetchOrders(supabase, etablissementId),
+      supabase
+        .from("memberships")
+        .select("*")
+        .eq("etablissement_id", etablissementId)
+        .order("created_at", { ascending: true })
+        .then(must),
     ]);
 
   const offreSub = subscription?.find((s) => s.product === "offre");
@@ -246,7 +311,9 @@ async function load(): Promise<void> {
     etablissement: rowToEtablissement(etablissement),
     subscriptionStatus: offreSub?.status ?? null,
     collectSubscriptionStatus: collectSub?.status ?? null,
+    userId: user.id,
     role: membership.role,
+    members: members.map(rowToMember),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
     tables: tables.map(rowToTable),

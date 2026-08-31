@@ -17,8 +17,9 @@ interface OrderLine {
 }
 
 export async function POST(request: Request) {
-  const { orderId } = (await request.json().catch(() => ({}))) as {
+  const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
     orderId?: string;
+    tipAmount?: unknown;
   };
   if (!orderId) {
     return NextResponse.json({ error: "Commande manquante." }, { status: 400 });
@@ -84,13 +85,20 @@ export async function POST(request: Request) {
   }
 
   // Montant en euros décimaux (l'API SumUp n'utilise pas les centimes).
-  const amount =
+  const linesTotal =
     Math.round(
       (lines as OrderLine[]).reduce(
         (sum, line) => sum + line.unit_price * line.quantity,
         0
       ) * 100
     ) / 100;
+  // Pourboire choisi par le client, borné au total de la commande. Encaissé
+  // avec le checkout ; confirmOrderPaid le reconstitue au paiement effectif.
+  const tip =
+    typeof tipAmount === "number" && Number.isFinite(tipAmount) && tipAmount > 0
+      ? Math.min(Math.round(tipAmount * 100) / 100, linesTotal)
+      : 0;
+  const amount = Math.round((linesTotal + tip) * 100) / 100;
 
   const requestUrl = new URL(request.url);
   const host = request.headers.get("x-forwarded-host") ?? requestUrl.host;

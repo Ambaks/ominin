@@ -113,6 +113,7 @@ export interface SumUpCheckout {
   id: string;
   status: "PENDING" | "PAID" | "FAILED";
   checkout_reference?: string;
+  amount?: number;
 }
 
 export function createCheckout(
@@ -240,8 +241,10 @@ export async function requireGerant() {
 /**
  * Marque une commande payée en ligne après vérification AUPRÈS DE l'API SumUp
  * (le payload d'un webhook SumUp n'est pas signé, donc jamais cru sur parole).
- * Idempotente : re-marquer une commande déjà payée est sans effet. Seule
- * écriture : les drapeaux de statut existants — aucun montant (NF525).
+ * Idempotente : re-marquer une commande déjà payée est sans effet. Écritures :
+ * les drapeaux de statut, plus le pourboire — reconstitué comme l'écart entre
+ * le montant encaissé (relu chez SumUp) et le total des lignes, car c'est un
+ * fait nouveau choisi par le client, pas un montant dérivable (NF525).
  */
 export async function confirmOrderPaid(
   admin: ReturnType<typeof createAdminClient>,
@@ -271,9 +274,25 @@ export async function confirmOrderPaid(
   if (checkout.status !== "PAID" || checkout.checkout_reference !== order.id) {
     return false;
   }
+  let tip = 0;
+  if (typeof checkout.amount === "number") {
+    const { data: lines } = await admin
+      .from("order_items")
+      .select("quantity, unit_price")
+      .eq("order_id", order.id);
+    const linesTotal = (lines ?? []).reduce(
+      (sum, line) => sum + Number(line.unit_price) * line.quantity,
+      0
+    );
+    tip = Math.round((checkout.amount - linesTotal) * 100) / 100;
+  }
   const { error } = await admin
     .from("orders")
-    .update({ paid_online: true, payment_mode: "carte" })
+    .update({
+      paid_online: true,
+      payment_mode: "carte",
+      ...(tip > 0 ? { tip_amount: tip } : {}),
+    })
     .eq("id", order.id);
   if (error) throw new Error(error.message);
   return true;

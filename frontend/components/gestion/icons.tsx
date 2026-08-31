@@ -173,6 +173,17 @@ export function LogoutIcon(props: IconProps) {
   );
 }
 
+export function PaymentsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M2 7.5h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-11z" />
+      <path d="M22 7.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v1.5" />
+      <circle cx="12" cy="14" r="2.5" />
+      <path d="M6 14h.01M18 14h.01" />
+    </Svg>
+  );
+}
+
 export function BellIcon(props: IconProps) {
   return (
     <Svg {...props}>

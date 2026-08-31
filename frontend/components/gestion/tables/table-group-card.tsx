@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { memberName } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import type { Table, TableGroup } from "@/lib/gestion/types";
 
 export function TableGroupCard({
@@ -12,15 +14,20 @@ export function TableGroupCard({
   memberTables,
   freeTables,
   hasActiveOrders,
+  hasServieOrders,
   canManage,
+  onEncaisser,
 }: {
   group: TableGroup;
   title: string;
   memberTables: Table[];
   freeTables: Table[];
   hasActiveOrders: boolean;
+  hasServieOrders: boolean;
   canManage: boolean;
+  onEncaisser?: () => void;
 }) {
+  const state = useGestion();
   const toast = useToast();
   const [expanded, setExpanded] = useState(false);
   const [dissolving, setDissolving] = useState(false);
@@ -29,6 +36,23 @@ export function TableGroupCard({
     toast.error(
       error instanceof Error ? error.message : "Une erreur est survenue."
     );
+
+  // Un groupe est une seule tablée : un seul serveur pour toutes ses tables.
+  const groupServerId =
+    memberTables.find((table) => table.serverId)?.serverId ?? null;
+  const groupServerName = state ? memberName(state, groupServerId) : null;
+  const servers = state
+    ? state.members.filter((member) => member.role === "serveur")
+    : [];
+
+  const assignGroup = async (serverId: string | null) => {
+    try {
+      await api.assignServerToGroup(group.id, serverId);
+      toast.success(serverId ? "Groupe affecté." : "Groupe libéré.");
+    } catch (error) {
+      showError(error);
+    }
+  };
 
   const remove = async (tableId: string) => {
     if (group.tableIds.length <= 2) {
@@ -59,11 +83,18 @@ export function TableGroupCard({
         onClick={() => setExpanded((value) => !value)}
         className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left"
       >
-        <div className="flex items-baseline gap-2.5">
-          <span className="ember-text text-[10px] font-bold uppercase tracking-wider">
-            Groupe
-          </span>
-          <span className="font-display text-base font-medium">{title}</span>
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2.5">
+            <span className="ember-text text-[10px] font-bold uppercase tracking-wider">
+              Groupe
+            </span>
+            <span className="font-display text-base font-medium">{title}</span>
+          </div>
+          {groupServerName && (
+            <p className="mt-0.5 truncate text-xs text-muted">
+              Serveur : {groupServerName}
+            </p>
+          )}
         </div>
         <svg
           viewBox="0 0 24 24"
@@ -104,6 +135,46 @@ export function TableGroupCard({
             ))}
           </div>
 
+          {canManage && state && (
+            <div className="flex flex-wrap items-center gap-3">
+              {state.role === "serveur" ? (
+                groupServerId === state.userId ? (
+                  <button
+                    type="button"
+                    onClick={() => void assignGroup(null)}
+                    className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground"
+                  >
+                    Me retirer du groupe
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void assignGroup(state.userId)}
+                    className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  >
+                    {groupServerId ? "Reprendre le groupe" : "M'affecter au groupe"}
+                  </button>
+                )
+              ) : (
+                <select
+                  value={groupServerId ?? ""}
+                  onChange={(event) =>
+                    void assignGroup(event.target.value || null)
+                  }
+                  aria-label="Serveur du groupe"
+                  className="appearance-none rounded-full border border-hairline bg-surface px-3 py-1.5 text-xs font-medium text-muted outline-none transition-colors hover:text-foreground focus:border-ember-2/50"
+                >
+                  <option value="">Aucun serveur</option>
+                  {servers.map((server) => (
+                    <option key={server.userId} value={server.userId}>
+                      {server.displayName ?? server.email}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
+
           {canManage && (
             <div className="flex flex-wrap items-center gap-4">
               {freeTables.length > 0 && (
@@ -131,6 +202,18 @@ export function TableGroupCard({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {hasServieOrders && onEncaisser && (
+        <div className="flex justify-end border-t border-hairline px-5 py-3">
+          <button
+            type="button"
+            onClick={onEncaisser}
+            className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+          >
+            Encaisser le groupe
+          </button>
         </div>
       )}
 

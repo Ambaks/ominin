@@ -17,8 +17,9 @@ interface OrderLine {
 }
 
 export async function POST(request: Request) {
-  const { orderId } = (await request.json().catch(() => ({}))) as {
+  const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
     orderId?: string;
+    tipAmount?: unknown;
   };
   if (!orderId) {
     return NextResponse.json({ error: "Commande manquante." }, { status: 400 });
@@ -84,21 +85,49 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Commande vide." }, { status: 409 });
   }
 
+  // Pourboire choisi par le client — la seule part du montant qui vienne de
+  // lui. Borné au total de la commande : au-delà, c'est une erreur de saisie
+  // ou un abus.
+  const orderTotal = (lines as OrderLine[]).reduce(
+    (sum, line) => sum + line.unit_price * line.quantity,
+    0
+  );
+  const tip =
+    typeof tipAmount === "number" && Number.isFinite(tipAmount) && tipAmount > 0
+      ? Math.min(Math.round(tipAmount * 100) / 100, orderTotal)
+      : 0;
+
   const origin = new URL(request.url).origin;
   const menuUrl = `${origin}/m/${etabRow.slug}?table=${table?.number ?? ""}`;
   const stripe = getStripe();
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
-      line_items: (lines as OrderLine[]).map((line) => ({
-        quantity: line.quantity,
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(line.unit_price * 100),
-          product_data: { name: line.name },
-        },
-      })),
-      metadata: { order_id: orderId },
+      line_items: [
+        ...(lines as OrderLine[]).map((line) => ({
+          quantity: line.quantity,
+          price_data: {
+            currency: "eur",
+            unit_amount: Math.round(line.unit_price * 100),
+            product_data: { name: line.name },
+          },
+        })),
+        ...(tip
+          ? [
+              {
+                quantity: 1,
+                price_data: {
+                  currency: "eur",
+                  unit_amount: Math.round(tip * 100),
+                  product_data: { name: "Pourboire" },
+                },
+              },
+            ]
+          : []),
+      ],
+      metadata: tip
+        ? { order_id: orderId, tip_amount: tip.toFixed(2) }
+        : { order_id: orderId },
       locale: "fr",
       success_url: `${menuUrl}&paiement=succes`,
       cancel_url: `${menuUrl}&paiement=annule`,

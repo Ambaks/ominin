@@ -40,15 +40,17 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.order_id;
     if (orderId && session.mode === "payment") {
+      // Pourboire posé en métadonnée par /api/stripe/pay, encaissé avec la
+      // session : on ne l'enregistre qu'au paiement effectif.
+      const tip = Number(session.metadata?.tip_amount);
       const admin = createAdminClient();
-      // paid_online arrive avec la migration 20260709000002 (types à régénérer).
-      const { error } = await (
-        admin as unknown as {
-          from: (t: string) => ReturnType<typeof admin.from>;
-        }
-      )
+      const { error } = await admin
         .from("orders")
-        .update({ paid_online: true, payment_mode: "carte" })
+        .update({
+          paid_online: true,
+          payment_mode: "carte",
+          ...(Number.isFinite(tip) && tip > 0 ? { tip_amount: tip } : {}),
+        })
         .eq("id", orderId);
       if (error) throw new Error(error.message);
     }

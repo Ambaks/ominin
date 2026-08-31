@@ -34,6 +34,11 @@ export function isHistoryStatus(status: Order["status"]): boolean {
   return status === "payee" || status === "annulee" || status === "retiree";
 }
 
+/** Encaissée : payée sur place, ou retirée (collect, payée en ligne). */
+export function isPaidStatus(status: Order["status"]): boolean {
+  return status === "payee" || status === "retiree";
+}
+
 /** Commandes à traiter : en attente, en préparation ou prêtes. */
 export function inProgressOrders(state: GestionState): Order[] {
   return state.orders.filter(
@@ -190,6 +195,51 @@ export function freeTables(state: GestionState): Table[] {
 
 export function tableNumber(state: GestionState, tableId: string): number {
   return state.tables.find((table) => table.id === tableId)?.number ?? 0;
+}
+
+/** Nom d'affichage d'un membre (nom saisi, sinon email), ou null si inconnu. */
+export function memberName(
+  state: GestionState,
+  userId: string | null | undefined
+): string | null {
+  if (!userId) return null;
+  const member = state.members.find((m) => m.userId === userId);
+  return member ? (member.displayName ?? member.email) : null;
+}
+
+/** Pourboires de la période, agrégés par serveur (les plus gros d'abord). */
+export function tipsByServer(
+  state: GestionState,
+  days: number
+): { name: string; total: number }[] {
+  const from = dayStart(days - 1).getTime();
+  const totals = new Map<string, number>();
+  for (const order of state.orders) {
+    if (!order.tipAmount || order.status === "annulee") continue;
+    if (new Date(order.createdAt).getTime() < from) continue;
+    const key = order.serverId ?? "";
+    totals.set(key, (totals.get(key) ?? 0) + order.tipAmount);
+  }
+  return [...totals.entries()]
+    .map(([serverId, total]) => ({
+      name: memberName(state, serverId) ?? "Non attribué",
+      total,
+    }))
+    .sort((a, b) => b.total - a.total);
+}
+
+/** Pourboires du jour attribués au membre connecté. */
+export function myTipsToday(state: GestionState): number {
+  const today = new Date().toDateString();
+  return state.orders
+    .filter(
+      (order) =>
+        order.serverId === state.userId &&
+        order.tipAmount &&
+        order.status !== "annulee" &&
+        new Date(order.createdAt).toDateString() === today
+    )
+    .reduce((sum, order) => sum + (order.tipAmount ?? 0), 0);
 }
 
 export function groupTableNumbers(

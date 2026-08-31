@@ -11,10 +11,13 @@ import { createClient } from "@/lib/supabase/client";
 export function InvitationForm({
   restaurantName,
   role,
+  etablissementId,
 }: {
   restaurantName: string;
   role: Role;
+  etablissementId: string;
 }) {
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +37,20 @@ export function InvitationForm({
       const supabase = createClient();
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
+      const name = displayName.trim();
+      if (name) {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          // Policy « self update » : chacun renseigne son propre nom.
+          await supabase
+            .from("memberships")
+            .update({ display_name: name })
+            .eq("user_id", user.id)
+            .eq("etablissement_id", etablissementId);
+        }
+      }
       window.location.assign("/menu/gestion");
     } catch (cause) {
       setError(
@@ -72,6 +89,25 @@ export function InvitationForm({
         </p>
 
         <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-4">
+          <Field
+            label="Votre nom"
+            required={role === "serveur"}
+            hint={
+              role === "serveur"
+                ? "Affiché sur vos tables et vos pourboires — modifiable ensuite depuis votre espace."
+                : "Affiché à l'équipe — modifiable ensuite depuis votre espace."
+            }
+          >
+            <input
+              type="text"
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              required={role === "serveur"}
+              maxLength={80}
+              autoComplete="name"
+              className={inputClass}
+            />
+          </Field>
           <Field label="Mot de passe" required>
             <input
               type="password"

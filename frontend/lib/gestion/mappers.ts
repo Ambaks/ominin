@@ -4,6 +4,7 @@ import type {
   Etablissement,
   Etape,
   Formule,
+  Member,
   Order,
   Table,
   TableGroup,
@@ -91,7 +92,16 @@ export function rowToFormule(row: Tables<"formules">): Formule {
 }
 
 export function rowToTable(row: Tables<"tables">): Table {
-  return { id: row.id, number: row.number };
+  return { id: row.id, number: row.number, serverId: row.server_id };
+}
+
+export function rowToMember(row: Tables<"memberships">): Member {
+  return {
+    userId: row.user_id,
+    email: row.email,
+    role: row.role,
+    displayName: row.display_name,
+  };
 }
 
 /** Reconstruit TableGroup.tableIds depuis la colonne tables.group_id. */
@@ -128,6 +138,8 @@ export function rowToOrder(row: OrderRow): Order {
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
+    serverId: row.server_id,
+    tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {

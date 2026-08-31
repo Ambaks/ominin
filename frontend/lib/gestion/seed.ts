@@ -194,7 +194,9 @@ export function seed(): GestionState {
     },
     subscriptionStatus: "active",
     collectSubscriptionStatus: null,
+    userId: "demo-user",
     role: "gerant",
+    members: [],
     categories,
     formules: [
       {
@@ -232,6 +234,7 @@ export function seed(): GestionState {
     tables: Array.from({ length: SEED_TABLE_COUNT }, (_, index) => ({
       id: `table-${index + 1}`,
       number: index + 1,
+      serverId: null,
     })),
     groups: [
       { id: groupeId, tableIds: ["table-4", "table-6"], createdAt: minutesAgo(11) },

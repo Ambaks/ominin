@@ -13,6 +13,7 @@ import {
   periodStats,
   revenueByDay,
   revenueToday,
+  tipsByServer,
   topVentes,
   topVentesToday,
   unavailableItems,
@@ -191,6 +192,7 @@ export default function ApercuPage() {
   const byDay = hasCommandes ? revenueByDay(state, period) : [];
   const ventesTop = hasCommandes ? topVentes(state, period) : [];
   const hours = hasCommandes ? ordersByHour(state, period) : [];
+  const tips = hasCommandes ? tipsByServer(state, period) : [];
   const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
 
   return (
@@ -345,6 +347,31 @@ export default function ApercuPage() {
                   <HoursChart buckets={hours} />
                 </ChartSection>
               </div>
+
+              {tips.length > 0 && (
+                <section className="flex flex-col gap-3">
+                  <h2 className="font-display text-lg font-medium">
+                    Pourboires par serveur
+                  </h2>
+                  <div className="rounded-2xl border border-hairline bg-surface">
+                    {tips.map((entry, index) => (
+                      <div
+                        key={entry.name}
+                        className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
+                          index > 0 ? "border-t border-hairline" : ""
+                        }`}
+                      >
+                        <p className="truncate text-sm font-medium">
+                          {entry.name}
+                        </p>
+                        <span className="shrink-0 font-display text-ember-1">
+                          {formatPrice(entry.total)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               <details className="rounded-2xl border border-hairline bg-surface">
                 <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-muted">

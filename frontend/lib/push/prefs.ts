@@ -27,7 +27,7 @@ export async function loadPrefs(
   const user = await requireUser(supabase);
   const { data, error } = await supabase
     .from("notification_prefs")
-    .select("nouvelle_commande, commande_prete, commande_annulee")
+    .select("nouvelle_commande, commande_prete, commande_annulee, appel_serveur")
     .eq("user_id", user.id)
     .eq("etablissement_id", etablissementId)
     .maybeSingle();

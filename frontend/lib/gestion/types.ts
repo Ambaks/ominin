@@ -89,11 +89,22 @@ export interface Order {
   estimatedReadyAt?: string;
   cashGiven?: number;
   cashChange?: number;
+  /** Serveur de la table figé à la création (attribution des pourboires). */
+  serverId?: string | null;
+  tipAmount?: number;
 }
 
 export interface Table {
   id: string;
   number: number;
+  serverId: string | null;
+}
+
+export interface Member {
+  userId: string;
+  email: string;
+  role: Role;
+  displayName: string | null;
 }
 
 export interface TableGroup {
@@ -133,7 +144,9 @@ export interface GestionState {
   subscriptionStatus: string | null;
   /** Statut Stripe de l'abonnement click & collect. */
   collectSubscriptionStatus: string | null;
+  userId: string;
   role: Role;
+  members: Member[];
   categories: MenuCategory[];
   formules: Formule[];
   tables: Table[];

@@ -236,10 +236,10 @@ export function OrderCard({
         <PaymentDialog
           total={orderTotal(order)}
           onClose={() => setPaying(false)}
-          onSelect={async (mode, cashDetails) => {
+          onSelect={async (mode, cashDetails, tip) => {
             setPaying(false);
             try {
-              await api.markOrderPaid(order.id, mode, cashDetails);
+              await api.markOrderPaid(order.id, mode, cashDetails, tip);
               toast.success("Commande encaissée.");
             } catch (error) {
               toast.error(

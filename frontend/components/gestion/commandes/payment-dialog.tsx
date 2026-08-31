@@ -36,16 +36,25 @@ export function PaymentDialog({
   onClose,
 }: {
   total: number;
-  onSelect: (mode: PaymentMode, cashDetails?: CashDetails) => void;
+  onSelect: (mode: PaymentMode, cashDetails?: CashDetails, tip?: number) => void;
   onClose: () => void;
 }) {
   const [step, setStep] = useState<"mode" | "cash">("mode");
   const [givenRaw, setGivenRaw] = useState("");
+  const [tipRaw, setTipRaw] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const parsedTip = parseFloat(tipRaw.replace(",", "."));
+  const tip =
+    !Number.isNaN(parsedTip) && parsedTip > 0
+      ? Math.round(parsedTip * 100) / 100
+      : 0;
+  // Le pourboire s'ajoute à l'addition : le client le règle avec elle.
+  const due = Math.round((total + tip) * 100) / 100;
+
   const given = parseFloat(givenRaw.replace(",", "."));
-  const validGiven = !Number.isNaN(given) && given >= total;
-  const change = validGiven ? Math.round((given - total) * 100) / 100 : 0;
+  const validGiven = !Number.isNaN(given) && given >= due;
+  const change = validGiven ? Math.round((given - due) * 100) / 100 : 0;
 
   if (step === "cash") {
     return (
@@ -65,7 +74,11 @@ export function PaymentDialog({
               type="button"
               disabled={!givenRaw || !validGiven}
               onClick={() =>
-                onSelect("especes", { cashGiven: given, cashChange: change })
+                onSelect(
+                  "especes",
+                  { cashGiven: given, cashChange: change },
+                  tip || undefined
+                )
               }
               className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-40"
             >
@@ -76,9 +89,11 @@ export function PaymentDialog({
       >
         <div className="flex flex-col gap-5">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm text-muted">Total à régler</span>
+            <span className="text-sm text-muted">
+              Total à régler{tip > 0 && " (pourboire inclus)"}
+            </span>
             <span className="font-display text-2xl text-ember-1">
-              {formatPrice(total)}
+              {formatPrice(due)}
             </span>
           </div>
 
@@ -94,18 +109,19 @@ export function PaymentDialog({
                 onChange={(e) => setGivenRaw(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && givenRaw && validGiven) {
-                    onSelect("especes", {
-                      cashGiven: given,
-                      cashChange: change,
-                    });
+                    onSelect(
+                      "especes",
+                      { cashGiven: given, cashChange: change },
+                      tip || undefined
+                    );
                   }
                 }}
-                placeholder={total.toFixed(2).replace(".", ",")}
+                placeholder={due.toFixed(2).replace(".", ",")}
                 className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
               />
               <span className="text-sm text-muted">€</span>
             </div>
-            {givenRaw && !Number.isNaN(given) && given < total && (
+            {givenRaw && !Number.isNaN(given) && given < due && (
               <span className="text-xs text-ember-3">
                 Le montant doit être supérieur ou égal au total.
               </span>
@@ -134,7 +150,7 @@ export function PaymentDialog({
             type="button"
             onClick={() => {
               if (mode === "especes") setStep("cash");
-              else onSelect(mode);
+              else onSelect(mode, undefined, tip || undefined);
             }}
             className="flex flex-col items-center gap-2 rounded-2xl border border-hairline bg-surface px-4 py-5 text-sm font-semibold transition-colors hover:border-ember-2/40"
           >
@@ -145,6 +161,21 @@ export function PaymentDialog({
           </button>
         ))}
       </div>
+      <label className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3">
+        <span className="text-sm text-muted">Pourboire (optionnel)</span>
+        <div className="flex items-center gap-1.5">
+          <input
+            type="text"
+            inputMode="decimal"
+            value={tipRaw}
+            onChange={(e) => setTipRaw(e.target.value)}
+            placeholder="0"
+            aria-label="Pourboire en euros"
+            className="w-20 bg-transparent text-right text-sm tabular-nums outline-none placeholder:text-faint"
+          />
+          <span className="text-sm text-muted">€</span>
+        </div>
+      </label>
     </Modal>
   );
 }

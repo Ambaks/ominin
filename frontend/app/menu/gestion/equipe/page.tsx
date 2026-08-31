@@ -216,8 +216,16 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
               className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface px-4 py-3"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{member.email}</p>
-                {isSelf && <p className="text-xs text-faint">Vous</p>}
+                <p className="truncate text-sm font-medium">
+                  {member.display_name ?? member.email}
+                </p>
+                {(member.display_name || isSelf) && (
+                  <p className="truncate text-xs text-faint">
+                    {[member.display_name ? member.email : null, isSelf ? "Vous" : null]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
               </div>
               {isSelf ? (
                 <span className="shrink-0 text-sm text-muted">

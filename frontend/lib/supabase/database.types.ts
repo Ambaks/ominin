@@ -57,6 +57,29 @@ export type Database = {
         }
         Relationships: []
       }
+      call_throttle: {
+        Row: {
+          called_at: string
+          table_id: string
+        }
+        Insert: {
+          called_at?: string
+          table_id: string
+        }
+        Update: {
+          called_at?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_throttle_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: true
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -834,6 +857,7 @@ export type Database = {
       memberships: {
         Row: {
           created_at: string
+          display_name: string | null
           email: string
           etablissement_id: string
           role: Database["public"]["Enums"]["member_role"]
@@ -841,6 +865,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
           email: string
           etablissement_id: string
           role: Database["public"]["Enums"]["member_role"]
@@ -848,6 +873,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          display_name?: string | null
           email?: string
           etablissement_id?: string
           role?: Database["public"]["Enums"]["member_role"]
@@ -865,6 +891,7 @@ export type Database = {
       }
       notification_prefs: {
         Row: {
+          appel_serveur: boolean
           commande_annulee: boolean
           commande_prete: boolean
           etablissement_id: string
@@ -873,6 +900,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          appel_serveur?: boolean
           commande_annulee: boolean
           commande_prete: boolean
           etablissement_id: string
@@ -881,6 +909,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          appel_serveur?: boolean
           commande_annulee?: boolean
           commande_prete?: boolean
           etablissement_id?: string
@@ -960,10 +989,12 @@ export type Database = {
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
+          server_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_session_id: string | null
           sumup_checkout_id: string | null
           table_id: string | null
+          tip_amount: number | null
           type: Database["public"]["Enums"]["order_type"]
         }
         Insert: {
@@ -979,10 +1010,12 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          server_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
           table_id?: string | null
+          tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
         }
         Update: {
@@ -998,10 +1031,12 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          server_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
           table_id?: string | null
+          tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
         }
         Relationships: [
@@ -1429,18 +1464,21 @@ export type Database = {
           group_id: string | null
           id: string
           number: number
+          server_id: string | null
         }
         Insert: {
           etablissement_id: string
           group_id?: string | null
           id?: string
           number: number
+          server_id?: string | null
         }
         Update: {
           etablissement_id?: string
           group_id?: string | null
           id?: string
           number?: number
+          server_id?: string | null
         }
         Relationships: [
           {

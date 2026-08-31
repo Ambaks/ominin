@@ -22,6 +22,9 @@ export const HISTORY_PAGE_SIZE = 50;
 /** Statuts d'historique : commandes clôturées. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 
+/** Statuts encaissés : payée sur place, ou retirée (collect, payée en ligne). */
+export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "retiree"];
+
 /** Horloge de service des vues employés : cadence d'affichage (seconde). */
 export const SERVICE_CLOCK_TICK_MS = 1000;
 /** Temps d'attente affichés (en minutes) : cadence de recalcul. */
@@ -165,10 +168,9 @@ export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
   cuisinier: [
     "orders.setStatus:en_preparation",
     "orders.setStatus:prete",
-    "orders.setStatus:servie",
     "orders.setStatus:retiree",
     "orders.setStatus:annulee",
     "menu.availability",
   ],
-  serveur: ["orders.setStatus:servie", "orders.setStatus:retiree", "tables.group"],
+  serveur: ["orders.setStatus:servie", "orders.setStatus:payee", "orders.setStatus:retiree", "tables.group"],
 };

@@ -29,6 +29,7 @@ export default async function InvitationPage() {
     <InvitationForm
       restaurantName={etablissement?.name ?? "votre restaurant"}
       role={membership.role}
+      etablissementId={membership.etablissement_id}
     />
   );
 }

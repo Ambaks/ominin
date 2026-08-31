@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
-import { rowToFormule, rowToMenuItem, toJson } from "./mappers";
+import { rowToFormule, rowToMenuItem, rowToOrder, toJson } from "./mappers";
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
   Etablissement,
@@ -421,6 +421,49 @@ export async function removeTableFromGroup(
   });
 }
 
+/**
+ * Affecte un serveur à une table (null pour libérer). Le trigger
+ * enforce_table_update_rights garantit qu'un serveur ne peut affecter que
+ * lui-même ; le gérant affecte qui il veut.
+ */
+export async function assignServer(
+  tableId: string,
+  serverId: string | null
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("tables")
+      .update({ server_id: serverId })
+      .eq("id", tableId)
+  );
+  apply((draft) => {
+    const table = draft.tables.find((t) => t.id === tableId);
+    if (table) table.serverId = serverId;
+  });
+}
+
+/** Affecte un serveur à toutes les tables d'un groupe (une seule tablée). */
+export async function assignServerToGroup(
+  groupId: string,
+  serverId: string | null
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("tables")
+      .update({ server_id: serverId })
+      .eq("group_id", groupId)
+  );
+  apply((draft) => {
+    const group = draft.groups.find((g) => g.id === groupId);
+    if (!group) return;
+    for (const table of draft.tables) {
+      if (group.tableIds.includes(table.id)) table.serverId = serverId;
+    }
+  });
+}
+
 export async function dissolveGroup(groupId: string): Promise<void> {
   findGroup(getState(), groupId);
   const supabase = createClient();
@@ -509,7 +552,8 @@ export async function updateOrderStatus(
 export async function markOrderPaid(
   orderId: string,
   mode: PaymentMode,
-  cashDetails?: { cashGiven: number; cashChange: number }
+  cashDetails?: { cashGiven: number; cashChange: number },
+  tip?: number
 ): Promise<Order> {
   assertTransition(findOrder(getState(), orderId), "payee");
   const supabase = createClient();
@@ -521,6 +565,9 @@ export async function markOrderPaid(
         payment_mode: mode,
         cash_given: mode === "especes" && cashDetails ? cashDetails.cashGiven : null,
         cash_change: mode === "especes" && cashDetails ? cashDetails.cashChange : null,
+        // Absent ⇒ intact : un pourboire laissé au paiement en ligne (webhook)
+        // ne doit pas être écrasé à la clôture.
+        ...(tip ? { tip_amount: tip } : {}),
       })
       .eq("id", orderId)
   );
@@ -532,6 +579,67 @@ export async function markOrderPaid(
       order.cashGiven = cashDetails.cashGiven;
       order.cashChange = cashDetails.cashChange;
     }
+    if (tip) order.tipAmount = tip;
+    return order;
+  });
+}
+
+/*
+ * Corrections d'encaissement (gérant, page Paiements). Les commandes visées
+ * peuvent venir de l'historique paginé, absent du snapshot local : la cible
+ * est vérifiée côté SQL (.eq payment_mode) et le snapshot n'est retouché que
+ * si la commande s'y trouve. La commande à jour est retournée pour que la
+ * page rafraîchisse sa propre liste.
+ */
+
+export async function updateCashDetails(
+  orderId: string,
+  cashGiven: number,
+  cashChange: number
+): Promise<Order> {
+  const supabase = createClient();
+  const row = must(
+    await supabase
+      .from("orders")
+      .update({ cash_given: cashGiven, cash_change: cashChange })
+      .eq("id", orderId)
+      .eq("payment_mode", "especes")
+      .select("*, order_items(*)")
+      .single()
+  );
+  const order = rowToOrder(row);
+  return apply((draft) => {
+    const index = draft.orders.findIndex((o) => o.id === orderId);
+    if (index !== -1) draft.orders[index] = order;
+    return order;
+  });
+}
+
+/**
+ * Annule un encaissement en espèces : la commande passe annulée et le
+ * paiement est effacé (transition payee → annulee ouverte au seul gérant,
+ * espèces uniquement — migration 20260831000001).
+ */
+export async function voidCashPayment(orderId: string): Promise<Order> {
+  const supabase = createClient();
+  const row = must(
+    await supabase
+      .from("orders")
+      .update({
+        status: "annulee",
+        payment_mode: null,
+        cash_given: null,
+        cash_change: null,
+      })
+      .eq("id", orderId)
+      .eq("payment_mode", "especes")
+      .select("*, order_items(*)")
+      .single()
+  );
+  const order = rowToOrder(row);
+  return apply((draft) => {
+    const index = draft.orders.findIndex((o) => o.id === orderId);
+    if (index !== -1) draft.orders[index] = order;
     return order;
   });
 }
@@ -562,7 +670,8 @@ export async function markGroupServed(groupeId: string): Promise<void> {
 export async function markGroupPaid(
   groupeId: string,
   mode: PaymentMode,
-  cashDetails?: { cashGiven: number; cashChange: number }
+  cashDetails?: { cashGiven: number; cashChange: number },
+  tip?: number
 ): Promise<void> {
   const eligible = groupEligibleOrders(groupeId, "payee");
   if (!eligible.length) return;
@@ -572,6 +681,9 @@ export async function markGroupPaid(
   const toChargeIds = eligible
     .filter((order) => !order.paidOnline)
     .map((order) => order.id);
+  // Un seul pourboire pour l'addition du groupe : porté par la première
+  // commande encaissée (l'attribution passe par son server_id).
+  const tipOrderId = tip ? (toChargeIds[0] ?? paidOnlineIds[0]) : undefined;
   const supabase = createClient();
   const cashGiven = mode === "especes" && cashDetails ? cashDetails.cashGiven : null;
   const cashChange = mode === "especes" && cashDetails ? cashDetails.cashChange : null;
@@ -587,6 +699,14 @@ export async function markGroupPaid(
       : null,
   ]);
   for (const result of results) if (result) check(result);
+  if (tip && tipOrderId) {
+    check(
+      await supabase
+        .from("orders")
+        .update({ tip_amount: tip })
+        .eq("id", tipOrderId)
+    );
+  }
   apply((draft) => {
     for (const order of draft.orders) {
       if (toChargeIds.includes(order.id)) {
@@ -599,7 +719,30 @@ export async function markGroupPaid(
       } else if (paidOnlineIds.includes(order.id)) {
         order.status = "payee";
       }
+      if (order.id === tipOrderId) order.tipAmount = tip;
     }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Équipe
+
+/** Nom d'affichage du membre connecté (policy « self update » : sa ligne seule). */
+export async function updateDisplayName(name: string): Promise<void> {
+  const state = getState();
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Le nom ne peut pas être vide.");
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("memberships")
+      .update({ display_name: trimmed })
+      .eq("user_id", state.userId)
+      .eq("etablissement_id", state.etablissement.id)
+  );
+  apply((draft) => {
+    const member = draft.members.find((m) => m.userId === draft.userId);
+    if (member) member.displayName = trimmed;
   });
 }
 
