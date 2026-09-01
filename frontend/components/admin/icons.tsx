@@ -210,3 +210,15 @@ export function RouteIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function BotIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="9" width="16" height="11" rx="2.5" />
+      <circle cx="9" cy="14.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="14.5" r="1.5" fill="currentColor" stroke="none" />
+      <path d="M12 4v5M9 4h6" />
+      <path d="M1.5 13.5v3M22.5 13.5v3" />
+    </Svg>
+  );
+}

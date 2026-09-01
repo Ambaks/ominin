@@ -9,8 +9,12 @@ import type {
   OutreachEmail,
   OutreachProspect,
   OutreachRun,
+  OutreachVariant,
+  ResearchRun,
   Restaurant,
   TaskRow,
+  VariantPerformance,
+  VariantStatus,
 } from "./types";
 
 /*
@@ -184,7 +188,7 @@ export function rowToOutreachEmail(
 }
 
 export function rowToOutreachProspect(
-  row: Tables<"outreach_prospects">
+  row: Omit<Tables<"outreach_prospects">, "site_excerpt">
 ): OutreachProspect {
   return {
     restaurantId: row.restaurant_id,
@@ -193,6 +197,7 @@ export function rowToOutreachProspect(
     hasDigitalMenu: row.has_digital_menu,
     emailSource: row.email_source,
     aiNotes: row.ai_notes,
+    priorityScore: row.priority_score,
     enrichedAt: row.enriched_at,
   };
 }
@@ -206,6 +211,53 @@ export function rowToOutreachRun(row: Tables<"outreach_runs">): OutreachRun {
     error: row.error,
     startedAt: row.started_at,
     finishedAt: row.finished_at,
+  };
+}
+
+export function rowToOutreachVariant(
+  row: Tables<"outreach_variants">
+): OutreachVariant {
+  return {
+    id: row.id,
+    name: row.name,
+    hypothesis: row.hypothesis,
+    promptRules: row.prompt_rules,
+    status: row.status as VariantStatus,
+    parentVariantId: row.parent_variant_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/** Un run autoresearch abouti ; null si son JSON de stats n'a pas de
+ * findings (run sauté faute d'e-mails, ou ancien format). */
+export function rowToResearchRun(
+  row: Tables<"outreach_runs">
+): ResearchRun | null {
+  const stats = row.stats as unknown as {
+    analyzed?: unknown;
+    findings?: Record<string, unknown>;
+    variant_performance?: unknown;
+  } | null;
+  const findings = stats?.findings;
+  if (!findings) return null;
+  const strings = (value: unknown): string[] =>
+    Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === "string")
+      : [];
+  return {
+    id: row.id,
+    startedAt: row.started_at,
+    analyzed: typeof stats.analyzed === "number" ? stats.analyzed : 0,
+    findings: {
+      responsePatterns: strings(findings.response_patterns),
+      emailQualityInsights: strings(findings.email_quality_insights),
+      inputDataPatterns: strings(findings.input_data_patterns),
+      promptRecommendations: strings(findings.prompt_recommendations),
+    },
+    variantPerformance: Array.isArray(stats.variant_performance)
+      ? (stats.variant_performance as VariantPerformance[])
+      : [],
   };
 }
 

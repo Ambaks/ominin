@@ -9,6 +9,7 @@ import type {
   ProspectQualification,
   RestaurantCategory,
   TaskStatus,
+  VariantStatus,
 } from "./types";
 
 /*
@@ -199,6 +200,21 @@ export const OUTREACH_JOB_LABELS: Record<string, string> = {
   enrich: "Qualification",
   outreach: "Prospection",
   inbox: "Boîte de réception",
+  autoresearch: "AutoResearch",
+};
+
+/** Réponses qui valent un suivi humain (miroir de services/inbox.py). */
+export const POSITIVE_CLASSIFICATIONS: readonly OutreachClassification[] = [
+  "interested",
+  "meeting_request",
+  "question",
+];
+
+export const VARIANT_STATUS_LABELS: Record<VariantStatus, string> = {
+  baseline: "Référence",
+  active: "Active",
+  candidate: "Candidate",
+  retired: "Retirée",
 };
 
 export const QUALIFICATION_LABELS: Record<ProspectQualification, string> = {
@@ -216,10 +232,11 @@ export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
   suppressed: "Désinscrit",
 };
 
-/** Fenêtre de chargement de la page E-mails (lignes les plus récentes). */
+/** Fenêtre de chargement de la page Agent Léa (lignes les plus récentes). */
 export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
 export const OUTREACH_RUNS_FETCH_LIMIT = 50;
 export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
+export const OUTREACH_VARIANTS_FETCH_LIMIT = 50;
 
 // ---------------------------------------------------------------------------
 // Carte

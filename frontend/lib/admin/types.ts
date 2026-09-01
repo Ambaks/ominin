@@ -219,5 +219,53 @@ export interface OutreachProspect {
   hasDigitalMenu: boolean | null;
   emailSource: string | null;
   aiNotes: string | null;
+  priorityScore: number | null;
   enrichedAt: string | null;
+}
+
+export type VariantStatus = "baseline" | "active" | "candidate" | "retired";
+
+export interface OutreachVariant {
+  id: string;
+  name: string;
+  hypothesis: string;
+  promptRules: string;
+  status: VariantStatus;
+  parentVariantId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Compteurs globaux de la campagne, indépendants de la fenêtre de chargement. */
+export interface OutreachStats {
+  /** E-mails à froid partis. */
+  sent: number;
+  /** Restaurants ayant répondu (hors rebonds). */
+  responded: number;
+  /** Restaurants dont la réponse est intéressée, RDV ou question. */
+  positive: number;
+}
+
+/** Taux de réponse d'un jeu de règles, mesuré par le run autoresearch. */
+export interface VariantPerformance {
+  /** null = règles par défaut codées dans le backend. */
+  id: string | null;
+  name: string;
+  status: VariantStatus;
+  sent: number;
+  responded: number;
+}
+
+/** Run autoresearch abouti (stats JSON de outreach_runs, voir services/autoresearch.py). */
+export interface ResearchRun {
+  id: string;
+  startedAt: string;
+  analyzed: number;
+  findings: {
+    responsePatterns: string[];
+    emailQualityInsights: string[];
+    inputDataPatterns: string[];
+    promptRecommendations: string[];
+  };
+  variantPerformance: VariantPerformance[];
 }

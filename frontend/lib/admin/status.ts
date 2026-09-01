@@ -2,6 +2,7 @@ import type {
   LeadStatus,
   OutreachClassification,
   ProspectQualification,
+  VariantStatus,
 } from "./types";
 
 /*
@@ -81,6 +82,15 @@ export const QUALIFICATION_BADGE_CLASSES: Record<
   contacted:
     "border-status-contacted/40 bg-status-contacted/10 text-status-contacted",
   disqualified:
+    "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
+};
+
+export const VARIANT_STATUS_BADGE_CLASSES: Record<VariantStatus, string> = {
+  baseline:
+    "border-status-contacted/40 bg-status-contacted/10 text-status-contacted",
+  active: "border-status-signed/40 bg-status-signed/10 text-status-signed",
+  candidate: "border-status-new/40 bg-status-new/10 text-status-new",
+  retired:
     "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
 };
 

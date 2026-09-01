@@ -6,6 +6,8 @@ import {
   OUTREACH_EMAILS_FETCH_LIMIT,
   OUTREACH_PROSPECTS_FETCH_LIMIT,
   OUTREACH_RUNS_FETCH_LIMIT,
+  OUTREACH_VARIANTS_FETCH_LIMIT,
+  POSITIVE_CLASSIFICATIONS,
 } from "./constants";
 import { addDays, dayStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
@@ -19,6 +21,8 @@ import {
   rowToOutreachEmail,
   rowToOutreachProspect,
   rowToOutreachRun,
+  rowToOutreachVariant,
+  rowToResearchRun,
   rowToRestaurant,
   rowToTask,
   toJson,
@@ -39,10 +43,14 @@ import type {
   OutreachEmail,
   OutreachProspect,
   OutreachRun,
+  OutreachStats,
+  OutreachVariant,
   Priority,
+  ResearchRun,
   Restaurant,
   RestaurantCategory,
   TaskRow,
+  VariantStatus,
 } from "./types";
 
 /*
@@ -766,9 +774,11 @@ async function fetchAllSlugs(): Promise<string[]> {
 // Prospection automatisée (agent « Léa »)
 //
 // Les lignes outreach ne vivent pas dans le snapshot du store : la page
-// E-mails charge à la demande, comme les tâches terminées. L'approbation
+// Agent Léa charge à la demande, comme les tâches terminées. L'approbation
 // d'un brouillon ne déclenche aucun appel backend : la ligne passe à
 // « approved » sous RLS et le prochain run horaire /agent/inbox l'envoie.
+// Même logique pour les variantes de prompt : le statut change sous RLS et
+// le prochain run /agent/outreach relit la rotation.
 
 export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
   const supabase = createClient();
@@ -787,7 +797,10 @@ export async function fetchOutreachProspects(): Promise<OutreachProspect[]> {
   const rows = must(
     await supabase
       .from("outreach_prospects")
-      .select("*")
+      // site_excerpt (texte du site scrapé) ne sert qu'à autoresearch.
+      .select(
+        "restaurant_id, qualification, disqualify_reason, has_digital_menu, email_source, ai_notes, priority_score, enriched_at, created_at, updated_at"
+      )
       .order("enriched_at", { ascending: false, nullsFirst: false })
       .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
   );
@@ -841,5 +854,102 @@ export async function rejectOutreachEmail(id: string): Promise<void> {
       .update({ status: "cancelled" })
       .eq("id", id)
       .eq("status", "pending_approval")
+  );
+}
+
+/** Compteurs de campagne sur toute la table, pas seulement la fenêtre
+ * OUTREACH_EMAILS_FETCH_LIMIT. Les réponses sont comptées par restaurant
+ * (un restaurateur peut écrire plusieurs fois) ; les rebonds n'en sont pas. */
+export async function fetchOutreachStats(): Promise<OutreachStats> {
+  const supabase = createClient();
+  const [sentResult, inboundResult] = await Promise.all([
+    supabase
+      .from("outreach_emails")
+      .select("id", { count: "exact", head: true })
+      .eq("direction", "outbound")
+      .eq("kind", "cold")
+      .eq("status", "sent"),
+    supabase
+      .from("outreach_emails")
+      .select("restaurant_id, classification")
+      .eq("direction", "inbound")
+      .eq("status", "received"),
+  ]);
+  check(sentResult);
+  const responded = new Set<string>();
+  const positive = new Set<string>();
+  for (const row of must(inboundResult)) {
+    if (row.classification === "bounce") continue;
+    responded.add(row.restaurant_id);
+    if (
+      row.classification &&
+      POSITIVE_CLASSIFICATIONS.includes(row.classification)
+    ) {
+      positive.add(row.restaurant_id);
+    }
+  }
+  return {
+    sent: sentResult.count ?? 0,
+    responded: responded.size,
+    positive: positive.size,
+  };
+}
+
+/** Dernier run autoresearch qui a réellement analysé (les runs sautés
+ * faute d'e-mails n'ont pas de findings). */
+export async function fetchLatestResearchRun(): Promise<ResearchRun | null> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase
+      .from("outreach_runs")
+      .select("*")
+      .eq("job", "autoresearch")
+      .eq("status", "succeeded")
+      .not("stats->findings", "is", null)
+      .order("started_at", { ascending: false })
+      .limit(1)
+  );
+  return rows[0] ? rowToResearchRun(rows[0]) : null;
+}
+
+export async function fetchOutreachVariants(): Promise<OutreachVariant[]> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase
+      .from("outreach_variants")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(OUTREACH_VARIANTS_FETCH_LIMIT)
+  );
+  return rows.map(rowToOutreachVariant);
+}
+
+export async function updateVariantStatus(
+  id: string,
+  status: VariantStatus
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.from("outreach_variants").update({ status }).eq("id", id)
+  );
+}
+
+/** Une seule référence à la fois : l'ancienne, s'il y en a une, est retirée
+ * (les règles codées en dur ne sont plus servies tant qu'une référence
+ * existe en base). */
+export async function promoteVariant(id: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("outreach_variants")
+      .update({ status: "retired" })
+      .eq("status", "baseline")
+      .neq("id", id)
+  );
+  check(
+    await supabase
+      .from("outreach_variants")
+      .update({ status: "baseline" })
+      .eq("id", id)
   );
 }

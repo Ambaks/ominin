@@ -14,9 +14,9 @@ import { selectTasksDueBadge } from "@/lib/admin/selectors";
 import { retryLoad, useAdmin, useAdminLoadError } from "@/lib/admin/store";
 import { createClient } from "@/lib/supabase/client";
 import {
+  BotIcon,
   CalendarIcon,
   ImportIcon,
-  MailIcon,
   MapPinIcon,
   PipelineIcon,
   StoreIcon,
@@ -37,7 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Aperçu", icon: ApercuIcon },
   { href: "/carte", label: "Carte", icon: MapPinIcon },
   { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
-  { href: "/emails", label: "E-mails", icon: MailIcon },
+  { href: "/lea", label: "Agent Léa", icon: BotIcon },
   { href: "/taches", label: "Tâches", icon: TaskIcon },
   { href: "/rdv", label: "RDV", icon: CalendarIcon },
 ];
@@ -106,7 +106,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const badgeCount = (item: NavItem) =>
     item.href === "/taches"
       ? tasksDue
-      : item.href === "/emails"
+      : item.href === "/lea"
         ? pendingDrafts
         : 0;
 

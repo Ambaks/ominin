@@ -9,7 +9,8 @@ from app.services.tokens import unsubscribe_url
 
 def run_outreach(*, flush=None) -> dict:
     sb = get_supabase()
-    quota = settings.outreach_daily_limit - emailing.daily_cold_count()
+    sent_today = emailing.daily_cold_count()
+    quota = settings.outreach_daily_limit - sent_today
     stats = {"composed": 0, "skipped": 0}
     if quota <= 0:
         return {**stats, "sent": 0, "note": "daily limit reached"}
@@ -22,10 +23,12 @@ def run_outreach(*, flush=None) -> dict:
             " crm_restaurants(id, name, city, category, cuisine, email, website, deleted_at)"
         )
         .eq("qualification", "qualified")
+        .order("priority_score", desc=True, nullsfirst=False)
         .order("created_at")
         .execute()
     ).data
 
+    rotation = _rotation(sb)
     consecutive = 0
     for prospect in candidates:
         if stats["composed"] >= to_compose:
@@ -39,7 +42,10 @@ def run_outreach(*, flush=None) -> dict:
             stats["skipped"] += 1
             continue
         try:
-            _compose_one(sb, restaurant, prospect.get("ai_notes"))
+            # Offset by today's sends so the round-robin continues across the
+            # day's runs instead of restarting at the control each time.
+            variant = rotation[(sent_today + stats["composed"]) % len(rotation)]
+            _compose_one(sb, restaurant, prospect.get("ai_notes"), variant)
             stats["composed"] += 1
             consecutive = 0
         except Exception as exc:  # noqa: BLE001 — retried on the next run
@@ -103,7 +109,29 @@ def _lead(sb, restaurant_id: str) -> dict | None:
     return rows[0] if rows else None
 
 
-def _compose_one(sb, restaurant: dict, ai_notes: str | None) -> None:
+def _rotation(sb) -> list[dict]:
+    """Prompt rules served round-robin this run, control group first.
+
+    The control is the promoted 'baseline' row when one exists, else the
+    hardcoded rules (no variant_id). It stays in rotation next to the active
+    variants so AutoResearch measures their reply rates over the same weeks
+    and the same prospect pool. Read once per run: a variant activated or
+    retired in the admin takes effect on the next run."""
+    rows = (
+        sb.table("outreach_variants")
+        .select("id, status, prompt_rules")
+        .in_("status", ["baseline", "active"])
+        .order("created_at")
+        .execute()
+    ).data
+    control = next((r for r in rows if r["status"] == "baseline"), None) or {
+        "id": None,
+        "prompt_rules": COLD_EMAIL_RULES,
+    }
+    return [control, *(r for r in rows if r["status"] == "active")]
+
+
+def _compose_one(sb, restaurant: dict, ai_notes: str | None, variant: dict) -> None:
     facts = [
         f"Nom : {restaurant['name']}",
         f"Ville : {restaurant.get('city') or 'inconnue'}",
@@ -112,10 +140,14 @@ def _compose_one(sb, restaurant: dict, ai_notes: str | None) -> None:
         f"Notes de personnalisation : {ai_notes or 'aucune'}",
     ]
     email = parse_structured(
-        f"{LEA_PERSONA}\n\n{COLD_EMAIL_RULES}", "\n".join(facts), ColdEmail
+        f"{LEA_PERSONA}\n\n{variant['prompt_rules']}", "\n".join(facts), ColdEmail
     )
 
     lead = _lead(sb, restaurant["id"])
+    metadata: dict = {"model": settings.outreach_model}
+    if variant["id"]:
+        metadata["variant_id"] = variant["id"]
+
     sb.table("outreach_emails").insert(
         {
             "restaurant_id": restaurant["id"],
@@ -129,6 +161,6 @@ def _compose_one(sb, restaurant: dict, ai_notes: str | None) -> None:
             "from_email": settings.gmail_sender_email,
             "subject": email.subject,
             "body_text": build_email_body(email.body, unsubscribe_url(restaurant["id"])),
-            "metadata": {"model": settings.outreach_model},
+            "metadata": metadata,
         }
     ).execute()

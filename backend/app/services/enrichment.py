@@ -95,6 +95,7 @@ def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
             "has_digital_menu": has_digital_menu,
             "email_source": email_source,
             "ai_notes": verdict.ai_notes,
+            "site_excerpt": site["text"] if site else None,
             "enriched_at": datetime.now(UTC).isoformat(),
         }
     ).eq("restaurant_id", restaurant["id"]).execute()

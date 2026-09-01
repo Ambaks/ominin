@@ -1171,8 +1171,10 @@ export type Database = {
           email_source: string | null
           enriched_at: string | null
           has_digital_menu: boolean | null
+          priority_score: number | null
           qualification: string
           restaurant_id: string
+          site_excerpt: string | null
           updated_at: string
         }
         Insert: {
@@ -1182,8 +1184,10 @@ export type Database = {
           email_source?: string | null
           enriched_at?: string | null
           has_digital_menu?: boolean | null
+          priority_score?: number | null
           qualification?: string
           restaurant_id: string
+          site_excerpt?: string | null
           updated_at?: string
         }
         Update: {
@@ -1193,8 +1197,10 @@ export type Database = {
           email_source?: string | null
           enriched_at?: string | null
           has_digital_menu?: boolean | null
+          priority_score?: number | null
           qualification?: string
           restaurant_id?: string
+          site_excerpt?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1262,6 +1268,47 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outreach_variants: {
+        Row: {
+          created_at: string
+          hypothesis: string
+          id: string
+          name: string
+          parent_variant_id: string | null
+          prompt_rules: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hypothesis: string
+          id?: string
+          name: string
+          parent_variant_id?: string | null
+          prompt_rules: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hypothesis?: string
+          id?: string
+          name?: string
+          parent_variant_id?: string | null
+          prompt_rules?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_variants_parent_variant_id_fkey"
+            columns: ["parent_variant_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_variants"
             referencedColumns: ["id"]
           },
         ]

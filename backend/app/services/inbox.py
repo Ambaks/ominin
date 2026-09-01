@@ -291,5 +291,5 @@ def _apply(sb, inbound: dict, outbound: dict, verdict: InboxVerdict, stats: dict
         notify.send(
             f"Léa — {CLASSIFICATION_TITLES[classification]}",
             f"{name}\n\n{(inbound.get('body_text') or '')[:300]}\n\n"
-            f"{action} : {settings.frontend_origin}/admin/emails",
+            f"{action} : {settings.frontend_origin}/admin/lea",
         )

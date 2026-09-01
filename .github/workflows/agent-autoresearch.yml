@@ -1,0 +1,19 @@
+# AutoResearch : analyse hebdomadaire de la campagne e-mail de Léa.
+# Identifie les patterns qui fonctionnent, score les prospects en attente
+# et propose de nouvelles variantes de prompt (soumises à approbation).
+name: agent-autoresearch
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"  # Dimanche 03:00 UTC (05:00 Paris)
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/autoresearch
+        run: |
+          curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/autoresearch"

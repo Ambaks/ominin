@@ -51,8 +51,9 @@ class Settings(BaseSettings):
     gmail_sender_email: str = "omininsupport@gmail.com"
     gmail_sender_name: str = "Léa Moreau"
 
-    # Claude model used for qualification, cold emails and reply drafts.
-    outreach_model: str = "claude-opus-5"
+    # Claude model used for qualification, cold emails, reply drafts,
+    # and autoresearch analysis.
+    outreach_model: str = "claude-fable-5"
 
     # Batching / limits. Each outreach run composes and sends up to the full
     # daily cap in one pass; remaining cron runs that day exit immediately.
@@ -109,6 +110,19 @@ class Settings(BaseSettings):
     # OUTREACH_UNSUBSCRIBE_SECRET for the Next.js route to verify tokens.
     outreach_unsubscribe_secret: str = ""
     outreach_unsubscribe_base_url: str = "https://ominin.com/api/desinscription"
+
+    # AutoResearch (weekly). Analysis runs only once this many cold emails
+    # are settled — sent longer ago than the reply window, or answered; an
+    # unanswered email younger than that is undecided, not a silence. The
+    # sample fed to Claude keeps every reply (the rare signal) and fills up
+    # with the most recent silences; its size also bounds the ids sent per
+    # PostgREST filter, so keep it in the low hundreds.
+    autoresearch_min_emails: int = 20
+    autoresearch_reply_window_days: int = 7
+    autoresearch_sample_size: int = 200
+    # How many pending prospects to score per autoresearch run, unscored
+    # ones first.
+    autoresearch_scoring_batch_size: int = 200
 
     # Testing safety valve: when set, every outbound email goes to this
     # address instead of the real recipient.
