@@ -115,8 +115,8 @@ export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
 };
 
 /*
- * Colonnes du pipeline. « À traiter » fusionne new + to_contact : on n'y
- * redépose jamais un lead en « jamais vu », donc un drop y vaut to_contact.
+ * Colonnes du pipeline. « Nouveau » = découvertes brutes non enrichies ;
+ * « À traiter » = enrichis et qualifiés, prêts à contacter.
  * lost / not_interested vivent dans le rail replié à droite.
  */
 export interface PipelineColumn {
@@ -128,12 +128,8 @@ export interface PipelineColumn {
 }
 
 export const PIPELINE_COLUMNS: readonly PipelineColumn[] = [
-  {
-    id: "a-traiter",
-    label: "À traiter",
-    statuses: ["new", "to_contact"],
-    dropStatus: "to_contact",
-  },
+  { id: "nouveau", label: "Nouveau", statuses: ["new"], dropStatus: "new" },
+  { id: "a-traiter", label: "À traiter", statuses: ["to_contact"], dropStatus: "to_contact" },
   { id: "contacted", label: "Contacté", statuses: ["contacted"], dropStatus: "contacted" },
   {
     id: "interested",

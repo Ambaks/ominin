@@ -114,6 +114,12 @@ def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
             "enriched_at": datetime.now(UTC).isoformat(),
         }
     ).eq("restaurant_id", restaurant["id"]).execute()
+
+    if qualification == "qualified":
+        sb.table("crm_leads").update({"status": "to_contact"}).eq(
+            "restaurant_id", restaurant["id"]
+        ).eq("status", "new").execute()
+
     stats["qualified" if qualification == "qualified" else "disqualified"] += 1
 
 
