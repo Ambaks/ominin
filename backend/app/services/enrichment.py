@@ -12,9 +12,17 @@ from app.prompts.qualify import QUALIFY_SYSTEM, Qualification
 from app.services import keepalive
 from app.services.emailing import is_suppressed
 
-EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}", re.IGNORECASE)
 BAD_EMAIL_RE = re.compile(
-    r"no-?reply|example\.|sentry|wixpress|\.png$|\.jpe?g$|\.webp$|\.svg$",
+    r"no-?reply|example\.|domaine\.|sentry|wixpress|wix\.com|squarespace|schema\.org"
+    r"|@\d+x\.|\.(?:png|jpe?g|webp|svg|gif)$",
+    re.IGNORECASE,
+)
+# Consumer mailboxes French restaurateurs actually use — the only foreign
+# domains trusted for an address seen solely inside a page's scripts.
+WEBMAIL_RE = re.compile(
+    r"@(?:gmail|googlemail|hotmail|outlook|live|yahoo|icloud|me|orange|wanadoo"
+    r"|free|sfr|laposte|bbox|neuf|aol|proton(?:mail)?)\.(?:com|fr|net)$",
     re.IGNORECASE,
 )
 CONTACT_LINK_RE = re.compile(r"contact|mentions[- ]?l[ée]gales", re.IGNORECASE)
@@ -65,28 +73,35 @@ def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
     email = restaurant.get("email")
     email_source = None
     if not email and site:
-        email = _pick_email(site["emails"], restaurant["website"])
+        email = _pick_email(site["emails"], site["embedded_emails"], restaurant["website"])
         if email:
             email_source = "website"
             sb.table("crm_restaurants").update({"email": email}).eq(
                 "id", restaurant["id"]
             ).execute()
 
+    # Claude is consulted only when the verdict is still open: a proven
+    # digital menu, no reachable address, or a suppressed one disqualifies
+    # whatever it would say — and notes are useless for a restaurant Léa
+    # can't write to. 'no_email' therefore means the address is the only
+    # thing missing, which is what an email finder should target.
     has_digital_menu = site["has_digital_menu"] if site else None
-    verdict = _qualify(restaurant, site["text"] if site else None)
-    if has_digital_menu is not True:
-        has_digital_menu = verdict.has_digital_menu
-
+    verdict = None
     if has_digital_menu:
         qualification, reason = "disqualified", "has_digital_menu"
-    elif not verdict.worth_contacting:
-        qualification, reason = "disqualified", "not_worth"
     elif not email:
         qualification, reason = "disqualified", "no_email"
     elif is_suppressed(email):
         qualification, reason = "disqualified", "suppressed"
     else:
-        qualification, reason = "qualified", None
+        verdict = _qualify(restaurant, site["text"] if site else None)
+        has_digital_menu = verdict.has_digital_menu
+        if has_digital_menu:
+            qualification, reason = "disqualified", "has_digital_menu"
+        elif not verdict.worth_contacting:
+            qualification, reason = "disqualified", "not_worth"
+        else:
+            qualification, reason = "qualified", None
 
     sb.table("outreach_prospects").update(
         {
@@ -94,7 +109,7 @@ def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
             "disqualify_reason": reason,
             "has_digital_menu": has_digital_menu,
             "email_source": email_source,
-            "ai_notes": verdict.ai_notes,
+            "ai_notes": verdict.ai_notes if verdict else None,
             "site_excerpt": site["text"] if site else None,
             "enriched_at": datetime.now(UTC).isoformat(),
         }
@@ -106,7 +121,8 @@ def _fetch_site(website: str) -> dict | None:
     pages = _fetch_pages(website)
     if not pages:
         return None
-    emails: list[str] = []
+    visible: list[str] = []
+    embedded: list[str] = []
     links: list[str] = []
     texts: list[str] = []
     for html in pages:
@@ -115,21 +131,27 @@ def _fetch_site(website: str) -> dict | None:
             href = anchor["href"]
             links.append(href)
             if href.lower().startswith("mailto:"):
-                emails.append(href[7:].split("?")[0])
+                visible.append(href[7:].split("?")[0])
         text = soup.get_text(" ", strip=True)
         texts.append(text)
-        emails.extend(EMAIL_RE.findall(text))
+        visible.extend(EMAIL_RE.findall(text))
+        # get_text() drops <script> contents: JSON-LD and the site-config
+        # blobs site builders embed are where many owners' addresses live.
+        embedded.extend(EMAIL_RE.findall(html))
 
     full_text = " ".join(texts)
     providers = [d.strip() for d in settings.qr_menu_provider_domains.split(",") if d.strip()]
+    host = urlparse(website).netloc.lower()
     has_digital_menu = (
-        any(p in link for link in links for p in providers)
+        any(p in host for p in providers)  # the "website" is the provider's page
+        or any(p in link for link in links for p in providers)
         or bool(QR_KEYWORDS_RE.search(full_text))
     ) or None  # only a positive signal; absence proves nothing
 
     return {
         "text": full_text[: settings.qualify_excerpt_chars],
-        "emails": emails,
+        "emails": visible,
+        "embedded_emails": embedded,
         "has_digital_menu": has_digital_menu,
     }
 
@@ -174,19 +196,36 @@ def _fetch_pages(website: str) -> list[str]:
     return pages
 
 
-def _pick_email(candidates: list[str], website: str) -> str | None:
-    cleaned = []
-    for candidate in candidates:
+def _pick_email(visible: list[str], embedded: list[str], website: str) -> str | None:
+    """The site's own domain first, else the first human-visible address.
+
+    An address seen only inside scripts is trusted on the site's domain or a
+    consumer mailbox alone: JS bundles carry third parties' addresses (a
+    booking widget's privacy contact) that would get a stranger emailed."""
+    site_domain = urlparse(website).netloc.removeprefix("www.").lower()
+
+    def own(candidate: str) -> bool:
+        return bool(site_domain) and candidate.endswith("@" + site_domain)
+
+    candidates = _clean(visible)
+    candidates += [
+        c for c in _clean(embedded)
+        if c not in candidates and (own(c) or WEBMAIL_RE.search(c))
+    ]
+    return next((c for c in candidates if own(c)), candidates[0] if candidates else None)
+
+
+def _clean(found: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    for candidate in found:
         candidate = candidate.strip().lower().strip(".")
-        if candidate and not BAD_EMAIL_RE.search(candidate):
+        if (
+            candidate not in cleaned
+            and EMAIL_RE.fullmatch(candidate)
+            and not BAD_EMAIL_RE.search(candidate)
+        ):
             cleaned.append(candidate)
-    if not cleaned:
-        return None
-    site_domain = urlparse(website).netloc.removeprefix("www.")
-    for candidate in cleaned:
-        if site_domain and candidate.endswith("@" + site_domain):
-            return candidate
-    return cleaned[0]
+    return cleaned
 
 
 def _qualify(restaurant: dict, site_text: str | None) -> Qualification:

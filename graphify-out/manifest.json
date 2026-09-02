@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "backend/app/config.py": {
-    "mtime": 1788351554.2822893,
-    "ast_hash": "ca9da507f0f43544e76243dcab884c85",
+    "mtime": 1788353028.2076743,
+    "ast_hash": "deb6b3e588ec8c784fffeb882e869756",
     "semantic_hash": ""
   },
   "backend/app/main.py": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788351710.235125,
-    "ast_hash": "0cc1100c1c51f61f17a008a0ec62e384",
+    "mtime": 1788353072.8162363,
+    "ast_hash": "c2613cb6387e30c4eda07db3cecce9f2",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1880,8 +1880,8 @@
     "semantic_hash": ""
   },
   "backend/app/services/enrichment.py": {
-    "mtime": 1788291290.5727499,
-    "ast_hash": "1ab07cab0679ba89d972edef374b3ce1",
+    "mtime": 1788353025.0930455,
+    "ast_hash": "539b4db57d4fbe8575a5b8dc78596213",
     "semantic_hash": ""
   },
   "backend/app/services/inbox.py": {
@@ -1925,8 +1925,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/agent-discovery.yml": {
-    "mtime": 1787082405.3100502,
-    "ast_hash": "1cfa57d9e86b9becff979fae0c63b4f5",
+    "mtime": 1788352609.3339298,
+    "ast_hash": "738db8395bebcf63388ece9923c36e01",
     "semantic_hash": ""
   },
   ".github/workflows/agent-inbox.yml": {

@@ -40,7 +40,10 @@ class Settings(BaseSettings):
         "Toulouse:Capitole|Carmes|Saint-Cyprien|Saint-Michel|Saint-Aubin|"
         "Les Chalets|Jeanne d'Arc"
     )
-    discovery_queries_per_run: int = 20
+    # Sized with the 3 daily discovery runs so the funnel (~15 % of
+    # discovered prospects qualify) can feed outreach_daily_limit. Every
+    # page fetched is a billed Enterprise-SKU Text Search call.
+    discovery_queries_per_run: int = 100
     discovery_query_max_empty: int = 2
     discovery_max_pages_per_query: int = 5
 
@@ -71,7 +74,9 @@ class Settings(BaseSettings):
     inbox_lookback_days: int = 7
     # A 'running' run younger than this blocks a new run of the same job;
     # older ones are presumed killed (Render spin-down) and marked failed.
-    run_stale_minutes: int = 60
+    # Must exceed the longest legitimate run — an enrichment batch of
+    # enrichment_batch_size prospects at ~15-30 s each.
+    run_stale_minutes: int = 180
     # Render free tier spins the service down after 15 min without inbound
     # HTTP; a full compose+send batch runs longer than that. When set to the
     # service's own public /health URL, long loops self-ping it on this
@@ -103,7 +108,7 @@ class Settings(BaseSettings):
     # domains means the restaurant already has a QR/online menu solution.
     qr_menu_provider_domains: str = (
         "zenchef.com,sundayapp.com,tastycloud.fr,obypay.com,deliverect.com,"
-        "dood.com,tabesto.com,innovorder.fr,menu.ominin.com"
+        "dood.com,tabesto.com,innovorder.fr,eatbu.com,laddition.com,menu.ominin.com"
     )
 
     # Unsubscribe link (CNIL). The same secret must be set in Vercel as

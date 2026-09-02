@@ -161,21 +161,12 @@
   "159": "discovery.py",
   "160": "_getWorkerSource",
   "161": "loadVectorTile",
-  "162": "constructor",
   "163": "createTree",
-  "164": "zn",
-  "165": "fg",
   "166": "manifest.ts",
   "167": "createIndex",
-  "168": "getOriginZoom",
-  "169": "getTile",
   "170": "sw.js",
-  "171": "setPaintProperty",
-  "172": "collectOffer",
   "173": "__init__.py",
   "174": "__init__.py",
   "175": "__init__.py",
-  "176": "__init__.py",
-  "177": "loadTile",
-  "178": "sign-out-button.tsx"
+  "176": "__init__.py"
 }

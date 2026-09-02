@@ -1,11 +1,13 @@
-# Découverte de restaurants (Google Places) puis qualification, chaque nuit.
-# Le sleep laisse la découverte se terminer avant de lancer l'enrichissement
-# (les deux jobs sont single-flight côté backend, un chevauchement rend 409).
+# Découverte de restaurants (Google Places) puis qualification, trois fois
+# par jour. Le sleep laisse la découverte se terminer avant de lancer
+# l'enrichissement. Les deux jobs sont single-flight côté backend : un 409
+# sur l'enrichissement signifie que le lot précédent tourne encore et
+# prendra ces prospects — ce n'est pas un échec.
 name: agent-discovery
 
 on:
   schedule:
-    - cron: "37 2 * * *"
+    - cron: "37 2,10,18 * * *"
   workflow_dispatch:
 
 jobs:
@@ -18,9 +20,12 @@ jobs:
             -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
             "${{ secrets.BACKEND_URL }}/agent/discover"
       - name: Wait for discovery to finish
-        run: sleep 300
+        run: sleep 900
       - name: Trigger /agent/enrich
         run: |
-          curl -sf --max-time 120 --retry 6 --retry-delay 20 --retry-all-errors \
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 \
+            --retry 6 --retry-delay 20 --retry-all-errors \
             -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
-            "${{ secrets.BACKEND_URL }}/agent/enrich"
+            "${{ secrets.BACKEND_URL }}/agent/enrich")
+          echo "enrich: HTTP $code"
+          case "$code" in 202|409) ;; *) exit 1 ;; esac
