@@ -849,15 +849,16 @@ export async function fetchProspectCounts(): Promise<ProspectCounts> {
     if (error) throw new Error(error.message);
     return count ?? 0;
   };
-  const [qualified, pending, no_email, has_digital_menu, not_worth] =
+  const [qualified, pending, no_email, contact_form, has_digital_menu, not_worth] =
     await Promise.all([
       count("qualification", "qualified"),
       count("qualification", "pending"),
       count("disqualify_reason", "no_email"),
+      count("disqualify_reason", "contact_form"),
       count("disqualify_reason", "has_digital_menu"),
       count("disqualify_reason", "not_worth"),
     ]);
-  return { qualified, pending, no_email, has_digital_menu, not_worth };
+  return { qualified, pending, no_email, contact_form, has_digital_menu, not_worth };
 }
 
 export async function fetchOutreachRuns(): Promise<OutreachRun[]> {

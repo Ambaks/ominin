@@ -233,6 +233,7 @@ export type ProspectFilter =
   | "qualified"
   | "pending"
   | "no_email"
+  | "contact_form"
   | "has_digital_menu"
   | "not_worth";
 

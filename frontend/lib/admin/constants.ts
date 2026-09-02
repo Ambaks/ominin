@@ -232,6 +232,7 @@ export const QUALIFICATION_LABELS: Record<ProspectQualification, string> = {
 /** Motifs d'écartement écrits par l'agent (outreach_prospects.disqualify_reason). */
 export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
   no_email: "Pas d'e-mail trouvé",
+  contact_form: "Formulaire de contact",
   has_digital_menu: "Déjà digitalisé",
   not_worth: "Hors cible",
   suppressed: "Désinscrit",

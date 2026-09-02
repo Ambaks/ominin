@@ -808,6 +808,7 @@ const PROSPECT_TILES: {
   { id: "qualified", label: "Qualifiés" },
   { id: "pending", label: "En attente" },
   { id: "no_email", label: "Pas d'e-mail" },
+  { id: "contact_form", label: "Formulaire de contact" },
   { id: "has_digital_menu", label: "Déjà digitalisés" },
   { id: "not_worth", label: "Hors cible" },
 ];
@@ -850,7 +851,7 @@ function ProspectsPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {PROSPECT_TILES.map((tile) => {
           const active = filter === tile.id;
           return (

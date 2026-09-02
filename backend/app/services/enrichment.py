@@ -33,6 +33,10 @@ WEBMAIL_RE = re.compile(
     re.IGNORECASE,
 )
 CONTACT_LINK_RE = re.compile(r"contact|mentions[- ]?l[ée]gales", re.IGNORECASE)
+# A form with a free-text field is a contact form (a newsletter box has
+# only an e-mail input). Site builders such as uRecommend publish no
+# address at all and route everything through such a form.
+CONTACT_FORM_RE = re.compile(r"<form[^>]*>(?:(?!</form>).)*<textarea", re.IGNORECASE | re.DOTALL)
 QR_KEYWORDS_RE = re.compile(
     r"menu digital|commander en ligne|click\s?&\s?collect|qr\s?code",
     re.IGNORECASE,
@@ -123,7 +127,9 @@ def _scrape(sb, restaurant: dict) -> dict:
     if has_digital_menu:
         verdict = ("disqualified", "has_digital_menu")
     elif not email:
-        verdict = ("disqualified", "no_email")
+        # Both mean "no address yet"; contact_form marks the ones a
+        # form-filling pipeline can still reach.
+        verdict = ("disqualified", "contact_form" if site and site["has_contact_form"] else "no_email")
     elif is_suppressed(email):
         verdict = ("disqualified", "suppressed")
     else:
@@ -183,7 +189,7 @@ def _classify_lead(sb, restaurant_id: str, qualification: str, reason: str | Non
     is never regressed, and a re-scraped no_email lead may come back."""
     if qualification == "qualified":
         update = {"status": "to_contact"}
-    elif reason == "no_email":
+    elif reason in ("no_email", "contact_form"):
         update = {"status": "no_email"}
     else:
         update = {"status": "lost", "lost_reason": reason}
@@ -228,6 +234,7 @@ def _fetch_site(website: str) -> dict | None:
         "emails": visible,
         "embedded_emails": embedded,
         "has_digital_menu": has_digital_menu,
+        "has_contact_form": any(CONTACT_FORM_RE.search(html) for html in pages),
     }
 
 
