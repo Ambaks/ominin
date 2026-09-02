@@ -106,6 +106,11 @@ class Settings(BaseSettings):
     places_timeout_seconds: int = 30
     scrape_timeout_seconds: int = 10
     scrape_max_extra_pages: int = 2
+    # A homepage with less visible text than this (or no links at all) is a
+    # JS shell: its same-origin script bundles are fetched and scanned for
+    # addresses instead, each up to this many bytes.
+    scrape_shell_text_chars: int = 300
+    scrape_bundle_max_bytes: int = 3_000_000
     qualify_excerpt_chars: int = 3000
 
     # Digital-menu provider fingerprints: a website linking to any of these

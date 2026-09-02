@@ -14,7 +14,8 @@ from app.services import keepalive
 from app.services.emailing import EMAIL_RE, is_suppressed
 
 BAD_EMAIL_RE = re.compile(
-    r"no-?reply|example\.|exemple\.|domaine\.|mysite\.com|^nc@|sentry|wixpress|wix\.com"
+    r"no-?reply|example\.|exemple\.|domaine\.|mysite\.com|votresite|@restaurant\.fr$|^nc@"
+    r"|sentry|wixpress|wix\.com"
     r"|squarespace|schema\.org|ionos\.|@\d+x\.|\.(?:png|jpe?g|webp|svg|gif)$"
     # Platforms and agencies whose address rides on their clients' sites
     # (booking widgets, "site by…" credits): reaching them is not reaching
@@ -190,11 +191,11 @@ def _classify_lead(sb, restaurant_id: str, qualification: str, reason: str | Non
 
 
 def _fetch_site(website: str) -> dict | None:
-    pages = _fetch_pages(website)
+    pages, bundles = _fetch_pages(website)
     if not pages:
         return None
     visible: list[str] = []
-    embedded: list[str] = []
+    embedded: list[str] = [e for js in bundles for e in EMAIL_RE.findall(js)]
     links: list[str] = []
     texts: list[str] = []
     for html in pages:
@@ -228,24 +229,51 @@ def _fetch_site(website: str) -> dict | None:
     }
 
 
-def _fetch_pages(website: str) -> list[str]:
+def _fetch_pages(website: str) -> tuple[list[str], list[str]]:
+    """HTML pages, plus the script bundles of a JS-shell homepage.
+
+    A single-page app (Vite, React, Wix…) serves an empty <div id="root">
+    and renders everything client-side; its contact address is a string
+    literal in the bundle. Fetching the bundle is what a browser would do —
+    without it the scraper never sees the page a visitor sees."""
     client = httpx.Client(
         follow_redirects=True,
         timeout=settings.scrape_timeout_seconds,
         headers={"User-Agent": "Mozilla/5.0 (compatible; OmininBot)"},
     )
     pages: list[str] = []
+    bundles: list[str] = []
     try:
         home = client.get(website)
         home.raise_for_status()
         pages.append(home.text)
 
-        # Follow a couple of same-domain contact / mentions-légales pages:
-        # that's where French restaurants publish their email.
         soup = BeautifulSoup(home.text, "html.parser")
         domain = urlparse(str(home.url)).netloc
+        anchors = soup.find_all("a", href=True)
+        if not anchors or len(soup.get_text(" ", strip=True)) < settings.scrape_shell_text_chars:
+            for script in soup.find_all("script", src=True):
+                url = urljoin(str(home.url), script["src"])
+                if urlparse(url).netloc != domain:
+                    continue
+                try:
+                    with client.stream("GET", url) as response:
+                        response.raise_for_status()
+                        chunks: list[bytes] = []
+                        size = 0
+                        for chunk in response.iter_bytes():
+                            chunks.append(chunk)
+                            size += len(chunk)
+                            if size >= settings.scrape_bundle_max_bytes:
+                                break
+                        bundles.append(b"".join(chunks).decode("utf-8", "ignore"))
+                except httpx.HTTPError:
+                    continue
+
+        # Follow a couple of same-domain contact / mentions-légales pages:
+        # that's where French restaurants publish their email.
         seen: set[str] = set()
-        for anchor in soup.find_all("a", href=True):
+        for anchor in anchors:
             if len(seen) >= settings.scrape_max_extra_pages:
                 break
             label = f"{anchor['href']} {anchor.get_text()}"
@@ -265,19 +293,21 @@ def _fetch_pages(website: str) -> list[str]:
         pass
     finally:
         client.close()
-    return pages
+    return pages, bundles
 
 
 def _pick_email(visible: list[str], embedded: list[str], website: str) -> str | None:
-    """The site's own domain first, else the first human-visible address.
+    """The site's own name first, else the first human-visible address.
 
-    An address seen only inside scripts is trusted on the site's domain or a
-    consumer mailbox alone: JS bundles carry third parties' addresses (a
-    booking widget's privacy contact) that would get a stranger emailed."""
-    site_domain = urlparse(website).netloc.removeprefix("www.").lower()
+    An address seen only inside scripts is trusted on the site's own name or
+    a consumer mailbox alone: JS bundles carry third parties' addresses (a
+    booking widget's privacy contact) that would get a stranger emailed.
+    "Own name" compares the registrable label, not the exact domain — a
+    restaurant on flatmyburger.fr writes from contact@flatmyburger.com."""
+    site_label = _label(urlparse(website).netloc)
 
     def own(candidate: str) -> bool:
-        return bool(site_domain) and candidate.endswith("@" + site_domain)
+        return bool(site_label) and _label(candidate.rsplit("@", 1)[-1]) == site_label
 
     candidates = _clean(visible)
     candidates += [
@@ -285,6 +315,12 @@ def _pick_email(visible: list[str], embedded: list[str], website: str) -> str | 
         if c not in candidates and (own(c) or WEBMAIL_RE.search(c))
     ]
     return next((c for c in candidates if own(c)), candidates[0] if candidates else None)
+
+
+def _label(host: str) -> str:
+    """Registrable name of a host: 'www.flatmyburger.fr' → 'flatmyburger'."""
+    parts = host.lower().removeprefix("www.").split(".")
+    return parts[-2] if len(parts) >= 2 else ""
 
 
 def _clean(found: list[str]) -> list[str]:
