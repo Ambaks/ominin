@@ -56,7 +56,7 @@ class Settings(BaseSettings):
 
     # Claude model used for qualification, cold emails, reply drafts,
     # and autoresearch analysis.
-    outreach_model: str = "claude-fable-5"
+    outreach_model: str = "claude-opus-5"
 
     # Batching / limits. Each outreach run composes and sends up to the full
     # daily cap in one pass; remaining cron runs that day exit immediately.
@@ -70,6 +70,9 @@ class Settings(BaseSettings):
     # keep the qualified pool ahead of outreach_daily_limit, given that a
     # share of prospects disqualifies (no email, already digital…).
     enrichment_batch_size: int = 300
+    # Website scrapes run concurrently (pure I/O wait); Claude calls stay
+    # sequential — one CLI process at a time on the 512 MB instance.
+    enrichment_workers: int = 8
     inbox_max_messages: int = 50
     inbox_lookback_days: int = 7
     # A 'running' run younger than this blocks a new run of the same job;

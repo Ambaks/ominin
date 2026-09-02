@@ -29,6 +29,8 @@ import { refreshPendingDrafts, useAdmin } from "@/lib/admin/store";
 import type {
   OutreachEmail,
   OutreachProspect,
+  ProspectCounts,
+  ProspectFilter,
   OutreachRun,
   OutreachStats,
   OutreachVariant,
@@ -81,6 +83,10 @@ export default function LeaPage() {
   const [emails, setEmails] = useState<OutreachEmail[] | null>(null);
   const [stats, setStats] = useState<OutreachStats | null>(null);
   const [prospects, setProspects] = useState<OutreachProspect[] | null>(null);
+  const [prospectFilter, setProspectFilter] = useState<ProspectFilter>("all");
+  const [prospectCounts, setProspectCounts] = useState<ProspectCounts | null>(
+    null
+  );
   const [runs, setRuns] = useState<OutreachRun[] | null>(null);
   const [variants, setVariants] = useState<OutreachVariant[] | null>(null);
   // undefined = pas encore chargé ; null = aucune analyse aboutie.
@@ -121,13 +127,31 @@ export default function LeaPage() {
       api.fetchOutreachRuns().then(setRuns).catch(fail);
     }
     if (tab === "prospects" && prospects === null) {
-      api.fetchOutreachProspects().then(setProspects).catch(fail);
+      api.fetchOutreachProspects(prospectFilter).then(setProspects).catch(fail);
+    }
+    if (tab === "prospects" && prospectCounts === null) {
+      api.fetchProspectCounts().then(setProspectCounts).catch(fail);
     }
     if (research_needed && variants === null) reloadVariants();
     if (research_needed && research === undefined) {
       api.fetchLatestResearchRun().then(setResearch).catch(fail);
     }
-  }, [tab, runs, prospects, variants, research, fail, reloadVariants]);
+  }, [
+    tab,
+    runs,
+    prospects,
+    prospectFilter,
+    prospectCounts,
+    variants,
+    research,
+    fail,
+    reloadVariants,
+  ]);
+
+  const changeProspectFilter = useCallback((filter: ProspectFilter) => {
+    setProspectFilter(filter);
+    setProspects(null);
+  }, []);
 
   const nameById = useMemo(
     () =>
@@ -546,19 +570,16 @@ export default function LeaPage() {
           />
         ))}
 
-      {tab === "prospects" &&
-        (prospects === null || prospects.length === 0 ? (
-          <EmptyState
-            title={prospects === null ? "Chargement…" : "Aucun prospect"}
-            body="Les restaurants découverts par l'agent et leur verdict de qualification apparaissent ici après chaque run de découverte."
-          />
-        ) : (
-          <ProspectsPanel
-            prospects={prospects}
-            nameById={nameById}
-            onOpen={openLead}
-          />
-        ))}
+      {tab === "prospects" && (
+        <ProspectsPanel
+          prospects={prospects}
+          counts={prospectCounts}
+          filter={prospectFilter}
+          onFilter={changeProspectFilter}
+          nameById={nameById}
+          onOpen={openLead}
+        />
+      )}
 
       {tab === "research" && (
         <div className="flex flex-col gap-5">
@@ -780,24 +801,41 @@ function FindingsCard({ research }: { research: ResearchRun }) {
   );
 }
 
+const PROSPECT_TILES: {
+  id: Exclude<ProspectFilter, "all">;
+  label: string;
+}[] = [
+  { id: "qualified", label: "Qualifiés" },
+  { id: "pending", label: "En attente" },
+  { id: "no_email", label: "Pas d'e-mail" },
+  { id: "has_digital_menu", label: "Déjà digitalisés" },
+  { id: "not_worth", label: "Hors cible" },
+];
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 function ProspectsPanel({
   prospects,
+  counts,
+  filter,
+  onFilter,
   nameById,
   onOpen,
 }: {
-  prospects: OutreachProspect[];
+  prospects: OutreachProspect[] | null;
+  counts: ProspectCounts | null;
+  filter: ProspectFilter;
+  onFilter: (filter: ProspectFilter) => void;
   nameById: Map<string, string>;
   onOpen: (restaurantId: string) => void;
 }) {
-  const counts = {
-    qualified: prospects.filter((p) => p.qualification === "qualified").length,
-    pending: prospects.filter((p) => p.qualification === "pending").length,
-    no_email: prospects.filter((p) => p.disqualifyReason === "no_email").length,
-    has_digital_menu: prospects.filter(
-      (p) => p.disqualifyReason === "has_digital_menu"
-    ).length,
-  };
-  const scored = prospects.filter(
+  const scored = (prospects ?? []).filter(
     (p) => p.qualification === "qualified" && p.priorityScore != null
   );
   const averageScore =
@@ -807,17 +845,35 @@ function ProspectsPanel({
             scored.length
         )
       : null;
+  const activeLabel = PROSPECT_TILES.find((t) => t.id === filter)?.label;
+  const stop = (event: React.MouseEvent) => event.stopPropagation();
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="Qualifiés" value={String(counts.qualified)} />
-        <StatCard label="Pas d'e-mail" value={String(counts.no_email)} />
-        <StatCard
-          label="Déjà digitalisés"
-          value={String(counts.has_digital_menu)}
-        />
-        <StatCard label="En attente" value={String(counts.pending)} />
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {PROSPECT_TILES.map((tile) => {
+          const active = filter === tile.id;
+          return (
+            <button
+              key={tile.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onFilter(active ? "all" : tile.id)}
+              className={`flex flex-col gap-2 rounded-2xl border p-5 text-left transition-colors ${
+                active
+                  ? "border-ember-2 bg-surface-raised"
+                  : "border-hairline bg-surface hover:border-ember-2/40"
+              }`}
+            >
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+                {tile.label}
+              </span>
+              <span className="font-display text-3xl font-medium">
+                {counts ? counts[tile.id] : "—"}
+              </span>
+            </button>
+          );
+        })}
         <StatCard
           label="Score moyen"
           value={averageScore != null ? `${averageScore}/100` : "—"}
@@ -825,25 +881,74 @@ function ProspectsPanel({
         />
       </div>
 
+      <p className="text-xs text-muted">
+        {activeLabel
+          ? `${prospects ? prospects.length : "…"} · ${activeLabel} — cliquer à nouveau la tuile pour revenir aux prospects récents.`
+          : "Prospects les plus récents — cliquer une tuile pour lister tout un verdict."}
+      </p>
+
       <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
-        <table className="w-full min-w-160 text-left text-sm">
+        <table className="w-full min-w-200 text-left text-sm">
           <thead>
             <tr className={SECTION_TITLE}>
               <th className="px-4 py-3">Restaurant</th>
+              <th className="px-4 py-3">Ville</th>
+              <th className="px-4 py-3">Téléphone</th>
+              <th className="px-4 py-3">Site</th>
               <th className="px-4 py-3">Verdict</th>
               <th className="w-20 px-4 py-3">Score</th>
               <th className="px-4 py-3">Notes de l&apos;agent</th>
             </tr>
           </thead>
           <tbody>
-            {prospects.map((prospect) => (
+            {prospects === null || prospects.length === 0 ? (
+              <tr className="border-t border-hairline">
+                <td colSpan={7} className="px-4 py-8 text-center text-xs text-muted">
+                  {prospects === null
+                    ? "Chargement…"
+                    : "Aucun prospect pour ce verdict."}
+                </td>
+              </tr>
+            ) : null}
+            {(prospects ?? []).map((prospect) => (
               <tr
                 key={prospect.restaurantId}
                 onClick={() => onOpen(prospect.restaurantId)}
                 className="cursor-pointer border-t border-hairline transition-colors hover:bg-surface-raised"
               >
                 <td className="px-4 py-3 font-medium">
-                  {nameById.get(prospect.restaurantId) ?? "—"}
+                  {prospect.name ?? nameById.get(prospect.restaurantId) ?? "—"}
+                </td>
+                <td className="px-4 py-3 text-xs text-muted">
+                  {prospect.city ?? "—"}
+                </td>
+                <td className="px-4 py-3 text-xs">
+                  {prospect.phone ? (
+                    <a
+                      href={`tel:${prospect.phone}`}
+                      onClick={stop}
+                      className="whitespace-nowrap hover:underline"
+                    >
+                      {prospect.phone}
+                    </a>
+                  ) : (
+                    <span className="text-faint">—</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-xs">
+                  {prospect.website ? (
+                    <a
+                      href={prospect.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={stop}
+                      className="text-ember-2 hover:underline"
+                    >
+                      {hostOf(prospect.website)}
+                    </a>
+                  ) : (
+                    <span className="text-faint">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <span

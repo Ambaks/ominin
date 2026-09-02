@@ -214,6 +214,10 @@ export type ProspectQualification =
 
 export interface OutreachProspect {
   restaurantId: string;
+  name: string | null;
+  city: string | null;
+  phone: string | null;
+  website: string | null;
   qualification: ProspectQualification;
   disqualifyReason: string | null;
   hasDigitalMenu: boolean | null;
@@ -222,6 +226,17 @@ export interface OutreachProspect {
   priorityScore: number | null;
   enrichedAt: string | null;
 }
+
+/** Vue de l'onglet Prospects : tout un verdict, ou les lignes récentes. */
+export type ProspectFilter =
+  | "all"
+  | "qualified"
+  | "pending"
+  | "no_email"
+  | "has_digital_menu"
+  | "not_worth";
+
+export type ProspectCounts = Record<Exclude<ProspectFilter, "all">, number>;
 
 export type VariantStatus = "baseline" | "active" | "candidate" | "retired";
 

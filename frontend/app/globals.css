@@ -43,6 +43,7 @@
   --status-signed: #6cbf6c;
   --status-lost: #d95f5f;
   --status-not-interested: #7f8fa0;
+  --status-no-email: #b8975e;
 }
 
 html.light {
@@ -77,6 +78,7 @@ html.light {
   --status-signed: #2e7d32;
   --status-lost: #a33030;
   --status-not-interested: #5c6b7a;
+  --status-no-email: #8a6d3b;
 
   color-scheme: light;
 }
@@ -139,6 +141,7 @@ html.light {
   --color-status-signed: var(--status-signed);
   --color-status-lost: var(--status-lost);
   --color-status-not-interested: var(--status-not-interested);
+  --color-status-no-email: var(--status-no-email);
 
   --font-sans: var(--font-instrument-sans);
   --font-display: var(--font-fraunces);

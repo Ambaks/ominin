@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
 from urllib.parse import urljoin, urlparse
 
@@ -10,9 +11,8 @@ from app.clients.supabase import get_supabase
 from app.config import settings
 from app.prompts.qualify import QUALIFY_SYSTEM, Qualification
 from app.services import keepalive
-from app.services.emailing import is_suppressed
+from app.services.emailing import EMAIL_RE, is_suppressed
 
-EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}", re.IGNORECASE)
 BAD_EMAIL_RE = re.compile(
     r"no-?reply|example\.|domaine\.|sentry|wixpress|wix\.com|squarespace|schema\.org"
     r"|@\d+x\.|\.(?:png|jpe?g|webp|svg|gif)$",
@@ -43,15 +43,39 @@ def run_enrichment(*, flush=None) -> dict:
         .limit(settings.enrichment_batch_size)
         .execute()
     ).data
+    restaurants = [p["crm_restaurants"] for p in pending if p.get("crm_restaurants")]
 
+    def _flush() -> None:
+        if flush and stats["processed"] % 10 == 0:
+            flush(stats)
+
+    # Phase 1 — scrape concurrently. Verdicts the scrape alone settles are
+    # recorded here; the rest queue for Claude.
+    undecided: list[dict] = []
+    with ThreadPoolExecutor(max_workers=settings.enrichment_workers) as pool:
+        for future in as_completed(pool.submit(_scrape, sb, r) for r in restaurants):
+            keepalive.ping_if_due()
+            try:
+                prepared = future.result()
+            except Exception as exc:  # noqa: BLE001 — stays pending, retried next run
+                stats["errors"] += 1
+                stats["last_error"] = f"{type(exc).__name__}: {exc}"
+                continue
+            if prepared["verdict"]:
+                _record(sb, prepared, prepared["verdict"], prepared["has_digital_menu"], None, stats)
+                stats["processed"] += 1
+            else:
+                undecided.append(prepared)
+            _flush()
+
+    # Phase 2 — Claude, one call at a time. A run of consecutive failures
+    # here is systematic (window exhausted, outage): stop, don't burn the
+    # rest of the batch.
     consecutive = 0
-    for prospect in pending:
-        restaurant = prospect.get("crm_restaurants")
-        if not restaurant:
-            continue
+    for prepared in undecided:
         keepalive.ping_if_due()
         try:
-            _enrich_one(sb, restaurant, stats)
+            _judge(sb, prepared, stats)
             stats["processed"] += 1
             consecutive = 0
         except Exception as exc:  # noqa: BLE001 — stays pending, retried next run
@@ -61,13 +85,19 @@ def run_enrichment(*, flush=None) -> dict:
             if consecutive >= settings.max_consecutive_errors:
                 stats["aborted"] = "consecutive errors — systematic failure"
                 break
-        if flush and stats["processed"] % 10 == 0:
-            flush(stats)
+        _flush()
 
     return stats
 
 
-def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
+def _scrape(sb, restaurant: dict) -> dict:
+    """Everything that needs no Claude call.
+
+    Claude is consulted only when the verdict is still open: a proven
+    digital menu, no reachable address, or a suppressed one disqualifies
+    whatever it would say — and notes are useless for a restaurant Léa
+    can't write to. 'no_email' therefore means the address is the only
+    thing missing, which is what a contact-form pipeline should target."""
     site = _fetch_site(restaurant["website"]) if restaurant.get("website") else None
 
     email = restaurant.get("email")
@@ -80,47 +110,77 @@ def _enrich_one(sb, restaurant: dict, stats: dict) -> None:
                 "id", restaurant["id"]
             ).execute()
 
-    # Claude is consulted only when the verdict is still open: a proven
-    # digital menu, no reachable address, or a suppressed one disqualifies
-    # whatever it would say — and notes are useless for a restaurant Léa
-    # can't write to. 'no_email' therefore means the address is the only
-    # thing missing, which is what an email finder should target.
     has_digital_menu = site["has_digital_menu"] if site else None
-    verdict = None
     if has_digital_menu:
-        qualification, reason = "disqualified", "has_digital_menu"
+        verdict = ("disqualified", "has_digital_menu")
     elif not email:
-        qualification, reason = "disqualified", "no_email"
+        verdict = ("disqualified", "no_email")
     elif is_suppressed(email):
-        qualification, reason = "disqualified", "suppressed"
+        verdict = ("disqualified", "suppressed")
     else:
-        verdict = _qualify(restaurant, site["text"] if site else None)
-        has_digital_menu = verdict.has_digital_menu
-        if has_digital_menu:
-            qualification, reason = "disqualified", "has_digital_menu"
-        elif not verdict.worth_contacting:
-            qualification, reason = "disqualified", "not_worth"
-        else:
-            qualification, reason = "qualified", None
+        verdict = None
+    return {
+        "restaurant": restaurant,
+        "site": site,
+        "email_source": email_source,
+        "has_digital_menu": has_digital_menu,
+        "verdict": verdict,
+    }
 
+
+def _judge(sb, prepared: dict, stats: dict) -> None:
+    site = prepared["site"]
+    verdict = _qualify(prepared["restaurant"], site["text"] if site else None)
+    if verdict.has_digital_menu:
+        outcome = ("disqualified", "has_digital_menu")
+    elif not verdict.worth_contacting:
+        outcome = ("disqualified", "not_worth")
+    else:
+        outcome = ("qualified", None)
+    _record(sb, prepared, outcome, verdict.has_digital_menu, verdict.ai_notes, stats)
+
+
+def _record(
+    sb,
+    prepared: dict,
+    outcome: tuple[str, str | None],
+    has_digital_menu: bool | None,
+    ai_notes: str | None,
+    stats: dict,
+) -> None:
+    restaurant, site = prepared["restaurant"], prepared["site"]
+    qualification, reason = outcome
     sb.table("outreach_prospects").update(
         {
             "qualification": qualification,
             "disqualify_reason": reason,
             "has_digital_menu": has_digital_menu,
-            "email_source": email_source,
-            "ai_notes": verdict.ai_notes if verdict else None,
+            "email_source": prepared["email_source"],
+            "ai_notes": ai_notes,
             "site_excerpt": site["text"] if site else None,
             "enriched_at": datetime.now(UTC).isoformat(),
         }
     ).eq("restaurant_id", restaurant["id"]).execute()
-
-    if qualification == "qualified":
-        sb.table("crm_leads").update({"status": "to_contact"}).eq(
-            "restaurant_id", restaurant["id"]
-        ).eq("status", "new").execute()
-
+    _classify_lead(sb, restaurant["id"], qualification, reason)
     stats["qualified" if qualification == "qualified" else "disqualified"] += 1
+
+
+def _classify_lead(sb, restaurant_id: str, qualification: str, reason: str | None) -> None:
+    """'new' means discovered, not yet judged — every verdict leaves it.
+
+    Qualified → to_contact (Léa's queue); no address → no_email (the
+    contact-form pipeline's pool); anything else → lost with the reason.
+    Only the agent-owned statuses are touched: a lead a human already moved
+    is never regressed, and a re-scraped no_email lead may come back."""
+    if qualification == "qualified":
+        update = {"status": "to_contact"}
+    elif reason == "no_email":
+        update = {"status": "no_email"}
+    else:
+        update = {"status": "lost", "lost_reason": reason}
+    sb.table("crm_leads").update(update).eq("restaurant_id", restaurant_id).in_(
+        "status", ["new", "no_email"]
+    ).execute()
 
 
 def _fetch_site(website: str) -> dict | None:

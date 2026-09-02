@@ -30,6 +30,7 @@ export const STATUS_ORDER: readonly LeadStatus[] = [
   "signed",
   "lost",
   "not_interested",
+  "no_email",
 ];
 
 export const STATUS_LABELS: Record<LeadStatus, string> = {
@@ -44,6 +45,7 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
   signed: "Signé",
   lost: "Perdu",
   not_interested: "Pas intéressé",
+  no_email: "Sans e-mail",
 };
 
 /** Statuts sortis du pipeline actif (exclus des « leads actifs »). */
@@ -51,6 +53,7 @@ export const CLOSED_STATUSES: readonly LeadStatus[] = [
   "signed",
   "lost",
   "not_interested",
+  "no_email",
 ];
 
 export const CATEGORY_LABELS: Record<RestaurantCategory, string> = {
@@ -117,7 +120,7 @@ export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
 /*
  * Colonnes du pipeline. « Nouveau » = découvertes brutes non enrichies ;
  * « À traiter » = enrichis et qualifiés, prêts à contacter.
- * lost / not_interested vivent dans le rail replié à droite.
+ * lost / not_interested / no_email vivent dans le rail replié à droite.
  */
 export interface PipelineColumn {
   id: string;
@@ -161,6 +164,12 @@ export const PIPELINE_RAIL_COLUMNS: readonly PipelineColumn[] = [
     label: "Pas intéressé",
     statuses: ["not_interested"],
     dropStatus: "not_interested",
+  },
+  {
+    id: "no_email",
+    label: "Sans e-mail",
+    statuses: ["no_email"],
+    dropStatus: "no_email",
   },
 ];
 

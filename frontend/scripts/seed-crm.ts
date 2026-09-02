@@ -123,6 +123,7 @@ const STATUS_DEPTH: Record<LeadStatus, number> = {
   signed: 6,
   lost: 3,
   not_interested: 2,
+  no_email: 0,
 };
 
 async function main() {

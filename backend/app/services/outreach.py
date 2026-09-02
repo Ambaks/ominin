@@ -40,6 +40,21 @@ def run_outreach(*, flush=None) -> dict:
         if not restaurant or restaurant.get("deleted_at") or not restaurant.get("email"):
             stats["skipped"] += 1
             continue
+        if not emailing.EMAIL_RE.fullmatch(restaurant["email"]):
+            # Gmail would reject it ("Invalid To header") after a Claude call
+            # was spent composing — and again every run, since a failed send
+            # is not a contact. Drop the address and re-scrape instead.
+            sb.table("crm_restaurants").update({"email": None}).eq(
+                "id", restaurant["id"]
+            ).execute()
+            sb.table("outreach_prospects").update({"qualification": "pending"}).eq(
+                "restaurant_id", restaurant["id"]
+            ).execute()
+            sb.table("crm_leads").update({"status": "new"}).eq(
+                "restaurant_id", restaurant["id"]
+            ).eq("status", "to_contact").execute()
+            stats["skipped"] += 1
+            continue
         if not _eligible(sb, restaurant):
             stats["skipped"] += 1
             continue

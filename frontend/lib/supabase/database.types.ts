@@ -1638,6 +1638,7 @@ export type Database = {
         | "signed"
         | "lost"
         | "not_interested"
+        | "no_email"
       crm_priority: "low" | "medium" | "high"
       crm_restaurant_category:
         | "restaurant"
@@ -1844,6 +1845,7 @@ export const Constants = {
         "signed",
         "lost",
         "not_interested",
+        "no_email",
       ],
       crm_priority: ["low", "medium", "high"],
       crm_restaurant_category: [

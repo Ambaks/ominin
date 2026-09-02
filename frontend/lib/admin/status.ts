@@ -36,6 +36,8 @@ export const STATUS_BADGE_CLASSES: Record<LeadStatus, string> = {
   lost: "border-status-lost/40 bg-status-lost/10 text-status-lost",
   not_interested:
     "border-status-not-interested/40 bg-status-not-interested/10 text-status-not-interested",
+  no_email:
+    "border-status-no-email/40 bg-status-no-email/10 text-status-no-email",
 };
 
 /** Pastille pleine (puces de filtres, menu de statut, cartes du pipeline). */
@@ -51,6 +53,7 @@ export const STATUS_DOT_CLASSES: Record<LeadStatus, string> = {
   signed: "bg-status-signed",
   lost: "bg-status-lost",
   not_interested: "bg-status-not-interested",
+  no_email: "bg-status-no-email",
 };
 
 /** Puces de classification des réponses (page E-mails), sur la même gamme
@@ -107,4 +110,5 @@ export const STATUS_MAP_COLORS: Record<LeadStatus, string> = {
   signed: "#3fa04a",
   lost: "#c94444",
   not_interested: "#6e8093",
+  no_email: "#a8895a",
 };

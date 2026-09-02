@@ -188,10 +188,19 @@ export function rowToOutreachEmail(
 }
 
 export function rowToOutreachProspect(
-  row: Omit<Tables<"outreach_prospects">, "site_excerpt">
+  row: Omit<Tables<"outreach_prospects">, "site_excerpt"> & {
+    crm_restaurants: Pick<
+      Tables<"crm_restaurants">,
+      "name" | "city" | "phone" | "website"
+    > | null;
+  }
 ): OutreachProspect {
   return {
     restaurantId: row.restaurant_id,
+    name: row.crm_restaurants?.name ?? null,
+    city: row.crm_restaurants?.city ?? null,
+    phone: row.crm_restaurants?.phone ?? null,
+    website: row.crm_restaurants?.website ?? null,
     qualification: row.qualification as OutreachProspect["qualification"],
     disqualifyReason: row.disqualify_reason,
     hasDigitalMenu: row.has_digital_menu,

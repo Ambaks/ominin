@@ -42,6 +42,8 @@ import type {
   LeadStatus,
   OutreachEmail,
   OutreachProspect,
+  ProspectCounts,
+  ProspectFilter,
   OutreachRun,
   OutreachStats,
   OutreachVariant,
@@ -792,19 +794,70 @@ export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
   return rows.map(rowToOutreachEmail);
 }
 
-export async function fetchOutreachProspects(): Promise<OutreachProspect[]> {
+// site_excerpt (texte du site scrapé) ne sert qu'à autoresearch.
+const PROSPECT_COLUMNS =
+  "restaurant_id, qualification, disqualify_reason, has_digital_menu, email_source, ai_notes, priority_score, enriched_at, created_at, updated_at, crm_restaurants(name, city, phone, website)";
+
+/** Sans filtre : la fenêtre des lignes les plus récentes. Avec un verdict :
+ * toutes ses lignes, paginées au-delà du plafond PostgREST (un verdict
+ * comme « pas d'e-mail » en compte des centaines). */
+export async function fetchOutreachProspects(
+  filter: ProspectFilter = "all"
+): Promise<OutreachProspect[]> {
   const supabase = createClient();
-  const rows = must(
-    await supabase
+  const select = () =>
+    supabase.from("outreach_prospects").select(PROSPECT_COLUMNS);
+  if (filter === "all") {
+    const rows = must(
+      await select()
+        .order("enriched_at", { ascending: false, nullsFirst: false })
+        .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
+    );
+    return rows.map(rowToOutreachProspect);
+  }
+  const column =
+    filter === "qualified" || filter === "pending"
+      ? "qualification"
+      : "disqualify_reason";
+  const PAGE = 1000;
+  const prospects: OutreachProspect[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const batch = must(
+      await select()
+        .eq(column, filter)
+        // Ordre stable obligatoire : sans lui, des pages .range() successives
+        // peuvent se chevaucher.
+        .order("enriched_at", { ascending: false, nullsFirst: false })
+        .order("restaurant_id")
+        .range(from, from + PAGE - 1)
+    );
+    prospects.push(...batch.map(rowToOutreachProspect));
+    if (batch.length < PAGE) return prospects;
+  }
+}
+
+export async function fetchProspectCounts(): Promise<ProspectCounts> {
+  const supabase = createClient();
+  const count = async (
+    column: "qualification" | "disqualify_reason",
+    value: string
+  ) => {
+    const { count, error } = await supabase
       .from("outreach_prospects")
-      // site_excerpt (texte du site scrapé) ne sert qu'à autoresearch.
-      .select(
-        "restaurant_id, qualification, disqualify_reason, has_digital_menu, email_source, ai_notes, priority_score, enriched_at, created_at, updated_at"
-      )
-      .order("enriched_at", { ascending: false, nullsFirst: false })
-      .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
-  );
-  return rows.map(rowToOutreachProspect);
+      .select("restaurant_id", { count: "exact", head: true })
+      .eq(column, value);
+    if (error) throw new Error(error.message);
+    return count ?? 0;
+  };
+  const [qualified, pending, no_email, has_digital_menu, not_worth] =
+    await Promise.all([
+      count("qualification", "qualified"),
+      count("qualification", "pending"),
+      count("disqualify_reason", "no_email"),
+      count("disqualify_reason", "has_digital_menu"),
+      count("disqualify_reason", "not_worth"),
+    ]);
+  return { qualified, pending, no_email, has_digital_menu, not_worth };
 }
 
 export async function fetchOutreachRuns(): Promise<OutreachRun[]> {

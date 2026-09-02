@@ -1,3 +1,4 @@
+import re
 import time
 from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
@@ -9,6 +10,10 @@ from app.services import keepalive, notify
 from app.services.tokens import unsubscribe_url
 
 PARIS = ZoneInfo("Europe/Paris")
+# ASCII only: Gmail rejects accented local parts with "Invalid To header",
+# and a scraped placeholder ('#', 'utilisateur@domaine.com') must never be
+# stored as an address — the shared gate for the scraper and the sender.
+EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
 
 
 def daily_cold_count() -> int:
