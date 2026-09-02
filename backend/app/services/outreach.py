@@ -83,10 +83,12 @@ def run_outreach(*, flush=None) -> dict:
 
 
 def _eligible(sb, restaurant: dict) -> bool:
-    """One cold email per restaurant, ever — and only fresh leads.
+    """One cold email per restaurant — and per address — ever; fresh leads only.
 
-    Only rows representing a real delivery (or one still in flight) count as
-    prior contact: a 'failed'/'cancelled' row means nothing ever reached the
+    Per address too: a group's shared inbox (a chain, a family of
+    restaurants) is pitched once, not once per location. Only rows
+    representing a real delivery (or one still in flight) count as prior
+    contact: a 'failed'/'cancelled' row means nothing ever reached the
     owner, so a transient Gmail error must not burn the restaurant forever."""
     if emailing.is_suppressed(restaurant["email"]):
         # Suppression arrived after qualification — retire the prospect so
@@ -98,7 +100,7 @@ def _eligible(sb, restaurant: dict) -> bool:
     prior = (
         sb.table("outreach_emails")
         .select("id, status")
-        .eq("restaurant_id", restaurant["id"])
+        .or_(f"restaurant_id.eq.{restaurant['id']},to_email.eq.{restaurant['email']}")
         .eq("direction", "outbound")
         .in_("status", ["approved", "pending_approval", "sending", "sent"])
         .limit(1)

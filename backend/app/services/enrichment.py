@@ -14,8 +14,14 @@ from app.services import keepalive
 from app.services.emailing import EMAIL_RE, is_suppressed
 
 BAD_EMAIL_RE = re.compile(
-    r"no-?reply|example\.|domaine\.|sentry|wixpress|wix\.com|squarespace|schema\.org"
-    r"|@\d+x\.|\.(?:png|jpe?g|webp|svg|gif)$",
+    r"no-?reply|example\.|exemple\.|domaine\.|mysite\.com|^nc@|sentry|wixpress|wix\.com"
+    r"|squarespace|schema\.org|ionos\.|@\d+x\.|\.(?:png|jpe?g|webp|svg|gif)$"
+    # Platforms and agencies whose address rides on their clients' sites
+    # (booking widgets, "site by…" credits): reaching them is not reaching
+    # the restaurant — one such address was stored for 73 restaurants.
+    r"|privateaser|udevweb|hrvprod"
+    # Role addresses that are never the owner's sales contact.
+    r"|^(?:recruit|recrutement|job|career|press|presse|dev|developer|webmaster)[\w.-]*@",
     re.IGNORECASE,
 )
 # Consumer mailboxes French restaurateurs actually use — the only foreign
