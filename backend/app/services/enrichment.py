@@ -20,7 +20,7 @@ BAD_EMAIL_RE = re.compile(
     # Platforms and agencies whose address rides on their clients' sites
     # (booking widgets, "site by…" credits): reaching them is not reaching
     # the restaurant — one such address was stored for 73 restaurants.
-    r"|privateaser|udevweb|hrvprod"
+    r"|privateaser|udevweb|hrvprod|urecommend|wecheers"
     # Role addresses that are never the owner's sales contact.
     r"|^(?:recruit|recrutement|job|career|press|presse|dev|developer|webmaster)[\w.-]*@",
     re.IGNORECASE,
@@ -111,6 +111,8 @@ def _scrape(sb, restaurant: dict) -> dict:
     email_source = None
     if not email and site:
         email = _pick_email(site["emails"], site["embedded_emails"], restaurant["website"])
+        if email and _shared_domain(sb, email, restaurant["id"]):
+            email = None
         if email:
             email_source = "website"
             sb.table("crm_restaurants").update({"email": email}).eq(
@@ -315,6 +317,25 @@ def _pick_email(visible: list[str], embedded: list[str], website: str) -> str | 
         if c not in candidates and (own(c) or WEBMAIL_RE.search(c))
     ]
     return next((c for c in candidates if own(c)), candidates[0] if candidates else None)
+
+
+def _shared_domain(sb, email: str, restaurant_id: str) -> bool:
+    """Is this non-consumer domain already the address of several other
+    restaurants? Then it is a platform or an agency riding on their sites
+    (see email_shared_domain_max) — a blocklist only catches the ones
+    already noticed."""
+    if WEBMAIL_RE.search(email):
+        return False
+    domain = email.rsplit("@", 1)[-1]
+    count = (
+        sb.table("crm_restaurants")
+        .select("id", count="exact")
+        .ilike("email", f"%@{domain}")
+        .neq("id", restaurant_id)
+        .limit(1)
+        .execute()
+    ).count or 0
+    return count >= settings.email_shared_domain_max
 
 
 def _label(host: str) -> str:

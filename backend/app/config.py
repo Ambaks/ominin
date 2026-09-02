@@ -111,13 +111,20 @@ class Settings(BaseSettings):
     # addresses instead, each up to this many bytes.
     scrape_shell_text_chars: int = 300
     scrape_bundle_max_bytes: int = 3_000_000
+    # A non-consumer e-mail domain already stored for this many other
+    # restaurants belongs to a platform or an agency, not to the restaurant
+    # whose site carries it (a booking widget's address was found on 33
+    # sites, a web agency's on 73). A chain's shared inbox is still reached
+    # through its first locations.
+    email_shared_domain_max: int = 3
     qualify_excerpt_chars: int = 3000
 
     # Digital-menu provider fingerprints: a website linking to any of these
     # domains means the restaurant already has a QR/online menu solution.
     qr_menu_provider_domains: str = (
         "zenchef.com,sundayapp.com,tastycloud.fr,obypay.com,deliverect.com,"
-        "dood.com,tabesto.com,innovorder.fr,eatbu.com,laddition.com,menu.ominin.com"
+        "dood.com,tabesto.com,innovorder.fr,eatbu.com,laddition.com,wecheers.app,"
+        "menu.ominin.com"
     )
 
     # Unsubscribe link (CNIL). The same secret must be set in Vercel as
