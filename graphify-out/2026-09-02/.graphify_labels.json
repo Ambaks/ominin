@@ -151,8 +151,6 @@
   "149": "getPaintAffectingGlobalStateRefs",
   "150": "gb",
   "151": "getUniforms",
-  "152": "_deserializeCollisionBoxesForSymbol",
-  "153": "getOriginZoom",
   "154": "nb",
   "155": "loading.tsx",
   "156": "enrichment.py",

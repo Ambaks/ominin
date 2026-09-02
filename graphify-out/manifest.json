@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788353072.8162363,
-    "ast_hash": "c2613cb6387e30c4eda07db3cecce9f2",
+    "mtime": 1788359183.3974872,
+    "ast_hash": "2a8d1b256a540b6a2a8dcfb44f1e071c",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2152,6 +2152,11 @@
   "supabase/migrations/20260901000003_autoresearch_variant_stats.sql": {
     "mtime": 1788293403.2523696,
     "ast_hash": "e6850b75d430706d738dfc3c9cac9a8d",
+    "semantic_hash": ""
+  },
+  ".github/workflows/agent-enrich.yml": {
+    "mtime": 1788359107.2280173,
+    "ast_hash": "c7bd6d987870c3e3b6f2187d43c1d4e4",
     "semantic_hash": ""
   }
 }

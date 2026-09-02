@@ -1,0 +1,20 @@
+# Qualification seule, à la demande — pour vider un arriéré de prospects
+# 'pending' sans attendre le prochain cycle de découverte (qui n'enchaîne
+# qu'un lot). Un 409 signifie qu'un lot tourne déjà : pas un échec.
+name: agent-enrich
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/enrich
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 \
+            --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/enrich")
+          echo "enrich: HTTP $code"
+          case "$code" in 202|409) ;; *) exit 1 ;; esac
