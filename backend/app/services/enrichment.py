@@ -220,7 +220,8 @@ def _fetch_site(website: str) -> dict | None:
         # blobs site builders embed are where many owners' addresses live.
         embedded.extend(EMAIL_RE.findall(html))
 
-    full_text = " ".join(texts)
+    # Postgres text cannot hold NUL, which some pages carry.
+    full_text = " ".join(texts).replace("\x00", "")
     providers = [d.strip() for d in settings.qr_menu_provider_domains.split(",") if d.strip()]
     host = urlparse(website).netloc.lower()
     has_digital_menu = (
