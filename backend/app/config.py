@@ -60,13 +60,13 @@ class Settings(BaseSettings):
     # Gmail's consumer ceiling (~500 recipients/day) is shared with replies —
     # when raising the cap, ramp via env week by week; never jump a fresh
     # mailbox straight up.
-    outreach_daily_limit: int = 100
-    outreach_run_batch_size: int = 100
+    outreach_daily_limit: int = 200
+    outreach_run_batch_size: int = 200
     outreach_send_delay_seconds: int = 12
     # Nightly qualification budget (one Claude call per prospect) — sized to
     # keep the qualified pool ahead of outreach_daily_limit, given that a
     # share of prospects disqualifies (no email, already digital…).
-    enrichment_batch_size: int = 150
+    enrichment_batch_size: int = 300
     inbox_max_messages: int = 50
     inbox_lookback_days: int = 7
     # A 'running' run younger than this blocks a new run of the same job;

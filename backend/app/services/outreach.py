@@ -4,14 +4,16 @@ from app.config import settings
 from app.prompts.cold_email import COLD_EMAIL_RULES, ColdEmail
 from app.prompts.persona import LEA_PERSONA, build_email_body
 from app.services import emailing, keepalive
+from app.services.inbox import sweep_bounces
 from app.services.tokens import unsubscribe_url
 
 
 def run_outreach(*, flush=None) -> dict:
     sb = get_supabase()
+    bounce_stats = sweep_bounces()
     sent_today = emailing.daily_cold_count()
     quota = settings.outreach_daily_limit - sent_today
-    stats = {"composed": 0, "skipped": 0}
+    stats = {"composed": 0, "skipped": 0, "bounces_cleared": bounce_stats["bounces"]}
     if quota <= 0:
         return {**stats, "sent": 0, "note": "daily limit reached"}
 

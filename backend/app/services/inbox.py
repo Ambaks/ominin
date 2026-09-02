@@ -28,6 +28,107 @@ CLASSIFICATION_TITLES = {
 INTERESTED_FROM = ["new", "to_contact", "contacted"]
 
 
+def sweep_bounces() -> dict:
+    """Regex-only bounce sweep — no Claude calls.
+
+    Called by outreach before composing to reclaim daily quota for emails
+    that bounced since the last inbox run.  Non-bounce replies are left
+    for the full hourly inbox job."""
+    sb = get_supabase()
+    stats = {"bounces": 0, "skipped": 0}
+
+    for stub in gmail.list_inbox(
+        newer_than_days=settings.inbox_lookback_days,
+        max_results=settings.inbox_max_messages,
+    ):
+        already = (
+            sb.table("outreach_emails")
+            .select("id")
+            .eq("gmail_message_id", stub["id"])
+            .limit(1)
+            .execute()
+        ).data
+        if already:
+            continue
+
+        thread = (
+            sb.table("outreach_emails")
+            .select("id, restaurant_id, lead_id, to_email")
+            .eq("gmail_thread_id", stub["threadId"])
+            .eq("direction", "outbound")
+            .order("created_at", desc=True)
+            .execute()
+        ).data
+        if not thread:
+            continue
+
+        message = gmail.get_message(stub["id"])
+        headers = gmail.extract_headers(message)
+        sender = headers.get("from", "")
+        subject = headers.get("subject", "")
+
+        if not (BOUNCE_FROM_RE.search(sender) or BOUNCE_SUBJECT_RE.search(subject)):
+            stats["skipped"] += 1
+            continue
+
+        outbound = thread[0]
+        body = gmail.extract_body_text(message).strip()
+        received_at = datetime.fromtimestamp(
+            int(message.get("internalDate", 0)) / 1000, tz=UTC
+        ).isoformat()
+
+        inbound = (
+            sb.table("outreach_emails")
+            .insert(
+                {
+                    "restaurant_id": outbound["restaurant_id"],
+                    "lead_id": outbound["lead_id"],
+                    "direction": "inbound",
+                    "kind": "reply",
+                    "status": "received",
+                    "to_email": settings.gmail_sender_email,
+                    "from_email": sender,
+                    "subject": subject,
+                    "body_text": body,
+                    "gmail_message_id": stub["id"],
+                    "gmail_thread_id": stub["threadId"],
+                    "received_at": received_at,
+                    "classification": "bounce",
+                    "metadata": {"message_id_header": headers.get("message-id")},
+                }
+            )
+            .execute()
+        ).data[0]
+
+        sb.table("outreach_emails").update(
+            {"status": "failed", "error": "bounced"}
+        ).eq("id", outbound["id"]).execute()
+
+        contact_email = (outbound.get("to_email") or "").lower()
+        if contact_email:
+            emailing.add_suppression(contact_email, "bounce", outbound["restaurant_id"])
+        if outbound.get("lead_id"):
+            sb.table("crm_leads").update({"status": "to_contact"}).eq(
+                "id", outbound["lead_id"]
+            ).eq("status", "contacted").execute()
+
+        emailing.log_email_activity(
+            outbound["restaurant_id"],
+            outbound["lead_id"],
+            CLASSIFICATION_TITLES["bounce"],
+            (body[:200] or None),
+            {
+                "outreach_email_id": inbound["id"],
+                "gmail_thread_id": stub["threadId"],
+                "direction": "inbound",
+                "classification": "bounce",
+            },
+        )
+        stats["bounces"] += 1
+
+    return stats
+
+
 def run_inbox(*, flush=None) -> dict:
     sb = get_supabase()
     stats = {"ingested": 0, "classified": 0, "drafted": 0, "skipped": 0}
