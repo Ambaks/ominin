@@ -36,6 +36,8 @@ async def _parse[T: BaseModel](
     options = ClaudeAgentOptions(
         system_prompt=system,
         model=settings.outreach_model,
+        effort=settings.outreach_effort,
+        thinking={"type": "adaptive"},
         allowed_tools=[],
         permission_mode="dontAsk",
         env=_credentials_env(),

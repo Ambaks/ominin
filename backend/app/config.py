@@ -55,8 +55,9 @@ class Settings(BaseSettings):
     gmail_sender_name: str = "Léa Moreau"
 
     # Claude model used for qualification, cold emails, reply drafts,
-    # and autoresearch analysis.
+    # and autoresearch analysis — with adaptive thinking on, at this effort.
     outreach_model: str = "claude-opus-5"
+    outreach_effort: str = "high"
 
     # Batching / limits. Each outreach run composes and sends up to the full
     # daily cap in one pass; remaining cron runs that day exit immediately.
