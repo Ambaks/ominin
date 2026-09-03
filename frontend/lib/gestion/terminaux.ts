@@ -20,13 +20,38 @@ export interface PrinterInput {
   deviceId: string;
 }
 
-const DUPLICATE_PRINTER = "printers_device_id_host_port_key";
+/** Contraintes Postgres traduites pour l'écran. */
+const CONSTRAINT_MESSAGES: Record<string, string> = {
+  printers_device_id_host_port_key:
+    "Une imprimante est déjà déclarée à cette adresse.",
+  printers_device_id_fkey: "Retirez d'abord les imprimantes de ce boîtier.",
+};
 
 function save(result: { error: { message: string } | null }): void {
-  if (result.error?.message.includes(DUPLICATE_PRINTER)) {
-    throw new Error("Une imprimante est déjà déclarée à cette adresse.");
+  const message = result.error?.message;
+  if (message) {
+    for (const [constraint, friendly] of Object.entries(CONSTRAINT_MESSAGES)) {
+      if (message.includes(constraint)) throw new Error(friendly);
+    }
   }
   check(result);
+}
+
+/** Déclare un boîtier et renvoie son jeton — affiché une seule fois. */
+export async function createDevice(
+  etablissementId: string,
+  name: string
+): Promise<string> {
+  return must(
+    await createClient().rpc("omilink_provision_device", {
+      p_etablissement_id: etablissementId,
+      p_name: name,
+    })
+  );
+}
+
+export async function deleteDevice(id: string): Promise<void> {
+  save(await createClient().from("omilink_devices").delete().eq("id", id));
 }
 
 export async function loadTerminaux(

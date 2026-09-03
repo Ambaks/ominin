@@ -1745,6 +1745,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       member_etablissements: { Args: never; Returns: string[] }
+      omilink_provision_device: {
+        Args: { p_etablissement_id: string; p_name: string }
+        Returns: string
+      }
       place_order: {
         Args: { p_items: Json; p_slug: string; p_table_number: number }
         Returns: string

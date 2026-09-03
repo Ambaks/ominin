@@ -167,6 +167,7 @@
   "165": "fire",
   "166": "manifest.ts",
   "167": "_refreshViews",
+  "168": "constructor",
   "170": "sw.js",
   "171": "recalculate",
   "172": "_getByteView",
@@ -174,8 +175,5 @@
   "174": "__init__.py",
   "175": "__init__.py",
   "176": "__init__.py",
-  "177": "sb",
-  "179": "geometryType",
-  "180": "getPaintAffectingGlobalStateRefs",
   "181": "_deserializeCollisionBoxesForSymbol"
 }

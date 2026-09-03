@@ -910,8 +910,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1788472315.8865702,
-    "ast_hash": "d74d7c45ca81f1ec4e2dcffad9e0b5b7",
+    "mtime": 1788476634.051309,
+    "ast_hash": "f33263e6bc80733e8c4c90d071483d3e",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788369861.9845037,
-    "ast_hash": "b9f430b7bba2be7cfe939c7236670b9f",
+    "mtime": 1788476071.559456,
+    "ast_hash": "51b322a804f39d42de7892d24595519e",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1645,12 +1645,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788472500.7431946,
+    "mtime": 1788476829.8558812,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788472500.736842,
+    "mtime": 1788476829.8507285,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -2175,13 +2175,13 @@
     "semantic_hash": ""
   },
   "omilink/omilink/__main__.py": {
-    "mtime": 1788475772.5522137,
-    "ast_hash": "2ee0e137ca1c8bca08fa0c99e5755805",
+    "mtime": 1788476940.0442724,
+    "ast_hash": "a420fc91cd6bd67ba33740fc41db17e4",
     "semantic_hash": ""
   },
   "omilink/omilink/config.py": {
-    "mtime": 1788472270.3846276,
-    "ast_hash": "e09a2107c0660074a5a9aa9eadeb959a",
+    "mtime": 1788476926.508097,
+    "ast_hash": "44b4f6e2e20bfde1af2255dd3fce7f94",
     "semantic_hash": ""
   },
   "omilink/pyproject.toml": {
@@ -2200,13 +2200,13 @@
     "semantic_hash": ""
   },
   "omilink/compose.yaml": {
-    "mtime": 1788471177.5408978,
-    "ast_hash": "4e4f4239e4be7035dc7978aab074528b",
+    "mtime": 1788476922.0984771,
+    "ast_hash": "7e814b8e6c3bcec6808b2bc030adae24",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
-    "mtime": 1788472489.4196134,
-    "ast_hash": "25f19db0ef6f66e1c683ba390f8eeaac",
+    "mtime": 1788476716.037974,
+    "ast_hash": "e3f89d25f787cbf4c546d3431ab2d1e4",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/printer-form-modal.tsx": {
@@ -2215,8 +2215,18 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/terminaux.ts": {
-    "mtime": 1788472341.4656434,
-    "ast_hash": "e89633952c5a0eb06a1bec67a55235f3",
+    "mtime": 1788476639.3050685,
+    "ast_hash": "f028dac2610dc5b91834a19a1c4fc3df",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/terminaux/device-add-modal.tsx": {
+    "mtime": 1788476945.2764688,
+    "ast_hash": "47732472d8092d74707622cde5bc5856",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260904000001_omilink_self_service.sql": {
+    "mtime": 1788476631.9438412,
+    "ast_hash": "9674334556e86573dbeff9eeae8d2691",
     "semantic_hash": ""
   }
 }

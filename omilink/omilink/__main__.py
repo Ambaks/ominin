@@ -11,33 +11,34 @@ import socket
 import time
 
 import httpx
+from pydantic import ValidationError
 
-from omilink.config import settings
+from omilink.config import Settings
 
 log = logging.getLogger("omilink")
 
 
-def connect(printer: dict) -> socket.socket:
-    return socket.create_connection(
-        (printer["host"], printer["port"]), timeout=settings.printer_timeout_seconds
-    )
-
-
 class Bridge:
-    def __init__(self, backend: httpx.Client) -> None:
+    def __init__(self, backend: httpx.Client, settings: Settings) -> None:
         self.backend = backend
+        self.settings = settings
         self.printers: list[dict] = []
         # id d'imprimante → erreur (None = joignable), alimenté par les
         # impressions et le contrôle périodique, vidé à chaque synchronisation.
         self.status: dict[str, str | None] = {}
         self.checked_at = float("-inf")
 
+    def connect(self, printer: dict) -> socket.socket:
+        return socket.create_connection(
+            (printer["host"], printer["port"]), timeout=self.settings.printer_timeout_seconds
+        )
+
     def sync(self) -> list[dict]:
         response = self.backend.post(
             "/omilink/sync",
             json={
                 "hostname": socket.gethostname(),
-                "version": settings.version,
+                "version": self.settings.version,
                 "printers": [{"id": id, "error": error} for id, error in self.status.items()],
             },
         )
@@ -52,7 +53,7 @@ class Bridge:
         for job in jobs:
             printer = printers[job["printer_id"]]
             try:
-                with connect(printer) as conn:
+                with self.connect(printer) as conn:
                     conn.sendall(base64.b64decode(job["data"]))
             except OSError as exc:
                 self.status[printer["id"]] = str(exc)
@@ -63,12 +64,12 @@ class Bridge:
             log.info("printed job %s on %s", job["id"], printer["host"])
 
     def check_printers(self) -> None:
-        if time.monotonic() - self.checked_at < settings.printer_check_interval_seconds:
+        if time.monotonic() - self.checked_at < self.settings.printer_check_interval_seconds:
             return
         self.checked_at = time.monotonic()
         for printer in self.printers:
             try:
-                connect(printer).close()
+                self.connect(printer).close()
                 self.status[printer["id"]] = None
             except OSError as exc:
                 self.status[printer["id"]] = str(exc)
@@ -82,6 +83,16 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     # httpx journalise chaque requête : une ligne toutes les 3 s, sans intérêt.
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    try:
+        settings = Settings()
+    except ValidationError as exc:
+        missing = ", ".join(str(error["loc"][0]).upper() for error in exc.errors())
+        log.error(
+            "configuration incomplète (%s) : renseignez omilink.env sur la carte SD "
+            "du boîtier, puis redémarrez-le",
+            missing,
+        )
+        raise SystemExit(1) from None
     log.info(
         "omilink %s polling %s every %ss",
         settings.version,
@@ -93,7 +104,7 @@ def main() -> None:
         headers={"Authorization": f"Bearer {settings.device_token}"},
         timeout=settings.backend_timeout_seconds,
     ) as backend:
-        bridge = Bridge(backend)
+        bridge = Bridge(backend, settings)
         while True:
             try:
                 bridge.run_once()

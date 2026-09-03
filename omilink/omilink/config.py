@@ -2,9 +2,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # Sur le boîtier, .env est omilink.env de la carte SD (voir compose.yaml).
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # URL publique du backend et jeton de l'appareil (omilink_provision_device).
+    # URL publique du backend et jeton de l'appareil (onglet Terminaux →
+    # « Ajouter un boîtier »).
     backend_url: str
     device_token: str
     # Version de l'image, gravée au build (Dockerfile) et remontée au backend.
@@ -18,6 +20,3 @@ class Settings(BaseSettings):
     # l'imprimante, elle, répond en local.
     backend_timeout_seconds: float = 30
     printer_timeout_seconds: float = 10
-
-
-settings = Settings()

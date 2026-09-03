@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
+import { DeviceAddModal } from "@/components/gestion/terminaux/device-add-modal";
 import { PrinterFormModal } from "@/components/gestion/terminaux/printer-form-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +13,7 @@ import { formatDateTime, formatTime } from "@/lib/gestion/format";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
   createPrinter,
+  deleteDevice,
   deletePrinter,
   fetchJobs,
   isRecent,
@@ -27,12 +29,17 @@ import {
 /*
  * Le gérant voit ici ses boîtiers Omilink (le Raspberry Pi qui relie la
  * cuisine à Ominin) et ses imprimantes, leur état de santé rafraîchi en
- * continu, et déclare, modifie, teste ou retire une imprimante.
+ * continu ; il déclare un boîtier (et obtient son jeton), déclare, modifie,
+ * teste ou retire une imprimante.
  */
 
 const cardClass = "rounded-2xl border border-hairline bg-surface px-4 py-3";
 const iconButtonClass =
   "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground";
+const deleteButtonClass =
+  "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3";
+const addButtonClass =
+  "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background";
 
 type Health = "ok" | "ko" | "unknown";
 
@@ -46,22 +53,40 @@ function StatusDot({ health }: { health: Health }) {
   return <span className={`size-2 shrink-0 rounded-full ${DOT_CLASS[health]}`} />;
 }
 
-function DeviceCard({ device, now }: { device: OmilinkDevice; now: number }) {
+function DeviceCard({
+  device,
+  now,
+  onDelete,
+}: {
+  device: OmilinkDevice;
+  now: number;
+  onDelete: () => void;
+}) {
   const online = isRecent(device.last_seen_at, now);
   return (
-    <div className={cardClass}>
-      <p className="flex items-center gap-2 text-sm font-medium">
-        <StatusDot health={online ? "ok" : "ko"} />
-        <span className="truncate">{device.name}</span>
-      </p>
-      <p className="text-xs text-faint">
-        {online
-          ? "En ligne"
-          : device.last_seen_at
-            ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
-            : "Jamais connecté"}
-        {device.version && ` · version ${device.version.slice(0, 7)}`}
-      </p>
+    <div className={`${cardClass} flex items-start justify-between gap-3`}>
+      <div className="min-w-0">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <StatusDot health={online ? "ok" : device.last_seen_at ? "ko" : "unknown"} />
+          <span className="truncate">{device.name}</span>
+        </p>
+        <p className="text-xs text-faint">
+          {online
+            ? "En ligne"
+            : device.last_seen_at
+              ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
+              : "Jamais connecté — en attente de sa première connexion"}
+          {device.version && ` · version ${device.version.slice(0, 7)}`}
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onDelete}
+        aria-label="Retirer le boîtier"
+        className={deleteButtonClass}
+      >
+        <TrashIcon className="size-3.5" />
+      </button>
     </div>
   );
 }
@@ -143,7 +168,7 @@ function PrinterCard({
           type="button"
           onClick={onDelete}
           aria-label="Supprimer"
-          className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3"
+          className={deleteButtonClass}
         >
           <TrashIcon className="size-3.5" />
         </button>
@@ -163,8 +188,10 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   const [tests, setTests] = useState<Record<string, PrintJob>>({});
   const pendingTests = useRef(new Set<string>());
   const [now, setNow] = useState(() => Date.now());
+  const [addingDevice, setAddingDevice] = useState(false);
+  const [deviceToDelete, setDeviceToDelete] = useState<OmilinkDevice | null>(null);
   const [editing, setEditing] = useState<Editing>(null);
-  const [toDelete, setToDelete] = useState<Printer | null>(null);
+  const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
 
   const refresh = useCallback(async () => {
     const [data, jobs] = await Promise.all([
@@ -186,24 +213,20 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
     }
   }, [etablissementId]);
 
+  const report = useCallback(
+    (error: unknown) =>
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue."),
+    [toast]
+  );
+
   useEffect(() => {
-    const load = () =>
-      refresh().catch((error) =>
-        toast.error(
-          error instanceof Error ? error.message : "Une erreur est survenue."
-        )
-      );
+    const load = () => refresh().catch(report);
     load();
     const timer = setInterval(load, TERMINAUX_REFRESH_MS);
     return () => clearInterval(timer);
-    // toast est stable (contexte) ; on ne recharge que par établissement.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]);
+  }, [refresh, report]);
 
-  const report = (error: unknown) =>
-    toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
-
-  const save = async (input: PrinterInput) => {
+  const savePrinter = async (input: PrinterInput) => {
     try {
       if (editing?.mode === "edit") {
         await updatePrinter(editing.printer.id, input);
@@ -219,11 +242,22 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
     }
   };
 
-  const remove = async (printer: Printer) => {
-    setToDelete(null);
+  const removePrinter = async (printer: Printer) => {
+    setPrinterToDelete(null);
     try {
       await deletePrinter(printer.id);
       toast.success(`${printer.name} retirée.`);
+      await refresh();
+    } catch (error) {
+      report(error);
+    }
+  };
+
+  const removeDevice = async (device: OmilinkDevice) => {
+    setDeviceToDelete(null);
+    try {
+      await deleteDevice(device.id);
+      toast.success(`${device.name} retiré.`);
       await refresh();
     } catch (error) {
       report(error);
@@ -251,19 +285,33 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   }
 
   const deviceById = new Map(devices.map((device) => [device.id, device]));
+  const addDeviceButton = (
+    <button type="button" onClick={() => setAddingDevice(true)} className={addButtonClass}>
+      Ajouter un boîtier
+    </button>
+  );
 
   return (
     <div className="flex max-w-xl flex-col gap-8">
       <section className="flex flex-col gap-3">
-        <h2 className="font-display text-lg font-medium">Boîtier Omilink</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-display text-lg font-medium">Boîtiers Omilink</h2>
+          {devices.length > 0 && addDeviceButton}
+        </div>
         {devices.length ? (
           devices.map((device) => (
-            <DeviceCard key={device.id} device={device} now={now} />
+            <DeviceCard
+              key={device.id}
+              device={device}
+              now={now}
+              onDelete={() => setDeviceToDelete(device)}
+            />
           ))
         ) : (
           <EmptyState
             title="Aucun boîtier Omilink"
-            body="Le boîtier Omilink relie vos imprimantes à Ominin. Il est fourni et configuré par Ominin : contactez-nous pour équiper votre établissement."
+            body="Le boîtier Omilink relie vos imprimantes à Ominin. Ajoutez-le pour obtenir le jeton à reporter dans sa configuration."
+            action={addDeviceButton}
           />
         )}
       </section>
@@ -275,9 +323,9 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
             <button
               type="button"
               onClick={() => setEditing({ mode: "new" })}
-              className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+              className={addButtonClass}
             >
-              Ajouter
+              Ajouter une imprimante
             </button>
           )}
         </div>
@@ -294,36 +342,55 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
                 now={now}
                 onTest={() => void test(printer)}
                 onEdit={() => setEditing({ mode: "edit", printer })}
-                onDelete={() => setToDelete(printer)}
+                onDelete={() => setPrinterToDelete(printer)}
               />
             );
           })
         ) : (
-          devices.length > 0 && (
-            <EmptyState
-              title="Aucune imprimante"
-              body="Déclarez l'imprimante de la cuisine : chaque nouvelle commande y sortira en ticket."
-            />
-          )
+          <EmptyState
+            title="Aucune imprimante"
+            body={
+              devices.length
+                ? "Déclarez l'imprimante de la cuisine : chaque nouvelle commande y sortira en ticket."
+                : "Ajoutez d'abord un boîtier Omilink : c'est lui qui relie les imprimantes à Ominin."
+            }
+          />
         )}
       </section>
 
+      {addingDevice && (
+        <DeviceAddModal
+          etablissementId={etablissementId}
+          onCreated={() => void refresh().catch(report)}
+          onClose={() => setAddingDevice(false)}
+        />
+      )}
+      {deviceToDelete && (
+        <ConfirmDialog
+          title="Retirer le boîtier"
+          message={`${deviceToDelete.name} ne pourra plus se connecter à Ominin ; son jeton devient inutilisable.`}
+          confirmLabel="Retirer"
+          destructive
+          onConfirm={() => void removeDevice(deviceToDelete)}
+          onClose={() => setDeviceToDelete(null)}
+        />
+      )}
       {editing && (
         <PrinterFormModal
           printer={editing.mode === "edit" ? editing.printer : null}
           devices={devices}
-          onSubmit={save}
+          onSubmit={savePrinter}
           onClose={() => setEditing(null)}
         />
       )}
-      {toDelete && (
+      {printerToDelete && (
         <ConfirmDialog
           title="Retirer l'imprimante"
-          message={`${toDelete.name} ne recevra plus les tickets de commande. Ses tickets en attente sont abandonnés.`}
+          message={`${printerToDelete.name} ne recevra plus les tickets de commande. Ses tickets en attente sont abandonnés.`}
           confirmLabel="Retirer"
           destructive
-          onConfirm={() => void remove(toDelete)}
-          onClose={() => setToDelete(null)}
+          onConfirm={() => void removePrinter(printerToDelete)}
+          onClose={() => setPrinterToDelete(null)}
         />
       )}
     </div>
