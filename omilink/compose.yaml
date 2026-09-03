@@ -1,0 +1,23 @@
+# Pile installée sur le Raspberry Pi (~/omilink/ avec son .env). Réseau
+# hôte : le conteneur atteint l'imprimante sur le LAN du restaurant sans
+# NAT. Watchtower tire la nouvelle image dès qu'elle est publiée (vérifie
+# toutes les heures) et redémarre le pont : aucune mise à jour ne demande
+# de SSH. Les journaux sont plafonnés pour ménager la carte SD.
+services:
+  omilink:
+    image: ghcr.io/ambaks/omilink:latest
+    restart: unless-stopped
+    env_file: .env
+    network_mode: host
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup --interval 3600

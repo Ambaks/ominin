@@ -18,3 +18,13 @@ export function formatTime(iso: string): string {
     minute: "2-digit",
   });
 }
+
+/** « 3 sept., 14:32 » — pour un instant qui peut dater d'un autre jour. */
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

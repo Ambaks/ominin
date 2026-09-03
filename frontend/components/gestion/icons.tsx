@@ -184,6 +184,17 @@ export function PaymentsIcon(props: IconProps) {
   );
 }
 
+export function PrinterIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M7 8V3.5h10V8" />
+      <rect x="3" y="8" width="18" height="9" rx="2" />
+      <path d="M7 13.5h10v7H7z" />
+      <path d="M17.5 11h.01" />
+    </Svg>
+  );
+}
+
 export function BellIcon(props: IconProps) {
   return (
     <Svg {...props}>

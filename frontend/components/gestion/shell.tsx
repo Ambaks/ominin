@@ -22,6 +22,7 @@ import {
   GearIcon,
   LogoutIcon,
   MenuIcon,
+  PrinterIcon,
   ProductsIcon,
   TablesIcon,
   TeamIcon,
@@ -47,6 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
+  { href: "/gestion/terminaux", label: "Terminaux", feature: "commandes", icon: PrinterIcon, gerantOnly: true },
 ];
 
 /**

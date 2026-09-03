@@ -19,6 +19,13 @@ export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Nombre de commandes par page dans l'historique (chargement à la demande). */
 export const HISTORY_PAGE_SIZE = 50;
 
+/** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
+export const TERMINAUX_REFRESH_MS = 5000;
+/** Un appareil ou une imprimante sans nouvelle depuis ce délai est hors ligne. */
+export const TERMINAL_ONLINE_WINDOW_MS = 60_000;
+/** Port d'une imprimante ESC/POS (miroir du défaut SQL de printers.port). */
+export const DEFAULT_PRINTER_PORT = 9100;
+
 /** Statuts d'historique : commandes clôturées. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
 

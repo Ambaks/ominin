@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.routers.agent import router as agent_router
+from app.routers.omilink import router as omilink_router
 
 app = FastAPI(title="Ominin API")
 
@@ -15,6 +16,7 @@ app.add_middleware(
 )
 
 app.include_router(agent_router)
+app.include_router(omilink_router)
 
 
 @app.get("/health")

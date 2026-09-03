@@ -927,6 +927,44 @@ export type Database = {
           },
         ]
       }
+      omilink_devices: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          hostname: string | null
+          id: string
+          last_seen_at: string | null
+          name: string
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          hostname?: string | null
+          id?: string
+          last_seen_at?: string | null
+          name: string
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          hostname?: string | null
+          id?: string
+          last_seen_at?: string | null
+          name?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omilink_devices_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
@@ -1342,6 +1380,112 @@ export type Database = {
           },
         ]
       }
+      print_jobs: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          kind: Database["public"]["Enums"]["print_job_kind"]
+          order_id: string | null
+          printed_at: string | null
+          printer_id: string
+          status: Database["public"]["Enums"]["print_job_status"]
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["print_job_kind"]
+          order_id?: string | null
+          printed_at?: string | null
+          printer_id: string
+          status?: Database["public"]["Enums"]["print_job_status"]
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["print_job_kind"]
+          order_id?: string | null
+          printed_at?: string | null
+          printer_id?: string
+          status?: Database["public"]["Enums"]["print_job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "print_jobs_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "print_jobs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "print_jobs_printer_id_fkey"
+            columns: ["printer_id"]
+            isOneToOne: false
+            referencedRelation: "printers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      printers: {
+        Row: {
+          checked_at: string | null
+          created_at: string
+          device_id: string
+          etablissement_id: string
+          host: string
+          id: string
+          last_error: string | null
+          name: string
+          port: number
+        }
+        Insert: {
+          checked_at?: string | null
+          created_at?: string
+          device_id: string
+          etablissement_id: string
+          host: string
+          id?: string
+          last_error?: string | null
+          name: string
+          port?: number
+        }
+        Update: {
+          checked_at?: string | null
+          created_at?: string
+          device_id?: string
+          etablissement_id?: string
+          host?: string
+          id?: string
+          last_error?: string | null
+          name?: string
+          port?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "printers_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "omilink_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printers_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_notified: {
         Row: {
           event: string
@@ -1682,6 +1826,8 @@ export type Database = {
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne"
       payment_provider: "stripe" | "sumup"
+      print_job_kind: "order" | "test"
+      print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
     }
     CompositeTypes: {
@@ -1894,6 +2040,8 @@ export const Constants = {
       ],
       payment_mode: ["especes", "carte", "en_ligne"],
       payment_provider: ["stripe", "sumup"],
+      print_job_kind: ["order", "test"],
+      print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
     },
   },

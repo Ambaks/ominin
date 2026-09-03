@@ -149,5 +149,11 @@ class Settings(BaseSettings):
     # address instead of the real recipient.
     outreach_redirect_to: str = ""
 
+    # Omilink (pont d'impression). Les tickets sont rendus ici en ESC/POS :
+    # largeur en caractères par ligne (police A — 42 sur papier 80 mm, 32 sur
+    # 58 mm) et fuseau des heures imprimées.
+    omilink_ticket_columns: int = 42
+    omilink_timezone: str = "Europe/Paris"
+
 
 settings = Settings()
