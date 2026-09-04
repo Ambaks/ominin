@@ -661,6 +661,7 @@ export type Database = {
           collect_slot_capacity: number
           cover_image: string | null
           created_at: string
+          google_review_url: string | null
           hours: string
           id: string
           name: string
@@ -679,6 +680,7 @@ export type Database = {
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
+          google_review_url?: string | null
           hours?: string
           id?: string
           name: string
@@ -697,6 +699,7 @@ export type Database = {
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
+          google_review_url?: string | null
           hours?: string
           id?: string
           name?: string
@@ -972,7 +975,10 @@ export type Database = {
           name: string
           options: Json
           order_id: string
+          paid_at: string | null
+          paid_mode: Database["public"]["Enums"]["payment_mode"] | null
           quantity: number
+          served_at: string | null
           unit_price: number
           vat_rate: number | null
         }
@@ -982,7 +988,10 @@ export type Database = {
           name: string
           options?: Json
           order_id: string
+          paid_at?: string | null
+          paid_mode?: Database["public"]["Enums"]["payment_mode"] | null
           quantity: number
+          served_at?: string | null
           unit_price: number
           vat_rate?: number | null
         }
@@ -992,7 +1001,10 @@ export type Database = {
           name?: string
           options?: Json
           order_id?: string
+          paid_at?: string | null
+          paid_mode?: Database["public"]["Enums"]["payment_mode"] | null
           quantity?: number
+          served_at?: string | null
           unit_price?: number
           vat_rate?: number | null
         }
@@ -1022,12 +1034,10 @@ export type Database = {
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
-          group_id: string | null
           id: string
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
-          server_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_session_id: string | null
           sumup_checkout_id: string | null
@@ -1043,12 +1053,10 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
-          group_id?: string | null
           id?: string
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
-          server_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
@@ -1064,12 +1072,10 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
-          group_id?: string | null
           id?: string
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
-          server_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
@@ -1084,13 +1090,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "orders_group_id_etablissement_id_fkey"
-            columns: ["group_id", "etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "table_groups"
-            referencedColumns: ["id", "etablissement_id"]
           },
           {
             foreignKeyName: "orders_table_id_etablissement_id_fkey"
@@ -1623,53 +1622,21 @@ export type Database = {
           },
         ]
       }
-      table_groups: {
-        Row: {
-          created_at: string
-          etablissement_id: string
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          etablissement_id: string
-          id?: string
-        }
-        Update: {
-          created_at?: string
-          etablissement_id?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "table_groups_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tables: {
         Row: {
           etablissement_id: string
-          group_id: string | null
           id: string
           number: number
-          server_id: string | null
         }
         Insert: {
           etablissement_id: string
-          group_id?: string | null
           id?: string
           number: number
-          server_id?: string | null
         }
         Update: {
           etablissement_id?: string
-          group_id?: string | null
           id?: string
           number?: number
-          server_id?: string | null
         }
         Relationships: [
           {
@@ -1678,13 +1645,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tables_group_id_etablissement_id_fkey"
-            columns: ["group_id", "etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "table_groups"
-            referencedColumns: ["id", "etablissement_id"]
           },
         ]
       }
@@ -1708,20 +1668,6 @@ export type Database = {
         }
         Returns: string
       }
-      create_table_group: {
-        Args: { p_integrate_orders: boolean; p_table_ids: string[] }
-        Returns: {
-          created_at: string
-          etablissement_id: string
-          id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "table_groups"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       crm_find_duplicates: {
         Args: {
           p_city?: string
@@ -1744,16 +1690,31 @@ export type Database = {
         Returns: Database["public"]["Enums"]["member_role"]
       }
       is_admin: { Args: never; Returns: boolean }
+      mark_order_paid_online: {
+        Args: { p_order_id: string; p_tip?: number | null }
+        Returns: undefined
+      }
       member_etablissements: { Args: never; Returns: string[] }
       omilink_provision_device: {
         Args: { p_etablissement_id: string; p_name: string }
         Returns: string
+      }
+      pay_order_items: {
+        Args: {
+          p_cash_change?: number | null
+          p_cash_given?: number | null
+          p_item_ids: string[]
+          p_mode: Database["public"]["Enums"]["payment_mode"]
+          p_tip?: number | null
+        }
+        Returns: undefined
       }
       place_order: {
         Args: { p_items: Json; p_slug: string; p_table_number: number }
         Returns: string
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
+      serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
     }
     Enums: {
       badge: "maison" | "top" | "nouveau"
@@ -1828,7 +1789,7 @@ export type Database = {
         | "received"
         | "failed"
         | "cancelled"
-      payment_mode: "especes" | "carte" | "en_ligne"
+      payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
       payment_provider: "stripe" | "sumup"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
@@ -2042,7 +2003,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
-      payment_mode: ["especes", "carte", "en_ligne"],
+      payment_mode: ["especes", "carte", "en_ligne", "mixte"],
       payment_provider: ["stripe", "sumup"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],

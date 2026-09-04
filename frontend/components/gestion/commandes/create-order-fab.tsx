@@ -11,7 +11,9 @@ import { formatPrice, type MenuItem } from "@/lib/menu-data";
 /*
  * Prise de commande en salle : quand un client commande directement auprès
  * du serveur, celui-ci saisit la commande ici — même circuit que le menu QR
- * (place_order valide articles, stock et options, et prévient la cuisine).
+ * (place_order valide articles, stock et options). La table se choisit parmi
+ * les numéros connus, ou se crée d'un nouveau numéro. La commande attend
+ * ensuite son encaissement : c'est lui qui la fait partir en cuisine.
  */
 
 interface CartLine {
@@ -167,7 +169,8 @@ function CreateOrderDialog({
   onClose: () => void;
 }) {
   const toast = useToast();
-  const [tableNumber, setTableNumber] = useState<number | null>(null);
+  const [pickedNumber, setPickedNumber] = useState<number | null>(null);
+  const [newNumberRaw, setNewNumberRaw] = useState("");
   const [lines, setLines] = useState<CartLine[]>([]);
   const [configuring, setConfiguring] = useState<MenuItem | null>(null);
   const [sending, setSending] = useState(false);
@@ -179,6 +182,15 @@ function CreateOrderDialog({
       items: category.items.filter(isItemAvailable),
     }))
     .filter((category) => category.items.length > 0);
+
+  // Un numéro saisi prime sur la tuile touchée ; s'il existe déjà, c'est
+  // cette table-là (place_order ne crée que les numéros inconnus).
+  const newNumber = Number.parseInt(newNumberRaw, 10);
+  const tableNumber = newNumberRaw
+    ? Number.isInteger(newNumber) && newNumber > 0
+      ? newNumber
+      : null
+    : pickedNumber;
 
   const total = lines.reduce(
     (sum, line) => sum + line.unitPrice * line.quantity,
@@ -236,7 +248,7 @@ function CreateOrderDialog({
           choices: line.choices,
         }))
       );
-      toast.success(`Commande envoyée en cuisine — table ${tableNumber}.`);
+      toast.success(`Commande enregistrée — table ${tableNumber}, à encaisser.`);
       onClose();
     } catch (error) {
       toast.error(
@@ -276,7 +288,7 @@ function CreateOrderDialog({
             onClick={() => void submit()}
             className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
           >
-            {sending ? "Envoi…" : "Envoyer en cuisine"}
+            {sending ? "Envoi…" : "Enregistrer la commande"}
           </button>
         </>
       }
@@ -291,7 +303,10 @@ function CreateOrderDialog({
                 <button
                   key={table.id}
                   type="button"
-                  onClick={() => setTableNumber(table.number)}
+                  onClick={() => {
+                    setPickedNumber(table.number);
+                    setNewNumberRaw("");
+                  }}
                   className={`flex size-10 items-center justify-center rounded-xl text-sm font-semibold tabular-nums transition-colors ${
                     selected
                       ? "ember-gradient text-background"
@@ -302,6 +317,18 @@ function CreateOrderDialog({
                 </button>
               );
             })}
+            <label className="flex h-10 items-center gap-2 rounded-xl border border-dashed border-hairline px-3 text-xs font-semibold text-muted transition-colors focus-within:border-ember-2/50">
+              Nouvelle
+              <input
+                type="text"
+                inputMode="numeric"
+                value={newNumberRaw}
+                onChange={(event) => setNewNumberRaw(event.target.value)}
+                placeholder="n°"
+                aria-label="Numéro d'une nouvelle table"
+                className="w-10 bg-transparent text-center text-sm font-semibold tabular-nums text-foreground outline-none placeholder:text-faint"
+              />
+            </label>
           </div>
         </div>
 

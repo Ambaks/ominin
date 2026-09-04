@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
-import type { PaymentMode } from "@/lib/gestion/types";
+import type { EncaissementMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
 
 function CashIcon() {
@@ -30,19 +30,19 @@ export interface CashDetails {
   cashChange: number;
 }
 
+/** Choix du mode (carte ou espèces, pourboire compris), puis rendu de monnaie en espèces. */
 export function PaymentDialog({
   total,
   onSelect,
   onClose,
 }: {
   total: number;
-  onSelect: (mode: PaymentMode, cashDetails?: CashDetails, tip?: number) => void;
+  onSelect: (mode: EncaissementMode, cashDetails?: CashDetails, tip?: number) => void;
   onClose: () => void;
 }) {
   const [step, setStep] = useState<"mode" | "cash">("mode");
   const [givenRaw, setGivenRaw] = useState("");
   const [tipRaw, setTipRaw] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const parsedTip = parseFloat(tipRaw.replace(",", "."));
   const tip =
@@ -101,7 +101,6 @@ export function PaymentDialog({
             <span className="text-sm font-medium">Montant reçu</span>
             <div className="flex items-center gap-2 rounded-xl border border-hairline bg-surface px-4 py-3 focus-within:border-ember-2/60">
               <input
-                ref={inputRef}
                 type="text"
                 inputMode="decimal"
                 autoFocus
@@ -143,8 +142,16 @@ export function PaymentDialog({
 
   return (
     <Modal title="Mode de paiement" onClose={onClose}>
+      <div className="mb-4 flex items-baseline justify-between">
+        <span className="text-sm text-muted">
+          À encaisser{tip > 0 && " (pourboire inclus)"}
+        </span>
+        <span className="font-display text-2xl text-ember-1">
+          {formatPrice(due)}
+        </span>
+      </div>
       <div className="grid grid-cols-2 gap-3">
-        {(["especes", "carte"] as PaymentMode[]).map((mode) => (
+        {(["especes", "carte"] as EncaissementMode[]).map((mode) => (
           <button
             key={mode}
             type="button"

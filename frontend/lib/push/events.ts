@@ -39,9 +39,7 @@ export const PUSH_EVENT_HINTS: Record<PushEvent, string> = {
 /**
  * Défauts par rôle, appliqués tant que le membre n'a pas enregistré ses
  * préférences : la cuisine reçoit les arrivées et les annulations, la salle
- * les arrivées, les commandes prêtes et les appels, le gérant tout. Quand la
- * table est affectée, l'envoi restreint les serveurs au seul serveur affecté
- * (voir dispatch côté serveur) — les préférences restent le filtre final.
+ * les arrivées, les commandes prêtes et les appels, le gérant tout.
  */
 export const ROLE_DEFAULT_PREFS: Record<Role, Record<PushEvent, boolean>> = {
   gerant: { nouvelle_commande: true, commande_prete: true, commande_annulee: true, appel_serveur: true },

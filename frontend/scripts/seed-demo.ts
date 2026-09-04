@@ -133,24 +133,6 @@ async function main() {
       .select("id")
   );
 
-  const groups = must(
-    await db
-      .from("table_groups")
-      .insert(
-        state.groups.map((group) => ({
-          etablissement_id: etab.id,
-          created_at: group.createdAt,
-        }))
-      )
-      .select("id")
-  );
-  const groupIds = new Map(state.groups.map((group, i) => [group.id, groups[i].id]));
-  const groupOfTable = new Map(
-    state.groups.flatMap((group) =>
-      group.tableIds.map((tableId) => [tableId, groupIds.get(group.id)!] as const)
-    )
-  );
-
   const tables = must(
     await db
       .from("tables")
@@ -158,7 +140,6 @@ async function main() {
         state.tables.map((table) => ({
           etablissement_id: etab.id,
           number: table.number,
-          group_id: groupOfTable.get(table.id) ?? null,
         }))
       )
       .select("id")
@@ -173,9 +154,12 @@ async function main() {
           etablissement_id: etab.id,
           type: order.type,
           table_id: order.tableId ? (tableIds.get(order.tableId) ?? null) : null,
-          group_id: order.groupeId ? groupIds.get(order.groupeId)! : null,
           status: order.status,
           payment_mode: order.paymentMode ?? null,
+          paid_online: order.paidOnline ?? false,
+          cash_given: order.cashGiven ?? null,
+          cash_change: order.cashChange ?? null,
+          tip_amount: order.tipAmount ?? null,
           customer_name: order.customerName ?? null,
           customer_phone: order.customerPhone ?? null,
           pickup_at: order.pickupAt ?? null,
@@ -197,6 +181,9 @@ async function main() {
             quantity: line.quantity,
             unit_price: line.unitPrice,
             options: toJson(line.options ?? []),
+            paid_mode: line.paidMode ?? null,
+            paid_at: line.paidMode ? order.createdAt : null,
+            served_at: line.servedAt ?? null,
           }))
         )
       )

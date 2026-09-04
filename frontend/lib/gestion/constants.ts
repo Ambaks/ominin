@@ -26,11 +26,22 @@ export const TERMINAL_ONLINE_WINDOW_MS = 60_000;
 /** Port d'une imprimante ESC/POS (miroir du défaut SQL de printers.port). */
 export const DEFAULT_PRINTER_PORT = 9100;
 
-/** Statuts d'historique : commandes clôturées. */
-export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["payee", "annulee", "retiree"];
+/** Statuts d'historique : commandes closes. */
+export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
 
-/** Statuts encaissés : payée sur place, ou retirée (collect, payée en ligne). */
-export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "retiree"];
+/** Statuts encaissés : payée sur place (servie ou non), ou retirée (collect, payée en ligne). */
+export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "servie", "retiree"];
+
+/**
+ * Statuts encore ouverts, quel que soit leur âge : à encaisser (en_attente),
+ * à servir (payee) ou en cours côté collect.
+ */
+export const OPEN_ORDER_STATUSES: OrderStatus[] = [
+  "en_attente",
+  "en_preparation",
+  "prete",
+  "payee",
+];
 
 /** Horloge de service des vues employés : cadence d'affichage (seconde). */
 export const SERVICE_CLOCK_TICK_MS = 1000;
@@ -58,27 +69,27 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   retiree: "Retirée",
 };
 
-/** Transitions autorisées depuis chaque statut (union des deux flux). */
+/**
+ * Transitions proposées à l'écran depuis chaque statut (union des deux
+ * flux). Sur place, l'encaissement et le service passent par les RPC par
+ * article ; l'annulation d'un encaissement (page Paiements) ne passe pas
+ * par ici.
+ */
 export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
-  en_attente: ["en_preparation", "annulee"],
+  en_attente: ["payee", "en_preparation", "annulee"],
   en_preparation: ["prete", "annulee"],
-  prete: ["servie", "retiree", "annulee"],
-  servie: ["payee"],
-  payee: [],
+  prete: ["retiree", "annulee"],
+  payee: ["servie"],
+  servie: [],
   annulee: [],
   retiree: [],
 };
 
 /** Statuts exclus pour un type de commande donné (l'autre flux). */
 export const EXCLUDED_STATUSES: Record<OrderType, OrderStatus[]> = {
-  sur_place: ["retiree"],
-  collect: ["servie", "payee"],
+  sur_place: ["en_preparation", "prete", "retiree"],
+  collect: ["payee", "servie"],
 };
-
-/** Statuts encore ouverts (ceux dont le flux autorise une transition). */
-export const ACTIVE_ORDER_STATUSES = (
-  Object.keys(ORDER_STATUS_FLOW) as OrderStatus[]
-).filter((status) => ORDER_STATUS_FLOW[status].length > 0);
 
 /** Libellé du bouton menant vers chaque statut cible. */
 export const ORDER_ACTION_LABELS: Record<
@@ -101,8 +112,8 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 export const ROLE_TAGLINES: Record<Role, string> = {
   gerant: "Accès complet : menu, équipe, abonnements et service.",
-  cuisinier: "La cuisine : préparation des commandes et disponibilité des articles.",
-  serveur: "La salle : tables, service et clôture des commandes.",
+  cuisinier: "La cuisine : disponibilité des articles — les commandes sortent sur l'imprimante.",
+  serveur: "La salle : encaissement et service des tables.",
 };
 
 export const OFFRE_LABELS: Record<Offre, string> = {
@@ -115,6 +126,7 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   especes: "Espèces",
   carte: "Carte",
   en_ligne: "En ligne",
+  mixte: "Carte + Espèces",
 };
 
 export const PAYMENT_PROVIDER_LABELS: Record<PaymentProvider, string> = {
@@ -151,7 +163,6 @@ export const ACTION_LABELS: Record<Action, string> = {
       label,
     ])
   ) as Record<Extract<Action, `orders.${string}`>, string>),
-  "tables.group": "Grouper des tables",
   "menu.edit": "Modifier le menu",
   "menu.availability": "Gérer les disponibilités",
   "formules.edit": "Modifier les formules",
@@ -167,17 +178,16 @@ export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
       "commandes",
     ])
   ) as Record<Extract<Action, `orders.${string}`>, Feature>),
-  "tables.group": "tables",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
   gerant: "all",
-  cuisinier: [
+  cuisinier: ["menu.availability"],
+  serveur: [
+    "orders.setStatus:payee",
+    "orders.setStatus:servie",
     "orders.setStatus:en_preparation",
     "orders.setStatus:prete",
     "orders.setStatus:retiree",
-    "orders.setStatus:annulee",
-    "menu.availability",
   ],
-  serveur: ["orders.setStatus:servie", "orders.setStatus:payee", "orders.setStatus:retiree", "tables.group"],
 };

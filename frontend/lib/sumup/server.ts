@@ -241,10 +241,11 @@ export async function requireGerant() {
 /**
  * Marque une commande payée en ligne après vérification AUPRÈS DE l'API SumUp
  * (le payload d'un webhook SumUp n'est pas signé, donc jamais cru sur parole).
- * Idempotente : re-marquer une commande déjà payée est sans effet. Écritures :
- * les drapeaux de statut, plus le pourboire — reconstitué comme l'écart entre
- * le montant encaissé (relu chez SumUp) et le total des lignes, car c'est un
- * fait nouveau choisi par le client, pas un montant dérivable (NF525).
+ * Idempotente : re-marquer une commande déjà payée est sans effet. Écritures
+ * (mark_order_paid_online) : les drapeaux, le départ en cuisine, plus le
+ * pourboire — reconstitué comme l'écart entre le montant encaissé (relu chez
+ * SumUp) et le total des lignes, car c'est un fait nouveau choisi par le
+ * client, pas un montant dérivable (NF525).
  */
 export async function confirmOrderPaid(
   admin: ReturnType<typeof createAdminClient>,
@@ -286,14 +287,10 @@ export async function confirmOrderPaid(
     );
     tip = Math.round((checkout.amount - linesTotal) * 100) / 100;
   }
-  const { error } = await admin
-    .from("orders")
-    .update({
-      paid_online: true,
-      payment_mode: "carte",
-      ...(tip > 0 ? { tip_amount: tip } : {}),
-    })
-    .eq("id", order.id);
+  const { error } = await admin.rpc("mark_order_paid_online", {
+    p_order_id: order.id,
+    p_tip: tip > 0 ? tip : null,
+  });
   if (error) throw new Error(error.message);
   return true;
 }

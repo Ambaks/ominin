@@ -2,6 +2,10 @@ import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
 
 export type Offre = "digital" | "smart" | "connect";
 export type Role = "gerant" | "cuisinier" | "serveur";
+/**
+ * Sur place : en_attente (à encaisser) → payee (à servir, partie en cuisine)
+ * → servie (close). Collect : en_attente → en_preparation → prete → retiree.
+ */
 export type OrderStatus =
   | "en_attente"
   | "en_preparation"
@@ -11,7 +15,9 @@ export type OrderStatus =
   | "annulee"
   | "retiree";
 export type OrderType = "sur_place" | "collect";
-export type PaymentMode = "especes" | "carte" | "en_ligne";
+export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
+/** Modes d'un encaissement au comptoir (le mixte est dérivé, l'en ligne subi). */
+export type EncaissementMode = Extract<PaymentMode, "especes" | "carte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
 export type PaymentProvider = "stripe" | "sumup";
 
@@ -31,7 +37,6 @@ export interface ActiveProducts {
 /** Actions soumises au rôle de l'utilisateur. */
 export type Action =
   | `orders.setStatus:${Exclude<OrderStatus, "en_attente">}`
-  | "tables.group"
   | "menu.edit"
   | "menu.availability"
   | "formules.edit"
@@ -55,6 +60,8 @@ export interface Etablissement {
   paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
+  /** Lien « laisser un avis » de la fiche Google Business, proposé en bas du menu QR. */
+  googleReviewUrl?: string;
 }
 
 export interface OrderItemOption {
@@ -70,13 +77,16 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   options?: OrderItemOption[];
+  /** Mode de règlement de la ligne ; absent tant qu'elle n'est pas encaissée. */
+  paidMode?: PaymentMode;
+  /** ISO — absent tant que la ligne n'est pas arrivée à table. */
+  servedAt?: string;
 }
 
 export interface Order {
   id: string;
   type: OrderType;
   tableId: string | null;
-  groupeId?: string | null;
   status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
@@ -89,15 +99,12 @@ export interface Order {
   estimatedReadyAt?: string;
   cashGiven?: number;
   cashChange?: number;
-  /** Serveur de la table figé à la création (attribution des pourboires). */
-  serverId?: string | null;
   tipAmount?: number;
 }
 
 export interface Table {
   id: string;
   number: number;
-  serverId: string | null;
 }
 
 export interface Member {
@@ -105,12 +112,6 @@ export interface Member {
   email: string;
   role: Role;
   displayName: string | null;
-}
-
-export interface TableGroup {
-  id: string;
-  tableIds: string[];
-  createdAt: string;
 }
 
 export interface Article {
@@ -150,6 +151,5 @@ export interface GestionState {
   categories: MenuCategory[];
   formules: Formule[];
   tables: Table[];
-  groups: TableGroup[];
   orders: Order[];
 }

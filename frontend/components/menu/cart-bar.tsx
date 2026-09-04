@@ -74,12 +74,13 @@ export function CartBar() {
       setError(rpcError.message);
       return;
     }
-    // Prévient la cuisine (push), sans bloquer ni gêner le parcours client —
-    // keepalive survit à la redirection Stripe qui peut suivre.
+    // Prévient la salle (push) : la commande attend son encaissement. Sans
+    // bloquer le parcours client — keepalive survit à la redirection Stripe.
     notifyOrderEvent(orderId as string, "en_attente");
 
     if (payment === "carte" && cart.paymentProvider === "stripe") {
-      // La commande est en cuisine ; on enchaîne sur le règlement Stripe.
+      // La commande est enregistrée ; on enchaîne sur le règlement Stripe,
+      // qui la fera partir en cuisine.
       try {
         const response = await fetch("/api/stripe/pay", {
           method: "POST",
@@ -103,9 +104,10 @@ export function CartBar() {
     }
 
     if (payment === "carte" && cart.paymentProvider === "sumup") {
-      // La commande est en cuisine ; le règlement se fait dans la page via
+      // La commande est enregistrée ; le règlement se fait dans la page via
       // le widget SumUp (le checkout est créé côté serveur, montant relu en
-      // base). En cas d'échec de démarrage : règlement au comptoir.
+      // base) et la fait partir en cuisine. En cas d'échec de démarrage :
+      // règlement au comptoir.
       try {
         const response = await fetch("/api/sumup/pay", {
           method: "POST",
@@ -183,8 +185,20 @@ export function CartBar() {
                   Commande envoyée !
                 </h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  Votre commande part en cuisine pour la table {cart.tableNumber}.
-                  Un serveur vous l&rsquo;apporte dès qu&rsquo;elle est prête.
+                  {payment === "carte" && !cardFailed ? (
+                    <>
+                      Paiement reçu&nbsp;: votre commande part en cuisine pour
+                      la table {cart.tableNumber}. Un serveur vous
+                      l&rsquo;apporte dès qu&rsquo;elle est prête.
+                    </>
+                  ) : (
+                    <>
+                      Votre commande est enregistrée pour la table{" "}
+                      {cart.tableNumber}. Réglez-la auprès d&rsquo;un serveur
+                      ou au comptoir&nbsp;: elle part en cuisine dès
+                      l&rsquo;encaissement.
+                    </>
+                  )}
                 </p>
                 {cardFailed && (
                   <p className="text-sm leading-relaxed text-ember-3">
@@ -358,9 +372,7 @@ export function CartBar() {
                     disabled={state === "sending" || cart.count === 0}
                     className="ember-gradient w-full rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
                   >
-                    {state === "sending"
-                      ? "Envoi…"
-                      : "Envoyer la commande en cuisine"}
+                    {state === "sending" ? "Envoi…" : "Envoyer la commande"}
                   </button>
                 </div>
               </>

@@ -28,7 +28,6 @@ import {
   TeamIcon,
   type IconProps,
 } from "./icons";
-import { NamePrompt } from "./name-prompt";
 import { SubscriptionGate } from "./subscription-gate";
 
 interface NavItem {
@@ -43,7 +42,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
-  { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
+  { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/paiements", label: "Paiements", feature: "commandes", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
@@ -236,7 +235,6 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </aside>
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
-            <NamePrompt />
             {!state ? (
               loadError ? (
                 <LoadError message={loadError} />

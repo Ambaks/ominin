@@ -30,23 +30,97 @@ export function orderTotal(order: Order): number {
   return order.items.reduce((sum, line) => sum + lineTotal(line), 0);
 }
 
+/** Close : servie (sur place), retirée (collect) ou annulée. */
 export function isHistoryStatus(status: Order["status"]): boolean {
-  return status === "payee" || status === "annulee" || status === "retiree";
+  return status === "servie" || status === "annulee" || status === "retiree";
 }
 
-/** Encaissée : payée sur place, ou retirée (collect, payée en ligne). */
+/** Encaissée : payée sur place (servie ou non), ou retirée (collect, payée en ligne). */
 export function isPaidStatus(status: Order["status"]): boolean {
-  return status === "payee" || status === "retiree";
+  return status === "payee" || status === "servie" || status === "retiree";
 }
 
-/** Commandes à traiter : en attente, en préparation ou prêtes. */
-export function inProgressOrders(state: GestionState): Order[] {
-  return state.orders.filter(
-    (order) =>
+/** À encaisser : commande sur place en attente de son règlement. */
+export function awaitsPayment(order: Order): boolean {
+  return (
+    order.type === "sur_place" &&
+    order.status === "en_attente" &&
+    !order.paidOnline
+  );
+}
+
+/**
+ * À servir : commande sur place payée (partie en cuisine) dont il reste des
+ * lignes à apporter, ou commande collect encore en cours.
+ */
+export function awaitsService(order: Order): boolean {
+  if (order.type === "collect") {
+    return (
       order.status === "en_attente" ||
       order.status === "en_preparation" ||
       order.status === "prete"
+    );
+  }
+  return order.status === "payee";
+}
+
+/** Commandes encore ouvertes : à encaisser ou à servir. */
+export function openOrders(state: GestionState): Order[] {
+  return state.orders.filter(
+    (order) => awaitsPayment(order) || awaitsService(order)
   );
+}
+
+/** Part de la commande réglée en espèces (addition mixte : d'après ses lignes). */
+export function cashTotal(order: Order): number {
+  if (order.paymentMode === "especes") return orderTotal(order);
+  if (order.paymentMode !== "mixte") return 0;
+  return order.items
+    .filter((line) => line.paidMode === "especes")
+    .reduce((sum, line) => sum + lineTotal(line), 0);
+}
+
+export interface TableService {
+  table: Table;
+  /** Commandes ouvertes de la table, de la plus ancienne à la plus récente. */
+  orders: Order[];
+  /** Reste dû sur les commandes en attente d'encaissement. */
+  toPay: number;
+  /** Lignes payées pas encore arrivées à table. */
+  toServe: number;
+}
+
+/** Tables en service (au moins une commande ouverte), par numéro croissant. */
+export function activeTables(state: GestionState): TableService[] {
+  const byTable = new Map<string, Order[]>();
+  for (const order of state.orders) {
+    if (!order.tableId || !(awaitsPayment(order) || awaitsService(order))) {
+      continue;
+    }
+    const list = byTable.get(order.tableId) ?? [];
+    list.push(order);
+    byTable.set(order.tableId, list);
+  }
+  return state.tables
+    .filter((table) => byTable.has(table.id))
+    .sort((a, b) => a.number - b.number)
+    .map((table) => {
+      const orders = byTable
+        .get(table.id)!
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      return {
+        table,
+        orders,
+        toPay: orders
+          .filter(awaitsPayment)
+          .flatMap((order) => order.items.filter((line) => !line.paidMode))
+          .reduce((sum, line) => sum + lineTotal(line), 0),
+        toServe: orders
+          .filter(awaitsService)
+          .flatMap((order) => order.items)
+          .filter((line) => !line.servedAt).length,
+      };
+    });
 }
 
 export function revenueToday(state: GestionState): number {
@@ -54,7 +128,7 @@ export function revenueToday(state: GestionState): number {
   return state.orders
     .filter(
       (order) =>
-        (order.status === "payee" || order.status === "retiree") &&
+        isPaidStatus(order.status) &&
         new Date(order.createdAt).toDateString() === today
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);
@@ -141,7 +215,7 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
     index.set(date.toDateString(), point);
   }
   for (const order of state.orders) {
-    if (order.status !== "payee") continue;
+    if (!isPaidStatus(order.status)) continue;
     const point = index.get(new Date(order.createdAt).toDateString());
     if (!point) continue;
     point.revenue += orderTotal(order);
@@ -155,8 +229,8 @@ export function periodStats(
   state: GestionState,
   days: number
 ): { revenue: number; orders: number; avgTicket: number } {
-  const paid = ordersInPeriod(state, days).filter(
-    (order) => order.status === "payee"
+  const paid = ordersInPeriod(state, days).filter((order) =>
+    isPaidStatus(order.status)
   );
   const revenue = paid.reduce((sum, order) => sum + orderTotal(order), 0);
   return {
@@ -164,6 +238,14 @@ export function periodStats(
     orders: paid.length,
     avgTicket: paid.length ? revenue / paid.length : 0,
   };
+}
+
+/** Pourboires laissés sur la période (en ligne comme au comptoir). */
+export function tipsTotal(state: GestionState, days: number): number {
+  return ordersInPeriod(state, days).reduce(
+    (sum, order) => sum + (order.tipAmount ?? 0),
+    0
+  );
 }
 
 /** Commandes par heure de la journée, agrégées sur la période (annulées exclues). */
@@ -188,15 +270,6 @@ export function unavailableItems(state: GestionState): MenuItem[] {
     .filter((item) => !isItemAvailable(item));
 }
 
-export function freeTables(state: GestionState): Table[] {
-  const taken = new Set(state.groups.flatMap((group) => group.tableIds));
-  return state.tables.filter((table) => !taken.has(table.id));
-}
-
-export function tableNumber(state: GestionState, tableId: string): number {
-  return state.tables.find((table) => table.id === tableId)?.number ?? 0;
-}
-
 /** Nom d'affichage d'un membre (nom saisi, sinon email), ou null si inconnu. */
 export function memberName(
   state: GestionState,
@@ -205,48 +278,4 @@ export function memberName(
   if (!userId) return null;
   const member = state.members.find((m) => m.userId === userId);
   return member ? (member.displayName ?? member.email) : null;
-}
-
-/** Pourboires de la période, agrégés par serveur (les plus gros d'abord). */
-export function tipsByServer(
-  state: GestionState,
-  days: number
-): { name: string; total: number }[] {
-  const from = dayStart(days - 1).getTime();
-  const totals = new Map<string, number>();
-  for (const order of state.orders) {
-    if (!order.tipAmount || order.status === "annulee") continue;
-    if (new Date(order.createdAt).getTime() < from) continue;
-    const key = order.serverId ?? "";
-    totals.set(key, (totals.get(key) ?? 0) + order.tipAmount);
-  }
-  return [...totals.entries()]
-    .map(([serverId, total]) => ({
-      name: memberName(state, serverId) ?? "Non attribué",
-      total,
-    }))
-    .sort((a, b) => b.total - a.total);
-}
-
-/** Pourboires du jour attribués au membre connecté. */
-export function myTipsToday(state: GestionState): number {
-  const today = new Date().toDateString();
-  return state.orders
-    .filter(
-      (order) =>
-        order.serverId === state.userId &&
-        order.tipAmount &&
-        order.status !== "annulee" &&
-        new Date(order.createdAt).toDateString() === today
-    )
-    .reduce((sum, order) => sum + (order.tipAmount ?? 0), 0);
-}
-
-export function groupTableNumbers(
-  state: GestionState,
-  tableIds: string[]
-): number[] {
-  return tableIds
-    .map((id) => tableNumber(state, id))
-    .sort((a, b) => a - b);
 }

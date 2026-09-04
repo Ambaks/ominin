@@ -52,7 +52,7 @@ interface OrderContext {
   created_at: string;
   customer_name: string | null;
   pickup_at: string | null;
-  tables: { number: number; server_id: string | null } | null;
+  tables: { number: number } | null;
   order_items: { quantity: number }[];
 }
 
@@ -93,7 +93,7 @@ export async function dispatchOrderEvent(
   const { data: order, error: orderError } = await db
     .from("orders")
     .select(
-      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number, server_id), order_items (quantity)"
+      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number), order_items (quantity)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();
@@ -169,23 +169,10 @@ export async function dispatchOrderEvent(
 
   const roleByUser = new Map(memberships?.map((m) => [m.user_id, m.role]));
   const prefsByUser = new Map(prefs?.map((p) => [p.user_id, p]));
-  // Table affectée à un serveur : lui seul parmi les serveurs est prévenu
-  // (cuisine et gérant gardent leurs préférences). Si le serveur affecté n'a
-  // aucun appareil abonné, on retombe sur tous les serveurs — une table qui
-  // commande ne doit jamais sonner dans le vide.
-  const assignedServer = order.tables?.server_id ?? null;
-  const targetServer =
-    assignedServer &&
-    subscriptions.some((sub) => sub.user_id === assignedServer)
-      ? assignedServer
-      : null;
   const recipients = subscriptions.filter((sub) => {
     if (sub.user_id === options?.skipUserId) return false;
     const role = roleByUser.get(sub.user_id);
     if (!role) return false;
-    if (role === "serveur" && targetServer && sub.user_id !== targetServer) {
-      return false;
-    }
     const pref = prefsByUser.get(sub.user_id);
     return pref ? pref[event] : ROLE_DEFAULT_PREFS[role][event];
   });
@@ -209,10 +196,8 @@ export async function dispatchOrderEvent(
 
 /**
  * Appel serveur depuis le menu QR (route publique /api/push/call-server).
- * Table affectée : seul le serveur affecté (et le gérant, selon ses
- * préférences) est prévenu — s'il n'a aucun appareil abonné, tous les
- * serveurs le sont. Table libre : tous les serveurs. call_throttle borne à
- * un appel par table par fenêtre.
+ * Tous les membres abonnés à l'événement sont prévenus ; call_throttle borne
+ * à un appel par table par fenêtre.
  */
 export async function dispatchCallServer(
   slug: string,
@@ -234,7 +219,7 @@ export async function dispatchCallServer(
 
   const { data: table } = await db
     .from("tables")
-    .select("id, number, server_id")
+    .select("id, number")
     .eq("etablissement_id", etablissement.id)
     .eq("number", tableNumber)
     .maybeSingle();
@@ -285,17 +270,9 @@ export async function dispatchCallServer(
 
   const roleByUser = new Map(membResult.data.map((m) => [m.user_id, m.role]));
   const prefsByUser = new Map(prefsResult.data.map((p) => [p.user_id, p]));
-  const targetServer =
-    table.server_id &&
-    subsResult.data.some((sub) => sub.user_id === table.server_id)
-      ? table.server_id
-      : null;
   const recipients = subsResult.data.filter((sub) => {
     const role = roleByUser.get(sub.user_id);
     if (!role) return false;
-    if (role === "serveur" && targetServer && sub.user_id !== targetServer) {
-      return false;
-    }
     const pref = prefsByUser.get(sub.user_id);
     return pref
       ? pref.appel_serveur

@@ -7,7 +7,6 @@ import type {
   Member,
   Order,
   Table,
-  TableGroup,
 } from "./types";
 
 /*
@@ -40,6 +39,7 @@ export function rowToEtablissement(
         .payment_provider ?? null,
     collectSlotCapacity:
       (row as { collect_slot_capacity?: number }).collect_slot_capacity ?? 5,
+    googleReviewUrl: row.google_review_url ?? undefined,
   };
 }
 
@@ -92,7 +92,7 @@ export function rowToFormule(row: Tables<"formules">): Formule {
 }
 
 export function rowToTable(row: Tables<"tables">): Table {
-  return { id: row.id, number: row.number, serverId: row.server_id };
+  return { id: row.id, number: row.number };
 }
 
 export function rowToMember(row: Tables<"memberships">): Member {
@@ -104,20 +104,6 @@ export function rowToMember(row: Tables<"memberships">): Member {
   };
 }
 
-/** Reconstruit TableGroup.tableIds depuis la colonne tables.group_id. */
-export function assembleGroups(
-  groupRows: Tables<"table_groups">[],
-  tableRows: Tables<"tables">[]
-): TableGroup[] {
-  return groupRows.map((group) => ({
-    id: group.id,
-    createdAt: group.created_at,
-    tableIds: tableRows
-      .filter((table) => table.group_id === group.id)
-      .map((table) => table.id),
-  }));
-}
-
 export type OrderRow = Tables<"orders"> & {
   order_items: Tables<"order_items">[];
 };
@@ -127,7 +113,6 @@ export function rowToOrder(row: OrderRow): Order {
     id: row.id,
     type: row.type,
     tableId: row.table_id,
-    groupeId: row.group_id,
     status: row.status,
     createdAt: row.created_at,
     paymentMode: row.payment_mode ?? undefined,
@@ -138,7 +123,6 @@ export function rowToOrder(row: OrderRow): Order {
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
-    serverId: row.server_id,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
@@ -149,6 +133,8 @@ export function rowToOrder(row: OrderRow): Order {
         quantity: line.quantity,
         unitPrice: Number(line.unit_price),
         options: options && options.length ? options : undefined,
+        paidMode: line.paid_mode ?? undefined,
+        servedAt: line.served_at ?? undefined,
       };
     }),
   };

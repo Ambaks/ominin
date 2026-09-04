@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
-import { isPaidStatus, orderTotal } from "@/lib/gestion/selectors";
+import { cashTotal, isPaidStatus, orderTotal } from "@/lib/gestion/selectors";
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
@@ -29,6 +29,15 @@ type ModeFilter = (typeof MODE_FILTERS)[number]["id"];
 /** Mode affiché : un règlement en ligne (Stripe/SumUp) prime sur la colonne. */
 function displayMode(order: Order): PaymentMode | undefined {
   return order.paidOnline ? "en_ligne" : order.paymentMode;
+}
+
+/** Une addition mixte se retrouve sous Espèces comme sous Carte. */
+function matchesMode(order: Order, filter: ModeFilter): boolean {
+  const mode = displayMode(order);
+  return (
+    mode === filter ||
+    (mode === "mixte" && (filter === "especes" || filter === "carte"))
+  );
 }
 
 function dedupeById(orders: Order[]): Order[] {
@@ -206,7 +215,7 @@ export default function PaiementsPage() {
   const visible =
     filter === "tous"
       ? paid
-      : paid.filter((order) => displayMode(order) === filter);
+      : paid.filter((order) => matchesMode(order, filter));
   const days = groupByDay(visible);
 
   const today = new Date().toDateString();
@@ -214,9 +223,7 @@ export default function PaiementsPage() {
     (order) => new Date(order.createdAt).toDateString() === today
   );
   const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
-  const todayEspeces = todayPaid
-    .filter((order) => displayMode(order) === "especes")
-    .reduce((sum, o) => sum + orderTotal(o), 0);
+  const todayEspeces = todayPaid.reduce((sum, o) => sum + cashTotal(o), 0);
 
   return (
     <div className="flex flex-col gap-6">

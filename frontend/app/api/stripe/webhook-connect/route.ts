@@ -7,8 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * Webhook des comptes CONNECTÉS (paiements d'additions à table) — endpoint
  * Stripe distinct du webhook plateforme (abonnements), avec son propre
  * secret STRIPE_CONNECT_WEBHOOK_SECRET. À l'encaissement d'une session,
- * la commande est marquée payée en ligne (paid_online + payment_mode) ;
- * son cycle de statuts cuisine/service reste inchangé.
+ * la commande est marquée payée en ligne et part en cuisine
+ * (mark_order_paid_online).
  */
 
 export async function POST(request: Request) {
@@ -44,14 +44,10 @@ export async function POST(request: Request) {
       // session : on ne l'enregistre qu'au paiement effectif.
       const tip = Number(session.metadata?.tip_amount);
       const admin = createAdminClient();
-      const { error } = await admin
-        .from("orders")
-        .update({
-          paid_online: true,
-          payment_mode: "carte",
-          ...(Number.isFinite(tip) && tip > 0 ? { tip_amount: tip } : {}),
-        })
-        .eq("id", orderId);
+      const { error } = await admin.rpc("mark_order_paid_online", {
+        p_order_id: orderId,
+        p_tip: Number.isFinite(tip) && tip > 0 ? tip : null,
+      });
       if (error) throw new Error(error.message);
     }
   }

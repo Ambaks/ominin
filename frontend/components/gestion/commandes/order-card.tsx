@@ -15,25 +15,25 @@ import { lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
-import { PaymentDialog } from "./payment-dialog";
 import { StatusBadge } from "./status-badge";
 
+/**
+ * Une commande seule : le suivi d'une commande collect (accepter, prête,
+ * retirée) et les cartes d'historique. Sur place, l'addition et le service
+ * d'une table passent par EncaisserCard et ServirCard.
+ */
 export function OrderCard({
   order,
   tableNo,
-  embedded = false,
   pulse = false,
 }: {
   order: Order;
   tableNo: number;
-  /** true quand la carte est imbriquée dans une carte de groupe. */
-  embedded?: boolean;
   /** L'action principale respire (soft-pulse) : la prochaine chose à faire. */
   pulse?: boolean;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
-  const [paying, setPaying] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [choosingEta, setChoosingEta] = useState(false);
 
@@ -53,17 +53,6 @@ export function OrderCard({
     }
   };
 
-  const settleOnline = async () => {
-    try {
-      await api.markOrderPaid(order.id, "carte");
-      toast.success("Commande clôturée (payée en ligne).");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
-    }
-  };
-
   const heading = isCollect
     ? order.customerName ?? "Client"
     : `Table ${tableNo}`;
@@ -74,11 +63,7 @@ export function OrderCard({
       : `La commande de la table ${tableNo} sera annulée définitivement.`;
 
   return (
-    <article
-      className={
-        embedded ? "px-5 py-4" : "rounded-2xl border border-hairline bg-surface p-5"
-      }
-    >
+    <article className="rounded-2xl border border-hairline bg-surface p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2.5">
           {isCollect && (
@@ -132,7 +117,7 @@ export function OrderCard({
           <span className="font-display text-lg text-ember-1">
             {formatPrice(orderTotal(order))}
           </span>
-          {order.paidOnline && order.status !== "payee" ? (
+          {order.paidOnline ? (
             <span className="rounded-full border border-ember-2/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
               Payée en ligne
             </span>
@@ -197,10 +182,7 @@ export function OrderCard({
                   key={target}
                   type="button"
                   onClick={() => {
-                    if (target === "payee") {
-                      if (order.paidOnline) void settleOnline();
-                      else setPaying(true);
-                    } else if (
+                    if (
                       target === "en_preparation" &&
                       isCollect &&
                       !order.pickupAt
@@ -214,9 +196,7 @@ export function OrderCard({
                     pulse ? "soft-pulse" : ""
                   }`}
                 >
-                  {target === "payee" && order.paidOnline
-                    ? "Clôturer (payée en ligne)"
-                    : ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
+                  {ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
                 </button>
               ))}
             {targets.includes("annulee") && (
@@ -232,23 +212,6 @@ export function OrderCard({
         ) : null}
       </div>
 
-      {paying && (
-        <PaymentDialog
-          total={orderTotal(order)}
-          onClose={() => setPaying(false)}
-          onSelect={async (mode, cashDetails, tip) => {
-            setPaying(false);
-            try {
-              await api.markOrderPaid(order.id, mode, cashDetails, tip);
-              toast.success("Commande encaissée.");
-            } catch (error) {
-              toast.error(
-                error instanceof Error ? error.message : "Une erreur est survenue."
-              );
-            }
-          }}
-        />
-      )}
       {cancelling && (
         <ConfirmDialog
           title={declining ? "Refuser la commande ?" : "Annuler la commande ?"}

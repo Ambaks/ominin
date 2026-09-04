@@ -8,12 +8,12 @@ import { SumUpPrompt } from "@/components/gestion/sumup-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu-data";
 import {
-  inProgressOrders,
+  openOrders,
   ordersByHour,
   periodStats,
   revenueByDay,
   revenueToday,
-  tipsByServer,
+  tipsTotal,
   topVentes,
   topVentesToday,
   unavailableItems,
@@ -192,7 +192,7 @@ export default function ApercuPage() {
   const byDay = hasCommandes ? revenueByDay(state, period) : [];
   const ventesTop = hasCommandes ? topVentes(state, period) : [];
   const hours = hasCommandes ? ordersByHour(state, period) : [];
-  const tips = hasCommandes ? tipsByServer(state, period) : [];
+  const tips = hasCommandes ? tipsTotal(state, period) : 0;
   const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
 
   return (
@@ -210,9 +210,9 @@ export default function ApercuPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <StatCard
             label="Commandes en cours"
-            value={String(inProgressOrders(state).length)}
+            value={String(openOrders(state).length)}
             href="/gestion/commandes"
-            hint="En attente, en préparation ou prêtes"
+            hint="À encaisser ou à servir"
           />
           <StatCard
             label="CA du jour"
@@ -309,7 +309,7 @@ export default function ApercuPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="CA encaissé"
               value={formatPrice(stats!.revenue)}
@@ -324,6 +324,11 @@ export default function ApercuPage() {
               label="Panier moyen"
               value={formatPrice(stats!.avgTicket)}
               hint="CA ÷ commandes payées"
+            />
+            <StatCard
+              label="Pourboires"
+              value={formatPrice(tips)}
+              hint={`Sur ${period} jours`}
             />
           </div>
 
@@ -347,31 +352,6 @@ export default function ApercuPage() {
                   <HoursChart buckets={hours} />
                 </ChartSection>
               </div>
-
-              {tips.length > 0 && (
-                <section className="flex flex-col gap-3">
-                  <h2 className="font-display text-lg font-medium">
-                    Pourboires par serveur
-                  </h2>
-                  <div className="rounded-2xl border border-hairline bg-surface">
-                    {tips.map((entry, index) => (
-                      <div
-                        key={entry.name}
-                        className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
-                          index > 0 ? "border-t border-hairline" : ""
-                        }`}
-                      >
-                        <p className="truncate text-sm font-medium">
-                          {entry.name}
-                        </p>
-                        <span className="shrink-0 font-display text-ember-1">
-                          {formatPrice(entry.total)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
 
               <details className="rounded-2xl border border-hairline bg-surface">
                 <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-muted">

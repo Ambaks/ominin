@@ -17,6 +17,9 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
   const [address, setAddress] = useState(etablissement.address);
   const [phone, setPhone] = useState(etablissement.phone);
   const [hours, setHours] = useState(etablissement.hours);
+  const [googleReviewUrl, setGoogleReviewUrl] = useState(
+    etablissement.googleReviewUrl ?? ""
+  );
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -27,6 +30,7 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
         address: address.trim(),
         phone: phone.trim(),
         hours: hours.trim(),
+        googleReviewUrl: googleReviewUrl.trim() || undefined,
       });
       toast.success("Informations enregistrées.");
     } catch (error) {
@@ -75,6 +79,18 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
         <input
           value={hours}
           onChange={(event) => setHours(event.target.value)}
+          className={inputClass}
+        />
+      </Field>
+      <Field
+        label="Avis Google"
+        hint="Le lien « Laisser un avis » de votre fiche Google Business, proposé en bas de votre menu en ligne."
+      >
+        <input
+          type="url"
+          value={googleReviewUrl}
+          onChange={(event) => setGoogleReviewUrl(event.target.value)}
+          placeholder="https://g.page/r/…/review"
           className={inputClass}
         />
       </Field>

@@ -54,6 +54,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,
+      googleReviewUrl: etablissement.google_review_url ?? undefined,
       categories: assembleCategories(
         etablissement.categories,
         etablissement.items

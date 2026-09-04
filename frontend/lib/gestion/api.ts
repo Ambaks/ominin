@@ -7,14 +7,13 @@ import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import { rowToFormule, rowToMenuItem, rowToOrder, toJson } from "./mappers";
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
+  EncaissementMode,
   Etablissement,
   Formule,
   GestionState,
   Order,
   OrderStatus,
-  PaymentMode,
   PaymentProvider,
-  TableGroup,
 } from "./types";
 
 /*
@@ -38,12 +37,6 @@ function findItem(draft: GestionState, itemId: string) {
     if (index !== -1) return { category, index, item: category.items[index] };
   }
   throw new Error("Article introuvable.");
-}
-
-function findGroup(draft: GestionState, groupId: string): TableGroup {
-  const group = draft.groups.find((candidate) => candidate.id === groupId);
-  if (!group) throw new Error("Groupe introuvable.");
-  return group;
 }
 
 function assertTransition(order: Order, target: OrderStatus) {
@@ -328,156 +321,6 @@ export async function setFormuleAvailability(
 }
 
 // ---------------------------------------------------------------------------
-// Tables
-
-function isActiveOrder(order: Order): boolean {
-  return order.status !== "payee" && order.status !== "annulee" && order.status !== "retiree";
-}
-
-export async function createGroup(
-  tableIds: string[],
-  integrateOrders: boolean
-): Promise<TableGroup> {
-  if (tableIds.length < 2) {
-    throw new Error("Un groupe doit contenir au moins deux tables.");
-  }
-
-  // RPC transactionnelle : insertion du groupe + affectation des tables et des
-  // commandes en une seule opération verrouillée (voir create_table_group).
-  const supabase = createClient();
-  const row = must(
-    await supabase.rpc("create_table_group", {
-      p_table_ids: tableIds,
-      p_integrate_orders: integrateOrders,
-    })
-  );
-
-  const group: TableGroup = {
-    id: row.id,
-    tableIds: [...tableIds],
-    createdAt: row.created_at,
-  };
-  return apply((draft) => {
-    draft.groups.push(group);
-    if (integrateOrders) {
-      for (const order of draft.orders) {
-        if (isActiveOrder(order) && order.tableId && tableIds.includes(order.tableId)) {
-          order.groupeId = group.id;
-        }
-      }
-    }
-    return group;
-  });
-}
-
-export async function addTableToGroup(
-  groupId: string,
-  tableId: string
-): Promise<void> {
-  const current = getState();
-  findGroup(current, groupId);
-  const taken = new Set(current.groups.flatMap((g) => g.tableIds));
-  if (taken.has(tableId)) {
-    throw new Error("Cette table est déjà dans un groupe.");
-  }
-  const supabase = createClient();
-  check(
-    await supabase.from("tables").update({ group_id: groupId }).eq("id", tableId)
-  );
-  apply((draft) => {
-    findGroup(draft, groupId).tableIds.push(tableId);
-  });
-}
-
-export async function removeTableFromGroup(
-  groupId: string,
-  tableId: string
-): Promise<void> {
-  const group = findGroup(getState(), groupId);
-  if (group.tableIds.length <= 2) {
-    throw new Error(
-      "Un groupe doit contenir au moins deux tables. Dissolvez-le plutôt."
-    );
-  }
-  const supabase = createClient();
-  check(
-    await supabase.from("tables").update({ group_id: null }).eq("id", tableId)
-  );
-  check(
-    await supabase
-      .from("orders")
-      .update({ group_id: null })
-      .eq("group_id", groupId)
-      .eq("table_id", tableId)
-  );
-  apply((draft) => {
-    const draftGroup = findGroup(draft, groupId);
-    draftGroup.tableIds = draftGroup.tableIds.filter((id) => id !== tableId);
-    for (const order of draft.orders) {
-      if (order.groupeId === groupId && order.tableId === tableId) {
-        order.groupeId = null;
-      }
-    }
-  });
-}
-
-/**
- * Affecte un serveur à une table (null pour libérer). Le trigger
- * enforce_table_update_rights garantit qu'un serveur ne peut affecter que
- * lui-même ; le gérant affecte qui il veut.
- */
-export async function assignServer(
-  tableId: string,
-  serverId: string | null
-): Promise<void> {
-  const supabase = createClient();
-  check(
-    await supabase
-      .from("tables")
-      .update({ server_id: serverId })
-      .eq("id", tableId)
-  );
-  apply((draft) => {
-    const table = draft.tables.find((t) => t.id === tableId);
-    if (table) table.serverId = serverId;
-  });
-}
-
-/** Affecte un serveur à toutes les tables d'un groupe (une seule tablée). */
-export async function assignServerToGroup(
-  groupId: string,
-  serverId: string | null
-): Promise<void> {
-  const supabase = createClient();
-  check(
-    await supabase
-      .from("tables")
-      .update({ server_id: serverId })
-      .eq("group_id", groupId)
-  );
-  apply((draft) => {
-    const group = draft.groups.find((g) => g.id === groupId);
-    if (!group) return;
-    for (const table of draft.tables) {
-      if (group.tableIds.includes(table.id)) table.serverId = serverId;
-    }
-  });
-}
-
-export async function dissolveGroup(groupId: string): Promise<void> {
-  findGroup(getState(), groupId);
-  const supabase = createClient();
-  // tables.group_id et orders.group_id repassent à null via ON DELETE SET NULL.
-  check(await supabase.from("table_groups").delete().eq("id", groupId));
-  apply((draft) => {
-    draft.groups = draft.groups.filter((group) => group.id !== groupId);
-    for (const order of draft.orders) {
-      if (order.groupeId === groupId) order.groupeId = null;
-    }
-  });
-}
-
-// ---------------------------------------------------------------------------
 // Commandes
 
 function findOrder(state: GestionState, orderId: string): Order {
@@ -495,7 +338,8 @@ export interface StaffOrderLine {
 /**
  * Commande prise en salle par un membre de l'équipe (client qui commande
  * directement au serveur). Même RPC que le menu QR : place_order valide
- * articles, stock et options, et notifie la cuisine comme une commande client.
+ * articles, stock et options, et ouvre la table si son numéro est nouveau.
+ * La commande attend son encaissement ; elle part en cuisine une fois payée.
  */
 export async function createStaffOrder(
   tableNumber: number,
@@ -549,39 +393,40 @@ export async function updateOrderStatus(
   });
 }
 
-export async function markOrderPaid(
-  orderId: string,
-  mode: PaymentMode,
+/**
+ * Encaisse une sélection d'articles (commandes servies d'une table ou d'un
+ * groupe). La RPC marque les lignes, pose le pourboire et clôt les commandes
+ * entièrement réglées (mode unique ou mixte) ; le snapshot est relu plutôt
+ * que rejoué — c'est la base qui décide de ce qui se clôt.
+ */
+export async function payOrderItems(
+  itemIds: string[],
+  mode: EncaissementMode,
   cashDetails?: { cashGiven: number; cashChange: number },
   tip?: number
-): Promise<Order> {
-  assertTransition(findOrder(getState(), orderId), "payee");
+): Promise<void> {
   const supabase = createClient();
+  const cash = mode === "especes" ? cashDetails : undefined;
   check(
-    await supabase
-      .from("orders")
-      .update({
-        status: "payee",
-        payment_mode: mode,
-        cash_given: mode === "especes" && cashDetails ? cashDetails.cashGiven : null,
-        cash_change: mode === "especes" && cashDetails ? cashDetails.cashChange : null,
-        // Absent ⇒ intact : un pourboire laissé au paiement en ligne (webhook)
-        // ne doit pas être écrasé à la clôture.
-        ...(tip ? { tip_amount: tip } : {}),
-      })
-      .eq("id", orderId)
+    await supabase.rpc("pay_order_items", {
+      p_item_ids: itemIds,
+      p_mode: mode,
+      p_cash_given: cash?.cashGiven ?? null,
+      p_cash_change: cash?.cashChange ?? null,
+      p_tip: tip ?? null,
+    })
   );
-  return apply((draft) => {
-    const order = findOrder(draft, orderId);
-    order.status = "payee";
-    order.paymentMode = mode;
-    if (mode === "especes" && cashDetails) {
-      order.cashGiven = cashDetails.cashGiven;
-      order.cashChange = cashDetails.cashChange;
-    }
-    if (tip) order.tipAmount = tip;
-    return order;
-  });
+  await refreshOrdersNow();
+}
+
+/**
+ * Marque servis des articles d'une table (commandes payées). La RPC clôt
+ * chaque commande dont la dernière ligne arrive à table ; snapshot relu.
+ */
+export async function serveOrderItems(itemIds: string[]): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.rpc("serve_order_items", { p_item_ids: itemIds }));
+  await refreshOrdersNow();
 }
 
 /*
@@ -644,86 +489,6 @@ export async function voidCashPayment(orderId: string): Promise<Order> {
   });
 }
 
-/** Commandes du groupe pouvant passer au statut cible. */
-function groupEligibleOrders(groupeId: string, target: OrderStatus): Order[] {
-  return getState().orders.filter(
-    (order) =>
-      order.groupeId === groupeId &&
-      ORDER_STATUS_FLOW[order.status].includes(target)
-  );
-}
-
-export async function markGroupServed(groupeId: string): Promise<void> {
-  const ids = groupEligibleOrders(groupeId, "servie").map((order) => order.id);
-  if (!ids.length) return;
-  const supabase = createClient();
-  check(
-    await supabase.from("orders").update({ status: "servie" }).in("id", ids)
-  );
-  apply((draft) => {
-    for (const order of draft.orders) {
-      if (ids.includes(order.id)) order.status = "servie";
-    }
-  });
-}
-
-export async function markGroupPaid(
-  groupeId: string,
-  mode: PaymentMode,
-  cashDetails?: { cashGiven: number; cashChange: number },
-  tip?: number
-): Promise<void> {
-  const eligible = groupEligibleOrders(groupeId, "payee");
-  if (!eligible.length) return;
-  const paidOnlineIds = eligible
-    .filter((order) => order.paidOnline)
-    .map((order) => order.id);
-  const toChargeIds = eligible
-    .filter((order) => !order.paidOnline)
-    .map((order) => order.id);
-  // Un seul pourboire pour l'addition du groupe : porté par la première
-  // commande encaissée (l'attribution passe par son server_id).
-  const tipOrderId = tip ? (toChargeIds[0] ?? paidOnlineIds[0]) : undefined;
-  const supabase = createClient();
-  const cashGiven = mode === "especes" && cashDetails ? cashDetails.cashGiven : null;
-  const cashChange = mode === "especes" && cashDetails ? cashDetails.cashChange : null;
-  const results = await Promise.all([
-    toChargeIds.length
-      ? supabase
-          .from("orders")
-          .update({ status: "payee", payment_mode: mode, cash_given: cashGiven, cash_change: cashChange })
-          .in("id", toChargeIds)
-      : null,
-    paidOnlineIds.length
-      ? supabase.from("orders").update({ status: "payee" }).in("id", paidOnlineIds)
-      : null,
-  ]);
-  for (const result of results) if (result) check(result);
-  if (tip && tipOrderId) {
-    check(
-      await supabase
-        .from("orders")
-        .update({ tip_amount: tip })
-        .eq("id", tipOrderId)
-    );
-  }
-  apply((draft) => {
-    for (const order of draft.orders) {
-      if (toChargeIds.includes(order.id)) {
-        order.status = "payee";
-        order.paymentMode = mode;
-        if (mode === "especes" && cashDetails) {
-          order.cashGiven = cashDetails.cashGiven;
-          order.cashChange = cashDetails.cashChange;
-        }
-      } else if (paidOnlineIds.includes(order.id)) {
-        order.status = "payee";
-      }
-      if (order.id === tipOrderId) order.tipAmount = tip;
-    }
-  });
-}
-
 // ---------------------------------------------------------------------------
 // Équipe
 
@@ -766,7 +531,14 @@ export async function updateEtablissement(
   check(
     await supabase
       .from("etablissements")
-      .update(input)
+      .update({
+        name: input.name,
+        tagline: input.tagline,
+        address: input.address,
+        phone: input.phone,
+        hours: input.hours,
+        google_review_url: input.googleReviewUrl ?? null,
+      })
       .eq("id", etablissementId())
   );
   apply((draft) => {

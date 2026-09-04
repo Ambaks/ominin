@@ -6,15 +6,14 @@ import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import { must } from "@/lib/supabase/result";
 import {
-  ACTIVE_ORDER_STATUSES,
   ANALYTICS_PERIOD_DAYS,
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
+  OPEN_ORDER_STATUSES,
   PAID_ORDER_STATUSES,
 } from "./constants";
 import {
   assembleCategories,
-  assembleGroups,
   rowToEtablissement,
   rowToFormule,
   rowToMember,
@@ -60,7 +59,7 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
       .select("*, order_items(*)")
       .eq("etablissement_id", etablissementId)
       .or(
-        `created_at.gte.${since},status.in.(${ACTIVE_ORDER_STATUSES.join(",")})`
+        `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
       )
       .order("created_at", { ascending: true })
   );
@@ -163,8 +162,7 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       { event: "*", schema: "public", table: "order_items" },
       onChange
     )
-    // Affectations serveur et groupements faits sur un autre appareil (la
-    // dissolution d'un groupe arrive aussi en UPDATE via on delete set null).
+    // Tables ouvertes depuis la salle sur un autre appareil (nouveau numéro).
     .on(
       "postgres_changes",
       {
@@ -180,23 +178,13 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
 
 async function refreshTables(supabase: Client, etablissementId: string) {
   if (!state) return;
-  const [tablesResult, groupsResult] = await Promise.all([
-    supabase
-      .from("tables")
-      .select("*")
-      .eq("etablissement_id", etablissementId)
-      .order("number", { ascending: true }),
-    supabase
-      .from("table_groups")
-      .select("*")
-      .eq("etablissement_id", etablissementId),
-  ]);
-  if (tablesResult.error || groupsResult.error || !state) return;
-  state = {
-    ...state,
-    tables: tablesResult.data.map(rowToTable),
-    groups: assembleGroups(groupsResult.data, tablesResult.data),
-  };
+  const { data, error } = await supabase
+    .from("tables")
+    .select("*")
+    .eq("etablissement_id", etablissementId)
+    .order("number", { ascending: true });
+  if (error || !state) return;
+  state = { ...state, tables: data.map(rowToTable) };
   notify();
 }
 
@@ -248,7 +236,6 @@ async function load(): Promise<void> {
     items,
     formules,
     tables,
-    groups,
     orders,
     members,
   ] = await Promise.all([
@@ -290,11 +277,6 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("number", { ascending: true })
         .then(must),
-      supabase
-        .from("table_groups")
-        .select("*")
-        .eq("etablissement_id", etablissementId)
-        .then(must),
       fetchOrders(supabase, etablissementId),
       supabase
         .from("memberships")
@@ -317,7 +299,6 @@ async function load(): Promise<void> {
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
     tables: tables.map(rowToTable),
-    groups: assembleGroups(groups, tables),
     orders,
   };
   notify();

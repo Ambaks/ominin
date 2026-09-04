@@ -11,20 +11,22 @@ import {
   WAIT_TICK_MS,
 } from "@/lib/gestion/constants";
 import {
+  activeTables,
+  awaitsPayment,
+  awaitsService,
   memberName,
-  myTipsToday,
   orderTotal,
   unavailableItems,
 } from "@/lib/gestion/selectors";
 import type { GestionState, Order } from "@/lib/gestion/types";
 import { formatWait, minutesSince, useNow } from "@/lib/gestion/use-now";
-import { formatTime } from "@/lib/gestion/format";
 import { formatPrice } from "@/lib/menu-data";
 
 /*
  * Aperçu des employés : pas d'analytique — un poste de pilotage du service
- * en direct, taillé pour le rôle. La cuisine voit ce qui l'attend au passe,
- * la salle voit ce qui est prêt à partir.
+ * en direct, taillé pour le rôle. La salle voit ce qui reste à encaisser et
+ * à servir ; la cuisine, dont les commandes sortent sur l'imprimante, n'a
+ * que la disponibilité des articles à tenir.
  */
 
 const RISE_STEP_MS = 70;
@@ -84,19 +86,21 @@ function LiveTile({
   label,
   value,
   hint,
+  href = "/gestion/commandes",
   urgent = false,
   index,
 }: {
   label: string;
   value: number;
   hint?: string;
+  href?: string;
   urgent?: boolean;
   index: number;
 }) {
   const hot = urgent && value > 0;
   return (
     <Link
-      href="/gestion/commandes"
+      href={href}
       style={riseDelay(index)}
       className={`rise rounded-2xl border p-5 transition-colors ${
         hot
@@ -218,95 +222,17 @@ function ProfileRow({ state, index }: { state: GestionState; index: number }) {
 }
 
 function CuisinierApercu({ state }: { state: GestionState }) {
-  const now = useNow(WAIT_TICK_MS);
-  const enAttente = state.orders.filter((o) => o.status === "en_attente");
-  const enPreparation = state.orders.filter((o) => o.status === "en_preparation");
-  const pretes = state.orders.filter((o) => o.status === "prete");
   const indispo = unavailableItems(state);
-
-  // Retraits collect à venir : le tempo de la cuisine sur l'emporter.
-  const retraits = state.orders
-    .filter(
-      (o) =>
-        o.type === "collect" &&
-        (o.status === "en_attente" || o.status === "en_preparation") &&
-        (o.pickupAt || o.estimatedReadyAt)
-    )
-    .sort((a, b) =>
-      (a.pickupAt ?? a.estimatedReadyAt!).localeCompare(
-        b.pickupAt ?? b.estimatedReadyAt!
-      )
-    );
-
-  const oldest = enAttente[0];
 
   return (
     <div className="flex flex-col gap-8">
       <ServiceHero
         title="La cuisine"
-        tagline="préparation des commandes et disponibilité des articles"
+        tagline="les commandes sortent sur l'imprimante"
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <LiveTile
-          index={1}
-          label="À préparer"
-          value={enAttente.length}
-          urgent
-          hint={
-            oldest
-              ? `La plus ancienne attend depuis ${formatWait(minutesSince(oldest.createdAt, now))}`
-              : "Aucune commande en attente"
-          }
-        />
-        <LiveTile index={2} label="En préparation" value={enPreparation.length} />
-        <LiveTile
-          index={3}
-          label="Prêtes au passe"
-          value={pretes.length}
-          hint={pretes.length > 0 ? "À remettre en salle ou au comptoir" : undefined}
-        />
-      </div>
-
-      {enAttente.length + enPreparation.length + pretes.length === 0 && (
-        <EmptyService body="Les commandes du menu QR et du click & collect arrivent ici en temps réel." />
-      )}
-
-      {retraits.length > 0 && (
-        <section className="rise flex flex-col gap-3" style={riseDelay(4)}>
-          <SectionTitle>Retraits à venir</SectionTitle>
-          <div className="rounded-2xl border border-hairline bg-surface">
-            {retraits.map((order, index) => {
-              const at = order.pickupAt ?? order.estimatedReadyAt!;
-              return (
-                <Link
-                  key={order.id}
-                  href="/gestion/commandes"
-                  className={`flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-raised ${
-                    index > 0 ? "border-t border-hairline" : ""
-                  }`}
-                >
-                  <span className="ember-gradient flex h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-1.5 font-display text-sm font-medium tabular-nums text-background">
-                    {formatTime(at)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {order.customerName ?? "Client"}
-                    </p>
-                    <p className="text-xs text-faint">
-                      {orderItemCount(order)} article{orderItemCount(order) > 1 ? "s" : ""} ·{" "}
-                      {order.status === "en_attente" ? "à accepter" : "en préparation"}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {indispo.length > 0 && (
-        <section className="rise flex flex-col gap-3" style={riseDelay(5)}>
+      {indispo.length > 0 ? (
+        <section className="rise flex flex-col gap-3" style={riseDelay(1)}>
           <SectionTitle>À remettre en vente</SectionTitle>
           <div className="rounded-2xl border border-hairline bg-surface">
             {indispo.map((item, index) => (
@@ -332,104 +258,72 @@ function CuisinierApercu({ state }: { state: GestionState }) {
             ))}
           </div>
         </section>
+      ) : (
+        <div
+          className="rise rounded-2xl border border-dashed border-hairline p-6 text-center"
+          style={riseDelay(1)}
+        >
+          <p className="text-sm text-muted">Toute la carte est en vente.</p>
+          <p className="mt-1 text-xs text-faint">
+            Un article épuisé se retire depuis l&rsquo;onglet Menu ; il
+            réapparaît ici.
+          </p>
+        </div>
       )}
 
-      <ProfileRow state={state} index={6} />
+      <ProfileRow state={state} index={2} />
     </div>
   );
 }
 
 function ServeurApercu({ state }: { state: GestionState }) {
   const now = useNow(WAIT_TICK_MS);
-  const enAttente = state.orders.filter((o) => o.status === "en_attente");
-  const enPreparation = state.orders.filter((o) => o.status === "en_preparation");
-  const pretes = state.orders.filter((o) => o.status === "prete");
-  const activeOrders = [...enAttente, ...enPreparation, ...pretes];
-  const activeTotal = activeOrders.reduce((sum, o) => sum + orderTotal(o), 0);
-  const activeTableCount = new Set(
-    activeOrders.filter((o) => o.tableId).map((o) => o.tableId)
-  ).size;
+  const toPay = state.orders.filter(awaitsPayment);
+  const toServe = state.orders.filter(awaitsService);
+  const tables = activeTables(state);
+  const toPayTotal = toPay.reduce((sum, order) => sum + orderTotal(order), 0);
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
-  const myTables = state.tables.filter((t) => t.serverId === state.userId);
-  const tips = myTipsToday(state);
 
   return (
     <div className="flex flex-col gap-8">
       <ServiceHero
         title="La salle"
-        tagline="tables, service et remise des commandes"
+        tagline="encaissement et service des tables"
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <LiveTile
           index={1}
-          label="Prêtes à servir"
-          value={pretes.length}
+          label="À encaisser"
+          value={toPay.length}
           urgent
-          hint={pretes.length > 0 ? "Le passe vous attend" : "Rien au passe pour l'instant"}
+          hint={
+            toPay.length > 0
+              ? `${formatPrice(toPayTotal)} en attente`
+              : "Rien à encaisser"
+          }
         />
-        <LiveTile index={2} label="En attente" value={enAttente.length} />
-        <LiveTile index={3} label="En préparation" value={enPreparation.length} />
+        <LiveTile
+          index={2}
+          label="À servir"
+          value={toServe.length}
+          hint={toServe.length > 0 ? "Parties en cuisine" : "Rien à servir"}
+        />
+        <LiveTile
+          index={3}
+          label="Tables en service"
+          value={tables.length}
+          href="/gestion/tables"
+        />
       </div>
 
-      {activeTotal > 0 && (
-        <div
-          className="rise flex items-center justify-between rounded-2xl border border-hairline bg-surface px-5 py-4"
-          style={riseDelay(3.5)}
-        >
-          <div>
-            <p className="text-sm font-medium">Total en salle</p>
-            <p className="text-xs text-faint">
-              {activeTableCount} table{activeTableCount > 1 ? "s" : ""} active{activeTableCount > 1 ? "s" : ""}
-            </p>
-          </div>
-          <span className="font-display text-2xl tabular-nums text-ember-1">
-            {formatPrice(activeTotal)}
-          </span>
-        </div>
-      )}
-
-      {(myTables.length > 0 || tips > 0) && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href="/gestion/tables"
-            className="rise flex items-center justify-between rounded-2xl border border-hairline bg-surface px-5 py-4 transition-colors hover:border-ember-2/30"
-            style={riseDelay(3.7)}
-          >
-            <div>
-              <p className="text-sm font-medium">Mes tables</p>
-              <p className="text-xs text-faint">
-                {myTables.length > 0
-                  ? myTables.map((t) => t.number).join(", ")
-                  : "Affectez-vous depuis l'onglet Tables"}
-              </p>
-            </div>
-            <span className="font-display text-2xl tabular-nums text-ember-1">
-              {myTables.length}
-            </span>
-          </Link>
-          <div
-            className="rise flex items-center justify-between rounded-2xl border border-hairline bg-surface px-5 py-4"
-            style={riseDelay(3.9)}
-          >
-            <div>
-              <p className="text-sm font-medium">Mes pourboires</p>
-              <p className="text-xs text-faint">Aujourd&rsquo;hui</p>
-            </div>
-            <span className="font-display text-2xl tabular-nums text-ember-1">
-              {formatPrice(tips)}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {pretes.length > 0 ? (
+      {toServe.length > 0 ? (
         <section className="rise flex flex-col gap-3" style={riseDelay(4)}>
-          <SectionTitle>Au passe — à servir</SectionTitle>
+          <SectionTitle>À servir</SectionTitle>
           <div className="rounded-2xl border border-hairline bg-surface">
-            {pretes.map((order, index) => {
+            {toServe.map((order, index) => {
               const isCollect = order.type === "collect";
               const tableNo = order.tableId
                 ? tableNumbersById.get(order.tableId)
@@ -465,28 +359,12 @@ function ServeurApercu({ state }: { state: GestionState }) {
           </div>
         </section>
       ) : (
-        enAttente.length + enPreparation.length === 0 && (
-          <EmptyService body="Les commandes passées depuis le menu QR apparaîtront ici en temps réel." />
+        toPay.length === 0 && (
+          <EmptyService body="Les commandes du menu QR et de la salle apparaîtront ici en temps réel." />
         )
       )}
 
-      {state.groups.length > 0 && (
-        <Link
-          href="/gestion/tables"
-          className="rise flex items-center justify-between rounded-2xl border border-hairline bg-surface px-5 py-4 transition-colors hover:border-ember-2/30"
-          style={riseDelay(5)}
-        >
-          <div>
-            <p className="text-sm font-medium">Groupes de tables actifs</p>
-            <p className="text-xs text-faint">Gérer les tables réunies</p>
-          </div>
-          <span className="font-display text-2xl tabular-nums text-ember-1">
-            {state.groups.length}
-          </span>
-        </Link>
-      )}
-
-      <ProfileRow state={state} index={6} />
+      <ProfileRow state={state} index={5} />
     </div>
   );
 }

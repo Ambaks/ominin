@@ -10,7 +10,9 @@ import type {
 /**
  * État de démonstration : le menu de la Trattoria Lucia enrichi de stocks,
  * disponibilités et options, plus des commandes, tables et une formule
- * plausibles pour exercer chaque écran.
+ * plausibles pour exercer chaque écran — additions à encaisser (dont une
+ * réglée en partie), tables payées à servir (dont une servie à moitié et une
+ * réglée en ligne), commandes closes.
  */
 export function seed(): GestionState {
   const restaurant = getRestaurant(DEMO_SLUG)!;
@@ -48,9 +50,13 @@ export function seed(): GestionState {
     },
   ];
 
+  const minutesAgo = (minutes: number) =>
+    new Date(Date.now() - minutes * 60_000).toISOString();
+
   const line = (
     itemId: string,
     quantity: number,
+    state: Pick<OrderItem, "paidMode" | "servedAt"> = {},
     options?: OrderItemOption[]
   ): OrderItem => ({
     id: crypto.randomUUID(),
@@ -62,11 +68,8 @@ export function seed(): GestionState {
       item(itemId).price +
       (options?.reduce((sum, option) => sum + option.supplement, 0) ?? 0),
     options,
+    ...state,
   });
-  const minutesAgo = (minutes: number) =>
-    new Date(Date.now() - minutes * 60_000).toISOString();
-
-  const groupeId = crypto.randomUUID();
 
   const orders: Order[] = [
     {
@@ -77,7 +80,7 @@ export function seed(): GestionState {
       createdAt: minutesAgo(4),
       items: [
         line("burrata", 1),
-        line("margherita", 1, [
+        line("margherita", 1, {}, [
           { groupName: "Taille", choiceName: "Grande 33 cm", supplement: 4 },
         ]),
       ],
@@ -93,67 +96,79 @@ export function seed(): GestionState {
     {
       id: crypto.randomUUID(),
       type: "sur_place",
-      tableId: "table-3",
-      status: "en_preparation",
-      createdAt: minutesAgo(14),
+      tableId: "table-8",
+      status: "en_attente",
+      createdAt: minutesAgo(9),
       items: [
-        line("tagliata", 1, [
+        line("quattro", 1, { paidMode: "especes" }),
+        line("panna-cotta", 2),
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "sur_place",
+      tableId: "table-3",
+      status: "payee",
+      createdAt: minutesAgo(14),
+      paymentMode: "carte",
+      items: [
+        line("tagliata", 1, { paidMode: "carte" }, [
           { groupName: "Cuisson", choiceName: "Saignante", supplement: 0 },
         ]),
-        line("moretti", 1),
+        line("moretti", 1, { paidMode: "carte" }),
       ],
     },
     {
       id: crypto.randomUUID(),
       type: "sur_place",
       tableId: "table-9",
-      status: "prete",
+      status: "payee",
       createdAt: minutesAgo(22),
-      items: [line("diavola", 2), line("san-pellegrino", 1)],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "sur_place",
-      tableId: "table-8",
-      status: "servie",
-      createdAt: minutesAgo(38),
-      items: [line("quattro", 1), line("panna-cotta", 2)],
+      paymentMode: "especes",
+      cashGiven: 40,
+      cashChange: 4,
+      items: [
+        line("diavola", 2, { paidMode: "especes", servedAt: minutesAgo(6) }),
+        line("san-pellegrino", 1, { paidMode: "especes" }),
+      ],
     },
     {
       id: crypto.randomUUID(),
       type: "sur_place",
       tableId: "table-4",
-      groupeId,
-      status: "en_preparation",
+      status: "payee",
       createdAt: minutesAgo(11),
-      items: [line("planche-lucia", 1), line("negroni", 2)],
-    },
-    {
-      id: crypto.randomUUID(),
-      type: "sur_place",
-      tableId: "table-6",
-      groupeId,
-      status: "prete",
-      createdAt: minutesAgo(11),
-      items: [line("linguine", 1), line("polpo", 1), line("vermentino", 1)],
+      paidOnline: true,
+      paymentMode: "carte",
+      tipAmount: 3,
+      items: [
+        line("planche-lucia", 1, { paidMode: "en_ligne" }),
+        line("negroni", 2, { paidMode: "en_ligne" }),
+      ],
     },
     {
       id: crypto.randomUUID(),
       type: "sur_place",
       tableId: "table-5",
-      status: "payee",
+      status: "servie",
       createdAt: minutesAgo(95),
-      items: [line("margherita", 2), line("tiramisu", 2)],
       paymentMode: "especes",
+      items: [
+        line("margherita", 2, { paidMode: "especes", servedAt: minutesAgo(70) }),
+        line("tiramisu", 2, { paidMode: "especes", servedAt: minutesAgo(50) }),
+      ],
     },
     {
       id: crypto.randomUUID(),
       type: "sur_place",
       tableId: "table-1",
-      status: "payee",
+      status: "servie",
       createdAt: minutesAgo(150),
-      items: [line("osso-buco", 1), line("nebbiolo", 1)],
       paymentMode: "carte",
+      items: [
+        line("osso-buco", 1, { paidMode: "carte", servedAt: minutesAgo(120) }),
+        line("nebbiolo", 1, { paidMode: "carte", servedAt: minutesAgo(140) }),
+      ],
     },
     {
       id: crypto.randomUUID(),
@@ -234,11 +249,7 @@ export function seed(): GestionState {
     tables: Array.from({ length: SEED_TABLE_COUNT }, (_, index) => ({
       id: `table-${index + 1}`,
       number: index + 1,
-      serverId: null,
     })),
-    groups: [
-      { id: groupeId, tableIds: ["table-4", "table-6"], createdAt: minutesAgo(11) },
-    ],
     orders,
   };
 }

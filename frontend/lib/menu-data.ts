@@ -59,6 +59,8 @@ export interface Restaurant {
   categories: MenuCategory[];
   /** Fournisseur de paiement présélectionné au seed (démos clients). */
   paymentProvider?: "stripe" | "sumup";
+  /** Lien « laisser un avis Google », proposé en bas du menu. */
+  googleReviewUrl?: string;
 }
 
 export const unsplash = (id: string, w = 1200) =>

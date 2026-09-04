@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   if (!order) {
     return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
   }
-  if (order.status === "payee" || order.status === "annulee") {
+  if (order.status !== "en_attente") {
     return NextResponse.json(
       { error: "Cette commande n'est plus à régler." },
       { status: 409 }
