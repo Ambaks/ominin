@@ -50,13 +50,18 @@ export function allowedActions(
   });
 }
 
-/** Statuts atteignables depuis `status` pour ce rôle et ce type de commande. */
+/**
+ * Statuts atteignables depuis `status` pour ce rôle et ce type de commande.
+ * Le serveur n'annule qu'une commande encore à encaisser — aucun règlement à
+ * défaire ; au-delà, c'est le gérant (miroir de enforce_order_update_rights).
+ */
 export function nextStatuses(status: OrderStatus, role: Role, type: OrderType = "sur_place"): OrderStatus[] {
   const excluded = EXCLUDED_STATUSES[type];
   return ORDER_STATUS_FLOW[status].filter(
     (target) =>
       target !== "en_attente" &&
       !excluded.includes(target) &&
-      can(role, `orders.setStatus:${target}`)
+      can(role, `orders.setStatus:${target}`) &&
+      !(target === "annulee" && role === "serveur" && status !== "en_attente")
   );
 }

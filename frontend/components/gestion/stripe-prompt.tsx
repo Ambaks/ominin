@@ -1,55 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 
 /*
- * Invite à relier le compte SumUp, en tête de l'Aperçu. Visible pour le
- * gérant d'une offre Connect quand SumUp est choisi mais pas encore relié —
- * dont BOHO (présélectionné au seed) — ou juste après le paiement de
- * l'abonnement (?checkout=succes) si aucun fournisseur n'est encore décidé.
+ * Invite à relier le compte Stripe, en tête de l'Aperçu : gérant d'une offre
+ * Connect dont le paiement à table n'est pas encore possible (aucun compte
+ * relié, ou vérification Stripe inachevée). Disparaît une fois le compte
+ * validé, ou pour la session d'un clic sur ×.
  */
 
-export function SumUpPrompt() {
+export function StripePrompt() {
   const state = useGestion();
   const { role } = useGestionAccess();
   const toast = useToast();
-  const [connected, setConnected] = useState<boolean | null>(null);
+  const [chargesEnabled, setChargesEnabled] = useState<boolean | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
-  // Initialisation paresseuse : window absent au rendu serveur, et le premier
-  // rendu est null de toute façon (connected commence à null).
-  const [postCheckout] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.location.search.includes("checkout=succes")
-  );
 
-  const provider = state?.etablissement.paymentProvider ?? null;
   const eligible =
     state !== null &&
     role === "gerant" &&
     state.etablissement.offre === "connect" &&
-    (provider === "sumup" || (provider === null && postCheckout));
+    !state.etablissement.onlinePayment;
 
   useEffect(() => {
     if (!eligible) return;
-    fetch("/api/sumup/connect")
+    fetch("/api/stripe/connect")
       .then((response) => response.json())
-      .then((body: { connected?: boolean }) => {
-        setConnected(Boolean(body.connected));
+      .then((body: { chargesEnabled?: boolean }) => {
+        setChargesEnabled(Boolean(body.chargesEnabled));
       })
-      .catch(() => setConnected(null));
+      .catch(() => setChargesEnabled(null));
   }, [eligible]);
 
-  if (!eligible || dismissed || connected !== false) return null;
+  if (!eligible || dismissed || chargesEnabled !== false) return null;
 
-  const startConnect = async () => {
+  const startOnboarding = async () => {
     setBusy(true);
     try {
-      const response = await fetch("/api/sumup/connect", { method: "POST" });
+      const response = await fetch("/api/stripe/connect", { method: "POST" });
       const body = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !body.url) {
         throw new Error(body.error ?? "Une erreur est survenue.");
@@ -70,27 +61,21 @@ export function SumUpPrompt() {
           Dernière étape
         </p>
         <h2 className="mt-1 font-display text-lg font-medium">
-          Connectez votre compte SumUp
+          Reliez votre compte Stripe
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
-          Vos clients pourront régler leur commande par carte ou Apple Pay,
-          directement sur votre compte SumUp.
+          Vos clients pourront régler leur commande par carte, Apple Pay ou
+          Google Pay, directement sur votre compte.
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-4">
-        <Link
-          href="/gestion/etablissement"
-          className="text-xs text-muted underline-offset-2 hover:underline"
-        >
-          Choisir un autre fournisseur
-        </Link>
         <button
           type="button"
-          onClick={() => void startConnect()}
+          onClick={() => void startOnboarding()}
           disabled={busy}
           className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
         >
-          {busy ? "Redirection…" : "Connecter SumUp"}
+          {busy ? "Redirection…" : "Relier mon compte Stripe"}
         </button>
         <button
           type="button"

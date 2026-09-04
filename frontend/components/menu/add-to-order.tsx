@@ -47,6 +47,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       unitPrice: item.price,
       optionSummary: [],
       choices: [],
+      stock: item.stock,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
@@ -112,6 +113,7 @@ function OptionsModal({
       unitPrice,
       optionSummary,
       choices,
+      stock: item.stock,
     });
     onClose();
   };

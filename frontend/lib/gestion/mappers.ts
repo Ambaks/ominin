@@ -30,15 +30,9 @@ export function rowToEtablissement(
     hours: row.hours,
     offre: row.offre,
     siret: row.siret ?? undefined,
-    // Colonne de la migration 20260709000002 (types à régénérer) ; absente ⇒ false.
-    onlinePayment:
-      (row as { online_payment?: boolean }).online_payment ?? false,
-    // Colonne de la migration 20260817000001 (types à régénérer).
-    paymentProvider:
-      (row as { payment_provider?: Etablissement["paymentProvider"] })
-        .payment_provider ?? null,
-    collectSlotCapacity:
-      (row as { collect_slot_capacity?: number }).collect_slot_capacity ?? 5,
+    onlinePayment: row.online_payment,
+    paymentProvider: row.payment_provider,
+    collectSlotCapacity: row.collect_slot_capacity,
     googleReviewUrl: row.google_review_url ?? undefined,
   };
 }

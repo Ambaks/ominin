@@ -10,7 +10,12 @@ import { can, hasFeature } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
-import { useOrderChime } from "@/lib/gestion/use-order-chime";
+import {
+  playChime,
+  useChimeArmed,
+  useChimeEnabled,
+  useOrderChime,
+} from "@/lib/gestion/use-order-chime";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
@@ -42,7 +47,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
-  { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon, excludeRoles: ["cuisinier"] },
+  { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "commandes", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
@@ -113,6 +118,8 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // Carillon des nouvelles commandes, actif sur tout l'espace (l'onglet
   // ouvert en cuisine sonne quelle que soit la page affichée).
   useOrderChime();
+  const chimeOn = useChimeEnabled();
+  const chimeArmed = useChimeArmed();
 
   const products = activeProducts(state);
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
@@ -205,6 +212,18 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
             )}
           </div>
         </header>
+
+        {/* Tablette posée sans être touchée : le navigateur garde le son
+            fermé jusqu'au premier geste — on le demande, en sonnant. */}
+        {state && hasFeature(products, "commandes") && chimeOn && !chimeArmed && (
+          <button
+            type="button"
+            onClick={() => void playChime()}
+            className="w-full bg-ember-2/15 px-5 py-2.5 text-center text-sm font-medium print:hidden"
+          >
+            Touchez l&rsquo;écran pour activer le carillon des commandes
+          </button>
+        )}
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
           <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex print:hidden">

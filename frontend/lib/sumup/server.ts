@@ -140,23 +140,6 @@ export function fetchCheckout(
   return sumupApi<SumUpCheckout>(accessToken, `/v0.1/checkouts/${checkoutId}`);
 }
 
-interface SumUpAccountRow {
-  merchant_code: string;
-  access_token: string;
-  refresh_token: string;
-  access_token_expires_at: string;
-}
-
-// sumup_accounts arrive avec la migration 20260817000001 ; accès non typé en
-// attendant la régénération des types Supabase.
-export function sumupAccounts(admin: ReturnType<typeof createAdminClient>) {
-  return (
-    admin as unknown as {
-      from: (table: string) => ReturnType<typeof admin.from>;
-    }
-  ).from("sumup_accounts");
-}
-
 export function upsertSumUpAccount(
   admin: ReturnType<typeof createAdminClient>,
   etablissementId: string,
@@ -164,13 +147,15 @@ export function upsertSumUpAccount(
   tokens: SumUpTokens,
   previousRefreshToken?: string
 ) {
-  return sumupAccounts(admin).upsert({
+  // SumUp fait tourner les refresh tokens ; l'absent du renouvellement
+  // signifie que l'ancien reste valable.
+  const refreshToken = tokens.refresh_token ?? previousRefreshToken;
+  if (!refreshToken) throw new Error("SumUp : refresh token absent.");
+  return admin.from("sumup_accounts").upsert({
     etablissement_id: etablissementId,
     merchant_code: merchantCode,
     access_token: tokens.access_token,
-    // SumUp fait tourner les refresh tokens ; l'absent du renouvellement
-    // signifie que l'ancien reste valable.
-    refresh_token: tokens.refresh_token ?? previousRefreshToken,
+    refresh_token: refreshToken,
     access_token_expires_at: new Date(
       Date.now() + tokens.expires_in * 1000
     ).toISOString(),
@@ -188,10 +173,11 @@ export async function getMerchantToken(
   etablissementId: string,
   options?: { forceRefresh?: boolean }
 ): Promise<{ accessToken: string; merchantCode: string } | null> {
-  const { data } = (await sumupAccounts(admin)
+  const { data } = await admin
+    .from("sumup_accounts")
     .select("merchant_code, access_token, refresh_token, access_token_expires_at")
     .eq("etablissement_id", etablissementId)
-    .maybeSingle()) as { data: SumUpAccountRow | null };
+    .maybeSingle();
   if (!data) return null;
 
   const expiresAt = new Date(data.access_token_expires_at).getTime();

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
-import { TERMINAL_ONLINE_WINDOW_MS } from "./constants";
+import { SERIAL_CODE_LENGTH, TERMINAL_ONLINE_WINDOW_MS } from "./constants";
 
 /*
  * Onglet Terminaux : boîtiers Omilink et imprimantes de l'établissement.
@@ -12,6 +12,14 @@ import { TERMINAL_ONLINE_WINDOW_MS } from "./constants";
 export type OmilinkDevice = Tables<"omilink_devices">;
 export type Printer = Tables<"printers">;
 export type PrintJob = Tables<"print_jobs">;
+
+/** Boîtier annoncé, pas encore rattaché (route /api/gestion/omilink/unclaimed). */
+export interface UnclaimedDevice {
+  serial: string;
+  hostname: string | null;
+  lan_ip: string | null;
+  last_seen_at: string;
+}
 
 export interface PrinterInput {
   name: string;
@@ -37,21 +45,9 @@ function save(result: { error: { message: string } | null }): void {
   check(result);
 }
 
-/** Déclare un boîtier et renvoie son jeton — affiché une seule fois. */
-export async function createDevice(
-  etablissementId: string,
-  name: string
-): Promise<string> {
-  return must(
-    await createClient().rpc("omilink_provision_device", {
-      p_etablissement_id: etablissementId,
-      p_name: name,
-    })
-  );
-}
-
-export async function deleteDevice(id: string): Promise<void> {
-  save(await createClient().from("omilink_devices").delete().eq("id", id));
+/** Code lisible d'un boîtier : fin du numéro de série, comme sur son étiquette. */
+export function deviceCode(serial: string | null): string | null {
+  return serial ? serial.slice(-SERIAL_CODE_LENGTH).toUpperCase() : null;
 }
 
 export async function loadTerminaux(
@@ -71,6 +67,61 @@ export async function loadTerminaux(
       .order("created_at"),
   ]);
   return { devices: must(devices), printers: must(printers) };
+}
+
+export async function fetchUnclaimed(
+  etablissementId: string
+): Promise<UnclaimedDevice[]> {
+  const response = await fetch(
+    `/api/gestion/omilink/unclaimed?etablissement_id=${encodeURIComponent(etablissementId)}`
+  );
+  const body = (await response.json().catch(() => null)) as {
+    devices?: UnclaimedDevice[];
+    error?: string;
+  } | null;
+  if (!response.ok) {
+    throw new Error(body?.error ?? "Recherche des boîtiers impossible.");
+  }
+  return body?.devices ?? [];
+}
+
+/** Rattache un boîtier annoncé ; il passe « En ligne » à sa prochaine annonce. */
+export async function claimDevice(
+  serial: string,
+  etablissementId: string,
+  name: string
+): Promise<string> {
+  return must(
+    await createClient().rpc("omilink_claim_device", {
+      p_serial: serial,
+      p_etablissement_id: etablissementId,
+      p_name: name,
+    })
+  );
+}
+
+export async function deleteDevice(id: string): Promise<void> {
+  save(await createClient().from("omilink_devices").delete().eq("id", id));
+}
+
+/** Demande au boîtier de balayer le réseau ; le résultat arrive par le sync. */
+export async function requestScan(deviceId: string): Promise<void> {
+  check(
+    await createClient()
+      .from("omilink_devices")
+      .update({ scan_requested_at: new Date().toISOString() })
+      .eq("id", deviceId)
+  );
+}
+
+/** Balayage demandé et pas encore livré par le boîtier. */
+export function isScanning(device: OmilinkDevice): boolean {
+  return (
+    device.scan_requested_at != null &&
+    (device.scanned_at == null ||
+      new Date(device.scanned_at).getTime() <
+        new Date(device.scan_requested_at).getTime())
+  );
 }
 
 export async function createPrinter(

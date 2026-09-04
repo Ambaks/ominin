@@ -32,29 +32,17 @@ async function requireGerant() {
   return { etablissementId: membership.etablissement_id, email: user.email };
 }
 
-interface AccountRow {
-  stripe_account_id: string;
-  charges_enabled: boolean;
-}
-
-// payment_accounts arrive avec la migration 20260709000002 ; les types
-// Supabase seront régénérés après application — accès non typé en attendant.
-function paymentAccounts(admin: ReturnType<typeof createAdminClient>) {
-  return (admin as unknown as {
-    from: (table: string) => ReturnType<typeof admin.from>;
-  }).from("payment_accounts");
-}
-
 export async function GET() {
   const auth = await requireGerant();
   if ("error" in auth) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
   const admin = createAdminClient();
-  const { data } = (await paymentAccounts(admin)
+  const { data } = await admin
+    .from("payment_accounts")
     .select("stripe_account_id, charges_enabled")
     .eq("etablissement_id", auth.etablissementId)
-    .maybeSingle()) as { data: AccountRow | null };
+    .maybeSingle();
   if (!data) return NextResponse.json({ connected: false, chargesEnabled: false });
 
   // Rafraîchit charges_enabled depuis Stripe (l'onboarding vient d'avoir lieu).
@@ -62,7 +50,8 @@ export async function GET() {
   const account = await stripe.accounts.retrieve(data.stripe_account_id);
   const chargesEnabled = Boolean(account.charges_enabled);
   if (chargesEnabled !== data.charges_enabled) {
-    await paymentAccounts(admin)
+    await admin
+      .from("payment_accounts")
       .update({ charges_enabled: chargesEnabled, updated_at: new Date().toISOString() })
       .eq("etablissement_id", auth.etablissementId);
   }
@@ -77,10 +66,11 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const stripe = getStripe();
 
-  const { data: existing } = (await paymentAccounts(admin)
-    .select("stripe_account_id, charges_enabled")
+  const { data: existing } = await admin
+    .from("payment_accounts")
+    .select("stripe_account_id")
     .eq("etablissement_id", auth.etablissementId)
-    .maybeSingle()) as { data: AccountRow | null };
+    .maybeSingle();
 
   let accountId = existing?.stripe_account_id;
   if (!accountId) {
@@ -90,7 +80,7 @@ export async function POST(request: Request) {
       metadata: { etablissement_id: auth.etablissementId },
     });
     accountId = account.id;
-    const { error } = await paymentAccounts(admin).insert({
+    const { error } = await admin.from("payment_accounts").insert({
       etablissement_id: auth.etablissementId,
       stripe_account_id: accountId,
     });

@@ -13,7 +13,6 @@ import type {
   GestionState,
   Order,
   OrderStatus,
-  PaymentProvider,
 } from "./types";
 
 /*
@@ -78,9 +77,8 @@ function itemColumns(
     detail: input.detail || null,
     stock: input.stock,
     options: toJson(input.options),
-    // vat_rate arrive avec la migration 20260817000001 (types à régénérer).
     vat_rate: input.vatRate,
-  } as Omit<TablesInsert<"items">, "etablissement_id">;
+  };
 }
 
 export async function createItem(input: ItemInput): Promise<MenuItem> {
@@ -211,13 +209,8 @@ export async function deleteCategory(categoryId: string): Promise<void> {
 
 export async function reorderCategories(orderedIds: string[]): Promise<void> {
   const supabase = createClient();
-  // reorder_categories est ajoutée par la migration 20260709000004 (types à
-  // régénérer) : un seul UPDATE ensembliste au lieu d'une requête par catégorie.
-  const rpc = supabase.rpc.bind(supabase) as unknown as (
-    fn: string,
-    args: Record<string, unknown>
-  ) => Promise<{ error: { message: string } | null }>;
-  check(await rpc("reorder_categories", { p_ids: orderedIds }));
+  // Un seul UPDATE ensembliste au lieu d'une requête par catégorie.
+  check(await supabase.rpc("reorder_categories", { p_ids: orderedIds }));
   const position = new Map(orderedIds.map((id, index) => [id, index]));
   apply((draft) => {
     draft.categories.sort(
@@ -346,11 +339,7 @@ export async function createStaffOrder(
   lines: StaffOrderLine[]
 ): Promise<void> {
   const supabase = createClient();
-  const rpc = supabase.rpc.bind(supabase) as unknown as (
-    fn: string,
-    args: Record<string, unknown>
-  ) => Promise<{ data: unknown; error: { message: string } | null }>;
-  const { data: orderId, error } = await rpc("place_order", {
+  const { data: orderId, error } = await supabase.rpc("place_order", {
     p_slug: getState().etablissement.slug,
     p_table_number: tableNumber,
     p_items: lines.map((line) => ({
@@ -360,7 +349,7 @@ export async function createStaffOrder(
     })),
   });
   if (error) throw new Error(error.message);
-  notifyOrderEvent(orderId as string, "en_attente");
+  notifyOrderEvent(orderId, "en_attente");
   await refreshOrdersNow();
 }
 
@@ -549,11 +538,8 @@ export async function updateEtablissement(
 /** Active/désactive le choix « payer par carte » sur le menu QR (gérant). */
 export async function setOnlinePayment(enabled: boolean): Promise<void> {
   const supabase = createClient();
-  // Colonne ajoutée par la migration 20260709000002 (types à régénérer).
   check(
-    await (supabase as unknown as {
-      from: (t: string) => ReturnType<typeof supabase.from>;
-    })
+    await supabase
       .from("etablissements")
       .update({ online_payment: enabled })
       .eq("id", etablissementId())
@@ -563,30 +549,10 @@ export async function setOnlinePayment(enabled: boolean): Promise<void> {
   });
 }
 
-export async function setPaymentProvider(
-  provider: PaymentProvider | null
-): Promise<void> {
-  const supabase = createClient();
-  // Colonne ajoutée par la migration 20260817000001 (types à régénérer).
-  check(
-    await (supabase as unknown as {
-      from: (t: string) => ReturnType<typeof supabase.from>;
-    })
-      .from("etablissements")
-      .update({ payment_provider: provider })
-      .eq("id", etablissementId())
-  );
-  apply((draft) => {
-    draft.etablissement.paymentProvider = provider;
-  });
-}
-
 export async function setCollectSlotCapacity(capacity: number): Promise<void> {
   const supabase = createClient();
   check(
-    await (supabase as unknown as {
-      from: (t: string) => ReturnType<typeof supabase.from>;
-    })
+    await supabase
       .from("etablissements")
       .update({ collect_slot_capacity: capacity })
       .eq("id", etablissementId())

@@ -8,11 +8,11 @@ import {
   useState,
 } from "react";
 
-/** Choix d'option envoyé à la base (le supplément y est revalidé). */
-export interface CartChoice {
+/** Choix d'option envoyé à la base (le supplément y est revalidé) — alias, pas interface : assignable au Json de place_order. */
+export type CartChoice = {
   group_id: string;
   choice_id: string;
-}
+};
 
 export interface CartLine {
   /** itemId + choix triés : deux lignes identiques fusionnent. */
@@ -25,6 +25,12 @@ export interface CartLine {
   /** Libellés lisibles des options choisies. */
   optionSummary: string[];
   choices: CartChoice[];
+  /** Stock affiché à l'ouverture du menu : borne la quantité (la base refait le test). */
+  stock?: number | null;
+}
+
+function capped(line: { stock?: number | null }, quantity: number): number {
+  return line.stock == null ? quantity : Math.min(quantity, line.stock);
 }
 
 export interface CartConfig {
@@ -69,11 +75,13 @@ export function CartProvider({
     (line: Omit<CartLine, "quantity">, quantity = 1) => {
       setLines((current) => {
         const index = current.findIndex((l) => l.key === line.key);
-        if (index === -1) return [...current, { ...line, quantity }];
+        if (index === -1) {
+          return [...current, { ...line, quantity: capped(line, quantity) }];
+        }
         const next = [...current];
         next[index] = {
           ...next[index],
-          quantity: next[index].quantity + quantity,
+          quantity: capped(line, next[index].quantity + quantity),
         };
         return next;
       });
@@ -85,7 +93,9 @@ export function CartProvider({
     setLines((current) =>
       quantity <= 0
         ? current.filter((l) => l.key !== key)
-        : current.map((l) => (l.key === key ? { ...l, quantity } : l))
+        : current.map((l) =>
+            l.key === key ? { ...l, quantity: capped(l, quantity) } : l
+          )
     );
   }, []);
 

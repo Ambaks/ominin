@@ -39,10 +39,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     id: etablissement.id,
     offre: etablissement.offre,
     onlinePayment: etablissement.online_payment,
-    // Colonne de la migration 20260817000001 (types à régénérer).
-    paymentProvider:
-      (etablissement as { payment_provider?: "stripe" | "sumup" | null })
-        .payment_provider ?? "stripe",
+    paymentProvider: etablissement.payment_provider ?? "stripe",
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,

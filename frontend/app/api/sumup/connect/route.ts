@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import {
   SUMUP_STATE_COOKIE,
   requireGerant,
-  sumupAccounts,
   sumupAuthorizeUrl,
 } from "@/lib/sumup/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -21,10 +20,11 @@ export async function GET() {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
   const admin = createAdminClient();
-  const { data } = (await sumupAccounts(admin)
+  const { data } = await admin
+    .from("sumup_accounts")
     .select("merchant_code")
     .eq("etablissement_id", auth.etablissementId)
-    .maybeSingle()) as { data: { merchant_code: string } | null };
+    .maybeSingle();
   if (!data) return NextResponse.json({ connected: false });
   return NextResponse.json({ connected: true, merchantCode: data.merchant_code });
 }

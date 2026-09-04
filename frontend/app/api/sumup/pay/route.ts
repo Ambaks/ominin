@@ -11,11 +11,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * SumUp : chaque tentative en crée un neuf et écrase sumup_checkout_id.
  */
 
-interface OrderLine {
-  quantity: number;
-  unit_price: number;
-}
-
 export async function POST(request: Request) {
   const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
     orderId?: string;
@@ -41,13 +36,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // payment_provider arrive avec la migration 20260817000001 — accès non typé
-  // en attendant la régénération des types.
-  const untyped = admin as unknown as {
-    from: (t: string) => ReturnType<typeof admin.from>;
-  };
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
-    untyped
+    admin
       .from("etablissements")
       .select("name, online_payment, payment_provider")
       .eq("id", order.etablissement_id)
@@ -58,15 +48,10 @@ export async function POST(request: Request) {
       .eq("order_id", orderId),
     order.table_id
       ? admin.from("tables").select("number").eq("id", order.table_id).single()
-      : Promise.resolve({ data: null, error: null }),
+      : Promise.resolve({ data: null }),
   ]);
-  const etabRow = etab as unknown as {
-    name: string;
-    online_payment: boolean;
-    payment_provider: string | null;
-  } | null;
 
-  if (!etabRow?.online_payment || etabRow.payment_provider !== "sumup") {
+  if (!etab?.online_payment || etab.payment_provider !== "sumup") {
     return NextResponse.json(
       { error: "Le paiement en ligne n'est pas activé pour ce restaurant." },
       { status: 409 }
@@ -87,10 +72,8 @@ export async function POST(request: Request) {
   // Montant en euros décimaux (l'API SumUp n'utilise pas les centimes).
   const linesTotal =
     Math.round(
-      (lines as OrderLine[]).reduce(
-        (sum, line) => sum + line.unit_price * line.quantity,
-        0
-      ) * 100
+      lines.reduce((sum, line) => sum + line.unit_price * line.quantity, 0) *
+        100
     ) / 100;
   // Pourboire choisi par le client, borné au total de la commande. Encaissé
   // avec le checkout ; confirmOrderPaid le reconstitue au paiement effectif.
@@ -108,8 +91,8 @@ export async function POST(request: Request) {
     currency: "EUR",
     merchant_code: merchant.merchantCode,
     description: table
-      ? `Table ${table.number} — ${etabRow.name}`
-      : `Commande — ${etabRow.name}`,
+      ? `Table ${table.number} — ${etab.name}`
+      : `Commande — ${etab.name}`,
     return_url: `${requestUrl.protocol}//${host}/api/sumup/webhook`,
   };
 
@@ -130,7 +113,7 @@ export async function POST(request: Request) {
     checkout = await createCheckout(refreshed.accessToken, body);
   }
 
-  const { error: updateError } = await untyped
+  const { error: updateError } = await admin
     .from("orders")
     .update({ sumup_checkout_id: checkout.id })
     .eq("id", orderId);

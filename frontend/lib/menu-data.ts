@@ -57,8 +57,6 @@ export interface Restaurant {
   phone: string;
   hours: string;
   categories: MenuCategory[];
-  /** Fournisseur de paiement présélectionné au seed (démos clients). */
-  paymentProvider?: "stripe" | "sumup";
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
 }
@@ -439,8 +437,6 @@ const boho: Restaurant = {
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
-  // SumUp présélectionné : le gérant termine l'OAuth dans /gestion/etablissement.
-  paymentProvider: "sumup",
   categories: [
     {
       id: "a-partager",

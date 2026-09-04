@@ -24,27 +24,14 @@ export async function POST(request: Request) {
   if (!checkoutId) return NextResponse.json({ received: true });
 
   const admin = createAdminClient();
-  // sumup_checkout_id arrive avec la migration 20260817000001 — accès non
-  // typé en attendant la régénération des types.
-  const { data: order } = (await (
-    admin as unknown as {
-      from: (t: string) => ReturnType<typeof admin.from>;
-    }
-  )
+  const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, sumup_checkout_id, paid_online")
+    .select("id, etablissement_id, paid_online")
     .eq("sumup_checkout_id", checkoutId)
-    .maybeSingle()) as {
-    data: {
-      id: string;
-      etablissement_id: string;
-      sumup_checkout_id: string;
-      paid_online: boolean;
-    } | null;
-  };
+    .maybeSingle();
 
   if (order && !order.paid_online) {
-    await confirmOrderPaid(admin, order);
+    await confirmOrderPaid(admin, { ...order, sumup_checkout_id: checkoutId });
   }
   return NextResponse.json({ received: true });
 }

@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 /*
  * Règlement d'une commande dans la page via le widget SumUp (carte, Apple Pay
- * et Google Pay selon l'appareil). La commande est déjà partie en cuisine :
- * ce panneau ne gère que l'encaissement. Un refus SumUp tue le checkout —
+ * et Google Pay selon l'appareil). La commande est enregistrée et part en
+ * cuisine une fois réglée : ce panneau ne gère que l'encaissement. Un refus
+ * SumUp tue le checkout —
  * « Réessayer » en obtient un neuf auprès de /api/sumup/pay. Le succès n'est
  * affiché qu'après confirmation serveur (/api/sumup/verify relit le checkout
  * auprès de l'API SumUp).
@@ -154,8 +155,8 @@ export function SumUpPayment({
             : "Le paiement n'a pas pu démarrer."}
         </h3>
         <p className="text-sm leading-relaxed text-muted">
-          Vous pouvez réessayer ou régler au comptoir — votre commande est bien
-          partie en cuisine.
+          Vous pouvez réessayer ou régler au comptoir — votre commande est
+          enregistrée et partira en cuisine dès l&rsquo;encaissement.
         </p>
         <div className="flex gap-2">
           <button

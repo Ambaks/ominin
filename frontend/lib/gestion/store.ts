@@ -1,6 +1,6 @@
 "use client";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
@@ -37,6 +37,10 @@ let state: GestionState | null = null;
 let loadStarted = false;
 let loadError: string | null = null;
 const listeners = new Set<() => void>();
+let channel: RealtimeChannel | null = null;
+/** Canal realtime abonné (true), coupé (false), ou pas encore joint (null). */
+let realtimeLive: boolean | null = null;
+let onVisible: (() => void) | null = null;
 
 function notify() {
   for (const listener of listeners) listener();
@@ -141,9 +145,28 @@ async function refreshOrders(supabase: Client, etablissementId: string) {
   }
 }
 
+/*
+ * Abonnement realtime, plus deux filets pour le Wi-Fi de salle : au retour
+ * d'une coupure (canal rejoint) et au réveil de l'appareil (onglet redevenu
+ * visible), tout est relu — un événement a pu passer inaperçu. Un nouvel
+ * essai de chargement remplace le canal précédent au lieu de l'empiler.
+ */
 function subscribeOrders(supabase: Client, etablissementId: string) {
+  const refreshAll = () => {
+    void refreshOrders(supabase, etablissementId);
+    void refreshTables(supabase, etablissementId);
+  };
   const onChange = () => void refreshOrders(supabase, etablissementId);
-  supabase
+
+  if (channel) void supabase.removeChannel(channel);
+  if (onVisible) document.removeEventListener("visibilitychange", onVisible);
+  onVisible = () => {
+    if (document.visibilityState === "visible") refreshAll();
+  };
+  document.addEventListener("visibilitychange", onVisible);
+
+  let joined = false;
+  channel = supabase
     .channel("gestion-commandes")
     .on(
       "postgres_changes",
@@ -173,7 +196,15 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       },
       () => void refreshTables(supabase, etablissementId)
     )
-    .subscribe();
+    .subscribe((status) => {
+      const live = status === "SUBSCRIBED";
+      if (live && joined) refreshAll();
+      joined ||= live;
+      if (realtimeLive !== live) {
+        realtimeLive = live;
+        notify();
+      }
+    });
 }
 
 async function refreshTables(supabase: Client, etablissementId: string) {
@@ -342,6 +373,13 @@ const getErrorSnapshot = (): string | null => loadError;
 /** Message d'échec du chargement initial, ou null. */
 export function useGestionLoadError(): string | null {
   return useSyncExternalStore(subscribe, getErrorSnapshot, () => null);
+}
+
+const getRealtimeSnapshot = (): boolean | null => realtimeLive;
+
+/** Flux realtime joint (true), coupé (false) ou pas encore établi (null). */
+export function useRealtimeLive(): boolean | null {
+  return useSyncExternalStore(subscribe, getRealtimeSnapshot, () => null);
 }
 
 /** État courant — réservé aux mutations d'api.ts, après chargement. */

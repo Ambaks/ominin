@@ -1,18 +1,22 @@
 # Pile installée sur le Raspberry Pi (~/omilink/compose.yaml, présent dans
-# l'image de base). La configuration de l'appareil — BACKEND_URL et
-# DEVICE_TOKEN — vit dans omilink.env sur la partition de démarrage de la
-# carte SD (FAT : éditable depuis n'importe quel ordinateur), montée ici en
-# .env : appairer ou déplacer un boîtier, c'est éditer ce fichier et
-# redémarrer, sans SSH. Réseau hôte : le conteneur atteint l'imprimante sur
-# le LAN du restaurant sans NAT. Watchtower tire la nouvelle image dès
-# qu'elle est publiée (vérifie toutes les heures) et redémarre le pont. Les
-# journaux sont plafonnés pour ménager la carte SD.
+# l'image de base). La configuration de l'appareil vit dans omilink.env sur
+# la partition de démarrage de la carte SD (FAT : éditable depuis n'importe
+# quel ordinateur), montée ici en .env. Seule la ligne BACKEND_URL est
+# renseignée à la main ; le pont y écrit lui-même DEVICE_TOKEN et
+# DEVICE_SERIAL au premier démarrage, puis s'annonce dans l'onglet Terminaux
+# où le gérant le rattache. Le fichier doit exister avant `docker compose
+# up` (sinon Docker crée un dossier à sa place) ; ne jamais définir
+# DEVICE_TOKEN dans `environment:` (une variable d'environnement primerait
+# sur le fichier). Réseau hôte : le conteneur atteint l'imprimante sur le LAN
+# du restaurant sans NAT. Watchtower tire la nouvelle image dès qu'elle est
+# publiée (vérifie toutes les heures) et redémarre le pont. Les journaux sont
+# plafonnés pour ménager la carte SD.
 services:
   omilink:
     image: ghcr.io/ambaks/omilink:latest
     restart: unless-stopped
     volumes:
-      - /boot/firmware/omilink.env:/app/.env:ro
+      - /boot/firmware/omilink.env:/app/.env
     network_mode: host
     logging:
       driver: json-file

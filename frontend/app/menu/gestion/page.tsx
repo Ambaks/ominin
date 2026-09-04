@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { EmployeeApercu } from "@/components/gestion/apercu/employee-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
-import { SumUpPrompt } from "@/components/gestion/sumup-prompt";
+import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu-data";
 import {
@@ -204,7 +204,7 @@ export default function ApercuPage() {
         <p className="mt-1 text-sm capitalize text-muted">{today}</p>
       </div>
 
-      <SumUpPrompt />
+      <StripePrompt />
 
       {hasCommandes && (
         <div className="grid gap-4 sm:grid-cols-2">

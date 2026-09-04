@@ -933,29 +933,41 @@ export type Database = {
       omilink_devices: {
         Row: {
           created_at: string
+          discovered_printers: string[]
           etablissement_id: string
           hostname: string | null
           id: string
           last_seen_at: string | null
           name: string
+          scan_requested_at: string | null
+          scanned_at: string | null
+          serial: string | null
           version: string | null
         }
         Insert: {
           created_at?: string
+          discovered_printers?: string[]
           etablissement_id: string
           hostname?: string | null
           id?: string
           last_seen_at?: string | null
           name: string
+          scan_requested_at?: string | null
+          scanned_at?: string | null
+          serial?: string | null
           version?: string | null
         }
         Update: {
           created_at?: string
+          discovered_printers?: string[]
           etablissement_id?: string
           hostname?: string | null
           id?: string
           last_seen_at?: string | null
           name?: string
+          scan_requested_at?: string | null
+          scanned_at?: string | null
+          serial?: string | null
           version?: string | null
         }
         Relationships: [
@@ -967,6 +979,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      omilink_enrollments: {
+        Row: {
+          created_at: string
+          hostname: string | null
+          lan_ip: string | null
+          last_seen_at: string
+          public_ip: string | null
+          serial: string
+          token_hash: string
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          hostname?: string | null
+          lan_ip?: string | null
+          last_seen_at?: string
+          public_ip?: string | null
+          serial: string
+          token_hash: string
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          hostname?: string | null
+          lan_ip?: string | null
+          last_seen_at?: string
+          public_ip?: string | null
+          serial?: string
+          token_hash?: string
+          version?: string | null
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -1695,6 +1740,10 @@ export type Database = {
         Returns: undefined
       }
       member_etablissements: { Args: never; Returns: string[] }
+      omilink_claim_device: {
+        Args: { p_serial: string; p_etablissement_id: string; p_name: string }
+        Returns: string
+      }
       omilink_provision_device: {
         Args: { p_etablissement_id: string; p_name: string }
         Returns: string

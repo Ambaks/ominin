@@ -1,22 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
-import { createDevice } from "@/lib/gestion/terminaux";
-
-/** URL publique du backend, pour livrer un .env complet ; vide = ligne omise. */
-const BACKEND_URL = process.env.NEXT_PUBLIC_OMILINK_BACKEND_URL ?? "";
+import { UNCLAIMED_POLL_MS } from "@/lib/gestion/constants";
+import {
+  claimDevice,
+  deviceCode,
+  fetchUnclaimed,
+  type UnclaimedDevice,
+} from "@/lib/gestion/terminaux";
 
 const secondaryButtonClass =
   "rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground";
 const primaryButtonClass =
   "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60";
 
+function seenAgo(iso: string, now: number): string {
+  const seconds = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
+  return `vu il y a ${seconds} s`;
+}
+
 /**
- * Déclare un boîtier puis révèle son jeton, une seule fois : l'écran suivant
- * est le seul endroit où il apparaît en clair.
+ * Les boîtiers branchés au réseau du restaurant s'annoncent d'eux-mêmes ; le
+ * gérant reconnaît le sien au code de l'étiquette, le nomme, et il est
+ * rattaché.
  */
 export function DeviceAddModal({
   etablissementId,
@@ -28,16 +38,44 @@ export function DeviceAddModal({
   onClose: () => void;
 }) {
   const toast = useToast();
-  const [name, setName] = useState("");
+  const [candidates, setCandidates] = useState<UnclaimedDevice[] | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [selected, setSelected] = useState<UnclaimedDevice | null>(null);
+  const [name, setName] = useState("Cuisine");
   const [busy, setBusy] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const reported = useRef(false);
 
-  const submit = async (event: React.FormEvent) => {
+  useEffect(() => {
+    const load = () =>
+      fetchUnclaimed(etablissementId)
+        .then((devices) => {
+          setCandidates(devices);
+          setNow(Date.now());
+        })
+        .catch((error) => {
+          // Une seule alerte : la relecture continue en silence.
+          if (reported.current) return;
+          reported.current = true;
+          toast.error(
+            error instanceof Error ? error.message : "Une erreur est survenue."
+          );
+        });
+    load();
+    const timer = setInterval(load, UNCLAIMED_POLL_MS);
+    return () => clearInterval(timer);
+  }, [etablissementId, toast]);
+
+  const claim = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!selected) return;
     setBusy(true);
     try {
-      setToken(await createDevice(etablissementId, name.trim()));
+      await claimDevice(selected.serial, etablissementId, name.trim());
+      toast.success(
+        `${name.trim()} rattaché : il passe « En ligne » dans quelques secondes.`
+      );
       onCreated();
+      onClose();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -47,59 +85,45 @@ export function DeviceAddModal({
     }
   };
 
-  if (token) {
-    const envFile = [
-      BACKEND_URL && `BACKEND_URL=${BACKEND_URL}`,
-      `DEVICE_TOKEN=${token}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-    const copy = async () => {
-      try {
-        await navigator.clipboard.writeText(envFile);
-        toast.success("Copié.");
-      } catch {
-        toast.error("Copie impossible — sélectionnez le texte à la main.");
-      }
-    };
+  if (selected) {
     return (
       <Modal
-        title="Boîtier ajouté"
+        title={`Boîtier n° ${deviceCode(selected.serial)}`}
         onClose={onClose}
         footer={
-          <button type="button" onClick={onClose} className={primaryButtonClass}>
-            Terminé
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className={secondaryButtonClass}
+            >
+              Retour
+            </button>
+            <button
+              type="submit"
+              form="claim-form"
+              disabled={busy}
+              className={primaryButtonClass}
+            >
+              {busy ? "Rattachement…" : "Ajouter"}
+            </button>
+          </>
         }
       >
-        <div className="flex flex-col gap-4">
+        <form id="claim-form" onSubmit={claim} className="flex flex-col gap-4">
           <p className="text-sm leading-relaxed text-muted">
-            Voici le jeton du boîtier.{" "}
-            <strong className="text-foreground">
-              Il ne sera plus jamais affiché
-            </strong>{" "}
-            : copiez ces lignes maintenant dans le fichier{" "}
-            <code>omilink.env</code> de la carte SD du boîtier (elle s&rsquo;ouvre
-            sur n&rsquo;importe quel ordinateur), puis remettez la carte et
-            allumez le boîtier. Il apparaîtra ici « En ligne » dès sa première
-            connexion.
+            Vérifiez que le code correspond à l&rsquo;étiquette du boîtier, puis
+            nommez-le.
           </p>
-          <pre className="overflow-x-auto rounded-xl border border-hairline bg-background px-4 py-3 text-xs leading-relaxed">
-            {envFile}
-          </pre>
-          {!BACKEND_URL && (
-            <p className="text-xs text-faint">
-              La ligne BACKEND_URL est fournie par Ominin à l&rsquo;installation.
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={() => void copy()}
-            className={`${secondaryButtonClass} self-start`}
-          >
-            Copier
-          </button>
-        </div>
+          <Field label="Nom" required>
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+              className={inputClass}
+            />
+          </Field>
+        </form>
       </Modal>
     );
   }
@@ -109,37 +133,48 @@ export function DeviceAddModal({
       title="Ajouter un boîtier Omilink"
       onClose={onClose}
       footer={
-        <>
-          <button type="button" onClick={onClose} className={secondaryButtonClass}>
-            Annuler
-          </button>
-          <button
-            type="submit"
-            form="device-form"
-            disabled={busy}
-            className={primaryButtonClass}
-          >
-            {busy ? "Création…" : "Créer le jeton"}
-          </button>
-        </>
+        <button type="button" onClick={onClose} className={secondaryButtonClass}>
+          Fermer
+        </button>
       }
     >
-      <form id="device-form" onSubmit={submit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <p className="text-sm leading-relaxed text-muted">
-          Le boîtier Omilink est le petit ordinateur branché sur le réseau du
-          restaurant qui relie vos imprimantes à Ominin. Nommez-le, puis
-          reportez le jeton obtenu dans sa configuration.
+          Branchez le boîtier au réseau du restaurant et allumez-le : il apparaît
+          ici en quelques secondes, avec le code de son étiquette.
         </p>
-        <Field label="Nom" required>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-            placeholder="Cuisine"
-            className={inputClass}
+        {candidates === null ? (
+          <div aria-busy className="shimmer h-16 rounded-2xl" />
+        ) : candidates.length === 0 ? (
+          <EmptyState
+            title="Aucun boîtier détecté"
+            body="Votre appareil doit être sur le Wi‑Fi du restaurant, pas en 4G. Le boîtier met quelques secondes à s'annoncer après le démarrage."
           />
-        </Field>
-      </form>
+        ) : (
+          candidates.map((device) => (
+            <button
+              key={device.serial}
+              type="button"
+              onClick={() => setSelected(device)}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface px-4 py-3 text-left transition-colors hover:border-ember-2/40"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">
+                  Omilink n° {deviceCode(device.serial)}
+                </span>
+                <span className="block truncate text-xs text-faint">
+                  {[device.hostname, device.lan_ip].filter(Boolean).join(" · ")}
+                  {" · "}
+                  {seenAgo(device.last_seen_at, now)}
+                </span>
+              </span>
+              <span className="shrink-0 text-xs font-semibold text-ember-1">
+                Rattacher
+              </span>
+            </button>
+          ))
+        )}
+      </div>
     </Modal>
   );
 }

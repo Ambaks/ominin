@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe } from "@/lib/stripe/server";
+import { getStripe, settleCheckoutSession } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Webhook des comptes CONNECTÉS (paiements d'additions à table) — endpoint
  * Stripe distinct du webhook plateforme (abonnements), avec son propre
- * secret STRIPE_CONNECT_WEBHOOK_SECRET. À l'encaissement d'une session,
- * la commande est marquée payée en ligne et part en cuisine
- * (mark_order_paid_online).
+ * secret STRIPE_CONNECT_WEBHOOK_SECRET. À l'encaissement d'une session, la
+ * commande est marquée payée en ligne et part en cuisine (ou le paiement est
+ * remboursé si l'addition a été réglée au comptoir entre-temps — voir
+ * settleCheckoutSession). Une erreur de base renvoie 500 : Stripe rejoue,
+ * le marquage est idempotent.
  */
 
 export async function POST(request: Request) {
@@ -36,19 +38,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Signature invalide." }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const orderId = session.metadata?.order_id;
-    if (orderId && session.mode === "payment") {
-      // Pourboire posé en métadonnée par /api/stripe/pay, encaissé avec la
-      // session : on ne l'enregistre qu'au paiement effectif.
-      const tip = Number(session.metadata?.tip_amount);
-      const admin = createAdminClient();
-      const { error } = await admin.rpc("mark_order_paid_online", {
-        p_order_id: orderId,
-        p_tip: Number.isFinite(tip) && tip > 0 ? tip : null,
-      });
-      if (error) throw new Error(error.message);
+  const admin = createAdminClient();
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object;
+      if (event.account) {
+        await settleCheckoutSession(admin, stripe, session, event.account);
+      }
+      break;
+    }
+    case "checkout.session.expired": {
+      // Le client n'a pas réglé dans le délai : la commande reste à encaisser
+      // au comptoir, la référence de session n'a plus d'objet.
+      const session = event.data.object;
+      await admin
+        .from("orders")
+        .update({ stripe_session_id: null })
+        .eq("stripe_session_id", session.id);
+      break;
     }
   }
 

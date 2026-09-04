@@ -204,7 +204,7 @@ export function seed(): GestionState {
       hours: restaurant.hours,
       offre: "connect",
       onlinePayment: false,
-      paymentProvider: restaurant.paymentProvider ?? null,
+      paymentProvider: null,
       collectSlotCapacity: 5,
     },
     subscriptionStatus: "active",

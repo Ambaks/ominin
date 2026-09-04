@@ -7,6 +7,7 @@ import { CategoryNav } from "@/components/menu/category-nav";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuSection } from "@/components/menu/menu-section";
+import { PaymentReturn } from "@/components/menu/payment-return";
 import { CartProvider } from "@/lib/menu/cart";
 import { restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
@@ -55,7 +56,7 @@ export default async function MenuPage({
   searchParams,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
-  const { embed, table } = await searchParams;
+  const { embed, table, paiement, commande } = await searchParams;
   const data = await getRestaurant(slug);
   if (!data) notFound();
   const { restaurant, offre, onlinePayment, paymentProvider } = data;
@@ -64,6 +65,10 @@ export default async function MenuPage({
   const tableNumber =
     Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
   const orderingEnabled = offre === "smart" || offre === "connect";
+  // Retour de Stripe Checkout : la feuille de confirmation s'affiche par-dessus le menu.
+  const paymentOutcome =
+    paiement === "succes" || paiement === "annule" ? paiement : null;
+  const paymentOrderId = typeof commande === "string" ? commande : null;
 
   const categoryLinks = restaurant.categories.map(({ id, name }) => ({
     id,
@@ -92,13 +97,26 @@ export default async function MenuPage({
           themeLocked={Boolean(restaurantThemeClass(slug))}
         />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
-          {restaurant.categories.map((category, index) => (
-            <MenuSection key={category.id} category={category} index={index} />
-          ))}
+          {restaurant.categories.length === 0 ? (
+            <p className="py-16 text-center text-sm text-muted">
+              La carte est en préparation — revenez bientôt.
+            </p>
+          ) : (
+            restaurant.categories.map((category, index) => (
+              <MenuSection key={category.id} category={category} index={index} />
+            ))
+          )}
         </main>
         <MenuFooter restaurant={restaurant} />
         <CartBar />
         <CallServerButton />
+        {paymentOutcome && paymentOrderId && (
+          <PaymentReturn
+            outcome={paymentOutcome}
+            orderId={paymentOrderId}
+            tableNumber={tableNumber}
+          />
+        )}
       </div>
     </CartProvider>
   );

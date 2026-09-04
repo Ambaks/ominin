@@ -154,6 +154,9 @@ class Settings(BaseSettings):
     # 58 mm) et fuseau des heures imprimées.
     omilink_ticket_columns: int = 42
     omilink_timezone: str = "Europe/Paris"
+    # Un boîtier annoncé mais muet depuis ce délai disparaît de la liste des
+    # boîtiers à rattacher.
+    omilink_enrollment_ttl_seconds: int = 300
 
 
 settings = Settings()

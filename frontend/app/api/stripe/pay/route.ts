@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe/server";
+import { menuSiteUrl } from "@/lib/site";
+import { connectedAccount, getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -7,14 +8,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * anonyme). Le montant n'est JAMAIS fourni par le client : les lignes sont
  * relues en base (elles-mêmes figées par place_order). La session Checkout
  * est créée sur le compte Stripe connecté du restaurant — l'argent va au
- * restaurateur. Le webhook connecté marque ensuite la commande payée en ligne.
+ * restaurateur. Une seule session ouverte par commande : la précédente
+ * (annulée, onglet fermé) est expirée avant d'en ouvrir une neuve, pour
+ * qu'un onglet oublié ne puisse pas régler deux fois. Le webhook connecté
+ * ou /api/stripe/verify marque ensuite la commande payée.
  */
 
-interface OrderLine {
-  name: string;
-  quantity: number;
-  unit_price: number;
-}
+/**
+ * Durée de vie d'une session Checkout : le minimum accordé par Stripe est
+ * 30 min, mesurées à la réception de la requête — une minute de marge
+ * absorbe la latence. Une addition non réglée en ligne dans ce délai l'a été
+ * au comptoir.
+ */
+const CHECKOUT_TTL_S = 31 * 60;
 
 export async function POST(request: Request) {
   const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
@@ -28,29 +34,24 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, status")
+    .select("id, etablissement_id, table_id, status, paid_online, stripe_session_id")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
     return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
   }
-  if (order.status !== "en_attente") {
+  if (order.status !== "en_attente" || order.paid_online) {
     return NextResponse.json(
       { error: "Cette commande n'est plus à régler." },
       { status: 409 }
     );
   }
 
-  // online_payment / payment_accounts arrivent avec la migration
-  // 20260709000002 — accès non typés en attendant la régénération des types.
-  const untyped = admin as unknown as {
-    from: (t: string) => ReturnType<typeof admin.from>;
-  };
-  const [{ data: etab }, { data: lines }, { data: table }, { data: account }] =
+  const [{ data: etab }, { data: lines }, { data: table }, account] =
     await Promise.all([
-      untyped
+      admin
         .from("etablissements")
-        .select("slug, online_payment")
+        .select("name, slug, online_payment")
         .eq("id", order.etablissement_id)
         .single(),
       admin
@@ -59,23 +60,11 @@ export async function POST(request: Request) {
         .eq("order_id", orderId),
       order.table_id
         ? admin.from("tables").select("number").eq("id", order.table_id).single()
-        : Promise.resolve({ data: null, error: null }),
-      untyped
-        .from("payment_accounts")
-        .select("stripe_account_id, charges_enabled")
-        .eq("etablissement_id", order.etablissement_id)
-        .maybeSingle(),
+        : Promise.resolve({ data: null }),
+      connectedAccount(admin, order.etablissement_id),
     ]);
-  const etabRow = etab as unknown as {
-    slug: string;
-    online_payment?: boolean;
-  } | null;
-  const accountRow = account as unknown as {
-    stripe_account_id: string;
-    charges_enabled: boolean;
-  } | null;
 
-  if (!etabRow?.online_payment || !accountRow?.charges_enabled) {
+  if (!etab?.online_payment || !account?.chargesEnabled) {
     return NextResponse.json(
       { error: "Le paiement en ligne n'est pas activé pour ce restaurant." },
       { status: 409 }
@@ -88,7 +77,7 @@ export async function POST(request: Request) {
   // Pourboire choisi par le client — la seule part du montant qui vienne de
   // lui. Borné au total de la commande : au-delà, c'est une erreur de saisie
   // ou un abus.
-  const orderTotal = (lines as OrderLine[]).reduce(
+  const orderTotal = lines.reduce(
     (sum, line) => sum + line.unit_price * line.quantity,
     0
   );
@@ -97,14 +86,33 @@ export async function POST(request: Request) {
       ? Math.min(Math.round(tipAmount * 100) / 100, orderTotal)
       : 0;
 
-  const origin = new URL(request.url).origin;
-  const menuUrl = `${origin}/m/${etabRow.slug}?table=${table?.number ?? ""}`;
   const stripe = getStripe();
+  const stripeAccount = { stripeAccount: account.id };
+  if (order.stripe_session_id) {
+    // Déjà réglée ou expirée : Stripe refuse, sans conséquence.
+    await stripe.checkout.sessions
+      .expire(order.stripe_session_id, {}, stripeAccount)
+      .catch(() => {});
+  }
+
+  // Retour sur le menu de la table, avec la commande à confirmer.
+  const returnUrl = new URL(`${menuSiteUrl}/m/${etab.slug}`);
+  if (table) returnUrl.searchParams.set("table", String(table.number));
+  returnUrl.searchParams.set("commande", orderId);
+  const withOutcome = (outcome: "succes" | "annule") => {
+    const url = new URL(returnUrl);
+    url.searchParams.set("paiement", outcome);
+    return url.toString();
+  };
+  const description = table
+    ? `Table ${table.number} — ${etab.name}`
+    : `Commande — ${etab.name}`;
+
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
       line_items: [
-        ...(lines as OrderLine[]).map((line) => ({
+        ...lines.map((line) => ({
           quantity: line.quantity,
           price_data: {
             currency: "eur",
@@ -128,12 +136,24 @@ export async function POST(request: Request) {
       metadata: tip
         ? { order_id: orderId, tip_amount: tip.toFixed(2) }
         : { order_id: orderId },
+      // Sur le relevé Stripe du restaurant : la table et la commande, pour la
+      // ressaisie en caisse.
+      payment_intent_data: { description, metadata: { order_id: orderId } },
+      expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_TTL_S,
       locale: "fr",
-      success_url: `${menuUrl}&paiement=succes`,
-      cancel_url: `${menuUrl}&paiement=annule`,
+      success_url: withOutcome("succes"),
+      cancel_url: withOutcome("annule"),
     },
-    { stripeAccount: accountRow.stripe_account_id }
+    stripeAccount
   );
+
+  const { error } = await admin
+    .from("orders")
+    .update({ stripe_session_id: session.id })
+    .eq("id", orderId);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json({ url: session.url });
 }

@@ -9,6 +9,8 @@ import { useGestion } from "./store";
  * est ouvert (tablette de cuisine, caisse), l'arrivée d'une commande sonne —
  * complément immédiat des notifications push, qui couvrent l'appareil en
  * veille. Préférence par appareil, synthétisée en Web Audio (aucun fichier).
+ * Le navigateur n'ouvre le son qu'après un geste : tant que le contexte audio
+ * n'est pas « armé », l'espace le dit (useChimeArmed) au lieu de rester muet.
  */
 
 /** Deux notes (ding-dong) : fréquences en Hz, départs et tenues en secondes. */
@@ -20,6 +22,24 @@ const CHIME_NOTES: readonly { frequency: number; at: number; hold: number }[] = 
 const CHIME_GAIN = 0.14;
 
 let audioContext: AudioContext | null = null;
+let armed = false;
+const armedListeners = new Set<() => void>();
+
+function syncArmed() {
+  const next = audioContext?.state === "running";
+  if (armed === next) return;
+  armed = next;
+  for (const listener of armedListeners) listener();
+}
+
+function context(): AudioContext {
+  if (!audioContext) {
+    audioContext = new AudioContext();
+    audioContext.addEventListener("statechange", syncArmed);
+    syncArmed();
+  }
+  return audioContext;
+}
 
 export function chimeEnabled(): boolean {
   if (typeof window === "undefined") return false;
@@ -45,21 +65,32 @@ export function useChimeEnabled(): boolean {
   );
 }
 
+/** Contexte audio démarré : le carillon peut sonner (rendu serveur : oui). */
+export function useChimeArmed(): boolean {
+  return useSyncExternalStore(
+    (listener) => {
+      armedListeners.add(listener);
+      return () => armedListeners.delete(listener);
+    },
+    () => armed,
+    () => true
+  );
+}
+
 /** Joue le carillon (aussi utilisé par « Écouter » sur la page Notifications). */
 export async function playChime(): Promise<void> {
-  audioContext ??= new AudioContext();
-  const context = audioContext;
-  if (context.state === "suspended") await context.resume();
-  if (context.state !== "running") return;
+  const ctx = context();
+  if (ctx.state === "suspended") await ctx.resume();
+  if (ctx.state !== "running") return;
   for (const note of CHIME_NOTES) {
-    const start = context.currentTime + note.at;
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
+    const start = ctx.currentTime + note.at;
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
     oscillator.type = "sine";
     oscillator.frequency.value = note.frequency;
     gain.gain.setValueAtTime(CHIME_GAIN, start);
     gain.gain.exponentialRampToValueAtTime(0.001, start + note.hold);
-    oscillator.connect(gain).connect(context.destination);
+    oscillator.connect(gain).connect(ctx.destination);
     oscillator.start(start);
     oscillator.stop(start + note.hold);
   }
@@ -75,13 +106,14 @@ export function useOrderChime(): void {
   const known = useRef<Set<string> | null>(null);
 
   // Le contexte audio ne démarre qu'après un geste : on le débloque au
-  // premier toucher venu, une fois pour toutes.
+  // premier toucher venu, et l'on retient s'il l'est (bandeau sinon).
   useEffect(() => {
+    context();
     const unlock = () => {
-      audioContext ??= new AudioContext();
-      if (audioContext.state === "suspended") void audioContext.resume();
+      const ctx = context();
+      if (ctx.state === "suspended") void ctx.resume();
     };
-    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("pointerdown", unlock);
     return () => window.removeEventListener("pointerdown", unlock);
   }, []);
 

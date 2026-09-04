@@ -5,7 +5,6 @@ import type {
   OrderStatus,
   OrderType,
   PaymentMode,
-  PaymentProvider,
   Role,
 } from "./types";
 
@@ -25,6 +24,10 @@ export const TERMINAUX_REFRESH_MS = 5000;
 export const TERMINAL_ONLINE_WINDOW_MS = 60_000;
 /** Port d'une imprimante ESC/POS (miroir du défaut SQL de printers.port). */
 export const DEFAULT_PRINTER_PORT = 9100;
+/** Modale « Ajouter un boîtier » : cadence de relecture des boîtiers à rattacher. */
+export const UNCLAIMED_POLL_MS = 3000;
+/** Derniers caractères du numéro de série, imprimés sur l'étiquette du boîtier. */
+export const SERIAL_CODE_LENGTH = 6;
 
 /** Statuts d'historique : commandes closes. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
@@ -112,7 +115,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 export const ROLE_TAGLINES: Record<Role, string> = {
   gerant: "Accès complet : menu, équipe, abonnements et service.",
-  cuisinier: "La cuisine : disponibilité des articles — les commandes sortent sur l'imprimante.",
+  cuisinier: "La cuisine : disponibilité des articles, commandes en cuisine — les tickets sortent sur l'imprimante.",
   serveur: "La salle : encaissement et service des tables.",
 };
 
@@ -127,11 +130,6 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   carte: "Carte",
   en_ligne: "En ligne",
   mixte: "Carte + Espèces",
-};
-
-export const PAYMENT_PROVIDER_LABELS: Record<PaymentProvider, string> = {
-  stripe: "Stripe",
-  sumup: "SumUp",
 };
 
 /**
@@ -189,5 +187,7 @@ export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
     "orders.setStatus:en_preparation",
     "orders.setStatus:prete",
     "orders.setStatus:retiree",
+    // Commandes non réglées seulement (voir nextStatuses et le trigger SQL).
+    "orders.setStatus:annulee",
   ],
 };

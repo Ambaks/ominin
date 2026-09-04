@@ -8,16 +8,19 @@ import { PrinterFormModal } from "@/components/gestion/terminaux/printer-form-mo
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
-import { TERMINAUX_REFRESH_MS } from "@/lib/gestion/constants";
+import { DEFAULT_PRINTER_PORT, TERMINAUX_REFRESH_MS } from "@/lib/gestion/constants";
 import { formatDateTime, formatTime } from "@/lib/gestion/format";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
   createPrinter,
   deleteDevice,
   deletePrinter,
+  deviceCode,
   fetchJobs,
   isRecent,
+  isScanning,
   loadTerminaux,
+  requestScan,
   requestTestPrint,
   updatePrinter,
   type OmilinkDevice,
@@ -29,8 +32,8 @@ import {
 /*
  * Le gérant voit ici ses boîtiers Omilink (le Raspberry Pi qui relie la
  * cuisine à Ominin) et ses imprimantes, leur état de santé rafraîchi en
- * continu ; il déclare un boîtier (et obtient son jeton), déclare, modifie,
- * teste ou retire une imprimante.
+ * continu ; il rattache un boîtier qui s'est annoncé, lui fait chercher les
+ * imprimantes du réseau, déclare, modifie, teste ou retire une imprimante.
  */
 
 const cardClass = "rounded-2xl border border-hairline bg-surface px-4 py-3";
@@ -38,6 +41,8 @@ const iconButtonClass =
   "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground";
 const deleteButtonClass =
   "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3";
+const smallButtonClass =
+  "rounded-full border border-hairline px-3.5 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-60";
 const addButtonClass =
   "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background";
 
@@ -55,38 +60,94 @@ function StatusDot({ health }: { health: Health }) {
 
 function DeviceCard({
   device,
+  declaredHosts,
   now,
+  onScan,
+  onAddPrinter,
   onDelete,
 }: {
   device: OmilinkDevice;
+  declaredHosts: Set<string>;
   now: number;
+  onScan: () => void;
+  onAddPrinter: (host: string) => void;
   onDelete: () => void;
 }) {
   const online = isRecent(device.last_seen_at, now);
+  const scanning = online && isScanning(device);
+  const code = deviceCode(device.serial);
+  const found = device.discovered_printers.filter((host) => !declaredHosts.has(host));
+  const scanDone = online && device.scanned_at != null && !isScanning(device);
   return (
-    <div className={`${cardClass} flex items-start justify-between gap-3`}>
-      <div className="min-w-0">
-        <p className="flex items-center gap-2 text-sm font-medium">
-          <StatusDot health={online ? "ok" : device.last_seen_at ? "ko" : "unknown"} />
-          <span className="truncate">{device.name}</span>
-        </p>
-        <p className="text-xs text-faint">
-          {online
-            ? "En ligne"
-            : device.last_seen_at
-              ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
-              : "Jamais connecté — en attente de sa première connexion"}
-          {device.version && ` · version ${device.version.slice(0, 7)}`}
-        </p>
+    <div className={`${cardClass} flex flex-col gap-3`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <StatusDot health={online ? "ok" : device.last_seen_at ? "ko" : "unknown"} />
+            <span className="truncate">{device.name}</span>
+            {code && (
+              <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
+                n° {code}
+              </span>
+            )}
+          </p>
+          <p className="text-xs text-faint">
+            {online
+              ? "En ligne"
+              : device.last_seen_at
+                ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
+                : "Jamais connecté — en attente de sa première connexion"}
+            {device.version && ` · version ${device.version.slice(0, 7)}`}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          {online && (
+            <button
+              type="button"
+              onClick={onScan}
+              disabled={scanning}
+              className={smallButtonClass}
+            >
+              {scanning ? "Recherche en cours…" : "Rechercher des imprimantes"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onDelete}
+            aria-label="Retirer le boîtier"
+            className={deleteButtonClass}
+          >
+            <TrashIcon className="size-3.5" />
+          </button>
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={onDelete}
-        aria-label="Retirer le boîtier"
-        className={deleteButtonClass}
-      >
-        <TrashIcon className="size-3.5" />
-      </button>
+      {scanDone &&
+        (found.length ? (
+          <ul className="flex flex-col gap-2">
+            {found.map((host) => (
+              <li
+                key={host}
+                className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-hairline px-3 py-2"
+              >
+                <span className="text-sm">
+                  Imprimante détectée · <span className="font-medium">{host}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onAddPrinter(host)}
+                  className={smallButtonClass}
+                >
+                  Ajouter
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : device.discovered_printers.length === 0 ? (
+          <p className="text-xs text-faint">
+            Aucune imprimante trouvée sur le port {DEFAULT_PRINTER_PORT} — vérifiez
+            qu&rsquo;elle est allumée et reliée au même réseau que le boîtier.
+          </p>
+        ) : null)}
     </div>
   );
 }
@@ -154,11 +215,7 @@ function PrinterCard({
         {testStatus && <p className="mt-1 text-xs text-muted">{testStatus}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
-        <button
-          type="button"
-          onClick={onTest}
-          className="rounded-full border border-hairline px-3.5 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-        >
+        <button type="button" onClick={onTest} className={smallButtonClass}>
           Tester
         </button>
         <button type="button" onClick={onEdit} aria-label="Modifier" className={iconButtonClass}>
@@ -177,7 +234,10 @@ function PrinterCard({
   );
 }
 
-type Editing = { mode: "new" } | { mode: "edit"; printer: Printer } | null;
+type Editing =
+  | { mode: "new"; defaults?: { host: string; deviceId: string } }
+  | { mode: "edit"; printer: Printer }
+  | null;
 
 function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
@@ -264,6 +324,15 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
     }
   };
 
+  const scan = async (device: OmilinkDevice) => {
+    try {
+      await requestScan(device.id);
+      await refresh();
+    } catch (error) {
+      report(error);
+    }
+  };
+
   const test = async (printer: Printer) => {
     try {
       const job = await requestTestPrint(etablissementId, printer.id);
@@ -285,6 +354,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   }
 
   const deviceById = new Map(devices.map((device) => [device.id, device]));
+  const declaredHosts = new Set(printers.map((printer) => printer.host));
   const addDeviceButton = (
     <button type="button" onClick={() => setAddingDevice(true)} className={addButtonClass}>
       Ajouter un boîtier
@@ -303,14 +373,19 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
             <DeviceCard
               key={device.id}
               device={device}
+              declaredHosts={declaredHosts}
               now={now}
+              onScan={() => void scan(device)}
+              onAddPrinter={(host) =>
+                setEditing({ mode: "new", defaults: { host, deviceId: device.id } })
+              }
               onDelete={() => setDeviceToDelete(device)}
             />
           ))
         ) : (
           <EmptyState
             title="Aucun boîtier Omilink"
-            body="Le boîtier Omilink relie vos imprimantes à Ominin. Ajoutez-le pour obtenir le jeton à reporter dans sa configuration."
+            body="Le boîtier Omilink relie vos imprimantes à Ominin. Branchez-le au réseau du restaurant, puis ajoutez-le ici : il apparaît en quelques secondes."
             action={addDeviceButton}
           />
         )}
@@ -351,7 +426,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
             title="Aucune imprimante"
             body={
               devices.length
-                ? "Déclarez l'imprimante de la cuisine : chaque nouvelle commande y sortira en ticket."
+                ? "Lancez « Rechercher des imprimantes » sur le boîtier, ou déclarez-en une à la main : chaque nouvelle commande y sortira en ticket."
                 : "Ajoutez d'abord un boîtier Omilink : c'est lui qui relie les imprimantes à Ominin."
             }
           />
@@ -368,7 +443,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
       {deviceToDelete && (
         <ConfirmDialog
           title="Retirer le boîtier"
-          message={`${deviceToDelete.name} ne pourra plus se connecter à Ominin ; son jeton devient inutilisable.`}
+          message={`${deviceToDelete.name} repassera en attente de rattachement : il pourra être ajouté à nouveau depuis « Ajouter un boîtier ».`}
           confirmLabel="Retirer"
           destructive
           onConfirm={() => void removeDevice(deviceToDelete)}
@@ -379,6 +454,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
         <PrinterFormModal
           printer={editing.mode === "edit" ? editing.printer : null}
           devices={devices}
+          defaults={editing.mode === "new" ? editing.defaults : undefined}
           onSubmit={savePrinter}
           onClose={() => setEditing(null)}
         />

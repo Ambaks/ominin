@@ -16,9 +16,12 @@ import { CheckMark, LineLabel, LineOptions } from "./order-line";
 
 export function ServirPanel({
   orders,
+  readOnly = false,
 }: {
   /** Commandes payées d'une même table. */
   orders: Order[];
+  /** Vue cuisine : ce qui reste à apporter, sans les gestes de la salle. */
+  readOnly?: boolean;
 }) {
   const toast = useToast();
   const [busy, setBusy] = useState<Set<string>>(new Set());
@@ -51,7 +54,7 @@ export function ServirPanel({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
               À servir
             </p>
-            {pending.length > 1 && (
+            {pending.length > 1 && !readOnly && (
               <button
                 type="button"
                 disabled={busy.size > 0}
@@ -72,14 +75,16 @@ export function ServirPanel({
                   <LineLabel line={line} />
                   <LineOptions line={line} />
                 </div>
-                <button
-                  type="button"
-                  disabled={busy.has(line.id)}
-                  onClick={() => void serve([line.id])}
-                  className="ember-gradient shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-background disabled:opacity-60"
-                >
-                  Servie
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    disabled={busy.has(line.id)}
+                    onClick={() => void serve([line.id])}
+                    className="ember-gradient shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-background disabled:opacity-60"
+                  >
+                    Servie
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -117,9 +122,11 @@ export function ServirPanel({
 export function ServirCard({
   orders,
   title,
+  readOnly = false,
 }: {
   orders: Order[];
   title: string;
+  readOnly?: boolean;
 }) {
   const oldest = orders.reduce(
     (min, order) => (order.createdAt < min ? order.createdAt : min),
@@ -142,7 +149,7 @@ export function ServirCard({
         </span>
       </div>
       <div className="mt-3">
-        <ServirPanel orders={orders} />
+        <ServirPanel orders={orders} readOnly={readOnly} />
       </div>
     </section>
   );

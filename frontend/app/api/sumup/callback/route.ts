@@ -63,13 +63,7 @@ export async function GET(request: Request) {
     );
     if (error) throw new Error(error.message);
 
-    // payment_provider arrive avec la migration 20260817000001 — accès non
-    // typé en attendant la régénération des types.
-    await (
-      admin as unknown as {
-        from: (t: string) => ReturnType<typeof admin.from>;
-      }
-    )
+    await admin
       .from("etablissements")
       .update({ payment_provider: "sumup" })
       .eq("id", auth.etablissementId)

@@ -49,6 +49,7 @@ export function CartBar() {
         : Math.round(cart.total * tipChoice) / 100;
 
   const submit = async () => {
+    if (cart.tableNumber === null) return;
     setState("sending");
     setError(null);
     setCardFailed(false);
@@ -58,17 +59,14 @@ export function CartBar() {
       quantity: line.quantity,
       choices: line.choices,
     }));
-    // place_order est ajoutée par la migration 20260709000001 ; les types
-    // Supabase seront régénérés après application. Appel encapsulé en attendant.
-    const rpc = supabase.rpc.bind(supabase) as unknown as (
-      fn: string,
-      args: Record<string, unknown>
-    ) => Promise<{ data: unknown; error: { message: string } | null }>;
-    const { data: orderId, error: rpcError } = await rpc("place_order", {
-      p_slug: cart.slug,
-      p_table_number: cart.tableNumber,
-      p_items: payload,
-    });
+    const { data: orderId, error: rpcError } = await supabase.rpc(
+      "place_order",
+      {
+        p_slug: cart.slug,
+        p_table_number: cart.tableNumber,
+        p_items: payload,
+      }
+    );
     if (rpcError) {
       setState("error");
       setError(rpcError.message);
@@ -76,7 +74,7 @@ export function CartBar() {
     }
     // Prévient la salle (push) : la commande attend son encaissement. Sans
     // bloquer le parcours client — keepalive survit à la redirection Stripe.
-    notifyOrderEvent(orderId as string, "en_attente");
+    notifyOrderEvent(orderId, "en_attente");
 
     if (payment === "carte" && cart.paymentProvider === "stripe") {
       // La commande est enregistrée ; on enchaîne sur le règlement Stripe,
@@ -118,10 +116,7 @@ export function CartBar() {
         });
         const body = (await response.json()) as { checkoutId?: string };
         if (response.ok && body.checkoutId) {
-          setSumupPayment({
-            orderId: orderId as string,
-            checkoutId: body.checkoutId,
-          });
+          setSumupPayment({ orderId, checkoutId: body.checkoutId });
         } else {
           setCardFailed(true);
         }
@@ -260,7 +255,10 @@ export function CartBar() {
                               onClick={() =>
                                 cart.setQuantity(line.key, line.quantity + 1)
                               }
-                              className="flex size-7 items-center justify-center text-lg text-muted"
+                              disabled={
+                                line.stock != null && line.quantity >= line.stock
+                              }
+                              className="flex size-7 items-center justify-center text-lg text-muted disabled:opacity-40"
                               aria-label="Ajouter un"
                             >
                               +

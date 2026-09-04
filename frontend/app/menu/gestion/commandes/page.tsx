@@ -19,14 +19,18 @@ import {
   fetchOrderHistory,
   useGestion,
   useGestionAccess,
+  useRealtimeLive,
 } from "@/lib/gestion/store";
 import type { Order } from "@/lib/gestion/types";
+import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
 
 /*
  * La salle ne connaît que trois moments : les additions à encaisser (la
  * commande part en cuisine une fois réglée), les tables à servir, puis
  * l'historique. Les commandes collect, payées en ligne, se suivent depuis
- * À servir avec leurs propres étapes.
+ * À servir avec leurs propres étapes. La cuisine, qui travaille sur les
+ * tickets imprimés, retrouve ici en lecture seule ce qui est parti chez elle
+ * — le filet quand l'imprimante fait défaut.
  */
 const FILTERS = [
   { id: "a_encaisser", label: "À encaisser" },
@@ -59,8 +63,11 @@ function dedupeById(orders: Order[]): Order[] {
 export default function CommandesPage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
+  const live = useRealtimeLive();
+  const printerOffline = usePrinterOffline(state?.etablissement.id ?? "");
   const toast = useToast();
-  const [filter, setFilter] = useState<FilterId>("a_encaisser");
+  // Onglet choisi ; avant tout choix, celui du rôle (la cuisine n'encaisse pas).
+  const [chosenFilter, setChosenFilter] = useState<FilterId | null>(null);
   // L'historique n'est pas dans le fetch initial borné : il se charge à la
   // demande, page par page, quand l'onglet Historique est ouvert.
   const [history, setHistory] = useState<Order[]>([]);
@@ -90,7 +97,7 @@ export default function CommandesPage() {
   );
 
   const selectFilter = (id: FilterId) => {
-    setFilter(id);
+    setChosenFilter(id);
     if (id === "historique" && !historyLoaded && !loadingHistory) {
       void loadHistory(null);
     }
@@ -100,6 +107,11 @@ export default function CommandesPage() {
   if (!hasFeature("commandes")) return <FeatureLocked />;
 
   const isServeur = state.role === "serveur";
+  const isCuisinier = state.role === "cuisinier";
+  const tabs = isCuisinier
+    ? FILTERS.filter((tab) => tab.id !== "a_encaisser")
+    : FILTERS;
+  const filter = chosenFilter ?? (isCuisinier ? "a_servir" : "a_encaisser");
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
@@ -142,19 +154,43 @@ export default function CommandesPage() {
           {isServeur && (
             <p className="mt-1 text-sm text-muted">La salle, en direct.</p>
           )}
+          {isCuisinier && (
+            <p className="mt-1 text-sm text-muted">
+              Ce qui est parti en cuisine, en direct.
+            </p>
+          )}
         </div>
-        {isServeur && (
-          <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
-            <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
-            En direct
+        {live !== null && (
+          <span
+            className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider ${
+              live ? "text-muted" : "text-ember-3"
+            }`}
+          >
+            <span
+              className={`size-1.5 rounded-full ${
+                live ? "animate-pulse bg-ember-2" : "bg-ember-3"
+              }`}
+              aria-hidden
+            />
+            {live ? "En direct" : "Reconnexion…"}
           </span>
         )}
       </div>
 
+      {printerOffline && (
+        <p
+          role="alert"
+          className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm leading-relaxed"
+        >
+          <strong>Boîtier Omilink hors ligne</strong> — les tickets cuisine ne
+          sortent pas. Suivez les commandes dans « À servir » en attendant.
+        </p>
+      )}
+
       <PushPrompt />
 
       <PillTabs
-        tabs={FILTERS.map(({ id, label }) => ({
+        tabs={tabs.map(({ id, label }) => ({
           id,
           label,
           // L'historique est borné/paginé : pas de total fiable à afficher.
@@ -190,6 +226,7 @@ export default function CommandesPage() {
                 key={tableId}
                 orders={orders}
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
+                readOnly={isCuisinier}
               />
             )
           )}
@@ -218,7 +255,7 @@ export default function CommandesPage() {
       )}
 
       {/* Prise de commande en salle : le client commande au serveur. */}
-      <CreateOrderFab state={state} />
+      {!isCuisinier && <CreateOrderFab state={state} />}
     </div>
   );
 }

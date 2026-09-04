@@ -13,21 +13,24 @@ import type {
 export function PrinterFormModal({
   printer,
   devices,
+  defaults,
   onSubmit,
   onClose,
 }: {
   /** Imprimante à modifier, ou null pour en déclarer une nouvelle. */
   printer: Printer | null;
   devices: OmilinkDevice[];
+  /** Pré-remplissage d'une imprimante détectée par un boîtier. */
+  defaults?: { host: string; deviceId: string };
   /** Ne rejette jamais : l'appelant signale l'erreur et laisse le formulaire ouvert. */
   onSubmit: (input: PrinterInput) => Promise<void>;
   onClose: () => void;
 }) {
   const [name, setName] = useState(printer?.name ?? "");
-  const [host, setHost] = useState(printer?.host ?? "");
+  const [host, setHost] = useState(printer?.host ?? defaults?.host ?? "");
   const [port, setPort] = useState(String(printer?.port ?? DEFAULT_PRINTER_PORT));
   const [deviceId, setDeviceId] = useState(
-    printer?.device_id ?? devices[0]?.id ?? ""
+    printer?.device_id ?? defaults?.deviceId ?? devices[0]?.id ?? ""
   );
   const [busy, setBusy] = useState(false);
 

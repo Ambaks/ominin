@@ -183,7 +183,6 @@ export async function dispatchOrderEvent(
     });
     return;
   }
-  console.log("[push] dispatching", { event, recipients: recipients.length });
 
   await sendToSubscriptions(recipients, {
     title: EVENT_TITLES[event],
@@ -279,7 +278,6 @@ export async function dispatchCallServer(
       : ROLE_DEFAULT_PREFS[role].appel_serveur;
   });
   if (!recipients.length) return;
-  console.log("[push] call server", { table: table.number, recipients: recipients.length });
 
   await sendToSubscriptions(recipients, {
     title: "Appel serveur",
