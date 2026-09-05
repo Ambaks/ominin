@@ -58,6 +58,38 @@ function StatusDot({ health }: { health: Health }) {
   return <span className={`size-2 shrink-0 rounded-full ${DOT_CLASS[health]}`} />;
 }
 
+type LinkState = "online" | "offline" | "waiting";
+
+const BADGE: Record<LinkState, { pill: string; dot: string; label: string }> = {
+  online: { pill: "border-ember-1/30 bg-ember-1/10 text-ember-1", dot: "bg-ember-1", label: "Connecté" },
+  offline: { pill: "border-ember-3/30 bg-ember-3/10 text-ember-3", dot: "bg-ember-3", label: "Hors ligne" },
+  waiting: { pill: "border-hairline text-faint", dot: "bg-faint", label: "En attente" },
+};
+
+/** Pastille d'état du boîtier ; le point pulse tant que le lien est vivant. */
+function LinkBadge({ state }: { state: LinkState }) {
+  const { pill, dot, label } = BADGE[state];
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${pill}`}
+    >
+      <span className="relative flex size-1.5">
+        {state === "online" && (
+          <span
+            className={`absolute inline-flex size-full animate-ping rounded-full opacity-75 motion-reduce:hidden ${dot}`}
+          />
+        )}
+        <span className={`relative inline-flex size-1.5 rounded-full ${dot}`} />
+      </span>
+      {label}
+    </span>
+  );
+}
+
+function secondsAgo(iso: string, now: number): number {
+  return Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
+}
+
 function DeviceCard({
   device,
   declaredHosts,
@@ -82,21 +114,23 @@ function DeviceCard({
     <div className={`${cardClass} flex flex-col gap-3`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="flex items-center gap-2 text-sm font-medium">
-            <StatusDot health={online ? "ok" : device.last_seen_at ? "ko" : "unknown"} />
+          <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
             <span className="truncate">{device.name}</span>
             {code && (
               <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
                 n° {code}
               </span>
             )}
+            <LinkBadge
+              state={online ? "online" : device.last_seen_at ? "offline" : "waiting"}
+            />
           </p>
           <p className="text-xs text-faint">
-            {online
-              ? "En ligne"
+            {online && device.last_seen_at
+              ? `Relié à Ominin — dernier signe de vie il y a ${secondsAgo(device.last_seen_at, now)} s`
               : device.last_seen_at
                 ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
-                : "Jamais connecté — en attente de sa première connexion"}
+                : "En attente de sa première connexion"}
             {device.version && ` · version ${device.version.slice(0, 7)}`}
           </p>
         </div>

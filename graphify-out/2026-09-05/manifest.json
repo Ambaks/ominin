@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788554073.1497157,
-    "ast_hash": "bd3b20abf8c9b5ff8f20e8cfff5a2d57",
+    "mtime": 1788553742.168285,
+    "ast_hash": "2be8f680867545765e3844b37baaab43",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2170,8 +2170,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
-    "mtime": 1788645061.9756434,
-    "ast_hash": "b7b602533eb7c41b7d0a096692439ccd",
+    "mtime": 1788552174.3484726,
+    "ast_hash": "16a8b4fdc206620f89a336a665e5dfdb",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/printer-form-modal.tsx": {
