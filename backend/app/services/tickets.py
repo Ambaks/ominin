@@ -17,9 +17,13 @@ ALIGN_LEFT = ESC + b"a\x00"
 ALIGN_CENTER = ESC + b"a\x01"
 BOLD_ON = ESC + b"E\x01"
 BOLD_OFF = ESC + b"E\x00"
-SIZE_NORMAL = GS + b"!\x00"
-SIZE_TALL = GS + b"!\x01"
-SIZE_DOUBLE = GS + b"!\x11"
+# GS ! n — high nibble = width (0-7), low nibble = height (0-7).
+SIZE_NORMAL = GS + b"!\x00"   # 1×1
+SIZE_TALL = GS + b"!\x01"     # 1×2
+SIZE_DOUBLE = GS + b"!\x11"   # 2×2
+SIZE_TRIPLE = GS + b"!\x22"   # 3×3
+# Lissage des caractères agrandis (ignoré si non supporté).
+SMOOTHING_ON = GS + b"b\x01"
 FEED_AND_CUT = GS + b"V\x42\x00"
 LF = b"\n"
 
@@ -50,24 +54,24 @@ def _render_items(order_items: list[dict]) -> list[bytes]:
     out: list[bytes] = []
     for cat_name, items in _group_by_category(order_items):
         if cat_name:
-            out += [BOLD_ON, _line(cat_name.upper()), BOLD_OFF, LF]
+            out += [BOLD_ON, SIZE_TALL, _line(cat_name.upper()), SIZE_NORMAL, BOLD_OFF, LF]
         for item in items:
             out += [
-                SIZE_TALL, BOLD_ON,
+                SIZE_DOUBLE, BOLD_ON,
                 _line(f"{item['quantity']} \xd7 {item['name']}"),
                 BOLD_OFF, SIZE_NORMAL,
             ]
             for opt in item["options"]:
-                out.append(_line(f"    \xbb {opt['groupName']} : {opt['choiceName']}"))
+                out += [SIZE_TALL, _line(f" \xbb {opt['groupName']} : {opt['choiceName']}"), SIZE_NORMAL]
             out.append(LF)
     return out
 
 
 def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
-    out: list[bytes] = [INIT, CODEPAGE_CP1252]
+    out: list[bytes] = [INIT, CODEPAGE_CP1252, SMOOTHING_ON]
 
     out += [
-        ALIGN_CENTER, BOLD_ON, SIZE_DOUBLE,
+        ALIGN_CENTER, BOLD_ON, SIZE_TRIPLE,
         _line(f"* {restaurant_name.upper()} *"),
         SIZE_NORMAL, BOLD_OFF, LF,
     ]
@@ -75,20 +79,21 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
     if order["type"] == "collect":
         pickup = order["pickup_at"]
         out += [
-            BOLD_ON, SIZE_TALL,
+            BOLD_ON, SIZE_DOUBLE,
             _line("À EMPORTER"),
-            SIZE_NORMAL,
-            _line(order["customer_name"]),
-            BOLD_OFF,
+            _line(order["customer_name"].upper()),
+            SIZE_NORMAL, BOLD_OFF,
+            SIZE_TALL,
             _line(
                 f"Retrait {_local(pickup):%H:%M}"
                 if pickup
                 else "Dès que possible"
             ),
+            SIZE_NORMAL,
         ]
     else:
         out += [
-            BOLD_ON, SIZE_TALL,
+            BOLD_ON, SIZE_DOUBLE,
             _line(f"TABLE {order['tables']['number']}"),
             SIZE_NORMAL, BOLD_OFF,
         ]
@@ -106,16 +111,19 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
 
 def render_test_ticket(printer_name: str, at: str, restaurant_name: str) -> bytes:
     out: list[bytes] = [
-        INIT, CODEPAGE_CP1252,
-        ALIGN_CENTER, BOLD_ON, SIZE_DOUBLE,
+        INIT, CODEPAGE_CP1252, SMOOTHING_ON,
+        ALIGN_CENTER, BOLD_ON, SIZE_TRIPLE,
         _line(f"* {restaurant_name.upper()} *"),
-        SIZE_NORMAL,
+        SIZE_DOUBLE,
         _line("TEST"),
-        BOLD_OFF, LF,
-        _line(printer_name),
+        SIZE_NORMAL, BOLD_OFF, LF,
+        SIZE_TALL, _line(printer_name), SIZE_NORMAL,
         LF, ALIGN_LEFT,
-        _line("Si vous lisez ceci, l'imprimante"),
-        _line("est bien reliée à Ominin."),
+        SIZE_TALL,
+        _line("Si vous lisez ceci,"),
+        _line("l'imprimante est bien"),
+        _line("reliée à Ominin."),
+        SIZE_NORMAL, LF,
         _line("Accents : àéèùç œ €"),
         _rule(),
         ALIGN_CENTER,
