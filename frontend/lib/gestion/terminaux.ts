@@ -187,29 +187,46 @@ export function isRecent(at: string | null, now: number): boolean {
   return at != null && now - new Date(at).getTime() < TERMINAL_ONLINE_WINDOW_MS;
 }
 
-export async function loadRouting(printerId: string): Promise<string[]> {
+export async function loadPrinters(
+  etablissementId: string
+): Promise<Printer[]> {
+  return must(
+    await createClient()
+      .from("printers")
+      .select("*")
+      .eq("etablissement_id", etablissementId)
+      .order("created_at")
+  );
+}
+
+export async function loadItemRoutingMap(
+  printerIds: string[]
+): Promise<Map<string, string>> {
+  if (!printerIds.length) return new Map();
   const rows = must(
     await createClient()
       .from("item_printers")
-      .select("item_id")
-      .eq("printer_id", printerId)
+      .select("item_id, printer_id")
+      .in("printer_id", printerIds)
   );
-  return rows.map((r) => r.item_id);
+  const map = new Map<string, string>();
+  for (const row of rows) {
+    if (!map.has(row.item_id)) map.set(row.item_id, row.printer_id);
+  }
+  return map;
 }
 
-export async function saveRouting(
-  printerId: string,
-  itemIds: string[]
+export async function setItemPrinter(
+  itemId: string,
+  printerId: string | null
 ): Promise<void> {
   const supabase = createClient();
-  check(
-    await supabase.from("item_printers").delete().eq("printer_id", printerId)
-  );
-  if (itemIds.length) {
+  check(await supabase.from("item_printers").delete().eq("item_id", itemId));
+  if (printerId) {
     check(
       await supabase
         .from("item_printers")
-        .insert(itemIds.map((item_id) => ({ item_id, printer_id: printerId })))
+        .insert({ item_id: itemId, printer_id: printerId })
     );
   }
 }

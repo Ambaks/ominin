@@ -6,16 +6,25 @@ import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
+import type { Printer } from "@/lib/gestion/terminaux";
 import { BADGE_LABELS, formatPrice, type MenuItem } from "@/lib/menu-data";
 
 export function MenuItemCard({
   item,
+  printers = [],
+  printerId = null,
+  canRoute = false,
   onEdit,
   onDelete,
+  onPrinterChange,
 }: {
   item: MenuItem;
+  printers?: Printer[];
+  printerId?: string | null;
+  canRoute?: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onPrinterChange?: (printerId: string | null) => void;
 }) {
   const { can } = useGestionAccess();
   const toast = useToast();
@@ -120,6 +129,27 @@ export function MenuItemCard({
               className="w-14 rounded-lg border border-hairline bg-background px-2 py-1 text-center text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 disabled:opacity-40 lg:text-xs"
             />
           </label>
+
+          {printers.length > 0 && (
+            <label className="flex items-center gap-1.5 text-xs text-muted">
+              Imprimante
+              <select
+                value={printerId ?? ""}
+                disabled={!canRoute}
+                onChange={(e) =>
+                  onPrinterChange?.(e.target.value || null)
+                }
+                className="rounded-lg border border-hairline bg-background px-2 py-1 text-xs outline-none transition-colors focus:border-ember-2/50 disabled:opacity-40"
+              >
+                <option value="">—</option>
+                {printers.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           {canEdit && (
             <span className="ml-auto flex gap-1">

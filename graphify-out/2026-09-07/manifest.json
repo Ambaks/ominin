@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/menu-item-card.tsx": {
-    "mtime": 1784109871.6269672,
-    "ast_hash": "7e9158e2a31939a762deb101e40e8acd",
+    "mtime": 1788807141.3938544,
+    "ast_hash": "eb57b9ea4dfee84046e99e778efb0d50",
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/options-editor.tsx": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788783929.138429,
-    "ast_hash": "5290ec90541eaaa62066d2718cbd0621",
+    "mtime": 1788806298.2169921,
+    "ast_hash": "f0f7bc3746155357e0a45226fa3a1073",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/menu/page.tsx": {
-    "mtime": 1788177239.308818,
-    "ast_hash": "ed671249772d2f1a45adfb714be7cbaa",
+    "mtime": 1788807172.165218,
+    "ast_hash": "7ffb794883a17021e5c80174e2a013c2",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/page.tsx": {
@@ -1630,12 +1630,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788783842.8758419,
+    "mtime": 1788807239.4743824,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788783842.8718004,
+    "mtime": 1788807239.471184,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -2135,7 +2135,7 @@
     "semantic_hash": ""
   },
   "backend/app/services/tickets.py": {
-    "mtime": 1788472266.5796788,
+    "mtime": 1788807186.9199212,
     "ast_hash": "6472374220743db027f7456910bf8ed5",
     "semantic_hash": ""
   },
@@ -2170,8 +2170,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
-    "mtime": 1788806126.031753,
-    "ast_hash": "3d3837e1bb3fd86bfff1678f8a305cef",
+    "mtime": 1788807216.927996,
+    "ast_hash": "e77fb20161dc1da10e8fcecfc94d1d43",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/printer-form-modal.tsx": {
@@ -2180,8 +2180,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/terminaux.ts": {
-    "mtime": 1788806005.5435495,
-    "ast_hash": "f35d6b0effcb0a4057a077adf20e2e90",
+    "mtime": 1788807120.7092657,
+    "ast_hash": "3a9e1d21653758c2c208c71e28cde70c",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/device-add-modal.tsx": {
@@ -2272,11 +2272,6 @@
   "supabase/migrations/20260907000001_online_payment_guard.sql": {
     "mtime": 1788783676.7827961,
     "ast_hash": "0e556cf558cf541be6d6c422bda9c51a",
-    "semantic_hash": ""
-  },
-  "frontend/components/gestion/terminaux/routing-modal.tsx": {
-    "mtime": 1788806053.2352567,
-    "ast_hash": "886ce08777c447aed4349c4237af7cdd",
     "semantic_hash": ""
   },
   "supabase/migrations/20260907000002_ticket_routing.sql": {
