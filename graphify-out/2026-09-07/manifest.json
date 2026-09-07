@@ -520,8 +520,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/payment-settings.tsx": {
-    "mtime": 1788783814.1095064,
-    "ast_hash": "dac3c8cd2609bc3df8e879be74c4564d",
+    "mtime": 1788553388.4202461,
+    "ast_hash": "be83b5ed6e42b86157a2f8a6d0f1799d",
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1788783578.5359755,
-    "ast_hash": "47652daba5f19f4c7234482f4ca8fc31",
+    "mtime": 1786989772.9849563,
+    "ast_hash": "81c3656cd4788ad120fb6dd0f8463112",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
@@ -1630,12 +1630,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788783842.8758419,
+    "mtime": 1788553692.8511734,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788783842.8718004,
+    "mtime": 1788553692.843773,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -2272,11 +2272,6 @@
   "supabase/migrations/20260904000007_launch_fixes.sql": {
     "mtime": 1788553237.1056542,
     "ast_hash": "7c86606eb50c85e05155ae9cb91ca27e",
-    "semantic_hash": ""
-  },
-  "supabase/migrations/20260907000001_online_payment_guard.sql": {
-    "mtime": 1788783676.7827961,
-    "ast_hash": "0e556cf558cf541be6d6c422bda9c51a",
     "semantic_hash": ""
   }
 }

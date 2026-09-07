@@ -13,6 +13,44 @@ const PARTICLES = [
   { left: "80%", w: 3, h: 3, bg: "var(--ember-3)", delay: "2s", dur: "12s", peak: 0.4 },
 ];
 
+const PILL_CLASS =
+  "rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur";
+
+/** Horaires, adresse, téléphone : seuls les champs renseignés ont leur pastille. */
+function ContactPills({
+  restaurant,
+  className,
+  style,
+}: {
+  restaurant: Restaurant;
+  className: string;
+  style?: React.CSSProperties;
+}) {
+  const texts = [restaurant.hours, restaurant.address]
+    .map((text) => text.trim())
+    .filter(Boolean);
+  const phone = restaurant.phone.trim();
+  if (texts.length === 0 && !phone) return null;
+
+  return (
+    <div className={className} style={style}>
+      {texts.map((text) => (
+        <span key={text} className={PILL_CLASS}>
+          {text}
+        </span>
+      ))}
+      {phone && (
+        <a
+          href={`tel:${phone.replace(/\s/g, "")}`}
+          className={`${PILL_CLASS} transition-colors hover:text-foreground`}
+        >
+          {phone}
+        </a>
+      )}
+    </div>
+  );
+}
+
 function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
     <header className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden">
@@ -93,23 +131,11 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         style={{ animationDelay: "500ms" }}
       />
 
-      <div
+      <ContactPills
+        restaurant={restaurant}
         className="hero-entrance relative z-10 mt-6 flex flex-wrap justify-center gap-2 px-5 text-xs text-muted lg:mt-8 lg:gap-3 lg:text-sm"
         style={{ animationDelay: "650ms" }}
-      >
-        <span className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur">
-          {restaurant.hours}
-        </span>
-        <span className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur">
-          {restaurant.address}
-        </span>
-        <a
-          href={`tel:${restaurant.phone.replace(/\s/g, "")}`}
-          className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur transition-colors hover:text-foreground"
-        >
-          {restaurant.phone}
-        </a>
-      </div>
+      />
 
       <div
         className="hero-entrance absolute bottom-8 z-10 flex flex-col items-center gap-2 text-faint lg:bottom-12"
@@ -169,20 +195,10 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
           {restaurant.name}
         </h1>
 
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted lg:mt-6 lg:gap-3 lg:text-sm">
-          <span className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur">
-            {restaurant.hours}
-          </span>
-          <span className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur">
-            {restaurant.address}
-          </span>
-          <a
-            href={`tel:${restaurant.phone.replace(/\s/g, "")}`}
-            className="rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur transition-colors hover:text-foreground"
-          >
-            {restaurant.phone}
-          </a>
-        </div>
+        <ContactPills
+          restaurant={restaurant}
+          className="mt-4 flex flex-wrap gap-2 text-xs text-muted lg:mt-6 lg:gap-3 lg:text-sm"
+        />
       </div>
     </header>
   );
