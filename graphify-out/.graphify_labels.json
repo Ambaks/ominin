@@ -166,8 +166,6 @@
   "164": "Ta",
   "165": "sub",
   "166": "manifest.ts",
-  "167": "createIndex",
-  "168": "constructor",
   "169": "O",
   "170": "sw.js",
   "171": "geometryType",
@@ -176,9 +174,6 @@
   "174": "__init__.py",
   "175": "__init__.py",
   "176": "__init__.py",
-  "177": "_deserializeCollisionBoxesForSymbol",
   "178": "getUniforms",
-  "179": "getOriginZoom",
-  "180": "zb",
-  "181": "withinInto"
+  "180": "zb"
 }

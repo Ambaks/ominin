@@ -5,6 +5,7 @@ import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { DeviceAddModal } from "@/components/gestion/terminaux/device-add-modal";
 import { PrinterFormModal } from "@/components/gestion/terminaux/printer-form-modal";
+import { RoutingModal } from "@/components/gestion/terminaux/routing-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
@@ -222,6 +223,7 @@ function PrinterCard({
   now,
   onTest,
   onEdit,
+  onRoute,
   onDelete,
 }: {
   printer: Printer;
@@ -231,6 +233,7 @@ function PrinterCard({
   now: number;
   onTest: () => void;
   onEdit: () => void;
+  onRoute: () => void;
   onDelete: () => void;
 }) {
   const { health, label } = printerHealth(printer, deviceOnline, now);
@@ -249,6 +252,9 @@ function PrinterCard({
         {testStatus && <p className="mt-1 text-xs text-muted">{testStatus}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
+        <button type="button" onClick={onRoute} className={smallButtonClass}>
+          Produits
+        </button>
         <button type="button" onClick={onTest} className={smallButtonClass}>
           Tester
         </button>
@@ -273,7 +279,13 @@ type Editing =
   | { mode: "edit"; printer: Printer }
   | null;
 
-function TerminauxManager({ etablissementId }: { etablissementId: string }) {
+function TerminauxManager({
+  etablissementId,
+  categories,
+}: {
+  etablissementId: string;
+  categories: import("@/lib/menu-data").MenuCategory[];
+}) {
   const toast = useToast();
   const [devices, setDevices] = useState<OmilinkDevice[] | null>(null);
   const [printers, setPrinters] = useState<Printer[]>([]);
@@ -285,6 +297,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   const [addingDevice, setAddingDevice] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<OmilinkDevice | null>(null);
   const [editing, setEditing] = useState<Editing>(null);
+  const [routing, setRouting] = useState<Printer | null>(null);
   const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
 
   const refresh = useCallback(async () => {
@@ -451,6 +464,7 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
                 now={now}
                 onTest={() => void test(printer)}
                 onEdit={() => setEditing({ mode: "edit", printer })}
+                onRoute={() => setRouting(printer)}
                 onDelete={() => setPrinterToDelete(printer)}
               />
             );
@@ -493,6 +507,14 @@ function TerminauxManager({ etablissementId }: { etablissementId: string }) {
           onClose={() => setEditing(null)}
         />
       )}
+      {routing && (
+        <RoutingModal
+          printer={routing}
+          categories={categories}
+          onClose={() => setRouting(null)}
+          onSaved={() => {}}
+        />
+      )}
       {printerToDelete && (
         <ConfirmDialog
           title="Retirer l'imprimante"
@@ -527,7 +549,10 @@ export default function TerminauxPage() {
       </div>
 
       {role === "gerant" ? (
-        <TerminauxManager etablissementId={state.etablissement.id} />
+        <TerminauxManager
+          etablissementId={state.etablissement.id}
+          categories={state.categories}
+        />
       ) : (
         <EmptyState
           title="Réservé au gérant"

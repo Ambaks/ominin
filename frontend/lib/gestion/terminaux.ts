@@ -186,3 +186,30 @@ export async function fetchJobs(ids: string[]): Promise<PrintJob[]> {
 export function isRecent(at: string | null, now: number): boolean {
   return at != null && now - new Date(at).getTime() < TERMINAL_ONLINE_WINDOW_MS;
 }
+
+export async function loadRouting(printerId: string): Promise<string[]> {
+  const rows = must(
+    await createClient()
+      .from("item_printers")
+      .select("item_id")
+      .eq("printer_id", printerId)
+  );
+  return rows.map((r) => r.item_id);
+}
+
+export async function saveRouting(
+  printerId: string,
+  itemIds: string[]
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.from("item_printers").delete().eq("printer_id", printerId)
+  );
+  if (itemIds.length) {
+    check(
+      await supabase
+        .from("item_printers")
+        .insert(itemIds.map((item_id) => ({ item_id, printer_id: printerId })))
+    );
+  }
+}

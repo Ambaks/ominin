@@ -788,6 +788,36 @@ export type Database = {
           },
         ]
       }
+      item_printers: {
+        Row: {
+          item_id: string
+          printer_id: string
+        }
+        Insert: {
+          item_id: string
+          printer_id: string
+        }
+        Update: {
+          item_id?: string
+          printer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_printers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_printers_printer_id_fkey"
+            columns: ["printer_id"]
+            isOneToOne: false
+            referencedRelation: "printers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
           badges: Database["public"]["Enums"]["badge"][]

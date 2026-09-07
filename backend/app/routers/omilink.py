@@ -16,6 +16,36 @@ from app.services.tickets import render_job
 router = APIRouter(prefix="/omilink")
 
 
+def _build_routing(supabase, printer_ids: list[str]) -> dict[str, set[str]]:
+    """Return {printer_id: {item_id, …}} for printers that have routing rules."""
+    rows = (
+        supabase.table("item_printers")
+        .select("item_id, printer_id")
+        .in_("printer_id", printer_ids)
+        .execute()
+        .data
+    )
+    routing: dict[str, set[str]] = {}
+    for r in rows:
+        routing.setdefault(r["printer_id"], set()).add(r["item_id"])
+    return routing
+
+
+def _apply_routing(row: dict, routing: dict[str, set[str]]) -> None:
+    """Filter a print-job's order_items in place based on routing rules."""
+    if row["kind"] != "order" or not row.get("orders"):
+        return
+    pid = row["printer_id"]
+    if pid not in routing:
+        return
+    allowed = routing[pid]
+    row["orders"]["order_items"] = [
+        oi
+        for oi in row["orders"]["order_items"]
+        if oi.get("item_id") is None or oi["item_id"] in allowed
+    ]
+
+
 class EnrollRequest(BaseModel):
     serial: str = Field(max_length=64)
     token_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -82,29 +112,38 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
         .data
     )
     printers = payload["printers"]
-    jobs = []
+    jobs: list[dict] = []
     if printers:
+        printer_ids = [printer["id"] for printer in printers]
         rows = (
             supabase.table("print_jobs")
             .select(
                 "id, kind, printer_id, created_at, printers(name), "
                 "orders(type, created_at, customer_name, pickup_at, "
-                "tables(number), order_items(name, quantity, options))"
+                "tables(number), order_items(id, item_id, name, quantity, options))"
             )
-            .in_("printer_id", [printer["id"] for printer in printers])
+            .in_("printer_id", printer_ids)
             .eq("status", "pending")
             .order("created_at")
             .execute()
             .data
         )
-        jobs = [
-            {
-                "id": row["id"],
-                "printer_id": row["printer_id"],
-                "data": base64.b64encode(render_job(row)).decode(),
-            }
-            for row in rows
-        ]
+        routing = _build_routing(supabase, printer_ids)
+        cancelled: list[str] = []
+        for row in rows:
+            _apply_routing(row, routing)
+            if row["kind"] == "order" and row.get("orders") and not row["orders"]["order_items"]:
+                cancelled.append(row["id"])
+                continue
+            jobs.append(
+                {
+                    "id": row["id"],
+                    "printer_id": row["printer_id"],
+                    "data": base64.b64encode(render_job(row)).decode(),
+                }
+            )
+        if cancelled:
+            supabase.table("print_jobs").update({"status": "cancelled"}).in_("id", cancelled).execute()
     return {"printers": printers, "jobs": jobs, "scan": payload["scan"]}
 
 

@@ -895,8 +895,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1788552119.4388006,
-    "ast_hash": "d20364b086031d37221ba014b2e5f11a",
+    "mtime": 1788805988.8989117,
+    "ast_hash": "9416cfc9e3c7ddaee647cfd4cd729350",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788645098.422789,
-    "ast_hash": "ba51fdaa0a8e3f5b4ff4e500b4970e11",
+    "mtime": 1788806298.2169921,
+    "ast_hash": "f0f7bc3746155357e0a45226fa3a1073",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2130,8 +2130,8 @@
     "semantic_hash": ""
   },
   "backend/app/routers/omilink.py": {
-    "mtime": 1788551785.0142717,
-    "ast_hash": "d97dbd7ebc3f8d3c72a7fe98bcc6c62d",
+    "mtime": 1788805965.5048442,
+    "ast_hash": "5cd973a74f9d5e489cbb58a3b24886ef",
     "semantic_hash": ""
   },
   "backend/app/services/tickets.py": {
@@ -2170,8 +2170,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
-    "mtime": 1788645061.9756434,
-    "ast_hash": "b7b602533eb7c41b7d0a096692439ccd",
+    "mtime": 1788806126.031753,
+    "ast_hash": "3d3837e1bb3fd86bfff1678f8a305cef",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/printer-form-modal.tsx": {
@@ -2180,8 +2180,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/terminaux.ts": {
-    "mtime": 1788551853.3063414,
-    "ast_hash": "9793828f08f60b5164a1055c2e89aec6",
+    "mtime": 1788806005.5435495,
+    "ast_hash": "f35d6b0effcb0a4057a077adf20e2e90",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/device-add-modal.tsx": {
@@ -2244,11 +2244,6 @@
     "ast_hash": "afc86172267d62fa54999b2ad5d54f3d",
     "semantic_hash": ""
   },
-  "TACHES-AMBAKA.md": {
-    "mtime": 1788549134.1395166,
-    "ast_hash": "502eaad22d2d5dab1c37d9462e1ed74d",
-    "semantic_hash": ""
-  },
   "frontend/app/api/stripe/verify/route.ts": {
     "mtime": 1788553660.8544452,
     "ast_hash": "a1ac414d5da0e9cecc6ab5050fe6c0ba",
@@ -2277,6 +2272,16 @@
   "supabase/migrations/20260907000001_online_payment_guard.sql": {
     "mtime": 1788783676.7827961,
     "ast_hash": "0e556cf558cf541be6d6c422bda9c51a",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/terminaux/routing-modal.tsx": {
+    "mtime": 1788806053.2352567,
+    "ast_hash": "886ce08777c447aed4349c4237af7cdd",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260907000002_ticket_routing.sql": {
+    "mtime": 1788805934.5990787,
+    "ast_hash": "75f2b218d652bd542320a78b5bcaa81a",
     "semantic_hash": ""
   }
 }
