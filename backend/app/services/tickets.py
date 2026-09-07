@@ -20,12 +20,12 @@ BOLD_OFF = ESC + b"E\x00"
 SIZE_NORMAL = GS + b"!\x00"
 SIZE_TALL = GS + b"!\x01"
 SIZE_DOUBLE = GS + b"!\x11"
-# Avance le papier jusqu'au massicot puis coupe (fonction B).
 FEED_AND_CUT = GS + b"V\x42\x00"
+LF = b"\n"
 
 
 def _line(text: str) -> bytes:
-    return text.encode("cp1252", errors="replace") + b"\n"
+    return text.encode("cp1252", errors="replace") + LF
 
 
 def _local(iso: str) -> datetime:
@@ -36,45 +36,96 @@ def _rule() -> bytes:
     return _line("-" * settings.omilink_ticket_columns)
 
 
-def _header(title: str) -> list[bytes]:
-    return [INIT, CODEPAGE_CP1252, ALIGN_CENTER, BOLD_ON, SIZE_DOUBLE, _line(title), SIZE_NORMAL]
+def _group_by_category(order_items: list[dict]) -> list[tuple[str, list[dict]]]:
+    """Group items by category name, sorted by category position."""
+    groups: dict[tuple[int, str], list[dict]] = {}
+    for oi in order_items:
+        cat = (oi.get("items") or {}).get("categories") or {}
+        key = (cat.get("position", 9999), cat.get("name", ""))
+        groups.setdefault(key, []).append(oi)
+    return [(name, items) for (_, name), items in sorted(groups.items())]
 
 
-def render_kitchen_ticket(order: dict) -> bytes:
+def _render_items(order_items: list[dict]) -> list[bytes]:
+    out: list[bytes] = []
+    for cat_name, items in _group_by_category(order_items):
+        if cat_name:
+            out += [BOLD_ON, _line(cat_name.upper()), BOLD_OFF, LF]
+        for item in items:
+            out += [
+                SIZE_TALL, BOLD_ON,
+                _line(f"{item['quantity']} \xd7 {item['name']}"),
+                BOLD_OFF, SIZE_NORMAL,
+            ]
+            for opt in item["options"]:
+                out.append(_line(f"    \xbb {opt['groupName']} : {opt['choiceName']}"))
+            out.append(LF)
+    return out
+
+
+def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
+    out: list[bytes] = [INIT, CODEPAGE_CP1252]
+
+    out += [
+        ALIGN_CENTER, BOLD_ON, SIZE_DOUBLE,
+        _line(f"* {restaurant_name.upper()} *"),
+        SIZE_NORMAL, BOLD_OFF, LF,
+    ]
+
     if order["type"] == "collect":
         pickup = order["pickup_at"]
-        out = _header("À EMPORTER") + [
+        out += [
+            BOLD_ON, SIZE_TALL,
+            _line("À EMPORTER"),
+            SIZE_NORMAL,
             _line(order["customer_name"]),
-            _line(f"Retrait {_local(pickup):%H:%M}" if pickup else "Retrait dès que possible"),
+            BOLD_OFF,
+            _line(
+                f"Retrait {_local(pickup):%H:%M}"
+                if pickup
+                else "Dès que possible"
+            ),
         ]
     else:
-        out = _header(f"TABLE {order['tables']['number']}")
-    out += [BOLD_OFF, _line(f"{_local(order['created_at']):%d/%m %H:%M}"), ALIGN_LEFT, _rule()]
-    for item in order["order_items"]:
-        out += [SIZE_TALL, BOLD_ON, _line(f"{item['quantity']} x {item['name']}"), BOLD_OFF, SIZE_NORMAL]
-        for option in item["options"]:
-            out.append(_line(f"    {option['groupName']} : {option['choiceName']}"))
-    out += [_rule(), FEED_AND_CUT]
-    return b"".join(out)
+        out += [
+            BOLD_ON, SIZE_TALL,
+            _line(f"TABLE {order['tables']['number']}"),
+            SIZE_NORMAL, BOLD_OFF,
+        ]
 
-
-def render_test_ticket(printer_name: str, at: str) -> bytes:
-    out = _header("TEST OMININ") + [
-        _line(printer_name),
-        BOLD_OFF,
-        _line(f"{_local(at):%d/%m %H:%M}"),
-        ALIGN_LEFT,
+    out += [ALIGN_LEFT, _rule(), LF]
+    out += _render_items(order["order_items"])
+    out += [
         _rule(),
-        _line("Si vous lisez ceci, l'imprimante est"),
-        _line("bien reliée à Ominin."),
-        _line("Accents : àéèùç œ €"),
-        _rule(),
+        ALIGN_CENTER,
+        _line(f"{_local(order['created_at']):%H:%M}"),
         FEED_AND_CUT,
     ]
     return b"".join(out)
 
 
-def render_job(job: dict) -> bytes:
+def render_test_ticket(printer_name: str, at: str, restaurant_name: str) -> bytes:
+    out: list[bytes] = [
+        INIT, CODEPAGE_CP1252,
+        ALIGN_CENTER, BOLD_ON, SIZE_DOUBLE,
+        _line(f"* {restaurant_name.upper()} *"),
+        SIZE_NORMAL,
+        _line("TEST"),
+        BOLD_OFF, LF,
+        _line(printer_name),
+        LF, ALIGN_LEFT,
+        _line("Si vous lisez ceci, l'imprimante"),
+        _line("est bien reliée à Ominin."),
+        _line("Accents : àéèùç œ €"),
+        _rule(),
+        ALIGN_CENTER,
+        _line(f"{_local(at):%H:%M}"),
+        FEED_AND_CUT,
+    ]
+    return b"".join(out)
+
+
+def render_job(job: dict, restaurant_name: str = "") -> bytes:
     if job["kind"] == "order":
-        return render_kitchen_ticket(job["orders"])
-    return render_test_ticket(job["printers"]["name"], job["created_at"])
+        return render_kitchen_ticket(job["orders"], restaurant_name)
+    return render_test_ticket(job["printers"]["name"], job["created_at"], restaurant_name)

@@ -115,12 +115,23 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
     jobs: list[dict] = []
     if printers:
         printer_ids = [printer["id"] for printer in printers]
+        etab_row = (
+            supabase.table("etablissements")
+            .select("name")
+            .eq("id", device.etablissement_id)
+            .single()
+            .execute()
+            .data
+        )
+        restaurant_name = etab_row["name"] if etab_row else ""
         rows = (
             supabase.table("print_jobs")
             .select(
                 "id, kind, printer_id, created_at, printers(name), "
                 "orders(type, created_at, customer_name, pickup_at, "
-                "tables(number), order_items(id, item_id, name, quantity, options))"
+                "tables(number), "
+                "order_items(id, item_id, name, quantity, options, "
+                "items(categories(name, position))))"
             )
             .in_("printer_id", printer_ids)
             .eq("status", "pending")
@@ -139,7 +150,7 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
                 {
                     "id": row["id"],
                     "printer_id": row["printer_id"],
-                    "data": base64.b64encode(render_job(row)).decode(),
+                    "data": base64.b64encode(render_job(row, restaurant_name)).decode(),
                 }
             )
         if cancelled:
