@@ -180,13 +180,11 @@
   "178": "getUniforms",
   "179": "yc",
   "180": "zb",
-  "181": "yv",
+  "181": "_getByteView",
   "182": "normalizeText",
   "183": "addLine",
-  "184": "replace",
+  "184": "getPaintAffectingGlobalStateRefs",
   "185": "sub",
   "186": "recalculate",
-  "187": "_getByteView",
-  "188": "hr",
-  "189": "_handleSpecialPaintPropertyUpdate"
+  "187": "loadVectorTile"
 }

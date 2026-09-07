@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1788553459.6704524,
-    "ast_hash": "49079f82f6718ff49e5a3120c53fc4a4",
+    "mtime": 1788809061.9994004,
+    "ast_hash": "a928414b05c1eb26e208d4e6f2a689a6",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788806298.2169921,
-    "ast_hash": "f0f7bc3746155357e0a45226fa3a1073",
+    "mtime": 1788807508.3153691,
+    "ast_hash": "23f2be52c166ee208105dfc18a694b80",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1645,8 +1645,8 @@
     "semantic_hash": ""
   },
   "demos/boho/profile.json": {
-    "mtime": 1786990857.3258479,
-    "ast_hash": "a6da93d931662ff83a64c0a89276db1d",
+    "mtime": 1788808458.793907,
+    "ast_hash": "fd712517330d1713ca56f93463937797",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/SKILL.md": {
@@ -2130,13 +2130,13 @@
     "semantic_hash": ""
   },
   "backend/app/routers/omilink.py": {
-    "mtime": 1788805965.5048442,
-    "ast_hash": "5cd973a74f9d5e489cbb58a3b24886ef",
+    "mtime": 1788808316.014823,
+    "ast_hash": "b02a4505710f8f35870b369d7a6d581c",
     "semantic_hash": ""
   },
   "backend/app/services/tickets.py": {
-    "mtime": 1788807186.9199212,
-    "ast_hash": "6472374220743db027f7456910bf8ed5",
+    "mtime": 1788808346.7617362,
+    "ast_hash": "3d61222ab60b87857b9fc8be0dc58e01",
     "semantic_hash": ""
   },
   "omilink/omilink/__main__.py": {
@@ -2277,6 +2277,11 @@
   "supabase/migrations/20260907000002_ticket_routing.sql": {
     "mtime": 1788805934.5990787,
     "ast_hash": "75f2b218d652bd542320a78b5bcaa81a",
+    "semantic_hash": ""
+  },
+  "chichas.jpg": {
+    "mtime": 1788808382.674904,
+    "ast_hash": "8b0601a6abcd6f6fe001f980401122f6",
     "semantic_hash": ""
   }
 }
