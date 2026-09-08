@@ -186,3 +186,47 @@ export async function fetchJobs(ids: string[]): Promise<PrintJob[]> {
 export function isRecent(at: string | null, now: number): boolean {
   return at != null && now - new Date(at).getTime() < TERMINAL_ONLINE_WINDOW_MS;
 }
+
+export async function loadPrinters(
+  etablissementId: string
+): Promise<Printer[]> {
+  return must(
+    await createClient()
+      .from("printers")
+      .select("*")
+      .eq("etablissement_id", etablissementId)
+      .order("created_at")
+  );
+}
+
+export async function loadItemRoutingMap(
+  printerIds: string[]
+): Promise<Map<string, string>> {
+  if (!printerIds.length) return new Map();
+  const rows = must(
+    await createClient()
+      .from("item_printers")
+      .select("item_id, printer_id")
+      .in("printer_id", printerIds)
+  );
+  const map = new Map<string, string>();
+  for (const row of rows) {
+    if (!map.has(row.item_id)) map.set(row.item_id, row.printer_id);
+  }
+  return map;
+}
+
+export async function setItemPrinter(
+  itemId: string,
+  printerId: string | null
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("item_printers").delete().eq("item_id", itemId));
+  if (printerId) {
+    check(
+      await supabase
+        .from("item_printers")
+        .insert({ item_id: itemId, printer_id: printerId })
+    );
+  }
+}

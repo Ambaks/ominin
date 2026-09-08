@@ -797,6 +797,88 @@ const boho: Restaurant = {
         { id: "latte-macchiato", name: "Latte Macchiato", price: 4.5, image: unsplash("photo-1485808191679-5f86510681a1", 400) },
       ],
     },
+    {
+      id: "chichas",
+      name: "Chichas",
+      tagline: "Soft inclus · Charbon naturel premium",
+      items: [
+        {
+          id: "chicha-classique",
+          name: "Classique",
+          description: "Menthe — possibilité tête plate. Week-end 20 €.",
+          price: 15,
+          image: unsplash("photo-1662805522314-d316b95046b1", 400),
+          vatRate: 20,
+          options: [
+            {
+              id: "foyer-classique",
+              name: "Foyer",
+              obligatoire: false,
+              choices: [
+                { id: "fc-qasar", name: "Qasar", supplement: 5 },
+                { id: "fc-brodhood", name: "Brodhood", supplement: 5 },
+              ],
+            },
+          ],
+        },
+        {
+          id: "chicha-premium",
+          name: "Premium",
+          description: "Love 66 · Lady Killer · Hawaï.",
+          price: 20,
+          image: unsplash("photo-1635547821500-77542481940c", 400),
+          vatRate: 20,
+          options: [
+            {
+              id: "foyer-premium",
+              name: "Foyer",
+              obligatoire: false,
+              choices: [
+                { id: "fp-qasar", name: "Qasar", supplement: 5 },
+                { id: "fp-brodhood", name: "Brodhood", supplement: 5 },
+              ],
+            },
+          ],
+        },
+        {
+          id: "chicha-mi-amor",
+          name: "Mi Amor",
+          price: 25,
+          image: unsplash("photo-1574238752695-675b86d49267", 400),
+          vatRate: 20,
+          options: [
+            {
+              id: "foyer-mi-amor",
+              name: "Foyer",
+              obligatoire: false,
+              choices: [
+                { id: "fma-qasar", name: "Qasar", supplement: 5 },
+                { id: "fma-brodhood", name: "Brodhood", supplement: 5 },
+              ],
+            },
+          ],
+        },
+        {
+          id: "chicha-royale",
+          name: "Royale",
+          description: "Menthe sucrée.",
+          price: 30,
+          image: unsplash("photo-1630175772812-3368aad7982d", 400),
+          vatRate: 20,
+          options: [
+            {
+              id: "foyer-royale",
+              name: "Foyer",
+              obligatoire: false,
+              choices: [
+                { id: "fr-qasar", name: "Qasar", supplement: 5 },
+                { id: "fr-brodhood", name: "Brodhood", supplement: 5 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
   ],
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FormuleCard } from "@/components/gestion/formules/formule-card";
 import { FormuleFormModal } from "@/components/gestion/formules/formule-form-modal";
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
@@ -9,9 +9,15 @@ import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
-import { useRunMutation } from "@/components/ui/toast";
+import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import {
+  loadItemRoutingMap,
+  loadPrinters,
+  setItemPrinter,
+  type Printer,
+} from "@/lib/gestion/terminaux";
 import type { Formule } from "@/lib/gestion/types";
 import type { MenuItem } from "@/lib/menu-data";
 
@@ -19,8 +25,9 @@ type View = "menu" | "formules";
 
 export default function MenuPage() {
   const state = useGestion();
-  const { can } = useGestionAccess();
+  const { can, role, hasFeature } = useGestionAccess();
   const run = useRunMutation();
+  const toast = useToast();
   const [view, setView] = useState<View>("menu");
   const [activeCatId, setActiveCatId] = useState<string | null>(null);
   const [creatingItem, setCreatingItem] = useState(false);
@@ -30,6 +37,42 @@ export default function MenuPage() {
   const [creatingFormule, setCreatingFormule] = useState(false);
   const [editingFormule, setEditingFormule] = useState<Formule | null>(null);
   const [deletingFormule, setDeletingFormule] = useState<Formule | null>(null);
+  const [printers, setPrinters] = useState<Printer[]>([]);
+  const [routing, setRouting] = useState<Map<string, string>>(new Map());
+
+  const etablissementId = state?.etablissement.id;
+  const showRouting = hasFeature("commandes") && printers.length > 0;
+  const canRoute = role === "gerant";
+
+  const refreshRouting = useCallback(async () => {
+    if (!etablissementId) return;
+    const p = await loadPrinters(etablissementId);
+    setPrinters(p);
+    const map = await loadItemRoutingMap(p.map((pr) => pr.id));
+    setRouting(map);
+  }, [etablissementId]);
+
+  useEffect(() => {
+    refreshRouting().catch(() => {});
+  }, [refreshRouting]);
+
+  const handlePrinterChange = async (
+    itemId: string,
+    printerId: string | null
+  ) => {
+    setRouting((prev) => {
+      const next = new Map(prev);
+      if (printerId) next.set(itemId, printerId);
+      else next.delete(itemId);
+      return next;
+    });
+    try {
+      await setItemPrinter(itemId, printerId);
+    } catch {
+      toast.error("Erreur lors de l'enregistrement.");
+      await refreshRouting();
+    }
+  };
 
   if (!state) return null;
 
@@ -175,8 +218,14 @@ export default function MenuPage() {
                     <MenuItemCard
                       key={item.id}
                       item={item}
+                      printers={showRouting ? printers : []}
+                      printerId={routing.get(item.id) ?? null}
+                      canRoute={canRoute}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}
+                      onPrinterChange={(pid) =>
+                        void handlePrinterChange(item.id, pid)
+                      }
                     />
                   ))}
                 </div>

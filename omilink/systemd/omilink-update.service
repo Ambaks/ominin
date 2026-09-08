@@ -1,0 +1,14 @@
+[Unit]
+Description=Mise à jour du pont Omilink
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/omilink/omilink
+# Un échec (réseau coupé, GHCR injoignable) laisse les conteneurs en place :
+# rien n'est arrêté avant que la nouvelle image ne soit tirée.
+ExecStart=/usr/bin/docker compose pull --quiet
+ExecStart=/usr/bin/docker compose up -d
+ExecStart=/usr/bin/docker image prune -f

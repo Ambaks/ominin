@@ -7,13 +7,30 @@ import { setOnlinePayment } from "@/lib/gestion/api";
 /*
  * Réglage « paiement à table en ligne » (gérant) : compte Stripe Express relié
  * par l'onboarding hébergé, puis activation du choix « payer par carte » sur
- * le menu QR. SumUp attend l'activation de son scope « payments » : ses
- * routes restent en place, il n'est plus proposé.
+ * le menu QR. Au retour de l'onboarding (?stripe=retour), le statut est relu
+ * chez Stripe et le paiement par carte s'active de lui-même si le compte peut
+ * encaisser — le gérant a fait tout ce parcours précisément pour ça. SumUp
+ * attend l'activation de son scope « payments » : ses routes restent en
+ * place, il n'est plus proposé.
  */
 
 interface StripeStatus {
   connected: boolean;
   chargesEnabled: boolean;
+}
+
+const NOT_CONNECTED: StripeStatus = { connected: false, chargesEnabled: false };
+
+type StripeReturn = "retour" | "recommencer";
+
+/** Paramètre posé par les URLs de retour Stripe, lu une fois puis retiré. */
+function takeStripeReturn(): StripeReturn | null {
+  const url = new URL(window.location.href);
+  const value = url.searchParams.get("stripe");
+  if (value === null) return null;
+  url.searchParams.delete("stripe");
+  window.history.replaceState(null, "", url);
+  return value === "retour" || value === "recommencer" ? value : null;
 }
 
 export function PaymentSettings({ initialEnabled }: { initialEnabled: boolean }) {
@@ -23,15 +40,36 @@ export function PaymentSettings({ initialEnabled }: { initialEnabled: boolean })
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    const returned = takeStripeReturn();
     fetch("/api/stripe/connect")
       .then((response) => response.json())
-      .then((body: StripeStatus & { error?: string }) => {
-        setStatus(
-          body.error ? { connected: false, chargesEnabled: false } : body
-        );
-      })
-      .catch(() => setStatus({ connected: false, chargesEnabled: false }));
-  }, []);
+      .then((body: StripeStatus & { error?: string }) =>
+        body.error ? NOT_CONNECTED : body
+      )
+      .catch(() => NOT_CONNECTED)
+      .then(async (next) => {
+        setStatus(next);
+        if (returned === "recommencer") {
+          toast.error("Le lien Stripe a expiré — reprenez la configuration.");
+        } else if (returned === "retour" && !next.chargesEnabled) {
+          toast.success(
+            "Compte Stripe créé. Dès que Stripe aura validé vos informations, activez ici le paiement par carte."
+          );
+        } else if (returned === "retour") {
+          try {
+            await setOnlinePayment(true);
+            setEnabled(true);
+            toast.success(
+              "Compte Stripe relié — vos clients peuvent payer par carte sur le menu."
+            );
+          } catch (error) {
+            toast.error(
+              error instanceof Error ? error.message : "Une erreur est survenue."
+            );
+          }
+        }
+      });
+  }, [toast]);
 
   const startOnboarding = async () => {
     setBusy(true);

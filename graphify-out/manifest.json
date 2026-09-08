@@ -90,8 +90,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/connect/route.ts": {
-    "mtime": 1788553303.1884084,
-    "ast_hash": "4b687a93cbdc768470a5f1af45b64acf",
+    "mtime": 1788783435.4345953,
+    "ast_hash": "fa8671708901dee762f63bf16c079f39",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/menu-item-card.tsx": {
-    "mtime": 1784109871.6269672,
-    "ast_hash": "7e9158e2a31939a762deb101e40e8acd",
+    "mtime": 1788807141.3938544,
+    "ast_hash": "eb57b9ea4dfee84046e99e778efb0d50",
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/options-editor.tsx": {
@@ -520,8 +520,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/payment-settings.tsx": {
-    "mtime": 1788553388.4202461,
-    "ast_hash": "be83b5ed6e42b86157a2f8a6d0f1799d",
+    "mtime": 1788783814.1095064,
+    "ast_hash": "dac3c8cd2609bc3df8e879be74c4564d",
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1786989772.9849563,
-    "ast_hash": "81c3656cd4788ad120fb6dd0f8463112",
+    "mtime": 1788783578.5359755,
+    "ast_hash": "47652daba5f19f4c7234482f4ca8fc31",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1788553459.6704524,
-    "ast_hash": "49079f82f6718ff49e5a3120c53fc4a4",
+    "mtime": 1788809061.9994004,
+    "ast_hash": "a928414b05c1eb26e208d4e6f2a689a6",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -895,8 +895,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1788552119.4388006,
-    "ast_hash": "d20364b086031d37221ba014b2e5f11a",
+    "mtime": 1788805988.8989117,
+    "ast_hash": "9416cfc9e3c7ddaee647cfd4cd729350",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788553742.168285,
-    "ast_hash": "2be8f680867545765e3844b37baaab43",
+    "mtime": 1788810144.880652,
+    "ast_hash": "c2e56faadf2704f67bde4036a5e22ef0",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/menu/page.tsx": {
-    "mtime": 1788177239.308818,
-    "ast_hash": "ed671249772d2f1a45adfb714be7cbaa",
+    "mtime": 1788807172.165218,
+    "ast_hash": "7ffb794883a17021e5c80174e2a013c2",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/page.tsx": {
@@ -1630,12 +1630,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788553692.8511734,
+    "mtime": 1788807239.4743824,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788553692.843773,
+    "mtime": 1788807239.471184,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -1645,8 +1645,8 @@
     "semantic_hash": ""
   },
   "demos/boho/profile.json": {
-    "mtime": 1786990857.3258479,
-    "ast_hash": "a6da93d931662ff83a64c0a89276db1d",
+    "mtime": 1788808458.793907,
+    "ast_hash": "fd712517330d1713ca56f93463937797",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/SKILL.md": {
@@ -2130,13 +2130,13 @@
     "semantic_hash": ""
   },
   "backend/app/routers/omilink.py": {
-    "mtime": 1788551785.0142717,
-    "ast_hash": "d97dbd7ebc3f8d3c72a7fe98bcc6c62d",
+    "mtime": 1788808316.014823,
+    "ast_hash": "b02a4505710f8f35870b369d7a6d581c",
     "semantic_hash": ""
   },
   "backend/app/services/tickets.py": {
-    "mtime": 1788472266.5796788,
-    "ast_hash": "6472374220743db027f7456910bf8ed5",
+    "mtime": 1788810234.5435274,
+    "ast_hash": "5b6981a74b0d4c7eb8584382f4eff07b",
     "semantic_hash": ""
   },
   "omilink/omilink/__main__.py": {
@@ -2165,13 +2165,13 @@
     "semantic_hash": ""
   },
   "omilink/compose.yaml": {
-    "mtime": 1788551829.2441285,
-    "ast_hash": "157209e262ae1a2f9e56003bb9ffcfa4",
+    "mtime": 1788810655.1230667,
+    "ast_hash": "b78121d4afe4bd3d54f96e028873e760",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
-    "mtime": 1788552174.3484726,
-    "ast_hash": "16a8b4fdc206620f89a336a665e5dfdb",
+    "mtime": 1788807216.927996,
+    "ast_hash": "e77fb20161dc1da10e8fcecfc94d1d43",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/printer-form-modal.tsx": {
@@ -2180,8 +2180,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/terminaux.ts": {
-    "mtime": 1788551853.3063414,
-    "ast_hash": "9793828f08f60b5164a1055c2e89aec6",
+    "mtime": 1788807120.7092657,
+    "ast_hash": "3a9e1d21653758c2c208c71e28cde70c",
     "semantic_hash": ""
   },
   "frontend/components/gestion/terminaux/device-add-modal.tsx": {
@@ -2244,11 +2244,6 @@
     "ast_hash": "afc86172267d62fa54999b2ad5d54f3d",
     "semantic_hash": ""
   },
-  "TACHES-AMBAKA.md": {
-    "mtime": 1788549134.1395166,
-    "ast_hash": "502eaad22d2d5dab1c37d9462e1ed74d",
-    "semantic_hash": ""
-  },
   "frontend/app/api/stripe/verify/route.ts": {
     "mtime": 1788553660.8544452,
     "ast_hash": "a1ac414d5da0e9cecc6ab5050fe6c0ba",
@@ -2272,6 +2267,26 @@
   "supabase/migrations/20260904000007_launch_fixes.sql": {
     "mtime": 1788553237.1056542,
     "ast_hash": "7c86606eb50c85e05155ae9cb91ca27e",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260907000001_online_payment_guard.sql": {
+    "mtime": 1788783676.7827961,
+    "ast_hash": "0e556cf558cf541be6d6c422bda9c51a",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260907000002_ticket_routing.sql": {
+    "mtime": 1788805934.5990787,
+    "ast_hash": "75f2b218d652bd542320a78b5bcaa81a",
+    "semantic_hash": ""
+  },
+  "chichas.jpg": {
+    "mtime": 1788808382.674904,
+    "ast_hash": "8b0601a6abcd6f6fe001f980401122f6",
+    "semantic_hash": ""
+  },
+  "omilink/golden-image.sh": {
+    "mtime": 1788810632.875163,
+    "ast_hash": "d994ff6e8caf23de1ad27b6048f4ce67",
     "semantic_hash": ""
   }
 }

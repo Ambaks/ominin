@@ -72,29 +72,46 @@ export async function POST(request: Request) {
     .eq("etablissement_id", auth.etablissementId)
     .maybeSingle();
 
-  let accountId = existing?.stripe_account_id;
-  if (!accountId) {
-    const account = await stripe.accounts.create({
-      type: "express",
-      email: auth.email,
-      metadata: { etablissement_id: auth.etablissementId },
-    });
-    accountId = account.id;
-    const { error } = await admin.from("payment_accounts").insert({
-      etablissement_id: auth.etablissementId,
-      stripe_account_id: accountId,
-    });
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-  }
+  // Retour sur l'hôte qui a lancé l'onboarding : la session y est attachée
+  // (l'espace de gestion est aussi servi par collect). request.url peut
+  // porter le host interne (routage Vercel), d'où l'en-tête transmis.
+  const requestUrl = new URL(request.url);
+  const host = request.headers.get("x-forwarded-host") ?? requestUrl.host;
+  const origin = `${requestUrl.protocol}//${host}`;
 
-  const origin = new URL(request.url).origin;
-  const link = await stripe.accountLinks.create({
-    account: accountId,
-    type: "account_onboarding",
-    refresh_url: `${origin}/gestion/etablissement?stripe=recommencer`,
-    return_url: `${origin}/gestion/etablissement?stripe=retour`,
-  });
-  return NextResponse.json({ url: link.url });
+  // Un refus de Stripe doit remonter en clair dans le toast du gérant : un
+  // 500 nu (corps non JSON) n'est pas lisible par le navigateur.
+  try {
+    let accountId = existing?.stripe_account_id;
+    if (!accountId) {
+      const account = await stripe.accounts.create({
+        type: "express",
+        email: auth.email,
+        metadata: { etablissement_id: auth.etablissementId },
+      });
+      accountId = account.id;
+      const { error } = await admin.from("payment_accounts").insert({
+        etablissement_id: auth.etablissementId,
+        stripe_account_id: accountId,
+      });
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+    }
+
+    const link = await stripe.accountLinks.create({
+      account: accountId,
+      type: "account_onboarding",
+      refresh_url: `${origin}/gestion/etablissement?stripe=recommencer`,
+      return_url: `${origin}/gestion/etablissement?stripe=retour`,
+    });
+    return NextResponse.json({ url: link.url });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[stripe] onboarding Express impossible", {
+      etablissementId: auth.etablissementId,
+      message,
+    });
+    return NextResponse.json({ error: `Stripe : ${message}` }, { status: 500 });
+  }
 }

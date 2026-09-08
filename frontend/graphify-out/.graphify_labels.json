@@ -65,5 +65,22 @@
   "63": "loading.tsx",
   "64": "provider.tsx",
   "65": "page.tsx",
-  "66": "photo.ts"
+  "66": "photo.ts",
+  "67": "shell.tsx",
+  "68": "createAdminClient",
+  "69": "site.ts",
+  "70": "page.tsx",
+  "71": "useLanguage",
+  "72": "lead-card.tsx",
+  "73": "cart-bar.tsx",
+  "74": "language.tsx",
+  "75": "seed-crm.ts",
+  "76": "portal-data.ts",
+  "77": "route.ts",
+  "78": "client.ts",
+  "79": "stage.tsx",
+  "80": "qr-showcase.tsx",
+  "81": "collectOffer",
+  "82": "manifest.ts",
+  "83": "sw.js"
 }
