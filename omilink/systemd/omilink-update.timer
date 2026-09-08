@@ -1,0 +1,13 @@
+[Unit]
+Description=Vérification nocturne d'une nouvelle image du pont Omilink
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+# Étale les tirages sur une heure : une flotte de boîtiers ne sollicite pas
+# GHCR à la même seconde.
+RandomizedDelaySec=1h
+# Boîtier éteint la nuit (restaurant fermé) : rattrape au démarrage suivant.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

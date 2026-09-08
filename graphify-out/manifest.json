@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788807508.3153691,
-    "ast_hash": "23f2be52c166ee208105dfc18a694b80",
+    "mtime": 1788810144.880652,
+    "ast_hash": "c2e56faadf2704f67bde4036a5e22ef0",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2135,8 +2135,8 @@
     "semantic_hash": ""
   },
   "backend/app/services/tickets.py": {
-    "mtime": 1788808346.7617362,
-    "ast_hash": "3d61222ab60b87857b9fc8be0dc58e01",
+    "mtime": 1788810234.5435274,
+    "ast_hash": "5b6981a74b0d4c7eb8584382f4eff07b",
     "semantic_hash": ""
   },
   "omilink/omilink/__main__.py": {
@@ -2165,8 +2165,8 @@
     "semantic_hash": ""
   },
   "omilink/compose.yaml": {
-    "mtime": 1788551829.2441285,
-    "ast_hash": "157209e262ae1a2f9e56003bb9ffcfa4",
+    "mtime": 1788810655.1230667,
+    "ast_hash": "b78121d4afe4bd3d54f96e028873e760",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/terminaux/page.tsx": {
@@ -2282,6 +2282,11 @@
   "chichas.jpg": {
     "mtime": 1788808382.674904,
     "ast_hash": "8b0601a6abcd6f6fe001f980401122f6",
+    "semantic_hash": ""
+  },
+  "omilink/golden-image.sh": {
+    "mtime": 1788810632.875163,
+    "ast_hash": "d994ff6e8caf23de1ad27b6048f4ce67",
     "semantic_hash": ""
   }
 }

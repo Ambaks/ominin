@@ -1,0 +1,13 @@
+[Unit]
+Description=Régénère les clés d'hôte SSH absentes (carte clonée)
+# Sans clés d'hôte, sshd refuse de démarrer : golden-image.sh les efface pour
+# que deux boîtiers ne partagent pas la même identité.
+Before=ssh.service ssh.socket
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/ssh-keygen -A
+
+[Install]
+WantedBy=multi-user.target
