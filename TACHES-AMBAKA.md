@@ -57,6 +57,11 @@ répond 404 et aucune boutique n'existe. **Ordre à respecter** : migration,
 puis variables d'environnement, puis déploiement, puis Stripe et Supabase Auth,
 puis les données de la première boutique.
 
+Le code est sur la branche `shop` (commit `a69f0da`), pas encore fusionnée ni
+poussée. Rien n'a été modifié côté restaurants : leurs fichiers sont
+identiques au dépôt, la migration ne fait que des `create`, et le webhook de
+la plateforme ne détourne que les événements portant `metadata.shop_id`.
+
 - [ ] **Supabase** : `supabase db push` — applique
       `20260907000001_shop.sql` (tables `shop_*`, RLS, fonctions
       `current_shop_role`, `create_shop`, `shop_decrement_stock`,
@@ -79,13 +84,37 @@ puis les données de la première boutique.
       `SHOP_MAIL_FROM` (expéditeur des e-mails aux clientes, un domaine vérifié
       chez Resend, par exemple `MyBox <bonjour@ominin.com>`) et
       `STRIPE_SHOP_WEBHOOK_SECRET` (voir l'étape suivante).
-- [ ] **Stripe — webhook des boutiques** : créer un endpoint
-      `https://shop.ominin.com/api/shop/webhook` en cochant **« Écouter les
-      événements des comptes connectés »**, événements
-      `checkout.session.completed` et `checkout.session.async_payment_succeeded`.
-      Reporter sa clé de signature dans `STRIPE_SHOP_WEBHOOK_SECRET`. C'est un
-      endpoint distinct de celui des restaurants : les ventes des boutiques
-      arrivent sur les comptes connectés des clientes, pas sur le nôtre.
+- [ ] **Stripe — webhook des boutiques** : créer un endpoint distinct de celui
+      des restaurants, sur `https://shop.ominin.com/api/shop/webhook`, en
+      **écoutant les événements des comptes connectés** — les ventes des
+      boutiques arrivent sur le compte Stripe de la cliente, pas sur le nôtre,
+      donc l'option « Connect » est indispensable. Six événements :
+      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+      `checkout.session.expired`, `checkout.session.async_payment_failed`,
+      `charge.refunded` et `account.updated` (les deux derniers synchronisent
+      les remboursements et l'état du compte Stripe de la boutique : sans eux,
+      l'écran Boutique reste bloqué sur « Non connecté »). En une commande,
+      depuis n'importe quel terminal, avec la clé secrète live :
+
+      ```
+      curl https://api.stripe.com/v1/webhook_endpoints \
+        -u sk_live_XXX: \
+        -d url="https://shop.ominin.com/api/shop/webhook" \
+        -d connect=true \
+        -d "enabled_events[]=checkout.session.completed" \
+        -d "enabled_events[]=checkout.session.async_payment_succeeded" \
+        -d "enabled_events[]=checkout.session.expired" \
+        -d "enabled_events[]=checkout.session.async_payment_failed" \
+        -d "enabled_events[]=charge.refunded" \
+        -d "enabled_events[]=account.updated"
+      ```
+
+      La réponse contient `"secret": "whsec_…"`, visible une seule fois : c'est
+      la valeur de `STRIPE_SHOP_WEBHOOK_SECRET` à mettre dans Vercel. Le webhook
+      de la plateforme, lui, n'a rien à changer : il écoute déjà
+      `checkout.session.completed`, `customer.subscription.updated` et
+      `customer.subscription.deleted`, les trois événements dont les
+      abonnements Shop ont besoin.
 - [ ] **Stripe — Connect** : vérifier que les comptes **Express** sont activés
       dans les réglages Connect (les restaurants utilisent déjà Express) et que
       l'URL de retour d'onboarding accepte `shop.ominin.com`.
