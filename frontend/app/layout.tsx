@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Instrument_Sans } from "next/font/google";
+import { CookieConsent } from "@/components/cookie-consent";
 import { seo } from "@/lib/portal-data";
 import { siteUrl } from "@/lib/site";
 import { Providers } from "./providers";
@@ -79,6 +80,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
     </html>
   );

@@ -20,7 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
   BellIcon,
-
+  ClockIcon,
   CommandesIcon,
   ExternalLinkIcon,
   PaymentsIcon,
@@ -46,10 +46,15 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon },
+  // Le serveur n'a pas d'aperçu : sa page d'accueil est le service lui-même
+  // (voir la redirection dans app/menu/gestion/page.tsx).
+  { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon, excludeRoles: ["serveur"] },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "commandes", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
+  // Le gérant badge et planifie depuis l'onglet Équipe, qui porte aussi le
+  // planning et le journal : sa barre reste celle du service.
+  { href: "/gestion/badgeage", label: "Badgeage", feature: "roles", icon: ClockIcon, excludeRoles: ["gerant"] },
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
   { href: "/gestion/terminaux", label: "Terminaux", feature: "commandes", icon: PrinterIcon, gerantOnly: true },

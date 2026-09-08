@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
@@ -96,22 +96,41 @@ export default function CommandesPage() {
     [toast]
   );
 
-  const selectFilter = (id: FilterId) => {
-    setChosenFilter(id);
-    if (id === "historique" && !historyLoaded && !loadingHistory) {
-      void loadHistory(null);
-    }
-  };
+  const isCuisinier = state?.role === "cuisinier";
+  // L'encaissement clôt la commande dès que son ticket part en cuisine : il
+  // n'y a alors rien à servir, et l'onglet n'a pas lieu d'être. Il reparaît
+  // dès qu'une commande y attend — imprimante muette, commande à emporter —
+  // ou dès qu'un boîtier tombe, avant même le prochain encaissement.
+  const showServir =
+    printerOffline || (state?.orders.some((order) => awaitsService(order)) ?? false);
+  const tabs = FILTERS.filter(
+    (tab) =>
+      (tab.id !== "a_encaisser" || !isCuisinier) &&
+      (tab.id !== "a_servir" || showServir)
+  );
+  // L'onglet retenu peut disparaître sous les pieds (dernière commande
+  // servie) : on retombe alors sur celui du rôle.
+  const filter =
+    chosenFilter && tabs.some((tab) => tab.id === chosenFilter)
+      ? chosenFilter
+      : isCuisinier
+        ? showServir
+          ? "a_servir"
+          : "historique"
+        : "a_encaisser";
+
+  useEffect(() => {
+    if (filter !== "historique" || historyLoaded || loadingHistory) return;
+    // Faux positif : le drapeau de chargement accompagne un appel réseau,
+    // ce n'est pas un état dérivé du rendu.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadHistory(null);
+  }, [filter, historyLoaded, loadingHistory, loadHistory]);
 
   if (!state) return null;
   if (!hasFeature("commandes")) return <FeatureLocked />;
 
   const isServeur = state.role === "serveur";
-  const isCuisinier = state.role === "cuisinier";
-  const tabs = isCuisinier
-    ? FILTERS.filter((tab) => tab.id !== "a_encaisser")
-    : FILTERS;
-  const filter = chosenFilter ?? (isCuisinier ? "a_servir" : "a_encaisser");
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
@@ -200,7 +219,7 @@ export default function CommandesPage() {
               : state.orders.filter((order) => matchesFilter(order, id)).length,
         }))}
         activeId={filter}
-        onSelect={(id) => selectFilter(id as FilterId)}
+        onSelect={(id) => setChosenFilter(id as FilterId)}
       />
 
       {visible.length === 0 ? (

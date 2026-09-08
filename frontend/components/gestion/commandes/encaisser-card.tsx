@@ -20,12 +20,43 @@ import { PaymentDialog, type CashDetails } from "./payment-dialog";
  * L'addition d'une table, article par article : ce qui reste à encaisser se
  * coche et se règle en carte ou en espèces, ce qui l'est déjà reste affiché
  * avec son mode. L'état vit en base (order_items.paid_mode) : il survit à
- * l'écran et se voit de tout appareil. Une commande dont la dernière ligne
- * est réglée passe « payée » — et part en cuisine.
+ * l'écran et se voit de tout appareil.
+ *
+ * Une ligne de deux nems se coche deux fois, pas une : chacun règle sa part.
+ * Chaque unité est donc une case, et la RPC scinde la ligne quand une partie
+ * seulement est réglée.
  */
+
+/** Une unité à encaisser : la ligne d'origine et son rang dans la quantité. */
+interface Unit {
+  key: string;
+  line: OrderItem;
+}
+
+function unitsOf(lines: OrderItem[]): Unit[] {
+  return lines.flatMap((line) =>
+    Array.from({ length: line.quantity }, (_, index) => ({
+      key: `${line.id}#${index}`,
+      line,
+    }))
+  );
+}
 
 function sumLines(lines: OrderItem[]): number {
   return lines.reduce((sum, line) => sum + lineTotal(line), 0);
+}
+
+function sumUnits(units: Unit[]): number {
+  return units.reduce((sum, unit) => sum + unit.line.unitPrice, 0);
+}
+
+/** Sélection d'unités → quantités par ligne, telles que les attend la RPC. */
+function toSelection(units: Unit[]): { itemId: string; quantity: number }[] {
+  const counts = new Map<string, number>();
+  for (const unit of units) {
+    counts.set(unit.line.id, (counts.get(unit.line.id) ?? 0) + 1);
+  }
+  return [...counts].map(([itemId, quantity]) => ({ itemId, quantity }));
 }
 
 export function EncaisserPanel({
@@ -37,20 +68,20 @@ export function EncaisserPanel({
   const toast = useToast();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [paying, setPaying] = useState<{
-    itemIds: string[];
+    units: Unit[];
     total: number;
   } | null>(null);
 
   const lines = [...orders]
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .flatMap((order) => order.items);
-  const unpaid = lines.filter((line) => !line.paidMode);
+  const unpaid = unitsOf(lines.filter((line) => !line.paidMode));
   const paid = lines.filter((line) => line.paidMode);
   // Un autre appareil peut encaisser entre-temps : la sélection ne retient
-  // que les lignes encore ouvertes.
-  const selection = unpaid.filter((line) => selected.has(line.id));
+  // que les unités encore ouvertes.
+  const selection = unpaid.filter((unit) => selected.has(unit.key));
   const partial = selection.length > 0 && selection.length < unpaid.length;
-  const remaining = sumLines(unpaid);
+  const remaining = sumUnits(unpaid);
   const paidByMode = new Map<PaymentMode, number>();
   for (const line of paid) {
     paidByMode.set(
@@ -59,21 +90,17 @@ export function EncaisserPanel({
     );
   }
 
-  const toggle = (id: string) =>
+  const toggle = (key: string) =>
     setSelected((previous) => {
       const next = new Set(previous);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
 
-  const payAll = () =>
-    setPaying({ itemIds: unpaid.map((line) => line.id), total: remaining });
+  const payAll = () => setPaying({ units: unpaid, total: remaining });
   const paySelection = () =>
-    setPaying({
-      itemIds: selection.map((line) => line.id),
-      total: sumLines(selection),
-    });
+    setPaying({ units: selection, total: sumUnits(selection) });
 
   const settle = async (
     mode: EncaissementMode,
@@ -81,13 +108,13 @@ export function EncaisserPanel({
     tip?: number
   ) => {
     if (!paying) return;
-    const { itemIds } = paying;
+    const { units } = paying;
     setPaying(null);
     try {
-      await api.payOrderItems(itemIds, mode, cashDetails, tip);
+      await api.payOrderItems(toSelection(units), mode, cashDetails, tip);
       setSelected(new Set());
       toast.success(
-        itemIds.length === unpaid.length
+        units.length === unpaid.length
           ? "Addition réglée, la commande part en cuisine."
           : "Sélection encaissée."
       );
@@ -115,7 +142,7 @@ export function EncaisserPanel({
                   setSelected(
                     selection.length === unpaid.length
                       ? new Set()
-                      : new Set(unpaid.map((line) => line.id))
+                      : new Set(unpaid.map((unit) => unit.key))
                   )
                 }
                 className="text-xs font-semibold text-ember-2 transition-opacity hover:opacity-80"
@@ -127,13 +154,13 @@ export function EncaisserPanel({
             )}
           </div>
           <ul className="mt-1.5 flex flex-col">
-            {unpaid.map((line) => {
-              const isSelected = selected.has(line.id);
+            {unpaid.map((unit) => {
+              const isSelected = selected.has(unit.key);
               return (
-                <li key={line.id}>
+                <li key={unit.key}>
                   <button
                     type="button"
-                    onClick={() => toggle(line.id)}
+                    onClick={() => toggle(unit.key)}
                     aria-pressed={isSelected}
                     className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
                       isSelected ? "bg-ember-2/10" : "hover:bg-surface-raised"
@@ -150,12 +177,12 @@ export function EncaisserPanel({
                     </span>
                     <div className="flex flex-1 flex-col gap-0.5">
                       <div className="flex items-baseline justify-between gap-3">
-                        <LineLabel line={line} />
+                        <LineLabel line={unit.line} quantity={1} />
                         <span className="shrink-0 text-sm tabular-nums text-muted">
-                          {formatPrice(lineTotal(line))}
+                          {formatPrice(unit.line.unitPrice)}
                         </span>
                       </div>
-                      <LineOptions line={line} />
+                      <LineOptions line={unit.line} />
                     </div>
                   </button>
                 </li>
@@ -216,7 +243,7 @@ export function EncaisserPanel({
                 {partial ? "Sélection" : "Reste à encaisser"}
               </span>
               <span className="font-display text-lg text-ember-1">
-                {formatPrice(partial ? sumLines(selection) : remaining)}
+                {formatPrice(partial ? sumUnits(selection) : remaining)}
               </span>
             </div>
             <div className="flex flex-wrap gap-2">

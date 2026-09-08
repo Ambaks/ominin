@@ -2,6 +2,7 @@ import type { MenuItem } from "@/lib/menu-data";
 import { TOP_VENTES_COUNT } from "./constants";
 import type {
   ActiveProducts,
+  EncaissementMode,
   GestionState,
   Order,
   OrderItem,
@@ -71,13 +72,33 @@ export function openOrders(state: GestionState): Order[] {
   );
 }
 
-/** Part de la commande réglée en espèces (addition mixte : d'après ses lignes). */
-export function cashTotal(order: Order): number {
-  if (order.paymentMode === "especes") return orderTotal(order);
-  if (order.paymentMode !== "mixte") return 0;
-  return order.items
-    .filter((line) => line.paidMode === "especes")
-    .reduce((sum, line) => sum + lineTotal(line), 0);
+/** Ce qui rentre vraiment en caisse, par canal : le comptoir et la banque ne
+ * se relèvent pas de la même façon, la carte au comptoir et le paiement en
+ * ligne restent donc séparés. Une addition mixte se ventile ligne à ligne. */
+export function totalsByMode(
+  order: Order
+): Record<EncaissementMode | "en_ligne", number> {
+  const totals = { especes: 0, carte: 0, en_ligne: 0 };
+  if (order.paidOnline) {
+    totals.en_ligne = orderTotal(order);
+    return totals;
+  }
+  switch (order.paymentMode) {
+    case "especes":
+    case "carte":
+    case "en_ligne":
+      totals[order.paymentMode] = orderTotal(order);
+      return totals;
+    case "mixte":
+      for (const line of order.items) {
+        if (line.paidMode && line.paidMode !== "mixte") {
+          totals[line.paidMode] += lineTotal(line);
+        }
+      }
+      return totals;
+    default:
+      return totals;
+  }
 }
 
 export interface TableService {

@@ -3,12 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { TrashIcon } from "@/components/gestion/icons";
+import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
+import { Badgeuse } from "@/components/gestion/temps/badgeuse";
+import { PlanningGrid, WeekNav } from "@/components/gestion/temps/planning";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
+import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import { ROLE_LABELS } from "@/lib/gestion/constants";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { weekStart } from "@/lib/gestion/temps";
+import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
 import type { Role } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -305,9 +311,33 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
   );
 }
 
+const PANES = [
+  { id: "membres", label: "Membres" },
+  { id: "planning", label: "Planning" },
+  { id: "badgeages", label: "Badgeages" },
+] as const;
+
+type PaneId = (typeof PANES)[number]["id"];
+
+const PANE_TAGLINES: Record<PaneId, string> = {
+  membres: "Invitez vos cuisiniers et serveurs, gérez leurs accès.",
+  planning: "Posez les créneaux de la semaine, membre par membre.",
+  badgeages: "Les arrivées et départs signés par l'équipe, et leurs heures.",
+};
+
 export default function EquipePage() {
   const state = useGestion();
   const { role, hasFeature } = useGestionAccess();
+  const [pane, setPane] = useState<PaneId>("membres");
+  const [start, setStart] = useState(() => weekStart(new Date()));
+  const etablissementId = state?.etablissement.id ?? "";
+  const { data, reload } = useWeek(etablissementId, start);
+  const open = useOpenEntries(etablissementId);
+
+  const badged = () => {
+    open.reload();
+    reload();
+  };
 
   if (!state) return null;
   if (!hasFeature("roles")) return <FeatureLocked />;
@@ -318,18 +348,53 @@ export default function EquipePage() {
         <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
           Équipe
         </h1>
-        <p className="mt-1 text-sm text-muted">
-          Invitez vos cuisiniers et serveurs, gérez leurs accès.
-        </p>
+        <p className="mt-1 text-sm text-muted">{PANE_TAGLINES[pane]}</p>
       </div>
 
-      {role === "gerant" ? (
-        <TeamManager etablissementId={state.etablissement.id} />
-      ) : (
+      {role !== "gerant" ? (
         <EmptyState
           title="Réservé au gérant"
           body="Seul le gérant peut gérer les membres de l'équipe."
         />
+      ) : (
+        <>
+          <PillTabs
+            tabs={PANES.map(({ id, label }) => ({ id, label }))}
+            activeId={pane}
+            onSelect={(id) => setPane(id as PaneId)}
+          />
+          {pane === "membres" && (
+            <TeamManager etablissementId={state.etablissement.id} />
+          )}
+          {pane === "planning" && (
+            <PlanningGrid
+              etablissementId={state.etablissement.id}
+              members={state.members}
+              shifts={data.shifts}
+              start={start}
+              onWeekChange={setStart}
+              onChange={reload}
+            />
+          )}
+          {pane === "badgeages" && (
+            <div className="flex flex-col gap-6">
+              <Badgeuse
+                etablissementId={state.etablissement.id}
+                members={state.members}
+                entries={open.entries}
+                onChange={badged}
+              />
+              <WeekNav start={start} onChange={setStart} />
+              <BadgeagesLog
+                members={state.members}
+                shifts={data.shifts}
+                entries={data.entries}
+                start={start}
+                onChange={reload}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

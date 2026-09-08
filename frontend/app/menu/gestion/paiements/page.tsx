@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
-import { cashTotal, isPaidStatus, orderTotal } from "@/lib/gestion/selectors";
+import { isPaidStatus, orderTotal, totalsByMode } from "@/lib/gestion/selectors";
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
@@ -223,7 +223,17 @@ export default function PaiementsPage() {
     (order) => new Date(order.createdAt).toDateString() === today
   );
   const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
-  const todayEspeces = todayPaid.reduce((sum, o) => sum + cashTotal(o), 0);
+  const todayByMode = todayPaid.reduce(
+    (sums, order) => {
+      const modes = totalsByMode(order);
+      return {
+        especes: sums.especes + modes.especes,
+        carte: sums.carte + modes.carte,
+        en_ligne: sums.en_ligne + modes.en_ligne,
+      };
+    },
+    { especes: 0, carte: 0, en_ligne: 0 }
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -236,7 +246,7 @@ export default function PaiementsPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Encaissé aujourd'hui"
           value={formatPrice(todayTotal)}
@@ -244,13 +254,18 @@ export default function PaiementsPage() {
         />
         <StatCard
           label="Espèces"
-          value={formatPrice(todayEspeces)}
-          hint="Aujourd'hui"
+          value={formatPrice(todayByMode.especes)}
+          hint="En caisse"
         />
         <StatCard
-          label="Carte & en ligne"
-          value={formatPrice(todayTotal - todayEspeces)}
-          hint="Aujourd'hui"
+          label="Carte"
+          value={formatPrice(todayByMode.carte)}
+          hint="Au comptoir"
+        />
+        <StatCard
+          label="En ligne"
+          value={formatPrice(todayByMode.en_ligne)}
+          hint="Payées par le client"
         />
       </div>
 

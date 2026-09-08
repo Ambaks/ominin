@@ -389,7 +389,8 @@ export async function updateOrderStatus(
  * que rejoué — c'est la base qui décide de ce qui se clôt.
  */
 export async function payOrderItems(
-  itemIds: string[],
+  /** Quantité réglée par ligne : deux nems d'une même ligne se règlent séparément. */
+  items: { itemId: string; quantity: number }[],
   mode: EncaissementMode,
   cashDetails?: { cashGiven: number; cashChange: number },
   tip?: number
@@ -398,7 +399,10 @@ export async function payOrderItems(
   const cash = mode === "especes" ? cashDetails : undefined;
   check(
     await supabase.rpc("pay_order_items", {
-      p_item_ids: itemIds,
+      p_items: items.map((item) => ({
+        item_id: item.itemId,
+        quantity: item.quantity,
+      })),
       p_mode: mode,
       p_cash_given: cash?.cashGiven ?? null,
       p_cash_change: cash?.cashChange ?? null,

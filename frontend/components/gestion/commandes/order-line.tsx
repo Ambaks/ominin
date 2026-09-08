@@ -22,15 +22,17 @@ export function CheckMark() {
 
 export function LineLabel({
   line,
+  quantity = line.quantity,
   settled = false,
 }: {
   line: OrderItem;
+  /** Part de la ligne représentée : l'addition se règle à l'unité. */
+  quantity?: number;
   settled?: boolean;
 }) {
   return (
     <span className={`text-sm ${settled ? "line-through" : ""}`}>
-      <span className="tabular-nums text-muted">{line.quantity}×</span>{" "}
-      {line.name}
+      <span className="tabular-nums text-muted">{quantity}×</span> {line.name}
     </span>
   );
 }

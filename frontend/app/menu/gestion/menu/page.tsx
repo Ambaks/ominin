@@ -53,6 +53,9 @@ export default function MenuPage() {
   }, [etablissementId]);
 
   useEffect(() => {
+    // Faux positif : les setState de refreshRouting arrivent après des await
+    // (réponse réseau), pas de façon synchrone dans l'effet.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshRouting().catch(() => {});
   }, [refreshRouting]);
 

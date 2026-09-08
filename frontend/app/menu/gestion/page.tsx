@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { EmployeeApercu } from "@/components/gestion/apercu/employee-apercu";
+import { useRouter } from "next/navigation";
+import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
@@ -168,6 +169,15 @@ function ChartSection({
   );
 }
 
+/** Le serveur n'a pas d'aperçu : /gestion le renvoie sur son service. */
+function GoToCommandes() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/gestion/commandes");
+  }, [router]);
+  return null;
+}
+
 export default function ApercuPage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
@@ -175,9 +185,10 @@ export default function ApercuPage() {
 
   if (!state) return null;
 
-  // Les employés n'ont pas l'analytique : leur aperçu est un poste de
-  // pilotage du service, taillé pour leur rôle.
-  if (state.role !== "gerant") return <EmployeeApercu state={state} />;
+  // La salle n'a pas d'aperçu : son écran d'accueil est le service lui-même.
+  // La cuisine garde le sien — c'est là qu'elle tient les disponibilités.
+  if (state.role === "serveur") return <GoToCommandes />;
+  if (state.role !== "gerant") return <CuisinierApercu state={state} />;
 
   const indispo = unavailableItems(state);
   const hasCommandes = hasFeature("commandes");

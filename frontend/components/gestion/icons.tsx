@@ -203,3 +203,12 @@ export function BellIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function ClockIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5V12l3 1.8" />
+    </Svg>
+  );
+}

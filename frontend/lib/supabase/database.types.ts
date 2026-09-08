@@ -1627,6 +1627,44 @@ export type Database = {
           },
         ]
       }
+      shifts: {
+        Row: {
+          created_at: string
+          ends_at: string
+          etablissement_id: string
+          id: string
+          note: string | null
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          etablissement_id: string
+          id?: string
+          note?: string | null
+          starts_at: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          etablissement_id?: string
+          id?: string
+          note?: string | null
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_categories: {
         Row: {
           description: string | null
@@ -2720,6 +2758,59 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          edited_at: string | null
+          edited_by: string | null
+          ended_at: string | null
+          etablissement_id: string
+          id: string
+          member_name: string
+          signature_in: string
+          signature_out: string | null
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          edited_at?: string | null
+          edited_by?: string | null
+          ended_at?: string | null
+          etablissement_id: string
+          id?: string
+          member_name: string
+          signature_in: string
+          signature_out?: string | null
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          edited_at?: string | null
+          edited_by?: string | null
+          ended_at?: string | null
+          etablissement_id?: string
+          id?: string
+          member_name?: string
+          signature_in?: string
+          signature_out?: string | null
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       shop_customer_stats: {
@@ -2807,7 +2898,7 @@ export type Database = {
         Args: {
           p_cash_change?: number | null
           p_cash_given?: number | null
-          p_item_ids: string[]
+          p_items: Json
           p_mode: Database["public"]["Enums"]["payment_mode"]
           p_tip?: number | null
         }

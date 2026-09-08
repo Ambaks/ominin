@@ -5,7 +5,48 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 1. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+
+Deux migrations, une variable d'environnement. **Ordre à respecter** : la
+migration et le déploiement du front doivent tomber dans la même fenêtre —
+`pay_order_items` change de signature (l'ancienne est supprimée pour ne pas
+laisser deux surcharges à PostgREST), donc entre les deux l'encaissement est
+en panne pour qui n'a pas encore le nouveau front.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260908000001_service_direct.sql` (clôture directe de la commande
+      encaissée quand un boîtier Omilink vivant sort son ticket, encaissement
+      à l'unité avec scission de ligne, fusion des triggers de tickets) et
+      `20260908000002_temps_travail.sql` (tables `shifts` et `time_entries`,
+      RLS, trigger de correction). Les 43 migrations ont été rejouées sur un
+      Postgres 16 vierge et le flux testé par un scénario SQL de 15 étapes.
+      Aucune donnée existante n'est réécrite : les commandes déjà `payee`
+      restent à servir jusqu'à ce qu'on les serve.
+- [ ] **Vercel** : poser `NEXT_PUBLIC_GA_ID` (identifiant de mesure GA4, de la
+      forme `G-XXXXXXXXXX`, à créer dans Google Analytics → Admin → Flux de
+      données → Web pour `ominin.com`). Sans elle, aucun script Google n'est
+      chargé et le bandeau cookies ne s'affiche pas — c'est le comportement
+      voulu en préproduction.
+- [ ] **Types** : même remarque qu'au § 2 — les entrées `shifts`,
+      `time_entries` et la nouvelle signature de `pay_order_items` ont été
+      écrites à la main dans `frontend/lib/supabase/database.types.ts`.
+- [ ] **Graphe de connaissance** : `graphify update .` puis commiter
+      `graphify-out/` — graphify n'est pas installé sur la machine d'où ces
+      changements ont été faits.
+- [ ] **Demander à l'équipe de poser son nom** : sur l'onglet Badgeage, chacun
+      renseigne son nom d'affichage (« Votre nom, visible par l'équipe »).
+      Sans lui, l'équipe apparaît en adresses e-mail sur la badgeuse et le
+      planning — et seul le membre peut poser le sien, pas le gérant.
+- [ ] **Vérifier après déploiement** : une table réglée disparaît directement
+      dans l'historique et son ticket sort en cuisine ; débrancher le boîtier
+      fait réapparaître l'onglet « À servir » ; deux nems d'une même ligne se
+      cochent séparément et peuvent partir l'un en espèces, l'autre en carte ;
+      la page Paiements sépare Carte et En ligne ; sur Badgeage, une arrivée
+      signée puis un départ signé donnent une durée juste, et le gérant les
+      relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
+      apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
+
+## 2. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau
