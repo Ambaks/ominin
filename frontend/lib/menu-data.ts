@@ -432,7 +432,7 @@ const trattoriaLucia: Restaurant = {
 const boho: Restaurant = {
   slug: "boho",
   name: "BOHO",
-  tagline: "Ambiance bohème · L'élégance de la simplicité",
+  tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
@@ -470,6 +470,19 @@ const boho: Restaurant = {
             "Grillée à la perfection, notre sauce verte maison, frites fraîches et salade.",
           price: 20,
           badges: ["top"],
+          options: [
+            {
+              id: "cuisson",
+              name: "Cuisson",
+              obligatoire: true,
+              choices: [
+                { id: "a-point", name: "À point", supplement: 0 },
+                { id: "saignant", name: "Saignant", supplement: 0 },
+                { id: "bleu", name: "Bleu", supplement: 0 },
+                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+              ],
+            },
+          ],
         },
         {
           id: "piece-boeuf",

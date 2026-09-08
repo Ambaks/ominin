@@ -26,7 +26,7 @@ function ContactPills({
   className: string;
   style?: React.CSSProperties;
 }) {
-  const texts = [restaurant.hours, restaurant.address]
+  const texts = [restaurant.address]
     .map((text) => text.trim())
     .filter(Boolean);
   const phone = restaurant.phone.trim();
