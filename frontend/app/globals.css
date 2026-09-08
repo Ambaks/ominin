@@ -145,6 +145,44 @@ html.light {
 
   --font-sans: var(--font-instrument-sans);
   --font-display: var(--font-fraunces);
+
+  /*
+    Ominin Shop : jetons du site d'une boutique, posés à l'exécution par
+    paletteStyle (lib/shop/theme.ts) sur la racine .shop-root, polices par
+    le préréglage choisi (app/shop/[slug]/layout.tsx). Les statuts de
+    commande gardent des teintes fixes, lisibles sur tout fond clair.
+  */
+  --color-shop-bg: var(--shop-bg);
+  --color-shop-paper: var(--shop-paper);
+  --color-shop-tint: var(--shop-tint);
+  --color-shop-tint-strong: var(--shop-tint-strong);
+  --color-shop-accent-soft: var(--shop-accent-soft);
+  --color-shop-accent: var(--shop-accent);
+  --color-shop-accent-strong: var(--shop-accent-strong);
+  --color-shop-accent-deep: var(--shop-accent-deep);
+  --color-shop-ink: var(--shop-ink);
+  --color-shop-ink-soft: var(--shop-ink-soft);
+  --color-shop-ink-mute: var(--shop-ink-mute);
+  --color-shop-ink-faint: var(--shop-ink-faint);
+  --color-shop-line: var(--shop-line);
+  --color-shop-line-soft: var(--shop-line-soft);
+  --color-shop-gold: var(--shop-gold);
+  --color-shop-gold-soft: var(--shop-gold-soft);
+  --color-shop-cream: var(--shop-cream);
+  --color-shop-ok: #6f9d7c;
+  --color-shop-ok-soft: #e4efe6;
+  --color-shop-warn: #b98b3a;
+  --color-shop-warn-soft: #f7ecd4;
+  --color-shop-info: #5b8fb0;
+  --color-shop-info-soft: #e0edf5;
+  --color-shop-error: #c85c5c;
+  --color-shop-error-soft: #f8e1e1;
+  --color-shop-neutral: #8a8a8a;
+  --color-shop-neutral-soft: #efefef;
+
+  --font-shop-display: var(--font-shop-display);
+  --font-shop-script: var(--font-shop-script);
+  --font-shop-sans: var(--font-shop-sans);
 }
 
 html {
@@ -793,4 +831,14 @@ body {
   .relay-dot {
     display: none;
   }
+}
+
+/* Ominin Shop (portail) : trame de rubans obliques, la boîte qu'on emballe. */
+.shop-ribbon-motif {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 22px,
+    rgba(128, 128, 128, 0.12) 22px 24px,
+    transparent 24px 60px
+  );
 }

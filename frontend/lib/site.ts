@@ -43,6 +43,15 @@ export const collectSiteUrl = `https://${
 }`;
 
 /**
+ * Origine publique d'Ominin Shop (landing, boutiques /<slug>, espace de
+ * gestion). Même repli que menu : host absent ⇒ servi sur ominin.com/shop.
+ */
+const shopHost = process.env.NEXT_PUBLIC_SHOP_HOST;
+export const shopSiteUrl = shopHost
+  ? `${shopHost.includes("localhost") ? "http" : "https"}://${shopHost}`
+  : `${siteUrl}/shop`;
+
+/**
  * Origine publique du CRM admin interne. Même logique de repli que menu :
  * host absent ⇒ sous-domaine inerte, l'app est servie sur ominin.com/admin.
  */

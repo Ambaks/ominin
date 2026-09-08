@@ -1,0 +1,107 @@
+/*
+  Site public d'une boutique Ominin Shop. La racine .shop-root porte les
+  variables --shop-* (palette du thème) et les polices du préréglage ; tout
+  le sous-arbre est en mode clair quel que soit le thème du reste d'Ominin.
+*/
+.shop-root {
+  background: var(--shop-bg);
+  color: var(--shop-ink);
+  font-family: var(--font-shop-sans), sans-serif;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shop-root h1,
+.shop-root h2,
+.shop-root h3 {
+  font-family: var(--font-shop-display), serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--shop-ink);
+}
+
+.shop-root ::selection {
+  background: var(--shop-tint-strong);
+}
+
+.shop-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) {
+  .shop-container {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Surtitre calligraphié (« Nos box », « Offrir ») : la touche féminine du brandkit. */
+.shop-kicker {
+  font-family: var(--font-shop-script), var(--font-shop-display), serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--shop-accent);
+}
+
+/* Étiquettes espacées en capitales (réassurance, colonnes du pied de page). */
+.shop-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Champs de formulaire. */
+.shop-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--shop-line);
+  background: var(--shop-paper);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--shop-ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+@media (min-width: 1024px) {
+  .shop-input {
+    font-size: 0.875rem;
+  }
+}
+.shop-input::placeholder {
+  color: var(--shop-ink-mute);
+}
+.shop-input:focus {
+  outline: none;
+  border-color: var(--shop-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--shop-accent) 20%, transparent);
+}
+.shop-input[aria-invalid="true"] {
+  border-color: var(--color-shop-error);
+}
+.shop-input:disabled {
+  background: var(--shop-bg);
+  color: var(--shop-ink-mute);
+}
+
+/* Ombres douces des cartes. */
+.shop-shadow {
+  box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--shop-accent-deep) 35%, transparent);
+}
+.shop-shadow-hover {
+  box-shadow: 0 24px 50px -24px color-mix(in srgb, var(--shop-accent-deep) 45%, transparent);
+}
+
+/* Accordéons natifs : le marqueur par défaut est remplacé par une icône. */
+.shop-root details > summary {
+  list-style: none;
+}
+.shop-root details > summary::-webkit-details-marker {
+  display: none;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

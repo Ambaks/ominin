@@ -13,7 +13,8 @@
     "seed:crm": "tsx --env-file=../backend/.env scripts/seed-crm.ts",
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
     "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
-    "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts"
+    "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts",
+    "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { dispatchOrderEvent } from "@/lib/push/server";
+import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -65,6 +66,12 @@ export async function POST(request: Request) {
     );
   } catch {
     return NextResponse.json({ error: "Signature invalide." }, { status: 400 });
+  }
+
+  // Abonnements des boutiques Ominin Shop (metadata.shop_id) : traités à part,
+  // les restaurants ne sont pas concernés.
+  if (await handleShopSubscriptionEvent(stripe, event)) {
+    return NextResponse.json({ received: true });
   }
 
   switch (event.type) {

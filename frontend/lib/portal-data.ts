@@ -1,5 +1,5 @@
 import { unsplash } from "@/lib/menu-data";
-import { clipSiteUrl, collectSiteUrl, menuSiteUrl, siteUrl } from "@/lib/site";
+import { clipSiteUrl, collectSiteUrl, menuSiteUrl, shopSiteUrl, siteUrl } from "@/lib/site";
 
 /*
  * Copy du portail ominin.com. Comme les landings produits, aucun texte dans
@@ -64,8 +64,8 @@ export const hero = {
     href: "/sur-mesure",
   },
   meta: {
-    fr: "Trois produits en production, un quatrième sur mesure.",
-    en: "Three products in production, a fourth built to order.",
+    fr: "Quatre produits en production, un cinquième sur mesure.",
+    en: "Four products in production, a fifth built to order.",
   },
   scrollHint: { fr: "Nos produits", en: "Our products" },
 };
@@ -278,8 +278,8 @@ export const surMesure = {
     en: "Tell us which work costs you the most.",
   },
   body: {
-    fr: "Nos trois produits couvrent des besoins fréquents. Le reste se construit. Si une tâche vous prend des heures chaque semaine et suit toujours les mêmes règles, elle est probablement automatisable — dites-nous laquelle, on vous répond franchement, y compris quand la réponse est non.",
-    en: "Our three products cover common needs. The rest gets built. If a task eats hours every week and always follows the same rules, it can probably be automated — tell us which one, and we'll answer honestly, including when the answer is no.",
+    fr: "Nos quatre produits couvrent des besoins fréquents. Le reste se construit. Si une tâche vous prend des heures chaque semaine et suit toujours les mêmes règles, elle est probablement automatisable — dites-nous laquelle, on vous répond franchement, y compris quand la réponse est non.",
+    en: "Our four products cover common needs. The rest gets built. If a task eats hours every week and always follows the same rules, it can probably be automated — tell us which one, and we'll answer honestly, including when the answer is no.",
   },
   examples: {
     heading: { fr: "Ce que ça peut être", en: "What that can look like" },

@@ -61,6 +61,16 @@ const PRODUCTS: readonly ProductConfig[] = [
     legacyPaths: [],
   },
   {
+    host: process.env.NEXT_PUBLIC_SHOP_HOST,
+    prefix: "/shop",
+    // Espace de gestion des boutiques et création de boutique. Les pages
+    // « Mon compte » des clientes (/<slug>/compte) gèrent elles-mêmes la
+    // session : connexion par lien magique, sans passer par /connexion.
+    privatePaths: ["/gestion", "/inscription/boutique"],
+    afterLogin: "/gestion",
+    legacyPaths: [],
+  },
+  {
     host: process.env.NEXT_PUBLIC_ADMIN_HOST,
     prefix: "/admin",
     // CRM interne : tout est privé sauf /connexion (exclu par la garde) et

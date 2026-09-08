@@ -3,6 +3,24 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 
 /*
+ * Origine Supabase réellement configurée, ajoutée à la CSP en plus du domaine
+ * hébergé : un build de production pointé vers une instance locale ou
+ * auto-hébergée verrait sinon toutes ses requêtes navigateur bloquées.
+ * Vide quand l'origine est déjà couverte par https://*.supabase.co.
+ */
+const supabaseOrigins = (() => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) return "";
+  try {
+    const { origin, host, protocol } = new URL(url);
+    if (host.endsWith(".supabase.co")) return "";
+    return ` ${origin} ${protocol === "https:" ? "wss" : "ws"}://${host}`;
+  } catch {
+    return "";
+  }
+})();
+
+/*
  * CSP additive et prudente, calquée sur les origines réellement utilisées :
  *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage.
  *  - Stripe : checkout par redirection (pas de stripe.js embarqué) ; js/checkout
@@ -23,11 +41,11 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com",
+  `img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline' https://gateway.sumup.com${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com${
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,
   "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com",

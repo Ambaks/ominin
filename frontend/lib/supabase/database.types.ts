@@ -1597,6 +1597,1003 @@ export type Database = {
           },
         ]
       }
+      shop_categories: {
+        Row: {
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          shop_id: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          shop_id: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          shop_id?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_categories_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_conversations: {
+        Row: {
+          created_at: string
+          customer_email: string
+          customer_name: string | null
+          id: string
+          last_message_at: string
+          order_id: string | null
+          shop_id: string
+          status: string
+          subject: string | null
+          unread_customer: boolean
+          unread_shop: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          customer_name?: string | null
+          id?: string
+          last_message_at?: string
+          order_id?: string | null
+          shop_id: string
+          status?: string
+          subject?: string | null
+          unread_customer?: boolean
+          unread_shop?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          customer_name?: string | null
+          id?: string
+          last_message_at?: string
+          order_id?: string | null
+          shop_id?: string
+          status?: string
+          subject?: string | null
+          unread_customer?: boolean
+          unread_shop?: boolean
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_conversations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_subtotal_cents: number | null
+          shop_id: string
+          starts_at: string | null
+          type: Database["public"]["Enums"]["shop_discount_type"]
+          uses: number
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_subtotal_cents?: number | null
+          shop_id: string
+          starts_at?: string | null
+          type: Database["public"]["Enums"]["shop_discount_type"]
+          uses?: number
+          value: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_subtotal_cents?: number | null
+          shop_id?: string
+          starts_at?: string | null
+          type?: Database["public"]["Enums"]["shop_discount_type"]
+          uses?: number
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_discount_codes_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_faq_items: {
+        Row: {
+          answer: string
+          id: string
+          is_active: boolean
+          question: string
+          shop_id: string
+          sort_order: number
+        }
+        Insert: {
+          answer: string
+          id?: string
+          is_active?: boolean
+          question: string
+          shop_id: string
+          sort_order?: number
+        }
+        Update: {
+          answer?: string
+          id?: string
+          is_active?: boolean
+          question?: string
+          shop_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_faq_items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_members: {
+        Row: {
+          created_at: string
+          email: string
+          role: Database["public"]["Enums"]["shop_member_role"]
+          shop_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          role: Database["public"]["Enums"]["shop_member_role"]
+          shop_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          role?: Database["public"]["Enums"]["shop_member_role"]
+          shop_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_members_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender: Database["public"]["Enums"]["shop_message_sender"]
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender: Database["public"]["Enums"]["shop_message_sender"]
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender?: Database["public"]["Enums"]["shop_message_sender"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "shop_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          shop_id: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          shop_id: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          shop_id?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_newsletter_subscribers_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_option_groups: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          shop_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          shop_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_option_groups_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_option_values: {
+        Row: {
+          group_id: string
+          id: string
+          is_available: boolean
+          label: string
+          price_delta_cents: number
+          sort_order: number
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          is_available?: boolean
+          label: string
+          price_delta_cents?: number
+          sort_order?: number
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          is_available?: boolean
+          label?: string
+          price_delta_cents?: number
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_option_values_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "shop_option_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_order_counters: {
+        Row: {
+          next_value: number
+          shop_id: string
+        }
+        Insert: {
+          next_value?: number
+          shop_id: string
+        }
+        Update: {
+          next_value?: number
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_counters_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_order_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string | null
+          order_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string | null
+          order_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string | null
+          order_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_order_items: {
+        Row: {
+          id: string
+          image_url: string | null
+          options: Json
+          order_id: string
+          product_id: string | null
+          product_name: string
+          product_slug: string | null
+          quantity: number
+          total_cents: number
+          unit_price_cents: number
+        }
+        Insert: {
+          id?: string
+          image_url?: string | null
+          options?: Json
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          product_slug?: string | null
+          quantity: number
+          total_cents: number
+          unit_price_cents: number
+        }
+        Update: {
+          id?: string
+          image_url?: string | null
+          options?: Json
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          product_slug?: string | null
+          quantity?: number
+          total_cents?: number
+          unit_price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_orders: {
+        Row: {
+          admin_notes: string | null
+          billing_address: Json | null
+          cancelled_at: string | null
+          carrier: string | null
+          created_at: string
+          currency: string
+          customer_note: string | null
+          delivered_at: string | null
+          discount_cents: number
+          discount_code: string | null
+          email: string
+          first_name: string | null
+          gift_message: string | null
+          id: string
+          is_gift: boolean
+          last_name: string | null
+          order_number: string
+          paid_at: string | null
+          payment_status: Database["public"]["Enums"]["shop_payment_status"]
+          phone: string | null
+          platform_fee_cents: number
+          relay_point: Json | null
+          shipped_at: string | null
+          shipping_address: Json | null
+          shipping_cents: number
+          shipping_kind:
+            | Database["public"]["Enums"]["shop_shipping_kind"]
+            | null
+          shipping_method_id: string | null
+          shipping_method_name: string | null
+          shop_id: string
+          status: Database["public"]["Enums"]["shop_order_status"]
+          stripe_account_id: string | null
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          subtotal_cents: number
+          total_cents: number
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          billing_address?: Json | null
+          cancelled_at?: string | null
+          carrier?: string | null
+          created_at?: string
+          currency?: string
+          customer_note?: string | null
+          delivered_at?: string | null
+          discount_cents?: number
+          discount_code?: string | null
+          email: string
+          first_name?: string | null
+          gift_message?: string | null
+          id?: string
+          is_gift?: boolean
+          last_name?: string | null
+          order_number?: string
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          phone?: string | null
+          platform_fee_cents?: number
+          relay_point?: Json | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_cents?: number
+          shipping_kind?:
+            | Database["public"]["Enums"]["shop_shipping_kind"]
+            | null
+          shipping_method_id?: string | null
+          shipping_method_name?: string | null
+          shop_id: string
+          status?: Database["public"]["Enums"]["shop_order_status"]
+          stripe_account_id?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subtotal_cents: number
+          total_cents: number
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          billing_address?: Json | null
+          cancelled_at?: string | null
+          carrier?: string | null
+          created_at?: string
+          currency?: string
+          customer_note?: string | null
+          delivered_at?: string | null
+          discount_cents?: number
+          discount_code?: string | null
+          email?: string
+          first_name?: string | null
+          gift_message?: string | null
+          id?: string
+          is_gift?: boolean
+          last_name?: string | null
+          order_number?: string
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["shop_payment_status"]
+          phone?: string | null
+          platform_fee_cents?: number
+          relay_point?: Json | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_cents?: number
+          shipping_kind?:
+            | Database["public"]["Enums"]["shop_shipping_kind"]
+            | null
+          shipping_method_id?: string | null
+          shipping_method_name?: string | null
+          shop_id?: string
+          status?: Database["public"]["Enums"]["shop_order_status"]
+          stripe_account_id?: string | null
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subtotal_cents?: number
+          total_cents?: number
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_orders_shipping_method_id_shop_id_fkey"
+            columns: ["shipping_method_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_shipping_methods"
+            referencedColumns: ["id", "shop_id"]
+          },
+          {
+            foreignKeyName: "shop_orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_payment_accounts: {
+        Row: {
+          charges_enabled: boolean
+          details_submitted: boolean
+          payouts_enabled: boolean
+          shop_id: string
+          stripe_account_id: string
+          updated_at: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          shop_id: string
+          stripe_account_id: string
+          updated_at?: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          shop_id?: string
+          stripe_account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_payment_accounts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_images: {
+        Row: {
+          alt: string | null
+          id: string
+          product_id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          alt?: string | null
+          id?: string
+          product_id: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          alt?: string | null
+          id?: string
+          product_id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_options: {
+        Row: {
+          group_id: string
+          id: string
+          is_required: boolean
+          label: string
+          product_id: string
+          shop_id: string
+          sort_order: number
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          is_required?: boolean
+          label: string
+          product_id: string
+          shop_id: string
+          sort_order?: number
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          is_required?: boolean
+          label?: string
+          product_id?: string
+          shop_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_options_group_id_shop_id_fkey"
+            columns: ["group_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_option_groups"
+            referencedColumns: ["id", "shop_id"]
+          },
+          {
+            foreignKeyName: "shop_product_options_product_id_shop_id_fkey"
+            columns: ["product_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id", "shop_id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          badge: Database["public"]["Enums"]["shop_product_badge"] | null
+          category_id: string | null
+          compare_at_price_cents: number | null
+          composition: string[]
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          price_cents: number
+          seo_description: string | null
+          seo_title: string | null
+          shop_id: string
+          slug: string
+          sort_order: number
+          stock: number | null
+          subtitle: string | null
+          updated_at: string
+        }
+        Insert: {
+          badge?: Database["public"]["Enums"]["shop_product_badge"] | null
+          category_id?: string | null
+          compare_at_price_cents?: number | null
+          composition?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          price_cents: number
+          seo_description?: string | null
+          seo_title?: string | null
+          shop_id: string
+          slug: string
+          sort_order?: number
+          stock?: number | null
+          subtitle?: string | null
+          updated_at?: string
+        }
+        Update: {
+          badge?: Database["public"]["Enums"]["shop_product_badge"] | null
+          category_id?: string | null
+          compare_at_price_cents?: number | null
+          composition?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          price_cents?: number
+          seo_description?: string | null
+          seo_title?: string | null
+          shop_id?: string
+          slug?: string
+          sort_order?: number
+          stock?: number | null
+          subtitle?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_products_category_id_shop_id_fkey"
+            columns: ["category_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_categories"
+            referencedColumns: ["id", "shop_id"]
+          },
+          {
+            foreignKeyName: "shop_products_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_shipping_methods: {
+        Row: {
+          carrier: string | null
+          countries: string[]
+          created_at: string
+          delay_max_days: number | null
+          delay_min_days: number | null
+          description: string | null
+          free_above_cents: number | null
+          id: string
+          instructions: string | null
+          is_active: boolean
+          kind: Database["public"]["Enums"]["shop_shipping_kind"]
+          name: string
+          price_cents: number
+          shop_id: string
+          sort_order: number
+        }
+        Insert: {
+          carrier?: string | null
+          countries?: string[]
+          created_at?: string
+          delay_max_days?: number | null
+          delay_min_days?: number | null
+          description?: string | null
+          free_above_cents?: number | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["shop_shipping_kind"]
+          name: string
+          price_cents?: number
+          shop_id: string
+          sort_order?: number
+        }
+        Update: {
+          carrier?: string | null
+          countries?: string[]
+          created_at?: string
+          delay_max_days?: number | null
+          delay_min_days?: number | null
+          description?: string | null
+          free_above_cents?: number | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["shop_shipping_kind"]
+          name?: string
+          price_cents?: number
+          shop_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_shipping_methods_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_subscriptions: {
+        Row: {
+          setup_paid_at: string | null
+          shop_id: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          setup_paid_at?: string | null
+          shop_id: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          setup_paid_at?: string | null
+          shop_id?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_subscriptions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: true
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shops: {
+        Row: {
+          about_text: string | null
+          announcement: string | null
+          catalog_label: string
+          cgv: string | null
+          confidentialite: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          free_shipping_threshold_cents: number | null
+          hero_subtitle: string | null
+          hero_title: string | null
+          id: string
+          instagram_url: string | null
+          is_active: boolean
+          legal_address: string | null
+          legal_company_name: string | null
+          legal_email: string | null
+          legal_siret: string | null
+          legal_vat: string | null
+          livraison_retours: string | null
+          logo_url: string | null
+          mentions_legales: string | null
+          name: string
+          order_prefix: string
+          platform_fee_percent: number
+          slug: string
+          tagline: string | null
+          theme: Json
+          tiktok_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          about_text?: string | null
+          announcement?: string | null
+          catalog_label?: string
+          cgv?: string | null
+          confidentialite?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          free_shipping_threshold_cents?: number | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          legal_address?: string | null
+          legal_company_name?: string | null
+          legal_email?: string | null
+          legal_siret?: string | null
+          legal_vat?: string | null
+          livraison_retours?: string | null
+          logo_url?: string | null
+          mentions_legales?: string | null
+          name: string
+          order_prefix: string
+          platform_fee_percent?: number
+          slug: string
+          tagline?: string | null
+          theme?: Json
+          tiktok_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          about_text?: string | null
+          announcement?: string | null
+          catalog_label?: string
+          cgv?: string | null
+          confidentialite?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          free_shipping_threshold_cents?: number | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          legal_address?: string | null
+          legal_company_name?: string | null
+          legal_email?: string | null
+          legal_siret?: string | null
+          legal_vat?: string | null
+          livraison_retours?: string | null
+          logo_url?: string | null
+          mentions_legales?: string | null
+          name?: string
+          order_prefix?: string
+          platform_fee_percent?: number
+          slug?: string
+          tagline?: string | null
+          theme?: Json
+          tiktok_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           etablissement_id: string
@@ -1695,7 +2692,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      shop_customer_stats: {
+        Row: {
+          email: string | null
+          first_order_at: string | null
+          last_order_at: string | null
+          name: string | null
+          orders_count: number | null
+          shop_id: string | null
+          total_spent_cents: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_collect_order: {
@@ -1711,6 +2728,10 @@ export type Database = {
           p_slug: string
           p_table_count?: number
         }
+        Returns: string
+      }
+      create_shop: {
+        Args: { p_name: string; p_order_prefix: string; p_slug: string }
         Returns: string
       }
       crm_find_duplicates: {
@@ -1733,6 +2754,10 @@ export type Database = {
       current_member_role: {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
+      }
+      current_shop_role: {
+        Args: { p_shop: string }
+        Returns: Database["public"]["Enums"]["shop_member_role"]
       }
       is_admin: { Args: never; Returns: boolean }
       mark_order_paid_online: {
@@ -1764,6 +2789,22 @@ export type Database = {
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
+      shop_decrement_stock: {
+        Args: { p_product_id: string; p_qty: number }
+        Returns: undefined
+      }
+      shop_increment_discount_uses: {
+        Args: { p_code: string; p_shop: string }
+        Returns: undefined
+      }
+      shop_sales_by_day: {
+        Args: { p_days: number; p_shop: string }
+        Returns: {
+          day: string
+          orders_count: number
+          revenue_cents: number
+        }[]
+      }
     }
     Enums: {
       badge: "maison" | "top" | "nouveau"
@@ -1843,6 +2884,25 @@ export type Database = {
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
+      shop_discount_type: "percent" | "fixed"
+      shop_member_role: "proprietaire" | "equipe"
+      shop_message_sender: "customer" | "shop"
+      shop_order_status:
+        | "pending"
+        | "paid"
+        | "preparing"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
+        | "refunded"
+      shop_payment_status:
+        | "unpaid"
+        | "paid"
+        | "refunded"
+        | "partially_refunded"
+        | "failed"
+      shop_product_badge: "best-seller" | "nouveau" | "coup-de-coeur"
+      shop_shipping_kind: "home" | "relay" | "pickup"
     }
     CompositeTypes: {
       [_ in never]: never

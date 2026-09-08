@@ -1,7 +1,8 @@
 /*
- * Synchronise les produits/prix Stripe avec pricingSection et collectOffer
- * (lib/landing-data.ts) — les prix affichés sur le site sont la source de
- * vérité, rien n'est dupliqué ici. Idempotent :
+ * Synchronise les produits/prix Stripe avec pricingSection, collectOffer
+ * (lib/landing-data.ts) et shopOffer (lib/shop-landing-data.ts) — les prix
+ * affichés sur les sites sont la source de vérité, rien n'est dupliqué ici.
+ * Idempotent :
  *  - lookup_key absent → produit + prix créés ;
  *  - montant identique → rien ;
  *  - montant différent → nouveau prix avec transfer_lookup_key (le checkout
@@ -15,6 +16,7 @@
 
 import Stripe from "stripe";
 import { collectOffer, pricingSection } from "../lib/landing-data";
+import { shopOffer } from "../lib/shop-landing-data";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
@@ -22,11 +24,29 @@ if (!key) {
 }
 const stripe = new Stripe(key);
 
-const plans = [
-  ...pricingSection.plans,
-  collectOffer,
-  { ...collectOffer.bundle },
-].map(({ id, name, price, tagline }) => ({ id, name, price, tagline }));
+/** `monthly` distingue un abonnement d'un paiement unique (mise en place Shop). */
+type Plan = { id: string; name: string; price: number; tagline: string; monthly: boolean };
+
+const shopPlans: Plan[] = [
+  { id: "shop_setup", name: `${shopOffer.name} — mise en place`, price: shopOffer.setupPrice, tagline: shopOffer.tagline, monthly: false },
+  { id: "shop_monthly", name: `${shopOffer.name} — abonnement`, price: shopOffer.monthlyPrice, tagline: shopOffer.tagline, monthly: true },
+];
+
+const plans: Plan[] = [
+  ...[...pricingSection.plans, collectOffer, { ...collectOffer.bundle }].map(
+    ({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })
+  ),
+  // Ominin Shop reste « sur devis » tant que l'offre n'est pas publiée : aucun
+  // tarif n'est créé, un prix à 0 € serait facturable par erreur.
+  ...(shopOffer.published ? shopPlans : []),
+];
+
+const zeroPriced = plans.filter((plan) => plan.price <= 0);
+if (zeroPriced.length > 0) {
+  throw new Error(
+    `Tarif à 0 € : ${zeroPriced.map((plan) => plan.id).join(", ")} — renseigne le prix avant de publier l'offre.`
+  );
+}
 
 async function main() {
   const { data: existing } = await stripe.prices.list({
@@ -38,6 +58,9 @@ async function main() {
   for (const plan of plans) {
     const target = plan.price * 100;
     const current = byLookup.get(plan.id);
+    // Un prix Stripe sans `recurring` est un paiement unique.
+    const cadence = plan.monthly ? ({ recurring: { interval: "month" } } as const) : {};
+    const suffix = plan.monthly ? pricingSection.perMonth : " une fois";
 
     if (current && current.unit_amount === target) {
       console.log(`✓ ${plan.name} : ${plan.price} € déjà en place (lookup_key=${plan.id})`);
@@ -54,13 +77,13 @@ async function main() {
             : current.product.id,
         currency: "eur",
         unit_amount: target,
-        recurring: { interval: "month" },
+        ...cadence,
         lookup_key: plan.id,
         transfer_lookup_key: true,
       });
       await stripe.prices.update(current.id, { active: false });
       console.log(
-        `↻ ${plan.name} : ${(current.unit_amount ?? 0) / 100} € → ${plan.price} €${pricingSection.perMonth} (lookup_key=${plan.id} transféré, ancien prix archivé)`
+        `↻ ${plan.name} : ${(current.unit_amount ?? 0) / 100} € → ${plan.price} €${suffix} (lookup_key=${plan.id} transféré, ancien prix archivé)`
       );
       continue;
     }
@@ -73,11 +96,11 @@ async function main() {
       product: product.id,
       currency: "eur",
       unit_amount: target,
-      recurring: { interval: "month" },
+      ...cadence,
       lookup_key: plan.id,
     });
     console.log(
-      `+ ${plan.name} : ${plan.price} €${pricingSection.perMonth} créé (lookup_key=${plan.id})`
+      `+ ${plan.name} : ${plan.price} €${suffix} créé (lookup_key=${plan.id})`
     );
   }
   console.log("Stripe est aligné sur les prix de la landing.");
