@@ -340,7 +340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_deps",
-      "community": 149,
+      "community": 161,
       "norm_label": "deps.py"
     },
     {
@@ -350,7 +350,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "backend_app_deps_require_trigger_secret",
-      "community": 149,
+      "community": 161,
       "norm_label": "require_trigger_secret()"
     },
     {
@@ -370,7 +370,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "backend_app_deps_require_device",
-      "community": 149,
+      "community": 161,
       "norm_label": "require_device()"
     },
     {
@@ -380,7 +380,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "httpauthorizationcredentials",
-      "community": 149,
+      "community": 161,
       "norm_label": "httpauthorizationcredentials"
     },
     {
@@ -390,7 +390,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "backend_app_deps_rationale_31",
-      "community": 149,
+      "community": 161,
       "norm_label": "authentifie un appareil omilink par l'empreinte sha-256 de son jeton."
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_prompts_cold_email",
-      "community": 74,
+      "community": 151,
       "norm_label": "cold_email.py"
     },
     {
@@ -500,7 +500,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "backend_app_prompts_cold_email_coldemail",
-      "community": 74,
+      "community": 151,
       "norm_label": "coldemail"
     },
     {
@@ -2523,7 +2523,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_admin_crm_carte_page",
-      "community": 75,
+      "community": 68,
       "norm_label": "page.tsx"
     },
     {
@@ -2533,7 +2533,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_app_admin_crm_carte_page_mapcanvas",
-      "community": 75,
+      "community": 68,
       "norm_label": "mapcanvas"
     },
     {
@@ -2543,7 +2543,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_app_admin_crm_carte_page_cartepage",
-      "community": 75,
+      "community": 68,
       "norm_label": "cartepage()"
     },
     {
@@ -4473,7 +4473,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_connexion_page",
-      "community": 123,
+      "community": 34,
       "norm_label": "page.tsx"
     },
     {
@@ -4483,7 +4483,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_app_clip_connexion_page_metadata",
-      "community": 123,
+      "community": 34,
       "norm_label": "metadata"
     },
     {
@@ -4493,7 +4493,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_app_clip_connexion_page_clipconnexionpage",
-      "community": 123,
+      "community": 34,
       "norm_label": "clipconnexionpage()"
     },
     {
@@ -4523,7 +4523,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_comptes_page",
-      "community": 63,
+      "community": 26,
       "norm_label": "page.tsx"
     },
     {
@@ -4533,7 +4533,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_demo_generateur_page",
-      "community": 26,
+      "community": 75,
       "norm_label": "page.tsx"
     },
     {
@@ -4853,7 +4853,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_comptes_page",
-      "community": 63,
+      "community": 26,
       "norm_label": "page.tsx"
     },
     {
@@ -4863,7 +4863,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_comptes_page_comptespage",
-      "community": 63,
+      "community": 26,
       "norm_label": "comptespage()"
     },
     {
@@ -4873,7 +4873,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page",
-      "community": 26,
+      "community": 75,
       "norm_label": "page.tsx"
     },
     {
@@ -4883,7 +4883,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_moments",
-      "community": 26,
+      "community": 75,
       "norm_label": "moments"
     },
     {
@@ -4893,7 +4893,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_steps",
-      "community": 26,
+      "community": 75,
       "norm_label": "steps"
     },
     {
@@ -4903,7 +4903,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_generateurpage",
-      "community": 26,
+      "community": 75,
       "norm_label": "generateurpage()"
     },
     {
@@ -4913,7 +4913,7 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_illustrationsvg",
-      "community": 26,
+      "community": 75,
       "norm_label": "illustrationsvg()"
     },
     {
@@ -4923,7 +4923,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_vodillustration",
-      "community": 26,
+      "community": 75,
       "norm_label": "vodillustration()"
     },
     {
@@ -4933,7 +4933,7 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_detectillustration",
-      "community": 26,
+      "community": 75,
       "norm_label": "detectillustration()"
     },
     {
@@ -4943,7 +4943,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "frontend_app_clip_espace_generateur_page_clipsillustration",
-      "community": 26,
+      "community": 75,
       "norm_label": "clipsillustration()"
     },
     {
@@ -5103,7 +5103,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_clip_inscription_page",
-      "community": 123,
+      "community": 34,
       "norm_label": "page.tsx"
     },
     {
@@ -5113,7 +5113,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_app_clip_inscription_page_metadata",
-      "community": 123,
+      "community": 34,
       "norm_label": "metadata"
     },
     {
@@ -5123,7 +5123,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_app_clip_inscription_page_clipinscriptionpage",
-      "community": 123,
+      "community": 34,
       "norm_label": "clipinscriptionpage()"
     },
     {
@@ -5373,7 +5373,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_etablissement_page",
-      "community": 34,
+      "community": 12,
       "norm_label": "page.tsx"
     },
     {
@@ -5383,7 +5383,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_etablissement_page_metadata",
-      "community": 34,
+      "community": 12,
       "norm_label": "metadata"
     },
     {
@@ -5393,7 +5393,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_etablissement_page_collectetablissementpage",
-      "community": 34,
+      "community": 12,
       "norm_label": "collectetablissementpage()"
     },
     {
@@ -5403,7 +5403,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_page",
-      "community": 34,
+      "community": 12,
       "norm_label": "page.tsx"
     },
     {
@@ -5413,7 +5413,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_page_metadata",
-      "community": 34,
+      "community": 12,
       "norm_label": "metadata"
     },
     {
@@ -5423,7 +5423,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_app_collect_inscription_page_collectinscriptionpage",
-      "community": 34,
+      "community": 12,
       "norm_label": "collectinscriptionpage()"
     },
     {
@@ -7443,7 +7443,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_app_shop_connexion_page",
-      "community": 34,
+      "community": 182,
       "norm_label": "page.tsx"
     },
     {
@@ -7453,7 +7453,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_app_shop_connexion_page_metadata",
-      "community": 34,
+      "community": 182,
       "norm_label": "metadata"
     },
     {
@@ -7463,7 +7463,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_app_shop_connexion_page_shopconnexionpage",
-      "community": 34,
+      "community": 182,
       "norm_label": "shopconnexionpage()"
     },
     {
@@ -8293,7 +8293,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "frontend_components_admin_icons_crosshairicon",
-      "community": 75,
+      "community": 70,
       "norm_label": "crosshairicon()"
     },
     {
@@ -8993,7 +8993,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase",
-      "community": 17,
+      "community": 95,
       "norm_label": "demo-showcase.tsx"
     },
     {
@@ -9003,7 +9003,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase_desktop_viewport",
-      "community": 17,
+      "community": 95,
       "norm_label": "desktop_viewport"
     },
     {
@@ -9013,7 +9013,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase_phone_size",
-      "community": 17,
+      "community": 95,
       "norm_label": "phone_size"
     },
     {
@@ -9023,7 +9023,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase_scaledblock",
-      "community": 17,
+      "community": 95,
       "norm_label": "scaledblock()"
     },
     {
@@ -9033,7 +9033,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase_framestage",
-      "community": 17,
+      "community": 95,
       "norm_label": "framestage()"
     },
     {
@@ -9043,7 +9043,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_components_clip_demo_showcase_clipdemoshowcase",
-      "community": 17,
+      "community": 95,
       "norm_label": "clipdemoshowcase()"
     },
     {
@@ -9343,7 +9343,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_publier_tabs",
-      "community": 26,
+      "community": 75,
       "norm_label": "publier-tabs.tsx"
     },
     {
@@ -9353,7 +9353,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_publier_tabs_publiertab",
-      "community": 26,
+      "community": 75,
       "norm_label": "publiertab"
     },
     {
@@ -9363,7 +9363,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_publier_tabs_tabs",
-      "community": 26,
+      "community": 75,
       "norm_label": "tabs"
     },
     {
@@ -9373,7 +9373,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_publier_tabs_publiertabs",
-      "community": 26,
+      "community": 75,
       "norm_label": "publiertabs()"
     },
     {
@@ -9453,7 +9453,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_sub_tabs",
-      "community": 26,
+      "community": 75,
       "norm_label": "sub-tabs.tsx"
     },
     {
@@ -9463,7 +9463,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_sub_tabs_subtab",
-      "community": 26,
+      "community": 75,
       "norm_label": "subtab"
     },
     {
@@ -9473,7 +9473,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_components_clip_espace_sub_tabs_subtabs",
-      "community": 26,
+      "community": 75,
       "norm_label": "subtabs()"
     },
     {
@@ -9543,7 +9543,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_footer",
-      "community": 123,
+      "community": 17,
       "norm_label": "footer.tsx"
     },
     {
@@ -9553,7 +9553,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_components_clip_footer_clipfooter",
-      "community": 123,
+      "community": 17,
       "norm_label": "clipfooter()"
     },
     {
@@ -9623,7 +9623,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_nav",
-      "community": 123,
+      "community": 34,
       "norm_label": "nav.tsx"
     },
     {
@@ -9633,7 +9633,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_components_clip_nav_clipnav",
-      "community": 123,
+      "community": 34,
       "norm_label": "clipnav()"
     },
     {
@@ -9703,7 +9703,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_clip_wordmark",
-      "community": 123,
+      "community": 34,
       "norm_label": "wordmark.tsx"
     },
     {
@@ -9713,7 +9713,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_components_clip_wordmark_clipwordmark",
-      "community": 123,
+      "community": 34,
       "norm_label": "clipwordmark()"
     },
     {
@@ -12213,7 +12213,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_landing_iphone_frame",
-      "community": 17,
+      "community": 95,
       "norm_label": "iphone-frame.tsx"
     },
     {
@@ -12223,7 +12223,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_components_landing_iphone_frame_iphoneframe",
-      "community": 17,
+      "community": 95,
       "norm_label": "iphoneframe()"
     },
     {
@@ -13263,7 +13263,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_components_shop_gestion_login_form",
-      "community": 34,
+      "community": 182,
       "norm_label": "login-form.tsx"
     },
     {
@@ -13273,7 +13273,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_components_shop_gestion_login_form_shoploginform",
-      "community": 34,
+      "community": 182,
       "norm_label": "shoploginform()"
     },
     {
@@ -15583,7 +15583,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_eslint_config",
-      "community": 1,
+      "community": 76,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -15593,7 +15593,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_eslint_config_eslintconfig",
-      "community": 1,
+      "community": 76,
       "norm_label": "eslintconfig"
     },
     {
@@ -15683,7 +15683,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "frontend_lib_admin_api_markvisitedinput",
-      "community": 75,
+      "community": 68,
       "norm_label": "markvisitedinput"
     },
     {
@@ -16673,7 +16673,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "frontend_lib_admin_filters_usefilteredleads",
-      "community": 75,
+      "community": 68,
       "norm_label": "usefilteredleads()"
     },
     {
@@ -16853,7 +16853,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo",
-      "community": 75,
+      "community": 68,
       "norm_label": "geo.ts"
     },
     {
@@ -16863,7 +16863,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_haversinekm",
-      "community": 75,
+      "community": 68,
       "norm_label": "haversinekm()"
     },
     {
@@ -16873,7 +16873,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_captureposition",
-      "community": 75,
+      "community": 68,
       "norm_label": "captureposition()"
     },
     {
@@ -16883,7 +16883,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_listeners",
-      "community": 75,
+      "community": 68,
       "norm_label": "listeners"
     },
     {
@@ -16893,7 +16893,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_notify",
-      "community": 75,
+      "community": 68,
       "norm_label": "notify()"
     },
     {
@@ -16903,7 +16903,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_startwatch",
-      "community": 75,
+      "community": 68,
       "norm_label": "startwatch()"
     },
     {
@@ -16913,7 +16913,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_stopwatch",
-      "community": 75,
+      "community": 68,
       "norm_label": "stopwatch()"
     },
     {
@@ -16923,7 +16923,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_iswatching",
-      "community": 75,
+      "community": 68,
       "norm_label": "iswatching()"
     },
     {
@@ -16933,7 +16933,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_getsnapshot",
-      "community": 75,
+      "community": 68,
       "norm_label": "getsnapshot()"
     },
     {
@@ -16943,7 +16943,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_subscribe",
-      "community": 75,
+      "community": 68,
       "norm_label": "subscribe()"
     },
     {
@@ -16953,7 +16953,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_useposition",
-      "community": 75,
+      "community": 68,
       "norm_label": "useposition()"
     },
     {
@@ -16963,7 +16963,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "frontend_lib_admin_geo_usewatching",
-      "community": 75,
+      "community": 68,
       "norm_label": "usewatching()"
     },
     {
@@ -17873,7 +17873,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "frontend_lib_admin_types_geopoint",
-      "community": 75,
+      "community": 68,
       "norm_label": "geopoint"
     },
     {
@@ -18063,7 +18063,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_lib_clip_landing_data_nav",
-      "community": 123,
+      "community": 17,
       "norm_label": "nav"
     },
     {
@@ -18093,7 +18093,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "frontend_lib_clip_landing_data_demosection",
-      "community": 17,
+      "community": 95,
       "norm_label": "demosection"
     },
     {
@@ -18163,7 +18163,7 @@
       "source_location": "L275",
       "_origin": "ast",
       "id": "frontend_lib_clip_landing_data_footer",
-      "community": 123,
+      "community": 17,
       "norm_label": "footer"
     },
     {
@@ -18383,7 +18383,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions",
-      "community": 58,
+      "community": 11,
       "norm_label": "clipactions"
     },
     {
@@ -18393,7 +18393,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_uploadclip",
-      "community": 58,
+      "community": 11,
       "norm_label": ".uploadclip()"
     },
     {
@@ -18403,7 +18403,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_generatecaptions",
-      "community": 58,
+      "community": 11,
       "norm_label": ".generatecaptions()"
     },
     {
@@ -18413,7 +18413,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_publishclip",
-      "community": 58,
+      "community": 11,
       "norm_label": ".publishclip()"
     },
     {
@@ -18423,7 +18423,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_pollpoststatus",
-      "community": 58,
+      "community": 11,
       "norm_label": ".pollpoststatus()"
     },
     {
@@ -18433,7 +18433,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_retrypost",
-      "community": 58,
+      "community": 11,
       "norm_label": ".retrypost()"
     },
     {
@@ -18443,7 +18443,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_connectaccounts",
-      "community": 58,
+      "community": 11,
       "norm_label": ".connectaccounts()"
     },
     {
@@ -18473,7 +18473,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipactions_fetchpostanalytics",
-      "community": 58,
+      "community": 11,
       "norm_label": ".fetchpostanalytics()"
     },
     {
@@ -18483,7 +18483,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdata",
-      "community": 11,
+      "community": 16,
       "norm_label": "clipdata"
     },
     {
@@ -18493,7 +18493,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdata_retryload",
-      "community": 11,
+      "community": 16,
       "norm_label": ".retryload()"
     },
     {
@@ -18543,7 +18543,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "frontend_lib_clip_context_clipdataprovider",
-      "community": 11,
+      "community": 92,
       "norm_label": "clipdataprovider()"
     },
     {
@@ -18773,7 +18773,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types",
-      "community": 20,
+      "community": 11,
       "norm_label": "types.ts"
     },
     {
@@ -18783,7 +18783,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_clip_platforms",
-      "community": 20,
+      "community": 26,
       "norm_label": "clip_platforms"
     },
     {
@@ -18793,7 +18793,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_clipplatform",
-      "community": 58,
+      "community": 11,
       "norm_label": "clipplatform"
     },
     {
@@ -18813,7 +18813,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_captionset",
-      "community": 58,
+      "community": 11,
       "norm_label": "captionset"
     },
     {
@@ -18833,7 +18833,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_platformresult",
-      "community": 20,
+      "community": 11,
       "norm_label": "platformresult"
     },
     {
@@ -18873,7 +18873,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "frontend_lib_clip_provider_types_postanalytics",
-      "community": 20,
+      "community": 11,
       "norm_label": "postanalytics"
     },
     {
@@ -19103,7 +19103,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_lib_clip_store",
-      "community": 11,
+      "community": 92,
       "norm_label": "store.ts"
     },
     {
@@ -19113,7 +19113,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_listeners",
-      "community": 11,
+      "community": 92,
       "norm_label": "listeners"
     },
     {
@@ -19123,7 +19123,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_notify",
-      "community": 11,
+      "community": 92,
       "norm_label": "notify()"
     },
     {
@@ -19133,7 +19133,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_fetchapi",
-      "community": 11,
+      "community": 92,
       "norm_label": "fetchapi()"
     },
     {
@@ -19143,7 +19143,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_load",
-      "community": 11,
+      "community": 92,
       "norm_label": "load()"
     },
     {
@@ -19153,7 +19153,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_startload",
-      "community": 11,
+      "community": 92,
       "norm_label": "startload()"
     },
     {
@@ -19163,7 +19163,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_subscribe",
-      "community": 11,
+      "community": 92,
       "norm_label": "subscribe()"
     },
     {
@@ -19173,7 +19173,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_retryload",
-      "community": 11,
+      "community": 92,
       "norm_label": "retryload()"
     },
     {
@@ -19183,7 +19183,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_getclientsnapshot",
-      "community": 11,
+      "community": 92,
       "norm_label": "getclientsnapshot()"
     },
     {
@@ -19193,7 +19193,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_getserversnapshot",
-      "community": 11,
+      "community": 92,
       "norm_label": "getserversnapshot()"
     },
     {
@@ -19203,7 +19203,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_geterrorsnapshot",
-      "community": 11,
+      "community": 92,
       "norm_label": "geterrorsnapshot()"
     },
     {
@@ -19213,7 +19213,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_usecliploaderror",
-      "community": 11,
+      "community": 92,
       "norm_label": "usecliploaderror()"
     },
     {
@@ -19233,7 +19233,7 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_commit",
-      "community": 11,
+      "community": 92,
       "norm_label": "commit()"
     },
     {
@@ -19243,7 +19243,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "frontend_lib_clip_store_useclip",
-      "community": 11,
+      "community": 92,
       "norm_label": "useclip()"
     },
     {
@@ -19273,7 +19273,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_lib_clip_types_clippost",
-      "community": 58,
+      "community": 11,
       "norm_label": "clippost"
     },
     {
@@ -19293,7 +19293,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_lib_clip_types_clipstate",
-      "community": 11,
+      "community": 16,
       "norm_label": "clipstate"
     },
     {
@@ -22553,7 +22553,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_cta",
-      "community": 17,
+      "community": 148,
       "norm_label": "cta"
     },
     {
@@ -22563,7 +22563,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_navlink",
-      "community": 148,
+      "community": 17,
       "norm_label": "navlink"
     },
     {
@@ -22573,7 +22573,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_step",
-      "community": 148,
+      "community": 17,
       "norm_label": "step"
     },
     {
@@ -22583,7 +22583,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_lib_landing_data_feature",
-      "community": 4,
+      "community": 17,
       "norm_label": "feature"
     },
     {
@@ -26410,7 +26410,7 @@
       "label": "OAUTH_SCOPES",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L28",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "frontend_lib_square_server_oauth_scopes",
       "community": 10,
@@ -26420,7 +26420,7 @@
       "label": "credentials()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L48",
+      "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_lib_square_server_credentials",
       "community": 10,
@@ -26430,7 +26430,7 @@
       "label": "squareAuthorizeUrl()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L59",
+      "source_location": "L66",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squareauthorizeurl",
       "community": 10,
@@ -26440,7 +26440,7 @@
       "label": "SquareTokens",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L69",
+      "source_location": "L76",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squaretokens",
       "community": 10,
@@ -26450,7 +26450,7 @@
       "label": "SquareError",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L77",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squareerror",
       "community": 10,
@@ -26460,7 +26460,7 @@
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L78",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squareerror_constructor",
       "community": 10,
@@ -26470,7 +26470,7 @@
       "label": "describe()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L87",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "frontend_lib_square_server_describe",
       "community": 10,
@@ -26480,7 +26480,7 @@
       "label": "tokenRequest()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L94",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "frontend_lib_square_server_tokenrequest",
       "community": 10,
@@ -26490,7 +26490,7 @@
       "label": "exchangeCode()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L120",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "frontend_lib_square_server_exchangecode",
       "community": 10,
@@ -26500,7 +26500,7 @@
       "label": "squareApi()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L131",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squareapi",
       "community": 10,
@@ -26510,7 +26510,7 @@
       "label": "SquareLocation",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L155",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squarelocation",
       "community": 10,
@@ -26520,7 +26520,7 @@
       "label": "fetchLocations()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L163",
+      "source_location": "L170",
       "_origin": "ast",
       "id": "frontend_lib_square_server_fetchlocations",
       "community": 10,
@@ -26530,7 +26530,7 @@
       "label": "SquareMoney",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L176",
+      "source_location": "L183",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squaremoney",
       "community": 10,
@@ -26540,7 +26540,7 @@
       "label": "SquareOrder",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L181",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squareorder",
       "community": 10,
@@ -26550,7 +26550,7 @@
       "label": "createOrder()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L190",
+      "source_location": "L197",
       "_origin": "ast",
       "id": "frontend_lib_square_server_createorder",
       "community": 10,
@@ -26560,7 +26560,7 @@
       "label": "retrieveOrder()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L200",
+      "source_location": "L207",
       "_origin": "ast",
       "id": "frontend_lib_square_server_retrieveorder",
       "community": 10,
@@ -26570,7 +26570,7 @@
       "label": "SquarePayment",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L207",
+      "source_location": "L214",
       "_origin": "ast",
       "id": "frontend_lib_square_server_squarepayment",
       "community": 10,
@@ -26580,7 +26580,7 @@
       "label": "createPayment()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L215",
+      "source_location": "L222",
       "_origin": "ast",
       "id": "frontend_lib_square_server_createpayment",
       "community": 10,
@@ -26590,7 +26590,7 @@
       "label": "retrievePayment()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L225",
+      "source_location": "L232",
       "_origin": "ast",
       "id": "frontend_lib_square_server_retrievepayment",
       "community": 10,
@@ -26600,7 +26600,7 @@
       "label": "upsertSquareAccount()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L232",
+      "source_location": "L239",
       "_origin": "ast",
       "id": "frontend_lib_square_server_upsertsquareaccount",
       "community": 10,
@@ -26610,7 +26610,7 @@
       "label": "Merchant",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L247",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "frontend_lib_square_server_merchant",
       "community": 10,
@@ -26620,7 +26620,7 @@
       "label": "getMerchantToken()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L257",
+      "source_location": "L264",
       "_origin": "ast",
       "id": "frontend_lib_square_server_getmerchanttoken",
       "community": 10,
@@ -26630,7 +26630,7 @@
       "label": "refreshAccount()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L283",
+      "source_location": "L290",
       "_origin": "ast",
       "id": "frontend_lib_square_server_refreshaccount",
       "community": 10,
@@ -26640,7 +26640,7 @@
       "label": "withFreshToken()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L302",
+      "source_location": "L309",
       "_origin": "ast",
       "id": "frontend_lib_square_server_withfreshtoken",
       "community": 10,
@@ -26650,7 +26650,7 @@
       "label": "verifyWebhookSignature()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L326",
+      "source_location": "L333",
       "_origin": "ast",
       "id": "frontend_lib_square_server_verifywebhooksignature",
       "community": 10,
@@ -26660,7 +26660,7 @@
       "label": "requireGerant()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L345",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "frontend_lib_square_server_requiregerant",
       "community": 10,
@@ -26670,7 +26670,7 @@
       "label": "settlePayment()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L372",
+      "source_location": "L379",
       "_origin": "ast",
       "id": "frontend_lib_square_server_settlepayment",
       "community": 10,
@@ -26680,7 +26680,7 @@
       "label": "confirmOrderPaid()",
       "file_type": "code",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L398",
+      "source_location": "L405",
       "_origin": "ast",
       "id": "frontend_lib_square_server_confirmorderpaid",
       "community": 10,
@@ -26970,7 +26970,7 @@
       "label": "DatabaseWithoutInternals",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3253",
+      "source_location": "L3259",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_databasewithoutinternals",
       "community": 22,
@@ -26980,7 +26980,7 @@
       "label": "DefaultSchema",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3255",
+      "source_location": "L3261",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_defaultschema",
       "community": 22,
@@ -26990,7 +26990,7 @@
       "label": "Tables",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3257",
+      "source_location": "L3263",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tables",
       "community": 22,
@@ -27000,7 +27000,7 @@
       "label": "TablesInsert",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3286",
+      "source_location": "L3292",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesinsert",
       "community": 22,
@@ -27010,7 +27010,7 @@
       "label": "TablesUpdate",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3311",
+      "source_location": "L3317",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_tablesupdate",
       "community": 22,
@@ -27020,7 +27020,7 @@
       "label": "Enums",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3336",
+      "source_location": "L3342",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_enums",
       "community": 96,
@@ -27030,7 +27030,7 @@
       "label": "CompositeTypes",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3353",
+      "source_location": "L3359",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_compositetypes",
       "community": 22,
@@ -27040,7 +27040,7 @@
       "label": "Constants",
       "file_type": "code",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3370",
+      "source_location": "L3376",
       "_origin": "ast",
       "id": "frontend_lib_supabase_database_types_constants",
       "community": 22,
@@ -27963,7 +27963,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_y",
-      "community": 140,
+      "community": 143,
       "norm_label": "y()"
     },
     {
@@ -28313,7 +28313,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_qe",
-      "community": 169,
+      "community": 140,
       "norm_label": "qe()"
     },
     {
@@ -28323,7 +28323,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ze",
-      "community": 169,
+      "community": 140,
       "norm_label": "ze()"
     },
     {
@@ -28473,7 +28473,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vt",
-      "community": 15,
+      "community": 140,
       "norm_label": "vt()"
     },
     {
@@ -28483,7 +28483,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_yt",
-      "community": 15,
+      "community": 140,
       "norm_label": "yt()"
     },
     {
@@ -28523,7 +28523,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_tt",
-      "community": 15,
+      "community": 140,
       "norm_label": "tt()"
     },
     {
@@ -28533,7 +28533,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_et",
-      "community": 164,
+      "community": 94,
       "norm_label": "et()"
     },
     {
@@ -28573,7 +28573,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_kt",
-      "community": 72,
+      "community": 103,
       "norm_label": "kt()"
     },
     {
@@ -28833,7 +28833,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_zn",
-      "community": 117,
+      "community": 18,
       "norm_label": "zn()"
     },
     {
@@ -28843,7 +28843,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_off",
-      "community": 117,
+      "community": 18,
       "norm_label": "off()"
     },
     {
@@ -28863,7 +28863,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_fire",
-      "community": 92,
+      "community": 18,
       "norm_label": "fire()"
     },
     {
@@ -28873,7 +28873,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_listens",
-      "community": 92,
+      "community": 18,
       "norm_label": "listens()"
     },
     {
@@ -28893,7 +28893,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_qn",
-      "community": 117,
+      "community": 18,
       "norm_label": "qn()"
     },
     {
@@ -28903,7 +28903,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_yn",
-      "community": 117,
+      "community": 18,
       "norm_label": "yn()"
     },
     {
@@ -29333,7 +29333,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_isempty",
-      "community": 73,
+      "community": 105,
       "norm_label": "isempty()"
     },
     {
@@ -29553,7 +29553,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ai",
-      "community": 15,
+      "community": 140,
       "norm_label": "ai()"
     },
     {
@@ -29563,7 +29563,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_interpolationfactor",
-      "community": 15,
+      "community": 140,
       "norm_label": "interpolationfactor()"
     },
     {
@@ -29573,7 +29573,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_mi",
-      "community": 15,
+      "community": 140,
       "norm_label": "mi()"
     },
     {
@@ -29933,7 +29933,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_pop",
-      "community": 164,
+      "community": 94,
       "norm_label": "pop()"
     },
     {
@@ -29963,7 +29963,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_down",
-      "community": 164,
+      "community": 94,
       "norm_label": "_down()"
     },
     {
@@ -29993,7 +29993,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_za",
-      "community": 164,
+      "community": 94,
       "norm_label": "za()"
     },
     {
@@ -30003,7 +30003,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_distance",
-      "community": 164,
+      "community": 94,
       "norm_label": "distance()"
     },
     {
@@ -30013,7 +30013,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_pointonline",
-      "community": 164,
+      "community": 94,
       "norm_label": "pointonline()"
     },
     {
@@ -30023,7 +30023,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_wrap",
-      "community": 164,
+      "community": 94,
       "norm_label": "wrap()"
     },
     {
@@ -30033,7 +30033,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_qa",
-      "community": 164,
+      "community": 94,
       "norm_label": "qa()"
     },
     {
@@ -30043,7 +30043,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_eo",
-      "community": 164,
+      "community": 94,
       "norm_label": "eo()"
     },
     {
@@ -30053,7 +30053,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_to",
-      "community": 164,
+      "community": 94,
       "norm_label": "to()"
     },
     {
@@ -30093,7 +30093,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ao",
-      "community": 164,
+      "community": 94,
       "norm_label": "ao()"
     },
     {
@@ -30103,7 +30103,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_oo",
-      "community": 164,
+      "community": 94,
       "norm_label": "oo()"
     },
     {
@@ -30113,7 +30113,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_so",
-      "community": 164,
+      "community": 94,
       "norm_label": "so()"
     },
     {
@@ -30123,7 +30123,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_co",
-      "community": 164,
+      "community": 94,
       "norm_label": "co()"
     },
     {
@@ -30133,7 +30133,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_lo",
-      "community": 164,
+      "community": 94,
       "norm_label": "lo()"
     },
     {
@@ -30313,7 +30313,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_evaluatewithouterrorhandling",
-      "community": 80,
+      "community": 135,
       "norm_label": "evaluatewithouterrorhandling()"
     },
     {
@@ -30403,7 +30403,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_os",
-      "community": 80,
+      "community": 135,
       "norm_label": "os()"
     },
     {
@@ -31053,7 +31053,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_crossfadingfactor",
-      "community": 103,
+      "community": 18,
       "norm_label": "crossfadingfactor()"
     },
     {
@@ -31063,7 +31063,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getcrossfadeparameters",
-      "community": 103,
+      "community": 18,
       "norm_label": "getcrossfadeparameters()"
     },
     {
@@ -31083,7 +31083,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_isdatadriven",
-      "community": 92,
+      "community": 18,
       "norm_label": "isdatadriven()"
     },
     {
@@ -31203,7 +31203,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_constantor",
-      "community": 130,
+      "community": 142,
       "norm_label": "constantor()"
     },
     {
@@ -31283,7 +31283,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_setlayoutproperty",
-      "community": 92,
+      "community": 18,
       "norm_label": "setlayoutproperty()"
     },
     {
@@ -31303,7 +31303,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_setpaintproperty",
-      "community": 92,
+      "community": 18,
       "norm_label": "setpaintproperty()"
     },
     {
@@ -31323,7 +31323,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_handleoverridablepaintpropertyupdate",
-      "community": 92,
+      "community": 18,
       "norm_label": "_handleoverridablepaintpropertyupdate()"
     },
     {
@@ -31353,7 +31353,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_recalculatevisibility",
-      "community": 92,
+      "community": 18,
       "norm_label": "recalculatevisibility()"
     },
     {
@@ -31363,7 +31363,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_recalculate",
-      "community": 103,
+      "community": 18,
       "norm_label": "recalculate()"
     },
     {
@@ -31373,7 +31373,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_validate",
-      "community": 92,
+      "community": 18,
       "norm_label": "_validate()"
     },
     {
@@ -31413,7 +31413,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_resize",
-      "community": 200,
+      "community": 18,
       "norm_label": "resize()"
     },
     {
@@ -31443,7 +31443,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_trim",
-      "community": 200,
+      "community": 204,
       "norm_label": "_trim()"
     },
     {
@@ -31453,7 +31453,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_clear",
-      "community": 85,
+      "community": 80,
       "norm_label": "clear()"
     },
     {
@@ -31463,7 +31463,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_reserve",
-      "community": 200,
+      "community": 18,
       "norm_label": "reserve()"
     },
     {
@@ -31473,7 +31473,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_refreshviews",
-      "community": 200,
+      "community": 204,
       "norm_label": "_refreshviews()"
     },
     {
@@ -31483,7 +31483,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_freebufferafterupload",
-      "community": 200,
+      "community": 204,
       "norm_label": "freebufferafterupload()"
     },
     {
@@ -32183,7 +32183,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_bu",
-      "community": 15,
+      "community": 140,
       "norm_label": "bu()"
     },
     {
@@ -32273,7 +32273,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_sd",
-      "community": 15,
+      "community": 140,
       "norm_label": "sd()"
     },
     {
@@ -32283,7 +32283,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_setuniform",
-      "community": 80,
+      "community": 142,
       "norm_label": "setuniform()"
     },
     {
@@ -32293,7 +32293,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getbinding",
-      "community": 38,
+      "community": 120,
       "norm_label": "getbinding()"
     },
     {
@@ -32353,7 +32353,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_upload",
-      "community": 73,
+      "community": 105,
       "norm_label": "upload()"
     },
     {
@@ -32383,7 +32383,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getvertexattributes",
-      "community": 73,
+      "community": 105,
       "norm_label": "getvertexattributes()"
     },
     {
@@ -32433,7 +32433,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getbinderattributes",
-      "community": 73,
+      "community": 105,
       "norm_label": "getbinderattributes()"
     },
     {
@@ -32463,7 +32463,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getuniforms",
-      "community": 38,
+      "community": 120,
       "norm_label": "getuniforms()"
     },
     {
@@ -32473,7 +32473,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_setuniforms",
-      "community": 80,
+      "community": 142,
       "norm_label": "setuniforms()"
     },
     {
@@ -32483,7 +32483,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_updatepaintbuffers",
-      "community": 73,
+      "community": 105,
       "norm_label": "updatepaintbuffers()"
     },
     {
@@ -32823,7 +32823,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_df",
-      "community": 200,
+      "community": 18,
       "norm_label": "df()"
     },
     {
@@ -32833,7 +32833,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ff",
-      "community": 200,
+      "community": 18,
       "norm_label": "ff()"
     },
     {
@@ -32843,7 +32843,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_copy",
-      "community": 200,
+      "community": 18,
       "norm_label": "copy()"
     },
     {
@@ -32853,7 +32853,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_replace",
-      "community": 72,
+      "community": 103,
       "norm_label": "replace()"
     },
     {
@@ -33003,7 +33003,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_samplebilinear",
-      "community": 105,
+      "community": 18,
       "norm_label": "samplebilinear()"
     },
     {
@@ -33033,7 +33033,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_unpack",
-      "community": 105,
+      "community": 18,
       "norm_label": "unpack()"
     },
     {
@@ -33053,7 +33053,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getpixels",
-      "community": 105,
+      "community": 18,
       "norm_label": "getpixels()"
     },
     {
@@ -33073,7 +33073,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getbyteview",
-      "community": 105,
+      "community": 18,
       "norm_label": "_getbyteview()"
     },
     {
@@ -33083,7 +33083,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_unpackatindex",
-      "community": 105,
+      "community": 18,
       "norm_label": "_unpackatindex()"
     },
     {
@@ -33153,7 +33153,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_if",
-      "community": 130,
+      "community": 142,
       "norm_label": "if()"
     },
     {
@@ -33173,7 +33173,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_bf",
-      "community": 171,
+      "community": 81,
       "norm_label": "bf()"
     },
     {
@@ -33213,7 +33213,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_yf",
-      "community": 171,
+      "community": 81,
       "norm_label": "yf()"
     },
     {
@@ -33223,7 +33223,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_zf",
-      "community": 171,
+      "community": 81,
       "norm_label": "zf()"
     },
     {
@@ -33253,7 +33253,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_np",
-      "community": 171,
+      "community": 81,
       "norm_label": "np()"
     },
     {
@@ -33263,7 +33263,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_rp",
-      "community": 171,
+      "community": 81,
       "norm_label": "rp()"
     },
     {
@@ -33403,7 +33403,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vp",
-      "community": 171,
+      "community": 81,
       "norm_label": "vp()"
     },
     {
@@ -33683,7 +33683,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_tm",
-      "community": 169,
+      "community": 140,
       "norm_label": "tm"
     },
     {
@@ -33803,7 +33803,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_pm",
-      "community": 169,
+      "community": 140,
       "norm_label": "pm()"
     },
     {
@@ -33813,7 +33813,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_mm",
-      "community": 169,
+      "community": 140,
       "norm_label": "mm()"
     },
     {
@@ -33823,7 +33823,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_hm",
-      "community": 169,
+      "community": 140,
       "norm_label": "hm()"
     },
     {
@@ -33833,7 +33833,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_gm",
-      "community": 169,
+      "community": 140,
       "norm_label": "gm()"
     },
     {
@@ -33843,7 +33843,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vm",
-      "community": 169,
+      "community": 140,
       "norm_label": "vm()"
     },
     {
@@ -33853,7 +33853,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ym",
-      "community": 169,
+      "community": 140,
       "norm_label": "ym()"
     },
     {
@@ -33863,7 +33863,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_bm",
-      "community": 169,
+      "community": 140,
       "norm_label": "bm()"
     },
     {
@@ -33873,7 +33873,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_fromlnglat",
-      "community": 169,
+      "community": 140,
       "norm_label": "fromlnglat()"
     },
     {
@@ -33883,7 +33883,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_tolnglat",
-      "community": 169,
+      "community": 140,
       "norm_label": "tolnglat()"
     },
     {
@@ -33893,7 +33893,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_toaltitude",
-      "community": 169,
+      "community": 140,
       "norm_label": "toaltitude()"
     },
     {
@@ -33903,7 +33903,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_meterinmercatorcoordinateunits",
-      "community": 169,
+      "community": 140,
       "norm_label": "meterinmercatorcoordinateunits()"
     },
     {
@@ -33913,7 +33913,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_wm",
-      "community": 169,
+      "community": 140,
       "norm_label": "wm()"
     },
     {
@@ -33923,7 +33923,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_em",
-      "community": 169,
+      "community": 140,
       "norm_label": "em()"
     },
     {
@@ -33943,7 +33943,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_km",
-      "community": 169,
+      "community": 140,
       "norm_label": "km()"
     },
     {
@@ -34033,7 +34033,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_eh",
-      "community": 88,
+      "community": 38,
       "norm_label": "eh()"
     },
     {
@@ -34053,7 +34053,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_nh",
-      "community": 213,
+      "community": 88,
       "norm_label": "nh()"
     },
     {
@@ -34103,7 +34103,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_sh",
-      "community": 94,
+      "community": 85,
       "norm_label": "sh()"
     },
     {
@@ -34203,7 +34203,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vh",
-      "community": 213,
+      "community": 88,
       "norm_label": "vh()"
     },
     {
@@ -34213,7 +34213,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_yh",
-      "community": 85,
+      "community": 38,
       "norm_label": "yh()"
     },
     {
@@ -34243,7 +34243,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_wh",
-      "community": 94,
+      "community": 85,
       "norm_label": "wh()"
     },
     {
@@ -34263,7 +34263,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_jh",
-      "community": 88,
+      "community": 38,
       "norm_label": "jh()"
     },
     {
@@ -34383,7 +34383,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getclusters",
-      "community": 94,
+      "community": 84,
       "norm_label": "getclusters()"
     },
     {
@@ -34393,7 +34393,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getclustersinternal",
-      "community": 94,
+      "community": 84,
       "norm_label": "getclustersinternal()"
     },
     {
@@ -34463,7 +34463,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_addtilefeatures",
-      "community": 94,
+      "community": 84,
       "norm_label": "addtilefeatures()"
     },
     {
@@ -34523,7 +34523,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_tg",
-      "community": 94,
+      "community": 84,
       "norm_label": "tg()"
     },
     {
@@ -34533,7 +34533,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ng",
-      "community": 94,
+      "community": 85,
       "norm_label": "ng()"
     },
     {
@@ -34543,7 +34543,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_rg",
-      "community": 94,
+      "community": 84,
       "norm_label": "rg()"
     },
     {
@@ -34563,7 +34563,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_sg",
-      "community": 95,
+      "community": 38,
       "norm_label": "sg()"
     },
     {
@@ -34573,7 +34573,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_cg",
-      "community": 95,
+      "community": 38,
       "norm_label": "cg()"
     },
     {
@@ -34583,7 +34583,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_lg",
-      "community": 95,
+      "community": 38,
       "norm_label": "lg()"
     },
     {
@@ -34593,7 +34593,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ug",
-      "community": 95,
+      "community": 38,
       "norm_label": "ug()"
     },
     {
@@ -34603,7 +34603,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_dg",
-      "community": 95,
+      "community": 38,
       "norm_label": "dg()"
     },
     {
@@ -34613,7 +34613,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_fg",
-      "community": 95,
+      "community": 38,
       "norm_label": "fg()"
     },
     {
@@ -34623,7 +34623,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_pg",
-      "community": 95,
+      "community": 38,
       "norm_label": "pg()"
     },
     {
@@ -34713,7 +34713,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_updatedata",
-      "community": 85,
+      "community": 38,
       "norm_label": "updatedata()"
     },
     {
@@ -34723,7 +34723,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_filterupdate",
-      "community": 85,
+      "community": 38,
       "norm_label": "filterupdate()"
     },
     {
@@ -34733,7 +34733,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getdata",
-      "community": 213,
+      "community": 88,
       "norm_label": "getdata()"
     },
     {
@@ -35693,7 +35693,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_j",
-      "community": 72,
+      "community": 103,
       "norm_label": "j_()"
     },
     {
@@ -35773,7 +35773,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_tv",
-      "community": 15,
+      "community": 140,
       "norm_label": "tv()"
     },
     {
@@ -35783,7 +35783,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_nv",
-      "community": 169,
+      "community": 140,
       "norm_label": "nv()"
     },
     {
@@ -35883,7 +35883,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_addcollisiondebugvertex",
-      "community": 112,
+      "community": 73,
       "norm_label": "_addcollisiondebugvertex()"
     },
     {
@@ -35893,7 +35893,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_addcollisiondebugvertices",
-      "community": 112,
+      "community": 73,
       "norm_label": "addcollisiondebugvertices()"
     },
     {
@@ -35993,7 +35993,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_addindicesforplacedsymbol",
-      "community": 85,
+      "community": 80,
       "norm_label": "addindicesforplacedsymbol()"
     },
     {
@@ -36003,7 +36003,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_getsortedsymbolindexes",
-      "community": 85,
+      "community": 80,
       "norm_label": "getsortedsymbolindexes()"
     },
     {
@@ -36023,7 +36023,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_sortfeatures",
-      "community": 85,
+      "community": 80,
       "norm_label": "sortfeatures()"
     },
     {
@@ -36033,7 +36033,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_uv",
-      "community": 72,
+      "community": 103,
       "norm_label": "uv()"
     },
     {
@@ -36073,7 +36073,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_setpaintoverrides",
-      "community": 103,
+      "community": 18,
       "norm_label": "_setpaintoverrides()"
     },
     {
@@ -36083,7 +36083,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_haspaintoverride",
-      "community": 103,
+      "community": 18,
       "norm_label": "haspaintoverride()"
     },
     {
@@ -36213,7 +36213,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_url",
-      "community": 72,
+      "community": 103,
       "norm_label": "url()"
     },
     {
@@ -36353,7 +36353,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_zv",
-      "community": 72,
+      "community": 103,
       "norm_label": "zv()"
     },
     {
@@ -36363,7 +36363,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_bv",
-      "community": 72,
+      "community": 103,
       "norm_label": "bv()"
     },
     {
@@ -36373,7 +36373,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vv",
-      "community": 72,
+      "community": 103,
       "norm_label": "vv()"
     },
     {
@@ -36833,7 +36833,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_iy",
-      "community": 140,
+      "community": 143,
       "norm_label": "iy()"
     },
     {
@@ -36843,7 +36843,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ly",
-      "community": 140,
+      "community": 143,
       "norm_label": "ly()"
     },
     {
@@ -36853,7 +36853,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_ry",
-      "community": 140,
+      "community": 143,
       "norm_label": "ry()"
     },
     {
@@ -36863,7 +36863,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_zy",
-      "community": 140,
+      "community": 143,
       "norm_label": "zy()"
     },
     {
@@ -36873,7 +36873,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_vy",
-      "community": 140,
+      "community": 143,
       "norm_label": "vy()"
     },
     {
@@ -36883,7 +36883,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_hy",
-      "community": 140,
+      "community": 143,
       "norm_label": "hy()"
     },
     {
@@ -36893,7 +36893,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_uy",
-      "community": 140,
+      "community": 143,
       "norm_label": "uy()"
     },
     {
@@ -36903,7 +36903,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_shared_gy",
-      "community": 140,
+      "community": 143,
       "norm_label": "gy()"
     },
     {
@@ -37743,7 +37743,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_constructor",
-      "community": 77,
+      "community": 117,
       "norm_label": "constructor()"
     },
     {
@@ -37753,7 +37753,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_replace",
-      "community": 77,
+      "community": 117,
       "norm_label": "replace()"
     },
     {
@@ -37763,7 +37763,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_update",
-      "community": 77,
+      "community": 117,
       "norm_label": "update()"
     },
     {
@@ -38193,7 +38193,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_getavailableimages",
-      "community": 190,
+      "community": 77,
       "norm_label": "_getavailableimages()"
     },
     {
@@ -38203,7 +38203,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_getlayerindex",
-      "community": 190,
+      "community": 77,
       "norm_label": "_getlayerindex()"
     },
     {
@@ -38213,7 +38213,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_public_maplibre_maplibre_gl_worker_getworkersource",
-      "community": 190,
+      "community": 77,
       "norm_label": "_getworkersource()"
     },
     {
@@ -54926,7 +54926,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/api/stripe/pay/route.ts",
-      "source_location": "L89",
+      "source_location": "L93",
       "weight": 1.0,
       "source": "frontend_app_api_stripe_pay_route_post",
       "target": "frontend_lib_stripe_server_getstripe"
@@ -101129,7 +101129,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "frontend_eslint_config",
-      "target": "frontend_lib_clip_provider_config",
+      "target": "omilink_omilink_config",
       "confidence_score": 1.0
     },
     {
@@ -127132,7 +127132,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L398",
+      "source_location": "L405",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_confirmorderpaid",
@@ -127142,7 +127142,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L190",
+      "source_location": "L197",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_createorder",
@@ -127152,7 +127152,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L215",
+      "source_location": "L222",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_createpayment",
@@ -127162,7 +127162,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L48",
+      "source_location": "L56",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_credentials",
@@ -127172,7 +127172,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L87",
+      "source_location": "L94",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_describe",
@@ -127182,7 +127182,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L120",
+      "source_location": "L127",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_exchangecode",
@@ -127192,7 +127192,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L163",
+      "source_location": "L170",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_fetchlocations",
@@ -127202,7 +127202,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L257",
+      "source_location": "L264",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_getmerchanttoken",
@@ -127212,7 +127212,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L247",
+      "source_location": "L254",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_merchant",
@@ -127222,7 +127222,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L28",
+      "source_location": "L36",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_oauth_scopes",
@@ -127232,7 +127232,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L283",
+      "source_location": "L290",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_refreshaccount",
@@ -127242,7 +127242,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L345",
+      "source_location": "L352",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_requiregerant",
@@ -127252,7 +127252,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L200",
+      "source_location": "L207",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_retrieveorder",
@@ -127262,7 +127262,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L225",
+      "source_location": "L232",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_retrievepayment",
@@ -127272,7 +127272,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L372",
+      "source_location": "L379",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_settlepayment",
@@ -127282,7 +127282,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L131",
+      "source_location": "L138",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squareapi",
@@ -127292,7 +127292,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L59",
+      "source_location": "L66",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squareauthorizeurl",
@@ -127302,7 +127302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L77",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squareerror",
@@ -127312,7 +127312,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L155",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squarelocation",
@@ -127322,7 +127322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L176",
+      "source_location": "L183",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squaremoney",
@@ -127332,7 +127332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L181",
+      "source_location": "L188",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squareorder",
@@ -127342,7 +127342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L207",
+      "source_location": "L214",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squarepayment",
@@ -127352,7 +127352,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L69",
+      "source_location": "L76",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_squaretokens",
@@ -127362,7 +127362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L94",
+      "source_location": "L101",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_tokenrequest",
@@ -127372,7 +127372,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L232",
+      "source_location": "L239",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_upsertsquareaccount",
@@ -127382,7 +127382,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L326",
+      "source_location": "L333",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_verifywebhooksignature",
@@ -127392,7 +127392,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L302",
+      "source_location": "L309",
       "weight": 1.0,
       "source": "frontend_lib_square_server",
       "target": "frontend_lib_square_server_withfreshtoken",
@@ -127447,7 +127447,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L60",
+      "source_location": "L67",
       "weight": 1.0,
       "source": "frontend_lib_square_server_squareauthorizeurl",
       "target": "frontend_lib_square_server_credentials",
@@ -127458,7 +127458,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L97",
+      "source_location": "L104",
       "weight": 1.0,
       "source": "frontend_lib_square_server_tokenrequest",
       "target": "frontend_lib_square_server_credentials",
@@ -127468,7 +127468,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L78",
+      "source_location": "L85",
       "weight": 1.0,
       "source": "frontend_lib_square_server_squareerror",
       "target": "frontend_lib_square_server_squareerror_constructor",
@@ -127479,7 +127479,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L148",
+      "source_location": "L155",
       "weight": 1.0,
       "source": "frontend_lib_square_server_squareapi",
       "target": "frontend_lib_square_server_describe",
@@ -127490,7 +127490,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L113",
+      "source_location": "L120",
       "weight": 1.0,
       "source": "frontend_lib_square_server_tokenrequest",
       "target": "frontend_lib_square_server_describe",
@@ -127501,7 +127501,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L124",
+      "source_location": "L131",
       "weight": 1.0,
       "source": "frontend_lib_square_server_exchangecode",
       "target": "frontend_lib_square_server_tokenrequest",
@@ -127512,7 +127512,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L288",
+      "source_location": "L295",
       "weight": 1.0,
       "source": "frontend_lib_square_server_refreshaccount",
       "target": "frontend_lib_square_server_tokenrequest",
@@ -127523,7 +127523,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L194",
+      "source_location": "L201",
       "weight": 1.0,
       "source": "frontend_lib_square_server_createorder",
       "target": "frontend_lib_square_server_squareapi",
@@ -127534,7 +127534,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L219",
+      "source_location": "L226",
       "weight": 1.0,
       "source": "frontend_lib_square_server_createpayment",
       "target": "frontend_lib_square_server_squareapi",
@@ -127545,7 +127545,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L204",
+      "source_location": "L211",
       "weight": 1.0,
       "source": "frontend_lib_square_server_retrieveorder",
       "target": "frontend_lib_square_server_squareapi",
@@ -127556,7 +127556,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L229",
+      "source_location": "L236",
       "weight": 1.0,
       "source": "frontend_lib_square_server_retrievepayment",
       "target": "frontend_lib_square_server_squareapi",
@@ -127567,7 +127567,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L292",
+      "source_location": "L299",
       "weight": 1.0,
       "source": "frontend_lib_square_server_refreshaccount",
       "target": "frontend_lib_square_server_upsertsquareaccount",
@@ -127578,7 +127578,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L402",
+      "source_location": "L409",
       "weight": 1.0,
       "source": "frontend_lib_square_server_confirmorderpaid",
       "target": "frontend_lib_square_server_getmerchanttoken",
@@ -127589,7 +127589,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L276",
+      "source_location": "L283",
       "weight": 1.0,
       "source": "frontend_lib_square_server_getmerchanttoken",
       "target": "frontend_lib_square_server_refreshaccount",
@@ -127600,7 +127600,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L312",
+      "source_location": "L319",
       "weight": 1.0,
       "source": "frontend_lib_square_server_withfreshtoken",
       "target": "frontend_lib_square_server_getmerchanttoken",
@@ -127611,7 +127611,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L405",
+      "source_location": "L412",
       "weight": 1.0,
       "source": "frontend_lib_square_server_confirmorderpaid",
       "target": "frontend_lib_square_server_withfreshtoken",
@@ -127623,7 +127623,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L346",
+      "source_location": "L353",
       "weight": 1.0,
       "source": "frontend_lib_square_server_requiregerant",
       "target": "frontend_lib_supabase_server_createclient"
@@ -127633,7 +127633,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/square/server.ts",
-      "source_location": "L411",
+      "source_location": "L418",
       "weight": 1.0,
       "source": "frontend_lib_square_server_confirmorderpaid",
       "target": "frontend_lib_square_server_settlepayment",
@@ -128084,7 +128084,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3353",
+      "source_location": "L3359",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_compositetypes",
@@ -128094,7 +128094,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3370",
+      "source_location": "L3376",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_constants",
@@ -128114,7 +128114,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3253",
+      "source_location": "L3259",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_databasewithoutinternals",
@@ -128124,7 +128124,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3255",
+      "source_location": "L3261",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_defaultschema",
@@ -128134,7 +128134,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3336",
+      "source_location": "L3342",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_enums",
@@ -128154,7 +128154,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3257",
+      "source_location": "L3263",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_tables",
@@ -128164,7 +128164,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3286",
+      "source_location": "L3292",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_tablesinsert",
@@ -128174,7 +128174,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/lib/supabase/database.types.ts",
-      "source_location": "L3311",
+      "source_location": "L3317",
       "weight": 1.0,
       "source": "frontend_lib_supabase_database_types",
       "target": "frontend_lib_supabase_database_types_tablesupdate",

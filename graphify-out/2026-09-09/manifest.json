@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
-    "mtime": 1788553715.6552918,
-    "ast_hash": "3267eeb8359b0a855dd5cad9b6f7be96",
+    "mtime": 1788962698.0076451,
+    "ast_hash": "a819788fa5c64a91847277fc1928b040",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/webhook-connect/route.ts": {
@@ -895,8 +895,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1788960843.1776474,
-    "ast_hash": "4df1954e87d7741c314faf8e8c9ad220",
+    "mtime": 1788962673.458869,
+    "ast_hash": "ce12948e15b9ad411f85887e61f18d85",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1095,8 +1095,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788961040.234406,
-    "ast_hash": "71f9ee10c3f7b7abd7fa1ccef6ec8ea1",
+    "mtime": 1788961377.1518123,
+    "ast_hash": "480f5046d0512188c2da8ff91092f990",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1630,12 +1630,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788960981.6144335,
+    "mtime": 1788961352.6098742,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788960981.6083534,
+    "mtime": 1788961352.5997715,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -3120,8 +3120,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/pay/route.ts": {
-    "mtime": 1788960570.9924502,
-    "ast_hash": "11e5f396a876651d2602be189ab1f864",
+    "mtime": 1788962721.4770937,
+    "ast_hash": "99b591ca81e3ed4950fd8c47b2d0164d",
     "semantic_hash": ""
   },
   "frontend/app/api/square/refresh/route.ts": {
@@ -3190,8 +3190,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/square/server.ts": {
-    "mtime": 1788960570.992775,
-    "ast_hash": "fa177c1457cdeba9e4440e182f25fde7",
+    "mtime": 1788961347.7721474,
+    "ast_hash": "ff6cbde4fe836abeb4ebf606208e2351",
     "semantic_hash": ""
   },
   "supabase/migrations/20260909000001_shop_share_image.sql": {
@@ -3242,6 +3242,11 @@
   "ominin_logo.png": {
     "mtime": 1788960570.9932344,
     "ast_hash": "1c383d8451a1aff30922196f57fc2638",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260910000005_platform_fee.sql": {
+    "mtime": 1788962653.7278233,
+    "ast_hash": "fc61476e4ab23e0c6fc6499c37d7e97a",
     "semantic_hash": ""
   }
 }

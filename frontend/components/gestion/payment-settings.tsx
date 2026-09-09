@@ -2,15 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/toast";
-import { setOnlinePayment } from "@/lib/gestion/api";
+import { setOnlinePayment, setPaymentProvider } from "@/lib/gestion/api";
 
 /*
  * Réglage « paiement à table en ligne » (gérant). Deux encaisseurs possibles,
  * au choix de l'établissement : Stripe, dont le compte Express se crée par
  * l'onboarding hébergé, ou Square, dont le restaurant relie SON compte
  * existant — dans les deux cas l'argent des additions lui va directement.
- * Le choix se verrouille dès qu'un compte est relié : en changer voudrait
- * dire délier celui en place, ce qui n'a rien d'un réglage. SumUp attend
+ * Le choix se verrouille visuellement dès qu'un compte est relié ; le gérant
+ * peut le rouvrir via « Changer d'encaisseur » — la bascule coupe le
+ * paiement par carte et le rallume si le nouveau fournisseur peut déjà
+ * encaisser (compte relié + vérification faite / point de vente choisi).
+ * SumUp attend
  * l'activation de son scope « payments » : ses routes restent en place, il
  * n'est plus proposé.
  *
@@ -75,6 +78,9 @@ export function PaymentSettings({
   const [provider, setProvider] = useState<Provider>(initialProvider);
   const [enabled, setEnabled] = useState(initialEnabled);
   const [busy, setBusy] = useState(false);
+  const [switching, setSwitching] = useState(false);
+  const [providerBeforeSwitch, setProviderBeforeSwitch] =
+    useState<Provider>(initialProvider);
 
   const enable = useCallback(
     async (message: string) => {
@@ -102,9 +108,10 @@ export function PaymentSettings({
       ]);
       setStripe(stripeStatus);
       setSquare(squareStatus);
-      // Un compte relié fixe le fournisseur, quoi qu'ait choisi la radio.
-      if (squareStatus.connected) setProvider("square");
-      else if (stripeStatus.connected) setProvider("stripe");
+      if (squareStatus.connected && !stripeStatus.connected)
+        setProvider("square");
+      else if (stripeStatus.connected && !squareStatus.connected)
+        setProvider("stripe");
 
       if (fromStripe === "recommencer") {
         toast.error("Le lien Stripe a expiré — reprenez la configuration.");
@@ -187,6 +194,39 @@ export function PaymentSettings({
     }
   };
 
+  const confirmSwitch = async () => {
+    setBusy(true);
+    try {
+      await setPaymentProvider(provider);
+      setEnabled(false);
+      setSwitching(false);
+      setProviderBeforeSwitch(provider);
+      const ready =
+        provider === "square"
+          ? Boolean(square?.connected && square.locationId)
+          : Boolean(stripe?.chargesEnabled);
+      if (ready) {
+        await setOnlinePayment(true);
+        setEnabled(true);
+      }
+      toast.success(
+        ready
+          ? `Paiement basculé sur ${provider === "square" ? "Square" : "Stripe"}.`
+          : `Encaisseur changé — reliez votre compte ${provider === "square" ? "Square" : "Stripe"} pour réactiver le paiement par carte.`
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    }
+    setBusy(false);
+  };
+
+  const cancelSwitch = () => {
+    setProvider(providerBeforeSwitch);
+    setSwitching(false);
+  };
+
   const loading = stripe === null || square === null;
   const linked = Boolean(stripe?.connected || square?.connected);
   // Encaissement réellement possible : Stripe vérifié, ou Square avec un
@@ -214,7 +254,10 @@ export function PaymentSettings({
         <div aria-busy className="shimmer h-10 rounded-xl" />
       ) : (
         <>
-          <fieldset className="flex flex-col gap-2" disabled={linked || busy}>
+          <fieldset
+            className="flex flex-col gap-2"
+            disabled={(linked && !switching) || busy}
+          >
             <legend className="text-sm font-medium">Votre encaissement</legend>
             <div className="flex flex-wrap gap-2">
               {(
@@ -229,7 +272,7 @@ export function PaymentSettings({
                     provider === value
                       ? "border-ember-2 bg-ember-2/5"
                       : "border-hairline"
-                  } ${linked && provider !== value ? "opacity-40" : ""}`}
+                  } ${linked && !switching && provider !== value ? "opacity-40" : ""}`}
                 >
                   <span className="flex items-center gap-2 font-medium">
                     <input
@@ -246,11 +289,44 @@ export function PaymentSettings({
                 </label>
               ))}
             </div>
-            {linked && (
-              <p className="text-xs text-muted">
-                Un compte est relié : pour changer d&rsquo;encaisseur,
-                contactez-nous.
-              </p>
+            {linked && !switching && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setProviderBeforeSwitch(provider);
+                  setSwitching(true);
+                }}
+                className="self-start text-xs font-medium text-ember-2 hover:underline disabled:opacity-60"
+              >
+                Changer d&rsquo;encaisseur
+              </button>
+            )}
+            {switching && (
+              <div className="flex items-center gap-3">
+                {provider !== providerBeforeSwitch ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void confirmSwitch()}
+                    className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background disabled:opacity-60"
+                  >
+                    {busy ? "Changement…" : "Confirmer"}
+                  </button>
+                ) : (
+                  <p className="text-xs text-muted">
+                    Choisissez votre nouvel encaisseur.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={cancelSwitch}
+                  className="text-xs text-muted hover:underline disabled:opacity-60"
+                >
+                  Annuler
+                </button>
+              </div>
             )}
           </fieldset>
 
