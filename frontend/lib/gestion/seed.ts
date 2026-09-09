@@ -206,12 +206,14 @@ export function seed(): GestionState {
       onlinePayment: false,
       paymentProvider: null,
       collectSlotCapacity: 5,
+      adminPinSet: false,
     },
     subscriptionStatus: "active",
     collectSubscriptionStatus: null,
     userId: "demo-user",
     role: "gerant",
     members: [],
+    staff: [],
     categories,
     formules: [
       {

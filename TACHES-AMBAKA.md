@@ -5,7 +5,40 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 1. Tablette de salle et serveurs sans compte (2026-09-09)
+
+Une migration, à appliquer avec les autres. Elle **transforme le planning et
+les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
+compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260909000002_staff.sql` (table `staff`, reprise des membres, trigger
+      qui donne sa fiche à tout membre invité, `shifts.staff_id` et
+      `time_entries.staff_id`, fonction `staff_planning`, table `admin_pins`,
+      colonne `etablissements.admin_pin_set`, fonctions `set_admin_pin` et
+      `verify_admin_pin`). Les 45 migrations ont été rejouées sur un Postgres
+      16 vierge et le tout testé par un scénario SQL de 11 étapes.
+- [ ] **Types** : entrées `staff`, `admin_pins`, `staff_id` et les trois
+      nouvelles fonctions ajoutées à la main dans
+      `frontend/lib/supabase/database.types.ts`, à régénérer avec le reste.
+- [ ] **Poser le code de la tablette de BOHO** : Gestion → Établissement →
+      Tablette de salle, un code de 4 à 8 chiffres. Tant qu'aucun code n'est
+      posé, rien ne change pour personne : l'espace s'ouvre comme avant.
+      Une fois posé, chaque appareil démarre en vue salle et le bouton Admin
+      de l'en-tête ouvre les écrans du gérant pour l'onglet en cours.
+- [ ] **Créer les serveurs de BOHO** : Gestion → Équipe → Planning →
+      « Ajouter un serveur ». Ils n'ont besoin d'aucune adresse e-mail. Le
+      gérant copie ensuite le lien de planning depuis la fiche et l'envoie à
+      chacun ; ce lien reste valable tant que la personne est dans l'équipe.
+- [ ] **Vérifier après déploiement** : sur la tablette connectée au compte du
+      restaurant, l'espace ouvre sur Commandes sans les onglets Paiements,
+      Équipe ni Terminaux ; le bouton Admin les rend au bon code et les
+      reprend au clic sur le cadenas ; la badgeuse propose les serveurs créés
+      par le gérant ; le lien de planning s'ouvre sur un téléphone déconnecté
+      et n'affiche que les créneaux de son destinataire ; retirer un serveur
+      coupe son lien sans effacer ses heures dans Équipe → Badgeages.
+
+## 2. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -25,7 +58,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 2. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 3. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -47,16 +80,15 @@ en panne pour qui n'a pas encore le nouveau front.
       données → Web pour `ominin.com`). Sans elle, aucun script Google n'est
       chargé et le bandeau cookies ne s'affiche pas — c'est le comportement
       voulu en préproduction.
-- [ ] **Types** : même remarque qu'au § 3 — les entrées `shifts`,
+- [ ] **Types** : même remarque qu'au § 4 — les entrées `shifts`,
       `time_entries` et la nouvelle signature de `pay_order_items` ont été
       écrites à la main dans `frontend/lib/supabase/database.types.ts`.
 - [ ] **Graphe de connaissance** : `graphify update .` puis commiter
       `graphify-out/` — graphify n'est pas installé sur la machine d'où ces
       changements ont été faits.
-- [ ] **Demander à l'équipe de poser son nom** : sur l'onglet Badgeage, chacun
-      renseigne son nom d'affichage (« Votre nom, visible par l'équipe »).
-      Sans lui, l'équipe apparaît en adresses e-mail sur la badgeuse et le
-      planning — et seul le membre peut poser le sien, pas le gérant.
+- [x] ~~Demander à l'équipe de poser son nom~~ — sans objet depuis le § 1 :
+      c'est le gérant qui nomme les fiches, personne n'a plus à renseigner
+      son nom pour figurer sur la badgeuse ou au planning.
 - [ ] **Vérifier après déploiement** : une table réglée disparaît directement
       dans l'historique et son ticket sort en cuisine ; débrancher le boîtier
       fait réapparaître l'onglet « À servir » ; deux nems d'une même ligne se
@@ -66,7 +98,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 3. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 4. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

@@ -6,6 +6,7 @@ import type {
   Formule,
   Member,
   Order,
+  Staff,
   Table,
 } from "./types";
 
@@ -34,6 +35,7 @@ export function rowToEtablissement(
     paymentProvider: row.payment_provider,
     collectSlotCapacity: row.collect_slot_capacity,
     googleReviewUrl: row.google_review_url ?? undefined,
+    adminPinSet: row.admin_pin_set,
   };
 }
 
@@ -87,6 +89,16 @@ export function rowToFormule(row: Tables<"formules">): Formule {
 
 export function rowToTable(row: Tables<"tables">): Table {
   return { id: row.id, number: row.number };
+}
+
+export function rowToStaff(row: Tables<"staff">): Staff {
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role,
+    userId: row.user_id,
+    planningToken: row.planning_token,
+  };
 }
 
 export function rowToMember(row: Tables<"memberships">): Member {

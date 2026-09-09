@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
-import { rowToFormule, rowToMenuItem, rowToOrder, toJson } from "./mappers";
+import {
+  rowToFormule,
+  rowToMenuItem,
+  rowToOrder,
+  rowToStaff,
+  toJson,
+} from "./mappers";
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
   EncaissementMode,
@@ -13,6 +19,8 @@ import type {
   GestionState,
   Order,
   OrderStatus,
+  Role,
+  Staff,
 } from "./types";
 
 /*
@@ -501,7 +509,86 @@ export async function updateDisplayName(name: string): Promise<void> {
   apply((draft) => {
     const member = draft.members.find((m) => m.userId === draft.userId);
     if (member) member.displayName = trimmed;
+    // Sa fiche porte le même nom tant que le gérant ne l'a pas renommée.
+    const own = draft.staff.find((s) => s.userId === draft.userId);
+    if (own) own.name = trimmed;
   });
+}
+
+/**
+ * Nouveau serveur, sans compte : le gérant le nomme, la base lui donne son
+ * jeton de planning. C'est le chemin normal en salle — un compte ne sert qu'à
+ * ceux qui ouvrent l'espace de gestion eux-mêmes.
+ */
+export async function createStaff(name: string, role: Role): Promise<Staff> {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Le nom ne peut pas être vide.");
+  const supabase = createClient();
+  const row = must(
+    await supabase
+      .from("staff")
+      .insert({ etablissement_id: etablissementId(), name: trimmed, role })
+      .select()
+      .single()
+  );
+  const staff = rowToStaff(row);
+  return apply((draft) => {
+    draft.staff.push(staff);
+    return staff;
+  });
+}
+
+export async function renameStaff(staffId: string, name: string): Promise<void> {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Le nom ne peut pas être vide.");
+  const supabase = createClient();
+  check(await supabase.from("staff").update({ name: trimmed }).eq("id", staffId));
+  apply((draft) => {
+    const staff = draft.staff.find((s) => s.id === staffId);
+    if (staff) staff.name = trimmed;
+  });
+}
+
+/**
+ * Retirer quelqu'un de l'équipe : la fiche est archivée, jamais supprimée.
+ * Elle quitte la badgeuse et le planning, son lien cesse de répondre, mais
+ * ses heures restent — un décompte du temps de travail ne s'efface pas.
+ */
+export async function archiveStaff(staffId: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("staff")
+      .update({ archived_at: new Date().toISOString() })
+      .eq("id", staffId)
+  );
+  apply((draft) => {
+    draft.staff = draft.staff.filter((s) => s.id !== staffId);
+  });
+}
+
+/** Code d'accès de la tablette ; vide, il retire le verrou. */
+export async function setAdminPin(code: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.rpc("set_admin_pin", {
+      p_etablissement_id: etablissementId(),
+      p_code: code,
+    })
+  );
+  apply((draft) => {
+    draft.etablissement.adminPinSet = code.trim().length > 0;
+  });
+}
+
+export async function verifyAdminPin(code: string): Promise<boolean> {
+  const supabase = createClient();
+  return must(
+    await supabase.rpc("verify_admin_pin", {
+      p_etablissement_id: etablissementId(),
+      p_code: code,
+    })
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -515,6 +602,7 @@ export type EtablissementInput = Omit<
   | "onlinePayment"
   | "paymentProvider"
   | "collectSlotCapacity"
+  | "adminPinSet"
 >;
 
 export async function updateEtablissement(

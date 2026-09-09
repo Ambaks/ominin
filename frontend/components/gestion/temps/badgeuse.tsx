@@ -8,21 +8,21 @@ import { formatTime } from "@/lib/gestion/format";
 import {
   clockIn,
   clockOut,
-  displayNameOf,
   formatDuration,
   minutesBetween,
   openEntry,
   type TimeEntry,
 } from "@/lib/gestion/temps";
-import type { Member } from "@/lib/gestion/types";
+import type { Staff } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { SignaturePad } from "./signature-pad";
 
 /*
  * La badgeuse du comptoir : deux gestes, arrivée et départ. Chacun se
  * désigne dans l'équipe puis signe — c'est la signature, figée avec le nom et
- * l'heure, qui fait la preuve du temps de travail. L'écran est partagé, il ne
- * suppose donc pas que celui qui badge est celui qui est connecté.
+ * l'heure, qui fait la preuve du temps de travail. L'écran est partagé et ne
+ * suppose donc pas que celui qui badge est celui qui a ouvert la session : la
+ * tablette du restaurant est connectée une fois pour toutes.
  */
 
 type Action = "in" | "out";
@@ -34,46 +34,47 @@ const ACTION_LABELS: Record<Action, string> = {
 
 export function Badgeuse({
   etablissementId,
-  members,
+  staff,
   entries,
   onChange,
 }: {
   etablissementId: string;
-  members: Member[];
-  /** Badgeages du jour, période ouverte comprise. */
+  /** Équipe active : les fiches, avec ou sans compte. */
+  staff: Staff[];
+  /** Périodes de travail ouvertes, quelle que soit leur date. */
   entries: TimeEntry[];
   onChange: () => void;
 }) {
   const toast = useToast();
   const now = useNow(SERVICE_CLOCK_TICK_MS);
   const [action, setAction] = useState<Action | null>(null);
-  const [member, setMember] = useState<Member | null>(null);
+  const [chosen, setChosen] = useState<Staff | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const present = members.filter((m) => openEntry(entries, m.userId));
-  const absent = members.filter((m) => !openEntry(entries, m.userId));
+  const present = staff.filter((s) => openEntry(entries, s.id));
+  const absent = staff.filter((s) => !openEntry(entries, s.id));
   const eligible = action === "out" ? present : absent;
 
   const close = () => {
     setAction(null);
-    setMember(null);
+    setChosen(null);
     setSignature(null);
   };
 
   const submit = async () => {
-    if (!member || !signature) return;
+    if (!chosen || !signature) return;
     setBusy(true);
     try {
       if (action === "in") {
-        await clockIn(etablissementId, member, signature);
-        toast.success(`Arrivée de ${displayNameOf(member)} enregistrée.`);
+        await clockIn(etablissementId, chosen, signature);
+        toast.success(`Arrivée de ${chosen.name} enregistrée.`);
       } else {
-        const open = openEntry(entries, member.userId);
+        const open = openEntry(entries, chosen.id);
         if (!open) throw new Error("Aucune arrivée à clôturer.");
         await clockOut(open.id, signature);
         toast.success(
-          `Départ de ${displayNameOf(member)} — ${formatDuration(
+          `Départ de ${chosen.name} — ${formatDuration(
             minutesBetween(open.startedAt, new Date().toISOString())
           )} de service.`
         );
@@ -132,21 +133,26 @@ export function Badgeuse({
         </button>
       </div>
 
+      {staff.length === 0 && (
+        <p className="text-sm text-muted">
+          Aucun serveur dans l&rsquo;équipe. Le gérant les ajoute depuis
+          Équipe, onglet Planning.
+        </p>
+      )}
+
       {present.length > 0 && (
         <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-          {present.map((m, index) => {
-            const open = openEntry(entries, m.userId)!;
+          {present.map((member, index) => {
+            const open = openEntry(entries, member.id)!;
             return (
               <li
-                key={m.userId}
+                key={member.id}
                 className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
                   index > 0 ? "border-t border-hairline" : ""
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">
-                    {displayNameOf(m)}
-                  </p>
+                  <p className="truncate text-sm font-medium">{member.name}</p>
                   <p className="text-xs text-faint">
                     Depuis {formatTime(open.startedAt)}
                   </p>
@@ -162,7 +168,7 @@ export function Badgeuse({
         </ul>
       )}
 
-      {action && !member && (
+      {action && !chosen && (
         <Modal title={`${ACTION_LABELS[action]} — qui êtes-vous ?`} onClose={close}>
           {eligible.length === 0 ? (
             <p className="text-sm text-muted">
@@ -172,20 +178,19 @@ export function Badgeuse({
             </p>
           ) : (
             <ul className="flex flex-col gap-2">
-              {eligible.map((m) => (
-                <li key={m.userId}>
+              {eligible.map((member) => (
+                <li key={member.id}>
                   <button
                     type="button"
-                    onClick={() => setMember(m)}
+                    onClick={() => setChosen(member)}
                     className="flex w-full items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3.5 text-left transition-colors hover:border-ember-2/40"
                   >
                     <span className="truncate text-sm font-medium">
-                      {displayNameOf(m)}
+                      {member.name}
                     </span>
                     {action === "out" && (
                       <span className="shrink-0 text-xs tabular-nums text-faint">
-                        Depuis{" "}
-                        {formatTime(openEntry(entries, m.userId)!.startedAt)}
+                        Depuis {formatTime(openEntry(entries, member.id)!.startedAt)}
                       </span>
                     )}
                   </button>
@@ -196,16 +201,16 @@ export function Badgeuse({
         </Modal>
       )}
 
-      {action && member && (
+      {action && chosen && (
         <Modal
-          title={`${ACTION_LABELS[action]} de ${displayNameOf(member)}`}
+          title={`${ACTION_LABELS[action]} de ${chosen.name}`}
           onClose={close}
           footer={
             <>
               <button
                 type="button"
                 onClick={() => {
-                  setMember(null);
+                  setChosen(null);
                   setSignature(null);
                 }}
                 className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"

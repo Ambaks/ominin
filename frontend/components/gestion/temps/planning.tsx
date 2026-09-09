@@ -6,18 +6,19 @@ import { formatTime } from "@/lib/gestion/format";
 import {
   addDays,
   copyWeek,
-  displayNameOf,
   entriesOf,
   formatDuration,
   plannedMinutes,
+  sameDay,
   shiftsOf,
   weekDays,
   workedMinutes,
+  type EntrySpan,
   type Shift,
-  type TimeEntry,
 } from "@/lib/gestion/temps";
-import type { Member } from "@/lib/gestion/types";
+import type { Staff } from "@/lib/gestion/types";
 import { ShiftModal } from "./shift-modal";
+import { StaffModal } from "./staff-modal";
 
 /*
  * Le planning de la semaine. Le gérant le pose dans une grille équipe × jours ;
@@ -77,17 +78,17 @@ export function WeekNav({
   );
 }
 
-/** Grille du gérant : une ligne par membre, sept colonnes, tout est cliquable. */
+/** Grille du gérant : une ligne par fiche, sept colonnes, tout est cliquable. */
 export function PlanningGrid({
   etablissementId,
-  members,
+  staff,
   shifts,
   start,
   onWeekChange,
   onChange,
 }: {
   etablissementId: string;
-  members: Member[];
+  staff: Staff[];
   shifts: Shift[];
   start: Date;
   onWeekChange: (start: Date) => void;
@@ -96,9 +97,13 @@ export function PlanningGrid({
   const toast = useToast();
   const [editing, setEditing] = useState<{
     day: Date;
-    member?: Member;
+    member?: Staff;
     shift?: Shift;
   } | null>(null);
+  // undefined : la modale est fermée. null : création d'une fiche.
+  const [editingStaff, setEditingStaff] = useState<Staff | null | undefined>(
+    undefined
+  );
   const [copying, setCopying] = useState(false);
   const days = weekDays(start);
 
@@ -121,25 +126,55 @@ export function PlanningGrid({
     }
   };
 
-  if (members.length === 0) {
+  const addStaff = (
+    <button
+      type="button"
+      onClick={() => setEditingStaff(null)}
+      className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+    >
+      + Ajouter un serveur
+    </button>
+  );
+
+  const staffModal = editingStaff !== undefined && (
+    <StaffModal
+      staff={editingStaff ?? undefined}
+      onClose={() => setEditingStaff(undefined)}
+      onSaved={() => {
+        setEditingStaff(undefined);
+        onChange();
+      }}
+    />
+  );
+
+  if (staff.length === 0) {
     return (
-      <p className="text-sm text-muted">
-        Invitez votre équipe pour lui poser un planning.
-      </p>
+      <div className="flex flex-col items-start gap-3">
+        <p className="text-sm text-muted">
+          Personne dans l&rsquo;équipe pour l&rsquo;instant. Ajoutez vos
+          serveurs : ils n&rsquo;ont pas besoin de compte pour figurer au
+          planning ni pour badger.
+        </p>
+        {addStaff}
+        {staffModal}
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
       <WeekNav start={start} onChange={onWeekChange}>
-        <button
-          type="button"
-          onClick={() => void copyToNext()}
-          disabled={copying || shifts.length === 0}
-          className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
-        >
-          Recopier sur la semaine suivante
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {addStaff}
+          <button
+            type="button"
+            onClick={() => void copyToNext()}
+            disabled={copying || shifts.length === 0}
+            className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+          >
+            Recopier sur la semaine suivante
+          </button>
+        </div>
       </WeekNav>
 
       <div className="-mx-5 overflow-x-auto px-5 lg:mx-0 lg:px-0">
@@ -160,17 +195,20 @@ export function PlanningGrid({
               Total
             </div>
 
-            {members.map((member) => {
-              const mine = shiftsOf(shifts, member.userId);
+            {staff.map((member) => {
+              const mine = shiftsOf(shifts, member.id);
               return (
-                <div key={member.userId} className="contents">
-                  <div className="flex items-center bg-surface px-3 py-2">
-                    <p className="truncate text-sm font-medium">
-                      {displayNameOf(member)}
-                    </p>
-                  </div>
+                <div key={member.id} className="contents">
+                  <button
+                    type="button"
+                    onClick={() => setEditingStaff(member)}
+                    title={`Fiche de ${member.name}`}
+                    className="flex items-center bg-surface px-3 py-2 text-left transition-colors hover:bg-surface-raised"
+                  >
+                    <p className="truncate text-sm font-medium">{member.name}</p>
+                  </button>
                   {days.map((day) => {
-                    const cell = shiftsOf(shifts, member.userId, day);
+                    const cell = shiftsOf(shifts, member.id, day);
                     return (
                       <div
                         key={day.toDateString()}
@@ -190,7 +228,7 @@ export function PlanningGrid({
                         <button
                           type="button"
                           onClick={() => setEditing({ day, member })}
-                          aria-label={`Ajouter un créneau pour ${displayNameOf(member)}`}
+                          aria-label={`Ajouter un créneau pour ${member.name}`}
                           className="rounded-lg py-0.5 text-xs text-faint transition-colors hover:bg-surface-raised hover:text-ember-1"
                         >
                           +
@@ -211,7 +249,7 @@ export function PlanningGrid({
       {editing && (
         <ShiftModal
           etablissementId={etablissementId}
-          members={members}
+          staff={staff}
           day={editing.day}
           shift={editing.shift}
           member={editing.member}
@@ -222,25 +260,85 @@ export function PlanningGrid({
           }}
         />
       )}
+      {staffModal}
     </div>
+  );
+}
+
+/**
+ * La semaine de l'équipe, en lecture. C'est ce qu'il faut sur la tablette
+ * partagée du restaurant, où « ma semaine » ne veut rien dire : chacun y
+ * cherche son nom, et voit qui travaille avec lui.
+ */
+export function PlanningEquipe({
+  staff,
+  shifts,
+  start,
+}: {
+  staff: Staff[];
+  shifts: Shift[];
+  start: Date;
+}) {
+  const nameById = new Map(staff.map((member) => [member.id, member.name]));
+  return (
+    <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
+      {weekDays(start).map((day, index) => {
+        const dayShifts = shifts
+          .filter((shift) => sameDay(shift.startsAt, day))
+          .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+        return (
+          <li
+            key={day.toDateString()}
+            className={`flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-3.5 ${
+              index > 0 ? "border-t border-hairline" : ""
+            } ${isToday(day) ? "bg-ember-2/[0.06]" : ""}`}
+          >
+            <p
+              className={`w-24 shrink-0 text-sm capitalize ${
+                isToday(day) ? "font-medium text-ember-1" : "text-muted"
+              }`}
+            >
+              {dayLabel(day)}
+            </p>
+            {dayShifts.length === 0 ? (
+              <p className="text-sm text-faint">Personne</p>
+            ) : (
+              <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                {dayShifts.map((shift) => (
+                  <span
+                    key={shift.id}
+                    className="rounded-lg border border-hairline px-2 py-1 text-xs"
+                  >
+                    {nameById.get(shift.staffId) ?? "—"}{" "}
+                    <span className="tabular-nums text-muted">
+                      {formatTime(shift.startsAt)}–{formatTime(shift.endsAt)}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
 /** Vue d'un membre sur sa semaine : ce qui est prévu, ce qui a été badgé. */
 export function MonPlanning({
-  userId,
+  staffId,
   shifts,
   entries,
   start,
 }: {
-  userId: string;
+  staffId: string;
   shifts: Shift[];
-  entries: TimeEntry[];
+  entries: EntrySpan[];
   start: Date;
 }) {
   const now = new Date();
-  const mine = shiftsOf(shifts, userId);
-  const mineEntries = entriesOf(entries, userId);
+  const mine = shiftsOf(shifts, staffId);
+  const mineEntries = entriesOf(entries, staffId);
   const planned = plannedMinutes(mine);
   const worked = workedMinutes(mineEntries, now);
 
@@ -267,8 +365,8 @@ export function MonPlanning({
 
       <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
         {weekDays(start).map((day, index) => {
-          const dayShifts = shiftsOf(mine, userId, day);
-          const dayEntries = entriesOf(mineEntries, userId, day);
+          const dayShifts = shiftsOf(mine, staffId, day);
+          const dayEntries = entriesOf(mineEntries, staffId, day);
           return (
             <li
               key={day.toDateString()}

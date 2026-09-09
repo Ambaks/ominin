@@ -7,11 +7,10 @@ import { useToast } from "@/components/ui/toast";
 import {
   createShift,
   deleteShift,
-  displayNameOf,
   updateShift,
   type Shift,
 } from "@/lib/gestion/temps";
-import type { Member } from "@/lib/gestion/types";
+import type { Staff } from "@/lib/gestion/types";
 
 /*
  * Un créneau du planning : qui, quel jour, de quelle heure à quelle heure.
@@ -35,7 +34,7 @@ function isoAt(day: Date, time: string): string {
 
 export function ShiftModal({
   etablissementId,
-  members,
+  staff,
   day,
   shift,
   member,
@@ -43,18 +42,18 @@ export function ShiftModal({
   onSaved,
 }: {
   etablissementId: string;
-  members: Member[];
+  staff: Staff[];
   /** Journée de la case cliquée (le créneau existant garde la sienne). */
   day: Date;
   shift?: Shift;
   /** Membre de la ligne cliquée, quand le créneau est nouveau. */
-  member?: Member;
+  member?: Staff;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const toast = useToast();
-  const [userId, setUserId] = useState(
-    shift?.userId ?? member?.userId ?? members[0]?.userId ?? ""
+  const [staffId, setStaffId] = useState(
+    shift?.staffId ?? member?.id ?? staff[0]?.id ?? ""
   );
   const [from, setFrom] = useState(shift ? timeInput(shift.startsAt) : "18:00");
   const [to, setTo] = useState(shift ? timeInput(shift.endsAt) : "23:00");
@@ -74,7 +73,7 @@ export function ShiftModal({
         next.setDate(next.getDate() + 1);
         endsAt = next.toISOString();
       }
-      const input = { userId, startsAt, endsAt, note: note.trim() || undefined };
+      const input = { staffId, startsAt, endsAt, note: note.trim() || undefined };
       if (shift) await updateShift(shift.id, input);
       else await createShift(etablissementId, input);
       toast.success(shift ? "Créneau modifié." : "Créneau ajouté.");
@@ -121,7 +120,7 @@ export function ShiftModal({
           <button
             type="submit"
             form="shift-form"
-            disabled={busy || !userId}
+            disabled={busy || !staffId}
             className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
           >
             Enregistrer
@@ -139,13 +138,13 @@ export function ShiftModal({
         </p>
         <Field label="Membre" required>
           <select
-            value={userId}
-            onChange={(event) => setUserId(event.target.value)}
+            value={staffId}
+            onChange={(event) => setStaffId(event.target.value)}
             className={inputClass}
           >
-            {members.map((candidate) => (
-              <option key={candidate.userId} value={candidate.userId}>
-                {displayNameOf(candidate)}
+            {staff.map((candidate) => (
+              <option key={candidate.id} value={candidate.id}>
+                {candidate.name}
               </option>
             ))}
           </select>

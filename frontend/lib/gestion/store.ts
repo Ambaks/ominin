@@ -1,10 +1,11 @@
 "use client";
 
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import { must } from "@/lib/supabase/result";
+import { useAdminUnlocked } from "./admin-lock";
 import {
   ANALYTICS_PERIOD_DAYS,
   HISTORY_ORDER_STATUSES,
@@ -18,6 +19,7 @@ import {
   rowToFormule,
   rowToMember,
   rowToOrder,
+  rowToStaff,
   rowToTable,
 } from "./mappers";
 import { can, hasFeature } from "./permissions";
@@ -269,6 +271,7 @@ async function load(): Promise<void> {
     tables,
     orders,
     members,
+    staff,
   ] = await Promise.all([
       supabase
         .from("etablissements")
@@ -315,6 +318,15 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
         .then(must),
+      // Les fiches archivées ne servent qu'au journal des badgeages, qui les
+      // relit à la demande : l'espace de service ne porte que l'équipe active.
+      supabase
+        .from("staff")
+        .select("*")
+        .eq("etablissement_id", etablissementId)
+        .is("archived_at", null)
+        .order("created_at", { ascending: true })
+        .then(must),
     ]);
 
   const offreSub = subscription?.find((s) => s.product === "offre");
@@ -327,6 +339,7 @@ async function load(): Promise<void> {
     userId: user.id,
     role: membership.role,
     members: members.map(rowToMember),
+    staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
     tables: tables.map(rowToTable),
@@ -425,8 +438,45 @@ export async function refreshSubscription(): Promise<void> {
 }
 
 /** État complet, ou null côté serveur / avant chargement (⇒ squelette). */
+/**
+ * État courant, verrou de tablette compris : tant que l'espace est verrouillé,
+ * le compte du restaurant se présente comme un serveur. Tout l'espace suit —
+ * navigation, droits, écrans — sans que chaque page ait à connaître le verrou.
+ */
 export function useGestion(): GestionState | null {
-  return useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+  const locked = useTabletLocked();
+  return useMemo(
+    () => (snapshot && locked ? { ...snapshot, role: "serveur" as const } : snapshot),
+    [snapshot, locked]
+  );
+}
+
+/** Rôle du compte, verrou ignoré : c'est lui qui dit si le code peut ouvrir. */
+export function useRealRole(): Role | null {
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+  return snapshot?.role ?? null;
+}
+
+/** L'espace est-il tenu en vue salle par le code d'accès ? */
+export function useTabletLocked(): boolean {
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    getClientSnapshot,
+    getServerSnapshot
+  );
+  const unlocked = useAdminUnlocked();
+  return Boolean(
+    snapshot?.role === "gerant" && snapshot.etablissement.adminPinSet && !unlocked
+  );
 }
 
 export interface GestionAccess {

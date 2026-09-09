@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
+import { TabletSettings } from "@/components/gestion/tablet-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
@@ -130,6 +131,7 @@ export default function EtablissementPage() {
             etablissement={state.etablissement}
           />
           <PaymentSettings initialEnabled={state.etablissement.onlinePayment} />
+          <TabletSettings pinSet={state.etablissement.adminPinSet} />
           {products.collect && (
             <CollectSettings
               initialSlotCapacity={state.etablissement.collectSlotCapacity}

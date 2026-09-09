@@ -33,6 +33,7 @@ import {
   TeamIcon,
   type IconProps,
 } from "./icons";
+import { AdminLockButton } from "./admin-lock-button";
 import { SubscriptionGate } from "./subscription-gate";
 
 interface NavItem {
@@ -172,6 +173,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
             </div>
             {state && (
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <AdminLockButton />
                 <ThemeToggle />
                 <a
                   href={`/m/${state.etablissement.slug}`}

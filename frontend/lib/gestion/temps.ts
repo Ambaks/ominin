@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
-import type { Member } from "./types";
+import { menuSiteUrl } from "@/lib/site";
+import type { Staff } from "./types";
 
 /*
  * Temps de travail : le planning posé par le gérant et les badgeages signés
@@ -11,19 +12,27 @@ import type { Member } from "./types";
 
 export interface Shift {
   id: string;
-  userId: string;
+  staffId: string;
   startsAt: string;
   endsAt: string;
   note?: string;
 }
 
-export interface TimeEntry {
+/**
+ * Ce qu'il faut d'un badgeage pour compter des heures. Le lien de planning
+ * d'un serveur n'en reçoit pas davantage : ni nom, ni signature — la preuve
+ * reste dans l'établissement.
+ */
+export interface EntrySpan {
   id: string;
-  userId: string;
-  /** Nom figé au badgeage : la preuve ne bouge pas si le membre est renommé. */
-  memberName: string;
+  staffId: string;
   startedAt: string;
   endedAt?: string;
+}
+
+export interface TimeEntry extends EntrySpan {
+  /** Nom figé au badgeage : la preuve ne bouge pas si la fiche est renommée. */
+  memberName: string;
   signatureIn: string;
   signatureOut?: string;
   editedAt?: string;
@@ -71,7 +80,7 @@ export function minutesBetween(from: string, to: string): number {
 }
 
 /** Minutes travaillées, la période en cours comptée jusqu'à maintenant. */
-export function workedMinutes(entries: TimeEntry[], now: Date): number {
+export function workedMinutes(entries: EntrySpan[], now: Date): number {
   return entries.reduce(
     (sum, entry) =>
       sum + minutesBetween(entry.startedAt, entry.endedAt ?? now.toISOString()),
@@ -86,36 +95,36 @@ export function plannedMinutes(shifts: Shift[]): number {
   );
 }
 
-/** Créneau du jour d'un membre, pour rapprocher badgeage et planning. */
-export function shiftsOf(shifts: Shift[], userId: string, day?: Date): Shift[] {
+/** Créneau du jour d'une fiche, pour rapprocher badgeage et planning. */
+export function shiftsOf(shifts: Shift[], staffId: string, day?: Date): Shift[] {
   return shifts.filter(
     (shift) =>
-      shift.userId === userId && (!day || sameDay(shift.startsAt, day))
+      shift.staffId === staffId && (!day || sameDay(shift.startsAt, day))
   );
 }
 
-export function entriesOf(
-  entries: TimeEntry[],
-  userId: string,
+export function entriesOf<T extends EntrySpan>(
+  entries: T[],
+  staffId: string,
   day?: Date
-): TimeEntry[] {
+): T[] {
   return entries.filter(
     (entry) =>
-      entry.userId === userId && (!day || sameDay(entry.startedAt, day))
+      entry.staffId === staffId && (!day || sameDay(entry.startedAt, day))
   );
 }
 
-/** Badgeage ouvert d'un membre : il est présent. */
-export function openEntry(
-  entries: TimeEntry[],
-  userId: string
-): TimeEntry | undefined {
-  return entries.find((entry) => entry.userId === userId && !entry.endedAt);
+/** Badgeage ouvert d'une fiche : la personne est en service. */
+export function openEntry<T extends EntrySpan>(
+  entries: T[],
+  staffId: string
+): T | undefined {
+  return entries.find((entry) => entry.staffId === staffId && !entry.endedAt);
 }
 
-/** Nom d'affichage d'un membre, celui que porteront ses badgeages. */
-export function displayNameOf(member: Member): string {
-  return member.displayName ?? member.email;
+/** Adresse du lien de planning à remettre à un serveur, une fois pour toutes. */
+export function planningLink(token: string): string {
+  return `${menuSiteUrl}/planning/${token}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -126,7 +135,7 @@ type EntryRow = Tables<"time_entries">;
 function rowToEntry(row: EntryRow): TimeEntry {
   return {
     id: row.id,
-    userId: row.user_id,
+    staffId: row.staff_id,
     memberName: row.member_name,
     startedAt: row.started_at,
     endedAt: row.ended_at ?? undefined,
@@ -181,7 +190,7 @@ export async function loadWeek(
   return {
     shifts: must(shifts).map((row) => ({
       id: row.id,
-      userId: row.user_id,
+      staffId: row.staff_id,
       startsAt: row.starts_at,
       endsAt: row.ends_at,
       note: row.note ?? undefined,
@@ -195,22 +204,22 @@ export async function loadWeek(
 
 export async function clockIn(
   etablissementId: string,
-  member: Member,
+  staff: Staff,
   signature: string
 ): Promise<void> {
   const supabase = createClient();
   const { error } = await supabase.from("time_entries").insert({
     etablissement_id: etablissementId,
-    user_id: member.userId,
-    member_name: displayNameOf(member),
+    staff_id: staff.id,
+    member_name: staff.name,
     signature_in: signature,
     created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
   });
   if (error) {
-    // Index partiel : un membre déjà arrivé ne peut pas l'être deux fois.
+    // Index partiel : une fiche déjà arrivée ne peut pas l'être deux fois.
     throw new Error(
       error.message.includes("time_entries_open_idx")
-        ? `${displayNameOf(member)} a déjà badgé son arrivée.`
+        ? `${staff.name} a déjà badgé son arrivée.`
         : error.message
     );
   }
@@ -250,7 +259,7 @@ export async function deleteEntry(entryId: string): Promise<void> {
 }
 
 export interface ShiftInput {
-  userId: string;
+  staffId: string;
   startsAt: string;
   endsAt: string;
   note?: string;
@@ -263,7 +272,7 @@ export async function createShift(
   check(
     await createClient().from("shifts").insert({
       etablissement_id: etablissementId,
-      user_id: input.userId,
+      staff_id: input.staffId,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       note: input.note ?? null,
@@ -279,7 +288,7 @@ export async function updateShift(
     await createClient()
       .from("shifts")
       .update({
-        user_id: input.userId,
+        staff_id: input.staffId,
         starts_at: input.startsAt,
         ends_at: input.endsAt,
         note: input.note ?? null,
@@ -309,7 +318,7 @@ export async function copyWeek(
       .insert(
         shifts.map((source) => ({
           etablissement_id: etablissementId,
-          user_id: source.userId,
+          staff_id: source.staffId,
           starts_at: shift(source.startsAt),
           ends_at: shift(source.endsAt),
           note: source.note ?? null,

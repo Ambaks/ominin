@@ -661,6 +661,7 @@ export type Database = {
           collect_slot_capacity: number
           cover_image: string | null
           created_at: string
+          admin_pin_set: boolean
           google_review_url: string | null
           hours: string
           id: string
@@ -680,6 +681,7 @@ export type Database = {
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
+          admin_pin_set?: boolean
           google_review_url?: string | null
           hours?: string
           id?: string
@@ -699,6 +701,7 @@ export type Database = {
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
+          admin_pin_set?: boolean
           google_review_url?: string | null
           hours?: string
           id?: string
@@ -1627,6 +1630,73 @@ export type Database = {
           },
         ]
       }
+      admin_pins: {
+        Row: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_pins_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          planning_token: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          planning_token?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          planning_token?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shifts: {
         Row: {
           created_at: string
@@ -1635,7 +1705,7 @@ export type Database = {
           id: string
           note: string | null
           starts_at: string
-          user_id: string
+          staff_id: string
         }
         Insert: {
           created_at?: string
@@ -1644,7 +1714,7 @@ export type Database = {
           id?: string
           note?: string | null
           starts_at: string
-          user_id: string
+          staff_id: string
         }
         Update: {
           created_at?: string
@@ -1653,7 +1723,7 @@ export type Database = {
           id?: string
           note?: string | null
           starts_at?: string
-          user_id?: string
+          staff_id?: string
         }
         Relationships: [
           {
@@ -2773,8 +2843,8 @@ export type Database = {
           member_name: string
           signature_in: string
           signature_out: string | null
+          staff_id: string
           started_at: string
-          user_id: string
         }
         Insert: {
           created_at?: string
@@ -2787,8 +2857,8 @@ export type Database = {
           member_name: string
           signature_in: string
           signature_out?: string | null
+          staff_id: string
           started_at?: string
-          user_id: string
         }
         Update: {
           created_at?: string
@@ -2801,8 +2871,8 @@ export type Database = {
           member_name?: string
           signature_in?: string
           signature_out?: string | null
+          staff_id?: string
           started_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -2913,6 +2983,18 @@ export type Database = {
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
+      set_admin_pin: {
+        Args: { p_code: string; p_etablissement_id: string }
+        Returns: undefined
+      }
+      staff_planning: {
+        Args: { p_from: string; p_to: string; p_token: string }
+        Returns: Json
+      }
+      verify_admin_pin: {
+        Args: { p_code: string; p_etablissement_id: string }
+        Returns: boolean
+      }
       shop_decrement_stock: {
         Args: { p_product_id: string; p_qty: number }
         Returns: undefined

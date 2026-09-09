@@ -60,6 +60,12 @@ export interface Etablissement {
   paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
+  /**
+   * Un code d'accès est posé : l'espace démarre alors en vue salle sur chaque
+   * appareil, et les écrans du gérant se déverrouillent au code. Sans code,
+   * rien ne change.
+   */
+  adminPinSet: boolean;
   /** Lien « laisser un avis » de la fiche Google Business, proposé en bas du menu QR. */
   googleReviewUrl?: string;
 }
@@ -114,6 +120,21 @@ export interface Member {
   displayName: string | null;
 }
 
+/**
+ * Quelqu'un qui travaille ici, avec ou sans compte. C'est la fiche que le
+ * planning et les badgeages désignent : en salle, un serveur n'a pas besoin
+ * d'adresse e-mail pour figurer au planning ni pour pointer.
+ */
+export interface Staff {
+  id: string;
+  name: string;
+  role: Role;
+  /** Compte associé, s'il en a un. */
+  userId: string | null;
+  /** Jeton de son lien de planning, à lui transmettre une fois. */
+  planningToken: string;
+}
+
 export interface Article {
   id: string;
   name: string;
@@ -148,6 +169,8 @@ export interface GestionState {
   userId: string;
   role: Role;
   members: Member[];
+  /** Équipe au sens du service : comptes et serveurs sans compte confondus. */
+  staff: Staff[];
   categories: MenuCategory[];
   formules: Formule[];
   tables: Table[];

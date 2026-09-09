@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { ProfileRow } from "@/components/gestion/profile-row";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
-import { MonPlanning, WeekNav } from "@/components/gestion/temps/planning";
+import { PlanningEquipe, WeekNav } from "@/components/gestion/temps/planning";
 import { weekStart } from "@/lib/gestion/temps";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
 
 /*
- * L'écran de l'équipe : la badgeuse partagée du comptoir, puis la semaine du
- * membre connecté — ce qui lui est prévu, ce qu'il a badgé.
+ * L'écran de l'équipe : la badgeuse partagée du comptoir, puis la semaine
+ * telle qu'elle est prévue. La tablette n'appartient à personne, on y cherche
+ * son nom — celui que le gérant a posé sur sa fiche.
  */
 export default function BadgeagePage() {
   const state = useGestion();
@@ -42,23 +42,16 @@ export default function BadgeagePage() {
 
       <Badgeuse
         etablissementId={state.etablissement.id}
-        members={state.members}
+        staff={state.staff}
         entries={open.entries}
         onChange={badged}
       />
 
       <section className="flex flex-col gap-4">
-        <h2 className="font-display text-lg font-medium">Ma semaine</h2>
+        <h2 className="font-display text-lg font-medium">La semaine</h2>
         <WeekNav start={start} onChange={setStart} />
-        <MonPlanning
-          userId={state.userId}
-          shifts={data.shifts}
-          entries={data.entries}
-          start={start}
-        />
+        <PlanningEquipe staff={state.staff} shifts={data.shifts} start={start} />
       </section>
-
-      <ProfileRow state={state} />
     </div>
   );
 }

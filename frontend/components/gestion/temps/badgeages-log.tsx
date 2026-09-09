@@ -9,7 +9,6 @@ import { formatTime } from "@/lib/gestion/format";
 import {
   correctEntry,
   deleteEntry,
-  displayNameOf,
   entriesOf,
   formatDuration,
   minutesBetween,
@@ -21,7 +20,7 @@ import {
   type Shift,
   type TimeEntry,
 } from "@/lib/gestion/temps";
-import type { Member } from "@/lib/gestion/types";
+import type { Staff } from "@/lib/gestion/types";
 import { SignatureThumb } from "./signature-pad";
 
 /*
@@ -116,13 +115,13 @@ function CorrectionModal({
 }
 
 export function BadgeagesLog({
-  members,
+  staff,
   shifts,
   entries,
   start,
   onChange,
 }: {
-  members: Member[];
+  staff: Staff[];
   shifts: Shift[];
   entries: TimeEntry[];
   start: Date;
@@ -139,18 +138,18 @@ export function BadgeagesLog({
       <section className="flex flex-col gap-3">
         <h3 className="font-display text-lg font-medium">Heures de la semaine</h3>
         <div className="rounded-2xl border border-hairline bg-surface">
-          {members.map((member, index) => {
-            const worked = workedMinutes(entriesOf(entries, member.userId), now);
-            const planned = plannedMinutes(shiftsOf(shifts, member.userId));
+          {staff.map((member, index) => {
+            const worked = workedMinutes(entriesOf(entries, member.id), now);
+            const planned = plannedMinutes(shiftsOf(shifts, member.id));
             return (
               <div
-                key={member.userId}
+                key={member.id}
                 className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
                   index > 0 ? "border-t border-hairline" : ""
                 }`}
               >
                 <p className="truncate text-sm font-medium">
-                  {displayNameOf(member)}
+                  {member.name}
                 </p>
                 <p className="shrink-0 text-sm tabular-nums">
                   <span className="text-ember-1">{formatDuration(worked)}</span>
@@ -162,7 +161,7 @@ export function BadgeagesLog({
               </div>
             );
           })}
-          {members.length === 0 && (
+          {staff.length === 0 && (
             <p className="px-5 py-4 text-sm text-muted">Aucun membre.</p>
           )}
         </div>

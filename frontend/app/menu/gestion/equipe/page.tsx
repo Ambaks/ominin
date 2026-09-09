@@ -369,7 +369,7 @@ export default function EquipePage() {
           {pane === "planning" && (
             <PlanningGrid
               etablissementId={state.etablissement.id}
-              members={state.members}
+              staff={state.staff}
               shifts={data.shifts}
               start={start}
               onWeekChange={setStart}
@@ -380,13 +380,13 @@ export default function EquipePage() {
             <div className="flex flex-col gap-6">
               <Badgeuse
                 etablissementId={state.etablissement.id}
-                members={state.members}
+                staff={state.staff}
                 entries={open.entries}
                 onChange={badged}
               />
               <WeekNav start={start} onChange={setStart} />
               <BadgeagesLog
-                members={state.members}
+                staff={state.staff}
                 shifts={data.shifts}
                 entries={data.entries}
                 start={start}
