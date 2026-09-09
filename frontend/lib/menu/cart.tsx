@@ -42,7 +42,9 @@ export interface CartConfig {
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
-  paymentProvider: "stripe" | "sumup";
+  paymentProvider: "stripe" | "sumup" | "square";
+  /** Point de vente Square encaisseur, requis par le SDK carte en page. */
+  squareLocationId: string | null;
 }
 
 interface CartContextValue extends CartConfig {

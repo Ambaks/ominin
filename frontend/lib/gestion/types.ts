@@ -19,7 +19,7 @@ export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
 /** Modes d'un encaissement au comptoir (le mixte est dérivé, l'en ligne subi). */
 export type EncaissementMode = Extract<PaymentMode, "especes" | "carte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
-export type PaymentProvider = "stripe" | "sumup";
+export type PaymentProvider = "stripe" | "sumup" | "square";
 
 /**
  * Ce qu'un restaurant a sous la main : les vues de son espace et ce qu'elles

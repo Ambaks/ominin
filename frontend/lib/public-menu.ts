@@ -15,7 +15,9 @@ export async function fetchRestaurant(slug: string): Promise<{
   offre: string | null;
   onlinePayment: boolean;
   /** Fournisseur du paiement à table ; non choisi ⇒ Stripe (historique). */
-  paymentProvider: "stripe" | "sumup";
+  paymentProvider: "stripe" | "sumup" | "square";
+  /** Point de vente Square encaisseur — public par conception (SDK carte). */
+  squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
   qrMenu: boolean;
   restaurant: Restaurant;
@@ -42,6 +44,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     offre: etablissement.offre,
     onlinePayment: etablissement.online_payment,
     paymentProvider: etablissement.payment_provider ?? "stripe",
+    squareLocationId: etablissement.square_location_id ?? null,
     // Réglage absent ou muet sur le QR : ouvert, comme le veut chaque offre.
     qrMenu:
       (etablissement.etablissement_settings?.features as { qr?: boolean } | null)

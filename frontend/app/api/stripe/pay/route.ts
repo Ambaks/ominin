@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     await Promise.all([
       admin
         .from("etablissements")
-        .select("name, slug, online_payment")
+        .select("name, slug, online_payment, platform_fee_percent")
         .eq("id", order.etablissement_id)
         .single(),
       admin
@@ -85,6 +85,10 @@ export async function POST(request: Request) {
     typeof tipAmount === "number" && Number.isFinite(tipAmount) && tipAmount > 0
       ? Math.min(Math.round(tipAmount * 100) / 100, orderTotal)
       : 0;
+
+  const feePercent = etab.platform_fee_percent ?? 0;
+  const feeCents =
+    feePercent > 0 ? Math.round((orderTotal * 100 * feePercent) / 100) : 0;
 
   const stripe = getStripe();
   const stripeAccount = { stripeAccount: account.id };
@@ -138,7 +142,11 @@ export async function POST(request: Request) {
         : { order_id: orderId },
       // Sur le relevé Stripe du restaurant : la table et la commande, pour la
       // ressaisie en caisse.
-      payment_intent_data: { description, metadata: { order_id: orderId } },
+      payment_intent_data: {
+        description,
+        metadata: { order_id: orderId },
+        ...(feeCents > 0 && { application_fee_amount: feeCents }),
+      },
       expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_TTL_S,
       locale: "fr",
       success_url: withOutcome("succes"),
@@ -149,7 +157,10 @@ export async function POST(request: Request) {
 
   const { error } = await admin
     .from("orders")
-    .update({ stripe_session_id: session.id })
+    .update({
+      stripe_session_id: session.id,
+      ...(feeCents > 0 && { platform_fee_cents: feeCents }),
+    })
     .eq("id", orderId);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

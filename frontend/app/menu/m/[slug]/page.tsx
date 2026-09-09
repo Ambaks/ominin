@@ -61,7 +61,8 @@ export default async function MenuPage({
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
-  const { restaurant, offre, onlinePayment, paymentProvider } = data;
+  const { restaurant, offre, onlinePayment, paymentProvider, squareLocationId } =
+    data;
 
   const parsedTable = Number(Array.isArray(table) ? table[0] : table);
   const tableNumber =
@@ -85,6 +86,7 @@ export default async function MenuPage({
         orderingEnabled,
         onlinePayment: orderingEnabled && onlinePayment,
         paymentProvider,
+        squareLocationId,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
