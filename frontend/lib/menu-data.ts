@@ -493,6 +493,19 @@ const boho: Restaurant = {
           name: "Pièce de bœuf grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
+          options: [
+            {
+              id: "cuisson",
+              name: "Cuisson",
+              obligatoire: true,
+              choices: [
+                { id: "a-point", name: "À point", supplement: 0 },
+                { id: "saignant", name: "Saignant", supplement: 0 },
+                { id: "bleu", name: "Bleu", supplement: 0 },
+                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+              ],
+            },
+          ],
         },
         {
           id: "piece-poulet",
@@ -507,6 +520,19 @@ const boho: Restaurant = {
           name: "Magret de canard grillé",
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
+          options: [
+            {
+              id: "cuisson",
+              name: "Cuisson",
+              obligatoire: true,
+              choices: [
+                { id: "a-point", name: "À point", supplement: 0 },
+                { id: "saignant", name: "Saignant", supplement: 0 },
+                { id: "bleu", name: "Bleu", supplement: 0 },
+                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+              ],
+            },
+          ],
         },
         {
           id: "saumon-plancha",
@@ -514,6 +540,19 @@ const boho: Restaurant = {
           name: "Escalope de saumon frais à la plancha",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
+          options: [
+            {
+              id: "cuisson",
+              name: "Cuisson",
+              obligatoire: true,
+              choices: [
+                { id: "a-point", name: "À point", supplement: 0 },
+                { id: "saignant", name: "Saignant", supplement: 0 },
+                { id: "bleu", name: "Bleu", supplement: 0 },
+                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+              ],
+            },
+          ],
         },
         {
           id: "burger-boho",
@@ -522,6 +561,19 @@ const boho: Restaurant = {
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
           badges: ["maison"],
+          options: [
+            {
+              id: "cuisson",
+              name: "Cuisson",
+              obligatoire: true,
+              choices: [
+                { id: "a-point", name: "À point", supplement: 0 },
+                { id: "saignant", name: "Saignant", supplement: 0 },
+                { id: "bleu", name: "Bleu", supplement: 0 },
+                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+              ],
+            },
+          ],
         },
       ],
     },
