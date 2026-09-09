@@ -41,6 +41,22 @@ def _archive_bounce(gmail_message_id: str) -> None:
         pass
 
 
+def archive_bounce_notifications() -> int:
+    """Move all mailer-daemon / postmaster emails out of inbox into Bounces.
+
+    Catches the backlog and anything that arrived between agent runs."""
+    stubs = gmail.search("in:inbox (from:mailer-daemon OR from:postmaster)")
+    if not stubs:
+        return 0
+    label_id = gmail.ensure_label(BOUNCE_LABEL)
+    for stub in stubs:
+        try:
+            gmail.archive_to_label(stub["id"], label_id)
+        except Exception:  # noqa: BLE001
+            pass
+    return len(stubs)
+
+
 def sweep_bounces() -> dict:
     """Regex-only bounce sweep — no Claude calls.
 
@@ -49,6 +65,8 @@ def sweep_bounces() -> dict:
     for the full hourly inbox job."""
     sb = get_supabase()
     stats = {"bounces": 0, "skipped": 0}
+
+    stats["archived_from_inbox"] = archive_bounce_notifications()
 
     for stub in gmail.list_inbox(
         newer_than_days=settings.inbox_lookback_days,

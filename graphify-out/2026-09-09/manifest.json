@@ -640,8 +640,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1788901510.1136708,
-    "ast_hash": "266fbc70e338657c1ae65126eaef9691",
+    "mtime": 1788901843.760835,
+    "ast_hash": "1feddcfb0e99fabae87d92aab05883ce",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1788901508.947253,
-    "ast_hash": "055ce499f534220425235074de0fa023",
+    "mtime": 1788945509.7738562,
+    "ast_hash": "23e2418e566d9070d05a2e609169aaef",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "backend/app/clients/gmail.py": {
-    "mtime": 1787081776.5375884,
-    "ast_hash": "32f5cde15158ab449b1400042e8d4d7f",
+    "mtime": 1788945737.0201328,
+    "ast_hash": "91776db75a50549c484cd0764e357e4e",
     "semantic_hash": ""
   },
   "backend/app/clients/places.py": {
@@ -1865,8 +1865,8 @@
     "semantic_hash": ""
   },
   "backend/app/services/inbox.py": {
-    "mtime": 1788351574.348148,
-    "ast_hash": "4ec31e7e9e63a191bc59b7f82ea6a29a",
+    "mtime": 1788945763.7077234,
+    "ast_hash": "31e31df5ec07496eea579507804f39d3",
     "semantic_hash": ""
   },
   "backend/app/services/outreach.py": {
@@ -3097,6 +3097,11 @@
   "frontend/public/shop/mybox/signature.webp": {
     "mtime": 1788900497.160686,
     "ast_hash": "c6322d176e8077919cc5b3d137e5ac2b",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260908000003_boho_tagline.sql": {
+    "mtime": 1788901995.6521473,
+    "ast_hash": "a787340e3c7418969f5b82ea6b271984",
     "semantic_hash": ""
   }
 }

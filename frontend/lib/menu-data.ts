@@ -447,7 +447,7 @@ const boho: Restaurant = {
       items: [
         { id: "nems-legumes", name: "Nems légumes (x4)", price: 6, image: pexels("11041855/pexels-photo-11041855.jpeg", 400) },
         { id: "nems-poulet", name: "Nems poulet (x4)", price: 6, image: unsplash("photo-1631241528578-2e22b55a8b0e", 400) },
-        { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7, image: unsplash("photo-1669385184491-8ab70b39324e", 400) },
+        { id: "crevettes-tempura", name: "Crevettes tempura (x2)", price: 7, image: pexels("6036952/pexels-photo-6036952.jpeg", 400) },
         { id: "samoussas-boeuf", name: "Samoussas bœuf (x4)", price: 6, image: unsplash("photo-1732519970445-8f2d6998961f", 400) },
         { id: "yakitori-boeuf", name: "Yakitori bœuf fromage (x2)", price: 6, image: pexels("37183924/pexels-photo-37183924.jpeg", 400) },
         {
@@ -496,7 +496,7 @@ const boho: Restaurant = {
         },
         {
           id: "piece-poulet",
-          image: pexels("37575753/pexels-photo-37575753.jpeg", 400),
+          image: pexels("36750259/pexels-photo-36750259.jpeg", 400),
           name: "Pièce de poulet grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
@@ -538,7 +538,7 @@ const boho: Restaurant = {
         },
         {
           id: "pizza-saumon",
-          image: pexels("30334387/pexels-photo-30334387.jpeg", 400),
+          image: unsplash("photo-1658057542814-b8f4482be598", 400),
           name: "Pizza Saumon Norvégienne",
           description: "Base crème fraîche, mozzarella, saumon, aneth.",
           price: 15,
@@ -593,7 +593,7 @@ const boho: Restaurant = {
       name: "Desserts",
       items: [
         { id: "creme-brulee", name: "Crème brûlée", price: 8, image: unsplash("photo-1575301543995-26dd932c3016", 400) },
-        { id: "tiramisu-cafe", name: "Tiramisu au café", price: 8, image: pexels("33419744/pexels-photo-33419744.jpeg", 400) },
+        { id: "tiramisu-cafe", name: "Tiramisu au café", price: 8, image: pexels("12916029/pexels-photo-12916029.jpeg", 400) },
         { id: "brioche-pain-perdu", name: "Brioche façon pain perdu", price: 8, image: unsplash("photo-1484723091739-30a097e8f929", 400) },
         { id: "coupe-fruits", name: "Coupe de fruits", price: 8, image: unsplash("photo-1631718051263-c567dca19362", 400) },
         { id: "crepes-nutella", name: "Crêpes Nutella", price: 8, image: unsplash("photo-1572542873907-204263f6a869", 400) },

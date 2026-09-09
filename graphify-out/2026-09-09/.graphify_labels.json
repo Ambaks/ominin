@@ -191,14 +191,9 @@
   "189": "graphify reference: extra exports and benchmark",
   "190": "demo-showcase.tsx",
   "191": "ya",
-  "192": "wordmark.tsx",
-  "193": "inscription-tabs.tsx",
-  "194": "page.tsx",
   "195": "site.ts",
   "196": "graphify reference: query, path, explain",
   "197": "/marwan",
-  "198": "create-shop-form.tsx",
-  "199": "resize",
   "200": "_getByteView",
   "201": "graphify reference: add a URL and watch a folder",
   "202": "graphify reference: commit hook and native CLAUDE.md integration",
@@ -207,6 +202,5 @@
   "205": "Tâches manuelles",
   "206": "graphify reference: GitHub clone and cross-repo merge",
   "207": "graphify reference: transcribe video and audio",
-  "208": "_getWorkerSource",
   "209": "extraction-spec.md"
 }

@@ -49,20 +49,23 @@ def send(
     return _service().users().messages().send(userId="me", body=payload).execute()
 
 
-def list_inbox(newer_than_days: int, max_results: int) -> list[dict]:
-    """Message stubs ({id, threadId}) for recent inbound mail."""
+def search(query: str, max_results: int = 100) -> list[dict]:
+    """Message stubs ({id, threadId}) matching an arbitrary Gmail query."""
     result = (
         _service()
         .users()
         .messages()
-        .list(
-            userId="me",
-            q=f"in:inbox -from:me newer_than:{newer_than_days}d",
-            maxResults=max_results,
-        )
+        .list(userId="me", q=query, maxResults=max_results)
         .execute()
     )
     return result.get("messages", [])
+
+
+def list_inbox(newer_than_days: int, max_results: int) -> list[dict]:
+    """Message stubs ({id, threadId}) for recent inbound mail."""
+    return search(
+        f"in:inbox -from:me newer_than:{newer_than_days}d", max_results
+    )
 
 
 def get_message(message_id: str) -> dict:
