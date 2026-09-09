@@ -182,7 +182,13 @@ export const VIEWS: ViewSpec[] = [
     id: "apercu",
     label: "Aperçu",
     hint: "Le tableau de bord d'accueil et son analytique.",
-    features: [],
+    features: [
+      {
+        id: "apercu_serveur",
+        label: "Aperçu du serveur",
+        hint: "La salle a son tableau de bord ; sinon elle ouvre sur le service.",
+      },
+    ],
   },
   {
     id: "commandes",
@@ -200,13 +206,30 @@ export const VIEWS: ViewSpec[] = [
     id: "tables",
     label: "Tables",
     hint: "Les tables en service et leur addition.",
-    features: [],
+    features: [
+      {
+        id: "assignation",
+        label: "Affectation d'un serveur",
+        hint: "Chaque table est confiée à un serveur, nommé sur sa tuile.",
+      },
+      {
+        id: "groupes_tables",
+        label: "Réunir des tables",
+        hint: "Plusieurs tables sous une même addition, pour un grand groupe.",
+      },
+    ],
   },
   {
     id: "paiements",
     label: "Paiements",
     hint: "Le journal des encaissements, réservé au gérant.",
-    features: [],
+    features: [
+      {
+        id: "pourboires",
+        label: "Pourboires par serveur",
+        hint: "Le partage des pourboires, suivant la table encaissée.",
+      },
+    ],
   },
   {
     id: "badgeage",
@@ -237,6 +260,11 @@ export const FEATURES: Feature[] = VIEWS.flatMap((view) => [
 /**
  * Ce que chaque offre ouvre par défaut. L'aperçu et le menu QR accompagnent
  * toute offre : ce sont la porte d'entrée de l'espace et la vitrine.
+ *
+ * Les gestes de salle qui ne conviennent pas à tous — affecter un serveur à
+ * une table, réunir des tables, partager les pourboires, donner son tableau
+ * de bord à la salle — n'y figurent pas : ils existent, et Ominin les coche
+ * pour qui les demande.
  */
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
   digital: ["qr", "apercu"],

@@ -6,6 +6,7 @@ import type {
   GestionState,
   Order,
   OrderItem,
+  Staff,
   Table,
 } from "./types";
 
@@ -102,7 +103,10 @@ export function totalsByMode(
 }
 
 export interface TableService {
+  /** Table qui porte l'addition : la plus petite du groupe s'il y en a un. */
   table: Table;
+  /** Tables réunies sous cette addition, celle-là comprise — une seule sinon. */
+  tables: Table[];
   /** Commandes ouvertes de la table, de la plus ancienne à la plus récente. */
   orders: Order[];
   /** Reste dû sur les commandes en attente d'encaissement. */
@@ -111,7 +115,11 @@ export interface TableService {
   toServe: number;
 }
 
-/** Tables en service (au moins une commande ouverte), par numéro croissant. */
+/**
+ * Tables en service (au moins une commande ouverte), par numéro croissant.
+ * Des tables réunies ne font qu'une entrée : leur addition est commune, et
+ * c'est la plus petite qui la porte.
+ */
 export function activeTables(state: GestionState): TableService[] {
   const byTable = new Map<string, Order[]>();
   for (const order of state.orders) {
@@ -122,26 +130,38 @@ export function activeTables(state: GestionState): TableService[] {
     list.push(order);
     byTable.set(order.tableId, list);
   }
-  return state.tables
-    .filter((table) => byTable.has(table.id))
-    .sort((a, b) => a.number - b.number)
-    .map((table) => {
-      const orders = byTable
-        .get(table.id)!
-        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-      return {
-        table,
-        orders,
-        toPay: orders
-          .filter(awaitsPayment)
-          .flatMap((order) => order.items.filter((line) => !line.paidMode))
-          .reduce((sum, line) => sum + lineTotal(line), 0),
-        toServe: orders
-          .filter(awaitsService)
-          .flatMap((order) => order.items)
-          .filter((line) => !line.servedAt).length,
-      };
-    });
+
+  const services = new Map<string, TableService>();
+  for (const table of [...state.tables].sort((a, b) => a.number - b.number)) {
+    const orders = byTable.get(table.id);
+    if (!orders) continue;
+    const key = table.groupId ?? table.id;
+    const service = services.get(key);
+    if (service) {
+      service.tables.push(table);
+      service.orders.push(...orders);
+      continue;
+    }
+    services.set(key, { table, tables: [table], orders: [...orders], toPay: 0, toServe: 0 });
+  }
+
+  return [...services.values()].map((service) => {
+    const orders = service.orders.sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt)
+    );
+    return {
+      ...service,
+      orders,
+      toPay: orders
+        .filter(awaitsPayment)
+        .flatMap((order) => order.items.filter((line) => !line.paidMode))
+        .reduce((sum, line) => sum + lineTotal(line), 0),
+      toServe: orders
+        .filter(awaitsService)
+        .flatMap((order) => order.items)
+        .filter((line) => !line.servedAt).length,
+    };
+  });
 }
 
 export function revenueToday(state: GestionState): number {
@@ -267,6 +287,26 @@ export function tipsTotal(state: GestionState, days: number): number {
     (sum, order) => sum + (order.tipAmount ?? 0),
     0
   );
+}
+
+/**
+ * Partage des pourboires : ce que chaque serveur a recueilli sur les tables
+ * qu'il tenait. Une commande encaissée sur une table sans serveur affecté
+ * n'entre dans aucune part — elle reste au total général.
+ */
+export function tipsByStaff(
+  orders: Order[],
+  staff: Staff[]
+): { staff: Staff; tip: number }[] {
+  const byStaff = new Map<string, number>();
+  for (const order of orders) {
+    if (!order.staffId || !order.tipAmount) continue;
+    byStaff.set(order.staffId, (byStaff.get(order.staffId) ?? 0) + order.tipAmount);
+  }
+  return staff
+    .filter((member) => byStaff.has(member.id))
+    .map((member) => ({ staff: member, tip: byStaff.get(member.id)! }))
+    .sort((a, b) => b.tip - a.tip);
 }
 
 /** Commandes par heure de la journée, agrégées sur la période (annulées exclues). */

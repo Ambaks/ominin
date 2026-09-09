@@ -255,6 +255,8 @@ export function seed(): GestionState {
     tables: Array.from({ length: SEED_TABLE_COUNT }, (_, index) => ({
       id: `table-${index + 1}`,
       number: index + 1,
+      staffId: null,
+      groupId: null,
     })),
     orders,
   };

@@ -5,9 +5,9 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Capacités par restaurant (2026-09-10)
+## 1. Capacités par restaurant et gestes de salle (2026-09-10)
 
-Une migration, et rien d'autre : l'écran de réglage vit dans l'administration
+Deux migrations, et rien d'autre : l'écran de réglage vit dans l'administration
 Ominin, il n'y a aucune variable d'environnement à poser. Tant que la migration
 n'est pas passée, l'espace de gestion charge quand même — les capacités
 retombent simplement sur celles de l'offre.
@@ -17,6 +17,11 @@ retombent simplement sur celles de l'offre.
       trigger qui donne sa ligne à chaque établissement, reprise des
       établissements existants, lecture anonyme des drapeaux pour le menu QR,
       lecture des abonnements par l'administration).
+- [ ] **Supabase** : `supabase db push` — applique aussi
+      `20260910000002_salle.sql` (affectation d'un serveur à une table,
+      groupes de tables, pourboire attribué au serveur). Rien n'apparaît
+      chez les clients tant que les cases correspondantes ne sont pas
+      cochées : elles sont fermées par défaut, BOHO compris.
 - [ ] **Vérifier après la migration** : `admin.ominin.com/clients` liste tous
       les établissements. Cocher et décocher une vue doit se voir aussitôt
       dans l'espace du restaurant, après un rechargement de sa page.

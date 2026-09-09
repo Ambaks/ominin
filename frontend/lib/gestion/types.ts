@@ -37,7 +37,11 @@ export type Feature =
   | "terminaux"
   | "options"
   | "roles"
-  | "prise_commande";
+  | "prise_commande"
+  | "apercu_serveur"
+  | "assignation"
+  | "groupes_tables"
+  | "pourboires";
 
 /** Produits actifs sur l'établissement : ils déterminent les capacités. */
 export interface ActiveProducts {
@@ -118,11 +122,17 @@ export interface Order {
   cashGiven?: number;
   cashChange?: number;
   tipAmount?: number;
+  /** Serveur qui a encaissé : c'est à lui que revient le pourboire. */
+  staffId?: string | null;
 }
 
 export interface Table {
   id: string;
   number: number;
+  /** Serveur qui tient la table, quand l'affectation est ouverte. */
+  staffId: string | null;
+  /** Tables réunies sous une même addition : identifiant du groupe. */
+  groupId: string | null;
 }
 
 export interface Member {

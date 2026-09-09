@@ -88,7 +88,12 @@ export function rowToFormule(row: Tables<"formules">): Formule {
 }
 
 export function rowToTable(row: Tables<"tables">): Table {
-  return { id: row.id, number: row.number };
+  return {
+    id: row.id,
+    number: row.number,
+    staffId: row.staff_id,
+    groupId: row.group_id,
+  };
 }
 
 export function rowToStaff(row: Tables<"staff">): Staff {
@@ -130,6 +135,7 @@ export function rowToOrder(row: OrderRow): Order {
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
+    staffId: row.staff_id,
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {

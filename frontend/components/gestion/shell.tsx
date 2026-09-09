@@ -44,12 +44,14 @@ interface NavItem {
   /** Onglet réservé au gérant : retiré de la navigation des employés. */
   gerantOnly?: boolean;
   excludeRoles?: Role[];
+  /** Onglet ouvert au serveur seulement si cette capacité l'est aussi. */
+  serveurFeature?: Feature;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  // Le serveur n'a pas d'aperçu : sa page d'accueil est le service lui-même
-  // (voir la redirection dans app/menu/gestion/page.tsx).
-  { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, excludeRoles: ["serveur"] },
+  // Le serveur n'a d'aperçu que si Ominin le lui ouvre ; sinon sa page
+  // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
+  { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
@@ -136,6 +138,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
     (item) =>
       (!item.feature || (state?.features[item.feature] ?? false)) &&
       (!item.gerantOnly || state?.role === "gerant") &&
+      (!item.serveurFeature ||
+        state?.role !== "serveur" ||
+        (state.features[item.serveurFeature] ?? false)) &&
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
   );
   const pendingCount =

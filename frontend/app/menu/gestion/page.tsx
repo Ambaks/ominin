@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
+import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
@@ -192,10 +193,17 @@ export default function ApercuPage() {
   const home = hasFeature("commandes")
     ? "/gestion/commandes"
     : "/gestion/menu";
-  // La salle n'a pas d'aperçu : son écran d'accueil est le service lui-même.
-  // La cuisine garde le sien — c'est là qu'elle tient les disponibilités.
-  if (!hasFeature("apercu") || state.role === "serveur")
-    return <GoTo href={home} />;
+  // La salle n'a pas d'aperçu par défaut : son écran d'accueil est le service
+  // lui-même. Ouvert, elle a le sien. La cuisine garde toujours le sien —
+  // c'est là qu'elle tient les disponibilités.
+  if (!hasFeature("apercu")) return <GoTo href={home} />;
+  if (state.role === "serveur") {
+    return hasFeature("apercu_serveur") ? (
+      <ServeurApercu state={state} />
+    ) : (
+      <GoTo href={home} />
+    );
+  }
   if (state.role !== "gerant") return <CuisinierApercu state={state} />;
 
   const indispo = unavailableItems(state);

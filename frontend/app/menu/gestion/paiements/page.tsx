@@ -12,7 +12,12 @@ import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
-import { isPaidStatus, orderTotal, totalsByMode } from "@/lib/gestion/selectors";
+import {
+  isPaidStatus,
+  orderTotal,
+  tipsByStaff,
+  totalsByMode,
+} from "@/lib/gestion/selectors";
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
@@ -234,6 +239,8 @@ export default function PaiementsPage() {
     },
     { especes: 0, carte: 0, en_ligne: 0 }
   );
+  const todayTips = todayPaid.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
+  const tipShares = tipsByStaff(todayPaid, state.staff);
 
   return (
     <div className="flex flex-col gap-6">
@@ -269,6 +276,36 @@ export default function PaiementsPage() {
         />
       </div>
 
+
+      {hasFeature("pourboires") && tipShares.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-display text-lg font-medium">
+              Pourboires du jour
+            </h2>
+            <span className="shrink-0 text-sm tabular-nums text-muted">
+              {formatPrice(todayTips)}
+            </span>
+          </div>
+          <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+            {tipShares.map(({ staff, tip }) => (
+              <div
+                key={staff.id}
+                className="flex items-center justify-between gap-4 px-5 py-3"
+              >
+                <p className="truncate text-sm font-medium">{staff.name}</p>
+                <span className="shrink-0 font-display text-base text-ember-1">
+                  {formatPrice(tip)}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs leading-relaxed text-faint">
+            Chaque part suit la table encaissée. Une table sans serveur
+            affecté ne compte pour personne.
+          </p>
+        </section>
+      )}
       <PillTabs
         tabs={MODE_FILTERS.map(({ id, label }) => ({ id, label }))}
         activeId={filter}

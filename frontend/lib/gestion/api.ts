@@ -562,6 +562,50 @@ export async function deleteStaff(staffId: string): Promise<void> {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Salle : qui tient la table, et quelles tables ne font qu'une
+
+/** Confier une table à un serveur, ou la libérer (staffId à null). */
+export async function assignTable(
+  tableId: string,
+  staffId: string | null
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("tables").update({ staff_id: staffId }).eq("id", tableId));
+  apply((draft) => {
+    const table = draft.tables.find((t) => t.id === tableId);
+    if (table) table.staffId = staffId;
+  });
+}
+
+/**
+ * Réunir des tables sous une même addition. Le groupe est créé en base par
+ * `group_tables`, qui refuse une table déjà réunie et une table d'un autre
+ * établissement.
+ */
+export async function groupTables(tableIds: string[]): Promise<void> {
+  const supabase = createClient();
+  const groupId = must(
+    await supabase.rpc("group_tables", { p_table_ids: tableIds })
+  );
+  apply((draft) => {
+    for (const table of draft.tables) {
+      if (tableIds.includes(table.id)) table.groupId = groupId;
+    }
+  });
+}
+
+/** Séparer des tables réunies : le groupe disparaît avec elles. */
+export async function ungroupTables(groupId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.rpc("ungroup_tables", { p_group_id: groupId }));
+  apply((draft) => {
+    for (const table of draft.tables) {
+      if (table.groupId === groupId) table.groupId = null;
+    }
+  });
+}
+
 /** Code d'accès de la tablette ; vide, il retire le verrou. */
 export async function setAdminPin(code: string): Promise<void> {
   const supabase = createClient();

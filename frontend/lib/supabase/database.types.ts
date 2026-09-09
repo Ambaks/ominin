@@ -1142,6 +1142,7 @@ export type Database = {
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
+          staff_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_session_id: string | null
           sumup_checkout_id: string | null
@@ -1161,6 +1162,7 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
@@ -1180,6 +1182,7 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
@@ -1188,6 +1191,13 @@ export type Database = {
           type?: Database["public"]["Enums"]["order_type"]
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -2828,23 +2838,69 @@ export type Database = {
           },
         ]
       }
+      table_groups: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_groups_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tables: {
         Row: {
           etablissement_id: string
+          group_id: string | null
           id: string
           number: number
+          staff_id: string | null
         }
         Insert: {
           etablissement_id: string
+          group_id?: string | null
           id?: string
           number: number
+          staff_id?: string | null
         }
         Update: {
           etablissement_id?: string
+          group_id?: string | null
           id?: string
           number?: number
+          staff_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tables_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "table_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tables_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tables_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -2977,6 +3033,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["shop_member_role"]
       }
       is_admin: { Args: never; Returns: boolean }
+      group_tables: {
+        Args: { p_table_ids: string[] }
+        Returns: string
+      }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: undefined
@@ -3013,6 +3073,10 @@ export type Database = {
       staff_planning: {
         Args: { p_from: string; p_to: string; p_token: string }
         Returns: Json
+      }
+      ungroup_tables: {
+        Args: { p_group_id: string }
+        Returns: undefined
       }
       verify_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }
