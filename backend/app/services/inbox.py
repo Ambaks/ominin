@@ -10,6 +10,8 @@ from app.prompts.persona import LEA_PERSONA, build_email_body
 from app.services import emailing, keepalive, notify
 from app.services.tokens import unsubscribe_url
 
+BOUNCE_LABEL = "Bounces"
+
 BOUNCE_FROM_RE = re.compile(r"mailer-daemon@|postmaster@", re.IGNORECASE)
 BOUNCE_SUBJECT_RE = re.compile(r"delivery status|undelivered|échec de la remise", re.IGNORECASE)
 
@@ -26,6 +28,17 @@ CLASSIFICATION_TITLES = {
 # Statuses a positive reply may move a lead FROM — never regress a lead the
 # human already advanced (visited, RDV fixé…).
 INTERESTED_FROM = ["new", "to_contact", "contacted"]
+
+
+def _archive_bounce(gmail_message_id: str) -> None:
+    """Move a bounce notification out of the inbox into the Bounces label.
+
+    Non-critical: if it fails the bounce is still recorded in the DB."""
+    try:
+        label_id = gmail.ensure_label(BOUNCE_LABEL)
+        gmail.archive_to_label(gmail_message_id, label_id)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def sweep_bounces() -> dict:
@@ -124,6 +137,7 @@ def sweep_bounces() -> dict:
                 "classification": "bounce",
             },
         )
+        _archive_bounce(stub["id"])
         stats["bounces"] += 1
 
     return stats
@@ -353,6 +367,7 @@ def _apply(sb, inbound: dict, outbound: dict, verdict: InboxVerdict, stats: dict
             sb.table("crm_leads").update({"status": "to_contact"}).eq(
                 "id", lead_id
             ).eq("status", "contacted").execute()
+        _archive_bounce(inbound["gmail_message_id"])
 
     if verdict.draft_body and classification in ("interested", "meeting_request", "question"):
         sb.table("outreach_emails").insert(

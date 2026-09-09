@@ -10,6 +10,8 @@ from app.config import settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 
+_label_cache: dict[str, str] = {}
+
 
 @lru_cache(maxsize=1)
 def _service():
@@ -78,6 +80,36 @@ def extract_headers(message: dict) -> dict[str, str]:
         h["name"].lower(): h["value"]
         for h in message.get("payload", {}).get("headers", [])
     }
+
+
+def ensure_label(name: str) -> str:
+    """Return the label ID for *name*, creating it if it doesn't exist."""
+    if name in _label_cache:
+        return _label_cache[name]
+    svc = _service()
+    for label in svc.users().labels().list(userId="me").execute().get("labels", []):
+        if label["name"] == name:
+            _label_cache[name] = label["id"]
+            return label["id"]
+    created = svc.users().labels().create(
+        userId="me",
+        body={
+            "name": name,
+            "labelListVisibility": "labelShow",
+            "messageListVisibility": "show",
+        },
+    ).execute()
+    _label_cache[name] = created["id"]
+    return created["id"]
+
+
+def archive_to_label(message_id: str, label_id: str) -> None:
+    """Move a message out of the inbox into the given label."""
+    _service().users().messages().modify(
+        userId="me",
+        id=message_id,
+        body={"addLabelIds": [label_id], "removeLabelIds": ["INBOX"]},
+    ).execute()
 
 
 def extract_body_text(message: dict) -> str:

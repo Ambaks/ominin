@@ -26,7 +26,7 @@ const supabaseOrigins = (() => {
  *  - Stripe : checkout par redirection (pas de stripe.js embarqué) ; js/checkout
  *    autorisés en frame-src par sécurité future.
  *  - Polices : next/font auto-héberge au build → aucun domaine Google requis.
- *  - Images d'illustration : Unsplash.
+ *  - Images d'illustration : Unsplash et Pexels.
  *  - OpenFreeMap (carte du CRM admin) : style, tuiles vectorielles, glyphes et
  *    sprites arrivent tous par fetch → connect-src ; img-src par précaution.
  *  - SumUp : widget de paiement embarqué sur le menu QR — SDK (script-src) et
@@ -41,7 +41,7 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  `img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com${supabaseOrigins}`,
+  `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline' https://gateway.sumup.com${isDev ? " 'unsafe-eval'" : ""}`,
@@ -83,6 +83,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
       },
       // Photos de plats téléversées (bucket public Supabase Storage).
       {
