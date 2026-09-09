@@ -152,7 +152,16 @@ def _judge(sb, prepared: dict, stats: dict) -> None:
         outcome = ("disqualified", "not_worth")
     else:
         outcome = ("qualified", None)
-    _record(sb, prepared, outcome, verdict.has_digital_menu, verdict.ai_notes, stats)
+    _record(sb, prepared, outcome, verdict.has_digital_menu, _notes(verdict), stats)
+
+
+def _notes(verdict: Qualification) -> str:
+    """Situation and observed gaps in one text — the whole personalisation
+    budget Léa gets, and the only enrichment output AutoResearch can read."""
+    if not verdict.observed_gaps:
+        return verdict.ai_notes
+    gaps = "\n".join(f"- {gap}" for gap in verdict.observed_gaps)
+    return f"{verdict.ai_notes}\n\nManques constatés :\n{gaps}"
 
 
 def _record(
