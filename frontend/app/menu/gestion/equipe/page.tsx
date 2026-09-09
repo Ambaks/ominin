@@ -6,6 +6,7 @@ import { TrashIcon } from "@/components/gestion/icons";
 import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
 import { PlanningGrid, WeekNav } from "@/components/gestion/temps/planning";
+import { StaffList } from "@/components/gestion/temps/staff-list";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
@@ -320,7 +321,7 @@ const PANES = [
 type PaneId = (typeof PANES)[number]["id"];
 
 const PANE_TAGLINES: Record<PaneId, string> = {
-  membres: "Invitez vos cuisiniers et serveurs, gérez leurs accès.",
+  membres: "Vos cuisiniers et serveurs, et ce qu'ils peuvent faire.",
   planning: "Posez les créneaux de la semaine, membre par membre.",
   badgeages: "Les arrivées et départs signés par l'équipe, et leurs heures.",
 };
@@ -347,6 +348,10 @@ export default function EquipePage() {
     (item) => item.id === "membres" || hasFeature("badgeage")
   );
   const active = panes.some((item) => item.id === pane) ? pane : "membres";
+  // Deux façons de monter une équipe. Par défaut chacun a son compte et
+  // reçoit une invitation ; ailleurs le gérant tape un prénom, et c'est le
+  // lien de planning qui tient lieu d'accès.
+  const sansComptes = hasFeature("equipe_sans_comptes");
 
   return (
     <div className="flex flex-col gap-8">
@@ -369,9 +374,16 @@ export default function EquipePage() {
             activeId={active}
             onSelect={(id) => setPane(id as PaneId)}
           />
-          {active === "membres" && (
-            <TeamManager etablissementId={state.etablissement.id} />
-          )}
+          {active === "membres" &&
+            (sansComptes ? (
+              <StaffList
+                staff={state.staff}
+                entries={data.entries}
+                onChange={reload}
+              />
+            ) : (
+              <TeamManager etablissementId={state.etablissement.id} />
+            ))}
           {active === "planning" && (
             <PlanningGrid
               etablissementId={state.etablissement.id}

@@ -11,6 +11,7 @@ import {
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
+  DEFAULT_ORDER_TABS,
   PAID_ORDER_STATUSES,
 } from "./constants";
 import {
@@ -329,7 +330,7 @@ async function load(): Promise<void> {
       // seule décide : maybeSingle plutôt qu'une erreur de chargement.
       supabase
         .from("etablissement_settings")
-        .select("features")
+        .select("features, order_tabs")
         .eq("etablissement_id", etablissementId)
         .maybeSingle()
         .then((result) => result.data),
@@ -347,6 +348,8 @@ async function load(): Promise<void> {
     // Résolu une fois pour toutes : les écrans lisent un oui ou un non, sans
     // avoir à savoir ce qui vient de l'offre et ce qui vient des réglages.
     features: {} as GestionState["features"],
+    // Même logique que les capacités : réglage absent, valeur par défaut.
+    orderTabs: [],
     members: members.map(rowToMember),
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
@@ -360,6 +363,7 @@ async function load(): Promise<void> {
       activeProducts(loaded),
       (settings?.features ?? {}) as Partial<Record<Feature, boolean>>
     ),
+    orderTabs: settings?.order_tabs ?? DEFAULT_ORDER_TABS,
   };
   notify();
 }

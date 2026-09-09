@@ -1,5 +1,5 @@
 import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
-import { FEATURES, SEED_TABLE_COUNT } from "./constants";
+import { FEATURES, ORDER_TABS, SEED_TABLE_COUNT } from "./constants";
 import type {
   GestionState,
   Order,
@@ -217,6 +217,7 @@ export function seed(): GestionState {
     features: Object.fromEntries(
       FEATURES.map((feature) => [feature, true])
     ) as GestionState["features"],
+    orderTabs: ORDER_TABS,
     staff: [],
     categories,
     formules: [

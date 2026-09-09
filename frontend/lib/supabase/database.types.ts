@@ -659,16 +659,19 @@ export type Database = {
         Row: {
           etablissement_id: string
           features: Json
+          order_tabs: Database["public"]["Enums"]["order_tab"][]
           updated_at: string
         }
         Insert: {
           etablissement_id: string
           features?: Json
+          order_tabs?: Database["public"]["Enums"]["order_tab"][]
           updated_at?: string
         }
         Update: {
           etablissement_id?: string
           features?: Json
+          order_tabs?: Database["public"]["Enums"]["order_tab"][]
           updated_at?: string
         }
         Relationships: [
@@ -3285,6 +3288,7 @@ export type Database = {
         | "payee"
         | "annulee"
         | "retiree"
+      order_tab: "a_encaisser" | "a_servir" | "historique"
       order_type: "sur_place" | "collect"
       outreach_classification:
         | "interested"
@@ -3516,6 +3520,7 @@ export const Constants = {
         "annulee",
         "retiree",
       ],
+      order_tab: ["a_encaisser", "a_servir", "historique"],
       order_type: ["sur_place", "collect"],
       outreach_classification: [
         "interested",

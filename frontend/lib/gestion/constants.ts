@@ -4,6 +4,7 @@ import type {
   Offre,
   OrderStatus,
   OrderType,
+  OrderTab,
   PaymentMode,
   Role,
 } from "./types";
@@ -28,6 +29,36 @@ export const DEFAULT_PRINTER_PORT = 9100;
 export const UNCLAIMED_POLL_MS = 3000;
 /** Derniers caractères du numéro de série, imprimés sur l'étiquette du boîtier. */
 export const SERIAL_CODE_LENGTH = 6;
+
+
+/** Toutes les étapes possibles, dans leur ordre naturel de service. */
+export const ORDER_TABS: OrderTab[] = [
+  "a_encaisser",
+  "a_servir",
+  "historique",
+];
+
+/**
+ * Ce que voit un restaurant qu'Ominin n'a pas réglé : l'addition et
+ * l'historique. « À servir » n'en fait pas partie parce qu'une commande
+ * encaissée part à l'imprimante et se clôt dans la foulée — l'onglet serait
+ * vide. Il se rajoute de lui-même quand une assiette y attend vraiment (voir
+ * le filet dans app/menu/gestion/commandes/page.tsx), et se règle à demeure
+ * pour un restaurant qui sert avant de faire payer.
+ */
+export const DEFAULT_ORDER_TABS: OrderTab[] = ["a_encaisser", "historique"];
+
+export const ORDER_TAB_LABELS: Record<OrderTab, string> = {
+  a_encaisser: "À encaisser",
+  a_servir: "À servir",
+  historique: "Historique",
+};
+
+export const ORDER_TAB_HINTS: Record<OrderTab, string> = {
+  a_encaisser: "Les additions à régler, article par article.",
+  a_servir: "Les plats partis en cuisine, à porter à table.",
+  historique: "Les commandes closes, servies, retirées ou annulées.",
+};
 
 /** Statuts d'historique : commandes closes. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
@@ -241,7 +272,13 @@ export const VIEWS: ViewSpec[] = [
     id: "roles",
     label: "Équipe",
     hint: "Les comptes de l'équipe, leurs rôles et leurs fiches.",
-    features: [],
+    features: [
+      {
+        id: "equipe_sans_comptes",
+        label: "Équipe sans comptes",
+        hint: "Le gérant crée ses serveurs au prénom, sans email ni invitation.",
+      },
+    ],
   },
   {
     id: "terminaux",

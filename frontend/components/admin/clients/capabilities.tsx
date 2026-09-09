@@ -6,11 +6,18 @@ import { useToast } from "@/components/ui/toast";
 import {
   clientFeatures,
   nextOverrides,
+  saveOrderTabs,
   saveOverrides,
   type Client,
 } from "@/lib/admin/clients";
-import { OFFRE_LABELS, VIEWS } from "@/lib/gestion/constants";
-import type { Feature } from "@/lib/gestion/types";
+import {
+  OFFRE_LABELS,
+  ORDER_TAB_HINTS,
+  ORDER_TAB_LABELS,
+  ORDER_TABS,
+  VIEWS,
+} from "@/lib/gestion/constants";
+import type { Feature, OrderTab } from "@/lib/gestion/types";
 
 /*
  * L'arborescence d'un client : les vues de son espace de gestion, et sous
@@ -59,6 +66,134 @@ function Row({
         label={label}
       />
     </div>
+  );
+}
+
+/*
+ * Les étapes de Commandes, et leur ordre. La sélection dit ce que la salle
+ * voit ; l'ordre dit quand on encaisse — au début du repas ou à la fin. Le
+ * BOHO garde « À encaisser » puis « Historique », ses tickets sortant à
+ * l'imprimante ; une brasserie qui sert avant de faire payer met « À servir »
+ * en tête. Une étape retirée reste listée en bas, à portée de clic.
+ */
+function OrderTabsCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+  const kept = client.orderTabs;
+  const dropped = ORDER_TABS.filter((tab) => !kept.includes(tab));
+
+  const persist = async (orderTabs: OrderTab[]) => {
+    const previous = client;
+    onChange({ ...client, orderTabs });
+    setSaving(true);
+    try {
+      await saveOrderTabs(client.id, orderTabs);
+    } catch (error) {
+      onChange(previous);
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const move = (index: number, delta: number) => {
+    const target = index + delta;
+    if (target < 0 || target >= kept.length) return;
+    const next = [...kept];
+    [next[index], next[target]] = [next[target], next[index]];
+    void persist(next);
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h3 className="font-display text-base font-medium">
+          Étapes de l&rsquo;onglet Commandes
+        </h3>
+        <p className="mt-0.5 text-xs leading-relaxed text-faint">
+          Dans l&rsquo;ordre où la salle les voit. Si une assiette attend faute
+          de ticket sorti, « À servir » reparaît de lui-même — le filet ne se
+          règle pas.
+        </p>
+      </div>
+      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+        {kept.map((tab, index) => (
+          <div key={tab} className="flex items-center gap-3 px-4 py-3">
+            <span className="w-5 shrink-0 text-center font-display text-sm text-faint">
+              {index + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{ORDER_TAB_LABELS[tab]}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-faint">
+                {ORDER_TAB_HINTS[tab]}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => move(index, -1)}
+                disabled={saving || index === 0}
+                aria-label={`Monter ${ORDER_TAB_LABELS[tab]}`}
+                className="rounded-full border border-hairline px-2 py-1 text-xs text-muted transition-colors hover:text-foreground disabled:opacity-30"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => move(index, 1)}
+                disabled={saving || index === kept.length - 1}
+                aria-label={`Descendre ${ORDER_TAB_LABELS[tab]}`}
+                className="rounded-full border border-hairline px-2 py-1 text-xs text-muted transition-colors hover:text-foreground disabled:opacity-30"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => void persist(kept.filter((t) => t !== tab))}
+                disabled={saving || kept.length === 1}
+                title={
+                  kept.length === 1
+                    ? "Gardez au moins une étape."
+                    : "Retirer cette étape"
+                }
+                className="ml-1 rounded-full border border-hairline px-3 py-1 text-xs font-semibold text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3 disabled:opacity-30"
+              >
+                Retirer
+              </button>
+            </div>
+          </div>
+        ))}
+        {dropped.map((tab) => (
+          <div key={tab} className="flex items-center gap-3 px-4 py-3">
+            <span className="w-5 shrink-0" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-faint">
+                {ORDER_TAB_LABELS[tab]}
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-faint">
+                Retiré de l&rsquo;écran de ce restaurant.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void persist([...kept, tab])}
+              disabled={saving}
+              className="shrink-0 rounded-full border border-hairline px-3 py-1 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            >
+              Ajouter
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -190,6 +325,10 @@ export function Capabilities({
         })}
       </div>
 
+      {features.commandes && (
+        <OrderTabsCard client={client} onChange={onChange} />
+      )}
+
       <p className="text-xs leading-relaxed text-faint">
         Une case laissée telle que l&rsquo;offre la donne ne s&rsquo;enregistre
         pas : ce client suivra les évolutions d&rsquo;
@@ -197,6 +336,7 @@ export function Capabilities({
           ? `Ominin ${OFFRE_LABELS[client.products.offre]}`
           : "son offre"}
         . Les écarts, eux, tiennent jusqu&rsquo;à ce qu&rsquo;on les retire.
+        L&rsquo;ordre des étapes, lui, s&rsquo;enregistre toujours tel quel.
       </p>
     </div>
   );

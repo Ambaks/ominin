@@ -5,7 +5,28 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Capacités par restaurant et gestes de salle (2026-09-10)
+## 1. Étapes du service et équipe sans comptes (2026-09-10)
+
+Une migration. Elle ne change rien à l'écran tant qu'on n'a rien coché : le
+défaut de la colonne est exactement ce que la salle voyait déjà.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260911000003_flux_commandes.sql` (type `order_tab`, colonne
+      `etablissement_settings.order_tabs`).
+- [ ] **Régler le BOHO** dans `admin.ominin.com/capacites` :
+      - onglet **Capacités**, carte « Étapes de l'onglet Commandes » : garder
+        « À encaisser » puis « Historique », retirer « À servir » (ses tickets
+        sortent à l'imprimante). Si un boîtier tombe, l'onglet reparaît tout
+        seul — c'est voulu, ne le rajoutez pas à demeure.
+      - cocher **Équipe sans comptes** sous la vue Équipe : le gérant crée
+        alors ses serveurs au prénom, voit leurs heures badgées de la semaine
+        et copie leur lien de planning depuis la liste.
+- [ ] **Vérifier côté BOHO** : dans Commandes, la barre d'onglets ne montre
+      plus que deux étapes (et disparaît s'il n'en reste qu'une). Dans
+      Équipe → Membres, le formulaire d'invitation par email a laissé place à
+      la liste de l'équipe.
+
+## 2. Capacités par restaurant et gestes de salle (2026-09-10)
 
 Deux migrations, et rien d'autre : l'écran de réglage vit dans l'administration
 Ominin, il n'y a aucune variable d'environnement à poser. Tant que la migration
@@ -30,7 +51,7 @@ Aucun déploiement conjoint n'est nécessaire cette fois : le front sait vivre
 sans la table (l'offre décide seule), et la table sans le front (personne ne
 la lit). L'ordre n'a donc pas d'importance.
 
-## 2. Square, deuxième encaisseur du menu QR (2026-09-09)
+## 3. Square, deuxième encaisseur du menu QR (2026-09-09)
 
 Repris du message du commit `81b7218` pour que rien ne se perde : ce lot est
 d'Ambaka, ces étapes sont les siennes.
@@ -54,7 +75,7 @@ d'Ambaka, ces étapes sont les siennes.
       pas « Table 7 » du premier coup d'œil, le produit paraît cassé quelle que
       soit la qualité de l'intégration.
 
-## 3. Analytique du menu QR et tableau de bord client (2026-09-11)
+## 4. Analytique du menu QR et tableau de bord client (2026-09-11)
 
 Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
 
@@ -74,7 +95,7 @@ Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
       Les capacités à cocher, elles, vivent dans l'onglet **Capacités** de la
       section Clients.
 
-## 4. Commission des boutiques : poser le taux (2026-09-09)
+## 5. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout, il ne manque que la valeur. Elle
 n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
@@ -96,7 +117,7 @@ n'existe pas d'écran Ominin pour la poser : elle se met à la main.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 5. Tablette de salle et serveurs sans compte (2026-09-09)
+## 6. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -129,7 +150,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 6. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 7. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -149,7 +170,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 7. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 8. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -189,7 +210,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 8. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 9. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

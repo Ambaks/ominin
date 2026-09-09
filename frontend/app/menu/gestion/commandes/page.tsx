@@ -11,6 +11,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import {
+  DEFAULT_ORDER_TABS,
+  ORDER_TAB_LABELS,
+} from "@/lib/gestion/constants";
+import {
   awaitsPayment,
   awaitsService,
   isHistoryStatus,
@@ -21,26 +25,22 @@ import {
   useGestionAccess,
   useRealtimeLive,
 } from "@/lib/gestion/store";
-import type { Order } from "@/lib/gestion/types";
+import type { Order, OrderTab } from "@/lib/gestion/types";
 import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
 
 /*
- * La salle ne connaît que trois moments : les additions à encaisser (la
- * commande part en cuisine une fois réglée), les tables à servir, puis
- * l'historique. Les commandes collect, payées en ligne, se suivent depuis
- * À servir avec leurs propres étapes. La cuisine, qui travaille sur les
- * tickets imprimés, retrouve ici en lecture seule ce qui est parti chez elle
- * — le filet quand l'imprimante fait défaut.
+ * Les moments du service, tels que ce restaurant les vit. Lesquels
+ * s'affichent et dans quel ordre vient d'Ominin (`orderTabs`) : le BOHO
+ * encaisse puis imprime, il n'a que l'addition et l'historique ; une brasserie
+ * qui sert avant d'encaisser met « À servir » en tête. Les commandes collect,
+ * payées en ligne, se suivent depuis À servir avec leurs propres étapes.
+ *
+ * Un filet reste en place quoi qu'on règle : si une commande attend d'être
+ * servie faute de ticket sorti, l'onglet « À servir » se rajoute au bout — la
+ * salle ne doit jamais perdre de vue une assiette parce qu'un boîtier est
+ * tombé.
  */
-const FILTERS = [
-  { id: "a_encaisser", label: "À encaisser" },
-  { id: "a_servir", label: "À servir" },
-  { id: "historique", label: "Historique" },
-] as const;
-
-type FilterId = (typeof FILTERS)[number]["id"];
-
-const EMPTY_BODIES: Record<FilterId, string> = {
+const EMPTY_BODIES: Record<OrderTab, string> = {
   a_encaisser:
     "Les commandes passées depuis le menu QR ou prises en salle apparaîtront ici, article par article.",
   a_servir:
@@ -48,7 +48,7 @@ const EMPTY_BODIES: Record<FilterId, string> = {
   historique: "Les commandes servies, retirées ou annulées apparaîtront ici.",
 };
 
-function matchesFilter(order: Order, filter: FilterId): boolean {
+function matchesFilter(order: Order, filter: OrderTab): boolean {
   if (filter === "a_encaisser") return awaitsPayment(order);
   if (filter === "a_servir") return awaitsService(order);
   return isHistoryStatus(order.status);
@@ -67,7 +67,7 @@ export default function CommandesPage() {
   const printerOffline = usePrinterOffline(state?.etablissement.id ?? "");
   const toast = useToast();
   // Onglet choisi ; avant tout choix, celui du rôle (la cuisine n'encaisse pas).
-  const [chosenFilter, setChosenFilter] = useState<FilterId | null>(null);
+  const [chosenFilter, setChosenFilter] = useState<OrderTab | null>(null);
   // L'historique n'est pas dans le fetch initial borné : il se charge à la
   // demande, page par page, quand l'onglet Historique est ouvert.
   const [history, setHistory] = useState<Order[]>([]);
@@ -97,27 +97,24 @@ export default function CommandesPage() {
   );
 
   const isCuisinier = state?.role === "cuisinier";
-  // L'encaissement clôt la commande dès que son ticket part en cuisine : il
-  // n'y a alors rien à servir, et l'onglet n'a pas lieu d'être. Il reparaît
-  // dès qu'une commande y attend — imprimante muette, commande à emporter —
-  // ou dès qu'un boîtier tombe, avant même le prochain encaissement.
-  const showServir =
-    printerOffline || (state?.orders.some((order) => awaitsService(order)) ?? false);
-  const tabs = FILTERS.filter(
-    (tab) =>
-      (tab.id !== "a_encaisser" || !isCuisinier) &&
-      (tab.id !== "a_servir" || showServir)
-  );
-  // L'onglet retenu peut disparaître sous les pieds (dernière commande
-  // servie) : on retombe alors sur celui du rôle.
-  const filter =
-    chosenFilter && tabs.some((tab) => tab.id === chosenFilter)
-      ? chosenFilter
-      : isCuisinier
-        ? showServir
-          ? "a_servir"
-          : "historique"
-        : "a_encaisser";
+  // Le filet : une assiette qui attend sans que son ticket soit sorti, ou un
+  // boîtier tombé, rajoutent « À servir » même si le réglage l'exclut.
+  const serviceNet =
+    !(state?.orderTabs ?? DEFAULT_ORDER_TABS).includes("a_servir") &&
+    (printerOffline ||
+      (state?.orders.some((order) => awaitsService(order)) ?? false));
+  const wanted = state?.orderTabs ?? DEFAULT_ORDER_TABS;
+  const tabs = (serviceNet ? [...wanted, "a_servir" as OrderTab] : wanted)
+    // La cuisine n'encaisse pas : son onglet d'addition n'a pas de sens.
+    .filter((tab) => tab !== "a_encaisser" || !isCuisinier);
+  // Un restaurant peut n'avoir gardé que l'addition ; la cuisine se retrouve
+  // alors sans onglet, et l'historique tient lieu de repli.
+  const shown: OrderTab[] = tabs.length > 0 ? tabs : ["historique"];
+  // L'onglet retenu peut disparaître sous les pieds (le filet qui se retire) :
+  // on retombe alors sur le premier de ce restaurant.
+  const filter = chosenFilter && shown.includes(chosenFilter)
+    ? chosenFilter
+    : shown[0];
 
   useEffect(() => {
     if (filter !== "historique" || historyLoaded || loadingHistory) return;
@@ -208,19 +205,22 @@ export default function CommandesPage() {
 
       <PushPrompt />
 
-      <PillTabs
-        tabs={tabs.map(({ id, label }) => ({
-          id,
-          label,
-          // L'historique est borné/paginé : pas de total fiable à afficher.
-          count:
-            id === "historique"
-              ? undefined
-              : state.orders.filter((order) => matchesFilter(order, id)).length,
-        }))}
-        activeId={filter}
-        onSelect={(id) => setChosenFilter(id as FilterId)}
-      />
+      {shown.length > 1 && (
+        <PillTabs
+          tabs={shown.map((id) => ({
+            id,
+            label: ORDER_TAB_LABELS[id],
+            // L'historique est borné/paginé : pas de total fiable à afficher.
+            count:
+              id === "historique"
+                ? undefined
+                : state.orders.filter((order) => matchesFilter(order, id))
+                    .length,
+          }))}
+          activeId={filter}
+          onSelect={(id) => setChosenFilter(id as OrderTab)}
+        />
+      )}
 
       {visible.length === 0 ? (
         filter === "historique" && !historyLoaded ? (

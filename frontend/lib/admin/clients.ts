@@ -1,14 +1,15 @@
-import { FEATURES } from "@/lib/gestion/constants";
+import { DEFAULT_ORDER_TABS, FEATURES } from "@/lib/gestion/constants";
 import { planFeature, resolveFeatures } from "@/lib/gestion/permissions";
-import type { ActiveProducts, Feature } from "@/lib/gestion/types";
+import type { ActiveProducts, Feature, OrderTab } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
 
 /*
  * Les clients d'Ominin — les établissements qui tournent, pas les prospects du
- * CRM. On les liste pour n'y faire qu'une chose : ouvrir et fermer des
- * capacités. L'offre donne le lot habituel, les réglages l'ajustent ; l'écran
- * montre les deux, sans quoi une case décochée serait indéchiffrable.
+ * CRM. On les liste pour y régler deux choses : les capacités ouvertes, et les
+ * étapes que la salle voit dans Commandes. L'offre donne le lot habituel, les
+ * réglages l'ajustent ; l'écran montre les deux, sans quoi une case décochée
+ * serait indéchiffrable.
  */
 export interface Client {
   id: string;
@@ -17,6 +18,8 @@ export interface Client {
   products: ActiveProducts;
   /** Écarts enregistrés à l'offre : seules les clés posées y figurent. */
   overrides: Partial<Record<Feature, boolean>>;
+  /** Étapes de l'onglet Commandes, dans l'ordre d'affichage. */
+  orderTabs: OrderTab[];
 }
 
 function isFeature(key: string): key is Feature {
@@ -47,7 +50,7 @@ export async function fetchClients(): Promise<Client[]> {
       .then(must),
     supabase
       .from("etablissement_settings")
-      .select("etablissement_id, features")
+      .select("etablissement_id, features, order_tabs")
       .then(must),
   ]);
 
@@ -58,12 +61,11 @@ export async function fetchClients(): Promise<Client[]> {
     products.add(subscription.product);
     active.set(subscription.etablissement_id, products);
   }
-  const featuresById = new Map(
-    settings.map((row) => [row.etablissement_id, toOverrides(row.features)])
-  );
+  const settingsById = new Map(settings.map((row) => [row.etablissement_id, row]));
 
   return etablissements.map((etablissement) => {
     const products = active.get(etablissement.id);
+    const row = settingsById.get(etablissement.id);
     return {
       id: etablissement.id,
       name: etablissement.name,
@@ -72,7 +74,9 @@ export async function fetchClients(): Promise<Client[]> {
         offre: products?.has("offre") ? etablissement.offre : null,
         collect: products?.has("collect") ?? false,
       },
-      overrides: featuresById.get(etablissement.id) ?? {},
+      overrides: toOverrides(row?.features),
+      // Établissement d'avant la colonne : ce que faisait l'écran jusque-là.
+      orderTabs: row?.order_tabs ?? DEFAULT_ORDER_TABS,
     };
   });
 }
@@ -107,6 +111,32 @@ export async function saveOverrides(
         {
           etablissement_id: etablissementId,
           features: overrides,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "etablissement_id" }
+      )
+  );
+}
+
+/**
+ * Étapes de Commandes. L'ordre compte autant que la sélection : il dit si ce
+ * restaurant encaisse avant ou après le service. Au moins une étape — sans
+ * quoi l'écran n'aurait rien à montrer, ce que la base refuse aussi.
+ */
+export async function saveOrderTabs(
+  etablissementId: string,
+  orderTabs: OrderTab[]
+): Promise<void> {
+  if (orderTabs.length === 0) {
+    throw new Error("Gardez au moins une étape.");
+  }
+  check(
+    await createClient()
+      .from("etablissement_settings")
+      .upsert(
+        {
+          etablissement_id: etablissementId,
+          order_tabs: orderTabs,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "etablissement_id" }

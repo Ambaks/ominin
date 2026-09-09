@@ -41,7 +41,15 @@ export type Feature =
   | "apercu_serveur"
   | "assignation"
   | "groupes_tables"
-  | "pourboires";
+  | "pourboires"
+  | "equipe_sans_comptes";
+
+/**
+ * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
+ * se règle par restaurant : c'est là que se lit si l'on encaisse au début ou
+ * à la fin du repas.
+ */
+export type OrderTab = "a_encaisser" | "a_servir" | "historique";
 
 /** Produits actifs sur l'établissement : ils déterminent les capacités. */
 export interface ActiveProducts {
@@ -192,6 +200,8 @@ export interface GestionState {
   role: Role;
   /** Capacités résolues : l'offre, ajustée par les réglages d'Ominin. */
   features: Record<Feature, boolean>;
+  /** Étapes de l'onglet Commandes, dans l'ordre voulu par le restaurant. */
+  orderTabs: OrderTab[];
   members: Member[];
   /** Équipe au sens du service : comptes et serveurs sans compte confondus. */
   staff: Staff[];
