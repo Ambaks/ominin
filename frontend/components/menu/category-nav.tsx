@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useCart } from "@/lib/menu/cart";
 
 interface CategoryLink {
   id: string;
@@ -19,6 +20,7 @@ export function CategoryNav({
       clair/sombre n'aurait aucun effet visible, on n'affiche pas le bouton. */
   themeLocked?: boolean;
 }) {
+  const { track } = useCart();
   const [activeId, setActiveId] = useState(categories[0]?.id);
   const [progress, setProgress] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
@@ -82,6 +84,7 @@ export function CategoryNav({
                 key={id}
                 href={`#${id}`}
                 data-category={id}
+                onClick={() => track("categorie")}
                 className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all lg:px-5 lg:py-2.5 lg:text-base ${
                   active
                     ? "ember-gradient text-background shadow-[0_0_18px_rgba(226,118,75,0.35)]"

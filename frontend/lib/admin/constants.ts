@@ -245,6 +245,43 @@ export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
 export const OUTREACH_VARIANTS_FETCH_LIMIT = 50;
 
 // ---------------------------------------------------------------------------
+// Clients — les établissements qui tournent, pas les prospects
+
+/**
+ * Cadence de relecture du direct. On interroge au lieu de s'abonner : « en
+ * cours » est une comparaison d'horodatage, pas un flux d'événements, et une
+ * websocket d'admin prendrait la place de celles dont les restaurants ont
+ * besoin pour leur propre tableau de bord.
+ */
+export const LIVE_REFRESH_MS = 10_000;
+
+/**
+ * Une visite sans battement de cœur depuis ce délai n'est plus « en cours ».
+ * Environ deux battements et demi (menu/analytics/constants.ts) : de quoi en
+ * perdre un sans faire disparaître un client encore attablé.
+ */
+export const LIVE_SESSION_WINDOW_S = 120;
+
+/** Périodes proposées sur la fiche d'un client (jours calendaires). */
+export const CLIENT_PERIOD_DAYS = [7, 30, 90] as const;
+
+/** Dernières commandes affichées dans le fil d'activité. */
+export const ACTIVITY_FEED_LIMIT = 30;
+
+/** Longueur du palmarès des plats (vus contre vendus). */
+export const ITEM_RANKING_COUNT = 10;
+
+/** Sous-onglets de la fiche client, portés par ?vue= pour rester liables. */
+export const CLIENT_VIEWS = [
+  { id: "revenus", label: "Revenus" },
+  { id: "analytique", label: "Analytique" },
+  { id: "activite", label: "Activité" },
+  { id: "reglages", label: "Réglages" },
+] as const;
+
+export type ClientView = (typeof CLIENT_VIEWS)[number]["id"];
+
+// ---------------------------------------------------------------------------
 // Carte
 
 /** Montpellier, place de la Comédie — cadre par défaut avant persistance. */

@@ -95,7 +95,7 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
-    "mtime": 1788962698.0076451,
+    "mtime": 1788963328.519972,
     "ast_hash": "a819788fa5c64a91847277fc1928b040",
     "semantic_hash": ""
   },
@@ -520,8 +520,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/payment-settings.tsx": {
-    "mtime": 1788960756.6386762,
-    "ast_hash": "3f54e7b53ef32a443eccdcd912395a1d",
+    "mtime": 1788963721.563085,
+    "ast_hash": "d73d594dc6a35c9080ecb33c83f7e671",
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
@@ -625,7 +625,7 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1788960690.2945585,
+    "mtime": 1788963328.5250354,
     "ast_hash": "0c1ab0b19e925273b2c998abd0184924",
     "semantic_hash": ""
   },
@@ -805,8 +805,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/api.ts": {
-    "mtime": 1788960540.4092093,
-    "ast_hash": "aa0d4c5830f298c5bd8383879542d95c",
+    "mtime": 1788963643.1652524,
+    "ast_hash": "7e723f8b3d465e0428faaf502682e47a",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/constants.ts": {
@@ -850,7 +850,7 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
-    "mtime": 1788960765.7076523,
+    "mtime": 1788963328.525661,
     "ast_hash": "7142ed4d25ec313080ca9e32a027be06",
     "semantic_hash": ""
   },
@@ -865,12 +865,12 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
-    "mtime": 1788960630.4695086,
+    "mtime": 1788963328.5258856,
     "ast_hash": "74a579620ca0fb8d53cabbc0bad496c0",
     "semantic_hash": ""
   },
   "frontend/lib/public-menu.ts": {
-    "mtime": 1788960625.8128545,
+    "mtime": 1788963328.5260775,
     "ast_hash": "301a857bd7bfd6432335c2378b56eacb",
     "semantic_hash": ""
   },
@@ -895,7 +895,7 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1788962673.458869,
+    "mtime": 1788963328.5274282,
     "ast_hash": "ce12948e15b9ad411f85887e61f18d85",
     "semantic_hash": ""
   },
@@ -915,7 +915,7 @@
     "semantic_hash": ""
   },
   "frontend/next.config.ts": {
-    "mtime": 1788960705.2251544,
+    "mtime": 1788963328.5276723,
     "ast_hash": "5fbf4204f93ebd30c87ac7fdc8f643db",
     "semantic_hash": ""
   },
@@ -1095,7 +1095,7 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788961377.1518123,
+    "mtime": 1788963328.5176334,
     "ast_hash": "480f5046d0512188c2da8ff91092f990",
     "semantic_hash": ""
   },
@@ -1265,7 +1265,7 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/etablissement/page.tsx": {
-    "mtime": 1788960770.3823204,
+    "mtime": 1788963328.5210037,
     "ast_hash": "ee93da75c8f82e2b251ab7973e586fa7",
     "semantic_hash": ""
   },
@@ -1310,7 +1310,7 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/m/[slug]/page.tsx": {
-    "mtime": 1788960647.8654397,
+    "mtime": 1788963328.5216162,
     "ast_hash": "384130d0cbd53ec426c4459da99c5d67",
     "semantic_hash": ""
   },
@@ -2825,7 +2825,7 @@
     "semantic_hash": ""
   },
   "frontend/lib/shop/mail.ts": {
-    "mtime": 1788960570.9789515,
+    "mtime": 1788963328.5265555,
     "ast_hash": "e14ca162b6d3ada75fa23e4f012bc6d1",
     "semantic_hash": ""
   },
@@ -2960,7 +2960,7 @@
     "semantic_hash": ""
   },
   "TACHES-AMBAKA.md": {
-    "mtime": 1788960570.978666,
+    "mtime": 1788963328.5179372,
     "ast_hash": "3c4c3c4c0d92a1f435bf29f03cfa0faf",
     "semantic_hash": ""
   },
@@ -3110,32 +3110,32 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/callback/route.ts": {
-    "mtime": 1788960970.0493455,
+    "mtime": 1788963328.5182087,
     "ast_hash": "d75f1f0e64b8326c918ebe1c9aed8661",
     "semantic_hash": ""
   },
   "frontend/app/api/square/connect/route.ts": {
-    "mtime": 1788960570.9922767,
+    "mtime": 1788963328.518547,
     "ast_hash": "e539792798dcda8d2c317c1105e0c29f",
     "semantic_hash": ""
   },
   "frontend/app/api/square/pay/route.ts": {
-    "mtime": 1788962721.4770937,
+    "mtime": 1788963328.5188668,
     "ast_hash": "99b591ca81e3ed4950fd8c47b2d0164d",
     "semantic_hash": ""
   },
   "frontend/app/api/square/refresh/route.ts": {
-    "mtime": 1788960782.7480724,
+    "mtime": 1788963328.519098,
     "ast_hash": "ad0ca5e274975fb7d0d736c327b3b9f0",
     "semantic_hash": ""
   },
   "frontend/app/api/square/verify/route.ts": {
-    "mtime": 1788960570.9925954,
+    "mtime": 1788963328.519348,
     "ast_hash": "275be9273bc6f7d586bd996c89543788",
     "semantic_hash": ""
   },
   "frontend/app/api/square/webhook/route.ts": {
-    "mtime": 1788960550.1665368,
+    "mtime": 1788963328.5195603,
     "ast_hash": "3d85f9c20a86499ec1cf984442912263",
     "semantic_hash": ""
   },
@@ -3175,7 +3175,7 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/square-payment.tsx": {
-    "mtime": 1788960894.1101208,
+    "mtime": 1788963328.5254843,
     "ast_hash": "bfa412db2518ba3a35217a9fa771352b",
     "semantic_hash": ""
   },
@@ -3190,7 +3190,7 @@
     "semantic_hash": ""
   },
   "frontend/lib/square/server.ts": {
-    "mtime": 1788961347.7721474,
+    "mtime": 1788963328.5270333,
     "ast_hash": "ff6cbde4fe836abeb4ebf606208e2351",
     "semantic_hash": ""
   },
@@ -3225,27 +3225,27 @@
     "semantic_hash": ""
   },
   "supabase/migrations/20260910000003_square_provider.sql": {
-    "mtime": 1788960570.9933817,
+    "mtime": 1788963328.68617,
     "ast_hash": "5a8c557a22224a8ffbe5ddb3d6ec0ca8",
     "semantic_hash": ""
   },
   "supabase/migrations/20260910000004_square.sql": {
-    "mtime": 1788960570.993511,
+    "mtime": 1788963328.6866686,
     "ast_hash": "db92fbc3adba4db438d5dd42720dac15",
     "semantic_hash": ""
   },
   ".github/workflows/square-refresh.yml": {
-    "mtime": 1788960793.853199,
+    "mtime": 1788963328.515046,
     "ast_hash": "8752cffce828faade104392379096a57",
     "semantic_hash": ""
   },
   "ominin_logo.png": {
-    "mtime": 1788960570.9932344,
+    "mtime": 1788963328.6857204,
     "ast_hash": "1c383d8451a1aff30922196f57fc2638",
     "semantic_hash": ""
   },
   "supabase/migrations/20260910000005_platform_fee.sql": {
-    "mtime": 1788962653.7278233,
+    "mtime": 1788963328.687542,
     "ast_hash": "fc61476e4ab23e0c6fc6499c37d7e97a",
     "semantic_hash": ""
   }

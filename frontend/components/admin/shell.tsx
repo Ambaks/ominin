@@ -16,9 +16,11 @@ import { createClient } from "@/lib/supabase/client";
 import {
   BotIcon,
   CalendarIcon,
+  ChartIcon,
   ImportIcon,
   MapPinIcon,
   PipelineIcon,
+  PulseIcon,
   SlidersIcon,
   StoreIcon,
   TaskIcon,
@@ -30,25 +32,71 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<IconProps>;
+  /** Écran de bureau (grand tableau, import) : absent de la barre mobile. */
+  desktopOnly?: boolean;
 }
 
-/** Barre mobile : les écrans du terrain — E-mails inclus, car approuver un
- * brouillon de Léa depuis le téléphone est le geste le plus urgent du CRM. */
-const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Aperçu", icon: ApercuIcon },
-  { href: "/carte", label: "Carte", icon: MapPinIcon },
-  { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
-  { href: "/lea", label: "Agent Léa", icon: BotIcon },
-  { href: "/taches", label: "Tâches", icon: TaskIcon },
-  { href: "/rdv", label: "RDV", icon: CalendarIcon },
+interface Section {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
+
+/*
+ * Deux métiers, deux onglets. Marketing va chercher des restaurants ;
+ * Clients regarde ceux qui ont signé. Le mot « Restaurants » désigne des
+ * prospects (crm_restaurants) d'un côté et n'existe pas de l'autre : les
+ * clients sont des établissements, jamais des fiches de prospection.
+ *
+ * Un seul groupe de routes porte les deux, sinon changer d'onglet
+ * démonterait AdminShell et rechargerait le store à chaque bascule.
+ */
+const SECTIONS: Section[] = [
+  {
+    id: "marketing",
+    label: "Marketing",
+    items: [
+      { href: "/", label: "Aperçu", icon: ApercuIcon },
+      { href: "/carte", label: "Carte", icon: MapPinIcon },
+      { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
+      { href: "/lea", label: "Agent Léa", icon: BotIcon },
+      { href: "/taches", label: "Tâches", icon: TaskIcon },
+      { href: "/rdv", label: "RDV", icon: CalendarIcon },
+      {
+        href: "/restaurants",
+        label: "Restaurants",
+        icon: StoreIcon,
+        desktopOnly: true,
+      },
+      {
+        href: "/import",
+        label: "Import CSV",
+        icon: ImportIcon,
+        desktopOnly: true,
+      },
+    ],
+  },
+  {
+    id: "clients",
+    label: "Clients",
+    items: [
+      { href: "/clients", label: "Vue d'ensemble", icon: ChartIcon },
+      { href: "/activite", label: "Activité", icon: PulseIcon },
+      { href: "/capacites", label: "Capacités", icon: SlidersIcon },
+    ],
+  },
 ];
 
-/** Barre latérale uniquement : écrans de bureau (table, import). */
-const DESKTOP_ITEMS: NavItem[] = [
-  { href: "/restaurants", label: "Restaurants", icon: StoreIcon },
-  { href: "/clients", label: "Clients", icon: SlidersIcon },
-  { href: "/import", label: "Import CSV", icon: ImportIcon },
-];
+/** L'onglet suit l'URL : rien à mémoriser, un lien profond ouvre le bon. */
+function sectionOf(localPath: string): Section {
+  return (
+    SECTIONS.find(
+      (section) =>
+        section.id !== "marketing" &&
+        section.items.some((item) => localPath.startsWith(item.href))
+    ) ?? SECTIONS[0]
+  );
+}
 
 /** La carte occupe tout l'espace restant, sans conteneur ni marges. */
 const FULL_BLEED_PATHS = new Set(["/carte"]);
@@ -101,6 +149,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const state = useAdmin();
   const loadError = useAdminLoadError();
   const { basePath, localPath } = useAdminBasePath();
+  const section = sectionOf(localPath);
+  const mobileItems = section.items.filter((item) => !item.desktopOnly);
   const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
   const tasksDue = state ? selectTasksDueBadge(state.tasks) : 0;
   const pendingDrafts = state?.pendingDrafts ?? 0;
@@ -146,13 +196,29 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               fullBleed ? "lg:px-6" : "mx-auto max-w-2xl lg:max-w-6xl lg:px-10"
             }`}
           >
-            <div className="min-w-0">
-              <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
-                CRM interne
-              </p>
-              <p className="truncate font-display text-lg font-medium">
+            <div className="flex min-w-0 flex-col gap-1.5">
+              <p className="truncate font-display text-lg font-medium leading-none">
                 Ominin Admin
               </p>
+              <nav className="flex gap-1">
+                {SECTIONS.map((item) => {
+                  const active = item.id === section.id;
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`${basePath}${item.items[0].href}` || "/"}
+                      aria-current={active ? "page" : undefined}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        active
+                          ? "ember-gradient text-background"
+                          : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </nav>
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
               <ThemeToggle />
@@ -181,7 +247,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               fullBleed ? "ml-6" : ""
             }`}
           >
-            {[...NAV_ITEMS, ...DESKTOP_ITEMS].map((item) => {
+            {section.items.map((item) => {
               const active = isActive(localPath, item.href);
               return (
                 <Link
@@ -224,7 +290,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
           <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {NAV_ITEMS.map((item) => {
+            {mobileItems.map((item) => {
               const active = isActive(localPath, item.href);
               return (
                 <Link

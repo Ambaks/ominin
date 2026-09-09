@@ -10,7 +10,7 @@ function isUnavailable(item: MenuItem): boolean {
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
-  const { orderingEnabled, tableNumber, addLine } = useCart();
+  const { orderingEnabled, tableNumber, addLine, track } = useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -49,6 +49,8 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       choices: [],
       stock: item.stock,
     });
+    // « panier » implique « plat » : l'étape ne recule pas, un seul envoi suffit.
+    track("panier", { items: [item.id] });
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
@@ -57,7 +59,14 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     <>
       <button
         type="button"
-        onClick={hasOptions ? () => setModalOpen(true) : addPlain}
+        onClick={
+          hasOptions
+            ? () => {
+                track("plat", { items: [item.id] });
+                setModalOpen(true);
+              }
+            : addPlain
+        }
         className="ember-gradient shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold text-background transition-transform active:scale-95"
       >
         {added ? "Ajouté ✓" : hasOptions ? "Choisir" : "+ Ajouter"}
@@ -76,7 +85,7 @@ function OptionsModal({
   item: MenuItem;
   onClose: () => void;
 }) {
-  const { addLine } = useCart();
+  const { addLine, track } = useCart();
   const groups = item.options ?? [];
   const [selected, setSelected] = useState<Record<string, string>>({});
 
@@ -115,6 +124,7 @@ function OptionsModal({
       choices,
       stock: item.stock,
     });
+    track("panier");
     onClose();
   };
 

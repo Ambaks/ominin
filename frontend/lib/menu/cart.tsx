@@ -4,9 +4,17 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import type { MenuStage } from "./analytics/constants";
+import {
+  createTracker,
+  type MenuTracker,
+  type TrackOptions,
+} from "./analytics/tracker";
 
 /** Choix d'option envoyé à la base (le supplément y est revalidé) — alias, pas interface : assignable au Json de place_order. */
 export type CartChoice = {
@@ -55,6 +63,8 @@ interface CartContextValue extends CartConfig {
   setQuantity: (key: string, quantity: number) => void;
   removeLine: (key: string) => void;
   clear: () => void;
+  /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
+  track: (stage: MenuStage, options?: TrackOptions) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -107,6 +117,21 @@ export function CartProvider({
 
   const clear = useCallback(() => setLines([]), []);
 
+  const tracker = useRef<MenuTracker | null>(null);
+  useEffect(() => {
+    const instance = createTracker(config.slug, config.tableNumber);
+    tracker.current = instance;
+    instance.start();
+    return () => {
+      instance.stop();
+      tracker.current = null;
+    };
+  }, [config.slug, config.tableNumber]);
+
+  const track = useCallback((stage: MenuStage, options?: TrackOptions) => {
+    tracker.current?.track(stage, options);
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((sum, l) => sum + l.quantity, 0);
     const total = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
@@ -119,8 +144,9 @@ export function CartProvider({
       setQuantity,
       removeLine,
       clear,
+      track,
     };
-  }, [config, lines, addLine, setQuantity, removeLine, clear]);
+  }, [config, lines, addLine, setQuantity, removeLine, clear, track]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

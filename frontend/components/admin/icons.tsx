@@ -232,3 +232,20 @@ export function SlidersIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function ChartIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20V4M4 20h16" />
+      <path d="M8 20v-6M13 20V8M18 20v-9" />
+    </Svg>
+  );
+}
+
+export function PulseIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3 12h4l2.5-6 4 12 2.5-6h5" />
+    </Svg>
+  );
+}

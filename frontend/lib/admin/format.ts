@@ -125,6 +125,29 @@ export function httpHref(url: string): string {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+/**
+ * Montants de l'onglet Clients. Un chiffre d'affaires ne se lit pas au
+ * centime, une commission de vingt centimes si : la précision suit l'ordre de
+ * grandeur plutôt qu'une règle unique.
+ */
+export function formatEuros(amount: number): string {
+  const decimals = Math.abs(amount) >= 1000 ? 0 : 2;
+  return amount.toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+/** Un ratio (0,42) en pourcentage lisible (« 42 % »). */
+export function formatPercent(ratio: number): string {
+  return ratio.toLocaleString("fr-FR", {
+    style: "percent",
+    maximumFractionDigits: ratio < 0.1 ? 1 : 0,
+  });
+}
+
 /** Normalisation de recherche : minuscules, sans accents. */
 export function normalizeText(value: string): string {
   return value
