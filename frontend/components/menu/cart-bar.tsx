@@ -85,6 +85,10 @@ export function CartBar() {
     // Prévient la salle (push) : la commande attend son encaissement. Sans
     // bloquer le parcours client — keepalive survit à la redirection Stripe.
     notifyOrderEvent(orderId, "en_attente");
+    // Fin de l'entonnoir : la visite a produit une commande, et le règlement
+    // par carte en est la dernière étape (qu'il aboutisse ou non — un échec
+    // renvoie au comptoir, mais le client était bien allé jusque-là).
+    cart.track(payment === "carte" ? "paiement" : "commande", { orderId });
 
     if (payment === "carte" && cart.paymentProvider === "stripe") {
       // La commande est enregistrée ; on enchaîne sur le règlement Stripe,

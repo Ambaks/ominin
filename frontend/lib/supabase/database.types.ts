@@ -3041,6 +3041,81 @@ export type Database = {
       }
     }
     Functions: {
+      admin_menu_feed: {
+        Args: { p_etab?: string | null; p_limit: number }
+        Returns: {
+          created_at: string
+          etablissement_id: string
+          name: string
+          order_id: string
+          paid_online: boolean
+          slug: string
+          status: Database["public"]["Enums"]["order_status"]
+          table_number: number | null
+          total: number
+        }[]
+      }
+      admin_menu_funnel: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          categories: number
+          commandes: number
+          item_clicks: number
+          paiements: number
+          paniers: number
+          plats: number
+          sessions: number
+        }[]
+      }
+      admin_menu_items: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          clicks: number
+          item_id: string
+          name: string
+          revenue: number
+          sold: number
+        }[]
+      }
+      admin_menu_live: {
+        Args: { p_window_seconds: number }
+        Returns: {
+          etablissement_id: string
+          last_order_at: string | null
+          live_sessions: number
+          name: string
+          open_orders: number
+          slug: string
+        }[]
+      }
+      admin_menu_overview: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          commission: number
+          converted: number
+          etablissement_id: string
+          fee_percent: number
+          name: string
+          offre: Database["public"]["Enums"]["offre"]
+          orders_count: number
+          provider: Database["public"]["Enums"]["payment_provider"]
+          provider_ready: boolean
+          revenue: number
+          sessions: number
+          slug: string
+          tips: number
+        }[]
+      }
+      admin_menu_series: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          converted: number
+          day: string
+          orders_count: number
+          revenue: number
+          sessions: number
+        }[]
+      }
       create_collect_order: {
         Args: { p_pending_id: string; p_stripe_session_id: string }
         Returns: string
@@ -3095,6 +3170,10 @@ export type Database = {
         Returns: undefined
       }
       member_etablissements: { Args: never; Returns: string[] }
+      menu_rollup: {
+        Args: { p_click_ttl_days: number; p_session_ttl_days: number }
+        Returns: number
+      }
       omilink_claim_device: {
         Args: { p_serial: string; p_etablissement_id: string; p_name: string }
         Returns: string

@@ -666,6 +666,28 @@ export async function updateEtablissement(
   });
 }
 
+/**
+ * Bascule l'encaisseur actif (Stripe ↔ Square). Le paiement par carte est
+ * coupé le temps de la bascule : la garde en base le rejetterait de toute
+ * façon si le nouveau fournisseur n'est pas encore capable d'encaisser.
+ */
+export async function setPaymentProvider(
+  provider: "stripe" | "square"
+): Promise<void> {
+  const supabase = createClient();
+  const dbValue = provider === "stripe" ? null : provider;
+  check(
+    await supabase
+      .from("etablissements")
+      .update({ payment_provider: dbValue, online_payment: false })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.paymentProvider = dbValue;
+    draft.etablissement.onlinePayment = false;
+  });
+}
+
 /** Active/désactive le choix « payer par carte » sur le menu QR (gérant). */
 export async function setOnlinePayment(enabled: boolean): Promise<void> {
   const supabase = createClient();

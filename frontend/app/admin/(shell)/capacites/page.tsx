@@ -17,7 +17,7 @@ function openViews(client: Client): number {
   return VIEWS.filter((view) => view.id == null || features[view.id]).length;
 }
 
-export default function ClientsPage() {
+export default function CapacitesPage() {
   const toast = useToast();
   const [clients, setClients] = useState<Client[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);

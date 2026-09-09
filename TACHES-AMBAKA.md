@@ -54,7 +54,27 @@ d'Ambaka, ces étapes sont les siennes.
       pas « Table 7 » du premier coup d'œil, le produit paraît cassé quelle que
       soit la qualité de l'intégration.
 
-## 3. Commission des boutiques : poser le taux (2026-09-09)
+## 3. Analytique du menu QR et tableau de bord client (2026-09-11)
+
+Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260911000001_menu_analytics.sql` (`menu_sessions`,
+      `menu_item_clicks`, `menu_stats_daily`, `menu_track_budget`) et
+      `20260911000002_boho_cuisson.sql` (options de cuisson des grillades).
+- [ ] **Vérifier le battement** : ouvrir un menu QR, puis DevTools →
+      Application → Session Storage. La session doit s'y écrire et se
+      rafraîchir toutes les 45 s. Rien ne doit atterrir dans les cookies :
+      c'est ce qui rend la mesure conforme sans bandeau.
+- [ ] **Vérifier le tableau de bord** : `admin.ominin.com/clients` doit se
+      rafraîchir tout seul, et l'entonnoir se remplir après quelques visites.
+- [ ] **À finir** (noté par Ambaka lui-même) : les vues `activity.tsx` et
+      `reglages.tsx` de la fiche client. La seconde n'affiche pour l'instant
+      qu'un récapitulatif en lecture seule — offre, encaisseur, commission.
+      Les capacités à cocher, elles, vivent dans l'onglet **Capacités** de la
+      section Clients.
+
+## 4. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout, il ne manque que la valeur. Elle
 n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
@@ -76,7 +96,7 @@ n'existe pas d'écran Ominin pour la poser : elle se met à la main.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 4. Tablette de salle et serveurs sans compte (2026-09-09)
+## 5. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -109,7 +129,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 5. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 6. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -129,7 +149,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 6. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 7. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -169,7 +189,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 7. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 8. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

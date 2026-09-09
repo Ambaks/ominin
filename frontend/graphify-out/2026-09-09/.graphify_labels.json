@@ -82,17 +82,5 @@
   "80": "qr-showcase.tsx",
   "81": "collectOffer",
   "82": "manifest.ts",
-  "83": "sw.js",
-  "84": "settings.tsx",
-  "85": "checkout.ts",
-  "86": "sections.tsx",
-  "87": "orders.ts",
-  "88": "page.tsx",
-  "89": "page.tsx",
-  "90": "cart.tsx",
-  "91": "seed-shop.ts",
-  "92": "wordmark.tsx",
-  "93": "theme-toggle.tsx",
-  "94": "payment-settings.tsx",
-  "95": "site.ts"
+  "83": "sw.js"
 }
