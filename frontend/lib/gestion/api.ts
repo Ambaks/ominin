@@ -550,18 +550,13 @@ export async function renameStaff(staffId: string, name: string): Promise<void> 
 }
 
 /**
- * Retirer quelqu'un de l'équipe : la fiche est archivée, jamais supprimée.
- * Elle quitte la badgeuse et le planning, son lien cesse de répondre, mais
- * ses heures restent — un décompte du temps de travail ne s'efface pas.
+ * Retirer quelqu'un de l'équipe : sa fiche part, avec son lien de planning et
+ * ses créneaux. Ses badgeages restent au journal sous le nom qu'ils portent —
+ * un décompte du temps de travail se conserve même après le départ.
  */
-export async function archiveStaff(staffId: string): Promise<void> {
+export async function deleteStaff(staffId: string): Promise<void> {
   const supabase = createClient();
-  check(
-    await supabase
-      .from("staff")
-      .update({ archived_at: new Date().toISOString() })
-      .eq("id", staffId)
-  );
+  check(await supabase.from("staff").delete().eq("id", staffId));
   apply((draft) => {
     draft.staff = draft.staff.filter((s) => s.id !== staffId);
   });

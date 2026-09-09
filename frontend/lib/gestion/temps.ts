@@ -25,7 +25,8 @@ export interface Shift {
  */
 export interface EntrySpan {
   id: string;
-  staffId: string;
+  /** Null quand la fiche a été retirée : les heures faites lui survivent. */
+  staffId: string | null;
   startedAt: string;
   endedAt?: string;
 }

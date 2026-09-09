@@ -318,13 +318,10 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
         .then(must),
-      // Les fiches archivées ne servent qu'au journal des badgeages, qui les
-      // relit à la demande : l'espace de service ne porte que l'équipe active.
       supabase
         .from("staff")
         .select("*")
         .eq("etablissement_id", etablissementId)
-        .is("archived_at", null)
         .order("created_at", { ascending: true })
         .then(must),
     ]);

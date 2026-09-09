@@ -1658,7 +1658,6 @@ export type Database = {
       }
       staff: {
         Row: {
-          archived_at: string | null
           created_at: string
           etablissement_id: string
           id: string
@@ -1668,7 +1667,6 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          archived_at?: string | null
           created_at?: string
           etablissement_id: string
           id?: string
@@ -1678,7 +1676,6 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          archived_at?: string | null
           created_at?: string
           etablissement_id?: string
           id?: string
@@ -2843,7 +2840,7 @@ export type Database = {
           member_name: string
           signature_in: string
           signature_out: string | null
-          staff_id: string
+          staff_id: string | null
           started_at: string
         }
         Insert: {

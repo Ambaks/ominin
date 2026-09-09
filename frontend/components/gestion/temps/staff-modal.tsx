@@ -147,7 +147,7 @@ export function StaffModal({
       {archiving && staff && (
         <ConfirmDialog
           title="Retirer de l'équipe ?"
-          message={`${staff.name} ne paraîtra plus sur la badgeuse ni au planning, et son lien cessera de répondre. Ses heures déjà badgées sont conservées.`}
+          message={`La fiche de ${staff.name} sera supprimée, avec ses créneaux à venir, et son lien de planning cessera de répondre. Ses heures déjà badgées restent au journal.`}
           confirmLabel="Retirer"
           destructive
           onClose={() => setArchiving(false)}
@@ -155,7 +155,7 @@ export function StaffModal({
             setArchiving(false);
             setBusy(true);
             try {
-              await api.archiveStaff(staff.id);
+              await api.deleteStaff(staff.id);
               toast.success(`${staff.name} a été retiré de l'équipe.`);
               onSaved();
             } catch (error) {

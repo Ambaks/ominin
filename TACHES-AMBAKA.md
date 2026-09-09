@@ -5,7 +5,29 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Tablette de salle et serveurs sans compte (2026-09-09)
+## 1. Commission des boutiques : poser le taux (2026-09-09)
+
+La commission est codée de bout en bout, il ne manque que la valeur. Elle
+n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
+n'existe pas d'écran Ominin pour la poser : elle se met à la main.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260909000003_shop_fee_lock.sql` (trigger réservant à Ominin le taux,
+      le `slug` et `is_active`) et `20260909000004_staff_delete.sql`
+      (suppression d'une fiche serveur sans perdre ses heures).
+- [ ] **Poser le taux**, une fois le pourcentage décidé, depuis l'éditeur SQL
+      de Supabase (la clé service passe outre le verrou) :
+
+      ```sql
+      update public.shops set platform_fee_percent = 2 where slug = 'mybox';
+      ```
+
+      Le taux s'applique aux commandes suivantes et reste figé sur celles
+      déjà passées. À décider en connaissant les frais Stripe, que la
+      boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
+      s'y substitue pas.
+
+## 2. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -38,7 +60,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 2. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 3. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -58,7 +80,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 3. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 4. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -80,13 +102,13 @@ en panne pour qui n'a pas encore le nouveau front.
       données → Web pour `ominin.com`). Sans elle, aucun script Google n'est
       chargé et le bandeau cookies ne s'affiche pas — c'est le comportement
       voulu en préproduction.
-- [ ] **Types** : même remarque qu'au § 4 — les entrées `shifts`,
+- [ ] **Types** : même remarque qu'au § 5 — les entrées `shifts`,
       `time_entries` et la nouvelle signature de `pay_order_items` ont été
       écrites à la main dans `frontend/lib/supabase/database.types.ts`.
 - [ ] **Graphe de connaissance** : `graphify update .` puis commiter
       `graphify-out/` — graphify n'est pas installé sur la machine d'où ces
       changements ont été faits.
-- [x] ~~Demander à l'équipe de poser son nom~~ — sans objet depuis le § 1 :
+- [x] ~~Demander à l'équipe de poser son nom~~ — sans objet depuis le § 2 :
       c'est le gérant qui nomme les fiches, personne n'a plus à renseigner
       son nom pour figurer sur la badgeuse ou au planning.
 - [ ] **Vérifier après déploiement** : une table réglée disparaît directement
@@ -98,7 +120,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 4. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 5. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau
