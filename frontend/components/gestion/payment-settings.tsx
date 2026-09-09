@@ -289,46 +289,47 @@ export function PaymentSettings({
                 </label>
               ))}
             </div>
-            {linked && !switching && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  setProviderBeforeSwitch(provider);
-                  setSwitching(true);
-                }}
-                className="self-start text-xs font-medium text-ember-2 hover:underline disabled:opacity-60"
-              >
-                Changer d&rsquo;encaisseur
-              </button>
-            )}
-            {switching && (
-              <div className="flex items-center gap-3">
-                {provider !== providerBeforeSwitch ? (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void confirmSwitch()}
-                    className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background disabled:opacity-60"
-                  >
-                    {busy ? "Changement…" : "Confirmer"}
-                  </button>
-                ) : (
-                  <p className="text-xs text-muted">
-                    Choisissez votre nouvel encaisseur.
-                  </p>
-                )}
+          </fieldset>
+
+          {linked && !switching && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setProviderBeforeSwitch(provider);
+                setSwitching(true);
+              }}
+              className="self-start text-xs font-medium text-ember-2 hover:underline disabled:opacity-60"
+            >
+              Changer d&rsquo;encaisseur
+            </button>
+          )}
+          {switching && (
+            <div className="flex items-center gap-3">
+              {provider !== providerBeforeSwitch ? (
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={cancelSwitch}
-                  className="text-xs text-muted hover:underline disabled:opacity-60"
+                  onClick={() => void confirmSwitch()}
+                  className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background disabled:opacity-60"
                 >
-                  Annuler
+                  {busy ? "Changement…" : "Confirmer"}
                 </button>
-              </div>
-            )}
-          </fieldset>
+              ) : (
+                <p className="text-xs text-muted">
+                  Choisissez votre nouvel encaisseur.
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={cancelSwitch}
+                className="text-xs text-muted hover:underline disabled:opacity-60"
+              >
+                Annuler
+              </button>
+            </div>
+          )}
 
           {needsLocation ? (
             <div className="flex flex-col gap-2">
