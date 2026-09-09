@@ -27,7 +27,7 @@ export default function BadgeagePage() {
   };
 
   if (!state) return null;
-  if (!hasFeature("roles")) return <FeatureLocked />;
+  if (!hasFeature("badgeage")) return <FeatureLocked feature="badgeage" />;
 
   return (
     <div className="flex flex-col gap-8">

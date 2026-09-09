@@ -3,6 +3,7 @@ import {
   ACTION_LABELS,
   COLLECT_FEATURES,
   EXCLUDED_STATUSES,
+  FEATURES,
   OFFRE_FEATURES,
   ORDER_STATUS_FLOW,
   ROLE_ACTIONS,
@@ -16,8 +17,8 @@ import type {
   Role,
 } from "./types";
 
-/** Une capacité est ouverte dès qu'un des produits souscrits la porte. */
-export function hasFeature(
+/** Ce que l'offre souscrite ouvre d'elle-même, avant tout réglage. */
+export function planFeature(
   products: ActiveProducts,
   feature: Feature
 ): boolean {
@@ -25,6 +26,23 @@ export function hasFeature(
     (products.offre != null && OFFRE_FEATURES[products.offre].includes(feature)) ||
     (products.collect && COLLECT_FEATURES.includes(feature))
   );
+}
+
+/**
+ * Capacités réellement ouvertes : l'offre donne le lot, les réglages
+ * d'Ominin l'ajustent au cas par cas. Une capacité absente des réglages suit
+ * l'offre — c'est ce qui permet d'en ajouter une sans retoucher les clients.
+ */
+export function resolveFeatures(
+  products: ActiveProducts,
+  overrides: Partial<Record<Feature, boolean>>
+): Record<Feature, boolean> {
+  return Object.fromEntries(
+    FEATURES.map((feature) => [
+      feature,
+      overrides[feature] ?? planFeature(products, feature),
+    ])
+  ) as Record<Feature, boolean>;
 }
 
 export function can(role: Role, action: Action): boolean {
@@ -39,14 +57,14 @@ export function can(role: Role, action: Action): boolean {
  */
 export function allowedActions(
   role: Role,
-  products: ActiveProducts
+  features: Record<Feature, boolean>
 ): Action[] {
   const actions = ROLE_ACTIONS[role];
   const granted =
     actions === "all" ? (Object.keys(ACTION_LABELS) as Action[]) : actions;
   return granted.filter((action) => {
     const feature = ACTION_FEATURE[action];
-    return !feature || hasFeature(products, feature);
+    return !feature || features[feature];
   });
 }
 

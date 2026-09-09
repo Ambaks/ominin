@@ -23,8 +23,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = await createClient();
     const { data } = await supabase
       .from("etablissements")
-      .select("slug, created_at");
-    for (const { slug, created_at } of data ?? []) {
+      .select("slug, created_at, etablissement_settings(features)");
+    for (const row of data ?? []) {
+      const { slug, created_at } = row;
+      // Menu QR fermé : la page répond 404, elle n'a rien à faire au crawl.
+      const features = row.etablissement_settings?.features as
+        | { qr?: boolean }
+        | null;
+      if (features?.qr === false) continue;
       routes.push({
         url: `${menuSiteUrl}/m/${slug}`,
         lastModified: created_at ? new Date(created_at) : undefined,

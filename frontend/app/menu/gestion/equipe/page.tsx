@@ -340,7 +340,13 @@ export default function EquipePage() {
   };
 
   if (!state) return null;
-  if (!hasFeature("roles")) return <FeatureLocked />;
+  if (!hasFeature("roles")) return <FeatureLocked feature="roles" />;
+  // Badgeage et planning se retirent ensemble : un restaurant peut ne garder
+  // de l'onglet Équipe que les accès.
+  const panes = PANES.filter(
+    (item) => item.id === "membres" || hasFeature("badgeage")
+  );
+  const active = panes.some((item) => item.id === pane) ? pane : "membres";
 
   return (
     <div className="flex flex-col gap-8">
@@ -348,7 +354,7 @@ export default function EquipePage() {
         <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
           Équipe
         </h1>
-        <p className="mt-1 text-sm text-muted">{PANE_TAGLINES[pane]}</p>
+        <p className="mt-1 text-sm text-muted">{PANE_TAGLINES[active]}</p>
       </div>
 
       {role !== "gerant" ? (
@@ -359,14 +365,14 @@ export default function EquipePage() {
       ) : (
         <>
           <PillTabs
-            tabs={PANES.map(({ id, label }) => ({ id, label }))}
-            activeId={pane}
+            tabs={panes.map(({ id, label }) => ({ id, label }))}
+            activeId={active}
             onSelect={(id) => setPane(id as PaneId)}
           />
-          {pane === "membres" && (
+          {active === "membres" && (
             <TeamManager etablissementId={state.etablissement.id} />
           )}
-          {pane === "planning" && (
+          {active === "planning" && (
             <PlanningGrid
               etablissementId={state.etablissement.id}
               staff={state.staff}
@@ -376,7 +382,7 @@ export default function EquipePage() {
               onChange={reload}
             />
           )}
-          {pane === "badgeages" && (
+          {active === "badgeages" && (
             <div className="flex flex-col gap-6">
               <Badgeuse
                 etablissementId={state.etablissement.id}

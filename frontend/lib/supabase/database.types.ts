@@ -655,6 +655,32 @@ export type Database = {
           },
         ]
       }
+      etablissement_settings: {
+        Row: {
+          etablissement_id: string
+          features: Json
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          features?: Json
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          features?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etablissement_settings_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       etablissements: {
         Row: {
           address: string

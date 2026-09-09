@@ -16,6 +16,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   onlinePayment: boolean;
   /** Fournisseur du paiement à table ; non choisi ⇒ Stripe (historique). */
   paymentProvider: "stripe" | "sumup";
+  /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
+  qrMenu: boolean;
   restaurant: Restaurant;
 } | null> {
   const supabase = createPublicClient();
@@ -24,7 +26,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items(*)")
+    .select("*, categories(*), items(*), etablissement_settings(features)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("created_at", { referencedTable: "items", ascending: true })
@@ -40,6 +42,10 @@ export async function fetchRestaurant(slug: string): Promise<{
     offre: etablissement.offre,
     onlinePayment: etablissement.online_payment,
     paymentProvider: etablissement.payment_provider ?? "stripe",
+    // Réglage absent ou muet sur le QR : ouvert, comme le veut chaque offre.
+    qrMenu:
+      (etablissement.etablissement_settings?.features as { qr?: boolean } | null)
+        ?.qr !== false,
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,

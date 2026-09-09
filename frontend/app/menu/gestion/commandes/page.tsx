@@ -128,7 +128,7 @@ export default function CommandesPage() {
   }, [filter, historyLoaded, loadingHistory, loadHistory]);
 
   if (!state) return null;
-  if (!hasFeature("commandes")) return <FeatureLocked />;
+  if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
 
   const isServeur = state.role === "serveur";
   const tableNumbersById = new Map(
@@ -274,7 +274,9 @@ export default function CommandesPage() {
       )}
 
       {/* Prise de commande en salle : le client commande au serveur. */}
-      {!isCuisinier && <CreateOrderFab state={state} />}
+      {!isCuisinier && hasFeature("prise_commande") && (
+        <CreateOrderFab state={state} />
+      )}
     </div>
   );
 }

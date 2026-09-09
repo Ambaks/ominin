@@ -29,7 +29,8 @@ export async function generateMetadata({
 }: PageProps<"/menu/m/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const data = await getRestaurant(slug);
-  if (!data) notFound();
+  // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
+  if (!data || !data.qrMenu) notFound();
   const { restaurant } = data;
   const title = `${restaurant.name} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
@@ -58,7 +59,8 @@ export default async function MenuPage({
   const { slug } = await params;
   const { embed, table, paiement, commande } = await searchParams;
   const data = await getRestaurant(slug);
-  if (!data) notFound();
+  // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
+  if (!data || !data.qrMenu) notFound();
   const { restaurant, offre, onlinePayment, paymentProvider } = data;
 
   const parsedTable = Number(Array.isArray(table) ? table[0] : table);

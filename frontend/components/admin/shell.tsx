@@ -19,6 +19,7 @@ import {
   ImportIcon,
   MapPinIcon,
   PipelineIcon,
+  SlidersIcon,
   StoreIcon,
   TaskIcon,
 } from "./icons";
@@ -45,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
 /** Barre latérale uniquement : écrans de bureau (table, import). */
 const DESKTOP_ITEMS: NavItem[] = [
   { href: "/restaurants", label: "Restaurants", icon: StoreIcon },
+  { href: "/clients", label: "Clients", icon: SlidersIcon },
   { href: "/import", label: "Import CSV", icon: ImportIcon },
 ];
 

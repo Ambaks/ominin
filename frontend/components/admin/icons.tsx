@@ -222,3 +222,13 @@ export function BotIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function SlidersIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 7h5M13 7h7M4 17h9M17 17h3" />
+      <circle cx="11" cy="7" r="2" />
+      <circle cx="15" cy="17" r="2" />
+    </Svg>
+  );
+}

@@ -516,7 +516,7 @@ export default function TerminauxPage() {
   const { role, hasFeature } = useGestionAccess();
 
   if (!state) return null;
-  if (!hasFeature("commandes")) return <FeatureLocked />;
+  if (!hasFeature("terminaux")) return <FeatureLocked feature="terminaux" />;
 
   return (
     <div className="flex flex-col gap-8">

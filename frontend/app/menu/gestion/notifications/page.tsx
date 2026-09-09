@@ -341,7 +341,7 @@ export default function NotificationsPage() {
   useEffect(refresh, [refresh]);
 
   if (!state) return null;
-  if (!hasFeature("commandes")) return <FeatureLocked />;
+  if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
 
   return (
     <div className="flex flex-col gap-8">

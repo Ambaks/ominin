@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
 import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
-import { can, hasFeature } from "@/lib/gestion/permissions";
+import { can } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
@@ -49,16 +49,17 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   // Le serveur n'a pas d'aperçu : sa page d'accueil est le service lui-même
   // (voir la redirection dans app/menu/gestion/page.tsx).
-  { href: "/gestion", label: "Aperçu", feature: null, icon: ApercuIcon, excludeRoles: ["serveur"] },
+  { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, excludeRoles: ["serveur"] },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
-  { href: "/gestion/paiements", label: "Paiements", feature: "commandes", icon: PaymentsIcon, gerantOnly: true },
+  { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   // Le gérant badge et planifie depuis l'onglet Équipe, qui porte aussi le
   // planning et le journal : sa barre reste celle du service.
-  { href: "/gestion/badgeage", label: "Badgeage", feature: "roles", icon: ClockIcon, excludeRoles: ["gerant"] },
+  { href: "/gestion/badgeage", label: "Badgeage", feature: "badgeage", icon: ClockIcon, excludeRoles: ["gerant"] },
+  // Le menu ne se retire pas : sans carte, aucun produit ne sert à rien.
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
-  { href: "/gestion/terminaux", label: "Terminaux", feature: "commandes", icon: PrinterIcon, gerantOnly: true },
+  { href: "/gestion/terminaux", label: "Terminaux", feature: "terminaux", icon: PrinterIcon, gerantOnly: true },
 ];
 
 /**
@@ -133,7 +134,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   const subscribed = products.offre != null || products.collect;
   const items = NAV_ITEMS.filter(
     (item) =>
-      (!item.feature || hasFeature(products, item.feature)) &&
+      (!item.feature || (state?.features[item.feature] ?? false)) &&
       (!item.gerantOnly || state?.role === "gerant") &&
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
   );
@@ -186,7 +187,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   <ExternalLinkIcon className="size-3.5" />
                   <span className="hidden lg:inline">Voir mon menu</span>
                 </a>
-                {hasFeature(products, "commandes") && (
+                {(state?.features.commandes ?? false) && (
                   <Link
                     href="/gestion/notifications"
                     title="Notifications"
@@ -222,7 +223,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
         {/* Tablette posée sans être touchée : le navigateur garde le son
             fermé jusqu'au premier geste — on le demande, en sonnant. */}
-        {state && hasFeature(products, "commandes") && chimeOn && !chimeArmed && (
+        {state?.features.commandes && chimeOn && !chimeArmed && (
           <button
             type="button"
             onClick={() => void playChime()}

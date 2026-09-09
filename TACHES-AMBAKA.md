@@ -5,7 +5,27 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Commission des boutiques : poser le taux (2026-09-09)
+## 1. Capacités par restaurant (2026-09-10)
+
+Une migration, et rien d'autre : l'écran de réglage vit dans l'administration
+Ominin, il n'y a aucune variable d'environnement à poser. Tant que la migration
+n'est pas passée, l'espace de gestion charge quand même — les capacités
+retombent simplement sur celles de l'offre.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260910000001_capabilites.sql` (table `etablissement_settings`,
+      trigger qui donne sa ligne à chaque établissement, reprise des
+      établissements existants, lecture anonyme des drapeaux pour le menu QR,
+      lecture des abonnements par l'administration).
+- [ ] **Vérifier après la migration** : `admin.ominin.com/clients` liste tous
+      les établissements. Cocher et décocher une vue doit se voir aussitôt
+      dans l'espace du restaurant, après un rechargement de sa page.
+
+Aucun déploiement conjoint n'est nécessaire cette fois : le front sait vivre
+sans la table (l'offre décide seule), et la table sans le front (personne ne
+la lit). L'ordre n'a donc pas d'importance.
+
+## 2. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout, il ne manque que la valeur. Elle
 n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
@@ -27,7 +47,7 @@ n'existe pas d'écran Ominin pour la poser : elle se met à la main.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 2. Tablette de salle et serveurs sans compte (2026-09-09)
+## 3. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -60,7 +80,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 3. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 4. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -80,7 +100,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 4. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 5. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -120,7 +140,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 5. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 6. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

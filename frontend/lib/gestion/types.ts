@@ -22,10 +22,22 @@ export type EncaissementMode = Extract<PaymentMode, "especes" | "carte">;
 export type PaymentProvider = "stripe" | "sumup";
 
 /**
- * Capacités débloquées par les produits souscrits (le menu et les formules
- * sont toujours inclus — sans carte, aucun produit ne sert à rien).
+ * Ce qu'un restaurant a sous la main : les vues de son espace et ce qu'elles
+ * contiennent. L'offre souscrite en ouvre le lot habituel, les réglages
+ * d'Ominin l'ajustent restaurant par restaurant. Le menu et les formules ne
+ * s'y trouvent pas : sans carte, aucun produit ne sert à rien.
  */
-export type Feature = "commandes" | "tables" | "options" | "roles" | "qr";
+export type Feature =
+  | "qr"
+  | "apercu"
+  | "commandes"
+  | "paiements"
+  | "tables"
+  | "badgeage"
+  | "terminaux"
+  | "options"
+  | "roles"
+  | "prise_commande";
 
 /** Produits actifs sur l'établissement : ils déterminent les capacités. */
 export interface ActiveProducts {
@@ -168,6 +180,8 @@ export interface GestionState {
   collectSubscriptionStatus: string | null;
   userId: string;
   role: Role;
+  /** Capacités résolues : l'offre, ajustée par les réglages d'Ominin. */
+  features: Record<Feature, boolean>;
   members: Member[];
   /** Équipe au sens du service : comptes et serveurs sans compte confondus. */
   staff: Staff[];

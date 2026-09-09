@@ -112,7 +112,7 @@ export default function ProduitsPage() {
               Ce que vous pouvez faire
             </p>
             <ul className="flex flex-wrap gap-1.5">
-              {allowedActions(state.role, products).map((action) => (
+              {allowedActions(state.role, state.features).map((action) => (
                 <li
                   key={action}
                   className="rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs text-muted"

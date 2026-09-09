@@ -194,7 +194,7 @@ export default function PaiementsPage() {
   );
 
   const ready =
-    state != null && state.role === "gerant" && hasFeature("commandes");
+    state != null && state.role === "gerant" && hasFeature("paiements");
 
   useEffect(() => {
     if (ready && !loadRequested.current) {
@@ -204,7 +204,7 @@ export default function PaiementsPage() {
   }, [ready, loadHistory]);
 
   if (!state) return null;
-  if (!ready) return <FeatureLocked />;
+  if (!ready) return <FeatureLocked feature="paiements" />;
 
   const paid = dedupeById([
     // Le snapshot en dernier : sa version (realtime) prime sur la page chargée.

@@ -22,7 +22,7 @@ import {
   rowToStaff,
   rowToTable,
 } from "./mappers";
-import { can, hasFeature } from "./permissions";
+import { can, resolveFeatures } from "./permissions";
 import { activeProducts, dayStart } from "./selectors";
 import type {
   Action,
@@ -272,6 +272,7 @@ async function load(): Promise<void> {
     orders,
     members,
     staff,
+    settings,
   ] = await Promise.all([
       supabase
         .from("etablissements")
@@ -324,23 +325,41 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
         .then(must),
+      // Réglages d'Ominin. Absents (établissement d'avant la table), l'offre
+      // seule décide : maybeSingle plutôt qu'une erreur de chargement.
+      supabase
+        .from("etablissement_settings")
+        .select("features")
+        .eq("etablissement_id", etablissementId)
+        .maybeSingle()
+        .then((result) => result.data),
     ]);
 
   const offreSub = subscription?.find((s) => s.product === "offre");
   const collectSub = subscription?.find((s) => s.product === "collect");
 
-  state = {
+  const loaded: GestionState = {
     etablissement: rowToEtablissement(etablissement),
     subscriptionStatus: offreSub?.status ?? null,
     collectSubscriptionStatus: collectSub?.status ?? null,
     userId: user.id,
     role: membership.role,
+    // Résolu une fois pour toutes : les écrans lisent un oui ou un non, sans
+    // avoir à savoir ce qui vient de l'offre et ce qui vient des réglages.
+    features: {} as GestionState["features"],
     members: members.map(rowToMember),
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
     tables: tables.map(rowToTable),
     orders,
+  };
+  state = {
+    ...loaded,
+    features: resolveFeatures(
+      activeProducts(loaded),
+      (settings?.features ?? {}) as Partial<Record<Feature, boolean>>
+    ),
   };
   notify();
 }
@@ -493,6 +512,6 @@ export function useGestionAccess(): GestionAccess {
     // Fermé par défaut avant chargement : pas de droits tant que l'état
     // (donc le rôle réel) n'est pas connu.
     can: (action) => snapshot != null && can(role, action),
-    hasFeature: (feature) => snapshot != null && hasFeature(products, feature),
+    hasFeature: (feature) => snapshot?.features[feature] ?? false,
   };
 }

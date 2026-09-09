@@ -140,10 +140,130 @@ export const VAT_RATES = [5.5, 10, 20] as const;
 /** Taux par défaut d'un article (miroir du défaut SQL de items.vat_rate). */
 export const DEFAULT_VAT_RATE = 10;
 
+/**
+ * L'arborescence qu'Ominin coche pour chaque restaurant : une vue de l'espace
+ * de gestion, puis les réglages qu'elle contient. Fermer une vue emporte ce
+ * qu'elle porte ; la carte, elle, n'a pas de case — sans menu, aucune offre ne
+ * tient debout.
+ */
+export interface FeatureSpec {
+  id: Feature;
+  label: string;
+  hint: string;
+}
+
+export interface ViewSpec {
+  /** Capacité qui ouvre la vue ; null quand la vue ne se retire pas. */
+  id: Feature | null;
+  label: string;
+  hint: string;
+  features: FeatureSpec[];
+}
+
+export const VIEWS: ViewSpec[] = [
+  {
+    id: null,
+    label: "Menu",
+    hint: "La carte : catégories, articles et formules.",
+    features: [
+      {
+        id: "qr",
+        label: "Menu QR",
+        hint: "La carte publique que le client scanne à table.",
+      },
+      {
+        id: "options",
+        label: "Options d'article",
+        hint: "Les choix et suppléments posés sur un article.",
+      },
+    ],
+  },
+  {
+    id: "apercu",
+    label: "Aperçu",
+    hint: "Le tableau de bord d'accueil et son analytique.",
+    features: [],
+  },
+  {
+    id: "commandes",
+    label: "Commandes",
+    hint: "Le suivi du service, de l'encaissement au plat servi.",
+    features: [
+      {
+        id: "prise_commande",
+        label: "Prise de commande en salle",
+        hint: "Le bouton + : la salle saisit la commande pour le client.",
+      },
+    ],
+  },
+  {
+    id: "tables",
+    label: "Tables",
+    hint: "Les tables en service et leur addition.",
+    features: [],
+  },
+  {
+    id: "paiements",
+    label: "Paiements",
+    hint: "Le journal des encaissements, réservé au gérant.",
+    features: [],
+  },
+  {
+    id: "badgeage",
+    label: "Badgeage",
+    hint: "La badgeuse signée et le planning de l'équipe.",
+    features: [],
+  },
+  {
+    id: "roles",
+    label: "Équipe",
+    hint: "Les comptes de l'équipe, leurs rôles et leurs fiches.",
+    features: [],
+  },
+  {
+    id: "terminaux",
+    label: "Terminaux",
+    hint: "Les boîtiers Omilink et leurs imprimantes.",
+    features: [],
+  },
+];
+
+/** Toutes les capacités, vues comprises, dans l'ordre de l'arborescence. */
+export const FEATURES: Feature[] = VIEWS.flatMap((view) => [
+  ...(view.id ? [view.id] : []),
+  ...view.features.map((feature) => feature.id),
+]);
+
+/**
+ * Ce que chaque offre ouvre par défaut. L'aperçu et le menu QR accompagnent
+ * toute offre : ce sont la porte d'entrée de l'espace et la vitrine.
+ */
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
-  digital: ["qr"],
-  smart: ["qr", "commandes", "tables", "options", "roles"],
-  connect: ["qr", "commandes", "tables", "options", "roles"],
+  digital: ["qr", "apercu"],
+  smart: [
+    "qr",
+    "apercu",
+    "commandes",
+    "prise_commande",
+    "tables",
+    "paiements",
+    "badgeage",
+    "terminaux",
+    "options",
+    "roles",
+  ],
+  connect: [
+    "qr",
+    "apercu",
+    "commandes",
+    "prise_commande",
+    "tables",
+    "paiements",
+    "badgeage",
+    "terminaux",
+    "options",
+    "roles",
+  ],
 };
 
 /**
@@ -151,7 +271,12 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
  * options des articles), sans rien de la salle — ni tables, ni Cachets, ni
  * équipe, qui restent l'apanage des offres menu & salle.
  */
-export const COLLECT_FEATURES: Feature[] = ["commandes", "options"];
+export const COLLECT_FEATURES: Feature[] = [
+  "apercu",
+  "commandes",
+  "paiements",
+  "options",
+];
 
 /** Libellés des droits, pour présenter ce qu'un rôle autorise. */
 export const ACTION_LABELS: Record<Action, string> = {

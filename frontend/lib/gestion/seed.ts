@@ -1,5 +1,5 @@
 import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
-import { SEED_TABLE_COUNT } from "./constants";
+import { FEATURES, SEED_TABLE_COUNT } from "./constants";
 import type {
   GestionState,
   Order,
@@ -213,6 +213,10 @@ export function seed(): GestionState {
     userId: "demo-user",
     role: "gerant",
     members: [],
+    // La démonstration montre tout : l'offre connect ouvre chaque écran.
+    features: Object.fromEntries(
+      FEATURES.map((feature) => [feature, true])
+    ) as GestionState["features"],
     staff: [],
     categories,
     formules: [

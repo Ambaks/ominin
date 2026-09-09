@@ -21,7 +21,7 @@ export default function TablesPage() {
   const [openTableId, setOpenTableId] = useState<string | null>(null);
 
   if (!state) return null;
-  if (!hasFeature("tables")) return <FeatureLocked />;
+  if (!hasFeature("tables")) return <FeatureLocked feature="tables" />;
 
   const tables = activeTables(state);
   const sheet = tables.find((entry) => entry.table.id === openTableId);
@@ -83,7 +83,7 @@ export default function TablesPage() {
         />
       )}
 
-      <CreateOrderFab state={state} />
+      {hasFeature("prise_commande") && <CreateOrderFab state={state} />}
     </div>
   );
 }
