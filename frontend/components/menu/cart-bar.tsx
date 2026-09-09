@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SquarePayment } from "@/components/menu/square-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
@@ -30,6 +31,15 @@ export function CartBar() {
   const [sumupPayment, setSumupPayment] = useState<{
     orderId: string;
     checkoutId: string;
+  } | null>(null);
+  // Règlement Square : même place dans la feuille, mais le formulaire carte
+  // se monte avant tout appel serveur (le SDK tokenise dans le navigateur).
+  // Le pourboire y est figé : il se calcule sur le total du panier, que
+  // l'envoi de la commande vide juste après.
+  const [squarePayment, setSquarePayment] = useState<{
+    orderId: string;
+    locationId: string;
+    tipAmount: number;
   } | null>(null);
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
@@ -125,6 +135,22 @@ export function CartBar() {
       }
     }
 
+    if (payment === "carte" && cart.paymentProvider === "square") {
+      // Rien à demander au serveur pour l'instant : le formulaire carte se
+      // monte avec l'identifiant d'application et le point de vente (tous
+      // deux publics), et /api/square/pay n'est appelé qu'une fois la carte
+      // tokenisée. Sans point de vente désigné, pas d'encaissement possible.
+      if (cart.squareLocationId) {
+        setSquarePayment({
+          orderId,
+          locationId: cart.squareLocationId,
+          tipAmount,
+        });
+      } else {
+        setCardFailed(true);
+      }
+    }
+
     cart.clear();
     setState("sent");
   };
@@ -134,6 +160,7 @@ export function CartBar() {
     if (state === "sent") {
       setState("idle");
       setSumupPayment(null);
+      setSquarePayment(null);
     }
   };
 
@@ -170,6 +197,16 @@ export function CartBar() {
                 initialCheckoutId={sumupPayment.checkoutId}
                 onDone={(paid) => {
                   setSumupPayment(null);
+                  if (!paid) setCardFailed(true);
+                }}
+              />
+            ) : state === "sent" && squarePayment ? (
+              <SquarePayment
+                orderId={squarePayment.orderId}
+                locationId={squarePayment.locationId}
+                tipAmount={squarePayment.tipAmount}
+                onDone={(paid) => {
+                  setSquarePayment(null);
                   if (!paid) setCardFailed(true);
                 }}
               />

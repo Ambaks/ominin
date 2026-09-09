@@ -130,7 +130,14 @@ export default function EtablissementPage() {
             key={state.etablissement.slug}
             etablissement={state.etablissement}
           />
-          <PaymentSettings initialEnabled={state.etablissement.onlinePayment} />
+          <PaymentSettings
+            initialEnabled={state.etablissement.onlinePayment}
+            initialProvider={
+              state.etablissement.paymentProvider === "square"
+                ? "square"
+                : "stripe"
+            }
+          />
           <TabletSettings pinSet={state.etablissement.adminPinSet} />
           {products.collect && (
             <CollectSettings

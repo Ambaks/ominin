@@ -178,8 +178,9 @@ webhook de la plateforme ne détourne que les événements portant
       déploiement, le proxy route sur le préfixe `/shop` comme pour collect et
       clip), puis créer le CNAME chez le registrar.
 - [ ] **Vercel — variables** : `NEXT_PUBLIC_SHOP_HOST=shop.ominin.com`,
-      `SHOP_MAIL_FROM` (expéditeur des e-mails aux clientes, un domaine vérifié
-      chez Resend, par exemple `MyBox <bonjour@ominin.com>`) et
+      `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` (mêmes
+      valeurs que le backend — OAuth2 du compte omininsupport@gmail.com),
+      `GMAIL_SENDER_EMAIL=omininsupport@gmail.com` et
       `STRIPE_SHOP_WEBHOOK_SECRET` (voir l'étape suivante).
 - [ ] **Stripe — webhook des boutiques** : créer un endpoint distinct de celui
       des restaurants, sur `https://shop.ominin.com/api/shop/webhook`, en

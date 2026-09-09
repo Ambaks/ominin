@@ -1,0 +1,30 @@
+# Renouvellement quotidien des jetons Square des restaurants. Un jeton
+# d'accès Square vit 30 jours ; la route renouvelle ceux à moins d'une
+# semaine de l'expiration, ce qui laisse six journées de retry avant qu'un
+# restaurant cesse d'encaisser.
+#
+# L'échec du workflow EST le canal d'alerte : GitHub prévient par courriel,
+# et le pas ci-dessous sort en erreur dès qu'un compte n'a pas pu être
+# renouvelé — un jeton mort silencieux, c'est un restaurant dont les
+# commandes s'arrêtent sans cause visible.
+name: square-refresh
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renouveler les jetons Square
+        run: |
+          response=$(curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/square/refresh")
+          echo "$response"
+          echo "$response" | grep -q '"failed":\[\]' || {
+            echo "::error::Des jetons Square n'ont pas pu être renouvelés."
+            exit 1
+          }

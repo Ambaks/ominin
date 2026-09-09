@@ -698,8 +698,10 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone: string
+          platform_fee_percent: number
           siret: string | null
           slug: string
+          square_location_id: string | null
           tagline: string
         }
         Insert: {
@@ -718,8 +720,10 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone?: string
+          platform_fee_percent?: number
           siret?: string | null
           slug: string
+          square_location_id?: string | null
           tagline?: string
         }
         Update: {
@@ -738,8 +742,10 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone?: string
+          platform_fee_percent?: number
           siret?: string | null
           slug?: string
+          square_location_id?: string | null
           tagline?: string
         }
         Relationships: []
@@ -1142,6 +1148,10 @@ export type Database = {
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
+          platform_fee_cents: number | null
+          square_idempotency_key: string | null
+          square_order_id: string | null
+          square_payment_id: string | null
           staff_id: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_session_id: string | null
@@ -1162,6 +1172,10 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          platform_fee_cents?: number | null
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
           staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
@@ -1182,6 +1196,10 @@ export type Database = {
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
+          platform_fee_cents?: number | null
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
           staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_session_id?: string | null
@@ -2803,6 +2821,41 @@ export type Database = {
           },
         ]
       }
+      square_accounts: {
+        Row: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_id: string
+          refresh_token: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_id: string
+          refresh_token: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          access_token_expires_at?: string
+          etablissement_id?: string
+          merchant_id?: string
+          refresh_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "square_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sumup_accounts: {
         Row: {
           access_token: string
@@ -3173,7 +3226,7 @@ export type Database = {
         | "failed"
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
-      payment_provider: "stripe" | "sumup"
+      payment_provider: "stripe" | "sumup" | "square"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
@@ -3406,7 +3459,7 @@ export const Constants = {
         "cancelled",
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte"],
-      payment_provider: ["stripe", "sumup"],
+      payment_provider: ["stripe", "sumup", "square"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
