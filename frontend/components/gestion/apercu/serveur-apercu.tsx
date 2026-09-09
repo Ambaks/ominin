@@ -97,11 +97,7 @@ export function ServeurApercu({ state }: { state: GestionState }) {
         className="rise grid gap-4 sm:grid-cols-3"
         style={{ animationDelay: `${RISE_STEP_MS}ms` }}
       >
-        <Stat
-          label="Tables"
-          value={String(shown.length)}
-          hint={shown.length > 1 ? "en service" : "en service"}
-        />
+        <Stat label="Tables" value={String(shown.length)} hint="en service" />
         <Stat label="À encaisser" value={formatPrice(toPay)} hint="reste dû" />
         <Stat
           label="À servir"

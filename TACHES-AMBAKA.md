@@ -30,7 +30,31 @@ Aucun déploiement conjoint n'est nécessaire cette fois : le front sait vivre
 sans la table (l'offre décide seule), et la table sans le front (personne ne
 la lit). L'ordre n'a donc pas d'importance.
 
-## 2. Commission des boutiques : poser le taux (2026-09-09)
+## 2. Square, deuxième encaisseur du menu QR (2026-09-09)
+
+Repris du message du commit `81b7218` pour que rien ne se perde : ce lot est
+d'Ambaka, ces étapes sont les siennes.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260910000003_square_provider.sql` (troisième valeur de
+      `payment_provider`, isolée car `ALTER TYPE` ne se référence pas dans sa
+      transaction), `20260910000004_square.sql` (`square_accounts`,
+      `etablissements.square_location_id`, colonnes Square sur `orders`) et
+      `20260910000005_platform_fee.sql` (séquestration plateforme à 1 % sur
+      Stripe et Square).
+- [ ] **Square** : créer l'application, déclarer l'URL de redirection OAuth et
+      le webhook du produit.
+- [ ] **Variables** (`.env.local` **et** Vercel) :
+      `NEXT_PUBLIC_SQUARE_APPLICATION_ID`, `SQUARE_APPLICATION_SECRET`,
+      `SQUARE_WEBHOOK_SIGNATURE_KEY`, `CRON_SECRET`. Les mêmes en secrets
+      GitHub, pour le renouvellement quotidien des jetons
+      (`square-refresh.yml`).
+- [ ] **Parcours complet en bac à sable** avant tout client. Test décisif chez
+      un pilote réel : la caisse et le ticket imprimé. Si le personnel ne voit
+      pas « Table 7 » du premier coup d'œil, le produit paraît cassé quelle que
+      soit la qualité de l'intégration.
+
+## 3. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout, il ne manque que la valeur. Elle
 n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
@@ -52,7 +76,7 @@ n'existe pas d'écran Ominin pour la poser : elle se met à la main.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 3. Tablette de salle et serveurs sans compte (2026-09-09)
+## 4. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -85,7 +109,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 4. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 5. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -105,7 +129,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 5. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 6. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -145,7 +169,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 6. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 7. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

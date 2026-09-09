@@ -21,6 +21,7 @@ export default function ClientsPage() {
   const toast = useToast();
   const [clients, setClients] = useState<Client[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setClients(await fetchClients());
@@ -29,14 +30,24 @@ export default function ClientsPage() {
   useEffect(() => {
     // Faux positif : le setState de load() suit la réponse réseau.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    load().catch((error) =>
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      )
-    );
+    load().catch((error) => {
+      const message =
+        error instanceof Error ? error.message : "Une erreur est survenue.";
+      setLoadError(message);
+      toast.error(message);
+    });
     // toast est stable (contexte) ; l'écran ne se charge qu'une fois.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [load]);
+
+  if (loadError) {
+    return (
+      <EmptyState
+        title="Chargement impossible"
+        body={`${loadError} La table des réglages arrive avec la migration 20260910000001_capabilites.sql.`}
+      />
+    );
+  }
 
   if (!clients) {
     return (

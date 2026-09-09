@@ -295,8 +295,9 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
 };
 
 /**
- * Capacités du click & collect seul : vendre en ligne (suivi des commandes,
- * options des articles), sans rien de la salle — ni tables, ni Cachets, ni
+ * Capacités du click & collect seul : vendre en ligne — suivre les commandes,
+ * les encaisser, poser des options sur un article, et sortir les tickets sur
+ * un boîtier Omilink — sans rien de la salle : ni tables, ni badgeuse, ni
  * équipe, qui restent l'apanage des offres menu & salle.
  */
 export const COLLECT_FEATURES: Feature[] = [
@@ -304,6 +305,7 @@ export const COLLECT_FEATURES: Feature[] = [
   "commandes",
   "paiements",
   "options",
+  "terminaux",
 ];
 
 /** Libellés des droits, pour présenter ce qu'un rôle autorise. */
