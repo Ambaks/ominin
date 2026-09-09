@@ -1,4 +1,4 @@
-import { DEFAULT_ORDER_TABS, FEATURES } from "@/lib/gestion/constants";
+import { FEATURES, ORDER_TABS } from "@/lib/gestion/constants";
 import { planFeature, resolveFeatures } from "@/lib/gestion/permissions";
 import type { ActiveProducts, Feature, OrderTab } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
@@ -76,7 +76,7 @@ export async function fetchClients(): Promise<Client[]> {
       },
       overrides: toOverrides(row?.features),
       // Établissement d'avant la colonne : ce que faisait l'écran jusque-là.
-      orderTabs: row?.order_tabs ?? DEFAULT_ORDER_TABS,
+      orderTabs: row?.order_tabs ?? ORDER_TABS,
     };
   });
 }

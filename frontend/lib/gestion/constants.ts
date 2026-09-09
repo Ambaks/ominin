@@ -31,22 +31,18 @@ export const UNCLAIMED_POLL_MS = 3000;
 export const SERIAL_CODE_LENGTH = 6;
 
 
-/** Toutes les étapes possibles, dans leur ordre naturel de service. */
+/**
+ * Toutes les étapes du service, dans leur ordre naturel — et, telles quelles,
+ * ce que voit un restaurant qu'Ominin n'a pas réglé. Retirer une étape est une
+ * demande de client (le BOHO n'a que l'addition et l'historique, ses tickets
+ * sortant à l'imprimante), pas une règle du produit. Miroir du défaut SQL de
+ * etablissement_settings.order_tabs.
+ */
 export const ORDER_TABS: OrderTab[] = [
   "a_encaisser",
   "a_servir",
   "historique",
 ];
-
-/**
- * Ce que voit un restaurant qu'Ominin n'a pas réglé : l'addition et
- * l'historique. « À servir » n'en fait pas partie parce qu'une commande
- * encaissée part à l'imprimante et se clôt dans la foulée — l'onglet serait
- * vide. Il se rajoute de lui-même quand une assiette y attend vraiment (voir
- * le filet dans app/menu/gestion/commandes/page.tsx), et se règle à demeure
- * pour un restaurant qui sert avant de faire payer.
- */
-export const DEFAULT_ORDER_TABS: OrderTab[] = ["a_encaisser", "historique"];
 
 export const ORDER_TAB_LABELS: Record<OrderTab, string> = {
   a_encaisser: "À encaisser",

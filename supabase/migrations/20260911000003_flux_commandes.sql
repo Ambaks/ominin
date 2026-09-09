@@ -14,12 +14,9 @@
 
 create type public.order_tab as enum ('a_encaisser', 'a_servir', 'historique');
 
--- Par défaut, ce que l'écran faisait déjà : l'addition puis l'historique.
--- « À servir » n'y est pas parce qu'une commande encaissée part à l'imprimante
--- et se clôt dans la foulée — l'onglet serait vide. Il se rajoute de lui-même
--- quand une assiette y attend vraiment, et se règle à demeure pour un
--- restaurant qui sert avant de faire payer. Passer la migration ne change donc
--- rien pour personne.
+-- Le défaut posé ici ne vaut que le temps de la migration suivante, qui le
+-- repasse aux trois étapes : retirer « À servir » est une demande du BOHO, pas
+-- une règle du produit (voir 20260911000004_boho_reglages.sql).
 --
 -- Au moins une étape, jamais plus que les trois existantes. L'unicité, elle,
 -- ne s'exprime pas dans un CHECK sans sous-requête : ces lignes ne s'écrivent

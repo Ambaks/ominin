@@ -10,10 +10,7 @@ import { PushPrompt } from "@/components/gestion/push-prompt";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import {
-  DEFAULT_ORDER_TABS,
-  ORDER_TAB_LABELS,
-} from "@/lib/gestion/constants";
+import { ORDER_TAB_LABELS, ORDER_TABS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
@@ -100,10 +97,10 @@ export default function CommandesPage() {
   // Le filet : une assiette qui attend sans que son ticket soit sorti, ou un
   // boîtier tombé, rajoutent « À servir » même si le réglage l'exclut.
   const serviceNet =
-    !(state?.orderTabs ?? DEFAULT_ORDER_TABS).includes("a_servir") &&
+    !(state?.orderTabs ?? ORDER_TABS).includes("a_servir") &&
     (printerOffline ||
       (state?.orders.some((order) => awaitsService(order)) ?? false));
-  const wanted = state?.orderTabs ?? DEFAULT_ORDER_TABS;
+  const wanted = state?.orderTabs ?? ORDER_TABS;
   const tabs = (serviceNet ? [...wanted, "a_servir" as OrderTab] : wanted)
     // La cuisine n'encaisse pas : son onglet d'addition n'a pas de sens.
     .filter((tab) => tab !== "a_encaisser" || !isCuisinier);

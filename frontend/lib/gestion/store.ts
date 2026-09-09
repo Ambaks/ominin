@@ -11,7 +11,7 @@ import {
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
-  DEFAULT_ORDER_TABS,
+  ORDER_TABS,
   PAID_ORDER_STATUSES,
 } from "./constants";
 import {
@@ -363,7 +363,7 @@ async function load(): Promise<void> {
       activeProducts(loaded),
       (settings?.features ?? {}) as Partial<Record<Feature, boolean>>
     ),
-    orderTabs: settings?.order_tabs ?? DEFAULT_ORDER_TABS,
+    orderTabs: settings?.order_tabs ?? ORDER_TABS,
   };
   notify();
 }

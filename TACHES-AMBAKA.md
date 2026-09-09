@@ -7,24 +7,31 @@ code, lui, est en place.
 
 ## 1. Étapes du service et équipe sans comptes (2026-09-10)
 
-Une migration. Elle ne change rien à l'écran tant qu'on n'a rien coché : le
-défaut de la colonne est exactement ce que la salle voyait déjà.
+Deux migrations, et rien à cocher : les réglages du BOHO sont posés par la
+seconde, qui le nomme. Les autres restaurants ne bougent pas — ils gardent
+leur service en entier et leurs invitations par email.
 
 - [ ] **Supabase** : `supabase db push` — applique
       `20260911000003_flux_commandes.sql` (type `order_tab`, colonne
-      `etablissement_settings.order_tabs`).
-- [ ] **Régler le BOHO** dans `admin.ominin.com/capacites` :
-      - onglet **Capacités**, carte « Étapes de l'onglet Commandes » : garder
-        « À encaisser » puis « Historique », retirer « À servir » (ses tickets
-        sortent à l'imprimante). Si un boîtier tombe, l'onglet reparaît tout
-        seul — c'est voulu, ne le rajoutez pas à demeure.
-      - cocher **Équipe sans comptes** sous la vue Équipe : le gérant crée
-        alors ses serveurs au prénom, voit leurs heures badgées de la semaine
-        et copie leur lien de planning depuis la liste.
-- [ ] **Vérifier côté BOHO** : dans Commandes, la barre d'onglets ne montre
-      plus que deux étapes (et disparaît s'il n'en reste qu'une). Dans
-      Équipe → Membres, le formulaire d'invitation par email a laissé place à
-      la liste de l'équipe.
+      `etablissement_settings.order_tabs`) puis
+      `20260911000004_boho_reglages.sql` (défaut aux trois étapes, et les
+      réglages du BOHO : pas d'onglet « À servir », équipe au prénom).
+      L'ordre compte, la seconde s'appuie sur la première.
+- [ ] **Vérifier côté BOHO**, après la migration et un rechargement de la
+      page :
+      - dans **Commandes**, deux onglets seulement — « À encaisser » et
+        « Historique ». Si un boîtier Omilink tombe, « À servir » reparaît le
+        temps de la panne : c'est le filet, il est voulu, ne le retirez pas.
+      - dans **Équipe → Membres**, la liste de l'équipe a remplacé le
+        formulaire d'invitation : un bouton « + Ajouter un serveur » (un
+        prénom suffit), les heures badgées de la semaine sur chaque ligne, et
+        un bouton qui copie le lien de planning personnel.
+- [ ] **Vérifier qu'un autre restaurant n'a rien vu passer** : il doit garder
+      ses trois étapes dans Commandes et son formulaire d'invitation.
+
+Pour régler un autre client plus tard, tout se fait sans SQL depuis
+`admin.ominin.com/capacites` : la carte « Étapes de l'onglet Commandes » y
+retire, rajoute et déplace les étapes, et les capacités se cochent au-dessus.
 
 ## 2. Capacités par restaurant et gestes de salle (2026-09-10)
 
