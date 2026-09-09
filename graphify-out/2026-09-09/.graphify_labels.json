@@ -192,9 +192,12 @@
   "190": "demo-showcase.tsx",
   "191": "getRestaurant",
   "192": "public-menu.ts",
+  "193": "geometryType",
+  "194": "getPaintAffectingGlobalStateRefs",
   "195": "site.ts",
   "196": "graphify reference: query, path, explain",
   "197": "/marwan",
+  "198": "getClustersInternal",
   "199": "_deserializeCollisionBoxesForSymbol",
   "200": "_getByteView",
   "201": "graphify reference: add a URL and watch a folder",
@@ -207,6 +210,8 @@
   "208": "getOriginZoom",
   "209": "extraction-spec.md",
   "210": "withinInto",
+  "211": "Nn",
   "212": "O",
-  "213": "vh"
+  "213": "vh",
+  "214": "update"
 }

@@ -10,6 +10,8 @@ from app.prompts.persona import LEA_PERSONA, build_email_body
 from app.services import emailing, keepalive, notify
 from app.services.tokens import unsubscribe_url
 
+BOUNCE_LABEL = "Bounces"
+
 BOUNCE_FROM_RE = re.compile(r"mailer-daemon@|postmaster@", re.IGNORECASE)
 BOUNCE_SUBJECT_RE = re.compile(r"delivery status|undelivered|échec de la remise", re.IGNORECASE)
 
@@ -28,6 +30,33 @@ CLASSIFICATION_TITLES = {
 INTERESTED_FROM = ["new", "to_contact", "contacted"]
 
 
+def _archive_bounce(gmail_message_id: str) -> None:
+    """Move a bounce notification out of the inbox into the Bounces label.
+
+    Non-critical: if it fails the bounce is still recorded in the DB."""
+    try:
+        label_id = gmail.ensure_label(BOUNCE_LABEL)
+        gmail.archive_to_label(gmail_message_id, label_id)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def archive_bounce_notifications() -> int:
+    """Move all mailer-daemon / postmaster emails out of inbox into Bounces.
+
+    Catches the backlog and anything that arrived between agent runs."""
+    stubs = gmail.search("in:inbox (from:mailer-daemon OR from:postmaster)")
+    if not stubs:
+        return 0
+    label_id = gmail.ensure_label(BOUNCE_LABEL)
+    for stub in stubs:
+        try:
+            gmail.archive_to_label(stub["id"], label_id)
+        except Exception:  # noqa: BLE001
+            pass
+    return len(stubs)
+
+
 def sweep_bounces() -> dict:
     """Regex-only bounce sweep — no Claude calls.
 
@@ -36,6 +65,8 @@ def sweep_bounces() -> dict:
     for the full hourly inbox job."""
     sb = get_supabase()
     stats = {"bounces": 0, "skipped": 0}
+
+    stats["archived_from_inbox"] = archive_bounce_notifications()
 
     for stub in gmail.list_inbox(
         newer_than_days=settings.inbox_lookback_days,
@@ -124,6 +155,7 @@ def sweep_bounces() -> dict:
                 "classification": "bounce",
             },
         )
+        _archive_bounce(stub["id"])
         stats["bounces"] += 1
 
     return stats
@@ -353,6 +385,7 @@ def _apply(sb, inbound: dict, outbound: dict, verdict: InboxVerdict, stats: dict
             sb.table("crm_leads").update({"status": "to_contact"}).eq(
                 "id", lead_id
             ).eq("status", "contacted").execute()
+        _archive_bounce(inbound["gmail_message_id"])
 
     if verdict.draft_body and classification in ("interested", "meeting_request", "question"):
         sb.table("outreach_emails").insert(

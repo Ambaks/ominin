@@ -1,11 +1,11 @@
 # Graph Report - ominin  (2026-09-09)
 
 ## Corpus Check
-- 563 files · ~1,648,347 words
+- 563 files · ~1,648,203 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4023 nodes · 10728 edges · 210 communities (187 shown, 23 thin omitted)
+- 4023 nodes · 10738 edges · 215 communities (194 shown, 21 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 327 edges (avg confidence: 0.6)
 - Token cost: 0 input · 0 output
 
@@ -197,9 +197,12 @@
 - [[_COMMUNITY_demo-showcase.tsx|demo-showcase.tsx]]
 - [[_COMMUNITY_getRestaurant|getRestaurant]]
 - [[_COMMUNITY_public-menu.ts|public-menu.ts]]
+- [[_COMMUNITY_geometryType|geometryType]]
+- [[_COMMUNITY_getPaintAffectingGlobalStateRefs|getPaintAffectingGlobalStateRefs]]
 - [[_COMMUNITY_site.ts|site.ts]]
 - [[_COMMUNITY_graphify reference query, path, explain|graphify reference: query, path, explain]]
 - [[_COMMUNITY_marwan|/marwan]]
+- [[_COMMUNITY_getClustersInternal|getClustersInternal]]
 - [[_COMMUNITY__deserializeCollisionBoxesForSymbol|_deserializeCollisionBoxesForSymbol]]
 - [[_COMMUNITY__getByteView|_getByteView]]
 - [[_COMMUNITY_graphify reference add a URL and watch a folder|graphify reference: add a URL and watch a folder]]
@@ -212,8 +215,10 @@
 - [[_COMMUNITY_getOriginZoom|getOriginZoom]]
 - [[_COMMUNITY_extraction-spec|extraction-spec.md]]
 - [[_COMMUNITY_withinInto|withinInto]]
+- [[_COMMUNITY_Nn|Nn]]
 - [[_COMMUNITY_O|O]]
 - [[_COMMUNITY_vh|vh]]
+- [[_COMMUNITY_update|update]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `push()` - 144 edges
@@ -242,27 +247,27 @@
 ## Import Cycles
 - 1-file cycle: `backend/app/clients/supabase.py -> backend/app/clients/supabase.py`
 
-## Communities (210 total, 23 thin omitted)
+## Communities (215 total, 21 thin omitted)
 
 ### Community 0 - "useGestionAccess"
-Cohesion: 0.10
-Nodes (39): EquipePage(), EtablissementForm(), EtablissementPage(), MenuPage(), View, DevicesCard(), DeviceStatusCard(), NotificationsPage() (+31 more)
+Cohesion: 0.12
+Nodes (27): LeaPage(), RestaurantsPage(), TabId, TachesPage(), TeamManager(), EtablissementForm(), PipelineBoard(), AppointmentFormModal() (+19 more)
 
 ### Community 1 - "createAdminClient"
 Cohesion: 0.23
-Nodes (15): GET(), GET(), POST(), GET(), POST(), GET(), POST(), POST() (+7 more)
+Nodes (14): GET(), GET(), POST(), GET(), POST(), GET(), POST(), POST() (+6 more)
 
 ### Community 2 - "landing-data.ts"
 Cohesion: 0.07
-Nodes (36): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), LandingFooter() (+28 more)
+Nodes (37): metadata, DemoShowcase(), Faq(), Features(), FinalCta(), Hero(), HowItWorks(), IphoneFrame() (+29 more)
 
 ### Community 3 - "api.ts"
-Cohesion: 0.10
-Nodes (43): apply(), assertTransition(), createCategory(), createFormule(), createItem(), createStaffOrder(), deleteCategory(), deleteFormule() (+35 more)
+Cohesion: 0.11
+Nodes (38): apply(), assertTransition(), createCategory(), createFormule(), createItem(), createStaffOrder(), deleteCategory(), deleteFormule() (+30 more)
 
 ### Community 4 - "collect-landing-data.ts"
-Cohesion: 0.09
-Nodes (25): metadata, CollectComparison(), CostBar(), euros(), CollectFaq(), CollectFeatures(), CollectFinalCta(), CollectFooter() (+17 more)
+Cohesion: 0.08
+Nodes (29): metadata, CollectComparison(), CostBar(), euros(), CollectFaq(), CollectFeatures(), CollectFinalCta(), CollectFooter() (+21 more)
 
 ### Community 5 - "devDependencies"
 Cohesion: 0.05
@@ -270,31 +275,31 @@ Nodes (40): dependencies, @anthropic-ai/sdk, maplibre-gl, next, next-themes, qrc
 
 ### Community 6 - "page.tsx"
 Cohesion: 0.10
-Nodes (33): ApercuPage(), Period, DayGroup, displayMode(), groupByDay(), matchesMode(), MODE_FILTERS, ModeFilter (+25 more)
+Nodes (32): ApercuPage(), Period, DayGroup, dedupeById(), displayMode(), groupByDay(), matchesMode(), MODE_FILTERS (+24 more)
 
 ### Community 7 - "data.ts"
 Cohesion: 0.13
 Nodes (15): readDouble(), readFixed32(), readFixed64(), readFloat(), readPackedBoolean(), readPackedDouble(), readPackedEnd(), readPackedFixed32() (+7 more)
 
 ### Community 8 - "clip-landing-data.ts"
-Cohesion: 0.09
-Nodes (31): metadata, BotIcon(), PipelineIcon(), StoreIcon(), TaskIcon(), LeadPanelHost(), AdminShell(), DESKTOP_ITEMS (+23 more)
+Cohesion: 0.07
+Nodes (24): EmailsRedirect(), Analysis, ImportPage(), ParsedRow, Phase, RowStatus, STATUS_META, metadata (+16 more)
 
 ### Community 9 - "selectors.ts"
-Cohesion: 0.17
+Cohesion: 0.16
 Nodes (21): GET(), stateCookie(), GET(), POST(), POST(), POST(), POST(), confirmOrderPaid() (+13 more)
 
 ### Community 10 - "formatPrice"
-Cohesion: 0.09
-Nodes (27): Ai(), bm(), Bu(), Em(), fromLngLat(), gm(), hm(), interpolationFactor() (+19 more)
+Cohesion: 0.17
+Nodes (14): ProduitsPage(), DiscoverLink(), Pill(), ProductCard(), startCheckout(), ROLE_TAGLINES, allowedActions(), refreshSubscription() (+6 more)
 
 ### Community 11 - "context.tsx"
 Cohesion: 0.14
 Nodes (19): apply(), fetchAnalytics(), fetchPostAnalytics(), generateCaptions(), pollPostStatus(), publishClip(), refreshAccounts(), requestLinkUrl() (+11 more)
 
 ### Community 12 - "store.ts"
-Cohesion: 0.18
-Nodes (12): Cd(), _convertFromCellCoord(), _convertToCellCoord(), expandBy(), _forEachCell(), getId(), insert(), loadMatchingFeature() (+4 more)
+Cohesion: 0.12
+Nodes (19): Cd(), _convertFromCellCoord(), _convertToCellCoord(), expandBy(), filter(), _forEachCell(), getAndRemove(), _getAndRemoveByKey() (+11 more)
 
 ### Community 13 - "types.ts"
 Cohesion: 0.01
@@ -305,16 +310,16 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 15 - "MenuItem"
-Cohesion: 0.13
-Nodes (19): emplace(), feature(), getPositionIds(), getPositions(), hf(), Of(), patchUpdatedImage(), patchUpdatedImages() (+11 more)
+Cohesion: 0.09
+Nodes (28): Ai(), Bu(), emplace(), feature(), getPositionIds(), getPositions(), hf(), interpolationFactor() (+20 more)
 
 ### Community 16 - "page.tsx"
 Cohesion: 0.11
 Nodes (23): metadata, DemoBanner(), emptySubscribe(), ClipData, ANALYTICS_BASE, buildDemoAnalytics(), buildDemoPostAnalytics(), buildDemoPosts() (+15 more)
 
 ### Community 17 - "types.ts"
-Cohesion: 0.09
-Nodes (28): metadata, ClipDemoShowcase(), DESKTOP_VIEWPORT, PHONE_SIZE, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipHero() (+20 more)
+Cohesion: 0.08
+Nodes (31): metadata, ClipDemoShowcase(), DESKTOP_VIEWPORT, PHONE_SIZE, ClipFaq(), ClipFeatures(), ClipFinalCta(), ClipFooter() (+23 more)
 
 ### Community 18 - "shell.tsx"
 Cohesion: 0.11
@@ -334,7 +339,7 @@ Nodes (13): invalid(), isRateLimited(), POST(), RATE_LIMIT, readString(), sentAt
 
 ### Community 22 - "page.tsx"
 Cohesion: 0.08
-Nodes (33): loadOpenEntries(), loadWeek(), rowToEntry(), claimDevice(), CONSTRAINT_MESSAGES, createPrinter(), deleteDevice(), fetchJobs() (+25 more)
+Nodes (45): fetchAllSlugs(), fetchLatestResearchRun(), fetchOutreachEmails(), fetchOutreachProspects(), fetchOutreachRuns(), fetchOutreachStats(), fetchOutreachVariants(), fetchProspectCounts() (+37 more)
 
 ### Community 23 - "Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)"
 Cohesion: 0.13
@@ -342,23 +347,23 @@ Nodes (14): 1. DB migration — `supabase/migrations/20260715000001_clip.sql`, 2
 
 ### Community 24 - "menu-data.ts"
 Cohesion: 0.11
-Nodes (29): ChimeCard(), IOS_STEPS, PrefsCard(), armedListeners, CHIME_NOTES, chimeEnabled(), chimeListeners, context() (+21 more)
+Nodes (30): ChimeCard(), DevicesCard(), DeviceStatusCard(), IOS_STEPS, PrefsCard(), armedListeners, CHIME_NOTES, chimeEnabled() (+22 more)
 
 ### Community 25 - "icons.tsx"
 Cohesion: 0.07
-Nodes (54): InvitationForm(), InvitationPage(), OrderCardDemo(), OrderCard(), STATUS_CLASSES, StatusBadge(), NavItem, ACTION_FEATURE (+46 more)
+Nodes (46): GET(), InvitationForm(), InvitationPage(), OnboardingForm(), RESERVED_SLUGS, metadata, OnboardingPage(), StaffPending() (+38 more)
 
 ### Community 26 - "collect-experience.tsx"
 Cohesion: 0.09
 Nodes (8): FLEET, PILLARS, STEPS, WEEK, ComptesPage(), ComptesTab, ComptesTabs(), TABS
 
 ### Community 27 - "selectors.ts"
-Cohesion: 0.07
-Nodes (32): ImageUploader(), UploadedImage, OptionGroupForm(), ValueDraft, Card(), OptionLinkDraft, NAV_ITEMS, NavItem (+24 more)
+Cohesion: 0.06
+Nodes (38): AccountPage(), metadata, SignOutButton(), metadata, ImageUploader(), UploadedImage, ValueDraft, Card() (+30 more)
 
 ### Community 28 - "store.ts"
-Cohesion: 0.16
-Nodes (18): POST(), ResolvedLine, resolveOptions(), POST(), DELETE(), GET(), POST(), requireUser() (+10 more)
+Cohesion: 0.11
+Nodes (22): POST(), CategoriesManager(), DiscountDraft, DiscountManager(), FaqManager(), ShippingDraft, ShippingManager(), useSave() (+14 more)
 
 ### Community 29 - "client.ts"
 Cohesion: 0.06
@@ -377,8 +382,8 @@ Cohesion: 0.12
 Nodes (25): bb(), bx(), Cy(), eb(), gx(), hb(), hx(), increment() (+17 more)
 
 ### Community 34 - "auth-form.tsx"
-Cohesion: 0.07
-Nodes (19): metadata, metadata, metadata, metadata, InscriptionTabs(), Profile, TABS, metadata (+11 more)
+Cohesion: 0.06
+Nodes (19): metadata, metadata, metadata, metadata, metadata, metadata, InscriptionTabs(), Profile (+11 more)
 
 ### Community 35 - "loading.tsx"
 Cohesion: 0.26
@@ -393,24 +398,24 @@ Cohesion: 0.18
 Nodes (10): Business constraints, Code quality, Commands, Conventions, graphify, Ominin, Repo structure, Stack (+2 more)
 
 ### Community 38 - "eslint.config.mjs"
-Cohesion: 0.15
-Nodes (19): cg(), defines(), dg(), Es(), fg(), getBinderUniforms(), _insertCell(), lg() (+11 more)
+Cohesion: 0.12
+Nodes (22): cg(), defines(), dg(), Es(), fg(), getBinderUniforms(), getBinding(), getUniforms() (+14 more)
 
 ### Community 39 - "What you must do when invoked"
 Cohesion: 0.20
 Nodes (9): /commit, Execution requirement, Step 1 — Understand what changed, Step 2 — Project upkeep (required before every push), Step 3 — Safety checks, Step 4 — Write the commit message, Step 5 — Commit and push, Step 6 — Report back (+1 more)
 
 ### Community 40 - "qr-showcase.tsx"
-Cohesion: 0.07
-Nodes (51): ActivityInput, addActivity(), apply(), AppointmentInput, availableSlug(), completeTask(), createAppointment(), createRestaurant() (+43 more)
+Cohesion: 0.09
+Nodes (48): addActivity(), apply(), availableSlug(), completeTask(), createAppointment(), createRestaurant(), createTask(), DuplicateCandidate (+40 more)
 
 ### Community 41 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
 Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
 
 ### Community 42 - "demo-showcase.tsx"
-Cohesion: 0.06
-Nodes (47): AccountConversationPage(), metadata, metadata, TrackingPage(), AlertIcon(), ChevronDownIcon(), InfoIcon(), SearchIcon() (+39 more)
+Cohesion: 0.09
+Nodes (36): metadata, metadata, TrackingPage(), AlertIcon(), InfoIcon(), CheckoutFormProps, CustomerReplyForm(), MessageBubbles() (+28 more)
 
 ### Community 43 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -421,8 +426,8 @@ Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
 
 ### Community 45 - "config.py"
-Cohesion: 0.12
-Nodes (6): ping_if_due(), Self-ping the service's public /health URL during long batch loops.      Render', Alert the operator: hot reply, failed run, silently-cancelled send.      Best-ef, send(), One-time Gmail OAuth consent — prints the refresh token to paste into env.  Usag, eslintConfig
+Cohesion: 0.14
+Nodes (5): ping_if_due(), Self-ping the service's public /health URL during long batch loops.      Render', Alert the operator: hot reply, failed run, silently-cancelled send.      Best-ef, send(), One-time Gmail OAuth consent — prints the refresh token to paste into env.  Usag
 
 ### Community 46 - "Verifying the Ominin frontend"
 Cohesion: 0.40
@@ -457,8 +462,8 @@ Cohesion: 0.18
 Nodes (17): ad, Dd(), distSqr(), Fd(), Gd(), jd(), kd(), Ld() (+9 more)
 
 ### Community 58 - "formatPrice"
-Cohesion: 0.15
-Nodes (17): EmailsRedirect(), ImportPage(), LeaPage(), percent(), VariantCard(), ApercuPage(), RestaurantsPage(), TachesPage() (+9 more)
+Cohesion: 0.21
+Nodes (19): LEAD_LITE_SELECT, commit(), fetchAll(), fetchLeads(), fetchOpenTasks(), fetchPendingDraftCount(), fetchUpcomingAppointments(), getClientSnapshot() (+11 more)
 
 ### Community 63 - "order-card.tsx"
 Cohesion: 0.11
@@ -469,28 +474,28 @@ Cohesion: 0.06
 Nodes (30): address, city, collect_settings, prep_minutes, slot_capacity, slot_count, slot_interval_minutes, cuisine (+22 more)
 
 ### Community 65 - "nav.tsx"
-Cohesion: 0.09
-Nodes (36): ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft(), FormuleFormModal() (+28 more)
+Cohesion: 0.08
+Nodes (42): View, ArticleDraft, draftToEtapes(), emptyArticle(), emptyEtape(), EtapeDraft, EtapeEditor(), etapesToDraft() (+34 more)
 
 ### Community 67 - "Tt"
 Cohesion: 0.07
-Nodes (49): BadgeagePage(), PANE_TAGLINES, PaneId, PANES, ROLES, TeamManager(), ServiceClock(), BadgeagesLog() (+41 more)
+Nodes (50): BadgeagePage(), EquipePage(), PANE_TAGLINES, PaneId, PANES, ROLES, ServiceClock(), FeatureLocked() (+42 more)
 
 ### Community 68 - "format.ts"
-Cohesion: 0.15
-Nodes (26): dayTitle(), groupByDay(), RdvPage(), STATUS_CLASSES, TabId, PlusIcon(), FollowUpChoice, VisitedFlow() (+18 more)
+Cohesion: 0.12
+Nodes (30): ApercuPage(), dayTitle(), groupByDay(), RdvPage(), STATUS_CLASSES, MapLeadCard(), LeadCard(), StatCard() (+22 more)
 
 ### Community 69 - "useAdmin"
-Cohesion: 0.13
-Nodes (20): FilterBar(), FilterIcon(), SearchIcon(), NO_CONTACT_OPTIONS, countActiveFilters(), emptyFilters(), filterLeads(), filters (+12 more)
+Cohesion: 0.11
+Nodes (22): FilterBar(), FilterIcon(), SearchIcon(), ImportRow, RestaurantInput, CATEGORY_LABELS, NO_CONTACT_OPTIONS, countActiveFilters() (+14 more)
 
 ### Community 70 - "lead-panel.tsx"
-Cohesion: 0.14
-Nodes (22): ArrowRightIcon(), CalendarIcon(), ChevronLeftIcon(), ClockIcon(), GlobeIcon(), MailIcon(), MapPinIcon(), NoteIcon() (+14 more)
+Cohesion: 0.13
+Nodes (23): ArrowRightIcon(), BotIcon(), CalendarIcon(), ChevronLeftIcon(), ClockIcon(), GlobeIcon(), MailIcon(), MapPinIcon() (+15 more)
 
 ### Community 71 - "update"
-Cohesion: 0.10
-Nodes (27): POST(), Role, GET(), EXTENSIONS, POST(), POST(), Product, PRODUCTS_BY_CHOICE (+19 more)
+Cohesion: 0.09
+Nodes (28): POST(), Role, GET(), EXTENSIONS, POST(), POST(), Product, PRODUCTS_BY_CHOICE (+20 more)
 
 ### Community 72 - "database.types.ts"
 Cohesion: 0.06
@@ -505,8 +510,8 @@ Cohesion: 0.17
 Nodes (19): AnalysisFindings, ProposedVariant, ProspectScore, ScoringResult, _analyze(), _build_campaign_data(), _format_entry(), _pending_prospects() (+11 more)
 
 ### Community 75 - "push"
-Cohesion: 0.23
-Nodes (13): CartePage(), MapCanvas, CrosshairIcon(), capturePosition(), getSnapshot(), isWatching(), listeners, notify() (+5 more)
+Cohesion: 0.15
+Nodes (20): CartePage(), MapCanvas, CrosshairIcon(), FollowUpChoice, VisitedFlow(), MarkVisitedInput, FOLLOW_UP_QUICK_OPTIONS, useFilteredLeads() (+12 more)
 
 ### Community 76 - "ja"
 Cohesion: 0.13
@@ -514,7 +519,7 @@ Nodes (14): Settings, BaseSettings, Client, Settings, Bridge, ensure_token(), ma
 
 ### Community 77 - "maplibre-gl-worker.mjs"
 Cohesion: 0.06
-Nodes (15): al, bt(), dr, dt(), ln(), mn, pt(), Ri() (+7 more)
+Nodes (12): al, bt(), dr, dt(), ln(), mn, pt(), Ri() (+4 more)
 
 ### Community 78 - "loadMatchingFeature"
 Cohesion: 0.43
@@ -522,11 +527,11 @@ Nodes (6): _credentials_env(), _parse(), parse_structured(), The Agent SDK spawn
 
 ### Community 79 - "types.ts"
 Cohesion: 0.06
-Nodes (55): FindingsCard(), PROSPECT_TILES, TabId, VARIANT_ORDER, MapLeadCard(), statusColorExpression, Viewport, LeadStatusBadge() (+47 more)
+Nodes (51): FindingsCard(), percent(), PROSPECT_TILES, TabId, VARIANT_ORDER, VariantCard(), ActivityInput, AppointmentInput (+43 more)
 
 ### Community 80 - "must"
 Cohesion: 0.12
-Nodes (31): ab(), add(), addIndicesForPlacedSymbol(), cs(), cx(), db(), dx(), evaluateWithoutErrorHandling() (+23 more)
+Nodes (39): ac(), add(), addIndicesForPlacedSymbol(), bs(), concat(), cs(), cx(), ds() (+31 more)
 
 ### Community 81 - "subdividePolygonInternal"
 Cohesion: 0.19
@@ -537,12 +542,12 @@ Cohesion: 0.19
 Nodes (15): ao(), co(), distance(), _down(), eo(), Et(), no(), oo() (+7 more)
 
 ### Community 83 - "shell.tsx"
-Cohesion: 0.14
-Nodes (21): Body, STATUS_MESSAGES, EXTENSIONS, POST(), GET(), POST(), isTerminal(), POST() (+13 more)
+Cohesion: 0.10
+Nodes (38): POST(), ResolvedLine, resolveOptions(), POST(), DELETE(), GET(), POST(), requireUser() (+30 more)
 
 ### Community 84 - "has"
-Cohesion: 0.13
-Nodes (19): addTileFeatures(), getClusters(), getClustersInternal(), getTile(), gg(), hg(), initialize(), invalidateTiles() (+11 more)
+Cohesion: 0.27
+Nodes (10): getTile(), gg(), hg(), initialize(), invalidateTiles(), mg(), og(), splitTile() (+2 more)
 
 ### Community 85 - "addLine"
 Cohesion: 0.22
@@ -557,8 +562,8 @@ Cohesion: 0.17
 Nodes (12): Ay(), by(), cb(), Dy(), jy(), ky(), Ny(), Oy() (+4 more)
 
 ### Community 88 - "th"
-Cohesion: 0.22
-Nodes (18): ah(), ch(), dh(), eh(), fh(), gh(), hh(), ih() (+10 more)
+Cohesion: 0.24
+Nodes (17): ah(), ch(), dh(), eh(), fh(), gh(), hh(), ih() (+9 more)
 
 ### Community 89 - "lead-cache.ts"
 Cohesion: 0.33
@@ -566,7 +571,7 @@ Nodes (6): cf(), Ef(), mv(), paint(), tf(), xf()
 
 ### Community 90 - "Od"
 Cohesion: 0.07
-Nodes (50): approveOutreachEmail(), fetchOutreachStats(), promoteVariant(), rejectOutreachEmail(), updateImportantNotes(), updateOutreachDraft(), updateVariantStatus(), deletePrinter() (+42 more)
+Nodes (38): approveOutreachEmail(), promoteVariant(), rejectOutreachEmail(), updateOutreachDraft(), updateVariantStatus(), CategoryInput, deleteCategory(), deleteDiscountCode() (+30 more)
 
 ### Community 91 - "geometry"
 Cohesion: 0.50
@@ -577,36 +582,40 @@ Cohesion: 0.12
 Nodes (20): crossFadingFactor(), fire(), getCrossfadeParameters(), gradientExpression(), _handleOverridablePaintPropertyUpdate(), _handleSpecialPaintPropertyUpdate(), hasPaintOverride(), isDataDriven() (+12 more)
 
 ### Community 93 - "page.tsx"
-Cohesion: 0.19
-Nodes (20): ac(), bs(), concat(), ec(), getBuffer(), gs, H(), ic() (+12 more)
+Cohesion: 0.08
+Nodes (48): CommandesPage(), dedupeById(), EMPTY_BODIES, FilterId, FILTERS, matchesFilter(), EtablissementPage(), MenuPage() (+40 more)
 
 ### Community 94 - "readPackedEnd"
 Cohesion: 0.22
 Nodes (14): bbox(), cm(), decode(), loadGeometry(), nextField(), readBoolean(), readBytes(), readPackedSVarint() (+6 more)
 
 ### Community 95 - "constructor"
-Cohesion: 0.09
-Nodes (26): CheckoutPage(), metadata, AccountOrdersPage(), metadata, AccountMessagesPage(), metadata, AccountPage(), metadata (+18 more)
+Cohesion: 0.32
+Nodes (6): CheckoutPage(), metadata, CheckIcon(), CheckoutForm(), getActiveShippingMethods(), paymentsEnabled()
 
 ### Community 96 - "Json"
-Cohesion: 0.05
-Nodes (69): ShopOrderPage(), metadata, PackingSlipPage(), ConversationView(), CategoriesManager(), DiscountDraft, DiscountManager(), FaqManager() (+61 more)
+Cohesion: 0.08
+Nodes (42): ShopOrderPage(), FILTERS, metadata, PackingSlipPage(), CreateShopPage(), metadata, CreateShopForm(), OrderActions() (+34 more)
 
 ### Community 97 - "wordmark.tsx"
-Cohesion: 0.13
-Nodes (37): A(), b(), C(), ct(), D(), E(), emplaceBack(), f() (+29 more)
+Cohesion: 0.14
+Nodes (35): A(), b(), C(), ct(), D(), E(), emplaceBack(), f() (+27 more)
 
 ### Community 98 - "shared.ts"
-Cohesion: 0.16
-Nodes (10): generateMetadata(), getRestaurant, MenuPage(), Hero(), PARTICLES, LANGUAGES, MenuFooter(), PaymentReturn() (+2 more)
+Cohesion: 0.15
+Nodes (11): generateMetadata(), getRestaurant, MenuPage(), Hero(), PARTICLES, LANGUAGES, MenuFooter(), PaymentReturn() (+3 more)
 
 ### Community 99 - "constructor"
-Cohesion: 0.09
-Nodes (22): ShopLayout(), LegalPage(), PAGES, ProductActiveToggle(), Section, StripePanel(), SubscriptionPanel(), ThemeEditor() (+14 more)
+Cohesion: 0.14
+Nodes (17): ShopLayout(), ProductActiveToggle(), Section, ThemeEditor(), CheckCircleIcon(), CircleDashedIcon(), RefreshIcon(), DEFAULT_PALETTE (+9 more)
 
 ### Community 100 - "CollectDemoValue"
 Cohesion: 0.15
 Nodes (15): containsMaxSafeIntegerValues(), getFeatures(), getTransition(), getValue(), getValueFromBuffer(), Ju(), offsetToLengthBuffer(), _propertyRootKey() (+7 more)
+
+### Community 101 - "y"
+Cohesion: 0.10
+Nodes (12): buildDemoMenu(), COLLECT_DEMO, DEMO_MENU_SPEC, DemoMenuSection, demoRestaurantInfo, DemoStep, CollectDemoContext, CollectDemoState (+4 more)
 
 ### Community 102 - "evaluate"
 Cohesion: 0.20
@@ -617,40 +626,40 @@ Cohesion: 0.14
 Nodes (8): GenerateurPage(), MOMENTS, STEPS, PublierTab, PublierTabs(), TABS, SubTab, SubTabs()
 
 ### Community 104 - "processTask"
-Cohesion: 0.10
-Nodes (21): Analysis, ParsedRow, Phase, RowStatus, STATUS_META, COLUMNS, exportColumns(), ImportIcon() (+13 more)
+Cohesion: 0.17
+Nodes (13): COLUMNS, exportColumns(), PlusIcon(), LeadStatusBadge(), PriorityBadge(), PRIORITY_LABELS, countOutsideQuotes(), CsvColumn (+5 more)
 
 ### Community 105 - "clone"
 Cohesion: 0.12
 Nodes (16): AnalyticsView, AnalytiquePage(), compact, PostAnalyticsList(), VIEW_SUBTITLES, VIEWS, CreationComptesPage(), PublierPage() (+8 more)
 
 ### Community 106 - "b"
-Cohesion: 0.07
-Nodes (36): allura, cormorant, dmSans, dmSerif, FONT_VARIABLES, generateMetadata(), inter, montserrat (+28 more)
+Cohesion: 0.06
+Nodes (49): allura, cormorant, dmSans, dmSerif, FONT_VARIABLES, generateMetadata(), inter, montserrat (+41 more)
 
 ### Community 107 - "I"
 Cohesion: 0.38
 Nodes (7): ar, I, ce(), _filterGeoJSON(), _getFilterPredicate(), loadAndProcessGeoJSON(), Z()
 
 ### Community 108 - "getValue"
-Cohesion: 0.16
-Nodes (18): fetchAppointments(), fetchExportRows(), cache, errors, fetchDetail(), freshness, LeadDetailState, listeners (+10 more)
+Cohesion: 0.09
+Nodes (18): loadPrefs(), requireUser(), savePrefs(), TablesInsert, Category, daysAgo(), daysAhead(), db (+10 more)
 
 ### Community 109 - "Yf"
-Cohesion: 0.06
-Nodes (46): CommandesPage(), dedupeById(), EMPTY_BODIES, FilterId, FILTERS, matchesFilter(), CartLine, cartTotal() (+38 more)
+Cohesion: 0.14
+Nodes (18): OrderCardDemo(), EncaisserCard(), EncaisserPanel(), sumLines(), sumUnits(), Unit, unitsOf(), CheckMark() (+10 more)
 
 ### Community 110 - "dish-card.tsx"
 Cohesion: 0.36
 Nodes (11): _group_by_category(), _line(), _local(), datetime, Tickets rendus en ESC/POS. Omilink envoie ces octets tels quels à l'imprimante (, Group items by category name, sorted by category position., _render_items(), render_job() (+3 more)
 
 ### Community 111 - "readPackedEnd"
-Cohesion: 0.08
-Nodes (35): br(), checkSubtype(), Do(), eachChild(), error(), filter(), fr, getAndRemove() (+27 more)
+Cohesion: 0.10
+Nodes (28): br(), checkSubtype(), Do(), eachChild(), error(), fr, gr, hr (+20 more)
 
 ### Community 112 - "y"
-Cohesion: 0.08
-Nodes (27): _addCollisionDebugVertex(), addCollisionDebugVertices(), addDebugCollisionBoxes(), ap(), cp(), createNewSegment(), destroy(), destroyDebugData() (+19 more)
+Cohesion: 0.15
+Nodes (14): _addCollisionDebugVertex(), addCollisionDebugVertices(), addDebugCollisionBoxes(), destroy(), destroyDebugData(), generateCollisionDebugBuffers(), getBinderAttributes(), getVertexAttributes() (+6 more)
 
 ### Community 113 - "route.ts"
 Cohesion: 0.36
@@ -681,28 +690,28 @@ Cohesion: 0.33
 Nodes (6): il(), nl(), ol(), ov(), rl(), tl()
 
 ### Community 120 - "replace"
-Cohesion: 0.19
-Nodes (14): bp(), dp, ep, gf(), hp(), jt(), Kf(), mp() (+6 more)
+Cohesion: 0.10
+Nodes (27): ap(), bp(), cp(), createNewSegment(), dp, ep, getOrCreateLatestSegment(), gf() (+19 more)
 
 ### Community 121 - "co"
-Cohesion: 0.06
-Nodes (41): metadata, ProduitsPage(), OnboardingForm(), RESERVED_SLUGS, metadata, OnboardingPage(), StaffPending(), ApercuIcon() (+33 more)
+Cohesion: 0.10
+Nodes (22): metadata, ApercuIcon(), BellIcon(), ClockIcon(), CommandesIcon(), ExternalLinkIcon(), GearIcon(), LogoutIcon() (+14 more)
 
 ### Community 122 - "_finishRequestTiming"
 Cohesion: 0.25
 Nodes (11): re(), finish(), _finishRequestTiming(), _getEtagUnmodifiedResult(), _getExpiryData(), loadData(), loadTile(), loadVectorTile() (+3 more)
 
 ### Community 123 - "processTask"
-Cohesion: 0.20
-Nodes (7): metadata, metadata, ClipFooter(), ClipNav(), ClipWordmark(), footer, nav
+Cohesion: 0.08
+Nodes (26): LegalPage(), PAGES, ChevronDownIcon(), FaqAccordion(), ProductGallery(), Multiline(), ProductBadge(), DashboardStats (+18 more)
 
 ### Community 124 - "ft"
 Cohesion: 0.50
 Nodes (4): de(), ft(), pe(), ve()
 
 ### Community 125 - "processTask"
-Cohesion: 0.15
-Nodes (34): POST(), POST(), POST(), POST(), POST(), loadOrder(), sendShopMail(), ShopMail (+26 more)
+Cohesion: 0.14
+Nodes (37): POST(), POST(), Body, POST(), STATUS_MESSAGES, POST(), POST(), loadOrder() (+29 more)
 
 ### Community 126 - "nr"
 Cohesion: 0.67
@@ -725,8 +734,8 @@ Cohesion: 0.19
 Nodes (13): addLineDashDependencies(), calculateGlyphDependencies(), constantOr(), factory(), fromString(), hasLineDasharray(), If(), isConstant() (+5 more)
 
 ### Community 132 - "Yf"
-Cohesion: 0.24
-Nodes (10): ax, containsPolygonGeometry(), geometryType(), getGeometries(), getVertex(), jx(), wb(), wx() (+2 more)
+Cohesion: 0.14
+Nodes (19): ab(), ax, db(), dx(), Ex(), fb(), Fx(), getVertex() (+11 more)
 
 ### Community 133 - "Bd"
 Cohesion: 0.50
@@ -761,12 +770,12 @@ Cohesion: 0.15
 Nodes (16): addImageSection(), addTextSection(), determineAverageLineWidth(), determineLineBreaks(), fromFeature(), getMaxImageSize(), getMaxScale(), getNextImageSectionCharCode() (+8 more)
 
 ### Community 144 - "sb"
-Cohesion: 0.17
-Nodes (12): an(), en(), fn(), jn(), kn(), Nn(), Pn(), rn() (+4 more)
+Cohesion: 0.33
+Nodes (6): an(), en(), jn(), kn(), rn(), xn()
 
 ### Community 145 - "_getByteView"
-Cohesion: 0.09
-Nodes (46): ShopSettingsPage(), ShopCustomersPage(), ShopDiscountsPage(), FILTERS, ShopOrdersPage(), ShopContentPage(), metadata, ShopGestionLayout() (+38 more)
+Cohesion: 0.07
+Nodes (53): ShopSettingsPage(), ShopCustomersPage(), ShopDiscountsPage(), ShopOrdersPage(), ShopContentPage(), metadata, ShopGestionLayout(), ShopShippingPage() (+45 more)
 
 ### Community 146 - "zn"
 Cohesion: 0.21
@@ -777,12 +786,12 @@ Cohesion: 0.17
 Nodes (14): archive_to_label(), ensure_label(), extract_body_text(), get_message(), list_inbox(), Move a message out of the inbox into the given label., Walk MIME parts for text/plain; fall back to stripped text/html., Send a plain-text email. Returns {id, threadId}. (+6 more)
 
 ### Community 148 - "vh"
-Cohesion: 0.09
-Nodes (31): metadata, ShopNav(), ShopFaq(), ShopFeatures(), ShopFinalCta(), ShopFooter(), ShopHero(), ShopHowItWorks() (+23 more)
+Cohesion: 0.10
+Nodes (28): metadata, ShopNav(), ShopFaq(), ShopFeatures(), ShopFinalCta(), ShopFooter(), ShopHero(), ShopHowItWorks() (+20 more)
 
 ### Community 149 - "getPaintAffectingGlobalStateRefs"
-Cohesion: 0.28
-Nodes (10): Authentifie un appareil Omilink par l'empreinte SHA-256 de son jeton., require_device(), _trigger(), trigger_autoresearch(), trigger_discover(), trigger_enrich(), trigger_inbox(), trigger_outreach() (+2 more)
+Cohesion: 0.61
+Nodes (7): _trigger(), trigger_autoresearch(), trigger_discover(), trigger_enrich(), trigger_inbox(), trigger_outreach(), BackgroundTasks
 
 ### Community 151 - "getUniforms"
 Cohesion: 0.21
@@ -797,8 +806,12 @@ Cohesion: 0.14
 Nodes (21): Qualification, _classify_lead(), _clean(), _fetch_pages(), _fetch_site(), _judge(), _label(), _notes() (+13 more)
 
 ### Community 157 - "ja"
-Cohesion: 0.26
-Nodes (9): GET(), OrderConfirmation(), STATUS_COPY, demoRestaurantInfo, CartChoice, collectHref(), CollectOrderView, mapsDirectionsHref() (+1 more)
+Cohesion: 0.11
+Nodes (19): CreateRestaurantModal(), DUPLICATE_REASON_LABELS, CartLine, cartTotal(), CheckoutDialog(), CollectExperience(), ItemRow(), SelectedChoice (+11 more)
+
+### Community 158 - "addLine"
+Cohesion: 0.22
+Nodes (5): statusColorExpression, Viewport, MAP_DEFAULT_CENTER, STATUS_ORDER, STATUS_MAP_COLORS
 
 ### Community 159 - "discovery.py"
 Cohesion: 0.29
@@ -809,32 +822,32 @@ Cohesion: 0.12
 Nodes (21): BADGE, DeviceCard(), DOT_CLASS, Editing, Health, LinkState, PrinterCard(), printerHealth() (+13 more)
 
 ### Community 161 - "loadVectorTile"
-Cohesion: 0.21
-Nodes (14): Device, _apply_routing(), _build_routing(), enroll(), EnrollRequest, mark_printed(), PrinterStatus, Endpoints interrogés par les appareils Omilink (voir omilink/). Le même contrat (+6 more)
+Cohesion: 0.15
+Nodes (17): Device, Authentifie un appareil Omilink par l'empreinte SHA-256 de son jeton., require_device(), _apply_routing(), _build_routing(), enroll(), EnrollRequest, mark_printed() (+9 more)
 
 ### Community 162 - "sb"
 Cohesion: 0.50
 Nodes (5): ix, jb(), ob(), sb(), yb()
 
 ### Community 163 - "collect-experience.tsx"
-Cohesion: 0.10
-Nodes (28): CheckoutView(), CustomerPane(), DishRow(), ItineraryButton(), MenuView(), TIMELINE, TrackingView(), useNow() (+20 more)
+Cohesion: 0.13
+Nodes (18): CheckoutView(), CustomerPane(), DishRow(), ItineraryButton(), MenuView(), TIMELINE, TrackingView(), useNow() (+10 more)
 
 ### Community 164 - "Ta"
 Cohesion: 0.14
 Nodes (21): Aa(), ba(), bind(), canonicalID(), da(), ea, ga(), ha() (+13 more)
 
 ### Community 167 - "BaseModel"
-Cohesion: 0.08
+Cohesion: 0.09
 Nodes (53): AboutPage(), metadata, CatalogPage(), generateMetadata(), ConfirmationPage(), metadata, AccountOrderPage(), metadata (+45 more)
 
 ### Community 168 - "page.tsx"
-Cohesion: 0.17
-Nodes (14): AddToOrder(), isUnavailable(), OptionsModal(), CallServerButton(), CallState, CartBar(), CartChoice, CartConfig (+6 more)
+Cohesion: 0.20
+Nodes (12): AddToOrder(), isUnavailable(), OptionsModal(), CallServerButton(), CallState, CartChoice, CartConfig, CartContext (+4 more)
 
 ### Community 169 - "O"
-Cohesion: 0.08
-Nodes (33): addCurrentVertex(), addHalfVertex(), addLine(), addToLineVertexArray(), addToSortKeyRanges(), am(), angleTo(), at() (+25 more)
+Cohesion: 0.05
+Nodes (51): addCurrentVertex(), addHalfVertex(), addLine(), addToLineVertexArray(), addToSortKeyRanges(), am(), angleTo(), at() (+43 more)
 
 ### Community 171 - "icons.tsx"
 Cohesion: 0.40
@@ -845,16 +858,16 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native AGENTS.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 177 - "toast.tsx"
-Cohesion: 0.11
-Nodes (20): StatusMenu(), ALL_COLUMNS, PipelineBoard(), DragState, useBoardDrag(), CLOSED_STATUSES, PIPELINE_COLUMNS, PIPELINE_RAIL_COLUMNS (+12 more)
+Cohesion: 0.15
+Nodes (12): StatusMenu(), ALL_COLUMNS, DragState, useBoardDrag(), CheckIcon(), PIPELINE_COLUMNS, PIPELINE_RAIL_COLUMNS, PipelineColumn (+4 more)
 
 ### Community 178 - "getUniforms"
 Cohesion: 0.12
 Nodes (11): fraunces, instrumentSans, metadata, viewport, MENU_PATHS, Providers(), Choice, CookieConsent() (+3 more)
 
 ### Community 179 - "validation.ts"
-Cohesion: 0.14
-Nodes (24): POST(), POST(), POST(), Admin, createCheckoutSession(), priceItems(), validateDiscountCode(), computeDiscount() (+16 more)
+Cohesion: 0.26
+Nodes (15): POST(), AddressInput, CheckoutInput, CheckoutItemInput, ContactInput, fail(), optionalText(), parseAddress() (+7 more)
 
 ### Community 181 - "useLanguage"
 Cohesion: 0.26
@@ -865,8 +878,8 @@ Cohesion: 0.19
 Nodes (14): isPhoneLoginEmail(), loginEmailFor(), looksLikePhone(), normalizePhone(), phoneToLoginEmail(), CATEGORIES, db, FAQ (+6 more)
 
 ### Community 183 - "theme-toggle.tsx"
-Cohesion: 0.20
-Nodes (8): PaymentChoice, SubmitState, TIP_PERCENTS, TipChoice, PaymentState, SumUpCardSdk, SumUpPayment(), Window
+Cohesion: 0.18
+Nodes (9): CartBar(), PaymentChoice, SubmitState, TIP_PERCENTS, TipChoice, PaymentState, SumUpCardSdk, SumUpPayment() (+1 more)
 
 ### Community 184 - "getPaintAffectingGlobalStateRefs"
 Cohesion: 0.33
@@ -904,6 +917,14 @@ Nodes (7): ClientDemoPage(), generateMetadata(), seed(), getRestaurant(), restau
 Cohesion: 0.33
 Nodes (7): ConfirmationPage(), metadata, CollectPage(), generateMetadata(), getPage, assembleCategories(), fetchRestaurant()
 
+### Community 193 - "geometryType"
+Cohesion: 0.67
+Nodes (3): containsPolygonGeometry(), geometryType(), getGeometries()
+
+### Community 194 - "getPaintAffectingGlobalStateRefs"
+Cohesion: 0.67
+Nodes (3): getGlobalStateRefs(), getLayoutAffectingGlobalStateRefs(), getPaintAffectingGlobalStateRefs()
+
 ### Community 195 - "site.ts"
 Cohesion: 0.38
 Nodes (3): PRIVATE_PATHS, sitemap(), siteUrl
@@ -915,6 +936,10 @@ Nodes (5): For /graphify explain, For /graphify path, graphify reference: query,
 ### Community 197 - "/marwan"
 Cohesion: 0.33
 Nodes (5): Information about Marwan, /marwan, Step 1 — Understand what changed, Step 2 - Write the summary info and give Marwan his designated task., What you must do when invoked
+
+### Community 198 - "getClustersInternal"
+Cohesion: 0.22
+Nodes (9): addTileFeatures(), getClusters(), getClustersInternal(), limitZoom(), ng(), rg(), sh(), tg() (+1 more)
 
 ### Community 200 - "_getByteView"
 Cohesion: 0.25
@@ -940,33 +965,41 @@ Nodes (7): completeTask(), deserialize(), it(), process(), processTask(), receiv
 Cohesion: 0.50
 Nodes (3): 1. Service direct, badgeuse et planning, Google Analytics (2026-09-08), 2. Ominin Shop : mise en ligne des boutiques (2026-09-08), Tâches manuelles
 
+### Community 211 - "Nn"
+Cohesion: 0.33
+Nodes (6): fn(), Nn(), Pn(), sendAsync(), substring(), wn()
+
 ### Community 212 - "O"
 Cohesion: 0.50
-Nodes (5): ds(), fs(), jo(), Mo(), O()
+Nodes (4): jo(), Mo(), ns(), O()
 
 ### Community 213 - "vh"
 Cohesion: 0.67
 Nodes (3): getData(), nh(), vh()
 
+### Community 214 - "update"
+Cohesion: 0.67
+Nodes (3): constructor(), replace(), update()
+
 ## Knowledge Gaps
 - **648 isolated node(s):** `backend`, `$schema`, `slug`, `name`, `tagline` (+643 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **21 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `error()` connect `readPackedEnd` to `types.ts`, `_getByteView`, `subdividePolygonInternal`, `validation.ts`, `icons.tsx`, `get`, `processTask`?**
+- **Why does `error()` connect `readPackedEnd` to `types.ts`, `get`, `_getByteView`, `subdividePolygonInternal`, `processTask`, `store.ts`, `page.tsx`?**
   _High betweenness centrality (0.246) - this node is a cross-community bridge._
-- **Why does `refreshOrders()` connect `icons.tsx` to `api.ts`, `readPackedEnd`?**
+- **Why does `refreshOrders()` connect `page.tsx` to `api.ts`, `readPackedEnd`?**
   _High betweenness centrality (0.121) - this node is a cross-community bridge._
-- **Why does `Client` connect `ja` to `icons.tsx`, `Ml`?**
+- **Why does `Client` connect `ja` to `page.tsx`, `Ml`?**
   _High betweenness centrality (0.105) - this node is a cross-community bridge._
 - **What connects `The Agent SDK spawns a Claude Code subprocess that authenticates from     the pr`, `Single-turn, tool-less Claude call returning schema-validated output.      Sync`, `Send a plain-text email. Returns {id, threadId}.` to the rest of the system?**
   _694 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `useGestionAccess` be split into smaller, more focused modules?**
-  _Cohesion score 0.09803921568627451 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11875843454790823 - nodes in this community are weakly interconnected._
 - **Should `landing-data.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.07111756168359942 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06778476589797344 - nodes in this community are weakly interconnected._
 - **Should `api.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.09898989898989899 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11153846153846154 - nodes in this community are weakly interconnected._

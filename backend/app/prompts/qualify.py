@@ -5,6 +5,7 @@ class Qualification(BaseModel):
     has_digital_menu: bool | None
     worth_contacting: bool
     ai_notes: str
+    observed_gaps: list[str]
 
 
 QUALIFY_SYSTEM = """\
@@ -19,8 +20,31 @@ a manifestement pas, null si impossible à dire.
 - worth_contacting : false uniquement si ce n'est pas un vrai restaurant \
 indépendant (chaîne nationale, dark kitchen, fermé, food-truck itinérant) ou \
 s'il a déjà un menu numérique.
-- ai_notes : 2 à 4 phrases EN FRANÇAIS pour préparer un e-mail personnalisé : \
-type de cuisine, positionnement (familial, gastro, rapide…), et UNE accroche \
-concrète et vérifiable tirée du site ou des données (spécialité, ancienneté, \
-quartier, carte papier/PDF…). Pas de flatterie générique.\
+- ai_notes : 2 à 3 phrases EN FRANÇAIS situant le restaurant : type de \
+cuisine, positionnement (familial, gastronomique, rapide…), et UN élément \
+concret et vérifiable tiré du site ou des données (spécialité nommée, \
+ancienneté, quartier, nombre d'adresses). Pas de flatterie générique.
+- observed_gaps : 1 à 3 frottements opérationnels CONSTATÉS, chacun en une \
+phrase EN FRANÇAIS, avec l'indice précis qui l'appuie. C'est le cœur de ton \
+travail : ce que ce restaurant fait aujourd'hui à la main, en double, ou pas \
+du tout, et qu'une carte numérique retirerait.
+
+Cherche notamment :
+- la carte n'est pas sur le site, ou seulement en PDF / en image à \
+télécharger, ou illisible sur mobile
+- la carte est datée, saisonnière ou annoncée comme changeante (« carte \
+2024 », « selon le marché ») : chaque changement = une réimpression
+- les prix sont absents de la carte en ligne
+- plusieurs adresses partagent une même page de carte à tenir à jour
+- aucune traduction alors que le restaurant est en zone touristique ou que \
+les avis mentionnent une clientèle étrangère
+- aucune information sur les allergènes
+- les commandes à emporter passent uniquement par le téléphone
+- les horaires du site et ceux de Google se contredisent
+
+N'inscris que ce que les données montrent réellement, et formule le constat \
+sans jugement ni reproche. Si un élément est incertain, dis-le dans la \
+phrase (« carte apparemment en PDF ») plutôt que de l'affirmer. Si aucun \
+frottement n'est observable, renvoie une liste vide plutôt que d'en \
+inventer un.\
 """

@@ -53,7 +53,7 @@ function ContactPills({
 
 function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
-    <header className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden">
+    <header className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden pb-28 lg:pb-32">
       <div className="absolute inset-0 bg-background" />
 
       <div

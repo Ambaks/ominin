@@ -10,6 +10,8 @@ from app.config import settings
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 
+_label_cache: dict[str, str] = {}
+
 
 @lru_cache(maxsize=1)
 def _service():
@@ -47,20 +49,23 @@ def send(
     return _service().users().messages().send(userId="me", body=payload).execute()
 
 
-def list_inbox(newer_than_days: int, max_results: int) -> list[dict]:
-    """Message stubs ({id, threadId}) for recent inbound mail."""
+def search(query: str, max_results: int = 100) -> list[dict]:
+    """Message stubs ({id, threadId}) matching an arbitrary Gmail query."""
     result = (
         _service()
         .users()
         .messages()
-        .list(
-            userId="me",
-            q=f"in:inbox -from:me newer_than:{newer_than_days}d",
-            maxResults=max_results,
-        )
+        .list(userId="me", q=query, maxResults=max_results)
         .execute()
     )
     return result.get("messages", [])
+
+
+def list_inbox(newer_than_days: int, max_results: int) -> list[dict]:
+    """Message stubs ({id, threadId}) for recent inbound mail."""
+    return search(
+        f"in:inbox -from:me newer_than:{newer_than_days}d", max_results
+    )
 
 
 def get_message(message_id: str) -> dict:
@@ -78,6 +83,36 @@ def extract_headers(message: dict) -> dict[str, str]:
         h["name"].lower(): h["value"]
         for h in message.get("payload", {}).get("headers", [])
     }
+
+
+def ensure_label(name: str) -> str:
+    """Return the label ID for *name*, creating it if it doesn't exist."""
+    if name in _label_cache:
+        return _label_cache[name]
+    svc = _service()
+    for label in svc.users().labels().list(userId="me").execute().get("labels", []):
+        if label["name"] == name:
+            _label_cache[name] = label["id"]
+            return label["id"]
+    created = svc.users().labels().create(
+        userId="me",
+        body={
+            "name": name,
+            "labelListVisibility": "labelShow",
+            "messageListVisibility": "show",
+        },
+    ).execute()
+    _label_cache[name] = created["id"]
+    return created["id"]
+
+
+def archive_to_label(message_id: str, label_id: str) -> None:
+    """Move a message out of the inbox into the given label."""
+    _service().users().messages().modify(
+        userId="me",
+        id=message_id,
+        body={"addLabelIds": [label_id], "removeLabelIds": ["INBOX"]},
+    ).execute()
 
 
 def extract_body_text(message: dict) -> str:
