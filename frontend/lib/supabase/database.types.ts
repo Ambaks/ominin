@@ -2590,6 +2590,7 @@ export type Database = {
           name: string
           order_prefix: string
           platform_fee_percent: number
+          share_image_url: string | null
           slug: string
           tagline: string | null
           theme: Json
@@ -2622,6 +2623,7 @@ export type Database = {
           name: string
           order_prefix: string
           platform_fee_percent?: number
+          share_image_url?: string | null
           slug: string
           tagline?: string | null
           theme?: Json
@@ -2654,6 +2656,7 @@ export type Database = {
           name?: string
           order_prefix?: string
           platform_fee_percent?: number
+          share_image_url?: string | null
           slug?: string
           tagline?: string | null
           theme?: Json

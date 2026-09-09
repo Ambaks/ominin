@@ -33,6 +33,7 @@ export function SettingsForm({ shop, section }: { shop: Shop; section: Section }
     tiktok_url: shop.tiktok_url ?? "",
     freeShipping: centsToEurosInput(shop.free_shipping_threshold_cents),
     logo_url: shop.logo_url ?? "",
+    share_image_url: shop.share_image_url ?? "",
     legal_company_name: shop.legal_company_name ?? "",
     legal_address: shop.legal_address ?? "",
     legal_siret: shop.legal_siret ?? "",
@@ -64,6 +65,7 @@ export function SettingsForm({ shop, section }: { shop: Shop; section: Section }
         tiktok_url: opt(s.tiktok_url),
         free_shipping_threshold_cents: s.freeShipping.trim() ? eurosToCents(s.freeShipping) : null,
         logo_url: opt(s.logo_url),
+        share_image_url: opt(s.share_image_url),
         legal_company_name: opt(s.legal_company_name),
         legal_address: opt(s.legal_address),
         legal_siret: opt(s.legal_siret),
@@ -106,7 +108,8 @@ export function SettingsForm({ shop, section }: { shop: Shop; section: Section }
               {text("catalog_label", "Libellé du catalogue", "« Nos box », « La boutique »…")}
               <div className="sm:col-span-2">{area("hero_subtitle", "Texte d'accueil", "min-h-20")}</div>
               <div className="sm:col-span-2">{text("announcement", "Bandeau en haut du site", "Vide pour masquer le bandeau.")}</div>
-              {text("logo_url", "Logo (URL)", "Image ronde, 512 px conseillés.")}
+              {text("logo_url", "Logo (URL)", "Image ronde, 512 px conseillés. Sert aussi d'icône dans l'onglet du navigateur.")}
+              {text("share_image_url", "Image de partage (URL)", "Vignette des liens partagés sur Instagram ou WhatsApp. Format paysage, 1200 × 630 px. À défaut, le logo est utilisé.")}
               {text("freeShipping", "Livraison offerte à partir de (€)", "Seuil par défaut, chaque mode peut avoir le sien.")}
             </div>
           </Card>

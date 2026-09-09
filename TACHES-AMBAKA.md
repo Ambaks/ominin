@@ -5,7 +5,27 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 1. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 1. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+
+Une seule migration, sans effet sur l'existant : elle ajoute une colonne
+facultative. À appliquer avec les autres.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260909000001_shop_share_image.sql` (colonne `shops.share_image_url`).
+- [ ] **Types** : l'entrée a été ajoutée à la main dans
+      `frontend/lib/supabase/database.types.ts`, à régénérer avec le reste.
+- [ ] **Image de partage de MyBox** : le seed pose `signature.webp`, qui est
+      au format portrait. Une image paysage 1200 × 630 donnerait un plus bel
+      aperçu — la gérante la pose elle-même dans Gestion → Boutique, champ
+      « Image de partage ». Sans elle, le logo rond est utilisé.
+- [ ] **Vérifier après déploiement** : ouvrir la boutique, l'onglet du
+      navigateur doit porter son logo et non celui d'Ominin ; puis coller le
+      lien de la boutique dans WhatsApp, ou le passer au validateur de partage
+      de Facebook, pour voir apparaître le nom, la signature et l'image. Les
+      réseaux gardent les aperçus en cache : forcer une relecture depuis le
+      validateur si l'ancien vide persiste.
+
+## 2. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -27,7 +47,7 @@ en panne pour qui n'a pas encore le nouveau front.
       données → Web pour `ominin.com`). Sans elle, aucun script Google n'est
       chargé et le bandeau cookies ne s'affiche pas — c'est le comportement
       voulu en préproduction.
-- [ ] **Types** : même remarque qu'au § 2 — les entrées `shifts`,
+- [ ] **Types** : même remarque qu'au § 3 — les entrées `shifts`,
       `time_entries` et la nouvelle signature de `pay_order_items` ont été
       écrites à la main dans `frontend/lib/supabase/database.types.ts`.
 - [ ] **Graphe de connaissance** : `graphify update .` puis commiter
@@ -46,7 +66,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 2. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 3. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau
@@ -55,13 +75,13 @@ répond 404 et aucune boutique n'existe. **Ordre à respecter** : migration,
 puis variables d'environnement, puis déploiement, puis Stripe et Supabase Auth,
 puis les données de la première boutique.
 
-Le code est sur la branche `shop`, poussée sur le dépôt, pas encore fusionnée
-dans `main`. Rien n'a été modifié côté restaurants : leurs fichiers sont
-identiques au dépôt, la migration ne fait que des `create`, et le webhook de
-la plateforme ne détourne que les événements portant `metadata.shop_id`.
+Le code est fusionné dans `main`. Rien n'a été modifié côté restaurants :
+leurs fichiers sont identiques, la migration ne fait que des `create`, et le
+webhook de la plateforme ne détourne que les événements portant
+`metadata.shop_id`.
 
 - [ ] **Supabase** : `supabase db push` — applique
-      `20260907000001_shop.sql` (tables `shop_*`, RLS, fonctions
+      `20260907000003_shop.sql` (tables `shop_*`, RLS, fonctions
       `current_shop_role`, `create_shop`, `shop_decrement_stock`,
       `shop_increment_discount_uses`, `shop_sales_by_day`, bucket
       `shop-photos`). Sans effet sur les tables des restaurants : la migration

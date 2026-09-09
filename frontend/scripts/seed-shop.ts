@@ -112,6 +112,9 @@ async function main() {
           "MyBox est née d'une envie simple : offrir, ou s'offrir, une vraie pause. Une boîte ronde qu'on ouvre comme un cadeau, des roses disposées une à une, des produits qu'on aime déjà et toujours une petite surprise en plus.\n\nChaque box est préparée à la main, avec des produits choisis : parfums KAYALI, soins Sol de Janeiro, diffuseurs pour la voiture. Le mot doux est recopié à la main et glissé dans la boîte.",
         free_shipping_threshold_cents: 10000,
         logo_url: "/shop/mybox/logo.png",
+        // Image des liens partagés : celle qui représente déjà MyBox sur la
+        // page de vente. Le logo rond ne prendrait pas bien dans un aperçu.
+        share_image_url: "/shop/mybox/signature.webp",
         theme: { fonts: "romantique" },
         legal_company_name: LEGAL_PLACEHOLDER,
         legal_address: LEGAL_PLACEHOLDER,
