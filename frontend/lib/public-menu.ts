@@ -28,7 +28,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items(*), etablissement_settings(features)")
+    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("created_at", { referencedTable: "items", ascending: true })
