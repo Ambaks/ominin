@@ -860,8 +860,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1788945509.7738562,
-    "ast_hash": "23e2418e566d9070d05a2e609169aaef",
+    "mtime": 1788946633.3086529,
+    "ast_hash": "13578134b2570df9c87b40272e930ca7",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -915,8 +915,8 @@
     "semantic_hash": ""
   },
   "frontend/next.config.ts": {
-    "mtime": 1788900497.1134822,
-    "ast_hash": "ee7d5ecb1870a8efa13c4d01c427d3c5",
+    "mtime": 1788945975.5393436,
+    "ast_hash": "2b5b263362c619574fd8431bfeee656d",
     "semantic_hash": ""
   },
   "frontend/package.json": {
@@ -1630,12 +1630,12 @@
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-shared.mjs": {
-    "mtime": 1788897452.2327824,
+    "mtime": 1788945988.7955875,
     "ast_hash": "b0f7bba2311a1320147c04e209ca0198",
     "semantic_hash": ""
   },
   "frontend/public/maplibre/maplibre-gl-worker.mjs": {
-    "mtime": 1788897452.2277298,
+    "mtime": 1788945988.7898934,
     "ast_hash": "2facd66a892dd2e63b0c198943486a8c",
     "semantic_hash": ""
   },
@@ -1790,8 +1790,8 @@
     "semantic_hash": ""
   },
   "backend/app/clients/gmail.py": {
-    "mtime": 1788945737.0201328,
-    "ast_hash": "91776db75a50549c484cd0764e357e4e",
+    "mtime": 1788946657.957344,
+    "ast_hash": "8da46ca0fa327bdbc16fcdbbb9f30399",
     "semantic_hash": ""
   },
   "backend/app/clients/places.py": {
@@ -1865,8 +1865,8 @@
     "semantic_hash": ""
   },
   "backend/app/services/inbox.py": {
-    "mtime": 1788945763.7077234,
-    "ast_hash": "31e31df5ec07496eea579507804f39d3",
+    "mtime": 1788946674.630064,
+    "ast_hash": "4e1868a4f0faab8148e77bf618383d64",
     "semantic_hash": ""
   },
   "backend/app/services/outreach.py": {
@@ -3102,6 +3102,11 @@
   "supabase/migrations/20260908000003_boho_tagline.sql": {
     "mtime": 1788901995.6521473,
     "ast_hash": "a787340e3c7418969f5b82ea6b271984",
+    "semantic_hash": ""
+  },
+  "Screenshot 2026-09-09 at 11.25.13.png": {
+    "mtime": 1788945921.7372365,
+    "ast_hash": "1a2c98d46577a9771ce25f2189c5a0f3",
     "semantic_hash": ""
   }
 }

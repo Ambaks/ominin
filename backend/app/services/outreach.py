@@ -72,14 +72,24 @@ def run_outreach(*, flush=None) -> dict:
             if consecutive >= settings.max_consecutive_errors:
                 stats["aborted"] = "consecutive errors — systematic failure"
                 break
+            continue
+
+        send_result = emailing.send_approved_batch(
+            kinds=["cold"], cold_cap=1
+        )
+        stats["sent"] = stats.get("sent", 0) + send_result.get("sent", 0)
+        stats["send_failed"] = stats.get("send_failed", 0) + send_result.get("failed", 0)
 
     if flush:
         flush(stats)
 
-    send_stats = emailing.send_approved_batch(
+    # Sweep any stragglers (e.g. emails approved outside this run).
+    tail = emailing.send_approved_batch(
         kinds=["cold"], cold_cap=settings.outreach_run_batch_size
     )
-    return {**stats, **send_stats}
+    stats["sent"] = stats.get("sent", 0) + tail.get("sent", 0)
+    stats["send_failed"] = stats.get("send_failed", 0) + tail.get("failed", 0)
+    return stats
 
 
 def _eligible(sb, restaurant: dict) -> bool:
