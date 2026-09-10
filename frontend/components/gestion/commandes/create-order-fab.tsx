@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
+import { applyTarifs, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import { formatPrice, type MenuItem } from "@/lib/menu-data";
+import { createClient } from "@/lib/supabase/client";
 
 /*
  * Prise de commande en salle : quand un client commande directement auprès
@@ -174,14 +176,45 @@ function CreateOrderDialog({
   const [lines, setLines] = useState<CartLine[]>([]);
   const [configuring, setConfiguring] = useState<MenuItem | null>(null);
   const [sending, setSending] = useState(false);
+  const [tarifs, setTarifs] = useState<TarifMap | null>(null);
+  const [tarifsFailed, setTarifsFailed] = useState(false);
+
+  // Les tarifs planifiés du moment, relus à l'ouverture : c'est place_order
+  // qui figera les prix, et le serveur annonce souvent le total de vive voix.
+  // La carte n'est donc dépliée qu'une fois ces prix connus — un prix qui
+  // change sous les yeux du serveur vaudrait pire qu'une seconde d'attente.
+  const etablissementId = state.etablissement.id;
+  useEffect(() => {
+    let live = true;
+    fetchActiveTarifs(createClient(), etablissementId)
+      .then((loaded) => {
+        if (live) setTarifs(loaded);
+      })
+      .catch(() => {
+        if (!live) return;
+        setTarifs(new Map());
+        setTarifsFailed(true);
+      });
+    return () => {
+      live = false;
+    };
+  }, [etablissementId]);
 
   const tables = [...state.tables].sort((a, b) => a.number - b.number);
-  const categories = state.categories
-    .map((category) => ({
-      ...category,
-      items: category.items.filter(isItemAvailable),
-    }))
-    .filter((category) => category.items.length > 0);
+  // Vide tant que les tarifs ne sont pas là : la carte se déplie d'un coup,
+  // aux bons prix, plutôt que de les voir changer sous les yeux du serveur.
+  const categories =
+    tarifs === null
+      ? []
+      : applyTarifs(
+          state.categories
+            .map((category) => ({
+              ...category,
+              items: category.items.filter(isItemAvailable),
+            }))
+            .filter((category) => category.items.length > 0),
+          tarifs
+        );
 
   // Un numéro saisi prime sur la tuile touchée ; s'il existe déjà, c'est
   // cette table-là (place_order ne crée que les numéros inconnus).
@@ -381,7 +414,18 @@ function CreateOrderDialog({
           </div>
         )}
 
+        {tarifsFailed && (
+          <p className="rounded-xl border border-hairline px-4 py-3 text-xs text-muted">
+            Les tarifs planifiés n&apos;ont pas pu être relus : les prix
+            ci-dessous sont ceux de la carte. La commande, elle, sera
+            enregistrée au tarif du moment.
+          </p>
+        )}
+
         <div className="flex flex-col gap-4">
+          {tarifs === null && (
+            <p className="text-xs text-faint">Chargement de la carte…</p>
+          )}
           {categories.map((category) => (
             <div key={category.id} className="flex flex-col gap-1.5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { CollectCheckoutPayload, CartLinePayload } from "@/lib/collect/shared";
 import { isCollectActive } from "@/lib/collect/server";
 import { toJson } from "@/lib/gestion/mappers";
+import { fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { OptionGroup } from "@/lib/menu-data";
@@ -89,6 +90,9 @@ export async function POST(request: Request) {
   if (itemsError) throw new Error(itemsError.message);
 
   const itemsById = new Map(dbItems?.map((i) => [i.id, i]) ?? []);
+  // Même tarif que sur la carte qu'il vient de lire : le prix relu ici est
+  // celui du moment, pas celui de la fiche.
+  const tarifs = await fetchActiveTarifs(db, etablissement.id);
 
   const resolved: ResolvedLine[] = [];
   for (const line of lines) {
@@ -112,7 +116,7 @@ export async function POST(request: Request) {
       item_id: item.id,
       name: item.name,
       quantity: line.quantity,
-      unit_price: item.price + supplement,
+      unit_price: (tarifs.get(item.id)?.price ?? item.price) + supplement,
       options,
     });
   }

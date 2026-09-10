@@ -386,3 +386,17 @@ export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
     "orders.setStatus:annulee",
   ],
 };
+
+/**
+ * Les jours de la semaine tels que Postgres les numérote (isodow : 1 = lundi
+ * … 7 = dimanche), dans l'ordre où un Français lit un calendrier.
+ */
+export const WEEK_DAYS: { iso: number; short: string; long: string }[] = [
+  { iso: 1, short: "L", long: "lundi" },
+  { iso: 2, short: "M", long: "mardi" },
+  { iso: 3, short: "M", long: "mercredi" },
+  { iso: 4, short: "J", long: "jeudi" },
+  { iso: 5, short: "V", long: "vendredi" },
+  { iso: 6, short: "S", long: "samedi" },
+  { iso: 7, short: "D", long: "dimanche" },
+];

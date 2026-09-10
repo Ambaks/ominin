@@ -286,6 +286,9 @@ export function seed(): GestionState {
     orderTabs: ORDER_TABS,
     staff: [],
     categories,
+    // La démo montre la carte telle quelle : un tarif planifié se règle, il
+    // ne se raconte pas.
+    priceRules: [],
     formules: [
       {
         id: crypto.randomUUID(),

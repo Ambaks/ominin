@@ -7,6 +7,7 @@ import type {
   Member,
   Order,
   OrderPayment,
+  PriceRule,
   Staff,
   Table,
 } from "./types";
@@ -158,5 +159,30 @@ export function rowToOrder(row: OrderRow): Order {
         servedAt: line.served_at ?? undefined,
       };
     }),
+  };
+}
+
+/**
+ * Une règle de tarif et ses cibles. Les cibles arrivent embarquées par
+ * PostgREST : la règle n'a aucun sens sans elles.
+ */
+export function rowToPriceRule(
+  row: Tables<"price_rules"> & { price_rule_targets: Tables<"price_rule_targets">[] }
+): PriceRule {
+  return {
+    id: row.id,
+    name: row.name,
+    direction: row.direction,
+    unit: row.unit,
+    value: Number(row.value),
+    days: row.days,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    actif: row.actif,
+    targets: row.price_rule_targets.map((target) =>
+      target.item_id
+        ? { kind: "item" as const, id: target.item_id }
+        : { kind: "category" as const, id: target.category_id as string }
+    ),
   };
 }

@@ -1,4 +1,5 @@
 import { assembleCategories } from "@/lib/gestion/mappers";
+import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getRestaurant, type Restaurant } from "@/lib/menu-data";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -38,6 +39,11 @@ export async function fetchRestaurant(slug: string): Promise<{
   if (error) throw new Error(error.message);
   if (!etablissement) return null;
 
+  // Tarifs planifiés en cours. Un second aller-retour, mais la page est mise
+  // en cache : c'est la revalidation qui le paie, pas le scan du client. Le
+  // prix affiché est ainsi celui que place_order figera sur la commande.
+  const tarifs = await fetchActiveTarifs(supabase, etablissement.id);
+
   // Actifs de marque gérés côté code pour les démos (comme le thème).
   const staticData = getRestaurant(etablissement.slug);
   // Réglages d'Ominin : seuls les écarts à l'offre y figurent, une clé
@@ -67,10 +73,13 @@ export async function fetchRestaurant(slug: string): Promise<{
       phone: etablissement.phone,
       hours: etablissement.hours,
       googleReviewUrl: etablissement.google_review_url ?? undefined,
-      categories: assembleCategories(
-        etablissement.categories,
-        etablissement.items
-      ).filter((category) => category.items.length > 0),
+      categories: applyTarifs(
+        assembleCategories(
+          etablissement.categories,
+          etablissement.items
+        ).filter((category) => category.items.length > 0),
+        tarifs
+      ),
     },
   };
 }

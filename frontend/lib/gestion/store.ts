@@ -20,6 +20,7 @@ import {
   rowToFormule,
   rowToMember,
   rowToOrder,
+  rowToPriceRule,
   rowToStaff,
   rowToTable,
 } from "./mappers";
@@ -269,6 +270,7 @@ async function load(): Promise<void> {
     categories,
     items,
     formules,
+    priceRules,
     tables,
     orders,
     members,
@@ -306,6 +308,13 @@ async function load(): Promise<void> {
         .select("*")
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
+        .then(must),
+      // Les cibles sont embarquées : une règle sans elles ne dit rien.
+      supabase
+        .from("price_rules")
+        .select("*, price_rule_targets(*)")
+        .eq("etablissement_id", etablissementId)
+        .order("created_at", { ascending: false })
         .then(must),
       supabase
         .from("tables")
@@ -354,6 +363,7 @@ async function load(): Promise<void> {
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
+    priceRules: priceRules.map(rowToPriceRule),
     tables: tables.map(rowToTable),
     orders,
   };
