@@ -558,9 +558,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/payment-dialog.tsx": {
-    "mtime": 1788549134.173455,
-    "seen": 1789001741.7271411,
-    "ast_hash": "4c6d5cdac7e27b2170c6cb0adb39d1dd",
+    "mtime": 1789002572.9443088,
+    "seen": 1789002863.082429,
+    "ast_hash": "aba59574dc6429e4c97b3afd3020dee7",
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/status-badge.tsx": {
@@ -966,15 +966,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/api.ts": {
-    "mtime": 1789001331.6443348,
-    "seen": 1789001741.727236,
-    "ast_hash": "4e1ddeca72b862c757d0e1d65f352053",
+    "mtime": 1789002479.1756933,
+    "seen": 1789002863.0850859,
+    "ast_hash": "e38289b5ef67c232c02c39bb8b0f0f20",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/constants.ts": {
-    "mtime": 1789001281.738648,
-    "seen": 1789001741.727238,
-    "ast_hash": "6d0448c05a4ad343f290d0a28022b8c4",
+    "mtime": 1789002529.4911973,
+    "seen": 1789002863.085103,
+    "ast_hash": "77ad3dcb399f094fe47b669b4a4d1812",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/format.ts": {
@@ -984,9 +984,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/mappers.ts": {
-    "mtime": 1788960540.409555,
-    "seen": 1789001741.727239,
-    "ast_hash": "22c0bacef1c90f53c93136d8bdfb0c32",
+    "mtime": 1789002427.8487399,
+    "seen": 1789002863.085136,
+    "ast_hash": "67928af56aaf8b84de2b7eabde00225c",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/permissions.ts": {
@@ -1002,27 +1002,27 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/seed.ts": {
-    "mtime": 1788998758.5578523,
-    "seen": 1789001741.727241,
-    "ast_hash": "764aa0c786cfe41d02ebfbb6eb541634",
+    "mtime": 1789002731.1918015,
+    "seen": 1789002863.0851688,
+    "ast_hash": "d88e30a9e3b4359b96eddd0c845c30ec",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/selectors.ts": {
-    "mtime": 1788960540.4102752,
-    "seen": 1789001741.727242,
-    "ast_hash": "806c86f2d65172bca73f0950ce61ade8",
+    "mtime": 1789002448.7357633,
+    "seen": 1789002863.08517,
+    "ast_hash": "d87adc873ca6c069ef9fcf0a564e9809",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/store.ts": {
-    "mtime": 1788998758.558624,
-    "seen": 1789001741.727242,
-    "ast_hash": "1ca612c3daa6e2f1dfc74402c64da1b6",
+    "mtime": 1789002431.766702,
+    "seen": 1789002863.085171,
+    "ast_hash": "331cd49fc1f4f7d6e00baa9b5c36f897",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
-    "mtime": 1789001269.4520223,
-    "seen": 1789001741.7272441,
-    "ast_hash": "1600af6c61560ba1a3cd4383c6326713",
+    "mtime": 1789002463.8210638,
+    "seen": 1789002863.085205,
+    "ast_hash": "a951e36083c6e02a0acc02c2974e4ba5",
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
@@ -1074,9 +1074,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1789001324.6507978,
-    "seen": 1789001741.72727,
-    "ast_hash": "d64cb7a88761b8a840269bdd88397109",
+    "mtime": 1789002416.1822944,
+    "seen": 1789002863.08591,
+    "ast_hash": "5c85bb1ebd3669ed22afc9818d39dfd2",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "frontend/scripts/seed-demo.ts": {
-    "mtime": 1788549134.2096155,
-    "seen": 1789001741.727276,
-    "ast_hash": "d21315a21cbd6930b0fdff4a5f1dd98e",
+    "mtime": 1789002707.5628932,
+    "seen": 1789002863.086048,
+    "ast_hash": "00d3c533f9488b2f6e0f775381ebc01a",
     "semantic_hash": ""
   },
   "frontend/scripts/setup-stripe.ts": {
@@ -2363,9 +2363,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/paiements/page.tsx": {
-    "mtime": 1788960540.3958693,
-    "seen": 1789001741.72706,
-    "ast_hash": "47bb7c5e99b752e4a7bb409090b323eb",
+    "mtime": 1789002690.7007644,
+    "seen": 1789002863.079825,
+    "ast_hash": "1311ed3b9fe8bae1a9dcb79739daa531",
     "semantic_hash": ""
   },
   "frontend/components/gestion/paiements/edit-cash-dialog.tsx": {
@@ -2518,9 +2518,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/encaisser-card.tsx": {
-    "mtime": 1788900497.1068614,
-    "seen": 1789001741.727139,
-    "ast_hash": "117a2932214ffc93e869101fa994aea1",
+    "mtime": 1789002731.1921594,
+    "seen": 1789002863.082392,
+    "ast_hash": "41f04148b12bf73bbb4a1604e5f18c75",
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-line.tsx": {

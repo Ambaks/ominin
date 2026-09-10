@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/collect-experience.tsx": {
-    "mtime": 1784109871.624693,
-    "seen": 1789001741.727125,
-    "ast_hash": "6d15f6dcab214ee2a171f5557049e2a6",
+    "mtime": 1789002251.2165759,
+    "seen": 1789002304.194464,
+    "ast_hash": "d0e55a9367ed232c8c3e366ea7ef07ef",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/back-link.tsx": {
@@ -744,9 +744,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/add-to-order.tsx": {
-    "mtime": 1788967052.3428183,
-    "seen": 1789001741.72717,
-    "ast_hash": "e8a44af28f245e01a2012079a2f61690",
+    "mtime": 1789002265.499553,
+    "seen": 1789002304.195787,
+    "ast_hash": "eb25133d45c8fe7dd353049314ffc0b7",
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
