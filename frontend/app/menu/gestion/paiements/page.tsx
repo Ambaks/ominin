@@ -36,13 +36,10 @@ function displayMode(order: Order): PaymentMode | undefined {
   return order.paidOnline ? "en_ligne" : order.paymentMode;
 }
 
-/** Une addition mixte se retrouve sous Espèces comme sous Carte. */
+/** Le filtre suit les jambes : une addition partagée se retrouve sous Espèces
+ *  comme sous Carte, sans avoir à traiter le mixte à part. */
 function matchesMode(order: Order, filter: ModeFilter): boolean {
-  const mode = displayMode(order);
-  return (
-    mode === filter ||
-    (mode === "mixte" && (filter === "especes" || filter === "carte"))
-  );
+  return order.payments.some((leg) => leg.mode === filter);
 }
 
 function dedupeById(orders: Order[]): Order[] {
@@ -103,6 +100,14 @@ function PaymentRow({
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   const editable = order.paymentMode === "especes" && !order.paidOnline;
+  // Une addition partagée n'a pas de montant unique à afficher : ses deux
+  // jambes le disent, et c'est la jambe espèces qui porte la monnaie rendue.
+  const split = mode === "mixte" ? totalsByMode(order) : null;
+  const cashLeg = split
+    ? order.payments.find((leg) => leg.mode === "especes")
+    : undefined;
+  const received = split ? cashLeg?.cashGiven : order.cashGiven;
+  const returned = split ? cashLeg?.cashChange : order.cashChange;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
@@ -120,10 +125,16 @@ function PaymentRow({
         </div>
         <p className="text-xs text-faint">
           {articleCount} article{articleCount > 1 ? "s" : ""}
-          {order.cashGiven != null && (
+          {split && (
             <>
-              {" · "}Reçu {formatPrice(order.cashGiven)}
-              {order.cashChange ? ` · Rendu ${formatPrice(order.cashChange)}` : ""}
+              {" · "}Espèces {formatPrice(split.especes)} · Carte{" "}
+              {formatPrice(split.carte)}
+            </>
+          )}
+          {received != null && (
+            <>
+              {" · "}Reçu {formatPrice(received)}
+              {returned ? ` · Rendu ${formatPrice(returned)}` : ""}
             </>
           )}
         </p>

@@ -1,18 +1,66 @@
 import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
 import { FEATURES, ORDER_TABS, SEED_TABLE_COUNT } from "./constants";
+import { lineTotal } from "./selectors";
 import type {
   GestionState,
   Order,
   OrderItem,
   OrderItemOption,
+  OrderPayment,
+  PaymentLeg,
 } from "./types";
+
+/**
+ * Commande de démonstration avant ses jambes de règlement : elles se
+ * déduisent des lignes réglées, comme le backfill SQL le fait de l'historique.
+ * Une addition partagée entre liquide et carte échappe à cette déduction —
+ * cashPart dit alors ce qui est parti en espèces, la carte prend le reste.
+ */
+type DraftOrder = Omit<Order, "payments"> & { cashPart?: number };
+
+function legsOf(order: DraftOrder): OrderPayment[] {
+  const settled = order.items.filter((line) => line.paidMode);
+  if (order.cashPart != null) {
+    const goods = settled.reduce((sum, line) => sum + lineTotal(line), 0);
+    return [
+      {
+        mode: "especes",
+        amount: order.cashPart,
+        cashGiven: order.cashPart,
+        cashChange: 0,
+        paidAt: order.createdAt,
+      },
+      {
+        mode: "carte",
+        amount: Math.round((goods - order.cashPart) * 100) / 100,
+        paidAt: order.createdAt,
+      },
+    ];
+  }
+  const byMode = new Map<PaymentLeg, number>();
+  for (const line of settled) {
+    if (line.paidMode === "mixte") continue;
+    byMode.set(
+      line.paidMode as PaymentLeg,
+      (byMode.get(line.paidMode as PaymentLeg) ?? 0) + lineTotal(line)
+    );
+  }
+  return [...byMode].map(([mode, amount]) => ({
+    mode,
+    amount,
+    cashGiven: mode === "especes" ? order.cashGiven : undefined,
+    cashChange: mode === "especes" ? order.cashChange : undefined,
+    paidAt: order.createdAt,
+  }));
+}
 
 /**
  * État de démonstration : le menu de la Trattoria Lucia enrichi de stocks,
  * disponibilités et options, plus des commandes, tables et une formule
  * plausibles pour exercer chaque écran — additions à encaisser (dont une
  * réglée en partie), tables payées à servir (dont une servie à moitié et une
- * réglée en ligne), commandes closes.
+ * réglée en ligne), une addition partagée entre espèces et carte, commandes
+ * closes.
  */
 export function seed(): GestionState {
   const restaurant = getRestaurant(DEMO_SLUG)!;
@@ -71,7 +119,7 @@ export function seed(): GestionState {
     ...state,
   });
 
-  const orders: Order[] = [
+  const drafts: DraftOrder[] = [
     {
       id: crypto.randomUUID(),
       type: "sur_place",
@@ -173,12 +221,30 @@ export function seed(): GestionState {
     {
       id: crypto.randomUUID(),
       type: "sur_place",
+      tableId: "table-6",
+      status: "servie",
+      createdAt: minutesAgo(60),
+      paymentMode: "mixte",
+      cashPart: 20,
+      items: [
+        line("osso-buco", 1, { paidMode: "mixte", servedAt: minutesAgo(40) }),
+        line("spritz", 2, { paidMode: "mixte", servedAt: minutesAgo(50) }),
+      ],
+    },
+    {
+      id: crypto.randomUUID(),
+      type: "sur_place",
       tableId: "table-10",
       status: "annulee",
       createdAt: minutesAgo(45),
       items: [line("carpaccio", 1)],
     },
   ];
+
+  const orders: Order[] = drafts.map(({ cashPart, ...order }) => ({
+    ...order,
+    payments: legsOf({ ...order, cashPart }),
+  }));
 
   const article = (
     itemId: string,

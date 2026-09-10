@@ -190,9 +190,26 @@ async function main() {
       .select("id")
   );
 
+  // Les jambes de règlement : la démo passe par le seed, pas par la RPC
+  // d'encaissement, elle les pose donc elle-même.
+  const legs = state.orders.flatMap((order, i) =>
+    order.payments.map((leg) => ({
+      order_id: orders[i].id,
+      mode: leg.mode,
+      amount: leg.amount,
+      cash_given: leg.cashGiven ?? null,
+      cash_change: leg.cashChange ?? null,
+      paid_at: leg.paidAt,
+    }))
+  );
+  if (legs.length > 0) {
+    must(await db.from("order_payments").insert(legs).select("id"));
+  }
+
   console.log(
     `Démo « ${etablissement.name} » insérée : ${categories.length} catégories, ` +
-      `${items.length} plats, ${tables.length} tables, ${orders.length} commandes.`
+      `${items.length} plats, ${tables.length} tables, ${orders.length} commandes, ` +
+      `${legs.length} règlements.`
   );
 }
 
