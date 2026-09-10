@@ -65,7 +65,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * Onglet compte : barre latérale uniquement. La barre mobile est celle du
+ * Onglet compte : barre latérale uniquement, et fermé au serveur — il n'a ni
+ * offre à souscrire ni droits à arbitrer. La barre mobile est celle du
  * service — y ajouter un neuvième onglet la rendrait illisible ; sur mobile,
  * la pastille offre · rôle de l'en-tête mène à la même page.
  */
@@ -75,6 +76,10 @@ const PRODUITS_ITEM: NavItem = {
   feature: null,
   icon: ProductsIcon,
 };
+
+/** Surtitre offre · rôle de l'en-tête, lien ou simple texte. */
+const SURTITRE_CLASS =
+  "ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]";
 
 async function signOut() {
   await createClient().auth.signOut();
@@ -145,6 +150,14 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   );
   const pendingCount =
     state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
+  const showProduits = state != null && state.role !== "serveur";
+  const surtitre = state
+    ? `${
+        state.etablissement.offre
+          ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
+          : collectBrand
+      } · ${ROLE_LABELS[state.role]}`
+    : "Espace de gestion";
 
   return (
     <ToastProvider>
@@ -156,22 +169,18 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   (« Ominin Connect », face à Ominin Collect ou Ominin Clip),
                   tient dans la place du libellé qu'il remplace, et mène à la
                   page Produits — seul chemin vers elle sur mobile, où la
-                  barre du bas est réservée au service. */}
-              {state ? (
+                  barre du bas est réservée au service. Le serveur, qui n'y a
+                  pas accès, le lit sans lien. */}
+              {showProduits ? (
                 <Link
                   href={PRODUITS_ITEM.href}
                   title="Votre produit et votre rôle"
-                  className="ember-text inline-block truncate text-[10px] font-semibold uppercase tracking-[0.28em] transition-opacity hover:opacity-80"
+                  className={`inline-block transition-opacity hover:opacity-80 ${SURTITRE_CLASS}`}
                 >
-                  {state.etablissement.offre
-                    ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
-                    : collectBrand}{" "}
-                  · {ROLE_LABELS[state.role]}
+                  {surtitre}
                 </Link>
               ) : (
-                <p className="ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]">
-                  Espace de gestion
-                </p>
+                <p className={SURTITRE_CLASS}>{surtitre}</p>
               )}
               <p className="truncate font-display text-lg font-medium">
                 {state?.etablissement.name ?? "Ominin"}
@@ -240,7 +249,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
           <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex print:hidden">
-            {[...items, PRODUITS_ITEM].map((item) => {
+            {(showProduits ? [...items, PRODUITS_ITEM] : items).map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link

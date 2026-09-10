@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1788960540.4053195,
-    "seen": 1789001741.727149,
-    "ast_hash": "2b571b5b55617d2979d87f5829ac8ce4",
+    "mtime": 1789005327.393539,
+    "seen": 1789005351.3166568,
+    "ast_hash": "65f8b420fb4f1ba7a25251e747a298f6",
     "semantic_hash": ""
   },
   "frontend/components/gestion/subscription-gate.tsx": {
@@ -1294,9 +1294,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789003018.2684271,
-    "seen": 1789003355.21338,
-    "ast_hash": "eb4da59a4a6169531c6b3ed45c87b0c7",
+    "mtime": 1789004076.8403084,
+    "seen": 1789005283.998641,
+    "ast_hash": "55e6b75cb62967201f0b68c05aac0dd7",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2972,9 +2972,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/temps/planning.tsx": {
-    "mtime": 1789001397.1246014,
-    "seen": 1789001741.727154,
-    "ast_hash": "1325685d5913332008e945b3eb84a880",
+    "mtime": 1789005255.4315221,
+    "seen": 1789005283.994375,
+    "ast_hash": "35925b0b79fcc740331eca533c1eaafc",
     "semantic_hash": ""
   },
   "frontend/components/gestion/temps/shift-modal.tsx": {
