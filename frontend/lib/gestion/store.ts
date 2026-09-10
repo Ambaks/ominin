@@ -63,7 +63,7 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
   const rows = must(
     await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
       .or(
         `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
@@ -81,7 +81,7 @@ export async function fetchOrderHistory(
   const etablissementId = getState().etablissement.id;
   let query = supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select("*, order_items(*), order_payments(*)")
     .eq("etablissement_id", etablissementId)
     .in("status", HISTORY_ORDER_STATUSES)
     .order("created_at", { ascending: false })
@@ -103,7 +103,7 @@ export async function fetchPaidOrders(
   const etablissementId = getState().etablissement.id;
   let query = supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select("*, order_items(*), order_payments(*)")
     .eq("etablissement_id", etablissementId)
     .in("status", PAID_ORDER_STATUSES)
     .order("created_at", { ascending: false })

@@ -1138,6 +1138,44 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          amount: number
+          cash_change: number | null
+          cash_given: number | null
+          id: string
+          mode: Database["public"]["Enums"]["payment_mode"]
+          order_id: string
+          paid_at: string
+        }
+        Insert: {
+          amount: number
+          cash_change?: number | null
+          cash_given?: number | null
+          id?: string
+          mode: Database["public"]["Enums"]["payment_mode"]
+          order_id: string
+          paid_at?: string
+        }
+        Update: {
+          amount?: number
+          cash_change?: number | null
+          cash_given?: number | null
+          id?: string
+          mode?: Database["public"]["Enums"]["payment_mode"]
+          order_id?: string
+          paid_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           cash_change: number | null
@@ -3187,6 +3225,7 @@ export type Database = {
       }
       pay_order_items: {
         Args: {
+          p_cash_amount?: number | null
           p_cash_change?: number | null
           p_cash_given?: number | null
           p_items: Json
@@ -3200,6 +3239,10 @@ export type Database = {
         Returns: string
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
+      reprint_order_tickets: {
+        Args: { p_order_ids: string[] }
+        Returns: number
+      }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       set_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }

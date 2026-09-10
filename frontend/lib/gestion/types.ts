@@ -16,8 +16,13 @@ export type OrderStatus =
   | "retiree";
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
-/** Modes d'un encaissement au comptoir (le mixte est dérivé, l'en ligne subi). */
-export type EncaissementMode = Extract<PaymentMode, "especes" | "carte">;
+/** Modes qu'un serveur choisit au comptoir ; l'en ligne, lui, est subi. */
+export type EncaissementMode = Extract<
+  PaymentMode,
+  "especes" | "carte" | "mixte"
+>;
+/** Mode d'une jambe de règlement : « mixte », c'est deux jambes, jamais une. */
+export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
 export type PaymentProvider = "stripe" | "sumup" | "square";
 
@@ -38,6 +43,7 @@ export type Feature =
   | "options"
   | "roles"
   | "prise_commande"
+  | "appel_serveur"
   | "apercu_serveur"
   | "assignation"
   | "groupes_tables"
@@ -113,6 +119,33 @@ export interface OrderItem {
   servedAt?: string;
 }
 
+/**
+ * Détail d'un règlement qui touche les espèces : ce que le client a tendu, la
+ * monnaie qu'on lui a rendue, et sa part en espèces quand il partage son
+ * addition entre le liquide et la carte.
+ */
+export interface CashDetails {
+  cashGiven: number;
+  cashChange: number;
+  /** Part réglée en espèces d'un règlement mixte, pourboire compris. */
+  cashAmount?: number;
+}
+
+/**
+ * Une jambe de règlement : ce qu'un mode a encaissé sur la commande. Un
+ * paiement mixte en pose deux, un mode unique une seule. Les montants sont
+ * hors pourboire — celui-là vit sur tipAmount, d'où le partage par serveur
+ * le relève.
+ */
+export interface OrderPayment {
+  mode: PaymentLeg;
+  amount: number;
+  /** Espèces seules : ce que le client a tendu et ce qu'on lui a rendu. */
+  cashGiven?: number;
+  cashChange?: number;
+  paidAt: string;
+}
+
 export interface Order {
   id: string;
   type: OrderType;
@@ -130,6 +163,8 @@ export interface Order {
   cashGiven?: number;
   cashChange?: number;
   tipAmount?: number;
+  /** Jambes de règlement, source des totaux par mode. */
+  payments: OrderPayment[];
   /** Serveur qui a encaissé : c'est à lui que revient le pourboire. */
   staffId?: string | null;
 }

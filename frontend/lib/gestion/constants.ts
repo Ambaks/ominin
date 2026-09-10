@@ -156,7 +156,7 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   especes: "Espèces",
   carte: "Carte",
   en_ligne: "En ligne",
-  mixte: "Carte + Espèces",
+  mixte: "Espèces + carte",
 };
 
 /**
@@ -202,6 +202,11 @@ export const VIEWS: ViewSpec[] = [
         id: "options",
         label: "Options d'article",
         hint: "Les choix et suppléments posés sur un article.",
+      },
+      {
+        id: "appel_serveur",
+        label: "Appeler un serveur",
+        hint: "Le bouton du menu QR qui sonne sur les téléphones de l'équipe.",
       },
     ],
   },
@@ -306,6 +311,7 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
     "apercu",
     "commandes",
     "prise_commande",
+    "appel_serveur",
     "tables",
     "paiements",
     "badgeage",
@@ -318,6 +324,7 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
     "apercu",
     "commandes",
     "prise_commande",
+    "appel_serveur",
     "tables",
     "paiements",
     "badgeage",

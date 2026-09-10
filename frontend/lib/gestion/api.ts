@@ -13,6 +13,7 @@ import {
 } from "./mappers";
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
+  CashDetails,
   EncaissementMode,
   Etablissement,
   Formule,
@@ -392,19 +393,23 @@ export async function updateOrderStatus(
 
 /**
  * Encaisse une sélection d'articles (commandes servies d'une table ou d'un
- * groupe). La RPC marque les lignes, pose le pourboire et clôt les commandes
- * entièrement réglées (mode unique ou mixte) ; le snapshot est relu plutôt
- * que rejoué — c'est la base qui décide de ce qui se clôt.
+ * groupe). La RPC marque les lignes, pose le pourboire et les jambes de
+ * règlement, puis clôt les commandes entièrement réglées ; le snapshot est
+ * relu plutôt que rejoué — c'est la base qui décide de ce qui se clôt.
+ *
+ * En mixte, cashDetails.cashAmount porte la part réglée en espèces : la carte
+ * prend le reste, et la RPC ventile les deux jambes de la plus ancienne
+ * commande à la plus récente.
  */
 export async function payOrderItems(
   /** Quantité réglée par ligne : deux nems d'une même ligne se règlent séparément. */
   items: { itemId: string; quantity: number }[],
   mode: EncaissementMode,
-  cashDetails?: { cashGiven: number; cashChange: number },
+  cashDetails?: CashDetails,
   tip?: number
 ): Promise<void> {
   const supabase = createClient();
-  const cash = mode === "especes" ? cashDetails : undefined;
+  const cash = mode === "carte" ? undefined : cashDetails;
   check(
     await supabase.rpc("pay_order_items", {
       p_items: items.map((item) => ({
@@ -415,6 +420,7 @@ export async function payOrderItems(
       p_cash_given: cash?.cashGiven ?? null,
       p_cash_change: cash?.cashChange ?? null,
       p_tip: tip ?? null,
+      p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
     })
   );
   await refreshOrdersNow();
@@ -450,7 +456,7 @@ export async function updateCashDetails(
       .update({ cash_given: cashGiven, cash_change: cashChange })
       .eq("id", orderId)
       .eq("payment_mode", "especes")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .single()
   );
   const order = rowToOrder(row);
@@ -479,7 +485,7 @@ export async function voidCashPayment(orderId: string): Promise<Order> {
       })
       .eq("id", orderId)
       .eq("payment_mode", "especes")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .single()
   );
   const order = rowToOrder(row);
@@ -604,6 +610,20 @@ export async function ungroupTables(groupId: string): Promise<void> {
       if (table.groupId === groupId) table.groupId = null;
     }
   });
+}
+
+/**
+ * Renvoie à l'imprimante les tickets de commandes déjà passées en cuisine —
+ * rouleau fini, bourrage, ticket égaré. La RPC refait la file pour toutes les
+ * imprimantes de l'établissement et abandonne au passage ce qui y attendait
+ * encore : un boîtier revenu d'une panne ne sort pas deux fois le même
+ * ticket. Rien à toucher dans le store, la file d'impression n'y vit pas.
+ */
+export async function reprintTickets(orderIds: string[]): Promise<number> {
+  const supabase = createClient();
+  return must(
+    await supabase.rpc("reprint_order_tickets", { p_order_ids: orderIds })
+  );
 }
 
 /** Code d'accès de la tablette ; vide, il retire le verrou. */

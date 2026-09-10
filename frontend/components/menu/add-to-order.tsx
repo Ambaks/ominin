@@ -8,6 +8,12 @@ function isUnavailable(item: MenuItem): boolean {
   return item.disponible === false || item.stock === 0;
 }
 
+const choiceRow =
+  "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm transition-colors";
+
+const choiceRowClass = (checked: boolean) =>
+  `${choiceRow} ${checked ? "border-ember-2/60 bg-surface-raised" : "border-hairline"}`;
+
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
   const { orderingEnabled, tableNumber, addLine, track } = useCart();
@@ -154,17 +160,29 @@ function OptionsModal({
                 )}
               </legend>
               <div className="flex flex-col gap-2">
+                {/* Groupe optionnel : « Aucun » est l'état par défaut et le
+                    seul moyen de revenir en arrière (un radio coché ne se
+                    décoche pas). */}
+                {!group.obligatoire && (
+                  <label className={choiceRowClass(!selected[group.id])}>
+                    <span className="flex items-center gap-2.5">
+                      <input
+                        type="radio"
+                        name={group.id}
+                        checked={!selected[group.id]}
+                        onChange={() =>
+                          setSelected((s) => ({ ...s, [group.id]: "" }))
+                        }
+                        className="accent-ember-2"
+                      />
+                      Aucun
+                    </span>
+                  </label>
+                )}
                 {group.choices.map((choice) => {
                   const checked = selected[group.id] === choice.id;
                   return (
-                    <label
-                      key={choice.id}
-                      className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm transition-colors ${
-                        checked
-                          ? "border-ember-2/60 bg-surface-raised"
-                          : "border-hairline"
-                      }`}
-                    >
+                    <label key={choice.id} className={choiceRowClass(checked)}>
                       <span className="flex items-center gap-2.5">
                         <input
                           type="radio"

@@ -6,6 +6,7 @@ import type {
   Formule,
   Member,
   Order,
+  OrderPayment,
   Staff,
   Table,
 } from "./types";
@@ -117,6 +118,7 @@ export function rowToMember(row: Tables<"memberships">): Member {
 
 export type OrderRow = Tables<"orders"> & {
   order_items: Tables<"order_items">[];
+  order_payments?: Tables<"order_payments">[];
 };
 
 export function rowToOrder(row: OrderRow): Order {
@@ -136,6 +138,13 @@ export function rowToOrder(row: OrderRow): Order {
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     staffId: row.staff_id,
+    payments: (row.order_payments ?? []).map((leg) => ({
+      mode: leg.mode as OrderPayment["mode"],
+      amount: Number(leg.amount),
+      cashGiven: leg.cash_given != null ? Number(leg.cash_given) : undefined,
+      cashChange: leg.cash_change != null ? Number(leg.cash_change) : undefined,
+      paidAt: leg.paid_at,
+    })),
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {

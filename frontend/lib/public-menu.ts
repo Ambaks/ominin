@@ -20,6 +20,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
   qrMenu: boolean;
+  /** Le menu propose d'appeler un serveur ; retiré, le bouton n'existe pas. */
+  callServer: boolean;
   restaurant: Restaurant;
 } | null> {
   const supabase = createPublicClient();
@@ -38,6 +40,12 @@ export async function fetchRestaurant(slug: string): Promise<{
 
   // Actifs de marque gérés côté code pour les démos (comme le thème).
   const staticData = getRestaurant(etablissement.slug);
+  // Réglages d'Ominin : seuls les écarts à l'offre y figurent, une clé
+  // absente vaut donc « comme l'offre » — ici, ouvert.
+  const features = etablissement.etablissement_settings?.features as {
+    qr?: boolean;
+    appel_serveur?: boolean;
+  } | null;
 
   return {
     id: etablissement.id,
@@ -45,10 +53,8 @@ export async function fetchRestaurant(slug: string): Promise<{
     onlinePayment: etablissement.online_payment,
     paymentProvider: etablissement.payment_provider ?? "stripe",
     squareLocationId: etablissement.square_location_id ?? null,
-    // Réglage absent ou muet sur le QR : ouvert, comme le veut chaque offre.
-    qrMenu:
-      (etablissement.etablissement_settings?.features as { qr?: boolean } | null)
-        ?.qr !== false,
+    qrMenu: features?.qr !== false,
+    callServer: features?.appel_serveur !== false,
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,
