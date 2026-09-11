@@ -68,15 +68,17 @@ def run_enrichment(*, flush=None) -> dict:
             keepalive.ping_if_due()
             try:
                 prepared = future.result()
+                if prepared["verdict"]:
+                    _record(
+                        sb, prepared, prepared["verdict"], prepared["has_digital_menu"], None, stats
+                    )
+                    stats["processed"] += 1
+                else:
+                    undecided.append(prepared)
             except Exception as exc:  # noqa: BLE001 — stays pending, retried next run
                 stats["errors"] += 1
                 stats["last_error"] = f"{type(exc).__name__}: {exc}"
                 continue
-            if prepared["verdict"]:
-                _record(sb, prepared, prepared["verdict"], prepared["has_digital_menu"], None, stats)
-                stats["processed"] += 1
-            else:
-                undecided.append(prepared)
             _flush()
 
     # Phase 2 — Claude, one call at a time. A run of consecutive failures

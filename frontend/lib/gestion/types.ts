@@ -16,8 +16,13 @@ export type OrderStatus =
   | "retiree";
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
-/** Modes d'un encaissement au comptoir (le mixte est dérivé, l'en ligne subi). */
-export type EncaissementMode = Extract<PaymentMode, "especes" | "carte">;
+/** Modes qu'un serveur choisit au comptoir ; l'en ligne, lui, est subi. */
+export type EncaissementMode = Extract<
+  PaymentMode,
+  "especes" | "carte" | "mixte"
+>;
+/** Mode d'une jambe de règlement : « mixte », c'est deux jambes, jamais une. */
+export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
 export type PaymentProvider = "stripe" | "sumup" | "square";
 
@@ -38,6 +43,7 @@ export type Feature =
   | "options"
   | "roles"
   | "prise_commande"
+  | "appel_serveur"
   | "apercu_serveur"
   | "assignation"
   | "groupes_tables"
@@ -113,6 +119,33 @@ export interface OrderItem {
   servedAt?: string;
 }
 
+/**
+ * Détail d'un règlement qui touche les espèces : ce que le client a tendu, la
+ * monnaie qu'on lui a rendue, et sa part en espèces quand il partage son
+ * addition entre le liquide et la carte.
+ */
+export interface CashDetails {
+  cashGiven: number;
+  cashChange: number;
+  /** Part réglée en espèces d'un règlement mixte, pourboire compris. */
+  cashAmount?: number;
+}
+
+/**
+ * Une jambe de règlement : ce qu'un mode a encaissé sur la commande. Un
+ * paiement mixte en pose deux, un mode unique une seule. Les montants sont
+ * hors pourboire — celui-là vit sur tipAmount, d'où le partage par serveur
+ * le relève.
+ */
+export interface OrderPayment {
+  mode: PaymentLeg;
+  amount: number;
+  /** Espèces seules : ce que le client a tendu et ce qu'on lui a rendu. */
+  cashGiven?: number;
+  cashChange?: number;
+  paidAt: string;
+}
+
 export interface Order {
   id: string;
   type: OrderType;
@@ -130,6 +163,8 @@ export interface Order {
   cashGiven?: number;
   cashChange?: number;
   tipAmount?: number;
+  /** Jambes de règlement, source des totaux par mode. */
+  payments: OrderPayment[];
   /** Serveur qui a encaissé : c'est à lui que revient le pourboire. */
   staffId?: string | null;
 }
@@ -207,6 +242,44 @@ export interface GestionState {
   staff: Staff[];
   categories: MenuCategory[];
   formules: Formule[];
+  /** Tarifs planifiés du restaurant, du plus récent au plus ancien. */
+  priceRules: PriceRule[];
   tables: Table[];
   orders: Order[];
+}
+
+/** Sens de l'écart : le prix monte ou il descend. */
+export type PriceRuleDirection = "majoration" | "remise";
+/** L'écart s'exprime en euros ou en pourcentage du prix de base. */
+export type PriceRuleUnit = "montant" | "pourcentage";
+
+/**
+ * Ce que la règle vise. Une catégorie entière, ou un article nommé — jamais
+ * les deux à la fois. Viser la catégorie fait hériter les articles qu'on y
+ * ajoutera plus tard ; viser l'article permet de l'excepter de la règle de sa
+ * catégorie (le plus précis l'emporte).
+ */
+export type PriceRuleTarget =
+  | { kind: "category"; id: string }
+  | { kind: "item"; id: string };
+
+/**
+ * Un tarif planifié : un écart de prix qui revient chaque semaine, les jours
+ * dits, sur les articles visés. Le prix de la carte ne bouge pas — l'écart se
+ * calcule à la lecture, et cesse dès que la règle s'arrête.
+ */
+export interface PriceRule {
+  id: string;
+  name: string;
+  direction: PriceRuleDirection;
+  unit: PriceRuleUnit;
+  value: number;
+  /** Jours ISO : 1 = lundi … 7 = dimanche. */
+  days: number[];
+  /** "19:00" — null avec endsAt pour « toute la journée ». */
+  startsAt: string | null;
+  /** Antérieur à startsAt ⇒ le créneau passe minuit et tient de la veille. */
+  endsAt: string | null;
+  actif: boolean;
+  targets: PriceRuleTarget[];
 }

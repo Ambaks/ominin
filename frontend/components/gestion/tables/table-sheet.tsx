@@ -65,6 +65,35 @@ export function TableSheet({
     }
   };
 
+  /**
+   * Le ticket n'est pas sorti : rouleau fini, bourrage, ticket égaré entre le
+   * passe et le piano. On refait partir ce que la table a en cours, sans
+   * défaire un encaissement pour le refaire.
+   */
+  const reprint = async () => {
+    setBusy(true);
+    try {
+      const jobs = await api.reprintTickets(
+        service.orders.map((order) => order.id)
+      );
+      if (jobs === 0) {
+        toast.error("Aucune imprimante déclarée.");
+      } else {
+        toast.success(
+          service.orders.length > 1
+            ? "Tickets renvoyés en cuisine."
+            : "Ticket renvoyé en cuisine."
+        );
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const ungroup = async () => {
     const groupId = service.table.groupId;
     if (!groupId) return;
@@ -117,6 +146,24 @@ export function TableSheet({
               className="shrink-0 text-sm font-semibold text-muted transition-colors hover:text-ember-3 disabled:opacity-50"
             >
               Séparer
+            </button>
+          </div>
+        )}
+
+        {hasFeature("terminaux") && (
+          <div className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface px-4 py-3">
+            <p className="text-sm text-muted">
+              Le ticket n&rsquo;est pas sorti en cuisine ?
+            </p>
+            <button
+              type="button"
+              onClick={() => void reprint()}
+              disabled={busy}
+              className="shrink-0 text-sm font-semibold text-ember-1 transition-opacity hover:opacity-80 disabled:opacity-50"
+            >
+              {service.orders.length > 1
+                ? "Renvoyer les tickets"
+                : "Renvoyer le ticket"}
             </button>
           </div>
         )}

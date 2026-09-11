@@ -1,30 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
-import { PlanningEquipe, WeekNav } from "@/components/gestion/temps/planning";
-import { weekStart } from "@/lib/gestion/temps";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
-import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
+import { useOpenEntries } from "@/lib/gestion/use-week";
 
 /*
- * L'écran de l'équipe : la badgeuse partagée du comptoir, puis la semaine
- * telle qu'elle est prévue. La tablette n'appartient à personne, on y cherche
- * son nom — celui que le gérant a posé sur sa fiche.
+ * L'écran de l'équipe : la badgeuse partagée du comptoir, et rien d'autre.
+ * Deux gestes, arrivée et départ. Les horaires prévus ne s'y lisent plus —
+ * la tablette est celle de la maison, et chacun consulte les siens par le
+ * lien de planning que son gérant lui a remis, sur son propre téléphone.
  */
 export default function BadgeagePage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
-  const [start, setStart] = useState(() => weekStart(new Date()));
-  const etablissementId = state?.etablissement.id ?? "";
-  const { data, reload } = useWeek(etablissementId, start);
-  const open = useOpenEntries(etablissementId);
-
-  const badged = () => {
-    open.reload();
-    reload();
-  };
+  const open = useOpenEntries(state?.etablissement.id ?? "");
 
   if (!state) return null;
   if (!hasFeature("badgeage")) return <FeatureLocked feature="badgeage" />;
@@ -44,14 +34,8 @@ export default function BadgeagePage() {
         etablissementId={state.etablissement.id}
         staff={state.staff}
         entries={open.entries}
-        onChange={badged}
+        onChange={open.reload}
       />
-
-      <section className="flex flex-col gap-4">
-        <h2 className="font-display text-lg font-medium">La semaine</h2>
-        <WeekNav start={start} onChange={setStart} />
-        <PlanningEquipe staff={state.staff} shifts={data.shifts} start={start} />
-      </section>
     </div>
   );
 }

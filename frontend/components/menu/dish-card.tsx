@@ -46,9 +46,23 @@ function FeaturedCard({ item }: { item: MenuItem }) {
       <div className="flex flex-col gap-2 p-4 lg:gap-3 lg:p-5">
         <div className="flex items-baseline justify-between gap-4">
           <h3 className="font-display text-xl font-medium lg:text-2xl">{item.name}</h3>
-          <span className="font-display text-lg text-ember-1 lg:text-xl">
-            {formatPrice(item.price)}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="font-display text-lg text-ember-1 lg:text-xl">
+              {formatPrice(item.price)}
+            </span>
+            {item.tarif && (
+              <span className="text-[11px] leading-tight text-faint">
+                {/* Une remise se lit mieux à côté du prix barré ; une
+                    majoration barrée ferait croire à une bonne affaire. */}
+                {item.tarif.basePrice > item.price && (
+                  <span className="mr-1 line-through">
+                    {formatPrice(item.tarif.basePrice)}
+                  </span>
+                )}
+                {item.tarif.name}
+              </span>
+            )}
+          </div>
         </div>
         {item.description && (
           <p className="text-sm leading-relaxed text-muted lg:text-[15px]">{item.description}</p>

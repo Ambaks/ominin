@@ -8,17 +8,23 @@ import {
   rowToFormule,
   rowToMenuItem,
   rowToOrder,
+  rowToPriceRule,
   rowToStaff,
   toJson,
 } from "./mappers";
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
+  CashDetails,
   EncaissementMode,
   Etablissement,
   Formule,
   GestionState,
   Order,
   OrderStatus,
+  PriceRule,
+  PriceRuleDirection,
+  PriceRuleTarget,
+  PriceRuleUnit,
   Role,
   Staff,
 } from "./types";
@@ -392,19 +398,23 @@ export async function updateOrderStatus(
 
 /**
  * Encaisse une sélection d'articles (commandes servies d'une table ou d'un
- * groupe). La RPC marque les lignes, pose le pourboire et clôt les commandes
- * entièrement réglées (mode unique ou mixte) ; le snapshot est relu plutôt
- * que rejoué — c'est la base qui décide de ce qui se clôt.
+ * groupe). La RPC marque les lignes, pose le pourboire et les jambes de
+ * règlement, puis clôt les commandes entièrement réglées ; le snapshot est
+ * relu plutôt que rejoué — c'est la base qui décide de ce qui se clôt.
+ *
+ * En mixte, cashDetails.cashAmount porte la part réglée en espèces : la carte
+ * prend le reste, et la RPC ventile les deux jambes de la plus ancienne
+ * commande à la plus récente.
  */
 export async function payOrderItems(
   /** Quantité réglée par ligne : deux nems d'une même ligne se règlent séparément. */
   items: { itemId: string; quantity: number }[],
   mode: EncaissementMode,
-  cashDetails?: { cashGiven: number; cashChange: number },
+  cashDetails?: CashDetails,
   tip?: number
 ): Promise<void> {
   const supabase = createClient();
-  const cash = mode === "especes" ? cashDetails : undefined;
+  const cash = mode === "carte" ? undefined : cashDetails;
   check(
     await supabase.rpc("pay_order_items", {
       p_items: items.map((item) => ({
@@ -415,6 +425,7 @@ export async function payOrderItems(
       p_cash_given: cash?.cashGiven ?? null,
       p_cash_change: cash?.cashChange ?? null,
       p_tip: tip ?? null,
+      p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
     })
   );
   await refreshOrdersNow();
@@ -450,7 +461,7 @@ export async function updateCashDetails(
       .update({ cash_given: cashGiven, cash_change: cashChange })
       .eq("id", orderId)
       .eq("payment_mode", "especes")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .single()
   );
   const order = rowToOrder(row);
@@ -479,7 +490,7 @@ export async function voidCashPayment(orderId: string): Promise<Order> {
       })
       .eq("id", orderId)
       .eq("payment_mode", "especes")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .single()
   );
   const order = rowToOrder(row);
@@ -606,6 +617,20 @@ export async function ungroupTables(groupId: string): Promise<void> {
   });
 }
 
+/**
+ * Renvoie à l'imprimante les tickets de commandes déjà passées en cuisine —
+ * rouleau fini, bourrage, ticket égaré. La RPC refait la file pour toutes les
+ * imprimantes de l'établissement et abandonne au passage ce qui y attendait
+ * encore : un boîtier revenu d'une panne ne sort pas deux fois le même
+ * ticket. Rien à toucher dans le store, la file d'impression n'y vit pas.
+ */
+export async function reprintTickets(orderIds: string[]): Promise<number> {
+  const supabase = createClient();
+  return must(
+    await supabase.rpc("reprint_order_tickets", { p_order_ids: orderIds })
+  );
+}
+
 /** Code d'accès de la tablette ; vide, il retire le verrou. */
 export async function setAdminPin(code: string): Promise<void> {
   const supabase = createClient();
@@ -712,5 +737,120 @@ export async function setCollectSlotCapacity(capacity: number): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.collectSlotCapacity = capacity;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Tarifs planifiés
+
+export interface PriceRuleInput {
+  name: string;
+  direction: PriceRuleDirection;
+  unit: PriceRuleUnit;
+  value: number;
+  days: number[];
+  startsAt: string | null;
+  endsAt: string | null;
+  targets: PriceRuleTarget[];
+}
+
+function priceRuleColumns(input: PriceRuleInput) {
+  return {
+    name: input.name,
+    direction: input.direction,
+    unit: input.unit,
+    value: input.value,
+    days: input.days,
+    starts_at: input.startsAt,
+    ends_at: input.endsAt,
+  };
+}
+
+/** Les cibles se réécrivent en bloc : à quatre lignes, un diff coûte plus cher. */
+async function replaceTargets(
+  ruleId: string,
+  targets: PriceRuleTarget[]
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("price_rule_targets").delete().eq("rule_id", ruleId));
+  if (!targets.length) return;
+  check(
+    await supabase.from("price_rule_targets").insert(
+      targets.map((target) => ({
+        rule_id: ruleId,
+        category_id: target.kind === "category" ? target.id : null,
+        item_id: target.kind === "item" ? target.id : null,
+      }))
+    )
+  );
+}
+
+export async function createPriceRule(
+  input: PriceRuleInput
+): Promise<PriceRule> {
+  const supabase = createClient();
+  const row = must(
+    await supabase
+      .from("price_rules")
+      .insert({ etablissement_id: etablissementId(), ...priceRuleColumns(input) })
+      .select()
+      .single()
+  );
+  await replaceTargets(row.id, input.targets);
+  const rule = rowToPriceRule({ ...row, price_rule_targets: [] });
+  rule.targets = input.targets;
+  return apply((draft) => {
+    draft.priceRules.unshift(rule);
+    return rule;
+  });
+}
+
+export async function updatePriceRule(
+  ruleId: string,
+  input: PriceRuleInput
+): Promise<PriceRule> {
+  const supabase = createClient();
+  const row = must(
+    await supabase
+      .from("price_rules")
+      .update(priceRuleColumns(input))
+      .eq("id", ruleId)
+      .select()
+      .single()
+  );
+  await replaceTargets(ruleId, input.targets);
+  const rule = rowToPriceRule({ ...row, price_rule_targets: [] });
+  rule.targets = input.targets;
+  return apply((draft) => {
+    const index = draft.priceRules.findIndex((r) => r.id === ruleId);
+    if (index === -1) throw new Error("Tarif introuvable.");
+    draft.priceRules[index] = rule;
+    return rule;
+  });
+}
+
+/**
+ * L'interrupteur de la liste : suspendre un tarif sans perdre ses jours ni ses
+ * articles, le temps d'une saison creuse.
+ */
+export async function setPriceRuleActive(
+  ruleId: string,
+  actif: boolean
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.from("price_rules").update({ actif }).eq("id", ruleId)
+  );
+  apply((draft) => {
+    const rule = draft.priceRules.find((r) => r.id === ruleId);
+    if (rule) rule.actif = actif;
+  });
+}
+
+export async function deletePriceRule(ruleId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("price_rules").delete().eq("id", ruleId));
+  apply((draft) => {
+    draft.priceRules = draft.priceRules.filter((r) => r.id !== ruleId);
   });
 }

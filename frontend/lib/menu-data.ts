@@ -36,6 +36,19 @@ export interface MenuItem {
   options?: OptionGroup[];
   /** Taux de TVA (%), pour l'envoi en caisse. undefined ⇒ 10 (défaut base). */
   vatRate?: number;
+  /**
+   * Un tarif planifié s'applique en ce moment : `price` porte déjà le prix
+   * pratiqué, et ceci dit d'où il vient. undefined ⇒ prix de la carte.
+   */
+  tarif?: AppliedTarif;
+}
+
+/** Le tarif planifié en cours sur un article, tel qu'on l'explique au client. */
+export interface AppliedTarif {
+  /** Nom donné par le restaurant : « Tarif week-end ». */
+  name: string;
+  /** Prix de la carte, à barrer quand la règle est une remise. */
+  basePrice: number;
 }
 
 export interface MenuCategory {

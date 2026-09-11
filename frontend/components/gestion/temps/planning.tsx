@@ -9,10 +9,8 @@ import {
   entriesOf,
   formatDuration,
   plannedMinutes,
-  sameDay,
   shiftsOf,
   weekDays,
-  workedMinutes,
   type EntrySpan,
   type Shift,
 } from "@/lib/gestion/temps";
@@ -265,65 +263,6 @@ export function PlanningGrid({
   );
 }
 
-/**
- * La semaine de l'équipe, en lecture. C'est ce qu'il faut sur la tablette
- * partagée du restaurant, où « ma semaine » ne veut rien dire : chacun y
- * cherche son nom, et voit qui travaille avec lui.
- */
-export function PlanningEquipe({
-  staff,
-  shifts,
-  start,
-}: {
-  staff: Staff[];
-  shifts: Shift[];
-  start: Date;
-}) {
-  const nameById = new Map(staff.map((member) => [member.id, member.name]));
-  return (
-    <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-      {weekDays(start).map((day, index) => {
-        const dayShifts = shifts
-          .filter((shift) => sameDay(shift.startsAt, day))
-          .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-        return (
-          <li
-            key={day.toDateString()}
-            className={`flex flex-wrap items-start gap-x-4 gap-y-2 px-5 py-3.5 ${
-              index > 0 ? "border-t border-hairline" : ""
-            } ${isToday(day) ? "bg-ember-2/[0.06]" : ""}`}
-          >
-            <p
-              className={`w-24 shrink-0 text-sm capitalize ${
-                isToday(day) ? "font-medium text-ember-1" : "text-muted"
-              }`}
-            >
-              {dayLabel(day)}
-            </p>
-            {dayShifts.length === 0 ? (
-              <p className="text-sm text-faint">Personne</p>
-            ) : (
-              <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-                {dayShifts.map((shift) => (
-                  <span
-                    key={shift.id}
-                    className="rounded-lg border border-hairline px-2 py-1 text-xs"
-                  >
-                    {nameById.get(shift.staffId) ?? "—"}{" "}
-                    <span className="tabular-nums text-muted">
-                      {formatTime(shift.startsAt)}–{formatTime(shift.endsAt)}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 /** Vue d'un membre sur sa semaine : ce qui est prévu, ce qui a été badgé. */
 export function MonPlanning({
   staffId,
@@ -336,82 +275,58 @@ export function MonPlanning({
   entries: EntrySpan[];
   start: Date;
 }) {
-  const now = new Date();
   const mine = shiftsOf(shifts, staffId);
   const mineEntries = entriesOf(entries, staffId);
-  const planned = plannedMinutes(mine);
-  const worked = workedMinutes(mineEntries, now);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-hairline bg-surface p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Prévu
-          </p>
-          <p className="mt-1 font-display text-2xl tabular-nums">
-            {formatDuration(planned)}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-hairline bg-surface p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Badgé
-          </p>
-          <p className="mt-1 font-display text-2xl tabular-nums text-ember-1">
-            {formatDuration(worked)}
-          </p>
-        </div>
-      </div>
-
-      <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-        {weekDays(start).map((day, index) => {
-          const dayShifts = shiftsOf(mine, staffId, day);
-          const dayEntries = entriesOf(mineEntries, staffId, day);
-          return (
-            <li
-              key={day.toDateString()}
-              className={`flex flex-wrap items-start justify-between gap-3 px-5 py-3.5 ${
-                index > 0 ? "border-t border-hairline" : ""
-              } ${isToday(day) ? "bg-ember-2/[0.06]" : ""}`}
+    <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
+      {weekDays(start).map((day, index) => {
+        const dayShifts = shiftsOf(mine, staffId, day);
+        const dayEntries = entriesOf(mineEntries, staffId, day);
+        return (
+          <li
+            key={day.toDateString()}
+            className={`flex flex-wrap items-start justify-between gap-3 px-5 py-3.5 ${
+              index > 0 ? "border-t border-hairline" : ""
+            } ${isToday(day) ? "bg-ember-2/[0.06]" : ""}`}
+          >
+            <p
+              className={`w-24 shrink-0 text-sm capitalize ${
+                isToday(day) ? "font-medium text-ember-1" : "text-muted"
+              }`}
             >
-              <p
-                className={`w-24 shrink-0 text-sm capitalize ${
-                  isToday(day) ? "font-medium text-ember-1" : "text-muted"
-                }`}
-              >
-                {dayLabel(day)}
-              </p>
-              <div className="min-w-0 flex-1">
-                {dayShifts.length === 0 && dayEntries.length === 0 ? (
-                  <p className="text-sm text-faint">Repos</p>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    {dayShifts.map((shift) => (
-                      <p key={shift.id} className="text-sm">
-                        <span className="tabular-nums">
-                          {formatTime(shift.startsAt)} – {formatTime(shift.endsAt)}
-                        </span>
-                        {shift.note && (
-                          <span className="text-faint"> · {shift.note}</span>
-                        )}
-                      </p>
-                    ))}
-                    {dayEntries.map((entry) => (
-                      <p
-                        key={entry.id}
-                        className="text-xs tabular-nums text-ember-2"
-                      >
-                        Badgé {formatTime(entry.startedAt)} –{" "}
-                        {entry.endedAt ? formatTime(entry.endedAt) : "en cours"}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+              {dayLabel(day)}
+            </p>
+            <div className="min-w-0 flex-1">
+              {dayShifts.length === 0 && dayEntries.length === 0 ? (
+                <p className="text-sm text-faint">Repos</p>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {dayShifts.map((shift) => (
+                    <p key={shift.id} className="text-sm">
+                      <span className="tabular-nums">
+                        {formatTime(shift.startsAt)} – {formatTime(shift.endsAt)}
+                      </span>
+                      {shift.note && (
+                        <span className="text-faint"> · {shift.note}</span>
+                      )}
+                    </p>
+                  ))}
+                  {dayEntries.map((entry) => (
+                    <p
+                      key={entry.id}
+                      className="text-xs tabular-nums text-ember-2"
+                    >
+                      Badgé {formatTime(entry.startedAt)} –{" "}
+                      {entry.endedAt ? formatTime(entry.endedAt) : "en cours"}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

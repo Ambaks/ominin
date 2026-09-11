@@ -211,10 +211,16 @@ export async function dispatchCallServer(
 
   const { data: etablissement } = await db
     .from("etablissements")
-    .select("id")
+    .select("id, etablissement_settings(features)")
     .eq("slug", slug)
     .maybeSingle();
   if (!etablissement) return;
+  // Capacité retirée par Ominin : la route est publique, et une page ouverte
+  // avant le retrait montre encore le bouton. L'appel s'arrête ici.
+  const features = etablissement.etablissement_settings?.features as {
+    appel_serveur?: boolean;
+  } | null;
+  if (features?.appel_serveur === false) return;
 
   const { data: table } = await db
     .from("tables")

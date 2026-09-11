@@ -20,6 +20,7 @@ import {
   rowToFormule,
   rowToMember,
   rowToOrder,
+  rowToPriceRule,
   rowToStaff,
   rowToTable,
 } from "./mappers";
@@ -63,7 +64,7 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
   const rows = must(
     await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
       .or(
         `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
@@ -81,7 +82,7 @@ export async function fetchOrderHistory(
   const etablissementId = getState().etablissement.id;
   let query = supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select("*, order_items(*), order_payments(*)")
     .eq("etablissement_id", etablissementId)
     .in("status", HISTORY_ORDER_STATUSES)
     .order("created_at", { ascending: false })
@@ -103,7 +104,7 @@ export async function fetchPaidOrders(
   const etablissementId = getState().etablissement.id;
   let query = supabase
     .from("orders")
-    .select("*, order_items(*)")
+    .select("*, order_items(*), order_payments(*)")
     .eq("etablissement_id", etablissementId)
     .in("status", PAID_ORDER_STATUSES)
     .order("created_at", { ascending: false })
@@ -269,6 +270,7 @@ async function load(): Promise<void> {
     categories,
     items,
     formules,
+    priceRules,
     tables,
     orders,
     members,
@@ -306,6 +308,13 @@ async function load(): Promise<void> {
         .select("*")
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
+        .then(must),
+      // Les cibles sont embarquées : une règle sans elles ne dit rien.
+      supabase
+        .from("price_rules")
+        .select("*, price_rule_targets(*)")
+        .eq("etablissement_id", etablissementId)
+        .order("created_at", { ascending: false })
         .then(must),
       supabase
         .from("tables")
@@ -354,6 +363,7 @@ async function load(): Promise<void> {
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
+    priceRules: priceRules.map(rowToPriceRule),
     tables: tables.map(rowToTable),
     orders,
   };

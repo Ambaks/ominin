@@ -169,7 +169,13 @@ function PrefsCard({
   role: "gerant" | "cuisinier" | "serveur";
 }) {
   const toast = useToast();
+  const { hasFeature } = useGestionAccess();
   const [prefs, setPrefs] = useState<PrefValues | null>(null);
+  // Le bouton d'appel retiré, l'événement ne se produit plus : le régler
+  // n'aurait aucun effet.
+  const events = PUSH_EVENTS.filter(
+    (event) => event !== "appel_serveur" || hasFeature("appel_serveur")
+  );
 
   useEffect(() => {
     loadPrefs(etablissementId, role)
@@ -198,7 +204,7 @@ function PrefsCard({
         l&rsquo;équipe règle les siens.
       </p>
       <div className="mt-4 flex flex-col gap-4">
-        {PUSH_EVENTS.map((event) => (
+        {events.map((event) => (
           <label
             key={event}
             className="flex cursor-pointer items-center justify-between gap-3"

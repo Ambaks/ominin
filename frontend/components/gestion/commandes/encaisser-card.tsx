@@ -7,20 +7,22 @@ import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import { lineTotal } from "@/lib/gestion/selectors";
 import type {
+  CashDetails,
   EncaissementMode,
   Order,
   OrderItem,
-  PaymentMode,
+  PaymentLeg,
 } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
-import { PaymentDialog, type CashDetails } from "./payment-dialog";
+import { PaymentDialog } from "./payment-dialog";
 
 /*
  * L'addition d'une table, article par article : ce qui reste à encaisser se
- * coche et se règle en carte ou en espèces, ce qui l'est déjà reste affiché
- * avec son mode. L'état vit en base (order_items.paid_mode) : il survit à
- * l'écran et se voit de tout appareil.
+ * coche et se règle en espèces, en carte, ou en partageant la somme entre les
+ * deux ; ce qui l'est déjà reste affiché avec son mode. L'état vit en base
+ * (order_items.paid_mode pour les lignes, order_payments pour les montants) :
+ * il survit à l'écran et se voit de tout appareil.
  *
  * Une ligne de deux nems se coche deux fois, pas une : chacun règle sa part.
  * Chaque unité est donc une case, et la RPC scinde la ligne quand une partie
@@ -82,12 +84,11 @@ export function EncaisserPanel({
   const selection = unpaid.filter((unit) => selected.has(unit.key));
   const partial = selection.length > 0 && selection.length < unpaid.length;
   const remaining = sumUnits(unpaid);
-  const paidByMode = new Map<PaymentMode, number>();
-  for (const line of paid) {
-    paidByMode.set(
-      line.paidMode!,
-      (paidByMode.get(line.paidMode!) ?? 0) + lineTotal(line)
-    );
+  const paidByMode = new Map<PaymentLeg, number>();
+  for (const order of orders) {
+    for (const leg of order.payments) {
+      paidByMode.set(leg.mode, (paidByMode.get(leg.mode) ?? 0) + leg.amount);
+    }
   }
 
   const toggle = (key: string) =>

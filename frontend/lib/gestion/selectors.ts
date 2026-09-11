@@ -2,10 +2,10 @@ import type { MenuItem } from "@/lib/menu-data";
 import { TOP_VENTES_COUNT } from "./constants";
 import type {
   ActiveProducts,
-  EncaissementMode,
   GestionState,
   Order,
   OrderItem,
+  PaymentLeg,
   Staff,
   Table,
 } from "./types";
@@ -75,31 +75,20 @@ export function openOrders(state: GestionState): Order[] {
 
 /** Ce qui rentre vraiment en caisse, par canal : le comptoir et la banque ne
  * se relèvent pas de la même façon, la carte au comptoir et le paiement en
- * ligne restent donc séparés. Une addition mixte se ventile ligne à ligne. */
-export function totalsByMode(
-  order: Order
-): Record<EncaissementMode | "en_ligne", number> {
+ * ligne restent donc séparés. Chaque règlement a posé une jambe par mode —
+ * deux quand le client a partagé son addition entre espèces et carte. */
+export function totalsByMode(order: Order): Record<PaymentLeg, number> {
   const totals = { especes: 0, carte: 0, en_ligne: 0 };
-  if (order.paidOnline) {
-    totals.en_ligne = orderTotal(order);
-    return totals;
-  }
-  switch (order.paymentMode) {
-    case "especes":
-    case "carte":
-    case "en_ligne":
-      totals[order.paymentMode] = orderTotal(order);
-      return totals;
-    case "mixte":
-      for (const line of order.items) {
-        if (line.paidMode && line.paidMode !== "mixte") {
-          totals[line.paidMode] += lineTotal(line);
-        }
-      }
-      return totals;
-    default:
-      return totals;
-  }
+  for (const leg of order.payments) totals[leg.mode] += leg.amount;
+  return totals;
+}
+
+/** Montant réglé dans un mode donné, pourboire exclu. */
+export function paidInMode(order: Order, mode: PaymentLeg): number {
+  return order.payments.reduce(
+    (sum, leg) => (leg.mode === mode ? sum + leg.amount : sum),
+    0
+  );
 }
 
 export interface TableService {

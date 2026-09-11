@@ -1138,6 +1138,44 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          amount: number
+          cash_change: number | null
+          cash_given: number | null
+          id: string
+          mode: Database["public"]["Enums"]["payment_mode"]
+          order_id: string
+          paid_at: string
+        }
+        Insert: {
+          amount: number
+          cash_change?: number | null
+          cash_given?: number | null
+          id?: string
+          mode: Database["public"]["Enums"]["payment_mode"]
+          order_id: string
+          paid_at?: string
+        }
+        Update: {
+          amount?: number
+          cash_change?: number | null
+          cash_given?: number | null
+          id?: string
+          mode?: Database["public"]["Enums"]["payment_mode"]
+          order_id?: string
+          paid_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           cash_change: number | null
@@ -1509,6 +1547,96 @@ export type Database = {
             foreignKeyName: "payment_accounts_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_rule_targets: {
+        Row: {
+          category_id: string | null
+          item_id: string | null
+          rule_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          item_id?: string | null
+          rule_id: string
+        }
+        Update: {
+          category_id?: string | null
+          item_id?: string | null
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_rule_targets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_rule_targets_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_rule_targets_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "price_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_rules: {
+        Row: {
+          actif: boolean
+          created_at: string
+          days: number[]
+          direction: Database["public"]["Enums"]["price_rule_direction"]
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          starts_at: string | null
+          unit: Database["public"]["Enums"]["price_rule_unit"]
+          value: number
+        }
+        Insert: {
+          actif?: boolean
+          created_at?: string
+          days: number[]
+          direction: Database["public"]["Enums"]["price_rule_direction"]
+          ends_at?: string | null
+          etablissement_id: string
+          id?: string
+          name: string
+          starts_at?: string | null
+          unit: Database["public"]["Enums"]["price_rule_unit"]
+          value: number
+        }
+        Update: {
+          actif?: boolean
+          created_at?: string
+          days?: number[]
+          direction?: Database["public"]["Enums"]["price_rule_direction"]
+          ends_at?: string | null
+          etablissement_id?: string
+          id?: string
+          name?: string
+          starts_at?: string | null
+          unit?: Database["public"]["Enums"]["price_rule_unit"]
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_rules_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
@@ -3199,6 +3327,7 @@ export type Database = {
       }
       pay_order_items: {
         Args: {
+          p_cash_amount?: number | null
           p_cash_change?: number | null
           p_cash_given?: number | null
           p_items: Json
@@ -3212,6 +3341,14 @@ export type Database = {
         Returns: string
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
+      tarifs_actifs: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: { item_id: string; price: number; rule_name: string }[]
+      }
+      reprint_order_tickets: {
+        Args: { p_order_ids: string[] }
+        Returns: number
+      }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       set_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }
@@ -3322,6 +3459,8 @@ export type Database = {
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
       payment_provider: "stripe" | "sumup" | "square"
+      price_rule_direction: "majoration" | "remise"
+      price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
@@ -3556,6 +3695,8 @@ export const Constants = {
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte"],
       payment_provider: ["stripe", "sumup", "square"],
+      price_rule_direction: ["majoration", "remise"],
+      price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],

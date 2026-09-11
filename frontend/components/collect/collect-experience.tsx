@@ -155,6 +155,20 @@ function OptionsDialog({
                 </span>
               )}
             </legend>
+            {/* Groupe optionnel : « Aucun » est l'état par défaut et le seul
+                moyen de revenir en arrière (un radio coché ne se décoche pas). */}
+            {!group.obligatoire && (
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-hairline px-3.5 py-2.5 text-sm transition-colors has-checked:border-ember-2/50 has-checked:bg-ember-2/5">
+                <input
+                  type="radio"
+                  name={group.id}
+                  checked={!selected[group.id]}
+                  onChange={() => choose(group, "")}
+                  className="accent-ember-1"
+                />
+                <span className="flex-1">Aucun</span>
+              </label>
+            )}
             {group.choices.map((choice) => (
               <label
                 key={choice.id}

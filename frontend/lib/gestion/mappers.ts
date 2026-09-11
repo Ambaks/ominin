@@ -6,6 +6,8 @@ import type {
   Formule,
   Member,
   Order,
+  OrderPayment,
+  PriceRule,
   Staff,
   Table,
 } from "./types";
@@ -117,6 +119,7 @@ export function rowToMember(row: Tables<"memberships">): Member {
 
 export type OrderRow = Tables<"orders"> & {
   order_items: Tables<"order_items">[];
+  order_payments?: Tables<"order_payments">[];
 };
 
 export function rowToOrder(row: OrderRow): Order {
@@ -136,6 +139,13 @@ export function rowToOrder(row: OrderRow): Order {
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     staffId: row.staff_id,
+    payments: (row.order_payments ?? []).map((leg) => ({
+      mode: leg.mode as OrderPayment["mode"],
+      amount: Number(leg.amount),
+      cashGiven: leg.cash_given != null ? Number(leg.cash_given) : undefined,
+      cashChange: leg.cash_change != null ? Number(leg.cash_change) : undefined,
+      paidAt: leg.paid_at,
+    })),
     items: row.order_items.map((line) => {
       const options = line.options as unknown as Order["items"][number]["options"];
       return {
@@ -149,5 +159,30 @@ export function rowToOrder(row: OrderRow): Order {
         servedAt: line.served_at ?? undefined,
       };
     }),
+  };
+}
+
+/**
+ * Une règle de tarif et ses cibles. Les cibles arrivent embarquées par
+ * PostgREST : la règle n'a aucun sens sans elles.
+ */
+export function rowToPriceRule(
+  row: Tables<"price_rules"> & { price_rule_targets: Tables<"price_rule_targets">[] }
+): PriceRule {
+  return {
+    id: row.id,
+    name: row.name,
+    direction: row.direction,
+    unit: row.unit,
+    value: Number(row.value),
+    days: row.days,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    actif: row.actif,
+    targets: row.price_rule_targets.map((target) =>
+      target.item_id
+        ? { kind: "item" as const, id: target.item_id }
+        : { kind: "category" as const, id: target.category_id as string }
+    ),
   };
 }
