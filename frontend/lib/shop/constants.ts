@@ -7,6 +7,8 @@ import type {
 
 /** Quantité maximale d'un même article dans un panier. */
 export const CART_MAX_QUANTITY = 10;
+/** Personnalisation d'un article (initiale, âge) : longueur maximale saisissable. */
+export const PERSONALIZATION_MAX_LENGTH = 3;
 /** Clé localStorage du panier, suffixée par le slug de la boutique. */
 export const CART_STORAGE_PREFIX = "ominin-shop-cart";
 /** Durée de vie d'une session Stripe Checkout (minimum autorisé : 30 min). */

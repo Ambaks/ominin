@@ -31,9 +31,9 @@ interface CartContextValue extends CartState {
 const CartContext = createContext<CartContextValue | null>(null);
 const EMPTY: CartState = { items: [], giftMessage: "" };
 
-export function cartKey(productId: string, options: CartOption[]): string {
+export function cartKey(productId: string, options: CartOption[], personalization: string | null): string {
   const opts = options.map((o) => `${o.linkId}:${o.valueId}`).sort().join(",");
-  return `${productId}|${opts}`;
+  return `${productId}|${opts}|${personalization ?? ""}`;
 }
 
 export function itemUnitPrice(item: Pick<CartItem, "unitPriceCents" | "options">): number {
@@ -45,7 +45,9 @@ function read(key: string): CartState {
     const raw = localStorage.getItem(key);
     if (!raw) return EMPTY;
     const parsed = JSON.parse(raw) as Partial<CartState>;
-    return { items: Array.isArray(parsed.items) ? parsed.items : [], giftMessage: typeof parsed.giftMessage === "string" ? parsed.giftMessage : "" };
+    // Paniers enregistrés avant la personnalisation : le champ manque.
+    const items = Array.isArray(parsed.items) ? parsed.items.map((i) => ({ ...i, personalization: i.personalization ?? null })) : [];
+    return { items, giftMessage: typeof parsed.giftMessage === "string" ? parsed.giftMessage : "" };
   } catch {
     return EMPTY;
   }
@@ -73,7 +75,7 @@ export function CartProvider({ slug, children }: { slug: string; children: React
 
   const addItem = useCallback((item: Omit<CartItem, "key">) => {
     setState((s) => {
-      const key = cartKey(item.productId, item.options);
+      const key = cartKey(item.productId, item.options, item.personalization);
       const existing = s.items.find((i) => i.key === key);
       const items = existing
         ? s.items.map((i) => (i.key === key ? { ...i, quantity: Math.min(CART_MAX_QUANTITY, i.quantity + item.quantity) } : i))

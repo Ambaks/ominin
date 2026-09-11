@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
   alternates: { canonical: shopSiteUrl },
-  openGraph: { title: seo.title, description: seo.description, type: "website", siteName: shopBrand, locale: "fr_FR", url: shopSiteUrl, images: [{ url: "/shop/mybox/signature.webp", width: 1200, height: 1500, alt: shopBrand }] },
+  openGraph: { title: seo.title, description: seo.description, type: "website", siteName: shopBrand, locale: "fr_FR", url: shopSiteUrl, images: [{ url: "/shop/mybox/signature.webp", width: 720, height: 900, alt: shopBrand }] },
   twitter: { card: "summary_large_image", title: seo.title, description: seo.description, images: ["/shop/mybox/signature.webp"] },
 };
 

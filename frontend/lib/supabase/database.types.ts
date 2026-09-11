@@ -1793,7 +1793,9 @@ export type Database = {
         Row: {
           description: string | null
           id: string
+          image_url: string | null
           is_active: boolean
+          is_highlighted: boolean
           name: string
           shop_id: string
           slug: string
@@ -1802,7 +1804,9 @@ export type Database = {
         Insert: {
           description?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          is_highlighted?: boolean
           name: string
           shop_id: string
           slug: string
@@ -1811,7 +1815,9 @@ export type Database = {
         Update: {
           description?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          is_highlighted?: boolean
           name?: string
           shop_id?: string
           slug?: string
@@ -2521,6 +2527,7 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           name: string
+          personalization_label: string | null
           price_cents: number
           seo_description: string | null
           seo_title: string | null
@@ -2542,6 +2549,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name: string
+          personalization_label?: string | null
           price_cents: number
           seo_description?: string | null
           seo_title?: string | null
@@ -2563,6 +2571,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name?: string
+          personalization_label?: string | null
           price_cents?: number
           seo_description?: string | null
           seo_title?: string | null
@@ -2698,6 +2707,7 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           free_shipping_threshold_cents: number | null
+          hero_image_url: string | null
           hero_subtitle: string | null
           hero_title: string | null
           id: string
@@ -2731,6 +2741,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           free_shipping_threshold_cents?: number | null
+          hero_image_url?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
           id?: string
@@ -2764,6 +2775,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           free_shipping_threshold_cents?: number | null
+          hero_image_url?: string | null
           hero_subtitle?: string | null
           hero_title?: string | null
           id?: string

@@ -123,9 +123,9 @@ export function ShopHeader({ announcement }: { announcement: string | null }) {
   return (
     <>
       {announcement && (
-        <div className="flex h-9 items-center justify-center gap-2 bg-shop-accent px-4 text-center text-[11.5px] font-medium tracking-[0.04em] text-shop-paper md:h-10 md:text-xs md:tracking-[0.06em]">
-          <HeartIcon className="hidden size-3.5 sm:block" strokeWidth={1.8} />
-          <span className="truncate">{announcement}</span>
+        <div className="flex min-h-9 items-center justify-center gap-2 bg-shop-accent px-4 py-1.5 text-center text-[11.5px] font-medium leading-snug tracking-[0.04em] text-shop-paper md:min-h-10 md:text-xs md:tracking-[0.06em]">
+          <HeartIcon className="hidden size-3.5 shrink-0 sm:block" strokeWidth={1.8} />
+          <span className="line-clamp-2 md:line-clamp-1">{announcement}</span>
         </div>
       )}
       <header className="sticky top-0 z-40 border-b border-shop-line-soft bg-shop-bg/90 backdrop-blur-md">

@@ -30,6 +30,8 @@ const SOL = "Trio Sol de Janeiro : brume parfumée 30 ml, gel douche 90 ml, crè
 const VOITURE = "Deux diffuseurs de parfum pour la voiture";
 const ROSES = "Roses artificielles disposées à la main";
 const SURPRISE = "Cadeaux surprise";
+/** Champ libre proposé sur chaque box : l'initiale, l'âge fêté. */
+const PERSONALIZATION = "Lettre ou chiffre sur la box";
 
 interface SeedProduct {
   slug: string;
@@ -42,15 +44,20 @@ interface SeedProduct {
   featured?: boolean;
   badge?: "best-seller" | "nouveau" | "coup-de-coeur";
   perfumeLinks?: string[];
+  /** Nombre de photos `<slug>.webp`, `<slug>-2.webp`… dans public/shop/mybox. */
+  photos?: number;
+  /** Pas de champ de personnalisation (accessoire vendu seul). */
+  plain?: boolean;
 }
 
+// Les trois collections mises en avant portent la photo de leur box phare.
 const CATEGORIES = [
-  { slug: "essentiel", name: "L'Essentiel", description: "Ton parfum KAYALI, un lit de roses et des surprises." },
-  { slug: "evasion", name: "L'Évasion", description: "Le trio de soins Sol de Janeiro pour un moment rien qu'à toi." },
+  { slug: "essentiel", name: "L'Essentiel", description: "Ton parfum KAYALI, un lit de roses et des surprises.", image: "l-essentiel-30-ml" },
+  { slug: "evasion", name: "L'Évasion", description: "Le trio de soins Sol de Janeiro pour un moment rien qu'à toi.", image: "l-evasion" },
   { slug: "nomade", name: "La Nomade", description: "Des parfums pour la voiture, pour emporter ta bulle partout." },
   { slug: "duos", name: "Les Duos", description: "Deux univers réunis dans une seule box." },
   { slug: "ultime", name: "L'Ultime", description: "La box la plus complète : parfum, soins et voiture." },
-  { slug: "petits-plaisirs", name: "Petits plaisirs", description: "Des attentions à glisser partout, à petit prix." },
+  { slug: "petits-plaisirs", name: "Petits plaisirs", description: "Des attentions à glisser partout, à petit prix.", image: "chic-car-scent" },
 ];
 
 const PRODUCTS: SeedProduct[] = [
@@ -60,13 +67,13 @@ const PRODUCTS: SeedProduct[] = [
   { slug: "l-evasion", name: "L'Évasion", subtitle: "Le trio Sol de Janeiro", description: "Brume parfumée, gel douche et crème corps Sol de Janeiro : le trio qui sent les vacances, sur un lit de roses, avec ses surprises.", composition: [SOL, ROSES, SURPRISE], price: 7000, category: "evasion", featured: true },
   { slug: "la-nomade", name: "La Nomade", subtitle: "Deux diffuseurs de parfum pour la voiture", description: "Deux diffuseurs de parfum pour la voiture, inspirés des grandes maisons, pour emporter ta bulle partout.", composition: [VOITURE, ROSES, SURPRISE], price: 6000, category: "nomade", featured: true },
   { slug: "duo-essentiel-30-ml", name: "Duo Essentiel 30 ML", subtitle: "Parfum KAYALI 30 ml et trio Sol de Janeiro", description: "Le parfum et les soins réunis : un flacon KAYALI 30 ml au choix et le trio Sol de Janeiro.", composition: [`${KAYALI} (30 ml)`, SOL, ROSES, SURPRISE], price: 10500, category: "duos", perfumeLinks: ["Ton parfum KAYALI"] },
-  { slug: "duo-essentiel-10-ml", name: "Duo Essentiel 10 ML", subtitle: "Parfum KAYALI 10 ml et trio Sol de Janeiro", description: "Le duo parfum et soins en format voyage : un flacon KAYALI 10 ml au choix et le trio Sol de Janeiro.", composition: [`${KAYALI} (10 ml)`, SOL, ROSES, SURPRISE], price: 8000, category: "duos", perfumeLinks: ["Ton parfum KAYALI"] },
-  { slug: "duo-nomade-30-ml", name: "Duo Nomade 30 ML", subtitle: "Parfum KAYALI 30 ml et diffuseurs voiture", description: "Ton parfum KAYALI 30 ml et deux diffuseurs pour la voiture : la même signature olfactive, partout.", composition: [`${KAYALI} (30 ml)`, VOITURE, ROSES, SURPRISE], price: 10000, category: "duos", perfumeLinks: ["Ton parfum KAYALI"] },
-  { slug: "duo-nomade-10-ml", name: "Duo Nomade 10 ML", subtitle: "Parfum KAYALI 10 ml et diffuseurs voiture", description: "Le duo nomade en format voyage : un flacon KAYALI 10 ml au choix et deux diffuseurs pour la voiture.", composition: [`${KAYALI} (10 ml)`, VOITURE, ROSES, SURPRISE], price: 7500, category: "duos", perfumeLinks: ["Ton parfum KAYALI"] },
+  { slug: "duo-essentiel-10-ml", name: "Duo Essentiel 10 ML", subtitle: "Parfum KAYALI 10 ml et trio Sol de Janeiro", description: "Le duo parfum et soins en format voyage : un flacon KAYALI 10 ml au choix et le trio Sol de Janeiro.", composition: [`${KAYALI} (10 ml)`, SOL, ROSES, SURPRISE], price: 8000, category: "duos", perfumeLinks: ["Ton parfum KAYALI"], photos: 2 },
+  { slug: "duo-nomade-30-ml", name: "Duo Nomade 30 ML", subtitle: "Parfum KAYALI 30 ml et diffuseurs voiture", description: "Ton parfum KAYALI 30 ml et deux diffuseurs pour la voiture : la même signature olfactive, partout.", composition: [`${KAYALI} (30 ml)`, VOITURE, ROSES, SURPRISE], price: 10000, category: "duos", perfumeLinks: ["Ton parfum KAYALI"], photos: 2 },
+  { slug: "duo-nomade-10-ml", name: "Duo Nomade 10 ML", subtitle: "Parfum KAYALI 10 ml et diffuseurs voiture", description: "Le duo nomade en format voyage : un flacon KAYALI 10 ml au choix et deux diffuseurs pour la voiture.", composition: [`${KAYALI} (10 ml)`, VOITURE, ROSES, SURPRISE], price: 7500, category: "duos", perfumeLinks: ["Ton parfum KAYALI"], photos: 2 },
   { slug: "duo-evasion", name: "Duo Évasion", subtitle: "Trio Sol de Janeiro et diffuseurs voiture", description: "Les soins Sol de Janeiro et deux diffuseurs pour la voiture : l'évasion à la maison comme sur la route.", composition: [SOL, VOITURE, ROSES, SURPRISE], price: 8000, category: "duos" },
   { slug: "l-ultime-30-ml", name: "L'Ultime 30 ML", subtitle: "Parfum, soins et voiture : tout dedans", description: "La box la plus complète : ton parfum KAYALI 30 ml, le trio Sol de Janeiro et deux diffuseurs pour la voiture. Le cadeau qui ne laisse rien au hasard.", composition: [`${KAYALI} (30 ml)`, SOL, VOITURE, ROSES, SURPRISE], price: 12500, category: "ultime", badge: "coup-de-coeur", featured: true, perfumeLinks: ["Ton parfum KAYALI"] },
   { slug: "l-ultime-10-ml", name: "L'Ultime 10 ML", subtitle: "La box complète, parfum en format voyage", description: "Tout L'Ultime avec un flacon KAYALI 10 ml : soins Sol de Janeiro, diffuseurs voiture, roses et surprises.", composition: [`${KAYALI} (10 ml)`, SOL, VOITURE, ROSES, SURPRISE], price: 10000, category: "ultime", perfumeLinks: ["Ton parfum KAYALI"] },
-  { slug: "chic-car-scent", name: "Chic Car Scent", subtitle: "Duo de diffuseurs voiture, mini sac et mini claquettes", description: "Deux diffuseurs de parfum pour la voiture, inspirés des grandes maisons de luxe : un mini sac et une paire de mini claquettes à suspendre au rétroviseur.", composition: ["Diffuseur voiture mini sac", "Diffuseur voiture mini claquettes"], price: 2500, category: "petits-plaisirs", badge: "nouveau" },
+  { slug: "chic-car-scent", name: "Chic Car Scent", subtitle: "Duo de diffuseurs voiture, mini sac et mini claquettes", description: "Deux diffuseurs de parfum pour la voiture, inspirés des grandes maisons de luxe : un mini sac et une paire de mini claquettes à suspendre au rétroviseur.", composition: ["Diffuseur voiture mini sac", "Diffuseur voiture mini claquettes"], price: 2500, category: "petits-plaisirs", badge: "nouveau", plain: true },
 ];
 
 const PERFUMES = ["Vanilla | 28", "Lovefest Burning Cherry | 48", "Yum Pistachio Gelato | 33", "Eden Juicy Apple | 01", "Sweet Diamond Pink Pepper | 25", "Déjà Vu White Flower | 57", "Utopia Vanilla Coco | 21", "Invite Only Amber | 23", "Musk | 12", "Elixir | 11"];
@@ -83,6 +90,7 @@ const SHIPPING: Omit<TablesInsert<"shop_shipping_methods">, "shop_id">[] = [
 const FAQ = [
   ["Quel est le délai de livraison ?", "Chaque box est préparée à la main après ta commande, sous 1 à 2 jours ouvrés, puis expédiée avec un numéro de suivi. Compte 2 à 3 jours ouvrés en Colissimo à domicile et 3 à 5 jours en point relais."],
   ["Puis-je choisir le parfum KAYALI ?", "Oui. Sur les box qui contiennent un flacon KAYALI, tu choisis ta fragrance dans la liste au moment d'ajouter la box au panier. La box Signature permet même deux parfums différents."],
+  ["Puis-je personnaliser ma box ?", "Oui. Sur chaque box, tu peux indiquer une lettre ou un chiffre au moment de l'ajouter au panier : ton initiale, celle de la personne à qui tu l'offres, un âge, un jour à retenir. Il est réalisé à la main sur la box."],
   ["C'est pour offrir : comment ça se passe ?", "Au moment de la commande, coche « C'est un cadeau », écris ton mot doux et indique l'adresse de la personne. Le mot est glissé dans la box, aucun prix n'apparaît dans le colis."],
   ["Quels sont les cadeaux surprise ?", "Ils changent à chaque box : accessoires beauté, petites douceurs, jolis objets. C'est la surprise qui fait le charme de l'ouverture."],
   ["Comment payer ?", "Par carte bancaire, Apple Pay ou Google Pay, via Stripe. Le paiement est entièrement sécurisé et aucune donnée bancaire n'est stockée sur le site."],
@@ -112,6 +120,7 @@ async function main() {
           "MyBox est née d'une envie simple : offrir, ou s'offrir, une vraie pause. Une boîte ronde qu'on ouvre comme un cadeau, des roses disposées une à une, des produits qu'on aime déjà et toujours une petite surprise en plus.\n\nChaque box est préparée à la main, avec des produits choisis : parfums KAYALI, soins Sol de Janeiro, diffuseurs pour la voiture. Le mot doux est recopié à la main et glissé dans la boîte.",
         free_shipping_threshold_cents: 10000,
         logo_url: "/shop/mybox/logo.png",
+        hero_image_url: "/shop/mybox/accueil.webp",
         // Image des liens partagés : celle qui représente déjà MyBox sur la
         // page de vente. Le logo rond ne prendrait pas bien dans un aperçu.
         share_image_url: "/shop/mybox/signature.webp",
@@ -132,7 +141,12 @@ async function main() {
       .single()
   );
 
-  const categories = must(await db.from("shop_categories").insert(CATEGORIES.map((c, i) => ({ ...c, shop_id: shop.id, sort_order: i + 1 }))).select("id, slug"));
+  const categories = must(
+    await db
+      .from("shop_categories")
+      .insert(CATEGORIES.map(({ image, ...c }, i) => ({ ...c, shop_id: shop.id, sort_order: i + 1, image_url: image ? IMAGE(image) : null, is_highlighted: Boolean(image) })))
+      .select("id, slug")
+  );
   const categoryId = new Map(categories.map((c) => [c.slug, c.id]));
 
   const group = must(await db.from("shop_option_groups").insert({ shop_id: shop.id, name: "Parfum KAYALI", description: "Fragrance choisie par la cliente pour le flacon KAYALI de sa box." }).select("id").single());
@@ -142,11 +156,12 @@ async function main() {
     const product = must(
       await db
         .from("shop_products")
-        .insert({ shop_id: shop.id, slug: p.slug, name: p.name, subtitle: p.subtitle, description: p.description, composition: p.composition, price_cents: p.price, category_id: categoryId.get(p.category) ?? null, is_featured: p.featured ?? false, badge: p.badge ?? null, sort_order: i + 1 })
+        .insert({ shop_id: shop.id, slug: p.slug, name: p.name, subtitle: p.subtitle, description: p.description, composition: p.composition, price_cents: p.price, category_id: categoryId.get(p.category) ?? null, is_featured: p.featured ?? false, badge: p.badge ?? null, sort_order: i + 1, personalization_label: p.plain ? null : PERSONALIZATION })
         .select("id")
         .single()
     );
-    check(await db.from("shop_product_images").insert({ product_id: product.id, url: IMAGE(p.slug), alt: `Box ${p.name}`, sort_order: 0 }));
+    const photos = Array.from({ length: p.photos ?? 1 }, (_, j) => ({ product_id: product.id, url: IMAGE(j === 0 ? p.slug : `${p.slug}-${j + 1}`), alt: `Box ${p.name}`, sort_order: j }));
+    check(await db.from("shop_product_images").insert(photos));
     if (p.perfumeLinks) {
       check(await db.from("shop_product_options").insert(p.perfumeLinks.map((label, j) => ({ shop_id: shop.id, product_id: product.id, group_id: group.id, label, is_required: true, sort_order: j }))));
     }

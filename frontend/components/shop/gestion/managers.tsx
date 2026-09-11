@@ -67,11 +67,11 @@ function ModalFooter({ onCancel, onSave, disabled }: { onCancel: () => void; onS
 
 export function CategoriesManager({ shopId, categories }: { shopId: string; categories: ShopCategory[] }) {
   const save = useSave();
-  const [editing, setEditing] = useState<{ id: string | null; name: string; slug: string; description: string; sortOrder: string; isActive: boolean } | null>(null);
+  const [editing, setEditing] = useState<{ id: string | null; name: string; slug: string; description: string; imageUrl: string; sortOrder: string; isActive: boolean; isHighlighted: boolean } | null>(null);
   const [deleting, setDeleting] = useState<ShopCategory | null>(null);
 
   return (
-    <Card title="Collections" description="Filtres du catalogue." action={<button type="button" onClick={() => setEditing({ id: null, name: "", slug: "", description: "", sortOrder: String(categories.length + 1), isActive: true })} className={secondaryButton}>+ Ajouter</button>}>
+    <Card title="Collections" description="Filtres du catalogue. Celles mises en avant s'affichent en rond sur l'accueil, avec leur photo." action={<button type="button" onClick={() => setEditing({ id: null, name: "", slug: "", description: "", imageUrl: "", sortOrder: String(categories.length + 1), isActive: true, isHighlighted: false })} className={secondaryButton}>+ Ajouter</button>}>
       <ul className="flex flex-col divide-y divide-hairline">
         {categories.length === 0 && <li className="py-2 text-sm text-muted">Aucune collection.</li>}
         {categories.map((c) => (
@@ -80,10 +80,11 @@ export function CategoriesManager({ shopId, categories }: { shopId: string; cate
               <span className="text-sm font-medium">
                 {c.name}
                 {!c.is_active && <span className="ml-2 text-[10px] uppercase text-faint">masquée</span>}
+                {c.is_highlighted && <span className="ml-2 text-[10px] uppercase text-ember-1">accueil</span>}
               </span>
               <span className="truncate text-xs text-faint">?collection={c.slug}</span>
             </span>
-            <RowActions onEdit={() => setEditing({ id: c.id, name: c.name, slug: c.slug, description: c.description ?? "", sortOrder: String(c.sort_order), isActive: c.is_active })} onDelete={() => setDeleting(c)} />
+            <RowActions onEdit={() => setEditing({ id: c.id, name: c.name, slug: c.slug, description: c.description ?? "", imageUrl: c.image_url ?? "", sortOrder: String(c.sort_order), isActive: c.is_active, isHighlighted: c.is_highlighted })} onDelete={() => setDeleting(c)} />
           </li>
         ))}
       </ul>
@@ -95,7 +96,7 @@ export function CategoriesManager({ shopId, categories }: { shopId: string; cate
             <ModalFooter
               onCancel={() => setEditing(null)}
               disabled={!editing.name.trim()}
-              onSave={() => save(() => api.saveCategory(shopId, editing.id, { name: editing.name.trim(), slug: slugify(editing.slug || editing.name), description: editing.description.trim() || null, sort_order: Number.parseInt(editing.sortOrder, 10) || 0, is_active: editing.isActive }), "Collection enregistrée", () => setEditing(null))}
+              onSave={() => save(() => api.saveCategory(shopId, editing.id, { name: editing.name.trim(), slug: slugify(editing.slug || editing.name), description: editing.description.trim() || null, image_url: editing.imageUrl.trim() || null, sort_order: Number.parseInt(editing.sortOrder, 10) || 0, is_active: editing.isActive, is_highlighted: editing.isHighlighted }), "Collection enregistrée", () => setEditing(null))}
             />
           }
         >
@@ -109,12 +110,18 @@ export function CategoriesManager({ shopId, categories }: { shopId: string; cate
             <Field label="Description">
               <input className={inputClass} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
             </Field>
+            <Field label="Photo (URL)" hint="Affichée en rond sur l'accueil quand la collection est mise en avant. Format carré ou portrait.">
+              <input className={inputClass} value={editing.imageUrl} onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })} />
+            </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Ordre">
                 <input className={inputClass} inputMode="numeric" value={editing.sortOrder} onChange={(e) => setEditing({ ...editing, sortOrder: e.target.value })} />
               </Field>
               <label className="flex items-end gap-3 pb-2 text-sm">
                 <Toggle checked={editing.isActive} onChange={(v) => setEditing({ ...editing, isActive: v })} label="Visible" /> Visible
+              </label>
+              <label className="col-span-2 flex items-center gap-3 text-sm">
+                <Toggle checked={editing.isHighlighted} onChange={(v) => setEditing({ ...editing, isHighlighted: v })} label="Mise en avant sur l'accueil" /> Mise en avant sur l&apos;accueil
               </label>
             </div>
           </div>

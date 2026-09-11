@@ -106,7 +106,7 @@ function CheckoutFormInner({ methods, freeShippingThreshold, initialEmail, payme
         customerNote: customerNote.trim() || null,
         discountCode: discount?.code ?? null,
         acceptTerms,
-        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, options: i.options.map((o) => ({ linkId: o.linkId, valueId: o.valueId })) })),
+        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, options: i.options.map((o) => ({ linkId: o.linkId, valueId: o.valueId })), personalization: i.personalization })),
       }),
     });
     const body = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
@@ -265,6 +265,7 @@ function CheckoutFormInner({ methods, freeShippingThreshold, initialEmail, payme
                     {o.label} : {o.value}
                   </span>
                 ))}
+                {item.personalization && <span className="text-xs text-shop-ink-soft">Personnalisation : {item.personalization}</span>}
                 <span className="text-xs text-shop-ink-soft">Quantité : {item.quantity}</span>
               </span>
               <span className="text-sm font-semibold">{formatPrice(itemUnitPrice(item) * item.quantity)}</span>

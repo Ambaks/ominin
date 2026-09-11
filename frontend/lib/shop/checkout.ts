@@ -67,6 +67,11 @@ async function priceItems(admin: Admin, shopId: string, items: CheckoutInput["it
       options.push({ label: link.label, value: value.label, price_delta_cents: value.price_delta_cents });
       delta += value.price_delta_cents;
     }
+    // La personnalisation rejoint les options figées : elle suit ainsi le
+    // récapitulatif, Stripe, les e-mails et le bon de préparation.
+    if (product.personalization_label && item.personalization) {
+      options.push({ label: product.personalization_label, value: item.personalization, price_delta_cents: 0 });
+    }
     product.shop_product_images.sort((a, b) => a.sort_order - b.sort_order);
     priced.push({ product, quantity: item.quantity, unitPriceCents: product.price_cents + delta, options });
   }

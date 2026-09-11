@@ -6,6 +6,82 @@ import { ButtonLink, HeartBullet, Multiline } from "./ui";
 
 /* Sections de la page d'accueil et des pages d'ambiance d'une boutique. */
 
+/**
+ * Haut de la page d'accueil : la photo de la boutique, sa signature en
+ * calligraphie et l'entrée du catalogue — l'univers avant les produits. Le
+ * texte se pose sur la photo, adouci par un voile teinté depuis la gauche.
+ */
+export function HeroBanner({ shop }: { shop: Shop }) {
+  const [start, ...rest] = (shop.tagline ?? shop.name).split(",");
+  const end = rest.join(",").trim();
+  return (
+    <section className="bg-shop-tint">
+      <div className="shop-container py-4 md:py-10">
+        <div className="relative flex min-h-[500px] items-center overflow-hidden rounded-[28px] bg-shop-tint-strong md:min-h-[600px] md:rounded-[36px]">
+          {shop.hero_image_url && <img src={shop.hero_image_url} alt="" className="absolute inset-0 size-full object-cover object-[70%_50%]" fetchPriority="high" />}
+          <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(90deg, var(--shop-tint) 0%, color-mix(in srgb, var(--shop-tint) 85%, transparent) 40%, transparent 80%)" }} />
+          <div className="relative flex max-w-[70%] flex-col gap-5 p-6 md:max-w-lg md:gap-7 md:p-14">
+            <p className="font-shop-script text-[40px] leading-[1.05] text-shop-accent-deep md:text-[64px]">
+              {start.trim()}
+              {end && (
+                <>
+                  ,<br />
+                  {end}
+                </>
+              )}
+            </p>
+            <HeartIcon className="size-6 text-shop-accent md:size-8" strokeWidth={1.6} />
+            {shop.hero_subtitle && <p className="hidden max-w-md text-lg leading-relaxed text-shop-ink-soft md:block">{shop.hero_subtitle}</p>}
+            <ButtonLink href={shopHref(shop.slug, "/boutique")} size="lg" className="w-fit">
+              Découvrir {shop.catalog_label.toLowerCase()}
+            </ButtonLink>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Les collections mises en avant, en pastilles rondes sous le haut de page. */
+export function CollectionTiles({ slug, title, categories }: { slug: string; title: string; categories: ShopCategory[] }) {
+  const base = shopHref(slug, "/boutique");
+  return (
+    <section className="shop-container flex flex-col items-center gap-7 py-12 md:gap-10 md:py-20">
+      <h2 className="text-3xl md:text-[40px]">{title}</h2>
+      <ul className="grid w-full max-w-3xl grid-cols-3 gap-4 md:gap-10">
+        {categories.map((c) => (
+          <li key={c.id}>
+            <Link href={`${base}?collection=${c.slug}`} className="group flex flex-col items-center gap-3 text-center md:gap-4">
+              <span className="relative aspect-square w-full overflow-hidden rounded-full border-4 border-shop-paper bg-shop-tint shop-shadow transition group-hover:shop-shadow-hover">
+                {c.image_url ? (
+                  <img src={c.image_url} alt="" className="size-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                ) : (
+                  <span className="flex size-full items-center justify-center text-shop-accent-soft">
+                    <GiftIcon className="size-10" strokeWidth={1.2} />
+                  </span>
+                )}
+              </span>
+              <span className="text-[13px] font-semibold text-shop-ink group-hover:text-shop-accent-deep md:font-shop-display md:text-2xl md:font-normal">{c.name}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Une phrase de la boutique, en calligraphie, entre deux sections. */
+export function QuoteBand({ text }: { text: string }) {
+  return (
+    <section className="shop-container pb-12 md:pb-20">
+      <p className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-3 text-center font-shop-script text-[32px] leading-tight text-shop-accent md:text-[46px]">
+        <span>« {text} »</span>
+        <HeartIcon className="size-5 shrink-0 md:size-7" strokeWidth={1.6} />
+      </p>
+    </section>
+  );
+}
+
 const REASSURANCE = [
   { icon: TruckIcon, title: "Livraison soignée", text: "Partout en France" },
   { icon: LockIcon, title: "Paiement sécurisé", text: "Par Stripe, carte ou Apple Pay" },
@@ -35,7 +111,7 @@ export function Reassurance({ compact }: { compact?: boolean }) {
 
 const STEPS = [
   { title: "Choisis ce qui te plaît", text: "Parcours le catalogue, compare, laisse-toi tenter : il y en a pour chaque envie et chaque budget." },
-  { title: "Personnalise", text: "Quand un article le propose, choisis ta variante (parfum, couleur, taille) directement sur la fiche." },
+  { title: "Personnalise", text: "Quand un article le propose, choisis ta variante (parfum, couleur, taille) et, pour certains, une lettre ou un chiffre rien qu'à toi." },
   { title: "Ajoute un mot doux", text: "Quelques lignes pour toi ou pour la personne à qui tu l'offres, glissées dans le colis." },
   { title: "On s'occupe du reste", text: "Ta commande est préparée à la main, emballée avec soin et expédiée avec un numéro de suivi." },
 ];

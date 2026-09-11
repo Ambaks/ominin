@@ -13,9 +13,10 @@ function Steps() {
     { label: "Paiement", state: "todo" },
   ] as const;
   return (
-    <ol className="flex items-center justify-center gap-4 text-xs font-medium md:gap-5">
+    <ol className="flex items-center justify-center gap-3 text-xs font-medium sm:gap-4 md:gap-5">
       {steps.map((step, i) => (
-        <li key={step.label} className="flex items-center gap-4 md:gap-5">
+        <li key={step.label} className="flex items-center gap-3 sm:gap-4 md:gap-5">
+          {/* Sur téléphone, seule l'étape en cours garde son libellé : les trois ne tiennent pas sur la largeur. */}
           <span className={`flex items-center gap-2.5 ${step.state === "todo" ? "text-shop-ink-mute" : step.state === "done" ? "text-shop-ink-soft" : "text-shop-ink"}`}>
             <span
               className={`flex size-[26px] items-center justify-center rounded-full text-[11px] font-semibold ${
@@ -24,9 +25,9 @@ function Steps() {
             >
               {step.state === "done" ? <CheckIcon className="size-3.5" strokeWidth={2.4} /> : i + 1}
             </span>
-            {step.label}
+            <span className={step.state === "current" ? "" : "hidden sm:inline"}>{step.label}</span>
           </span>
-          {i < steps.length - 1 && <span className={`h-px w-10 md:w-14 ${step.state === "done" ? "bg-shop-accent-soft" : "bg-shop-line"}`} aria-hidden />}
+          {i < steps.length - 1 && <span className={`h-px w-6 sm:w-10 md:w-14 ${step.state === "done" ? "bg-shop-accent-soft" : "bg-shop-line"}`} aria-hidden />}
         </li>
       ))}
     </ol>

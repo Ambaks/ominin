@@ -6,6 +6,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
+import { PERSONALIZATION_MAX_LENGTH } from "@/lib/shop/constants";
 import { centsToEurosInput, eurosToCents, slugify } from "@/lib/shop/format";
 import * as api from "@/lib/shop/gestion-api";
 import type { OptionGroupWithValues, ProductDetail, ShopCategory, ShopProductBadge } from "@/lib/shop/types";
@@ -39,6 +40,7 @@ export function ProductForm({ shopId, product, categories, optionGroups }: { sho
   const [badge, setBadge] = useState<ShopProductBadge | "">(product?.badge ?? "");
   const [stock, setStock] = useState(product?.stock != null ? String(product.stock) : "");
   const [sortOrder, setSortOrder] = useState(String(product?.sort_order ?? 0));
+  const [personalizationLabel, setPersonalizationLabel] = useState(product?.personalization_label ?? "");
   const [seoTitle, setSeoTitle] = useState(product?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(product?.seo_description ?? "");
   const [images, setImages] = useState<UploadedImage[]>((product?.shop_product_images ?? []).map((i) => ({ url: i.url, alt: i.alt })));
@@ -70,6 +72,7 @@ export function ProductForm({ shopId, product, categories, optionGroups }: { sho
           badge: badge || null,
           stock: stock.trim() ? Number.parseInt(stock, 10) : null,
           sort_order: Number.parseInt(sortOrder, 10) || 0,
+          personalization_label: personalizationLabel.trim() || null,
           seo_title: seoTitle.trim() || null,
           seo_description: seoDescription.trim() || null,
         },
@@ -172,6 +175,12 @@ export function ProductForm({ shopId, product, categories, optionGroups }: { sho
               </div>
             ))}
           </div>
+        </Card>
+
+        <Card title="Personnalisation" description={`Un champ libre de ${PERSONALIZATION_MAX_LENGTH} caractères au plus (une initiale, un âge) proposé à l'ajout au panier. Vide : pas de personnalisation.`}>
+          <Field label="Libellé du champ" hint="Par exemple « Lettre ou chiffre sur la box ».">
+            <input className={inputClass} value={personalizationLabel} onChange={(e) => setPersonalizationLabel(e.target.value)} maxLength={80} />
+          </Field>
         </Card>
 
         <Card title="Référencement" description="Titre et description affichés dans Google (optionnel).">

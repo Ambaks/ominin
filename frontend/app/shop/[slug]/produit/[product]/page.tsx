@@ -63,7 +63,7 @@ export default async function ProductPage({ params }: PageProps<"/shop/[slug]/pr
 
       <section className="shop-container grid gap-10 py-8 md:grid-cols-[1.05fr_1fr] md:gap-16 md:py-10 lg:gap-[72px]">
         <ProductGallery images={product.shop_product_images} name={product.name} badge={product.badge} />
-        <div className="flex flex-col gap-6 md:pt-2">
+        <div className="flex min-w-0 flex-col gap-6 md:pt-2">
           <div className="flex flex-col gap-3">
             {product.shop_categories && <span className="shop-kicker">{product.shop_categories.name}</span>}
             <h1 className="text-4xl md:text-[46px]">{product.name}</h1>

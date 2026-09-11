@@ -1,4 +1,4 @@
-import { CART_MAX_QUANTITY } from "./constants";
+import { CART_MAX_QUANTITY, PERSONALIZATION_MAX_LENGTH } from "./constants";
 
 /*
  * Validation des corps de requête des routes /api/shop. Chaque fonction
@@ -78,6 +78,13 @@ export interface CheckoutItemInput {
   productId: string;
   quantity: number;
   options: { linkId: string; valueId: string }[];
+  personalization: string | null;
+}
+
+/** Lettre ou chiffre gravé sur l'article : court, sans mise en forme, en capitales. */
+export function parsePersonalization(value: unknown): string | null | undefined {
+  const text = optionalText(value, PERSONALIZATION_MAX_LENGTH);
+  return text ? text.replace(/\s+/g, " ").toUpperCase() : text;
 }
 
 export interface CheckoutInput {
@@ -149,7 +156,9 @@ export function parseCheckout(body: unknown): Parsed<CheckoutInput> {
       }
       options.push({ linkId: opt.linkId, valueId: opt.valueId });
     }
-    items.push({ productId, quantity, options });
+    const personalization = parsePersonalization(i.personalization);
+    if (personalization === undefined) return fail(`La personnalisation est limitée à ${PERSONALIZATION_MAX_LENGTH} caractères.`);
+    items.push({ productId, quantity, options, personalization });
   }
 
   return {

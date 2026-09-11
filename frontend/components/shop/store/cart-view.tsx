@@ -54,6 +54,11 @@ export function CartView({ freeShippingThreshold }: { freeShippingThreshold: num
                       {o.label} : <span className="text-shop-ink">{o.value}</span>
                     </span>
                   ))}
+                  {item.personalization && (
+                    <span className="text-xs text-shop-ink-soft">
+                      Personnalisation : <span className="text-shop-ink">{item.personalization}</span>
+                    </span>
+                  )}
                 </div>
                 <span className="whitespace-nowrap text-[15px] font-semibold text-shop-ink">{formatPrice(itemUnitPrice(item) * item.quantity)}</span>
               </div>

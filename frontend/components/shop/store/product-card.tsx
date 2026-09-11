@@ -32,7 +32,7 @@ export function ProductCard({ slug, product, priority }: { slug: string; product
           Découvrir
         </span>
       </div>
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
         <span className="font-shop-display text-xl text-shop-ink group-hover:text-shop-accent-deep">{product.name}</span>
         <Price cents={product.price_cents} compareAtCents={product.compare_at_price_cents} />
       </div>

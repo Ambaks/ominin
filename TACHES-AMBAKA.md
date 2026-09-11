@@ -5,6 +5,47 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
+## 0. MyBox : photos, accueil, personnalisation (2026-09-11, branche `ShopMyBox`)
+
+Deux migrations. La première ajoute des colonnes facultatives, sans effet
+tant qu'elles sont vides ; la seconde règle MyBox nommément (photo d'accueil,
+trois collections mises en avant, personnalisation sur toutes les box sauf
+le duo de diffuseurs, secondes photos, question de FAQ). Les photos, elles,
+partent avec le déploiement du front : mêmes chemins qu'avant, rien à
+téléverser.
+
+- [ ] **Fusionner `ShopMyBox` dans `main`** après relecture.
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260911000005_shop_accueil_personnalisation.sql` puis
+      `20260911000006_mybox_reglages.sql`. L'ordre compte. La seconde est
+      rejouable : elle vérifie chaque insertion avant d'écrire.
+- [ ] **Vérifier l'accueil** sur `shop.ominin.com/mybox`, téléphone et
+      ordinateur : grande photo avec « Petites attentions, grands bonheurs »
+      et le bouton « Découvrir nos box » ; dessous, trois pastilles rondes
+      L'Essentiel / L'Évasion / Petits plaisirs ; puis l'accroche en
+      citation. Tant que la migration n'est pas passée, le haut de page
+      reste un bloc rose sans photo ni pastilles : c'est attendu.
+- [ ] **Arbitrer les trois pastilles avec la gérante.** Sa maquette disait
+      *Beauté / Bien-être / Surprises* ; les collections existantes s'en
+      rapprochent au mieux. Pour changer un libellé ou une photo :
+      Gestion → Produits → Collections → crayon (champ « Photo (URL) »,
+      case « Mise en avant sur l'accueil »). La photo d'accueil se change
+      dans Gestion → Boutique → « Photo d'accueil (URL) ».
+- [ ] **Vérifier la personnalisation** : sur une fiche de box, le champ
+      « Lettre ou chiffre sur la box » (3 caractères, mis en capitales)
+      doit suivre jusqu'au panier, à la commande, dans l'e-mail de
+      confirmation et sur le bon de préparation, sur la ligne de l'article.
+      Le libellé se règle par produit dans Gestion → Produits → fiche →
+      carte « Personnalisation » (vide = pas de champ).
+- [ ] **Vérifier sur un téléphone** que la fiche produit ne déborde plus
+      sur la droite et que les trois étapes du tunnel de commande tiennent
+      dans la largeur.
+- [ ] **Espace de gestion sur téléphone** : non audité (connexion requise
+      depuis l'outil de capture). À parcourir une fois : Produits,
+      Commandes, fiche de commande.
+- [ ] **Graphe de connaissance** : `graphify update .` puis commiter
+      `graphify-out/` — graphify n'est toujours pas installé ici.
+
 ## 1. Étapes du service et équipe sans comptes (2026-09-10)
 
 Deux migrations, et rien à cocher : les réglages du BOHO sont posés par la

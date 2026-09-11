@@ -98,6 +98,8 @@ export interface CartItem {
   unitPriceCents: number;
   quantity: number;
   options: CartOption[];
+  /** Lettre ou chiffre saisi par la cliente, si le produit le propose. */
+  personalization: string | null;
 }
 
 /** Membre connecté et sa boutique, tels que les pages de gestion les reçoivent. */

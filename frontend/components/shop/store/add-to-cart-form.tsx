@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/shop/cart";
-import { CART_MAX_QUANTITY } from "@/lib/shop/constants";
+import { CART_MAX_QUANTITY, PERSONALIZATION_MAX_LENGTH } from "@/lib/shop/constants";
 import { formatPrice } from "@/lib/shop/format";
 import type { CartOption, ProductDetail } from "@/lib/shop/types";
 import { BagIcon, MinusIcon, PlusIcon } from "../icons";
 import { useShop } from "./context";
 import { shopHref } from "./href";
 import { useShopToast } from "./toast";
-import { Button, Field, Select, Textarea } from "./ui";
+import { Button, Field, Input, Select, Textarea } from "./ui";
 
 export function QuantityStepper({ value, onChange, min = 1, max = CART_MAX_QUANTITY, size = "md" }: { value: number; onChange: (v: number) => void; min?: number; max?: number; size?: "sm" | "md" }) {
   const h = size === "md" ? "h-[54px] w-[140px]" : "h-11 w-[116px]";
@@ -37,6 +37,7 @@ export function AddToCartForm({ product }: { product: ProductDetail }) {
   const toast = useShopToast();
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<Record<string, string>>({});
+  const [personalization, setPersonalization] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +63,7 @@ export function AddToCartForm({ product }: { product: ProductDetail }) {
       return;
     }
     setError(null);
+    const engraved = product.personalization_label ? personalization.trim().toUpperCase() || null : null;
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -70,10 +72,13 @@ export function AddToCartForm({ product }: { product: ProductDetail }) {
       unitPriceCents: product.price_cents,
       quantity,
       options: chosen,
+      personalization: engraved,
     });
     if (note.trim()) setGiftMessage(note.trim());
+    const details = chosen.map((o) => `${o.label} : ${o.value}`);
+    if (engraved) details.push(`${product.personalization_label} : ${engraved}`);
     toast.show(`${product.name} ajouté au panier`, {
-      detail: chosen.map((o) => `${o.label} : ${o.value}`).join(" · ") || undefined,
+      detail: details.join(" · ") || undefined,
       action: { label: "Voir le panier", onClick: () => router.push(shopHref(slug, "/panier")) },
     });
   };
@@ -97,6 +102,12 @@ export function AddToCartForm({ product }: { product: ProductDetail }) {
         );
       })}
 
+      {product.personalization_label && (
+        <Field label={product.personalization_label} htmlFor="personalization" optional hint={`Ton initiale, un âge, un jour à retenir : ${PERSONALIZATION_MAX_LENGTH} caractères au plus.`}>
+          <Input id="personalization" value={personalization} onChange={(e) => setPersonalization(e.target.value)} maxLength={PERSONALIZATION_MAX_LENGTH} autoComplete="off" autoCapitalize="characters" placeholder="M" className="max-w-32 text-center font-shop-display text-xl uppercase tracking-[0.2em]" />
+        </Field>
+      )}
+
       <Field label="Un mot doux" htmlFor="note" optional hint="Il sera glissé dans le colis, sans aucun prix apparent. Tu pourras le modifier à l'étape de commande.">
         <Textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Pour toi, parce que tu le mérites…" className="min-h-[84px]" maxLength={300} />
       </Field>
@@ -107,9 +118,10 @@ export function AddToCartForm({ product }: { product: ProductDetail }) {
         </p>
       )}
 
-      <div className="flex items-center gap-3.5">
+      {/* Le bouton passe sous le compteur quand la ligne est trop étroite (téléphones) : insécable, il élargirait toute la page. */}
+      <div className="flex flex-wrap items-center gap-3.5">
         <QuantityStepper value={quantity} onChange={setQuantity} max={Math.max(1, maxQty)} />
-        <Button size="lg" className="flex-1" onClick={handleAdd} disabled={soldOut}>
+        <Button size="lg" className="min-w-[240px] flex-1" onClick={handleAdd} disabled={soldOut}>
           <BagIcon className="size-[18px]" />
           {soldOut ? "Épuisé pour le moment" : `Ajouter au panier · ${formatPrice(unitPrice * quantity)}`}
         </Button>
