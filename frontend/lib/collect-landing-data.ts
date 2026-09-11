@@ -8,17 +8,24 @@ import { collectSiteUrl } from "@/lib/site";
  * PAS redéfinis — collectOffer (lib/landing-data.ts) reste la source de
  * vérité du tarif d'abonnement Stripe.
  *
- * Positionnement : l'alternative aux plateformes de livraison. Chiffres
- * vérifiés (grilles publiques 2026) : les plateformes prélèvent jusqu'à
- * 25–30 % par commande livrée en France (hors TVA sur commission et hors
- * options payantes) ; leur retrait en boutique tourne autour de 7–12 %,
+ * Positionnement : le click & collect règle d'abord un problème de comptoir
+ * — le téléphone qui sonne pendant le coup de feu (pizzeria), le gros gâteau
+ * réservé sur un bout de papier (boulangerie-pâtisserie), les commandes à
+ * noter entre deux clients — et seulement ensuite un problème de marge face
+ * aux plateformes de livraison. L'offre comprend la refonte du site web de
+ * l'établissement, la commande intégrée. Les deux entrées de commande (site
+ * web pour les clients, saisie par l'équipe pour le comptoir et le
+ * téléphone) sont présentées comme les deux volets de l'offre.
+ *
+ * Chiffres vérifiés (grilles publiques 2026) : les plateformes prélèvent
+ * jusqu'à 25–30 % par commande livrée en France (hors TVA sur commission et
+ * hors options payantes) ; leur retrait en boutique tourne autour de 7–12 %,
  * mais laisse le client dans leur app. Notre copy dit « jusqu'à 30 % » en
  * visant la livraison — ne pas durcir la formulation sans re-vérifier.
  *
  * La page est servie sur deux hôtes (collect.ominin.com et ominin.com/collect,
  * réécriture du proxy) : les liens de section sont des ancres, les CTA de
- * conversion sont absolus vers ominin.com — il n'existe pas de /login sous
- * le sous-domaine collect.
+ * conversion sont absolus vers le sous-domaine.
  */
 
 export const collectBrand = "Ominin Collect";
@@ -37,16 +44,16 @@ export const signupCta: Cta = {
 export const signinHref = `${collectSiteUrl}/connexion`;
 
 export const seo = {
-  title: "Ominin Collect — Le click & collect à 10 %, pas 30",
+  title: "Ominin Collect — Vos commandes à emporter en ligne, sans décrocher",
   description:
-    "L'alternative aux plateformes de livraison : votre page de commande à emporter, à votre nom. 10 % par commande et 100 € par mois — contre jusqu'à 30 % prélevés par les plateformes. Vos clients restent les vôtres.",
+    "Click & collect à votre nom pour pizzerias, boulangeries-pâtisseries, traiteurs et restaurants : vos clients commandent et payent sur votre site, pour tout de suite ou pour un autre jour. Site web inclus. 10 % par commande et 100 € par mois, là où les plateformes prélèvent jusqu'à 30 %.",
 };
 
 export const nav = {
   links: [
+    { label: "Pour qui", href: "#pour-qui" },
     { label: "Démo", href: "#demo" },
     { label: "Comparatif", href: "#comparatif" },
-    { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
   ] satisfies NavLink[],
@@ -55,17 +62,17 @@ export const nav = {
 };
 
 export const hero = {
-  eyebrow: "Click & collect · 10 % par commande · 100 €/mois",
-  titleStart: "Eux prennent 30 %.",
-  titleAccent: "Nous, 10.",
+  eyebrow: "Click & collect · Site web inclus · 10 % par commande",
+  titleStart: "Vos commandes à emporter,",
+  titleAccent: "sans décrocher.",
   subtitle:
-    "Les plateformes de livraison prélèvent jusqu'à 30 % de chaque commande — et gardent vos clients dans leur app. Ominin Collect met l'emporter à votre nom : vos clients commandent et payent sur votre page, vous encaissez, ils passent récupérer. 10 % par commande, 100 € par mois, point.",
+    "Le téléphone qui sonne en plein coup de feu, le gâteau réservé sur un bout de papier, la plateforme qui prélève jusqu'à 30 % : Ominin Collect met la commande sur votre site, à votre nom. Vos clients composent, payent et choisissent quand ils passent — tout de suite ou un autre jour. La commande arrive en cuisine, vous préparez.",
   primaryCta: { label: "Essayer la démo", href: "#demo" } satisfies Cta,
-  secondaryCta: { label: "Voir le comparatif", href: "#comparatif" } satisfies Cta,
+  secondaryCta: { label: "Pour qui ?", href: "#pour-qui" } satisfies Cta,
   trustline: [
+    "Site web à votre nom, refait par nous",
+    "Retrait tout de suite ou un autre jour",
     "10 % par commande — pas 30",
-    "100 €/mois, sans engagement",
-    "Vos clients restent les vôtres",
   ],
 };
 
@@ -83,6 +90,77 @@ export const heroShowcase = {
   readyChip: {
     title: "Client prévenu",
     detail: "Prête vers 12:25 · Itinéraire",
+  },
+};
+
+/*
+ * À qui ça sert : trois métiers, chacun avec le problème tel qu'il se vit
+ * au comptoir et ce que la commande en ligne y change. La plateforme de
+ * livraison n'est que le troisième cas.
+ */
+export const useCasesSection = {
+  id: "pour-qui",
+  eyebrow: "Pour qui",
+  title: "Plus qu'une alternative aux plateformes.",
+  subtitle:
+    "La livraison à 30 % n'est qu'une partie du problème. Le reste se joue au comptoir : le téléphone, les bouts de papier, les commandes prises entre deux clients.",
+  problemLabel: "Le problème",
+  solutionLabel: "Avec Ominin Collect",
+  items: [
+    {
+      kicker: "Pizzeria · Restauration rapide",
+      title: "Le téléphone sonne pendant le coup de feu",
+      problem:
+        "Une main sur le four, l'autre sur le combiné : on note mal, on fait répéter, on perd la commande suivante — et parfois le client au bout du fil.",
+      solution:
+        "Vos clients commandent sur votre site, payent, choisissent leur heure. La commande tombe en cuisine, prête à lancer. Le téléphone sonne moins, la file avance.",
+    },
+    {
+      kicker: "Boulangerie · Pâtisserie",
+      title: "Le gros gâteau réservé sur un bout de papier",
+      problem:
+        "Un fraisier pour huit samedi, quarante macarons pour dimanche : les réservations s'écrivent sur un carnet, un post-it, une conversation — et se perdent.",
+      solution:
+        "Vos clients réservent en ligne pour le jour qu'ils veulent, à l'avance, et payent à la commande. Tout est au même endroit : rien ne s'oublie, rien ne se prépare pour rien.",
+    },
+    {
+      kicker: "Restaurant · Traiteur",
+      title: "L'emporter qui rapporte aux plateformes",
+      problem:
+        "Chaque commande livrée par une plateforme lui laisse jusqu'à 30 % — et lui laisse aussi votre client, qui commande dans son app, à côté de vos concurrents.",
+      solution:
+        "Votre page de commande à votre nom, partagée sur Google, Instagram ou votre vitrine. 10 % par commande, et la relation client vous appartient.",
+    },
+  ],
+};
+
+/*
+ * Ce que comprend l'offre : les deux entrées de commande (le site pour les
+ * clients, l'espace de gestion pour ce qui se prend au comptoir ou au
+ * téléphone) et le site web, refait ou créé, la commande intégrée.
+ */
+export const modesSection = {
+  id: "dans-l-offre",
+  eyebrow: "Dans l'offre",
+  title: "La commande arrive par votre site — ou par votre comptoir.",
+  subtitle:
+    "Selon votre établissement, on met en place l'un, l'autre, ou les deux. Dans tous les cas, tout atterrit dans le même espace, sans papier.",
+  modes: [
+    {
+      label: "Click & collect externe",
+      title: "Vos clients commandent sur votre site",
+      body: "Pour tout de suite ou pour un autre jour. Ils composent, choisissent leur créneau, payent par carte. Vous n'avez rien à ressaisir.",
+    },
+    {
+      label: "Click & collect interne",
+      title: "Votre équipe note ce qui se prend au comptoir ou au téléphone",
+      body: "La réservation d'un gâteau, la commande d'un habitué : saisies dans le même espace que les commandes du site, avec le nom, le jour et l'heure de retrait. Fini le carnet.",
+    },
+  ],
+  website: {
+    label: "Site web inclus",
+    title: "Votre site, refait par nous, la commande intégrée",
+    body: "Pas de lien vers une plateforme : la commande vit sur votre propre site, à votre nom et à vos couleurs. S'il date, on le refait ; s'il n'existe pas, on le crée — c'est compris dans l'offre.",
   },
 };
 
@@ -139,14 +217,14 @@ export const howItWorks = {
   title: "De la commande au retrait, sans un coup de fil.",
   steps: [
     {
-      title: "Votre client ouvre votre page",
+      title: "Votre client ouvre votre site",
       description:
         "Un lien à votre nom, à partager sur Google, Instagram ou votre vitrine. Pas d'app de plateforme entre vous et lui.",
     },
     {
       title: "Il commande et paye en ligne",
       description:
-        "Plats, options, heure de retrait : il compose sa commande et règle par carte. Vous êtes payé avant de lancer la cuisine.",
+        "Plats, options, jour et heure de retrait — pour ce midi ou pour samedi. Il règle par carte : vous êtes payé avant de lancer la préparation.",
     },
     {
       title: "Vous acceptez et annoncez un délai",
@@ -164,9 +242,9 @@ export const howItWorks = {
 export const featuresSection = {
   id: "fonctionnalites",
   eyebrow: "Fonctionnalités",
-  title: "Pensé pour vos marges.",
+  title: "Pensé pour vos marges — et pour votre comptoir.",
   subtitle:
-    "L'emporter rapporte — à condition de ne pas reverser jusqu'à 30 % de chaque commande à une plateforme de livraison qui, en plus, garde vos clients.",
+    "L'emporter rapporte, à condition de ne pas reverser jusqu'à 30 % de chaque commande à une plateforme qui garde vos clients — ni de perdre des commandes au téléphone.",
   features: [
     {
       stat: "3×",
@@ -178,13 +256,13 @@ export const featuresSection = {
       stat: "Prépayé",
       title: "Fini les commandes fantômes",
       description:
-        "Le paiement précède la cuisine : plus de plats préparés pour rien, plus d'impayés au comptoir.",
+        "Le paiement précède la cuisine : plus de plats préparés pour rien, plus de gâteau réservé qu'on ne vient pas chercher, plus d'impayés au comptoir.",
     },
     {
       stat: "À vous",
       title: "Vos clients restent les vôtres",
       description:
-        "La commande passe par votre page, à votre nom — pas dans l'app d'une plateforme qui possède la relation et vous met en concurrence à chaque écran.",
+        "La commande passe par votre site, à votre nom — pas dans l'app d'une plateforme qui possède la relation et vous met en concurrence à chaque écran.",
     },
   ] satisfies Feature[],
 };
@@ -194,7 +272,7 @@ export const pricingSection = {
   eyebrow: "Tarif",
   title: "10 % par commande. 100 € par mois.",
   subtitle:
-    "Pas de grille opaque, pas de paliers : un abonnement fixe, une commission claire — trois fois moins que la livraison. Ou le service complet avec Connect.",
+    "Pas de grille opaque, pas de paliers : un abonnement fixe, une commission claire — trois fois moins que la livraison — et votre site web compris. Ou le service complet avec Connect.",
   perMonth: "/mois",
   commissionLabel: "+ 10 % par commande",
   /** Le bundle inclut aussi le service à table (sans commission) : la
@@ -212,6 +290,7 @@ export const pricingSection = {
   guarantees: [
     "Sans engagement",
     "10 % par commande — pas 30",
+    "Site web inclus",
     "Réponse sous 24 h",
   ],
   // Prix et features rendus depuis collectOffer — jamais redéfinis ici.
@@ -224,9 +303,29 @@ export const faqSection = {
   title: "Questions fréquentes.",
   items: [
     {
+      question: "Mes clients peuvent-ils commander pour un autre jour ?",
+      answer:
+        "Oui. À la commande, ils choisissent « dès que possible », une heure aujourd'hui, ou un autre jour et une heure — pour ce soir comme pour samedi prochain. La commande s'affiche dans votre espace avec sa date, et vous la préparez au bon moment.",
+    },
+    {
+      question: "Nous sommes une boulangerie-pâtisserie, pas un restaurant. Ça marche ?",
+      answer:
+        "C'est même l'un des cas où ça change le plus : les réservations de gâteaux et de grosses quantités arrivent en ligne, payées, avec le jour de retrait — plus rien sur un bout de papier. Votre catalogue se gère comme une carte : produits, options, quantités.",
+    },
+    {
+      question: "Peut-on aussi noter les commandes prises au comptoir ou au téléphone ?",
+      answer:
+        "C'est le click & collect interne : votre équipe saisit la commande dans le même espace que celles du site — nom, téléphone, jour et heure de retrait. Une seule liste, sans carnet. On le met en place avec vous selon votre organisation.",
+    },
+    {
+      question: "Vous refaites vraiment notre site web ?",
+      answer:
+        "Oui, c'est compris dans l'offre. Votre page de commande n'est pas un lien vers une plateforme : elle vit sur votre propre site, à votre nom et à vos couleurs. Si votre site date, on le refait ; s'il n'existe pas, on le crée.",
+    },
+    {
       question: "Quelle différence avec Uber Eats ou Deliveroo ?",
       answer:
-        "Sur une commande livrée, les plateformes prélèvent jusqu'à 25–30 % (hors TVA sur la commission et options payantes) — et le client commande dans leur app, à côté de vos concurrents. Ici, la commande passe par votre page, à votre nom : 10 % par commande, 100 € par mois, et la relation client vous appartient.",
+        "Sur une commande livrée, les plateformes prélèvent jusqu'à 25–30 % (hors TVA sur la commission et options payantes) — et le client commande dans leur app, à côté de vos concurrents. Ici, la commande passe par votre site, à votre nom : 10 % par commande, 100 € par mois, et la relation client vous appartient.",
     },
     {
       question: "Pourquoi une commission de 10 % ?",
@@ -268,16 +367,16 @@ export const faqSection = {
 
 export const finalCta = {
   id: "contact",
-  title: "Prêt à reprendre vos marges ?",
+  title: "Prêt à reprendre vos commandes en main ?",
   subtitle:
-    "Créez votre compte, ou écrivez-nous : votre page peut être en ligne en 48 heures — et chaque commande vous coûte trois fois moins qu'en livraison.",
+    "Créez votre compte, ou écrivez-nous : votre page peut être en ligne en 48 heures, votre site refait dans la foulée — et chaque commande vous coûte trois fois moins qu'en livraison.",
   contactLabel: "Nous écrire",
-  microcopy: ["10 % par commande — pas 30", "Réponse sous 24 h"],
+  microcopy: ["10 % par commande — pas 30", "Site web inclus", "Réponse sous 24 h"],
 };
 
 export const footer = {
   tagline:
-    "Le click & collect à 10 % — l'alternative aux plateformes de livraison, pour des restaurants qui gardent leurs marges et leurs clients.",
+    "Le click & collect à votre nom — pour des pizzerias, des pâtisseries et des restaurants qui gardent leurs marges, leurs clients et leur téléphone libre.",
   customerNotice:
     "Vous cherchez à commander ? Utilisez le lien communiqué par votre restaurant.",
 };

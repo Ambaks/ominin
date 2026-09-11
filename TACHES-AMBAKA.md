@@ -5,7 +5,46 @@ des dashboards (Supabase, Vercel) ou sur ta machine. Tant qu'elles ne sont pas
 faites, les fonctionnalités correspondantes restent inertes en production — le
 code, lui, est en place.
 
-## 0. MyBox : photos, accueil, personnalisation (2026-09-11, branche `ShopMyBox`)
+## 0. Portail, landing Shop et landing Collect (2026-09-11, branche `ominingeneral`)
+
+Une migration (une colonne avec défaut) et trois pages publiques. **Sans la
+migration, les deux formulaires de contact (ominin.com/sur-mesure et
+shop.ominin.com) répondent 500** : la route écrit désormais `source`.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260912000005_contact_requests_source.sql` (après les deux migrations
+      MyBox encore en attente, § 1). À faire **avant** de déployer la branche.
+- [ ] **Fusionner `ominingeneral` dans `main`** après relecture. La branche
+      contient déjà `main` au 2026-09-11 (tarifs planifiés, paiement mixte)
+      et tout `ShopMyBox`.
+- [ ] **Vérifier ominin.com** : cinq cubes ; le troisième, « Ominin Shop »,
+      ouvre shop.ominin.com ; le dernier, « Sur mesure », est à l'horizontale
+      sur ordinateur.
+- [ ] **Tester le formulaire de shop.ominin.com** depuis un téléphone :
+      envoyer un message ; il doit arriver sur `CONTACT_NOTIFY_TO` avec le
+      sujet « Ominin Shop — <nom> » et laisser une ligne dans
+      `contact_requests` avec `source = 'shop'`. Refaire l'envoi depuis
+      ominin.com/sur-mesure (sujet « Sur mesure — … », `source = 'sur-mesure'`).
+- [ ] **Donner à la gérante de MyBox le lien à partager** :
+      `https://shop.ominin.com` (pas `/mybox`, qui est sa boutique). Les
+      demandes qu'elle amène se reconnaissent au sujet « Ominin Shop ».
+- [ ] **Décider pour le click & collect interne** (Collect). La landing dit
+      que l'équipe peut saisir une commande à emporter prise au comptoir ou
+      au téléphone (nom, jour et heure de retrait). Ça n'existe pas encore
+      dans l'espace de gestion : le « + » de Commandes crée une commande sur
+      place. Soit on le construit avant de signer une boulangerie, soit on
+      retire le volet interne de `frontend/lib/collect-landing-data.ts`
+      (`modesSection.modes[1]`, la question de FAQ « Peut-on aussi noter… »
+      et « ou par votre comptoir » dans le titre de la section).
+- [ ] **Vérifier le retrait à une autre date** sur une page de commande
+      réelle : « Un autre jour » + date + heure, payer, puis contrôler que la
+      carte cuisine affiche « Retrait : 13 sept., 10:30 » (la date n'apparaît
+      que si ce n'est pas aujourd'hui).
+- [ ] **Facultatif** : liens WhatsApp et Instagram sur la landing Shop pour
+      les questions rapides. Il faut un numéro et un compte, donc deux
+      variables d'environnement à décider avant de coder.
+
+## 1. MyBox : photos, accueil, personnalisation (2026-09-11, branche `ShopMyBox`)
 
 Deux migrations. La première ajoute des colonnes facultatives, sans effet
 tant qu'elles sont vides ; la seconde règle MyBox nommément (photo d'accueil,
@@ -46,7 +85,7 @@ téléverser.
 - [ ] **Graphe de connaissance** : `graphify update .` puis commiter
       `graphify-out/` — graphify n'est toujours pas installé ici.
 
-## 1. Étapes du service et équipe sans comptes (2026-09-10)
+## 2. Étapes du service et équipe sans comptes (2026-09-10)
 
 Deux migrations, et rien à cocher : les réglages du BOHO sont posés par la
 seconde, qui le nomme. Les autres restaurants ne bougent pas — ils gardent
@@ -74,7 +113,7 @@ Pour régler un autre client plus tard, tout se fait sans SQL depuis
 `admin.ominin.com/capacites` : la carte « Étapes de l'onglet Commandes » y
 retire, rajoute et déplace les étapes, et les capacités se cochent au-dessus.
 
-## 2. Capacités par restaurant et gestes de salle (2026-09-10)
+## 3. Capacités par restaurant et gestes de salle (2026-09-10)
 
 Deux migrations, et rien d'autre : l'écran de réglage vit dans l'administration
 Ominin, il n'y a aucune variable d'environnement à poser. Tant que la migration
@@ -99,7 +138,7 @@ Aucun déploiement conjoint n'est nécessaire cette fois : le front sait vivre
 sans la table (l'offre décide seule), et la table sans le front (personne ne
 la lit). L'ordre n'a donc pas d'importance.
 
-## 3. Square, deuxième encaisseur du menu QR (2026-09-09)
+## 4. Square, deuxième encaisseur du menu QR (2026-09-09)
 
 Repris du message du commit `81b7218` pour que rien ne se perde : ce lot est
 d'Ambaka, ces étapes sont les siennes.
@@ -123,7 +162,7 @@ d'Ambaka, ces étapes sont les siennes.
       pas « Table 7 » du premier coup d'œil, le produit paraît cassé quelle que
       soit la qualité de l'intégration.
 
-## 4. Analytique du menu QR et tableau de bord client (2026-09-11)
+## 5. Analytique du menu QR et tableau de bord client (2026-09-11)
 
 Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
 
@@ -143,7 +182,7 @@ Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
       Les capacités à cocher, elles, vivent dans l'onglet **Capacités** de la
       section Clients.
 
-## 5. Commission des boutiques : poser le taux (2026-09-09)
+## 6. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout, il ne manque que la valeur. Elle
 n'est **pas** réglable depuis l'espace de la boutique (c'est le but), et il
@@ -165,7 +204,7 @@ n'existe pas d'écran Ominin pour la poser : elle se met à la main.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 6. Tablette de salle et serveurs sans compte (2026-09-09)
+## 7. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Une migration, à appliquer avec les autres. Elle **transforme le planning et
 les badgeages** : ils désignent désormais une fiche d'équipe et non plus un
@@ -198,7 +237,7 @@ compte. Les membres actuels sont repris automatiquement, rien n'est perdu.
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 7. Identité des boutiques : icône et aperçu de partage (2026-09-09)
+## 8. Identité des boutiques : icône et aperçu de partage (2026-09-09)
 
 Une seule migration, sans effet sur l'existant : elle ajoute une colonne
 facultative. À appliquer avec les autres.
@@ -218,7 +257,7 @@ facultative. À appliquer avec les autres.
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 8. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 9. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Deux migrations, une variable d'environnement. **Ordre à respecter** : la
 migration et le déploiement du front doivent tomber dans la même fenêtre —
@@ -258,7 +297,7 @@ en panne pour qui n'a pas encore le nouveau front.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 9. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 10. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Rien n'est partagé avec les
 restaurants : nouvelles tables `shop_*`, nouveau webhook Stripe, nouveau

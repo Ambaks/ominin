@@ -1,8 +1,10 @@
-import type { ContactPayload } from "./contact";
+import type { ContactPayload, ContactSource } from "./contact";
 
 /*
- * Notification e-mail des demandes « sur mesure » (route handlers uniquement —
- * la clé API ne doit jamais atteindre le client).
+ * Notification e-mail des demandes de contact (route handlers uniquement —
+ * la clé API ne doit jamais atteindre le client). Le sujet nomme la page
+ * d'origine : une demande venue de shop.ominin.com se reconnaît dans la boîte
+ * sans ouvrir l'e-mail.
  *
  * L'e-mail est le canal de travail, mais il n'est pas la trace : la demande
  * est déjà écrite en base quand cette fonction est appelée. Un échec d'envoi
@@ -38,22 +40,30 @@ const escapeHtml = (value: string) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+/** Libellé de la page d'origine, en tête de l'e-mail et dans son sujet. */
+const SOURCE_LABELS: Record<ContactSource, string> = {
+  "sur-mesure": "Sur mesure",
+  shop: "Ominin Shop",
+};
+
 export async function notifyContactRequest(
   payload: ContactPayload
 ): Promise<void> {
   const config = mailConfig();
   if (!config) return;
 
+  const origin = SOURCE_LABELS[payload.source];
   const company = payload.company || "—";
   const lines = [
     ["Nom", payload.name],
     ["E-mail", payload.email],
-    ["Commerce", company],
+    ["Commerce ou marque", company],
     ["Langue", payload.locale],
+    ["Page", origin],
   ];
 
   const html = [
-    `<h2>Nouvelle demande sur mesure</h2>`,
+    `<h2>Nouvelle demande — ${escapeHtml(origin)}</h2>`,
     "<ul>",
     ...lines.map(
       ([label, value]) =>
@@ -74,7 +84,7 @@ export async function notifyContactRequest(
       from: config.from,
       to: [config.to],
       reply_to: payload.email,
-      subject: `Sur mesure — ${payload.name}${
+      subject: `${origin} — ${payload.name}${
         payload.company ? ` (${payload.company})` : ""
       }`,
       html,

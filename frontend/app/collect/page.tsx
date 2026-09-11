@@ -7,8 +7,10 @@ import { CollectFinalCta } from "@/components/collect/landing/final-cta";
 import { CollectFooter } from "@/components/collect/landing/footer";
 import { CollectHero } from "@/components/collect/landing/hero";
 import { CollectHowItWorks } from "@/components/collect/landing/how-it-works";
+import { CollectModes } from "@/components/collect/landing/modes";
 import { CollectNav } from "@/components/collect/landing/nav";
 import { CollectPricing } from "@/components/collect/landing/pricing";
+import { CollectUseCases } from "@/components/collect/landing/use-cases";
 import { collectBrand, seo } from "@/lib/collect-landing-data";
 import { collectSiteUrl } from "@/lib/site";
 
@@ -35,14 +37,21 @@ export const metadata: Metadata = {
   },
 };
 
+/*
+ * Ordre : le besoin d'abord (à qui ça sert, ce que comprend l'offre), la
+ * démo pour le voir, le comparatif pour le chiffrer, puis le déroulé, les
+ * fonctionnalités, le tarif, l'appel et les objections.
+ */
 export default function CollectHome() {
   return (
     <>
       <CollectNav />
       <main>
         <CollectHero />
-        <CollectComparison />
+        <CollectUseCases />
+        <CollectModes />
         <CollectDemoShowcase />
+        <CollectComparison />
         <CollectHowItWorks />
         <CollectFeatures />
         <CollectPricing />

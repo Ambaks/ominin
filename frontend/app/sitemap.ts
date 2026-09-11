@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { clipSiteUrl, collectSiteUrl, menuSiteUrl, siteUrl } from "@/lib/site";
+import { clipSiteUrl, collectSiteUrl, menuSiteUrl, shopSiteUrl, siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 /*
@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: menuSiteUrl, changeFrequency: "weekly", priority: 0.9 },
     { url: collectSiteUrl, changeFrequency: "weekly", priority: 0.9 },
     { url: clipSiteUrl, changeFrequency: "weekly", priority: 0.9 },
+    { url: shopSiteUrl, changeFrequency: "weekly", priority: 0.9 },
   ];
 
   try {

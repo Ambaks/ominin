@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/footer.tsx": {
-    "mtime": 1789132240.2114234,
-    "seen": 1789132666.046574,
-    "ast_hash": "f585de1730164708474d4ca36dbdd4fd",
+    "mtime": 1788470192.591479,
+    "seen": 1789132113.644568,
+    "ast_hash": "0fb1084163b2d10f1b710144086ebad3",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/hero.tsx": {
@@ -522,9 +522,9 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/nav.tsx": {
-    "mtime": 1789132238.360875,
-    "seen": 1789132666.0467792,
-    "ast_hash": "b7cc55a68a73b07b6f38075efa4cdcaf",
+    "mtime": 1788470192.591479,
+    "seen": 1789132113.644572,
+    "ast_hash": "e4428b506f6a2086f8bcae5b57288f6b",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/pricing.tsx": {
@@ -1294,9 +1294,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789132242.426021,
-    "seen": 1789132666.0645287,
-    "ast_hash": "3911e1018bcc2a6509031e1850de70ab",
+    "mtime": 1789115075.070403,
+    "seen": 1789132113.644775,
+    "ast_hash": "9244d06b7a82722bd6ebd93535d4320b",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -3080,15 +3080,15 @@
     "semantic_hash": ""
   },
   "frontend/components/shop/landing/nav.tsx": {
-    "mtime": 1789132228.0476253,
-    "seen": 1789132666.0530849,
-    "ast_hash": "cd8a55aad2c6cae000658ee0c6d66eb2",
+    "mtime": 1788940224.1178148,
+    "seen": 1789132113.6446452,
+    "ast_hash": "f24433362f31f5db42e6aeb267348d33",
     "semantic_hash": ""
   },
   "frontend/components/shop/landing/sections.tsx": {
-    "mtime": 1789132231.2042,
-    "seen": 1789132666.0530863,
-    "ast_hash": "c673d6c0629ef5cc2317542af16c0906",
+    "mtime": 1789131402.7663422,
+    "seen": 1789132113.644646,
+    "ast_hash": "24c8a3a21bd836df1a4a59f285ca4935",
     "semantic_hash": ""
   },
   "frontend/components/shop/landing/wordmark.tsx": {
@@ -3425,9 +3425,9 @@
     "semantic_hash": ""
   },
   "TACHES-AMBAKA.md": {
-    "mtime": 1789132324.924073,
-    "seen": 1789132666.06453,
-    "ast_hash": "03151c527928648ce5f5cdebbab44650",
+    "mtime": 1789113266.1215796,
+    "seen": 1789132113.6447756,
+    "ast_hash": "4f8d909eb26ae9b3c69c4fef7bd88ec6",
     "semantic_hash": ""
   },
   "frontend/public/shop/mybox/chic-car-scent.webp": {

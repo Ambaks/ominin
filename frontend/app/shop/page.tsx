@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import { ShopNav } from "@/components/shop/landing/nav";
-import { ShopFaq, ShopFeatures, ShopFinalCta, ShopFooter, ShopHero, ShopHowItWorks, ShopPricing, ShopShowcase } from "@/components/shop/landing/sections";
+import {
+  ShopAudiences,
+  ShopContact,
+  ShopFaq,
+  ShopFeatures,
+  ShopFooter,
+  ShopHero,
+  ShopHowItWorks,
+  ShopPricing,
+  ShopShift,
+  ShopShowcase,
+} from "@/components/shop/landing/sections";
 import { seo, shopBrand } from "@/lib/shop-landing-data";
 import { shopSiteUrl } from "@/lib/site";
 
@@ -13,18 +24,26 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: seo.title, description: seo.description, images: ["/shop/mybox/signature.webp"] },
 };
 
+/*
+ * Ordre pensé pour un trafic venu des réseaux : on se reconnaît (pour qui),
+ * on voit ce qui change, on voit une vraie boutique, on comprend le
+ * déroulé, puis le tarif, les objections, et la page se referme sur le
+ * formulaire.
+ */
 export default function ShopHome() {
   return (
     <>
       <ShopNav />
       <main>
         <ShopHero />
+        <ShopAudiences />
+        <ShopShift />
         <ShopShowcase />
         <ShopHowItWorks />
         <ShopFeatures />
         <ShopPricing />
-        <ShopFinalCta />
         <ShopFaq />
+        <ShopContact />
       </main>
       <ShopFooter />
     </>

@@ -9,7 +9,7 @@ import {
   ORDER_ACTION_LABELS,
   PAYMENT_MODE_LABELS,
 } from "@/lib/gestion/constants";
-import { formatTime } from "@/lib/gestion/format";
+import { formatPickup, formatTime } from "@/lib/gestion/format";
 import { nextStatuses } from "@/lib/gestion/permissions";
 import { lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -81,7 +81,7 @@ export function OrderCard({
 
       {isCollect && order.pickupAt && (
         <p className="mt-1 text-xs text-muted">
-          Retrait : {formatTime(order.pickupAt)}
+          Retrait : {formatPickup(order.pickupAt)}
         </p>
       )}
       {isCollect && order.estimatedReadyAt && order.status === "en_preparation" && (

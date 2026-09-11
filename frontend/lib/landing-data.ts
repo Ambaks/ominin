@@ -289,8 +289,10 @@ export const collectOffer = {
   tagline: "L'emporter à 10 %, pas 30.",
   features: [
     "Votre page de commande à votre nom",
+    "Retrait tout de suite ou un autre jour",
     "Paiement en ligne à la commande",
     "Commandes en temps réel dans votre espace de gestion",
+    "Votre site web refait par nous, la commande intégrée",
     "10 % par commande — 3× moins que la livraison",
   ],
   bundle: {

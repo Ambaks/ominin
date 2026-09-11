@@ -33,7 +33,7 @@ const portalHost = siteUrl.replace(/^https?:\/\//, "");
 export const seo = {
   title: "Ominin — Facilitez vos opérations, propulsées par l'IA",
   description:
-    "Ominin construit des outils qui retirent le travail répétitif du quotidien des commerces : menu et commande à table, click & collect, publication automatique de clips, et développements sur mesure.",
+    "Ominin construit des outils qui retirent le travail répétitif du quotidien des commerces : menu et commande à table, click & collect, boutique en ligne, publication automatique de clips, et développements sur mesure.",
 };
 
 export const nav = {
@@ -52,8 +52,8 @@ export const hero = {
   titleLead: { fr: "Facilitez vos opérations,", en: "Facilitate your operations," },
   titleAccent: { fr: "propulsées par l'IA.", en: "powered by AI." },
   body: {
-    fr: "Nous construisons des outils qui enlèvent le travail répétitif du quotidien des commerces — la prise de commande, la paperasse, la publication. Chaque produit règle un problème précis et s'utilise seul.",
-    en: "We build tools that take the repetitive work out of running a business — taking orders, paperwork, publishing. Each product solves one problem, and works on its own.",
+    fr: "Nous construisons des outils qui enlèvent le travail répétitif du quotidien des commerces — la prise de commande, la vente en ligne, la paperasse, la publication. Chaque produit règle un problème précis et s'utilise seul.",
+    en: "We build tools that take the repetitive work out of running a business — taking orders, selling online, paperwork, publishing. Each product solves one problem, and works on its own.",
   },
   primaryCta: {
     label: { fr: "Découvrir nos produits", en: "See our products" },
@@ -126,12 +126,12 @@ export const products: Product[] = [
     href: collectSiteUrl,
     destination: collectSiteUrl.replace(/^https?:\/\//, ""),
     tagline: {
-      fr: "La vente à emporter, à votre nom",
-      en: "Takeaway that stays yours",
+      fr: "Vos commandes à emporter, sans décrocher",
+      en: "Takeaway orders, without picking up the phone",
     },
     body: {
-      fr: "Votre page de commande à emporter, vos clients, vos données. À 10 % la commande là où les plateformes prennent jusqu'à 30 %.",
-      en: "Your own takeaway ordering page, your customers, your data. 10% per order where the platforms take up to 30%.",
+      fr: "Pizzeria, pâtisserie, traiteur : vos clients commandent et payent sur votre site, pour tout de suite ou pour un autre jour. 10 % par commande là où les plateformes prennent jusqu'à 30 %.",
+      en: "Pizzeria, pastry shop, caterer: your customers order and pay on your own site, for right now or for another day. 10% per order where the platforms take up to 30%.",
     },
     photo: {
       src: unsplash("photo-1778792331936-4a408b81c8ef", 1200),
@@ -142,10 +142,39 @@ export const products: Product[] = [
     },
     chips: [
       { fr: "Commande en ligne", en: "Online ordering" },
+      { fr: "Site web inclus", en: "Website included" },
       { fr: "10 % par commande", en: "10% per order" },
-      { fr: "Vos clients, vos données", en: "Your customers, your data" },
     ],
     motif: "collect-dash-motif",
+    action: openLabel,
+  },
+  {
+    id: "shop",
+    name: untranslated("Ominin Shop"),
+    href: shopSiteUrl,
+    destination: shopSiteUrl.replace(/^https?:\/\//, ""),
+    tagline: {
+      fr: "Vendez sous votre nom, pas en messages privés",
+      en: "Sell under your name, not in your DMs",
+    },
+    body: {
+      fr: "La boutique en ligne clé en main de celles et ceux qui vendent déjà sur Snapchat, Instagram ou TikTok : fait main, box, dropshipping. Paiement, livraison et commandes gérés depuis le téléphone.",
+      en: "A turnkey online store for people already selling on Snapchat, Instagram or TikTok: handmade goods, boxes, dropshipping. Payments, shipping and orders run from a phone.",
+    },
+    photo: {
+      // Photo réelle de la première boutique (MyBox), pas une illustration.
+      src: "/shop/mybox/accueil.webp",
+      alt: {
+        fr: "Box beauté MyBox ouverte, parfum et roses",
+        en: "An open MyBox beauty box with perfume and roses",
+      },
+    },
+    chips: [
+      { fr: "Boutique à votre nom", en: "Store under your name" },
+      { fr: "Paiement et livraison", en: "Payments and shipping" },
+      { fr: "Un lien pour vos réseaux", en: "One link for your socials" },
+    ],
+    motif: "shop-ribbon-motif",
     action: openLabel,
   },
   {
@@ -243,7 +272,7 @@ export const approach = {
 };
 
 /*
- * Bande finale : le portail se referme sur l'appel au sur-mesure — les trois
+ * Bande finale : le portail se referme sur l'appel au sur-mesure — les quatre
  * produits ont leurs propres funnels, c'est la demande libre qu'on capte ici.
  */
 export const finalCta = {
@@ -262,7 +291,7 @@ export const finalCta = {
 };
 
 /*
- * Page /sur-mesure : la destination du quatrième cube. Elle explique ce qu'on
+ * Page /sur-mesure : la destination du cinquième cube. Elle explique ce qu'on
  * sait construire hors catalogue, puis ouvre un formulaire. Pas de prix — un
  * développement sur mesure se chiffre après discussion.
  */

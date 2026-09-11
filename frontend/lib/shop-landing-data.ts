@@ -1,13 +1,19 @@
 import type { Cta, FaqItem, NavLink, Step } from "@/lib/landing-data";
+import type { LeadFormCopy } from "@/components/landing/lead-form";
 import { shopSiteUrl } from "@/lib/site";
 
 /*
  * Copy de la landing Ominin Shop (shop.ominin.com). Comme les autres
  * landings, aucun texte dans les composants : tout vit ici.
  *
- * Positionnement : la boutique en ligne clé en main d'un commerce, à son
- * nom, sans Shopify à configurer ni agence à payer. MyBox (box beauté) est
- * la première boutique en production et sert d'étude de cas.
+ * Positionnement : la boutique en ligne clé en main de celles et ceux qui
+ * vendent déjà — en story, en messages privés, en main propre — du fait main,
+ * des box, ou le catalogue d'un fournisseur (dropshipping). La page est
+ * promue par la gérante de MyBox auprès de sa communauté : elle doit
+ * convertir un trafic venu des réseaux, sur téléphone, et recevoir les
+ * questions sur place (formulaire en bas de page, vers /api/contact).
+ * MyBox (box beauté) est la première boutique en production et sert
+ * d'étude de cas.
  *
  * Tarifs : une mise en place puis un abonnement mensuel. Les montants ne
  * sont pas encore arrêtés — `published: false` fait afficher « sur devis »
@@ -43,35 +49,110 @@ export const signupCta: Cta = {
 export const signinHref = `${shopSiteUrl}/connexion`;
 
 export const seo = {
-  title: "Ominin Shop — Votre boutique en ligne, à votre nom",
+  title: "Ominin Shop — Votre boutique en ligne, quand vous vendez sur Snapchat, Instagram ou TikTok",
   description:
-    "Une boutique en ligne clé en main pour les créatrices et petits commerces : paiement sécurisé, livraison, espace de gestion simple. Mise en place par Ominin, vous vendez dès la première semaine.",
+    "Vous vendez du fait main, des box ou en dropshipping, en messages privés ? Ominin Shop construit votre boutique à votre nom en quelques jours : paiement par carte, livraison, commandes gérées depuis votre téléphone. Un lien en bio, et vos clientes commandent seules.",
 };
 
 export const nav = {
   links: [
-    { label: "Exemple", href: "#exemple" },
+    { label: "Pour qui", href: "#pour-qui" },
     { label: "Comment ça marche", href: "#comment" },
-    { label: "Fonctionnalités", href: "#fonctionnalites" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
+    { label: "Contact", href: "#contact" },
   ] satisfies NavLink[],
-  cta: { label: "Voir l'exemple", href: "#exemple" } satisfies Cta,
+  cta: { label: "Décrire mon projet", href: "#contact" } satisfies Cta,
   login: { label: "Connexion", href: signinHref } satisfies Cta,
 };
 
 export const hero = {
-  eyebrow: "Boutique en ligne clé en main",
-  titleStart: "Vendez sous votre nom,",
-  titleAccent: "pas sur une marketplace.",
+  eyebrow: "Boutique en ligne · Créateurs · Réseaux sociaux · Dropshipping",
+  titleStart: "Vous vendez déjà.",
+  titleAccent: "Ayez votre boutique.",
   subtitle:
-    "Ominin Shop met votre boutique en ligne en quelques jours : vos produits, vos couleurs, votre adresse. Vos clientes commandent et payent chez vous, vous préparez, vous expédiez. Tout se gère depuis un espace simple, sans jargon ni plugin.",
-  primaryCta: { label: "Voir une boutique en ligne", href: "#exemple" } satisfies Cta,
-  secondaryCta: { label: "Décrire mon projet", href: "#contact" } satisfies Cta,
+    "Snapchat, Instagram, TikTok, fait main ou dropshipping : si vos commandes arrivent en messages privés, vous perdez du temps et des ventes. Ominin Shop met votre boutique en ligne en quelques jours, à votre nom. Un lien en bio, vos clientes commandent et payent, vous expédiez — tout se gère depuis votre téléphone.",
+  primaryCta: { label: "Décrire mon projet", href: "#contact" } satisfies Cta,
+  secondaryCta: { label: "Voir une boutique", href: "#exemple" } satisfies Cta,
   trustline: [
     "En ligne en quelques jours",
     "Paiement sécurisé par Stripe",
-    "Un interlocuteur unique",
+    "Réponse sous 24 h",
+  ],
+  /** Vignette de la première boutique, à droite du titre. */
+  showcase: {
+    alt: "La boutique MyBox, première boutique Ominin Shop",
+    name: "MyBox",
+    host: "shop.ominin.com/mybox",
+    openLabel: "Ouvrir",
+  },
+};
+
+/** Trois façons de vendre qu'on connaît, et ce que la boutique change pour chacune. */
+export const audiencesSection = {
+  id: "pour-qui",
+  eyebrow: "Pour qui",
+  title: "Vous vendez déjà. Il vous manque la boutique.",
+  subtitle:
+    "Trois façons de vendre qu'on connaît bien — et ce que la boutique change pour chacune.",
+  todayLabel: "Aujourd'hui",
+  tomorrowLabel: "Avec votre boutique",
+  items: [
+    {
+      kicker: "Snapchat · Instagram · TikTok",
+      title: "Vous vendez en messages privés",
+      today:
+        "Chaque vente, c'est dix messages : dispo, prix, paiement Lydia ou PayPal, adresse à recopier, colis à suivre.",
+      tomorrow:
+        "Un lien en bio et en story. Vos clientes commandent et payent seules ; la commande arrive prête à préparer, l'adresse déjà saisie.",
+    },
+    {
+      kicker: "Fait main · Box · Cosmétiques",
+      title: "Vous créez de vos mains",
+      today:
+        "Un petit catalogue, des options (taille, parfum, couleur), des commandes personnalisées notées un peu partout.",
+      tomorrow:
+        "Chaque produit avec ses options et sa personnalisation — une initiale, un prénom — un message cadeau glissé dans le colis, un stock qui se met à jour tout seul.",
+    },
+    {
+      kicker: "Dropshipping",
+      title: "Vous vendez le catalogue d'un fournisseur",
+      today:
+        "Shopify, un thème, douze applications, des frais qui s'empilent avant la première vente.",
+      tomorrow:
+        "On construit la boutique avec vos produits et vos marges. Vous recevez les commandes payées, vous passez commande chez votre fournisseur. Rien à configurer.",
+    },
+  ],
+};
+
+/** Avant / après, ligne à ligne : ce que la boutique retire de la journée. */
+export const shiftSection = {
+  id: "ce-qui-change",
+  eyebrow: "Ce qui change",
+  title: "Les messages en moins, les ventes en plus.",
+  beforeLabel: "En messages privés",
+  afterLabel: "Sur votre boutique",
+  rows: [
+    {
+      before: "« C'est encore dispo ? », quarante fois par jour",
+      after: "Le stock est affiché, un produit épuisé se retire tout seul",
+    },
+    {
+      before: "Lydia, PayPal, virement : des paiements à vérifier un par un",
+      after: "Carte, Apple Pay, Google Pay — encaissé avant la préparation",
+    },
+    {
+      before: "Des adresses recopiées depuis les conversations",
+      after: "L'adresse saisie par la cliente, le bon de préparation prêt à imprimer",
+    },
+    {
+      before: "Le numéro de suivi envoyé à la main, quand on y pense",
+      after: "L'e-mail d'expédition part tout seul, avec le suivi",
+    },
+    {
+      before: "Des ventes perdues quand vous ne répondez pas assez vite",
+      after: "La boutique vend à 23 h, pendant que vous préparez les colis",
+    },
   ],
 };
 
@@ -81,13 +162,13 @@ export const showcase = {
   eyebrow: "En production",
   title: "MyBox, des box beauté livrées avec un mot doux.",
   subtitle:
-    "Treize box, un choix de parfum à la commande, un message cadeau glissé dans la boîte, et une gérante qui pilote tout depuis son téléphone.",
+    "Treize box, un parfum choisi à la commande, une initiale sur la box, un message cadeau glissé dedans — et une gérante qui pilote tout depuis son téléphone.",
   /** Chemin relatif au host shop : la landing est aussi servie sur ominin.com/shop. */
   href: "/mybox",
   ctaLabel: "Ouvrir la boutique MyBox",
   points: [
     { label: "Catalogue", value: "13 box de 25 € à 125 €" },
-    { label: "Options", value: "Parfum choisi par la cliente" },
+    { label: "Options", value: "Parfum et initiale choisis par la cliente" },
     { label: "Livraison", value: "Colissimo, Mondial Relay, main propre" },
     { label: "Gestion", value: "Commandes, messages, codes promo" },
   ],
@@ -96,12 +177,12 @@ export const showcase = {
 export const howItWorks = {
   id: "comment",
   eyebrow: "Comment ça marche",
-  title: "De votre idée à la première vente.",
+  title: "De vos stories à la première commande.",
   steps: [
     {
       title: "Vous nous envoyez vos produits",
       description:
-        "Photos, noms, prix, descriptions. Un fichier, des messages, peu importe la forme : on structure le catalogue avec vous.",
+        "Photos, noms, prix, en messages ou dans un fichier. Vous vendez déjà sur Snap ou Insta ? Envoyez vos stories, on part de là.",
     },
     {
       title: "On met la boutique à vos couleurs",
@@ -114,9 +195,9 @@ export const howItWorks = {
         "Cinq minutes guidées. L'argent des ventes arrive directement sur votre compte bancaire, jamais sur le nôtre.",
     },
     {
-      title: "Vous vendez, on reste là",
+      title: "Vous mettez le lien en bio",
       description:
-        "Produits, commandes, expéditions, messages : vous gérez tout vous-même. Un interlocuteur unique répond quand vous avez besoin.",
+        "Vous continuez de poster comme avant. Les commandes arrivent dans votre espace, vous préparez, vous expédiez. On reste joignables.",
     },
   ] satisfies Step[],
 };
@@ -129,9 +210,10 @@ export const featuresSection = {
     "Ce que nous avons construit pour MyBox, chaque boutique l'a : le même socle, éprouvé en production.",
   groups: [
     {
-      title: "Côté clientes",
+      title: "Pour vos clientes",
       items: [
         "Catalogue avec collections et options (taille, parfum, couleur)",
+        "Personnalisation sur les produits qui le permettent : une initiale, un prénom",
         "Panier, code promo, livraison offerte à partir d'un montant",
         "Paiement Stripe : carte, Apple Pay, Google Pay",
         "Commande cadeau avec message glissé dans le colis",
@@ -140,7 +222,7 @@ export const featuresSection = {
       ],
     },
     {
-      title: "Côté gérante",
+      title: "Pour vous",
       items: [
         "Commandes : préparation, expédition avec suivi, e-mails automatiques",
         "Produits, photos, stock, mise en avant, référencement",
@@ -158,15 +240,16 @@ export const pricingSection = {
   eyebrow: "Tarif",
   title: "Une mise en place, puis un abonnement.",
   subtitle:
-    "Pas de pourcentage caché dans le prix de vos produits : une mise en place pour construire la boutique, un abonnement pour l'héberger et la faire évoluer.",
+    "Pas de pourcentage caché dans le prix de vos produits : une mise en place pour construire la boutique, un abonnement pour l'héberger et la faire évoluer. Le tarif dépend de la taille de votre catalogue.",
   setupLabel: "Mise en place",
   monthlyLabel: "Abonnement",
   perMonth: "/mois",
   onceLabel: "une fois",
   quoteLabel: "Sur devis",
-  quoteHint: "Le tarif dépend de la taille du catalogue. Décrivez votre projet, vous avez une réponse sous 24 h.",
+  quoteHint:
+    "Dites-nous ce que vous vendez et combien de références : vous avez un prix sous 24 h.",
   featuresLabel: "Inclus :",
-  ctaLabel: "Décrire mon projet",
+  cta: { label: "Demander un prix", href: "#contact" } satisfies Cta,
   guarantees: ["Sans engagement", "Votre argent sur votre compte", "Réponse sous 24 h"],
   offer: shopOffer,
 };
@@ -176,6 +259,26 @@ export const faqSection = {
   eyebrow: "FAQ",
   title: "Questions fréquentes.",
   items: [
+    {
+      question: "Je vends déjà sur Snapchat ou Instagram, qu'est-ce que ça change ?",
+      answer:
+        "Vous continuez de poster exactement comme avant. La différence : au lieu de gérer chaque commande en messages privés (dispo, prix, paiement, adresse), vous mettez un lien en bio. Vos clientes commandent et payent seules, vous recevez la commande prête à préparer.",
+    },
+    {
+      question: "Je fais du dropshipping, c'est compatible ?",
+      answer:
+        "Oui. Vous nous transmettez le catalogue de votre fournisseur (photos, descriptions, prix) et vos marges ; on construit la boutique. Vous recevez les commandes payées et vous passez commande chez votre fournisseur. Pas de Shopify ni d'applications à empiler.",
+    },
+    {
+      question: "Je n'ai que quelques produits, ça vaut le coup ?",
+      answer:
+        "Une boutique de cinq références se construit vite et coûte moins cher qu'un grand catalogue. Si vous vendez régulièrement, même peu, le temps gagné sur les messages se voit dès la première semaine.",
+    },
+    {
+      question: "Faut-il un statut pour vendre ?",
+      answer:
+        "Oui : pour encaisser par carte, Stripe demande une entreprise déclarée. Une micro-entreprise suffit. Si vous n'en avez pas encore, dites-le-nous dans votre message, on vous indique la marche à suivre.",
+    },
     {
       question: "Quelle différence avec Shopify ou Wix ?",
       answer:
@@ -214,19 +317,46 @@ export const faqSection = {
   ] satisfies FaqItem[],
 };
 
-export const finalCta = {
+/*
+ * Section de contact : la page se termine sur le formulaire, pas sur un lien
+ * vers ominin.com — les visiteuses arrivent d'une story, sur téléphone, et
+ * doivent pouvoir poser leur question sans changer de site.
+ */
+export const contactSection = {
   id: "contact",
-  title: "Une boutique à votre nom, cette semaine ?",
+  eyebrow: "Parlons-en",
+  title: "Une question, un projet ? Écrivez-nous.",
   subtitle:
-    "Décrivez votre projet en quelques lignes : vos produits, votre univers, ce que vous vendez déjà sur Instagram ou en direct. On vous répond franchement, y compris quand une boutique n'est pas la bonne réponse.",
-  contactLabel: "Décrire mon projet",
-  contactHref: "https://ominin.com/sur-mesure",
+    "Dites-nous ce que vous vendez, où, et à peu près combien de références. On vous répond sous 24 h, franchement — y compris quand une boutique n'est pas la bonne réponse.",
+  emailLabel: "Ou directement par e-mail :",
   microcopy: ["Réponse sous 24 h", "Sans engagement"],
+  form: {
+    name: { label: "Votre prénom ou votre nom", placeholder: "Léa Martin" },
+    email: { label: "E-mail", placeholder: "lea@gmail.com" },
+    company: {
+      label: "Votre marque ou votre compte",
+      hint: "facultatif",
+      placeholder: "@lea.creations · bijoux faits main",
+    },
+    message: {
+      label: "Votre projet ou votre question",
+      placeholder:
+        "Je vends des bougies sur Instagram, une trentaine de commandes par mois en DM, une dizaine de références…",
+    },
+    submit: "Envoyer",
+    sending: "Envoi…",
+    success: {
+      title: "C'est envoyé.",
+      body: "On revient vers vous par e-mail sous 24 h.",
+    },
+    error: "L'envoi a échoué. Réessayez, ou écrivez-nous directement par e-mail.",
+    note: "Réponse sous 24 h.",
+  } satisfies LeadFormCopy,
 };
 
 export const footer = {
   tagline:
-    "Des boutiques en ligne à votre nom, construites et hébergées par Ominin, gérées par vous.",
+    "Des boutiques en ligne à votre nom, construites et hébergées par Ominin, gérées par vous depuis votre téléphone.",
   customerNotice:
     "Vous cherchez une boutique ? Utilisez le lien communiqué par la marque.",
 };

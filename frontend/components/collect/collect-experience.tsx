@@ -196,6 +196,22 @@ function OptionsDialog({
   );
 }
 
+/** Date du jour au format d'un <input type="date">, en heure locale du client. */
+function todayInputValue(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+/*
+ * Retrait : dès que possible, à une heure aujourd'hui, ou un autre jour à
+ * une heure — la réservation à l'avance (le gâteau du samedi) suit le même
+ * circuit que la commande du midi, l'heure de retrait portant simplement
+ * une autre date.
+ */
+type PickupMode = "asap" | "today" | "later";
+
 function CheckoutDialog({
   slug,
   lines,
@@ -209,7 +225,8 @@ function CheckoutDialog({
 }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [pickupMode, setPickupMode] = useState<"asap" | "time">("asap");
+  const [pickupMode, setPickupMode] = useState<PickupMode>("asap");
+  const [pickupDate, setPickupDate] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -222,9 +239,13 @@ function CheckoutDialog({
     setError(null);
 
     let pickupAt: string | null = null;
-    if (pickupMode === "time" && pickupTime) {
+    if (pickupMode !== "asap" && pickupTime) {
       const [hours, minutes] = pickupTime.split(":").map(Number);
-      const date = new Date();
+      // « AAAA-MM-JJT00:00 » sans fuseau : minuit local, comme le voit le client.
+      const date =
+        pickupMode === "later" && pickupDate
+          ? new Date(`${pickupDate}T00:00`)
+          : new Date();
       date.setHours(hours, minutes, 0, 0);
       pickupAt = date.toISOString();
     }
@@ -347,8 +368,8 @@ function CheckoutDialog({
             <input
               type="radio"
               name="pickup"
-              checked={pickupMode === "time"}
-              onChange={() => setPickupMode("time")}
+              checked={pickupMode === "today"}
+              onChange={() => setPickupMode("today")}
               className="accent-ember-1"
             />
             Aujourd&apos;hui à
@@ -357,9 +378,41 @@ function CheckoutDialog({
               value={pickupTime}
               onChange={(event) => {
                 setPickupTime(event.target.value);
-                setPickupMode("time");
+                setPickupMode("today");
               }}
-              required={pickupMode === "time"}
+              required={pickupMode === "today"}
+              className={`${inputClass} w-auto`}
+            />
+          </label>
+          <label className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-hairline px-3.5 py-2.5 text-sm has-checked:border-ember-2/50 has-checked:bg-ember-2/5">
+            <input
+              type="radio"
+              name="pickup"
+              checked={pickupMode === "later"}
+              onChange={() => setPickupMode("later")}
+              className="accent-ember-1"
+            />
+            Un autre jour
+            <input
+              type="date"
+              value={pickupDate}
+              min={todayInputValue()}
+              onChange={(event) => {
+                setPickupDate(event.target.value);
+                setPickupMode("later");
+              }}
+              required={pickupMode === "later"}
+              className={`${inputClass} w-auto`}
+            />
+            à
+            <input
+              type="time"
+              value={pickupTime}
+              onChange={(event) => {
+                setPickupTime(event.target.value);
+                setPickupMode("later");
+              }}
+              required={pickupMode === "later"}
               className={`${inputClass} w-auto`}
             />
           </label>

@@ -216,6 +216,7 @@ export type Database = {
           locale: string
           message: string
           name: string
+          source: string
         }
         Insert: {
           company?: string | null
@@ -225,6 +226,7 @@ export type Database = {
           locale?: string
           message: string
           name: string
+          source?: string
         }
         Update: {
           company?: string | null
@@ -234,6 +236,7 @@ export type Database = {
           locale?: string
           message?: string
           name?: string
+          source?: string
         }
         Relationships: []
       }

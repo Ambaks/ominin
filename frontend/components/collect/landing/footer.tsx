@@ -20,7 +20,7 @@ export function CollectFooter() {
         </p>
 
         <nav className="flex flex-wrap justify-center gap-4 text-xs text-muted">
-          {nav.links.map((link) => (
+          {[...nav.links, nav.login].map((link) => (
             <a
               key={link.href}
               href={link.href}

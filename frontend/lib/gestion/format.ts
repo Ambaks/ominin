@@ -28,3 +28,10 @@ export function formatDateTime(iso: string): string {
     minute: "2-digit",
   });
 }
+
+/** Heure de retrait — précédée du jour quand ce n'est pas aujourd'hui. */
+export function formatPickup(iso: string): string {
+  return new Date(iso).toDateString() === new Date().toDateString()
+    ? formatTime(iso)
+    : formatDateTime(iso);
+}

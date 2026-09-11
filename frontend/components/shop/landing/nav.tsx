@@ -7,7 +7,7 @@ export function ShopNav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-hairline bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-3 lg:max-w-5xl lg:px-10">
-        <a href="#" className="flex items-center gap-2">
+        <a href="#" className="flex items-center gap-2 whitespace-nowrap">
           <Image src="/logo.png" alt="" width={28} height={28} />
           <ShopWordmark />
         </a>
@@ -18,12 +18,14 @@ export function ShopNav() {
             </a>
           ))}
         </div>
+        {/* Trois boutons ne tiennent pas en 390 px : sur téléphone, la
+            connexion est reléguée au pied de page, l'appel reste. */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <a href={nav.cta.href} className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm">
+          <a href={nav.cta.href} className="ember-gradient whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm">
             {nav.cta.label}
           </a>
-          <a href={nav.login.href} className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-ember-2/40 lg:px-5 lg:py-2.5 lg:text-sm">
+          <a href={nav.login.href} className="hidden whitespace-nowrap rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-ember-2/40 sm:inline-block lg:px-5 lg:py-2.5 lg:text-sm">
             {nav.login.label}
           </a>
         </div>

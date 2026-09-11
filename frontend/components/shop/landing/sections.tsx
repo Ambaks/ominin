@@ -1,6 +1,20 @@
 import Image from "next/image";
+import { LeadForm } from "@/components/landing/lead-form";
 import { SectionHeading } from "@/components/landing/section-heading";
-import { faqSection, featuresSection, finalCta, footer, hero, howItWorks, nav, pricingSection, showcase } from "@/lib/shop-landing-data";
+import { contactEmail } from "@/lib/landing-data";
+import {
+  audiencesSection,
+  contactSection,
+  faqSection,
+  featuresSection,
+  footer,
+  hero,
+  howItWorks,
+  nav,
+  pricingSection,
+  shiftSection,
+  showcase,
+} from "@/lib/shop-landing-data";
 import { ShopWordmark } from "./wordmark";
 
 /* Sections de la landing Ominin Shop, dans le style des autres landings produit. */
@@ -8,6 +22,10 @@ import { ShopWordmark } from "./wordmark";
 export function ShopHero() {
   return (
     <section className="relative overflow-hidden">
+      <div
+        className="shop-ribbon-motif absolute inset-0 [mask-image:radial-gradient(ellipse_75%_85%_at_50%_15%,black,transparent)]"
+        aria-hidden
+      />
       <div className="ember-glow absolute inset-0" aria-hidden />
       <div className="relative mx-auto grid w-full max-w-2xl gap-12 px-5 pb-16 pt-16 lg:max-w-5xl lg:grid-cols-[1fr_minmax(0,24rem)] lg:items-center lg:gap-16 lg:px-10 lg:pb-24 lg:pt-28">
         <div className="flex flex-col items-center gap-8 text-center lg:items-start lg:text-left">
@@ -33,15 +51,91 @@ export function ShopHero() {
           </div>
         </div>
         <a href={showcase.href} className="rise group relative block overflow-hidden rounded-3xl border border-hairline bg-surface shadow-lg shadow-ember-2/5" style={{ animationDelay: "320ms" }}>
-          <Image src="/shop/mybox/signature.webp" alt="La boutique MyBox, première boutique Ominin Shop" width={640} height={800} className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" priority />
+          <Image src="/shop/mybox/signature.webp" alt={hero.showcase.alt} width={640} height={800} className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" priority />
           <span className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl bg-background/85 px-4 py-3 backdrop-blur-sm">
             <span className="flex flex-col">
-              <span className="text-sm font-semibold">MyBox</span>
-              <span className="text-xs text-muted">shop.ominin.com/mybox</span>
+              <span className="text-sm font-semibold">{hero.showcase.name}</span>
+              <span className="text-xs text-muted">{hero.showcase.host}</span>
             </span>
-            <span className="ember-text text-xs font-semibold uppercase tracking-wider">Ouvrir</span>
+            <span className="ember-text text-xs font-semibold uppercase tracking-wider">{hero.showcase.openLabel}</span>
           </span>
         </a>
+      </div>
+    </section>
+  );
+}
+
+/*
+ * Trois profils, chacun en deux temps — aujourd'hui / avec la boutique. Le
+ * second temps est mis en avant (fond braise léger) : c'est la promesse, le
+ * premier n'est là que pour qu'on s'y reconnaisse.
+ */
+export function ShopAudiences() {
+  return (
+    <section id={audiencesSection.id} className="scroll-mt-20 border-t border-hairline">
+      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
+        <SectionHeading eyebrow={audiencesSection.eyebrow} title={audiencesSection.title} subtitle={audiencesSection.subtitle} center />
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          {audiencesSection.items.map((item) => (
+            <article key={item.title} className="flex flex-col overflow-hidden rounded-3xl border border-hairline bg-surface">
+              <div className="flex flex-col gap-2 p-6 pb-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ember-2">{item.kicker}</p>
+                <h3 className="font-display text-xl font-medium">{item.title}</h3>
+              </div>
+              <div className="flex flex-1 flex-col">
+                <div className="border-t border-hairline px-6 py-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{audiencesSection.todayLabel}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.today}</p>
+                </div>
+                <div className="flex-1 border-t border-ember-2/30 bg-ember-2/5 px-6 py-4">
+                  <p className="ember-text text-[11px] font-semibold uppercase tracking-wider">{audiencesSection.tomorrowLabel}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed">{item.tomorrow}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* Avant / après ligne à ligne. En mobile, chaque ligne empile ses deux temps. */
+export function ShopShift() {
+  return (
+    <section id={shiftSection.id} className="scroll-mt-20 border-t border-hairline">
+      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
+        <SectionHeading eyebrow={shiftSection.eyebrow} title={shiftSection.title} center />
+        <div className="mt-12 overflow-hidden rounded-3xl border border-hairline bg-surface">
+          <div className="hidden grid-cols-2 border-b border-hairline text-[11px] font-semibold uppercase tracking-wider sm:grid">
+            <p className="px-6 py-3 text-faint">{shiftSection.beforeLabel}</p>
+            <p className="ember-text border-l border-hairline px-6 py-3">{shiftSection.afterLabel}</p>
+          </div>
+          <ul className="divide-y divide-hairline">
+            {shiftSection.rows.map((row) => (
+              <li key={row.after} className="grid sm:grid-cols-2">
+                <p className="flex items-start gap-2.5 px-6 py-4 text-sm leading-relaxed text-muted">
+                  <span className="mt-0.5 text-faint" aria-hidden>
+                    –
+                  </span>
+                  <span>
+                    <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-faint sm:hidden">{shiftSection.beforeLabel}</span>
+                    {row.before}
+                  </span>
+                </p>
+                <p className="flex items-start gap-2.5 px-6 py-4 text-sm leading-relaxed sm:border-l sm:border-hairline">
+                  <span className="mt-0.5 text-ember-1" aria-hidden>
+                    ✓
+                  </span>
+                  <span>
+                    <span className="ember-text mb-0.5 block text-[10px] font-semibold uppercase tracking-wider sm:hidden">{shiftSection.afterLabel}</span>
+                    {row.after}
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );
@@ -159,8 +253,8 @@ export function ShopPricing() {
               ))}
             </ul>
           </div>
-          <a href={finalCta.contactHref} className="ember-gradient inline-block w-fit rounded-full px-8 py-3.5 text-sm font-semibold text-background">
-            {pricingSection.ctaLabel}
+          <a href={pricingSection.cta.href} className="ember-gradient inline-block w-fit rounded-full px-8 py-3.5 text-sm font-semibold text-background">
+            {pricingSection.cta.label}
           </a>
         </div>
         <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted">
@@ -194,17 +288,28 @@ export function ShopFaq() {
   );
 }
 
-export function ShopFinalCta() {
+/* La page se termine sur le formulaire : les questions se posent ici, sans changer de site. */
+export function ShopContact() {
   return (
-    <section id={finalCta.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6 px-5 py-16 text-center lg:max-w-5xl lg:px-10 lg:py-24">
-        <h2 className="font-display text-3xl font-medium tracking-tight lg:text-4xl">{finalCta.title}</h2>
-        <p className="max-w-xl text-sm leading-relaxed text-muted lg:text-base">{finalCta.subtitle}</p>
-        <a href={finalCta.contactHref} className="ember-gradient rounded-full px-8 py-3.5 text-sm font-semibold text-background lg:text-base">
-          {finalCta.contactLabel}
-        </a>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-faint">
-          {finalCta.microcopy.map((item) => (
+    <section id={contactSection.id} className="relative scroll-mt-20 border-t border-hairline">
+      <div
+        className="shop-ribbon-motif absolute inset-0 [mask-image:radial-gradient(ellipse_60%_70%_at_50%_50%,black,transparent)]"
+        aria-hidden
+      />
+      <div className="ember-glow absolute inset-0" aria-hidden />
+      <div className="relative mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-3xl lg:px-10 lg:py-24">
+        <SectionHeading eyebrow={contactSection.eyebrow} title={contactSection.title} subtitle={contactSection.subtitle} center />
+        <div className="mt-10">
+          <LeadForm copy={contactSection.form} source="shop" locale="fr" />
+        </div>
+        <p className="mt-6 text-center text-xs text-muted">
+          {contactSection.emailLabel}{" "}
+          <a href={`mailto:${contactEmail}`} className="font-semibold text-foreground transition-colors hover:text-ember-1">
+            {contactEmail}
+          </a>
+        </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-faint">
+          {contactSection.microcopy.map((item) => (
             <span key={item}>{item}</span>
           ))}
         </div>
@@ -224,7 +329,7 @@ export function ShopFooter() {
         <p className="max-w-sm text-xs leading-relaxed text-faint">{footer.tagline}</p>
         <p className="max-w-sm text-xs leading-relaxed text-muted">{footer.customerNotice}</p>
         <nav className="flex flex-wrap justify-center gap-4 text-xs text-muted">
-          {nav.links.map((link) => (
+          {[...nav.links, nav.login].map((link) => (
             <a key={link.href} href={link.href} className="transition-colors hover:text-foreground">
               {link.label}
             </a>

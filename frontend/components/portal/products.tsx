@@ -28,15 +28,18 @@ function ArrowIcon({ external }: { external: boolean }) {
 }
 
 /*
- * Grille bento : le produit phare (menu) et le sur-mesure occupent les
- * grandes cellules, collect et clip les moyennes — l'asymétrie hiérarchise
- * sans rien dire. Une seule colonne en mobile.
+ * Grille bento : deux rangées de deux produits — le produit phare (menu) et
+ * clip en grandes cellules, collect et shop en moyennes, l'asymétrie
+ * hiérarchise sans rien dire — puis le sur-mesure seul sur toute la largeur,
+ * à l'horizontale : ce n'est pas un produit de plus, c'est ce qui reste à
+ * construire. Une seule colonne en mobile.
  */
-const BENTO_SPANS = [
-  "lg:col-span-7",
-  "lg:col-span-5",
-  "lg:col-span-5",
-  "lg:col-span-7",
+const BENTO: readonly { span: string; wide?: boolean }[] = [
+  { span: "lg:col-span-7" },
+  { span: "lg:col-span-5" },
+  { span: "lg:col-span-5" },
+  { span: "lg:col-span-7" },
+  { span: "lg:col-span-12", wide: true },
 ];
 
 /*
@@ -52,21 +55,29 @@ const BENTO_SPANS = [
 function ProductCube({ product, index }: { product: Product; index: number }) {
   const { t } = useLanguage();
   const external = !product.href.startsWith("/");
+  const { span, wide } = BENTO[index] ?? { span: "" };
 
   const content = (
     <>
-      <div className="relative h-52 overflow-hidden sm:h-60 lg:h-64">
+      <div
+        className={`relative h-52 overflow-hidden sm:h-60 lg:h-64 ${
+          wide ? "lg:h-auto lg:w-2/5 lg:shrink-0" : ""
+        }`}
+      >
         <Image
           src={product.photo.src}
           alt={t(product.photo.alt)}
           fill
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          sizes={wide ? "(max-width: 1024px) 100vw, 40vw" : "(max-width: 1024px) 100vw, 50vw"}
           className="object-cover saturate-[0.72] transition-transform duration-700 ease-out group-hover:scale-[1.04] group-focus-visible:scale-[1.04] motion-reduce:transition-none"
         />
-        {/* Voile duotone : assombrit vers le bas pour fondre dans la carte,
-            réchauffe les hautes lumières aux couleurs braise. */}
+        {/* Voile duotone : assombrit vers le bas pour fondre dans la carte
+            (vers la droite quand la carte est horizontale), réchauffe les
+            hautes lumières aux couleurs braise. */}
         <div
-          className="absolute inset-0 bg-linear-to-t from-surface via-background/35 to-background/15"
+          className={`absolute inset-0 bg-linear-to-t from-surface via-background/35 to-background/15 ${
+            wide ? "lg:bg-linear-to-l" : ""
+          }`}
           aria-hidden
         />
         <div
@@ -121,15 +132,13 @@ function ProductCube({ product, index }: { product: Product; index: number }) {
     </>
   );
 
-  const className =
-    "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-surface transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-ember-2/30 hover:shadow-[0_28px_60px_-30px_rgba(0,0,0,0.75)] focus-visible:-translate-y-1 focus-visible:border-ember-2/40 focus-visible:outline-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0";
+  const className = `group relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-surface transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-ember-2/30 hover:shadow-[0_28px_60px_-30px_rgba(0,0,0,0.75)] focus-visible:-translate-y-1 focus-visible:border-ember-2/40 focus-visible:outline-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0 ${
+    wide ? "lg:flex-row" : ""
+  }`;
   const label = `${t(product.action)} — ${t(product.name)}`;
 
   return (
-    <Reveal
-      delay={(index % 2) * 90}
-      className={BENTO_SPANS[index] ?? ""}
-    >
+    <Reveal delay={(index % 2) * 90} className={span}>
       {external ? (
         <a href={product.href} aria-label={label} className={className}>
           {content}

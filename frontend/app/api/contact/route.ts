@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
-import { CONTACT_LIMITS, type ContactPayload } from "@/lib/portal/contact";
+import {
+  CONTACT_LIMITS,
+  CONTACT_SOURCES,
+  type ContactPayload,
+  type ContactSource,
+} from "@/lib/portal/contact";
 import { notifyContactRequest } from "@/lib/portal/notify";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Enregistrement d'une demande « sur mesure » (portail, /sur-mesure).
+ * Enregistrement d'une demande de contact : formulaire « sur mesure » du
+ * portail (/sur-mesure) ou formulaire de la landing Ominin Shop. Les deux
+ * pages postent ici — /api/* n'est jamais réécrit par le proxy, la route
+ * répond donc sous n'importe quel host. Le champ `source` dit d'où vient la
+ * demande ; une valeur inconnue retombe sur le portail.
  *
  * Pas d'auth : le formulaire est public. L'écriture passe par la clé
  * service_role parce que contact_requests n'a aucune policy RLS — c'est
@@ -54,6 +63,9 @@ function readString(source: Record<string, unknown>, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const isContactSource = (value: string): value is ContactSource =>
+  (CONTACT_SOURCES as readonly string[]).includes(value);
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as Record<
     string,
@@ -76,12 +88,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const source = readString(body, "source");
   const payload: ContactPayload = {
     name: readString(body, "name"),
     email: readString(body, "email"),
     company: readString(body, "company"),
     message: readString(body, "message"),
     locale: readString(body, "locale") === "en" ? "en" : "fr",
+    source: isContactSource(source) ? source : CONTACT_SOURCES[0],
   };
 
   for (const [field, { min, max }] of Object.entries(CONTACT_LIMITS)) {
@@ -101,6 +115,7 @@ export async function POST(request: Request) {
     company: payload.company || null,
     message: payload.message,
     locale: payload.locale,
+    source: payload.source,
   });
   if (error) throw new Error(error.message);
 
@@ -108,7 +123,7 @@ export async function POST(request: Request) {
     await notifyContactRequest(payload);
   } catch (cause) {
     // La demande est en base : on journalise et on rend quand même un succès.
-    console.error("Notification de demande sur mesure échouée", cause);
+    console.error("Notification de demande de contact échouée", cause);
   }
 
   return NextResponse.json({ ok: true });
