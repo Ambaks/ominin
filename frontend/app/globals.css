@@ -198,6 +198,23 @@ body {
 }
 
 /*
+  Tablette : un bouton répond au doigt sans le délai qu'iOS réserve au
+  double-tap, et une suite de + / − rapides n'a plus le zoom pour effet de
+  bord. Les utilitaires (touch-none du pavé de signature) gardent la main.
+*/
+@layer base {
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  label,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
+/*
   Trame QR — la signature graphique de la marque : des modules carrés
   épars, en filigrane. Gris neutre à faible opacité, lisible sur fond
   sombre comme sur la bande crème.

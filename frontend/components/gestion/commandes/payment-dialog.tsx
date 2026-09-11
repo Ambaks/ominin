@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
+import { amountToInput, parseAmount } from "@/lib/gestion/format";
 import type { CashDetails, EncaissementMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
 
@@ -35,15 +36,6 @@ function SplitIcon() {
       <path d="M15 10h5" />
     </svg>
   );
-}
-
-function parseAmount(raw: string): number | null {
-  const value = parseFloat(raw.replace(",", "."));
-  return Number.isNaN(value) ? null : Math.round(value * 100) / 100;
-}
-
-function amountField(value: number): string {
-  return value.toFixed(2).replace(".", ",");
 }
 
 const FIELD_CLASS =
@@ -94,7 +86,7 @@ export function PaymentDialog({
   const mirror = (raw: string): string => {
     const value = parseAmount(raw);
     return value != null && value > 0 && value < due
-      ? amountField(Math.round((due - value) * 100) / 100)
+      ? amountToInput(Math.round((due - value) * 100) / 100)
       : "";
   };
 
@@ -138,7 +130,7 @@ export function PaymentDialog({
       <button
         type="button"
         onClick={backToMode}
-        className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"
+        className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
       >
         Retour
       </button>
@@ -146,7 +138,7 @@ export function PaymentDialog({
         type="button"
         disabled={!enabled}
         onClick={submit}
-        className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-40"
+        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
       >
         Encaisser
       </button>
@@ -175,7 +167,7 @@ export function PaymentDialog({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") settleCash();
                 }}
-                placeholder={amountField(due)}
+                placeholder={amountToInput(due)}
                 className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
               />
               <span className="text-sm text-muted">€</span>
@@ -258,7 +250,7 @@ export function PaymentDialog({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") settleSplit();
                 }}
-                placeholder={validSplit ? amountField(cashPart) : "0,00"}
+                placeholder={validSplit ? amountToInput(cashPart) : "0,00"}
                 className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
               />
               <span className="text-sm text-muted">€</span>
@@ -347,7 +339,7 @@ export function PaymentDialog({
             onChange={(e) => setTipRaw(e.target.value)}
             placeholder="0"
             aria-label="Pourboire en euros"
-            className="w-20 bg-transparent text-right text-sm tabular-nums outline-none placeholder:text-faint"
+            className="w-24 bg-transparent py-1 text-right text-base tabular-nums outline-none placeholder:text-faint lg:pointer-fine:text-sm"
           />
           <span className="text-sm text-muted">€</span>
         </div>

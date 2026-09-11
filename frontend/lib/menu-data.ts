@@ -29,6 +29,8 @@ export interface MenuItem {
   pairing?: string;
   /** Note de format/volume ("75 cl", "33 cl"). */
   detail?: string;
+  /** Nom sur le ticket de cuisine, s'il diffère du nom de la carte. */
+  printName?: string;
   /** undefined ⇒ disponible. */
   disponible?: boolean;
   /** undefined/null ⇒ stock illimité. */

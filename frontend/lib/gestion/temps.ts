@@ -203,39 +203,38 @@ export async function loadWeek(
 // ---------------------------------------------------------------------------
 // Badgeuse
 
+/*
+ * Les deux gestes passent par des fonctions SQL : c'est la base qui vérifie
+ * le code de badgeage de la fiche (null quand elle n'en a pas) et qui pose
+ * la ligne — le code ne se lit jamais depuis ici.
+ */
+
 export async function clockIn(
-  etablissementId: string,
   staff: Staff,
+  code: string | null,
   signature: string
 ): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from("time_entries").insert({
-    etablissement_id: etablissementId,
-    staff_id: staff.id,
-    member_name: staff.name,
-    signature_in: signature,
-    created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
-  });
-  if (error) {
-    // Index partiel : une fiche déjà arrivée ne peut pas l'être deux fois.
-    throw new Error(
-      error.message.includes("time_entries_open_idx")
-        ? `${staff.name} a déjà badgé son arrivée.`
-        : error.message
-    );
-  }
+  check(
+    await createClient().rpc("clock_in", {
+      p_staff_id: staff.id,
+      p_code: code,
+      p_signature: signature,
+    })
+  );
 }
 
 /** L'heure retenue est celle du serveur (trigger) : la tablette peut dérégler. */
 export async function clockOut(
   entryId: string,
+  code: string | null,
   signature: string
 ): Promise<void> {
   check(
-    await createClient()
-      .from("time_entries")
-      .update({ ended_at: new Date().toISOString(), signature_out: signature })
-      .eq("id", entryId)
+    await createClient().rpc("clock_out", {
+      p_entry_id: entryId,
+      p_code: code,
+      p_signature: signature,
+    })
   );
 }
 

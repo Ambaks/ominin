@@ -7,8 +7,9 @@ import { addDays, weekStart } from "@/lib/gestion/temps";
 /*
  * Le planning d'un serveur, ouvert par le lien que son gérant lui a envoyé.
  * Pas de compte, pas de connexion : le jeton de l'adresse suffit, et la
- * fonction qui répond ne rend que ses créneaux et ses heures. Rien n'est
- * indexé — un planning nominatif n'a pas à se retrouver dans un moteur.
+ * fonction qui répond ne rend que ses créneaux — et ses heures, si Ominin
+ * les a ouvertes au restaurant. Rien n'est indexé : un planning nominatif
+ * n'a pas à se retrouver dans un moteur.
  */
 
 export const metadata: Metadata = {
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
 export interface PlanningPayload {
   name: string;
   etablissement: string;
+  /** Le restaurant montre-t-il les heures (total prévu, badgeages) sur le lien ? */
+  hours: boolean;
   shifts: { id: string; starts_at: string; ends_at: string; note: string | null }[];
   entries: { id: string; started_at: string; ended_at: string | null }[];
 }

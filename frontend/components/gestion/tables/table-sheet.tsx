@@ -13,6 +13,7 @@ import {
   awaitsPayment,
   awaitsService,
   orderTotal,
+  visibleStaff,
   type TableService,
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -48,7 +49,7 @@ export function TableSheet({
   const toPay = service.orders.filter(awaitsPayment);
   const toServe = service.orders.filter(awaitsService);
   const canCancel = can("orders.setStatus:annulee");
-  const serveurs = (state?.staff ?? []).filter(
+  const serveurs = visibleStaff(state?.staff ?? []).filter(
     (member) => member.role === "serveur"
   );
 
@@ -143,7 +144,7 @@ export function TableSheet({
               type="button"
               onClick={() => void ungroup()}
               disabled={busy}
-              className="shrink-0 text-sm font-semibold text-muted transition-colors hover:text-ember-3 disabled:opacity-50"
+              className="shrink-0 rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3 disabled:opacity-50"
             >
               Séparer
             </button>
@@ -159,7 +160,7 @@ export function TableSheet({
               type="button"
               onClick={() => void reprint()}
               disabled={busy}
-              className="shrink-0 text-sm font-semibold text-ember-1 transition-opacity hover:opacity-80 disabled:opacity-50"
+              className="shrink-0 rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-ember-1 transition-colors hover:border-ember-2/40 disabled:opacity-50"
             >
               {service.orders.length > 1
                 ? "Renvoyer les tickets"
@@ -186,7 +187,7 @@ export function TableSheet({
                     <button
                       type="button"
                       onClick={() => setCancelling(order)}
-                      className="font-semibold text-ember-3 transition-opacity hover:opacity-80"
+                      className="rounded-full px-3 py-2 text-sm font-semibold text-ember-3 transition-opacity hover:opacity-80"
                     >
                       Annuler
                     </button>

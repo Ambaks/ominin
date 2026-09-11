@@ -4,10 +4,12 @@ import { useState } from "react";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { inputClass } from "@/components/ui/field";
+import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import type { MenuCategory } from "@/lib/menu-data";
+import { moved } from "@/lib/move";
 
 export function CategoryManager({
   categories,
@@ -21,8 +23,11 @@ export function CategoryManager({
   const [deleting, setDeleting] = useState<MenuCategory | null>(null);
 
   const move = async (index: number, delta: -1 | 1) => {
-    const ids = categories.map((category) => category.id);
-    [ids[index], ids[index + delta]] = [ids[index + delta], ids[index]];
+    const ids = moved(
+      categories.map((category) => category.id),
+      index,
+      delta
+    );
     await run(() => api.reorderCategories(ids));
   };
 
@@ -48,7 +53,7 @@ export function CategoryManager({
         {categories.map((category, index) => (
           <div
             key={category.id}
-            className="flex items-center gap-1.5 rounded-xl border border-hairline bg-background p-2"
+            className="flex items-center gap-2 rounded-2xl border border-hairline bg-background p-2"
           >
             <input
               defaultValue={category.name}
@@ -56,41 +61,37 @@ export function CategoryManager({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
               }}
-              className="min-w-0 flex-1 bg-transparent px-2 py-1 text-base outline-none lg:text-sm"
+              aria-label={`Nom de la catégorie ${category.name}`}
+              className="min-w-0 flex-1 rounded-xl border border-transparent bg-transparent px-3 py-2.5 text-base outline-none transition-colors focus:border-ember-2/50 focus:bg-surface lg:pointer-fine:text-sm"
             />
-            <span className="shrink-0 text-xs tabular-nums text-faint">
+            <span className="w-6 shrink-0 text-center text-xs tabular-nums text-faint">
               {category.items.length}
             </span>
-            <button
-              type="button"
+            <IconButton
               disabled={index === 0}
-              onClick={() => move(index, -1)}
+              onClick={() => void move(index, -1)}
               aria-label={`Monter ${category.name}`}
-              className="rounded-full p-1.5 text-muted transition-colors hover:text-foreground disabled:opacity-30"
             >
-              <ChevronDownIcon className="size-3.5 rotate-180" />
-            </button>
-            <button
-              type="button"
+              <ChevronDownIcon className="size-4 rotate-180" />
+            </IconButton>
+            <IconButton
               disabled={index === categories.length - 1}
-              onClick={() => move(index, 1)}
+              onClick={() => void move(index, 1)}
               aria-label={`Descendre ${category.name}`}
-              className="rounded-full p-1.5 text-muted transition-colors hover:text-foreground disabled:opacity-30"
             >
-              <ChevronDownIcon className="size-3.5" />
-            </button>
-            <button
-              type="button"
+              <ChevronDownIcon className="size-4" />
+            </IconButton>
+            <IconButton
+              tone="danger"
               onClick={() => setDeleting(category)}
               aria-label={`Supprimer ${category.name}`}
-              className="rounded-full p-1.5 text-muted transition-colors hover:text-ember-3"
             >
-              <TrashIcon className="size-3.5" />
-            </button>
+              <TrashIcon className="size-4" />
+            </IconButton>
           </div>
         ))}
 
-        <form onSubmit={add} className="mt-1 flex gap-2">
+        <form onSubmit={add} className="mt-2 flex gap-2">
           <input
             value={newName}
             onChange={(event) => setNewName(event.target.value)}
@@ -100,7 +101,7 @@ export function CategoryManager({
           <button
             type="submit"
             disabled={!newName.trim()}
-            className="ember-gradient shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-40"
+            className="ember-gradient shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
           >
             Ajouter
           </button>

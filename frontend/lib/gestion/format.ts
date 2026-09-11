@@ -12,6 +12,17 @@ export function priceToInput(price: number): string {
     : price.toFixed(2).replace(".", ",");
 }
 
+/** Parse un montant saisi ("12,50", "12.5") → nombre au centime, ou null. */
+export function parseAmount(raw: string): number | null {
+  const value = parseFloat(raw.replace(",", "."));
+  return Number.isNaN(value) ? null : Math.round(value * 100) / 100;
+}
+
+/** Nombre → montant saisi, toujours au centime ("12,50"). */
+export function amountToInput(value: number): string {
+  return value.toFixed(2).replace(".", ",");
+}
+
 export function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("fr-FR", {
     hour: "2-digit",

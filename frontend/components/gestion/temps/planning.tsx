@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { formatTime } from "@/lib/gestion/format";
+import { visibleStaff } from "@/lib/gestion/selectors";
 import {
   addDays,
   copyWeek,
@@ -11,6 +13,7 @@ import {
   plannedMinutes,
   shiftsOf,
   weekDays,
+  workedMinutes,
   type EntrySpan,
   type Shift,
 } from "@/lib/gestion/temps";
@@ -20,8 +23,8 @@ import { StaffModal } from "./staff-modal";
 
 /*
  * Le planning de la semaine. Le gérant le pose dans une grille équipe × jours ;
- * chaque membre retrouve la sienne en liste, avec ses badgeages en regard —
- * l'écart entre ce qui était prévu et ce qui a été fait se lit d'un coup d'œil.
+ * chaque membre retrouve la sienne en liste par son lien — avec ses badgeages
+ * en regard quand le restaurant les lui montre.
  */
 
 function dayLabel(day: Date): string {
@@ -46,14 +49,12 @@ export function WeekNav({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <button
-          type="button"
+        <IconButton
           onClick={() => onChange(addDays(start, -7))}
           aria-label="Semaine précédente"
-          className="rounded-full border border-hairline px-3 py-1.5 text-sm text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
         >
-          ‹
-        </button>
+          <span className="text-xl leading-none">‹</span>
+        </IconButton>
         <p className="text-sm font-medium">
           {start.toLocaleDateString("fr-FR", {
             day: "numeric",
@@ -62,14 +63,12 @@ export function WeekNav({
           {" – "}
           {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
         </p>
-        <button
-          type="button"
+        <IconButton
           onClick={() => onChange(addDays(start, 7))}
           aria-label="Semaine suivante"
-          className="rounded-full border border-hairline px-3 py-1.5 text-sm text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
         >
-          ›
-        </button>
+          <span className="text-xl leading-none">›</span>
+        </IconButton>
       </div>
       {children}
     </div>
@@ -104,6 +103,8 @@ export function PlanningGrid({
   );
   const [copying, setCopying] = useState(false);
   const days = weekDays(start);
+  // Une fiche masquée ne se planifie pas : elle attend dans Équipe.
+  const team = visibleStaff(staff);
 
   const copyToNext = async () => {
     setCopying(true);
@@ -128,7 +129,7 @@ export function PlanningGrid({
     <button
       type="button"
       onClick={() => setEditingStaff(null)}
-      className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+      className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
     >
       + Ajouter un serveur
     </button>
@@ -145,7 +146,7 @@ export function PlanningGrid({
     />
   );
 
-  if (staff.length === 0) {
+  if (team.length === 0) {
     return (
       <div className="flex flex-col items-start gap-3">
         <p className="text-sm text-muted">
@@ -168,7 +169,7 @@ export function PlanningGrid({
             type="button"
             onClick={() => void copyToNext()}
             disabled={copying || shifts.length === 0}
-            className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
           >
             Recopier sur la semaine suivante
           </button>
@@ -193,7 +194,7 @@ export function PlanningGrid({
               Total
             </div>
 
-            {staff.map((member) => {
+            {team.map((member) => {
               const mine = shiftsOf(shifts, member.id);
               return (
                 <div key={member.id} className="contents">
@@ -210,7 +211,7 @@ export function PlanningGrid({
                     return (
                       <div
                         key={day.toDateString()}
-                        className="flex min-h-14 flex-col gap-1 bg-surface p-1.5"
+                        className="flex min-h-16 flex-col gap-1 bg-surface p-1.5"
                       >
                         {cell.map((shift) => (
                           <button
@@ -218,7 +219,7 @@ export function PlanningGrid({
                             type="button"
                             onClick={() => setEditing({ day, shift })}
                             title={shift.note}
-                            className="rounded-lg border border-ember-2/30 bg-ember-2/10 px-1.5 py-1 text-[11px] font-semibold tabular-nums text-ember-2 transition-colors hover:border-ember-2/60"
+                            className="rounded-lg border border-ember-2/30 bg-ember-2/10 px-1.5 py-2 text-xs font-semibold tabular-nums text-ember-2 transition-colors hover:border-ember-2/60"
                           >
                             {formatTime(shift.startsAt)}–{formatTime(shift.endsAt)}
                           </button>
@@ -227,7 +228,7 @@ export function PlanningGrid({
                           type="button"
                           onClick={() => setEditing({ day, member })}
                           aria-label={`Ajouter un créneau pour ${member.name}`}
-                          className="rounded-lg py-0.5 text-xs text-faint transition-colors hover:bg-surface-raised hover:text-ember-1"
+                          className="flex min-h-9 items-center justify-center rounded-lg border border-dashed border-hairline text-base text-faint transition-colors hover:border-ember-2/40 hover:text-ember-1"
                         >
                           +
                         </button>
@@ -247,7 +248,7 @@ export function PlanningGrid({
       {editing && (
         <ShiftModal
           etablissementId={etablissementId}
-          staff={staff}
+          staff={team}
           day={editing.day}
           shift={editing.shift}
           member={editing.member}
@@ -263,22 +264,27 @@ export function PlanningGrid({
   );
 }
 
-/** Vue d'un membre sur sa semaine : ce qui est prévu, ce qui a été badgé. */
+/**
+ * Vue d'un membre sur sa semaine : ses créneaux, et — si le restaurant le
+ * montre — le total prévu, le total badgé et ses badgeages jour par jour.
+ */
 export function MonPlanning({
   staffId,
   shifts,
   entries,
   start,
+  showHours,
 }: {
   staffId: string;
   shifts: Shift[];
   entries: EntrySpan[];
   start: Date;
+  showHours: boolean;
 }) {
   const mine = shiftsOf(shifts, staffId);
   const mineEntries = entriesOf(entries, staffId);
 
-  return (
+  const week = (
     <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
       {weekDays(start).map((day, index) => {
         const dayShifts = shiftsOf(mine, staffId, day);
@@ -328,5 +334,31 @@ export function MonPlanning({
         );
       })}
     </ul>
+  );
+
+  if (!showHours) return week;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-hairline bg-surface p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Prévu
+          </p>
+          <p className="mt-1 font-display text-2xl tabular-nums">
+            {formatDuration(plannedMinutes(mine))}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-hairline bg-surface p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Badgé
+          </p>
+          <p className="mt-1 font-display text-2xl tabular-nums text-ember-1">
+            {formatDuration(workedMinutes(mineEntries, new Date()))}
+          </p>
+        </div>
+      </div>
+      {week}
+    </div>
   );
 }

@@ -68,14 +68,20 @@ const NAV_ITEMS: NavItem[] = [
  * Onglet compte : barre latérale uniquement, et fermé au serveur — il n'a ni
  * offre à souscrire ni droits à arbitrer. La barre mobile est celle du
  * service — y ajouter un neuvième onglet la rendrait illisible ; sur mobile,
- * la pastille offre · rôle de l'en-tête mène à la même page.
+ * la pastille offre · rôle de l'en-tête mène à la même page. Ominin peut le
+ * fermer à tout le monde (capacité produits) : sur la tablette partagée d'un
+ * restaurant, le catalogue n'a rien à faire.
  */
 const PRODUITS_ITEM: NavItem = {
   href: "/gestion/produits",
   label: "Produits",
-  feature: null,
+  feature: "produits",
   icon: ProductsIcon,
 };
+
+/** Commandes de l'en-tête : une cible de 44 px au doigt, 36 px à la souris. */
+const HEADER_ICON_CLASS =
+  "flex size-11 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:size-9";
 
 /** Surtitre offre · rôle de l'en-tête, lien ou simple texte. */
 const SURTITRE_CLASS =
@@ -150,7 +156,8 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   );
   const pendingCount =
     state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
-  const showProduits = state != null && state.role !== "serveur";
+  const showProduits =
+    state != null && state.role !== "serveur" && state.features.produits;
   const surtitre = state
     ? `${
         state.etablissement.offre
@@ -196,9 +203,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   rel="noopener"
                   title="Voir mon menu"
                   aria-label="Voir mon menu"
-                  className="flex items-center gap-1.5 rounded-full border border-hairline p-2 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:py-2"
+                  className="flex min-h-11 items-center gap-1.5 rounded-full border border-hairline px-3 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:pointer-fine:min-h-9"
                 >
-                  <ExternalLinkIcon className="size-3.5" />
+                  <ExternalLinkIcon className="size-4" />
                   <span className="hidden lg:inline">Voir mon menu</span>
                 </a>
                 {(state?.features.commandes ?? false) && (
@@ -206,9 +213,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     href="/gestion/notifications"
                     title="Notifications"
                     aria-label="Notifications"
-                    className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                    className={HEADER_ICON_CLASS}
                   >
-                    <BellIcon className="size-3.5" />
+                    <BellIcon className="size-4" />
                   </Link>
                 )}
                 {can(state.role, "etablissement.edit") && (
@@ -216,9 +223,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     href="/gestion/etablissement"
                     title="Établissement"
                     aria-label="Établissement"
-                    className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                    className={HEADER_ICON_CLASS}
                   >
-                    <GearIcon className="size-3.5" />
+                    <GearIcon className="size-4" />
                   </Link>
                 )}
                 <button
@@ -226,9 +233,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   onClick={() => void signOut()}
                   title="Se déconnecter"
                   aria-label="Se déconnecter"
-                  className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  className={HEADER_ICON_CLASS}
                 >
-                  <LogoutIcon className="size-3.5" />
+                  <LogoutIcon className="size-4" />
                 </button>
               </div>
             )}

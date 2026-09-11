@@ -131,7 +131,7 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
                 "orders(type, created_at, customer_name, pickup_at, "
                 "tables(number), "
                 "order_items(id, item_id, name, quantity, options, "
-                "items(categories(name, position))))"
+                "items(print_name, categories(name, position))))"
             )
             .in_("printer_id", printer_ids)
             .eq("status", "pending")

@@ -870,6 +870,8 @@ export type Database = {
           name: string
           options: Json
           pairing: string | null
+          position: number
+          print_name: string | null
           price: number
           stock: number | null
           vat_rate: number
@@ -887,6 +889,8 @@ export type Database = {
           name: string
           options?: Json
           pairing?: string | null
+          position?: number
+          print_name?: string | null
           price: number
           stock?: number | null
           vat_rate?: number
@@ -904,6 +908,8 @@ export type Database = {
           name?: string
           options?: Json
           pairing?: string | null
+          position?: number
+          print_name?: string | null
           price?: number
           stock?: number | null
           vat_rate?: number
@@ -1841,6 +1847,32 @@ export type Database = {
           },
         ]
       }
+      staff_codes: {
+        Row: {
+          code_hash: string
+          staff_id: string
+          updated_at: string
+        }
+        Insert: {
+          code_hash: string
+          staff_id: string
+          updated_at?: string
+        }
+        Update: {
+          code_hash?: string
+          staff_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_codes_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff: {
         Row: {
           created_at: string
@@ -1848,6 +1880,8 @@ export type Database = {
           id: string
           name: string
           planning_token: string
+          code_set: boolean
+          hidden: boolean
           role: Database["public"]["Enums"]["member_role"]
           user_id: string | null
         }
@@ -1857,6 +1891,8 @@ export type Database = {
           id?: string
           name: string
           planning_token?: string
+          code_set?: boolean
+          hidden?: boolean
           role?: Database["public"]["Enums"]["member_role"]
           user_id?: string | null
         }
@@ -1866,6 +1902,8 @@ export type Database = {
           id?: string
           name?: string
           planning_token?: string
+          code_set?: boolean
+          hidden?: boolean
           role?: Database["public"]["Enums"]["member_role"]
           user_id?: string | null
         }
@@ -3329,6 +3367,38 @@ export type Database = {
         Returns: string
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
+      reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
+      set_staff_code: {
+        Args: { p_code: string; p_staff_id: string }
+        Returns: undefined
+      }
+      create_staff: {
+        Args: {
+          p_code: string
+          p_etablissement_id: string
+          p_name: string
+          p_role: Database["public"]["Enums"]["member_role"]
+        }
+        Returns: Database["public"]["Tables"]["staff"]["Row"]
+      }
+      clock_in: {
+        Args: { p_code: string | null; p_signature: string; p_staff_id: string }
+        Returns: string
+      }
+      clock_out: {
+        Args: { p_code: string | null; p_entry_id: string; p_signature: string }
+        Returns: undefined
+      }
+      update_order_payment: {
+        Args: {
+          p_cash_amount?: number | null
+          p_cash_change?: number | null
+          p_cash_given?: number | null
+          p_mode: Database["public"]["Enums"]["payment_mode"]
+          p_order_id: string
+        }
+        Returns: undefined
+      }
       tarifs_actifs: {
         Args: { p_at?: string; p_etablissement: string }
         Returns: { item_id: string; price: number; rule_name: string }[]

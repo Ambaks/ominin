@@ -397,7 +397,6 @@ export default function EquipePage() {
           {active === "badgeages" && (
             <div className="flex flex-col gap-6">
               <Badgeuse
-                etablissementId={state.etablissement.id}
                 staff={state.staff}
                 entries={open.entries}
                 onChange={badged}

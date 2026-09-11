@@ -146,7 +146,7 @@ export function EncaisserPanel({
                       : new Set(unpaid.map((unit) => unit.key))
                   )
                 }
-                className="text-xs font-semibold text-ember-2 transition-opacity hover:opacity-80"
+                className="rounded-full px-3 py-2 text-sm font-semibold text-ember-2 transition-opacity hover:opacity-80"
               >
                 {selection.length === unpaid.length
                   ? "Désélectionner"
@@ -252,7 +252,7 @@ export function EncaisserPanel({
                 <button
                   type="button"
                   onClick={payAll}
-                  className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:text-foreground"
+                  className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
                 >
                   {restLabel} · {formatPrice(remaining)}
                 </button>
@@ -260,7 +260,7 @@ export function EncaisserPanel({
               <button
                 type="button"
                 onClick={partial ? paySelection : payAll}
-                className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
               >
                 {partial ? "Encaisser la sélection" : restLabel}
               </button>

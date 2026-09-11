@@ -20,6 +20,7 @@ import {
 } from "@/lib/gestion/terminaux";
 import type { Formule } from "@/lib/gestion/types";
 import type { MenuItem } from "@/lib/menu-data";
+import { moved } from "@/lib/move";
 
 type View = "menu" | "formules";
 
@@ -92,33 +93,37 @@ export default function MenuPage() {
     : undefined;
   const menuItems = categories.flatMap((c) => c.items);
 
+  const moveItem = (index: number, delta: -1 | 1) => {
+    if (!category) return;
+    const ids = moved(
+      category.items.map((item) => item.id),
+      index,
+      delta
+    );
+    void run(() => api.reorderItems(category.id, ids));
+  };
+
+  const viewTab = (id: View, label: string) => (
+    <button
+      type="button"
+      onClick={() => setView(id)}
+      className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+        view === id
+          ? "ember-gradient text-background"
+          : "text-muted hover:text-foreground"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex rounded-full border border-hairline p-1">
-            <button
-              type="button"
-              onClick={() => setView("menu")}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                view === "menu"
-                  ? "ember-gradient text-background"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              Menu
-            </button>
-            <button
-              type="button"
-              onClick={() => setView("formules")}
-              className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-                view === "formules"
-                  ? "ember-gradient text-background"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              Formules
-            </button>
+            {viewTab("menu", "Menu")}
+            {viewTab("formules", "Formules")}
           </div>
         </div>
 
@@ -127,7 +132,7 @@ export default function MenuPage() {
             <button
               type="button"
               onClick={() => setManagingCats(true)}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
             >
               Catégories
             </button>
@@ -135,7 +140,7 @@ export default function MenuPage() {
               <button
                 type="button"
                 onClick={() => setCreatingItem(true)}
-                className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background"
+                className="ember-gradient rounded-full px-4 py-2.5 text-sm font-semibold text-background"
               >
                 + Ajouter un article
               </button>
@@ -147,7 +152,7 @@ export default function MenuPage() {
           <button
             type="button"
             onClick={() => setCreatingFormule(true)}
-            className="ember-gradient shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-background"
+            className="ember-gradient shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold text-background"
           >
             + Nouvelle formule
           </button>
@@ -189,6 +194,7 @@ export default function MenuPage() {
                   key={category.id}
                   defaultValue={category.tagline ?? ""}
                   placeholder="Note de catégorie affichée sur le menu client…"
+                  aria-label="Note de catégorie"
                   onBlur={(event) => {
                     const value = event.target.value;
                     if (value.trim() === (category.tagline ?? "")) return;
@@ -200,7 +206,7 @@ export default function MenuPage() {
                   onKeyDown={(event) => {
                     if (event.key === "Enter") event.currentTarget.blur();
                   }}
-                  className="border-b border-hairline bg-transparent pb-2 font-display text-base italic text-muted outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 lg:text-sm"
+                  className="border-b border-hairline bg-transparent py-2 font-display text-base italic text-muted outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 lg:pointer-fine:text-sm"
                 />
               ) : (
                 category.tagline && (
@@ -217,13 +223,16 @@ export default function MenuPage() {
                 />
               ) : (
                 <div className="grid gap-4 lg:grid-cols-2">
-                  {category.items.map((item) => (
+                  {category.items.map((item, index) => (
                     <MenuItemCard
                       key={item.id}
                       item={item}
                       printers={showRouting ? printers : []}
                       printerId={routing.get(item.id) ?? null}
                       canRoute={canRoute}
+                      first={index === 0}
+                      last={index === category.items.length - 1}
+                      onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}
                       onPrinterChange={(pid) =>

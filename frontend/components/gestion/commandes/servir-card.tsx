@@ -80,7 +80,7 @@ export function ServirPanel({
                     type="button"
                     disabled={busy.has(line.id)}
                     onClick={() => void serve([line.id])}
-                    className="ember-gradient shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-background disabled:opacity-60"
+                    className="ember-gradient shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-60"
                   >
                     Servie
                   </button>

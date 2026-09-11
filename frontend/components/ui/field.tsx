@@ -1,6 +1,10 @@
-/* text-base sur mobile : en dessous de 16px, iOS zoome sur le champ au focus. */
+/*
+ * 16 px dès qu'un doigt peut toucher l'écran : en dessous, iOS zoome sur le
+ * champ au focus — et la page saute. Un iPad en paysage passe le seuil lg,
+ * la taille réduite ne vaut donc que pour un écran large ET une souris.
+ */
 export const inputClass =
-  "w-full rounded-xl border border-hairline bg-background px-4 py-2.5 text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 lg:text-sm";
+  "w-full rounded-xl border border-hairline bg-background px-4 py-2.5 text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 lg:pointer-fine:text-sm";
 
 export function Field({
   label,

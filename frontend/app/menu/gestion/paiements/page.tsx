@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { EditCashDialog } from "@/components/gestion/paiements/edit-cash-dialog";
+import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
@@ -99,7 +100,9 @@ function PaymentRow({
     : `Table ${state.tables.find((t) => t.id === order.tableId)?.number ?? "—"}`;
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
-  const editable = order.paymentMode === "especes" && !order.paidOnline;
+  // Tout encaissement au comptoir se corrige et s'annule ; un règlement en
+  // ligne est une transaction réelle chez le prestataire, il reste tel quel.
+  const editable = order.paymentMode != null && !order.paidOnline;
   // Une addition partagée n'a pas de montant unique à afficher : ses deux
   // jambes le disent, et c'est la jambe espèces qui porte la monnaie rendue.
   const split = mode === "mixte" ? totalsByMode(order) : null;
@@ -149,24 +152,21 @@ function PaymentRow({
       </span>
       {editable && (
         <div className="flex shrink-0 items-center gap-1.5">
-          <button
-            type="button"
+          <IconButton
             onClick={onEdit}
-            title="Modifier le paiement"
-            aria-label="Modifier le paiement"
-            className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+            title="Modifier l'encaissement"
+            aria-label="Modifier l'encaissement"
           >
-            <EditIcon className="size-3.5" />
-          </button>
-          <button
-            type="button"
+            <EditIcon className="size-4" />
+          </IconButton>
+          <IconButton
+            tone="danger"
             onClick={onVoid}
             title="Annuler l'encaissement"
             aria-label="Annuler l'encaissement"
-            className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3"
           >
-            <TrashIcon className="size-3.5" />
-          </button>
+            <TrashIcon className="size-4" />
+          </IconButton>
         </div>
       )}
     </div>
@@ -377,22 +377,18 @@ export default function PaiementsPage() {
       )}
 
       {editing && (
-        <EditCashDialog
+        <EditPaymentDialog
           order={editing}
           onClose={() => setEditing(null)}
-          onSave={async (cashGiven, cashChange) => {
+          onSave={async (correction) => {
             const order = editing;
             setEditing(null);
             try {
-              const updated = await api.updateCashDetails(
-                order.id,
-                cashGiven,
-                cashChange
-              );
+              const updated = await api.updateOrderPayment(order.id, correction);
               setHistory((current) =>
                 current.map((o) => (o.id === updated.id ? updated : o))
               );
-              toast.success("Paiement modifié.");
+              toast.success("Encaissement modifié.");
             } catch (error) {
               toast.error(
                 error instanceof Error
@@ -406,7 +402,9 @@ export default function PaiementsPage() {
       {voiding && (
         <ConfirmDialog
           title="Annuler l'encaissement ?"
-          message="Le paiement en espèces sera effacé et la commande passera en annulée. Cette action est définitive."
+          message={`Le règlement ${
+            voiding.paymentMode ? `en ${PAYMENT_MODE_LABELS[voiding.paymentMode].toLowerCase()} ` : ""
+          }sera effacé et la commande passera en annulée. Cette action est définitive.`}
           confirmLabel="Annuler l'encaissement"
           destructive
           onClose={() => setVoiding(null)}
@@ -414,7 +412,7 @@ export default function PaiementsPage() {
             const order = voiding;
             setVoiding(null);
             try {
-              await api.voidCashPayment(order.id);
+              await api.voidPayment(order.id);
               setHistory((current) => current.filter((o) => o.id !== order.id));
               toast.success("Encaissement annulé.");
             } catch (error) {

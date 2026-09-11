@@ -220,14 +220,14 @@ export function BadgeagesLog({
                     <button
                       type="button"
                       onClick={() => setCorrecting(entry)}
-                      className="text-xs font-semibold text-ember-1 transition-opacity hover:opacity-80"
+                      className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
                     >
                       Corriger
                     </button>
                     <button
                       type="button"
                       onClick={() => setRemoving(entry)}
-                      className="text-xs font-semibold text-muted transition-colors hover:text-ember-3"
+                      className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted transition-colors hover:text-ember-3"
                     >
                       Supprimer
                     </button>

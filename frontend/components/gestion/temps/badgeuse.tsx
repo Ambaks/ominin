@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
-import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
+import { SERVICE_CLOCK_TICK_MS, STAFF_CODE_LENGTH } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
+import { visibleStaff } from "@/lib/gestion/selectors";
 import {
   clockIn,
   clockOut,
@@ -19,10 +20,12 @@ import { SignaturePad } from "./signature-pad";
 
 /*
  * La badgeuse du comptoir : deux gestes, arrivée et départ. Chacun se
- * désigne dans l'équipe puis signe — c'est la signature, figée avec le nom et
- * l'heure, qui fait la preuve du temps de travail. L'écran est partagé et ne
- * suppose donc pas que celui qui badge est celui qui a ouvert la session : la
- * tablette du restaurant est connectée une fois pour toutes.
+ * désigne dans l'équipe, tape son code de badgeage quand sa fiche en a un,
+ * puis signe — c'est la signature, figée avec le nom et l'heure, qui fait la
+ * preuve du temps de travail ; le code, lui, dit que c'est bien la bonne
+ * personne qui signe. L'écran est partagé et ne suppose donc pas que celui
+ * qui badge est celui qui a ouvert la session : la tablette du restaurant est
+ * connectée une fois pour toutes.
  */
 
 type Action = "in" | "out";
@@ -33,12 +36,10 @@ const ACTION_LABELS: Record<Action, string> = {
 };
 
 export function Badgeuse({
-  etablissementId,
   staff,
   entries,
   onChange,
 }: {
-  etablissementId: string;
   /** Équipe active : les fiches, avec ou sans compte. */
   staff: Staff[];
   /** Périodes de travail ouvertes, quelle que soit leur date. */
@@ -49,30 +50,36 @@ export function Badgeuse({
   const now = useNow(SERVICE_CLOCK_TICK_MS);
   const [action, setAction] = useState<Action | null>(null);
   const [chosen, setChosen] = useState<Staff | null>(null);
+  const [code, setCode] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const present = staff.filter((s) => openEntry(entries, s.id));
-  const absent = staff.filter((s) => !openEntry(entries, s.id));
+  const team = visibleStaff(staff);
+  const present = team.filter((s) => openEntry(entries, s.id));
+  const absent = team.filter((s) => !openEntry(entries, s.id));
   const eligible = action === "out" ? present : absent;
+  const needsCode = chosen?.codeSet ?? false;
+  const codeReady = !needsCode || code.length === STAFF_CODE_LENGTH;
 
   const close = () => {
     setAction(null);
     setChosen(null);
+    setCode("");
     setSignature(null);
   };
 
   const submit = async () => {
-    if (!chosen || !signature) return;
+    if (!chosen || !signature || !codeReady) return;
     setBusy(true);
+    const presented = needsCode ? code : null;
     try {
       if (action === "in") {
-        await clockIn(etablissementId, chosen, signature);
+        await clockIn(chosen, presented, signature);
         toast.success(`Arrivée de ${chosen.name} enregistrée.`);
       } else {
         const open = openEntry(entries, chosen.id);
         if (!open) throw new Error("Aucune arrivée à clôturer.");
-        await clockOut(open.id, signature);
+        await clockOut(open.id, presented, signature);
         toast.success(
           `Départ de ${chosen.name} — ${formatDuration(
             minutesBetween(open.startedAt, new Date().toISOString())
@@ -85,6 +92,8 @@ export function Badgeuse({
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
       );
+      // La signature reste ; seul le code se retape.
+      setCode("");
     } finally {
       setBusy(false);
     }
@@ -133,7 +142,7 @@ export function Badgeuse({
         </button>
       </div>
 
-      {staff.length === 0 && (
+      {team.length === 0 && (
         <p className="text-sm text-muted">
           Aucun serveur dans l&rsquo;équipe. Le gérant les ajoute depuis
           Équipe, onglet Planning.
@@ -183,9 +192,9 @@ export function Badgeuse({
                   <button
                     type="button"
                     onClick={() => setChosen(member)}
-                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3.5 text-left transition-colors hover:border-ember-2/40"
+                    className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3 text-left transition-colors hover:border-ember-2/40"
                   >
-                    <span className="truncate text-sm font-medium">
+                    <span className="truncate text-base font-medium">
                       {member.name}
                     </span>
                     {action === "out" && (
@@ -211,17 +220,18 @@ export function Badgeuse({
                 type="button"
                 onClick={() => {
                   setChosen(null);
+                  setCode("");
                   setSignature(null);
                 }}
-                className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"
+                className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
               >
                 Retour
               </button>
               <button
                 type="button"
-                disabled={!signature || busy}
+                disabled={!signature || !codeReady || busy}
                 onClick={() => void submit()}
-                className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-40"
+                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
               >
                 Valider
               </button>
@@ -237,8 +247,25 @@ export function Badgeuse({
                   minute: "2-digit",
                 })}
               </span>
-              . Signez pour confirmer.
+              . {needsCode ? "Tapez votre code, puis signez." : "Signez pour confirmer."}
             </p>
+            {needsCode && (
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                autoFocus
+                value={code}
+                onChange={(event) =>
+                  setCode(
+                    event.target.value.replace(/\D/g, "").slice(0, STAFF_CODE_LENGTH)
+                  )
+                }
+                aria-label="Code de badgeage"
+                placeholder="••••"
+                className="w-full rounded-xl border border-hairline bg-background px-4 py-3 text-center font-display text-2xl tracking-[0.5em] outline-none transition-colors placeholder:tracking-[0.5em] focus:border-ember-2/50"
+              />
+            )}
             <SignaturePad onChange={setSignature} />
           </div>
         </Modal>

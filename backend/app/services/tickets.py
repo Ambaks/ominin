@@ -56,9 +56,12 @@ def _render_items(order_items: list[dict]) -> list[bytes]:
         if cat_name:
             out += [BOLD_ON, SIZE_TALL, _line(cat_name.upper()), SIZE_NORMAL, BOLD_OFF, LF]
         for item in items:
+            # Le surnom de cuisine de l'article, s'il en a un ; sinon le nom
+            # figé sur la ligne (l'article a pu être supprimé depuis).
+            name = (item.get("items") or {}).get("print_name") or item["name"]
             out += [
                 SIZE_DOUBLE, BOLD_ON,
-                _line(f"{item['quantity']} \xd7 {item['name']}"),
+                _line(f"{item['quantity']} \xd7 {name}"),
                 BOLD_OFF, SIZE_NORMAL,
             ]
             for opt in item["options"]:
