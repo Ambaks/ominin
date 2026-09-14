@@ -301,6 +301,7 @@ async function load(): Promise<void> {
         .from("items")
         .select("*")
         .eq("etablissement_id", etablissementId)
+        .order("position", { ascending: true })
         .order("created_at", { ascending: true })
         .then(must),
       supabase

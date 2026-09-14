@@ -34,6 +34,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
+    .order("position", { referencedTable: "items", ascending: true })
     .order("created_at", { referencedTable: "items", ascending: true })
     .maybeSingle();
   if (error) throw new Error(error.message);

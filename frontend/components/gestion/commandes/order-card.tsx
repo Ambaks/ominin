@@ -149,7 +149,7 @@ export function OrderCard({
                     new Date(Date.now() + minutes * 60_000).toISOString()
                   );
                 }}
-                className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold tabular-nums transition-colors hover:border-ember-2/40 hover:text-ember-1"
+                className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold tabular-nums transition-colors hover:border-ember-2/40 hover:text-ember-1"
               >
                 {minutes} min
               </button>
@@ -160,7 +160,7 @@ export function OrderCard({
                 setChoosingEta(false);
                 void transition("en_preparation");
               }}
-              className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40"
+              className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40"
             >
               Sans estimation
             </button>
@@ -168,7 +168,7 @@ export function OrderCard({
               type="button"
               onClick={() => setChoosingEta(false)}
               aria-label="Fermer le choix de délai"
-              className="px-1 text-sm text-faint transition-colors hover:text-foreground"
+              className="flex size-11 items-center justify-center rounded-full text-base text-faint transition-colors hover:text-foreground lg:pointer-fine:size-9"
             >
               ✕
             </button>

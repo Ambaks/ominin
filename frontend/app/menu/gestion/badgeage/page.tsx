@@ -31,7 +31,6 @@ export default function BadgeagePage() {
       </div>
 
       <Badgeuse
-        etablissementId={state.etablissement.id}
         staff={state.staff}
         entries={open.entries}
         onChange={open.reload}

@@ -324,7 +324,7 @@ export default function ApercuPage() {
                   key={days}
                   type="button"
                   onClick={() => setPeriod(days)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                     period === days
                       ? "ember-gradient text-background"
                       : "text-muted hover:text-foreground"

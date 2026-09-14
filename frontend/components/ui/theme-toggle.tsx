@@ -1,12 +1,13 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { IconButton } from "./icon-button";
 
 function SunIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="size-4"
+      className="size-4.5"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.8"
@@ -24,7 +25,7 @@ function MoonIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="size-4"
+      className="size-4.5"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.8"
@@ -46,14 +47,13 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   const label = isLight ? "Passer au thème sombre" : "Passer au thème clair";
 
   return (
-    <button
-      type="button"
+    <IconButton
       title={label}
       aria-label={label}
       onClick={() => setTheme(isLight ? "dark" : "light")}
-      className={`rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground ${className}`}
+      className={className}
     >
       {isLight ? <MoonIcon /> : <SunIcon />}
-    </button>
+    </IconButton>
   );
 }

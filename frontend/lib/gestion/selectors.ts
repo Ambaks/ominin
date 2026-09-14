@@ -91,6 +91,11 @@ export function paidInMode(order: Order, mode: PaymentLeg): number {
   );
 }
 
+/** L'équipe qui travaille : une fiche masquée sort des écrans de service. */
+export function visibleStaff(staff: Staff[]): Staff[] {
+  return staff.filter((member) => !member.hidden);
+}
+
 export interface TableService {
   /** Table qui porte l'addition : la plus petite du groupe s'il y en a un. */
   table: Table;

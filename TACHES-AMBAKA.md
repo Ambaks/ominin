@@ -29,7 +29,45 @@ Ce qui reste **impossible à vérifier sans accès** (base avec la clé service,
 Vercel, Stripe, Supabase Auth) est laissé coché vide avec la mention
 *« non vérifié »*. Ce qui est **confirmé non fait** est marqué *« à faire »*.
 
-## 0. Portail, landing Shop et landing Collect (2026-09-11, branche `ominingeneral`)
+## 0. Lot MenuBoho : ordre, ticket, codes, lien planning, encaissements (2026-09-13, branche `MenuBoho`)
+
+Cinq migrations, fusionnées dans `main` le 2026-09-14 en même temps que
+`ominingeneral`. **Ordre à respecter : `supabase db push` avant `git push`.**
+Le front appelle `reorder_items`, `create_staff` et `update_order_payment`,
+et le backend lit `items.print_name` au moment d'imprimer : déployés avant la
+migration, le réordonnancement, la création de fiche, la correction
+d'encaissement et l'impression des tickets tombent en erreur.
+
+- [ ] **Supabase** : `supabase db push` — applique, après celles des § 1 à 3,
+      `20260913000001_ordre_articles.sql` (`items.position`, RPC
+      `reorder_items`), `20260913000002_nom_ticket.sql` (`items.print_name`),
+      `20260913000003_codes_badgeage.sql` (table `staff_codes` sans policy,
+      `staff.code_set` et `staff.hidden`, RPC `create_staff` et
+      `set_staff_code`, `clock_in` et `clock_out` qui vérifient le code),
+      `20260913000004_lien_planning.sql` (`staff_planning` lit la capacité
+      `lien_heures` ; BOHO réglé nommément à `lien_heures: false` et
+      `produits: false`) et `20260913000005_correction_encaissement.sql`
+      (RPC `update_order_payment`). L'ordre compte. Les 69 migrations ont été
+      rejouées sur un Postgres 16 vierge à la fusion.
+- [ ] **Poser les codes des serveurs de BOHO** : Gestion → Équipe, chaque
+      fiche signalée « Sans code » reçoit un code à quatre chiffres. Sans
+      code, la fiche badge comme avant ; une fiche créée désormais en a un
+      d'office.
+- [ ] **Vérifier côté BOHO** : pas d'onglet Produits ; le lien de planning
+      d'un serveur ne montre que ses créneaux, sans total d'heures ; la
+      badgeuse demande le code avant la signature ; flèches ↑ ↓ sur les
+      articles, les groupes d'options et les choix, et le menu QR suit cet
+      ordre ; le « Nom sur le ticket » d'un article sort sur le ticket
+      cuisine ; dans Paiements, « Modifier l'encaissement » s'ouvre sur une
+      addition carte ou mixte et reste fermé sur un paiement en ligne ;
+      « Masquer » retire un serveur de la badgeuse et du planning sans
+      effacer ses heures.
+- [ ] **Autres restaurants** : l'onglet Produits reste ouvert (capacité
+      `produits`, cochée par toute offre). Pour afficher les heures sur le
+      lien de planning, cocher `lien_heures` dans `admin.ominin.com/capacites`,
+      sous la vue Badgeage.
+
+## 1. Portail, landing Shop et landing Collect (2026-09-11, branche `ominingeneral`)
 
 Une migration (une colonne avec défaut) et trois pages publiques. **Sans la
 migration, les deux formulaires de contact (ominin.com/sur-mesure et
@@ -37,8 +75,9 @@ shop.ominin.com) répondent 500** : la route écrit désormais `source`.
 
 - [ ] **Supabase** : `supabase db push` — applique
       `20260912000005_contact_requests_source.sql` (après les deux migrations
-      MyBox encore en attente, § 1). À faire **avant** de déployer la branche.
-- [ ] **Fusionner `ominingeneral` dans `main`** après relecture. La branche
+      MyBox encore en attente, § 2). À faire **avant** de déployer la branche.
+- [x] **Fusionner `ominingeneral` dans `main`** — fait le 2026-09-14, avec
+      `MenuBoho` (§ 0). La branche
       contient déjà `main` au 2026-09-11 (tarifs planifiés, paiement mixte)
       et tout `ShopMyBox`.
 - [ ] **Vérifier ominin.com** : cinq cubes ; le troisième, « Ominin Shop »,
@@ -68,7 +107,7 @@ shop.ominin.com) répondent 500** : la route écrit désormais `source`.
       les questions rapides. Il faut un numéro et un compte, donc deux
       variables d'environnement à décider avant de coder.
 
-## 1. MyBox : photos, accueil, personnalisation (2026-09-11, branche `ShopMyBox`)
+## 2. MyBox : photos, accueil, personnalisation (2026-09-11, branche `ShopMyBox`)
 
 Deux migrations. La première ajoute des colonnes facultatives, sans effet
 tant qu'elles sont vides ; la seconde règle MyBox nommément (photo d'accueil,
@@ -78,8 +117,8 @@ partent avec le déploiement du front : mêmes chemins qu'avant, rien à
 téléverser. *À faire* : au 2026-09-11, la boutique en ligne montre encore
 l'ancien accueil et aucune fiche ne propose le champ de personnalisation.
 
-- [ ] **Fusionner `ShopMyBox` dans `main`** après relecture (déjà contenue
-      dans `ominingeneral`, § 0).
+- [x] **Fusionner `ShopMyBox` dans `main`** — fait le 2026-09-14 via
+      `ominingeneral` (§ 1).
 - [ ] **Supabase** : `supabase db push` — applique
       `20260911000005_shop_accueil_personnalisation.sql` puis
       `20260911000006_mybox_reglages.sql`. L'ordre compte. La seconde est
@@ -109,7 +148,7 @@ l'ancien accueil et aucune fiche ne propose le champ de personnalisation.
       depuis l'outil de capture). À parcourir une fois : Produits,
       Commandes, fiche de commande.
 
-## 2. Étapes du service et équipe sans comptes (2026-09-10)
+## 3. Étapes du service et équipe sans comptes (2026-09-10)
 
 Deux migrations, et rien à cocher : les réglages du BOHO sont posés par la
 seconde, qui le nomme. Les autres restaurants ne bougent pas — ils gardent
@@ -139,7 +178,7 @@ Pour régler un autre client plus tard, tout se fait sans SQL depuis
 `admin.ominin.com/capacites` : la carte « Étapes de l'onglet Commandes » y
 retire, rajoute et déplace les étapes, et les capacités se cochent au-dessus.
 
-## 3. Capacités par restaurant et gestes de salle (2026-09-10)
+## 4. Capacités par restaurant et gestes de salle (2026-09-10)
 
 Migrations `20260910000001_capabilites.sql` et `20260910000002_salle.sql`
 appliquées. Les gestes de salle restent fermés par défaut, BOHO compris :
@@ -149,7 +188,7 @@ rien n'apparaît chez les clients tant que les cases ne sont pas cochées.
       établissements. Cocher et décocher une vue doit se voir aussitôt dans
       l'espace du restaurant, après un rechargement de sa page.
 
-## 4. Square, deuxième encaisseur du menu QR (2026-09-09)
+## 5. Square, deuxième encaisseur du menu QR (2026-09-09)
 
 Repris du message du commit `81b7218` pour que rien ne se perde : ce lot est
 d'Ambaka, ces étapes sont les siennes. Migrations `20260910000003` à
@@ -166,7 +205,7 @@ posés. *À faire* : aucune variable Square dans `frontend/.env.local`.
       pas « Table 7 » du premier coup d'œil, le produit paraît cassé quelle que
       soit la qualité de l'intégration.
 
-## 5. Analytique du menu QR et tableau de bord client (2026-09-11)
+## 6. Analytique du menu QR et tableau de bord client (2026-09-11)
 
 Repris du message du commit `ed3200f`, comme ci-dessus : ce lot est d'Ambaka.
 Migrations `20260911000001_menu_analytics.sql` et
@@ -184,7 +223,7 @@ Migrations `20260911000001_menu_analytics.sql` et
       Les capacités à cocher, elles, vivent dans l'onglet **Capacités** de la
       section Clients.
 
-## 6. Commission des boutiques : poser le taux (2026-09-09)
+## 7. Commission des boutiques : poser le taux (2026-09-09)
 
 La commission est codée de bout en bout (migration `shop_fee_lock`
 appliquée), il ne manque que la valeur. Elle n'est **pas** réglable depuis
@@ -204,7 +243,7 @@ base n'est pas lisible sans la clé service.
       boutique paie de son côté : la commission Ominin s'y ajoute, elle ne
       s'y substitue pas.
 
-## 7. Tablette de salle et serveurs sans compte (2026-09-09)
+## 8. Tablette de salle et serveurs sans compte (2026-09-09)
 
 Migration `20260909000002_staff.sql` appliquée : planning et badgeages
 désignent une fiche d'équipe, les membres existants ont été repris. Les
@@ -227,7 +266,7 @@ réglages du BOHO, eux, se font dans son espace de gestion (*non vérifié*).
       et n'affiche que les créneaux de son destinataire ; retirer un serveur
       coupe son lien sans effacer ses heures dans Équipe → Badgeages.
 
-## 8. Identité des boutiques : image de partage (2026-09-09)
+## 9. Identité des boutiques : image de partage (2026-09-09)
 
 Migration appliquée, icône d'onglet et balise de partage en place sur
 `shop.ominin.com/mybox`. Il reste le choix d'une meilleure image.
@@ -241,7 +280,7 @@ Migration appliquée, icône d'onglet et balise de partage en place sur
       réseaux gardent les aperçus en cache : forcer une relecture depuis le
       validateur si l'ancien vide persiste.
 
-## 9. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
+## 10. Service direct, badgeuse et planning, Google Analytics (2026-09-08)
 
 Migrations `20260908000001_service_direct.sql` et
 `20260908000002_temps_travail.sql` appliquées. *Non vérifié* : la variable
@@ -263,7 +302,7 @@ variable absente, sans certitude.
       relit et les corrige depuis Équipe → Badgeages ; la bannière cookies
       apparaît sur `ominin.com` mais ni sur `/gestion` ni sur un menu QR.
 
-## 10. Ominin Shop : mise en ligne des boutiques (2026-09-08)
+## 11. Ominin Shop : mise en ligne des boutiques (2026-09-08)
 
 Quatrième produit, servi sur `shop.ominin.com`. Migration appliquée,
 sous-domaine et `NEXT_PUBLIC_SHOP_HOST` en place, MyBox semée. Restent les
@@ -331,12 +370,14 @@ confirmés : les textes légaux et les tarifs de l'offre.
       `ominin.com` ni les restaurants : leurs pages et leur webhook Stripe
       sont inchangés.
 
-## 11. Types Supabase à régénérer (toutes sections)
+## 12. Types Supabase à régénérer (toutes sections)
 
 Les entrées `staff`, `admin_pins`, `staff_id`, `shifts`, `time_entries`,
 `share_image_url`, `hero_image_url`, `image_url`/`is_highlighted` des
-collections, `personalization_label`, `contact_requests.source`, la nouvelle
-signature de `pay_order_items` et toutes les tables `shop_*` ont été écrites
+collections, `personalization_label`, `contact_requests.source`, `items.position` et
+`print_name`, `staff.code_set` et `hidden`, `staff_codes`, les RPC du lot
+MenuBoho, la nouvelle signature de `pay_order_items` et toutes les tables
+`shop_*` ont été écrites
 à la main dans `frontend/lib/supabase/database.types.ts`. Elles fonctionnent
 telles quelles.
 

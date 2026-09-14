@@ -48,7 +48,9 @@ export type Feature =
   | "assignation"
   | "groupes_tables"
   | "pourboires"
-  | "equipe_sans_comptes";
+  | "equipe_sans_comptes"
+  | "produits"
+  | "lien_heures";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -198,6 +200,10 @@ export interface Staff {
   userId: string | null;
   /** Jeton de son lien de planning, à lui transmettre une fois. */
   planningToken: string;
+  /** Un code de badgeage est posé : la badgeuse le demande avant la signature. */
+  codeSet: boolean;
+  /** Masquée : hors badgeuse, planning et affectation, sans être supprimée. */
+  hidden: boolean;
 }
 
 export interface Article {

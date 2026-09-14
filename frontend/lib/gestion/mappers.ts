@@ -52,6 +52,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     badges: row.badges.length ? row.badges : undefined,
     pairing: row.pairing ?? undefined,
     detail: row.detail ?? undefined,
+    printName: row.print_name ?? undefined,
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
@@ -105,6 +106,8 @@ export function rowToStaff(row: Tables<"staff">): Staff {
     role: row.role,
     userId: row.user_id,
     planningToken: row.planning_token,
+    codeSet: row.code_set,
+    hidden: row.hidden,
   };
 }
 
