@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { ONLINE_PAYMENT_WINDOW_S } from "@/lib/gestion/constants";
 import { menuSiteUrl } from "@/lib/site";
 import { connectedAccount, getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -13,10 +12,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * (annulée, onglet fermé) est expirée avant d'en ouvrir une neuve, pour
  * qu'un onglet oublié ne puisse pas régler deux fois. Le webhook connecté
  * ou /api/stripe/verify marque ensuite la commande payée. Tant que la
- * session vit (ONLINE_PAYMENT_WINDOW_S), la commande attend hors de la
- * caisse : l'heure de la tentative est (re)posée ici, ce qui couvre aussi la
- * relance après un paiement annulé.
+ * session vit, la commande attend hors de la caisse : l'heure de la
+ * tentative est (re)posée ici, ce qui couvre aussi la relance après un
+ * paiement annulé. Expirée sans paiement, la commande est annulée par le
+ * webhook connecté.
  */
+
+/**
+ * Durée de vie d'une session Checkout : le minimum accordé par Stripe est
+ * 30 min, mesurées à la réception de la requête — une minute de marge
+ * absorbe la latence.
+ */
+const CHECKOUT_TTL_S = 31 * 60;
 
 export async function POST(request: Request) {
   const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
@@ -143,7 +150,7 @@ export async function POST(request: Request) {
         metadata: { order_id: orderId },
         ...(feeCents > 0 && { application_fee_amount: feeCents }),
       },
-      expires_at: Math.floor(Date.now() / 1000) + ONLINE_PAYMENT_WINDOW_S,
+      expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_TTL_S,
       locale: "fr",
       success_url: withOutcome("succes"),
       cancel_url: withOutcome("annule"),

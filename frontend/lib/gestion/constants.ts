@@ -32,14 +32,6 @@ export const SERIAL_CODE_LENGTH = 6;
 /** Chiffres du code de badgeage d'une fiche (miroir de set_staff_code). */
 export const STAFF_CODE_LENGTH = 4;
 
-/**
- * Fenêtre d'attente d'un paiement en ligne choisi depuis le menu QR : durée
- * de vie de la session Stripe Checkout (30 min, le minimum de Stripe, plus
- * une minute pour la latence), et délai passé lequel une commande dont le
- * client n'a plus donné signe reparaît à encaisser au comptoir.
- */
-export const ONLINE_PAYMENT_WINDOW_S = 31 * 60;
-
 
 /**
  * Toutes les étapes du service, dans leur ordre naturel — et, telles quelles,

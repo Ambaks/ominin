@@ -16,9 +16,9 @@ import { fallBackToCounter } from "@/lib/menu/online-payment";
  * le seul affichage de cet écran : tant que « Réessayer par carte » reste
  * une option, une session Stripe peut encore aboutir, et exposer l'addition
  * plus tôt permettrait à la salle de l'encaisser pendant que le client
- * termine son paiement en ligne. Sans geste du client, le délai de sécurité
- * (ONLINE_PAYMENT_WINDOW_S) fait réapparaître l'addition de lui-même. Seule
- * exception : une relance qui échoue avant même de créer une session
+ * termine son paiement en ligne. Sans geste du client, la session Stripe
+ * expire et le webhook annule la commande : elle ne surgit jamais en caisse
+ * d'elle-même. Seule exception : une relance qui échoue avant même de créer une session
  * (retry_failed) ne laisse plus rien en concurrence, le comptoir est donc
  * notifié tout de suite.
  */

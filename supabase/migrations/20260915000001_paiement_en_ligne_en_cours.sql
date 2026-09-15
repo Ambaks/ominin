@@ -9,9 +9,9 @@
 -- récente, la caisse ne la voit pas. Réglée, elle part en cuisine et rejoint
 -- l'historique (mark_order_paid_online, inchangée). Abandonnée — annulation
 -- chez Stripe, widget refermé, session expirée — l'heure est effacée et
--- l'addition reparaît à encaisser ; si l'onglet client meurt sans rien dire,
--- la gestion la fait reparaître d'elle-même passé le délai de la session
--- (ONLINE_PAYMENT_WINDOW_S, côté front).
+-- l'addition reparaît à encaisser. Si l'onglet client meurt sans rien dire,
+-- la session Stripe expire et le webhook connecté annule la commande : une
+-- addition que personne n'a demandé d'encaisser ne surgit jamais en caisse.
 
 alter table public.orders
   add column online_payment_started_at timestamptz;

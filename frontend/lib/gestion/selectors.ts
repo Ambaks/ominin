@@ -1,5 +1,5 @@
 import type { MenuItem } from "@/lib/menu-data";
-import { ONLINE_PAYMENT_WINDOW_S, TOP_VENTES_COUNT } from "./constants";
+import { TOP_VENTES_COUNT } from "./constants";
 import type {
   ActiveProducts,
   GestionState,
@@ -44,16 +44,15 @@ export function isPaidStatus(status: Order["status"]): boolean {
 
 /**
  * Le client règle en ligne : la commande attend son paiement hors de la
- * caisse. Passé la fenêtre — session Stripe expirée, onglet fermé sans un
- * mot — elle redevient une addition à encaisser au comptoir.
+ * caisse, et n'y revient que sur son geste (« Payer au comptoir »). Sans
+ * paiement ni geste, la session Stripe expire et le webhook annule la
+ * commande — elle ne reparaît jamais en caisse d'elle-même.
  */
 export function awaitsOnlinePayment(order: Order): boolean {
   return (
     order.status === "en_attente" &&
     !order.paidOnline &&
-    order.onlinePaymentStartedAt !== undefined &&
-    Date.now() - new Date(order.onlinePaymentStartedAt).getTime() <
-      ONLINE_PAYMENT_WINDOW_S * 1000
+    order.onlinePaymentStartedAt !== undefined
   );
 }
 

@@ -29,6 +29,33 @@ Ce qui reste **impossible à vérifier sans accès** (base avec la clé service,
 Vercel, Stripe, Supabase Auth) est laissé coché vide avec la mention
 *« non vérifié »*. Ce qui est **confirmé non fait** est marqué *« à faire »*.
 
+## En deux gestes (2026-09-15)
+
+Tout ce qui attend — menu QR (paiement en ligne, lot MenuBoho), portail et
+landings ominin.com, boutique MyBox — est réuni sur **une seule branche,
+`ominingeneral`**, qui contient déjà `main`. Il n'y a donc qu'une migration
+à pousser et une fusion à faire, **dans cet ordre** :
+
+1. **`supabase db push`** (depuis la racine du dépôt, CLI liée au projet de
+   production). Il applique d'un coup les onze migrations pas encore
+   vérifiées en prod, dans l'ordre des noms :
+   `20260911000003_flux_commandes`, `20260911000004_boho_reglages`,
+   `20260911000005_shop_accueil_personnalisation`,
+   `20260911000006_mybox_reglages`, `20260912000001_renvoi_tickets`,
+   `20260912000002_appel_serveur`, `20260912000003_paiement_mixte`,
+   `20260912000004_tarifs_planifies`,
+   `20260912000005_contact_requests_source`, `20260913000002_nom_ticket`,
+   `20260915000001_paiement_en_ligne_en_cours`. Celles déjà appliquées sont
+   ignorées par la CLI. Chaque migration a été rejouée sur un Postgres 16
+   vierge avant d'être poussée sur la branche.
+2. **Fusionner `ominingeneral` dans `main`** (`git checkout main && git merge
+   ominingeneral && git push`) : Vercel déploie `main`. Faire la fusion
+   *après* le push de la base — le nouveau menu QR appelle `place_order` à
+   quatre arguments, absent tant que la dernière migration n'est pas passée.
+
+Les sections ci-dessous détaillent, chantier par chantier, ce qu'il reste à
+vérifier ou à régler dans les dashboards une fois ces deux gestes faits.
+
 ## Accès Supabase pour Marwan (2026-09-15)
 
 Marwan veut pouvoir pousser les migrations lui-même, sans attendre Ambaka à
@@ -76,11 +103,11 @@ la fonction à trois arguments, que le défaut couvre.
       au 2026-09-15, photos MyBox comprises.
 - [ ] **Stripe — webhook connecté** : vérifier que l'endpoint
       `/api/stripe/webhook-connect` (§ 10) reçoit `checkout.session.expired`
-      en plus de `checkout.session.completed`. C'est lui qui fait reparaître
-      à encaisser une commande dont le client a fermé Stripe sans annuler ;
-      sans lui, elle reparaît quand même, mais seulement passé 31 min
-      (`ONLINE_PAYMENT_WINDOW_S`) et au prochain rafraîchissement de
-      l'espace de gestion.
+      en plus de `checkout.session.completed`. C'est lui qui **annule** une
+      commande dont le client a fermé Stripe sans payer ni choisir le
+      comptoir (31 min après la création de la session) ; sans lui, elle
+      resterait invisible en `en_attente` pour toujours — sans gêne pour le
+      service, mais sans retour du stock ni trace dans l'historique.
 - [ ] **Vérifier au BOHO** (Stripe relié), depuis un téléphone sur le menu QR :
       1. « Payer au comptoir » → la commande apparaît aussitôt dans
          À encaisser, push « Nouvelle commande » (inchangé).
