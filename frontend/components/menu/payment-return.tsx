@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fallBackToCounter } from "@/lib/menu/online-payment";
 
 /*
  * Retour de Stripe Checkout (?paiement=succes|annule&commande=<id>). Le
@@ -59,6 +60,14 @@ export function PaymentReturn({
       cancelled = true;
     };
   }, [outcome, orderId]);
+
+  // Paiement annulé ou non confirmé : l'addition repasse au comptoir tout de
+  // suite — « Réessayer par carte » la remet en attente via /api/stripe/pay.
+  useEffect(() => {
+    if (state === "cancelled" || state === "unpaid") {
+      void fallBackToCounter(orderId);
+    }
+  }, [state, orderId]);
 
   const retry = async () => {
     setState("retrying");

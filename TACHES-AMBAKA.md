@@ -29,7 +29,49 @@ Ce qui reste **impossible à vérifier sans accès** (base avec la clé service,
 Vercel, Stripe, Supabase Auth) est laissé coché vide avec la mention
 *« non vérifié »*. Ce qui est **confirmé non fait** est marqué *« à faire »*.
 
-## 0. Portail, landing Shop et landing Collect (2026-09-11, branche `ominingeneral`)
+## 0. Paiement en ligne du menu QR : la commande attend hors de la caisse (2026-09-15, branche `ominingeneral`)
+
+Une migration (une colonne sur `orders`, `place_order` recréée avec un
+quatrième argument, une RPC `abandon_online_payment`) et le front qui va
+avec. **Ordre impératif : `supabase db push` avant de déployer le front.**
+Le nouveau menu QR appelle `place_order` avec `p_online_payment` ; sur une
+base sans la migration, PostgREST ne trouve pas la fonction et plus aucune
+commande ne part du menu. L'inverse est sans risque : l'ancien front appelle
+la fonction à trois arguments, que le défaut couvre.
+
+- [ ] **Supabase** : `supabase db push` — applique
+      `20260915000001_paiement_en_ligne_en_cours.sql`, après celles encore en
+      attente (§ 0 bis et § 1 ; et, *non vérifié*,
+      `20260912000003_paiement_mixte.sql` et
+      `20260912000004_tarifs_planifies.sql` venues de `main`).
+- [ ] **Fusionner `ominingeneral` dans `main`** : la branche contient `main`
+      au 2026-09-15, photos MyBox comprises.
+- [ ] **Stripe — webhook connecté** : vérifier que l'endpoint
+      `/api/stripe/webhook-connect` (§ 10) reçoit `checkout.session.expired`
+      en plus de `checkout.session.completed`. C'est lui qui fait reparaître
+      à encaisser une commande dont le client a fermé Stripe sans annuler ;
+      sans lui, elle reparaît quand même, mais seulement passé 31 min
+      (`ONLINE_PAYMENT_WINDOW_S`) et au prochain rafraîchissement de
+      l'espace de gestion.
+- [ ] **Vérifier au BOHO** (Stripe relié), depuis un téléphone sur le menu QR :
+      1. « Payer au comptoir » → la commande apparaît aussitôt dans
+         À encaisser, push « Nouvelle commande » (inchangé).
+      2. « Payer par carte maintenant » → **rien** dans À encaisser ni en
+         push tant que Stripe est ouvert ; payer → ticket à l'imprimante,
+         commande dans Historique (servie), push « Nouvelle commande » à ce
+         moment-là. Sans boîtier joignable, elle va dans À servir.
+      3. « Payer par carte », puis revenir en arrière depuis Stripe
+         (annuler) → la commande reparaît dans À encaisser avec le
+         carillon ; « Réessayer par carte » la refait disparaître.
+- [ ] **Limite connue** : un client qui annule plus de 15 min après avoir
+      commandé fait reparaître la commande (onglet, carillon) mais sans
+      push, la borne anti-rejeu de `/api/push/dispatch`
+      (`NOUVELLE_COMMANDE_MAX_AGE_MS`) comptant depuis la création. À élargir
+      si ça se voit en salle.
+- [ ] **Types Supabase** : `database.types.ts` complété à la main (colonne,
+      `place_order`, `abandon_online_payment`) — § 11 reste valable.
+
+## 0 bis. Portail, landing Shop et landing Collect (2026-09-11, branche `ominingeneral`)
 
 Une migration (une colonne avec défaut) et trois pages publiques. **Sans la
 migration, les deux formulaires de contact (ominin.com/sur-mesure et
@@ -78,6 +120,12 @@ partent avec le déploiement du front : mêmes chemins qu'avant, rien à
 téléverser. *À faire* : au 2026-09-11, la boutique en ligne montre encore
 l'ancien accueil et aucune fiche ne propose le champ de personnalisation.
 
+- [ ] **Photos en prod** : `main` porte depuis le 2026-09-15 les vrais
+      clichés (commit 13ff445, fichiers statiques seuls, aucune migration).
+      Après le déploiement Vercel, `curl -I
+      https://shop.ominin.com/shop/mybox/l-evasion.webp` doit répondre
+      `Content-Length: 72030` (87064 = l'ancien visuel flou). Le reste de la
+      section attend toujours la migration.
 - [ ] **Fusionner `ShopMyBox` dans `main`** après relecture (déjà contenue
       dans `ominingeneral`, § 0).
 - [ ] **Supabase** : `supabase db push` — applique

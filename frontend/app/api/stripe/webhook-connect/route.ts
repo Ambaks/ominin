@@ -48,12 +48,12 @@ export async function POST(request: Request) {
       break;
     }
     case "checkout.session.expired": {
-      // Le client n'a pas réglé dans le délai : la commande reste à encaisser
-      // au comptoir, la référence de session n'a plus d'objet.
+      // Le client n'a pas réglé dans le délai : la commande reparaît à
+      // encaisser au comptoir, la référence de session n'a plus d'objet.
       const session = event.data.object;
       await admin
         .from("orders")
-        .update({ stripe_session_id: null })
+        .update({ stripe_session_id: null, online_payment_started_at: null })
         .eq("stripe_session_id", session.id);
       break;
     }

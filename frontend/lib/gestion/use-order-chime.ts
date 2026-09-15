@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { CHIME_STORAGE_KEY } from "./constants";
+import { awaitsOnlinePayment } from "./selectors";
 import { useGestion } from "./store";
 
 /*
@@ -120,10 +121,16 @@ export function useOrderChime(): void {
   useEffect(() => {
     if (!state) return;
     const previous = known.current;
-    known.current = new Set(state.orders.map((order) => order.id));
+    // Une commande dont le client règle en ligne n'est pas encore arrivée :
+    // elle sonne au paiement (elle est alors réglée, partie en cuisine) ou à
+    // l'abandon, quand elle passe au comptoir.
+    const visible = state.orders.filter((order) => !awaitsOnlinePayment(order));
+    known.current = new Set(visible.map((order) => order.id));
     if (!previous) return;
-    const arrived = state.orders.some(
-      (order) => order.status === "en_attente" && !previous.has(order.id)
+    const arrived = visible.some(
+      (order) =>
+        !previous.has(order.id) &&
+        (order.status === "en_attente" || order.paidOnline)
     );
     if (arrived && chimeEnabled()) playChime();
   }, [state]);

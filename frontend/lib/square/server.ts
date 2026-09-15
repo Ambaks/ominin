@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { dispatchOrderEvent } from "@/lib/push/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -393,6 +394,9 @@ export async function settlePayment(
     p_tip: tip > 0 ? tip : null,
   });
   if (error) throw new Error(error.message);
+  // La commande attendait son règlement hors de la caisse : elle arrive en
+  // salle maintenant.
+  await dispatchOrderEvent(orderId, "nouvelle_commande");
   return true;
 }
 

@@ -1189,6 +1189,7 @@ export type Database = {
           estimated_ready_at: string | null
           etablissement_id: string
           id: string
+          online_payment_started_at: string | null
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
@@ -1213,6 +1214,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id: string
           id?: string
+          online_payment_started_at?: string | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
@@ -1237,6 +1239,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id?: string
           id?: string
+          online_payment_started_at?: string | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
@@ -3187,6 +3190,10 @@ export type Database = {
       }
     }
     Functions: {
+      abandon_online_payment: {
+        Args: { p_order_id: string }
+        Returns: undefined
+      }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
         Returns: {
@@ -3340,7 +3347,12 @@ export type Database = {
         Returns: undefined
       }
       place_order: {
-        Args: { p_items: Json; p_slug: string; p_table_number: number }
+        Args: {
+          p_items: Json
+          p_online_payment?: boolean
+          p_slug: string
+          p_table_number: number
+        }
         Returns: string
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }

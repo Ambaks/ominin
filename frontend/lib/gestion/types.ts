@@ -155,6 +155,8 @@ export interface Order {
   items: OrderItem[];
   paymentMode?: PaymentMode;
   paidOnline?: boolean;
+  /** ISO — le client a choisi de régler en ligne ; absent au comptoir ou après abandon. */
+  onlinePaymentStartedAt?: string;
   customerName?: string;
   customerPhone?: string;
   pickupAt?: string;

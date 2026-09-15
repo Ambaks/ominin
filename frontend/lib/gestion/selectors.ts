@@ -1,5 +1,5 @@
 import type { MenuItem } from "@/lib/menu-data";
-import { TOP_VENTES_COUNT } from "./constants";
+import { ONLINE_PAYMENT_WINDOW_S, TOP_VENTES_COUNT } from "./constants";
 import type {
   ActiveProducts,
   GestionState,
@@ -42,12 +42,28 @@ export function isPaidStatus(status: Order["status"]): boolean {
   return status === "payee" || status === "servie" || status === "retiree";
 }
 
-/** À encaisser : commande sur place en attente de son règlement. */
+/**
+ * Le client règle en ligne : la commande attend son paiement hors de la
+ * caisse. Passé la fenêtre — session Stripe expirée, onglet fermé sans un
+ * mot — elle redevient une addition à encaisser au comptoir.
+ */
+export function awaitsOnlinePayment(order: Order): boolean {
+  return (
+    order.status === "en_attente" &&
+    !order.paidOnline &&
+    order.onlinePaymentStartedAt !== undefined &&
+    Date.now() - new Date(order.onlinePaymentStartedAt).getTime() <
+      ONLINE_PAYMENT_WINDOW_S * 1000
+  );
+}
+
+/** À encaisser : commande sur place en attente de son règlement au comptoir. */
 export function awaitsPayment(order: Order): boolean {
   return (
     order.type === "sur_place" &&
     order.status === "en_attente" &&
-    !order.paidOnline
+    !order.paidOnline &&
+    !awaitsOnlinePayment(order)
   );
 }
 
