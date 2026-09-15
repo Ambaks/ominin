@@ -294,6 +294,7 @@ export async function getOptionGroups(shopId: string): Promise<OptionGroupWithVa
     .from("shop_option_groups")
     .select("*, shop_option_values(*)")
     .eq("shop_id", shopId)
+    .order("sort_order")
     .order("name");
   for (const group of data ?? []) group.shop_option_values.sort((a, b) => a.sort_order - b.sort_order);
   return data ?? [];

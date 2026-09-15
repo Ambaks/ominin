@@ -26,6 +26,7 @@ export function OptionGroupForm({ shopId, group }: { shopId: string; group: Opti
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [name, setName] = useState(group?.name ?? "");
   const [description, setDescription] = useState(group?.description ?? "");
+  const [sortOrder, setSortOrder] = useState(String(group?.sort_order ?? 0));
   const [values, setValues] = useState<ValueDraft[]>((group?.shop_option_values ?? []).map((v) => ({ id: v.id, label: v.label, priceDelta: v.price_delta_cents ? centsToEurosInput(v.price_delta_cents) : "", isAvailable: v.is_available })));
   const [bulk, setBulk] = useState("");
 
@@ -45,7 +46,7 @@ export function OptionGroupForm({ shopId, group }: { shopId: string; group: Opti
       const id = await api.saveOptionGroup(
         shopId,
         group?.id ?? null,
-        { name: name.trim(), description: description.trim() || null },
+        { name: name.trim(), description: description.trim() || null, sort_order: Number.parseInt(sortOrder, 10) || 0 },
         values.filter((v) => v.label.trim()).map((v) => ({ id: v.id, label: v.label.trim(), price_delta_cents: v.priceDelta.trim() ? eurosToCents(v.priceDelta) || 0 : 0, is_available: v.isAvailable }))
       );
       toast.success("Liste enregistrée");
@@ -67,6 +68,9 @@ export function OptionGroupForm({ shopId, group }: { shopId: string; group: Opti
             </Field>
             <Field label="Note interne">
               <textarea className={`${inputClass} min-h-16`} value={description} onChange={(e) => setDescription(e.target.value)} />
+            </Field>
+            <Field label="Ordre" hint="Les listes s'affichent dans cet ordre, sur la page Options comme sur une fiche produit (le plus petit en premier).">
+              <input className={`${inputClass} w-24`} value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} inputMode="numeric" />
             </Field>
           </div>
         </Card>

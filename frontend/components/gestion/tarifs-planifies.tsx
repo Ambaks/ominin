@@ -47,7 +47,7 @@ function formatDays(days: number[]): string {
   return `${names.slice(0, -1).join(", ")} et ${names[names.length - 1]}`;
 }
 
-function formatAdjustment(rule: PriceRule): string {
+export function formatAdjustment(rule: PriceRule): string {
   const sign = rule.direction === "remise" ? "−" : "+";
   return rule.unit === "pourcentage"
     ? `${sign}${priceToInput(rule.value)} %`
@@ -94,13 +94,16 @@ function parseTargetKey(key: string): PriceRuleTarget {
     : { kind: "item", id };
 }
 
-function RuleForm({
+export function RuleForm({
   rule,
   categories,
+  initialTargets = [],
   onClose,
 }: {
   rule: PriceRule | null;
   categories: MenuCategory[];
+  /** Nouveau tarif ouvert depuis un article : celui-ci est déjà coché. */
+  initialTargets?: PriceRuleTarget[];
   onClose: () => void;
 }) {
   const toast = useToast();
@@ -117,7 +120,7 @@ function RuleForm({
   const [startsAt, setStartsAt] = useState(rule?.startsAt?.slice(0, 5) ?? "");
   const [endsAt, setEndsAt] = useState(rule?.endsAt?.slice(0, 5) ?? "");
   const [targetKeys, setTargetKeys] = useState<string[]>(
-    rule?.targets.map(targetKey) ?? []
+    (rule?.targets ?? initialTargets).map(targetKey)
   );
   const [saving, setSaving] = useState(false);
 

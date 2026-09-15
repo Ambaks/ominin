@@ -37,7 +37,7 @@ landings ominin.com, boutique MyBox — est réuni sur **une seule branche,
 à pousser et une fusion à faire, **dans cet ordre** :
 
 1. **`supabase db push`** (depuis la racine du dépôt, CLI liée au projet de
-   production). Il applique d'un coup les quinze migrations pas encore
+   production). Il applique d'un coup les seize migrations pas encore
    vérifiées en prod (tout ce qui suit `20260911000002_boho_cuisson`, la
    dernière constatée en ligne), dans l'ordre des noms :
    `20260911000003_flux_commandes`, `20260911000004_boho_reglages`,
@@ -48,9 +48,10 @@ landings ominin.com, boutique MyBox — est réuni sur **une seule branche,
    `20260912000005_contact_requests_source`, puis le lot MenuBoho
    `20260913000001_ordre_articles`, `20260913000002_nom_ticket`,
    `20260913000003_codes_badgeage`, `20260913000004_lien_planning`,
-   `20260913000005_correction_encaissement`, et enfin
-   `20260915000001_paiement_en_ligne_en_cours`. Marwan confirme le
-   2026-09-15 que flux_commandes, appel_serveur, paiement_mixte et
+   `20260913000005_correction_encaissement`, puis
+   `20260915000001_paiement_en_ligne_en_cours` et
+   `20260915000002_shop_ordre_options`. Marwan confirme le
+   2026-09-15 que flux_commandes, boho_reglages, appel_serveur, paiement_mixte et
    tarifs_planifies sont déjà en prod ; le reste se lira avec
    `npx supabase --workdir .. migration list --linked` (depuis `frontend/`,
    CLI liée). Celles déjà appliquées sont

@@ -1,6 +1,6 @@
 "use client";
 
-import { XIcon } from "@/components/gestion/icons";
+import { ChevronDownIcon, XIcon } from "@/components/gestion/icons";
 import {
   OptionsEditor,
   draftToOptions,
@@ -14,6 +14,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import type { Etape } from "@/lib/gestion/types";
 import type { MenuItem } from "@/lib/menu-data";
+import { moved } from "@/lib/move";
 
 export interface ArticleDraft {
   id: string;
@@ -125,6 +126,32 @@ export function EtapeEditor({
 
   const importCandidates = menuItems.filter((item) => item.options?.length);
 
+  // L'ordre des étapes et des choix est celui du menu client : il se règle
+  // ici, aux flèches, comme celui des catégories et des articles.
+  const moveButtons = (
+    label: string,
+    index: number,
+    length: number,
+    onMove: (delta: -1 | 1) => void
+  ) => (
+    <>
+      <IconButton
+        disabled={index === 0}
+        onClick={() => onMove(-1)}
+        aria-label={`Monter ${label}`}
+      >
+        <ChevronDownIcon className="size-4 rotate-180" />
+      </IconButton>
+      <IconButton
+        disabled={index === length - 1}
+        onClick={() => onMove(1)}
+        aria-label={`Descendre ${label}`}
+      >
+        <ChevronDownIcon className="size-4" />
+      </IconButton>
+    </>
+  );
+
   return (
     <div className="flex flex-col gap-3">
       {value.map((etape, index) => (
@@ -154,6 +181,12 @@ export function EtapeEditor({
                 label="Étape obligatoire"
               />
             </label>
+            {moveButtons(
+              etape.name || `l'étape ${index + 1}`,
+              index,
+              value.length,
+              (delta) => onChange(moved(value, index, delta))
+            )}
             <IconButton
               tone="danger"
               onClick={() => onChange(value.filter((e) => e.id !== etape.id))}
@@ -163,7 +196,7 @@ export function EtapeEditor({
             </IconButton>
           </div>
 
-          {etape.articles.map((article) => (
+          {etape.articles.map((article, articleIndex) => (
             <div
               key={article.id}
               className="flex flex-col gap-2 rounded-lg border border-hairline bg-surface p-2.5"
@@ -187,6 +220,15 @@ export function EtapeEditor({
                   placeholder="+0,00"
                   className="w-28 shrink-0"
                 />
+                {moveButtons(
+                  article.name || "le choix",
+                  articleIndex,
+                  etape.articles.length,
+                  (delta) =>
+                    patchEtape(etape.id, {
+                      articles: moved(etape.articles, articleIndex, delta),
+                    })
+                )}
                 <IconButton
                   tone="danger"
                   onClick={() =>
