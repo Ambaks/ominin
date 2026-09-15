@@ -49,7 +49,11 @@ landings ominin.com, boutique MyBox — est réuni sur **une seule branche,
    `20260913000001_ordre_articles`, `20260913000002_nom_ticket`,
    `20260913000003_codes_badgeage`, `20260913000004_lien_planning`,
    `20260913000005_correction_encaissement`, et enfin
-   `20260915000001_paiement_en_ligne_en_cours`. Celles déjà appliquées sont
+   `20260915000001_paiement_en_ligne_en_cours`. Marwan confirme le
+   2026-09-15 que flux_commandes, appel_serveur, paiement_mixte et
+   tarifs_planifies sont déjà en prod ; le reste se lira avec
+   `npx supabase --workdir .. migration list --linked` (depuis `frontend/`,
+   CLI liée). Celles déjà appliquées sont
    ignorées par la CLI. Chaque migration a été rejouée sur un Postgres 16
    vierge avant d'être poussée sur la branche.
 2. **Fusionner `ominingeneral` dans `main`** (`git checkout main && git merge
