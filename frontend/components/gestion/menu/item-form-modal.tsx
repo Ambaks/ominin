@@ -41,6 +41,7 @@ export function ItemFormModal({
   const toast = useToast();
 
   const [name, setName] = useState(item?.name ?? "");
+  const [printName, setPrintName] = useState(item?.printName ?? "");
   const [description, setDescription] = useState(item?.description ?? "");
   const [price, setPrice] = useState(item ? priceToInput(item.price) : "");
   const [detail, setDetail] = useState(item?.detail ?? "");
@@ -90,6 +91,7 @@ export function ItemFormModal({
 
     const input: api.ItemInput = {
       name: name.trim(),
+      printName: printName.trim(),
       description: description.trim(),
       price: parsedPrice,
       detail: detail.trim(),
@@ -197,6 +199,21 @@ export function ItemFormModal({
           </Field>
         </div>
 
+        {hasFeature("terminaux") && (
+          <Field
+            label="Nom sur le ticket"
+            hint="Ce que la cuisine lit sur l'imprimante. Vide : le nom de la carte."
+          >
+            <input
+              value={printName}
+              onChange={(event) => setPrintName(event.target.value)}
+              placeholder={name.trim() || "Entrecôte"}
+              maxLength={40}
+              className={inputClass}
+            />
+          </Field>
+        )}
+
         <Field label="Description">
           <textarea
             value={description}
@@ -232,7 +249,7 @@ export function ItemFormModal({
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <label
-                className={`shrink-0 cursor-pointer rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+                className={`shrink-0 cursor-pointer rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
                   uploading
                     ? "border border-hairline text-faint"
                     : "ember-gradient text-background"
@@ -281,7 +298,8 @@ export function ItemFormModal({
                         : [...badges, badge]
                     )
                   }
-                  className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  aria-pressed={active}
+                  className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-all ${
                     active
                       ? "ember-gradient text-background"
                       : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"

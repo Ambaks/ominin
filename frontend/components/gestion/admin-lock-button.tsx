@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
@@ -50,15 +51,13 @@ export function AdminLockButton() {
 
   if (!locked) {
     return (
-      <button
-        type="button"
+      <IconButton
         onClick={() => lockAdmin()}
         title="Revenir à la vue salle"
         aria-label="Revenir à la vue salle"
-        className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
       >
-        <LockIcon className="size-3.5" />
-      </button>
+        <LockIcon className="size-4" />
+      </IconButton>
     );
   }
 
@@ -67,7 +66,7 @@ export function AdminLockButton() {
       <button
         type="button"
         onClick={() => setAsking(true)}
-        className="rounded-full border border-hairline px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+        className="min-h-11 rounded-full border border-hairline px-4 text-[10px] font-semibold uppercase tracking-wider text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
       >
         Admin
       </button>

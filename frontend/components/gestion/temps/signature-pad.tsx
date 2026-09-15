@@ -111,7 +111,7 @@ export function SignaturePad({
         <button
           type="button"
           onClick={clear}
-          className="text-xs font-semibold text-muted transition-opacity hover:opacity-80"
+          className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
         >
           Effacer
         </button>

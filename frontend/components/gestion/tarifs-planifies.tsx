@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
+import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
 import { Toggle } from "@/components/ui/toggle";
@@ -400,7 +401,7 @@ function Segmented({
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
             value === option.value
               ? "ember-gradient text-background"
               : "text-muted hover:text-foreground"
@@ -576,19 +577,18 @@ export function TarifsPlanifies({
                 <button
                   type="button"
                   onClick={() => setEditing(rule)}
-                  className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
                 >
                   Modifier
                 </button>
-                <button
-                  type="button"
+                <IconButton
+                  tone="danger"
                   onClick={() => setDeleting(rule)}
                   aria-label={`Supprimer ${rule.name}`}
-                  className="rounded-full border border-hairline p-1.5 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3"
                 >
                   <svg
                     viewBox="0 0 24 24"
-                    className="size-3.5"
+                    className="size-4"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -597,7 +597,7 @@ export function TarifsPlanifies({
                   >
                     <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
                   </svg>
-                </button>
+                </IconButton>
               </div>
             </li>
           ))}

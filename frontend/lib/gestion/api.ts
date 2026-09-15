@@ -65,6 +65,8 @@ function assertTransition(order: Order, target: OrderStatus) {
 
 export interface ItemInput {
   name: string;
+  /** Nom sur le ticket de cuisine ; vide, le nom de la carte sort tel quel. */
+  printName?: string;
   description?: string;
   price: number;
   detail?: string;
@@ -89,6 +91,7 @@ function itemColumns(
     badges: input.badges,
     pairing: input.pairing || null,
     detail: input.detail || null,
+    print_name: input.printName || null,
     stock: input.stock,
     options: toJson(input.options),
     vat_rate: input.vatRate,
@@ -97,10 +100,18 @@ function itemColumns(
 
 export async function createItem(input: ItemInput): Promise<MenuItem> {
   const supabase = createClient();
+  // En queue de sa catégorie : le gérant le remonte ensuite s'il le veut.
+  const position =
+    getState().categories.find((c) => c.id === input.categoryId)?.items
+      .length ?? 0;
   const row = must(
     await supabase
       .from("items")
-      .insert({ etablissement_id: etablissementId(), ...itemColumns(input) })
+      .insert({
+        etablissement_id: etablissementId(),
+        position,
+        ...itemColumns(input),
+      })
       .select()
       .single()
   );
@@ -118,10 +129,20 @@ export async function updateItem(
   input: ItemInput
 ): Promise<MenuItem> {
   const supabase = createClient();
+  // Changer de catégorie, c'est arriver en queue de la nouvelle.
+  const { category: from } = findItem(getState(), itemId);
+  const target =
+    from.id === input.categoryId
+      ? undefined
+      : getState().categories.find((c) => c.id === input.categoryId);
   const row = must(
     await supabase
       .from("items")
-      .update(itemColumns(input))
+      .update(
+        target
+          ? { ...itemColumns(input), position: target.items.length }
+          : itemColumns(input)
+      )
       .eq("id", itemId)
       .select()
       .single()
@@ -228,6 +249,23 @@ export async function reorderCategories(orderedIds: string[]): Promise<void> {
   const position = new Map(orderedIds.map((id, index) => [id, index]));
   apply((draft) => {
     draft.categories.sort(
+      (a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0)
+    );
+  });
+}
+
+/** Ordre des articles d'une catégorie : un seul UPDATE, comme les catégories. */
+export async function reorderItems(
+  categoryId: string,
+  orderedIds: string[]
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.rpc("reorder_items", { p_ids: orderedIds }));
+  const position = new Map(orderedIds.map((id, index) => [id, index]));
+  apply((draft) => {
+    const category = draft.categories.find((c) => c.id === categoryId);
+    if (!category) throw new Error("Catégorie introuvable.");
+    category.items.sort(
       (a, b) => (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0)
     );
   });
@@ -444,40 +482,64 @@ export async function serveOrderItems(itemIds: string[]): Promise<void> {
 /*
  * Corrections d'encaissement (gérant, page Paiements). Les commandes visées
  * peuvent venir de l'historique paginé, absent du snapshot local : la cible
- * est vérifiée côté SQL (.eq payment_mode) et le snapshot n'est retouché que
- * si la commande s'y trouve. La commande à jour est retournée pour que la
- * page rafraîchisse sa propre liste.
+ * est vérifiée côté SQL et le snapshot n'est retouché que si la commande s'y
+ * trouve. La commande à jour est retournée pour que la page rafraîchisse sa
+ * propre liste.
  */
 
-export async function updateCashDetails(
-  orderId: string,
-  cashGiven: number,
-  cashChange: number
-): Promise<Order> {
-  const supabase = createClient();
-  const row = must(
-    await supabase
-      .from("orders")
-      .update({ cash_given: cashGiven, cash_change: cashChange })
-      .eq("id", orderId)
-      .eq("payment_mode", "especes")
-      .select("*, order_items(*), order_payments(*)")
-      .single()
-  );
-  const order = rowToOrder(row);
+export interface PaymentCorrection {
+  mode: EncaissementMode;
+  /** Mixte : part réglée en espèces, la carte prend le reste. */
+  cashAmount?: number;
+  cashGiven?: number;
+  cashChange?: number;
+}
+
+function replaceOrder(order: Order): Order {
   return apply((draft) => {
-    const index = draft.orders.findIndex((o) => o.id === orderId);
+    const index = draft.orders.findIndex((o) => o.id === order.id);
     if (index !== -1) draft.orders[index] = order;
     return order;
   });
 }
 
 /**
- * Annule un encaissement en espèces : la commande passe annulée et le
- * paiement est effacé (transition payee → annulee ouverte au seul gérant,
- * espèces uniquement — migration 20260831000001).
+ * Réécrit un encaissement au comptoir — mode, répartition, monnaie rendue.
+ * La RPC repose les jambes et le mode des lignes, puis la commande est relue.
  */
-export async function voidCashPayment(orderId: string): Promise<Order> {
+export async function updateOrderPayment(
+  orderId: string,
+  correction: PaymentCorrection
+): Promise<Order> {
+  const supabase = createClient();
+  const cash = correction.mode === "carte" ? undefined : correction;
+  check(
+    await supabase.rpc("update_order_payment", {
+      p_order_id: orderId,
+      p_mode: correction.mode,
+      p_cash_amount:
+        correction.mode === "mixte" ? correction.cashAmount ?? null : null,
+      p_cash_given: cash?.cashGiven ?? null,
+      p_cash_change: cash?.cashChange ?? null,
+    })
+  );
+  const row = must(
+    await supabase
+      .from("orders")
+      .select("*, order_items(*), order_payments(*)")
+      .eq("id", orderId)
+      .single()
+  );
+  return replaceOrder(rowToOrder(row));
+}
+
+/**
+ * Annule un encaissement au comptoir — espèces, carte ou les deux : la
+ * commande passe annulée et le règlement est effacé (le trigger emporte ses
+ * jambes). Un règlement en ligne ne s'annule pas d'ici : c'est une
+ * transaction réelle chez le prestataire.
+ */
+export async function voidPayment(orderId: string): Promise<Order> {
   const supabase = createClient();
   const row = must(
     await supabase
@@ -489,16 +551,12 @@ export async function voidCashPayment(orderId: string): Promise<Order> {
         cash_change: null,
       })
       .eq("id", orderId)
-      .eq("payment_mode", "especes")
+      .eq("paid_online", false)
+      .not("payment_mode", "is", null)
       .select("*, order_items(*), order_payments(*)")
       .single()
   );
-  const order = rowToOrder(row);
-  return apply((draft) => {
-    const index = draft.orders.findIndex((o) => o.id === orderId);
-    if (index !== -1) draft.orders[index] = order;
-    return order;
-  });
+  return replaceOrder(rowToOrder(row));
 }
 
 // ---------------------------------------------------------------------------
@@ -527,20 +585,26 @@ export async function updateDisplayName(name: string): Promise<void> {
 }
 
 /**
- * Nouveau serveur, sans compte : le gérant le nomme, la base lui donne son
- * jeton de planning. C'est le chemin normal en salle — un compte ne sert qu'à
- * ceux qui ouvrent l'espace de gestion eux-mêmes.
+ * Nouveau serveur, sans compte : le gérant le nomme et lui pose son code de
+ * badgeage, la base lui donne son jeton de planning. C'est le chemin normal
+ * en salle — un compte ne sert qu'à ceux qui ouvrent l'espace de gestion
+ * eux-mêmes.
  */
-export async function createStaff(name: string, role: Role): Promise<Staff> {
+export async function createStaff(
+  name: string,
+  role: Role,
+  code: string
+): Promise<Staff> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Le nom ne peut pas être vide.");
   const supabase = createClient();
   const row = must(
-    await supabase
-      .from("staff")
-      .insert({ etablissement_id: etablissementId(), name: trimmed, role })
-      .select()
-      .single()
+    await supabase.rpc("create_staff", {
+      p_etablissement_id: etablissementId(),
+      p_name: trimmed,
+      p_role: role,
+      p_code: code,
+    })
   );
   const staff = rowToStaff(row);
   return apply((draft) => {
@@ -557,6 +621,34 @@ export async function renameStaff(staffId: string, name: string): Promise<void> 
   apply((draft) => {
     const staff = draft.staff.find((s) => s.id === staffId);
     if (staff) staff.name = trimmed;
+  });
+}
+
+/** Pose ou remplace le code de badgeage d'une fiche. */
+export async function setStaffCode(staffId: string, code: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.rpc("set_staff_code", { p_staff_id: staffId, p_code: code })
+  );
+  apply((draft) => {
+    const staff = draft.staff.find((s) => s.id === staffId);
+    if (staff) staff.codeSet = true;
+  });
+}
+
+/**
+ * Masquer une fiche la retire de la badgeuse, du planning et de l'affectation
+ * des tables sans rien effacer ; la réafficher la ramène telle quelle.
+ */
+export async function setStaffHidden(
+  staffId: string,
+  hidden: boolean
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("staff").update({ hidden }).eq("id", staffId));
+  apply((draft) => {
+    const staff = draft.staff.find((s) => s.id === staffId);
+    if (staff) staff.hidden = hidden;
   });
 }
 

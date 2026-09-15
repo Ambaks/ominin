@@ -1,6 +1,12 @@
 "use client";
 
-import { EditIcon, MenuIcon, TrashIcon } from "@/components/gestion/icons";
+import {
+  ChevronDownIcon,
+  EditIcon,
+  MenuIcon,
+  TrashIcon,
+} from "@/components/gestion/icons";
+import { IconButton } from "@/components/ui/icon-button";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
@@ -14,6 +20,9 @@ export function MenuItemCard({
   printers = [],
   printerId = null,
   canRoute = false,
+  first = false,
+  last = false,
+  onMove,
   onEdit,
   onDelete,
   onPrinterChange,
@@ -22,6 +31,11 @@ export function MenuItemCard({
   printers?: Printer[];
   printerId?: string | null;
   canRoute?: boolean;
+  /** Bornes de sa catégorie : la flèche correspondante se grise. */
+  first?: boolean;
+  last?: boolean;
+  /** Absent, l'ordre ne se change pas d'ici. */
+  onMove?: (delta: -1 | 1) => void;
   onEdit: () => void;
   onDelete: () => void;
   onPrinterChange?: (printerId: string | null) => void;
@@ -72,6 +86,9 @@ export function MenuItemCard({
               <p className="font-display text-xs italic text-ember-1/85">
                 {item.detail}
               </p>
+            )}
+            {item.printName && (
+              <p className="text-xs text-faint">Ticket : {item.printName}</p>
             )}
           </div>
           <span className="shrink-0 font-display text-base text-ember-1">
@@ -126,7 +143,7 @@ export function MenuItemCard({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
               }}
-              className="w-14 rounded-lg border border-hairline bg-background px-2 py-1 text-center text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 disabled:opacity-40 lg:text-xs"
+              className="w-16 rounded-lg border border-hairline bg-background px-2 py-2 text-center text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 disabled:opacity-40 lg:pointer-fine:text-xs"
             />
           </label>
 
@@ -139,7 +156,7 @@ export function MenuItemCard({
                 onChange={(e) =>
                   onPrinterChange?.(e.target.value || null)
                 }
-                className="rounded-lg border border-hairline bg-background px-2 py-1 text-xs outline-none transition-colors focus:border-ember-2/50 disabled:opacity-40"
+                className="rounded-lg border border-hairline bg-background px-3 py-2 text-base outline-none transition-colors focus:border-ember-2/50 disabled:opacity-40 lg:pointer-fine:text-xs"
               >
                 <option value="">—</option>
                 {printers.map((p) => (
@@ -152,23 +169,35 @@ export function MenuItemCard({
           )}
 
           {canEdit && (
-            <span className="ml-auto flex gap-1">
-              <button
-                type="button"
-                onClick={onEdit}
-                aria-label={`Modifier ${item.name}`}
-                className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-              >
-                <EditIcon className="size-3.5" />
-              </button>
-              <button
-                type="button"
+            <span className="ml-auto flex gap-1.5">
+              {onMove && (
+                <>
+                  <IconButton
+                    disabled={first}
+                    onClick={() => onMove(-1)}
+                    aria-label={`Monter ${item.name}`}
+                  >
+                    <ChevronDownIcon className="size-4 rotate-180" />
+                  </IconButton>
+                  <IconButton
+                    disabled={last}
+                    onClick={() => onMove(1)}
+                    aria-label={`Descendre ${item.name}`}
+                  >
+                    <ChevronDownIcon className="size-4" />
+                  </IconButton>
+                </>
+              )}
+              <IconButton onClick={onEdit} aria-label={`Modifier ${item.name}`}>
+                <EditIcon className="size-4" />
+              </IconButton>
+              <IconButton
+                tone="danger"
                 onClick={onDelete}
                 aria-label={`Supprimer ${item.name}`}
-                className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3"
               >
-                <TrashIcon className="size-3.5" />
-              </button>
+                <TrashIcon className="size-4" />
+              </IconButton>
             </span>
           )}
         </div>

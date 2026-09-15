@@ -8,6 +8,7 @@ import {
   type OptionGroupDraft,
 } from "@/components/gestion/menu/options-editor";
 import { inputClass } from "@/components/ui/field";
+import { IconButton } from "@/components/ui/icon-button";
 import { PriceInput } from "@/components/ui/price-input";
 import { Toggle } from "@/components/ui/toggle";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
@@ -153,14 +154,13 @@ export function EtapeEditor({
                 label="Étape obligatoire"
               />
             </label>
-            <button
-              type="button"
+            <IconButton
+              tone="danger"
               onClick={() => onChange(value.filter((e) => e.id !== etape.id))}
               aria-label="Supprimer l'étape"
-              className="shrink-0 text-faint transition-colors hover:text-ember-3"
             >
               <XIcon className="size-4" />
-            </button>
+            </IconButton>
           </div>
 
           {etape.articles.map((article) => (
@@ -187,8 +187,8 @@ export function EtapeEditor({
                   placeholder="+0,00"
                   className="w-28 shrink-0"
                 />
-                <button
-                  type="button"
+                <IconButton
+                  tone="danger"
                   onClick={() =>
                     patchEtape(etape.id, {
                       articles: etape.articles.filter(
@@ -197,10 +197,9 @@ export function EtapeEditor({
                     })
                   }
                   aria-label="Supprimer le choix"
-                  className="shrink-0 text-faint transition-colors hover:text-ember-3"
                 >
-                  <XIcon className="size-3.5" />
-                </button>
+                  <XIcon className="size-4" />
+                </IconButton>
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -267,7 +266,7 @@ export function EtapeEditor({
                 articles: [...etape.articles, emptyArticle()],
               })
             }
-            className="self-start text-xs font-semibold text-ember-1 transition-opacity hover:opacity-80"
+            className="self-start rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
           >
             + Ajouter un choix
           </button>
@@ -277,7 +276,7 @@ export function EtapeEditor({
       <button
         type="button"
         onClick={() => onChange([...value, emptyEtape()])}
-        className="self-start rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+        className="self-start rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
       >
         + Ajouter une étape
       </button>

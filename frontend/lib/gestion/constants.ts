@@ -29,6 +29,8 @@ export const DEFAULT_PRINTER_PORT = 9100;
 export const UNCLAIMED_POLL_MS = 3000;
 /** Derniers caractères du numéro de série, imprimés sur l'étiquette du boîtier. */
 export const SERIAL_CODE_LENGTH = 6;
+/** Chiffres du code de badgeage d'une fiche (miroir de set_staff_code). */
+export const STAFF_CODE_LENGTH = 4;
 
 /**
  * Fenêtre d'attente d'un paiement en ligne choisi depuis le menu QR : durée
@@ -275,7 +277,13 @@ export const VIEWS: ViewSpec[] = [
     id: "badgeage",
     label: "Badgeage",
     hint: "La badgeuse signée et le planning de l'équipe.",
-    features: [],
+    features: [
+      {
+        id: "lien_heures",
+        label: "Heures sur le lien planning",
+        hint: "Le lien du serveur montre aussi son total prévu et ses badgeages ; sinon, ses créneaux seulement.",
+      },
+    ],
   },
   {
     id: "roles",
@@ -293,6 +301,12 @@ export const VIEWS: ViewSpec[] = [
     id: "terminaux",
     label: "Terminaux",
     hint: "Les boîtiers Omilink et leurs imprimantes.",
+    features: [],
+  },
+  {
+    id: "produits",
+    label: "Produits",
+    hint: "L'onglet compte : l'offre souscrite, le rôle et le catalogue Ominin. Fermé au serveur quoi qu'il arrive.",
     features: [],
   },
 ];
@@ -313,7 +327,7 @@ export const FEATURES: Feature[] = VIEWS.flatMap((view) => [
  * pour qui les demande.
  */
 export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
-  digital: ["qr", "apercu"],
+  digital: ["qr", "apercu", "produits"],
   smart: [
     "qr",
     "apercu",
@@ -323,9 +337,11 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
     "tables",
     "paiements",
     "badgeage",
+    "lien_heures",
     "terminaux",
     "options",
     "roles",
+    "produits",
   ],
   connect: [
     "qr",
@@ -336,9 +352,11 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
     "tables",
     "paiements",
     "badgeage",
+    "lien_heures",
     "terminaux",
     "options",
     "roles",
+    "produits",
   ],
 };
 
@@ -354,6 +372,7 @@ export const COLLECT_FEATURES: Feature[] = [
   "paiements",
   "options",
   "terminaux",
+  "produits",
 ];
 
 /** Libellés des droits, pour présenter ce qu'un rôle autorise. */
