@@ -42,12 +42,27 @@ export function isPaidStatus(status: Order["status"]): boolean {
   return status === "payee" || status === "servie" || status === "retiree";
 }
 
-/** À encaisser : commande sur place en attente de son règlement. */
+/**
+ * Le client règle en ligne : la commande attend son paiement hors de la
+ * caisse, et n'y revient que sur son geste (« Payer au comptoir »). Sans
+ * paiement ni geste, la session Stripe expire et le webhook supprime la
+ * commande — elle ne reparaît jamais, ni en caisse ni dans l'historique.
+ */
+export function awaitsOnlinePayment(order: Order): boolean {
+  return (
+    order.status === "en_attente" &&
+    !order.paidOnline &&
+    order.onlinePaymentStartedAt !== undefined
+  );
+}
+
+/** À encaisser : commande sur place en attente de son règlement au comptoir. */
 export function awaitsPayment(order: Order): boolean {
   return (
     order.type === "sur_place" &&
     order.status === "en_attente" &&
-    !order.paidOnline
+    !order.paidOnline &&
+    !awaitsOnlinePayment(order)
   );
 }
 

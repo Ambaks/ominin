@@ -52,8 +52,10 @@ interface OrderContext {
   created_at: string;
   customer_name: string | null;
   pickup_at: string | null;
+  paid_online: boolean;
   tables: { number: number } | null;
   order_items: { quantity: number }[];
+  order_payments: { mode: string; paid_at: string }[];
 }
 
 function composeBody(order: OrderContext): string {
@@ -93,7 +95,7 @@ export async function dispatchOrderEvent(
   const { data: order, error: orderError } = await db
     .from("orders")
     .select(
-      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, tables (number), order_items (quantity)"
+      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, paid_online, tables (number), order_items (quantity), order_payments (mode, paid_at)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();
@@ -103,17 +105,31 @@ export async function dispatchOrderEvent(
   }
 
   // Cohérence événement ↔ statut : la route est publique, seul l'état réel
-  // de la commande fait foi. Un événement « nouvelle commande » trop vieux
-  // est un rejeu, pas un service à rendre.
-  if (STATUS_PUSH_EVENT[order.status as keyof typeof STATUS_PUSH_EVENT] !== event) {
+  // de la commande fait foi. Une commande sur place réglée en ligne est
+  // « nouvelle » au paiement, pas à sa création : elle est alors déjà payée
+  // (à servir) ou servie (ticket sorti), et son âge se compte du règlement.
+  const settledOnline =
+    order.type === "sur_place" &&
+    order.paid_online &&
+    (order.status === "payee" || order.status === "servie");
+  const expected = settledOnline
+    ? "nouvelle_commande"
+    : STATUS_PUSH_EVENT[order.status as keyof typeof STATUS_PUSH_EVENT];
+  if (expected !== event) {
     console.error("[push] status mismatch", { status: order.status, event });
     return;
   }
+  // Un événement « nouvelle commande » trop vieux est un rejeu, pas un
+  // service à rendre.
+  const since = settledOnline
+    ? (order.order_payments.find((leg) => leg.mode === "en_ligne")?.paid_at ??
+      order.created_at)
+    : order.created_at;
   if (
     event === "nouvelle_commande" &&
-    Date.now() - new Date(order.created_at).getTime() > NOUVELLE_COMMANDE_MAX_AGE_MS
+    Date.now() - new Date(since).getTime() > NOUVELLE_COMMANDE_MAX_AGE_MS
   ) {
-    console.error("[push] order too old", { created_at: order.created_at });
+    console.error("[push] order too old", { since });
     return;
   }
 

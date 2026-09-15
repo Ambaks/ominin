@@ -115,7 +115,11 @@ export async function POST(request: Request) {
 
   const { error: updateError } = await admin
     .from("orders")
-    .update({ sumup_checkout_id: checkout.id })
+    .update({
+      sumup_checkout_id: checkout.id,
+      // La commande attend ce règlement hors de la caisse (relance comprise).
+      online_payment_started_at: new Date().toISOString(),
+    })
     .eq("id", orderId);
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });

@@ -48,13 +48,15 @@ export async function POST(request: Request) {
       break;
     }
     case "checkout.session.expired": {
-      // Le client n'a pas réglé dans le délai : la commande reste à encaisser
-      // au comptoir, la référence de session n'a plus d'objet.
+      // Le client n'a ni réglé ni choisi le comptoir dans le délai : la
+      // commande n'a jamais existé pour le restaurant — supprimée (stock
+      // rendu), sans trace en caisse ni dans l'historique. Une commande déjà
+      // passée au comptoir ou réglée n'est pas touchée.
       const session = event.data.object;
-      await admin
-        .from("orders")
-        .update({ stripe_session_id: null })
-        .eq("stripe_session_id", session.id);
+      const { error } = await admin.rpc("discard_online_payment", {
+        p_session_id: session.id,
+      });
+      if (error) throw new Error(error.message);
       break;
     }
   }

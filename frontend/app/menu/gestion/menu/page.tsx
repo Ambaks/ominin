@@ -6,6 +6,7 @@ import { FormuleFormModal } from "@/components/gestion/formules/formule-form-mod
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
 import { ItemFormModal } from "@/components/gestion/menu/item-form-modal";
 import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
+import { RuleForm } from "@/components/gestion/tarifs-planifies";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -34,6 +35,8 @@ export default function MenuPage() {
   const [creatingItem, setCreatingItem] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
+  // Nouveau tarif planifié ouvert depuis la carte d'un article.
+  const [tarifItem, setTarifItem] = useState<MenuItem | null>(null);
   const [managingCats, setManagingCats] = useState(false);
   const [creatingFormule, setCreatingFormule] = useState(false);
   const [editingFormule, setEditingFormule] = useState<Formule | null>(null);
@@ -92,6 +95,17 @@ export default function MenuPage() {
     ? categories.find((c) => c.items.some((item) => item.id === editingItem.id))?.id
     : undefined;
   const menuItems = categories.flatMap((c) => c.items);
+  // Les tarifs planifiés se règlent sur Établissement ; ils se lisent ici,
+  // sur chaque article, là où le gérant regarde ses prix.
+  const canTarif = can("etablissement.edit");
+  const tarifsFor = (itemId: string, categoryId: string) =>
+    state.priceRules.filter((rule) =>
+      rule.targets.some(
+        (target) =>
+          (target.kind === "item" && target.id === itemId) ||
+          (target.kind === "category" && target.id === categoryId)
+      )
+    );
 
   const moveItem = (index: number, delta: -1 | 1) => {
     if (!category) return;
@@ -232,12 +246,14 @@ export default function MenuPage() {
                       canRoute={canRoute}
                       first={index === 0}
                       last={index === category.items.length - 1}
+                      tarifs={tarifsFor(item.id, category.id)}
                       onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}
                       onPrinterChange={(pid) =>
                         void handlePrinterChange(item.id, pid)
                       }
+                      onTarif={canTarif ? () => setTarifItem(item) : undefined}
                     />
                   ))}
                 </div>
@@ -297,6 +313,15 @@ export default function MenuPage() {
             setCreatingItem(false);
             setEditingItem(null);
           }}
+        />
+      )}
+
+      {tarifItem && (
+        <RuleForm
+          rule={null}
+          categories={categories}
+          initialTargets={[{ kind: "item", id: tarifItem.id }]}
+          onClose={() => setTarifItem(null)}
         />
       )}
 

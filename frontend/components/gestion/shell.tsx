@@ -7,7 +7,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
 import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
-import { activeProducts } from "@/lib/gestion/selectors";
+import { activeProducts, awaitsOnlinePayment } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
 import {
@@ -155,7 +155,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
   );
   const pendingCount =
-    state?.orders.filter((order) => order.status === "en_attente").length ?? 0;
+    state?.orders.filter(
+      (order) => order.status === "en_attente" && !awaitsOnlinePayment(order)
+    ).length ?? 0;
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
   const surtitre = state

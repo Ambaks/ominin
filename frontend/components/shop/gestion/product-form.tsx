@@ -10,7 +10,8 @@ import { PERSONALIZATION_MAX_LENGTH } from "@/lib/shop/constants";
 import { centsToEurosInput, eurosToCents, slugify } from "@/lib/shop/format";
 import * as api from "@/lib/shop/gestion-api";
 import type { OptionGroupWithValues, ProductDetail, ShopCategory, ShopProductBadge } from "@/lib/shop/types";
-import { TrashIcon } from "../icons";
+import { moved } from "@/lib/move";
+import { ArrowDownIcon, ArrowUpIcon, TrashIcon } from "../icons";
 import { ImageUploader, type UploadedImage } from "./image-uploader";
 import { Card, dangerButton, primaryButton, secondaryButton } from "./page-header";
 
@@ -169,9 +170,17 @@ export function ProductForm({ shopId, product, categories, optionGroups }: { sho
                   <Toggle checked={link.is_required} onChange={(v) => setLinks(links.map((l, j) => (j === i ? { ...l, is_required: v } : l)))} label="Obligatoire" />
                   Obligatoire
                 </label>
-                <button type="button" onClick={() => setLinks(links.filter((_, j) => j !== i))} aria-label="Retirer" className="mb-2 flex size-9 items-center justify-center rounded-full text-muted hover:text-ember-3">
-                  <TrashIcon className="size-4" />
-                </button>
+                <div className="mb-2 flex gap-1">
+                  <button type="button" disabled={i === 0} onClick={() => setLinks(moved(links, i, -1))} aria-label="Monter" className="flex size-9 items-center justify-center rounded-full text-muted hover:text-foreground disabled:opacity-30">
+                    <ArrowUpIcon className="size-4" />
+                  </button>
+                  <button type="button" disabled={i === links.length - 1} onClick={() => setLinks(moved(links, i, 1))} aria-label="Descendre" className="flex size-9 items-center justify-center rounded-full text-muted hover:text-foreground disabled:opacity-30">
+                    <ArrowDownIcon className="size-4" />
+                  </button>
+                  <button type="button" onClick={() => setLinks(links.filter((_, j) => j !== i))} aria-label="Retirer" className="flex size-9 items-center justify-center rounded-full text-muted hover:text-ember-3">
+                    <TrashIcon className="size-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

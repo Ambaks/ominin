@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { dispatchOrderEvent } from "@/lib/push/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -105,5 +106,8 @@ export async function settleCheckoutSession(
     p_tip: Number.isFinite(tip) && tip > 0 ? tip : null,
   });
   if (error) throw new Error(error.message);
+  // C'est maintenant que la commande arrive en salle : elle attendait son
+  // règlement hors de la caisse, sans avoir été annoncée.
+  await dispatchOrderEvent(orderId, "nouvelle_commande");
   return "paid";
 }

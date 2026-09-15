@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fallBackToCounter } from "@/lib/menu/online-payment";
 
 /*
  * Retour de Stripe Checkout (?paiement=succes|annule&commande=<id>). Le
@@ -9,6 +10,17 @@ import { useEffect, useState } from "react";
  * ou non confirmé laisse la commande valable : réessayer, ou régler au
  * comptoir. Les paramètres sont retirés de l'URL aussitôt, un rechargement
  * ne rejoue pas la feuille.
+ *
+ * Le retour au comptoir (abandon_online_payment) n'est déclenché que par un
+ * choix explicite du client — le bouton « Payer au comptoir » — jamais par
+ * le seul affichage de cet écran : tant que « Réessayer par carte » reste
+ * une option, une session Stripe peut encore aboutir, et exposer l'addition
+ * plus tôt permettrait à la salle de l'encaisser pendant que le client
+ * termine son paiement en ligne. Sans geste du client, la session Stripe
+ * expire et le webhook supprime la commande : elle ne surgit jamais, ni en
+ * caisse ni dans l'historique. Seule exception : une relance qui échoue avant même de créer une session
+ * (retry_failed) ne laisse plus rien en concurrence, le comptoir est donc
+ * notifié tout de suite.
  */
 
 type State =
@@ -73,10 +85,19 @@ export function PaymentReturn({
         window.location.assign(body.url);
         return;
       }
+      // Aucune session créée : plus rien ne peut aboutir en ligne, le
+      // comptoir est notifié sans attendre un geste de plus.
       setState("retry_failed");
+      void fallBackToCounter(orderId);
     } catch {
       setState("retry_failed");
+      void fallBackToCounter(orderId);
     }
+  };
+
+  const goToCounter = () => {
+    void fallBackToCounter(orderId);
+    setOpen(false);
   };
 
   if (!open) return null;
@@ -139,7 +160,13 @@ export function PaymentReturn({
             </h3>
             <p className="text-sm leading-relaxed text-muted">{counter}</p>
             <div className="flex gap-2">
-              {closeButton("Payer au comptoir")}
+              <button
+                type="button"
+                onClick={goToCounter}
+                className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold"
+              >
+                Payer au comptoir
+              </button>
               <button
                 type="button"
                 onClick={() => void retry()}

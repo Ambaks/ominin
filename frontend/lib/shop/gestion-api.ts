@@ -116,7 +116,7 @@ export interface OptionValueInput {
 export async function saveOptionGroup(
   shopId: string,
   id: string | null,
-  input: { name: string; description: string | null },
+  input: { name: string; description: string | null; sort_order: number },
   values: OptionValueInput[]
 ): Promise<string> {
   const supabase = createClient();

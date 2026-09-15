@@ -5,6 +5,7 @@ import { SquarePayment } from "@/components/menu/square-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
+import { fallBackToCounter } from "@/lib/menu/online-payment";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
@@ -58,6 +59,12 @@ export function CartBar() {
           )
         : Math.round(cart.total * tipChoice) / 100;
 
+  // Le règlement par carte n'aura pas lieu : l'addition passe au comptoir.
+  const giveUpCard = (orderId: string) => {
+    setCardFailed(true);
+    void fallBackToCounter(orderId);
+  };
+
   const submit = async () => {
     if (cart.tableNumber === null) return;
     setState("sending");
@@ -75,6 +82,9 @@ export function CartBar() {
         p_slug: cart.slug,
         p_table_number: cart.tableNumber,
         p_items: payload,
+        // Réglée en ligne, la commande attend son paiement hors de la caisse ;
+        // c'est le paiement (ou son abandon) qui la fera arriver en salle.
+        p_online_payment: payment === "carte",
       }
     );
     if (rpcError) {
@@ -82,9 +92,9 @@ export function CartBar() {
       setError(rpcError.message);
       return;
     }
-    // Prévient la salle (push) : la commande attend son encaissement. Sans
-    // bloquer le parcours client — keepalive survit à la redirection Stripe.
-    notifyOrderEvent(orderId, "en_attente");
+    // Prévient la salle (push) : la commande attend son encaissement au
+    // comptoir. Sans bloquer le parcours client.
+    if (payment === "comptoir") notifyOrderEvent(orderId, "en_attente");
     // Fin de l'entonnoir : la visite a produit une commande, et le règlement
     // par carte en est la dernière étape (qu'il aboutisse ou non — un échec
     // renvoie au comptoir, mais le client était bien allé jusque-là).
@@ -107,11 +117,11 @@ export function CartBar() {
           window.location.assign(body.url);
           return;
         }
-        setCardFailed(true);
+        giveUpCard(orderId);
       } catch {
         // Le règlement en ligne a échoué : la commande reste valable,
         // le client paiera au comptoir.
-        setCardFailed(true);
+        giveUpCard(orderId);
       }
     }
 
@@ -132,10 +142,10 @@ export function CartBar() {
         if (response.ok && body.checkoutId) {
           setSumupPayment({ orderId, checkoutId: body.checkoutId });
         } else {
-          setCardFailed(true);
+          giveUpCard(orderId);
         }
       } catch {
-        setCardFailed(true);
+        giveUpCard(orderId);
       }
     }
 
@@ -151,7 +161,7 @@ export function CartBar() {
           tipAmount,
         });
       } else {
-        setCardFailed(true);
+        giveUpCard(orderId);
       }
     }
 
@@ -201,7 +211,7 @@ export function CartBar() {
                 initialCheckoutId={sumupPayment.checkoutId}
                 onDone={(paid) => {
                   setSumupPayment(null);
-                  if (!paid) setCardFailed(true);
+                  if (!paid) giveUpCard(sumupPayment.orderId);
                 }}
               />
             ) : state === "sent" && squarePayment ? (
@@ -211,7 +221,7 @@ export function CartBar() {
                 tipAmount={squarePayment.tipAmount}
                 onDone={(paid) => {
                   setSquarePayment(null);
-                  if (!paid) setCardFailed(true);
+                  if (!paid) giveUpCard(squarePayment.orderId);
                 }}
               />
             ) : state === "sent" ? (
