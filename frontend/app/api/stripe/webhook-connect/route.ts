@@ -49,17 +49,14 @@ export async function POST(request: Request) {
     }
     case "checkout.session.expired": {
       // Le client n'a ni réglé ni choisi le comptoir dans le délai : la
-      // commande est abandonnée pour de bon — annulée (le stock revient par
-      // trigger), sans jamais surgir en caisse. Une commande déjà passée au
-      // comptoir ou réglée n'est pas touchée.
+      // commande n'a jamais existé pour le restaurant — supprimée (stock
+      // rendu), sans trace en caisse ni dans l'historique. Une commande déjà
+      // passée au comptoir ou réglée n'est pas touchée.
       const session = event.data.object;
-      await admin
-        .from("orders")
-        .update({ status: "annulee", stripe_session_id: null })
-        .eq("stripe_session_id", session.id)
-        .eq("status", "en_attente")
-        .eq("paid_online", false)
-        .not("online_payment_started_at", "is", null);
+      const { error } = await admin.rpc("discard_online_payment", {
+        p_session_id: session.id,
+      });
+      if (error) throw new Error(error.message);
       break;
     }
   }

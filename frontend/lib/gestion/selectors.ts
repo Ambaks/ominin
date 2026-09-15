@@ -45,8 +45,8 @@ export function isPaidStatus(status: Order["status"]): boolean {
 /**
  * Le client règle en ligne : la commande attend son paiement hors de la
  * caisse, et n'y revient que sur son geste (« Payer au comptoir »). Sans
- * paiement ni geste, la session Stripe expire et le webhook annule la
- * commande — elle ne reparaît jamais en caisse d'elle-même.
+ * paiement ni geste, la session Stripe expire et le webhook supprime la
+ * commande — elle ne reparaît jamais, ni en caisse ni dans l'historique.
  */
 export function awaitsOnlinePayment(order: Order): boolean {
   return (

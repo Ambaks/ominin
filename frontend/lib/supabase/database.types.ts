@@ -3232,6 +3232,10 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
+      discard_online_payment: {
+        Args: { p_session_id: string }
+        Returns: undefined
+      }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
         Returns: {

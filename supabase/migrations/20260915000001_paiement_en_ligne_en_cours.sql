@@ -10,8 +10,9 @@
 -- l'historique (mark_order_paid_online, inchangée). Abandonnée — annulation
 -- chez Stripe, widget refermé, session expirée — l'heure est effacée et
 -- l'addition reparaît à encaisser. Si l'onglet client meurt sans rien dire,
--- la session Stripe expire et le webhook connecté annule la commande : une
--- addition que personne n'a demandé d'encaisser ne surgit jamais en caisse.
+-- la session Stripe expire et le webhook connecté supprime la commande
+-- (discard_online_payment) : une commande que personne n'a payée ni demandé
+-- d'encaisser n'existe pas — ni en caisse, ni dans l'historique.
 
 alter table public.orders
   add column online_payment_started_at timestamptz;
@@ -208,3 +209,37 @@ $$;
 
 revoke execute on function public.abandon_online_payment(uuid) from public;
 grant execute on function public.abandon_online_payment(uuid) to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- La session Stripe a expiré sans paiement ni choix du comptoir : la commande
+-- n'a jamais existé pour le restaurant. Elle est d'abord annulée — c'est le
+-- trigger orders_restore_stock qui rend le stock — puis supprimée, pour ne
+-- laisser aucune trace dans l'historique. Une commande déjà passée au
+-- comptoir (heure effacée) ou réglée n'est pas touchée. Réservée au serveur
+-- (webhook, clé service).
+
+create function public.discard_online_payment(p_session_id text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_order uuid;
+begin
+  select id into v_order from orders
+  where stripe_session_id = p_session_id
+    and status = 'en_attente'
+    and not paid_online
+    and online_payment_started_at is not null
+  for update;
+  if v_order is null then
+    return;
+  end if;
+  update orders set status = 'annulee' where id = v_order;
+  delete from orders where id = v_order;
+end;
+$$;
+
+revoke execute on function public.discard_online_payment(text) from public;
+grant execute on function public.discard_online_payment(text) to service_role;

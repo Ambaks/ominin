@@ -14,7 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * ou /api/stripe/verify marque ensuite la commande payée. Tant que la
  * session vit, la commande attend hors de la caisse : l'heure de la
  * tentative est (re)posée ici, ce qui couvre aussi la relance après un
- * paiement annulé. Expirée sans paiement, la commande est annulée par le
+ * paiement annulé. Expirée sans paiement, la commande est supprimée par le
  * webhook connecté.
  */
 
