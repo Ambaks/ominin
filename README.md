@@ -770,6 +770,19 @@ For Google sign-in, create an OAuth Client ID in Google Cloud Console and
 enable the Google provider in Supabase → Authentication → Providers (use the
 callback URL shown there).
 
+The CLI above is your **own** free project for local dev — every contributor
+creates one, no coordination needed. **Pushing to the actual production
+project (`shop.ominin.com`, `admin.ominin.com`) is different: it is one
+project shared by everyone, so you must first be added as a member** (Project
+Settings → Team on supabase.com, added by whoever owns the org) before
+`supabase link --project-ref <the production ref>` will do anything. The CLI
+is a `devDependency` of `frontend/` (`npm install` pulls it in) — from
+`frontend/`, `npm run db:login`, `npm run db:link -- --project-ref <ref>`,
+`npm run db:push` and `npm run db:types` are shortcuts for the commands above
+that already point `--workdir` at the repo's `supabase/` folder. `supabase
+link` only writes to `supabase/.temp/` (git-ignored), so linking is local to
+your machine and doesn't touch anyone else's setup.
+
 Verify: set `NEXT_PUBLIC_MENU_HOST=menu.localhost:3000` in
 `frontend/.env.local`, run `npm run dev`, then `http://localhost:3000` shows
 the portal and `http://menu.localhost:3000/m/trattoria-lucia` shows the demo

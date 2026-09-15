@@ -29,6 +29,34 @@ Ce qui reste **impossible à vérifier sans accès** (base avec la clé service,
 Vercel, Stripe, Supabase Auth) est laissé coché vide avec la mention
 *« non vérifié »*. Ce qui est **confirmé non fait** est marqué *« à faire »*.
 
+## Accès Supabase pour Marwan (2026-09-15)
+
+Marwan veut pouvoir pousser les migrations lui-même, sans attendre Ambaka à
+chaque fois. Ça ne se fait pas depuis le code : c'est un réglage du projet
+Supabase de production, sur supabase.com.
+
+- [ ] **Ambaka** : sur supabase.com → le projet de production (celui derrière
+      `shop.ominin.com` / `admin.ominin.com`) → **Project Settings → Team** →
+      inviter l'adresse e-mail Supabase de Marwan avec un rôle qui autorise
+      les migrations (Developer suffit ; Owner/Admin si Marwan doit aussi
+      gérer les clés API et les webhooks).
+- [ ] **Marwan**, une fois invité : `npm install` dans `frontend/` installe
+      la CLI Supabase (`devDependency`, ajoutée le 2026-09-15) ; depuis
+      `frontend/`, `npm run db:login` (ouvre le navigateur, associe la CLI à
+      *son* compte — pas besoin d'un jeton d'Ambaka), puis
+      `npm run db:link -- --project-ref <ref>` (le ref est l'identifiant dans
+      l'URL du projet sur supabase.com), puis `npm run db:push`. Détails et
+      portée de chaque commande dans `README.md` § 4 (Supabase).
+- [ ] **Après une migration poussée par Marwan** : mettre à jour les types
+      (`npm run db:types` depuis `frontend/`) et prévenir Ambaka — les deux
+      comptes peuvent pousser, mais un seul doit le faire à la fois pour
+      éviter une migration posée en double.
+
+Un jeton d'accès personnel d'Ambaka collé dans une conversation avec un
+agent n'est pas recommandé : il donnerait à quiconque lit cette conversation
+un accès complet au projet de production, alors que `supabase login`
+n'exige qu'un compte Supabase à part entière et n'expose rien.
+
 ## 0. Paiement en ligne du menu QR : la commande attend hors de la caisse (2026-09-15, branche `ominingeneral`)
 
 Une migration (une colonne sur `orders`, `place_order` recréée avec un

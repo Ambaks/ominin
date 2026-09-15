@@ -14,7 +14,12 @@
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
     "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts",
-    "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts"
+    "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts",
+    "db:login": "supabase --workdir .. login",
+    "db:link": "supabase --workdir .. link",
+    "db:push": "supabase --workdir .. db push",
+    "db:diff": "supabase --workdir .. db diff",
+    "db:types": "supabase --workdir .. gen types typescript --linked > lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
@@ -38,6 +43,7 @@
     "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "supabase": "^2.117.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
     "typescript": "^5"
