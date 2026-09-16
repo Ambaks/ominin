@@ -6,59 +6,23 @@ sont pas faites, les fonctionnalités correspondantes restent inertes en
 production — le code, lui, est en place. Nettoyé le 2026-09-15 : tout ce qui
 est fait ou redondant a été retiré.
 
-## En deux gestes (2026-09-15)
+## État au 2026-09-16 : tout est en production
 
-Tout ce qui attend — menu QR (paiement en ligne, lot MenuBoho), portail et
-landings ominin.com, boutique MyBox — est dans **`main`** depuis la fusion
-d'`ominingeneral` le 2026-09-16. Il n'y a qu'un push de base et un push de
-`main` à faire, **dans cet ordre** :
+Vérifié le 2026-09-16 par Marwan, CLI liée au projet OMININ
+(`supabase migration list --linked`) : les 71 migrations sont appliquées,
+`20260915000002_shop_ordre_options` comprise. `main` porte la fusion
+d'`ominingeneral` (commit 8c62267) et Vercel l'a déployée : l'accueil MyBox
+montre la photo et les trois collections, ominin.com le cube Ominin Shop,
+shop.ominin.com sa nouvelle landing, le menu QR du BOHO répond.
 
-1. **`supabase db push`** (CLI liée au projet de production ; depuis
-   `frontend/`, `npm run db:push`). La CLI applique ce qui manque dans
-   l'ordre des noms et saute ce qui est déjà enregistré. État vérifié le
-   2026-09-16 (`supabase migration list --linked`) :
+Il n'y a plus ni migration à pousser ni fusion à faire. Les sections
+suivantes sont ce qu'il reste à vérifier à la main ou à décider.
 
-   | Migration | Statut |
-   |---|---|
-   | `20260911000003_flux_commandes` | en prod |
-   | `20260911000004_boho_reglages` | en prod |
-   | `20260911000005_shop_accueil_personnalisation` | en prod |
-   | `20260911000006_mybox_reglages` | en prod |
-   | `20260912000001_renvoi_tickets` | en prod |
-   | `20260912000002_appel_serveur` | en prod |
-   | `20260912000003_paiement_mixte` | en prod |
-   | `20260912000004_tarifs_planifies` | en prod |
-   | `20260912000005_contact_requests_source` | en prod |
-   | `20260913000001_ordre_articles` | en prod |
-   | `20260913000002_nom_ticket` | en prod |
-   | `20260913000003_codes_badgeage` | en prod |
-   | `20260913000004_lien_planning` | en prod |
-   | `20260913000005_correction_encaissement` | en prod |
-   | `20260915000001_paiement_en_ligne_en_cours` | à pousser |
-   | `20260915000002_shop_ordre_options` | à pousser |
+## Accès Supabase pour Marwan : fait (2026-09-16)
 
-   `npx supabase --workdir .. migration list --linked` (depuis `frontend/`)
-   affiche la vérité côté prod. Toute la chaîne a été rejouée sur un
-   Postgres 16 vierge avant d'être poussée sur la branche.
-2. **Pousser `main`** (`git push origin main`) : la fusion d'`ominingeneral`
-   dans `main` est faite en local le 2026-09-16, c'est le push qui fait
-   déployer `main` par Vercel. **Après** le push de la base : le nouveau menu
-   QR appelle `place_order` à quatre arguments, qui n'existe qu'une fois
-   `20260915000001` passée ; sans elle, plus aucune commande ne part du menu.
-
-Les sections suivantes sont ce qu'il reste à vérifier ou à décider une fois
-ces deux gestes faits.
-
-## Accès Supabase pour Marwan (2026-09-15)
-
-- [ ] **Ambaka** : supabase.com → projet de production → **Project Settings →
-      Team** → inviter l'adresse Supabase de Marwan (Developer suffit).
-- [ ] **Marwan**, une fois invité, depuis `frontend/` : `npm install`,
-      `npm run db:login` (navigateur, son propre compte — aucun jeton à
-      partager), `npm run db:link -- --project-ref <ref>`, puis
-      `npm run db:push`. `npm run db:types` après une migration.
-      Un seul des deux pousse une migration donnée.
-
+Marwan est membre du projet, sa CLI est connectée et liée (`npm run
+db:login`, `npm run db:link`). Pour les prochaines migrations, l'un ou
+l'autre lance `npm run db:push` depuis `frontend/` — un seul à la fois.
 ## A. Paiement en ligne du menu QR (2026-09-15)
 
 - [ ] **Stripe — webhook connecté** : vérifier que
