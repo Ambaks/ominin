@@ -135,6 +135,12 @@ Restent les gestes en gestion et les vérifications en salle.
       `update public.shops set platform_fee_percent = 2 where slug = 'mybox';`
       S'applique aux commandes suivantes ; s'ajoute aux frais Stripe que la
       boutique paie de son côté.
+- [ ] **Compte propriétaire de MyBox** : un accès de travail existe depuis le
+      2026-09-16, créé hors dépôt (numéro `06 00 00 00 00`), Marwan a le mot
+      de passe. À faire tourner quand la gérante aura le sien, et à créer
+      désormais avec `npm run shop:owner` depuis `frontend/`, qui ne touche
+      ni au catalogue ni aux commandes — surtout pas `npm run seed:shop`,
+      qui supprime la boutique et la réinsère.
 - [ ] **Textes légaux** : six `[À COMPLÉTER]` sur les pages CGV et Mentions
       légales de MyBox (SIRET, adresse, éditeur, médiateur), depuis
       `/gestion` → Boutique et Contenu. Sans eux, la vente n'est pas
