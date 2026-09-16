@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
-import { IconButton } from "@/components/ui/icon-button";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
 import { Toggle } from "@/components/ui/toggle";
@@ -18,9 +16,7 @@ import type {
   PriceRuleTarget,
   PriceRuleUnit,
 } from "@/lib/gestion/types";
-import { fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import { formatPrice, type MenuCategory } from "@/lib/menu-data";
-import { createClient } from "@/lib/supabase/client";
 
 /*
  * Tarifs planifiés : le prix de certains articles change les jours dits. Le
@@ -64,24 +60,6 @@ function formatWindow(rule: PriceRule): string {
   }`;
 }
 
-function formatTargets(
-  targets: PriceRuleTarget[],
-  categories: MenuCategory[]
-): string {
-  const names = targets.map((target) => {
-    if (target.kind === "category") {
-      const category = categories.find((c) => c.id === target.id);
-      return category ? `toute la catégorie ${category.name}` : "catégorie supprimée";
-    }
-    for (const category of categories) {
-      const item = category.items.find((i) => i.id === target.id);
-      if (item) return item.name;
-    }
-    return "article supprimé";
-  });
-  return names.join(" · ");
-}
-
 // ---------------------------------------------------------------------------
 // Formulaire
 
@@ -123,6 +101,7 @@ export function RuleForm({
     (rule?.targets ?? initialTargets).map(targetKey)
   );
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const value = parsePriceInput(valueRaw);
   const pickedCategories = new Set(
@@ -183,6 +162,15 @@ export function RuleForm({
       onClose={onClose}
       footer={
         <>
+          {rule && (
+            <button
+              type="button"
+              onClick={() => setDeleting(true)}
+              className="mr-auto rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:border-ember-3/40"
+            >
+              Supprimer
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -201,7 +189,58 @@ export function RuleForm({
         </>
       }
     >
+      {deleting && rule && (
+        <ConfirmDialog
+          title="Supprimer ce tarif ?"
+          message={`« ${rule.name} » ne s'appliquera plus. Les prix de votre carte, eux, ne changent pas.`}
+          confirmLabel="Supprimer"
+          destructive
+          onConfirm={() => {
+            setDeleting(false);
+            void api
+              .deletePriceRule(rule.id)
+              .then(() => {
+                toast.success("Tarif supprimé.");
+                onClose();
+              })
+              .catch((error: unknown) =>
+                toast.error(
+                  error instanceof Error ? error.message : "Une erreur est survenue."
+                )
+              );
+          }}
+          onClose={() => setDeleting(false)}
+        />
+      )}
       <div className="flex flex-col gap-5">
+        {rule && (
+          <label className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-background px-4 py-3 text-sm">
+            <span className="font-medium">
+              Tarif actif
+              <span className="mt-0.5 block text-xs font-normal text-muted">
+                Suspendu, il cesse de s&apos;appliquer sans être supprimé.
+              </span>
+            </span>
+            <Toggle
+              checked={rule.actif}
+              onChange={(actif) =>
+                void api
+                  .setPriceRuleActive(rule.id, actif)
+                  .then(() =>
+                    toast.success(actif ? "Tarif activé." : "Tarif suspendu.")
+                  )
+                  .catch((error: unknown) =>
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : "Une erreur est survenue."
+                    )
+                  )
+              }
+              label={`Activer ${rule.name}`}
+            />
+          </label>
+        )}
         <Field
           label="Nom"
           required
@@ -418,220 +457,100 @@ function Segmented({
 }
 
 // ---------------------------------------------------------------------------
-// Écran
+// Écran : un tarif se règle devant l'article qu'il touche
 
 /**
- * Ce que les règles donnent à cet instant précis, relu en base. C'est le seul
- * endroit qui dit la vérité sans réinterpréter : plutôt que de recalculer les
- * jours et les heures côté navigateur — au risque d'un écart avec le calcul
- * qui facture —, l'écran demande les prix en cours et les affiche.
+ * Les tarifs planifiés d'une cible — un article, ou une catégorie entière —
+ * posés dans la page Menu, là où le gérant regarde ses prix. Une règle de
+ * catégorie est rappelée sur chacun de ses articles mais ne s'y modifie pas :
+ * elle se règle depuis la catégorie, sinon un geste fait devant un plat
+ * changerait le prix de plats qu'on n'a pas sous les yeux.
  */
-function EnCeMoment({
-  etablissementId,
+export function TarifsInline({
+  target,
+  owned,
+  inherited = [],
   categories,
-  rules,
+  canEdit,
+  effective,
 }: {
-  etablissementId: string;
+  /** Ce que vise le bouton « + » : cet article, ou cette catégorie. */
+  target: PriceRuleTarget;
+  /** Règles qui visent exactement cette cible : modifiables ici. */
+  owned: PriceRule[];
+  /** Règles héritées de la catégorie : rappelées, réglées ailleurs. */
+  inherited?: PriceRule[];
   categories: MenuCategory[];
-  rules: PriceRule[];
+  canEdit: boolean;
+  /** Prix en vigueur à l'instant, relu en base (articles seulement). */
+  effective?: { price: number; ruleName: string } | null;
 }) {
-  const [tarifs, setTarifs] = useState<TarifMap | null>(null);
-
-  useEffect(() => {
-    let live = true;
-    fetchActiveTarifs(createClient(), etablissementId)
-      .then((loaded) => {
-        if (live) setTarifs(loaded);
-      })
-      .catch(() => {
-        if (live) setTarifs(new Map());
-      });
-    return () => {
-      live = false;
-    };
-    // `rules` en dépendance : après une modification, la relecture montre son
-    // effet immédiat plutôt que l'état d'avant.
-  }, [etablissementId, rules]);
-
-  if (!tarifs || tarifs.size === 0) return null;
-
-  const lines = categories.flatMap((category) =>
-    category.items.flatMap((item) => {
-      const tarif = tarifs.get(item.id);
-      return tarif ? [{ item, tarif }] : [];
-    })
-  );
-
-  return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-ember-2/30 bg-ember-2/5 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-ember-1">
-        En ce moment
-      </p>
-      <ul className="flex flex-col gap-1">
-        {lines.map(({ item, tarif }) => (
-          <li
-            key={item.id}
-            className="flex items-baseline justify-between gap-4 text-sm"
-          >
-            <span className="min-w-0 truncate">
-              {item.name}
-              <span className="ml-2 text-xs text-faint">{tarif.ruleName}</span>
-            </span>
-            <span className="shrink-0 tabular-nums">
-              <span className="mr-2 text-faint line-through">
-                {formatPrice(item.price)}
-              </span>
-              <span className="font-semibold text-ember-1">
-                {formatPrice(tarif.price)}
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export function TarifsPlanifies({
-  etablissementId,
-  rules,
-  categories,
-}: {
-  etablissementId: string;
-  rules: PriceRule[];
-  categories: MenuCategory[];
-}) {
-  const toast = useToast();
   const [editing, setEditing] = useState<PriceRule | null>(null);
   const [creating, setCreating] = useState(false);
-  const [deleting, setDeleting] = useState<PriceRule | null>(null);
 
-  const run = async (action: Promise<unknown>, done: string) => {
-    try {
-      await action;
-      toast.success(done);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
-    }
-  };
+  if (!canEdit && owned.length === 0 && inherited.length === 0 && !effective) {
+    return null;
+  }
+
+  const chipClass = (actif: boolean) =>
+    `rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+      actif
+        ? "border-ember-2/35 text-ember-1"
+        : "border-hairline text-faint line-through"
+    }`;
 
   return (
-    <section className="flex max-w-xl flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 lg:p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="font-display text-lg font-medium">Tarifs planifiés</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted">
-            Faites monter ou descendre le prix de certains articles les jours
-            que vous choisissez. Le prix de votre carte ne change pas : l&apos;écart
-            s&apos;applique tout seul, et cesse tout seul.
-          </p>
-        </div>
+    <div className="flex flex-wrap items-center gap-1.5">
+      {effective && (
+        <span
+          title={`Tarif en vigueur : ${effective.ruleName}`}
+          className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-semibold text-ember-1"
+        >
+          En ce moment {formatPrice(effective.price)}
+        </span>
+      )}
+      {owned.map((rule) => (
+        <button
+          key={rule.id}
+          type="button"
+          disabled={!canEdit}
+          onClick={() => setEditing(rule)}
+          title={`${formatDays(rule.days)} · ${formatWindow(rule)}`}
+          className={`${chipClass(rule.actif)} transition-colors enabled:hover:border-ember-2/60`}
+        >
+          {rule.name} {formatAdjustment(rule)}
+        </button>
+      ))}
+      {inherited.map((rule) => (
+        <span
+          key={rule.id}
+          title={`Posé sur la catégorie · ${formatDays(rule.days)} · ${formatWindow(rule)}`}
+          className={chipClass(rule.actif)}
+        >
+          {rule.name} {formatAdjustment(rule)} · catégorie
+        </span>
+      ))}
+      {canEdit && (
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="shrink-0 rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"
+          className="rounded-full border border-dashed border-hairline px-2 py-0.5 text-[10px] font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
         >
-          Nouveau
+          + Tarif planifié
         </button>
-      </div>
-
-      <EnCeMoment
-        etablissementId={etablissementId}
-        categories={categories}
-        rules={rules}
-      />
-
-      {rules.length === 0 ? (
-        <EmptyState
-          title="Aucun tarif planifié"
-          body="Par exemple : les chichas à +5 € le samedi et le dimanche, ou une happy hour à −20 % du lundi au jeudi."
-        />
-      ) : (
-        <ul className="flex flex-col divide-y divide-hairline">
-          {rules.map((rule) => (
-            <li key={rule.id} className="flex items-start gap-3 py-3.5">
-              <div className="min-w-0 flex-1">
-                <p className="flex items-baseline gap-2 text-sm font-medium">
-                  <span className="truncate">{rule.name}</span>
-                  <span className="shrink-0 tabular-nums text-ember-1">
-                    {formatAdjustment(rule)}
-                  </span>
-                </p>
-                <p className="mt-0.5 text-xs text-muted">
-                  {formatDays(rule.days)} · {formatWindow(rule)}
-                </p>
-                <p className="mt-0.5 truncate text-xs text-faint">
-                  {formatTargets(rule.targets, categories)}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Toggle
-                  checked={rule.actif}
-                  onChange={(actif) =>
-                    void run(
-                      api.setPriceRuleActive(rule.id, actif),
-                      actif ? "Tarif activé." : "Tarif suspendu."
-                    )
-                  }
-                  label={`Activer ${rule.name}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setEditing(rule)}
-                  className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-                >
-                  Modifier
-                </button>
-                <IconButton
-                  tone="danger"
-                  onClick={() => setDeleting(rule)}
-                  aria-label={`Supprimer ${rule.name}`}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="size-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    aria-hidden
-                  >
-                    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
-                  </svg>
-                </IconButton>
-              </div>
-            </li>
-          ))}
-        </ul>
       )}
 
       {(creating || editing) && (
         <RuleForm
           rule={editing}
           categories={categories}
+          initialTargets={[target]}
           onClose={() => {
             setCreating(false);
             setEditing(null);
           }}
         />
       )}
-
-      {deleting && (
-        <ConfirmDialog
-          title="Supprimer ce tarif ?"
-          message={`« ${deleting.name} » ne s'appliquera plus. Les prix de votre carte, eux, ne changent pas.`}
-          confirmLabel="Supprimer"
-          destructive
-          onConfirm={() => {
-            const rule = deleting;
-            setDeleting(null);
-            void run(api.deletePriceRule(rule.id), "Tarif supprimé.");
-          }}
-          onClose={() => setDeleting(null)}
-        />
-      )}
-    </section>
+    </div>
   );
 }

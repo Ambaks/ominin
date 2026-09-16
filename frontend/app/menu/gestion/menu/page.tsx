@@ -6,7 +6,7 @@ import { FormuleFormModal } from "@/components/gestion/formules/formule-form-mod
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
 import { ItemFormModal } from "@/components/gestion/menu/item-form-modal";
 import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
-import { RuleForm } from "@/components/gestion/tarifs-planifies";
+import { TarifsInline } from "@/components/gestion/tarifs-planifies";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -20,8 +20,10 @@ import {
   type Printer,
 } from "@/lib/gestion/terminaux";
 import type { Formule } from "@/lib/gestion/types";
+import { fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import type { MenuItem } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
+import { createClient } from "@/lib/supabase/client";
 
 type View = "menu" | "formules";
 
@@ -35,16 +37,18 @@ export default function MenuPage() {
   const [creatingItem, setCreatingItem] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
-  // Nouveau tarif planifié ouvert depuis la carte d'un article.
-  const [tarifItem, setTarifItem] = useState<MenuItem | null>(null);
   const [managingCats, setManagingCats] = useState(false);
   const [creatingFormule, setCreatingFormule] = useState(false);
   const [editingFormule, setEditingFormule] = useState<Formule | null>(null);
   const [deletingFormule, setDeletingFormule] = useState<Formule | null>(null);
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [routing, setRouting] = useState<Map<string, string>>(new Map());
+  // Les prix que les tarifs planifiés donnent à cet instant, relus en base :
+  // c'est la fonction SQL qui facture qui répond, pas un calcul refait ici.
+  const [tarifs, setTarifs] = useState<TarifMap>(new Map());
 
   const etablissementId = state?.etablissement.id;
+  const priceRules = state?.priceRules;
   const showRouting = hasFeature("commandes") && printers.length > 0;
   const canRoute = role === "gerant";
 
@@ -62,6 +66,21 @@ export default function MenuPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshRouting().catch(() => {});
   }, [refreshRouting]);
+
+  useEffect(() => {
+    if (!etablissementId) return;
+    let live = true;
+    // `priceRules` en dépendance : après une modification, la relecture montre
+    // le prix qui en découle plutôt que celui d'avant.
+    fetchActiveTarifs(createClient(), etablissementId)
+      .then((loaded) => {
+        if (live) setTarifs(loaded);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [etablissementId, priceRules]);
 
   const handlePrinterChange = async (
     itemId: string,
@@ -95,16 +114,12 @@ export default function MenuPage() {
     ? categories.find((c) => c.items.some((item) => item.id === editingItem.id))?.id
     : undefined;
   const menuItems = categories.flatMap((c) => c.items);
-  // Les tarifs planifiés se règlent sur Établissement ; ils se lisent ici,
-  // sur chaque article, là où le gérant regarde ses prix.
+  // Les tarifs planifiés se règlent ici, devant l'article ou la catégorie
+  // qu'ils touchent — c'est là que le gérant regarde ses prix.
   const canTarif = can("etablissement.edit");
-  const tarifsFor = (itemId: string, categoryId: string) =>
+  const rulesOn = (kind: "item" | "category", id: string) =>
     state.priceRules.filter((rule) =>
-      rule.targets.some(
-        (target) =>
-          (target.kind === "item" && target.id === itemId) ||
-          (target.kind === "category" && target.id === categoryId)
-      )
+      rule.targets.some((target) => target.kind === kind && target.id === id)
     );
 
   const moveItem = (index: number, delta: -1 | 1) => {
@@ -230,6 +245,15 @@ export default function MenuPage() {
                 )
               )}
 
+              {/* Un tarif posé ici vaut pour toute la catégorie, articles
+                  ajoutés plus tard compris. */}
+              <TarifsInline
+                target={{ kind: "category", id: category.id }}
+                owned={rulesOn("category", category.id)}
+                categories={categories}
+                canEdit={canTarif}
+              />
+
               {category.items.length === 0 ? (
                 <EmptyState
                   title="Catégorie vide"
@@ -246,14 +270,22 @@ export default function MenuPage() {
                       canRoute={canRoute}
                       first={index === 0}
                       last={index === category.items.length - 1}
-                      tarifs={tarifsFor(item.id, category.id)}
+                      tarifs={
+                        <TarifsInline
+                          target={{ kind: "item", id: item.id }}
+                          owned={rulesOn("item", item.id)}
+                          inherited={rulesOn("category", category.id)}
+                          categories={categories}
+                          canEdit={canTarif}
+                          effective={tarifs.get(item.id) ?? null}
+                        />
+                      }
                       onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}
                       onPrinterChange={(pid) =>
                         void handlePrinterChange(item.id, pid)
                       }
-                      onTarif={canTarif ? () => setTarifItem(item) : undefined}
                     />
                   ))}
                 </div>
@@ -313,15 +345,6 @@ export default function MenuPage() {
             setCreatingItem(false);
             setEditingItem(null);
           }}
-        />
-      )}
-
-      {tarifItem && (
-        <RuleForm
-          rule={null}
-          categories={categories}
-          initialTargets={[{ kind: "item", id: tarifItem.id }]}
-          onClose={() => setTarifItem(null)}
         />
       )}
 

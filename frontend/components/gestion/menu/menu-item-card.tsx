@@ -13,9 +13,7 @@ import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
-import type { PriceRule } from "@/lib/gestion/types";
 import { BADGE_LABELS, formatPrice, type MenuItem } from "@/lib/menu-data";
-import { formatAdjustment } from "@/components/gestion/tarifs-planifies";
 
 export function MenuItemCard({
   item,
@@ -24,12 +22,11 @@ export function MenuItemCard({
   canRoute = false,
   first = false,
   last = false,
-  tarifs = [],
+  tarifs,
   onMove,
   onEdit,
   onDelete,
   onPrinterChange,
-  onTarif,
 }: {
   item: MenuItem;
   printers?: Printer[];
@@ -38,15 +35,13 @@ export function MenuItemCard({
   /** Bornes de sa catégorie : la flèche correspondante se grise. */
   first?: boolean;
   last?: boolean;
-  /** Tarifs planifiés qui visent cet article, directement ou par sa catégorie. */
-  tarifs?: PriceRule[];
+  /** Pastilles des tarifs planifiés de cet article (TarifsInline). */
+  tarifs?: React.ReactNode;
   /** Absent, l'ordre ne se change pas d'ici. */
   onMove?: (delta: -1 | 1) => void;
   onEdit: () => void;
   onDelete: () => void;
   onPrinterChange?: (printerId: string | null) => void;
-  /** Absent (pas gérant), pas de bouton « Tarif ». */
-  onTarif?: () => void;
 }) {
   const { can } = useGestionAccess();
   const toast = useToast();
@@ -123,32 +118,7 @@ export function MenuItemCard({
           </div>
         )}
 
-        {(tarifs.length > 0 || onTarif) && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {tarifs.map((rule) => (
-              <span
-                key={rule.id}
-                title={rule.actif ? undefined : "Tarif suspendu"}
-                className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                  rule.actif
-                    ? "border-ember-2/35 text-ember-1"
-                    : "border-hairline text-faint line-through"
-                }`}
-              >
-                {rule.name} {formatAdjustment(rule)}
-              </span>
-            ))}
-            {onTarif && (
-              <button
-                type="button"
-                onClick={onTarif}
-                className="rounded-full border border-dashed border-hairline px-2 py-0.5 text-[10px] font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-              >
-                + Tarif planifié
-              </button>
-            )}
-          </div>
-        )}
+        {tarifs}
 
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
           <label className="flex items-center gap-2 text-xs text-muted">

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
-import { TarifsPlanifies } from "@/components/gestion/tarifs-planifies";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
@@ -138,11 +137,6 @@ export default function EtablissementPage() {
                 ? "square"
                 : "stripe"
             }
-          />
-          <TarifsPlanifies
-            etablissementId={state.etablissement.id}
-            rules={state.priceRules}
-            categories={state.categories}
           />
           <TabletSettings pinSet={state.etablissement.adminPinSet} />
           {products.collect && (
