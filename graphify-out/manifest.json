@@ -1104,8 +1104,8 @@
     "semantic_hash": ""
   },
   "frontend/package.json": {
-    "mtime": 1789550564.00316,
-    "seen": 1789550849.344494,
+    "mtime": 1789551018.711954,
+    "seen": 1789561462.0775297,
     "ast_hash": "b2bf58b011ec6da777396c523be61896",
     "semantic_hash": ""
   },
@@ -1294,9 +1294,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789546936.603466,
-    "seen": 1789550849.349147,
-    "ast_hash": "b52646f8a00d19b034210d606295b41c",
+    "mtime": 1789551018.711628,
+    "seen": 1789561462.0843427,
+    "ast_hash": "8827152a5913e1e748f1d7cb8b0240e0",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2768,9 +2768,9 @@
     "semantic_hash": ""
   },
   "frontend/app/shop/[slug]/layout.tsx": {
-    "mtime": 1788940328.9833376,
-    "seen": 1789545752.1040046,
-    "ast_hash": "fbd841cc5c32ec700b5a6ff8107cff50",
+    "mtime": 1789560775.7076986,
+    "seen": 1789561462.0216537,
+    "ast_hash": "05debf2fecc4de71775512c46bb6d5da",
     "semantic_hash": ""
   },
   "frontend/app/shop/[slug]/offrir/page.tsx": {
@@ -2846,9 +2846,9 @@
     "semantic_hash": ""
   },
   "frontend/app/shop/gestion/layout.tsx": {
-    "mtime": 1788940223.9724288,
-    "seen": 1789545752.1040165,
-    "ast_hash": "6a1ce3f99023262f766357dc3fa1d055",
+    "mtime": 1789560786.77997,
+    "seen": 1789561462.0241766,
+    "ast_hash": "c76260d2c869cea181aca8426cd552a3",
     "semantic_hash": ""
   },
   "frontend/app/shop/gestion/livraisons/page.tsx": {
@@ -3062,9 +3062,9 @@
     "semantic_hash": ""
   },
   "frontend/components/shop/gestion/shell.tsx": {
-    "mtime": 1788940224.11308,
-    "seen": 1789545752.104186,
-    "ast_hash": "4b0a2fa316931a437387a5a66c016f66",
+    "mtime": 1789560820.793407,
+    "seen": 1789561462.0565925,
+    "ast_hash": "1d48bb287b96ea52c1ffcbcf241e5c56",
     "semantic_hash": ""
   },
   "frontend/components/shop/icons.tsx": {
@@ -3900,9 +3900,15 @@
     "semantic_hash": ""
   },
   "frontend/scripts/shop-owner.ts": {
-    "mtime": 1789550765.4834225,
-    "seen": 1789550849.3454483,
-    "ast_hash": "eca268434f1901a785e61739f4d0e40c",
+    "mtime": 1789551018.711954,
+    "seen": 1789561462.0784695,
+    "ast_hash": "51a3884d1edaaaf6c3642a082128ff97",
+    "semantic_hash": ""
+  },
+  "frontend/lib/shop/fonts.ts": {
+    "mtime": 1789560758.272193,
+    "seen": 1789561462.0737283,
+    "ast_hash": "2a9edb636d53bb99429f2a9d4a577f4f",
     "semantic_hash": ""
   }
 }

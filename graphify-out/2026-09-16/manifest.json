@@ -1104,9 +1104,9 @@
     "semantic_hash": ""
   },
   "frontend/package.json": {
-    "mtime": 1789541823.6390026,
-    "seen": 1789545752.1043134,
-    "ast_hash": "77ecb3a29d0e0fc5b8cb09627a1c55e7",
+    "mtime": 1789550564.00316,
+    "seen": 1789550849.344494,
+    "ast_hash": "b2bf58b011ec6da777396c523be61896",
     "semantic_hash": ""
   },
   "frontend/postcss.config.mjs": {
@@ -1294,9 +1294,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789545909.5255919,
-    "seen": 1789546838.3703065,
-    "ast_hash": "107e0b79b279f6bd25e082f719c6e03a",
+    "mtime": 1789546936.603466,
+    "seen": 1789550849.349147,
+    "ast_hash": "b52646f8a00d19b034210d606295b41c",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -3816,8 +3816,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/temps/staff-list.tsx": {
-    "mtime": 1789546718.605039,
-    "seen": 1789546838.3447244,
+    "mtime": 1789546936.603466,
+    "seen": 1789550849.327183,
     "ast_hash": "3df59f56d5914e8bf546b9355618dce7",
     "semantic_hash": ""
   },
@@ -3897,6 +3897,12 @@
     "mtime": 1789541823.6157544,
     "seen": 1789545752.1042762,
     "ast_hash": "a7b8c838c488d9f505bbb899a1cc1387",
+    "semantic_hash": ""
+  },
+  "frontend/scripts/shop-owner.ts": {
+    "mtime": 1789550765.4834225,
+    "seen": 1789550849.3454483,
+    "ast_hash": "eca268434f1901a785e61739f4d0e40c",
     "semantic_hash": ""
   }
 }

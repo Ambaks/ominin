@@ -105,3 +105,74 @@
     display: none !important;
   }
 }
+
+/*
+  Espace de gestion aux couleurs de la boutique. Ses écrans sont écrits avec
+  les jetons d'Ominin (--surface, --hairline, --ember-*) ; plutôt que de les
+  reprendre un par un, on redéfinit ces jetons à partir de la palette de la
+  boutique sur la racine de l'espace. La gérante retrouve son univers, et un
+  écran ajouté demain suit sans rien demander.
+
+  Le sous-arbre est en mode clair : une palette de boutique en est une. C'est
+  pourquoi l'espace n'a plus de bascule clair/sombre.
+*/
+.shop-gestion-root {
+  --background: var(--shop-bg);
+  --surface: var(--shop-paper);
+  --surface-raised: var(--shop-tint);
+  --hairline: var(--shop-line);
+  --foreground: var(--shop-ink);
+  --muted: var(--shop-ink-soft);
+  --faint: var(--shop-ink-mute);
+  --ember-1: var(--shop-accent-deep);
+  --ember-2: var(--shop-accent);
+  /* La barre du graphique des ventes. */
+  --chart-mark: var(--shop-accent);
+  /* Les alertes gardent leur rouge : une commande en retard ne se lit pas
+     dans la couleur de la marque. */
+  --ember-3: #b3261e;
+  --font-sans: var(--font-shop-sans);
+  --font-display: var(--font-shop-display);
+  color-scheme: light;
+  min-height: 100dvh;
+  background: var(--shop-bg);
+  color: var(--shop-ink);
+  /* Sans cette ligne, le texte hériterait de la police posée sur <body>. */
+  font-family: var(--font-shop-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  Les titres. Redéfinir --font-display ne suffit pas : Tailwind fige la valeur
+  du jeton dans l'utilitaire, qui pointe alors la police d'Ominin sans passer
+  par la variable. On vise donc les titres et l'utilitaire nommément, comme le
+  fait déjà .shop-root pour la vitrine.
+*/
+.shop-gestion-root h1,
+.shop-gestion-root h2,
+.shop-gestion-root h3,
+.shop-gestion-root .font-display {
+  font-family: var(--font-shop-display), serif;
+}
+
+/*
+  Le dégradé de marque d'Ominin traverse ses trois braises ; ici il ferait
+  passer un bouton de l'accent au rouge d'alerte. Les surfaces pleines
+  reprennent donc l'accent seul, comme les boutons de la vitrine.
+*/
+.shop-gestion-root .ember-gradient {
+  background-image: none;
+  background-color: var(--shop-accent);
+}
+
+.shop-gestion-root .ember-gradient:hover {
+  background-color: var(--shop-accent-strong);
+}
+
+.shop-gestion-root .ember-text {
+  background-image: none;
+  background-clip: border-box;
+  -webkit-background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  color: var(--shop-accent-deep);
+}

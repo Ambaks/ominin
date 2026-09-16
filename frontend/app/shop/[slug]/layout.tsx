@@ -1,38 +1,21 @@
 import type { Metadata } from "next";
-import { Allura, Cormorant_Garamond, DM_Sans, DM_Serif_Display, Inter, Montserrat, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { ShopProvider } from "@/components/shop/store/context";
 import { ShopFooter } from "@/components/shop/store/footer";
 import { ShopHeader } from "@/components/shop/store/header";
 import { ShopToastProvider } from "@/components/shop/store/toast";
 import { CartProvider } from "@/lib/shop/cart";
+import { FONT_VARIABLES, shopThemeStyle } from "@/lib/shop/fonts";
 import { getShopBySlug } from "@/lib/shop/server";
-import { paletteStyle, resolveTheme, type ShopFontPreset } from "@/lib/shop/theme";
+import { resolveTheme } from "@/lib/shop/theme";
 import { shopSiteUrl } from "@/lib/site";
 import "../shop-store.css";
 
 /*
  * Site public d'une boutique. Le thème (palette + préréglage de polices)
- * vient de la base et s'applique ici : palette en variables CSS, polices par
- * les variables de next/font — toutes auto-hébergées au build, seules celles
- * du préréglage sont préchargées côté navigateur.
+ * vient de la base et s'applique ici, en variables CSS ; l'espace de gestion
+ * s'habille du même thème (lib/shop/fonts.ts).
  */
-
-const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"], preload: false });
-const allura = Allura({ variable: "--font-allura", weight: "400", subsets: ["latin"], preload: false });
-const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"], preload: false });
-const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["latin"], weight: ["400", "500", "600"], style: ["normal", "italic"], preload: false });
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], preload: false });
-const dmSerif = DM_Serif_Display({ variable: "--font-dm-serif", weight: "400", style: ["normal", "italic"], subsets: ["latin"], preload: false });
-const dmSans = DM_Sans({ variable: "--font-dm-sans", subsets: ["latin"], preload: false });
-
-const FONT_VARIABLES = [playfair, allura, montserrat, cormorant, inter, dmSerif, dmSans].map((f) => f.variable).join(" ");
-
-const PRESET_FONTS: Record<ShopFontPreset, { display: string; script: string; sans: string }> = {
-  romantique: { display: "var(--font-playfair)", script: "var(--font-allura)", sans: "var(--font-montserrat)" },
-  elegant: { display: "var(--font-cormorant)", script: "var(--font-cormorant)", sans: "var(--font-inter)" },
-  moderne: { display: "var(--font-dm-serif)", script: "var(--font-dm-serif)", sans: "var(--font-dm-sans)" },
-};
 
 /*
  * La boutique se présente à son nom, pas à celui d'Ominin : son logo tient
@@ -86,13 +69,7 @@ export default async function ShopLayout({ params, children }: LayoutProps<"/sho
   if (!shop) notFound();
 
   const theme = resolveTheme(shop.theme);
-  const fonts = PRESET_FONTS[theme.fonts];
-  const style = {
-    ...paletteStyle(theme.palette),
-    "--font-shop-display": fonts.display,
-    "--font-shop-script": fonts.script,
-    "--font-shop-sans": fonts.sans,
-  } as React.CSSProperties;
+  const style = shopThemeStyle(theme.palette, theme.fonts);
 
   return (
     <div className={`shop-root flex min-h-dvh flex-col ${FONT_VARIABLES}`} style={style}>

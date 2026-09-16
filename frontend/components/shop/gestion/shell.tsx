@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { createClient } from "@/lib/supabase/client";
 import type { ShopMemberRole } from "@/lib/shop/types";
@@ -24,8 +23,11 @@ import {
 
 /*
  * Coquille de l'espace de gestion d'une boutique : même structure que
- * l'espace restaurant (en-tête, barre latérale, barre mobile), aux couleurs
- * d'Ominin — le thème de la boutique ne s'applique qu'à son site public.
+ * l'espace restaurant (en-tête, barre latérale, barre mobile), mais aux
+ * couleurs et aux polices de la boutique — le layout pose son thème, et
+ * `.shop-gestion-root` (shop-store.css) le fait descendre jusqu'aux jetons
+ * que ces écrans emploient. Pas de bascule clair/sombre ici : la palette
+ * d'une boutique est une palette claire.
  */
 
 interface NavItem {
@@ -97,7 +99,6 @@ export function ShopGestionShell({
               <p className="truncate font-display text-lg font-medium">{shopName}</p>
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-1.5">
-              <ThemeToggle />
               <a href={`/${shopSlug}`} target="_blank" rel="noopener" title="Voir ma boutique" aria-label="Voir ma boutique" className="flex items-center gap-1.5 rounded-full border border-hairline p-2 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:py-2">
                 <ExternalLinkIcon className="size-3.5" />
                 <span className="hidden lg:inline">Voir ma boutique</span>
