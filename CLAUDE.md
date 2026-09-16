@@ -41,6 +41,16 @@ Frontend (run from `frontend/`):
 - `npm run dev` — dev server at http://localhost:3000
 - `npm run build` — production build
 - `npm run lint` — ESLint
+- `npm run db:push` — apply pending migrations (CLI linked to the production
+  project); `npm run db:types` regenerates `lib/supabase/database.types.ts`
+- `npm run shop:owner` — create or restore a shop owner's access (account,
+  password, `shop_members`), touching nothing else
+
+**Never run `npm run seed:shop` against production.** It deletes the shop and
+re-inserts it, orders included. To give someone access to a shop, use
+`npm run shop:owner`. Same caution for the other `seed:*` scripts: they exist
+to fill a fresh database, not to repair a live one. Check which database
+`backend/.env` points at before running any of them.
 
 Backend (run from `backend/`):
 - `uv run uvicorn app.main:app --reload` — dev server at http://localhost:8000
