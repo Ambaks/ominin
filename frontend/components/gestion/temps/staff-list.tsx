@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { EditIcon } from "@/components/gestion/icons";
 import { StaffModal } from "@/components/gestion/temps/staff-modal";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { ROLE_LABELS } from "@/lib/gestion/constants";
 import {
@@ -124,7 +126,7 @@ export function StaffList({
                 <button
                   type="button"
                   onClick={() => setEditing(member)}
-                  className="min-w-0 flex-1 py-1 text-left"
+                  className="min-w-0 flex-1 py-1 text-left transition-colors hover:text-ember-1"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-sm font-medium">{member.name}</p>
@@ -148,6 +150,13 @@ export function StaffList({
                 <span className="shrink-0 font-display text-base tabular-nums">
                   {worked > 0 ? formatDuration(worked) : "—"}
                 </span>
+                {/* La ligne entière ouvre déjà la fiche ; le crayon le dit. */}
+                <IconButton
+                  onClick={() => setEditing(member)}
+                  aria-label={`Modifier ${member.name}`}
+                >
+                  <EditIcon className="size-4" />
+                </IconButton>
                 <CopyLink staff={member} />
               </div>
             );
