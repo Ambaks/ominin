@@ -15,6 +15,7 @@
     "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts",
     "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts",
+    "shop:owner": "tsx --env-file=../backend/.env scripts/shop-owner.ts",
     "db:login": "supabase --workdir .. login",
     "db:link": "supabase --workdir .. link",
     "db:push": "supabase --workdir .. db push",
