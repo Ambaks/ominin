@@ -21,6 +21,7 @@ import {
   MapPinIcon,
   PipelineIcon,
   PulseIcon,
+  ShareIcon,
   SlidersIcon,
   StoreIcon,
   TaskIcon,
@@ -60,6 +61,7 @@ const SECTIONS: Section[] = [
       { href: "/carte", label: "Carte", icon: MapPinIcon },
       { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
       { href: "/lea", label: "Agent Léa", icon: BotIcon },
+      { href: "/reseaux", label: "Réseaux", icon: ShareIcon },
       { href: "/taches", label: "Tâches", icon: TaskIcon },
       { href: "/rdv", label: "RDV", icon: CalendarIcon },
       {

@@ -206,6 +206,8 @@ export const OUTREACH_JOB_LABELS: Record<string, string> = {
   outreach: "Prospection",
   inbox: "Boîte de réception",
   autoresearch: "AutoResearch",
+  social_post: "Réseaux — publication",
+  social_research: "Réseaux — apprentissage",
 };
 
 /** Réponses qui valent un suivi humain (miroir de services/inbox.py). */

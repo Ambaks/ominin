@@ -2976,6 +2976,202 @@ export type Database = {
         }
         Relationships: []
       }
+      social_accounts: {
+        Row: {
+          brand: string | null
+          created_at: string
+          enabled: boolean
+          external_id: string | null
+          handle: string
+          id: string
+          platform: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          enabled?: boolean
+          external_id?: string | null
+          handle: string
+          id?: string
+          platform: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          enabled?: boolean
+          external_id?: string | null
+          handle?: string
+          id?: string
+          platform?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_playbooks: {
+        Row: {
+          brand: string
+          change_summary: string
+          created_at: string
+          findings: Json
+          guidelines: string
+          id: string
+          version: number
+        }
+        Insert: {
+          brand: string
+          change_summary: string
+          created_at?: string
+          findings?: Json
+          guidelines: string
+          id?: string
+          version: number
+        }
+        Update: {
+          brand?: string
+          change_summary?: string
+          created_at?: string
+          findings?: Json
+          guidelines?: string
+          id?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          angle: string
+          brand: string
+          captions: Json
+          created_at: string
+          format: string
+          id: string
+          playbook_id: string
+          post_date: string
+          slides: Json
+          topic: string
+        }
+        Insert: {
+          angle: string
+          brand: string
+          captions: Json
+          created_at?: string
+          format?: string
+          id?: string
+          playbook_id: string
+          post_date: string
+          slides: Json
+          topic: string
+        }
+        Update: {
+          angle?: string
+          brand?: string
+          captions?: Json
+          created_at?: string
+          format?: string
+          id?: string
+          playbook_id?: string
+          post_date?: string
+          slides?: Json
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "social_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_publications: {
+        Row: {
+          account_id: string
+          created_at: string
+          error: string | null
+          external_id: string | null
+          id: string
+          metrics: Json | null
+          metrics_settled_at: string | null
+          permalink: string | null
+          post_id: string
+          published_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          error?: string | null
+          external_id?: string | null
+          id?: string
+          metrics?: Json | null
+          metrics_settled_at?: string | null
+          permalink?: string | null
+          post_id: string
+          published_at?: string | null
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          error?: string | null
+          external_id?: string | null
+          id?: string
+          metrics?: Json | null
+          metrics_settled_at?: string | null
+          permalink?: string | null
+          post_id?: string
+          published_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_publications_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_publications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_tokens: {
+        Row: {
+          access_token: string
+          account_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_tokens_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           etablissement_id: string

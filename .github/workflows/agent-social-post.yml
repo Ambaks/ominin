@@ -1,0 +1,19 @@
+# Réseaux sociaux : le carrousel du jour, rédigé et publié pour chaque marque
+# qui a au moins un compte relié. Horaire visé : le creux entre les deux
+# services, quand un restaurateur regarde son téléphone.
+name: agent-social-post
+
+on:
+  schedule:
+    - cron: "30 13 * * *"  # Tous les jours 13:30 UTC (15:30 Paris en été)
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/social-post
+        run: |
+          curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/social-post"

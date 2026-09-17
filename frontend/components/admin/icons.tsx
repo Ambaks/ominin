@@ -249,3 +249,14 @@ export function PulseIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function ShareIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="17.5" cy="5.5" r="2.5" />
+      <circle cx="17.5" cy="18.5" r="2.5" />
+      <path d="m8.2 10.8 7.1-4.1M8.2 13.2l7.1 4.1" />
+    </Svg>
+  );
+}

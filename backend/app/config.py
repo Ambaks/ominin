@@ -145,6 +145,27 @@ class Settings(BaseSettings):
     # ones first.
     autoresearch_scoring_batch_size: int = 200
 
+    # Social agent (daily). One carousel per brand per day, published on the
+    # brand's connected accounts. Slide images are rendered by the frontend
+    # (frontend_origin + /api/social/slides/…), which Meta fetches by URL.
+    # Instagram caps a carousel at 10 images; the range below is editorial.
+    meta_graph_version: str = "v25.0"
+    meta_timeout_seconds: int = 30
+    # An Instagram container is processed asynchronously: poll until FINISHED.
+    social_container_poll_seconds: int = 3
+    social_container_poll_attempts: int = 20
+    social_slides_min: int = 5
+    social_slides_max: int = 8
+    # Recent posts shown to the writer so it does not repeat itself.
+    social_history_size: int = 30
+    # Metrics are refreshed daily until a post is this old, then frozen; only
+    # frozen posts feed the analysis (a day-old reach is undecided).
+    social_settle_days: int = 3
+    # The editorial line is only rewritten once this many posts are settled
+    # for the brand; the analysis reads at most the sample size, newest first.
+    social_research_min_posts: int = 5
+    social_research_sample_size: int = 60
+
     # Testing safety valve: when set, every outbound email goes to this
     # address instead of the real recipient.
     outreach_redirect_to: str = ""

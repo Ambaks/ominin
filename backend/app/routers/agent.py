@@ -3,7 +3,16 @@ from collections.abc import Callable
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 from app.deps import require_trigger_secret
-from app.services import autoresearch, discovery, enrichment, inbox, outreach, runs
+from app.services import (
+    autoresearch,
+    discovery,
+    enrichment,
+    inbox,
+    outreach,
+    runs,
+    social_post,
+    social_research,
+)
 
 router = APIRouter(prefix="/agent", dependencies=[Depends(require_trigger_secret)])
 
@@ -13,6 +22,8 @@ JOBS: dict[str, Callable[..., dict]] = {
     "outreach": outreach.run_outreach,
     "inbox": inbox.run_inbox,
     "autoresearch": autoresearch.run_autoresearch,
+    "social_post": social_post.run_social_post,
+    "social_research": social_research.run_social_research,
 }
 
 
@@ -47,3 +58,13 @@ def trigger_inbox(background_tasks: BackgroundTasks) -> dict:
 @router.post("/autoresearch", status_code=202)
 def trigger_autoresearch(background_tasks: BackgroundTasks) -> dict:
     return _trigger("autoresearch", background_tasks)
+
+
+@router.post("/social-post", status_code=202)
+def trigger_social_post(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("social_post", background_tasks)
+
+
+@router.post("/social-research", status_code=202)
+def trigger_social_research(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("social_research", background_tasks)
