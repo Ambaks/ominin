@@ -34,7 +34,8 @@ export async function generateMetadata({
   const { restaurant } = data;
   const title = `${restaurant.name} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
-  const images = restaurant.coverImage ? [restaurant.coverImage] : undefined;
+  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const images = shareImage ? [shareImage] : undefined;
   return {
     title,
     description,

@@ -19,7 +19,7 @@
     "primary_color": "#B5443A",
     "secondary_color": "#251B20",
     "accent_color": "#E5B072",
-    "style_notes": "Identité tirée du menu papier (demos/boho/docs/) : logo kilim (treillis 45° + losange, recréé en SVG dans frontend/public/boho/logo.svg), wordmark serif, rouge brique + doré sur papier crème rosé, couverture terrasse bohème au crépuscule (recadrée dans frontend/public/boho/cover.jpg). Palette web : nuit prune #251B20, crème rosée #F6E9E6, accent lampes #E5B072 → couchant #D97F6A → rouge BOHO #B5443A (classe .theme-boho, globals.css).",
+    "style_notes": "Identité tirée du menu papier (demos/boho/docs/) : logo kilim (treillis 45° + losange, recréé en SVG dans frontend/public/boho/logo.svg), wordmark serif, rouge brique + doré sur papier crème rosé, couverture terrasse bohème au crépuscule (affiche fournie par le client, frontend/public/boho/poster.webp, hero du menu). Palette web : nuit prune #251B20, crème rosée #F6E9E6, accent lampes #E5B072 → couchant #D97F6A → rouge BOHO #B5443A (classe .theme-boho, globals.css).",
     "interior_vibe": "Terrasse bohème : pergola bois, suspensions rotin, guirlandes guinguette, palmiers, coucher de soleil rosé",
     "reference_images": ["docs/IMG_0512.jpeg (couverture)", "docs/IMG_0517.jpeg (4e de couverture, logo rouge + horaires)"]
   },

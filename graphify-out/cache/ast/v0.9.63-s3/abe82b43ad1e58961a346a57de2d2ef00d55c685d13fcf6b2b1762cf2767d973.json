@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_supabase_migrations_20260819000001_crm_interested_status_sql", "label": "20260819000001_crm_interested_status.sql", "file_type": "code", "source_file": "supabase/migrations/20260819000001_crm_interested_status.sql", "source_location": null}], "edges": []}

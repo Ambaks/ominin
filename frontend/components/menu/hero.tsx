@@ -160,7 +160,51 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   );
 }
 
+/**
+ * L'affiche remplit l'écran, moins la bande de contact : rognée sur les côtés
+ * en portrait, entière en paysage, où sa copie floutée comble les marges.
+ */
+function PosterHero({
+  restaurant,
+  poster,
+}: {
+  restaurant: Restaurant;
+  poster: string;
+}) {
+  return (
+    <header className="flex h-svh w-full flex-col bg-background">
+      <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
+        <img
+          src={poster}
+          alt=""
+          className="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
+        <img
+          src={poster}
+          alt=""
+          fetchPriority="high"
+          className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        />
+        <h1 className="sr-only">{restaurant.name}</h1>
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
+      </div>
+
+      <ContactPills
+        restaurant={restaurant}
+        className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
+        style={{ animationDelay: "350ms" }}
+      />
+    </header>
+  );
+}
+
 export function Hero({ restaurant }: { restaurant: Restaurant }) {
+  if (restaurant.poster) {
+    return <PosterHero restaurant={restaurant} poster={restaurant.poster} />;
+  }
+
   if (!restaurant.coverImage && restaurant.logo) {
     return <LogoHero restaurant={restaurant} />;
   }

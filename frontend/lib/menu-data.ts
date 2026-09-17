@@ -68,6 +68,11 @@ export interface Restaurant {
   coverImage?: string;
   /** Logo de l'établissement (chemin public), affiché dans le hero du menu. */
   logo?: string;
+  /**
+   * Affiche de l'établissement (chemin public) portant déjà logo et nom :
+   * elle tient lieu de hero à elle seule, sans texte superposé.
+   */
+  poster?: string;
   address: string;
   phone: string;
   hours: string;
@@ -452,6 +457,7 @@ const boho: Restaurant = {
   name: "BOHO",
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
+  poster: "/boho/poster.webp",
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",

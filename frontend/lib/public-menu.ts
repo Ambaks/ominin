@@ -70,6 +70,7 @@ export async function fetchRestaurant(slug: string): Promise<{
         ? staticData.coverImage
         : (etablissement.cover_image ?? undefined),
       logo: staticData?.logo,
+      poster: staticData?.poster,
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,
