@@ -624,9 +624,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/payment-settings.tsx": {
-    "mtime": 1789757653.0289593,
-    "seen": 1789758232.3540504,
-    "ast_hash": "606f41dc1f214bb6ff78f0d6a0565497",
+    "mtime": 1788982444.2275937,
+    "seen": 1789545752.1041193,
+    "ast_hash": "ed798a97ab226120784143d18e7594c5",
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
@@ -1074,8 +1074,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1789647625.6011038,
-    "seen": 1789758232.3545418,
+    "mtime": 1789638416.1729572,
+    "seen": 1789639570.7455928,
     "ast_hash": "7c5c8164c62b190687c5643aefdbdf5e",
     "semantic_hash": ""
   },
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1789647783.9140143,
-    "seen": 1789758232.3548405,
-    "ast_hash": "89e81064e5a991436de4d4590b883f46",
+    "mtime": 1789639499.7246215,
+    "seen": 1789639570.74602,
+    "ast_hash": "dd6e6cb448fba88644ca12f5088be561",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {

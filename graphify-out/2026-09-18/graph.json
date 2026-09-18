@@ -4109,7 +4109,7 @@
       "file_type": "code",
       "norm_label": "provider",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L31"
+      "source_location": "L25"
     },
     {
       "id": "frontend_components_gestion_payment_settings_squarelocation",
@@ -4122,7 +4122,7 @@
       "file_type": "code",
       "norm_label": "squarelocation",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L38"
+      "source_location": "L32"
     },
     {
       "id": "frontend_components_gestion_payment_settings_squarestatus",
@@ -4135,7 +4135,7 @@
       "file_type": "code",
       "norm_label": "squarestatus",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L44"
+      "source_location": "L38"
     },
     {
       "id": "frontend_components_gestion_payment_settings_stripestatus",
@@ -4148,7 +4148,7 @@
       "file_type": "code",
       "norm_label": "stripestatus",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L33"
+      "source_location": "L27"
     },
     {
       "id": "frontend_components_admin_carte_map_canvas_viewport",
@@ -20649,7 +20649,7 @@
       "file_type": "code",
       "norm_label": "paymentsettings()",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L73"
+      "source_location": "L67"
     },
     {
       "id": "frontend_components_gestion_payment_settings_readstatus",
@@ -20661,7 +20661,7 @@
       "file_type": "code",
       "norm_label": "readstatus()",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L63"
+      "source_location": "L57"
     },
     {
       "id": "frontend_components_gestion_payment_settings_takereturn",
@@ -20673,7 +20673,7 @@
       "file_type": "code",
       "norm_label": "takereturn()",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L54"
+      "source_location": "L48"
     },
     {
       "id": "frontend_lib_gestion_api_setonlinepayment",
@@ -44515,7 +44515,7 @@
       "file_type": "code",
       "norm_label": "no_square",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L51"
+      "source_location": "L45"
     },
     {
       "id": "frontend_components_gestion_payment_settings_no_stripe",
@@ -44526,7 +44526,7 @@
       "file_type": "code",
       "norm_label": "no_stripe",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L50"
+      "source_location": "L44"
     },
     {
       "id": "frontend_app_admin_shell_carte_page_mapcanvas",
@@ -48102,42 +48102,6 @@
       "type": "external"
     },
     {
-      "id": "ref_next_og",
-      "label": "ref_next_og",
-      "_origin": "semantic",
-      "community": 31,
-      "community_name": "useRunMutation",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_next_og",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_node_fs_promises",
-      "label": "ref_node_fs_promises",
-      "_origin": "semantic",
-      "community": 31,
-      "community_name": "useRunMutation",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_node_fs_promises",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_node_path",
-      "label": "ref_node_path",
-      "_origin": "semantic",
-      "community": 31,
-      "community_name": "useRunMutation",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_node_path",
-      "source_file": "",
-      "type": "external"
-    },
-    {
       "id": "ref_eslint_config",
       "label": "ref_eslint_config",
       "_origin": "semantic",
@@ -48342,9 +48306,41 @@
       "type": "external"
     },
     {
+      "id": "ref_next_og",
+      "label": "ref_next_og",
+      "community": 31,
+      "community_name": "useRunMutation",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_next_og",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "ref_node_fs_promises",
+      "label": "ref_node_fs_promises",
+      "community": 31,
+      "community_name": "useRunMutation",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_node_fs_promises",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "ref_node_path",
+      "label": "ref_node_path",
+      "community": 31,
+      "community_name": "useRunMutation",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_node_path",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "json",
       "label": "json",
-      "_origin": "semantic",
       "community": 97,
       "community_name": "meta.py",
       "external": true,
@@ -61288,7 +61284,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L107",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -61300,7 +61296,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L112",
+      "source_location": "L106",
       "weight": 1.0
     },
     {
@@ -61312,7 +61308,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L215",
+      "source_location": "L200",
       "weight": 1.0
     },
     {
@@ -61324,7 +61320,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L81",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -61336,7 +61332,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L94",
+      "source_location": "L88",
       "weight": 1.0
     },
     {
@@ -98003,7 +97999,7 @@
     },
     {
       "source": "frontend_components_gestion_payment_settings",
-      "target": "frontend_components_ui_toggle_toggle",
+      "target": "frontend_lib_gestion_api_setonlinepayment",
       "relation": "imports",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -98015,18 +98011,6 @@
     },
     {
       "source": "frontend_components_gestion_payment_settings",
-      "target": "frontend_lib_gestion_api_setonlinepayment",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_components_gestion_payment_settings",
       "target": "frontend_lib_gestion_api_setpaymentprovider",
       "relation": "imports",
       "_origin": "ast",
@@ -98034,7 +98018,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -132139,18 +132123,6 @@
     },
     {
       "source": "frontend_components_gestion_payment_settings",
-      "target": "frontend_components_ui_toggle",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L5",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_components_gestion_payment_settings",
       "target": "frontend_lib_gestion_api",
       "relation": "imports_from",
       "_origin": "ast",
@@ -132158,7 +132130,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0
     },
     {
@@ -153825,7 +153797,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L31",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -153836,7 +153808,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L33",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -153847,7 +153819,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L38",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -153858,7 +153830,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L44",
+      "source_location": "L38",
       "weight": 1.0
     },
     {
@@ -153869,7 +153841,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L50",
+      "source_location": "L44",
       "weight": 1.0
     },
     {
@@ -153880,7 +153852,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L51",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -153891,7 +153863,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L54",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -153902,7 +153874,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L63",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -153913,7 +153885,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/components/gestion/payment-settings.tsx",
-      "source_location": "L73",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -184508,5 +184480,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "50bee82eb53ea66ab56d20399af075d23074868b"
+  "built_at_commit": "7f30e8f243b9656b51711e9800454d59d614eed7"
 }

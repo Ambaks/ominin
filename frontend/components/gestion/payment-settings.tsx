@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/toast";
+import { Toggle } from "@/components/ui/toggle";
 import { setOnlinePayment, setPaymentProvider } from "@/lib/gestion/api";
 
 /*
@@ -16,6 +17,11 @@ import { setOnlinePayment, setPaymentProvider } from "@/lib/gestion/api";
  * SumUp attend
  * l'activation de son scope « payments » : ses routes restent en place, il
  * n'est plus proposé.
+ *
+ * L'interrupteur « Paiement en ligne », au-dessus du choix de l'encaisseur,
+ * retire la carte du menu sans délier le compte. Un blocage voulu (coupé
+ * alors que l'encaisseur pouvait encaisser) survit à un changement
+ * d'encaisseur.
  *
  * Au retour d'un onboarding, le statut est relu chez le fournisseur et le
  * paiement par carte s'active de lui-même si le compte peut encaisser — le
@@ -194,25 +200,33 @@ export function PaymentSettings({
     }
   };
 
+  // Encaissement réellement possible : Stripe vérifié, ou Square avec un
+  // point de vente désigné. C'est aussi ce que la base exige pour activer.
+  const canChargeWith = (candidate: Provider) =>
+    candidate === "square"
+      ? Boolean(square?.connected && square.locationId)
+      : Boolean(stripe?.chargesEnabled);
+
   const confirmSwitch = async () => {
     setBusy(true);
+    const blocked = !enabled && canChargeWith(providerBeforeSwitch);
+    const label = provider === "square" ? "Square" : "Stripe";
     try {
       await setPaymentProvider(provider);
       setEnabled(false);
       setSwitching(false);
       setProviderBeforeSwitch(provider);
-      const ready =
-        provider === "square"
-          ? Boolean(square?.connected && square.locationId)
-          : Boolean(stripe?.chargesEnabled);
-      if (ready) {
+      const ready = canChargeWith(provider);
+      if (ready && !blocked) {
         await setOnlinePayment(true);
         setEnabled(true);
       }
       toast.success(
-        ready
-          ? `Paiement basculé sur ${provider === "square" ? "Square" : "Stripe"}.`
-          : `Encaisseur changé — reliez votre compte ${provider === "square" ? "Square" : "Stripe"} pour réactiver le paiement par carte.`
+        !ready
+          ? `Encaisseur changé — reliez votre compte ${label} pour réactiver le paiement par carte.`
+          : blocked
+            ? `Encaisseur changé pour ${label} — le paiement en ligne reste bloqué.`
+            : `Paiement basculé sur ${label}.`
       );
     } catch (error) {
       toast.error(
@@ -229,12 +243,7 @@ export function PaymentSettings({
 
   const loading = stripe === null || square === null;
   const linked = Boolean(stripe?.connected || square?.connected);
-  // Encaissement réellement possible : Stripe vérifié, ou Square avec un
-  // point de vente désigné. C'est aussi ce que la base exige pour activer.
-  const canCharge =
-    provider === "square"
-      ? Boolean(square?.connected && square.locationId)
-      : Boolean(stripe?.chargesEnabled);
+  const canCharge = canChargeWith(provider);
   const needsLocation = Boolean(
     provider === "square" && square?.connected && !square.locationId
   );
@@ -254,6 +263,25 @@ export function PaymentSettings({
         <div aria-busy className="shimmer h-10 rounded-xl" />
       ) : (
         <>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Paiement en ligne</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted">
+                {enabled
+                  ? "Vos clients peuvent régler par carte depuis le menu."
+                  : canCharge
+                    ? "Bloqué — vos clients règlent au comptoir."
+                    : "Inactif tant qu'aucun compte ne peut encaisser."}
+              </p>
+            </div>
+            <Toggle
+              checked={enabled}
+              onChange={() => void toggle()}
+              disabled={busy || switching || (!enabled && !canCharge)}
+              label="Paiement en ligne"
+            />
+          </div>
+
           <fieldset
             className="flex flex-col gap-2"
             disabled={(linked && !switching) || busy}
@@ -362,38 +390,28 @@ export function PaymentSettings({
                 </p>
               )}
             </div>
-          ) : !canCharge ? (
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-muted">
-                {stripe?.connected
-                  ? "Compte Stripe créé — finalisez la vérification pour encaisser."
-                  : "Aucun compte de paiement relié."}
-              </p>
-              <button
-                type="button"
-                onClick={() => void connect()}
-                disabled={busy}
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-              >
-                {busy
-                  ? "Redirection…"
-                  : stripe?.connected
-                    ? "Reprendre la configuration"
-                    : `Relier mon compte ${provider === "square" ? "Square" : "Stripe"}`}
-              </button>
-            </div>
           ) : (
-            <label className="flex cursor-pointer items-center justify-between gap-3">
-              <span className="text-sm font-medium">
-                Proposer le paiement par carte sur le menu
-              </span>
-              <input
-                type="checkbox"
-                checked={enabled}
-                onChange={() => void toggle()}
-                className="size-5 accent-ember-2"
-              />
-            </label>
+            !canCharge && (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-muted">
+                  {stripe?.connected
+                    ? "Compte Stripe créé — finalisez la vérification pour encaisser."
+                    : "Aucun compte de paiement relié."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void connect()}
+                  disabled={busy}
+                  className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+                >
+                  {busy
+                    ? "Redirection…"
+                    : stripe?.connected
+                      ? "Reprendre la configuration"
+                      : `Relier mon compte ${provider === "square" ? "Square" : "Stripe"}`}
+                </button>
+              </div>
+            )
           )}
         </>
       )}

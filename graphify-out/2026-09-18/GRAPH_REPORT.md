@@ -1,17 +1,17 @@
-# Graph Report - ominin  (2026-09-18)
+# Graph Report - ominin  (2026-09-17)
 
 ## Corpus Check
-- 645 files · ~1,682,608 words
+- 645 files · ~1,682,463 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 10, .woff 3, .example 2)
 
 ## Summary
-- 4144 nodes · 11619 edges · 258 communities (150 shown, 108 thin omitted)
+- 4144 nodes · 11617 edges · 258 communities (150 shown, 108 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 294 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `50bee82e`
+- Built from commit: `7f30e8f2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
