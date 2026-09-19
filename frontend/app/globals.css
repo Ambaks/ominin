@@ -379,8 +379,11 @@ body {
   }
 }
 
+/* backwards, pas both : un transform résiduel (même translateY(0)) ferait de
+   l'élément le bloc conteneur de ses descendants en position: fixed (modale
+   d'options du menu). L'état final de l'animation égale le style de base. */
 .rise {
-  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* Indeterminate gradient bar for the branded loading screen (ClipLoader) */
