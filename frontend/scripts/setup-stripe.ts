@@ -11,7 +11,11 @@
  * Les routes /api/stripe/checkout retrouvent les prix par ces mêmes lookup_keys.
  *
  * Usage, depuis frontend/ :  npm run setup:stripe
- * Lit STRIPE_SECRET_KEY depuis ../backend/.env.
+ * Lit STRIPE_SECRET_KEY depuis ../backend/.env — la clé de TEST. Test et live
+ * sont deux catalogues Stripe séparés : la production (clé live, sur Vercel)
+ * ne voit rien de ce qui est créé ici. Pour la viser, passer la clé live dans
+ * l'environnement, qui l'emporte sur le fichier :
+ *   STRIPE_SECRET_KEY=sk_live_… npm run setup:stripe
  */
 
 import Stripe from "stripe";
@@ -23,6 +27,11 @@ if (!key) {
   throw new Error("STRIPE_SECRET_KEY manquante — renseigne backend/.env.");
 }
 const stripe = new Stripe(key);
+// Dit d'emblée quel catalogue est visé : « déjà en place » en test ne dit rien
+// de la production.
+console.log(
+  `Catalogue Stripe visé : ${key.includes("_live_") ? "LIVE (production)" : "TEST"}`
+);
 
 /** `monthly` distingue un abonnement d'un paiement unique (mise en place Shop). */
 type Plan = { id: string; name: string; price: number; tagline: string; monthly: boolean };
