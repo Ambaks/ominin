@@ -1,26 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { QuoteBuilder } from "@/components/quote/quote-builder";
 import { startCheckout } from "@/lib/gestion/checkout";
 import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
 import type { Offre, Role } from "@/lib/gestion/types";
+import { quotePage } from "@/lib/landing-data";
 import { collectProduct, offreProducts } from "@/lib/products";
+import { quotePlan } from "@/lib/quote";
 
 /*
  * Écran affiché à la place de l'espace de gestion tant qu'aucun produit
- * n'est actif. Au retour de Stripe Checkout (?checkout=succes), le webhook
- * peut mettre quelques secondes à écrire en base : on relit le statut
- * périodiquement — dès qu'il passe actif, le shell réaffiche l'espace et ce
- * composant est démonté (l'intervalle est nettoyé).
+ * n'est actif. Une offre publiée s'ouvre par sa commande de démarrage : le
+ * gérant retrouve son devis (Cachets selon ses tables, livraison,
+ * branchements) et règle. Au retour de Stripe Checkout (?checkout=succes),
+ * le webhook peut mettre quelques secondes à écrire en base : on relit le
+ * statut périodiquement — dès qu'il passe actif, le shell réaffiche l'espace
+ * et ce composant est démonté (l'intervalle est nettoyé).
  */
 export function SubscriptionGate({
   role,
   offre,
+  tableCount,
 }: {
   role: Role;
   /** Null ⇒ inscription par le click & collect : c'est lui qu'on active. */
   offre: Offre | null;
+  tableCount: number;
 }) {
   // Jamais rendu côté serveur (le shell attend l'état) : window est sûr.
   const [confirming] = useState(() =>
@@ -37,6 +44,42 @@ export function SubscriptionGate({
     );
     return () => clearInterval(timer);
   }, [confirming]);
+
+  if (!confirming && offre && quotePlan(offre)) {
+    return (
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+        <div className="flex flex-col gap-2 text-center">
+          <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
+            {quotePage.gateEyebrow}
+          </p>
+          <h1 className="font-display text-2xl font-medium tracking-tight">
+            {quotePage.gateTitle}
+          </h1>
+          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted">
+            {role === "gerant" ? quotePage.gateSubtitle : quotePage.staffOnly}
+          </p>
+        </div>
+        {role === "gerant" && (
+          <QuoteBuilder
+            locked
+            initial={{
+              plan: offre,
+              tables: tableCount,
+              omilink: false,
+              square: false,
+            }}
+            submitLabel={quotePage.submit.gate}
+            onSubmit={async ({ omilink, square }) => {
+              // true ⇒ rien à régler (offre rouverte) : on relit l'état.
+              if (await startCheckout(undefined, { omilink, square })) {
+                await refreshSubscription();
+              }
+            }}
+          />
+        )}
+      </div>
+    );
+  }
 
   const product = offre
     ? offreProducts.find((candidate) => candidate.id === offre)

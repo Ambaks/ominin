@@ -1,4 +1,4 @@
-import { DEMO_SLUG, unsplash } from "@/lib/menu-data";
+import { DEMO_SLUG, formatPrice, unsplash } from "@/lib/menu-data";
 
 export interface Cta {
   label: string;
@@ -28,14 +28,37 @@ export interface ProofStat {
   source: string;
 }
 
+export interface PlanCommission {
+  percent: number;
+  /** Assiette, à lire après le taux : « 1 % des commandes payées… ». */
+  basis: string;
+}
+
 export interface Plan {
   id: string;
   name: string;
   price: number;
+  /** Offre sans abonnement : Ominin se rémunère sur les paiements en ligne. */
+  commission?: PlanCommission;
   tagline: string;
   featuresLabel: string;
   features: string[];
   badge?: string;
+}
+
+export interface BillLine {
+  label: string;
+  value: string;
+}
+
+export interface InstallPath {
+  id: "omilink" | "square";
+  label: string;
+  title: string;
+  lead: string;
+  points: QrShowcasePoint[];
+  /** La ligne de l'addition propre à ce chemin ; les autres sont communes. */
+  cost: BillLine;
 }
 
 export interface ClientRef {
@@ -59,7 +82,7 @@ export interface FaqItem {
 
 export const brand = "Ominin";
 
-export const contactEmail = "ambakalgr@gmail.com";
+export const contactEmail = "omininsupport@gmail.com";
 
 export const demoCta: Cta = {
   label: "Voir un exemple maintenant",
@@ -71,15 +94,15 @@ export const signupCta: Cta = {
   href: "/inscription",
 };
 
-/** CTA d'une carte tarif : l'offre choisie suit tout le funnel d'inscription. */
-export const planSignupHref = (planId: string) =>
-  `/inscription?plan=${encodeURIComponent(planId)}`;
+/** CTA d'une carte tarif : le devis, avec l'offre présélectionnée. */
+export const planQuoteHref = (planId: string) =>
+  `/devis?plan=${encodeURIComponent(planId)}`;
 
 export const seo = {
   title:
     "Ominin — Menu digital QR code, commande et paiement à table pour restaurants",
   description:
-    "Menus digitaux par QR code, commande et paiement à table. Sans engagement, dès 59 €/mois. Vos clients scannent, commandent, payent — sans application.",
+    "Menus digitaux par QR code, commande et paiement à table. Sans engagement, commande et paiement à 0 €/mois. Vos clients scannent, commandent, payent — sans application.",
 };
 
 export const nav = {
@@ -220,14 +243,53 @@ export const proofSection = {
   ] satisfies ProofStat[],
 };
 
+/*
+ * Commande de démarrage, commune aux offres : paiements uniques réglés une
+ * fois, à la première activation. Comme pricingSection, ces montants sont la
+ * source de vérité des prix Stripe (scripts/setup-stripe.ts, retrouvés par
+ * lookup_key = id). Un Cachet imprimé par table et la livraison, toujours ;
+ * le boîtier Omilink en option, sur les offres avec commande à table.
+ */
+export const starterKit = {
+  cachet: {
+    id: "cachet_card",
+    name: "Cachet imprimé",
+    price: 1.5,
+    tagline: "Carte QR de table, imprimée à votre logo.",
+  },
+  omilink: {
+    id: "omilink_box",
+    name: "Boîtier Omilink",
+    price: 89,
+    tagline: "Relie Ominin à vos imprimantes tickets.",
+  },
+  shipping: {
+    id: "starter_shipping",
+    name: "Livraison",
+    price: 20,
+    tagline: "Expédition de la commande de démarrage au restaurant.",
+  },
+  /** Pays livrés (codes ISO, adresse saisie dans Stripe Checkout). */
+  shippingCountries: ["FR"],
+} as const;
+
+const omilinkPrice = starterKit.omilink.price;
+
+const connectCommission: PlanCommission = {
+  percent: 1,
+  basis: "des commandes payées en ligne par carte",
+};
+
 export const pricingSection = {
   id: "tarifs",
   eyebrow: "Tarifs",
   title: "Un prix simple. Aucun engagement.",
   subtitle:
-    "Trois offres mensuelles, résiliables à tout moment. Vous changez d'offre quand vous voulez.",
+    "La carte seule, ou le service complet sans abonnement : sur Connect, nous ne gagnons que lorsque vos clients payent en ligne.",
   perMonth: "/mois",
   ctaLabel: "Choisir",
+  installLabel: "Se branche sur votre salle",
+  installLink: "Voir comment ça se branche",
   plans: [
     {
       id: "digital",
@@ -243,41 +305,202 @@ export const pricingSection = {
       ],
     },
     {
-      id: "smart",
-      name: "Smart",
-      price: 79,
-      tagline: "La salle qui tourne toute seule.",
+      id: "connect",
+      name: "Connect",
+      price: 0,
+      commission: connectCommission,
+      tagline: "Vos clients scannent, commandent et payent.",
       featuresLabel: "Tout Digital, plus :",
       features: [
         "Commande à table",
+        "Paiement à table par carte bancaire",
         "Gestion des tables",
         "Suivi des commandes en direct",
-      ],
-    },
-    {
-      id: "connect",
-      name: "Connect",
-      price: 99,
-      tagline: "Le service de bout en bout.",
-      featuresLabel: "Tout Smart, plus :",
-      features: [
-        "Paiement à table par carte bancaire",
-        "Intégration caisse enregistreuse",
         "Vues serveur, cuisine et manager",
+        "Intégration Square, impression sur vos imprimantes tickets",
       ],
       badge: "Le plus choisi",
     },
   ] satisfies Plan[],
   guarantees: [
-    "Vos Cachets fournis gratuitement",
+    "Cachets imprimés à votre logo",
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
   ],
 };
 
+/**
+ * Offre sans abonnement, rémunérée à la commission : elle s'active par la
+ * commande de démarrage (starterKit), jamais par un abonnement Stripe.
+ */
+export const isCommissionPlan = (planId: string | null | undefined) =>
+  pricingSection.plans.some((plan) => plan.id === planId && plan.commission);
+
 /*
- * Click & collect : produit indépendant des trois offres de menu (cumulable
+ * Installation de l'offre Connect : deux branchements indépendants, pas une
+ * alternative. Côté caisse, l'intégration Square est prête ; pour une autre
+ * caisse, l'intégration s'étudie au cas par cas, sans promesse. Côté
+ * imprimantes, le boîtier Omilink est une option à l'achat pour qui a des
+ * imprimantes tickets. L'abonnement Square est celui de Square, facturé par
+ * Square.
+ */
+export const installSection = {
+  id: "installation",
+  eyebrow: "Installation",
+  title: "Ominin se branche sur votre salle.",
+  subtitle:
+    "Côté caisse, l'intégration Square est prête — et pour une autre caisse, nous étudions l'intégration avec vous. Côté cuisine, si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement. L'abonnement Ominin reste à 0 €.",
+  sourceLabel: "Commande payée à table",
+  joiner: "et/ou",
+  billLabel: "L'addition",
+  // Lignes communes aux deux additions, autour de la ligne propre au chemin.
+  bill: {
+    subscription: { label: "Abonnement Ominin", value: "0 €/mois" },
+    commission: {
+      label: "Commission",
+      value: `${connectCommission.percent} % en ligne`,
+    },
+  } satisfies Record<string, BillLine>,
+  // Commande d'illustration, la même sur le ticket imprimé et l'écran de caisse.
+  order: {
+    table: "Table 7",
+    time: "20:42",
+    origin: "Ominin",
+    lines: [
+      { quantity: 2, name: "Tagliatelle al ragù" },
+      { quantity: 1, name: "Burrata, tomates anciennes" },
+      { quantity: 2, name: "Tiramisu" },
+    ],
+    total: 61,
+    paidLabel: "Payée · Carte",
+    queue: ["Table 3", "Table 11"],
+  },
+  paths: [
+    {
+      id: "omilink",
+      label: "Le boîtier Omilink",
+      title: "Des imprimantes ? On s'y branche.",
+      lead: "Le boîtier Omilink se connecte directement à vos imprimantes tickets : chaque commande sort en cuisine comme au bar. C'est son seul rôle — et il est optionnel.",
+      points: [
+        {
+          title: "Compatible avec votre matériel",
+          description:
+            "Il parle aux imprimantes tickets réseau (ESC/POS) — celles que vous avez déjà.",
+        },
+        {
+          title: "Livré chez vous",
+          description: `${formatPrice(omilinkPrice)}, une seule fois. Le boîtier est expédié directement à votre restaurant.`,
+        },
+        {
+          title: "Deux câbles, c'est branché",
+          description:
+            "L'alimentation et le réseau : il se connecte automatiquement, puis un clic dans votre espace de gestion.",
+        },
+      ],
+      cost: {
+        label: "Boîtier Omilink",
+        value: `${formatPrice(omilinkPrice)}, une fois`,
+      },
+    },
+    {
+      id: "square",
+      label: "L'intégration Square",
+      title: "Vos commandes, dans votre caisse.",
+      lead: "Avec Square, la commande payée à table arrive directement dans votre caisse et votre gestionnaire de commandes — détaillée ligne par ligne, imprimée selon vos réglages.",
+      points: [
+        {
+          title: "Relié en quelques clics",
+          description:
+            "Vous connectez votre compte Square depuis votre espace de gestion, c'est tout.",
+        },
+        {
+          title: "Une seule caisse",
+          description:
+            "Plus de double saisie ni de rapprochement à la clôture : tout est déjà dans Square.",
+        },
+        {
+          title: "Une autre caisse ?",
+          description:
+            "Dites-nous laquelle : nous étudions l'intégration avec vous.",
+        },
+      ],
+      cost: { label: "Abonnement Square", value: "dès 79 €/mois" },
+    },
+  ] satisfies InstallPath[],
+  facts: [
+    "Espèces et paiements au comptoir : 0 % de commission",
+    "Pas d'imprimante ? Les commandes s'affichent en direct sur tablette",
+    "Résiliable à tout moment",
+  ],
+  footnote:
+    "L'abonnement Square se souscrit auprès de Square, qui le facture directement. La commission Ominin s'ajoute aux frais de transaction de votre prestataire de paiement (Stripe ou Square).",
+};
+
+/*
+ * Page /devis et écran d'activation : le restaurateur compose sa commande de
+ * démarrage (offre, tables, branchements) et voit son addition se mettre à
+ * jour. Les montants viennent de pricingSection et starterKit.
+ */
+export const quotePage = {
+  seoTitle: "Votre devis — Ominin",
+  eyebrow: "Votre devis",
+  title: "Composez votre démarrage.",
+  subtitle:
+    "Choisissez votre offre, indiquez vos tables : l'addition se met à jour sous vos yeux. Vous ne réglez qu'après avoir créé votre compte.",
+  gateEyebrow: "Dernière étape",
+  gateTitle: "Votre commande de démarrage",
+  gateSubtitle:
+    "Votre établissement est prêt. Réglez vos Cachets et leur livraison : votre espace s'ouvre aussitôt.",
+  plan: { title: "Votre offre" },
+  tables: {
+    title: "Vos tables",
+    unit: { one: "table", many: "tables" },
+    hint: `Un Cachet imprimé par table, à votre logo — ${formatPrice(starterKit.cachet.price)} l'unité.`,
+    inputLabel: "Nombre de tables",
+    decrease: "Une table de moins",
+    increase: "Une table de plus",
+    sticker: "Le Cachet",
+  },
+  options: {
+    title: "Vos branchements",
+    subtitle: "Optionnels, selon ce que vous avez déjà en salle.",
+    omilink: {
+      title: starterKit.omilink.name,
+      description:
+        "Relie Ominin à vos imprimantes tickets. Livré chez vous : deux câbles, et c'est branché.",
+    },
+    square: {
+      title: "Intégration Square",
+      description:
+        "Vos commandes payées arrivent directement dans votre caisse Square.",
+      price: "Inclus",
+    },
+    otherTill: {
+      label: "Une autre caisse ? Parlons-en",
+      href: `mailto:${contactEmail}?subject=${encodeURIComponent("Intégration de ma caisse")}`,
+    },
+  },
+  bill: {
+    label: "L'addition",
+    today: "À régler aujourd'hui",
+    then: "Ensuite",
+    noCommitment: "sans engagement",
+    squareNote: "réglé auprès de Square",
+    empty: "Indiquez votre nombre de tables.",
+  },
+  submit: { quote: "Continuer", gate: "Régler et ouvrir mon espace" },
+  staffOnly: "Seul le gérant peut régler la commande de démarrage.",
+  microcopy: [
+    "Paiement sécurisé par Stripe",
+    "Adresse de livraison demandée au paiement",
+  ],
+  /** Nombre de tables proposé à l'ouverture du devis. */
+  defaultTables: 12,
+};
+
+/*
+ * Click & collect : produit indépendant des offres de menu (cumulable
  * avec chacune). Les montants ici sont la source de vérité des prix Stripe
  * (scripts/setup-stripe.ts) comme pour pricingSection. Le bundle regroupe
  * Connect + Click & collect en un seul abonnement.
@@ -347,7 +570,7 @@ export const qrShowcase = {
   lead: "Le Cachet, c'est votre QR code à votre logo, collé sur chaque table — prêt à coller, prêt à servir. Vos clients le scannent, votre menu s'ouvre. Pas d'application, pas d'attente.",
   points: [
     {
-      title: "À votre logo, fournis gratuitement",
+      title: "À votre logo, prêts à coller",
       description:
         "Conçus et imprimés par notre équipe, livrés prêts à coller sur vos tables.",
     },
@@ -419,7 +642,11 @@ export const faqSection = {
     {
       question: "Est-ce compatible avec ma caisse enregistreuse ?",
       answer:
-        "L'offre Connect intègre votre caisse : les commandes passées à table s'y retrouvent directement. Écrivez-nous pour vérifier la compatibilité de votre matériel.",
+        "Avec Square, nativement : les commandes payées à table arrivent directement dans votre caisse. Avec une autre caisse, dites-nous laquelle : nous étudions l'intégration avec vous. Et si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement.",
+    },
+    {
+      question: "Connect est à 0 €/mois : où est le piège ?",
+      answer: `Il n'y en a pas. Nous prélevons ${connectCommission.percent} % ${connectCommission.basis}, et rien sur les espèces ni sur les paiements au comptoir. Si vos clients ne payent pas en ligne, Connect ne vous coûte rien. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}). Le reste est optionnel : le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) pour imprimer sur vos imprimantes tickets, et l'abonnement Square, réglé auprès de Square, si vous utilisez leur caisse.`,
     },
     {
       question: "Y a-t-il un engagement ?",

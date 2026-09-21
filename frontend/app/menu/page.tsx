@@ -10,6 +10,7 @@ import { DemoShowcase } from "@/components/landing/demo-showcase";
 import { Proof } from "@/components/landing/proof";
 import { Testimonials } from "@/components/landing/testimonials";
 import { Pricing } from "@/components/landing/pricing";
+import { Install } from "@/components/landing/install";
 import { Faq } from "@/components/landing/faq";
 import { FinalCta } from "@/components/landing/final-cta";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -44,6 +45,7 @@ export default function Home() {
         <Proof />
         <Testimonials />
         <Pricing />
+        <Install />
         <FinalCta />
         <Faq />
       </main>

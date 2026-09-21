@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { parseQuote, quoteQuery } from "@/lib/quote";
 import { InscriptionTabs } from "./inscription-tabs";
 
 export const metadata: Metadata = {
@@ -9,12 +10,14 @@ export const metadata: Metadata = {
 export default async function InscriptionPage({
   searchParams,
 }: PageProps<"/menu/inscription">) {
-  const { error, plan } = await searchParams;
-  const chosenPlan = typeof plan === "string" ? plan : undefined;
+  const params = await searchParams;
+  // Devis composé sur /devis (offre, tables, branchements) : revalidé ici,
+  // il repart tel quel vers l'onboarding.
+  const quote = parseQuote(params);
   return (
     <InscriptionTabs
-      chosenPlan={chosenPlan}
-      authError={error === "auth"}
+      quoteQuery={quote ? quoteQuery(quote) : undefined}
+      authError={params.error === "auth"}
     />
   );
 }

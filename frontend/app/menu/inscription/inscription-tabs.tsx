@@ -39,17 +39,18 @@ function ProfileTabs({
 }
 
 export function InscriptionTabs({
-  chosenPlan,
+  quoteQuery,
   authError,
 }: {
-  chosenPlan?: string;
+  /** Devis choisi en amont, déjà sérialisé (« plan=connect&tables=12… »). */
+  quoteQuery?: string;
   authError: boolean;
 }) {
   const [profile, setProfile] = useState<Profile>("owner");
 
   const destination =
-    profile === "owner" && chosenPlan
-      ? `/onboarding?plan=${encodeURIComponent(chosenPlan)}`
+    profile === "owner" && quoteQuery
+      ? `/onboarding?${quoteQuery}`
       : "/onboarding";
 
   return (

@@ -44,6 +44,8 @@ export const offreProducts: Product[] = pricingSection.plans.map((plan) => ({
   tagline: plan.tagline,
   price: `${plan.price} €`,
   priceUnit: pricingSection.perMonth,
+  priceNote:
+    plan.commission && `+ ${plan.commission.percent} % ${plan.commission.basis}`,
   featuresLabel: plan.featuresLabel,
   features: plan.features,
   // La landing des offres menu & salle vit sur le sous-domaine menu depuis
@@ -80,7 +82,7 @@ export const clipProduct: Product = {
 
 /**
  * L'offre souscrite, présentée avec le cumul des fonctionnalités : les
- * paliers de la landing ne listent que leur delta (« Tout Smart, plus… »),
+ * paliers de la landing ne listent que leur delta (« Tout Digital, plus… »),
  * ce qui sous-vendrait ce que le client a réellement.
  */
 export function currentOffreProduct(offre: Offre): Product | undefined {

@@ -1,6 +1,6 @@
 /*
- * Synchronise les produits/prix Stripe avec pricingSection, collectOffer
- * (lib/landing-data.ts) et shopOffer (lib/shop-landing-data.ts) — les prix
+ * Synchronise les produits/prix Stripe avec pricingSection, starterKit,
+ * collectOffer (lib/landing-data.ts) et shopOffer (lib/shop-landing-data.ts) — les prix
  * affichés sur les sites sont la source de vérité, rien n'est dupliqué ici.
  * Idempotent :
  *  - lookup_key absent → produit + prix créés ;
@@ -15,7 +15,7 @@
  */
 
 import Stripe from "stripe";
-import { collectOffer, pricingSection } from "../lib/landing-data";
+import { collectOffer, pricingSection, starterKit } from "../lib/landing-data";
 import { shopOffer } from "../lib/shop-landing-data";
 
 const key = process.env.STRIPE_SECRET_KEY;
@@ -32,10 +32,24 @@ const shopPlans: Plan[] = [
   { id: "shop_monthly", name: `${shopOffer.name} — abonnement`, price: shopOffer.monthlyPrice, tagline: shopOffer.tagline, monthly: true },
 ];
 
+// Une offre à commission n'a pas d'abonnement : aucun prix Stripe à créer,
+// Ominin se rémunère sur l'application_fee des paiements en ligne.
+const subscriptionPlans = pricingSection.plans.filter(
+  (plan) => !plan.commission
+);
+
+// Commande de démarrage : Cachets, boîtier, livraison — paiements uniques.
+const starterPlans: Plan[] = [
+  starterKit.cachet,
+  starterKit.omilink,
+  starterKit.shipping,
+].map(({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: false }));
+
 const plans: Plan[] = [
-  ...[...pricingSection.plans, collectOffer, { ...collectOffer.bundle }].map(
+  ...[...subscriptionPlans, collectOffer, { ...collectOffer.bundle }].map(
     ({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })
   ),
+  ...starterPlans,
   // Ominin Shop reste « sur devis » tant que l'offre n'est pas publiée : aucun
   // tarif n'est créé, un prix à 0 € serait facturable par erreur.
   ...(shopOffer.published ? shopPlans : []),
@@ -56,7 +70,8 @@ async function main() {
   const byLookup = new Map(existing.map((price) => [price.lookup_key, price]));
 
   for (const plan of plans) {
-    const target = plan.price * 100;
+    // Arrondi : un tarif à centimes (1,50 €) ne doit pas donner 149,999…
+    const target = Math.round(plan.price * 100);
     const current = byLookup.get(plan.id);
     // Un prix Stripe sans `recurring` est un paiement unique.
     const cadence = plan.monthly ? ({ recurring: { interval: "month" } } as const) : {};

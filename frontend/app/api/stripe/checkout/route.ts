@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
+import type Stripe from "stripe";
+import { isCommissionPlan, starterKit } from "@/lib/landing-data";
+import { quotePlan } from "@/lib/quote";
 import { getStripe } from "@/lib/stripe/server";
+import {
+  MissingPriceError,
+  STARTER_FLAG,
+  starterLineItems,
+} from "@/lib/stripe/starter";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,6 +23,13 @@ type Product = Database["public"]["Enums"]["product"];
  * abonnement). Prix créés par scripts/setup-stripe.ts — aucun montant côté
  * code. metadata.products dit au webhook quelles lignes de subscriptions
  * écrire.
+ *
+ * La première activation d'une offre porte aussi la commande de démarrage
+ * (lib/stripe/starter.ts) : un Cachet imprimé par table — recompté en base,
+ * jamais lu du client —, la livraison, et le boîtier Omilink si { omilink }.
+ * Une offre à commission n'a pas d'abonnement : sa session est un paiement
+ * unique (mode 'payment'), que le webhook tient pour activation. { square }
+ * voyage en métadonnée : le webhook présélectionne l'encaisseur.
  */
 
 const PRODUCTS_BY_CHOICE: Record<string, Product[]> = {
@@ -44,6 +60,8 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => ({}))) as {
     product?: string;
+    omilink?: boolean;
+    square?: boolean;
   };
   const choice = body.product ?? "offre";
   const products = PRODUCTS_BY_CHOICE[choice];
@@ -164,20 +182,75 @@ export async function POST(request: Request) {
     return NextResponse.json({ bundled: true });
   }
 
-  const lookupKey = choice === "offre" ? etablissement.offre! : choice;
-  const price = await priceByLookupKey(lookupKey);
-  if (!price) {
-    return NextResponse.json(
-      {
-        error: `Tarif « ${lookupKey} » introuvable dans Stripe — exécuter npm run setup:stripe.`,
-      },
-      { status: 500 }
-    );
+  const commission = choice === "offre" && isCommissionPlan(etablissement.offre);
+  // La commande de démarrage n'est due qu'une fois : un réabonnement après
+  // résiliation ne rachète ni Cachets ni livraison. Une ancienne offre, plus
+  // publiée, garde son parcours d'origine — son devis n'existe pas.
+  const firstActivation =
+    choice === "offre" &&
+    quotePlan(etablissement.offre!) !== undefined &&
+    !subscriptions?.some((row) => row.product === "offre");
+
+  // Offre à commission déjà ouverte par le passé (ancien abonnement résilié) :
+  // rien à facturer, l'accès est rendu tel quel.
+  if (commission && !firstActivation) {
+    const { error } = await createAdminClient()
+      .from("subscriptions")
+      .update({ status: "active", updated_at: new Date().toISOString() })
+      .eq("etablissement_id", etablissement.id)
+      .eq("product", "offre");
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ activated: true });
   }
 
-  const metadata = {
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  if (!commission) {
+    const lookupKey = choice === "offre" ? etablissement.offre! : choice;
+    const price = await priceByLookupKey(lookupKey);
+    if (!price) {
+      return NextResponse.json(
+        { error: new MissingPriceError(lookupKey).message },
+        { status: 500 }
+      );
+    }
+    lineItems.push({ price: price.id, quantity: 1 });
+  }
+
+  const omilink = commission && body.omilink === true;
+  let tables = 0;
+  if (firstActivation) {
+    const { count } = await supabase
+      .from("tables")
+      .select("id", { count: "exact", head: true })
+      .eq("etablissement_id", etablissement.id);
+    tables = count ?? 0;
+    if (tables < 1) {
+      return NextResponse.json(
+        { error: "Indiquez votre nombre de tables pour commander vos Cachets." },
+        { status: 409 }
+      );
+    }
+    try {
+      lineItems.push(...(await starterLineItems(stripe, { tables, omilink })));
+    } catch (cause) {
+      if (cause instanceof MissingPriceError) {
+        return NextResponse.json({ error: cause.message }, { status: 500 });
+      }
+      throw cause;
+    }
+  }
+
+  const metadata: Record<string, string> = {
     etablissement_id: etablissement.id,
     products: products.join(","),
+    ...(firstActivation && {
+      starter: STARTER_FLAG,
+      tables: String(tables),
+      omilink: omilink ? "1" : "0",
+      square: commission && body.square === true ? "1" : "0",
+    }),
   };
   // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
   // collect part de la page Produits, l'ouverture de l'offre de l'espace.
@@ -189,13 +262,24 @@ export async function POST(request: Request) {
   const host = request.headers.get("x-forwarded-host") ?? requestUrl.host;
   const origin = `${requestUrl.protocol}//${host}`;
   const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    line_items: [{ price: price.id, quantity: 1 }],
+    line_items: lineItems,
     customer: customerId,
     customer_email: customerId ? undefined : user.email,
     client_reference_id: etablissement.id,
     metadata,
-    subscription_data: { metadata },
+    ...(commission
+      ? {
+          mode: "payment" as const,
+          // Le client Stripe sert aux achats suivants (click & collect…).
+          customer_creation: customerId ? undefined : ("always" as const),
+          payment_intent_data: { metadata },
+        }
+      : { mode: "subscription" as const, subscription_data: { metadata } }),
+    ...(firstActivation && {
+      shipping_address_collection: {
+        allowed_countries: [...starterKit.shippingCountries],
+      },
+    }),
     locale: "fr",
     success_url: `${origin}${returnPath}?checkout=succes`,
     cancel_url: `${origin}${returnPath}?checkout=annule`,

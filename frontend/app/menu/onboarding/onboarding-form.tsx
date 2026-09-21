@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { startCheckout } from "@/lib/gestion/checkout";
-import { OFFRE_LABELS } from "@/lib/gestion/constants";
+import { startCheckout, type StarterOptions } from "@/lib/gestion/checkout";
 import type { Offre } from "@/lib/gestion/types";
+import { pricingSection } from "@/lib/landing-data";
 import { createClient } from "@/lib/supabase/client";
 
 function slugify(value: string): string {
@@ -20,12 +20,23 @@ function slugify(value: string): string {
 /** Slugs réservés par des routes statiques (miroir de la contrainte SQL). */
 const RESERVED_SLUGS = ["demo", "collect"];
 
-export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
+export function OnboardingForm({
+  initialOffre,
+  initialTables,
+  starter,
+}: {
+  initialOffre?: Offre;
+  initialTables?: number;
+  /** Branchements choisis sur /devis, repris dans la commande de démarrage. */
+  starter?: StarterOptions | null;
+}) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
   const [offre, setOffre] = useState<Offre>(initialOffre ?? "digital");
-  const [tableCount, setTableCount] = useState("");
+  const [tableCount, setTableCount] = useState(
+    initialTables ? String(initialTables) : ""
+  );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -60,8 +71,8 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
     // Enchaîne sur le paiement ; en cas d'échec (Stripe non configuré…),
     // /gestion affiche l'écran « Activer mon abonnement ».
     try {
-      await startCheckout();
-      return;
+      // false ⇒ redirection vers Stripe en cours ; true ⇒ rien à régler.
+      if (!(await startCheckout(undefined, starter ?? undefined))) return;
     } catch {
       // Le verrou d'abonnement prend le relais.
     }
@@ -116,17 +127,21 @@ export function OnboardingForm({ initialOffre }: { initialOffre?: Offre }) {
             onChange={(event) => setOffre(event.target.value as Offre)}
             className={inputClass}
           >
-            {(Object.keys(OFFRE_LABELS) as Offre[]).map((value) => (
-              <option key={value} value={value}>
-                {OFFRE_LABELS[value]}
+            {pricingSection.plans.map((plan) => (
+              <option key={plan.id} value={plan.id}>
+                {plan.name}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Nombre de tables" required>
+        <Field
+          label="Nombre de tables"
+          required
+          hint="Un Cachet imprimé par table, compris dans votre commande de démarrage."
+        >
           <input
             type="number"
-            min={0}
+            min={1}
             value={tableCount}
             onChange={(event) => setTableCount(event.target.value)}
             required

@@ -297,6 +297,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               <SubscriptionGate
                 role={state.role}
                 offre={state.etablissement.offre}
+                tableCount={state.tables.length}
               />
             )}
           </main>

@@ -91,6 +91,7 @@ const PRODUCTS: readonly ProductConfig[] = [
       "/connexion",
       "/inscription",
       "/onboarding",
+      "/devis",
     ],
   },
 ];

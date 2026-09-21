@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { OFFRE_LABELS } from "@/lib/gestion/constants";
 import type { Offre } from "@/lib/gestion/types";
+import { parseQuote } from "@/lib/quote";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "./onboarding-form";
 import { StaffPending } from "./staff-pending";
@@ -33,11 +33,15 @@ export default async function OnboardingPage({
     return <StaffPending />;
   }
 
-  const { plan } = await searchParams;
-  const initialOffre =
-    typeof plan === "string" && plan in OFFRE_LABELS
-      ? (plan as Offre)
-      : undefined;
+  // parseQuote ne retient qu'une offre publiée sur la landing : son id est
+  // donc une valeur d'Offre.
+  const quote = parseQuote(await searchParams);
 
-  return <OnboardingForm initialOffre={initialOffre} />;
+  return (
+    <OnboardingForm
+      initialOffre={quote?.plan as Offre | undefined}
+      initialTables={quote?.tables}
+      starter={quote && { omilink: quote.omilink, square: quote.square }}
+    />
+  );
 }

@@ -1,7 +1,11 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { IconButton } from "./icon-button";
+
+// Indicateur client-only : pas d'abonnement, jamais notifié.
+const emptySubscribe = () => () => {};
 
 function SunIcon() {
   return (
@@ -41,9 +45,16 @@ function MoonIcon() {
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
 
-  // resolvedTheme is undefined until next-themes mounts, so the server and
-  // first client render both fall back to the dark-default state (sun).
-  const isLight = resolvedTheme === "light";
+  // next-themes lit le localStorage dès le premier rendu client : avec un
+  // thème clair enregistré, resolvedTheme vaut déjà "light" alors que le
+  // serveur a rendu l'état sombre par défaut. Le snapshot serveur (false)
+  // vaut pendant l'hydratation, le thème réel s'affiche juste après.
+  const hydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const isLight = hydrated && resolvedTheme === "light";
   const label = isLight ? "Passer au thème sombre" : "Passer au thème clair";
 
   return (

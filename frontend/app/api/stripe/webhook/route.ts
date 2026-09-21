@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
+import { STARTER_FLAG } from "@/lib/stripe/starter";
 import type { Database } from "@/lib/supabase/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -15,6 +16,9 @@ type Product = Database["public"]["Enums"]["product"];
  * metadata.etablissement_id et metadata.products voyagent depuis la création
  * de la session Checkout ; metadata.pending_id référence le panier à
  * convertir (collect_pending → create_collect_order, idempotent).
+ * metadata.starter marque une commande de démarrage : sur une offre à
+ * commission (mode 'payment', sans abonnement Stripe), son paiement vaut
+ * activation.
  */
 
 /** Produits couverts par la session/l'abonnement (défaut : 'offre'). */
@@ -102,6 +106,37 @@ export async function POST(request: Request) {
 
       const etablissementId =
         session.metadata?.etablissement_id ?? session.client_reference_id;
+
+      // Commande de démarrage d'une offre à commission : pas d'abonnement à
+      // relire, la ligne 'offre' passe active sur la foi du paiement. Le
+      // choix de Square présélectionne l'encaisseur, sans écraser un choix
+      // déjà fait dans l'espace de gestion.
+      if (
+        session.mode === "payment" &&
+        session.metadata?.starter === STARTER_FLAG &&
+        etablissementId
+      ) {
+        if (session.payment_status === "paid") {
+          await upsertSubscription(["offre"], {
+            etablissement_id: etablissementId,
+            stripe_customer_id:
+              typeof session.customer === "string"
+                ? session.customer
+                : session.customer?.id,
+            status: "active",
+          });
+          if (session.metadata.square === "1") {
+            const { error } = await createAdminClient()
+              .from("etablissements")
+              .update({ payment_provider: "square" })
+              .eq("id", etablissementId)
+              .is("payment_provider", null);
+            if (error) throw new Error(error.message);
+          }
+        }
+        break;
+      }
+
       const subscriptionId =
         typeof session.subscription === "string"
           ? session.subscription

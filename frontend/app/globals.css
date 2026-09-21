@@ -862,3 +862,217 @@ body {
     transparent 24px 60px
   );
 }
+
+/*
+  Section « Installation » (landing menu) : le trajet d'une commande payée à
+  table. Un point braise descend de la commande et bifurque vers l'un des deux
+  chemins, en alternance ; à son arrivée le ticket sort de l'imprimante
+  (Omilink) ou la commande glisse dans la file de la caisse (Square). Toutes
+  les scènes partagent --install-cycle ; le chemin de droite part à mi-cycle.
+*/
+.install-scene {
+  --install-cycle: 7s;
+}
+
+@keyframes fork-left {
+  0% {
+    left: 50%;
+    top: 0;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  8% {
+    left: 50%;
+    top: 50%;
+  }
+  19% {
+    left: 0%;
+    top: 50%;
+  }
+  25% {
+    left: 0%;
+    top: 100%;
+    opacity: 1;
+  }
+  28%,
+  100% {
+    left: 0%;
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes fork-right {
+  0% {
+    left: 50%;
+    top: 0;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  8% {
+    left: 50%;
+    top: 50%;
+  }
+  19% {
+    left: 100%;
+    top: 50%;
+  }
+  25% {
+    left: 100%;
+    top: 100%;
+    opacity: 1;
+  }
+  28%,
+  100% {
+    left: 100%;
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.fork-pulse {
+  opacity: 0;
+  animation: fork-left var(--install-cycle) linear infinite;
+}
+
+.fork-pulse-late {
+  animation-name: fork-right;
+  animation-delay: calc(var(--install-cycle) / 2);
+}
+
+/* Le papier monte par à-coups, comme une tête thermique ligne à ligne. */
+@keyframes ticket-feed {
+  0%,
+  25% {
+    transform: translateY(100%);
+    opacity: 1;
+    animation-timing-function: steps(14, end);
+  }
+  55%,
+  90% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  97%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+.ticket-feed {
+  animation: ticket-feed var(--install-cycle) linear infinite;
+}
+
+/* Bord dentelé du papier, côté massicot. */
+.ticket-paper {
+  clip-path: polygon(
+    0 4px,
+    6.25% 0,
+    12.5% 4px,
+    18.75% 0,
+    25% 4px,
+    31.25% 0,
+    37.5% 4px,
+    43.75% 0,
+    50% 4px,
+    56.25% 0,
+    62.5% 4px,
+    68.75% 0,
+    75% 4px,
+    81.25% 0,
+    87.5% 4px,
+    93.75% 0,
+    100% 4px,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* La file de la caisse descend d'un cran (--pos-row) pour accueillir la commande. */
+@keyframes pos-queue {
+  0%,
+  25% {
+    transform: translateY(calc(var(--pos-row) * -1));
+  }
+  32%,
+  97% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(calc(var(--pos-row) * -1));
+  }
+}
+
+@keyframes pos-order-in {
+  0%,
+  27% {
+    opacity: 0;
+  }
+  34%,
+  90% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.pos-queue {
+  animation: pos-queue var(--install-cycle) cubic-bezier(0.22, 1, 0.36, 1)
+    infinite;
+  animation-delay: calc(var(--install-cycle) / 2);
+  transform: translateY(calc(var(--pos-row) * -1));
+}
+
+.pos-order-in {
+  opacity: 0;
+  animation: pos-order-in var(--install-cycle) linear infinite;
+  animation-delay: calc(var(--install-cycle) / 2);
+}
+
+@keyframes led-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.led-breathe {
+  animation: led-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes cable-flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+.cable-flow {
+  stroke-dasharray: 3 5;
+  animation: cable-flow 1.2s linear infinite;
+}
+
+/* Sans mouvement : ticket sorti, commande en caisse, aucun point en transit. */
+@media (prefers-reduced-motion: reduce) {
+  .fork-pulse {
+    display: none;
+  }
+  .ticket-feed,
+  .pos-queue,
+  .pos-order-in,
+  .led-breathe,
+  .cable-flow {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}
