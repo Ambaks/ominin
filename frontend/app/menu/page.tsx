@@ -43,9 +43,9 @@ export default function Home() {
         <Features />
         <DemoShowcase />
         <Proof />
-        <Testimonials />
         <Pricing />
         <Install />
+        <Testimonials />
         <FinalCta />
         <Faq />
       </main>
