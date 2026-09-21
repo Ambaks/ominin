@@ -18,9 +18,20 @@ import type {
 export function activeProducts(state: GestionState | null): ActiveProducts {
   return {
     offre:
-      state?.subscriptionStatus === "active" ? state.etablissement.offre : null,
+      state?.subscriptionStatus === "active" && !offreFeeDue(state)
+        ? state.etablissement.offre
+        : null,
     collect: state?.collectSubscriptionStatus === "active",
   };
+}
+
+/**
+ * Mois offerts échus sans exonération et sans abonnement souscrit : l'offre
+ * reste ouverte côté carte, mais l'espace de gestion attend le paiement.
+ */
+export function offreFeeDue(state: GestionState | null): boolean {
+  const trial = state?.offreTrial;
+  return trial?.feeExempt === false && !trial.subscribed;
 }
 
 /** unitPrice est figé suppléments inclus par place_order : rien à rajouter. */

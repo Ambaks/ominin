@@ -10,34 +10,45 @@
  *    désactivé. Les abonnements en cours conservent leur ancien tarif.
  * Les routes /api/stripe/checkout retrouvent les prix par ces mêmes lookup_keys.
  *
- * Usage, depuis frontend/ :  npm run setup:stripe
- * Lit STRIPE_SECRET_KEY depuis ../backend/.env — la clé de TEST. Test et live
- * sont deux catalogues Stripe séparés : la production (clé live, sur Vercel)
- * ne voit rien de ce qui est créé ici. Pour la viser :
- *   npm run setup:stripe:live
- * qui emprunte les variables de production du projet Vercel lié (vercel env
- * run : rien n'est écrit sur le disque) — sans --env-file, donc sans repli
- * silencieux sur la clé de test. Prérequis, une fois : npm i -g vercel, puis
- * vercel login et vercel link depuis frontend/. Sans Vercel, la clé passée
- * dans l'environnement l'emporte sur le fichier :
- *   STRIPE_SECRET_KEY=sk_live_… npm run setup:stripe
+ * Test et live sont deux catalogues Stripe séparés : rien de ce qui est créé
+ * dans l'un n'existe dans l'autre. D'où deux clés, deux variables, dans
+ * ../backend/.env — et jamais de repli de l'une sur l'autre.
+ *
+ * Depuis frontend/ :
+ *   npm run setup:stripe        → STRIPE_SECRET_KEY, le catalogue de TEST
+ *   npm run setup:stripe:live   → STRIPE_SECRET_KEY_LIVE, la PRODUCTION
+ *
+ * STRIPE_SECRET_KEY reste volontairement la clé de test : c'est le fichier que
+ * lisent aussi les scripts seed:*, et une clé live y serait un piège. Les deux
+ * variables sont donc vérifiées — une clé live sous le nom de test, ou
+ * l'inverse, arrête le script au lieu de viser le mauvais catalogue.
  */
 
 import Stripe from "stripe";
 import { collectOffer, pricingSection, starterKit } from "../lib/landing-data";
 import { shopOffer } from "../lib/shop-landing-data";
 
-const key = process.env.STRIPE_SECRET_KEY;
+const live = process.argv.includes("--live");
+const variable = live ? "STRIPE_SECRET_KEY_LIVE" : "STRIPE_SECRET_KEY";
+const key = process.env[variable];
 if (!key) {
+  throw new Error(`${variable} manquante — renseigne backend/.env.`);
+}
+// Le nom de la variable doit correspondre au mode de la clé : sans ce garde,
+// une clé collée au mauvais endroit viserait le mauvais catalogue en silence.
+// (Une clé restreinte rk_live_ est une clé live.)
+if (key.includes("_live_") !== live) {
   throw new Error(
-    "STRIPE_SECRET_KEY manquante — backend/.env pour le test ; en live, la variable doit être lisible sur Vercel (pas « Sensitive »)."
+    live
+      ? `${variable} n'est pas une clé live (sk_live_… ou rk_live_…).`
+      : `${variable} est une clé LIVE. Cette variable doit rester la clé de test : backend/.env sert aussi aux scripts seed:*. Mets la clé live dans STRIPE_SECRET_KEY_LIVE et lance « npm run setup:stripe:live ».`
   );
 }
 const stripe = new Stripe(key);
 // Dit d'emblée quel catalogue est visé : « déjà en place » en test ne dit rien
 // de la production.
 console.log(
-  `Catalogue Stripe visé : ${key.includes("_live_") ? "LIVE (production)" : "TEST"}`
+  `Catalogue Stripe visé : ${live ? "LIVE (production)" : "TEST"}`
 );
 
 /** `monthly` distingue un abonnement d'un paiement unique (mise en place Shop). */
@@ -48,12 +59,6 @@ const shopPlans: Plan[] = [
   { id: "shop_monthly", name: `${shopOffer.name} — abonnement`, price: shopOffer.monthlyPrice, tagline: shopOffer.tagline, monthly: true },
 ];
 
-// Une offre à commission n'a pas d'abonnement : aucun prix Stripe à créer,
-// Ominin se rémunère sur l'application_fee des paiements en ligne.
-const subscriptionPlans = pricingSection.plans.filter(
-  (plan) => !plan.commission
-);
-
 // Commande de démarrage : Cachets, boîtier, livraison — paiements uniques.
 const starterPlans: Plan[] = [
   starterKit.cachet,
@@ -61,8 +66,11 @@ const starterPlans: Plan[] = [
   starterKit.shipping,
 ].map(({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: false }));
 
+// Toutes les offres ont un tarif mensuel, mois offerts compris : celui de
+// Connect n'est facturé qu'à leur terme, et seulement si le chiffre
+// d'affaires n'en a pas dispensé le restaurant.
 const plans: Plan[] = [
-  ...[...subscriptionPlans, collectOffer, { ...collectOffer.bundle }].map(
+  ...[...pricingSection.plans, collectOffer, { ...collectOffer.bundle }].map(
     ({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })
   ),
   ...starterPlans,

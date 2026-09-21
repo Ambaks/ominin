@@ -35,7 +35,9 @@ export function quoteLines(quote: StarterQuote): QuoteLine[] {
   const plan = quotePlan(quote.plan);
   const { cachet, omilink, shipping } = starterKit;
   const lines: QuoteLine[] = [];
-  if (plan && plan.price > 0) {
+  // Une offre à mois offerts ne facture pas son premier mois : elle s'ouvre
+  // sur sa seule commande de démarrage.
+  if (plan && plan.price > 0 && !plan.trial) {
     lines.push({
       id: plan.id,
       label: `Ominin ${plan.name}`,

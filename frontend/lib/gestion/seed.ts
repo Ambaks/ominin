@@ -275,6 +275,8 @@ export function seed(): GestionState {
       adminPinSet: false,
     },
     subscriptionStatus: "active",
+    // Démo : aucun mois offert à trancher, l'espace s'ouvre entier.
+    offreTrial: null,
     collectSubscriptionStatus: null,
     userId: "demo-user",
     role: "gerant",

@@ -6,7 +6,8 @@ import { startCheckout } from "@/lib/gestion/checkout";
 import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
 import type { Offre, Role } from "@/lib/gestion/types";
-import { quotePage } from "@/lib/landing-data";
+import { pricingSection, quotePage } from "@/lib/landing-data";
+import { formatPrice } from "@/lib/menu-data";
 import { collectProduct, offreProducts } from "@/lib/products";
 import { quotePlan } from "@/lib/quote";
 
@@ -23,11 +24,14 @@ export function SubscriptionGate({
   role,
   offre,
   tableCount,
+  feeDue,
 }: {
   role: Role;
   /** Null ⇒ inscription par le click & collect : c'est lui qu'on active. */
   offre: Offre | null;
   tableCount: number;
+  /** Mois offerts échus sans exonération : reste l'abonnement, le devis est réglé. */
+  feeDue: boolean;
 }) {
   // Jamais rendu côté serveur (le shell attend l'état) : window est sûr.
   const [confirming] = useState(() =>
@@ -45,7 +49,7 @@ export function SubscriptionGate({
     return () => clearInterval(timer);
   }, [confirming]);
 
-  if (!confirming && offre && quotePlan(offre)) {
+  if (!confirming && !feeDue && offre && quotePlan(offre)) {
     return (
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
         <div className="flex flex-col gap-2 text-center">
@@ -84,12 +88,23 @@ export function SubscriptionGate({
   const product = offre
     ? offreProducts.find((candidate) => candidate.id === offre)
     : collectProduct;
+  // Les mois offerts terminés, c'est la mensualité du palier qu'on active —
+  // pas le prix d'appel que la carte tarifaire met en avant.
+  const plan = offre ? quotePlan(offre) : undefined;
+  const monthly =
+    feeDue && plan
+      ? `${formatPrice(plan.price)}${pricingSection.perMonth}`
+      : product && `${product.price}${product.priceUnit}`;
 
   const activate = async () => {
     setBusy(true);
     setError(null);
     try {
-      await startCheckout(offre ? undefined : collectProduct.id);
+      // true ⇒ rien à régler (bascule sur la formule groupée, offre rouverte) :
+      // aucune redirection, on relit l'état.
+      if (await startCheckout(offre ? undefined : collectProduct.id)) {
+        await refreshSubscription();
+      }
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue."
@@ -101,7 +116,11 @@ export function SubscriptionGate({
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-hairline bg-surface p-8 text-center">
       <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-        {confirming ? "Paiement reçu" : "Dernière étape"}
+        {confirming
+          ? "Paiement reçu"
+          : feeDue
+            ? quotePage.trialEnded.eyebrow
+            : "Dernière étape"}
       </p>
       <h1 className="font-display text-2xl font-medium tracking-tight">
         {confirming ? "Activation en cours…" : "Activez votre abonnement"}
@@ -114,20 +133,18 @@ export function SubscriptionGate({
       ) : (
         <>
           <p className="text-sm leading-relaxed text-muted">
-            Votre établissement est prêt. Il ne reste qu’à activer{" "}
+            {feeDue ? quotePage.trialEnded.lead : "Votre établissement est prêt."}{" "}
+            Il ne reste qu’à activer{" "}
             {product && (
               <>
                 <span className="font-semibold text-foreground">
                   {product.name}
                 </span>{" "}
                 à{" "}
-                <span className="font-semibold text-foreground">
-                  {product.price}
-                  {product.priceUnit}
-                </span>
+                <span className="font-semibold text-foreground">{monthly}</span>
               </>
             )}
-            , sans engagement.
+            {feeDue ? "." : ", sans engagement."}
           </p>
           {role === "gerant" ? (
             <button

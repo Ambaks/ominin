@@ -5,7 +5,7 @@ import {
 } from "@/lib/clip-landing-data";
 import { collectBrand } from "@/lib/collect-landing-data";
 import type { Offre } from "@/lib/gestion/types";
-import { collectOffer, pricingSection } from "@/lib/landing-data";
+import { collectOffer, pricingSection, trialPricing } from "@/lib/landing-data";
 import { clipSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
@@ -37,21 +37,28 @@ export interface Product {
 
 const OFFRE_EYEBROW = "Offre menu & salle";
 
-export const offreProducts: Product[] = pricingSection.plans.map((plan) => ({
-  id: plan.id,
-  eyebrow: OFFRE_EYEBROW,
-  name: `Ominin ${plan.name}`,
-  tagline: plan.tagline,
-  price: `${plan.price} €`,
-  priceUnit: pricingSection.perMonth,
-  priceNote:
-    plan.commission && `+ ${plan.commission.percent} % ${plan.commission.basis}`,
-  featuresLabel: plan.featuresLabel,
-  features: plan.features,
-  // La landing des offres menu & salle vit sur le sous-domaine menu depuis
-  // l'éclatement — l'apex ne sert plus que le portail.
-  href: `${menuSiteUrl}/#${pricingSection.id}`,
-}));
+export const offreProducts: Product[] = pricingSection.plans.map((plan) => {
+  const trial = trialPricing(plan);
+  return {
+    id: plan.id,
+    eyebrow: OFFRE_EYEBROW,
+    name: `Ominin ${plan.name}`,
+    tagline: plan.tagline,
+    price: trial ? trial.price : `${plan.price} €`,
+    priceUnit: trial ? trial.unit : pricingSection.perMonth,
+    priceNote: [
+      plan.commission && `+ ${plan.commission.percent} % ${plan.commission.basis}`,
+      trial?.note,
+    ]
+      .filter(Boolean)
+      .join(" · ") || undefined,
+    featuresLabel: plan.featuresLabel,
+    features: plan.features,
+    // La landing des offres menu & salle vit sur le sous-domaine menu depuis
+    // l'éclatement — l'apex ne sert plus que le portail.
+    href: `${menuSiteUrl}/#${pricingSection.id}`,
+  };
+});
 
 export const collectProduct: Product = {
   id: collectOffer.id,

@@ -12,7 +12,7 @@ export interface StarterOptions {
  * affiche le message et réarme son bouton.
  *
  * Retourne true quand il n'y a rien à payer de nouveau (bascule sur la
- * formule groupée, offre à commission rouverte) : aucune redirection —
+ * formule groupée, offre en mois offerts rouverte) : aucune redirection —
  * l'appelant relit l'état de l'abonnement.
  */
 export async function startCheckout(

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { isCommissionPlan, starterKit } from "@/lib/landing-data";
+import { planTrial, starterKit } from "@/lib/landing-data";
 import { quotePlan } from "@/lib/quote";
 import { getStripe } from "@/lib/stripe/server";
 import {
@@ -27,9 +27,11 @@ type Product = Database["public"]["Enums"]["product"];
  * La première activation d'une offre porte aussi la commande de démarrage
  * (lib/stripe/starter.ts) : un Cachet imprimé par table — recompté en base,
  * jamais lu du client —, la livraison, et le boîtier Omilink si { omilink }.
- * Une offre à commission n'a pas d'abonnement : sa session est un paiement
- * unique (mode 'payment'), que le webhook tient pour activation. { square }
- * voyage en métadonnée : le webhook présélectionne l'encaisseur.
+ * Une offre à mois offerts n'a pas d'abonnement tant qu'ils courent : sa
+ * session est un paiement unique (mode 'payment'), que le webhook tient pour
+ * activation. { square } voyage en métadonnée : le webhook présélectionne
+ * l'encaisseur. Les mois offerts échus sans exonération (fee_exempt = false)
+ * ramènent l'offre au cas général : un abonnement mensuel.
  */
 
 const PRODUCTS_BY_CHOICE: Record<string, Product[]> = {
@@ -103,15 +105,23 @@ export async function POST(request: Request) {
 
   const { data: subscriptions } = await supabase
     .from("subscriptions")
-    .select("product, status, stripe_customer_id, stripe_subscription_id")
+    .select(
+      "product, status, stripe_customer_id, stripe_subscription_id, fee_exempt"
+    )
     .eq("etablissement_id", etablissement.id);
   // Un abonnement existant qui n'est pas dans un état terminal (annulé /
   // incomplet expiré) reste vivant côté Stripe — en créer un nouveau pour le
   // même produit facturerait deux fois. Seuls ces états terminaux autorisent
-  // un nouveau checkout (réabonnement après résiliation).
+  // un nouveau checkout (réabonnement après résiliation). Une ligne sans
+  // abonnement Stripe ne facture rien : l'offre ouverte sur ses mois offerts
+  // est active sans être facturée, et c'est précisément ce qu'on vient
+  // souscrire quand ils s'achèvent.
   if (
     subscriptions?.some(
-      (row) => products.includes(row.product) && !isTerminal(row.status)
+      (row) =>
+        products.includes(row.product) &&
+        !isTerminal(row.status) &&
+        row.stripe_subscription_id
     )
   ) {
     return NextResponse.json(
@@ -143,21 +153,47 @@ export async function POST(request: Request) {
   };
 
   /*
-   * Formule groupée. Un client Connect qui ajoute le click & collect doit
-   * payer les 150 € annoncés sur la landing, pas 99 € + 100 € : on bascule
-   * son abonnement existant sur le tarif groupé (proratisé) au lieu d'en
-   * ouvrir un second. Rien à ressaisir — d'où une réponse sans URL de
-   * checkout. Le webhook customer.subscription.updated écrit les deux lignes
-   * d'abonnement à partir de metadata.products.
+   * Mois offerts : l'offre s'ouvre sur sa seule commande de démarrage, sans
+   * abonnement Stripe, et ils courent jusqu'à leur verdict (lib/offre/trial).
+   * Rendu et défavorable (fee_exempt = false), l'offre se facture comme les
+   * autres, au tarif de son palier.
    */
-  const offreRow = subscriptions?.find(
-    (row) => row.product === "offre" && !isTerminal(row.status)
-  );
-  if (
-    choice === "collect" &&
-    etablissement.offre === BUNDLE_OFFRE &&
-    offreRow?.stripe_subscription_id
-  ) {
+  const offreState = subscriptions?.find((row) => row.product === "offre");
+  const freeMonths =
+    choice === "offre" &&
+    planTrial(etablissement.offre) !== undefined &&
+    offreState?.fee_exempt !== false;
+  // La commande de démarrage n'est due qu'une fois : un réabonnement après
+  // résiliation ne rachète ni Cachets ni livraison. Une ancienne offre, plus
+  // publiée, garde son parcours d'origine — son devis n'existe pas.
+  const firstActivation =
+    choice === "offre" &&
+    quotePlan(etablissement.offre!) !== undefined &&
+    !offreState;
+
+  /*
+   * Formule groupée. Connect et le click & collect pris ensemble valent le
+   * tarif groupé annoncé sur la landing, pas la somme des deux : le produit
+   * qui arrive rejoint l'abonnement déjà en cours (proratisé) au lieu d'en
+   * ouvrir un second — le click & collect ajouté à Connect, comme les
+   * mensualités de Connect dues alors que le click & collect tourne déjà.
+   * Rien à ressaisir — d'où une réponse sans URL de checkout. Le webhook
+   * customer.subscription.updated écrit les deux lignes d'abonnement à partir
+   * de metadata.products.
+   */
+  const liveRow = (product: Product) =>
+    subscriptions?.find(
+      (row) => row.product === product && !isTerminal(row.status)
+    );
+  const bundleFrom =
+    etablissement.offre !== BUNDLE_OFFRE
+      ? undefined
+      : choice === "collect"
+        ? liveRow("offre")
+        : choice === "offre" && !freeMonths
+          ? liveRow("collect")
+          : undefined;
+  if (bundleFrom?.stripe_subscription_id) {
     const bundlePrice = await priceByLookupKey(BUNDLE_CHOICE);
     if (!bundlePrice) {
       return NextResponse.json(
@@ -168,7 +204,7 @@ export async function POST(request: Request) {
       );
     }
     const current = await stripe.subscriptions.retrieve(
-      offreRow.stripe_subscription_id
+      bundleFrom.stripe_subscription_id
     );
     const metadata = {
       etablissement_id: etablissement.id,
@@ -182,18 +218,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ bundled: true });
   }
 
-  const commission = choice === "offre" && isCommissionPlan(etablissement.offre);
-  // La commande de démarrage n'est due qu'une fois : un réabonnement après
-  // résiliation ne rachète ni Cachets ni livraison. Une ancienne offre, plus
-  // publiée, garde son parcours d'origine — son devis n'existe pas.
-  const firstActivation =
-    choice === "offre" &&
-    quotePlan(etablissement.offre!) !== undefined &&
-    !subscriptions?.some((row) => row.product === "offre");
-
-  // Offre à commission déjà ouverte par le passé (ancien abonnement résilié) :
-  // rien à facturer, l'accès est rendu tel quel.
-  if (commission && !firstActivation) {
+  // Offre en mois offerts déjà ouverte (exonération acquise, ou réouverture
+  // après résiliation) : rien à facturer, l'accès est rendu tel quel.
+  if (freeMonths && !firstActivation) {
     const { error } = await createAdminClient()
       .from("subscriptions")
       .update({ status: "active", updated_at: new Date().toISOString() })
@@ -206,7 +233,7 @@ export async function POST(request: Request) {
   }
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-  if (!commission) {
+  if (!freeMonths) {
     const lookupKey = choice === "offre" ? etablissement.offre! : choice;
     const price = await priceByLookupKey(lookupKey);
     if (!price) {
@@ -218,7 +245,7 @@ export async function POST(request: Request) {
     lineItems.push({ price: price.id, quantity: 1 });
   }
 
-  const omilink = commission && body.omilink === true;
+  const omilink = freeMonths && body.omilink === true;
   let tables = 0;
   if (firstActivation) {
     const { count } = await supabase
@@ -249,7 +276,7 @@ export async function POST(request: Request) {
       starter: STARTER_FLAG,
       tables: String(tables),
       omilink: omilink ? "1" : "0",
-      square: commission && body.square === true ? "1" : "0",
+      square: freeMonths && body.square === true ? "1" : "0",
     }),
   };
   // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
@@ -267,7 +294,7 @@ export async function POST(request: Request) {
     customer_email: customerId ? undefined : user.email,
     client_reference_id: etablissement.id,
     metadata,
-    ...(commission
+    ...(freeMonths
       ? {
           mode: "payment" as const,
           // Le client Stripe sert aux achats suivants (click & collect…).

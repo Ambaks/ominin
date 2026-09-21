@@ -7,7 +7,11 @@ import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
 import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
-import { activeProducts, awaitsOnlinePayment } from "@/lib/gestion/selectors";
+import {
+  activeProducts,
+  awaitsOnlinePayment,
+  offreFeeDue,
+} from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
 import {
@@ -298,6 +302,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 role={state.role}
                 offre={state.etablissement.offre}
                 tableCount={state.tables.length}
+                feeDue={offreFeeDue(state)}
               />
             )}
           </main>

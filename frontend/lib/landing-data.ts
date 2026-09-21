@@ -34,12 +34,26 @@ export interface PlanCommission {
   basis: string;
 }
 
+/**
+ * Mois offerts à l'ouverture d'une offre. À leur terme, le chiffre d'affaires
+ * passé par Ominin sur la période tranche une fois pour toutes : au-dessus du
+ * seuil, la commission a payé le service et l'abonnement reste à 0 € ; en
+ * dessous, le prix mensuel de l'offre commence à courir.
+ */
+export interface PlanTrial {
+  months: number;
+  /** CA via Ominin sur les mois offerts qui dispense de l'abonnement. */
+  exemptionRevenue: number;
+}
+
 export interface Plan {
   id: string;
   name: string;
+  /** Prix mensuel — sur une offre à mois offerts, dû seulement à leur terme. */
   price: number;
-  /** Offre sans abonnement : Ominin se rémunère sur les paiements en ligne. */
+  /** Offre à commission : Ominin se rémunère aussi sur les paiements en ligne. */
   commission?: PlanCommission;
+  trial?: PlanTrial;
   tagline: string;
   featuresLabel: string;
   features: string[];
@@ -98,11 +112,30 @@ export const signupCta: Cta = {
 export const planQuoteHref = (planId: string) =>
   `/devis?plan=${encodeURIComponent(planId)}`;
 
+/** Montants à quatre chiffres : sans l'espace des milliers, on les lit mal. */
+const formatEuros = (amount: number) => `${amount.toLocaleString("fr-FR")} €`;
+
+const connectCommission: PlanCommission = {
+  percent: 1,
+  basis: "des commandes payées en ligne par carte",
+};
+
+/*
+ * Connect s'ouvre sur des mois offerts, et le verdict tombe à leur terme :
+ * au-dessus du seuil de CA, la commission a déjà payé le service et
+ * l'abonnement reste à 0 € ; en dessous, les mensualités commencent. Rendu
+ * une seule fois, puis figé (lib/offre/trial.ts).
+ */
+const connectTrial: PlanTrial = { months: 3, exemptionRevenue: 100_000 };
+
+/** Mensualité de Connect, due seulement si les mois offerts n'en dispensent pas. */
+const connectPrice = 100;
+
 export const seo = {
   title:
     "Ominin — Menu digital QR code, commande et paiement à table pour restaurants",
   description:
-    "Menus digitaux par QR code, commande et paiement à table. Sans engagement, commande et paiement à 0 €/mois. Vos clients scannent, commandent, payent — sans application.",
+    `Menus digitaux par QR code, commande et paiement à table, offerts ${connectTrial.months} mois et sans engagement. Vos clients scannent, commandent, payent — sans application.`,
 };
 
 export const nav = {
@@ -275,17 +308,11 @@ export const starterKit = {
 
 const omilinkPrice = starterKit.omilink.price;
 
-const connectCommission: PlanCommission = {
-  percent: 1,
-  basis: "des commandes payées en ligne par carte",
-};
-
 export const pricingSection = {
   id: "tarifs",
   eyebrow: "Tarifs",
   title: "Un prix simple. Aucun engagement.",
-  subtitle:
-    "La carte seule, ou le service complet sans abonnement : sur Connect, nous ne gagnons que lorsque vos clients payent en ligne.",
+  subtitle: `La carte seule, ou le service complet : Connect s'ouvre sur ${connectTrial.months} mois offerts, et reste à 0 € si vous passez ${formatEuros(connectTrial.exemptionRevenue)} de commandes sur ces ${connectTrial.months} mois.`,
   perMonth: "/mois",
   ctaLabel: "Choisir",
   installLabel: "Se branche sur votre salle",
@@ -307,8 +334,9 @@ export const pricingSection = {
     {
       id: "connect",
       name: "Connect",
-      price: 0,
+      price: connectPrice,
       commission: connectCommission,
+      trial: connectTrial,
       tagline: "Vos clients scannent, commandent et payent.",
       featuresLabel: "Tout Digital, plus :",
       features: [
@@ -331,32 +359,51 @@ export const pricingSection = {
 };
 
 /**
- * Offre sans abonnement, rémunérée à la commission : elle s'active par la
- * commande de démarrage (starterKit), jamais par un abonnement Stripe.
+ * Mois offerts d'une offre, s'il y en a : elle s'ouvre alors sur sa commande
+ * de démarrage (starterKit), sans abonnement Stripe, et n'en souscrit un
+ * qu'au terme des mois offerts — si le CA ne l'en a pas dispensée.
  */
-export const isCommissionPlan = (planId: string | null | undefined) =>
-  pricingSection.plans.some((plan) => plan.id === planId && plan.commission);
+export const planTrial = (
+  planId: string | null | undefined
+): PlanTrial | undefined =>
+  pricingSection.plans.find((plan) => plan.id === planId)?.trial;
+
+/** Ce qu'affiche une offre à mois offerts : le prix d'essai, puis sa suite. */
+export function trialPricing(plan: Plan) {
+  if (!plan.trial) return null;
+  const { months, exemptionRevenue } = plan.trial;
+  const monthly = `${formatPrice(plan.price)}${pricingSection.perMonth}`;
+  return {
+    price: formatPrice(0),
+    unit: `${pricingSection.perMonth} pendant ${months} mois`,
+    /** La règle, en toutes lettres. */
+    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(exemptionRevenue)} de commandes passées par Ominin.`,
+  };
+}
 
 /*
  * Installation de l'offre Connect : deux branchements indépendants, pas une
  * alternative. Côté caisse, l'intégration Square est prête ; pour une autre
  * caisse, l'intégration s'étudie au cas par cas, sans promesse. Côté
  * imprimantes, le boîtier Omilink est une option à l'achat pour qui a des
- * imprimantes tickets. L'abonnement Square est celui de Square, facturé par
- * Square.
+ * imprimantes tickets. Le plan de base Square ne coûte rien : ses options et
+ * son terminal, si le restaurant en veut, se règlent chez Square.
  */
 export const installSection = {
   id: "installation",
   eyebrow: "Installation",
   title: "Ominin se branche sur votre salle.",
   subtitle:
-    "Côté caisse, l'intégration Square est prête — et pour une autre caisse, nous étudions l'intégration avec vous. Côté cuisine, si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement. L'abonnement Ominin reste à 0 €.",
+    "Côté caisse, l'intégration Square est prête — et pour une autre caisse, nous étudions l'intégration avec vous. Côté cuisine, si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement. Aucun abonnement de plus : la caisse Square est gratuite, le boîtier s'achète une fois.",
   sourceLabel: "Commande payée à table",
   joiner: "et/ou",
   billLabel: "L'addition",
   // Lignes communes aux deux additions, autour de la ligne propre au chemin.
   bill: {
-    subscription: { label: "Abonnement Ominin", value: "0 €/mois" },
+    subscription: {
+      label: "Abonnement Ominin",
+      value: `0 €/mois pendant ${connectTrial.months} mois`,
+    },
     commission: {
       label: "Commission",
       value: `${connectCommission.percent} % en ligne`,
@@ -420,12 +467,17 @@ export const installSection = {
             "Plus de double saisie ni de rapprochement à la clôture : tout est déjà dans Square.",
         },
         {
+          title: "Une caisse à 0 €",
+          description:
+            "Le plan de base Square est gratuit, sans abonnement : votre téléphone encaisse en sans-contact, et leur terminal reste une option, achetée chez eux.",
+        },
+        {
           title: "Une autre caisse ?",
           description:
             "Dites-nous laquelle : nous étudions l'intégration avec vous.",
         },
       ],
-      cost: { label: "Abonnement Square", value: "dès 79 €/mois" },
+      cost: { label: "Abonnement Square", value: "0 €/mois" },
     },
   ] satisfies InstallPath[],
   facts: [
@@ -434,7 +486,7 @@ export const installSection = {
     "Résiliable à tout moment",
   ],
   footnote:
-    "L'abonnement Square se souscrit auprès de Square, qui le facture directement. La commission Ominin s'ajoute aux frais de transaction de votre prestataire de paiement (Stripe ou Square).",
+    "Le plan de base Square est gratuit ; son terminal et ses options se souscrivent auprès de Square, qui les facture directement. La commission Ominin s'ajoute aux frais de transaction de votre prestataire de paiement (Stripe ou Square).",
 };
 
 /*
@@ -474,6 +526,7 @@ export const quotePage = {
       title: "Intégration Square",
       description:
         "Vos commandes payées arrivent directement dans votre caisse Square.",
+      note: "Leur plan de base est gratuit ; seul le terminal, si vous en voulez un, s'achète chez eux.",
       price: "Inclus",
     },
     otherTill: {
@@ -488,6 +541,11 @@ export const quotePage = {
     noCommitment: "sans engagement",
     squareNote: "réglé auprès de Square",
     empty: "Indiquez votre nombre de tables.",
+  },
+  /** Activation d'après les mois offerts : Cachets déjà réglés, reste l'abonnement. */
+  trialEnded: {
+    eyebrow: "Mois offerts terminés",
+    lead: `Vos ${connectTrial.months} mois offerts sont écoulés, et les commandes passées par Ominin n'ont pas atteint ${formatEuros(connectTrial.exemptionRevenue)} sur la période : l'abonnement commence maintenant, résiliable à tout moment.`,
   },
   submit: { quote: "Continuer", gate: "Régler et ouvrir mon espace" },
   staffOnly: "Seul le gérant peut régler la commande de démarrage.",
@@ -642,11 +700,11 @@ export const faqSection = {
     {
       question: "Est-ce compatible avec ma caisse enregistreuse ?",
       answer:
-        "Avec Square, nativement : les commandes payées à table arrivent directement dans votre caisse. Avec une autre caisse, dites-nous laquelle : nous étudions l'intégration avec vous. Et si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement.",
+        "Avec Square, nativement : les commandes payées à table arrivent directement dans votre caisse — et leur plan de base est gratuit, sans abonnement. Avec une autre caisse, dites-nous laquelle : nous étudions l'intégration avec vous. Et si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement.",
     },
     {
-      question: "Connect est à 0 €/mois : où est le piège ?",
-      answer: `Il n'y en a pas. Nous prélevons ${connectCommission.percent} % ${connectCommission.basis}, et rien sur les espèces ni sur les paiements au comptoir. Si vos clients ne payent pas en ligne, Connect ne vous coûte rien. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}). Le reste est optionnel : le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) pour imprimer sur vos imprimantes tickets, et l'abonnement Square, réglé auprès de Square, si vous utilisez leur caisse.`,
+      question: `Connect est offert ${connectTrial.months} mois : et après ?`,
+      answer: `Au terme des ${connectTrial.months} mois, nous regardons le chiffre d'affaires passé par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} a déjà payé le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
     },
     {
       question: "Y a-t-il un engagement ?",

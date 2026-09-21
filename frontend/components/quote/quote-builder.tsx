@@ -10,6 +10,7 @@ import {
   qrShowcase,
   quotePage,
   starterKit,
+  trialPricing,
   type Plan,
 } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
@@ -49,12 +50,15 @@ function StepHeading({
 }
 
 function PlanPrice({ plan }: { plan: Plan }) {
+  const trial = trialPricing(plan);
   return (
     <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
       <span className="ember-text font-display text-3xl font-medium">
-        {formatPrice(plan.price)}
+        {trial ? trial.price : formatPrice(plan.price)}
       </span>
-      <span className="text-sm text-faint">{pricingSection.perMonth}</span>
+      <span className="text-sm text-faint">
+        {trial ? trial.unit : pricingSection.perMonth}
+      </span>
       {plan.commission && (
         <span className="whitespace-nowrap rounded-full border border-ember-2/40 px-2.5 py-0.5 font-display text-sm font-medium">
           + {plan.commission.percent} %
@@ -113,6 +117,7 @@ export function QuoteBuilder({
   const quote: StarterQuote = { plan, tables, omilink, square };
   const options = hasInstallOptions(plan);
   const selected = quotePlan(plan);
+  const selectedTrial = selected ? trialPricing(selected) : null;
   const total = quoteTotal(quote);
 
   const submit = async () => {
@@ -321,8 +326,8 @@ export function QuoteBuilder({
                     square ? "text-background/70" : "text-muted"
                   }`}
                 >
-                  {quotePage.options.square.description} Abonnement Square{" "}
-                  {squareCost}, {quotePage.bill.squareNote}.
+                  {quotePage.options.square.description}{" "}
+                  {quotePage.options.square.note}
                 </span>
               </button>
             </div>
@@ -414,12 +419,26 @@ export function QuoteBuilder({
               </p>
               <p className="flex justify-between gap-3">
                 <span className="text-muted">Ominin {selected.name}</span>
-                <span className="font-semibold">
-                  {formatPrice(selected.price)}
-                  {pricingSection.perMonth}
-                  {selected.price > 0 && `, ${quotePage.bill.noCommitment}`}
+                <span className="text-right font-semibold">
+                  {selectedTrial ? (
+                    <>
+                      {selectedTrial.price}
+                      {selectedTrial.unit}
+                    </>
+                  ) : (
+                    <>
+                      {formatPrice(selected.price)}
+                      {pricingSection.perMonth}
+                      {selected.price > 0 && `, ${quotePage.bill.noCommitment}`}
+                    </>
+                  )}
                 </span>
               </p>
+              {selectedTrial && (
+                <p className="leading-relaxed text-faint">
+                  {selectedTrial.note}
+                </p>
+              )}
               {selected.commission && (
                 <p className="flex justify-between gap-3">
                   <span className="text-muted">Commission</span>

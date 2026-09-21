@@ -4,6 +4,7 @@ import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useMemo, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
+import { offreTrialEnd } from "@/lib/offre/trial";
 import { must } from "@/lib/supabase/result";
 import { useAdminUnlocked } from "./admin-lock";
 import {
@@ -38,6 +39,8 @@ import type {
 type Client = SupabaseClient<Database>;
 
 let state: GestionState | null = null;
+/** Réglages d'Ominin sur les capacités : ils survivent aux relectures d'abonnement. */
+let featureOverrides: Partial<Record<Feature, boolean>> = {};
 let loadStarted = false;
 let loadError: string | null = null;
 const listeners = new Set<() => void>();
@@ -283,14 +286,7 @@ async function load(): Promise<void> {
         .eq("id", etablissementId)
         .single()
         .then(must),
-      supabase
-        .from("subscriptions")
-        .select("product, status")
-        .eq("etablissement_id", etablissementId)
-        .then((result) => {
-          if (result.error) throw new Error(result.error.message);
-          return result.data;
-        }),
+      readSubscriptions(supabase, etablissementId),
       supabase
         .from("categories")
         .select("*")
@@ -346,13 +342,9 @@ async function load(): Promise<void> {
         .then((result) => result.data),
     ]);
 
-  const offreSub = subscription?.find((s) => s.product === "offre");
-  const collectSub = subscription?.find((s) => s.product === "collect");
-
   const loaded: GestionState = {
     etablissement: rowToEtablissement(etablissement),
-    subscriptionStatus: offreSub?.status ?? null,
-    collectSubscriptionStatus: collectSub?.status ?? null,
+    ...subscription,
     userId: user.id,
     role: membership.role,
     // Résolu une fois pour toutes : les écrans lisent un oui ou un non, sans
@@ -368,15 +360,17 @@ async function load(): Promise<void> {
     tables: tables.map(rowToTable),
     orders,
   };
+  featureOverrides = (settings?.features ?? {}) as Partial<
+    Record<Feature, boolean>
+  >;
   state = {
     ...loaded,
-    features: resolveFeatures(
-      activeProducts(loaded),
-      (settings?.features ?? {}) as Partial<Record<Feature, boolean>>
-    ),
+    features: resolveFeatures(activeProducts(loaded), featureOverrides),
     orderTabs: settings?.order_tabs ?? ORDER_TABS,
   };
   notify();
+  // Les mois offerts arrivés à terme se tranchent à l'ouverture de l'espace.
+  void settleTrialIfDue();
 }
 
 function startLoad() {
@@ -443,29 +437,83 @@ export async function refreshOrdersNow(): Promise<void> {
   await refreshOrders(createClient(), state.etablissement.id);
 }
 
+/*
+ * État d'abonnement de l'établissement : les statuts Stripe des deux produits,
+ * et les mois offerts de l'offre, que l'espace lit pour savoir s'il s'ouvre.
+ */
+type SubscriptionState = Pick<
+  GestionState,
+  "subscriptionStatus" | "collectSubscriptionStatus" | "offreTrial"
+>;
+
+async function readSubscriptions(
+  supabase: Client,
+  etablissementId: string
+): Promise<SubscriptionState> {
+  const rows = await supabase
+    .from("subscriptions")
+    .select(
+      "product, status, stripe_subscription_id, trial_started_at, fee_exempt"
+    )
+    .eq("etablissement_id", etablissementId)
+    .then(must);
+  const offre = rows.find((row) => row.product === "offre");
+  return {
+    subscriptionStatus: offre?.status ?? null,
+    collectSubscriptionStatus:
+      rows.find((row) => row.product === "collect")?.status ?? null,
+    offreTrial: offre?.trial_started_at
+      ? {
+          startedAt: offre.trial_started_at,
+          feeExempt: offre.fee_exempt,
+          subscribed: offre.stripe_subscription_id !== null,
+        }
+      : null,
+  };
+}
+
 /** Relit les statuts d'abonnement (retour de Stripe Checkout, avant webhook). */
 export async function refreshSubscription(): Promise<void> {
   if (!state) return;
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("subscriptions")
-    .select("product, status")
-    .eq("etablissement_id", state.etablissement.id);
-  if (error) return;
-  const offreStatus = data?.find((s) => s.product === "offre")?.status ?? null;
-  const collectStatus = data?.find((s) => s.product === "collect")?.status ?? null;
+  const next = await readSubscriptions(
+    createClient(),
+    state.etablissement.id
+  ).catch(() => null);
+  if (!state || !next) return;
   if (
-    state &&
-    (state.subscriptionStatus !== offreStatus ||
-      state.collectSubscriptionStatus !== collectStatus)
+    state.subscriptionStatus === next.subscriptionStatus &&
+    state.collectSubscriptionStatus === next.collectSubscriptionStatus &&
+    state.offreTrial?.feeExempt === next.offreTrial?.feeExempt &&
+    state.offreTrial?.subscribed === next.offreTrial?.subscribed
   ) {
-    state = {
-      ...state,
-      subscriptionStatus: offreStatus,
-      collectSubscriptionStatus: collectStatus,
-    };
-    notify();
+    return;
   }
+  // Les capacités suivent les produits payés : elles se recalculent avec eux.
+  const merged = { ...state, ...next };
+  state = {
+    ...merged,
+    features: resolveFeatures(activeProducts(merged), featureOverrides),
+  };
+  notify();
+}
+
+/*
+ * Mois offerts échus dont le verdict n'est pas rendu : le serveur seul compte
+ * le chiffre d'affaires de la période. Le verdict étant définitif, l'appel
+ * n'a lieu qu'une fois dans la vie d'un établissement.
+ */
+async function settleTrialIfDue(): Promise<void> {
+  if (!state?.offreTrial || state.offreTrial.feeExempt !== null) return;
+  const endsAt = offreTrialEnd(
+    state.etablissement.offre,
+    state.offreTrial.startedAt
+  );
+  if (!endsAt || Date.now() < endsAt.getTime()) return;
+  // Réseau coupé : le verdict se rendra au prochain chargement de l'espace.
+  const response = await fetch("/api/offre/trial", { method: "POST" }).catch(
+    () => null
+  );
+  if (response?.ok) await refreshSubscription();
 }
 
 /** État complet, ou null côté serveur / avant chargement (⇒ squelette). */

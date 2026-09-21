@@ -3,6 +3,7 @@ import {
   installSection,
   planQuoteHref,
   pricingSection,
+  trialPricing,
   type Plan,
 } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
@@ -32,6 +33,7 @@ function Features({ plan, columns }: { plan: Plan; columns?: boolean }) {
 
 function PlanCard({ plan }: { plan: Plan }) {
   const { commission } = plan;
+  const trial = trialPricing(plan);
   return (
     <div
       className={`relative flex h-full flex-col gap-6 rounded-2xl border p-6 lg:rounded-3xl lg:p-8 ${
@@ -66,9 +68,11 @@ function PlanCard({ plan }: { plan: Plan }) {
               commission ? "text-6xl lg:text-7xl" : "text-4xl"
             }`}
           >
-            {formatPrice(plan.price)}
+            {trial ? trial.price : formatPrice(plan.price)}
           </span>
-          <span className="text-sm text-faint">{pricingSection.perMonth}</span>
+          <span className="text-sm text-faint">
+            {trial ? trial.unit : pricingSection.perMonth}
+          </span>
         </div>
         {commission && (
           <p className="flex max-w-[15rem] items-center gap-3 pb-1.5 text-sm leading-snug text-muted">
@@ -79,6 +83,12 @@ function PlanCard({ plan }: { plan: Plan }) {
           </p>
         )}
       </div>
+
+      {trial && (
+        <p className="relative -mt-4 text-[13px] leading-relaxed text-muted">
+          {trial.note}
+        </p>
+      )}
 
       <div className="relative">
         <Features plan={plan} columns={Boolean(commission)} />

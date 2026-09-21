@@ -3175,26 +3175,32 @@ export type Database = {
       subscriptions: {
         Row: {
           etablissement_id: string
+          fee_exempt: boolean | null
           product: Database["public"]["Enums"]["product"]
           status: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          trial_started_at: string | null
           updated_at: string
         }
         Insert: {
           etablissement_id: string
+          fee_exempt?: boolean | null
           product?: Database["public"]["Enums"]["product"]
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_started_at?: string | null
           updated_at?: string
         }
         Update: {
           etablissement_id?: string
+          fee_exempt?: boolean | null
           product?: Database["public"]["Enums"]["product"]
           status?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_started_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -3566,6 +3572,10 @@ export type Database = {
       member_etablissements: { Args: never; Returns: string[] }
       menu_rollup: {
         Args: { p_click_ttl_days: number; p_session_ttl_days: number }
+        Returns: number
+      }
+      offre_trial_revenue: {
+        Args: { p_etablissement_id: string; p_from: string; p_to: string }
         Returns: number
       }
       omilink_claim_device: {

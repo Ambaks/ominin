@@ -233,10 +233,21 @@ export interface Formule {
   etapes: Etape[];
 }
 
+/** Mois offerts de l'offre : leur ouverture, et le verdict rendu à leur terme. */
+export interface OffreTrial {
+  startedAt: string;
+  /** true ⇒ abonnement à 0 € acquis ; false ⇒ dû ; null ⇒ pas encore tranché. */
+  feeExempt: boolean | null;
+  /** Abonnement Stripe souscrit : les mensualités, si dues, sont payées. */
+  subscribed: boolean;
+}
+
 export interface GestionState {
   etablissement: Etablissement;
   /** Statut Stripe de l'abonnement offre ("active", "past_due"…) ; null ⇒ jamais souscrit. */
   subscriptionStatus: string | null;
+  /** Null ⇒ offre sans mois offerts (Digital, click & collect seul). */
+  offreTrial: OffreTrial | null;
   /** Statut Stripe de l'abonnement click & collect. */
   collectSubscriptionStatus: string | null;
   userId: string;

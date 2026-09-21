@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { planTrial } from "@/lib/landing-data";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
@@ -16,9 +17,9 @@ type Product = Database["public"]["Enums"]["product"];
  * metadata.etablissement_id et metadata.products voyagent depuis la création
  * de la session Checkout ; metadata.pending_id référence le panier à
  * convertir (collect_pending → create_collect_order, idempotent).
- * metadata.starter marque une commande de démarrage : sur une offre à
- * commission (mode 'payment', sans abonnement Stripe), son paiement vaut
- * activation.
+ * metadata.starter marque une commande de démarrage : sur une offre à mois
+ * offerts (mode 'payment', sans abonnement Stripe), son paiement vaut
+ * activation, et ouvre les mois offerts.
  */
 
 /** Produits couverts par la session/l'abonnement (défaut : 'offre'). */
@@ -36,6 +37,7 @@ async function upsertSubscription(
     stripe_customer_id?: string;
     stripe_subscription_id?: string;
     status: string;
+    trial_started_at?: string;
   }
 ) {
   const db = createAdminClient();
@@ -107,16 +109,25 @@ export async function POST(request: Request) {
       const etablissementId =
         session.metadata?.etablissement_id ?? session.client_reference_id;
 
-      // Commande de démarrage d'une offre à commission : pas d'abonnement à
-      // relire, la ligne 'offre' passe active sur la foi du paiement. Le
-      // choix de Square présélectionne l'encaisseur, sans écraser un choix
-      // déjà fait dans l'espace de gestion.
+      // Commande de démarrage : pas d'abonnement à relire, la ligne 'offre'
+      // passe active sur la foi du paiement, et les mois offerts de l'offre
+      // courent à partir de là. Le choix de Square présélectionne
+      // l'encaisseur, sans écraser un choix déjà fait dans l'espace de gestion.
       if (
         session.mode === "payment" &&
         session.metadata?.starter === STARTER_FLAG &&
         etablissementId
       ) {
         if (session.payment_status === "paid") {
+          const db = createAdminClient();
+          const { data: etablissement, error: offreError } = await db
+            .from("etablissements")
+            .select("offre")
+            .eq("id", etablissementId)
+            .single();
+          if (offreError) throw new Error(offreError.message);
+          // Les mois offerts de l'offre s'ouvrent ici ; leur fin s'en déduit.
+          const hasTrial = planTrial(etablissement.offre) !== undefined;
           await upsertSubscription(["offre"], {
             etablissement_id: etablissementId,
             stripe_customer_id:
@@ -124,9 +135,10 @@ export async function POST(request: Request) {
                 ? session.customer
                 : session.customer?.id,
             status: "active",
+            ...(hasTrial && { trial_started_at: new Date().toISOString() }),
           });
           if (session.metadata.square === "1") {
-            const { error } = await createAdminClient()
+            const { error } = await db
               .from("etablissements")
               .update({ payment_provider: "square" })
               .eq("id", etablissementId)
