@@ -127,8 +127,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 > `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` from Vercel** (sessions are per-host now —
 > leaving it set silently re-shares them across subdomains), the
 > `menu.ominin.com` + `admin.ominin.com` cutovers (DNS + Vercel domain +
-> `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs), a Resend account for the
-> contact form, the branded signup-confirmation email template, the upload-post
+> `NEXT_PUBLIC_*_HOST` + Supabase redirect URLs), the branded
+> signup-confirmation email template, the upload-post
 > account for Clip, and the **prospecting-agent setup** (Google Cloud, Render,
 > GitHub secrets — see "Outreach agent" in the setup guide below).
 
@@ -389,8 +389,9 @@ sliding-window in-memory rate limit (5 per IP per 10 min, per serverless
 instance — enough against naive scripted abuse, not against a distributed
 attacker, an accepted free-tier tradeoff). The route validates against
 `CONTACT_LIMITS` (`lib/portal/contact.ts`, mirroring the migration's CHECK
-constraints), writes the row, then fires a Resend notification
-best-effort — a mail failure is logged and still returns success, because the
+constraints), writes the row, then notifies `omininsupport@gmail.com` through
+the Gmail API (`lib/gmail.ts`, shared with team invitations; Reply-To is the
+visitor) best-effort — a mail failure is logged and still returns success, because the
 request is already durably stored. Verified: honeypot, short message, bad email,
 empty name and unparseable body all return the right status.
 

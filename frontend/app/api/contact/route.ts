@@ -33,8 +33,8 @@ const HONEYPOT_FIELD = "website";
  * mémoire. Volontairement simple (pas de Redis sur les tiers gratuits) :
  * chaque instance serverless a son propre compteur, donc un attaquant
  * distribué peut dépasser la limite globale — mais une boucle naïve depuis
- * une machine est bloquée, ce qui protège la base et le quota e-mail Resend
- * (100/jour en gratuit) du scénario réaliste.
+ * une machine est bloquée, ce qui protège la base et le quota d'envoi du
+ * compte Gmail du scénario réaliste.
  */
 const RATE_LIMIT = { max: 5, windowMs: 10 * 60_000 };
 const sentAtByIp = new Map<string, number[]>();
