@@ -13,8 +13,13 @@
  * Usage, depuis frontend/ :  npm run setup:stripe
  * Lit STRIPE_SECRET_KEY depuis ../backend/.env — la clé de TEST. Test et live
  * sont deux catalogues Stripe séparés : la production (clé live, sur Vercel)
- * ne voit rien de ce qui est créé ici. Pour la viser, passer la clé live dans
- * l'environnement, qui l'emporte sur le fichier :
+ * ne voit rien de ce qui est créé ici. Pour la viser :
+ *   npm run setup:stripe:live
+ * qui emprunte les variables de production du projet Vercel lié (vercel env
+ * run : rien n'est écrit sur le disque) — sans --env-file, donc sans repli
+ * silencieux sur la clé de test. Prérequis, une fois : npm i -g vercel, puis
+ * vercel login et vercel link depuis frontend/. Sans Vercel, la clé passée
+ * dans l'environnement l'emporte sur le fichier :
  *   STRIPE_SECRET_KEY=sk_live_… npm run setup:stripe
  */
 
@@ -24,7 +29,9 @@ import { shopOffer } from "../lib/shop-landing-data";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
-  throw new Error("STRIPE_SECRET_KEY manquante — renseigne backend/.env.");
+  throw new Error(
+    "STRIPE_SECRET_KEY manquante — backend/.env pour le test ; en live, la variable doit être lisible sur Vercel (pas « Sensitive »)."
+  );
 }
 const stripe = new Stripe(key);
 // Dit d'emblée quel catalogue est visé : « déjà en place » en test ne dit rien
