@@ -371,13 +371,13 @@ export const planTrial = (
 /** Ce qu'affiche une offre à mois offerts : le prix d'essai, puis sa suite. */
 export function trialPricing(plan: Plan) {
   if (!plan.trial) return null;
-  const { months, exemptionRevenue } = plan.trial;
+  const { months } = plan.trial;
   const monthly = `${formatPrice(plan.price)}${pricingSection.perMonth}`;
   return {
     price: formatPrice(0),
     unit: `${pricingSection.perMonth} pendant ${months} mois`,
     /** La règle, en toutes lettres. */
-    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(exemptionRevenue)} de commandes passées par Ominin.`,
+    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent un seuil de commandes passées par Ominin..`,
   };
 }
 
