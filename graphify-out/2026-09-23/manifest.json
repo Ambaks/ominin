@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
-    "mtime": 1790118732.1471767,
-    "seen": 1790118759.795097,
-    "ast_hash": "24420f033869202e6243e0c34b8f77c5",
+    "mtime": 1790093785.0297537,
+    "seen": 1790097563.7125409,
+    "ast_hash": "f89ae2fabac8d69b32bd9752afb6a11b",
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790118104.0276372,
-    "seen": 1790118759.795885,
-    "ast_hash": "e538d088c93522e7ca919ea81a36e693",
+    "mtime": 1790107613.3829808,
+    "seen": 1790107621.4888,
+    "ast_hash": "a1799cd5fea3a53498a8e3c28c8cfc23",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -4194,9 +4194,9 @@
     "semantic_hash": ""
   },
   "demos/lz-food/profile.json": {
-    "mtime": 1790118104.0611732,
-    "seen": 1790118759.794208,
-    "ast_hash": "e8fead480cfa4406772fa26f68eedb32",
+    "mtime": 1790100204.0527432,
+    "seen": 1790100212.3871171,
+    "ast_hash": "ab35799982dd586ecdb54e42deae46f1",
     "semantic_hash": ""
   },
   "frontend/app/api/legal/accept/route.ts": {
@@ -4683,12 +4683,6 @@
     "mtime": 1790103663.7715242,
     "seen": 1790104569.809082,
     "ast_hash": "79ca51da7041118b4f2e4670bc3e4e76",
-    "semantic_hash": ""
-  },
-  "Screenshot 2026-09-23 at 01.10.50.png": {
-    "mtime": 1790118667.6819596,
-    "seen": 1790118759.7959669,
-    "ast_hash": "3f7c1089f74d0c31f99864ca35aa75c2",
     "semantic_hash": ""
   }
 }

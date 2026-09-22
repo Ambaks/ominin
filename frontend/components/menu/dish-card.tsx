@@ -29,7 +29,7 @@ function FeaturedCard({ item }: { item: MenuItem }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl">
       {item.image && (
-        <div className="relative aspect-video">
+        <div className="relative aspect-video overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
           <img
             src={item.image}
