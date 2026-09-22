@@ -26,6 +26,8 @@ export interface ProofStat {
   title: string;
   description: string;
   source: string;
+  /** Source primaire, consultable : aucun chiffre n'entre ici sans son lien. */
+  sourceUrl: string;
 }
 
 export interface PlanCommission {
@@ -245,33 +247,39 @@ export const demoSection = {
 };
 
 export const proofSection = {
-  titleStart: "Ce que montrent les",
-  titleAccent: "études du secteur",
+  titleStart: "Ce que disent les",
+  titleAccent: "chiffres publics",
   subtitle:
-    "Les chiffres publiés par les acteurs de la restauration digitale.",
+    "Pas de chiffre maison ni de plaquette d'éditeur : un institut de sondage et l'enquête annuelle de France Travail. Les deux sont en lien.",
   disclaimer:
-    "Chiffres issus d'études publiées par des acteurs du secteur. Ils illustrent des tendances observées dans la restauration digitale et ne constituent pas une garantie de résultats.",
+    "Ces chiffres décrivent le marché français de la restauration, pas les résultats d'Ominin. Ils sont issus d'un institut de sondage indépendant et d'une enquête publique, consultables en un clic, et ne constituent pas une garantie de résultats.",
   stats: [
     {
-      stat: "+25%",
-      title: "de commandes en moyenne",
+      stat: "50 %",
+      title: "commandent ou payent déjà à table",
       description:
-        "Selon l'étude menée par Grubhub, les cartes avec photos augmentent le taux de commande de +25%.",
-      source: "Source : Grubhub",
+        "Un Français sur deux a déjà commandé ou réglé son repas à table depuis son téléphone. Chez les 16-24 ans, c'est 65 %.",
+      source: "OpinionWay pour Lyf, mars 2025 — 2 000 personnes",
+      sourceUrl:
+        "https://www.opinion-way.com/wp-content/uploads/2025/03/OpinionWay-pour-Lyf-Pay-Les-Francais-et-les-services-de-paiement-mobile-24-mars.pdf",
     },
     {
-      stat: "85%",
-      title: "des clients se décident grâce à la carte",
+      stat: "+11 pts",
+      title: "d'usage en quatre ans",
       description:
-        "TouchBistro a démontré que 85% des clients choisissent un restaurant après avoir consulté leur menu en ligne.",
-      source: "Source : TouchBistro",
+        "La commande et le paiement à table sont passés de 39 % d'utilisateurs en 2021 à 50 % en 2025, dans la même enquête reconduite chaque année.",
+      source: "OpinionWay pour Lyf, baromètre 2021-2025",
+      sourceUrl:
+        "https://www.opinion-way.com/wp-content/uploads/2025/03/OpinionWay-pour-Lyf-Pay-Les-Francais-et-les-services-de-paiement-mobile-24-mars.pdf",
     },
     {
-      stat: "+20%",
-      title: "sur l'addition finale en moyenne",
+      stat: "44 %",
+      title: "des recrutements en salle sont difficiles",
       description:
-        "D'après Grubhub, le ticket moyen est 20% plus élevé sur une carte digitale que sur une carte papier.",
-      source: "Source : Grubhub",
+        "Sur 319 000 projets de recrutement en hôtellerie-restauration en 2026, 44 % sont jugés difficiles par les employeurs eux-mêmes.",
+      source: "France Travail, enquête BMO 2026",
+      sourceUrl:
+        "https://www.francetravail.org/accueil/actualites/2026/enquete-bmo-2026-france-travail-deploie-sa-strategie-sectorielle-face-a-pres-de-2-3-millions-de-projets-de-recrutement.html",
     },
   ] satisfies ProofStat[],
 };
@@ -376,7 +384,7 @@ export function trialPricing(plan: Plan) {
   return {
     price: formatPrice(0),
     unit: `${pricingSection.perMonth} pendant ${months} mois`,
-    /** La règle, en toutes lettres. */
+    /** La règle, le seuil chiffré en moins. */
     note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent un seuil de commandes passées par Ominin..`,
   };
 }

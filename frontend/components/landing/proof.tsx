@@ -1,7 +1,6 @@
 import { proofSection } from "@/lib/landing-data";
 
 export function Proof() {
-  // TODO: replace vendor citations with links to primary sources
   return (
     <section className="border-t border-hairline">
       <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
@@ -28,7 +27,14 @@ export function Proof() {
               <p className="text-sm leading-relaxed text-muted">
                 {item.description}
               </p>
-              <p className="text-xs text-muted">{item.source}</p>
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-auto text-xs text-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-foreground"
+              >
+                {item.source}
+              </a>
             </div>
           ))}
         </div>
