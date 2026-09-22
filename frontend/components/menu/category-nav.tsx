@@ -61,13 +61,24 @@ export function CategoryNav({
     };
   }, []);
 
-  // Keep the active pill visible in the horizontal rail
+  // Keep the active pill visible in the horizontal rail.
   useEffect(() => {
-    if (!activeId || !railRef.current) return;
-    const pill = railRef.current.querySelector<HTMLElement>(
-      `[data-category="${activeId}"]`
-    );
-    pill?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const rail = railRef.current;
+    if (!activeId || !rail) return;
+    const pill = rail.querySelector<HTMLElement>(`[data-category="${activeId}"]`);
+    if (!pill) return;
+    /*
+     * scrollIntoView ferait défiler TOUS les conteneurs défilables, document
+     * compris : pendant un saut d'ancre, le scroll-spy s'allume à chaque
+     * section traversée et chacun de ces appels annulait le saut en cours —
+     * on n'arrivait jamais plus loin que la catégorie voisine. Ici on ne
+     * touche qu'au défilement horizontal du rail.
+     */
+    const railBox = rail.getBoundingClientRect();
+    const pillBox = pill.getBoundingClientRect();
+    const offset =
+      pillBox.left - railBox.left - (railBox.width - pillBox.width) / 2;
+    rail.scrollTo({ left: rail.scrollLeft + offset, behavior: "smooth" });
   }, [activeId]);
 
   return (
@@ -75,7 +86,7 @@ export function CategoryNav({
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
         <div
           ref={railRef}
-          className="no-scrollbar flex flex-1 gap-2 overflow-x-auto py-3 lg:gap-3 lg:py-4"
+          className="no-scrollbar flex flex-1 gap-2 overflow-x-auto py-3 lg:gap-3 lg:py-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]"
         >
           {categories.map(({ id, name }) => {
             const active = id === activeId;
@@ -85,7 +96,7 @@ export function CategoryNav({
                 href={`#${id}`}
                 data-category={id}
                 onClick={() => track("categorie")}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all lg:px-5 lg:py-2.5 lg:text-base ${
+                className={`shrink-0 rounded-full px-4 py-3 text-sm font-medium transition-all lg:px-5 lg:py-3 lg:text-base ${
                   active
                     ? "ember-gradient text-background shadow-[0_0_18px_rgba(226,118,75,0.35)]"
                     : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"

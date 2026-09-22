@@ -38,6 +38,7 @@ import {
   type IconProps,
 } from "./icons";
 import { AdminLockButton } from "./admin-lock-button";
+import { ReacceptanceGate } from "@/components/legal/reacceptance-gate";
 import { SubscriptionGate } from "./subscription-gate";
 
 interface NavItem {
@@ -296,7 +297,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 <ShellSkeleton />
               )
             ) : subscribed ? (
-              children
+              // Le contrat prime sur l'abonnement : un espace ouvert sur des
+              // conditions non signées facturerait sans accord.
+              <ReacceptanceGate scope="etablissement">{children}</ReacceptanceGate>
             ) : (
               <SubscriptionGate
                 role={state.role}

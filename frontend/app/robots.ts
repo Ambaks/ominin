@@ -31,6 +31,7 @@ export default function robots(): MetadataRoute.Robots {
         ...PRIVATE_PATHS.map((p) => `/clip${p}`),
         ...PRIVATE_PATHS.map((p) => `/collect${p}`),
         ...PRIVATE_PATHS.map((p) => `/shop${p}`),
+        ...PRIVATE_PATHS.map((p) => `/agents${p}`),
         // CRM interne : aucun chemin public, l'arbre entier est interdit.
         "/admin",
         "/admin/",

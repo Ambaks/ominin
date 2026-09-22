@@ -1,5 +1,6 @@
 "use client";
 
+import { ReacceptanceGate } from "@/components/legal/reacceptance-gate";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastProvider } from "@/components/ui/toast";
@@ -123,7 +124,12 @@ export function ShopGestionShell({
               );
             })}
           </aside>
-          <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">{children}</main>
+          <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
+            {/* Le contrat vaut pour les boutiques comme pour les restaurants :
+                l'article 9 des CGV promet le bandeau « dans son espace de
+                gestion », sans distinguer. */}
+            <ReacceptanceGate scope="shop">{children}</ReacceptanceGate>
+          </main>
         </div>
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden">

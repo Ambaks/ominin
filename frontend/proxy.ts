@@ -1,10 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LEGAL_PATHS } from "@/lib/legal/constants";
 
 /*
  * Chaque produit vit sur son sous-domaine et son arborescence de routes ;
  * ominin.com ne sert plus que le portail. Rôles :
- *  1. Sous-domaines produits (collect, clip, menu) : réécriture de tout
+ *  1. Sous-domaines produits (collect, clip, shop, agents, menu) : réécriture de tout
  *     chemin vers l'arborescence du produit, session Supabase et garde des
  *     routes privées. Depuis la séparation des funnels, collect a aussi ses
  *     comptes (/connexion, /inscription, inscription d'établissement) et
@@ -39,6 +40,20 @@ type ProductConfig = {
   rewriteOverrides?: readonly { path: string; prefix: string }[];
 };
 
+/*
+ * CGV, confidentialité, sous-traitance et mentions légales vivent dans
+ * l'arborescence racine (app/cgv, …) et non dans celle d'un produit : c'est
+ * le même éditeur et le même contrat quel que soit le sous-domaine, et une
+ * copie par produit voudrait dire quatre textes à maintenir — donc quatre
+ * empreintes possibles pour un document qui doit n'en avoir qu'une. Le
+ * préfixe vide renvoie ces chemins à la racine depuis n'importe quel host,
+ * au lieu de les réécrire en /menu/cgv, qui n'existe pas.
+ */
+const LEGAL_OVERRIDES = Object.values(LEGAL_PATHS).map((path) => ({
+  path,
+  prefix: "",
+}));
+
 const PRODUCTS: readonly ProductConfig[] = [
   {
     host: process.env.NEXT_PUBLIC_COLLECT_HOST,
@@ -51,7 +66,10 @@ const PRODUCTS: readonly ProductConfig[] = [
     privatePaths: ["/gestion", "/inscription/etablissement"],
     afterLogin: "/gestion",
     legacyPaths: [],
-    rewriteOverrides: [{ path: "/gestion", prefix: "/menu" }],
+    rewriteOverrides: [
+      { path: "/gestion", prefix: "/menu" },
+      ...LEGAL_OVERRIDES,
+    ],
   },
   {
     host: process.env.NEXT_PUBLIC_CLIP_HOST,
@@ -59,6 +77,7 @@ const PRODUCTS: readonly ProductConfig[] = [
     privatePaths: ["/espace"],
     afterLogin: "/espace",
     legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
   },
   {
     host: process.env.NEXT_PUBLIC_SHOP_HOST,
@@ -69,6 +88,15 @@ const PRODUCTS: readonly ProductConfig[] = [
     privatePaths: ["/gestion", "/inscription/boutique"],
     afterLogin: "/gestion",
     legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
+  },
+  {
+    host: process.env.NEXT_PUBLIC_AGENTS_HOST,
+    prefix: "/agents",
+    privatePaths: ["/espace"],
+    afterLogin: "/espace",
+    legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
   },
   {
     host: process.env.NEXT_PUBLIC_ADMIN_HOST,
@@ -78,6 +106,7 @@ const PRODUCTS: readonly ProductConfig[] = [
     privatePaths: ["/"],
     afterLogin: "/",
     legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
   },
   {
     host: process.env.NEXT_PUBLIC_MENU_HOST,
@@ -93,6 +122,7 @@ const PRODUCTS: readonly ProductConfig[] = [
       "/onboarding",
       "/devis",
     ],
+    rewriteOverrides: LEGAL_OVERRIDES,
   },
 ];
 

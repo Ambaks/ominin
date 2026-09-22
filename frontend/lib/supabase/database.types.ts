@@ -39,6 +39,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_pins: {
+        Row: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_pins_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -56,6 +82,364 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      agents_discovery_queries: {
+        Row: {
+          created_at: string
+          id: string
+          last_run_at: string | null
+          query: string
+          retired: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query: string
+          retired?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query?: string
+          retired?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agents_emails: {
+        Row: {
+          approved_at: string | null
+          body_text: string | null
+          classification:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error: string | null
+          from_email: string | null
+          gmail_message_id: string | null
+          gmail_thread_id: string | null
+          id: string
+          in_reply_to: string | null
+          kind: string
+          metadata: Json
+          prospect_id: string
+          received_at: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject: string | null
+          to_email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          metadata?: Json
+          prospect_id: string
+          received_at?: string | null
+          sent_at?: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction?: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          metadata?: Json
+          prospect_id?: string
+          received_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_emails_in_reply_to_fkey"
+            columns: ["in_reply_to"]
+            isOneToOne: false
+            referencedRelation: "agents_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agents_emails_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "agents_prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agents_mailbox_tokens: {
+        Row: {
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_mailbox_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "agents_mailboxes"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      agents_mailboxes: {
+        Row: {
+          connected_at: string
+          email: string
+          error: string | null
+          history_id: string | null
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          email: string
+          error?: string | null
+          history_id?: string | null
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          email?: string
+          error?: string | null
+          history_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agents_places_usage: {
+        Row: {
+          calls: number
+          month: string
+        }
+        Insert: {
+          calls?: number
+          month: string
+        }
+        Update: {
+          calls?: number
+          month?: string
+        }
+        Relationships: []
+      }
+      agents_profiles: {
+        Row: {
+          activated_at: string | null
+          call_to_action: string
+          cities: string[]
+          company_name: string
+          created_at: string
+          daily_limit: number
+          enabled: boolean
+          last_error: string | null
+          last_run_at: string | null
+          last_run_stats: Json | null
+          mode: string
+          offer: string
+          phone: string
+          reply_notes: string
+          send_days: number[]
+          send_end_hour: number
+          send_start_hour: number
+          sender_name: string
+          sender_role: string
+          strengths: string
+          targets: string[]
+          updated_at: string
+          user_id: string
+          website: string
+        }
+        Insert: {
+          activated_at?: string | null
+          call_to_action?: string
+          cities?: string[]
+          company_name?: string
+          created_at?: string
+          daily_limit?: number
+          enabled?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_stats?: Json | null
+          mode?: string
+          offer?: string
+          phone?: string
+          reply_notes?: string
+          send_days?: number[]
+          send_end_hour?: number
+          send_start_hour?: number
+          sender_name?: string
+          sender_role?: string
+          strengths?: string
+          targets?: string[]
+          updated_at?: string
+          user_id: string
+          website?: string
+        }
+        Update: {
+          activated_at?: string | null
+          call_to_action?: string
+          cities?: string[]
+          company_name?: string
+          created_at?: string
+          daily_limit?: number
+          enabled?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_stats?: Json | null
+          mode?: string
+          offer?: string
+          phone?: string
+          reply_notes?: string
+          send_days?: number[]
+          send_end_hour?: number
+          send_start_hour?: number
+          sender_name?: string
+          sender_role?: string
+          strengths?: string
+          targets?: string[]
+          updated_at?: string
+          user_id?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      agents_prospects: {
+        Row: {
+          address: string | null
+          ai_notes: string | null
+          category: string
+          city: string | null
+          created_at: string
+          disqualify_reason: string | null
+          email: string | null
+          enriched_at: string | null
+          google_maps_url: string | null
+          id: string
+          name: string
+          phone: string | null
+          place_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_notes?: string | null
+          category: string
+          city?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email?: string | null
+          enriched_at?: string | null
+          google_maps_url?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          place_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_notes?: string | null
+          category?: string
+          city?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email?: string | null
+          enriched_at?: string | null
+          google_maps_url?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          place_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      agents_suppressions: {
+        Row: {
+          created_at: string
+          email: string
+          prospect_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          prospect_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          prospect_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_suppressions_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "agents_prospects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       call_throttle: {
         Row: {
@@ -658,6 +1042,32 @@ export type Database = {
           },
         ]
       }
+      etablissement_data_licence: {
+        Row: {
+          etablissement_id: string
+          training_opt_out: boolean
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          training_opt_out?: boolean
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          training_opt_out?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etablissement_data_licence_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       etablissement_settings: {
         Row: {
           etablissement_id: string
@@ -690,10 +1100,10 @@ export type Database = {
       etablissements: {
         Row: {
           address: string
+          admin_pin_set: boolean
           collect_slot_capacity: number
           cover_image: string | null
           created_at: string
-          admin_pin_set: boolean
           google_review_url: string | null
           hours: string
           id: string
@@ -712,10 +1122,10 @@ export type Database = {
         }
         Insert: {
           address?: string
+          admin_pin_set?: boolean
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
-          admin_pin_set?: boolean
           google_review_url?: string | null
           hours?: string
           id?: string
@@ -734,10 +1144,10 @@ export type Database = {
         }
         Update: {
           address?: string
+          admin_pin_set?: boolean
           collect_slot_capacity?: number
           cover_image?: string | null
           created_at?: string
-          admin_pin_set?: boolean
           google_review_url?: string | null
           hours?: string
           id?: string
@@ -874,8 +1284,8 @@ export type Database = {
           options: Json
           pairing: string | null
           position: number
-          print_name: string | null
           price: number
+          print_name: string | null
           stock: number | null
           vat_rate: number
         }
@@ -893,8 +1303,8 @@ export type Database = {
           options?: Json
           pairing?: string | null
           position?: number
-          print_name?: string | null
           price: number
+          print_name?: string | null
           stock?: number | null
           vat_rate?: number
         }
@@ -912,8 +1322,8 @@ export type Database = {
           options?: Json
           pairing?: string | null
           position?: number
-          print_name?: string | null
           price?: number
+          print_name?: string | null
           stock?: number | null
           vat_rate?: number
         }
@@ -933,6 +1343,106 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      legal_acceptances: {
+        Row: {
+          accepted_at: string
+          etablissement_id: string | null
+          id: string
+          ip: unknown
+          scope: Database["public"]["Enums"]["legal_scope"]
+          scope_label: string
+          shop_id: string | null
+          signatory_email: string
+          stripe_checkout_session_id: string | null
+          terms: Json
+          user_agent: string | null
+          user_id: string | null
+          version_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          etablissement_id?: string | null
+          id?: string
+          ip?: unknown
+          scope: Database["public"]["Enums"]["legal_scope"]
+          scope_label: string
+          shop_id?: string | null
+          signatory_email: string
+          stripe_checkout_session_id?: string | null
+          terms: Json
+          user_agent?: string | null
+          user_id?: string | null
+          version_id: string
+        }
+        Update: {
+          accepted_at?: string
+          etablissement_id?: string | null
+          id?: string
+          ip?: unknown
+          scope?: Database["public"]["Enums"]["legal_scope"]
+          scope_label?: string
+          shop_id?: string | null
+          signatory_email?: string
+          stripe_checkout_session_id?: string | null
+          terms?: Json
+          user_agent?: string | null
+          user_id?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_acceptances_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_acceptances_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "legal_acceptances_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_versions: {
+        Row: {
+          body_sha256: string
+          created_at: string
+          doc: Database["public"]["Enums"]["legal_doc"]
+          effective_from: string
+          id: string
+          summary: string
+          version: string
+        }
+        Insert: {
+          body_sha256: string
+          created_at?: string
+          doc: Database["public"]["Enums"]["legal_doc"]
+          effective_from: string
+          id?: string
+          summary?: string
+          version: string
+        }
+        Update: {
+          body_sha256?: string
+          created_at?: string
+          doc?: Database["public"]["Enums"]["legal_doc"]
+          effective_from?: string
+          id?: string
+          summary?: string
+          version?: string
+        }
+        Relationships: []
       }
       memberships: {
         Row: {
@@ -962,6 +1472,160 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "memberships_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_item_clicks: {
+        Row: {
+          clicks: number
+          day: string
+          etablissement_id: string
+          item_id: string
+        }
+        Insert: {
+          clicks?: number
+          day: string
+          etablissement_id: string
+          item_id: string
+        }
+        Update: {
+          clicks?: number
+          day?: string
+          etablissement_id?: string
+          item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_item_clicks_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_item_clicks_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_sessions: {
+        Row: {
+          etablissement_id: string
+          id: string
+          item_clicks: number
+          last_seen_at: string
+          order_id: string | null
+          stage: Database["public"]["Enums"]["menu_stage"]
+          started_at: string
+          table_number: number | null
+        }
+        Insert: {
+          etablissement_id: string
+          id: string
+          item_clicks?: number
+          last_seen_at?: string
+          order_id?: string | null
+          stage?: Database["public"]["Enums"]["menu_stage"]
+          started_at?: string
+          table_number?: number | null
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          item_clicks?: number
+          last_seen_at?: string
+          order_id?: string | null
+          stage?: Database["public"]["Enums"]["menu_stage"]
+          started_at?: string
+          table_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_sessions_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_sessions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_stats_daily: {
+        Row: {
+          categories: number
+          commandes: number
+          day: string
+          etablissement_id: string
+          item_clicks: number
+          paiements: number
+          paniers: number
+          plats: number
+          sessions: number
+        }
+        Insert: {
+          categories?: number
+          commandes?: number
+          day: string
+          etablissement_id: string
+          item_clicks?: number
+          paiements?: number
+          paniers?: number
+          plats?: number
+          sessions?: number
+        }
+        Update: {
+          categories?: number
+          commandes?: number
+          day?: string
+          etablissement_id?: string
+          item_clicks?: number
+          paiements?: number
+          paniers?: number
+          plats?: number
+          sessions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_stats_daily_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_track_budget: {
+        Row: {
+          etablissement_id: string
+          minute: string
+          n: number
+        }
+        Insert: {
+          etablissement_id: string
+          minute: string
+          n?: number
+        }
+        Update: {
+          etablissement_id?: string
+          minute?: string
+          n?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_track_budget_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
@@ -1004,6 +1668,29 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "memberships"
             referencedColumns: ["user_id", "etablissement_id"]
+          },
+        ]
+      }
+      omilink_device_tokens: {
+        Row: {
+          device_id: string
+          token_hash: string
+        }
+        Insert: {
+          device_id: string
+          token_hash: string
+        }
+        Update: {
+          device_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "omilink_device_tokens_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: true
+            referencedRelation: "omilink_devices"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1263,17 +1950,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "orders_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "orders_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
           {
@@ -1284,6 +1971,36 @@ export type Database = {
             referencedColumns: ["id", "etablissement_id"]
           },
         ]
+      }
+      outreach_discovery_queries: {
+        Row: {
+          city: string
+          consecutive_empty: number
+          created_at: string
+          id: string
+          last_run_at: string | null
+          query: string
+          retired: boolean
+        }
+        Insert: {
+          city: string
+          consecutive_empty?: number
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query: string
+          retired?: boolean
+        }
+        Update: {
+          city?: string
+          consecutive_empty?: number
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query?: string
+          retired?: boolean
+        }
+        Relationships: []
       }
       outreach_emails: {
         Row: {
@@ -1827,102 +2544,6 @@ export type Database = {
           },
         ]
       }
-      admin_pins: {
-        Row: {
-          etablissement_id: string
-          pin_hash: string
-          updated_at: string
-        }
-        Insert: {
-          etablissement_id: string
-          pin_hash: string
-          updated_at?: string
-        }
-        Update: {
-          etablissement_id?: string
-          pin_hash?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_pins_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: true
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      staff_codes: {
-        Row: {
-          code_hash: string
-          staff_id: string
-          updated_at: string
-        }
-        Insert: {
-          code_hash: string
-          staff_id: string
-          updated_at?: string
-        }
-        Update: {
-          code_hash?: string
-          staff_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "staff_codes_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: true
-            referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      staff: {
-        Row: {
-          created_at: string
-          etablissement_id: string
-          id: string
-          name: string
-          planning_token: string
-          code_set: boolean
-          hidden: boolean
-          role: Database["public"]["Enums"]["member_role"]
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          etablissement_id: string
-          id?: string
-          name: string
-          planning_token?: string
-          code_set?: boolean
-          hidden?: boolean
-          role?: Database["public"]["Enums"]["member_role"]
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          etablissement_id?: string
-          id?: string
-          name?: string
-          planning_token?: string
-          code_set?: boolean
-          hidden?: boolean
-          role?: Database["public"]["Enums"]["member_role"]
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "staff_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       shifts: {
         Row: {
           created_at: string
@@ -1930,8 +2551,8 @@ export type Database = {
           etablissement_id: string
           id: string
           note: string | null
-          starts_at: string
           staff_id: string
+          starts_at: string
         }
         Insert: {
           created_at?: string
@@ -1939,8 +2560,8 @@ export type Database = {
           etablissement_id: string
           id?: string
           note?: string | null
-          starts_at: string
           staff_id: string
+          starts_at: string
         }
         Update: {
           created_at?: string
@@ -1948,8 +2569,8 @@ export type Database = {
           etablissement_id?: string
           id?: string
           note?: string | null
-          starts_at?: string
           staff_id?: string
+          starts_at?: string
         }
         Relationships: [
           {
@@ -1957,6 +2578,13 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]
@@ -3172,6 +3800,111 @@ export type Database = {
           },
         ]
       }
+      square_accounts: {
+        Row: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_id: string
+          refresh_token: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          access_token_expires_at: string
+          etablissement_id: string
+          merchant_id: string
+          refresh_token: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          access_token_expires_at?: string
+          etablissement_id?: string
+          merchant_id?: string
+          refresh_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "square_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff: {
+        Row: {
+          code_set: boolean
+          created_at: string
+          etablissement_id: string
+          hidden: boolean
+          id: string
+          name: string
+          planning_token: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string | null
+        }
+        Insert: {
+          code_set?: boolean
+          created_at?: string
+          etablissement_id: string
+          hidden?: boolean
+          id?: string
+          name: string
+          planning_token?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string | null
+        }
+        Update: {
+          code_set?: boolean
+          created_at?: string
+          etablissement_id?: string
+          hidden?: boolean
+          id?: string
+          name?: string
+          planning_token?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_codes: {
+        Row: {
+          code_hash: string
+          staff_id: string
+          updated_at: string
+        }
+        Insert: {
+          code_hash: string
+          staff_id: string
+          updated_at?: string
+        }
+        Update: {
+          code_hash?: string
+          staff_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_codes_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           etablissement_id: string
@@ -3208,41 +3941,6 @@ export type Database = {
             foreignKeyName: "subscriptions_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      square_accounts: {
-        Row: {
-          access_token: string
-          access_token_expires_at: string
-          etablissement_id: string
-          merchant_id: string
-          refresh_token: string
-          updated_at: string
-        }
-        Insert: {
-          access_token: string
-          access_token_expires_at: string
-          etablissement_id: string
-          merchant_id: string
-          refresh_token: string
-          updated_at?: string
-        }
-        Update: {
-          access_token?: string
-          access_token_expires_at?: string
-          etablissement_id?: string
-          merchant_id?: string
-          refresh_token?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "square_accounts_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: true
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
@@ -3333,6 +4031,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "tables_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tables_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
@@ -3344,13 +4049,6 @@ export type Database = {
             columns: ["staff_id"]
             isOneToOne: false
             referencedRelation: "staff"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tables_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
         ]
@@ -3381,7 +4079,7 @@ export type Database = {
           member_name: string
           signature_in: string
           signature_out?: string | null
-          staff_id: string
+          staff_id?: string | null
           started_at?: string
         }
         Update: {
@@ -3395,7 +4093,7 @@ export type Database = {
           member_name?: string
           signature_in?: string
           signature_out?: string | null
-          staff_id?: string
+          staff_id?: string | null
           started_at?: string
         }
         Relationships: [
@@ -3404,6 +4102,13 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
             referencedColumns: ["id"]
           },
         ]
@@ -3437,10 +4142,6 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
-      discard_online_payment: {
-        Args: { p_session_id: string }
-        Returns: undefined
-      }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
         Returns: {
@@ -3451,7 +4152,7 @@ export type Database = {
           paid_online: boolean
           slug: string
           status: Database["public"]["Enums"]["order_status"]
-          table_number: number | null
+          table_number: number
           total: number
         }[]
       }
@@ -3481,7 +4182,7 @@ export type Database = {
         Args: { p_window_seconds: number }
         Returns: {
           etablissement_id: string
-          last_order_at: string | null
+          last_order_at: string
           live_sessions: number
           name: string
           open_orders: number
@@ -3516,6 +4217,14 @@ export type Database = {
           sessions: number
         }[]
       }
+      clock_in: {
+        Args: { p_code: string | null; p_signature: string; p_staff_id: string }
+        Returns: string
+      }
+      clock_out: {
+        Args: { p_code: string | null; p_entry_id: string; p_signature: string }
+        Returns: undefined
+      }
       create_collect_order: {
         Args: { p_pending_id: string; p_stripe_session_id: string }
         Returns: string
@@ -3534,6 +4243,31 @@ export type Database = {
       create_shop: {
         Args: { p_name: string; p_order_prefix: string; p_slug: string }
         Returns: string
+      }
+      create_staff: {
+        Args: {
+          p_code: string
+          p_etablissement_id: string
+          p_name: string
+          p_role: Database["public"]["Enums"]["member_role"]
+        }
+        Returns: {
+          code_set: boolean
+          created_at: string
+          etablissement_id: string
+          hidden: boolean
+          id: string
+          name: string
+          planning_token: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staff"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       crm_find_duplicates: {
         Args: {
@@ -3560,11 +4294,12 @@ export type Database = {
         Args: { p_shop: string }
         Returns: Database["public"]["Enums"]["shop_member_role"]
       }
-      is_admin: { Args: never; Returns: boolean }
-      group_tables: {
-        Args: { p_table_ids: string[] }
-        Returns: string
+      discard_online_payment: {
+        Args: { p_session_id: string }
+        Returns: undefined
       }
+      group_tables: { Args: { p_table_ids: string[] }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: undefined
@@ -3574,17 +4309,58 @@ export type Database = {
         Args: { p_click_ttl_days: number; p_session_ttl_days: number }
         Returns: number
       }
+      menu_track: {
+        Args: {
+          p_items?: string[]
+          p_order?: string
+          p_session: string
+          p_slug: string
+          p_stage: Database["public"]["Enums"]["menu_stage"]
+          p_table?: number
+        }
+        Returns: undefined
+      }
       offre_trial_revenue: {
         Args: { p_etablissement_id: string; p_from: string; p_to: string }
         Returns: number
       }
       omilink_claim_device: {
-        Args: { p_serial: string; p_etablissement_id: string; p_name: string }
+        Args: { p_etablissement_id: string; p_name: string; p_serial: string }
         Returns: string
+      }
+      omilink_enroll: {
+        Args: {
+          p_hostname: string
+          p_lan_ip: string
+          p_public_ip: string
+          p_serial: string
+          p_token_hash: string
+          p_ttl_seconds: number
+          p_version: string
+        }
+        Returns: boolean
       }
       omilink_provision_device: {
         Args: { p_etablissement_id: string; p_name: string }
         Returns: string
+      }
+      omilink_sync: {
+        Args: {
+          p_device_id: string
+          p_discovered?: Json
+          p_hostname: string
+          p_printers: Json
+          p_version: string
+        }
+        Returns: Json
+      }
+      outreach_variant_stats: {
+        Args: { settled_before: string }
+        Returns: {
+          responded: number
+          sent: number
+          variant_id: string
+        }[]
       }
       pay_order_items: {
         Args: {
@@ -3606,43 +4382,18 @@ export type Database = {
         }
         Returns: string
       }
+      printer_online: { Args: { p_etablissement_id: string }; Returns: boolean }
+      prix_ajuste: {
+        Args: {
+          p_direction: Database["public"]["Enums"]["price_rule_direction"]
+          p_prix: number
+          p_unit: Database["public"]["Enums"]["price_rule_unit"]
+          p_valeur: number
+        }
+        Returns: number
+      }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
-      set_staff_code: {
-        Args: { p_code: string; p_staff_id: string }
-        Returns: undefined
-      }
-      create_staff: {
-        Args: {
-          p_code: string
-          p_etablissement_id: string
-          p_name: string
-          p_role: Database["public"]["Enums"]["member_role"]
-        }
-        Returns: Database["public"]["Tables"]["staff"]["Row"]
-      }
-      clock_in: {
-        Args: { p_code: string | null; p_signature: string; p_staff_id: string }
-        Returns: string
-      }
-      clock_out: {
-        Args: { p_code: string | null; p_entry_id: string; p_signature: string }
-        Returns: undefined
-      }
-      update_order_payment: {
-        Args: {
-          p_cash_amount?: number | null
-          p_cash_change?: number | null
-          p_cash_given?: number | null
-          p_mode: Database["public"]["Enums"]["payment_mode"]
-          p_order_id: string
-        }
-        Returns: undefined
-      }
-      tarifs_actifs: {
-        Args: { p_at?: string; p_etablissement: string }
-        Returns: { item_id: string; price: number; rule_name: string }[]
-      }
       reprint_order_tickets: {
         Args: { p_order_ids: string[] }
         Returns: number
@@ -3652,17 +4403,9 @@ export type Database = {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined
       }
-      staff_planning: {
-        Args: { p_from: string; p_to: string; p_token: string }
-        Returns: Json
-      }
-      ungroup_tables: {
-        Args: { p_group_id: string }
+      set_staff_code: {
+        Args: { p_code: string; p_staff_id: string }
         Returns: undefined
-      }
-      verify_admin_pin: {
-        Args: { p_code: string; p_etablissement_id: string }
-        Returns: boolean
       }
       shop_decrement_stock: {
         Args: { p_product_id: string; p_qty: number }
@@ -3679,6 +4422,37 @@ export type Database = {
           orders_count: number
           revenue_cents: number
         }[]
+      }
+      staff_code_ok: {
+        Args: { p_code: string; p_staff_id: string }
+        Returns: boolean
+      }
+      staff_planning: {
+        Args: { p_from: string; p_to: string; p_token: string }
+        Returns: Json
+      }
+      tarifs_actifs: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: {
+          item_id: string
+          price: number
+          rule_name: string
+        }[]
+      }
+      ungroup_tables: { Args: { p_group_id: string }; Returns: undefined }
+      update_order_payment: {
+        Args: {
+          p_cash_amount?: number | null
+          p_cash_change?: number | null
+          p_cash_given?: number | null
+          p_mode: Database["public"]["Enums"]["payment_mode"]
+          p_order_id: string
+        }
+        Returns: undefined
+      }
+      verify_admin_pin: {
+        Args: { p_code: string; p_etablissement_id: string }
+        Returns: boolean
       }
     }
     Enums: {
@@ -3725,7 +4499,16 @@ export type Database = {
         | "hotel_restaurant"
         | "other"
       crm_task_status: "open" | "done" | "cancelled"
+      legal_doc: "cgv" | "dpa" | "confidentialite"
+      legal_scope: "etablissement" | "shop"
       member_role: "gerant" | "cuisinier" | "serveur"
+      menu_stage:
+        | "vue"
+        | "categorie"
+        | "plat"
+        | "panier"
+        | "commande"
+        | "paiement"
       offre: "digital" | "smart" | "connect"
       order_status:
         | "en_attente"
@@ -3796,12 +4579,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3825,11 +4608,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3850,11 +4633,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3875,11 +4658,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3892,11 +4675,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3958,7 +4741,17 @@ export const Constants = {
         "other",
       ],
       crm_task_status: ["open", "done", "cancelled"],
+      legal_doc: ["cgv", "dpa", "confidentialite"],
+      legal_scope: ["etablissement", "shop"],
       member_role: ["gerant", "cuisinier", "serveur"],
+      menu_stage: [
+        "vue",
+        "categorie",
+        "plat",
+        "panier",
+        "commande",
+        "paiement",
+      ],
       offre: ["digital", "smart", "connect"],
       order_status: [
         "en_attente",
@@ -3998,6 +4791,27 @@ export const Constants = {
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
+      shop_discount_type: ["percent", "fixed"],
+      shop_member_role: ["proprietaire", "equipe"],
+      shop_message_sender: ["customer", "shop"],
+      shop_order_status: [
+        "pending",
+        "paid",
+        "preparing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "refunded",
+      ],
+      shop_payment_status: [
+        "unpaid",
+        "paid",
+        "refunded",
+        "partially_refunded",
+        "failed",
+      ],
+      shop_product_badge: ["best-seller", "nouveau", "coup-de-coeur"],
+      shop_shipping_kind: ["home", "relay", "pickup"],
     },
   },
 } as const

@@ -6,8 +6,10 @@ import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
+import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { PaymentReturn } from "@/components/menu/payment-return";
+import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
@@ -85,6 +87,41 @@ export default async function MenuPage({
     name,
   }));
 
+  /*
+   * Données structurées Restaurant + Menu : pour un établissement sans fiche
+   * Google, la page /m/<slug> est souvent la seule source que les moteurs
+   * peuvent lire. L'image n'est jointe que si elle est déjà absolue — un
+   * chemin local relatif donnerait une URL fausse hors du domaine du menu.
+   */
+  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    name: restaurant.name,
+    description: restaurant.tagline,
+    address: restaurant.address,
+    telephone: restaurant.phone,
+    url: `${menuSiteUrl}/m/${slug}`,
+    ...(shareImage?.startsWith("http") ? { image: shareImage } : {}),
+    hasMenu: {
+      "@type": "Menu",
+      hasMenuSection: restaurant.categories.map((category) => ({
+        "@type": "MenuSection",
+        name: category.name,
+        hasMenuItem: category.items.map((item) => ({
+          "@type": "MenuItem",
+          name: item.name,
+          ...(item.description ? { description: item.description } : {}),
+          offers: {
+            "@type": "Offer",
+            price: item.price,
+            priceCurrency: "EUR",
+          },
+        })),
+      })),
+    },
+  };
+
   return (
     <CartProvider
       config={{
@@ -99,22 +136,27 @@ export default async function MenuPage({
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <div
-        className={`${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
+        className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Hero restaurant={restaurant} />
+        <MenuHighlights highlights={restaurant.highlights} />
         <CategoryNav
           categories={categoryLinks}
           embedded={embed === "1"}
           themeLocked={Boolean(restaurantThemeClass(slug))}
         />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-12 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-16 lg:px-10 lg:py-14">
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
           {restaurant.categories.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted">
               La carte est en préparation — revenez bientôt.
             </p>
           ) : (
-            restaurant.categories.map((category, index) => (
-              <MenuSection key={category.id} category={category} index={index} />
+            restaurant.categories.map((category) => (
+              <MenuSection key={category.id} category={category} />
             ))
           )}
         </main>

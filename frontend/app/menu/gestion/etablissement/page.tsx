@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
@@ -139,6 +140,7 @@ export default function EtablissementPage() {
             }
           />
           <TabletSettings pinSet={state.etablissement.adminPinSet} />
+          <DataLicenceSettings etablissementId={state.etablissement.id} />
           {products.collect && (
             <CollectSettings
               initialSlotCapacity={state.etablissement.collectSlotCapacity}

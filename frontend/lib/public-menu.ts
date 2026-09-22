@@ -71,6 +71,7 @@ export async function fetchRestaurant(slug: string): Promise<{
         : (etablissement.cover_image ?? undefined),
       logo: staticData?.logo,
       poster: staticData?.poster,
+      highlights: staticData?.highlights,
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,

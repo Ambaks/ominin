@@ -575,6 +575,16 @@ export const collectOffer = {
   id: "collect",
   name: "Click & collect",
   price: 100,
+  /*
+   * Commission sur les commandes à emporter. Structurée ici et non écrite en
+   * toutes lettres ailleurs : le comparatif de la landing Collect et l'annexe
+   * tarifaire des CGV la lisent tous deux d'ici, et un contrat ne doit pas
+   * pouvoir annoncer un taux que le produit a cessé d'appliquer.
+   */
+  commission: {
+    percent: 10,
+    basis: "des commandes à emporter payées en ligne",
+  } satisfies PlanCommission,
   tagline: "L'emporter à 10 %, pas 30.",
   features: [
     "Votre page de commande à votre nom",

@@ -27,7 +27,15 @@ export const LOW_STOCK_THRESHOLD = 2;
 export const ORDERS_PAGE_SIZE = 25;
 /** Délai de réponse annoncé aux clientes sur la page Contact. */
 export const REPLY_DELAY_LABEL = "sous 24 à 48 heures";
-/** Délai légal de rétractation affiché au récapitulatif. */
+/**
+ * Délai légal de rétractation affiché au récapitulatif et sur la fiche
+ * produit. Distinct du WITHDRAWAL_DAYS de lib/legal/constants.ts malgré le
+ * même nombre : celui-ci est le droit de la cliente sur un bien physique
+ * vendu à distance par la boutique (art. L221-18, à compter de la réception),
+ * l'autre celui du professionnel sur son abonnement Ominin (accordé par
+ * contrat, à compter de la souscription). Vendeurs et contrats différents :
+ * ne pas les dériver l'un de l'autre.
+ */
 export const WITHDRAWAL_DAYS = 14;
 
 export const ORDER_STATUS_LABELS: Record<ShopOrderStatus, string> = {

@@ -1,3 +1,4 @@
+import type { SignedDoc } from "@/lib/legal/types";
 import { createClient } from "@/lib/supabase/client";
 import type { Json, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
@@ -238,6 +239,6 @@ export async function refreshStripeStatus(): Promise<{ connected: boolean; charg
   if (!response.ok) throw new Error(body.error ?? "Une erreur est survenue.");
   return body;
 }
-export async function subscriptionCheckoutUrl(): Promise<string> {
-  return (await postJson<{ url: string }>("/api/shop/gestion/subscribe", {})).url;
+export async function subscriptionCheckoutUrl(versions: Record<SignedDoc, string>): Promise<string> {
+  return (await postJson<{ url: string }>("/api/shop/gestion/subscribe", { versions })).url;
 }

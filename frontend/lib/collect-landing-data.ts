@@ -185,7 +185,7 @@ export const comparisonSection = {
   },
   ominin: {
     label: "Ominin Collect",
-    rate: 0.1,
+    rate: collectOffer.commission.percent / 100,
     monthlyFee: collectOffer.price,
     rateLabel: "10 % par commande + 100 €/mois",
   },

@@ -53,6 +53,12 @@ export interface CartConfig {
   paymentProvider: "stripe" | "sumup" | "square";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
+  /**
+   * Compter la visite dans l'analytique de l'établissement. Faux pour un
+   * aperçu commercial : ouvrir la démo devant un prospect ne doit pas gonfler
+   * les vues d'un vrai client. undefined ⇒ on compte (le menu public).
+   */
+  tracking?: boolean;
 }
 
 interface CartContextValue extends CartConfig {
@@ -61,7 +67,6 @@ interface CartContextValue extends CartConfig {
   total: number;
   addLine: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
-  removeLine: (key: string) => void;
   clear: () => void;
   /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
   track: (stage: MenuStage, options?: TrackOptions) => void;
@@ -70,7 +75,10 @@ interface CartContextValue extends CartConfig {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function cartLineKey(itemId: string, choices: CartChoice[]): string {
-  const ids = choices.map((c) => c.choice_id).sort();
+  // Le groupe fait partie de la clé : deux groupes d'un même article peuvent
+  // proposer les mêmes identifiants de choix (les trois viandes d'un tacos),
+  // et sans lui deux plats différents fusionneraient sur une seule ligne.
+  const ids = choices.map((c) => `${c.group_id}:${c.choice_id}`).sort();
   return ids.length ? `${itemId}#${ids.join("+")}` : itemId;
 }
 
@@ -111,14 +119,12 @@ export function CartProvider({
     );
   }, []);
 
-  const removeLine = useCallback((key: string) => {
-    setLines((current) => current.filter((l) => l.key !== key));
-  }, []);
-
   const clear = useCallback(() => setLines([]), []);
 
   const tracker = useRef<MenuTracker | null>(null);
+  const tracking = config.tracking !== false;
   useEffect(() => {
+    if (!tracking) return;
     const instance = createTracker(config.slug, config.tableNumber);
     tracker.current = instance;
     instance.start();
@@ -126,7 +132,7 @@ export function CartProvider({
       instance.stop();
       tracker.current = null;
     };
-  }, [config.slug, config.tableNumber]);
+  }, [tracking, config.slug, config.tableNumber]);
 
   const track = useCallback((stage: MenuStage, options?: TrackOptions) => {
     tracker.current?.track(stage, options);
@@ -142,11 +148,10 @@ export function CartProvider({
       total,
       addLine,
       setQuantity,
-      removeLine,
       clear,
       track,
     };
-  }, [config, lines, addLine, setQuantity, removeLine, clear, track]);
+  }, [config, lines, addLine, setQuantity, clear, track]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

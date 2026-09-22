@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { brand, nav, footer } from "@/lib/landing-data";
+import { LEGAL_LINKS } from "@/lib/legal/constants";
 
 export function LandingFooter() {
   return (
@@ -23,6 +25,21 @@ export function LandingFooter() {
             >
               {link.label}
             </a>
+          ))}
+        </nav>
+
+        <nav
+          aria-label="Documents légaux"
+          className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-faint"
+        >
+          {LEGAL_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="transition-colors hover:text-muted"
+            >
+              {link.label}
+            </Link>
           ))}
         </nav>
 

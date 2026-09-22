@@ -1,4 +1,4 @@
-import type { Restaurant } from "@/lib/menu-data";
+import { mapsUrl, type Restaurant } from "@/lib/menu-data";
 
 const PARTICLES = [
   { left: "10%", w: 3, h: 3, bg: "var(--ember-1)", delay: "0s", dur: "13s", peak: 0.45 },
@@ -14,7 +14,7 @@ const PARTICLES = [
 ];
 
 const PILL_CLASS =
-  "rounded-full border border-hairline bg-surface/70 px-3 py-1.5 backdrop-blur";
+  "rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
 
 /** Horaires, adresse, téléphone : seuls les champs renseignés ont leur pastille. */
 function ContactPills({
@@ -35,9 +35,15 @@ function ContactPills({
   return (
     <div className={className} style={style}>
       {texts.map((text) => (
-        <span key={text} className={PILL_CLASS}>
+        <a
+          key={text}
+          href={mapsUrl(text)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${PILL_CLASS} transition-colors hover:text-foreground`}
+        >
           {text}
-        </span>
+        </a>
       ))}
       {phone && (
         <a
@@ -53,7 +59,7 @@ function ContactPills({
 
 function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
-    <header className="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden pb-28 lg:pb-32">
+    <header className="relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 lg:min-h-[72svh] lg:pb-28">
       <div className="absolute inset-0 bg-background" />
 
       <div
@@ -95,21 +101,23 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         />
       ))}
 
-      <div className="hero-entrance relative z-10 mb-8 lg:mb-12">
-        <div
-          className="logo-breathe absolute -inset-10 rounded-full blur-3xl lg:-inset-16"
-          style={{
-            background:
-              "radial-gradient(circle, var(--ember-1), var(--ember-2) 60%, transparent 80%)",
-          }}
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={restaurant.logo}
-          alt=""
-          className="relative size-32 sm:size-40 lg:size-52 xl:size-60"
-        />
-      </div>
+      {restaurant.logo && (
+        <div className="hero-entrance relative z-10 mb-8 lg:mb-12">
+          <div
+            className="logo-breathe absolute -inset-10 rounded-full blur-3xl lg:-inset-16"
+            style={{
+              background:
+                "radial-gradient(circle, var(--ember-1), var(--ember-2) 60%, transparent 80%)",
+            }}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
+          <img
+            src={restaurant.logo}
+            alt=""
+            className="relative size-32 sm:size-40 lg:size-52 xl:size-60"
+          />
+        </div>
+      )}
 
       <p
         className="hero-entrance ember-text relative z-10 text-[11px] font-semibold uppercase tracking-[0.35em] lg:text-xs lg:tracking-[0.4em]"
@@ -138,7 +146,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
       />
 
       <div
-        className="hero-entrance absolute bottom-8 z-10 flex flex-col items-center gap-2 text-faint lg:bottom-12"
+        className="hero-entrance absolute bottom-8 z-10 flex flex-col items-center gap-2 text-muted lg:bottom-12"
         style={{ animationDelay: "1100ms" }}
       >
         <span className="text-[10px] uppercase tracking-[0.3em]">
@@ -205,7 +213,7 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
     return <PosterHero restaurant={restaurant} poster={restaurant.poster} />;
   }
 
-  if (!restaurant.coverImage && restaurant.logo) {
+  if (!restaurant.coverImage) {
     return <LogoHero restaurant={restaurant} />;
   }
 

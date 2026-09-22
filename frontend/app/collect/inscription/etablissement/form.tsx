@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { startCheckout } from "@/lib/gestion/checkout";
 import { collectOffer, pricingSection } from "@/lib/landing-data";
+import { signContract } from "@/lib/legal/client";
 import { collectProduct } from "@/lib/products";
 import { createClient } from "@/lib/supabase/client";
 
@@ -31,10 +33,16 @@ export function CollectSignupForm() {
   const [siret, setSiret] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { contract, contractError } = useContract();
+  const [accepted, setAccepted] = useState(false);
+  const [trainingOptOut, setTrainingOptOut] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
+    // Vérifié avant la création : un retour ici ne laisse aucun
+    // établissement derrière lui.
+    if (!contract) return;
     const base = slugify(name);
     if (!base) {
       setError("Ce nom ne permet pas de construire une adresse de commande.");
@@ -60,14 +68,39 @@ export function CollectSignupForm() {
         p_siret: digits || undefined,
       });
       if (!error) {
+        // L'établissement existe : la collision d'un essai précédent n'a plus
+        // rien à signaler, et la suite quitte la boucle sans message.
+        lastError = "";
+        // La signature référence l'établissement : elle ne peut venir
+        // qu'après sa création, et doit précéder tout paiement.
+        try {
+          await signContract(contract.versions, {
+            context: "onboarding",
+            trainingOptOut,
+          });
+        } catch {
+          // L'établissement est créé : le renvoyer au formulaire lui en
+          // ferait créer un second, en « -2 ». On l'envoie à son espace, où
+          // le verrou de contrat redemande la signature — et où le verrou
+          // d'abonnement tient le paiement tant qu'elle manque.
+          break;
+        }
         // Enchaîne sur le paiement ; en cas d'échec, l'espace affiche
         // l'écran « Activer mon abonnement » pour le même produit.
         try {
-          await startCheckout(collectProduct.id);
-          return;
+          // false ⇒ redirection vers Stripe en cours ; true ⇒ rien à régler.
+          if (
+            !(await startCheckout(contract.versions, {
+              product: collectProduct.id,
+              trainingOptOut,
+            }))
+          ) {
+            return;
+          }
         } catch {
-          break;
+          // Le verrou d'abonnement prend le relais.
         }
+        break;
       }
       // 23505 : slug déjà pris — on retente avec un suffixe.
       if (error.code !== "23505") {
@@ -120,11 +153,22 @@ export function CollectSignupForm() {
         />
       </Field>
 
-      {error && <p className="text-sm text-ember-3">{error}</p>}
+      <AcceptTerms
+        contract={contract}
+        checked={accepted}
+        onChange={setAccepted}
+        trainingOptOut={trainingOptOut}
+        onTrainingOptOut={setTrainingOptOut}
+        disabled={busy}
+      />
+
+      {(error || contractError) && (
+        <p className="text-sm text-ember-3">{error ?? contractError}</p>
+      )}
 
       <button
         type="submit"
-        disabled={busy}
+        disabled={busy || !accepted || !contract}
         className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
       >
         Continuer vers le paiement

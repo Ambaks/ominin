@@ -59,3 +59,12 @@ const adminHost = process.env.NEXT_PUBLIC_ADMIN_HOST;
 export const adminSiteUrl = adminHost
   ? `${adminHost.includes("localhost") ? "http" : "https"}://${adminHost}`
   : `${siteUrl}/admin`;
+
+/**
+ * Origine publique d'Ominin Agents (landing, espace client, retour OAuth
+ * Gmail). Même repli que menu : host absent ⇒ servi sur ominin.com/agents.
+ */
+const agentsHost = process.env.NEXT_PUBLIC_AGENTS_HOST;
+export const agentsSiteUrl = agentsHost
+  ? `${agentsHost.includes("localhost") ? "http" : "https"}://${agentsHost}`
+  : `${siteUrl}/agents`;

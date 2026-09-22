@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { ExternalLinkIcon } from "@/components/gestion/icons";
 import {
   DiscoverLink,
@@ -20,7 +21,8 @@ import {
 import { allowedActions } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { refreshSubscription, useGestion } from "@/lib/gestion/store";
-import { contactEmail } from "@/lib/landing-data";
+import { collectOffer, contactEmail, pricingSection } from "@/lib/landing-data";
+import { formatPrice } from "@/lib/menu-data";
 import {
   clipProduct,
   collectProduct,
@@ -40,6 +42,11 @@ export default function ProduitsPage() {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Le passage à la formule groupée change la mensualité : c'est une vente,
+  // donc une signature. Sans elle la route refuse, et le bouton resterait
+  // mort — c'est exactement ce qui était arrivé ici.
+  const { contract, contractError } = useContract();
+  const [accepted, setAccepted] = useState(false);
 
   useEffect(() => {
     if (!confirming || collectActive) return;
@@ -64,12 +71,15 @@ export default function ProduitsPage() {
   )}`;
 
   const activateCollect = async () => {
+    // Rien à signer tant que le contrat n'est pas chargé : le bouton est
+    // désarmé, mais la garde tient même si l'écran change.
+    if (!contract) return;
     setBusy(true);
     setError(null);
     try {
       // Client Connect : l'API bascule l'abonnement sur la formule groupée
       // sans repasser par un paiement — il ne reste qu'à relire l'état.
-      if (await startCheckout(collectProduct.id)) {
+      if (await startCheckout(contract.versions, { product: collectProduct.id })) {
         await refreshSubscription();
         setBusy(false);
       }
@@ -159,16 +169,40 @@ export default function ProduitsPage() {
                     Paiement reçu, activation en cours…
                   </p>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => void activateCollect()}
-                    disabled={busy}
-                    className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-                  >
-                    Activer le click &amp; collect
-                  </button>
+                  <>
+                    <AcceptTerms
+                      contract={contract}
+                      checked={accepted}
+                      onChange={setAccepted}
+                      disabled={busy}
+                      commitment={
+                        <>
+                          Je passe à{" "}
+                          <span className="font-semibold">
+                            {collectOffer.bundle.name}
+                          </span>{" "}
+                          et je m’engage à régler{" "}
+                          <span className="font-semibold">
+                            {formatPrice(collectOffer.bundle.price)}
+                            {pricingSection.perMonth}
+                          </span>
+                          , au prorata de la période en cours.
+                        </>
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void activateCollect()}
+                      disabled={busy || !accepted || !contract}
+                      className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+                    >
+                      Activer le click &amp; collect
+                    </button>
+                  </>
                 )}
-                {error && <p className="text-sm text-ember-3">{error}</p>}
+                {(error || contractError) && (
+                  <p className="text-sm text-ember-3">{error ?? contractError}</p>
+                )}
               </ProductCard>
             )}
 

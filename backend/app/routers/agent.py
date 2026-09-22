@@ -13,6 +13,7 @@ from app.services import (
     social_post,
     social_research,
 )
+from app.services.agents import tick as agents_tick
 
 router = APIRouter(prefix="/agent", dependencies=[Depends(require_trigger_secret)])
 
@@ -24,6 +25,7 @@ JOBS: dict[str, Callable[..., dict]] = {
     "autoresearch": autoresearch.run_autoresearch,
     "social_post": social_post.run_social_post,
     "social_research": social_research.run_social_research,
+    "agents_tick": agents_tick.run_tick,
 }
 
 
@@ -68,3 +70,8 @@ def trigger_social_post(background_tasks: BackgroundTasks) -> dict:
 @router.post("/social-research", status_code=202)
 def trigger_social_research(background_tasks: BackgroundTasks) -> dict:
     return _trigger("social_research", background_tasks)
+
+
+@router.post("/agents-tick", status_code=202)
+def trigger_agents_tick(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("agents_tick", background_tasks)

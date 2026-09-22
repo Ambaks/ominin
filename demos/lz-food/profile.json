@@ -1,0 +1,84 @@
+{
+  "$schema": "../_template/profile.schema.json",
+  "slug": "lz-food",
+  "name": "LZ.FOOD",
+  "tagline": "Snack · Pizzeria · Montpellier",
+  "cuisine": "Pizzas 33 cm · Burgers · Tacos français · Sandwichs · Snacking",
+  "address": "394 Chemin de Moularès, 34070 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 6 65 39 62 29",
+  "hours": "",
+  "website": "",
+  "socials": {
+    "tiktok": "",
+    "instagram": "",
+    "facebook": "",
+    "snapchat": "lz.food",
+    "google_maps": "",
+    "whatsapp": "+33665396229"
+  },
+  "legal": {
+    "raison_sociale": "L.Z. FOOD",
+    "forme": "SASU, capital 1 000 €",
+    "siren": "104384003",
+    "siret": "10438400300018",
+    "naf": "56.10C — restauration de type rapide",
+    "president": "Amïn LADJAL",
+    "creation": "2026-04-15",
+    "debut_activite": "2026-07-13",
+    "source": "recherche-entreprises.api.gouv.fr + pappers.fr, consultés le 2026-09-22"
+  },
+  "design": {
+    "primary_color": "#E11B4C",
+    "secondary_color": "#0A0708",
+    "accent_color": "#FFC400",
+    "style_notes": "Identité relevée sur le flyer papier (demos/lz-food/docs/flyer.pdf) : fond noir, bandeau et coulures rouge framboise, étoiles de prix jaunes cerclées de rouge, typographie grasse tout en capitales, tampon HALAL. Couleurs échantillonnées sur le flyer : rouge #D00040→#E81850 (retenu #E11B4C), jaune #F0C840 (retenu #FFC400), fond noir pur. Palette web : nuit asphalte #0A0708, blanc froid #F7F2F3, jaune enseigne #FFC400 → orange braise #FF6A2C → rouge LZ #E11B4C (classe .theme-lz-food, globals.css). Typographie : Archivo Black, large et grasse comme le logo et les bandeaux du flyer, + Barlow Semi Condensed pour les listes d'ingrédients — chargées sans preload (lib/menu/brand-fonts.ts). Mot-symbole : le flyer EN PORTE UN, en bas du bandeau rouge — « LZ.FOOD » en grasse large avec « SNACK PIZZERIA » dessous. C'est lui que le hero affiche, composé en Archivo Black, plutôt qu'un emblème dessiné pour l'occasion. Un monogramme LZ avait été proposé puis retiré de la page : il reste dans demos/lz-food/design/monogramme-lz-propose.svg, à soumettre au gérant s'il veut une icône (favicon, réseaux) — mais ce n'est pas son identité actuelle. L'étoile de prix du flyer est réservée aux prix de la carte, reproduite en clip-path CSS.",
+    "interior_vibe": "Snack de quartier ouvert tard : néon rouge, comptoir inox, four à pizza, sacs de livraison. Aucune photo en ligne — à photographier lors du prochain passage.",
+    "reference_images": [
+      "docs/flyer.pdf (recto du flyer, seule source visuelle fournie)"
+    ]
+  },
+  "menu": {
+    "source": "Flyer papier remis par le gérant, photographié et transcrit le 2026-09-22 (docs/flyer.heic, docs/flyer.pdf). Registre applicatif : frontend/lib/menu-data.ts (const lzFood) — source unique de la carte, non dupliquée ici. Transcription vérifiée article par article contre le flyer en pleine résolution : noms, prix, listes d'ingrédients, quantités (x3/x4/x5/x6), format 33 cm, suppléments et formule concordent. Photos des plats : banque Pexels, chaque URL vérifiée (200 image/jpeg) ; à remplacer par les vraies photos du snack dès la séance sur place.",
+    "categories_summary": [
+      "Burgers (Cheese 4,90 € → Gouzou 8,90 €)",
+      "Tacos français 1/2/3 viandes (6,90 / 7,90 / 8,90 €), 6 viandes au choix",
+      "Sandwichs (Américain 6,90 € → Poulet crème suprême 8,50 €)",
+      "Pizzas rouges 33 cm (Margherita 8 €, la plupart 10,90 €, Carnivor 13,90 €)",
+      "Pizzas blanches 33 cm à la crème fraîche maison (10,90 €)",
+      "Snacking : nuggets x6 3,90 € / wings x5 4,90 € / tenders x3 4,90 € / nems x4 5,90 €",
+      "Menu enfant 5,90 € (nuggets x6 + frites + boisson)",
+      "Desserts 3,20 € (tiramisu chocolat, tiramisu caramel, tarte au Daim)",
+      "Boissons (canette 1,80 € / café 1,50 € / Red Bull 2,50 € / bouteille 3,50 €)",
+      "Formule frites + boisson +2,50 € sur burgers, tacos et sandwichs",
+      "Suppléments 1 € (burgers/tacos/sandwichs et pizzas)"
+    ],
+    "photos": "Aucune photo des plats de LZ.FOOD n'existe (ni fournie, ni en ligne). Les 42 vignettes sont des images de banque (Pexels, une Unsplash), toutes vérifiées et regardées une à une. Elles tiennent lieu de gabarit en attendant la séance photo sur place, qui reste le vrai correctif. Écarts connus restants, à corriger en priorité lors de la séance : « Chèvre miel » (aucune pizza chèvre-miel n'existe dans les banques — l'image montre une blanche au fromage, sans miel ni bûche de chèvre), « Savoyarde » (crème, lardons et fromage mais pas de pomme de terre), « Kebab » (base rouge, oignon et olives mais viande en morceaux grillés plutôt qu'en copeaux de broche), « Buffalo » (viande hachée bien présente mais ni oignon ni olive visibles), « Sandwich kebab » (galette roulée et non baguette), et les trois tacos — AUCUNE banque libre ne propose de tacos français certifié, les trois retenues sont des galettes pressées et marquées au grill qui se lisent correctement mais ne sont pas étiquetées comme telles. Les quantités imprimées (x3 tenders, x4 nems, x5 wings) ne correspondent pas non plus au compte visible sur les photos.",
+    "photos_risque_marque": "AUDIT 2026-09-22, deux passes. Les 42 photos ont été téléchargées et inspectées sur planches contact, coins au zoom, pour chercher des marques tierces. NEUF portaient l'identité d'un autre commerce, lisible dans la carte de LZ.FOOD : quatre pizzas d'une même série « Dubai Gastro » (mot-symbole doré sur le papier sulfurisé, à un bord différent selon la photo), un sandwich « THE BIG BREAK », un emballage « ÖMER KEBAB », un américain au papier imprimé, une caisse « SAUDI BROASTED » et un emballage « POLLO / HERMA ». Toutes remplacées. Ces marques arrivent par SÉRIES : les plages Pexels 334575xx / 334576xx / 334580xx (Dubai Gastro), 373244xx / 376241xx (The Big Break), 16007xx / 16038xx / 16335xx (Saudi Broasted) et 29306xxx (Ömer Kebab) sont à considérer comme contaminées. Leçon : la photo de banque en restauration est le plus souvent réalisée POUR un restaurant et porte sa marque — invisible en vignette, lisible en plein écran. Toute photo ajoutée doit passer cette vérification. Les visuels Coca-Cola et Red Bull, eux, sont légitimes : ce sont les produits vendus, comme sur le flyer.",
+    "options_a_valider": "ATTENTION — options de commande inventées, à valider avec le gérant avant mise en ligne. Le flyer n'imprime AUCUNE option : ni sauces, ni parfums de canette, ni composition du menu enfant. Pour que la commande à table soit démontrable, des choix plausibles ont été posés à la demande d'Ambaka : (1) SAUCES (burgers, tacos, sandwichs, snacking) — ketchup, mayonnaise, algérienne, samouraï, blanche, barbecue, harissa ; aucune n'est confirmée. (2) BOISSONS — Coca-Cola, Sprite, Fanta, Tropico, lues sur les canettes photographiées au rayon BOISSON du flyer ; servent au parfum de la canette vendue seule, au choix de la formule et à la boisson du menu enfant. (3) FORMULE +2,50 € — le choix de la boisson est porté par la formule elle-même (un groupe d'options ne retient qu'un choix), donc « Frites + Coca-Cola », « Frites + Sprite »… (4) MENU ENFANT — boisson obligatoire + sauce optionnelle. Les suppléments à 1 €, eux, viennent bien du flyer. Questions à poser : quelles sauces réellement proposées, quels parfums de canette, le menu enfant laisse-t-il choisir autre chose que la boisson, et la formule inclut-elle bien n'importe quelle canette.",
+    "photos_halal": "Les deux sections pizzas portent la mention « Halal » (reprise de la portée exacte du tampon du flyer). Trois photos les illustraient avec de la charcuterie qui se lit porc — jambon cru sur Reine, rondelles de salami sur Orientale, viande séchée sous les oignons sur Buffalo. C'est le point le plus dangereux commercialement repéré sur cette carte : la page contredisait la promesse du client sur sa propre carte. Les trois ont été remplacées (jambon cuit plat et mat, merguez à mie grossière, viande hachée). Règle à tenir pour toute photo de pizza ajoutée ensuite : pas de jambon cru, pas de salami ni pepperoni en rondelles, pas de lardons/bacon en tranches."
+  },
+  "offers": [
+    "3 pizzas achetées = 1 bouteille offerte",
+    "Livraison disponible à partir de 20 € de commande"
+  ],
+  "collect_settings": {
+    "prep_minutes": 15,
+    "slot_interval_minutes": 15,
+    "slot_count": 4,
+    "slot_capacity": 5
+  },
+  "research": {
+    "date": "2026-09-22",
+    "emplacement": "Le gérant situe le snack « près de Port Marianne » : il y est. 394 Chemin de Moularès est dans le quartier Port Marianne (sous-quartier Port Marianne–Richter), à ~180 m de l'arrêt de tram Moularès–Hôtel de Ville (lignes 1 et 3) et ~340 m de la place Georges-Frêche. Résidence « Le Magistère ».",
+    "code_postal": "Le flyer imprime 34000 ; La Poste et la Base Adresse Nationale donnent 34070. La carte en ligne utilise 34070 — à confirmer avec le gérant avant la prochaine impression.",
+    "google": "Aucune fiche Google Business pour LZ.FOOD (recherches par nom, par adresse et par numéro : rien). À la même adresse, Google garde « My Pizza » (4,8★, 87 avis) et « Pizza Mio » (4,7★, 25 avis), tous deux définitivement fermés — LZ.FOOD a vraisemblablement repris le local de My Pizza. Créer la fiche est le gain le plus rapide à proposer ; c'est aussi ce qui débloquera googleReviewUrl en bas de la carte.",
+    "uber_eats": "Vitrine existante mais fermée : ubereats.com/fr/store/lz-food/rnDiRneDSxyOvfITDKOiIA, « Fermé sur Uber Eats à partir du 11 juin 2026 », libellé d'adresse encore au nom de My Pizza. Aucun menu ni prix exposé. La date de fermeture précède le début d'activité déclaré (13/07/2026) : incohérence à faire trancher par le gérant, pas à présenter comme acquise.",
+    "socials": "WhatsApp CONFIRMÉ : le flyer pose une pastille verte WhatsApp contre le 06 65 39 62 29, vérifiée à pleine résolution — c'est le canal de commande que le gérant a lui-même imprimé, et il est désormais proposé en bas de carte (wa.me/33665396229). Un second pictogramme, un fantôme blanc, précède le mot-symbole « LZ.FOOD » sur le bandeau rouge : lu comme le fantôme Snapchat, le handle « lz.food » n'étant qu'une déduction depuis le mot-symbole — à confirmer, ne rien publier en l'état. Instagram @lz.food_ existe et remonte sur « LZ FOOD Montpellier » mais n'a pas pu être vérifié (mur de connexion). Rien trouvé sur TikTok ni Facebook.",
+    "deliveroo_justeat": "Aucune fiche trouvée.",
+    "photos": "Aucune photo du local, de la devanture ou de l'intérieur en ligne. Le flyer est le seul actif visuel existant.",
+    "boissons": "Le bloc BOISSON du flyer ne porte aucun texte : seulement des photos (canettes Coca/Sprite/Fanta/Tropico, Red Bull, bouteilles Coca) et quatre étoiles de prix (1,80 / 2,50 / 3,50 / 1,50 €). Les noms de la carte en ligne sont donc lus sur les photos, et AUCUNE contenance n'est affichée — les 33 cl / 25 cl / 1,5 L d'une première version ont été retirés faute de source. À faire préciser par le gérant : contenances, et si les bouteilles à 3,50 € sont en verre (la photo le suggère) ou en plastique.",
+    "halal": "Le tampon HALAL n'apparaît qu'à deux endroits du flyer, tous deux dans les blocs pizzas (à côté de PIZ ROUGE et PIZ BLANCHE). Aucun tampon sur les burgers, tacos, sandwichs, snacking ni desserts. La carte en ligne reprend donc exactement cette portée : « Halal » figure dans l'accroche des deux catégories de pizzas, et non en bandeau général — d'autant que la carte liste du jambon (Reine, Gouzou) et des lardons (Buffalo, Savoyarde). À faire trancher par le gérant avant mise en ligne : la mention couvre-t-elle toute la carte, et les jambons/lardons sont-ils de dinde ou de bœuf ? (la liste des suppléments pizzas imprime « jambon de dinde », ce qui va dans ce sens)."
+  },
+  "notes": "Client signé (septembre 2026), enseigne « LZ.FOOD — SNACK PIZZERIA », ouvert depuis juillet 2026. Démo : /menu/demo/lz-food (aperçu sans base, thème établissement) et /menu/demo/lz-food?theme=ominin (même carte, palette Ominin) pour faire choisir le gérant ; /m/lz-food après seed. À confirmer avec le gérant avant mise en ligne : (1) horaires d'ouverture — absents du flyer, donc absents de la carte ; (2) portée exacte de la mention halal (voir research.halal) ; (3) code postal, 34000 imprimé sur le flyer contre 34070 chez La Poste et la BAN — la carte affiche 34070 ; (4) contenances des boissons (voir research.boissons) ; (5) fiche Google Business à créer, ce qui débloquera le lien d'avis en bas de carte ; (6) handle Instagram (@lz.food_ non vérifié) ; (7) meilleures ventes à mettre en avant — aucun badge « Top vente » posé faute d'information. Orthographes imprimées conservées telles quelles : « Tandory », « Carnivor », « Végé », « 4 Fromage », « Gouzou », « L.Z », « sauce Buggy Burger », Margherita annoncée sans mozzarella, Algérienne se terminant sur « bordure » sans plus de précision."
+}

@@ -1,0 +1,25 @@
+# Ominin Agents (agents.ominin.com) : un passage par heure pour chaque agent
+# client activé — réponses, qualification, découverte, envois. Les fenêtres
+# d'envoi (jours, heures, plafond) sont réglées par chaque client dans son
+# espace et appliquées côté backend ; ce cron ne fait que donner la cadence.
+# Minute 47 : à l'écart des runs de Léa (:07, :23). Un 409 signifie que le
+# passage précédent tourne encore — il servira ces agents, pas un échec.
+name: agents-tick
+
+on:
+  schedule:
+    - cron: "47 * * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/agents-tick
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 120 \
+            --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/agents-tick")
+          echo "agents-tick: HTTP $code"
+          case "$code" in 202|409) ;; *) exit 1 ;; esac

@@ -170,6 +170,23 @@ class Settings(BaseSettings):
     # address instead of the real recipient.
     outreach_redirect_to: str = ""
 
+    # Ominin Agents (agents.ominin.com): Léa's pipeline run for clients, each
+    # from their own Gmail. The OAuth "Web application" client is the one the
+    # frontend used to obtain their refresh tokens — Google only refreshes a
+    # token with its issuing client, so the same pair is set in Vercel.
+    agents_site_url: str = "https://agents.ominin.com"
+    agents_gmail_client_id: str = ""
+    agents_gmail_client_secret: str = ""
+    # Places Text Search calls per calendar month, all agents together. Kept
+    # under Google's free Enterprise-SKU threshold (1,000 calls/month); Léa's
+    # discovery, which draws on the same key, stays disabled.
+    agents_places_monthly_budget: int = 900
+    # Per agent and per hourly tick: queries played when its prospect pool
+    # runs dry, and the most prospects qualified / emails composed (each one
+    # a Claude call) — bounds a tick so every agent gets its turn.
+    agents_discovery_queries_per_tick: int = 2
+    agents_batch_size: int = 10
+
     # Omilink (pont d'impression). Les tickets sont rendus ici en ESC/POS :
     # largeur en caractères par ligne (police A — 42 sur papier 80 mm, 32 sur
     # 58 mm) et fuseau des heures imprimées.

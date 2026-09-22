@@ -111,12 +111,12 @@ def _scrape(sb, restaurant: dict) -> dict:
     whatever it would say — and notes are useless for a restaurant Léa
     can't write to. 'no_email' therefore means the address is the only
     thing missing, which is what a contact-form pipeline should target."""
-    site = _fetch_site(restaurant["website"]) if restaurant.get("website") else None
+    site = fetch_site(restaurant["website"]) if restaurant.get("website") else None
 
     email = restaurant.get("email")
     email_source = None
     if not email and site:
-        email = _pick_email(site["emails"], site["embedded_emails"], restaurant["website"])
+        email = pick_email(site["emails"], site["embedded_emails"], restaurant["website"])
         if email and _shared_domain(sb, email, restaurant["id"]):
             email = None
         if email:
@@ -209,7 +209,7 @@ def _classify_lead(sb, restaurant_id: str, qualification: str, reason: str | Non
     ).execute()
 
 
-def _fetch_site(website: str) -> dict | None:
+def fetch_site(website: str) -> dict | None:
     pages, bundles = _fetch_pages(website)
     if not pages:
         return None
@@ -317,7 +317,7 @@ def _fetch_pages(website: str) -> tuple[list[str], list[str]]:
     return pages, bundles
 
 
-def _pick_email(visible: list[str], embedded: list[str], website: str) -> str | None:
+def pick_email(visible: list[str], embedded: list[str], website: str) -> str | None:
     """The site's own name first, else the first human-visible address.
 
     An address seen only inside scripts is trusted on the site's own name or

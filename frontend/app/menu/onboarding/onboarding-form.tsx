@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { startCheckout, type StarterOptions } from "@/lib/gestion/checkout";
+import { signContract } from "@/lib/legal/client";
 import type { Offre } from "@/lib/gestion/types";
 import { pricingSection } from "@/lib/landing-data";
 import { createClient } from "@/lib/supabase/client";
@@ -39,10 +41,20 @@ export function OnboardingForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Le contrat se signe ici, à la création de l'établissement : c'est le
+  // premier moment où il y a une entité à engager, et il précède tout
+  // paiement. Le choix de licence de données se fait au même instant, puis
+  // se modifie dans les réglages.
+  const { contract, contractError } = useContract();
+  const [accepted, setAccepted] = useState(false);
+  const [trainingOptOut, setTrainingOptOut] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
+    // Vérifié avant la création : un retour ici ne laisse aucun
+    // établissement derrière lui.
+    if (!contract) return;
     if (RESERVED_SLUGS.includes(slug)) {
       setError("Cette adresse est réservée, choisissez-en une autre.");
       return;
@@ -68,11 +80,32 @@ export function OnboardingForm({
       return;
     }
 
+    // La signature suit la création : elle référence l'établissement, qui
+    // doit donc exister. Un échec ici n'immobilise pas le parcours — le
+    // verrou de /gestion redemandera l'accord, plutôt que de laisser un
+    // établissement créé derrière un bouton mort.
+    try {
+      await signContract(contract.versions, {
+        context: "onboarding",
+        trainingOptOut,
+      });
+    } catch {
+      window.location.assign("/gestion");
+      return;
+    }
+
     // Enchaîne sur le paiement ; en cas d'échec (Stripe non configuré…),
     // /gestion affiche l'écran « Activer mon abonnement ».
     try {
       // false ⇒ redirection vers Stripe en cours ; true ⇒ rien à régler.
-      if (!(await startCheckout(undefined, starter ?? undefined))) return;
+      if (
+        !(await startCheckout(contract.versions, {
+          starter: starter ?? undefined,
+          trainingOptOut,
+        }))
+      ) {
+        return;
+      }
     } catch {
       // Le verrou d'abonnement prend le relais.
     }
@@ -149,11 +182,22 @@ export function OnboardingForm({
           />
         </Field>
 
-        {error && <p className="text-sm text-ember-3">{error}</p>}
+        <AcceptTerms
+          contract={contract}
+          checked={accepted}
+          onChange={setAccepted}
+          trainingOptOut={trainingOptOut}
+          onTrainingOptOut={setTrainingOptOut}
+          disabled={busy}
+        />
+
+        {(error || contractError) && (
+          <p className="text-sm text-ember-3">{error ?? contractError}</p>
+        )}
 
         <button
           type="submit"
-          disabled={busy}
+          disabled={busy || !accepted || !contract}
           className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
         >
           Créer mon établissement

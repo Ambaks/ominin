@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
+import { shopOffer } from "@/lib/shop-landing-data";
 import { centsToEurosInput, eurosToCents } from "@/lib/shop/format";
 import * as api from "@/lib/shop/gestion-api";
 import { DEFAULT_PALETTE, FONT_PRESET_LABELS, PALETTE_LABELS, paletteStyle, resolveTheme, type ShopFontPreset, type ShopPalette } from "@/lib/shop/theme";
@@ -285,6 +287,8 @@ export function StripePanel({ account, stripeConfigured }: { account: ShopPaymen
 export function SubscriptionPanel({ subscription, pricesConfigured }: { subscription: ShopSubscription | null; pricesConfigured: boolean }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  const { contract, contractError } = useContract({ scope: "shop" });
+  const [accepted, setAccepted] = useState(false);
   const active = subscription?.status === "active" || subscription?.status === "trialing";
 
   return (
@@ -292,22 +296,41 @@ export function SubscriptionPanel({ subscription, pricesConfigured }: { subscrip
       <div className="flex flex-col gap-4 text-sm text-muted">
         <p>{active ? "Votre abonnement est en cours. La facturation est gérée par Stripe." : "Mise en place puis abonnement mensuel, sans engagement."}</p>
         {!active && (
-          <button
-            type="button"
-            disabled={busy || !pricesConfigured}
-            onClick={async () => {
-              setBusy(true);
-              try {
-                window.location.assign(await api.subscriptionCheckoutUrl());
-              } catch (error) {
-                toast.error(error instanceof Error ? error.message : "Erreur.");
-                setBusy(false);
+          <>
+            <AcceptTerms
+              contract={contract}
+              checked={accepted}
+              onChange={setAccepted}
+              disabled={busy}
+              commitment={
+                <>
+                  Je m’abonne à{" "}
+                  <span className="font-semibold">{shopOffer.name}</span> et je
+                  m’engage à régler les montants de mon devis.
+                </>
               }
-            }}
-            className={`${primaryButton} w-fit`}
-          >
-            Souscrire
-          </button>
+            />
+            {contractError && <p className="text-xs text-ember-3">{contractError}</p>}
+            <button
+              type="button"
+              disabled={busy || !pricesConfigured || !accepted || !contract}
+              onClick={async () => {
+                if (!contract) return;
+                setBusy(true);
+                try {
+                  window.location.assign(
+                    await api.subscriptionCheckoutUrl(contract.versions)
+                  );
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : "Erreur.");
+                  setBusy(false);
+                }
+              }}
+              className={`${primaryButton} w-fit`}
+            >
+              Souscrire
+            </button>
+          </>
         )}
         {!pricesConfigured && <p className="text-xs text-faint">Tarifs en cours de définition : la souscription en ligne sera ouverte prochainement.</p>}
       </div>

@@ -117,6 +117,174 @@ html.light {
   color-scheme: dark;
 }
 
+/*
+  LZ.FOOD (Montpellier) — snack-pizzeria de quartier ouvert tard. Palette
+  relevée sur le flyer papier (demos/lz-food/docs/) : noir d'asphalte, rouge
+  framboise de l'enseigne et jaune des étoiles de prix. Le dégradé de marque
+  y devient une flamme — jaune enseigne → orange braise → rouge LZ — et la
+  typographie passe à l'affiche : Archivo Black en capitales larges — les
+  proportions du logo et des bandeaux du flyer — et Barlow Semi Condensed pour
+  les listes d'ingrédients, serrées comme sur le papier.
+*/
+.theme-lz-food {
+  --background: #0a0708;
+  --foreground: #f7f2f3;
+
+  --surface: #1d1513;
+  --surface-raised: #291e1b;
+  --hairline: rgba(247, 242, 243, 0.1);
+
+  --muted: #b4a29f;
+  --faint: #9a8785;
+
+  --ember-1: #ffc400;
+  --ember-2: #ff6a2c;
+  --ember-3: #e11b4c;
+
+  --shimmer-highlight: rgba(255, 196, 0, 0.16);
+  --glow-inner: rgba(255, 196, 0, 0.1);
+  --glow-outer: rgba(225, 27, 76, 0.07);
+
+  --brand-display: var(--font-archivo-black), var(--font-fraunces), sans-serif;
+  --brand-sans: var(--font-barlow-semi-condensed), var(--font-instrument-sans),
+    sans-serif;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas :
+     sans cette ligne, tout le sous-arbre hérite de la police d'Ominin et la
+     condensée du flyer ne s'affiche jamais. */
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+/* Le clavier doit rester visible sur fond noir : l'anneau par défaut du
+   navigateur est bleu, hors palette. */
+.theme-lz-food :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/*
+  Titrage d'affiche. Archivo Black n'a qu'une graisse : les utilitaires
+  font-medium/bold des composants partagés n'auraient qu'un faux-gras à
+  synthétiser, on les neutralise. Les capitales viennent du flyer, qui ne
+  connaît que ça — posées ici et non dans les données, qui partent aussi sur
+  les tickets de cuisine. Règle hors @layer : elle l'emporte sur Tailwind.
+*/
+.theme-lz-food .font-display {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  /* Police d'affiche : à 1,33 d'interlignage, les noms sur deux lignes
+     flottent. */
+  line-height: 1.05;
+}
+
+/*
+  Le prix : typographié, pas emballé. L'étoile du flyer a été essayée puis
+  écartée — reproduite à l'écran elle tire la carte vers le prospectus, là où
+  le gérant attend l'inverse. Restent le jaune de l'enseigne et la graisse
+  d'affiche, avec un filet rouge pour rattacher la colonne des prix au reste
+  de la page. .dish-price n'est qu'un point d'accroche posé par DishCard :
+  sans thème, il ne peint rien.
+*/
+.theme-lz-food .dish-price {
+  position: relative;
+  padding-bottom: 0.3rem;
+  color: var(--ember-1);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.theme-lz-food .dish-price::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--ember-3);
+}
+
+/*
+  Le rouge porte la page, comme sur le flyer — où il couvre 14 % du papier
+  contre 44 % de noir. Filet de section, liseré des cartes et bandeau de pied
+  le font remonter ; le dégradé braise d'Ominin reste cantonné aux pastilles
+  et à la barre de progression, où le texte sombre a besoin du jaune.
+*/
+/*
+  Le bandeau rouge incliné sur lequel le flyer pose chaque nom de catégorie
+  (TACOS, SANDWICH, PIZ ROUGE…). Peint par un pseudo-élément : incliner le
+  titre lui-même déformerait les lettres.
+*/
+.theme-lz-food .category-heading {
+  position: relative;
+  z-index: 0;
+  padding: 0.18em 0.6em 0.22em 0.5em;
+  color: #ffffff;
+}
+
+.theme-lz-food .category-heading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ember-3);
+  transform: skewX(-6deg);
+}
+
+/* Le filet prolonge le bandeau, comme la queue du swoosh imprimé. */
+.theme-lz-food .category-rule {
+  height: 3px;
+  min-width: 3rem;
+  background-image: none;
+  background-color: var(--ember-3);
+  opacity: 1;
+}
+
+/* « 33 cm », « x6 » : la pastille jaune que le flyer accole aux formats. */
+.theme-lz-food .dish-detail {
+  border: 1px solid var(--ember-1);
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+  color: var(--ember-1);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+/*
+  La queue du dégradé de marque finit sur le rouge LZ, qui ne donne que 4,3:1
+  sur le fond : sous 18,66 px il passe sous le seuil AA. On l'éclaircit pour
+  le texte seulement — les aplats gardent le rouge plein.
+*/
+.theme-lz-food .ember-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--ember-1),
+    var(--ember-2) 55%,
+    color-mix(in srgb, var(--ember-3) 62%, white)
+  );
+}
+
+.theme-lz-food article {
+  border-color: color-mix(in srgb, var(--ember-3) 42%, transparent);
+}
+
+.theme-lz-food footer {
+  background: var(--ember-3);
+  border-top: 3px solid var(--ember-1);
+}
+
+/* Sur le rouge plein, les gris de la palette sombre ne tiennent plus. */
+.theme-lz-food footer .text-muted {
+  color: #ffffff;
+}
+
+.theme-lz-food footer .ember-text {
+  background-image: none;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -143,8 +311,8 @@ html.light {
   --color-status-not-interested: var(--status-not-interested);
   --color-status-no-email: var(--status-no-email);
 
-  --font-sans: var(--font-instrument-sans);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--brand-sans, var(--font-instrument-sans));
+  --font-display: var(--brand-display, var(--font-fraunces));
 
   /*
     Ominin Shop : jetons du site d'une boutique, posés à l'exécution par
@@ -233,6 +401,19 @@ body {
     90deg,
     transparent 0 46px,
     rgba(128, 128, 128, 0.14) 46px 48px
+  );
+}
+
+/*
+  Trame radar — signature graphique d'Ominin Agents : des cercles
+  concentriques, le rayon de prospection autour de l'entreprise. Même gris
+  neutre que les trames QR et timeline.
+*/
+.agents-radar-motif {
+  background-image: repeating-radial-gradient(
+    circle at 50% 0%,
+    transparent 0 38px,
+    rgba(128, 128, 128, 0.14) 38px 40px
   );
 }
 

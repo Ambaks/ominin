@@ -16,6 +16,12 @@ export interface OptionGroup {
   id: string;
   name: string;
   obligatoire: boolean;
+  /**
+   * Plusieurs choix cumulables dans le groupe — des suppléments, typiquement.
+   * place_order additionne déjà les suppléments de toutes les lignes reçues,
+   * rien à changer en base. undefined ⇒ choix unique.
+   */
+  multiple?: boolean;
   choices: OptionChoice[];
 }
 
@@ -76,6 +82,8 @@ export interface Restaurant {
   address: string;
   phone: string;
   hours: string;
+  /** Arguments courts affichés sous le hero (halal, livraison, promotion). */
+  highlights?: string[];
   categories: MenuCategory[];
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
@@ -86,6 +94,15 @@ export const unsplash = (id: string, w = 1200) =>
 
 export const pexels = (path: string, w = 1200) =>
   `https://images.pexels.com/photos/${path}?auto=compress&cs=tinysrgb&w=${w}`;
+
+/**
+ * Même photo, recadrée par le serveur d'images plutôt que par le navigateur.
+ * Utile quand le sujet n'est pas au centre du cliché : `object-fit: cover`
+ * rogne alors la pizza et garde le décor. `crop=entropy` recentre sur la zone
+ * la plus dense de l'image. h vaut les 9/16 de w, le format des vignettes.
+ */
+export const pexelsRecadre = (path: string, w = 1200) =>
+  `${pexels(path, w)}&h=${Math.round((w * 9) / 16)}&fit=crop&crop=entropy`;
 
 const trattoriaLucia: Restaurant = {
   slug: "trattoria-lucia",
@@ -370,7 +387,7 @@ const trattoriaLucia: Restaurant = {
           name: "Vermentino di Sardegna",
           description: "Sardaigne · blanc sec et minéral · verre 6€",
           price: 28,
-          image: unsplash("photo-1566995541428-f4e719c69aa2"),
+          image: pexels("19030979/pexels-photo-19030979.jpeg", 400),
         },
         {
           id: "prosecco",
@@ -971,9 +988,511 @@ const boho: Restaurant = {
   ],
 };
 
+/*
+ * LZ.FOOD (Montpellier) — client signé, snack-pizzeria du côté de Port
+ * Marianne. Carte transcrite du flyer papier remis par le gérant
+ * (demos/lz-food/docs/), identité relevée sur ce même flyer : noir, rouge
+ * framboise, étoiles de prix jaunes (actifs dans public/lz-food/). Les
+ * orthographes imprimées sont conservées telles quelles (« Tandory »,
+ * « Carnivor », « 4 Fromage »). Source de vérité du profil :
+ * demos/lz-food/profile.json.
+ */
+
+/** Les six viandes du tacos, listées « au choix » sur le flyer. */
+const LZ_VIANDES = [
+  "Poulet",
+  "Tenders",
+  "Nugget",
+  "Kebab",
+  "Cordon bleu",
+  "Kefta",
+] as const;
+
+/** Identifiant stable tiré d'un libellé accentué : « Viande hachée » → viande-hachee. */
+const lzSlug = (label: string) =>
+  label
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/œ/g, "oe")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+
+/* Un groupe d'options ne retient qu'un choix : un tacos « 3 viandes » aligne
+   donc trois groupes plutôt qu'une sélection multiple. */
+const lzViande = (id: string, name: string): OptionGroup => ({
+  id,
+  name,
+  obligatoire: true,
+  choices: LZ_VIANDES.map((viande) => ({
+    id: `${id}-${lzSlug(viande)}`,
+    name: viande,
+    supplement: 0,
+  })),
+});
+
+/*
+ * Les canettes photographiées au rayon BOISSON du flyer. Le flyer n'imprime
+ * aucun texte à cet endroit : ces parfums sont lus sur les visuels, et servent
+ * aussi de choix à la formule et au menu enfant. À confirmer avec le gérant.
+ */
+const LZ_BOISSONS = ["Coca-Cola", "Sprite", "Fanta", "Tropico"] as const;
+
+/*
+ * Sauces : aucune n'est imprimée sur le flyer, mais un snack en propose
+ * toujours et la commande à table n'a pas de sens sans. Liste courante à
+ * valider avec le gérant avant mise en ligne.
+ */
+const LZ_SAUCES = [
+  "Ketchup",
+  "Mayonnaise",
+  "Algérienne",
+  "Samouraï",
+  "Blanche",
+  "Barbecue",
+  "Harissa",
+] as const;
+
+const lzChoix = (
+  id: string,
+  name: string,
+  labels: readonly string[],
+  { obligatoire = false, supplement = 0, prefixe = "" } = {}
+): OptionGroup => ({
+  id,
+  name,
+  obligatoire,
+  choices: labels.map((label) => ({
+    id: `${id}-${lzSlug(label)}`,
+    name: `${prefixe}${label}`,
+    supplement,
+  })),
+});
+
+/**
+ * « + 2,50 € frites + boisson » du flyer. La boisson est portée par la
+ * formule elle-même : un groupe d'options ne retenant qu'un choix, un
+ * sous-choix imbriqué n'existe pas — et le ticket de cuisine dit ainsi
+ * directement quelle canette sortir.
+ */
+const lzFormule = lzChoix("formule", "Formule frites + boisson", LZ_BOISSONS, {
+  supplement: 2.5,
+  prefixe: "Frites + ",
+});
+
+/** Sauce unique, comme au comptoir. Ne rien choisir vaut « sans sauce ». */
+const lzSauce = lzChoix("sauce", "Sauce", LZ_SAUCES);
+
+/** Boisson comprise dans le prix (menu enfant). */
+const lzBoissonIncluse = lzChoix("boisson", "Boisson", LZ_BOISSONS, {
+  obligatoire: true,
+});
+
+/** Parfum de la canette vendue seule. */
+const lzParfumCanette = lzChoix("parfum", "Parfum", LZ_BOISSONS, {
+  obligatoire: true,
+});
+
+const lzSupplements = (id: string, noms: string[]): OptionGroup => ({
+  id,
+  name: "Suppléments",
+  obligatoire: false,
+  multiple: true,
+  choices: noms.map((nom) => ({
+    id: `${id}-${lzSlug(nom)}`,
+    name: nom,
+    supplement: 1,
+  })),
+});
+
+const lzSupplementsSnack = lzSupplements("supplement", [
+  "Cheddar",
+  "Emmental",
+  "Mozzarella",
+  "Poivrons",
+  "Oignons",
+  "Jambon",
+  "Champignons",
+  "Œuf",
+]);
+
+const lzSupplementsPizza = lzSupplements("supplement", [
+  "Cheddar",
+  "Emmental",
+  "Mozzarella",
+  "Viande hachée",
+  "Poivrons",
+  "Oignons",
+  "Poulet",
+  "Jambon de dinde",
+  "Champignons",
+  "Saumon",
+  "Œuf",
+]);
+
+/** Toutes les pizzas sont annoncées en 33 cm sur le flyer. */
+const lzPizza = (
+  item: Omit<MenuItem, "detail" | "options">
+): MenuItem => ({ ...item, detail: "33 cm", options: [lzSupplementsPizza] });
+
+const lzFood: Restaurant = {
+  slug: "lz-food",
+  name: "LZ.FOOD",
+  tagline: "Snack · Pizzeria · Montpellier",
+  address: "394 Chemin de Moularès, 34070 Montpellier",
+  phone: "+33 6 65 39 62 29",
+  hours: "",
+  highlights: ["Livraison dès 20 €", "3 pizzas achetées = 1 bouteille offerte"],
+  categories: [
+    {
+      id: "burgers",
+      name: "Burgers",
+      tagline: "Formule + frites + boisson : +2,50 €",
+      items: [
+        {
+          id: "burger-cheese",
+          name: "Cheese",
+          description: "Steak, cheddar.",
+          price: 4.9,
+          image: pexels("4080534/pexels-photo-4080534.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "burger-chicken",
+          name: "Chicken",
+          description: "Poulet pané, cheddar.",
+          price: 6.9,
+          image: pexels("5474836/pexels-photo-5474836.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "burger-double-steaks",
+          name: "Double Steaks",
+          description: "Double steak, double cheddar.",
+          price: 6.9,
+          image: pexels("6697455/pexels-photo-6697455.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "burger-gouzou",
+          name: "Gouzou",
+          description: "Steak, œuf, cheddar, jambon.",
+          price: 8.9,
+          image: pexels("31450817/pexels-photo-31450817.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+      ],
+    },
+    {
+      id: "tacos",
+      name: "Tacos",
+      tagline: "Six viandes au choix · Formule + frites + boisson : +2,50 €",
+      items: [
+        {
+          id: "tacos-1-viande",
+          name: "Tacos 1 viande",
+          description:
+            "Poulet, tenders, nugget, kebab, cordon bleu ou kefta — au choix.",
+          price: 6.9,
+          image: pexels("15913640/pexels-photo-15913640.jpeg", 800),
+          options: [
+            lzViande("viande", "Viande"),
+            lzFormule,
+            lzSauce,
+            lzSupplementsSnack,
+          ],
+        },
+        {
+          id: "tacos-2-viandes",
+          name: "Tacos 2 viandes",
+          description:
+            "Deux viandes au choix : poulet, tenders, nugget, kebab, cordon bleu ou kefta.",
+          price: 7.9,
+          image: pexels("5779364/pexels-photo-5779364.jpeg", 800),
+          options: [
+            lzViande("viande-1", "1re viande"),
+            lzViande("viande-2", "2e viande"),
+            lzFormule,
+            lzSauce,
+            lzSupplementsSnack,
+          ],
+        },
+        {
+          id: "tacos-3-viandes",
+          name: "Tacos 3 viandes",
+          description:
+            "Trois viandes au choix : poulet, tenders, nugget, kebab, cordon bleu ou kefta.",
+          price: 8.9,
+          image: unsplash("photo-1773620494884-940e0db95e46", 800),
+          options: [
+            lzViande("viande-1", "1re viande"),
+            lzViande("viande-2", "2e viande"),
+            lzViande("viande-3", "3e viande"),
+            lzFormule,
+            lzSauce,
+            lzSupplementsSnack,
+          ],
+        },
+      ],
+    },
+    {
+      id: "sandwichs",
+      name: "Sandwichs",
+      tagline: "Formule + frites + boisson : +2,50 €",
+      items: [
+        {
+          id: "sandwich-poulet-creme",
+          name: "Sandwich poulet crème",
+          description: "Poulet, sauce crème maison, frites.",
+          price: 7.5,
+          image: pexels("7963144/pexels-photo-7963144.jpeg", 800),
+          badges: ["maison"],
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "sandwich-americain-supreme",
+          name: "Américain suprême",
+          description: "Steak, cheddar, salade, tomate, oignons, râpé.",
+          price: 7.5,
+          image: pexels("36501096/pexels-photo-36501096.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "sandwich-americain",
+          name: "Américain",
+          description: "Steak, cheddar, salade, tomate, oignons.",
+          price: 6.9,
+          image: pexels("38673828/pexels-photo-38673828.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "sandwich-kebab",
+          name: "Sandwich kebab",
+          description: "Kebab, salade, tomate, oignons.",
+          price: 7.5,
+          image: pexels("28897047/pexels-photo-28897047.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "sandwich-poulet-creme-supreme",
+          name: "Poulet crème suprême",
+          description: "Poulet, cheddar, olives vertes.",
+          price: 8.5,
+          image: pexels("7596517/pexels-photo-7596517.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+        {
+          id: "sandwich-kefta",
+          name: "Sandwich kefta",
+          description: "Kefta, salade, tomate, oignons.",
+          price: 7.5,
+          image: pexels("7776546/pexels-photo-7776546.jpeg", 800),
+          options: [lzFormule, lzSauce, lzSupplementsSnack],
+        },
+      ],
+    },
+    {
+      id: "pizzas-rouges",
+      name: "Pizzas rouges",
+      tagline: "33 cm · Base sauce tomate · Halal",
+      items: [
+        lzPizza({
+          id: "pizza-margherita",
+          name: "Margherita",
+          description: "Sauce tomate, olive.",
+          price: 8,
+          image: pexels("18437684/pexels-photo-18437684.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-buffalo",
+          name: "Buffalo",
+          description:
+            "Sauce tomate, viande hachée, lardons, oignon, sauce barbecue, olive.",
+          price: 10.9,
+          image: pexelsRecadre("5379638/pexels-photo-5379638.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-kebab",
+          name: "Kebab",
+          description: "Sauce tomate, kebab, oignon, olive, sauce pita.",
+          price: 10.9,
+          image: pexels("12261064/pexels-photo-12261064.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-reine",
+          name: "Reine",
+          description: "Sauce tomate, jambon, champignon, olive.",
+          price: 10.9,
+          image: pexelsRecadre("34413634/pexels-photo-34413634.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-4-fromage",
+          name: "4 Fromage",
+          description:
+            "Sauce tomate, mozzarella, emmental, chèvre, roquefort, olive.",
+          price: 10.9,
+          image: pexels("24706515/pexels-photo-24706515.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-burger",
+          name: "Burger",
+          description:
+            "Sauce tomate, viande hachée, tomate fraîche, cheddar, sauce Buggy Burger, olive.",
+          price: 10.9,
+          image: pexels("7906702/pexels-photo-7906702.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-carnivor",
+          name: "Carnivor",
+          description:
+            "Sauce tomate, viande hachée, merguez, kebab, poulet, olive.",
+          price: 13.9,
+          image: pexels("10266269/pexels-photo-10266269.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-orientale",
+          name: "Orientale",
+          description: "Sauce tomate, merguez, poivron, oignon, olive.",
+          price: 10.9,
+          image: pexels("9685274/pexels-photo-9685274.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-vege",
+          name: "Végé",
+          description:
+            "Sauce tomate, champignon, oignon, tomate fraîche, olive.",
+          price: 10.9,
+          image: pexels("33593000/pexels-photo-33593000.jpeg", 800),
+        }),
+      ],
+    },
+    {
+      id: "pizzas-blanches",
+      name: "Pizzas blanches",
+      tagline: "33 cm · Base crème fraîche maison · Halal",
+      items: [
+        lzPizza({
+          id: "pizza-tandory",
+          name: "Tandory",
+          description: "Crème fraîche maison, poulet tandory, olive.",
+          price: 10.9,
+          image: pexels("11974636/pexels-photo-11974636.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-algerienne",
+          name: "Algérienne",
+          description:
+            "Crème fraîche maison, kefta, poivron, oignon, œuf, bordure.",
+          price: 10.9,
+          image: pexels("11224307/pexels-photo-11224307.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-chevre-miel",
+          name: "Chèvre miel",
+          description: "Crème fraîche maison, chèvre, miel.",
+          price: 10.9,
+          image: pexels("33592983/pexels-photo-33592983.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-curry",
+          name: "Curry",
+          description: "Crème fraîche maison, poulet curry, sauce curry.",
+          price: 10.9,
+          image: pexels("12089279/pexels-photo-12089279.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-boise",
+          name: "Boisé",
+          description:
+            "Crème fraîche maison, poulet, poivron, sauce Boursin, olive.",
+          price: 10.9,
+          image: pexels("11176613/pexels-photo-11176613.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-norvegienne",
+          name: "Norvégienne",
+          description:
+            "Crème fraîche maison, mozzarella, olive, saumon fumé, citron.",
+          price: 10.9,
+          image: pexels("11351374/pexels-photo-11351374.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-lz",
+          name: "L.Z",
+          description:
+            "Crème fraîche maison, poulet, bordure fromage, viande hachée, pomme de terre, olive.",
+          price: 10.9,
+          image: pexels("5640024/pexels-photo-5640024.jpeg", 800),
+        }),
+        lzPizza({
+          id: "pizza-savoyarde",
+          name: "Savoyarde",
+          description:
+            "Crème fraîche maison, lardons, pomme de terre, raclette, olive.",
+          price: 10.9,
+          image: pexels("34413614/pexels-photo-34413614.jpeg", 800),
+        }),
+      ],
+    },
+    {
+      id: "a-grignoter",
+      name: "À grignoter",
+      items: [
+        { id: "nuggets", name: "Nuggets", detail: "x6", price: 3.9, image: pexels("18188572/pexels-photo-18188572.jpeg", 800), options: [lzSauce] },
+        { id: "wings", name: "Wings", detail: "x5", price: 4.9, image: pexels("11299743/pexels-photo-11299743.jpeg", 800), options: [lzSauce] },
+        { id: "tenders", name: "Tenders", detail: "x3", price: 4.9, image: pexels("33068077/pexels-photo-33068077.jpeg", 800), options: [lzSauce] },
+        { id: "nems", name: "Nems", detail: "x4", price: 5.9, image: pexels("12356601/pexels-photo-12356601.jpeg", 800), options: [lzSauce] },
+      ],
+    },
+    {
+      id: "menu-enfant",
+      name: "Menu enfant",
+      items: [
+        {
+          id: "menu-enfant",
+          name: "Menu enfant",
+          description: "Nuggets x6, frites et boisson.",
+          price: 5.9,
+          image: pexels("28525150/pexels-photo-28525150.jpeg", 800),
+          options: [lzBoissonIncluse, lzSauce],
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "tiramisu-chocolat",
+          name: "Tiramisu chocolat",
+          price: 3.2,
+          image: pexels("34759483/pexels-photo-34759483.jpeg", 800),
+        },
+        {
+          id: "tiramisu-caramel",
+          name: "Tiramisu caramel",
+          price: 3.2,
+          image: pexels("11182473/pexels-photo-11182473.jpeg", 800),
+        },
+        { id: "tarte-daim", name: "Tarte au Daim", price: 3.2, image: pexels("30181075/pexels-photo-30181075.jpeg", 800) },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        { id: "canette", name: "Canette", description: "Coca-Cola, Sprite, Fanta ou Tropico.", price: 1.8, image: pexels("17236593/pexels-photo-17236593.jpeg", 800), options: [lzParfumCanette] },
+        { id: "cafe", name: "Café", price: 1.5, image: pexels("18604200/pexels-photo-18604200.jpeg", 800) },
+        { id: "red-bull", name: "Red Bull", price: 2.5, image: pexels("17423270/pexels-photo-17423270.jpeg", 800) },
+        { id: "bouteille", name: "Bouteille", description: "Coca-Cola.", price: 3.5, image: pexels("29051732/pexels-photo-29051732.jpeg", 800) },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
+  [lzFood.slug]: lzFood,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -981,6 +1500,7 @@ const restaurants: Record<string, Restaurant> = {
  * Ominin par défaut. */
 const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
+  [lzFood.slug]: "theme-lz-food",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
@@ -993,9 +1513,15 @@ export function getRestaurant(slug: string): Restaurant | undefined {
 
 export const DEMO_SLUG = trattoriaLucia.slug;
 
+/**
+ * Lien « itinéraire » vers l'adresse de l'établissement. Recherche Google Maps
+ * plutôt qu'un point GPS : on n'a que l'adresse écrite, et la recherche est
+ * reprise par l'application de cartographie par défaut du téléphone.
+ */
+export function mapsUrl(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
 export function formatPrice(price: number): string {
-  const formatted = Number.isInteger(price)
-    ? String(price)
-    : price.toFixed(2).replace(".", ",");
-  return `${formatted} €`;
+  return `${price.toFixed(2).replace(".", ",")} €`;
 }

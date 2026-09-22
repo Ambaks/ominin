@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="LZ.FOOD">
+  <title>LZ.FOOD</title>
+  <circle cx="100" cy="100" r="98" fill="#E11B4C"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#FFC400" stroke-width="6"/>
+  <g transform="translate(53.2 69.0) scale(0.62)" fill="#FFFFFF">
+    <path d="M0,0 H29 V73 H67 V100 H0 Z"/>
+    <g transform="translate(80 0)"><path d="M0,0 H71 V25 L30,74 H71 V100 H0 V75 L41,26 H0 Z"/></g>
+  </g>
+</svg>

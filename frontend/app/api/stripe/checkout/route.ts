@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { planTrial, starterKit } from "@/lib/landing-data";
+import { collectOffer, planTrial, starterKit } from "@/lib/landing-data";
+import { LEGAL_PATHS } from "@/lib/legal/constants";
+import {
+  LegalVersionError,
+  acceptContract,
+  assertPublished,
+  assertVersionsMatch,
+  linkCheckoutSession,
+} from "@/lib/legal/server";
+import type { AcceptedTerms } from "@/lib/legal/types";
 import { quotePlan } from "@/lib/quote";
 import { getStripe } from "@/lib/stripe/server";
 import {
@@ -64,7 +73,30 @@ export async function POST(request: Request) {
     product?: string;
     omilink?: boolean;
     square?: boolean;
+    /** Versions des documents affichées à l'écran au moment de la case cochée. */
+    versions?: Record<string, string>;
+    /** Opposition cochée sous la même case, quand l'écran la proposait. */
+    trainingOptOut?: boolean;
   };
+
+  /*
+   * Aucune session Stripe sans contrat signé. Les versions vues à l'écran
+   * sont vérifiées ici : un texte changé entre l'affichage et le clic rendrait
+   * la signature sans objet, et le client doit relire.
+   */
+  let versions;
+  try {
+    versions = assertVersionsMatch(body.versions);
+  } catch (cause) {
+    if (cause instanceof LegalVersionError) {
+      return NextResponse.json(
+        { error: cause.message, code: "conditions" },
+        { status: 409 }
+      );
+    }
+    throw cause;
+  }
+
   const choice = body.product ?? "offre";
   const products = PRODUCTS_BY_CHOICE[choice];
   if (!products) {
@@ -87,7 +119,7 @@ export async function POST(request: Request) {
 
   const { data: etablissement } = await supabase
     .from("etablissements")
-    .select("id, offre")
+    .select("id, slug, offre")
     .eq("id", membership.etablissement_id)
     .single();
   if (!etablissement) {
@@ -142,6 +174,82 @@ export async function POST(request: Request) {
       { status: 409 }
     );
   }
+  /*
+   * Signature du contrat. Elle précède l'action qu'elle autorise — ouverture
+   * d'une session Checkout, bascule sur la formule groupée, réouverture d'une
+   * offre en mois offerts : trois chemins par lesquels le client s'engage, et
+   * aucun ne doit pouvoir être pris sans la ligne qui le prouve. Le relevé
+   * porte les chiffres du chemin emprunté, pas ceux de la grille du jour.
+   */
+  const admin = createAdminClient();
+  let publishedVersions;
+  try {
+    publishedVersions = await assertPublished(admin);
+  } catch (cause) {
+    if (cause instanceof LegalVersionError) {
+      console.error("[legal]", cause.message);
+      return NextResponse.json(
+        { error: "Les conditions ne sont pas disponibles. Réessayez plus tard." },
+        { status: 503 }
+      );
+    }
+    throw cause;
+  }
+  /*
+   * Choix de licence. Quand l'écran de signature l'a proposé, c'est celui-là
+   * qui fait foi et il est enregistré avant d'être recopié dans le relevé :
+   * lire la base sans l'écrire aurait fait signer l'inverse de la case cochée.
+   * Absent du corps, l'écran ne le proposait pas, et l'état en base vaut.
+   */
+  if (typeof body.trainingOptOut === "boolean") {
+    const { error } = await admin
+      .from("etablissement_data_licence")
+      .upsert(
+        {
+          etablissement_id: etablissement.id,
+          training_opt_out: body.trainingOptOut,
+        },
+        { onConflict: "etablissement_id" }
+      );
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+  }
+  // Le choix tel qu'il vient d'être posé, sinon tel qu'il est en base. Une
+  // lecture en échec ne se remplace pas par un défaut : le relevé omet alors
+  // la licence plutôt que d'y graver un choix que personne n'a fait.
+  const { data: licence, error: licenceError } =
+    typeof body.trainingOptOut === "boolean"
+      ? { data: { training_opt_out: body.trainingOptOut }, error: null }
+      : await admin
+          .from("etablissement_data_licence")
+          .select("training_opt_out")
+          .eq("etablissement_id", etablissement.id)
+          .maybeSingle();
+  const sign = (terms: Omit<AcceptedTerms, "context" | "versions">) =>
+    acceptContract(admin, {
+      userId: user.id,
+      signatoryEmail: user.email || user.id,
+      publishedVersions,
+      scope: {
+        kind: "etablissement",
+        id: etablissement.id,
+        label: etablissement.slug,
+      },
+      terms: {
+        context: "checkout",
+        versions,
+        // Sans ligne, l'établissement n'a jamais exercé l'opposition : c'est
+        // le régime par défaut que les CGV appliquent, et c'est lui qu'on
+        // relève — non un choix inventé.
+        ...(!licenceError && {
+          trainingOptOut: licence?.training_opt_out ?? false,
+        }),
+        ...terms,
+      },
+      request,
+    });
+
   const stripe = getStripe();
   const priceByLookupKey = async (key: string) => {
     const prices = await stripe.prices.list({
@@ -210,6 +318,11 @@ export async function POST(request: Request) {
       etablissement_id: etablissement.id,
       products: PRODUCTS_BY_CHOICE[BUNDLE_CHOICE].join(","),
     };
+    await sign({
+      product: BUNDLE_CHOICE,
+      monthly: collectOffer.bundle.price,
+      commission: quotePlan(BUNDLE_OFFRE)?.commission,
+    });
     await stripe.subscriptions.update(current.id, {
       items: [{ id: current.items.data[0].id, price: bundlePrice.id }],
       proration_behavior: "create_prorations",
@@ -221,7 +334,12 @@ export async function POST(request: Request) {
   // Offre en mois offerts déjà ouverte (exonération acquise, ou réouverture
   // après résiliation) : rien à facturer, l'accès est rendu tel quel.
   if (freeMonths && !firstActivation) {
-    const { error } = await createAdminClient()
+    await sign({
+      product: choice,
+      monthly: 0,
+      commission: quotePlan(etablissement.offre!)?.commission,
+    });
+    const { error } = await admin
       .from("subscriptions")
       .update({ status: "active", updated_at: new Date().toISOString() })
       .eq("etablissement_id", etablissement.id)
@@ -288,6 +406,50 @@ export async function POST(request: Request) {
   const requestUrl = new URL(request.url);
   const host = request.headers.get("x-forwarded-host") ?? requestUrl.host;
   const origin = `${requestUrl.protocol}//${host}`;
+
+  /*
+   * Relevé de ce qui est engagé : la mensualité du chemin emprunté, la
+   * commission de l'offre, et les lignes réglées tout de suite. Reconstruit
+   * ici et non repris du client — le nombre de tables a été recompté en base,
+   * c'est celui-là qui est facturé, donc celui-là qui est signé.
+   */
+  const signedPlan = choice === "offre" ? quotePlan(etablissement.offre!) : undefined;
+  const monthly = freeMonths
+    ? 0
+    : choice === "collect"
+      ? collectOffer.price
+      : (signedPlan?.price ?? 0);
+  const signedLines: { label: string; amount: number }[] = [];
+  if (!freeMonths) {
+    signedLines.push({
+      label: signedPlan ? `Ominin ${signedPlan.name}` : collectOffer.name,
+      amount: monthly,
+    });
+  }
+  if (firstActivation) {
+    signedLines.push({
+      label: `${starterKit.cachet.name} × ${tables}`,
+      amount: tables * starterKit.cachet.price,
+    });
+    if (omilink) {
+      signedLines.push({
+        label: starterKit.omilink.name,
+        amount: starterKit.omilink.price,
+      });
+    }
+    signedLines.push({
+      label: starterKit.shipping.name,
+      amount: starterKit.shipping.price,
+    });
+  }
+  const acceptanceIds = await sign({
+    product: choice,
+    monthly,
+    commission: signedPlan?.commission,
+    lines: signedLines,
+    total: signedLines.reduce((sum, line) => sum + line.amount, 0),
+  });
+
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems,
     customer: customerId,
@@ -308,9 +470,29 @@ export async function POST(request: Request) {
       },
     }),
     locale: "fr",
+    /*
+     * Second recueil du consentement, tenu par Stripe cette fois : la session
+     * porte alors consent.terms_of_service = 'accepted', une preuve qu'Ominin
+     * ne détient pas elle-même. Conditionné à une variable d'environnement
+     * parce que Stripe exige une URL de CGV renseignée dans le Dashboard
+     * (Paramètres → Informations publiques) : sans elle, l'appel échoue et
+     * c'est tout l'encaissement qui tombe.
+     */
+    ...(process.env.STRIPE_TOS_CONSENT === "1" && {
+      consent_collection: { terms_of_service: "required" as const },
+      custom_text: {
+        terms_of_service_acceptance: {
+          message: `J'ai lu et j'accepte les [conditions générales de vente](${origin}${LEGAL_PATHS.cgv}) et l'[accord de sous-traitance](${origin}${LEGAL_PATHS.dpa}) d'Ominin.`,
+        },
+      },
+    }),
     success_url: `${origin}${returnPath}?checkout=succes`,
     cancel_url: `${origin}${returnPath}?checkout=annule`,
   });
+
+  // La signature précède la session : on la rattache une fois l'identifiant
+  // connu, pour relier un contrat à son paiement dans les deux sens.
+  await linkCheckoutSession(admin, acceptanceIds, session.id);
 
   return NextResponse.json({ url: session.url });
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { SquareMark } from "@/components/landing/install-scenes";
 import { QrLive } from "@/components/landing/qr-live";
 import { IconButton } from "@/components/ui/icon-button";
@@ -13,6 +14,7 @@ import {
   trialPricing,
   type Plan,
 } from "@/lib/landing-data";
+import type { SignableContract } from "@/lib/legal/client";
 import { formatPrice } from "@/lib/menu-data";
 import {
   hasInstallOptions,
@@ -100,7 +102,20 @@ export function QuoteBuilder({
   /** Offre et tables figées : l'établissement existe déjà (activation). */
   locked?: boolean;
   submitLabel: string;
-  onSubmit: (quote: StarterQuote) => Promise<void> | void;
+  /**
+   * Le contrat n'accompagne que la variante « locked » : c'est la seule qui
+   * règle. Sur /devis, rien n'est payé et rien n'est signé.
+   */
+  onSubmit: (
+    quote: StarterQuote,
+    /*
+     * Le contrat signé. Le choix de licence n'est pas reposé ici : cet écran
+     * n'existe que pour un établissement déjà créé, qui a fait ce choix à
+     * l'inscription et le modifie dans ses réglages. Le reproposer, case
+     * décochée, faisait écraser une opposition par un défaut.
+     */
+    signed?: { contract: SignableContract }
+  ) => Promise<void> | void;
 }) {
   const [plan, setPlan] = useState(initial.plan);
   // Saisie brute : le champ peut être vide le temps de taper un nombre.
@@ -111,6 +126,10 @@ export function QuoteBuilder({
   const [square, setSquare] = useState(initial.square);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Le devis public ne fait rien signer : la case n'apparaît qu'à
+  // l'activation, et l'état du contrat n'est même pas demandé.
+  const { contract, contractError } = useContract({ enabled: locked });
+  const [accepted, setAccepted] = useState(false);
 
   const parsed = Number(tablesInput);
   const tables = Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
@@ -124,7 +143,10 @@ export function QuoteBuilder({
     setBusy(true);
     setError(null);
     try {
-      await onSubmit(quote);
+      await onSubmit(
+        quote,
+        contract ? { contract } : undefined
+      );
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "Une erreur est survenue."
@@ -402,15 +424,52 @@ export function QuoteBuilder({
             </p>
           </div>
 
+          {locked && (
+            <AcceptTerms
+              contract={contract}
+              checked={accepted}
+              onChange={setAccepted}
+              disabled={busy}
+              commitment={
+                tables > 0 && (
+                  <>
+                    Je commande et je m’engage à régler{" "}
+                    <span className="font-semibold">{formatPrice(total)}</span>{" "}
+                    aujourd’hui
+                    {selected && !selectedTrial && selected.price > 0 && (
+                      <>
+                        , puis{" "}
+                        <span className="font-semibold">
+                          {formatPrice(selected.price)}
+                          {pricingSection.perMonth}
+                        </span>{" "}
+                        sans engagement
+                      </>
+                    )}
+                    {selected?.commission && (
+                      <>
+                        , plus {selected.commission.percent} %{" "}
+                        {selected.commission.basis}
+                      </>
+                    )}
+                    .
+                  </>
+                )
+              }
+            />
+          )}
+
           <button
             type="button"
             onClick={() => void submit()}
-            disabled={busy || tables < 1}
+            disabled={busy || tables < 1 || (locked && !accepted)}
             className="ember-gradient rounded-full px-5 py-3 text-center text-sm font-semibold text-background transition-opacity disabled:opacity-50"
           >
             {submitLabel}
           </button>
-          {error && <p className="text-sm text-ember-3">{error}</p>}
+          {(error || (locked && contractError)) && (
+            <p className="text-sm text-ember-3">{error ?? contractError}</p>
+          )}
 
           {selected && (
             <div className="flex flex-col gap-2 rounded-2xl border border-dashed border-hairline bg-background/40 p-4 text-xs">

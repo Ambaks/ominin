@@ -208,6 +208,7 @@ export const OUTREACH_JOB_LABELS: Record<string, string> = {
   autoresearch: "AutoResearch",
   social_post: "Réseaux — publication",
   social_research: "Réseaux — apprentissage",
+  agents_tick: "Agents clients",
 };
 
 /** Réponses qui valent un suivi humain (miroir de services/inbox.py). */

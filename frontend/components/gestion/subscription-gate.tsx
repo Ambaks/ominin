@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { QuoteBuilder } from "@/components/quote/quote-builder";
 import { startCheckout } from "@/lib/gestion/checkout";
 import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
@@ -39,6 +40,10 @@ export function SubscriptionGate({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Le second chemin d'activation (sans devis) fait signer lui aussi : c'est
+  // le même engagement, il ne peut pas tenir à l'écran par lequel on passe.
+  const { contract, contractError } = useContract();
+  const [accepted, setAccepted] = useState(false);
 
   useEffect(() => {
     if (!confirming) return;
@@ -73,9 +78,14 @@ export function SubscriptionGate({
               square: false,
             }}
             submitLabel={quotePage.submit.gate}
-            onSubmit={async ({ omilink, square }) => {
+            onSubmit={async ({ omilink, square }, signed) => {
+              if (!signed) return;
               // true ⇒ rien à régler (offre rouverte) : on relit l'état.
-              if (await startCheckout(undefined, { omilink, square })) {
+              if (
+                await startCheckout(signed.contract.versions, {
+                  starter: { omilink, square },
+                })
+              ) {
                 await refreshSubscription();
               }
             }}
@@ -97,12 +107,19 @@ export function SubscriptionGate({
       : product && `${product.price}${product.priceUnit}`;
 
   const activate = async () => {
+    // Rien à signer tant que le contrat n'est pas chargé : le bouton est
+    // désarmé, mais la garde tient même si l'écran change.
+    if (!contract) return;
     setBusy(true);
     setError(null);
     try {
       // true ⇒ rien à régler (bascule sur la formule groupée, offre rouverte) :
       // aucune redirection, on relit l'état.
-      if (await startCheckout(offre ? undefined : collectProduct.id)) {
+      if (
+        await startCheckout(contract.versions, {
+          ...(offre ? {} : { product: collectProduct.id }),
+        })
+      ) {
         await refreshSubscription();
       }
     } catch (cause) {
@@ -147,20 +164,47 @@ export function SubscriptionGate({
             {feeDue ? "." : ", sans engagement."}
           </p>
           {role === "gerant" ? (
-            <button
-              type="button"
-              onClick={() => void activate()}
-              disabled={busy}
-              className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-            >
-              Activer mon abonnement
-            </button>
+            <>
+              <AcceptTerms
+                contract={contract}
+                checked={accepted}
+                onChange={setAccepted}
+                disabled={busy}
+                commitment={
+                  product && (
+                    <>
+                      Je m’abonne à{" "}
+                      <span className="font-semibold">{product.name}</span> et
+                      je m’engage à régler{" "}
+                      <span className="font-semibold">{monthly}</span>
+                      {offre && quotePlan(offre)?.commission && (
+                        <>
+                          , plus {quotePlan(offre)!.commission!.percent} %{" "}
+                          {quotePlan(offre)!.commission!.basis}
+                        </>
+                      )}
+                      .
+                    </>
+                  )
+                }
+              />
+              <button
+                type="button"
+                onClick={() => void activate()}
+                disabled={busy || !accepted}
+                className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+              >
+                Activer mon abonnement
+              </button>
+            </>
           ) : (
             <p className="text-sm text-faint">
               Seul le gérant peut activer l’abonnement.
             </p>
           )}
-          {error && <p className="text-sm text-ember-3">{error}</p>}
+          {(error || contractError) && (
+            <p className="text-sm text-ember-3">{error ?? contractError}</p>
+          )}
         </>
       )}
     </div>

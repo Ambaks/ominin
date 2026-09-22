@@ -28,17 +28,18 @@ function ArrowIcon({ external }: { external: boolean }) {
 }
 
 /*
- * Grille bento : deux rangées de deux produits — le produit phare (menu) et
- * clip en grandes cellules, collect et shop en moyennes, l'asymétrie
- * hiérarchise sans rien dire — puis le sur-mesure seul sur toute la largeur,
- * à l'horizontale : ce n'est pas un produit de plus, c'est ce qui reste à
- * construire. Une seule colonne en mobile.
+ * Grille bento : le produit phare (menu) en grande cellule à côté de
+ * collect — l'asymétrie hiérarchise sans rien dire — puis shop, clip et
+ * agents en trois cellules égales, puis le sur-mesure seul sur toute la
+ * largeur, à l'horizontale : ce n'est pas un produit de plus, c'est ce qui
+ * reste à construire. Une seule colonne en mobile.
  */
 const BENTO: readonly { span: string; wide?: boolean }[] = [
   { span: "lg:col-span-7" },
   { span: "lg:col-span-5" },
-  { span: "lg:col-span-5" },
-  { span: "lg:col-span-7" },
+  { span: "lg:col-span-4" },
+  { span: "lg:col-span-4" },
+  { span: "lg:col-span-4" },
   { span: "lg:col-span-12", wide: true },
 ];
 

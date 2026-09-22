@@ -2,8 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { LEGAL_LINKS } from "@/lib/legal/constants";
 import { useLanguage } from "@/lib/portal/language";
-import { brand, footer, nav, products, surMesure } from "@/lib/portal-data";
+import {
+  brand,
+  footer,
+  nav,
+  products,
+  surMesure,
+  type Localized,
+} from "@/lib/portal-data";
+
+/*
+ * Textes contractuels, servis par l'arborescence racine sur tous les hôtes
+ * (voir proxy.ts). Ils n'existent qu'en français : on traduit l'intitulé de
+ * la rubrique, pas le nom des documents.
+ */
+const legalHeading: Localized = { fr: "Légal", en: "Legal" };
+
 
 /*
  * Footer corporate : marque à gauche, produits et contact en colonnes,
@@ -72,9 +88,25 @@ export function PortalFooter() {
           </div>
         </div>
 
-        <p className="mt-12 border-t border-hairline pt-6 text-xs text-faint">
-          © {footer.copyrightYear} {brand}
-        </p>
+        <div className="mt-12 flex flex-col gap-4 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-faint">
+            © {footer.copyrightYear} {brand}
+          </p>
+          <nav
+            aria-label={t(legalHeading)}
+            className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-faint"
+          >
+            {LEGAL_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </div>
     </footer>
   );
