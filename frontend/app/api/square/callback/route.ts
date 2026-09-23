@@ -47,14 +47,38 @@ export async function GET(request: Request) {
     return response;
   };
 
+  const squareError = searchParams.get("error");
+  if (squareError) {
+    console.error("[square] autorisation refusée par Square", {
+      host,
+      error: squareError,
+      description: searchParams.get("error_description"),
+    });
+    return clearState(back("erreur"));
+  }
+
   const code = searchParams.get("code");
   const state = searchParams.get("state");
-  if (!code || !state || state !== stateCookie(request)) {
+  const cookieState = stateCookie(request);
+  if (!code || !state || state !== cookieState) {
+    console.error("[square] retour OAuth invalide", {
+      host,
+      code: Boolean(code),
+      state: Boolean(state),
+      cookie: Boolean(cookieState),
+      stateMatches: Boolean(state) && state === cookieState,
+    });
     return clearState(back("erreur"));
   }
 
   const auth = await requireGerant();
-  if ("error" in auth) return clearState(back("erreur"));
+  if ("error" in auth) {
+    console.error("[square] retour OAuth sans gérant", {
+      host,
+      error: auth.error,
+    });
+    return clearState(back("erreur"));
+  }
 
   try {
     const tokens = await exchangeCode(code, `${base}/api/square/callback`);
