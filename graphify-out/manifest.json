@@ -108,9 +108,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/connect/route.ts": {
-    "mtime": 1788940223.8397546,
-    "seen": 1790124779.0459666,
-    "ast_hash": "6bd46803e90735461a161ade4cea6bab",
+    "mtime": 1790148145.9484408,
+    "seen": 1790150187.236718,
+    "ast_hash": "06d63bec652dd5650d64c23ea87b33bc",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
@@ -1056,9 +1056,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/stripe/server.ts": {
-    "mtime": 1789541823.6308374,
-    "seen": 1790124779.047304,
-    "ast_hash": "f5abfebca8d45f0f021476b1362c98bf",
+    "mtime": 1790148145.9504507,
+    "seen": 1790150187.2379246,
+    "ast_hash": "c3036e7f3f08174d43df1fd7e22a46f2",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/admin.ts": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790123650.6268177,
-    "seen": 1790124779.0477128,
-    "ast_hash": "3c1f8cb410fce40946475b98637c9a34",
+    "mtime": 1790125059.0699959,
+    "seen": 1790150187.2382753,
+    "ast_hash": "5dad8da8ffac32f39aa9851ca5a7769a",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2382,9 +2382,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/paiements/page.tsx": {
-    "mtime": 1790123654.0571046,
-    "seen": 1790124779.046138,
-    "ast_hash": "d61f1458c2bf01382e28624359a3a9d3",
+    "mtime": 1790148175.1023002,
+    "seen": 1790150187.2368722,
+    "ast_hash": "90f0d01c0203275c1832e0fafe642e7b",
     "semantic_hash": ""
   },
   "supabase/migrations/20260831000001_void_cash_payment.sql": {
@@ -4689,6 +4689,18 @@
     "mtime": 1790123654.3666537,
     "seen": 1790124779.0475907,
     "ast_hash": "68290719870cedb7903f2588d11fb43f",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/stripe/dashboard/route.ts": {
+    "mtime": 1790148154.3407714,
+    "seen": 1790150187.236722,
+    "ast_hash": "b94412c63666365287a323639beda214",
+    "semantic_hash": ""
+  },
+  "frontend/components/gestion/paiements/stripe-dashboard-button.tsx": {
+    "mtime": 1790148165.5628424,
+    "seen": 1790150187.237325,
+    "ast_hash": "bebeaaf0675f87b78cff2c5696c2e60b",
     "semantic_hash": ""
   }
 }
