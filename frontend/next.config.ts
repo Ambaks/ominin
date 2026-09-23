@@ -32,12 +32,14 @@ const supabaseOrigins = (() => {
  *  - SumUp : widget de paiement embarqué sur le menu QR — SDK (script-src) et
  *    appels du widget (connect-src) sur gateway.sumup.com, iframe 3-D Secure
  *    (frame-src), visuels cartes (img-src static.sumup.com).
- *  - Square : SDK Web Payments embarqué sur le menu QR — script et iframe du
- *    formulaire carte sur web.squarecdn.com, tokenisation et 3-D Secure sur
+ *  - Square : SDK Web Payments embarqué sur le menu QR — script, feuille de
+ *    style (sans elle, le formulaire carte ne s'attache pas au premier
+ *    chargement) et iframe du formulaire sur web.squarecdn.com, tokenisation et 3-D Secure sur
  *    connect/pci-connect.squareup.com. Les hôtes du bac à sable sont listés
  *    aussi : c'est là que le parcours de paiement se teste. Google Pay, que
  *    le SDK propose à côté de la carte, charge son script, son iframe et ses
- *    appels sur pay.google.com, et le visuel du bouton sur www.gstatic.com.
+ *    appels sur pay.google.com (plus google.com/pay), et le visuel du bouton
+ *    sur www.gstatic.com.
  *    Apple Pay passe par le navigateur lui-même : aucun hôte à ouvrir.
  * script/style gardent 'unsafe-inline' : Next (App Router) et next-themes
  * injectent des scripts inline sans nonce. En dev, 'unsafe-eval' + ws pour le HMR.
@@ -50,9 +52,9 @@ const csp = [
   "form-action 'self'",
   `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
   "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
   `script-src 'self' 'unsafe-inline' https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com${supabaseOrigins}${
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com https://google.com/pay${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,
   "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com",

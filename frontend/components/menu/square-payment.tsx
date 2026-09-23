@@ -49,7 +49,7 @@ interface SquareGooglePay extends SquareMethod {
     options: {
       buttonColor: "black" | "white";
       buttonSizeMode: "fill";
-      buttonType: "long";
+      buttonType: "short";
     }
   ) => Promise<void>;
 }
@@ -85,28 +85,34 @@ function isDarkTheme(element: Element): boolean {
 /*
  * Le formulaire carte vit dans une iframe Square : nos classes n'y entrent
  * pas, seules les propriétés que le SDK accepte passent. Les couleurs sont
- * celles du thème du restaurant, relues sur la page.
+ * celles du thème du restaurant, relues sur la page — via la couleur
+ * calculée, toujours en rgb()/rgba() : la feuille compilée écrit les
+ * transparences en hex à huit chiffres, que Square refuse.
  */
 function cardStyle(element: Element): Record<string, Record<string, string>> {
-  const css = getComputedStyle(element);
-  const token = (name: string) => css.getPropertyValue(name).trim();
-  return {
+  const probe = document.createElement("span");
+  element.appendChild(probe);
+  const token = (name: string) => {
+    probe.style.color = `var(${name})`;
+    return getComputedStyle(probe).color;
+  };
+  const style = {
+    // Même rayon que le rounded-2xl des panneaux de la feuille.
     ".input-container": {
       borderColor: token("--hairline"),
-      borderRadius: "12px",
+      borderRadius: "16px",
     },
     ".input-container.is-focus": { borderColor: token("--ember-1") },
     ".input-container.is-error": { borderColor: token("--ember-3") },
-    input: {
-      backgroundColor: token("--surface-raised"),
-      color: token("--foreground"),
-    },
+    input: { color: token("--foreground") },
     "input::placeholder": { color: token("--muted") },
     ".message-text": { color: token("--muted") },
     ".message-icon": { color: token("--muted") },
     ".message-text.is-error": { color: token("--ember-3") },
     ".message-icon.is-error": { color: token("--ember-3") },
   };
+  probe.remove();
+  return style;
 }
 
 declare global {
@@ -115,6 +121,24 @@ declare global {
       payments: (appId: string, locationId: string) => SquarePayments;
     };
   }
+}
+
+function LockIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden className={className}>
+      <rect x="3" y="7" width="10" height="7" rx="1.75" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+    />
+  );
 }
 
 let sdkPromise: Promise<NonNullable<Window["Square"]>> | null = null;
@@ -181,36 +205,47 @@ export function SquarePayment({
         const container = document.getElementById(CARD_CONTAINER_ID)!;
         const darkTheme = isDarkTheme(container);
         const payments = square.payments(APP_ID, locationId);
+        const card = await payments.card({ style: cardStyle(container) });
+        if (cancelled) {
+          await card.destroy?.();
+          return;
+        }
+        await card.attach(`#${CARD_CONTAINER_ID}`);
+        const methods: Methods = { card, applePay: null, googlePay: null };
+        methodsRef.current = methods;
+        setDark(darkTheme);
+        setState("ready");
+
+        // Les portefeuilles arrivent chacun à leur rythme, sans jamais
+        // retenir la carte : un portefeuille indisponible (navigateur,
+        // appareil, domaine) ou muet n'est pas une erreur.
         const request = payments.paymentRequest({
           countryCode: SQUARE_COUNTRY,
           currencyCode: SQUARE_CURRENCY,
           total: { amount, label: "Total" },
         });
-        // Un portefeuille indisponible (navigateur, appareil, domaine) n'est
-        // pas une erreur : la carte reste proposée.
-        const [card, applePay, googlePay] = await Promise.all([
-          payments.card({ style: cardStyle(container) }),
-          payments.applePay(request).catch(() => null),
-          payments.googlePay(request).catch(() => null),
-        ]);
-        const methods = { card, applePay, googlePay };
-        if (cancelled) {
-          await destroy(methods);
-          return;
-        }
-        await card.attach(`#${CARD_CONTAINER_ID}`);
-        const googleAttached = await googlePay
-          ?.attach(`#${GOOGLE_PAY_CONTAINER_ID}`, {
-            buttonColor: darkTheme ? "white" : "black",
-            buttonSizeMode: "fill",
-            buttonType: "long",
+        payments
+          .applePay(request)
+          .then(async (applePay) => {
+            if (cancelled) return applePay.destroy?.();
+            methods.applePay = applePay;
+            setWallets((current) => ({ ...current, applePay: true }));
           })
-          .then(() => true)
-          .catch(() => false);
-        methodsRef.current = methods;
-        setDark(darkTheme);
-        setWallets({ applePay: Boolean(applePay), googlePay: Boolean(googleAttached) });
-        setState("ready");
+          .catch(() => {});
+        payments
+          .googlePay(request)
+          .then(async (googlePay) => {
+            if (cancelled) return googlePay.destroy?.();
+            await googlePay.attach(`#${GOOGLE_PAY_CONTAINER_ID}`, {
+              buttonColor: darkTheme ? "white" : "black",
+              buttonSizeMode: "fill",
+              buttonType: "short",
+            });
+            if (cancelled) return googlePay.destroy?.();
+            methods.googlePay = googlePay;
+            setWallets((current) => ({ ...current, googlePay: true }));
+          })
+          .catch(() => {});
       })
       .catch(() => {
         if (!cancelled) setState("error");
@@ -249,17 +284,33 @@ export function SquarePayment({
     }
   }, [orderId, tipAmount]);
 
+  const due = formatPrice(total + tipAmount);
+
   if (state === "paid") {
     return (
-      <div className="flex flex-col items-center gap-4 p-10 text-center">
-        <span className="ember-text font-display text-5xl">✓</span>
-        <h3 className="font-display text-2xl font-medium">
-          Paiement confirmé — merci !
-        </h3>
+      <div className="relative flex flex-col items-center gap-6 overflow-hidden px-6 pt-12 pb-[max(2rem,env(safe-area-inset-bottom))] text-center">
+        <div aria-hidden className="ember-glow pointer-events-none absolute inset-x-0 top-0 h-56" />
+        <div className="relative flex size-20 items-center justify-center">
+          <span aria-hidden className="pulse-ring absolute inset-0 rounded-full border-2 border-ember-2" />
+          <span className="ember-gradient order-pop flex size-16 items-center justify-center rounded-full text-background shadow-xl shadow-black/30">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden className="size-8">
+              <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
+        <div className="rise relative flex flex-col gap-2">
+          <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em]">
+            Paiement confirmé
+          </p>
+          <p className="font-display text-4xl font-medium tabular-nums">{due}</p>
+          <p className="text-sm leading-relaxed text-muted">
+            Merci&nbsp;! Votre commande part en cuisine.
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => onDone(true)}
-          className="ember-gradient mt-2 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+          className="ember-gradient relative h-12 w-full rounded-full text-sm font-semibold text-background transition active:scale-[0.99]"
         >
           Continuer
         </button>
@@ -269,33 +320,44 @@ export function SquarePayment({
 
   if (state === "declined" || state === "error") {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 text-center">
-        <h3 className="font-display text-xl font-medium">
-          {state === "declined"
-            ? "Paiement refusé."
-            : "Le paiement n'a pas pu démarrer."}
-        </h3>
-        <p className="text-sm leading-relaxed text-muted">
-          Vous pouvez réessayer ou régler au comptoir — votre commande est
-          enregistrée et partira en cuisine dès l&rsquo;encaissement.
-        </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => onDone(false)}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold"
-          >
-            Payer au comptoir
-          </button>
+      <div className="rise flex flex-col items-center gap-6 px-6 pt-10 pb-[max(2rem,env(safe-area-inset-bottom))] text-center">
+        <span className="flex size-14 items-center justify-center rounded-full border border-ember-3/40 bg-ember-3/10 text-ember-3">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden className="size-6">
+            <path d="M12 7.5v5.5M12 16.5v.01" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+          </svg>
+        </span>
+        <div className="flex flex-col gap-2">
+          <h3 className="font-display text-2xl font-medium">
+            {state === "declined"
+              ? "Paiement refusé"
+              : "Le paiement n\u2019a pas pu démarrer"}
+          </h3>
+          <p className="text-sm leading-relaxed text-muted">
+            {state === "declined"
+              ? "Essayez une autre carte, ou réglez au comptoir."
+              : "Réessayez dans un instant, ou réglez au comptoir."}{" "}
+            Votre commande est enregistrée et partira en cuisine dès
+            l&rsquo;encaissement.
+          </p>
+        </div>
+        <div className="flex w-full flex-col gap-2.5">
           <button
             type="button"
             onClick={() => {
               setAttempt((count) => count + 1);
               setState("loading");
             }}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+            className="ember-gradient h-12 w-full rounded-full text-sm font-semibold text-background transition active:scale-[0.99]"
           >
             Réessayer
+          </button>
+          <button
+            type="button"
+            onClick={() => onDone(false)}
+            className="h-12 w-full rounded-full border border-hairline text-sm font-semibold transition hover:bg-surface-raised"
+          >
+            Payer au comptoir
           </button>
         </div>
       </div>
@@ -304,61 +366,131 @@ export function SquarePayment({
 
   const hasWallet = wallets.applePay || wallets.googlePay;
 
+  const busy = state !== "ready";
+
   return (
-    <div className="flex flex-col gap-3 p-5">
-      <div className="flex items-baseline justify-between">
-        <h3 className="font-display text-lg font-medium">Régler la commande</h3>
-        <span className="text-sm font-semibold text-ember-1">
-          {formatPrice(total + tipAmount)}
-        </span>
+    <div className="relative overflow-hidden">
+      <div aria-hidden className="ember-glow pointer-events-none absolute inset-x-0 top-0 h-56" />
+      <div className="relative flex flex-col px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <header className="rise flex flex-col items-center gap-2 text-center">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-ember-1">
+            <LockIcon className="size-3.5" />
+            Paiement sécurisé
+          </p>
+          <p className="ember-text font-display text-5xl font-medium tabular-nums">
+            {due}
+          </p>
+          {tipAmount > 0 && (
+            <p className="text-xs text-muted tabular-nums">
+              Commande {formatPrice(total)} · Pourboire {formatPrice(tipAmount)}
+            </p>
+          )}
+        </header>
+
+        {/* Jamais masquée : Google Pay se dimensionne sur son conteneur au montage. */}
+        <section
+          className={`rise flex flex-col gap-2.5 ${hasWallet ? "mt-6" : ""}`}
+          style={{ animationDelay: "80ms" }}
+        >
+          {wallets.applePay && (
+            <button
+              type="button"
+              onClick={() => void pay("applePay")}
+              disabled={busy}
+              aria-label="Payer avec Apple Pay"
+              className={`h-12 w-full rounded-full [-apple-pay-button-type:plain] [-webkit-appearance:-apple-pay-button] disabled:opacity-60 ${
+                dark
+                  ? "[-apple-pay-button-style:white]"
+                  : "[-apple-pay-button-style:black]"
+              }`}
+            />
+          )}
+          {/* Square y injecte le bouton Google Pay ; vide si indisponible. */}
+          <div
+            id={GOOGLE_PAY_CONTAINER_ID}
+            onClick={() => void pay("googlePay")}
+            className={`w-full overflow-hidden rounded-full ${
+              wallets.googlePay ? "h-12" : "h-0"
+            } ${state === "paying" ? "pointer-events-none opacity-60" : ""}`}
+          />
+          {hasWallet && (
+            <div className="mt-3.5 flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
+              <span className="h-px flex-1 bg-hairline" />
+              ou par carte
+              <span className="h-px flex-1 bg-hairline" />
+            </div>
+          )}
+        </section>
+
+        <section
+          className="rise mt-6 flex flex-col gap-3"
+          style={{ animationDelay: "140ms" }}
+        >
+          {!hasWallet && (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
+              Carte bancaire
+            </p>
+          )}
+          <div className={`relative ${state === "loading" ? "min-h-28" : ""}`}>
+            {/* Conteneur du formulaire carte Square (iframe hors périmètre PCI).
+                Deux fonds blancs à neutraliser : le cadre, que la feuille de
+                Square (chargée après la nôtre) peint en blanc — d'où le
+                !important —, et l'iframe elle-même, que le navigateur rend
+                opaque tant que son color-scheme diffère de celui du parent. */}
+            <div
+              id={CARD_CONTAINER_ID}
+              className="[color-scheme:normal] [&_.sq-card-iframe-container]:bg-surface-raised!"
+            />
+            {state === "loading" && (
+              <div aria-hidden className="absolute inset-0 flex flex-col gap-px overflow-hidden rounded-2xl border border-hairline">
+                <div className="shimmer flex-1" />
+                <div className="flex flex-1 gap-px">
+                  <div className="shimmer flex-1" />
+                  <div className="shimmer flex-1" />
+                </div>
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => void pay("card")}
+            disabled={busy}
+            className="ember-gradient flex h-13 w-full items-center justify-center gap-2 rounded-full text-[15px] font-semibold text-background shadow-lg shadow-black/25 transition active:scale-[0.99] disabled:opacity-60"
+          >
+            {state === "paying" ? (
+              <>
+                <Spinner />
+                Paiement en cours…
+              </>
+            ) : state === "loading" ? (
+              "Préparation du paiement…"
+            ) : (
+              <>
+                <LockIcon className="size-4" />
+                Payer {due}
+              </>
+            )}
+          </button>
+        </section>
+
+        <footer
+          className="rise mt-6 flex flex-col items-center gap-4 border-t border-hairline pt-5"
+          style={{ animationDelay: "200ms" }}
+        >
+          <p className="max-w-xs text-center text-[11px] leading-relaxed text-faint">
+            Paiement chiffré, opéré par Square. Vos données de carte ne
+            transitent jamais par nos serveurs.
+          </p>
+          <button
+            type="button"
+            onClick={() => onDone(false)}
+            disabled={state === "paying"}
+            className="text-sm font-medium text-muted underline-offset-4 transition hover:text-foreground hover:underline disabled:opacity-40"
+          >
+            Payer au comptoir plutôt
+          </button>
+        </footer>
       </div>
-      {wallets.applePay && (
-        <button
-          type="button"
-          onClick={() => void pay("applePay")}
-          disabled={state !== "ready"}
-          aria-label="Payer avec Apple Pay"
-          className={`h-12 w-full rounded-full [-apple-pay-button-type:plain] [-webkit-appearance:-apple-pay-button] disabled:opacity-60 ${
-            dark ? "[-apple-pay-button-style:white]" : "[-apple-pay-button-style:black]"
-          }`}
-        />
-      )}
-      {/* Square y injecte le bouton Google Pay ; vide si indisponible. */}
-      <div
-        id={GOOGLE_PAY_CONTAINER_ID}
-        onClick={() => void pay("googlePay")}
-        className={`w-full overflow-hidden rounded-full ${
-          wallets.googlePay ? "h-12" : "h-0"
-        } ${state === "paying" ? "pointer-events-none opacity-60" : ""}`}
-      />
-      {hasWallet && (
-        <div className="flex items-center gap-3 text-xs text-muted">
-          <span className="h-px flex-1 bg-hairline" />
-          ou par carte
-          <span className="h-px flex-1 bg-hairline" />
-        </div>
-      )}
-      {/* Conteneur du formulaire carte Square (iframe hors périmètre PCI). */}
-      <div id={CARD_CONTAINER_ID} />
-      <button
-        type="button"
-        onClick={() => void pay("card")}
-        disabled={state !== "ready"}
-        className="ember-gradient rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
-      >
-        {state === "paying"
-          ? "Un instant…"
-          : state === "loading"
-            ? "Chargement…"
-            : "Payer par carte"}
-      </button>
-      <button
-        type="button"
-        onClick={() => onDone(false)}
-        className="self-center text-xs text-muted underline-offset-2 hover:underline"
-      >
-        Payer au comptoir plutôt
-      </button>
     </div>
   );
 }
