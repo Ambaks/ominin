@@ -65,7 +65,11 @@ def _render_items(order_items: list[dict]) -> list[bytes]:
                 BOLD_OFF, SIZE_NORMAL,
             ]
             for opt in item["options"]:
-                out += [SIZE_TALL, _line(f" \xbb {opt['groupName']} : {opt['choiceName']}"), SIZE_NORMAL]
+                out += [
+                    SIZE_DOUBLE,
+                    _line(f" \xbb {opt['groupName']} : {opt['choiceName']}"),
+                    SIZE_NORMAL,
+                ]
             out.append(LF)
     return out
 

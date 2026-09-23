@@ -84,7 +84,8 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
 
 /** Page d'historique (commandes clôturées), curseur = created_at décroissant. */
 export async function fetchOrderHistory(
-  before: string | null
+  before: string | null,
+  tableId: string | null = null
 ): Promise<{ orders: Order[]; nextCursor: string | null }> {
   const supabase = createClient();
   const etablissementId = getState().etablissement.id;
@@ -95,6 +96,7 @@ export async function fetchOrderHistory(
     .in("status", HISTORY_ORDER_STATUSES)
     .order("created_at", { ascending: false })
     .limit(HISTORY_PAGE_SIZE);
+  if (tableId) query = query.eq("table_id", tableId);
   if (before) query = query.lt("created_at", before);
   const orders = must(await query).map(rowToOrder);
   const nextCursor =

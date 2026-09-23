@@ -42,9 +42,9 @@ export default function Home() {
         <QrShowcase />
         <Features />
         <DemoShowcase />
-        <Proof />
-        <Pricing />
         <Install />
+        <Pricing />
+        <Proof />
         <Testimonials />
         <FinalCta />
         <Faq />

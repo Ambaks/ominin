@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
@@ -71,23 +71,33 @@ export default function CommandesPage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const historyRequest = useRef(0);
+  const [tableQuery, setTableQuery] = useState("");
+  const [historyTable, setHistoryTable] = useState<{
+    number: number;
+    id: string | null;
+  } | null>(null);
 
   const loadHistory = useCallback(
-    async (before: string | null) => {
+    async (before: string | null, tableId: string | null) => {
+      const requestId = ++historyRequest.current;
       setLoadingHistory(true);
       try {
-        const page = await fetchOrderHistory(before);
+        const page = await fetchOrderHistory(before, tableId);
+        if (requestId !== historyRequest.current) return;
         setHistory((current) =>
           before ? [...current, ...page.orders] : page.orders
         );
         setCursor(page.nextCursor);
         setHistoryLoaded(true);
       } catch (error) {
+        if (requestId !== historyRequest.current) return;
+        setHistoryLoaded(true);
         toast.error(
           error instanceof Error ? error.message : "Une erreur est survenue."
         );
       } finally {
-        setLoadingHistory(false);
+        if (requestId === historyRequest.current) setLoadingHistory(false);
       }
     },
     [toast]
@@ -115,11 +125,12 @@ export default function CommandesPage() {
 
   useEffect(() => {
     if (filter !== "historique" || historyLoaded || loadingHistory) return;
+    if (historyTable && !historyTable.id) return;
     // Faux positif : le drapeau de chargement accompagne un appel réseau,
     // ce n'est pas un état dérivé du rendu.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadHistory(null);
-  }, [filter, historyLoaded, loadingHistory, loadHistory]);
+    void loadHistory(null, historyTable?.id ?? null);
+  }, [filter, historyLoaded, loadingHistory, loadHistory, historyTable]);
 
   if (!state) return null;
   if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
@@ -130,13 +141,19 @@ export default function CommandesPage() {
   );
   const tableNo = (order: Order) =>
     order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0;
+  const matchesHistoryTable = (order: Order) =>
+    historyTable === null ||
+    (historyTable.id !== null && order.tableId === historyTable.id);
 
   // Onglet Historique : les commandes closes du jour (déjà dans l'état) sont
   // fusionnées avec les pages plus anciennes chargées à la demande.
   const visible =
     filter === "historique"
       ? dedupeById([
-          ...state.orders.filter((order) => isHistoryStatus(order.status)),
+          ...state.orders.filter(
+            (order) =>
+              isHistoryStatus(order.status) && matchesHistoryTable(order)
+          ),
           ...history,
         ]).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       : state.orders
@@ -219,6 +236,65 @@ export default function CommandesPage() {
         />
       )}
 
+      {filter === "historique" && (
+        <form
+          className="flex max-w-md flex-wrap gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const raw = tableQuery.trim();
+            if (!/^\d+$/.test(raw)) return;
+            const number = Number(raw);
+            const table = state.tables.find(
+              (candidate) => candidate.number === number
+            );
+            historyRequest.current += 1;
+            setLoadingHistory(false);
+            setHistory([]);
+            setCursor(null);
+            setHistoryTable({ number, id: table?.id ?? null });
+            setHistoryLoaded(!table);
+          }}
+        >
+          <label className="min-w-44 flex-1">
+            <span className="sr-only">Rechercher un numéro de table</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={tableQuery}
+              onChange={(event) =>
+                setTableQuery(event.target.value.replace(/\D/g, ""))
+              }
+              placeholder="Numéro de table"
+              className="w-full rounded-xl border border-hairline bg-surface px-4 py-2.5 text-sm outline-none transition-colors focus:border-ember-2/60"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={!tableQuery.trim() || loadingHistory}
+            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
+          >
+            Rechercher
+          </button>
+          {historyTable && (
+            <button
+              type="button"
+              onClick={() => {
+                historyRequest.current += 1;
+                setLoadingHistory(false);
+                setTableQuery("");
+                setHistory([]);
+                setCursor(null);
+                setHistoryTable(null);
+                setHistoryLoaded(false);
+              }}
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+            >
+              Tout afficher
+            </button>
+          )}
+        </form>
+      )}
+
       {visible.length === 0 ? (
         filter === "historique" && !historyLoaded ? (
           <div aria-busy className="flex flex-col gap-3">
@@ -226,7 +302,14 @@ export default function CommandesPage() {
             <div className="shimmer h-24 rounded-2xl" />
           </div>
         ) : (
-          <EmptyState title="Aucune commande" body={EMPTY_BODIES[filter]} />
+          <EmptyState
+            title="Aucune commande"
+            body={
+              filter === "historique" && historyTable
+                ? `Aucune commande passée sur la table ${historyTable.number}.`
+                : EMPTY_BODIES[filter]
+            }
+          />
         )
       ) : (
         <div className="flex flex-col gap-4">
@@ -259,7 +342,9 @@ export default function CommandesPage() {
             <div className="flex justify-center pt-2">
               <button
                 type="button"
-                onClick={() => void loadHistory(cursor)}
+                onClick={() =>
+                  void loadHistory(cursor, historyTable?.id ?? null)
+                }
                 disabled={loadingHistory}
                 className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60"
               >

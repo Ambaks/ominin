@@ -50,14 +50,36 @@ interface SquareStatus {
 const NO_STRIPE: StripeStatus = { connected: false, chargesEnabled: false };
 const NO_SQUARE: SquareStatus = { connected: false };
 
-/** Paramètre posé par les URLs de retour d'un fournisseur, lu une fois puis retiré. */
-function takeReturn(provider: Provider): string | null {
+/** Paramètres posés par les URLs de retour, lus une fois puis retirés. */
+function takeReturn(provider: Provider): {
+  outcome: string | null;
+  error: string | null;
+} {
   const url = new URL(window.location.href);
-  const value = url.searchParams.get(provider);
-  if (value === null) return null;
+  const outcome = url.searchParams.get(provider);
+  const errorKey = `${provider}_error`;
+  const error = url.searchParams.get(errorKey);
+  if (outcome === null && error === null) return { outcome, error };
   url.searchParams.delete(provider);
+  url.searchParams.delete(errorKey);
   window.history.replaceState(null, "", url);
-  return value;
+  return { outcome, error };
+}
+
+function squareErrorMessage(code: string | null): string {
+  if (code === "autorisation_refusee") {
+    return "l'autorisation a été refusée dans Square.";
+  }
+  if (code === "session_invalide") {
+    return "la session a expiré ou l'URL de retour Square ne correspond pas.";
+  }
+  if (code === "session_gerant") {
+    return "la session du compte gérant n'est plus active.";
+  }
+  if (code === "configuration") {
+    return "Square a refusé la configuration. Le détail a été enregistré dans les journaux serveur.";
+  }
+  return "réessayez.";
 }
 
 async function readStatus<T>(path: string, fallback: T): Promise<T> {
@@ -119,23 +141,30 @@ export function PaymentSettings({
       else if (stripeStatus.connected && !squareStatus.connected)
         setProvider("stripe");
 
-      if (fromStripe === "recommencer") {
+      if (fromStripe.outcome === "recommencer") {
         toast.error("Le lien Stripe a expiré — reprenez la configuration.");
-      } else if (fromStripe === "retour" && !stripeStatus.chargesEnabled) {
+      } else if (
+        fromStripe.outcome === "retour" &&
+        !stripeStatus.chargesEnabled
+      ) {
         toast.success(
           "Compte Stripe créé. Dès que Stripe aura validé vos informations, activez ici le paiement par carte."
         );
-      } else if (fromStripe === "retour") {
+      } else if (fromStripe.outcome === "retour") {
         await enable(
           "Compte Stripe relié — vos clients peuvent payer par carte sur le menu."
         );
-      } else if (fromSquare === "erreur") {
-        toast.error("La connexion à Square a échoué — réessayez.");
-      } else if (fromSquare === "lieu") {
+      } else if (fromSquare.outcome === "erreur") {
+        toast.error(
+          `La connexion à Square a échoué : ${squareErrorMessage(
+            fromSquare.error
+          )}`
+        );
+      } else if (fromSquare.outcome === "lieu") {
         toast.success(
           "Compte Square relié. Choisissez le point de vente auquel vos QR codes appartiennent."
         );
-      } else if (fromSquare === "retour") {
+      } else if (fromSquare.outcome === "retour") {
         await enable(
           "Compte Square relié — vos clients peuvent payer par carte sur le menu."
         );

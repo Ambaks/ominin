@@ -64,14 +64,36 @@ function credentials(): { clientId: string; clientSecret: string } {
   return { clientId: APPLICATION_ID, clientSecret };
 }
 
-export function squareAuthorizeUrl(state: string): string {
+export function squareAuthorizeUrl(
+  state: string,
+  redirectUri: string
+): string {
   const { clientId } = credentials();
   const url = new URL(`${API_URL}/oauth2/authorize`);
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("state", state);
   url.searchParams.set("session", "false");
+  url.searchParams.set("redirect_uri", redirectUri);
   // scope : séparateur « + » littéral, que searchParams encoderait en %2B.
   return `${url.toString()}&scope=${OAUTH_SCOPES}`;
+}
+
+/** Origine publique derrière le proxy Vercel, identique à l'aller et au retour OAuth. */
+export function publicRequestOrigin(request: Request): string {
+  const requestUrl = new URL(request.url);
+  const forwardedProtocol = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    .trim();
+  const forwardedHost = request.headers
+    .get("x-forwarded-host")
+    ?.split(",")[0]
+    .trim();
+  const protocol = forwardedProtocol
+    ? `${forwardedProtocol.replace(/:$/, "")}:`
+    : requestUrl.protocol;
+  const host = forwardedHost ?? request.headers.get("host") ?? requestUrl.host;
+  return `${protocol}//${host}`;
 }
 
 interface SquareTokens {

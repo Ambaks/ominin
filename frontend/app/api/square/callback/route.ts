@@ -3,6 +3,7 @@ import {
   SQUARE_STATE_COOKIE,
   exchangeCode,
   fetchLocations,
+  publicRequestOrigin,
   requireGerant,
   upsertSquareAccount,
 } from "@/lib/square/server";
@@ -31,13 +32,15 @@ function stateCookie(request: Request): string | null {
 }
 
 export async function GET(request: Request) {
-  const { searchParams, protocol } = new URL(request.url);
-  // Host public réel : request.url peut porter le host interne (routage Vercel).
-  const host =
-    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  const base = `${protocol}//${host}`;
-  const back = (outcome: string) =>
-    NextResponse.redirect(`${base}/gestion/etablissement?square=${outcome}`);
+  const { searchParams } = new URL(request.url);
+  const base = publicRequestOrigin(request);
+  const host = new URL(base).host;
+  const back = (outcome: string, detail?: string) => {
+    const url = new URL("/gestion/etablissement", base);
+    url.searchParams.set("square", outcome);
+    if (detail) url.searchParams.set("square_error", detail);
+    return NextResponse.redirect(url);
+  };
 
   const clearState = (response: NextResponse) => {
     response.cookies.set(SQUARE_STATE_COOKIE, "", {
@@ -54,7 +57,7 @@ export async function GET(request: Request) {
       error: squareError,
       description: searchParams.get("error_description"),
     });
-    return clearState(back("erreur"));
+    return clearState(back("erreur", "autorisation_refusee"));
   }
 
   const code = searchParams.get("code");
@@ -68,7 +71,7 @@ export async function GET(request: Request) {
       cookie: Boolean(cookieState),
       stateMatches: Boolean(state) && state === cookieState,
     });
-    return clearState(back("erreur"));
+    return clearState(back("erreur", "session_invalide"));
   }
 
   const auth = await requireGerant();
@@ -77,7 +80,7 @@ export async function GET(request: Request) {
       host,
       error: auth.error,
     });
-    return clearState(back("erreur"));
+    return clearState(back("erreur", "session_gerant"));
   }
 
   try {
@@ -117,6 +120,6 @@ export async function GET(request: Request) {
       etablissementId: auth.etablissementId,
       message,
     });
-    return clearState(back("erreur"));
+    return clearState(back("erreur", "configuration"));
   }
 }

@@ -3,6 +3,7 @@ import {
   SQUARE_STATE_COOKIE,
   fetchLocations,
   getMerchantToken,
+  publicRequestOrigin,
   requireGerant,
   squareAuthorizeUrl,
   withFreshToken,
@@ -71,12 +72,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const requestUrl = new URL(request.url);
+  const origin = publicRequestOrigin(request);
+  const redirectUri = `${origin}/api/square/callback`;
   const state = crypto.randomUUID();
-  const response = NextResponse.json({ url: squareAuthorizeUrl(state) });
+  const response = NextResponse.json({
+    url: squareAuthorizeUrl(state, redirectUri),
+  });
   response.cookies.set(SQUARE_STATE_COOKIE, state, {
     httpOnly: true,
-    secure: requestUrl.protocol === "https:",
+    secure: origin.startsWith("https://"),
     sameSite: "lax",
     maxAge: 600,
     path: "/api/square",

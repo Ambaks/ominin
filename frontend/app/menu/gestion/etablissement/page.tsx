@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
+import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
@@ -140,6 +141,7 @@ export default function EtablissementPage() {
             }
           />
           <TabletSettings pinSet={state.etablissement.adminPinSet} />
+          <PaymentPinSettings pinSet={state.etablissement.paymentPinSet} />
           <DataLicenceSettings etablissementId={state.etablissement.id} />
           {products.collect && (
             <CollectSettings

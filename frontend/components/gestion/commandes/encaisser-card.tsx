@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import { lineTotal } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import type {
   CashDetails,
   EncaissementMode,
@@ -16,6 +18,7 @@ import type {
 import { formatPrice } from "@/lib/menu-data";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
+import { PaymentPinDialog } from "./payment-pin-dialog";
 
 /*
  * L'addition d'une table, article par article : ce qui reste à encaisser se
@@ -68,11 +71,18 @@ export function EncaisserPanel({
   orders: Order[];
 }) {
   const toast = useToast();
+  const state = useGestion();
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [paying, setPaying] = useState<{
+  const [authorizing, setAuthorizing] = useState<{
     units: Unit[];
     total: number;
   } | null>(null);
+  const [paying, setPaying] = useState<{
+    units: Unit[];
+    total: number;
+    paymentCode: string;
+  } | null>(null);
+  const [cancelling, setCancelling] = useState<Unit | null>(null);
 
   const lines = [...orders]
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
@@ -99,9 +109,18 @@ export function EncaisserPanel({
       return next;
     });
 
-  const payAll = () => setPaying({ units: unpaid, total: remaining });
+  const requestPayment = (units: Unit[], total: number) => {
+    if (!state?.etablissement.paymentPinSet) {
+      toast.error(
+        "Configurez le code d'encaissement dans les réglages Admin."
+      );
+      return;
+    }
+    setAuthorizing({ units, total });
+  };
+  const payAll = () => requestPayment(unpaid, remaining);
   const paySelection = () =>
-    setPaying({ units: selection, total: sumUnits(selection) });
+    requestPayment(selection, sumUnits(selection));
 
   const settle = async (
     mode: EncaissementMode,
@@ -109,10 +128,16 @@ export function EncaisserPanel({
     tip?: number
   ) => {
     if (!paying) return;
-    const { units } = paying;
+    const { units, paymentCode } = paying;
     setPaying(null);
     try {
-      await api.payOrderItems(toSelection(units), mode, cashDetails, tip);
+      await api.payOrderItems(
+        toSelection(units),
+        mode,
+        paymentCode,
+        cashDetails,
+        tip
+      );
       setSelected(new Set());
       toast.success(
         units.length === unpaid.length
@@ -158,14 +183,17 @@ export function EncaisserPanel({
             {unpaid.map((unit) => {
               const isSelected = selected.has(unit.key);
               return (
-                <li key={unit.key}>
+                <li
+                  key={unit.key}
+                  className={`flex items-start rounded-xl transition-colors ${
+                    isSelected ? "bg-ember-2/10" : "hover:bg-surface-raised"
+                  }`}
+                >
                   <button
                     type="button"
                     onClick={() => toggle(unit.key)}
                     aria-pressed={isSelected}
-                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
-                      isSelected ? "bg-ember-2/10" : "hover:bg-surface-raised"
-                    }`}
+                    className="flex min-w-0 flex-1 items-start gap-3 px-3 py-2.5 text-left"
                   >
                     <span
                       className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
@@ -185,6 +213,14 @@ export function EncaisserPanel({
                       </div>
                       <LineOptions line={unit.line} />
                     </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCancelling(unit)}
+                    aria-label={`Annuler ${unit.line.name}`}
+                    className="mr-1 mt-1 flex size-10 shrink-0 items-center justify-center rounded-full text-lg text-faint transition-colors hover:bg-ember-3/10 hover:text-ember-3"
+                  >
+                    ×
                   </button>
                 </li>
               );
@@ -268,6 +304,43 @@ export function EncaisserPanel({
           </div>
         )}
       </div>
+
+      {cancelling && (
+        <ConfirmDialog
+          title="Annuler cet article ?"
+          message={`1 × ${cancelling.line.name} sera retiré de l'addition. Cette action est définitive.`}
+          confirmLabel="Annuler l'article"
+          destructive
+          onClose={() => setCancelling(null)}
+          onConfirm={() => {
+            const unit = cancelling;
+            setCancelling(null);
+            void api
+              .cancelOrderItem(unit.line.id)
+              .then(() => {
+                setSelected(new Set());
+                toast.success("Article annulé.");
+              })
+              .catch((error: unknown) =>
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "Une erreur est survenue."
+                )
+              );
+          }}
+        />
+      )}
+
+      {authorizing && (
+        <PaymentPinDialog
+          onClose={() => setAuthorizing(null)}
+          onAuthorized={(paymentCode) => {
+            setPaying({ ...authorizing, paymentCode });
+            setAuthorizing(null);
+          }}
+        />
+      )}
 
       {paying && (
         <PaymentDialog

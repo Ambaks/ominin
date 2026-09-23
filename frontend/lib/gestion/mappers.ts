@@ -38,6 +38,7 @@ export function rowToEtablissement(
     collectSlotCapacity: row.collect_slot_capacity,
     googleReviewUrl: row.google_review_url ?? undefined,
     adminPinSet: row.admin_pin_set,
+    paymentPinSet: row.payment_pin_set,
   };
 }
 

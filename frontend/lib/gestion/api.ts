@@ -448,6 +448,7 @@ export async function payOrderItems(
   /** Quantité réglée par ligne : deux nems d'une même ligne se règlent séparément. */
   items: { itemId: string; quantity: number }[],
   mode: EncaissementMode,
+  paymentCode: string,
   cashDetails?: CashDetails,
   tip?: number
 ): Promise<void> {
@@ -460,10 +461,26 @@ export async function payOrderItems(
         quantity: item.quantity,
       })),
       p_mode: mode,
+      p_payment_code: paymentCode,
       p_cash_given: cash?.cashGiven ?? null,
       p_cash_change: cash?.cashChange ?? null,
       p_tip: tip ?? null,
       p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
+    })
+  );
+  await refreshOrdersNow();
+}
+
+/** Annule une ou plusieurs unités encore impayées, puis relit l'addition. */
+export async function cancelOrderItem(
+  itemId: string,
+  quantity = 1
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.rpc("cancel_order_item", {
+      p_item_id: itemId,
+      p_quantity: quantity,
     })
   );
   await refreshOrdersNow();
@@ -747,6 +764,30 @@ export async function verifyAdminPin(code: string): Promise<boolean> {
   );
 }
 
+/** Pose ou remplace le code de quatre chiffres exigé à chaque encaissement. */
+export async function setPaymentPin(code: string): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.rpc("set_payment_pin", {
+      p_etablissement_id: etablissementId(),
+      p_code: code,
+    })
+  );
+  apply((draft) => {
+    draft.etablissement.paymentPinSet = true;
+  });
+}
+
+export async function verifyPaymentPin(code: string): Promise<boolean> {
+  const supabase = createClient();
+  return must(
+    await supabase.rpc("verify_payment_pin", {
+      p_etablissement_id: etablissementId(),
+      p_code: code,
+    })
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Établissement
 
@@ -759,6 +800,7 @@ export type EtablissementInput = Omit<
   | "paymentProvider"
   | "collectSlotCapacity"
   | "adminPinSet"
+  | "paymentPinSet"
 >;
 
 export async function updateEtablissement(

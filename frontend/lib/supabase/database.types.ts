@@ -83,6 +83,32 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_pins: {
+        Row: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_pins_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agents_discovery_queries: {
         Row: {
           created_at: string
@@ -1116,6 +1142,7 @@ export type Database = {
           payment_provider:
             | Database["public"]["Enums"]["payment_provider"]
             | null
+          payment_pin_set: boolean
           phone: string
           platform_fee_percent: number
           siret: string | null
@@ -1138,6 +1165,7 @@ export type Database = {
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
+          payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
           siret?: string | null
@@ -1160,6 +1188,7 @@ export type Database = {
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
+          payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
           siret?: string | null
@@ -4372,6 +4401,7 @@ export type Database = {
           p_cash_given?: number | null
           p_items: Json
           p_mode: Database["public"]["Enums"]["payment_mode"]
+          p_payment_code: string
           p_tip?: number | null
         }
         Returns: undefined
@@ -4401,8 +4431,16 @@ export type Database = {
         Args: { p_order_ids: string[] }
         Returns: number
       }
+      cancel_order_item: {
+        Args: { p_item_id: string; p_quantity?: number }
+        Returns: undefined
+      }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       set_admin_pin: {
+        Args: { p_code: string; p_etablissement_id: string }
+        Returns: undefined
+      }
+      set_payment_pin: {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined
       }
@@ -4454,6 +4492,10 @@ export type Database = {
         Returns: undefined
       }
       verify_admin_pin: {
+        Args: { p_code: string; p_etablissement_id: string }
+        Returns: boolean
+      }
+      verify_payment_pin: {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: boolean
       }

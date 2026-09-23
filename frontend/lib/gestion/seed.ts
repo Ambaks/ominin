@@ -278,6 +278,7 @@ export function seed(): GestionState {
       paymentProvider: null,
       collectSlotCapacity: 5,
       adminPinSet: false,
+      paymentPinSet: false,
     },
     subscriptionStatus: "active",
     // Démo : aucun mois offert à trancher, l'espace s'ouvre entier.

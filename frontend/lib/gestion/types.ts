@@ -98,6 +98,8 @@ export interface Etablissement {
    * rien ne change.
    */
   adminPinSet: boolean;
+  /** Un code distinct de quatre chiffres protège chaque encaissement. */
+  paymentPinSet: boolean;
   /** Lien « laisser un avis » de la fiche Google Business, proposé en bas du menu QR. */
   googleReviewUrl?: string;
 }
