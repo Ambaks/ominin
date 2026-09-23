@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatPrice } from "@/lib/menu-data";
+import { SQUARE_COUNTRY, SQUARE_CURRENCY } from "@/lib/square/config";
 
 /*
  * Règlement d'une commande dans la page via le SDK Web Payments de Square.
@@ -26,9 +28,9 @@ const SDK_URL = APP_ID?.startsWith("sandbox-")
   ? "https://sandbox.web.squarecdn.com/v1/square.js"
   : "https://web.squarecdn.com/v1/square.js";
 const CARD_CONTAINER_ID = "square-card";
+const GOOGLE_PAY_CONTAINER_ID = "square-google-pay";
 
-interface SquareCard {
-  attach: (selector: string) => Promise<void>;
+interface SquareMethod {
   tokenize: () => Promise<{
     status: string;
     token?: string;
@@ -37,8 +39,74 @@ interface SquareCard {
   destroy?: () => Promise<void>;
 }
 
+interface SquareCard extends SquareMethod {
+  attach: (selector: string) => Promise<void>;
+}
+
+interface SquareGooglePay extends SquareMethod {
+  attach: (
+    selector: string,
+    options: {
+      buttonColor: "black" | "white";
+      buttonSizeMode: "fill";
+      buttonType: "long";
+    }
+  ) => Promise<void>;
+}
+
+type SquarePaymentRequest = object;
+
 interface SquarePayments {
-  card: () => Promise<SquareCard>;
+  card: (options: {
+    style: Record<string, Record<string, string>>;
+  }) => Promise<SquareCard>;
+  paymentRequest: (options: {
+    countryCode: string;
+    currencyCode: string;
+    total: { amount: string; label: string };
+  }) => SquarePaymentRequest;
+  /** Rejette hors de Safari/Apple Pay ou sur un domaine non enregistré. */
+  applePay: (request: SquarePaymentRequest) => Promise<SquareMethod>;
+  googlePay: (request: SquarePaymentRequest) => Promise<SquareGooglePay>;
+}
+
+interface Methods {
+  card: SquareCard;
+  applePay: SquareMethod | null;
+  googlePay: SquareGooglePay | null;
+}
+
+/** Le thème se lit au montage : texte clair ⇒ fond sombre. */
+function isDarkTheme(element: Element): boolean {
+  const [r, g, b] = getComputedStyle(element).color.match(/\d+/g)!.map(Number);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 127.5;
+}
+
+/*
+ * Le formulaire carte vit dans une iframe Square : nos classes n'y entrent
+ * pas, seules les propriétés que le SDK accepte passent. Les couleurs sont
+ * celles du thème du restaurant, relues sur la page.
+ */
+function cardStyle(element: Element): Record<string, Record<string, string>> {
+  const css = getComputedStyle(element);
+  const token = (name: string) => css.getPropertyValue(name).trim();
+  return {
+    ".input-container": {
+      borderColor: token("--hairline"),
+      borderRadius: "12px",
+    },
+    ".input-container.is-focus": { borderColor: token("--ember-1") },
+    ".input-container.is-error": { borderColor: token("--ember-3") },
+    input: {
+      backgroundColor: token("--surface-raised"),
+      color: token("--foreground"),
+    },
+    "input::placeholder": { color: token("--muted") },
+    ".message-text": { color: token("--muted") },
+    ".message-icon": { color: token("--muted") },
+    ".message-text.is-error": { color: token("--ember-3") },
+    ".message-icon.is-error": { color: token("--ember-3") },
+  };
 }
 
 declare global {
@@ -75,11 +143,14 @@ type PaymentState = "loading" | "ready" | "paying" | "paid" | "declined" | "erro
 export function SquarePayment({
   orderId,
   locationId,
+  total,
   tipAmount,
   onDone,
 }: {
   orderId: string;
   locationId: string;
+  /** Affiché par Apple Pay / Google Pay ; le montant débité reste celui du serveur. */
+  total: number;
   tipAmount: number;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
@@ -90,20 +161,55 @@ export function SquarePayment({
   // Une tentative refusée démonte le formulaire : « Réessayer » en remonte un
   // neuf, avec un jeton carte neuf (ceux de Square sont à usage unique).
   const [attempt, setAttempt] = useState(0);
-  const cardRef = useRef<SquareCard | null>(null);
+  const [wallets, setWallets] = useState({ applePay: false, googlePay: false });
+  const [dark, setDark] = useState(true);
+  const methodsRef = useRef<Methods | null>(null);
+  const amount = (total + tipAmount).toFixed(2);
 
   useEffect(() => {
     if (!APP_ID) return;
     let cancelled = false;
+    const destroy = (methods: Methods) =>
+      Promise.all(
+        [methods.card, methods.applePay, methods.googlePay].map((method) =>
+          method?.destroy?.()
+        )
+      );
+
     loadSdk()
       .then(async (square) => {
-        const card = await square.payments(APP_ID, locationId).card();
+        const container = document.getElementById(CARD_CONTAINER_ID)!;
+        const darkTheme = isDarkTheme(container);
+        const payments = square.payments(APP_ID, locationId);
+        const request = payments.paymentRequest({
+          countryCode: SQUARE_COUNTRY,
+          currencyCode: SQUARE_CURRENCY,
+          total: { amount, label: "Total" },
+        });
+        // Un portefeuille indisponible (navigateur, appareil, domaine) n'est
+        // pas une erreur : la carte reste proposée.
+        const [card, applePay, googlePay] = await Promise.all([
+          payments.card({ style: cardStyle(container) }),
+          payments.applePay(request).catch(() => null),
+          payments.googlePay(request).catch(() => null),
+        ]);
+        const methods = { card, applePay, googlePay };
         if (cancelled) {
-          await card.destroy?.();
+          await destroy(methods);
           return;
         }
         await card.attach(`#${CARD_CONTAINER_ID}`);
-        cardRef.current = card;
+        const googleAttached = await googlePay
+          ?.attach(`#${GOOGLE_PAY_CONTAINER_ID}`, {
+            buttonColor: darkTheme ? "white" : "black",
+            buttonSizeMode: "fill",
+            buttonType: "long",
+          })
+          .then(() => true)
+          .catch(() => false);
+        methodsRef.current = methods;
+        setDark(darkTheme);
+        setWallets({ applePay: Boolean(applePay), googlePay: Boolean(googleAttached) });
         setState("ready");
       })
       .catch(() => {
@@ -111,17 +217,17 @@ export function SquarePayment({
       });
     return () => {
       cancelled = true;
-      void cardRef.current?.destroy?.();
-      cardRef.current = null;
+      if (methodsRef.current) void destroy(methodsRef.current);
+      methodsRef.current = null;
     };
-  }, [locationId, attempt]);
+  }, [locationId, attempt, amount]);
 
-  const pay = useCallback(async () => {
-    const card = cardRef.current;
-    if (!card) return;
+  const pay = useCallback(async (method: keyof Methods) => {
+    const source = methodsRef.current?.[method];
+    if (!source) return;
     setState("paying");
     try {
-      const result = await card.tokenize();
+      const result = await source.tokenize();
       if (result.status !== "OK" || !result.token) {
         setState("declined");
         return;
@@ -196,18 +302,55 @@ export function SquarePayment({
     );
   }
 
+  const hasWallet = wallets.applePay || wallets.googlePay;
+
   return (
     <div className="flex flex-col gap-3 p-5">
-      <h3 className="font-display text-lg font-medium">Régler la commande</h3>
+      <div className="flex items-baseline justify-between">
+        <h3 className="font-display text-lg font-medium">Régler la commande</h3>
+        <span className="text-sm font-semibold text-ember-1">
+          {formatPrice(total + tipAmount)}
+        </span>
+      </div>
+      {wallets.applePay && (
+        <button
+          type="button"
+          onClick={() => void pay("applePay")}
+          disabled={state !== "ready"}
+          aria-label="Payer avec Apple Pay"
+          className={`h-12 w-full rounded-full [-apple-pay-button-type:plain] [-webkit-appearance:-apple-pay-button] disabled:opacity-60 ${
+            dark ? "[-apple-pay-button-style:white]" : "[-apple-pay-button-style:black]"
+          }`}
+        />
+      )}
+      {/* Square y injecte le bouton Google Pay ; vide si indisponible. */}
+      <div
+        id={GOOGLE_PAY_CONTAINER_ID}
+        onClick={() => void pay("googlePay")}
+        className={`w-full overflow-hidden rounded-full ${
+          wallets.googlePay ? "h-12" : "h-0"
+        } ${state === "paying" ? "pointer-events-none opacity-60" : ""}`}
+      />
+      {hasWallet && (
+        <div className="flex items-center gap-3 text-xs text-muted">
+          <span className="h-px flex-1 bg-hairline" />
+          ou par carte
+          <span className="h-px flex-1 bg-hairline" />
+        </div>
+      )}
       {/* Conteneur du formulaire carte Square (iframe hors périmètre PCI). */}
       <div id={CARD_CONTAINER_ID} />
       <button
         type="button"
-        onClick={() => void pay()}
+        onClick={() => void pay("card")}
         disabled={state !== "ready"}
         className="ember-gradient rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
       >
-        {state === "paying" ? "Un instant…" : "Payer"}
+        {state === "paying"
+          ? "Un instant…"
+          : state === "loading"
+            ? "Chargement…"
+            : "Payer par carte"}
       </button>
       <button
         type="button"

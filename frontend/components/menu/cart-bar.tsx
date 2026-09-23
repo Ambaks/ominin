@@ -40,6 +40,7 @@ export function CartBar() {
   const [squarePayment, setSquarePayment] = useState<{
     orderId: string;
     locationId: string;
+    total: number;
     tipAmount: number;
   } | null>(null);
 
@@ -158,6 +159,7 @@ export function CartBar() {
         setSquarePayment({
           orderId,
           locationId: cart.squareLocationId,
+          total: cart.total,
           tipAmount,
         });
       } else {
@@ -218,6 +220,7 @@ export function CartBar() {
               <SquarePayment
                 orderId={squarePayment.orderId}
                 locationId={squarePayment.locationId}
+                total={squarePayment.total}
                 tipAmount={squarePayment.tipAmount}
                 onDone={(paid) => {
                   setSquarePayment(null);

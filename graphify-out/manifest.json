@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1789515505.2389789,
-    "seen": 1790193906.506482,
-    "ast_hash": "5c4b20bc325790d0ddd1de3f9d4757ff",
+    "mtime": 1790195017.5143285,
+    "seen": 1790195151.676074,
+    "ast_hash": "06a5af221256bcd5a39591052996f7b4",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
@@ -1098,9 +1098,9 @@
     "semantic_hash": ""
   },
   "frontend/next.config.ts": {
-    "mtime": 1788963328.5276723,
-    "seen": 1790193906.506612,
-    "ast_hash": "5fbf4204f93ebd30c87ac7fdc8f643db",
+    "mtime": 1790195120.999947,
+    "seen": 1790195151.676432,
+    "ast_hash": "0420ca10e7345345d2d7a0d8a23a4a19",
     "semantic_hash": ""
   },
   "frontend/package.json": {
@@ -1308,9 +1308,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790193129.0755982,
-    "seen": 1790193906.506701,
-    "ast_hash": "2c1abb1fe73f620bb3d58b789d053b00",
+    "mtime": 1790195231.6619077,
+    "seen": 1790195269.054653,
+    "ast_hash": "998a199104e044f0a4bf0b09d63b0005",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -3564,9 +3564,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/pay/route.ts": {
-    "mtime": 1788963328.5188668,
-    "seen": 1790193906.50616,
-    "ast_hash": "99b591ca81e3ed4950fd8c47b2d0164d",
+    "mtime": 1790195014.0393953,
+    "seen": 1790195151.675796,
+    "ast_hash": "0aed7b7c36a17b29ef1feb21f0404051",
     "semantic_hash": ""
   },
   "frontend/app/api/square/refresh/route.ts": {
@@ -3630,9 +3630,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/square-payment.tsx": {
-    "mtime": 1788963328.5254843,
-    "seen": 1790193906.5064871,
-    "ast_hash": "bfa412db2518ba3a35217a9fa771352b",
+    "mtime": 1790195108.2896097,
+    "seen": 1790195151.6760802,
+    "ast_hash": "aea662cc489b617eaa3fc78259363822",
     "semantic_hash": ""
   },
   "frontend/lib/admin/clients.ts": {
@@ -4725,6 +4725,12 @@
     "mtime": 1790118667.6819596,
     "seen": 1790193906.506709,
     "ast_hash": "3f7c1089f74d0c31f99864ca35aa75c2",
+    "semantic_hash": ""
+  },
+  "frontend/lib/square/config.ts": {
+    "mtime": 1790195012.006012,
+    "seen": 1790195151.676419,
+    "ast_hash": "3981128ef86b80aa04d0350b32ace0f4",
     "semantic_hash": ""
   }
 }

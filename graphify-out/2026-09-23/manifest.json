@@ -3552,9 +3552,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/callback/route.ts": {
-    "mtime": 1790194231.515575,
-    "seen": 1790194268.74836,
-    "ast_hash": "f8bd70392af3c78bbd4060371a4614bc",
+    "mtime": 1790194361.5567894,
+    "seen": 1790194375.9266849,
+    "ast_hash": "7a3e12729847f9461a0d04e9884323c3",
     "semantic_hash": ""
   },
   "frontend/app/api/square/connect/route.ts": {

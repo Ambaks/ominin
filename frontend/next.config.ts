@@ -35,7 +35,10 @@ const supabaseOrigins = (() => {
  *  - Square : SDK Web Payments embarqué sur le menu QR — script et iframe du
  *    formulaire carte sur web.squarecdn.com, tokenisation et 3-D Secure sur
  *    connect/pci-connect.squareup.com. Les hôtes du bac à sable sont listés
- *    aussi : c'est là que le parcours de paiement se teste.
+ *    aussi : c'est là que le parcours de paiement se teste. Google Pay, que
+ *    le SDK propose à côté de la carte, charge son script, son iframe et ses
+ *    appels sur pay.google.com, et le visuel du bouton sur www.gstatic.com.
+ *    Apple Pay passe par le navigateur lui-même : aucun hôte à ouvrir.
  * script/style gardent 'unsafe-inline' : Next (App Router) et next-themes
  * injectent des scripts inline sans nonce. En dev, 'unsafe-eval' + ws pour le HMR.
  */
@@ -45,14 +48,14 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com${supabaseOrigins}`,
+  `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline' https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com${isDev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com${supabaseOrigins}${
+  `script-src 'self' 'unsafe-inline' https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,
-  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com",
+  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),

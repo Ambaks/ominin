@@ -9,6 +9,7 @@ import {
   withFreshToken,
   type SquareOrder,
 } from "@/lib/square/server";
+import { SQUARE_CURRENCY as CURRENCY } from "@/lib/square/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -24,8 +25,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * à usage unique côté Square, et relecture de la commande Square avant toute
  * nouvelle tentative. Le webhook signé reste le filet durable.
  */
-
-const CURRENCY = "EUR";
 
 interface Line {
   name: string;
