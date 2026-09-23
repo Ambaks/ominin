@@ -15,7 +15,10 @@ import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
   isPaidStatus,
+  isServiceToday,
   orderTotal,
+  serviceDate,
+  serviceDayKey,
   tipsByStaff,
   totalsByMode,
 } from "@/lib/gestion/selectors";
@@ -56,12 +59,12 @@ interface DayGroup {
   total: number;
 }
 
-function groupByDay(orders: Order[]): DayGroup[] {
+function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
   const days: DayGroup[] = [];
   const index = new Map<string, DayGroup>();
   for (const order of orders) {
-    const date = new Date(order.createdAt);
-    const key = date.toDateString();
+    const date = serviceDate(new Date(order.createdAt), dayEndHour);
+    const key = serviceDayKey(order.createdAt, dayEndHour);
     let day = index.get(key);
     if (!day) {
       day = {
@@ -232,11 +235,10 @@ export default function PaiementsPage() {
     filter === "tous"
       ? paid
       : paid.filter((order) => matchesMode(order, filter));
-  const days = groupByDay(visible);
+  const days = groupByDay(visible, state.dayEndHour);
 
-  const today = new Date().toDateString();
-  const todayPaid = paid.filter(
-    (order) => new Date(order.createdAt).toDateString() === today
+  const todayPaid = paid.filter((order) =>
+    isServiceToday(order.createdAt, state.dayEndHour)
   );
   const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
   const todayByMode = todayPaid.reduce(

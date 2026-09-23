@@ -9,6 +9,7 @@ import { must } from "@/lib/supabase/result";
 import { useAdminUnlocked } from "./admin-lock";
 import {
   ANALYTICS_PERIOD_DAYS,
+  DEFAULT_DAY_END_HOUR,
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
@@ -62,8 +63,12 @@ function notify() {
 async function fetchOrders(supabase: Client, etablissementId: string) {
   // Sans borne, tout l'historique repasserait sur le réseau à chaque refetch.
   // On charge la fenêtre couvrant la plus longue période d'analytique, plus
-  // les commandes encore ouvertes quel que soit leur âge.
-  const since = dayStart(Math.max(...ANALYTICS_PERIOD_DAYS) - 1).toISOString();
+  // les commandes encore ouvertes quel que soit leur âge. L'heure de bascule
+  // n'est pas encore connue : un jour de plus depuis minuit couvre toutes.
+  const since = dayStart(
+    Math.max(...ANALYTICS_PERIOD_DAYS),
+    DEFAULT_DAY_END_HOUR
+  ).toISOString();
   const rows = must(
     await supabase
       .from("orders")
@@ -336,7 +341,7 @@ async function load(): Promise<void> {
       // seule décide : maybeSingle plutôt qu'une erreur de chargement.
       supabase
         .from("etablissement_settings")
-        .select("features, order_tabs")
+        .select("features, order_tabs, day_end_hour")
         .eq("etablissement_id", etablissementId)
         .maybeSingle()
         .then((result) => result.data),
@@ -352,6 +357,7 @@ async function load(): Promise<void> {
     features: {} as GestionState["features"],
     // Même logique que les capacités : réglage absent, valeur par défaut.
     orderTabs: [],
+    dayEndHour: DEFAULT_DAY_END_HOUR,
     members: members.map(rowToMember),
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
@@ -367,6 +373,7 @@ async function load(): Promise<void> {
     ...loaded,
     features: resolveFeatures(activeProducts(loaded), featureOverrides),
     orderTabs: settings?.order_tabs ?? ORDER_TABS,
+    dayEndHour: settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
   };
   notify();
   // Les mois offerts arrivés à terme se tranchent à l'ouverture de l'espace.

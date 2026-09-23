@@ -184,28 +184,46 @@ export function activeTables(state: GestionState): TableService[] {
   });
 }
 
+/** Date du jour de service : avant l'heure de bascule, c'est encore la veille. */
+export function serviceDate(date: Date, dayEndHour: number): Date {
+  const shifted = new Date(date);
+  shifted.setHours(shifted.getHours() - dayEndHour);
+  return shifted;
+}
+
+/** Clé du jour de service d'un instant, pour grouper ou comparer. */
+export function serviceDayKey(iso: string, dayEndHour: number): string {
+  return serviceDate(new Date(iso), dayEndHour).toDateString();
+}
+
+export function isServiceToday(iso: string, dayEndHour: number): boolean {
+  return (
+    serviceDayKey(iso, dayEndHour) ===
+    serviceDate(new Date(), dayEndHour).toDateString()
+  );
+}
+
 export function revenueToday(state: GestionState): number {
-  const today = new Date().toDateString();
   return state.orders
     .filter(
       (order) =>
         isPaidStatus(order.status) &&
-        new Date(order.createdAt).toDateString() === today
+        isServiceToday(order.createdAt, state.dayEndHour)
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);
 }
 
-/** Minuit local, il y a `daysAgo` jours. */
-export function dayStart(daysAgo: number): Date {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
+/** Début du jour de service (heure de bascule), il y a `daysAgo` jours. */
+export function dayStart(daysAgo: number, dayEndHour: number): Date {
+  const date = serviceDate(new Date(), dayEndHour);
   date.setDate(date.getDate() - daysAgo);
+  date.setHours(dayEndHour, 0, 0, 0);
   return date;
 }
 
-/** Commandes créées dans les `days` derniers jours calendaires (annulées exclues). */
+/** Commandes créées dans les `days` derniers jours de service (annulées exclues). */
 function ordersInPeriod(state: GestionState, days: number): Order[] {
-  const from = dayStart(days - 1).getTime();
+  const from = dayStart(days - 1, state.dayEndHour).getTime();
   return state.orders.filter(
     (order) =>
       order.status !== "annulee" && new Date(order.createdAt).getTime() >= from
@@ -252,12 +270,12 @@ export interface DayPoint {
   orders: number;
 }
 
-/** CA encaissé (commandes payées) par jour calendaire, du plus ancien à aujourd'hui. */
+/** CA encaissé (commandes payées) par jour de service, du plus ancien à aujourd'hui. */
 export function revenueByDay(state: GestionState, days: number): DayPoint[] {
   const buckets: DayPoint[] = [];
   const index = new Map<string, DayPoint>();
   for (let daysAgo = days - 1; daysAgo >= 0; daysAgo--) {
-    const date = dayStart(daysAgo);
+    const date = dayStart(daysAgo, state.dayEndHour);
     const point: DayPoint = {
       label: date.toLocaleDateString("fr-FR", {
         weekday: "short",
@@ -277,7 +295,7 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
   }
   for (const order of state.orders) {
     if (!isPaidStatus(order.status)) continue;
-    const point = index.get(new Date(order.createdAt).toDateString());
+    const point = index.get(serviceDayKey(order.createdAt, state.dayEndHour));
     if (!point) continue;
     point.revenue += orderTotal(order);
     point.orders += 1;

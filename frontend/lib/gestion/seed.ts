@@ -1,5 +1,10 @@
 import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
-import { FEATURES, ORDER_TABS, SEED_TABLE_COUNT } from "./constants";
+import {
+  DEFAULT_DAY_END_HOUR,
+  FEATURES,
+  ORDER_TABS,
+  SEED_TABLE_COUNT,
+} from "./constants";
 import { lineTotal } from "./selectors";
 import type {
   GestionState,
@@ -286,6 +291,7 @@ export function seed(): GestionState {
       FEATURES.map((feature) => [feature, true])
     ) as GestionState["features"],
     orderTabs: ORDER_TABS,
+    dayEndHour: DEFAULT_DAY_END_HOUR,
     staff: [],
     categories,
     // La démo montre la carte telle quelle : un tarif planifié se règle, il

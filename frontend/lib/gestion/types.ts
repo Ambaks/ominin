@@ -256,6 +256,9 @@ export interface GestionState {
   features: Record<Feature, boolean>;
   /** Étapes de l'onglet Commandes, dans l'ordre voulu par le restaurant. */
   orderTabs: OrderTab[];
+  /** Heure locale où bascule la journée de service (0 = minuit) : un bar
+   *  qui ferme à 3h compte sa soirée entière sur un seul jour. */
+  dayEndHour: number;
   members: Member[];
   /** Équipe au sens du service : comptes et serveurs sans compte confondus. */
   staff: Staff[];

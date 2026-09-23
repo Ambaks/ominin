@@ -1070,18 +1070,21 @@ export type Database = {
       }
       etablissement_settings: {
         Row: {
+          day_end_hour: number
           etablissement_id: string
           features: Json
           order_tabs: Database["public"]["Enums"]["order_tab"][]
           updated_at: string
         }
         Insert: {
+          day_end_hour?: number
           etablissement_id: string
           features?: Json
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
           updated_at?: string
         }
         Update: {
+          day_end_hour?: number
           etablissement_id?: string
           features?: Json
           order_tabs?: Database["public"]["Enums"]["order_tab"][]

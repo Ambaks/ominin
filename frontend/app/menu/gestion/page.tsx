@@ -15,6 +15,7 @@ import {
   periodStats,
   revenueByDay,
   revenueToday,
+  serviceDate,
   tipsTotal,
   topVentes,
   topVentesToday,
@@ -209,11 +210,10 @@ export default function ApercuPage() {
   const indispo = unavailableItems(state);
   const hasCommandes = hasFeature("commandes");
   const topVentesJour = hasCommandes ? topVentesToday(state) : [];
-  const today = new Date().toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const today = serviceDate(new Date(), state.dayEndHour).toLocaleDateString(
+    "fr-FR",
+    { weekday: "long", day: "numeric", month: "long" }
+  );
 
   const stats = hasCommandes ? periodStats(state, period) : null;
   const byDay = hasCommandes ? revenueByDay(state, period) : [];

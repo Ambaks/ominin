@@ -16,6 +16,9 @@ export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Bascule de la journée de service. Miroir du défaut SQL de
+ * etablissement_settings.day_end_hour. */
+export const DEFAULT_DAY_END_HOUR = 0;
 /** Nombre de commandes par page dans l'historique (chargement à la demande). */
 export const HISTORY_PAGE_SIZE = 50;
 
