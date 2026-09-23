@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -13,6 +14,28 @@ export function getStripe(): Stripe {
     );
   }
   return new Stripe(key);
+}
+
+/** Gérant de l'établissement courant : seul à régler et consulter l'encaissement. */
+export async function requireGerant() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Authentification requise.", status: 401 as const };
+  const { data: membership } = await supabase
+    .from("memberships")
+    .select("etablissement_id, role")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (!membership || membership.role !== "gerant") {
+    return {
+      error: "Seul le gérant peut configurer le paiement en ligne.",
+      status: 403 as const,
+    };
+  }
+  return { etablissementId: membership.etablissement_id, email: user.email };
 }
 
 /** Compte Stripe Express relié à l'établissement, ou null s'il n'y en a pas. */

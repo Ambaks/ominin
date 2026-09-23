@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
+import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -257,13 +258,16 @@ export default function PaiementsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Paiements
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Tous les encaissements — espèces, carte et en ligne.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
+            Paiements
+          </h1>
+          <p className="mt-1 text-sm text-muted">
+            Tous les encaissements — espèces, carte et en ligne.
+          </p>
+        </div>
+        <StripeDashboardButton />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

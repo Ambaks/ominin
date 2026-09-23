@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getStripe } from "@/lib/stripe/server";
+import { getStripe, requireGerant } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 /*
  * Stripe Connect pour le paiement à table : chaque restaurant relie son
@@ -10,27 +9,6 @@ import { createClient } from "@/lib/supabase/server";
  * POST → crée le compte si besoin puis renvoie un lien d'onboarding.
  * La table payment_accounts n'est écrite que par la clé service.
  */
-
-async function requireGerant() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Authentification requise.", status: 401 as const };
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("etablissement_id, role")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!membership || membership.role !== "gerant") {
-    return {
-      error: "Seul le gérant peut configurer le paiement en ligne.",
-      status: 403 as const,
-    };
-  }
-  return { etablissementId: membership.etablissement_id, email: user.email };
-}
 
 export async function GET() {
   const auth = await requireGerant();
