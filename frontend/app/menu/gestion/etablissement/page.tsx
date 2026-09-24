@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
+import { GiftIcon } from "@/components/gestion/icons";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
@@ -111,7 +113,7 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
 
 export default function EtablissementPage() {
   const state = useGestion();
-  const { can, products } = useGestionAccess();
+  const { can, products, hasFeature } = useGestionAccess();
 
   if (!state) return null;
 
@@ -140,6 +142,22 @@ export default function EtablissementPage() {
                 : "stripe"
             }
           />
+          {/* Sur mobile, la barre du bas n'a pas la place d'un onglet de
+              plus : la fidélité se rejoint d'ici. */}
+          {hasFeature("fidelite") && (
+            <Link
+              href="/gestion/fidelite"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface px-4 py-3 lg:hidden"
+            >
+              <span>
+                <span className="block text-sm font-medium">Fidélité</span>
+                <span className="block text-xs text-faint">
+                  Programme, paliers et points de vos clients.
+                </span>
+              </span>
+              <GiftIcon className="size-5 shrink-0 text-muted" />
+            </Link>
+          )}
           <TabletSettings pinSet={state.etablissement.adminPinSet} />
           <PaymentPinSettings pinSet={state.etablissement.paymentPinSet} />
           <DataLicenceSettings etablissementId={state.etablissement.id} />

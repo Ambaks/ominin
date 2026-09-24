@@ -119,7 +119,9 @@ export async function POST(request: Request) {
     {
       mode: "payment",
       line_items: [
-        ...lines.map((line) => ({
+        // Une ligne offerte avec des points sans supplément ne coûte rien :
+        // Checkout ne facture pas de ligne à zéro.
+        ...lines.filter((line) => line.unit_price > 0).map((line) => ({
           quantity: line.quantity,
           price_data: {
             currency: "eur",

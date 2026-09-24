@@ -1136,6 +1136,8 @@ export type Database = {
           google_review_url: string | null
           hours: string
           id: string
+          loyalty_enabled: boolean
+          loyalty_points_per_euro: number
           name: string
           offre: Database["public"]["Enums"]["offre"] | null
           online_payment: boolean
@@ -1159,6 +1161,8 @@ export type Database = {
           google_review_url?: string | null
           hours?: string
           id?: string
+          loyalty_enabled?: boolean
+          loyalty_points_per_euro?: number
           name: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
@@ -1182,6 +1186,8 @@ export type Database = {
           google_review_url?: string | null
           hours?: string
           id?: string
+          loyalty_enabled?: boolean
+          loyalty_points_per_euro?: number
           name?: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
@@ -1475,6 +1481,139 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      loyalty_customers: {
+        Row: {
+          contact: string
+          created_at: string
+          etablissement_id: string
+          id: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          etablissement_id: string
+          id?: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_customers_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_entries: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          kind: Database["public"]["Enums"]["loyalty_entry_kind"]
+          order_id: string | null
+          points: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["loyalty_entry_kind"]
+          order_id?: string | null
+          points: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["loyalty_entry_kind"]
+          order_id?: string | null
+          points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_entries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_reward_items: {
+        Row: {
+          item_id: string
+          reward_id: string
+        }
+        Insert: {
+          item_id: string
+          reward_id: string
+        }
+        Update: {
+          item_id?: string
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_reward_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_reward_items_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_rewards: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          label: string
+          points: number
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          label: string
+          points: number
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          label?: string
+          points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_rewards_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       memberships: {
         Row: {
@@ -1813,6 +1952,7 @@ export type Database = {
         Row: {
           id: string
           item_id: string | null
+          loyalty_points: number | null
           name: string
           options: Json
           order_id: string
@@ -1826,6 +1966,7 @@ export type Database = {
         Insert: {
           id?: string
           item_id?: string | null
+          loyalty_points?: number | null
           name: string
           options?: Json
           order_id: string
@@ -1839,6 +1980,7 @@ export type Database = {
         Update: {
           id?: string
           item_id?: string | null
+          loyalty_points?: number | null
           name?: string
           options?: Json
           order_id?: string
@@ -1914,6 +2056,7 @@ export type Database = {
           estimated_ready_at: string | null
           etablissement_id: string
           id: string
+          loyalty_customer_id: string | null
           online_payment_started_at: string | null
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
@@ -1939,6 +2082,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id: string
           id?: string
+          loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
@@ -1964,6 +2108,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id?: string
           id?: string
+          loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
@@ -1986,6 +2131,13 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_loyalty_customer_id_fkey"
+            columns: ["loyalty_customer_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_customers"
             referencedColumns: ["id"]
           },
           {
@@ -4332,6 +4484,29 @@ export type Database = {
       }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
+      loyalty_active: { Args: { p_etablissement_id: string }; Returns: boolean }
+      loyalty_adjust: {
+        Args: {
+          p_contact: string
+          p_etablissement_id: string
+          p_points: number
+        }
+        Returns: undefined
+      }
+      loyalty_balance: {
+        Args: { p_contact: string; p_slug: string }
+        Returns: number
+      }
+      loyalty_contact: { Args: { p_raw: string }; Returns: string }
+      loyalty_customers_summary: {
+        Args: { p_etablissement_id: string }
+        Returns: {
+          contact: string
+          id: string
+          last_activity: string
+          points: number
+        }[]
+      }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: undefined
@@ -4409,6 +4584,7 @@ export type Database = {
       place_order: {
         Args: {
           p_items: Json
+          p_loyalty_contact?: string | null
           p_online_payment?: boolean
           p_slug: string
           p_table_number: number
@@ -4546,6 +4722,7 @@ export type Database = {
       crm_task_status: "open" | "done" | "cancelled"
       legal_doc: "cgv" | "dpa" | "confidentialite"
       legal_scope: "etablissement" | "shop"
+      loyalty_entry_kind: "gain" | "depense" | "ajustement"
       member_role: "gerant" | "cuisinier" | "serveur"
       menu_stage:
         | "vue"
@@ -4788,6 +4965,7 @@ export const Constants = {
       crm_task_status: ["open", "done", "cancelled"],
       legal_doc: ["cgv", "dpa", "confidentialite"],
       legal_scope: ["etablissement", "shop"],
+      loyalty_entry_kind: ["gain", "depense", "ajustement"],
       member_role: ["gerant", "cuisinier", "serveur"],
       menu_stage: [
         "vue",
@@ -4860,3 +5038,4 @@ export const Constants = {
     },
   },
 } as const
+

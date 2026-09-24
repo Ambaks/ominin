@@ -33,6 +33,11 @@ export function LineLabel({
   return (
     <span className={`text-sm ${settled ? "line-through" : ""}`}>
       <span className="tabular-nums text-muted">{quantity}×</span> {line.name}
+      {line.loyaltyPoints && (
+        <span className="ml-1.5 whitespace-nowrap rounded-full border border-ember-2/40 px-1.5 py-px text-[10px] font-semibold text-ember-1">
+          Offert · {line.loyaltyPoints * quantity} pts
+        </span>
+      )}
     </span>
   );
 }

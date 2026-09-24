@@ -71,6 +71,7 @@ export default async function MenuPage({
     paymentProvider,
     squareLocationId,
     callServer,
+    loyalty,
   } = data;
 
   const parsedTable = Number(Array.isArray(table) ? table[0] : table);
@@ -131,6 +132,7 @@ export default async function MenuPage({
         onlinePayment: orderingEnabled && onlinePayment,
         paymentProvider,
         squareLocationId,
+        loyalty,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :

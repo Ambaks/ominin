@@ -299,6 +299,12 @@ export const VIEWS: ViewSpec[] = [
     features: [],
   },
   {
+    id: "fidelite",
+    label: "Fidélité",
+    hint: "Les points gagnés à chaque commande du menu QR et les paliers qu'ils offrent. Hors offre : Ominin l'ouvre à la demande, le gérant l'allume ensuite.",
+    features: [],
+  },
+  {
     id: "produits",
     label: "Produits",
     hint: "L'onglet compte : l'offre souscrite, le rôle et le catalogue Ominin. Fermé au serveur quoi qu'il arrive.",

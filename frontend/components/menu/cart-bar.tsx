@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { SquarePayment } from "@/components/menu/square-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
@@ -20,7 +21,12 @@ export function CartBar() {
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
-  const [payment, setPayment] = useState<PaymentChoice>("comptoir");
+  const [paymentChoice, setPayment] = useState<PaymentChoice>("comptoir");
+  // Mode retenu à l'envoi : l'écran de confirmation le lit une fois le
+  // panier vidé, quand le total ne dit plus rien.
+  const [sentPayment, setSentPayment] = useState<PaymentChoice>("comptoir");
+  const [contact, setContact] = useState("");
+  const [balance, setBalance] = useState<number | null>(null);
   const [tipChoice, setTipChoice] = useState<TipChoice>(null);
   const [customTip, setCustomTip] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +53,11 @@ export function CartBar() {
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
   if (!cart.orderingEnabled || cart.tableNumber === null) return null;
   if (cart.count === 0 && state !== "sent") return null;
+
+  // Tout est offert en points : rien à régler par carte, la salle valide
+  // l'addition à zéro (place_order la laisse d'ailleurs au comptoir).
+  const payment: PaymentChoice = cart.total > 0 ? paymentChoice : "comptoir";
+  const loyaltyContact = cart.loyalty ? contact.trim() : "";
 
   // Pourboire du règlement par carte : pourcentage du total arrondi au
   // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
@@ -76,6 +87,7 @@ export function CartBar() {
       item_id: line.itemId,
       quantity: line.quantity,
       choices: line.choices,
+      ...(line.reward && { reward_id: line.reward.id }),
     }));
     const { data: orderId, error: rpcError } = await supabase.rpc(
       "place_order",
@@ -86,6 +98,8 @@ export function CartBar() {
         // Réglée en ligne, la commande attend son paiement hors de la caisse ;
         // c'est le paiement (ou son abandon) qui la fera arriver en salle.
         p_online_payment: payment === "carte",
+        // Points débités ici, gagnés à l'encaissement.
+        ...(loyaltyContact && { p_loyalty_contact: loyaltyContact }),
       }
     );
     if (rpcError) {
@@ -93,6 +107,9 @@ export function CartBar() {
       setError(rpcError.message);
       return;
     }
+    setSentPayment(payment);
+    // Le solde affiché ne vaut plus : il se relira à la prochaine commande.
+    setBalance(null);
     // Prévient la salle (push) : la commande attend son encaissement au
     // comptoir. Sans bloquer le parcours client.
     if (payment === "comptoir") notifyOrderEvent(orderId, "en_attente");
@@ -234,7 +251,7 @@ export function CartBar() {
                   Commande envoyée !
                 </h3>
                 <p className="text-sm leading-relaxed text-muted">
-                  {payment === "carte" && !cardFailed ? (
+                  {sentPayment === "carte" && !cardFailed ? (
                     <>
                       Paiement reçu&nbsp;: votre commande part en cuisine pour
                       la table {cart.tableNumber}. Un serveur vous
@@ -253,6 +270,12 @@ export function CartBar() {
                   <p className="text-sm leading-relaxed text-ember-3">
                     Le paiement par carte n&rsquo;a pas pu démarrer&nbsp;: vous
                     réglerez votre addition au comptoir.
+                  </p>
+                )}
+                {loyaltyContact && (
+                  <p className="text-xs leading-relaxed text-muted">
+                    Vos points de fidélité sont crédités sur {loyaltyContact}{" "}
+                    à l&rsquo;encaissement.
                   </p>
                 )}
                 <button
@@ -310,7 +333,11 @@ export function CartBar() {
                                 cart.setQuantity(line.key, line.quantity + 1)
                               }
                               disabled={
-                                line.stock != null && line.quantity >= line.stock
+                                (line.stock != null &&
+                                  line.quantity >= line.stock) ||
+                                (line.reward != null &&
+                                  (balance ?? 0) - cart.pointsSpent <
+                                    line.reward.points)
                               }
                               className="flex size-7 items-center justify-center text-lg text-muted disabled:opacity-40"
                               aria-label="Ajouter un"
@@ -319,12 +346,32 @@ export function CartBar() {
                             </button>
                           </div>
                         </div>
-                        <span className="shrink-0 text-sm font-semibold text-ember-1">
-                          {formatPrice(line.unitPrice * line.quantity)}
-                        </span>
+                        {line.reward ? (
+                          <span className="shrink-0 text-right text-sm font-semibold text-ember-1">
+                            Offert
+                            <span className="block text-xs font-medium text-muted">
+                              {line.reward.points * line.quantity}&nbsp;pts
+                              {line.unitPrice > 0 &&
+                                ` + ${formatPrice(line.unitPrice * line.quantity)}`}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="shrink-0 text-sm font-semibold text-ember-1">
+                            {formatPrice(line.unitPrice * line.quantity)}
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
+                  {cart.loyalty && (
+                    <LoyaltySection
+                      program={cart.loyalty}
+                      contact={contact}
+                      onContactChange={setContact}
+                      balance={balance}
+                      onBalance={setBalance}
+                    />
+                  )}
                 </div>
 
                 <div className="border-t border-hairline p-5">
@@ -334,7 +381,7 @@ export function CartBar() {
                       {formatPrice(cart.total)}
                     </span>
                   </div>
-                  {cart.onlinePayment && (
+                  {cart.onlinePayment && cart.total > 0 && (
                     <div className="mb-4 flex gap-2">
                       {(
                         [

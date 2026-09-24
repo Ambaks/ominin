@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import type { MenuStage } from "./analytics/constants";
+import type { LoyaltyProgram } from "./loyalty";
 import {
   createTracker,
   type MenuTracker,
@@ -35,6 +36,11 @@ export interface CartLine {
   choices: CartChoice[];
   /** Stock affiché à l'ouverture du menu : borne la quantité (la base refait le test). */
   stock?: number | null;
+  /**
+   * Ligne offerte par un palier de fidélité : l'article se paie en points
+   * (par unité), ses suppléments restent en euros dans unitPrice.
+   */
+  reward?: { id: string; points: number };
 }
 
 function capped(line: { stock?: number | null }, quantity: number): number {
@@ -53,6 +59,8 @@ export interface CartConfig {
   paymentProvider: "stripe" | "sumup" | "square";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
+  /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
+  loyalty?: LoyaltyProgram | null;
   /**
    * Compter la visite dans l'analytique de l'établissement. Faux pour un
    * aperçu commercial : ouvrir la démo devant un prospect ne doit pas gonfler
@@ -65,21 +73,33 @@ interface CartContextValue extends CartConfig {
   lines: CartLine[];
   count: number;
   total: number;
+  /** Points que coûtent les lignes offertes du panier. */
+  pointsSpent: number;
+  /** Ce qui se paie en euros hors lignes offertes : la base des points gagnés. */
+  earningTotal: number;
   addLine: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
+  /** Retire les lignes offertes (le client change de contact, donc de solde). */
+  clearRewards: () => void;
   /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
   track: (stage: MenuStage, options?: TrackOptions) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-export function cartLineKey(itemId: string, choices: CartChoice[]): string {
+export function cartLineKey(
+  itemId: string,
+  choices: CartChoice[],
+  rewardId?: string
+): string {
   // Le groupe fait partie de la clé : deux groupes d'un même article peuvent
   // proposer les mêmes identifiants de choix (les trois viandes d'un tacos),
   // et sans lui deux plats différents fusionneraient sur une seule ligne.
+  // Offert ou payé, un même plat reste sur deux lignes.
   const ids = choices.map((c) => `${c.group_id}:${c.choice_id}`).sort();
-  return ids.length ? `${itemId}#${ids.join("+")}` : itemId;
+  const key = ids.length ? `${itemId}#${ids.join("+")}` : itemId;
+  return rewardId ? `${rewardId}/${key}` : key;
 }
 
 export function CartProvider({
@@ -121,6 +141,11 @@ export function CartProvider({
 
   const clear = useCallback(() => setLines([]), []);
 
+  const clearRewards = useCallback(
+    () => setLines((current) => current.filter((l) => !l.reward)),
+    []
+  );
+
   const tracker = useRef<MenuTracker | null>(null);
   const tracking = config.tracking !== false;
   useEffect(() => {
@@ -141,17 +166,26 @@ export function CartProvider({
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((sum, l) => sum + l.quantity, 0);
     const total = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
+    let pointsSpent = 0;
+    let earningTotal = 0;
+    for (const l of lines) {
+      if (l.reward) pointsSpent += l.reward.points * l.quantity;
+      else earningTotal += l.unitPrice * l.quantity;
+    }
     return {
       ...config,
       lines,
       count,
       total,
+      pointsSpent,
+      earningTotal,
       addLine,
       setQuantity,
       clear,
+      clearRewards,
       track,
     };
-  }, [config, lines, addLine, setQuantity, clear, track]);
+  }, [config, lines, addLine, setQuantity, clear, clearRewards, track]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

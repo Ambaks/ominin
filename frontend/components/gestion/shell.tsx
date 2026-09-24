@@ -27,6 +27,7 @@ import {
   ClockIcon,
   CommandesIcon,
   ExternalLinkIcon,
+  GiftIcon,
   PaymentsIcon,
   GearIcon,
   LogoutIcon,
@@ -51,6 +52,9 @@ interface NavItem {
   excludeRoles?: Role[];
   /** Onglet ouvert au serveur seulement si cette capacité l'est aussi. */
   serveurFeature?: Feature;
+  /** Barre latérale seulement : la barre mobile n'a pas la place d'un
+   *  onglet de plus, la page se rejoint depuis Établissement. */
+  sidebarOnly?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -67,6 +71,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
   { href: "/gestion/terminaux", label: "Terminaux", feature: "terminaux", icon: PrinterIcon, gerantOnly: true },
+  { href: "/gestion/fidelite", label: "Fidélité", feature: "fidelite", icon: GiftIcon, gerantOnly: true, sidebarOnly: true },
 ];
 
 /**
@@ -313,7 +318,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden">
           <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {items.map((item) => {
+            {items.filter((item) => !item.sidebarOnly).map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <Link

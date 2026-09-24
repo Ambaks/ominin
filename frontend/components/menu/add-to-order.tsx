@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
 import { formatPrice, type MenuItem, type OptionGroup } from "@/lib/menu-data";
 
-function isUnavailable(item: MenuItem): boolean {
+export function isUnavailable(item: MenuItem): boolean {
   return item.disponible === false || item.stock === 0;
 }
 
@@ -105,12 +105,18 @@ export function AddToOrder({ item }: { item: MenuItem }) {
   );
 }
 
-function OptionsModal({
+/**
+ * Feuille des options d'un article. Avec `reward`, l'article est offert par
+ * un palier de fidélité : il se paie en points, ses suppléments en euros.
+ */
+export function OptionsModal({
   item,
+  reward,
   onClose,
   onAdded,
 }: {
   item: MenuItem;
+  reward?: { id: string; points: number };
   onClose: () => void;
   onAdded: () => void;
 }) {
@@ -207,7 +213,7 @@ function OptionsModal({
         .reduce((groupSum, choice) => groupSum + choice.supplement, 0),
     0
   );
-  const unitPrice = item.price + supplement;
+  const unitPrice = reward ? supplement : item.price + supplement;
 
   const confirm = () => {
     // Il manque un choix obligatoire : on emmène le client dessus plutôt que
@@ -234,13 +240,14 @@ function OptionsModal({
       }
     }
     addLine({
-      key: cartLineKey(item.id, choices),
+      key: cartLineKey(item.id, choices, reward?.id),
       itemId: item.id,
       name: item.name,
       unitPrice,
       optionSummary,
       choices,
       stock: item.stock,
+      reward,
     });
     track("panier");
     onAdded();
@@ -360,7 +367,9 @@ function OptionsModal({
                 ? `Choisir : ${missingGroups[0].name}`
                 : missingGroups.length > 1
                   ? `${missingGroups.length} choix manquants`
-                  : `Ajouter · ${formatPrice(unitPrice)}`}
+                  : reward
+                    ? `Ajouter · ${reward.points} pts${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
+                    : `Ajouter · ${formatPrice(unitPrice)}`}
             </span>
           </button>
         </div>

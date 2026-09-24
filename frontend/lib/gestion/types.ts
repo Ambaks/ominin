@@ -50,7 +50,8 @@ export type Feature =
   | "pourboires"
   | "equipe_sans_comptes"
   | "produits"
-  | "lien_heures";
+  | "lien_heures"
+  | "fidelite";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -121,6 +122,8 @@ export interface OrderItem {
   paidMode?: PaymentMode;
   /** ISO — absent tant que la ligne n'est pas arrivée à table. */
   servedAt?: string;
+  /** Points payés par unité : la ligne est offerte par la fidélité. */
+  loyaltyPoints?: number;
 }
 
 /**
