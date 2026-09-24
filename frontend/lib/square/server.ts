@@ -32,12 +32,16 @@ const API_VERSION = "2026-08-19";
 /*
  * Portées demandées, et rien de plus : chaque permission superflue est une
  * raison d'hésiter sur l'écran de consentement d'un restaurateur prudent.
- * Lire/écrire les commandes, encaisser, identifier le marchand.
+ * Lire/écrire les commandes, encaisser, prélever la commission Ominin
+ * (app_fee_money, refusé sans PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS),
+ * identifier le marchand. Un jeton accordé avant l'ajout d'une portée ne
+ * l'obtient qu'en refaisant l'autorisation.
  */
 const OAUTH_SCOPES = [
   "ORDERS_READ",
   "ORDERS_WRITE",
   "PAYMENTS_WRITE",
+  "PAYMENTS_WRITE_ADDITIONAL_RECIPIENTS",
   "MERCHANT_PROFILE_READ",
 ].join("+");
 

@@ -1,7 +1,7 @@
 # Graph Report - ominin  (2026-09-24)
 
 ## Corpus Check
-- 730 files · ~1,872,343 words
+- 730 files · ~1,872,156 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 26 file(s) not represented in the graph (top: (none) 10, .woff 3, .example 2)
 
