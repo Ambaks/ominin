@@ -339,7 +339,7 @@ export function CartBar() {
                       {(
                         [
                           ["comptoir", "Payer au comptoir"],
-                          ["carte", "Payer par carte maintenant"],
+                          ["carte", "Payer en ligne"],
                         ] as const
                       ).map(([value, label]) => (
                         <button
