@@ -630,9 +630,9 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/shell.tsx": {
-    "mtime": 1790362233.7962997,
-    "seen": 1790376423.333604,
-    "ast_hash": "4bbe2de3c9e04a359f48486885fbece3",
+    "mtime": 1790361428.1329975,
+    "seen": 1790361616.799511,
+    "ast_hash": "2c566c1ebdc63d5ac4bdded2d62ef3ba",
     "semantic_hash": ""
   },
   "frontend/components/gestion/subscription-gate.tsx": {
@@ -1008,15 +1008,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/selectors.ts": {
-    "mtime": 1790362233.796889,
-    "seen": 1790376423.333716,
-    "ast_hash": "20050cf747bd38fb0ce35f5a27d49fe6",
+    "mtime": 1790361421.368423,
+    "seen": 1790361616.799624,
+    "ast_hash": "e1fd7de707eb20340ac4f1af81e396da",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/store.ts": {
-    "mtime": 1790376377.351261,
-    "seen": 1790376423.333717,
-    "ast_hash": "eb2197912fa548f32a9c3e3ec0c23ef0",
+    "mtime": 1790193639.2552989,
+    "seen": 1790361616.799624,
+    "ast_hash": "908299c9e3ea4840c76181d07abdd463",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790362233.7916632,
-    "seen": 1790376423.3338501,
-    "ast_hash": "4a90aac82d4c1d32bdb1e1e435751d21",
+    "mtime": 1790361428.124014,
+    "seen": 1790361616.7997482,
+    "ast_hash": "0a92ee33d0555b1a9ce7488c8b3d0e71",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1494,9 +1494,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/commandes/page.tsx": {
-    "mtime": 1790362233.7961864,
-    "seen": 1790376423.3334851,
-    "ast_hash": "7e549d63f7205f28c0c1b1e6350cd9bd",
+    "mtime": 1790361421.3687806,
+    "seen": 1790361616.799395,
+    "ast_hash": "4ed7981fcf654c1d50a892ca1464a435",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/equipe/page.tsx": {
@@ -4188,9 +4188,9 @@
     "semantic_hash": ""
   },
   "demos/lz-food/profile.json": {
-    "mtime": 1790362233.796077,
-    "seen": 1790376423.333397,
-    "ast_hash": "20ec99ed2230bfb438ff51ce1d8bf2cc",
+    "mtime": 1790361421.3688998,
+    "seen": 1790361616.799309,
+    "ast_hash": "e8fead480cfa4406772fa26f68eedb32",
     "semantic_hash": ""
   },
   "frontend/app/api/legal/accept/route.ts": {

@@ -69,17 +69,29 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
     Math.max(...ANALYTICS_PERIOD_DAYS),
     DEFAULT_DAY_END_HOUR
   ).toISOString();
-  const rows = must(
-    await supabase
+  // L'API plafonne chaque réponse (max rows de PostgREST, 1 000 chez
+  // Supabase) : triées de la plus ancienne à la plus récente, ce sont les
+  // nouvelles commandes qui tombaient du tableau de bord — le BOHO a passé
+  // sa 1 000e en plein service. Lecture par pages, chacune reprenant après
+  // la dernière commande reçue, jusqu'à une page vide.
+  const orders: Order[] = [];
+  let after: string | null = null;
+  for (;;) {
+    let query = supabase
       .from("orders")
       .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
       .or(
         `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
       )
-      .order("created_at", { ascending: true })
-  );
-  return rows.map(rowToOrder);
+      .order("created_at", { ascending: true });
+    if (after) query = query.gt("created_at", after);
+    const page = must(await query);
+    if (page.length === 0) break;
+    orders.push(...page.map(rowToOrder));
+    after = page[page.length - 1].created_at;
+  }
+  return orders;
 }
 
 /** Page d'historique (commandes clôturées), curseur = created_at décroissant. */
