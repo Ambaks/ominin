@@ -8,7 +8,12 @@ export function MenuHighlights({ highlights }: { highlights?: string[] }) {
   if (!highlights?.length) return null;
 
   return (
-    <div className="border-y-2 border-ember-1 bg-ember-3">
+    // Un repère nommé : hors de tout repère, le ruban échappait à la
+    // navigation par régions des lecteurs d'écran.
+    <aside
+      aria-label="À savoir"
+      className="menu-highlights border-y-2 border-ember-1 bg-ember-3"
+    >
       <ul className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-1.5 px-5 py-3.5 text-center lg:max-w-5xl lg:gap-x-14 lg:px-10 lg:py-4">
         {highlights.map((highlight) => (
           <li
@@ -19,6 +24,6 @@ export function MenuHighlights({ highlights }: { highlights?: string[] }) {
           </li>
         ))}
       </ul>
-    </div>
+    </aside>
   );
 }

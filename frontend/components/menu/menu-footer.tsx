@@ -1,4 +1,10 @@
-import { mapsUrl, type Restaurant } from "@/lib/menu-data";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  displayAddress,
+  displayPhone,
+  mapsUrl,
+  type Restaurant,
+} from "@/lib/menu-data";
 
 function StarIcon() {
   return (
@@ -43,7 +49,7 @@ function PinIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="size-4 shrink-0"
+      className="mr-1.5 inline size-4 align-[-0.2em]"
       fill="currentColor"
       aria-hidden
     >
@@ -58,7 +64,15 @@ function PinIcon() {
  * dans le hero : à plus de 13 000 px du haut de page, renvoyer le client
  * chercher le seul lien appelable en haut n'aurait aucun sens.
  */
-export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
+export function MenuFooter({
+  restaurant,
+  themeToggle,
+}: {
+  restaurant: Restaurant;
+  /** Palette Ominin : au téléphone, le bouton clair/sombre vit ici plutôt
+      que dans la barre des catégories, où il rognait les pastilles. */
+  themeToggle?: boolean;
+}) {
   const phone = restaurant.phone.trim();
   const address = restaurant.address.trim();
   const hours = restaurant.hours.trim();
@@ -67,17 +81,17 @@ export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
     <footer className="border-t border-hairline">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 px-5 py-12 text-center lg:max-w-5xl lg:px-10 lg:py-16">
         <div className="flex flex-col items-center gap-4">
-          <p className="font-display text-2xl font-medium lg:text-3xl">
+          <p className="footer-name font-display text-2xl font-medium lg:text-3xl">
             {restaurant.name}
           </p>
 
           {phone && (
             <a
               href={`tel:${phone.replace(/\s/g, "")}`}
-              className="ember-gradient flex items-center gap-3 rounded-full px-6 py-3 font-display text-lg text-background transition-transform active:scale-95 lg:text-xl"
+              className="footer-phone ember-gradient flex items-center gap-3 rounded-full px-6 py-3 font-display text-lg text-background transition-transform active:scale-95 lg:text-xl"
             >
               <PhoneIcon />
-              {phone}
+              {displayPhone(phone)}
             </a>
           )}
 
@@ -86,7 +100,7 @@ export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
               href={`https://wa.me/${phone.replace(/[^0-9]/g, "")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-full border border-hairline px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-ember-1"
+              className="footer-whatsapp flex items-center gap-2 rounded-full border border-hairline px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:border-ember-1"
             >
               <WhatsAppIcon />
               Commander sur WhatsApp
@@ -98,10 +112,12 @@ export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
               href={mapsUrl(address)}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-2 py-2 text-sm text-muted transition-colors hover:text-foreground"
+              // L'icône suit le texte : en flex, une adresse sur deux lignes
+              // la laissait flotter loin à gauche.
+              className="block max-w-xs px-2 py-3 text-sm text-muted transition-colors hover:text-foreground"
             >
               <PinIcon />
-              {address}
+              {displayAddress(address)}
             </a>
           )}
 
@@ -111,13 +127,13 @@ export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
         {restaurant.googleReviewUrl && (
           <div className="flex flex-col items-center gap-3">
             <p className="text-sm text-muted">
-              Vous avez aimé ? Dites-le sur Google.
+              Vous avez aimé&nbsp;? Dites-le sur&nbsp;Google.
             </p>
             <a
               href={restaurant.googleReviewUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-full border border-ember-2/40 bg-surface/70 px-5 py-2.5 text-sm font-semibold backdrop-blur transition-colors hover:border-ember-2"
+              className="footer-review flex items-center gap-2 rounded-full border border-ember-2/40 bg-surface/70 px-5 py-3 text-sm font-semibold backdrop-blur transition-colors hover:border-ember-2"
             >
               <StarIcon />
               Laisser un avis Google
@@ -127,8 +143,12 @@ export function MenuFooter({ restaurant }: { restaurant: Restaurant }) {
 
         <div className="text-xs leading-relaxed text-muted">
           <p>Prix nets en euros, service compris.</p>
-          <p className="mt-1">
-            Propulsé par <span className="ember-text font-semibold">Ominin</span>
+          <p>Photos non contractuelles.</p>
+          <p className="mt-1 flex items-center justify-center gap-2">
+            <span>
+              Propulsé par <span className="ember-text font-semibold">Ominin</span>
+            </span>
+            {themeToggle && <ThemeToggle className="sm:hidden" />}
           </p>
         </div>
       </div>

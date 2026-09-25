@@ -67,6 +67,7 @@ async function main() {
         hours: restaurant!.hours,
         offre: "connect",
         cover_image: restaurant!.coverImage ?? null,
+        google_review_url: restaurant!.googleReviewUrl ?? null,
       })
       .select("id")
       .single()
@@ -113,7 +114,16 @@ async function main() {
           disponible: item.disponible ?? true,
           stock: item.stock ?? null,
           options: toJson(item.options ?? []),
-        }))
+          // Absent du registre ⇒ la valeur par défaut de la colonne (10 %).
+          // Un alcool porté à 20 % dans le registre doit l'être aussi en
+          // caisse : le seed perdait ce taux.
+          vat_rate: item.vatRate,
+          print_name: item.printName ?? null,
+        })),
+        // La liste des colonnes vient des clés, undefined compris : sans
+        // missing=default, un taux absent partait en NULL et violait le
+        // not null de vat_rate au lieu de prendre les 10 % par défaut.
+        { defaultToNull: false }
       )
       .select("id")
   );

@@ -138,6 +138,7 @@ export default async function MenuPage({
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <div
+        data-menu-root
         className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <script
@@ -151,18 +152,21 @@ export default async function MenuPage({
           embedded={embed === "1"}
           themeLocked={Boolean(restaurantThemeClass(slug))}
         />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 py-10 pb-28 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
           {restaurant.categories.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted">
               La carte est en préparation — revenez bientôt.
             </p>
           ) : (
-            restaurant.categories.map((category) => (
-              <MenuSection key={category.id} category={category} />
+            restaurant.categories.map((category, i) => (
+              <MenuSection key={category.id} category={category} first={i === 0} />
             ))
           )}
         </main>
-        <MenuFooter restaurant={restaurant} />
+        <MenuFooter
+          restaurant={restaurant}
+          themeToggle={!restaurantThemeClass(slug)}
+        />
         <CartBar />
         {callServer && <CallServerButton />}
         {paymentOutcome && paymentOrderId && (

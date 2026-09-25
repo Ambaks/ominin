@@ -1,4 +1,10 @@
-import { mapsUrl, type Restaurant } from "@/lib/menu-data";
+import { Fragment } from "react";
+import {
+  displayAddress,
+  displayPhone,
+  mapsUrl,
+  type Restaurant,
+} from "@/lib/menu-data";
 
 const PARTICLES = [
   { left: "10%", w: 3, h: 3, bg: "var(--ember-1)", delay: "0s", dur: "13s", peak: 0.45 },
@@ -14,9 +20,9 @@ const PARTICLES = [
 ];
 
 const PILL_CLASS =
-  "rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
+  "inline-flex min-h-11 items-center rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
 
-/** Horaires, adresse, téléphone : seuls les champs renseignés ont leur pastille. */
+/** Adresse, téléphone : seuls les champs renseignés ont leur pastille. */
 function ContactPills({
   restaurant,
   className,
@@ -42,7 +48,7 @@ function ContactPills({
           rel="noopener noreferrer"
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
-          {text}
+          {displayAddress(text)}
         </a>
       ))}
       {phone && (
@@ -50,25 +56,42 @@ function ContactPills({
           href={`tel:${phone.replace(/\s/g, "")}`}
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
-          {phone}
+          {displayPhone(phone)}
         </a>
       )}
     </div>
   );
 }
 
+/**
+ * Le nom, un mot par <span> : un thème peut le colorer mot à mot, comme une
+ * enseigne bicolore (.theme-o-crousti-poulet). Sans thème, rien ne change.
+ */
+function NameWords({ name }: { name: string }) {
+  return name.split(" ").map((word, i) => (
+    <Fragment key={i}>
+      {i > 0 && " "}
+      <span>{word}</span>
+    </Fragment>
+  ));
+}
+
 function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
-    <header className="relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 lg:min-h-[72svh] lg:pb-28">
+    // pt : quand le contenu dépasse la hauteur minimale (téléphone, logo
+    // haut), le centrage ne laisse plus d'air et le logo touche le bord.
+    <header className="relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 pt-12 lg:min-h-[72svh] lg:pb-28 lg:pt-16">
       <div className="absolute inset-0 bg-background" />
 
+      {/* Lueurs et halo : aux couleurs de la marque par défaut, qu'un thème
+          peut remplacer (--hero-glow-*, --hero-halo-*). */}
       <div
         className="absolute inset-0"
         style={{
           backgroundImage: [
-            "radial-gradient(ellipse 80% 50% at 50% 42%, color-mix(in srgb, var(--ember-1) 14%, transparent), transparent 70%)",
-            "radial-gradient(ellipse 55% 40% at 25% 58%, color-mix(in srgb, var(--ember-3) 9%, transparent), transparent 65%)",
-            "radial-gradient(ellipse 50% 35% at 78% 35%, color-mix(in srgb, var(--ember-2) 7%, transparent), transparent 60%)",
+            "radial-gradient(ellipse 80% 50% at 50% 42%, color-mix(in srgb, var(--hero-glow-1, var(--ember-1)) 14%, transparent), transparent 70%)",
+            "radial-gradient(ellipse 55% 40% at 25% 58%, color-mix(in srgb, var(--hero-glow-3, var(--ember-3)) 9%, transparent), transparent 65%)",
+            "radial-gradient(ellipse 50% 35% at 78% 35%, color-mix(in srgb, var(--hero-glow-2, var(--ember-2)) 7%, transparent), transparent 60%)",
           ].join(", "),
         }}
       />
@@ -102,55 +125,61 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
       ))}
 
       {restaurant.logo && (
-        <div className="hero-entrance relative z-10 mb-8 lg:mb-12">
+        <div className="hero-logo hero-entrance relative z-10 mb-8 lg:mb-12">
           <div
             className="logo-breathe absolute -inset-10 rounded-full blur-3xl lg:-inset-16"
             style={{
               background:
-                "radial-gradient(circle, var(--ember-1), var(--ember-2) 60%, transparent 80%)",
+                "radial-gradient(circle, var(--hero-halo-1, var(--ember-1)), var(--hero-halo-2, var(--ember-2)) 60%, transparent 80%)",
             }}
           />
           {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
           <img
             src={restaurant.logo}
             alt=""
-            className="relative size-32 sm:size-40 lg:size-52 xl:size-60"
+            className={`relative h-28 w-auto sm:h-32 lg:h-40 xl:h-44 ${restaurant.whiteLogo ? "logo-white" : ""}`}
           />
         </div>
       )}
 
-      <p
-        className="hero-entrance ember-text relative z-10 text-[11px] font-semibold uppercase tracking-[0.35em] lg:text-xs lg:tracking-[0.4em]"
-        style={{ animationDelay: "200ms" }}
-      >
-        {restaurant.tagline}
-      </p>
+      {/* Accroche, nom et filet : sans effet par défaut (display: contents),
+          une enveloppe pour qu'un thème les compose comme une enseigne —
+          le nom sur une ligne, l'accroche au bout du filet. */}
+      <div className="hero-lockup contents">
+        <p
+          className="hero-tagline hero-entrance ember-text relative z-10 text-[11px] font-semibold uppercase tracking-[0.35em] lg:text-xs lg:tracking-[0.4em]"
+          style={{ animationDelay: "200ms" }}
+        >
+          {restaurant.tagline}
+        </p>
 
-      <h1
-        className="hero-entrance relative z-10 mt-3 font-display text-6xl font-medium leading-none tracking-tight sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
-        style={{ animationDelay: "350ms" }}
-      >
-        {restaurant.name}
-      </h1>
+        <h1
+          className="hero-name hero-entrance relative z-10 mt-3 px-5 text-center font-display text-6xl font-medium leading-none tracking-tight max-[359px]:text-5xl sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
+          style={{ animationDelay: "350ms" }}
+        >
+          <NameWords name={restaurant.name} />
+        </h1>
 
-      <div
-        className="hero-entrance ember-gradient relative z-10 mt-6 h-px w-20 opacity-50 lg:mt-8 lg:w-28"
-        aria-hidden
-        style={{ animationDelay: "500ms" }}
-      />
+        <div
+          className="hero-rule hero-entrance ember-gradient relative z-10 mt-6 h-px w-20 opacity-50 lg:mt-8 lg:w-28"
+          aria-hidden
+          style={{ animationDelay: "500ms" }}
+        />
+      </div>
 
       <ContactPills
         restaurant={restaurant}
-        className="hero-entrance relative z-10 mt-6 flex flex-wrap justify-center gap-2 px-5 text-xs text-muted lg:mt-8 lg:gap-3 lg:text-sm"
+        className="hero-contact hero-entrance relative z-10 mt-6 flex flex-wrap justify-center gap-2 px-5 text-xs text-muted lg:mt-8 lg:gap-3 lg:text-sm"
         style={{ animationDelay: "650ms" }}
       />
 
-      <div
-        className="hero-entrance absolute bottom-8 z-10 flex flex-col items-center gap-2 text-muted lg:bottom-12"
+      <a
+        href={`#${restaurant.categories[0]?.id ?? ""}`}
+        className="hero-cue hero-entrance absolute bottom-8 z-10 flex min-h-11 flex-col items-center justify-center gap-2 px-4 text-muted transition-colors hover:text-foreground lg:bottom-12"
         style={{ animationDelay: "1100ms" }}
       >
         <span className="text-[10px] uppercase tracking-[0.3em]">
-          Découvrir le menu
+          Découvrir la carte
         </span>
         <svg
           className="scroll-bounce size-4 opacity-60"
@@ -163,7 +192,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         >
           <path d="M4 6l4 4 4-4" />
         </svg>
-      </div>
+      </a>
     </header>
   );
 }
@@ -219,16 +248,12 @@ export function Hero({ restaurant }: { restaurant: Restaurant }) {
 
   return (
     <header className="relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
-      {restaurant.coverImage ? (
-        // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
-        <img
-          src={restaurant.coverImage}
-          alt=""
-          className="absolute inset-0 size-full object-cover"
-        />
-      ) : (
-        <div className="ember-gradient absolute inset-0 opacity-25" />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
+      <img
+        src={restaurant.coverImage}
+        alt=""
+        className="absolute inset-0 size-full object-cover"
+      />
       <div className="absolute inset-0 bg-linear-to-b from-background/40 via-background/55 to-background" />
 
       <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-2xl px-5 pb-6 lg:max-w-5xl lg:px-10 lg:pb-10">

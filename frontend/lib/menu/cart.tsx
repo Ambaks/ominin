@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
@@ -43,6 +44,38 @@ export interface CartLine {
   reward?: { id: string; points: number };
 }
 
+const noSubscription = () => () => {};
+
+/** Une ligne gardée d'un ancien format (déploiement pendant la visite) ou
+    abîmée ferait planter la carte au rechargement, et à chaque suivant. */
+function isCartLine(value: unknown): value is CartLine {
+  const line = value as CartLine | null;
+  return (
+    typeof line?.key === "string" &&
+    typeof line.itemId === "string" &&
+    typeof line.name === "string" &&
+    Number.isFinite(line.unitPrice) &&
+    Number.isInteger(line.quantity) &&
+    line.quantity >= 1 &&
+    Array.isArray(line.optionSummary) &&
+    Array.isArray(line.choices)
+  );
+}
+
+/** Panier gardé dans la session de l'onglet ; illisible ou absent ⇒ vide.
+    Sans les lignes offertes : le contact et le solde qui les couvraient ne
+    survivent pas au rechargement. */
+function readSavedCart(key: string): CartLine[] {
+  try {
+    const saved: unknown = JSON.parse(sessionStorage.getItem(key) ?? "[]");
+    return Array.isArray(saved)
+      ? saved.filter(isCartLine).filter((line) => !line.reward)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 function capped(line: { stock?: number | null }, quantity: number): number {
   return line.stock == null ? quantity : Math.min(quantity, line.stock);
 }
@@ -62,11 +95,13 @@ export interface CartConfig {
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
   loyalty?: LoyaltyProgram | null;
   /**
-   * Compter la visite dans l'analytique de l'établissement. Faux pour un
-   * aperçu commercial : ouvrir la démo devant un prospect ne doit pas gonfler
-   * les vues d'un vrai client. undefined ⇒ on compte (le menu public).
+   * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
+   * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
+   * route d'aperçu est publique et la plupart des cartes existent en base :
+   * sans ce garde-fou, « Envoyer la commande » partait en cuisine chez un
+   * vrai client, sur la table fictive de l'aperçu. undefined ⇒ menu réel.
    */
-  tracking?: boolean;
+  preview?: boolean;
 }
 
 interface CartContextValue extends CartConfig {
@@ -84,6 +119,8 @@ interface CartContextValue extends CartConfig {
   clearRewards: () => void;
   /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
   track: (stage: MenuStage, options?: TrackOptions) => void;
+  /** Le panier gardé a été relu : les changements suivants sont du client. */
+  ready: boolean;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -110,6 +147,37 @@ export function CartProvider({
   children: React.ReactNode;
 }) {
   const [lines, setLines] = useState<CartLine[]>([]);
+
+  /*
+   * Le panier survit à un rechargement, un « tirer pour rafraîchir » ou un
+   * onglet que le téléphone a déchargé : gardé dans la session de l'onglet,
+   * par carte et par table. Relu après le premier rendu (le serveur n'en sait
+   * rien), réécrit à chaque changement ; stockage refusé ⇒ panier en mémoire.
+   */
+  // L'aperçu a sa propre clé : ses lignes (ids du registre) ne doivent pas
+  // réapparaître dans le vrai menu du même restaurant, ni l'inverse.
+  const storageKey = `ominin-panier:${config.preview ? "apercu:" : ""}${config.slug}:${config.tableNumber ?? "-"}`;
+  // Faux pendant l'hydratation (le rendu doit égaler celui du serveur), vrai
+  // juste après : le panier gardé est relu à ce moment-là, une fois par clé.
+  const hydrated = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false
+  );
+  const [restoredKey, setRestoredKey] = useState<string | null>(null);
+  if (hydrated && restoredKey !== storageKey) {
+    setRestoredKey(storageKey);
+    setLines(readSavedCart(storageKey));
+  }
+  useEffect(() => {
+    if (restoredKey !== storageKey) return;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(lines));
+    } catch {
+      // Stockage indisponible (navigation privée stricte) : le panier
+      // reste en mémoire.
+    }
+  }, [lines, storageKey, restoredKey]);
 
   const addLine = useCallback(
     (line: Omit<CartLine, "quantity">, quantity = 1) => {
@@ -147,7 +215,7 @@ export function CartProvider({
   );
 
   const tracker = useRef<MenuTracker | null>(null);
-  const tracking = config.tracking !== false;
+  const tracking = !config.preview;
   useEffect(() => {
     if (!tracking) return;
     const instance = createTracker(config.slug, config.tableNumber);
@@ -184,8 +252,19 @@ export function CartProvider({
       clear,
       clearRewards,
       track,
+      ready: restoredKey === storageKey,
     };
-  }, [config, lines, addLine, setQuantity, clear, clearRewards, track]);
+  }, [
+    config,
+    lines,
+    addLine,
+    setQuantity,
+    clear,
+    clearRewards,
+    track,
+    restoredKey,
+    storageKey,
+  ]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

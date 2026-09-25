@@ -1,0 +1,79 @@
+{
+  "$schema": "../_template/profile.schema.json",
+  "slug": "o-crousti-poulet",
+  "name": "O’Crousti Poulet",
+  "tagline": "Original",
+  "cuisine": "Poulet braisé halal à emporter · franchise « O’Crousti Poulet Original »",
+  "address": "230 rue Vendémiaire, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 7 49 20 64 34",
+  "hours": "Ouvert 7j/7, du lundi au dimanche (panneau) — heures non imprimées, voir research.horaires",
+  "website": "https://ocroustipouletoriginal.com/restaurant/montpellier (site du réseau, pas de la boutique)",
+  "socials": {
+    "instagram": "@o.croustipoulet (compte du réseau, lié depuis le site). Le panneau imprime @o_croustipoulet21, qui ne charge plus.",
+    "tiktok": "@ocroustipoulet (compte du réseau)",
+    "facebook": "https://www.facebook.com/p/O-Crousti-Poulet-100087215534769/ (réseau)",
+    "snapchat": "ocroustipoulet (réseau)",
+    "whatsapp": "",
+    "google_maps": "https://www.google.com/maps/place/?q=place_id:ChIJCXg4SkyvthIR3btCb5k3PUI"
+  },
+  "legal": {
+    "raison_sociale": "CHICKEN & SWEET (exploitant probable de Vendémiaire — lien avec l'enseigne déduit de l'adresse et des dates, aucun nom commercial déposé)",
+    "forme": "SAS",
+    "siren": "995319571",
+    "siret": "99531957100015 (siège, 230 rue Vendémiaire) ; 99531957100023 (52 rue de l'Aiguillerie, ouvert le 2026-05-20, activité inconnue)",
+    "naf": "56.10C — restauration de type rapide",
+    "president": "Hadir RGHIOUI (né en 09/1990) — dirige aussi NOKACHE à l'adresse d'O’Crousti Montélimar",
+    "creation": "2025-12-16",
+    "debut_activite": "2026-01-21",
+    "source": "recherche-entreprises.api.gouv.fr + BODACC, consultés le 2026-09-25. Exploitant de la boutique Verdun (1 bis rue de Verdun) : introuvable."
+  },
+  "design": {
+    "primary_color": "#F7EE21",
+    "secondary_color": "#131416",
+    "accent_color": "#F2CC12",
+    "style_notes": "Identité relevée sur le logo (docs/logo.jpg, et la version 1200 px du site du réseau), l'enseigne lumineuse (docs/enseigne-bandeau.jpg, docs/devanture-nuit.heic) et le panneau-menu (docs/carte-panneau*.heic). Jaune mesuré sur le fichier du logo : #F7EE21 (le CSS du site du réseau déclare #F5E627). Fond : le noir d'enseigne, #131416. Rampe de marque citron #FFF35C → jaune logo #F7EE21 → or #F2CC12 ; l'encre des boutons est le fond, contraste > 12:1. Typographie mesurée, pas devinée : les articles du panneau sont en Poppins ExtraBold (superposition exacte sur « 1 CUISSE DE POULET OU 3 PILONS »), le prix « €6.90 » en Anton, les titres manuscrits du panneau au plus près en Playball (Satisfy était plus proche du trait mais son « I » se lit « J » : « Jnclus »), le mot-symbole en Didact Gothic épaissie d'un contour — la géométrique à la Century Gothic de l'enseigne (O rond, t coupé en biais, proportions 5,4 contre 5,3 sur le logo). Dispositifs repris : le verrou de l'enseigne (coq, nom bicolore O’ jaune / Crousti blanc / Poulet jaune, trait jaune, ORIGINAL), le ruban jaune du bas du panneau (imprimé « OUVERT 7J/7 | DU LUNDI AU DIMANCHE », la médaille halal à côté ; en ligne : « HALAL | OUVERT 7J/7 », le lundi-dimanche passant au pied de page), la pastille jaune devant chaque article, les rayons du fond du panneau traduits en lumière qui tourne très lentement derrière le coq, les bandes blanches ondulées de la vitrophanie en pied de page. Écartés : les étiquettes de prix en pointillés (artefact d'impression), le motif officiel en image (520 px, non raccordable, flou en bureau — redessiné en vecteur). Le coq du hero est extrait du logo officiel (public/o-crousti-poulet/coq.png), pas redessiné. Décisions de l'utilisateur (2026-09-25) : le coq posé juste au-dessus du nom, à sa taille d'origine (≈ 230 px de large en bureau, 128 px au téléphone) — ne pas le réduire. Après trois tours de relecture : le verrou suit l'enseigne lumineuse (nom sur une ligne, long trait jaune finissant sur ORIGINAL), le jaune est posé à plat (le dégradé braise d'Ominin retiré), les titres de section sont centrés sur un filet blanc comme sur le panneau, et le pied de page reproduit la porte (fond blanc, bandes d'or, pilons dessinés au trait, nom entre deux traits). Décisions de l'utilisateur (2026-09-25, soir) : de l'air entre le ruban « HALAL | OUVERT 7J/7 » et les pastilles des catégories (≈ 31 px au téléphone, 52 px en bureau) ; au téléphone, le Menu Solo, seul sur sa rangée, prend toute la largeur de l'écran (photo en 5:2 pour garder « Composer » dans le premier écran).",
+    "interior_vibe": "Comptoir chauffant inox où le poulet braisé attend en bacs, écrans-menus noirs à bandes jaunes, fresque murale jaune et blanche au grand coq, vitrophanie à tourbillons jaunes avec dessins au trait (pilons, lunettes, mascotte).",
+    "reference_images": [
+      "docs/logo.jpg (logo fourni)",
+      "docs/enseigne-bandeau.jpg (bandeau d'enseigne)",
+      "docs/carte-panneau.heic, docs/carte-panneau-large.heic (panneau-menu, seule source de la carte)",
+      "docs/devanture-nuit.heic (porte et vitrophanie, de nuit)"
+    ]
+  },
+  "menu": {
+    "source": "Panneau lumineux « Menu Solo Inclus / Nos Suppléments » photographié en boutique (docs/carte-panneau.heic, docs/carte-panneau-large.heic), présent dans les DEUX boutiques de Montpellier. Registre applicatif : frontend/lib/menu-data.ts (const oCroustiPoulet) — source unique de la carte, non dupliquée ici. Noms et prix transcrits tels qu'imprimés ; le panneau ne décrit aucun article, la carte en ligne n'en décrit donc aucun (seule la composition du Menu Solo, imprimée, est reprise).",
+    "categories_summary": [
+      "Menu Solo Inclus — 6,90 € : 1 cuisse de poulet ou 3 pilons ou 4 ailes ou 2 saucisses + 1 accompagnement au choix + 1 boisson 33 cl",
+      "Nos Suppléments — 14 articles de 2,00 € (Saucisse, Boisson 33 cl) à 8,50 € (Poulet)"
+    ],
+    "couverture": "Le commercial a indiqué le 2026-09-25 que ce panneau est toute la carte. La recherche montre le contraire : écrans en boutique et carte nationale listent aussi les menus Duo / Trio / Familial / Gourmand, tenders, nems, bricks, potatoes, patates sautées, riz crousti, alloco et trois sauces. Ces articles ne sont PAS ajoutés : seuls les prix du panneau sont ceux de Montpellier (la carte nationale et Uber Eats affichent d'autres prix). Photographier les écrans en boutique.",
+    "photos": "11 plats illustrés par les visuels produits du site du réseau (ocroustipouletoriginal.com/assets/da/*.webp, 720 px — la plus grande taille publiée), recadrés en 4:3 autour du plat, en WebP (vignettes des suppléments en grille) : poulet entier, demi-poulet, cuisse, pilons, ailes, blanc, saucisse, donut poulet, riz oriental, pâtes crémo, tiramisu (pour « Dessert »). Menu Solo : photo du comptoir de pilons et d'ailes braisés publiée sur la page « Notre histoire » du réseau. Frites, Boisson 33 cl, Bouteille : photos de banque (voir menu.photos_banque). Écarts connus : le visuel « Pilons » montre 4 pilons (panneau : x3) et « Ailes » environ 5 ailes (panneau : x4) — ce sont pourtant les visuels que le réseau associe lui-même à ces articles. Droit d'usage des visuels du réseau à confirmer pour la mise en ligne (démo privée : sans objet), et fichiers HD à demander au siège.",
+    "photos_banque": "Frites : Unsplash photo-1716973208261-46f8ee456c43 (frites dans un cornet blanc non imprimé, ramequin de ketchup, fond jaune). Boisson 33 cl : Unsplash photo-1605548230624-8d2d0419c517 (canette Coca-Cola, marque vendue par la boutique, fond crème). Bouteille : Pexels 35020136 (bouteille PET Coca-Cola, étiquette espagnole « Sabor Original », fond gris) — remplace six bouteilles sans étiquette dont une boisson verte absente de la carte. Deux passes de recherche (2026-09-25) : aucune photo libre ne montre la gamme vendue (Coca-Cola, Fanta, Orangina, Ice Tea) en studio, ni une bouteille PET de ces marques à étiquette française. Photos des boissons à prendre en boutique. Audit sur planches contact : aucune marque hors Coca-Cola (vendue par la boutique), aucun alcool. Les trois sont servies depuis public/o-crousti-poulet/ (frites.webp, boisson.webp, bouteille.webp), recadrées en 4:3 sur le produit — la bouteille gardait sinon son bouchon coupé.",
+    "options_a_valider": [
+      "Menu Solo — Accompagnement : Frites, Riz oriental, Pâtes crémo. Déduit : les trois accompagnements de la liste des suppléments du panneau ; le Menu Solo n'en nomme aucun.",
+      "Menu Solo — Boisson 33 cl, et choix « Boisson » des articles « Boisson 33 cl » / « Bouteille » : Coca-Cola, Coca-Cola Zéro, Coca-Cola Cherry, Fanta Orange, Orangina, Ice Tea Pêche. Lus sur la page Uber Eats de Vendémiaire (les boissons à 2,00 €, prix du panneau) ; le panneau n'en nomme aucune. Parfums et contenance de la « Bouteille » (4,00 €) inconnus — même liste par défaut.",
+      "Dessert — Tiramisu, Tarte Daim : les deux desserts à 4 € de la carte nationale du réseau ; Uber Eats Vendémiaire ne propose que « Tiramisù maison ».",
+      "Menu Solo — Viande : 1 cuisse de poulet / 3 pilons / 4 ailes / 2 saucisses, IMPRIMÉ sur le panneau (pas une déduction)."
+    ]
+  },
+  "offers": [
+    "Menu Solo Inclus 6,90 € (panneau)",
+    "Ouverture Vendémiaire, 24/01/2026 : « 1 menu solo acheté = 1 menu solo offert » (réel Instagram, terminé)",
+    "Ouverture Verdun, 04/07/2026 : « tous les menus solo à 2 €, 11h30–14h » (réel Instagram, terminé)"
+  ],
+  "research": {
+    "date": "2026-09-25",
+    "reseau": "Pas une chaîne indépendante de deux restaurants : deux unités du réseau « O’Crousti Poulet Original » (36 restaurants France/Suisse selon son site ; 16 à 39 selon les sources). Siège légal à Dijon (JINANEFOOD SASU, SIREN 913445425, éditeur du site, 85 rue Jeannin) — d'où le « 21 » du handle Instagram. Fondateur : El Houssaine AMAZZAL, titulaire des marques FR 5160579 (logo) et FR 5238212/5238221 ; président de JINANEFOOD depuis mars 2026 : Abderrahim SAFI. Franchise : droit d'entrée 7 000 €, redevance fixe 2 000–2 500 €/mois HT, contrat 7 ans, 100 % comptoir et emporter. La formation franchisé couvre « l'utilisation du logiciel de caisse » : la caisse est très probablement imposée par le réseau. Une marque verbale antérieure « O'CROUSTI POULET » (FR 4950224, 2023) appartient à un tiers sans lien — conflit possible. Sources : ocroustipouletoriginal.com (/mentions-legales, /nos-restaurants, /notre-histoire), toute-la-franchise.com, ac-franchise.com, recherche-entreprises, BODACC, TMview.",
+    "boutiques": "Vendémiaire (dite Port Marianne) : 230 Rue Vendémiaire, 34000 — BAN score 0,974 ; quartier Port-Marianne / Richter, tram Port Marianne à ~200 m ; ouverte le samedi 24/01/2026 ; téléphone 07 49 20 64 34 (site et Google). Verdun (centre-ville) : 1 bis Rue de Verdun, 34000 — BAN 0,82 ; place de la Comédie, tram Comédie à ~40 m ; ouverte le samedi 04/07/2026 ; aucun téléphone publié. La démo porte l'adresse, le téléphone et le lien d'avis de Vendémiaire.",
+    "horaires": "Contradictoires pour Vendémiaire : 11h–23h (fiche du site), 11h30–23h (FAQ du même site et réel d'ouverture), 11h–00h (Google), 11h30–0h45 (Uber Eats, fenêtre de livraison). Verdun : 11h30–23h (site), rien sur Google. La carte n'affiche que l'imprimé : « Ouvert 7j/7, du lundi au dimanche ».",
+    "google": "Vendémiaire : « O' CROUSTI POULET_MONTPELLIER », 4,8★ sur 604 avis, fiche revendiquée ; lien d'avis utilisé en bas de carte (writereview?placeid=ChIJCXg4SkyvthIR3btCb5k3PUI). Verdun : « O' CROUSTI POULET », 4,4★ sur 52 avis, catégorie « Magasin vendant du poulet », fiche NON revendiquée, sans téléphone, horaires ni site.",
+    "uber_eats": "Vendémiaire uniquement : vitrine active (4,1★, 480+ notes, titres-restaurant acceptés) et une ancienne vitrine fermée depuis le 26/01/2026 toujours indexée. Prix 40 à 60 % au-dessus du panneau (Poulet 13,90 contre 8,50 ; Solo 9,90 contre 6,90). Verdun : aucune livraison trouvée. Deliveroo, Just Eat : rien.",
+    "commande_en_ligne": "Aucune : le site du réseau n'a ni prix ni click & collect, son bouton de livraison ouvre une recherche Uber Eats générique ; la FAQ dit « Commandez sur place ».",
+    "cuisson": "Poulet braisé / grillé, mariné, NON pané (photos Google, visuels du réseau, fiche franchise « mariné et grillé », Uber Eats « braisé »), alors que le texte du site parle de « pané minute / double panure ». Panés : donut, tenders, nems, bricks. « Donut » = « Donut Poulet & Cheese » sur Uber Eats (anneau pané), pas un dessert. Riz oriental rouge-orangé ; pâtes crémo = penne à la crème (champignons sur le visuel du réseau) ; saucisses de volaille rouges caramélisées.",
+    "avis": "Éloges : poulet juteux et bien braisé, rapidité, prix ; personnel cité par son prénom à Verdun. Reproches : ailes un peu sèches, pâtes jugées chères (Verdun). Uber Eats : Menu Solo 83 % d'avis positifs (348), Nems x1 64 %. Un influenceur local (@mon.gourmand, 6,7 M de vues) a filmé Vendémiaire.",
+    "reseaux": "Tous les comptes sont ceux du réseau ; aucun compte Montpellier. Le handle imprimé sur le panneau (@o_croustipoulet21) ne charge plus — probablement renommé @o.croustipoulet.",
+    "sources_brutes": "Rapports complets de la recherche du 2026-09-25 (quatre agents) non versés au dépôt ; synthèse reprise ici."
+  },
+  "notes": "Prospect (rendez-vous le 2026-09-26). Démo : /menu/demo/o-crousti-poulet (thème de l'établissement) et /menu/demo/o-crousti-poulet?theme=ominin (palette Ominin). Questions pour le gérant : (1) Carte complète : le panneau ne montre que le Menu Solo et les suppléments ; les écrans en boutique listent Duo, Trio, Familial, Gourmand, tenders, nems, bricks, potatoes, patates sautées, riz crousti, alloco et sauces — les photographier, et dire si les prix sont les mêmes dans les deux boutiques. (2) Accompagnements du Menu Solo : Frites, Riz oriental et Pâtes crémo sont déduits du panneau — lesquels sont proposés ? (3) Boissons : la liste en ligne vient d'Uber Eats (Coca-Cola, Coca-Cola Zéro, Coca-Cola Cherry, Fanta Orange, Orangina, Ice Tea Pêche) — la confirmer ; contenance et parfums de la « Bouteille » à 4,00 €. (4) Dessert : Tiramisu et Tarte Daim viennent de la carte nationale — lesquels à Montpellier ? (5) « Donut » : c'est bien le Donut Poulet & Cheese ? Faut-il le préciser sur la carte ? (6) Horaires : le panneau dit 7j/7 sans heures ; les sources en ligne se contredisent (11h ou 11h30, 23h ou minuit) — heures exactes des deux boutiques. (7) Photos : la carte utilise les visuels produits du réseau — droit d'usage à confirmer avec le siège, et fichiers HD à obtenir ; Frites, Boisson et Bouteille sont des photos de banque ; les visuels Pilons et Ailes montrent 4 pilons et 5 ailes. (8) WhatsApp : le bas de carte propose « Commander sur WhatsApp » dès qu'un numéro est renseigné — la boutique prend-elle des commandes sur le 07 49 20 64 34 ? (9) Quelle boutique pour la mise en ligne : la démo porte Vendémiaire ; Verdun aura sa propre carte (téléphone introuvable, fiche Google non revendiquée). (10) Franchise : le contrat impose-t-il la caisse, la commande en ligne ou la livraison ? Quelle caisse aujourd'hui ? Faut-il l'accord du siège ? (11) Quelle société exploite Verdun, et qu'y a-t-il au 52 rue de l'Aiguillerie ? (12) Le handle Instagram du panneau (@o_croustipoulet21) est mort. (13) Qui certifie le halal ? (14) Produit : la boutique est 100 % comptoir et emporter, sans salle ; la démo montre le parcours de commande à table de Connect (table 1 fictive de l'aperçu). Précommande / click & collect (Collect) à discuter plutôt que la commande à table."
+}

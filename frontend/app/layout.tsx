@@ -9,7 +9,8 @@ import "./globals.css";
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  // SOFT n'est réglé nulle part : l'axe pesait 53 Ko de plus sur chaque page.
+  axes: ["opsz", "WONK"],
 });
 
 const instrumentSans = Instrument_Sans({

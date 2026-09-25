@@ -15,10 +15,11 @@ import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
  * (lib/menu-data) : la même page que le menu QR, aux couleurs et à la
  * typographie de l'établissement, mais sans base — on montre son menu en
  * visite commerciale avant tout seed. Le parcours de commande est ouvert sur
- * une table fictive pour que les modales d'options se montrent ; seul l'envoi
- * final a besoin de la base, et il faut donc avoir semé l'établissement
- * (npm run seed:restaurant) avant de le dérouler jusqu'au bout devant un
- * client. Données de démonstration : jamais indexée.
+ * une table fictive pour que les modales d'options et le panier se montrent,
+ * mais en mode aperçu (CartConfig.preview) : rien n'est compté ni envoyé. La
+ * route est publique et la plupart des slugs existent en base — sans ce
+ * garde-fou, une commande passée ici partait en cuisine chez le vrai client.
+ * Données de démonstration : jamais indexée.
  *
  * ?theme=ominin retire l'habillage de l'établissement : la même carte dans la
  * palette et les polices d'Ominin. De quoi poser la question au gérant —
@@ -34,8 +35,22 @@ export async function generateMetadata({
   const { slug } = await params;
   const restaurant = getRestaurant(slug);
   if (!restaurant) notFound();
+  // Titre, description et aperçu de lien propres à l'établissement : sans
+  // eux, un lien de démo envoyé au gérant (WhatsApp, SMS) montrait la
+  // promesse commerciale et le logo d'Ominin.
+  // « Carte » : sur une page dont le produit phare est un « Menu Solo »,
+  // « menu » prêtait à confusion.
+  const title = `${restaurant.name} — Carte (aperçu)`;
+  const description = [restaurant.name, restaurant.address]
+    .filter(Boolean)
+    .join(" · ");
+  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const images = shareImage ? [shareImage] : undefined;
   return {
-    title: `Aperçu ${restaurant.name} — Menu Ominin`,
+    title,
+    description,
+    openGraph: { title, description, images },
+    twitter: { card: images ? "summary_large_image" : "summary", title, description, images },
     robots: { index: false, follow: false },
   };
 }
@@ -65,10 +80,11 @@ export default async function MenuPreviewPage({
         onlinePayment: false,
         paymentProvider: "stripe",
         squareLocationId: null,
-        tracking: false,
+        preview: true,
       }}
     >
       <div
+        data-menu-root
         className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <Hero restaurant={restaurant} />
@@ -77,12 +93,12 @@ export default async function MenuPreviewPage({
           categories={categoryLinks}
           themeLocked={Boolean(themeClass)}
         />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 py-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {restaurant.categories.map((category) => (
-            <MenuSection key={category.id} category={category} />
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+          {restaurant.categories.map((category, i) => (
+            <MenuSection key={category.id} category={category} first={i === 0} />
           ))}
         </main>
-        <MenuFooter restaurant={restaurant} />
+        <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
         <CartBar />
       </div>
     </CartProvider>

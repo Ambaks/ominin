@@ -82,11 +82,15 @@ export function CategoryNav({
   }, [activeId]);
 
   return (
-    <nav className={`sticky z-10 border-b border-hairline bg-background/85 backdrop-blur-md ${embedded ? "top-12" : "top-0"}`}>
+    <nav className={`sticky z-10 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
+        {/* Le fondu des bords signale le défilement ; la marge intérieure qui
+            l'égale garde la première et la dernière pastille hors du fondu
+            tant que le rail est au repos. À droite, le rail ne déborde pas
+            sous le bouton clair/sombre quand il est là. */}
         <div
           ref={railRef}
-          className="no-scrollbar flex flex-1 gap-2 overflow-x-auto py-3 lg:gap-3 lg:py-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]"
+          className={`no-scrollbar ${themeLocked ? "-mx-3" : "-ml-3"} flex flex-1 gap-2 overflow-x-auto px-3 py-1.5 lg:gap-3 lg:py-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]`}
         >
           {categories.map(({ id, name }) => {
             const active = id === activeId;
@@ -95,10 +99,11 @@ export function CategoryNav({
                 key={id}
                 href={`#${id}`}
                 data-category={id}
+                aria-current={active ? "location" : undefined}
                 onClick={() => track("categorie")}
-                className={`shrink-0 rounded-full px-4 py-3 text-sm font-medium transition-all lg:px-5 lg:py-3 lg:text-base ${
+                className={`min-h-11 shrink-0 rounded-full px-4 py-2.5 text-sm font-medium transition-all max-[359px]:px-3 max-[359px]:text-[13px] max-[339px]:px-2.5 lg:px-5 lg:py-3 lg:text-base ${
                   active
-                    ? "ember-gradient text-background shadow-[0_0_18px_rgba(226,118,75,0.35)]"
+                    ? "ember-gradient text-background shadow-[0_0_18px_color-mix(in_srgb,var(--ember-2)_35%,transparent)]"
                     : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
                 }`}
               >
@@ -107,7 +112,9 @@ export function CategoryNav({
             );
           })}
         </div>
-        {!themeLocked && <ThemeToggle className="shrink-0" />}
+        {/* Au téléphone, il passe en pied de page (MenuFooter) : ici il
+            rognait les pastilles. */}
+        {!themeLocked && <ThemeToggle className="shrink-0 max-sm:hidden" />}
       </div>
       <div
         aria-hidden

@@ -70,10 +70,15 @@ export interface Restaurant {
   slug: string;
   name: string;
   tagline: string;
-  /** undefined ⇒ fond dégradé de repli dans le hero. */
+  /** undefined ⇒ hero typographique, sur le logo s'il y en a un. */
   coverImage?: string;
   /** Logo de l'établissement (chemin public), affiché dans le hero du menu. */
   logo?: string;
+  /**
+   * Logo tracé en blanc sur fond transparent, pour un fond sombre : la palette
+   * Ominin l'inverse quand elle passe en clair, où il disparaîtrait.
+   */
+  whiteLogo?: boolean;
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
@@ -103,6 +108,32 @@ export const pexels = (path: string, w = 1200) =>
  */
 export const pexelsRecadre = (path: string, w = 1200) =>
   `${pexels(path, w)}&h=${Math.round((w * 9) / 16)}&fit=crop&crop=entropy`;
+
+/** Identifiant stable tiré d'un libellé accentué : « Viande hachée » → viande-hachee. */
+const slugLibelle = (label: string) =>
+  label
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/œ/g, "oe")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+
+/** Groupe à choix unique tiré d'une liste de libellés, ids dérivés du groupe. */
+const groupeChoix = (
+  id: string,
+  name: string,
+  labels: readonly string[],
+  { obligatoire = false, supplement = 0, prefixe = "" } = {}
+): OptionGroup => ({
+  id,
+  name,
+  obligatoire,
+  choices: labels.map((label) => ({
+    id: `${id}-${slugLibelle(label)}`,
+    name: `${prefixe}${label}`,
+    supplement,
+  })),
+});
 
 const trattoriaLucia: Restaurant = {
   slug: "trattoria-lucia",
@@ -1008,27 +1039,10 @@ const LZ_VIANDES = [
   "Kefta",
 ] as const;
 
-/** Identifiant stable tiré d'un libellé accentué : « Viande hachée » → viande-hachee. */
-const lzSlug = (label: string) =>
-  label
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/œ/g, "oe")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-");
-
 /* Un groupe d'options ne retient qu'un choix : un tacos « 3 viandes » aligne
    donc trois groupes plutôt qu'une sélection multiple. */
-const lzViande = (id: string, name: string): OptionGroup => ({
-  id,
-  name,
-  obligatoire: true,
-  choices: LZ_VIANDES.map((viande) => ({
-    id: `${id}-${lzSlug(viande)}`,
-    name: viande,
-    supplement: 0,
-  })),
-});
+const lzViande = (id: string, name: string) =>
+  groupeChoix(id, name, LZ_VIANDES, { obligatoire: true });
 
 /*
  * Les canettes photographiées au rayon BOISSON du flyer. Le flyer n'imprime
@@ -1052,43 +1066,27 @@ const LZ_SAUCES = [
   "Harissa",
 ] as const;
 
-const lzChoix = (
-  id: string,
-  name: string,
-  labels: readonly string[],
-  { obligatoire = false, supplement = 0, prefixe = "" } = {}
-): OptionGroup => ({
-  id,
-  name,
-  obligatoire,
-  choices: labels.map((label) => ({
-    id: `${id}-${lzSlug(label)}`,
-    name: `${prefixe}${label}`,
-    supplement,
-  })),
-});
-
 /**
  * « + 2,50 € frites + boisson » du flyer. La boisson est portée par la
  * formule elle-même : un groupe d'options ne retenant qu'un choix, un
  * sous-choix imbriqué n'existe pas — et le ticket de cuisine dit ainsi
  * directement quelle canette sortir.
  */
-const lzFormule = lzChoix("formule", "Formule frites + boisson", LZ_BOISSONS, {
+const lzFormule = groupeChoix("formule", "Formule frites + boisson", LZ_BOISSONS, {
   supplement: 2.5,
   prefixe: "Frites + ",
 });
 
 /** Sauce unique, comme au comptoir. Ne rien choisir vaut « sans sauce ». */
-const lzSauce = lzChoix("sauce", "Sauce", LZ_SAUCES);
+const lzSauce = groupeChoix("sauce", "Sauce", LZ_SAUCES);
 
 /** Boisson comprise dans le prix (menu enfant). */
-const lzBoissonIncluse = lzChoix("boisson", "Boisson", LZ_BOISSONS, {
+const lzBoissonIncluse = groupeChoix("boisson", "Boisson", LZ_BOISSONS, {
   obligatoire: true,
 });
 
 /** Parfum de la canette vendue seule. */
-const lzParfumCanette = lzChoix("parfum", "Parfum", LZ_BOISSONS, {
+const lzParfumCanette = groupeChoix("parfum", "Parfum", LZ_BOISSONS, {
   obligatoire: true,
 });
 
@@ -1098,7 +1096,7 @@ const lzSupplements = (id: string, noms: string[]): OptionGroup => ({
   obligatoire: false,
   multiple: true,
   choices: noms.map((nom) => ({
-    id: `${id}-${lzSlug(nom)}`,
+    id: `${id}-${slugLibelle(nom)}`,
     name: nom,
     supplement: 1,
   })),
@@ -1489,10 +1487,127 @@ const lzFood: Restaurant = {
   ],
 };
 
+/*
+ * O’Crousti Poulet (Montpellier) — prospect, franchisé du réseau « O’Crousti
+ * Poulet Original » (poulet braisé halal). Carte transcrite du panneau
+ * lumineux photographié en boutique (demos/o-crousti-poulet/docs/) : un menu
+ * et quatorze suppléments, aux prix de Montpellier. Le panneau ne décrit
+ * aucun article : pas de description inventée. Adresse, téléphone et avis :
+ * la boutique de Port Marianne (230 rue Vendémiaire). Photos : les visuels
+ * produits du site de la franchise, et trois photos de banque (frites,
+ * canette, bouteille) recadrées — toutes dans public/o-crousti-poulet/.
+ * Source de vérité du profil : demos/o-crousti-poulet/profile.json.
+ */
+
+/*
+ * « +1 accompagnement au choix » : le panneau ne les nomme pas. Ce sont les
+ * trois accompagnements de sa liste de suppléments — déduction à confirmer
+ * avec le gérant.
+ */
+const OCP_ACCOMPAGNEMENTS = ["Frites", "Riz oriental", "Pâtes crémo"] as const;
+
+/*
+ * Le panneau n'imprime que « Boisson 33cl » et « Bouteille », sans marque.
+ * Canettes lues sur la page Uber Eats de la boutique Vendémiaire (celles à
+ * 2,00 €, le prix du panneau) — à confirmer avec le gérant.
+ */
+const OCP_BOISSONS = [
+  "Coca-Cola",
+  "Coca-Cola Zéro",
+  "Coca-Cola Cherry",
+  "Fanta Orange",
+  "Orangina",
+  "Ice Tea Pêche",
+] as const;
+
+const ocpBoisson = groupeChoix("boisson", "Boisson", OCP_BOISSONS, {
+  obligatoire: true,
+});
+
+const oCroustiPoulet: Restaurant = {
+  slug: "o-crousti-poulet",
+  name: "O’Crousti Poulet",
+  tagline: "Original",
+  logo: "/o-crousti-poulet/coq.webp",
+  whiteLogo: true,
+  address: "230 rue Vendémiaire, 34000 Montpellier",
+  phone: "+33 7 49 20 64 34",
+  hours: "Ouvert 7j/7, du lundi au dimanche",
+  highlights: ["Halal", "Ouvert 7j/7"],
+  googleReviewUrl:
+    "https://search.google.com/local/writereview?placeid=ChIJCXg4SkyvthIR3btCb5k3PUI",
+  categories: [
+    {
+      id: "menu-solo",
+      name: "Menu Solo Inclus",
+      items: [
+        {
+          id: "menu-solo",
+          name: "Menu Solo",
+          description:
+            // Espaces insécables (\u00a0) : « ou 2 saucisses » ne se coupe
+            // pas, la ligne ne se casse que devant un « ou », comme sur le
+            // panneau.
+            "1\u00a0cuisse de\u00a0poulet ou\u00a03\u00a0pilons ou\u00a04\u00a0ailes ou\u00a02\u00a0saucisses\n+\u00a01\u00a0accompagnement au\u00a0choix\n+\u00a01\u00a0boisson 33\u00a0cl",
+          price: 6.9,
+          image: "/o-crousti-poulet/menu-solo.webp",
+          options: [
+            groupeChoix(
+              "viande",
+              "Viande",
+              ["1 cuisse de poulet", "3 pilons", "4 ailes", "2 saucisses"],
+              { obligatoire: true }
+            ),
+            groupeChoix("accompagnement", "Accompagnement", OCP_ACCOMPAGNEMENTS, {
+              obligatoire: true,
+            }),
+            groupeChoix("boisson", "Boisson 33\u00a0cl", OCP_BOISSONS, {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "supplements",
+      name: "Nos Suppléments",
+      items: [
+        { id: "poulet", name: "Poulet", price: 8.5, image: "/o-crousti-poulet/poulet.webp" },
+        { id: "demi-poulet", name: "Demi poulet", price: 4.5, image: "/o-crousti-poulet/demi-poulet.webp" },
+        { id: "cuisse", name: "Cuisse", price: 2.8, image: "/o-crousti-poulet/cuisse.webp" },
+        { id: "pilons", name: "Pilons", detail: "x3", price: 2.8, image: "/o-crousti-poulet/pilons.webp" },
+        { id: "ailes", name: "Ailes", detail: "x4", price: 2.8, image: "/o-crousti-poulet/ailes.webp" },
+        { id: "blanc-de-poulet", name: "Blanc de poulet", price: 4, image: "/o-crousti-poulet/blanc-de-poulet.webp" },
+        { id: "donut", name: "Donut", price: 2.5, image: "/o-crousti-poulet/donut.webp" },
+        { id: "saucisse", name: "Saucisse", price: 2, image: "/o-crousti-poulet/saucisse.webp" },
+        { id: "riz-oriental", name: "Riz oriental", price: 3.8, image: "/o-crousti-poulet/riz-oriental.webp" },
+        { id: "pates-cremo", name: "Pâtes crémo", price: 3.8, image: "/o-crousti-poulet/pates-cremo.webp" },
+        { id: "frites", name: "Frites", price: 3.5, image: "/o-crousti-poulet/frites.webp" },
+        { id: "boisson", name: "Boisson", detail: "33\u00a0cl", price: 2, image: "/o-crousti-poulet/boisson.webp", options: [ocpBoisson] },
+        { id: "bouteille", name: "Bouteille", price: 4, image: "/o-crousti-poulet/bouteille.webp", options: [ocpBoisson] },
+        {
+          id: "dessert",
+          name: "Dessert",
+          price: 4,
+          image: "/o-crousti-poulet/tiramisu.webp",
+          /* Les deux desserts à 4 € de la carte nationale du réseau ; le
+             panneau n'en nomme aucun. À confirmer avec le gérant. */
+          options: [
+            groupeChoix("dessert", "Dessert", ["Tiramisu", "Tarte Daim"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
+  [oCroustiPoulet.slug]: oCroustiPoulet,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -1501,6 +1616,7 @@ const restaurants: Record<string, Restaurant> = {
 const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
+  [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
@@ -1522,6 +1638,20 @@ export function mapsUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
+/** Espace insécable avant € : le prix ne se coupe jamais de sa devise. */
 export function formatPrice(price: number): string {
-  return `${price.toFixed(2).replace(".", ",")} €`;
+  return `${price.toFixed(2).replace(".", ",")}\u00a0€`;
+}
+
+/**
+ * Le numéro tel qu'un client français le lit (« 07 49 20 64 34 ») ; le
+ * lien, lui, garde la forme internationale (tel:, wa.me).
+ */
+export function displayPhone(phone: string): string {
+  return phone.replace(/^\+33\s?/, "0");
+}
+
+/** L'adresse affichée : le code postal ne se sépare pas de sa ville. */
+export function displayAddress(address: string): string {
+  return address.replace(/\b(\d{5}) /, "$1\u00a0");
 }

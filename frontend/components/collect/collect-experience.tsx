@@ -485,7 +485,7 @@ export function CollectExperience({ restaurant }: { restaurant: Restaurant }) {
           Click & collect · Commandez, payez, passez récupérer
         </p>
         {restaurant.categories.map((category) => (
-          <section key={category.id}>
+          <section key={category.id} id={category.id}>
             <div className="mb-3 flex items-baseline gap-4">
               <h2 className="font-display text-xl font-medium tracking-tight lg:text-2xl">
                 {category.name}

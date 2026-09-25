@@ -17,6 +17,25 @@ function Badges({ badges }: { badges?: Badge[] }) {
   );
 }
 
+/**
+ * Une description sur plusieurs lignes est une liste — la composition d'un
+ * menu (« 1 cuisse… / + 1 accompagnement… / + 1 boisson ») ; sur une seule,
+ * un paragraphe.
+ */
+function Description({ text }: { text?: string }) {
+  if (!text) return null;
+  const className = "text-sm leading-relaxed text-muted lg:text-[15px]";
+  const lines = text.split("\n");
+  if (lines.length === 1) return <p className={className}>{text}</p>;
+  return (
+    <ul className={`dish-lines ${className}`}>
+      {lines.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
+  );
+}
+
 function Pairing({ pairing }: { pairing?: string }) {
   if (!pairing) return null;
   return (
@@ -25,31 +44,40 @@ function Pairing({ pairing }: { pairing?: string }) {
 }
 
 /** Large photo card for featured items. */
-function FeaturedCard({ item }: { item: MenuItem }) {
+function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl">
+    <article className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl">
       {item.image && (
-        <div className="relative aspect-video overflow-hidden">
+        <div className="dish-photo relative aspect-video overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
           <img
             src={item.image}
             alt=""
-            loading="lazy"
+            // La première photo de la carte est souvent l'élément le plus
+            // lourd du premier écran : chargée tout de suite, pas en différé.
+            loading={priority ? "eager" : "lazy"}
+            // Les autres passent après le JavaScript : la page est trop
+            // courte pour que « lazy » les retienne.
+            fetchPriority={priority ? "high" : "low"}
             className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
-          <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
+          <div className="dish-photo-fade absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
           <div className="absolute left-4 top-4">
             <Badges badges={item.badges} />
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-2 p-4 lg:gap-3 lg:p-5">
-        <div className="flex items-baseline justify-between gap-4">
+      <div className="dish-body flex flex-col gap-2 p-4 lg:gap-3 lg:p-5">
+        <div className="dish-head flex items-baseline justify-between gap-4">
           <h3 className="font-display text-lg font-medium sm:text-xl lg:text-2xl">
-            {item.name}
-            {item.detail && " "}
+            {/* Nom et espace en un seul nœud de texte : séparés, Chrome
+                perdait l'espace et lisait « Pilonsx3 ». */}
+            {item.detail ? `${item.name} ` : item.name}
             {item.detail && (
-              <span className="dish-detail ml-2 whitespace-nowrap align-middle text-sm font-normal text-muted">
+              <span
+                data-detail={item.detail}
+                className="dish-detail ml-1 whitespace-nowrap align-middle text-sm font-normal text-muted"
+              >
                 {item.detail}
               </span>
             )}
@@ -72,11 +100,9 @@ function FeaturedCard({ item }: { item: MenuItem }) {
             )}
           </div>
         </div>
-        {item.description && (
-          <p className="text-sm leading-relaxed text-muted lg:text-[15px]">{item.description}</p>
-        )}
+        <Description text={item.description} />
         <Pairing pairing={item.pairing} />
-        <div className="mt-1 flex justify-end">
+        <div className="dish-action mt-1 flex justify-end">
           <AddToOrder item={item} />
         </div>
       </div>
@@ -84,6 +110,6 @@ function FeaturedCard({ item }: { item: MenuItem }) {
   );
 }
 
-export function DishCard({ item }: { item: MenuItem }) {
-  return <FeaturedCard item={item} />;
+export function DishCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
+  return <FeaturedCard item={item} priority={priority} />;
 }

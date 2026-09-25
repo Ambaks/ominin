@@ -278,10 +278,1566 @@ html.light {
   color: #ffffff;
 }
 
+/* Le bouton téléphone en jaune plein : le bout rouge du dégradé, sur le
+   rouge du pied, ne donnait que 4,4:1 sous l'encre du numéro. */
+.theme-lz-food .footer-phone {
+  background-image: none;
+  background-color: var(--ember-1);
+}
+
+/* WhatsApp en blanc pur : le blanc cassé de la palette ne donnait que 4,25:1
+   sur le rouge. */
+.theme-lz-food .footer-whatsapp {
+  color: #ffffff;
+}
+
 .theme-lz-food footer .ember-text {
   background-image: none;
   color: #ffffff;
   -webkit-text-fill-color: #ffffff;
+}
+
+/*
+  O’Crousti Poulet (Montpellier) — poulet braisé halal, deux adresses.
+  Identité relevée sur le logo, l'enseigne lumineuse, le panneau-menu et la
+  vitrophanie de la porte (demos/o-crousti-poulet/docs/) : noir d'enseigne,
+  blanc, et le jaune citron du logo (#F7EE21, mesuré sur le fichier), posé à
+  plat comme les lettres éclairées — pas en dégradé. Le jaune porte la
+  structure : le trait de l'enseigne, le ruban « Ouvert 7j/7 », les prix, les
+  boutons. Typographie du panneau : Poppins grasse pour les articles, Anton
+  pour les prix, les titres manuscrits de « Nos Suppléments » ; le nom dans la
+  géométrique de l'enseigne.
+*/
+.theme-o-crousti-poulet {
+  --background: #131416;
+  --foreground: #f7f7f2;
+
+  --surface: #1c1d20;
+  --surface-raised: #26282c;
+  --hairline: rgba(247, 247, 242, 0.1);
+
+  --muted: #b0b2b6;
+  --faint: #8f9197;
+
+  --ember-1: #fff35c;
+  --ember-2: #f7ee21;
+  --ember-3: #f2cc12;
+
+  --shimmer-highlight: rgba(247, 238, 33, 0.14);
+  --glow-inner: rgba(247, 238, 33, 0.09);
+  --glow-outer: rgba(242, 204, 18, 0.05);
+
+  --brand-display: var(--font-poppins), var(--font-fraunces), sans-serif;
+  --brand-sans: var(--font-poppins), var(--font-instrument-sans), sans-serif;
+  /* Le nom seul, dans la géométrique de l'enseigne (hero, pied de page). */
+  --brand-wordmark: var(--font-didact-gothic), var(--brand-display);
+
+  /* La taille du nom, dont dépendent le coq, le trait et l'accroche. */
+  --ocp-name: min(13.4vw, 8rem);
+
+  /* La lueur du héros : blanche, celle de l'enseigne allumée sur la nuit.
+     Le jaune des braises d'Ominin virait ici à l'olive. */
+  --hero-glow-1: #ffffff;
+  --hero-glow-2: #ffffff;
+  --hero-glow-3: #8a8d92;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas :
+     sans cette ligne, le sous-arbre garde la police d'Ominin. */
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+.theme-o-crousti-poulet :focus-visible {
+  outline: 2px solid var(--ember-2);
+  outline-offset: 3px;
+}
+
+/* Le jaune à plat, comme l'enseigne et le ruban : le dégradé « braise »
+   d'Ominin n'a rien à faire ici (boutons, pastille active, barre du panier,
+   progression). */
+.theme-o-crousti-poulet .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-2);
+}
+
+/*
+  Le fond du panneau-menu : des rayons qui partent du coq. Traduits en
+  lumière à peine visible qui tourne très lentement, pas en aplat gris —
+  le panneau rivalise avec la rue, l'écran non. Le carré qui tourne ne
+  dépasse pas le disque visible : une composition, pas un repeint, et pas
+  de texture démesurée pour le processeur graphique d'un téléphone. Les
+  braises flottantes d'Ominin, elles, sont un feu de bois : retirées.
+*/
+.theme-o-crousti-poulet > header::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 72vmax;
+  height: 72vmax;
+  margin: -36vmax 0 0 -36vmax;
+  background: repeating-conic-gradient(
+    rgba(247, 247, 242, 0.05) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  mask-image: radial-gradient(circle closest-side, black 12%, transparent 96%);
+  /* Par crans de 0,25° : invisible à l'œil, et six images par seconde au
+     lieu de soixante pour le processeur graphique. */
+  animation: ocp-rayons 240s steps(1440) infinite;
+  pointer-events: none;
+}
+
+@keyframes ocp-rayons {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Le halo qui respire et la lueur qui dérive sont les braises d'Ominin : ici
+   la seule lumière est celle, fixe, de l'enseigne. */
+.theme-o-crousti-poulet :is(.ember-particle, .logo-breathe, .hero-gradient-drift) {
+  display: none;
+}
+
+/*
+  Le verrou de l'enseigne lumineuse : le coq posé sur le nom, le nom sur une
+  seule ligne — « O’ » et « Poulet » en jaune, « Crousti » en blanc — puis le
+  long trait jaune qui finit sur « ORIGINAL ». L'enveloppe .hero-lockup, sans
+  effet ailleurs, devient ici une grille aussi large que le nom.
+*/
+/* Le coq perché sur « Crousti », au ras des lettres, comme sur l'enseigne.
+   0,935 em : l'écart mesuré entre le centre de « Crousti » et celui du nom,
+   dans la taille du nom. translate, pas transform : l'entrée animée du héros
+   occupe transform. */
+.theme-o-crousti-poulet .hero-logo {
+  margin-bottom: calc(var(--ocp-name) * -0.1);
+  translate: calc(var(--ocp-name) * -0.935) 0;
+}
+
+.theme-o-crousti-poulet .hero-logo img {
+  height: 5.75rem;
+}
+
+@media (min-width: 640px) {
+  .theme-o-crousti-poulet .hero-logo img {
+    height: 7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-o-crousti-poulet .hero-logo img {
+    height: 9rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .theme-o-crousti-poulet .hero-logo img {
+    height: 10.5rem;
+  }
+}
+
+/* Hors téléphone aussi, le héros prend la hauteur de l'enseigne, pas celle
+   de l'écran : sur un grand écran, la carte commence au premier coup d'œil. */
+@media (min-width: 640px) {
+  .theme-o-crousti-poulet > header {
+    min-height: 0;
+    padding-bottom: 4rem;
+  }
+}
+
+/* La carte commence au premier écran : l'invitation à défiler n'a plus
+   d'objet. */
+.theme-o-crousti-poulet .hero-cue {
+  display: none;
+}
+
+.theme-o-crousti-poulet .hero-lockup {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "name name"
+    "rule tag";
+  align-items: center;
+  gap: 0.6rem 0.75rem;
+  width: max-content;
+  max-width: calc(100% - 2.5rem);
+}
+
+.theme-o-crousti-poulet .hero-name {
+  grid-area: name;
+  margin: 0;
+  padding-inline: 0;
+  /* Sur une ligne par sa taille, pas par nowrap : un espacement de texte
+     agrandi (WCAG 1.4.12) doit pouvoir la faire passer à la ligne. */
+  font-size: var(--ocp-name);
+  font-family: var(--brand-wordmark);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  color: #ffffff;
+  /* Didact Gothic n'a qu'une graisse, plus maigre que les lettres de
+     l'enseigne : un contour de la couleur du texte les nourrit. */
+  -webkit-text-stroke: 0.03em currentColor;
+  paint-order: stroke fill;
+  text-shadow: 0 0 0.45em rgba(255, 255, 255, 0.16);
+  /* L'écart entre les mots, celui de l'enseigne : un vrai espacement plutôt
+     qu'une espace resserrée, qui collait les mots tant que la police de
+     secours s'affichait. En flex, l'espace du texte ne compte plus. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.21em;
+}
+
+.theme-o-crousti-poulet .hero-name > span:first-child::first-letter,
+.theme-o-crousti-poulet .hero-name > span:last-child {
+  color: var(--ember-2);
+  text-shadow: 0 0 0.45em rgba(247, 238, 33, 0.3);
+}
+
+/* Trait et accroche suivent la taille du nom, dans les proportions de
+   l'enseigne. */
+.theme-o-crousti-poulet .hero-rule {
+  grid-area: rule;
+  width: auto;
+  /* L'épaisseur et l'assise de l'enseigne : ORIGINAL posé sur la ligne du
+     trait, pas centré sur lui. */
+  align-self: end;
+  margin: 0 0 calc(var(--ocp-name) * 0.054);
+  height: max(5px, calc(var(--ocp-name) * 0.12));
+  border-radius: 2px;
+  background: var(--ember-2);
+  opacity: 1;
+  box-shadow: 0 0 14px rgba(247, 238, 33, 0.4);
+}
+
+.theme-o-crousti-poulet .hero-tagline {
+  grid-area: tag;
+  margin: 0;
+  background-image: none;
+  color: #ffffff;
+  -webkit-text-fill-color: currentColor;
+  font-size: calc(var(--ocp-name) * 0.3);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+/* Adresse et téléphone sont au pied de page ; l'enseigne n'en porte pas. */
+.theme-o-crousti-poulet .hero-contact {
+  display: none;
+}
+
+/* La pastille active rayonne jaune, pas du halo orangé d'Ominin. */
+.theme-o-crousti-poulet nav a.ember-gradient {
+  box-shadow: 0 0 18px rgba(247, 238, 33, 0.28);
+}
+
+.theme-o-crousti-poulet nav [data-category] {
+  font-weight: 600;
+}
+
+/* Les pastilles se centrent comme le reste de la page (« safe » : si elles
+   débordent, le rail repart de la gauche et reste défilable). */
+.theme-o-crousti-poulet nav div:has(> [data-category]) {
+  justify-content: safe center;
+}
+
+/* Le ruban jaune du bas du panneau, où « OUVERT 7J/7 » voisine la médaille
+   halal. */
+/* Le ruban du panneau est une bannière, pas une bande d'un bord à l'autre :
+   à sa largeur, posé à cheval sur le bas du héros. */
+.theme-o-crousti-poulet .menu-highlights {
+  position: relative;
+  z-index: 9;
+  margin-top: -1.35rem;
+  margin-bottom: 1.75rem;
+  border: 0;
+  background: transparent;
+}
+
+@media (min-width: 1024px) {
+  .theme-o-crousti-poulet .menu-highlights {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* Légèrement penchée, comme sur le panneau. */
+.theme-o-crousti-poulet .menu-highlights ul {
+  width: fit-content;
+  max-width: calc(100% - 2.5rem);
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  background: var(--ember-2);
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.7);
+  rotate: -1.5deg;
+}
+
+.theme-o-crousti-poulet .menu-highlights li {
+  color: var(--background);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* La barre verticale qui sépare les mentions du ruban. */
+.theme-o-crousti-poulet .menu-highlights li + li::before {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-right: 0.8em;
+  background: currentColor;
+  vertical-align: -0.12em;
+}
+
+.theme-o-crousti-poulet .menu-highlights ul {
+  column-gap: 0.8em;
+}
+
+/*
+  Les titres de section comme sur le panneau : manuscrits, centrés, d'un
+  blanc teinté de jaune au halo jaune, soulignés d'un fin filet blanc.
+*/
+.theme-o-crousti-poulet .category-head {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.theme-o-crousti-poulet .category-heading {
+  font-family: var(--font-playball), cursive;
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-align: center;
+  /* Le néon du panneau : cœur blanc, liseré jaune, halo jaune. */
+  color: #fffef4;
+  -webkit-text-stroke: 0.05em var(--ember-2);
+  paint-order: stroke fill;
+  text-shadow: 0 0 0.45em rgba(247, 238, 33, 0.5);
+}
+
+.theme-o-crousti-poulet .category-rule {
+  flex: none;
+  align-self: stretch;
+  height: 2px;
+  min-width: 0;
+  background-image: none;
+  background-color: var(--foreground);
+  opacity: 1;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+/* Le fond du panneau continue sous la carte : les mêmes rayons, plus
+   discrets encore, immobiles, derrière le début du menu. */
+.theme-o-crousti-poulet main {
+  position: relative;
+  isolation: isolate;
+}
+
+.theme-o-crousti-poulet main::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 70rem;
+  z-index: -1;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 9rem,
+    rgba(247, 247, 242, 0.03) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 45% at 50% 9rem,
+    black 10%,
+    transparent 80%
+  );
+  pointer-events: none;
+}
+
+/* Les articles : capitales extra-grasses, précédées de la pastille jaune du
+   panneau — sur la carte comme dans sa modale d'options (le panier, étiqueté
+   autrement, garde son titre). */
+.theme-o-crousti-poulet article h3,
+.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title) {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.theme-o-crousti-poulet article h3::before,
+.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title)::before {
+  content: "";
+  display: inline-block;
+  width: 0.62em;
+  height: 0.62em;
+  margin-right: 0.45em;
+  border-radius: 9999px;
+  background: var(--ember-2);
+  vertical-align: 0.1em;
+}
+
+/* « 33 cl » en blanc, « X3 », « X4 » en jaune : comme sur le panneau, où
+   seul le nombre de pièces est coloré. */
+.theme-o-crousti-poulet .dish-detail {
+  margin-left: 0;
+  color: var(--foreground);
+  font-weight: 800;
+  font-size: 1em;
+  vertical-align: baseline;
+}
+
+.theme-o-crousti-poulet .dish-detail[data-detail^="x"] {
+  color: var(--ember-2);
+}
+
+/* Le prix : l'Anton étroite et noire du « €6.90 » du panneau, en jaune. */
+.theme-o-crousti-poulet .dish-price {
+  font-family: var(--font-anton), var(--brand-display);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--ember-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  Les vignettes (« Nos Suppléments », voir les règles communes) : le nom en
+  petites capitales, le prix en Anton — et le bouton en simple contour, pour
+  que le prix jaune reste ce qu'on lit en premier, comme sur le panneau.
+*/
+.theme-o-crousti-poulet .dish-grid-tiles h3 {
+  font-size: 0.95rem;
+  /* Retrait suspendu : sur deux lignes, le nom reste aligné derrière sa
+     pastille (0,62 em de pastille + 0,45 em de marge). */
+  padding-left: 1.07em;
+  text-indent: -1.07em;
+}
+
+.theme-o-crousti-poulet .dish-grid-tiles .dish-action > button {
+  background: transparent;
+  color: var(--ember-2);
+  box-shadow: inset 0 0 0 2px var(--ember-2);
+}
+
+/* Au survol d'une souris seulement : au doigt, la teinte restait collée
+   au bouton après le toucher. */
+@media (hover: hover) {
+  .theme-o-crousti-poulet .dish-grid-tiles .dish-action > button:hover {
+    background: rgba(247, 238, 33, 0.12);
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-o-crousti-poulet .dish-grid-tiles h3 {
+    font-size: 1.15rem;
+  }
+
+  .theme-o-crousti-poulet .dish-grid-tiles .dish-price {
+    font-size: 2rem;
+  }
+}
+
+/* Les vignettes posées sur le noir du panneau, sans carte grise : la photo
+   arrondie, le nom et le prix dessous, comme un article du panneau. */
+.theme-o-crousti-poulet .dish-grid-tiles > article {
+  border-color: transparent;
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-o-crousti-poulet .dish-grid-tiles .dish-photo {
+  border-radius: 1rem;
+}
+
+.theme-o-crousti-poulet .dish-grid-tiles .dish-body {
+  padding-inline: 0.15rem;
+}
+
+/* La composition du Menu Solo, comme sur le panneau : trois lignes en
+   capitales blanches, chacune derrière sa pastille jaune. */
+.theme-o-crousti-poulet .dish-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  text-wrap: pretty;
+}
+
+.theme-o-crousti-poulet .dish-lines li {
+  position: relative;
+  padding-left: 1.1em;
+}
+
+.theme-o-crousti-poulet .dish-lines li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.42em;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 9999px;
+  background: var(--ember-2);
+}
+
+@media (min-width: 1024px) {
+  .theme-o-crousti-poulet .dish-lines {
+    font-size: 0.9rem;
+  }
+}
+
+/*
+  Le Menu Solo, vedette du panneau : son prix est la plus grande chose de la
+  page, comme le « €6.90 » ; son bouton le seul plein, sur toute la largeur.
+  Pas de pastille devant son nom — les trois lignes en ont déjà.
+*/
+.theme-o-crousti-poulet article:only-child h3 {
+  white-space: nowrap;
+}
+
+.theme-o-crousti-poulet article:only-child h3::before,
+.theme-o-crousti-poulet [role="dialog"] h3[data-compose]::before {
+  display: none;
+}
+
+.theme-o-crousti-poulet article:only-child .dish-head {
+  flex-wrap: wrap;
+  align-items: flex-end;
+  row-gap: 0.25rem;
+}
+
+.theme-o-crousti-poulet article:only-child .dish-price {
+  font-size: 3.6rem;
+}
+
+.theme-o-crousti-poulet article:only-child .dish-action > button {
+  width: 100%;
+}
+
+/* Le haut de la photo du comptoir n'est que rebord de bac et mur gris. */
+.theme-o-crousti-poulet article:only-child .dish-photo img {
+  object-position: 50% 65%;
+}
+
+/* Au téléphone, seul sur sa rangée, le Menu Solo va d'un bord à l'autre de
+   l'écran (la marge de main, px-5, rendue) ; son texte garde l'alignement
+   de la page. Photo plus plate : plus large et plus haute, elle poussait le
+   bouton hors du premier écran. */
+@media (max-width: 767px) {
+  .theme-o-crousti-poulet .dish-grid > article:only-child {
+    margin-inline: -1.25rem;
+    border-inline: 0;
+    border-radius: 0;
+  }
+
+  [data-menu-root].theme-o-crousti-poulet .dish-grid > article:only-child .dish-photo {
+    aspect-ratio: 5 / 2;
+  }
+
+  .theme-o-crousti-poulet .dish-grid > article:only-child .dish-body {
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .theme-o-crousti-poulet article:only-child .dish-price {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-o-crousti-poulet article:only-child .dish-price {
+    font-size: 4.5rem;
+  }
+}
+
+/* La barre du panier, jaune, cerclée de noir pour se détacher de tout. */
+.theme-o-crousti-poulet .cart-bar {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* Anneau double, blanc puis noir : il se voit sur la page sombre comme sur
+   le pied de page blanc. */
+.theme-o-crousti-poulet .cart-bar:focus-visible {
+  outline: 3px solid var(--background);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 3px var(--foreground),
+    0 25px 50px -12px rgba(0, 0, 0, 0.4);
+}
+
+/* L'option choisie cerclée du jaune plein de l'enseigne : à 60 %, il virait
+   au kaki sur le gris de la feuille. */
+.theme-o-crousti-poulet .choice-row.is-checked {
+  border-color: var(--ember-2);
+}
+
+/* Les vignettes ne rognent plus l'anneau de focus de leur bouton : c'est la
+   photo, seule, qui arrondit ses coins. */
+.theme-o-crousti-poulet .dish-grid-tiles > article {
+  overflow: visible;
+}
+
+/* Rebond au-dessus ou au-dessous de la page (téléphone) : le fond du
+   document, pas le lin du mode clair d'Ominin s'il est resté enregistré. */
+html:has(.theme-o-crousti-poulet),
+html:has(.theme-o-crousti-poulet) body {
+  background-color: #131416;
+}
+
+@media (max-width: 359px) {
+  .theme-o-crousti-poulet .cart-bar {
+    gap: 0.75rem;
+    padding-inline: 1.25rem;
+  }
+}
+
+/* Le panier parle comme la carte : capitales grasses, prix en Anton. */
+.theme-o-crousti-poulet .cart-title {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.theme-o-crousti-poulet .cart-bar-total {
+  font-family: var(--font-anton), var(--brand-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.theme-o-crousti-poulet .cart-line-name {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.theme-o-crousti-poulet .cart-line-price,
+.theme-o-crousti-poulet .cart-total {
+  font-family: var(--font-anton), var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--ember-2);
+}
+
+.theme-o-crousti-poulet .cart-line-price {
+  font-size: 1.25rem;
+}
+
+.theme-o-crousti-poulet .cart-total {
+  font-size: 1.75rem;
+}
+
+/*
+  Le pied de page est la porte : fond blanc, larges bandes d'or qui tournent,
+  pilons dessinés au trait noir (redessinés d'après la vitrophanie), et le
+  nom entre deux traits comme sur chaque panneau de la porte.
+*/
+.theme-o-crousti-poulet footer {
+  border-top: 0;
+  padding: 3rem 1.25rem;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23FFD109' stroke-width='112' stroke-linecap='round'%3E%3Cpath d='M-150 120C150 -80 380 330 660 140S1080 -60 1350 170'/%3E%3Cpath d='M-150 470C200 260 440 690 780 470S1140 280 1350 500'/%3E%3Cpath d='M-150 820C180 610 480 1010 840 800S1180 640 1350 850'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+  color: var(--background);
+}
+
+/* Le panneau blanc de la porte, au milieu des tourbillons : le nom entre
+   deux traits, les pilons dessinés dans ses coins, et tout le texte à l'abri
+   des bandes d'or. */
+.theme-o-crousti-poulet footer > div {
+  max-width: 30rem;
+  padding: 5rem 1.5rem 2.5rem;
+  border-radius: 1.5rem;
+  background-color: #ffffff;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg fill='%23fff' stroke='%23131416' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M43 83C36 66 40 42 55 29C70 16 93 17 102 31C111 45 104 66 86 76C72 84 56 87 43 83Z'/%3E%3Cpath d='M44 81L27 98M49 87L32 104'/%3E%3Cpath d='M27 98C20 96 14 102 18 108C16 115 26 118 29 111C33 116 41 111 32 104'/%3E%3C/g%3E%3Cg fill='%23131416'%3E%3Ccircle cx='72' cy='36' r='2.4'/%3E%3Ccircle cx='86' cy='44' r='2.4'/%3E%3Ccircle cx='68' cy='52' r='2.4'/%3E%3Ccircle cx='82' cy='62' r='2.4'/%3E%3Ccircle cx='58' cy='66' r='2.2'/%3E%3Ccircle cx='92' cy='32' r='2'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg transform='translate(120 0) scale(-1 1) rotate(-20 60 60)'%3E%3Cg fill='%23fff' stroke='%23131416' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M43 83C36 66 40 42 55 29C70 16 93 17 102 31C111 45 104 66 86 76C72 84 56 87 43 83Z'/%3E%3Cpath d='M44 81L27 98M49 87L32 104'/%3E%3Cpath d='M27 98C20 96 14 102 18 108C16 115 26 118 29 111C33 116 41 111 32 104'/%3E%3C/g%3E%3Cg fill='%23131416'%3E%3Ccircle cx='72' cy='36' r='2.4'/%3E%3Ccircle cx='86' cy='44' r='2.4'/%3E%3Ccircle cx='68' cy='52' r='2.4'/%3E%3Ccircle cx='82' cy='62' r='2.4'/%3E%3Ccircle cx='58' cy='66' r='2.2'/%3E%3Ccircle cx='92' cy='32' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position:
+    left 1.25rem top 1.25rem,
+    right 1.25rem top 1.5rem;
+  background-size: 3.25rem, 3rem;
+  box-shadow: 0 0 0 3px var(--background);
+}
+
+/* Au téléphone, les tourbillons se voient autour du panneau, pas en fines
+   lisières. */
+@media (max-width: 767px) {
+  .theme-o-crousti-poulet footer {
+    padding: 4rem 1.5rem;
+  }
+}
+
+@media (max-width: 399px) {
+  .theme-o-crousti-poulet footer {
+    padding-inline: 1rem;
+  }
+
+  .theme-o-crousti-poulet footer > div {
+    padding-inline: 1rem;
+  }
+
+  .theme-o-crousti-poulet .footer-name {
+    font-size: 1.35rem;
+  }
+
+  .theme-o-crousti-poulet .footer-whatsapp {
+    padding-inline: 1rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) {
+  .theme-o-crousti-poulet footer {
+    padding-block: 4.5rem;
+  }
+
+  .theme-o-crousti-poulet footer > div {
+    padding: 5.5rem 2.5rem 3rem;
+    background-size: 4rem, 3.75rem;
+  }
+}
+
+.theme-o-crousti-poulet footer :focus-visible {
+  outline-color: var(--background);
+}
+
+.theme-o-crousti-poulet .footer-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--brand-wordmark);
+  font-weight: 400;
+  -webkit-text-stroke: 0.03em currentColor;
+  paint-order: stroke fill;
+  word-spacing: -0.2em;
+}
+
+.theme-o-crousti-poulet .footer-name::before,
+.theme-o-crousti-poulet .footer-name::after {
+  content: "";
+  width: 1.4em;
+  height: 2px;
+  background: currentColor;
+}
+
+.theme-o-crousti-poulet footer .text-muted {
+  color: #26282c;
+}
+
+.theme-o-crousti-poulet footer .ember-text {
+  background-image: none;
+  color: var(--background);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Téléphone, WhatsApp, avis Google : encre noire, comme les dessins de la
+   porte. */
+.theme-o-crousti-poulet .footer-phone {
+  background-image: none;
+  background-color: var(--background);
+  color: var(--ember-2);
+  font-weight: 700;
+}
+
+/* Trois boutons, une seule taille. */
+.theme-o-crousti-poulet :is(.footer-phone, .footer-whatsapp, .footer-review) {
+  justify-content: center;
+  min-width: min(16rem, 100%);
+  min-height: 3rem;
+}
+
+.theme-o-crousti-poulet .footer-whatsapp {
+  border-color: rgba(19, 20, 22, 0.4);
+  background-color: #ffffff;
+  color: var(--background);
+}
+
+.theme-o-crousti-poulet .footer-review {
+  border-color: transparent;
+  background-color: var(--background);
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-o-crousti-poulet > header::after {
+    animation: none;
+  }
+}
+
+/*
+  Menu — règles communes à toutes les cartes, thème ou pas.
+*/
+
+/* Anneau de focus aux couleurs de la carte ; les thèmes posent le leur. */
+:where([data-menu-root]) :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* La feuille reçoit le focus à l'ouverture (pour le lecteur d'écran) sans
+   être une commande : pas d'anneau autour d'elle, sur un voile où il ne se
+   voyait de toute façon pas. */
+[data-menu-root] [role="dialog"]:focus-visible {
+  outline: none;
+}
+
+/*
+  Une section d'un seul plat (un menu, un menu enfant) ne reste pas seule
+  dans la moitié gauche de la grille : elle prend toute la largeur, photo à
+  gauche, texte à droite, le fondu de la photo tourné vers le texte.
+*/
+@media (min-width: 768px) {
+  [data-menu-root] .dish-grid > article:only-child {
+    grid-column: 1 / -1;
+  }
+
+  [data-menu-root] .dish-grid > article:only-child:has(.dish-photo) {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+  }
+
+  /* Tablette : la colonne de texte d'abord, sinon la composition d'un
+     menu y cassait chaque ligne. */
+  @media (max-width: 1023px) {
+    [data-menu-root] .dish-grid > article:only-child:has(.dish-photo) {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+  }
+
+  [data-menu-root] .dish-grid > article:only-child .dish-photo {
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+
+  [data-menu-root] .dish-grid > article:only-child .dish-photo .dish-photo-fade {
+    background-image: linear-gradient(to left, var(--surface), transparent 30%);
+  }
+
+  [data-menu-root] .dish-grid > article:only-child .dish-body {
+    justify-content: center;
+    padding: 2rem;
+  }
+}
+
+/*
+  Une section sans descriptions (.dish-grid-tiles, posée par MenuSection) :
+  des vignettes en grille — deux colonnes au téléphone, trois en bureau,
+  comme à la borne d'un fast-food — plutôt qu'une colonne de grandes cartes
+  presque vides (quatorze suppléments faisaient 4 600 px de défilement).
+  Propre à la palette Ominin et aux thèmes qui l'adoptent ; les autres gardent
+  leur mise en page. :where() garde ces règles légères, qu'un thème affine.
+  Pas de fondu sur les photos : il virait à l'olive le jaune des visuels.
+*/
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  > article {
+  display: flex;
+  flex-direction: column;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-photo {
+  aspect-ratio: 4 / 3;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-body {
+  flex: 1;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-photo-fade {
+  display: none;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-head {
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  h3 {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-action
+  > button {
+  width: 100%;
+}
+
+@media (max-width: 359px) {
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    h3 {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Six colonnes, deux par vignette : la dernière rangée incomplète se
+     centre au lieu de laisser un trou à droite. */
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    > article {
+    grid-column: span 2;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    > article:nth-last-child(2):nth-child(3n + 1) {
+    grid-column: 2 / span 2;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    > article:last-child:nth-child(3n + 1) {
+    grid-column: 3 / span 2;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    .dish-body {
+    padding: 1rem 1.1rem 1.1rem;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Toute la vignette se touche, pas seulement son bouton : un pouce vise la
+   photo ou le nom au moins aussi souvent. Pas de rétrécissement à l'appui :
+   il faisait du bouton le repère de son voile, qui se réduisait à lui et
+   laissait tomber le toucher. Un cerne marque l'appui à la place. */
+[data-menu-root]
+  :is(.dish-grid-tiles > article, .dish-grid > article:only-child)
+  .dish-action
+  > button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+[data-menu-root]
+  :is(.dish-grid-tiles > article, .dish-grid > article:only-child)
+  .dish-action
+  > button:active {
+  scale: none;
+  box-shadow: inset 0 0 0 3px currentColor;
+}
+
+/* Les boutons des vignettes tiennent sur une ligne, même étroits
+   (paysage, 320 px) : le « + » ne part plus seul à la ligne. */
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-action
+  > button {
+  padding-inline: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Deux colonnes, un nombre impair de vignettes : la dernière se centre au
+   lieu de rester seule à gauche. */
+@media (max-width: 1023px) {
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles
+    > article:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 0.75rem) / 2);
+  }
+}
+
+/* Au téléphone, la photo d'un plat seul (le Menu Solo) s'aplatit en 2:1 :
+   son prix et son bouton remontent dans le premier écran. */
+@media (max-width: 767px) {
+  [data-menu-root] .dish-grid > article:only-child .dish-photo {
+    aspect-ratio: 2 / 1;
+  }
+}
+
+/* Cases à cocher et boutons radio aux couleurs de la carte : les disques
+   gris du navigateur juraient avec la feuille. Restent de vrais champs,
+   clavier et lecteurs d'écran compris. */
+[data-menu-root] [role="dialog"] :is(input[type="radio"], input[type="checkbox"]) {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  border: 2px solid var(--muted);
+  border-radius: 9999px;
+  background: transparent;
+}
+
+[data-menu-root] [role="dialog"] input[type="checkbox"] {
+  border-radius: 0.3rem;
+}
+
+[data-menu-root] [role="dialog"] :is(input[type="radio"], input[type="checkbox"]):checked {
+  border-color: var(--ember-2);
+}
+
+[data-menu-root] [role="dialog"] input[type="radio"]:checked::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  background: var(--ember-2);
+}
+
+[data-menu-root] [role="dialog"] input[type="checkbox"]:checked {
+  background: var(--ember-2);
+}
+
+/* « x3 », « 33 cl » à l'intérieur du nom : sans hauteur de ligne propre, ils
+   agrandissaient la ligne et abaissaient ce nom sous celui du voisin. */
+[data-menu-root] .dish-detail {
+  line-height: 1;
+}
+
+/* Dans une rangée de vignettes, les prix s'alignent en bas quand un nom
+   voisin passe sur deux lignes. */
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  .dish-grid-tiles
+  .dish-head {
+  justify-content: space-between;
+}
+
+/* Écran très bas (zoom à 400 %) : la feuille défile tout entière, pied
+   compris, au lieu de le rogner. Au-dessus, le bouton de validation reste
+   épinglé. */
+@media (max-height: 300px) {
+  [data-menu-root] [role="dialog"] {
+    overflow-y: auto;
+  }
+
+  [data-menu-root] [role="dialog"] > * {
+    flex-shrink: 0;
+  }
+}
+
+/* La barre du panier flotte sur le bas de page : tant qu'elle est là, le
+   pied s'allonge d'autant, dans sa propre couleur. */
+[data-menu-root]:has(.cart-bar) footer {
+  padding-bottom: 6rem;
+}
+
+/*
+  Un élément qui prend le focus (clavier) ou qu'on vise par une ancre ne
+  finit ni sous la barre des catégories, collée en haut, ni sous la barre
+  du panier, en bas.
+*/
+html:has([data-menu-root]) {
+  scroll-padding-top: 6rem;
+}
+
+html:has(.cart-bar) {
+  scroll-padding-bottom: 6rem;
+}
+
+/*
+  Au téléphone, l'entrée de la carte (palette Ominin et thèmes qui
+  l'adoptent) se resserre : l'adresse et le téléphone sont au pied de page,
+  et le Menu Solo remonte jusqu'au bord de l'écran.
+*/
+@media (max-width: 639px) {
+  /* Le héros au logo seulement : une photo de couverture garde sa hauteur. */
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    > header:has(.hero-lockup) {
+    min-height: 0;
+    padding-bottom: 2.5rem;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    :is(.hero-contact, .hero-cue) {
+    display: none;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-name {
+    font-size: min(3rem, 11vw);
+  }
+
+  /* Le premier plat dans le premier écran : logo et marges resserrés. */
+  [data-menu-root]:not([class*="theme-"]) > header:has(.hero-lockup) {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-rule {
+    margin-top: 1rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-logo {
+    margin-bottom: 1rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-logo img {
+    height: 5rem;
+  }
+}
+
+/*
+  Téléphone à l'horizontale : trois cents pixels de haut. La barre des
+  catégories ne colle plus, les vignettes passent à quatre de front, les
+  feuilles prennent toute la hauteur.
+*/
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
+  [data-menu-root] nav {
+    position: static;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    > header:has(.hero-lockup) {
+    min-height: 0;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    :is(.hero-contact, .hero-cue) {
+    display: none;
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    .dish-grid-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .theme-o-crousti-poulet .menu-highlights {
+    margin-top: 0.5rem;
+  }
+
+  /* La barre du panier en pastille à droite : centrée et large, elle
+     couvrait les deux colonnes du milieu. */
+  [data-menu-root] div:has(> .cart-bar) {
+    justify-content: flex-end;
+    padding: 0.5rem 0.75rem;
+  }
+
+  [data-menu-root] .cart-bar {
+    width: auto;
+    white-space: nowrap;
+    padding-block: 0.625rem;
+  }
+
+  [data-menu-root] [role="dialog"] {
+    max-height: calc(100dvh - 1rem);
+  }
+
+  /* Le héros tient dans une moitié d'écran : le nom rapetisse, les marges
+     aussi (le coq garde la taille voulue). */
+  .theme-o-crousti-poulet {
+    --ocp-name: min(9vw, 15svh);
+  }
+
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+    > header:has(.hero-lockup) {
+    padding-block: 1.5rem;
+  }
+
+  /* Palette Ominin : le resserrement du téléphone en portrait. */
+  [data-menu-root]:not([class*="theme-"]) .hero-logo {
+    margin-bottom: 0.75rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-logo img {
+    height: 5rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-name {
+    font-size: 3rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-rule {
+    margin-top: 0.75rem;
+  }
+}
+
+/*
+  Écran court (iPhone SE, téléphone à l'horizontale) : l'en-tête et le pied
+  collants du panier en prenaient les deux tiers, une ligne et demie restait
+  visible. Les marges se serrent, et « Retour à la carte » devient un
+  « Retour » compact sur la ligne du total, au lieu d'une rangée à lui.
+*/
+@media (max-height: 640px) {
+  [data-menu-root] :is(.cart-head, .cart-foot) {
+    padding-block: 0.75rem;
+  }
+
+  [data-menu-root] .cart-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.75rem;
+  }
+
+  [data-menu-root] .cart-foot > * {
+    flex-basis: 100%;
+  }
+
+  [data-menu-root] .cart-foot > :first-child {
+    flex: 1 1 0;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  [data-menu-root] .cart-foot > .cart-back {
+    order: -1;
+    flex: none;
+    width: auto;
+    margin: 0 0 0.5rem;
+    padding-inline: 1.25rem;
+    border: 1px solid var(--hairline);
+  }
+
+  [data-menu-root] .cart-back-long {
+    display: none;
+  }
+}
+
+/* Tout ce qui se touche le montre à la souris (Tailwind 4 laisse la flèche). */
+[data-menu-root] :is(button, label:has(input)):not(:disabled) {
+  cursor: pointer;
+}
+
+/* Une feuille ouverte : l'animation du héros s'arrête derrière son voile
+   flouté, qui la recalculait à chaque image. */
+[data-menu-root]:has([role="dialog"]) > header,
+[data-menu-root]:has([role="dialog"]) > header *,
+[data-menu-root]:has([role="dialog"]) > header::after {
+  animation-play-state: paused;
+}
+
+/* Couleurs forcées (Windows) : les aplats disparaissent, les contours
+   restent. */
+@media (forced-colors: active) {
+  [data-menu-root] .ember-gradient {
+    border: 1px solid ButtonText;
+  }
+
+  [data-menu-root] nav a[aria-current] {
+    outline: 2px solid Highlight;
+  }
+}
+
+/*
+  Feuille modale (options, panier) : elle monte. La durée de cette montée
+  sert aussi de garde contre le double-tap (voir Sheet).
+*/
+@keyframes sheet-rise {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.sheet-rise {
+  animation: sheet-rise 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Et elle descend avant de disparaître (voir Sheet : même garde). */
+@keyframes sheet-fall {
+  to {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
+.sheet-fall {
+  animation: sheet-fall 0.18s ease-in both;
+}
+
+@keyframes sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* La barre du panier saute à chaque ajout ; deux noms pour rejouer le saut. */
+@keyframes cart-bump-a {
+  40% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes cart-bump-b {
+  40% {
+    transform: scale(1.04);
+  }
+}
+
+.cart-bump-a {
+  animation: cart-bump-a 0.32s ease-out;
+}
+
+.cart-bump-b {
+  animation: cart-bump-b 0.32s ease-out;
+}
+
+/* Le groupe d'options qui manque clignote quand on touche le bouton grisé :
+   un cerne, pas un fond — teinté, le fond faisait tomber le petit texte du
+   groupe sous 4,5:1. */
+@keyframes group-flash-a {
+  30% {
+    box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--ember-2) 55%, transparent);
+  }
+}
+
+@keyframes group-flash-b {
+  30% {
+    box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--ember-2) 55%, transparent);
+  }
+}
+
+.group-flash-a,
+.group-flash-b {
+  border-radius: 0.75rem;
+}
+
+.group-flash-a {
+  animation: group-flash-a 0.9s ease-out;
+}
+
+.group-flash-b {
+  animation: group-flash-b 0.9s ease-out;
+}
+
+/*
+  Mouvement réduit : la feuille ne glisse plus, elle fond — un fondu de même
+  durée, qui garde la protection contre le double-tap. Le groupe manquant
+  reste surligné au lieu de clignoter.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .sheet-rise {
+    animation-name: sheet-fade-in;
+  }
+
+  .sheet-fall {
+    animation-name: sheet-fade-out;
+  }
+
+  .cart-bump-a,
+  .cart-bump-b {
+    animation: none;
+  }
+
+  .group-flash-a,
+  .group-flash-b {
+    animation: none;
+    box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--ember-2) 55%, transparent);
+  }
+}
+
+/*
+  Carte dans la palette Ominin (sans thème d'établissement).
+*/
+
+/* Le ruban d'arguments : le rose de la palette ne donnait que 4,4:1 sous du
+   blanc de 13 px. */
+[data-menu-root]:not([class*="theme-"]) .menu-highlights {
+  background-color: color-mix(in srgb, var(--ember-3) 82%, black);
+}
+
+/* Le héros au logo prend la hauteur de son contenu, pas celle de l'écran :
+   sur un grand écran, la carte commence au premier coup d'œil. En bureau,
+   logo et nom rapetissent pour que le premier plat y soit. */
+[data-menu-root]:not([class*="theme-"]) > header:has(.hero-lockup) {
+  min-height: 0;
+}
+
+@media (min-width: 1024px) {
+  [data-menu-root]:not([class*="theme-"]) .hero-logo {
+    margin-bottom: 1.5rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-logo img {
+    height: 7rem;
+  }
+
+  [data-menu-root]:not([class*="theme-"]) .hero-name {
+    font-size: 5.5rem;
+  }
+}
+
+/* La composition d'un menu : ses lignes s'espacent, pour qu'une ligne
+   repliée ne se lise pas comme deux. */
+[data-menu-root]:not([class*="theme-"]) .dish-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Petits textes en dégradé (l'accroche du héros, la signature du pied) :
+   la queue rose du dégradé passait sous 4,5:1. Couleur pleine. */
+[data-menu-root]:not([class*="theme-"]) .hero-tagline,
+[data-menu-root]:not([class*="theme-"]) footer .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* L'offre d'une section à elle seule (le Menu Solo) : le bouton plein, sur
+   toute la largeur, et un prix qui se voit ; les vignettes n'ont qu'un
+   contour, pour que le seul aplat de la page soit sur elle et le panier. */
+[data-menu-root]:not([class*="theme-"]) .dish-grid > article:only-child .dish-action > button {
+  width: 100%;
+}
+
+[data-menu-root]:not([class*="theme-"]) .dish-grid > article:only-child .dish-price {
+  font-size: 2.25rem;
+}
+
+/* .ember-gradient dans le sélecteur : sans lui, la règle du dégradé sombre
+   (même spécificité, plus bas) remettait l'or sous un texte or. */
+[data-menu-root]:not([class*="theme-"]) .dish-grid-tiles .dish-action > button.ember-gradient {
+  background: transparent;
+  background-image: none;
+  color: var(--ember-1);
+  box-shadow: inset 0 0 0 1.5px var(--ember-1);
+}
+
+/* Survol : le contour s'épaissit plutôt que de teinter le fond (en clair,
+   la teinte faisait tomber le texte à 4:1). À la souris seulement. */
+@media (hover: hover) {
+  [data-menu-root]:not([class*="theme-"]) .dish-grid-tiles .dish-action > button.ember-gradient:hover {
+    box-shadow: inset 0 0 0 2.5px var(--ember-1);
+    color: var(--foreground);
+  }
+}
+
+/* La composition d'un menu ne se coupe pas n'importe où. */
+[data-menu-root] .dish-lines {
+  text-wrap: pretty;
+}
+
+/* En sombre, le bout rose du dégradé ne donnait que 4,48:1 sous l'encre
+   des boutons (total du panier, pastille active) : un rose plus clair. */
+html:not(.light) [data-menu-root]:not([class*="theme-"]) .ember-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--ember-1),
+    var(--ember-2) 55%,
+    #d05a67
+  );
+}
+
+/* L'apostrophe de Fraunces touchait la capitale suivante à grande taille. */
+[data-menu-root]:not([class*="theme-"]) .hero-name {
+  letter-spacing: -0.005em;
+}
+
+/* « x3 », « 33 cl » : seule différence entre deux plats au même prix, pas
+   une note en gris. */
+[data-menu-root]:not([class*="theme-"]) .dish-detail {
+  color: var(--ember-1);
+  font-weight: 600;
+}
+
+/*
+  Mode clair de la carte : l'or et le terre cuite de la palette claire
+  tombaient à 2,7:1 et 3,7:1 sur les cartes — les prix, « obligatoire », et
+  le texte crème des boutons. Assombris ici pour passer 4,5:1 partout, sur la
+  carte seulement.
+*/
+html.light [data-menu-root]:not([class*="theme-"]) {
+  --ember-1: #8f5d0c;
+  --ember-2: #a84a26;
+  --muted: #6e5f4e;
+}
+
+/* Sur le crème, le fondu des photos laissait une bande laiteuse. */
+html.light [data-menu-root]:not([class*="theme-"]) .dish-photo-fade {
+  background-image: linear-gradient(to top, var(--surface), transparent 16%);
+}
+
+/* « ORIGINAL », 11 px sur le halo du logo : l'or clair y tombait à 3,7:1. */
+html.light [data-menu-root]:not([class*="theme-"]) .hero-tagline {
+  color: var(--foreground);
+}
+
+/* Sur le lin, le halo et les braises aux ors assombris faisaient une tache
+   brune et de la poussière : halo pâle, braises retirées. */
+html.light [data-menu-root]:not([class*="theme-"]) {
+  --hero-halo-1: #f6dfb8;
+  --hero-halo-2: #f3d4c4;
+  --hero-glow-1: var(--hero-halo-1);
+  --hero-glow-2: var(--hero-halo-2);
+  --hero-glow-3: var(--hero-halo-2);
+}
+
+@media (min-width: 768px) {
+  html.light
+    [data-menu-root]:not([class*="theme-"])
+    .dish-grid
+    > article:only-child
+    .dish-photo
+    .dish-photo-fade {
+    background-image: linear-gradient(to left, var(--surface), transparent 16%);
+  }
+}
+
+html.light [data-menu-root]:not([class*="theme-"]) .ember-particle {
+  display: none;
+}
+
+/* Un logo blanc disparaît sur le crème : on l'inverse. */
+html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
+  filter: invert(1);
 }
 
 
@@ -539,7 +2095,9 @@ body {
   bottom: 0;
   border-radius: 9999px;
   filter: blur(1px);
-  animation: ember-drift var(--particle-duration, 11s) linear infinite;
+  /* backwards : pendant son délai, l'étincelle garde l'état de départ (éteinte)
+     au lieu de son style de base — dix points opaques alignés au bas du héros. */
+  animation: ember-drift var(--particle-duration, 11s) linear infinite backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -880,6 +2438,9 @@ body {
 }
 
 .logo-breathe {
+  /* Son repos, si l'animation est coupée (mouvement réduit) : sans lui, le
+     halo s'affichait à pleine force. */
+  opacity: 0.2;
   animation: logo-breathe 5s ease-in-out infinite;
 }
 

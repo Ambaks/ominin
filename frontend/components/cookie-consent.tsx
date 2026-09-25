@@ -30,6 +30,10 @@ const UNMEASURED_PATHS = [
   "/shop/gestion",
   "/m/",
   "/menu/m/",
+  // L'aperçu d'une carte (menu.ominin.com/demo/<slug>) : montré à un gérant,
+  // la bannière couvrirait la barre du panier et la feuille d'options.
+  "/demo/",
+  "/menu/demo/",
 ];
 
 declare global {
