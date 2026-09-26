@@ -7,6 +7,7 @@ import { PriceInput } from "@/components/ui/price-input";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
+import { WEEK_DAYS } from "@/lib/gestion/constants";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
@@ -38,6 +39,10 @@ export function FormuleFormModal({
     formule ? priceToInput(formule.price) : ""
   );
   const [disponible, setDisponible] = useState(formule?.disponible ?? true);
+  // Tous les jours cochés = pas de restriction (days absent).
+  const [days, setDays] = useState<number[]>(
+    formule?.days ?? WEEK_DAYS.map((day) => day.iso)
+  );
   const [etapes, setEtapes] = useState<EtapeDraft[]>(
     formule ? etapesToDraft(formule.etapes) : [emptyEtape()]
   );
@@ -48,13 +53,17 @@ export function FormuleFormModal({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (!name.trim() || parsedPrice === null) return;
+    if (!name.trim() || parsedPrice === null || days.length === 0) return;
 
     const input: api.FormuleInput = {
       name: name.trim(),
       description: description.trim() || undefined,
       price: parsedPrice,
       disponible,
+      days:
+        days.length === WEEK_DAYS.length
+          ? undefined
+          : [...days].sort((a, b) => a - b),
       etapes: draftToEtapes(etapes),
     };
     try {
@@ -133,6 +142,49 @@ export function FormuleFormModal({
           />
           Disponible sur le menu client
         </label>
+
+        {/* Pas de Field : son <label> activerait le premier jour au clic sur
+            le libellé. */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Jours <span className="text-ember-2">*</span>
+          </span>
+          <div className="flex gap-1.5">
+            {WEEK_DAYS.map((day) => {
+              const picked = days.includes(day.iso);
+              return (
+                <button
+                  key={day.iso}
+                  type="button"
+                  onClick={() =>
+                    setDays((current) =>
+                      picked
+                        ? current.filter((iso) => iso !== day.iso)
+                        : [...current, day.iso]
+                    )
+                  }
+                  aria-pressed={picked}
+                  aria-label={day.long}
+                  className={`flex size-9 items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+                    picked
+                      ? "ember-gradient text-background"
+                      : `border text-muted hover:border-ember-2/40 hover:text-foreground ${
+                          submitted && days.length === 0
+                            ? "border-ember-3/60"
+                            : "border-hairline"
+                        }`
+                  }`}
+                >
+                  {day.short}
+                </button>
+              );
+            })}
+          </div>
+          <span className="text-xs text-faint">
+            Jours de service : la soirée compte jusqu&rsquo;à l&rsquo;heure de
+            fin de journée de l&rsquo;établissement.
+          </span>
+        </div>
 
         <Field label="Étapes">
           <EtapeEditor

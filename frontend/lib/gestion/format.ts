@@ -1,3 +1,15 @@
+import { WEEK_DAYS } from "./constants";
+
+/** « samedi et dimanche », « tous les jours », « lundi, mardi et jeudi ». */
+export function formatDays(days: number[]): string {
+  if (days.length === WEEK_DAYS.length) return "tous les jours";
+  const names = WEEK_DAYS.filter((day) => days.includes(day.iso)).map(
+    (day) => day.long
+  );
+  if (names.length <= 1) return names[0] ?? "aucun jour";
+  return `${names.slice(0, -1).join(", ")} et ${names[names.length - 1]}`;
+}
+
 /** Parse une saisie de prix française ("7,90", "7.90", "7") → nombre, ou null si invalide. */
 export function parsePriceInput(value: string): number | null {
   const normalized = value.trim().replace(",", ".");

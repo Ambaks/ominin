@@ -302,6 +302,7 @@ function formuleColumns(
     description: input.description || null,
     price: input.price,
     disponible: input.disponible,
+    days: input.days ?? null,
     etapes: toJson(input.etapes),
   };
 }

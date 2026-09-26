@@ -75724,7 +75724,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/menu/cart-bar.tsx",
-      "source_location": "L117",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -75736,7 +75736,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/menu/cart-bar.tsx",
-      "source_location": "L154",
+      "source_location": "L158",
       "weight": 1.0
     },
     {
@@ -75748,7 +75748,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/menu/cart-bar.tsx",
-      "source_location": "L162",
+      "source_location": "L166",
       "weight": 1.0
     },
     {
@@ -75760,7 +75760,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/menu/cart-bar.tsx",
-      "source_location": "L192",
+      "source_location": "L196",
       "weight": 1.0
     },
     {
@@ -75772,7 +75772,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/menu/cart-bar.tsx",
-      "source_location": "L455",
+      "source_location": "L459",
       "weight": 1.0
     },
     {
@@ -220120,5 +220120,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f84d4d7c250d5b877e55084caef0fb68aa032a1b"
+  "built_at_commit": "c21fab10eac8296210a7833b4ab46e468d088f8a"
 }

@@ -15,7 +15,7 @@ const ADDED_FLASH_MS = 1200;
 const choiceRow =
   "flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm transition-colors";
 
-const choiceRowClass = (checked: boolean) =>
+export const choiceRowClass = (checked: boolean) =>
   `choice-row ${choiceRow} ${checked ? "is-checked border-ember-2/60 bg-surface-raised" : "border-hairline"}`;
 
 /** Défilement doux, sauf si le client a demandé moins de mouvement. */

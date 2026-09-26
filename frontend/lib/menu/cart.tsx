@@ -24,6 +24,13 @@ export type CartChoice = {
   choice_id: string;
 };
 
+/** Choix d'une étape de formule, revalidé en base (formule_line). */
+export type FormuleSelection = {
+  etape_id: string;
+  article_id: string;
+  choices: CartChoice[];
+};
+
 export interface CartLine {
   /** itemId + choix triés : deux lignes identiques fusionnent. */
   key: string;
@@ -42,6 +49,8 @@ export interface CartLine {
    * (par unité), ses suppléments restent en euros dans unitPrice.
    */
   reward?: { id: string; points: number };
+  /** Ligne formule : itemId porte alors l'identifiant de la formule. */
+  formule?: { selections: FormuleSelection[] };
 }
 
 const noSubscription = () => () => {};

@@ -9,7 +9,11 @@ import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { WEEK_DAYS } from "@/lib/gestion/constants";
-import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
+import {
+  formatDays,
+  parsePriceInput,
+  priceToInput,
+} from "@/lib/gestion/format";
 import type {
   PriceRule,
   PriceRuleDirection,
@@ -32,16 +36,6 @@ import { formatPrice, type MenuCategory } from "@/lib/menu-data";
 
 // ---------------------------------------------------------------------------
 // Mise en mots
-
-/** « samedi et dimanche », « tous les jours », « lundi, mardi et jeudi ». */
-function formatDays(days: number[]): string {
-  if (days.length === 7) return "tous les jours";
-  const names = WEEK_DAYS.filter((day) => days.includes(day.iso)).map(
-    (day) => day.long
-  );
-  if (names.length <= 1) return names[0] ?? "aucun jour";
-  return `${names.slice(0, -1).join(", ")} et ${names[names.length - 1]}`;
-}
 
 export function formatAdjustment(rule: PriceRule): string {
   const sign = rule.direction === "remise" ? "−" : "+";

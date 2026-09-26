@@ -4,6 +4,7 @@ import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { useRunMutation } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
+import { formatDays } from "@/lib/gestion/format";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
@@ -41,6 +42,11 @@ export function FormuleCard({
 
       {formule.description && (
         <p className="text-sm leading-relaxed text-muted">{formule.description}</p>
+      )}
+      {formule.days && (
+        <p className="text-xs font-medium text-ember-1">
+          Proposée {formatDays(formule.days)}
+        </p>
       )}
 
       <div className="flex flex-wrap gap-1.5">

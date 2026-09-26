@@ -87,6 +87,7 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     description: row.description ?? undefined,
     price: Number(row.price),
     disponible: row.disponible,
+    days: row.days ?? undefined,
     etapes: row.etapes as unknown as Etape[],
   };
 }

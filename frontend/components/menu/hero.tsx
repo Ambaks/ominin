@@ -204,9 +204,11 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
 function PosterHero({
   restaurant,
   poster,
+  banner,
 }: {
   restaurant: Restaurant;
   poster: string;
+  banner?: React.ReactNode;
 }) {
   return (
     <header className="flex h-svh w-full flex-col bg-background">
@@ -228,18 +230,32 @@ function PosterHero({
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
-      <ContactPills
-        restaurant={restaurant}
-        className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
-        style={{ animationDelay: "350ms" }}
-      />
+      {banner ?? (
+        <ContactPills
+          restaurant={restaurant}
+          className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
+          style={{ animationDelay: "350ms" }}
+        />
+      )}
     </header>
   );
 }
 
-export function Hero({ restaurant }: { restaurant: Restaurant }) {
+/**
+ * `banner` (les formules en visuel) prend, sous l'affiche, la place de
+ * l'adresse et du téléphone : le pied de page les porte déjà.
+ */
+export function Hero({
+  restaurant,
+  banner,
+}: {
+  restaurant: Restaurant;
+  banner?: React.ReactNode;
+}) {
   if (restaurant.poster) {
-    return <PosterHero restaurant={restaurant} poster={restaurant.poster} />;
+    return (
+      <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} />
+    );
   }
 
   if (!restaurant.coverImage) {

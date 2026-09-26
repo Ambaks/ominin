@@ -4,6 +4,7 @@ import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
+import { FormulesBanner, FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
@@ -72,7 +73,16 @@ export default async function MenuPage({
     squareLocationId,
     callServer,
     loyalty,
+    formules,
   } = data;
+
+  // Le visuel des formules s'affiche sous l'affiche ; sans lui (ou sans
+  // aucune de ses formules disponible), elles ont leur section en tête de carte.
+  const banner = restaurant.formulesBanner;
+  const showBanner =
+    restaurant.poster != null &&
+    banner != null &&
+    formules.some((formule) => banner.formules.includes(formule.name));
 
   const parsedTable = Number(Array.isArray(table) ? table[0] : table);
   const tableNumber =
@@ -83,10 +93,12 @@ export default async function MenuPage({
     paiement === "succes" || paiement === "annule" ? paiement : null;
   const paymentOrderId = typeof commande === "string" ? commande : null;
 
-  const categoryLinks = restaurant.categories.map(({ id, name }) => ({
-    id,
-    name,
-  }));
+  const categoryLinks = [
+    ...(!showBanner && formules.length > 0
+      ? [{ id: "formules", name: "Formules" }]
+      : []),
+    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+  ];
 
   /*
    * Données structurées Restaurant + Menu : pour un établissement sans fiche
@@ -145,7 +157,14 @@ export default async function MenuPage({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Hero restaurant={restaurant} />
+        <Hero
+          restaurant={restaurant}
+          banner={
+            showBanner ? (
+              <FormulesBanner banner={banner} formules={formules} />
+            ) : undefined
+          }
+        />
         <MenuHighlights highlights={restaurant.highlights} />
         <CategoryNav
           categories={categoryLinks}
@@ -153,6 +172,9 @@ export default async function MenuPage({
           themeLocked={Boolean(restaurantThemeClass(slug))}
         />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+          {!showBanner && formules.length > 0 && (
+            <FormulesSection formules={formules} />
+          )}
           {restaurant.categories.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted">
               La carte est en préparation — revenez bientôt.

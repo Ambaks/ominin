@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1790455043.9692998,
-    "seen": 1790455061.837327,
-    "ast_hash": "54cd997e3ce7ff5bad52e52e644e0e51",
+    "mtime": 1790455508.9921377,
+    "seen": 1790455711.74975,
+    "ast_hash": "7378e9d514842446a2978644f3b8c667",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {

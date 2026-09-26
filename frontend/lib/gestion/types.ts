@@ -235,6 +235,8 @@ export interface Formule {
   description?: string;
   price: number;
   disponible: boolean;
+  /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */
+  days?: number[];
   etapes: Etape[];
 }
 

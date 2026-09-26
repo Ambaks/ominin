@@ -66,6 +66,22 @@ export interface MenuCategory {
   items: MenuItem[];
 }
 
+/**
+ * Une image qui présente les formules côte à côte, découpée en autant de
+ * zones égales : toucher une zone ouvre la formule qui porte ce nom. Elle
+ * défile en bandeau sous le titre « Nos Offres ».
+ */
+export interface FormulesBanner {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  /** Noms des formules (en base), de gauche à droite. */
+  formules: string[];
+  /** Le visuel défile en continu : chaque offre passe en ce nombre de secondes. */
+  secondsPerFormule: number;
+}
+
 export interface Restaurant {
   slug: string;
   name: string;
@@ -84,6 +100,11 @@ export interface Restaurant {
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
   poster?: string;
+  /**
+   * Visuel des formules, sous l'affiche à la place de l'adresse et du
+   * téléphone (qui restent en pied de page).
+   */
+  formulesBanner?: FormulesBanner;
   address: string;
   phone: string;
   hours: string;
@@ -506,6 +527,14 @@ const boho: Restaurant = {
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   poster: "/boho/poster.webp",
+  formulesBanner: {
+    src: "/boho/formules.webp",
+    alt: "Formules Côté Jardin : Chill 9,90 € (1 soft + 1 dessert), Boho 14,90 € (1 cocktail + 1 dessert)",
+    width: 2048,
+    height: 699,
+    formules: ["Formule Chill", "Formule Boho"],
+    secondsPerFormule: 6,
+  },
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",

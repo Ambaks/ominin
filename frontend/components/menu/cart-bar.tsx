@@ -164,12 +164,20 @@ export function CartBar() {
     setError(null);
     setCardFailed(false);
     const supabase = createClient();
-    const payload = cart.lines.map((line) => ({
-      item_id: line.itemId,
-      quantity: line.quantity,
-      choices: line.choices,
-      ...(line.reward && { reward_id: line.reward.id }),
-    }));
+    const payload = cart.lines.map((line) =>
+      line.formule
+        ? {
+            formule_id: line.itemId,
+            quantity: line.quantity,
+            selections: line.formule.selections,
+          }
+        : {
+            item_id: line.itemId,
+            quantity: line.quantity,
+            choices: line.choices,
+            ...(line.reward && { reward_id: line.reward.id }),
+          }
+    );
     const { data: orderId, error: rpcError } = await supabase.rpc(
       "place_order",
       {

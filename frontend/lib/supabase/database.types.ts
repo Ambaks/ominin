@@ -1207,6 +1207,7 @@ export type Database = {
       formules: {
         Row: {
           created_at: string
+          days: number[] | null
           description: string | null
           disponible: boolean
           etablissement_id: string
@@ -1217,6 +1218,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          days?: number[] | null
           description?: string | null
           disponible?: boolean
           etablissement_id: string
@@ -1227,6 +1229,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          days?: number[] | null
           description?: string | null
           disponible?: boolean
           etablissement_id?: string

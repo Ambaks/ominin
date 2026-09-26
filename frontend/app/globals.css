@@ -2523,6 +2523,24 @@ body {
   animation: fab-breathe 2.6s ease-in-out infinite;
 }
 
+/* Bandeau des offres : la piste porte trois copies du visuel et recule
+   d'une copie par tour, la suivante prenant exactement sa place. Durée
+   posée en ligne (--marquee-duration), selon le nombre d'offres. */
+@keyframes marquee {
+  to {
+    transform: translateX(calc(-100% / 3));
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration) linear infinite;
+}
+
+.marquee-track:hover,
+.marquee-track:active {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2547,7 +2565,8 @@ body {
   .hero-gradient-drift,
   .scroll-bounce,
   .ember-flow,
-  .fab-breathe {
+  .fab-breathe,
+  .marquee-track {
     animation: none;
   }
   .hero-entrance {
