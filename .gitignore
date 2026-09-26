@@ -236,3 +236,6 @@ next-env.d.ts
 # Variantes d'environnement (backend/.env.prod…) : jamais versionnées.
 .env.*
 !.env.example
+
+# Graphify
+graphify-out/

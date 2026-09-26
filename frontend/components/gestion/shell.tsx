@@ -9,7 +9,8 @@ import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
   activeProducts,
-  awaitsOnlinePayment,
+  cardCount,
+  needsAttention,
   offreFeeDue,
 } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
@@ -164,10 +165,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         (state.features[item.serveurFeature] ?? false)) &&
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
   );
-  const pendingCount =
-    state?.orders.filter(
-      (order) => order.status === "en_attente" && !awaitsOnlinePayment(order)
-    ).length ?? 0;
+  const pendingCount = state
+    ? cardCount(state.orders.filter(needsAttention))
+    : 0;
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
   const surtitre = state

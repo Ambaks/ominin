@@ -14,6 +14,7 @@ import { ORDER_TAB_LABELS, ORDER_TABS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
+  cardCount,
   isHistoryStatus,
 } from "@/lib/gestion/selectors";
 import {
@@ -228,8 +229,9 @@ export default function CommandesPage() {
             count:
               id === "historique"
                 ? undefined
-                : state.orders.filter((order) => matchesFilter(order, id))
-                    .length,
+                : cardCount(
+                    state.orders.filter((order) => matchesFilter(order, id))
+                  ),
           }))}
           activeId={filter}
           onSelect={(id) => setChosenFilter(id as OrderTab)}

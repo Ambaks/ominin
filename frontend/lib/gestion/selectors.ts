@@ -92,6 +92,32 @@ export function awaitsService(order: Order): boolean {
   return order.status === "payee";
 }
 
+/**
+ * Nombre de cartes que ces commandes occupent à l'écran Commandes : les
+ * commandes sur place d'une même table s'y regroupent en une seule addition,
+ * les autres (collect, sans table) restent chacune leur carte.
+ */
+export function cardCount(orders: Order[]): number {
+  const tables = new Set<string>();
+  let singles = 0;
+  for (const order of orders) {
+    if (order.type === "sur_place" && order.tableId) tables.add(order.tableId);
+    else singles += 1;
+  }
+  return tables.size + singles;
+}
+
+/**
+ * Ce qui attend un geste de la salle : les additions à encaisser et les
+ * commandes collect pas encore prises en charge.
+ */
+export function needsAttention(order: Order): boolean {
+  return (
+    awaitsPayment(order) ||
+    (order.type === "collect" && order.status === "en_attente")
+  );
+}
+
 /** Commandes encore ouvertes : à encaisser ou à servir. */
 export function openOrders(state: GestionState): Order[] {
   return state.orders.filter(

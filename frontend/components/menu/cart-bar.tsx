@@ -46,7 +46,7 @@ export function CartBar() {
   const cart = useCart();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
-  const [paymentChoice, setPayment] = useState<PaymentChoice>("comptoir");
+  const [paymentChoice, setPayment] = useState<PaymentChoice>("carte");
   // Mode retenu à l'envoi : l'écran de confirmation le lit une fois le
   // panier vidé, quand le total ne dit plus rien.
   const [sentPayment, setSentPayment] = useState<PaymentChoice>("comptoir");
@@ -129,9 +129,11 @@ export function CartBar() {
   if (!cart.orderingEnabled || cart.tableNumber === null) return null;
   if (cart.count === 0 && state !== "sent") return status;
 
-  // Tout est offert en points : rien à régler par carte, la salle valide
-  // l'addition à zéro (place_order la laisse d'ailleurs au comptoir).
-  const payment: PaymentChoice = cart.total > 0 ? paymentChoice : "comptoir";
+  // Sans paiement en ligne, ou tout offert en points (rien à régler par
+  // carte, la salle valide l'addition à zéro : place_order la laisse
+  // d'ailleurs au comptoir), l'addition se règle au comptoir.
+  const payment: PaymentChoice =
+    cart.onlinePayment && cart.total > 0 ? paymentChoice : "comptoir";
   const loyaltyContact = cart.loyalty ? contact.trim() : "";
 
   // Pourboire du règlement par carte : pourcentage du total arrondi au
@@ -502,8 +504,8 @@ export function CartBar() {
                       <div className="mb-4 flex gap-2">
                         {(
                           [
-                            ["comptoir", "Payer au comptoir"],
                             ["carte", "Payer en ligne"],
+                            ["comptoir", "Payer au comptoir"],
                           ] as const
                         ).map(([value, label]) => (
                           <button
@@ -521,7 +523,7 @@ export function CartBar() {
                         ))}
                       </div>
                     )}
-                    {cart.onlinePayment && payment === "carte" && (
+                    {payment === "carte" && (
                       <div className="mb-4 flex flex-col gap-2.5">
                         <p className="text-xs font-medium text-muted">
                           Un pourboire pour l&rsquo;équipe&nbsp;?
