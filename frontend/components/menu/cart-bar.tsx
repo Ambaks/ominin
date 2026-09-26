@@ -99,6 +99,7 @@ export function CartBar() {
     );
   }
   const closeRef = useRef<HTMLButtonElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const footRef = useRef<HTMLDivElement>(null);
   // Le pied collé couvre le bas de la feuille : le défilement au clavier
   // garde la ligne qui a le focus au-dessus de lui.
@@ -106,8 +107,11 @@ export function CartBar() {
     const foot = footRef.current;
     const panel = foot?.closest<HTMLElement>('[role="dialog"]');
     if (!foot || !panel) return;
+    const content = contentRef.current;
     const sync = () => {
-      panel.style.scrollPaddingBottom = `${foot.offsetHeight}px`;
+      const h = foot.offsetHeight;
+      panel.style.scrollPaddingBottom = `${h}px`;
+      if (content) content.style.paddingBottom = `${h}px`;
     };
     sync();
     const observer = new ResizeObserver(sync);
@@ -393,7 +397,7 @@ export function CartBar() {
                     </button>
                   </div>
 
-                  <div className="shrink-0 p-5">
+                  <div ref={contentRef} className="shrink-0 p-5">
                     <ul className="flex flex-col gap-4">
                       {cart.lines.map((line) => (
                         <li key={line.key} className="flex gap-3">

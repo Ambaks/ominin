@@ -750,9 +750,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1790361441.446979,
-    "seen": 1790361616.799535,
-    "ast_hash": "a9700760c89ad244f4309382a09b69ae",
+    "mtime": 1790455043.9692998,
+    "seen": 1790455061.837327,
+    "ast_hash": "54cd997e3ce7ff5bad52e52e644e0e51",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790362233.7916632,
-    "seen": 1790376423.3338501,
-    "ast_hash": "4a90aac82d4c1d32bdb1e1e435751d21",
+    "mtime": 1790376437.438465,
+    "seen": 1790455061.8375418,
+    "ast_hash": "4dd5c13937d8aa6a85d4497ed5b8fab3",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
