@@ -1248,6 +1248,32 @@ export type Database = {
           },
         ]
       }
+      gerant_links: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gerant_links_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           created_at: string
@@ -4404,6 +4430,7 @@ export type Database = {
           sessions: number
         }[]
       }
+      claim_gerant_link: { Args: { p_token: string }; Returns: string }
       clock_in: {
         Args: { p_code: string | null; p_signature: string; p_staff_id: string }
         Returns: string
@@ -4485,6 +4512,7 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: undefined
       }
+      gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       loyalty_active: { Args: { p_etablissement_id: string }; Returns: boolean }
