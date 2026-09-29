@@ -31,6 +31,54 @@ def _build_routing(supabase, printer_ids: list[str]) -> dict[str, set[str]]:
     return routing
 
 
+def _component_items(supabase, rows: list[dict]) -> dict[str, dict]:
+    """Articles choisis dans les formules des tickets : {item_id: item}."""
+    ids = {
+        component["item_id"]
+        for row in rows
+        if row.get("orders")
+        for oi in row["orders"]["order_items"]
+        for component in oi.get("components") or []
+        if component.get("item_id")
+    }
+    if not ids:
+        return {}
+    found = (
+        supabase.table("items")
+        .select("id, print_name, categories(name, position)")
+        .in_("id", list(ids))
+        .execute()
+        .data
+    )
+    return {item["id"]: item for item in found}
+
+
+def _expand_formules(row: dict, items: dict[str, dict]) -> None:
+    """Une formule sort en ses articles, chacun routé, classé et nommé comme
+    s'il avait été commandé seul. Une formule sans composants (commandée
+    avant qu'ils existent) reste une ligne, imprimée partout."""
+    if row["kind"] != "order" or not row.get("orders"):
+        return
+    lines: list[dict] = []
+    for oi in row["orders"]["order_items"]:
+        components = oi.get("components")
+        if not components:
+            lines.append(oi)
+            continue
+        for component in components:
+            item = items.get(component.get("item_id"))
+            lines.append(
+                {
+                    "item_id": component.get("item_id"),
+                    "name": component["name"],
+                    "quantity": oi["quantity"],
+                    "options": component.get("options") or [],
+                    "items": item,
+                }
+            )
+    row["orders"]["order_items"] = lines
+
+
 def _apply_routing(row: dict, routing: dict[str, set[str]]) -> None:
     """Filter a print-job's order_items in place based on routing rules."""
     if row["kind"] != "order" or not row.get("orders"):
@@ -130,7 +178,7 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
                 "id, kind, printer_id, created_at, printers(name), "
                 "orders(type, created_at, customer_name, pickup_at, "
                 "tables(number), "
-                "order_items(id, item_id, name, quantity, options, "
+                "order_items(id, item_id, name, quantity, options, components, "
                 "items(print_name, categories(name, position))))"
             )
             .in_("printer_id", printer_ids)
@@ -140,8 +188,10 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
             .data
         )
         routing = _build_routing(supabase, printer_ids)
+        items = _component_items(supabase, rows)
         cancelled: list[str] = []
         for row in rows:
+            _expand_formules(row, items)
             _apply_routing(row, routing)
             if row["kind"] == "order" and row.get("orders") and not row["orders"]["order_items"]:
                 cancelled.append(row["id"])

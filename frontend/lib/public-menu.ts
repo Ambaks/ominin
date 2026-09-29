@@ -124,11 +124,6 @@ export async function fetchRestaurant(slug: string): Promise<{
   const today = serviceIsoDay(
     etablissement.etablissement_settings?.day_end_hour ?? 0
   );
-  const available = new Set(
-    etablissement.items
-      .filter((item) => item.disponible && item.stock !== 0)
-      .map((item) => item.id)
-  );
   const formules = etablissement.formules
     .map(rowToFormule)
     .filter(
@@ -139,9 +134,15 @@ export async function fetchRestaurant(slug: string): Promise<{
       ...formule,
       etapes: formule.etapes.map((etape) => ({
         ...etape,
-        articles: etape.articles.filter(
-          (article) => !article.itemId || available.has(article.itemId)
-        ),
+        // Un article de la carte suit sa fiche : ses options du moment,
+        // comme formule_line en base.
+        articles: etape.articles.flatMap((article) => {
+          if (!article.itemId) return [article];
+          const item = itemsById.get(article.itemId);
+          return item && item.disponible !== false && item.stock !== 0
+            ? [{ ...article, options: item.options }]
+            : [];
+        }),
       })),
     }))
     .filter((formule) =>

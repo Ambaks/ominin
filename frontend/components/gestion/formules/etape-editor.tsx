@@ -262,10 +262,12 @@ export function EtapeEditor({
                       (candidate) => candidate.id === event.target.value
                     );
                     if (item) {
+                      // Lié à la carte, l'article suit les options de sa
+                      // fiche : aucune copie à garder ici.
                       patchArticle(etape.id, article.id, {
                         itemId: item.id,
                         name: item.name,
-                        options: optionsToDraft(item.options, true),
+                        options: [],
                       });
                     } else {
                       patchArticle(etape.id, article.id, { itemId: undefined });
@@ -282,7 +284,14 @@ export function EtapeEditor({
                 </select>
               </div>
 
-              {showOptions && (
+              {showOptions && article.itemId ? (
+                <p className="text-xs text-muted">
+                  Options : celles de l&rsquo;article (
+                  {menuItems.find((item) => item.id === article.itemId)?.options
+                    ?.length ?? 0}
+                  ), qui se modifient dans sa fiche.
+                </p>
+              ) : showOptions && (
                 <details>
                   <summary className="cursor-pointer text-xs font-medium text-muted transition-colors hover:text-foreground">
                     Options ({article.options.length})

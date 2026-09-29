@@ -1979,6 +1979,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          components: Json | null
           id: string
           item_id: string | null
           loyalty_points: number | null
@@ -1993,6 +1994,7 @@ export type Database = {
           vat_rate: number | null
         }
         Insert: {
+          components?: Json | null
           id?: string
           item_id?: string | null
           loyalty_points?: number | null
@@ -2007,6 +2009,7 @@ export type Database = {
           vat_rate?: number | null
         }
         Update: {
+          components?: Json | null
           id?: string
           item_id?: string | null
           loyalty_points?: number | null
