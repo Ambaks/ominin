@@ -36,7 +36,12 @@ const supabaseOrigins = (() => {
  *    style (sans elle, le formulaire carte ne s'attache pas au premier
  *    chargement) et iframe du formulaire sur web.squarecdn.com, tokenisation et 3-D Secure sur
  *    connect/pci-connect.squareup.com. Les hôtes du bac à sable sont listés
- *    aussi : c'est là que le parcours de paiement se teste. Google Pay, que
+ *    aussi : c'est là que le parcours de paiement se teste. Le défi 3-D
+ *    Secure, lui, vient de la banque du client : le SDK crée dans notre page
+ *    une iframe et un formulaire qu'il poste vers l'ACS de la banque
+ *    (Revolut, Crédit Agricole, N26…). Ces hôtes sont inconnus d'avance,
+ *    d'où https: en frame-src et form-action — sans quoi le défi s'ouvre sur
+ *    une page blanche plein écran et le paiement reste bloqué. Google Pay, que
  *    le SDK propose à côté de la carte, charge son script, son iframe et ses
  *    appels sur pay.google.com (plus google.com/pay), et le visuel du bouton
  *    sur www.gstatic.com.
@@ -49,7 +54,7 @@ const csp = [
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
-  "form-action 'self'",
+  "form-action 'self' https:",
   `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
@@ -57,7 +62,7 @@ const csp = [
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com https://google.com/pay${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,
-  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com",
+  "frame-src 'self' https:",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
