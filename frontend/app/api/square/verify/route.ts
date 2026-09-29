@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /*
  * Confirmation côté serveur d'un paiement Square, déclenchée par le widget
  * après un règlement réussi. Anonyme mais inoffensive : elle ne fait que
- * relire le paiement auprès de l'API Square (même marquage idempotent que le
+ * relire la commande auprès de l'API Square (même marquage idempotent que le
  * webhook — les deux chemins sont redondants, ce qui couvre aussi le dev
  * local sans URL de webhook publique).
  */
@@ -21,19 +21,19 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, square_payment_id, paid_online")
+    .select("id, etablissement_id, square_order_id, paid_online")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
     return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
   }
   if (order.paid_online) return NextResponse.json({ paid: true });
-  if (!order.square_payment_id) return NextResponse.json({ paid: false });
+  if (!order.square_order_id) return NextResponse.json({ paid: false });
 
   const paid = await confirmOrderPaid(admin, {
     id: order.id,
     etablissement_id: order.etablissement_id,
-    square_payment_id: order.square_payment_id,
+    square_order_id: order.square_order_id,
   });
   return NextResponse.json({ paid });
 }

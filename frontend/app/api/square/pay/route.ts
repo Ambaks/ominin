@@ -4,7 +4,7 @@ import {
   createPayment,
   getMerchantToken,
   retrieveOrder,
-  retrievePayment,
+  settleFromOrder,
   settlePayment,
   withFreshToken,
   type SquareOrder,
@@ -90,11 +90,6 @@ function orderBody(
   };
 }
 
-/** Une commande Square déjà encaissée porte un tender avec son paiement. */
-function tenderPaymentId(order: SquareOrder): string | null {
-  return order.tenders?.find((tender) => tender.payment_id)?.payment_id ?? null;
-}
-
 export async function POST(request: Request) {
   const { orderId, sourceId, tipAmount } = (await request
     .json()
@@ -175,22 +170,14 @@ export async function POST(request: Request) {
 
     // Une tentative précédente a-t-elle abouti sans que nous ayons pu
     // l'enregistrer ? La commande Square fait foi : déjà réglée, on clôt sans
-    // débiter une seconde fois.
+    // débiter une seconde fois. Refusée, elle reste due : on réencaisse sur
+    // la même commande.
     if (existingOrderId) {
       const existing = await call((token) =>
         retrieveOrder(token, existingOrderId)
       );
-      const paymentId = tenderPaymentId(existing.order);
-      if (paymentId) {
-        const { payment } = await call((token) =>
-          retrievePayment(token, paymentId)
-        );
-        await admin
-          .from("orders")
-          .update({ square_payment_id: paymentId })
-          .eq("id", orderId);
-        const paid = await settlePayment(admin, orderId, payment);
-        return NextResponse.json({ paid });
+      if (await settleFromOrder(admin, orderId, existing.order)) {
+        return NextResponse.json({ paid: true });
       }
       placed = existing.order;
     }
@@ -260,7 +247,8 @@ export async function POST(request: Request) {
       })
       .eq("id", orderId);
 
-    const paid = await settlePayment(admin, orderId, payment);
+    const paid = payment.status === "COMPLETED" || payment.status === "APPROVED";
+    if (paid) await settlePayment(admin, orderId, payment.tip_money);
     return NextResponse.json({ paid });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

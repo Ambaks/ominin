@@ -39,8 +39,22 @@ interface SquareMethod {
   destroy?: () => Promise<void>;
 }
 
+/** Ce que 3-D Secure transmet à la banque ; le SDK exige chaque champ. */
+interface CardVerification {
+  amount: string;
+  currencyCode: string;
+  intent: "CHARGE";
+  customerInitiated: boolean;
+  sellerKeyedIn: boolean;
+  billingContact: object;
+}
+
 interface SquareCard extends SquareMethod {
   attach: (selector: string) => Promise<void>;
+  /** Sans vérification, pas de 3-D Secure : dans l'EEE, la banque qui l'exige refuse le débit. */
+  tokenize: (
+    verification?: CardVerification
+  ) => ReturnType<SquareMethod["tokenize"]>;
 }
 
 interface SquareGooglePay extends SquareMethod {
@@ -258,11 +272,24 @@ export function SquarePayment({
   }, [locationId, attempt, amount]);
 
   const pay = useCallback(async (method: keyof Methods) => {
-    const source = methodsRef.current?.[method];
-    if (!source) return;
+    const methods = methodsRef.current;
+    const source = methods?.[method];
+    if (!methods || !source) return;
     setState("paying");
     try {
-      const result = await source.tokenize();
+      // La carte passe par 3-D Secure : le SDK n'ouvre le défi de la banque
+      // que si elle le demande. Apple Pay et Google Pay authentifient déjà le
+      // porteur, et le SDK vérifie ces jetons de lui-même.
+      const result = await (method === "card"
+        ? methods.card.tokenize({
+            amount,
+            currencyCode: SQUARE_CURRENCY,
+            intent: "CHARGE",
+            customerInitiated: true,
+            sellerKeyedIn: false,
+            billingContact: {},
+          })
+        : source.tokenize());
       if (result.status !== "OK" || !result.token) {
         setState("declined");
         return;
@@ -282,7 +309,7 @@ export function SquarePayment({
     } catch {
       setState("declined");
     }
-  }, [orderId, tipAmount]);
+  }, [orderId, tipAmount, amount]);
 
   const due = formatPrice(total + tipAmount);
 

@@ -1,11 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  confirmOrderPaid,
-  getMerchantToken,
-  retrieveOrder,
-  verifyWebhookSignature,
-  withFreshToken,
-} from "@/lib/square/server";
+import { confirmOrderPaid, verifyWebhookSignature } from "@/lib/square/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -23,7 +17,7 @@ interface SquareEvent {
   type?: string;
   data?: {
     object?: {
-      payment?: { id?: string; order_id?: string };
+      payment?: { order_id?: string };
       order_updated?: { order_id?: string; state?: string };
     };
   };
@@ -57,59 +51,30 @@ export async function POST(request: Request) {
   }
 
   const event = JSON.parse(rawBody) as SquareEvent;
-  const payment = event.data?.object?.payment;
   const squareOrderId =
-    payment?.order_id ?? event.data?.object?.order_updated?.order_id;
-  if (!payment?.id && !squareOrderId) {
-    return NextResponse.json({ received: true });
-  }
+    event.data?.object?.payment?.order_id ??
+    event.data?.object?.order_updated?.order_id;
+  if (!squareOrderId) return NextResponse.json({ received: true });
 
+  // Par la commande Square : son identifiant est enregistré avant tout débit,
+  // et c'est elle qui porte le règlement — y compris celui dont nous n'avons
+  // pas pu enregistrer le paiement, le cas que ce webhook existe pour
+  // rattraper.
   const admin = createAdminClient();
-  const COLUMNS = "id, etablissement_id, square_payment_id, paid_online";
-  const find = (column: string, value: string) =>
-    admin.from("orders").select(COLUMNS).eq(column, value).maybeSingle();
-
-  // Par le paiement d'abord ; sinon par la commande Square — c'est le cas que
-  // ce webhook existe pour rattraper, celui d'un débit dont nous n'avons pas
-  // pu enregistrer l'identifiant.
-  let target = payment?.id ? (await find("square_payment_id", payment.id)).data : null;
-  if (!target && squareOrderId) {
-    target = (await find("square_order_id", squareOrderId)).data;
-  }
-
+  const { data: target } = await admin
+    .from("orders")
+    .select("id, etablissement_id, paid_online")
+    .eq("square_order_id", squareOrderId)
+    .maybeSingle();
   if (!target || target.paid_online) {
     return NextResponse.json({ received: true });
   }
 
   try {
-    let paymentId = payment?.id ?? target.square_payment_id;
-    if (!paymentId && squareOrderId) {
-      // order.updated sans paiement en main : le tender de la commande
-      // Square porte l'identifiant du règlement.
-      const merchant = await getMerchantToken(admin, target.etablissement_id);
-      if (!merchant) return NextResponse.json({ received: true });
-      const { order: squareOrder } = await withFreshToken(
-        admin,
-        target.etablissement_id,
-        merchant,
-        (token) => retrieveOrder(token, squareOrderId)
-      );
-      paymentId =
-        squareOrder.tenders?.find((tender) => tender.payment_id)?.payment_id ??
-        null;
-    }
-    if (!paymentId) return NextResponse.json({ received: true });
-
-    if (paymentId !== target.square_payment_id) {
-      await admin
-        .from("orders")
-        .update({ square_payment_id: paymentId })
-        .eq("id", target.id);
-    }
     await confirmOrderPaid(admin, {
       id: target.id,
       etablissement_id: target.etablissement_id,
-      square_payment_id: paymentId,
+      square_order_id: squareOrderId,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

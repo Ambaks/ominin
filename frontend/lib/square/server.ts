@@ -212,13 +212,21 @@ export interface SquareMoney {
   currency: string;
 }
 
+/** Un paiement refusé reste attaché à la commande, en tender FAILED. */
+export interface SquareTender {
+  id: string;
+  payment_id?: string;
+  tip_money?: SquareMoney;
+  card_details?: { status?: "AUTHORIZED" | "CAPTURED" | "VOIDED" | "FAILED" };
+}
+
 export interface SquareOrder {
   id: string;
   state?: string;
   reference_id?: string;
   total_money?: SquareMoney;
   total_tip_money?: SquareMoney;
-  tenders?: { id: string; payment_id?: string }[];
+  tenders?: SquareTender[];
 }
 
 export function createOrder(
@@ -254,13 +262,6 @@ export function createPayment(
     method: "POST",
     body: JSON.stringify(body),
   });
-}
-
-export function retrievePayment(
-  accessToken: string,
-  paymentId: string
-): Promise<{ payment: SquarePayment }> {
-  return squareApi(accessToken, `/v2/payments/${paymentId}`);
 }
 
 export function upsertSquareAccount(
@@ -398,23 +399,19 @@ export async function requireGerant() {
 }
 
 /**
- * Clôt la commande sur la foi d'un paiement Square rapporté par Square
- * lui-même. Idempotente : mark_order_paid_online ne retouche pas une
- * commande déjà réglée, et fait tout l'aval (drapeaux, pourboire, départ en
- * cuisine selon l'imprimante, statut final).
+ * Clôt la commande sur la foi d'un règlement que Square a lui-même rapporté.
+ * Idempotente : mark_order_paid_online ne retouche pas une commande déjà
+ * réglée, et fait tout l'aval (drapeaux, pourboire, départ en cuisine selon
+ * l'imprimante, statut final).
  */
 export async function settlePayment(
   admin: Admin,
   orderId: string,
-  payment: SquarePayment
-): Promise<boolean> {
-  if (payment.status !== "COMPLETED" && payment.status !== "APPROVED") {
-    return false;
-  }
-  // Le pourboire est un fait nouveau choisi par le client : lu dans le
-  // paiement tel que Square l'a enregistré, pas dans ce que le navigateur
-  // avait annoncé.
-  const tip = (payment.tip_money?.amount ?? 0) / 100;
+  tipMoney: SquareMoney | undefined
+): Promise<void> {
+  // Le pourboire est un fait nouveau choisi par le client : lu dans ce que
+  // Square a enregistré, pas dans ce que le navigateur avait annoncé.
+  const tip = (tipMoney?.amount ?? 0) / 100;
   const { error } = await admin.rpc("mark_order_paid_online", {
     p_order_id: orderId,
     p_tip: tip > 0 ? tip : null,
@@ -423,6 +420,33 @@ export async function settlePayment(
   // La commande attendait son règlement hors de la caisse : elle arrive en
   // salle maintenant.
   await dispatchOrderEvent(orderId, "nouvelle_commande");
+}
+
+/**
+ * Clôt la commande si la commande Square porte un règlement abouti. Un refus
+ * y laisse un tender FAILED : seul un tender capturé ou autorisé compte.
+ * L'état se lit dans la commande (ORDERS_READ) et non dans le paiement, qui
+ * exigerait PAYMENTS_READ — une permission de plus à faire accepter au
+ * restaurateur, pour la même information.
+ */
+export async function settleFromOrder(
+  admin: Admin,
+  orderId: string,
+  squareOrder: SquareOrder
+): Promise<boolean> {
+  const tender = squareOrder.tenders?.find(
+    (candidate) =>
+      candidate.payment_id &&
+      (candidate.card_details?.status === "CAPTURED" ||
+        candidate.card_details?.status === "AUTHORIZED")
+  );
+  if (!tender) return false;
+  const { error } = await admin
+    .from("orders")
+    .update({ square_payment_id: tender.payment_id })
+    .eq("id", orderId);
+  if (error) throw new Error(error.message);
+  await settlePayment(admin, orderId, tender.tip_money);
   return true;
 }
 
@@ -434,16 +458,16 @@ export async function settlePayment(
  */
 export async function confirmOrderPaid(
   admin: Admin,
-  order: { id: string; etablissement_id: string; square_payment_id: string }
+  order: { id: string; etablissement_id: string; square_order_id: string }
 ): Promise<boolean> {
   const merchant = await getMerchantToken(admin, order.etablissement_id);
   if (!merchant) return false;
 
-  const { payment } = await withFreshToken(
+  const { order: squareOrder } = await withFreshToken(
     admin,
     order.etablissement_id,
     merchant,
-    (token) => retrievePayment(token, order.square_payment_id)
+    (token) => retrieveOrder(token, order.square_order_id)
   );
-  return settlePayment(admin, order.id, payment);
+  return settleFromOrder(admin, order.id, squareOrder);
 }
