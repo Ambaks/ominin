@@ -1,4 +1,6 @@
 import { Fragment } from "react";
+import { preload } from "react-dom";
+import { ArrowDown, CarteLink } from "@/components/menu/carte-link";
 import {
   displayAddress,
   displayPhone,
@@ -80,7 +82,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
     // pt : quand le contenu dépasse la hauteur minimale (téléphone, logo
     // haut), le centrage ne laisse plus d'air et le logo touche le bord.
-    <header className="relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 pt-12 lg:min-h-[72svh] lg:pb-28 lg:pt-16">
+    <header className="logo-hero relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 pt-12 lg:min-h-[72svh] lg:pb-28 lg:pt-16">
       <div className="absolute inset-0 bg-background" />
 
       {/* Lueurs et halo : aux couleurs de la marque par défaut, qu'un thème
@@ -173,8 +175,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         style={{ animationDelay: "650ms" }}
       />
 
-      <a
-        href={`#${restaurant.categories[0]?.id ?? ""}`}
+      <CarteLink
         className="hero-cue hero-entrance absolute bottom-8 z-10 flex min-h-11 flex-col items-center justify-center gap-2 px-4 text-muted transition-colors hover:text-foreground lg:bottom-12"
         style={{ animationDelay: "1100ms" }}
       >
@@ -192,14 +193,66 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         >
           <path d="M4 6l4 4 4-4" />
         </svg>
-      </a>
+      </CarteLink>
     </header>
   );
 }
 
+/*
+ * Où l'affiche panoramique remplace celle en hauteur : le bureau, et toute
+ * fenêtre ou tablette en paysage d'au moins 640 px (variante poster-wide de
+ * globals.css) ; ailleurs — téléphone, fenêtre ou tablette en portrait —
+ * l'affiche en hauteur, bord à bord elle aussi.
+ */
+const WIDE_MEDIA = "(min-width: 64rem), (min-width: 40rem) and (orientation: landscape)";
+const NARROW_MEDIA = "(max-width: 39.99rem), (max-width: 63.99rem) and (orientation: portrait)";
+
+/*
+ * Largeur affichée du panorama : dans un cadre haut d'au plus la moitié de
+ * l'écran (voir l'<img> de PosterHero), il déborde de ses bords de ratio × 50vw.
+ */
+const wideSizes = (wide: { width: number; height: number }) =>
+  `${Math.ceil((50 * wide.width) / wide.height)}vw`;
+
 /**
- * L'affiche remplit l'écran, moins la bande de contact : rognée sur les côtés
- * en portrait, entière en paysage, où sa copie floutée comble les marges.
+ * Ce que le premier écran d'un établissement réclame, demandé dès l'en-tête
+ * du document : ses polices (au lieu d'attendre que le texte les réclame) et
+ * son affiche — chaque écran la sienne. Appelé aussi par le layout de la
+ * carte, qui n'attend pas la base : les préchargements partent avec les
+ * premiers octets (React ne les envoie qu'une fois).
+ */
+export function preloadBrandAssets(restaurant: Pick<Restaurant, "fontFiles" | "poster">) {
+  for (const href of restaurant.fontFiles ?? []) {
+    preload(href, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  }
+  const poster = restaurant.poster;
+  if (!poster) return;
+  const wide = poster.wide;
+  preload(poster.src, {
+    as: "image",
+    fetchPriority: "high",
+    media: wide ? NARROW_MEDIA : undefined,
+  });
+  if (wide) {
+    preload(wide.src, {
+      as: "image",
+      fetchPriority: "high",
+      media: WIDE_MEDIA,
+      imageSrcSet: wide.srcSet,
+      imageSizes: wideSizes(wide),
+    });
+  }
+}
+
+
+/**
+ * L'affiche tient lieu de hero, toujours d'un bord à l'autre de l'écran. En
+ * portrait (téléphone, fenêtre étroite, tablette), l'affiche en hauteur,
+ * fondue dans la page, jamais plus haute que l'écran ; en paysage et en
+ * bureau, sa version panoramique (poster.wide) — en hauteur, elle n'y
+ * occupait qu'une colonne. Ce qui l'accompagne — les offres, sinon l'adresse
+ * et le téléphone — vient dessous, à toute largeur. Sans panorama, l'affiche
+ * se centre dès la tablette.
  */
 function PosterHero({
   restaurant,
@@ -207,43 +260,100 @@ function PosterHero({
   banner,
 }: {
   restaurant: Restaurant;
-  poster: string;
+  poster: NonNullable<Restaurant["poster"]>;
   banner?: React.ReactNode;
 }) {
+  const wide = poster.wide;
   return (
-    <header className="flex h-svh w-full flex-col bg-background">
-      <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={poster}
-          alt=""
-          className="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={poster}
-          alt=""
-          fetchPriority="high"
-          className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-        />
-        <h1 className="sr-only">{restaurant.name}</h1>
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
-      </div>
+    <header className="poster-hero relative w-full overflow-hidden bg-background">
+      <div className="relative mx-auto flex flex-col items-center">
+        {/* Sous l'image, sa miniature floue (poster.placeholder) : le cadre
+            n'est pas vide pendant qu'elle arrive. Cadrée comme l'image (par
+            le bas), celle du panorama là où il s'affiche. */}
+        <div
+          className={`poster-frame hero-entrance relative w-full bg-cover bg-bottom bg-[image:var(--poster-lqip)] ${
+            wide
+              ? "poster-wide:bg-[image:var(--poster-lqip-wide)]"
+              : "md:mt-10 md:w-auto"
+          }`}
+          style={
+            {
+              "--poster-lqip": poster.placeholder ? `url(${poster.placeholder})` : "none",
+              "--poster-lqip-wide": wide?.placeholder ? `url(${wide.placeholder})` : "none",
+            } as React.CSSProperties
+          }
+        >
+          <picture>
+            {wide && (
+              <source
+                media={WIDE_MEDIA}
+                srcSet={wide.srcSet}
+                sizes={wideSizes(wide)}
+                width={wide.width}
+                height={wide.height}
+              />
+            )}
+            <img
+              src={poster.src}
+              alt={poster.alt}
+              width={poster.width}
+              height={poster.height}
+              fetchPriority="high"
+              // En portrait, jamais plus haute que l'écran (une tablette la
+              // montrait sur 1 100 px) : rognée alors par le haut. Le panorama :
+              // la hauteur de l'écran, sans dépasser la moitié de sa largeur —
+              // la suite de la page reste en vue ; rogné sur ses bords, et par
+              // le haut sur un écran très large, jamais par le bas où sont les
+              // textes et le petit logo.
+              className={`block h-auto w-full object-cover object-bottom ${
+                wide
+                  ? "max-h-svh poster-wide:h-[min(86svh,50vw)] poster-wide:max-h-none"
+                  : "md:h-[76svh] md:w-auto"
+              }`}
+            />
+          </picture>
+          <h1 className="sr-only font-display">{restaurant.name}</h1>
+          {/* Le bas de l'image se fond dans la page : bord à bord, un trait
+              net la coupait. En bureau, un fondu court, sous les textes. */}
+          <div
+            className={`absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-background via-background/60 to-transparent ${
+              wide ? "poster-wide:h-[9%] poster-wide:via-background/25" : "md:hidden"
+            }`}
+          />
+          {/* Au téléphone, l'affiche remplit le premier écran — et le
+              week-end, les offres suivent : plus d'un écran et demi avant la
+              carte. De quoi y aller droit, sans deviner qu'elle est dessous.
+              Dans le coin, sur le fondu : le motif kilim du bas de l'affiche
+              reste dégagé au centre. */}
+          <CarteLink
+            className={`poster-cue absolute bottom-1 right-2 flex min-h-11 items-center gap-2 px-3 text-xs font-semibold uppercase tracking-[0.24em] text-foreground ${
+              wide ? "poster-wide:hidden" : "md:hidden"
+            }`}
+          >
+            La carte <ArrowDown />
+          </CarteLink>
+        </div>
 
-      {banner ?? (
-        <ContactPills
-          restaurant={restaurant}
-          className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
-          style={{ animationDelay: "350ms" }}
-        />
-      )}
+        <div className="poster-aside w-full min-w-0">
+          {banner}
+          {/* Les offres prennent la place de l'adresse et du téléphone : le
+              pied de page les porte déjà. */}
+          <ContactPills
+            restaurant={restaurant}
+            className={`hero-entrance flex flex-wrap justify-center gap-2 px-5 py-6 text-xs text-muted lg:gap-3 lg:text-sm ${
+              banner ? "hidden" : ""
+            }`}
+            style={{ animationDelay: "350ms" }}
+          />
+        </div>
+      </div>
     </header>
   );
 }
 
 /**
- * `banner` (les formules en visuel) prend, sous l'affiche, la place de
- * l'adresse et du téléphone : le pied de page les porte déjà.
+ * `banner` (les formules en visuel) suit l'affiche, à la place de l'adresse
+ * et du téléphone (le pied de page les porte déjà).
  */
 export function Hero({
   restaurant,
@@ -252,6 +362,7 @@ export function Hero({
   restaurant: Restaurant;
   banner?: React.ReactNode;
 }) {
+  preloadBrandAssets(restaurant);
   if (restaurant.poster) {
     return (
       <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} />
@@ -263,7 +374,7 @@ export function Hero({
   }
 
   return (
-    <header className="relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
+    <header className="cover-hero relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
       {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
       <img
         src={restaurant.coverImage}

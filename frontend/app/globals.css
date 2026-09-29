@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
 /*
+  L'affiche panoramique d'un établissement (Restaurant.poster.wide) : en
+  bureau, et dans toute fenêtre ou tablette en paysage d'au moins 640 px —
+  la même requête que la <source> et les préchargements de PosterHero.
+*/
+@custom-variant poster-wide {
+  @media (min-width: 64rem), (min-width: 40rem) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+/*
   Ominin menu — "candlelit trattoria" premium theme.
   Dark (default): warm near-black surfaces, ember gradient accents
   (amber → terracotta → rose). Light: warm linen surfaces with the
@@ -91,28 +102,117 @@ html.light {
   Correspondance slug → classe : restaurantThemeClass (lib/menu-data.ts) ;
   palette issue de demos/<slug>/profile.json (source de vérité du client).
 
-  BOHO (Toulouse) — terrasse bohème au crépuscule (couverture du menu papier,
-  demos/boho/docs/) : nuit prune, crème rosée, accent lampes rotin → couchant
-  → rouge brique de la marque. Nuit assumée quel que soit le mode du site.
+  BOHO (Toulouse) — terrasse bohème au crépuscule (affiche du client et menu
+  papier, demos/boho/docs/) : nuit prune, crème rosée, or des lampes rotin,
+  rouge brique de la marque. Nuit assumée quel que soit le mode du site.
+  --ember-3 sert aussi aux messages d'erreur : il reste un corail lisible
+  sur la nuit, la brique pleine (--boho-brick) ne peint que des aplats.
+  Mise en page propre à BOHO plus bas (« BOHO — la carte »).
 */
+/*
+  Polices de BOHO, servies depuis public/boho/fonts et préchargées avec
+  l'affiche (Restaurant.fontFiles, voir Hero) : par next/font, sans
+  préchargement possible pour une seule carte, elles n'arrivaient qu'au
+  premier rendu du texte — 4 à 5 s sur une connexion lente, la page lue dans
+  les polices de secours. Sous-ensembles latin (préchargés) et latin étendu
+  (chargé si un caractère le demande) de Google Fonts, dans son ordre : le
+  latin déclaré en dernier l'emporte pour « œ », des deux plages, sans
+  télécharger l'étendu. Les polices de secours reprennent les métriques que
+  calculait next/font : rien ne bouge quand la vraie police arrive.
+*/
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/boho/fonts/eb-garamond-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/boho/fonts/eb-garamond-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/boho/fonts/eb-garamond-italic-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/boho/fonts/eb-garamond-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "EB Garamond Fallback";
+  src: local("Times New Roman");
+  ascent-override: 106.26%;
+  descent-override: 31.44%;
+  line-gap-override: 0%;
+  size-adjust: 94.77%;
+}
+@font-face {
+  font-family: "Jost";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/boho/fonts/jost-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Jost";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/boho/fonts/jost-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Jost Fallback";
+  src: local("Arial");
+  ascent-override: 111.45%;
+  descent-override: 39.06%;
+  line-gap-override: 0%;
+  size-adjust: 96.01%;
+}
+
 .theme-boho {
-  --background: #251b20;
+  --background: #1d1519;
   --foreground: #f6e9e6;
 
-  --surface: #2f242a;
-  --surface-raised: #3a2c33;
-  --hairline: rgba(246, 233, 230, 0.11);
+  --surface: #271d22;
+  --surface-raised: #33262c;
+  --hairline: rgba(246, 233, 230, 0.12);
 
-  --muted: #c5a8a4;
-  --faint: #8d7173;
+  --muted: #c9aca7;
+  --faint: #b09394;
 
   --ember-1: #e5b072;
   --ember-2: #d97f6a;
-  --ember-3: #b5443a;
+  --ember-3: #e57a68;
+
+  --boho-brick: #a33b32;
+  --boho-brick-hover: #8f332b;
+  --boho-gold-line: rgba(229, 176, 114, 0.45);
 
   --shimmer-highlight: rgba(229, 176, 114, 0.14);
   --glow-inner: rgba(229, 176, 114, 0.09);
   --glow-outer: rgba(217, 127, 106, 0.05);
+
+  --brand-display: "EB Garamond", "EB Garamond Fallback", serif;
+  --brand-sans: "Jost", "Jost Fallback", sans-serif;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
+  font-family: var(--brand-sans);
 
   color-scheme: dark;
 }
@@ -1500,41 +1600,26 @@ html:has(.cart-bar) {
 /*
   Écran court (iPhone SE, téléphone à l'horizontale) : l'en-tête et le pied
   collants du panier en prenaient les deux tiers, une ligne et demie restait
-  visible. Les marges se serrent, et « Retour à la carte » devient un
-  « Retour » compact sur la ligne du total, au lieu d'une rangée à lui.
+  visible. Les marges se serrent, et « Retour à la carte » (déjà sur la ligne
+  du total) se réduit à « Retour ».
 */
 @media (max-height: 640px) {
   [data-menu-root] :is(.cart-head, .cart-foot) {
     padding-block: 0.75rem;
   }
 
-  [data-menu-root] .cart-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.75rem;
-  }
-
-  [data-menu-root] .cart-foot > * {
-    flex-basis: 100%;
-  }
-
   [data-menu-root] .cart-foot > :first-child {
-    flex: 1 1 0;
-    justify-content: flex-end;
-    gap: 0.75rem;
     margin-bottom: 0.5rem;
   }
 
-  [data-menu-root] .cart-foot > .cart-back {
-    order: -1;
-    flex: none;
-    width: auto;
-    margin: 0 0 0.5rem;
-    padding-inline: 1.25rem;
-    border: 1px solid var(--hairline);
+  [data-menu-root] .cart-back-long {
+    display: none;
   }
+}
 
+/* Sous 360 px, « Retour à la carte » passait sur deux lignes à côté d'un
+   total avec pourboire : le pied collé grandissait d'autant. */
+@media (max-width: 359px) {
   [data-menu-root] .cart-back-long {
     display: none;
   }
@@ -1681,6 +1766,1096 @@ html:has(.cart-bar) {
     animation: none;
     box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--ember-2) 55%, transparent);
   }
+}
+
+/*
+  BOHO — la carte. L'affiche et le menu papier donnent la grammaire : une
+  romaine à empattements pour les titres, les noms et les prix (EB
+  Garamond), son italique pour les accents (« Ambiance bohème »), une
+  géométrique très espacée pour les étiquettes (Jost, le « RESTAURANT » de
+  l'affiche), et le filet coupé d'un losange qui sépare « BOHO » de
+  « RESTAURANT ». L'or des lampes pour les prix et les filets, la brique de la
+  marque pour les seuls aplats d'action. Pas de dégradé : c'est l'aplat qui
+  fait le soin, ici.
+*/
+.theme-boho {
+  /* Le grain du papier et la lueur des lampes, derrière toute la carte. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .9 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(90rem 50rem at 50% 38rem, rgba(229, 176, 114, 0.05), transparent 70%);
+}
+
+.theme-boho :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+.theme-boho .font-display {
+  font-variant-numeric: lining-nums;
+}
+
+.theme-boho .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+}
+
+/* Les aplats d'action (panier, validation, téléphone) : la brique pleine,
+   texte crème — 5,5:1 (6,6:1 au survol). La brique du logo (#b5443a) ne
+   donnait que 4,6:1 : juste, pour un téléphone baissé la nuit en terrasse. */
+.theme-boho .ember-gradient {
+  background-image: none;
+  background-color: var(--boho-brick);
+  color: var(--foreground);
+}
+
+@media (hover: hover) {
+  .theme-boho button.ember-gradient:hover,
+  .theme-boho a.ember-gradient:not([data-category]):hover {
+    background-color: var(--boho-brick-hover);
+  }
+}
+
+/* Le filet au losange, pièce de l'affiche : sous les titres de section, sous
+   « Nos Offres », sous le nom en pied de page. */
+.theme-boho :is(.category-rule, .offers-rule) {
+  position: relative;
+  flex: none;
+  width: 8.5rem;
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--boho-gold-line) 22%,
+    var(--boho-gold-line) 78%,
+    transparent
+  );
+  background-color: transparent;
+  opacity: 1;
+}
+
+.theme-boho :is(.category-rule, .offers-rule)::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 1px solid var(--ember-1);
+  background: var(--background);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* Le fond de la page sous le thème : le rebond du défilement et le haut du
+   navigateur montraient le quasi-noir d'Ominin autour de la nuit prune. La
+   valeur est celle de --background, qui n'existe pas au niveau de <html>. */
+html:has(.theme-boho),
+html:has(.theme-boho) body {
+  background-color: #1d1519;
+}
+
+/* Le kilim de la couverture du menu papier, en frise : il ferme l'affiche
+   et ouvre le pied de page. */
+.theme-boho > header::after,
+.theme-boho footer::before {
+  content: "";
+  display: block;
+  height: 14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M7 1.5 12.5 7 7 12.5 1.5 7Z' fill='none' stroke='%23b5443a' stroke-width='1.2'/%3E%3Cpath d='M7 5 9 7 7 9 5 7Z' fill='%23e5b072'/%3E%3Cpath d='M21 5.5 22.5 7 21 8.5 19.5 7Z' fill='%23b5443a'/%3E%3C/svg%3E") repeat-x center;
+  opacity: 0.55;
+}
+
+/* --- L'affiche --------------------------------------------------------- */
+
+/* --- Nos Offres -------------------------------------------------------- */
+
+/* Les offres, sous l'affiche à toutes les largeurs, prennent les bords de la
+   carte qui les suit — la colonne de ses lignes, puis sa grille à deux
+   colonnes — plutôt qu'une troisième largeur. Le bas du bloc se resserre :
+   le premier plat monte d'autant. */
+.theme-boho .offers {
+  max-width: 42rem;
+  padding-bottom: 2.25rem;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .theme-boho .offers {
+    max-width: 34rem;
+    padding-inline: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-boho .offers {
+    max-width: 64rem;
+    padding-inline: 2.5rem;
+  }
+}
+
+/* La carte s'étend sur tout l'écran : les offres s'élargissent avec elle,
+   sans que leur visuel ne dépasse la hauteur d'un demi-écran. */
+@media (min-width: 1440px) {
+  .theme-boho .offers {
+    max-width: 84rem;
+  }
+}
+
+.theme-boho .offers-title {
+  font-style: italic;
+  font-weight: 500;
+  font-size: 2.5rem;
+  letter-spacing: 0;
+}
+
+@media (min-width: 1024px) {
+  .theme-boho .offers-title {
+    font-size: 3.4rem;
+  }
+}
+
+/* Survol d'une moitié du visuel (bureau) : un filet d'or à l'intérieur. Le
+   voile blanc à 5 % disparaissait sur le pastel de l'affiche. */
+@media (hover: hover) {
+  .theme-boho .offers-art button:hover {
+    background: none;
+    box-shadow: inset 0 0 0 2px rgba(229, 176, 114, 0.8);
+  }
+}
+
+.theme-boho .offers-art {
+  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.8);
+}
+
+
+.theme-boho .offer-ticket {
+  border-color: rgba(229, 176, 114, 0.2);
+  background-image: linear-gradient(
+    155deg,
+    rgba(229, 176, 114, 0.09),
+    transparent 55%
+  );
+  background-color: var(--surface);
+  transition:
+    border-color 0.3s,
+    transform 0.2s;
+}
+
+.theme-boho .offer-ticket[data-active] {
+  border-color: rgba(229, 176, 114, 0.65);
+}
+
+@media (hover: hover) {
+  .theme-boho .offer-ticket:hover {
+    border-color: rgba(229, 176, 114, 0.6);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) {
+    .theme-boho .offer-ticket:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .theme-boho .offer-ticket:active {
+    transform: scale(0.98);
+  }
+}
+
+.theme-boho .offer-name {
+  font-weight: 500;
+  font-size: 2rem;
+}
+
+.theme-boho .offer-cta {
+  font-size: 0.8rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid var(--boho-gold-line);
+  letter-spacing: 0.16em;
+}
+
+@media (min-width: 1024px) {
+  .theme-boho .offer-name {
+    font-size: 2.4rem;
+  }
+}
+
+/* --- Barre des catégories ---------------------------------------------- */
+
+.theme-boho > nav {
+  border-bottom-color: rgba(229, 176, 114, 0.14);
+  background-color: color-mix(in srgb, var(--background) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+}
+
+/* Des onglets, pas des pastilles : l'étiquette espacée de l'affiche, un
+   trait d'or sous la section en cours. */
+.theme-boho > nav a[data-category] {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding-inline: 0.7rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.theme-boho > nav a[data-category]::after {
+  content: "";
+  position: absolute;
+  left: 0.7rem;
+  right: 0.7rem;
+  bottom: 0.3rem;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--ember-1);
+  transform: scaleX(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-boho > nav a[aria-current]::after {
+  transform: none;
+}
+
+.theme-boho > nav a[data-category]:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0.6rem;
+}
+
+.theme-boho > nav a[aria-current],
+.theme-boho > nav a[data-category]:hover {
+  color: var(--foreground);
+}
+
+/* Téléphone et tablette : le rail court jusqu'aux bords de l'écran et se
+   fond sur une largeur franche à droite — l'onglet suivant dépasse, on sait
+   que la barre défile. */
+@media (max-width: 1023px) {
+  .theme-boho > nav > div {
+    max-width: none;
+  }
+
+  .theme-boho > nav .category-rail {
+    gap: 0.25rem;
+    margin-inline: -1.25rem;
+    padding-inline: 1.25rem;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 0.75rem, black calc(100% - 2.25rem), transparent);
+    mask-image: linear-gradient(to right, transparent, black 0.75rem, black calc(100% - 2.25rem), transparent);
+  }
+}
+
+/* En bureau, un seul rang sur toute la largeur, serré : centré dès que
+   les douze onglets y tiennent (1 440 px), sinon un rail qui défile, ses
+   bords fondus assez larges pour dire qu'il continue. Deux rangs pesaient
+   près de 100 px d'en-tête collé. */
+@media (min-width: 1024px) {
+  .theme-boho > nav > div {
+    max-width: none;
+  }
+
+  .theme-boho > nav .category-rail {
+    justify-content: safe center;
+    gap: 0;
+    padding-inline: 2.5rem;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 2.5rem, black calc(100% - 2.5rem), transparent);
+    mask-image: linear-gradient(to right, transparent, black 2.5rem, black calc(100% - 2.5rem), transparent);
+  }
+
+  .theme-boho > nav a[data-category] {
+    padding-block: 0;
+    padding-inline: 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+
+  .theme-boho > nav a[data-category]::after {
+    left: 0.55rem;
+    right: 0.55rem;
+    bottom: 0.6rem;
+  }
+}
+
+
+
+/* Pas de jauge de lecture : l'onglet souligné dit déjà où l'on est, et
+   son fil d'or sous le premier onglet passait pour un trait égaré. */
+.theme-boho > nav > .ember-gradient {
+  display: none;
+}
+
+/* --- Titres de section ------------------------------------------------- */
+
+.theme-boho .category-head {
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+/* Les petites capitales de la Garamond : les titres en romaines du menu
+   papier (« — COCKTAILS — »), sans crier. */
+.theme-boho .category-heading {
+  font-weight: 500;
+  font-size: 2.25rem;
+  font-variant-caps: all-small-caps;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  text-wrap: balance;
+}
+
+/* Le focus posé sur le titre après un saut (clavier) : un cadre arrondi à
+   distance des capitales, pas un rectangle collé aux lettres. */
+.theme-boho .category-heading:focus-visible {
+  outline-offset: 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.theme-boho .category-head + p {
+  margin-top: 0.85rem;
+  text-align: center;
+  text-wrap: balance;
+  font-family: var(--brand-display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+@media (min-width: 1024px) {
+  .theme-boho .category-heading {
+    font-size: 3.1rem;
+  }
+
+  .theme-boho .category-head + p {
+    font-size: 1.25rem;
+  }
+}
+
+/*
+  --- Les plats : des lignes de carte, pas des cartes à jouer. Le nom, sa
+  description et son prix à gauche, la photo carrée à droite, un filet entre
+  deux plats — la carte se lit d'un coup d'œil, deux fois plus courte. Les
+  enveloppes de DishCard s'effacent (display: contents) pour que nom, prix,
+  description, bouton et photo se posent sur une même grille.
+  :nth-child(n) égale la spécificité des règles communes du plat seul (voir
+  « Une section d'un seul plat »), que cette grille doit remplacer.
+*/
+[data-menu-root].theme-boho .dish-grid {
+  gap: 0;
+}
+
+/* Une seule colonne de lignes jusqu'à 1 280 px (tablette, petite fenêtre) :
+   à deux, serrées, deux plats voisins se confondaient — le nom de l'un à côté
+   de la photo de l'autre. */
+@media (min-width: 768px) and (max-width: 1279px) {
+  [data-menu-root].theme-boho .dish-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 36rem;
+    margin-inline: auto;
+  }
+}
+
+/* En bureau, la carte prend toute la largeur de l'écran — un filet de marge
+   qui grandit avec lui —, en deux colonnes de lignes, trois sur un grand
+   écran. Dans une colonne de 944 px, un écran de 1 920 px laissait près de
+   500 px de nuit vide de chaque côté. Les colonnes s'écartent avec l'écran :
+   deux lignes voisines ne se lisent pas comme une seule. */
+@media (min-width: 1024px) {
+  .theme-boho main#carte {
+    max-width: none;
+    padding-inline: clamp(2.5rem, 4vw, 5rem);
+  }
+
+  [data-menu-root].theme-boho .dish-grid {
+    --dish-gap: clamp(3rem, 5vw, 6rem);
+    column-gap: var(--dish-gap);
+    row-gap: 0;
+  }
+}
+
+/* Plusieurs colonnes : plus d'air entre deux lignes (:not(.dish-grid-tiles) :
+   au-dessus de la règle des lignes dès 768 px, plus bas ; les boissons
+   gardent leurs lignes serrées), et un filet vertical au milieu de chaque
+   gouttière, comme entre les colonnes du menu papier : la photo d'un plat ne
+   se lit plus avec le nom du plat voisin. Le filet est tiré par chaque plat
+   hors de la première colonne, à gauche de lui : les lignes se touchant, il
+   court d'un trait, et s'arrête où la colonne s'arrête. Le plat vedette, sur
+   toute la largeur, décale d'un rang le compte des colonnes. */
+@media (min-width: 1280px) {
+  [data-menu-root].theme-boho .dish-grid:not(.dish-grid-tiles) > article:nth-child(n) {
+    padding-block: 1.75rem;
+  }
+
+  .theme-boho .dish-grid:not(:has(> [data-featured]:first-child)) > article:nth-child(2n)::before,
+  .theme-boho .dish-grid:has(> [data-featured]:first-child) > article:nth-child(2n + 3)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--dish-gap) / -2);
+    width: 1px;
+    background: var(--hairline);
+  }
+}
+
+@media (min-width: 1600px) {
+  [data-menu-root].theme-boho .dish-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Le plat vedette, plus étroit que la grille : son filet du bas s'arrêtait
+     avant les colonnes. L'air suffit à le séparer d'elles. */
+  [data-menu-root].theme-boho .dish-grid > article[data-featured]:nth-child(n) {
+    border-bottom-width: 0;
+  }
+
+  /* Trois colonnes : le filet à gauche des deuxième et troisième, et plus au
+     rang pair des deux. */
+  .theme-boho .dish-grid:not(:has(> [data-featured]:first-child)) > article:nth-child(2n)::before,
+  .theme-boho .dish-grid:has(> [data-featured]:first-child) > article:nth-child(2n + 3)::before {
+    content: none;
+  }
+
+  .theme-boho .dish-grid:not(:has(> [data-featured]:first-child)) > article:is(:nth-child(3n + 2), :nth-child(3n + 3))::before,
+  .theme-boho .dish-grid:has(> [data-featured]:first-child) > article:is(:nth-child(3n + 3), :nth-child(3n + 4))::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--dish-gap) / -2);
+    width: 1px;
+    background: var(--hairline);
+  }
+}
+
+[data-menu-root].theme-boho .dish-grid > article:nth-child(n) {
+  display: grid;
+  /* Le prix et le bouton sur la même ligne, au pied du texte : la ligne ne
+     dépasse plus la photo que d'un rien. */
+  grid-template-columns: minmax(0, 1fr) auto 7rem;
+  grid-template-rows: auto auto auto auto 1fr auto;
+  grid-template-areas:
+    "name  name   photo"
+    "badge badge  photo"
+    "desc  desc   photo"
+    "pair  pair   photo"
+    ".     .      photo"
+    "price action photo";
+  column-gap: 1rem;
+  padding: 1.25rem 0;
+  overflow: visible;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  border-color: var(--hairline);
+  background: none;
+}
+
+[data-menu-root].theme-boho .dish-grid > article:not(:has(.dish-photo)):nth-child(n) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name name" "badge badge" "desc desc" "pair pair" ". ." "price action";
+}
+
+/* Le plat seul d'une section qui porte son nom (le Menu enfant, nom masqué) :
+   un bloc de menu centré sous son titre — prix, composition, bouton —
+   plutôt qu'une ligne orpheline calée à gauche. */
+[data-menu-root].theme-boho .dish-grid > article:only-child:not(:has(.dish-photo)):has(h3.sr-only):nth-child(n) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "name" "badge" "price" "desc" "pair" "action";
+  justify-items: center;
+  text-align: center;
+  /* Encadré d'or, comme la photo du plat vedette et l'encart du menu
+     papier : seul sous son titre, le bloc flottait. */
+  padding: 1.75rem 1.5rem;
+  border: 1px solid rgba(229, 176, 114, 0.3);
+  border-radius: 1.25rem;
+}
+
+.theme-boho .dish-grid > article:only-child:has(h3.sr-only) .dish-head > div {
+  align-items: center;
+  padding-bottom: 0.3rem;
+}
+
+/* Une ligne sans description (« Nems légumes », « Yakitori ») : nom, prix
+   et bouton se serrent à mi-hauteur de la photo, plutôt que le nom en haut
+   et le prix 55 px plus bas. En une colonne seulement : sur deux, la ligne
+   voisine garde son nom en haut, et les deux ne s'alignaient plus. */
+@media (max-width: 1023px) {
+  [data-menu-root].theme-boho .dish-grid:not(.dish-grid-tiles) > article:not([data-featured]):has(.dish-photo):not(:has(.dish-body > :is(p, ul))):nth-child(n) {
+    grid-template-rows: 1fr auto auto auto auto auto 1fr;
+    grid-template-areas:
+      ".     .      photo"
+      "name  name   photo"
+      "badge badge  photo"
+      "desc  desc   photo"
+      "pair  pair   photo"
+      "price action photo"
+      ".     .      photo";
+  }
+}
+
+.theme-boho .dish-grid :is(.dish-body, .dish-head) {
+  display: contents;
+}
+
+/* Les photos en hauteur du gérant (chichas) gardent leur haut — le foyer —
+   dans une vignette carrée. */
+.theme-boho .dish-grid .dish-photo img {
+  object-position: 50% 30%;
+}
+
+[data-menu-root].theme-boho .dish-grid > article .dish-photo {
+  grid-area: photo;
+  align-self: start;
+  aspect-ratio: 1;
+  min-height: 0;
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 1px rgba(246, 233, 230, 0.06);
+}
+
+.theme-boho .dish-photo-fade {
+  display: none;
+}
+
+/* « Recette maison », « Top vente » : sous le nom dans une ligne de carte —
+   au coin d'une vignette de 112 px, « RECETTE MAISON » ne tenait qu'en
+   9 px ou tronqué —, au coin de la grande photo pour le plat vedette. */
+.theme-boho .dish-grid .dish-badges-inline {
+  display: flex;
+  grid-area: badge;
+  margin-top: 0.4rem;
+}
+
+.theme-boho .dish-grid .dish-badges-inline span {
+  padding: 0.2rem 0.6rem;
+  background: color-mix(in srgb, var(--boho-brick) 94%, transparent);
+  color: var(--foreground);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.theme-boho .dish-grid .dish-photo > .dish-badges,
+.theme-boho .dish-grid > article[data-featured] .dish-badges-inline,
+.theme-boho .dish-grid.dish-grid-tiles .dish-badges-inline {
+  display: none;
+}
+
+.theme-boho .dish-grid > article[data-featured] .dish-photo > .dish-badges {
+  display: block;
+}
+
+.theme-boho .dish-photo > .dish-badges {
+  inset: 0.35rem auto auto 0.35rem;
+  max-width: calc(100% - 0.7rem);
+}
+
+.theme-boho .dish-photo > .dish-badges span {
+  display: block;
+  overflow: hidden;
+  padding: 0.2rem 0.45rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--boho-brick) 94%, transparent);
+  color: var(--foreground);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-boho .dish-grid article h3 {
+  grid-area: name;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+/* Le format saisi avec le nom (« Nutella ou caramel ») : sa propre ligne,
+   alignée sur le nom, plutôt qu'une coupure au hasard de la largeur. */
+.theme-boho .dish-grid .dish-detail {
+  display: block;
+  margin: 0.4rem 0 0;
+  font-family: var(--brand-sans);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  white-space: normal;
+}
+
+@media (min-width: 1024px) {
+  .theme-boho .dish-grid .dish-detail {
+    font-size: 0.95rem;
+  }
+}
+
+/* 15 px : une description se lit à la lumière d'une terrasse le soir. Pas
+   de mot seul en dernière ligne. */
+.theme-boho .dish-grid .dish-body > :is(p, ul):not(.font-display) {
+  grid-area: desc;
+  margin-top: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.theme-boho .dish-grid .dish-body > p.font-display {
+  grid-area: pair;
+  margin-top: 0.35rem;
+}
+
+.theme-boho .dish-grid .dish-head > div {
+  grid-area: price;
+  align-self: end;
+  align-items: flex-start;
+  padding-bottom: 0.6rem;
+}
+
+/* « Tarif week-end » sous le prix : lisible à table, la nuit. */
+.theme-boho .dish-grid .dish-head > div > span + span {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+}
+
+.theme-boho .dish-price {
+  font-weight: 500;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--ember-1);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-boho .dish-grid .dish-action {
+  grid-area: action;
+  align-self: end;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding-top: 0.9rem;
+}
+
+/*
+  Une section de simples boissons (.dish-grid-tiles : ni description ni
+  composition, voir MenuSection) se lit comme sur le menu papier : le nom,
+  des points de conduite, le prix — sans photo. Des canettes et des tasses
+  détourées sur fond blanc, carrées sur la nuit, n'y ajoutaient que de
+  l'éblouissement, et la section faisait trois écrans. Les points sont le
+  ::before de l'enveloppe effacée (display: contents), posé dans la grille.
+*/
+/* .dish-grid.dish-grid-tiles : un cran au-dessus des lignes à photo et de
+   leurs variantes par largeur, qui viennent plus bas. */
+[data-menu-root].theme-boho .dish-grid.dish-grid-tiles > article:nth-child(n) {
+  /* La colonne du bouton a une largeur fixe : « Choisir » et « + Ajouter »
+     laissent les prix alignés, comme sur le papier. */
+  grid-template-columns: minmax(0, max-content) minmax(0.5rem, 1fr) auto 6.75rem;
+  grid-template-rows: auto;
+  grid-template-areas: "name leader price action";
+  align-items: baseline;
+  column-gap: 0.5rem;
+  padding-block: 0.55rem;
+}
+
+.theme-boho .dish-grid-tiles .dish-photo {
+  display: none;
+}
+
+.theme-boho .dish-grid-tiles .dish-body::before {
+  content: "";
+  grid-area: leader;
+  height: 0.9em;
+  border-bottom: 1px dotted var(--boho-gold-line);
+}
+
+.theme-boho .dish-grid-tiles .dish-head > div,
+.theme-boho .dish-grid-tiles .dish-action {
+  padding-top: 0;
+}
+
+/* Nom, points de conduite, prix et libellé du bouton sur une même ligne de
+   base, comme sur le papier : les règles des lignes à photo calaient le prix
+   et le bouton en bas, sous la ligne des points. */
+.theme-boho .dish-grid.dish-grid-tiles .dish-head > div,
+.theme-boho .dish-grid.dish-grid-tiles .dish-action {
+  align-self: baseline;
+  padding-bottom: 0;
+}
+
+[data-menu-root].theme-boho .dish-grid-tiles .dish-action > button {
+  position: relative;
+  width: 100%;
+  padding-inline: 0.5rem;
+}
+
+/* Le compte au panier, au coin du bouton plutôt que sur son libellé.
+   :nth-child(n) : au-dessus de la règle des lignes sans photo, plus bas. */
+[data-menu-root].theme-boho .dish-grid.dish-grid-tiles > article:nth-child(n) .cart-count {
+  top: -0.55rem;
+  right: -0.45rem;
+}
+
+/*
+  Le plat vedette (« Top vente », Restaurant.featureTopSellers) ouvre sa
+  section en grand : photo pleine largeur, nom et prix au corps des titres —
+  la page que le menu papier donne à « L'Entrecôte La Fameuse ». En bureau,
+  photo à gauche, texte à droite, sur les deux colonnes.
+*/
+[data-menu-root].theme-boho .dish-grid > article[data-featured]:nth-child(n) {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas: "photo" "name" "price" "desc" "pair" "action";
+  padding-top: 0.25rem;
+}
+
+/* Le cadre d'or à distance de l'affiche : la photo du produit phare se
+   présente comme un tirage. */
+[data-menu-root].theme-boho .dish-grid > article[data-featured] .dish-photo {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin-bottom: 1.25rem;
+  border-radius: 1.25rem;
+  outline: 1px solid rgba(229, 176, 114, 0.3);
+  outline-offset: 5px;
+}
+
+.theme-boho .dish-grid > article[data-featured] h3 {
+  font-size: 1.7rem;
+  text-wrap: balance;
+}
+
+.theme-boho .dish-grid > article[data-featured] .dish-price {
+  font-size: 1.45rem;
+}
+
+.theme-boho .dish-grid > article[data-featured] .dish-head > div {
+  padding-top: 0.5rem;
+}
+
+/* Sur la grande photo, l'étiquette prend du corps. */
+.theme-boho .dish-grid > article[data-featured] .dish-photo > .dish-badges {
+  inset: 1rem auto auto 1rem;
+}
+
+.theme-boho .dish-grid > article[data-featured] .dish-photo > .dish-badges span {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+@media (min-width: 1024px) {
+  /* Sur toute la largeur de la carte, le plat vedette garde la mesure d'une
+     page : photo et texte centrés, pas une photo de 1 000 px. */
+  [data-menu-root].theme-boho .dish-grid > article[data-featured]:nth-child(n) {
+    width: min(100%, 80rem);
+    justify-self: center;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto auto auto 1fr;
+    grid-template-areas:
+      "photo ."
+      "photo name"
+      "photo price"
+      "photo desc"
+      "photo action"
+      "photo .";
+    column-gap: 2.5rem;
+    padding-block: 0.5rem 2rem;
+  }
+
+  [data-menu-root].theme-boho .dish-grid > article[data-featured] .dish-photo {
+    aspect-ratio: 4 / 3;
+    margin-bottom: 0;
+  }
+
+  .theme-boho .dish-grid > article[data-featured] h3 {
+    font-size: 2.4rem;
+  }
+
+  .theme-boho .dish-grid > article[data-featured] .dish-price {
+    font-size: 1.7rem;
+  }
+}
+
+/* Chaque ligne se pose en entrant dans l'écran : une animation liée au
+   défilement, sans JavaScript — là où elle n'existe pas, la ligne est
+   simplement là. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .theme-boho .dish-grid > article {
+      animation: boho-row-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+  }
+}
+
+@keyframes boho-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+/* Le bouton d'ajout, en retrait : un filet d'or, la brique restant à la
+   barre du panier. */
+[data-menu-root].theme-boho .dish-grid .dish-action > button {
+  min-height: 2.75rem;
+  padding-inline: 1.1rem;
+  /* Plus dense que le filet d'or des ornements : le contour d'un bouton
+     passe 3:1 sur la nuit. */
+  border: 1px solid rgba(229, 176, 114, 0.55);
+  background: none;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+[data-menu-root].theme-boho .dish-grid .dish-action > button[aria-disabled="true"] {
+  border-color: var(--hairline);
+  color: var(--muted);
+  cursor: default;
+}
+
+/* « Maximum » seul : « Maximum au panier », plus large que la colonne du
+   bouton, écrasait celle du prix et passait dessus. Le compte au coin de la
+   photo et le libellé lu (« Maximum atteint : … ») disent le reste. */
+.theme-boho .dish-grid .add-max-rest {
+  display: none;
+}
+
+/* Toute la ligne n'ajoute pas au toucher, seul le bouton : une ligne se
+   frôle en faisant défiler. */
+[data-menu-root].theme-boho .dish-grid > article .dish-action > button::after {
+  content: none;
+}
+
+@media (hover: hover) {
+  [data-menu-root].theme-boho .dish-grid .dish-action > button:hover {
+    border-color: var(--ember-1);
+    background-color: rgba(229, 176, 114, 0.1);
+  }
+}
+
+/* Le compte au panier, au coin de la photo. */
+[data-menu-root].theme-boho .dish-grid .cart-count {
+  top: 0.65rem;
+  right: -0.4rem;
+  background: var(--ember-1);
+  color: var(--background);
+}
+
+[data-menu-root].theme-boho .dish-grid > article:not(:has(.dish-photo)) .cart-count {
+  right: 0;
+}
+
+@media (min-width: 768px) {
+  [data-menu-root].theme-boho .dish-grid > article:nth-child(n) {
+    grid-template-columns: minmax(0, 1fr) auto 8rem;
+    padding-block: 1.5rem;
+  }
+
+  /* Le plat seul d'une section (le Menu enfant) : la largeur d'une ligne,
+     centrée sous son titre, plutôt que seul dans la colonne de gauche. */
+  [data-menu-root].theme-boho .dish-grid > article:only-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, 34rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-menu-root].theme-boho .dish-grid > article:nth-child(n) {
+    grid-template-columns: minmax(0, 1fr) auto 9rem;
+    column-gap: 1.25rem;
+  }
+
+  .theme-boho .dish-grid article h3 {
+    font-size: 1.4rem;
+  }
+
+  .theme-boho .dish-price {
+    font-size: 1.3rem;
+  }
+
+  .theme-boho .dish-grid .dish-body > :is(p, ul):not(.font-display) {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 359px) {
+  [data-menu-root].theme-boho .dish-grid > article:nth-child(n) {
+    grid-template-columns: minmax(0, 1fr) auto 5.75rem;
+    column-gap: 0.6rem;
+  }
+
+  [data-menu-root].theme-boho .dish-grid .dish-action > button {
+    padding-inline: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  [data-menu-root].theme-boho .dish-grid.dish-grid-tiles > article:nth-child(n) {
+    grid-template-columns: minmax(0, max-content) minmax(0.5rem, 1fr) auto 6rem;
+  }
+}
+
+/* --- Feuilles : options, formules, panier ------------------------------ */
+
+.theme-boho [role="dialog"] {
+  border-color: rgba(229, 176, 114, 0.18);
+  box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, 0.7);
+}
+
+.theme-boho [role="dialog"] h3 {
+  font-weight: 600;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.theme-boho [role="dialog"] .dish-price {
+  font-size: 1.35rem;
+}
+
+.theme-boho [role="dialog"] :is(legend, .group-title) {
+  font-family: var(--brand-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.theme-boho [role="dialog"] legend > span {
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.theme-boho .choice-row {
+  border-radius: 0.85rem;
+}
+
+.theme-boho .choice-row.is-checked {
+  border-color: rgba(229, 176, 114, 0.6);
+  background-color: rgba(229, 176, 114, 0.07);
+}
+
+.theme-boho [role="dialog"] :is(input[type="radio"], input[type="checkbox"]):checked {
+  border-color: var(--ember-1);
+}
+
+.theme-boho [role="dialog"] input[type="radio"]:checked::before,
+.theme-boho [role="dialog"] input[type="checkbox"]:checked {
+  background: var(--ember-1);
+}
+
+/* Le règlement et la fidélité à 14 px : la décision de la soirée ne se lit
+   pas en 12 px sur une table de terrasse. La table, dans la géométrique : la
+   Garamond à 12 px, à petit œil, se lisait comme du 10. */
+.theme-boho :is(.cart-payment, .loyalty) .text-xs {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.theme-boho .cart-table {
+  margin-top: 0.15rem;
+  font-family: var(--brand-sans);
+  font-size: 0.875rem;
+}
+
+.theme-boho .cart-title {
+  font-size: 1.45rem;
+}
+
+/* Paiement et pourboire choisis : l'or des choix cochés, comme dans les
+   feuilles d'options. */
+.theme-boho .cart-payment [aria-pressed="true"] {
+  border-color: rgba(229, 176, 114, 0.6);
+  background-color: rgba(229, 176, 114, 0.07);
+}
+
+/* Le titre du bloc fidélité, dans la voix des autres titres. */
+.theme-boho [role="dialog"] h4 {
+  font-family: var(--brand-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.theme-boho .cart-line-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.theme-boho :is(.cart-line-price, .cart-total) {
+  color: var(--ember-1);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-boho .cart-line-price {
+  font-size: 1.05rem;
+}
+
+.theme-boho .cart-total {
+  font-size: 1.5rem;
+}
+
+/* --- Barre du panier --------------------------------------------------- */
+
+.theme-boho .cart-bar {
+  box-shadow:
+    0 18px 40px -12px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 1px rgba(246, 233, 230, 0.14);
+  letter-spacing: 0.04em;
+}
+
+.theme-boho .cart-bar-total {
+  font-family: var(--brand-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* --- Pied de page ------------------------------------------------------ */
+
+.theme-boho footer {
+  border-top-color: rgba(229, 176, 114, 0.14);
+  background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.28));
+}
+
+/* Le motif kilim du logo au-dessus du nom, puis le nom espacé comme sur
+   l'affiche. */
+.theme-boho .footer-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-size: 2.3rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+}
+
+.theme-boho .footer-name::before {
+  content: "";
+  width: 2.75rem;
+  height: 2.75rem;
+  background-color: var(--ember-1);
+  -webkit-mask: url("/boho/logo.svg") center / contain no-repeat;
+  mask: url("/boho/logo.svg") center / contain no-repeat;
+}
+
+.theme-boho .footer-phone {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+}
+
+.theme-boho :is(.footer-whatsapp, .footer-review) {
+  border-color: var(--boho-gold-line);
+  background: none;
 }
 
 /*
@@ -2523,24 +3698,6 @@ body {
   animation: fab-breathe 2.6s ease-in-out infinite;
 }
 
-/* Bandeau des offres : la piste porte trois copies du visuel et recule
-   d'une copie par tour, la suivante prenant exactement sa place. Durée
-   posée en ligne (--marquee-duration), selon le nombre d'offres. */
-@keyframes marquee {
-  to {
-    transform: translateX(calc(-100% / 3));
-  }
-}
-
-.marquee-track {
-  animation: marquee var(--marquee-duration) linear infinite;
-}
-
-.marquee-track:hover,
-.marquee-track:active {
-  animation-play-state: paused;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2565,8 +3722,7 @@ body {
   .hero-gradient-drift,
   .scroll-bounce,
   .ember-flow,
-  .fab-breathe,
-  .marquee-track {
+  .fab-breathe {
     animation: none;
   }
   .hero-entrance {

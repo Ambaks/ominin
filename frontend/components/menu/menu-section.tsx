@@ -1,14 +1,28 @@
-import type { MenuCategory } from "@/lib/menu-data";
+import { typographie, type MenuCategory } from "@/lib/menu-data";
 import { DishCard } from "./dish-card";
 
 export function MenuSection({
   category,
+  anchor,
   first,
+  featureTop,
+  tilesAsLines,
 }: {
   category: MenuCategory;
+  /** L'ancre de la section (categoryAnchors), celle de la barre des catégories. */
+  anchor: string;
   /** Première section de la carte : sa première photo se charge d'emblée. */
   first?: boolean;
+  /** Les plats « Top vente » passent en tête, en grand (Restaurant.featureTopSellers). */
+  featureTop?: boolean;
+  /** Vignettes lues en lignes, sans photo (Restaurant.tilesAsLines). */
+  tilesAsLines?: boolean;
 }) {
+  const isTop = (item: MenuCategory["items"][number]) =>
+    featureTop === true && (item.badges?.includes("top") ?? false);
+  const items = featureTop
+    ? [...category.items.filter(isTop), ...category.items.filter((item) => !isTop(item))]
+    : category.items;
   /* Rien à lire sous les noms (des suppléments, des boissons) et une photo
      pour chacun : la section peut se montrer en vignettes plutôt qu'en
      grandes cartes presque vides — c'est au thème d'en décider
@@ -26,14 +40,15 @@ export function MenuSection({
   return (
     /* L'espace sous la barre collante vient de scroll-padding-top
        (globals.css) ; il ne reste ici qu'un peu d'air. */
-    <section id={category.id} className="scroll-mt-4 lg:scroll-mt-6">
+    <section id={anchor} className="scroll-mt-4 lg:scroll-mt-6">
       {/* Titre et accroche forment un seul bloc : sans cela, l'écart entre
           le titre et la première carte change du simple au triple selon que
           la catégorie porte une accroche ou non. */}
       <div className="mb-4 sm:mb-6 lg:mb-8">
         <div className="category-head flex items-baseline gap-4">
-          <h2 className="category-heading font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
-            {category.name}
+          {/* tabIndex -1 : le focus s'y pose après un saut (focusSectionHeading). */}
+          <h2 tabIndex={-1} className="category-heading font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
+            {typographie(category.name)}
           </h2>
           <span
             aria-hidden
@@ -42,15 +57,27 @@ export function MenuSection({
         </div>
         {category.tagline && (
           <p className="mt-2 text-sm italic text-muted lg:text-base">
-            {category.tagline}
+            {typographie(category.tagline)}
           </p>
         )}
       </div>
       <div
         className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
       >
-        {category.items.map((item, i) => (
-          <DishCard key={item.id} item={item} priority={first && i === 0} />
+        {items.map((item, i) => (
+          <DishCard
+            key={item.id}
+            item={item}
+            priority={first && i === 0}
+            featured={isTop(item)}
+            photo={!(tiles && tilesAsLines)}
+            // Seul plat d'une section qui porte son nom (« Menu enfant ») :
+            // le titre de la section suffit à l'œil.
+            nameShown={
+              items.length > 1 ||
+              item.name.trim().toLowerCase() !== category.name.trim().toLowerCase()
+            }
+          />
         ))}
       </div>
     </section>

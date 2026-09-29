@@ -1,0 +1,122 @@
+[
+  {
+    "name": "L'Entrecôte « La Fameuse »",
+    "current_url": "https://images.pexels.com/photos/27643028/pexels-photo-27643028.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.pexels.com/photos/19119639/pexels-photo-19119639.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop&crop=bottom",
+    "source_page": "https://www.pexels.com/photo/19119639/",
+    "why": "Whole grill-marked steak, fries in a wire basket, salad and a ramekin of dark herb sauce on a dark green plate, lounge lighting. Portrait original: crop=bottom keeps the plate (entropy crop lands on a gin glass). Raise w/h for a sharper feature if wanted.",
+    "match": "exact",
+    "alternate_url": "https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=400&q=75",
+    "alternate_source_page": "https://unsplash.com/photos/pe9dvM1rQkM"
+  },
+  {
+    "name": "Gaufre liégeoise",
+    "current_url": "https://images.unsplash.com/photo-1701694472041-fc7faca1bdb6?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/7786791/pexels-photo-7786791.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/7786791/",
+    "why": "Two Liège pearl-sugar waffles stacked on black slate with honey (reads as caramel), dark ground.",
+    "match": "exact",
+    "alternate_url": "https://images.pexels.com/photos/37543723/pexels-photo-37543723.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/37543723/"
+  },
+  {
+    "name": "Plateau de fruits frais",
+    "current_url": "https://images.pexels.com/photos/15076701/pexels-photo-15076701.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.pexels.com/photos/4110272/pexels-photo-4110272.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/4110272/",
+    "why": "Plated cut fruit (blood orange, mango, grapes, blueberries, kiwi) on warm dark wood, no box.",
+    "match": "exact",
+    "alternate_url": "https://images.pexels.com/photos/31187640/pexels-photo-31187640.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/31187640/"
+  },
+  {
+    "name": "Mojito",
+    "current_url": "https://images.unsplash.com/photo-1686294443320-84a84e2a8479?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/11009215/pexels-photo-11009215.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/11009215/",
+    "why": "Classic mojito: crushed ice, mint, lime wedge, halved limes, pure black ground.",
+    "match": "exact",
+    "alternate_url": "https://images.pexels.com/photos/7259040/pexels-photo-7259040.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/7259040/"
+  },
+  {
+    "name": "Rose Garden",
+    "current_url": "https://images.pexels.com/photos/4958787/pexels-photo-4958787.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.pexels.com/photos/36702732/pexels-photo-36702732.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/36702732/",
+    "why": "Pink-orange blended smoothie (strawberry-banana-orange colour) topped with strawberry, warm amber background.",
+    "match": "exact",
+    "alternate_url": "https://images.pexels.com/photos/17612783/pexels-photo-17612783.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/17612783/"
+  },
+  {
+    "name": "Magret de canard grillé",
+    "current_url": "https://images.unsplash.com/photo-1617954096142-d712bc1dad61?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/13322848/pexels-photo-13322848.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/13322848/",
+    "why": "Grill-marked duck breast sliced and fanned over dressed leaves in a dark bowl. No fries: none of the duck photos on Pexels/Unsplash have them.",
+    "match": "close (no fries)",
+    "alternate_url": "https://images.pexels.com/photos/39285891/pexels-photo-39285891.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/39285891/"
+  },
+  {
+    "name": "Escalope de saumon frais à la plancha",
+    "current_url": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/5175626/pexels-photo-5175626.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/5175626/",
+    "why": "Seared salmon fillet with fries, rocket, lettuce and a sauce ramekin on a board. Every element of the carte text.",
+    "match": "exact",
+    "alternate_url": "https://images.unsplash.com/photo-1611599537845-1c7aca0091c0?auto=format&fit=crop&w=400&q=75",
+    "alternate_source_page": "https://unsplash.com/photos/4WPcz_5RVMk"
+  },
+  {
+    "name": "Yakitori bœuf fromage (x3)",
+    "current_url": "https://images.pexels.com/photos/37183924/pexels-photo-37183924.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.pexels.com/photos/13065189/pexels-photo-13065189.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/13065189/",
+    "why": "Glazed grilled beef yakitori pieces with scallions. Clearly beef, but no cheese is visible and the skewers barely show. Approximate: no beef-around-cheese yakitori exists on either library.",
+    "match": "approximate",
+    "alternate_url": "https://images.pexels.com/photos/31460002/pexels-photo-31460002.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/31460002/"
+  },
+  {
+    "name": "Carpaccio de bœuf",
+    "current_url": "https://images.unsplash.com/photo-1727243866425-3bf2cbf7480a?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/27305239/pexels-photo-27305239.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/27305239/",
+    "why": "Raw beef carpaccio on a flat plate with rocket and parmesan shavings, warm wood table. No cherry tomatoes, but nothing contradicts the text.",
+    "match": "close (no tomatoes)",
+    "alternate_url": "https://images.pexels.com/photos/26932238/pexels-photo-26932238.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/26932238/"
+  },
+  {
+    "name": "Pizza Saumon Norvégienne",
+    "current_url": "https://images.unsplash.com/photo-1658057542814-b8f4482be598?auto=format&fit=crop&w=400&q=75",
+    "proposed_url": "https://images.pexels.com/photos/11351374/pexels-photo-11351374.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/11351374/",
+    "why": "Close-up of a white-base pizza: melted mozzarella, smoked salmon, chives. Approximate: halved cherry tomatoes and chives instead of dill. No true cream + salmon + dill pizza on either library (the 334576xx salmon pizzas carry the blocklisted Dubai liner).",
+    "match": "approximate",
+    "alternate_url": "https://images.unsplash.com/photo-1750943082685-f9c1e15b3273?auto=format&fit=crop&w=400&q=75",
+    "alternate_source_page": "https://unsplash.com/photos/e5Y6vL7tHeU"
+  },
+  {
+    "name": "Blue Lagoon",
+    "current_url": "https://images.pexels.com/photos/10986583/pexels-photo-10986583.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.unsplash.com/photo-1668848530633-a2bfed24915c?auto=format&fit=crop&w=400&q=75",
+    "source_page": "https://unsplash.com/photos/RS-MzXb9v7Y",
+    "why": "Opaque, creamy turquoise blended cocktail (coco/crème look, not a clear soda) in a hurricane glass against a red leather banquette. Dark and warm.",
+    "match": "exact",
+    "alternate_url": "https://images.unsplash.com/photo-1568240761262-8c895f9cde8e?auto=format&fit=crop&w=400&q=75",
+    "alternate_source_page": "https://unsplash.com/photos/iyY_HcxDJa0"
+  },
+  {
+    "name": "Tiramisu au café",
+    "current_url": "https://images.pexels.com/photos/12916029/pexels-photo-12916029.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "proposed_url": "https://images.pexels.com/photos/27305273/pexels-photo-27305273.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "source_page": "https://www.pexels.com/photo/27305273/",
+    "why": "Layered tiramisu slice dusted with cocoa on a grey plate, dark warm background. Same unbranded shoot as the carpaccio (27305xxx).",
+    "match": "exact",
+    "alternate_url": "https://images.pexels.com/photos/27219786/pexels-photo-27219786.jpeg?auto=compress&cs=tinysrgb&w=400",
+    "alternate_source_page": "https://www.pexels.com/photo/27219786/"
+  }
+]

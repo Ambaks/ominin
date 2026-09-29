@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
@@ -12,7 +12,11 @@ import { MenuSection } from "@/components/menu/menu-section";
 import { PaymentReturn } from "@/components/menu/payment-return";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { restaurantThemeClass } from "@/lib/menu-data";
+import {
+  categoryAnchors,
+  getRestaurant as getStaticRestaurant,
+  restaurantThemeClass,
+} from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -27,6 +31,15 @@ export const revalidate = 60;
 
 const getRestaurant = cache(fetchRestaurant);
 
+/** La barre du navigateur prend le fond du thème de l'établissement. */
+export async function generateViewport({
+  params,
+}: PageProps<"/menu/m/[slug]">): Promise<Viewport> {
+  const { slug } = await params;
+  const themeColor = getStaticRestaurant(slug)?.themeColor;
+  return themeColor ? { themeColor } : {};
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/menu/m/[slug]">): Promise<Metadata> {
@@ -37,7 +50,7 @@ export async function generateMetadata({
   const { restaurant } = data;
   const title = `${restaurant.name} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const images = shareImage ? [shareImage] : undefined;
   return {
     title,
@@ -84,20 +97,22 @@ export default async function MenuPage({
     banner != null &&
     formules.some((formule) => banner.formules.includes(formule.name));
 
-  const parsedTable = Number(Array.isArray(table) ? table[0] : table);
-  const tableNumber =
-    Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
+  // Des chiffres seulement : Number() lisait aussi « 1e3 » ou « 0x10 ».
+  const rawTable = Array.isArray(table) ? table[0] : table;
+  const parsedTable = rawTable && /^\d+$/.test(rawTable) ? Number(rawTable) : 0;
+  const tableNumber = parsedTable > 0 ? parsedTable : null;
   const orderingEnabled = offre === "smart" || offre === "connect";
   // Retour de Stripe Checkout : la feuille de confirmation s'affiche par-dessus le menu.
   const paymentOutcome =
     paiement === "succes" || paiement === "annule" ? paiement : null;
   const paymentOrderId = typeof commande === "string" ? commande : null;
 
+  const anchors = categoryAnchors(restaurant.categories);
   const categoryLinks = [
     ...(!showBanner && formules.length > 0
       ? [{ id: "formules", name: "Formules" }]
       : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...restaurant.categories.map(({ id, name }) => ({ id: anchors.get(id)!, name })),
   ];
 
   /*
@@ -106,7 +121,7 @@ export default async function MenuPage({
    * peuvent lire. L'image n'est jointe que si elle est déjà absolue — un
    * chemin local relatif donnerait une URL fausse hors du domaine du menu.
    */
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
@@ -171,7 +186,14 @@ export default async function MenuPage({
           embedded={embed === "1"}
           themeLocked={Boolean(restaurantThemeClass(slug))}
         />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+        {/* Sans QR code, la carte se lit seulement : une phrase dit comment
+            commander, au lieu d'un bouton inerte sous chaque plat. */}
+        {orderingEnabled && tableNumber === null && (
+          <p className="menu-scan-note mx-auto mt-6 max-w-2xl text-balance px-5 text-center text-sm text-muted lg:mt-10">
+            Sur place, scannez le QR code de votre table pour commander.
+          </p>
+        )}
+        <main id="carte" className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
           {!showBanner && formules.length > 0 && (
             <FormulesSection formules={formules} />
           )}
@@ -181,13 +203,23 @@ export default async function MenuPage({
             </p>
           ) : (
             restaurant.categories.map((category, i) => (
-              <MenuSection key={category.id} category={category} first={i === 0} />
+              <MenuSection
+                key={category.id}
+                category={category}
+                anchor={anchors.get(category.id)!}
+                // Les offres occupent le premier écran : la première photo de
+                // la carte n'a plus à passer devant elles.
+                first={i === 0 && !showBanner}
+                featureTop={restaurant.featureTopSellers}
+                tilesAsLines={restaurant.tilesAsLines}
+              />
             ))
           )}
         </main>
         <MenuFooter
           restaurant={restaurant}
           themeToggle={!restaurantThemeClass(slug)}
+          atTable={tableNumber !== null}
         />
         <CartBar />
         {callServer && <CallServerButton />}

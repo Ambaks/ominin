@@ -1,8 +1,10 @@
+import { Fragment } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   displayAddress,
   displayPhone,
   mapsUrl,
+  typographie,
   type Restaurant,
 } from "@/lib/menu-data";
 
@@ -67,15 +69,30 @@ function PinIcon() {
 export function MenuFooter({
   restaurant,
   themeToggle,
+  atTable,
 }: {
   restaurant: Restaurant;
   /** Palette Ominin : au téléphone, le bouton clair/sombre vit ici plutôt
       que dans la barre des catégories, où il rognait les pastilles. */
   themeToggle?: boolean;
+  /** Client attablé (QR scanné) : il commande dans la page, pas par WhatsApp. */
+  atTable?: boolean;
 }) {
   const phone = restaurant.phone.trim();
   const address = restaurant.address.trim();
   const hours = restaurant.hours.trim();
+  // « Lun–Ven 12h–14h · 16h–2h » : un créneau sans jour prolonge le jour qui
+  // le précède (« 12h–14h et 16h–2h ») — séparé par « · », il se lisait
+  // comme un autre jour.
+  const hourGroups = hours
+    .split(" · ")
+    .reduce<string[]>(
+      (groups, group) =>
+        /^\d/.test(group) && groups.length > 0
+          ? [...groups.slice(0, -1), `${groups[groups.length - 1]} et ${group}`]
+          : [...groups, group],
+      []
+    );
 
   return (
     <footer className="border-t border-hairline">
@@ -84,6 +101,13 @@ export function MenuFooter({
           <p className="footer-name font-display text-2xl font-medium lg:text-3xl">
             {restaurant.name}
           </p>
+          {/* L'affiche porte son propre texte : l'accroche n'a pas d'autre
+              place que celle-ci. */}
+          {restaurant.poster && restaurant.tagline && (
+            <p className="footer-tagline -mt-2 font-display text-lg italic text-muted">
+              {typographie(restaurant.tagline)}
+            </p>
+          )}
 
           {phone && (
             <a
@@ -95,7 +119,7 @@ export function MenuFooter({
             </a>
           )}
 
-          {phone && (
+          {phone && !atTable && (
             <a
               href={`https://wa.me/${phone.replace(/[^0-9]/g, "")}`}
               target="_blank"
@@ -121,7 +145,19 @@ export function MenuFooter({
             </a>
           )}
 
-          {hours && <p className="text-sm text-muted">{hours}</p>}
+          {/* Un groupe d'horaires ne se coupe pas. Au téléphone, un groupe par
+              ligne : sur deux lignes, un « · » restait pendu au bout de la
+              première. Plus large, sur une ligne, séparés par « · ». */}
+          {hours && (
+            <p className="text-sm text-muted">
+              {hourGroups.map((group, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <span className="max-sm:hidden">{"\u00a0· "}</span>}
+                  <span className="whitespace-nowrap max-sm:block">{typographie(group)}</span>
+                </Fragment>
+              ))}
+            </p>
+          )}
         </div>
 
         {restaurant.googleReviewUrl && (

@@ -67,7 +67,12 @@ function isCartLine(value: unknown): value is CartLine {
     Number.isInteger(line.quantity) &&
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
-    Array.isArray(line.choices)
+    Array.isArray(line.choices) &&
+    // Une formule ou un cadeau abîmés passaient pour une ligne ordinaire :
+    // comptés au total, puis refusés en bloc à l'envoi.
+    (line.formule === undefined || Array.isArray(line.formule?.selections)) &&
+    (line.reward === undefined ||
+      (typeof line.reward?.id === "string" && Number.isFinite(line.reward.points)))
   );
 }
 
@@ -85,8 +90,27 @@ function readSavedCart(key: string): CartLine[] {
   }
 }
 
-function capped(line: { stock?: number | null }, quantity: number): number {
-  return line.stock == null ? quantity : Math.min(quantity, line.stock);
+/**
+ * La quantité d'une ligne, bornée au stock de son article — toutes lignes du
+ * même article confondues : deux compositions d'un plat puisent au même stock.
+ */
+function capped(
+  lines: CartLine[],
+  line: { key: string; itemId: string; stock?: number | null },
+  quantity: number
+): number {
+  if (line.stock == null) return quantity;
+  const others = lines
+    .filter((other) => other.itemId === line.itemId && other.key !== line.key)
+    .reduce((sum, other) => sum + other.quantity, 0);
+  return Math.max(0, Math.min(quantity, line.stock - others));
+}
+
+/** Combien d'un article le panier contient, toutes lignes confondues. */
+export function itemCount(lines: CartLine[], itemId: string): number {
+  return lines
+    .filter((line) => line.itemId === itemId)
+    .reduce((sum, line) => sum + line.quantity, 0);
 }
 
 export interface CartConfig {
@@ -114,6 +138,8 @@ export interface CartConfig {
 }
 
 interface CartContextValue extends CartConfig {
+  /** Le client peut commander d'ici : à sa table. */
+  canOrder: boolean;
   lines: CartLine[];
   count: number;
   total: number;
@@ -193,12 +219,13 @@ export function CartProvider({
       setLines((current) => {
         const index = current.findIndex((l) => l.key === line.key);
         if (index === -1) {
-          return [...current, { ...line, quantity: capped(line, quantity) }];
+          const allowed = capped(current, line, quantity);
+          return allowed > 0 ? [...current, { ...line, quantity: allowed }] : current;
         }
         const next = [...current];
         next[index] = {
           ...next[index],
-          quantity: capped(line, next[index].quantity + quantity),
+          quantity: capped(current, line, next[index].quantity + quantity),
         };
         return next;
       });
@@ -211,7 +238,7 @@ export function CartProvider({
       quantity <= 0
         ? current.filter((l) => l.key !== key)
         : current.map((l) =>
-            l.key === key ? { ...l, quantity: capped(l, quantity) } : l
+            l.key === key ? { ...l, quantity: capped(current, l, quantity) } : l
           )
     );
   }, []);
@@ -251,6 +278,7 @@ export function CartProvider({
     }
     return {
       ...config,
+      canOrder: config.orderingEnabled && config.tableNumber !== null,
       lines,
       count,
       total,

@@ -12,7 +12,8 @@ import {
  * les réclame via --brand-display / --brand-sans, les autres gardent celles
  * d'Ominin. preload: false parce qu'elles ne servent qu'à une minorité de
  * cartes — la feuille @font-face voyage avec la page, mais aucun fichier de
- * police n'est téléchargé tant qu'aucun texte rendu ne l'appelle.
+ * police n'est téléchargé tant qu'aucun texte rendu ne l'appelle. BOHO sert
+ * les siennes lui-même, pour les précharger (globals.css, Restaurant.fontFiles).
  */
 
 /**

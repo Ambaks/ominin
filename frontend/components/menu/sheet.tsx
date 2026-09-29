@@ -4,6 +4,14 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 /**
+ * Le réglage de défilement du navigateur avant toute feuille, lu une fois :
+ * une feuille ouverte pendant que la précédente se referme le lisait encore
+ * à « manual », et l'y laissait en partant.
+ */
+let pageScrollRestoration: ScrollRestoration | null = null;
+
+
+/**
  * Une page rechargée alors qu'une feuille était ouverte garde l'entrée
  * d'historique qu'elle avait empilée, en défilement manuel : on la rend
  * ordinaire, sans quoi le navigateur ne rend pas au lecteur sa place.
@@ -81,6 +89,17 @@ export function Sheet({
     const opener = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
     panel.focus();
+    // Un défilement doux en cours (saut d'onglet) continuait sous la feuille,
+    // overflow: hidden ne l'arrête pas : à la fermeture, le plat ouvert était
+    // loin. On le fige là où le client a touché.
+    // Réancré à l'image suivante : l'animation, menée hors du fil principal,
+    // a pu aller plus loin que le scrollY qu'on lit ici — le premier appel
+    // l'arrête, le second ramène la page où le client a touché.
+    const frozenY = window.scrollY;
+    window.scrollTo({ top: frozenY, behavior: "instant" });
+    const reanchor = requestAnimationFrame(() =>
+      window.scrollTo({ top: frozenY, behavior: "instant" })
+    );
     document.body.style.overflow = "hidden";
 
     // aria-modal ne suffit qu'à VoiceOver : pour TalkBack, NVDA et JAWS, la
@@ -158,13 +177,19 @@ export function Sheet({
     // Revenir sur l'entrée faisait restaurer au navigateur le défilement
     // mémorisé à l'ouverture : la page sautait sous le doigt. Défilement
     // manuel le temps de la feuille, rétabli une fois l'entrée dépilée.
-    const restoration = history.scrollRestoration;
+    pageScrollRestoration ??= history.scrollRestoration;
+    const restoration = pageScrollRestoration;
+    let unmounted = false;
     const push = setTimeout(() => {
+      if (unmounted) return;
       history.scrollRestoration = "manual";
       history.pushState({ ...history.state, ominninSheet: sheetId }, "");
       pushed = true;
     });
     const onPopState = () => {
+      // Avant sa propre entrée, un « popstate » vient d'une feuille qui se
+      // referme juste avant celle-ci (son history.back()) : pas le sien.
+      if (!pushed) return;
       if (history.state?.ominninSheet === sheetId) return;
       popped = true;
       setClosing(true);
@@ -173,13 +198,21 @@ export function Sheet({
 
     document.addEventListener("keydown", onKeyDown);
     return () => {
+      unmounted = true;
+      cancelAnimationFrame(reanchor);
       clearTimeout(push);
       window.removeEventListener("popstate", onPopState);
       if (pushed && !popped && history.state?.ominninSheet === sheetId) {
+        // Rétabli au tour suivant, pas pendant le « popstate » : le navigateur
+        // restaure la position de l'entrée retrouvée après l'événement, et en
+        // « auto » il la ramenait à l'ancre de l'adresse (#desserts) — le client
+        // perdait sa place à chaque feuille fermée.
         window.addEventListener(
           "popstate",
           () => {
-            history.scrollRestoration = restoration;
+            setTimeout(() => {
+              history.scrollRestoration = restoration;
+            });
           },
           { once: true }
         );
@@ -190,13 +223,34 @@ export function Sheet({
       document.removeEventListener("keydown", onKeyDown);
       for (const el of behind) el.inert = false;
       document.body.style.overflow = bodyOverflow;
-      // Le déclencheur a pu disparaître (la barre du panier, panier vidé) :
-      // le focus reste alors dans la carte au lieu de tomber sur <body>.
-      if (opener?.isConnected) {
-        opener.focus();
+      // Le déclencheur a pu disparaître (la barre du panier, panier vidé), ou
+      // n'en être pas un (<body>, le calque masqué d'une photo) : le focus
+      // reste alors dans la carte. preventScroll : Safari ne donne pas le
+      // focus au bouton touché — l'« opener » peut être un titre de section
+      // bien plus haut, que focus() seul faisait revenir à l'écran.
+      if (
+        opener?.isConnected &&
+        opener !== document.body &&
+        !opener.closest('[aria-hidden="true"]')
+      ) {
+        opener.focus({ preventScroll: true });
       } else {
-        const main = root?.querySelector("main");
-        if (main) {
+        // Une feuille reste dessous (le panier sous le cadeau qu'on y
+        // compose) : le focus y revient — <main>, derrière elle, est inerte.
+        const under = [...(root?.querySelectorAll<HTMLElement>('[role="dialog"]') ?? [])]
+          .filter((dialog) => dialog !== panel)
+          .pop();
+        const main = root?.querySelector<HTMLElement>("main");
+        // Sinon le titre de la section à l'écran (le panier vidé depuis les
+        // chichas) : depuis <main>, la tabulation repartait du premier plat.
+        const here = [...(main?.querySelectorAll<HTMLElement>("h2[tabindex]") ?? [])]
+          .filter((heading) => heading.getBoundingClientRect().top < innerHeight / 2)
+          .pop();
+        if (under) {
+          under.focus({ preventScroll: true });
+        } else if (here) {
+          here.focus({ preventScroll: true });
+        } else if (main) {
           main.tabIndex = -1;
           main.focus({ preventScroll: true });
         }
@@ -232,7 +286,28 @@ export function Sheet({
         event.preventDefault();
         event.stopPropagation();
       }}
-      onClick={backdropCloses ? close : undefined}
+      // Un choix posé, le fond ne ferme pas (il le perdrait) : la feuille
+      // tressaille pour dire qu'elle attend « Annuler » ou la validation, et
+      // reprend le focus. Mouvement réduit : le focus seul.
+      onClick={
+        backdropCloses
+          ? close
+          : () => {
+              const panel = panelRef.current;
+              if (!panel) return;
+              panel.focus();
+              if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                panel.animate(
+                  [
+                    { transform: "none" },
+                    { transform: "translateY(0.5rem)" },
+                    { transform: "none" },
+                  ],
+                  { duration: 260, easing: "ease-out" }
+                );
+              }
+            }
+      }
     >
       <div
         ref={panelRef}

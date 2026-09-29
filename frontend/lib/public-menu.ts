@@ -97,6 +97,9 @@ export async function fetchRestaurant(slug: string): Promise<{
   const itemsById = new Map<string, MenuItem>(
     categories.flatMap((category) => category.items.map((item) => [item.id, item]))
   );
+  // L'ordre de la carte, pour ranger les articles de chaque palier : la
+  // table de liaison n'en a pas, deux chargements les mélangeaient autrement.
+  const carteOrder = new Map([...itemsById.keys()].map((id, index) => [id, index]));
   const loyalty: LoyaltyProgram | null =
     (etablissement.offre === "smart" || etablissement.offre === "connect") &&
     features?.fidelite === true &&
@@ -108,10 +111,12 @@ export async function fetchRestaurant(slug: string): Promise<{
               id: reward.id,
               label: reward.label,
               points: reward.points,
-              items: reward.loyalty_reward_items.flatMap(({ item_id }) => {
-                const item = itemsById.get(item_id);
-                return item ? [item] : [];
-              }),
+              items: reward.loyalty_reward_items
+                .flatMap(({ item_id }) => {
+                  const item = itemsById.get(item_id);
+                  return item ? [item] : [];
+                })
+                .sort((a, b) => carteOrder.get(a.id)! - carteOrder.get(b.id)!),
             }))
             .filter((reward) => reward.items.length > 0)
             .sort((a, b) => a.points - b.points),
@@ -171,7 +176,10 @@ export async function fetchRestaurant(slug: string): Promise<{
         : (etablissement.cover_image ?? undefined),
       logo: staticData?.logo,
       poster: staticData?.poster,
+      fontFiles: staticData?.fontFiles,
       formulesBanner: staticData?.formulesBanner,
+      featureTopSellers: staticData?.featureTopSellers,
+      tilesAsLines: staticData?.tilesAsLines,
       highlights: staticData?.highlights,
       address: etablissement.address,
       phone: etablissement.phone,

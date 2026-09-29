@@ -68,18 +68,27 @@ export interface MenuCategory {
 
 /**
  * Une image qui présente les formules côte à côte, découpée en autant de
- * zones égales : toucher une zone ouvre la formule qui porte ce nom. Elle
- * défile en bandeau sous le titre « Nos Offres ».
+ * zones égales : toucher une zone ouvre la formule qui porte ce nom. Plus
+ * large que l'écran, elle passe d'une offre à l'autre sous le titre
+ * « Nos offres ».
  */
 export interface FormulesBanner {
   src: string;
   alt: string;
   width: number;
   height: number;
+  /** Nom des offres tel que le visuel l'écrit (« Côté Jardin »), redit au-dessus. */
+  title?: string;
   /** Noms des formules (en base), de gauche à droite. */
   formules: string[];
-  /** Le visuel défile en continu : chaque offre passe en ce nombre de secondes. */
+  /** Temps passé sur chaque offre avant de montrer la suivante. */
   secondsPerFormule: number;
+  /**
+   * Au téléphone, une image par formule (même ordre que `formules`) : sa
+   * moitié du visuel, recadrée pour un écran étroit. Le visuel entier
+   * reprend dès que la largeur lui suffit.
+   */
+  phonePanels: { src: string; width: number; height: number; placeholder?: string }[];
 }
 
 export interface Restaurant {
@@ -97,14 +106,51 @@ export interface Restaurant {
   whiteLogo?: boolean;
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
-   * elle tient lieu de hero à elle seule, sans texte superposé.
+   * elle tient lieu de hero à elle seule, sans texte superposé. Ses
+   * dimensions réservent sa place avant qu'elle n'arrive.
    */
-  poster?: string;
+  poster?: {
+    src: string;
+    width: number;
+    height: number;
+    alt: string;
+    /**
+     * L'image réduite à quelques pixels, en data URI (quelques centaines
+     * d'octets) : floue, elle tient la place pendant que l'affiche arrive —
+     * sur une 4G de terrasse, plusieurs secondes de cadre vide sinon.
+     */
+    placeholder?: string;
+    /**
+     * Version panoramique pour le bureau (dès 1 024 px) : la même scène
+     * prolongée à gauche et à droite, logo et textes au centre. En hauteur,
+     * l'affiche n'y occupait qu'une colonne.
+     */
+    wide?: { src: string; width: number; height: number; srcSet: string; placeholder?: string };
+  };
   /**
    * Visuel des formules, sous l'affiche à la place de l'adresse et du
    * téléphone (qui restent en pied de page).
    */
   formulesBanner?: FormulesBanner;
+  /** Couleur de la barre du navigateur : le fond du thème de l'établissement. */
+  themeColor?: string;
+  /**
+   * Polices du thème servies depuis public/ (chemins), préchargées avec le
+   * premier écran : celles que le premier écran écrit, pas leurs variantes
+   * rares (voir les @font-face du thème, globals.css).
+   */
+  fontFiles?: string[];
+  /**
+   * Les plats « Top vente » ouvrent leur section, en grand : le menu papier
+   * de BOHO donne sa page entière à son entrecôte.
+   */
+  featureTopSellers?: boolean;
+  /**
+   * Les sections de simples boissons (vignettes, voir MenuSection) se lisent
+   * en lignes de carte — nom, points de conduite, prix — sans leur photo, qui
+   * n'est alors ni affichée ni téléchargée (la feuille du plat la montre).
+   */
+  tilesAsLines?: boolean;
   address: string;
   phone: string;
   hours: string;
@@ -526,14 +572,54 @@ const boho: Restaurant = {
   name: "BOHO",
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
-  poster: "/boho/poster.webp",
+  poster: {
+    src: "/boho/poster.webp",
+    width: 716,
+    height: 1024,
+    placeholder:
+      "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAACQAwCdASoMABEAPt1cpkyopSOiMAgBEBuJZwAAXg2IKC8VXR8AAP7xgIMsxVrd7aiqh8H71+h7wVKJiax7v2D3OswFPOUPoqdP6PMTc/fxc0iIZeygAA==",
+    alt: "Affiche de BOHO : la terrasse au crépuscule sous les suspensions en rotin. BOHO Restaurant, Ambiance bohème, « L'élégance de la simplicité, le plaisir d'une expérience à partager ».",
+    // L'affiche du client prolongée par gpt-image (demos/boho/profile.json) :
+    // même scène, même logo et mêmes textes au centre, apostrophes
+    // typographiques redessinées, recadrée pour centrer le logo.
+    wide: {
+      src: "/boho/poster-wide-3040.webp",
+      width: 3040,
+      height: 1280,
+      placeholder:
+        "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASoYAAoAPt1cp00opSOiMAgBEBuJZwCdAB6s3w/OqDMWtX2gAAD+72RSmLKKlQSwiHSpkuvnCs2P7LYXc7HV4wsqjYx8+1JFFdohD6mBtqvk7egMMFKOiouKxdrOdwHMpj5oAAAA",
+      srcSet:
+        "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
+    },
+  },
+  themeColor: "#1d1519",
+  fontFiles: [
+    "/boho/fonts/eb-garamond-latin.woff2",
+    "/boho/fonts/eb-garamond-italic-latin.woff2",
+    "/boho/fonts/jost-latin.woff2",
+  ],
+  featureTopSellers: true,
+  tilesAsLines: true,
   formulesBanner: {
     src: "/boho/formules.webp",
     alt: "Formules Côté Jardin : Chill 9,90 € (1 soft + 1 dessert), Boho 14,90 € (1 cocktail + 1 dessert)",
     width: 2048,
     height: 699,
+    title: "Côté Jardin",
     formules: ["Formule Chill", "Formule Boho"],
     secondsPerFormule: 6,
+    // Recadrages du visuel du client, les lettres du logo central coupées
+    // par le cadre effacées (demos/boho/profile.json).
+    phonePanels: [
+      {
+        src: "/boho/formules-chill.webp",
+        width: 930,
+        height: 699,
+        placeholder:
+          "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAABwAgCdASoQAAwAAwBSJbACdAYvXvuhmT1RpYOAAP5r7VKEab0lxlLNAe+BCROPKLX5IV9Gao+7ch0i3nFKCXqyk0SFs8UFNtGYjN1EN1AKpO09BFLCVJaHPV8vbddHo7DQrzfukVgAAA==",
+      },
+      { src: "/boho/formules-boho.webp", width: 930, height: 699 },
+    ],
   },
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
@@ -1665,6 +1751,87 @@ export const DEMO_SLUG = trattoriaLucia.slug;
  */
 export function mapsUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+/**
+ * Un texte saisi au clavier, en typographie française : l'apostrophe courbe,
+ * une espace fine insécable dans les guillemets — le « » » de « La Fameuse »
+ * ne part plus seul à la ligne — et devant ? ! : ;, un nombre qui reste
+ * avec ce qu'il compte ou coûte (« 1 dessert », « 20 € ») et « week-end »
+ * d'un seul tenant.
+ */
+export function typographie(text: string): string {
+  return text
+    .replace(/'/g, "\u2019")
+    .replace(/«\s*/g, "«\u202f")
+    .replace(/\s*»/g, "\u202f»")
+    .replace(/ ([?!:;])/g, "\u202f$1")
+    .replace(/(\d) (?=[\p{L}\p{Sc}%])/gu, "$1\u00a0")
+    .replace(/(week)-(end)/gi, "$1\u2011$2");
+}
+
+/**
+ * Un nom de plat : sa typographie, et le surnom entre guillemets d'un seul
+ * tenant — « L’Entrecôte « La Fameuse » » ne se coupe plus qu'avant le
+ * guillemet, jamais entre « La » et « Fameuse ». Les descriptions, dont une
+ * citation peut être longue, gardent typographie().
+ */
+export function typographieNom(text: string): string {
+  return typographie(text).replace(/«[^»]*»/g, (quoted) =>
+    quoted.replace(/ /g, "\u00a0")
+  );
+}
+
+/**
+ * Ancres lisibles des sections (« cocktails », « l-entrecote-grillades »)
+ * plutôt que leurs identifiants de base dans la barre d'adresse ; un nom qui
+ * revient, ou qui prendrait l'ancre de la carte, garde son identifiant.
+ */
+export function categoryAnchors(
+  categories: { id: string; name: string }[]
+): Map<string, string> {
+  const anchors = new Map<string, string>();
+  const used = new Set(["carte", "formules"]);
+  for (const { id, name } of categories) {
+    const slug = name
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const anchor = slug && !used.has(slug) ? slug : id;
+    used.add(anchor);
+    anchors.set(id, anchor);
+  }
+  return anchors;
+}
+
+/**
+ * Les photos de banque (Unsplash, Pexels) se redimensionnent par leur
+ * paramètre w= : une grande photo nette sans variante stockée. undefined pour
+ * toute autre adresse — les photos du gérant n'ont qu'une taille.
+ */
+export function stockSrcSet(url: string, widths: number[]): string | undefined {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return undefined;
+  }
+  const stock = ["images.unsplash.com", "images.pexels.com"].includes(parsed.hostname);
+  const baseWidth = Number(parsed.searchParams.get("w"));
+  if (!stock || !baseWidth) return undefined;
+  // Un recadrage fixé par h= (Pexels) garde ses proportions à chaque largeur.
+  const baseHeight = Number(parsed.searchParams.get("h"));
+  return widths
+    .map((width) => {
+      parsed.searchParams.set("w", String(width));
+      if (baseHeight) {
+        parsed.searchParams.set("h", String(Math.round((baseHeight * width) / baseWidth)));
+      }
+      return `${parsed.toString()} ${width}w`;
+    })
+    .join(", ");
 }
 
 /** Espace insécable avant € : le prix ne se coupe jamais de sa devise. */

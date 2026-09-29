@@ -8,7 +8,7 @@ import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { categoryAnchors, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 
 /*
  * Aperçu de la carte d'un prospect, servi depuis le registre statique
@@ -44,7 +44,7 @@ export async function generateMetadata({
   const description = [restaurant.name, restaurant.address]
     .filter(Boolean)
     .join(" · ");
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const images = shareImage ? [shareImage] : undefined;
   return {
     title,
@@ -66,8 +66,9 @@ export default async function MenuPreviewPage({
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
 
+  const anchors = categoryAnchors(restaurant.categories);
   const categoryLinks = restaurant.categories.map(({ id, name }) => ({
-    id,
+    id: anchors.get(id)!,
     name,
   }));
 
@@ -93,12 +94,19 @@ export default async function MenuPreviewPage({
           categories={categoryLinks}
           themeLocked={Boolean(themeClass)}
         />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+        <main id="carte" className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
           {restaurant.categories.map((category, i) => (
-            <MenuSection key={category.id} category={category} first={i === 0} />
+            <MenuSection
+              key={category.id}
+              category={category}
+              anchor={anchors.get(category.id)!}
+              first={i === 0}
+              featureTop={restaurant.featureTopSellers}
+              tilesAsLines={restaurant.tilesAsLines}
+            />
           ))}
         </main>
-        <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
+        <MenuFooter restaurant={restaurant} themeToggle={!themeClass} atTable />
         <CartBar />
       </div>
     </CartProvider>
