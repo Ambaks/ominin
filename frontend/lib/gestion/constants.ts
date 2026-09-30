@@ -64,8 +64,12 @@ export const ORDER_TAB_HINTS: Record<OrderTab, string> = {
 /** Statuts d'historique : commandes closes. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
 
-/** Statuts encaissés : payée sur place (servie ou non), ou retirée (collect, payée en ligne). */
-export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "servie", "retiree"];
+/**
+ * Statuts relus par la page Paiements : payée sur place (servie ou non),
+ * prête (une commande fast food réglée qui attend son client), ou retirée
+ * (collect, payée en ligne). isPaid écarte ensuite les collect prêtes.
+ */
+export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
 /**
  * Statuts encore ouverts, quel que soit leur âge : à encaisser (en_attente),
@@ -113,8 +117,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   en_attente: ["payee", "en_preparation", "annulee"],
   en_preparation: ["prete", "annulee"],
-  prete: ["retiree", "annulee"],
-  payee: ["servie"],
+  prete: ["retiree", "servie", "payee", "annulee"],
+  payee: ["servie", "prete"],
   servie: [],
   annulee: [],
   retiree: [],
@@ -360,6 +364,19 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
     "produits",
   ],
 };
+
+/**
+ * Ce qui suppose des tables : en fast food, le client commande sans table et
+ * repart avec un numéro — ces capacités n'ont rien sur quoi porter, quels que
+ * soient l'offre et les réglages d'Ominin.
+ */
+export const TABLE_FEATURES: Feature[] = [
+  "tables",
+  "appel_serveur",
+  "apercu_serveur",
+  "assignation",
+  "groupes_tables",
+];
 
 /**
  * Capacités du click & collect seul : vendre en ligne — suivre les commandes,

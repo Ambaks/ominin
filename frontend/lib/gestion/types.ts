@@ -4,7 +4,8 @@ export type Offre = "digital" | "smart" | "connect";
 export type Role = "gerant" | "cuisinier" | "serveur";
 /**
  * Sur place : en_attente (à encaisser) → payee (à servir, partie en cuisine)
- * → servie (close). Collect : en_attente → en_preparation → prete → retiree.
+ * → servie (close) ; en fast food, payee → prete → servie (remise au
+ * comptoir). Collect : en_attente → en_preparation → prete → retiree.
  */
 export type OrderStatus =
   | "en_attente"
@@ -25,6 +26,11 @@ export type EncaissementMode = Extract<
 export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
 export type PaymentProvider = "stripe" | "sumup" | "square";
+/**
+ * Restaurant : le client commande depuis sa table, la salle la lui apporte.
+ * Fast food : il commande sans table et reçoit un numéro du jour.
+ */
+export type ServiceMode = "restaurant" | "fast_food";
 
 /**
  * Ce qu'un restaurant a sous la main : les vues de son espace et ce qu'elles
@@ -86,6 +92,7 @@ export interface Etablissement {
   hours: string;
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
+  serviceMode: ServiceMode;
   siret?: string;
   /** Le menu QR propose le règlement par carte (compte de paiement relié). */
   onlinePayment: boolean;
@@ -157,6 +164,8 @@ export interface Order {
   id: string;
   type: OrderType;
   tableId: string | null;
+  /** Numéro du jour d'une commande fast food (sans table). */
+  orderNumber?: number;
   status: OrderStatus;
   createdAt: string;
   items: OrderItem[];
@@ -266,6 +275,8 @@ export interface GestionState {
   /** Heure locale où bascule la journée de service (0 = minuit) : un bar
    *  qui ferme à 3h compte sa soirée entière sur un seul jour. */
   dayEndHour: number;
+  /** Heure (Paris) où les numéros fast food repartent de 1 ; inconnue sans réglages. */
+  orderNumberResetHour: number | null;
   members: Member[];
   /** Équipe au sens du service : comptes et serveurs sans compte confondus. */
   staff: Staff[];

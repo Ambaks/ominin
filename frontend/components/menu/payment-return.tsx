@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Sheet } from "@/components/menu/sheet";
+import { useCart } from "@/lib/menu/cart";
 import { fallBackToCounter } from "@/lib/menu/online-payment";
+import { CARD_NOTICES, useTickets } from "@/lib/menu/tickets";
 
 /*
  * Retour de Stripe Checkout (?paiement=succes|annule&commande=<id>). Le
@@ -21,6 +24,10 @@ import { fallBackToCounter } from "@/lib/menu/online-payment";
  * caisse ni dans l'historique. Seule exception : une relance qui échoue avant même de créer une session
  * (retry_failed) ne laisse plus rien en concurrence, le comptoir est donc
  * notifié tout de suite.
+ *
+ * En fast food, toute issue se conclut sur le ticket : le numéro à
+ * présenter, et, tant que rien n'est réglé, « Reprendre le paiement » ou
+ * « Payer au comptoir à la place » — les mêmes choix qu'ici, sous le numéro.
  */
 
 type State =
@@ -40,10 +47,26 @@ export function PaymentReturn({
   orderId: string;
   tableNumber: number | null;
 }) {
+  const cart = useCart();
+  const tickets = useTickets();
   const [state, setState] = useState<State>(
     outcome === "succes" ? "verifying" : "cancelled"
   );
   const [open, setOpen] = useState(true);
+  /*
+   * La feuille se monte dans la racine du menu (createPortal) : seulement une
+   * fois la page posée à l'écran. Au rendu serveur, pas de document ; et
+   * quand le navigateur refait la page de zéro (la carte arrive après le
+   * JavaScript), la racine n'existe pas encore au rendu — la feuille partait
+   * dans <body>, rendait le reste inerte, puis rejoignait la racine… sous un
+   * ancêtre inerte : plus rien ne se touchait.
+   */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // Un fait du DOM (la page est posée), pas un état dérivé du rendu.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -52,8 +75,32 @@ export function PaymentReturn({
     window.history.replaceState(null, "", url);
   }, []);
 
+  // La commande est passée, payée ou non : son panier ne revient pas. Vidé
+  // une fois relu (cart.ready) — plus tôt, la relecture le rétablissait.
+  const { ready, clear } = cart;
   useEffect(() => {
-    if (outcome !== "succes") return;
+    if (ready) clear();
+  }, [ready, clear]);
+
+  // Fast food : chaque issue se conclut sur le ticket, qui prend la place de
+  // cette feuille.
+  const toTicket = (notices: string[] = []) => {
+    if (!tickets) return false;
+    tickets.add(orderId);
+    tickets.show(orderId, { notices });
+    setOpen(false);
+    return true;
+  };
+  const toTicketRef = useRef(toTicket);
+  useEffect(() => {
+    toTicketRef.current = toTicket;
+  });
+
+  useEffect(() => {
+    if (outcome !== "succes") {
+      toTicketRef.current([CARD_NOTICES.unfinished]);
+      return;
+    }
     let cancelled = false;
     fetch("/api/stripe/verify", {
       method: "POST",
@@ -62,10 +109,12 @@ export function PaymentReturn({
     })
       .then((response) => response.json())
       .then((body: { paid?: boolean }) => {
-        if (!cancelled) setState(body.paid ? "paid" : "unpaid");
+        if (cancelled) return;
+        if (toTicketRef.current(body.paid ? [] : [CARD_NOTICES.unfinished])) return;
+        setState(body.paid ? "paid" : "unpaid");
       })
       .catch(() => {
-        if (!cancelled) setState("unpaid");
+        if (!cancelled && !toTicketRef.current([CARD_NOTICES.unfinished])) setState("unpaid");
       });
     return () => {
       cancelled = true;
@@ -100,7 +149,7 @@ export function PaymentReturn({
     setOpen(false);
   };
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const table = tableNumber === null ? "votre table" : `la table ${tableNumber}`;
   const counter = (
@@ -110,75 +159,76 @@ export function PaymentReturn({
       l&rsquo;encaissement.
     </>
   );
-  const closeButton = (label: string) => (
-    <button
-      type="button"
-      onClick={() => setOpen(false)}
-      className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold"
-    >
-      {label}
-    </button>
-  );
-
+  // Une vraie feuille (dialogue, focus gardé, page derrière inerte) ; elle ne
+  // se ferme pas d'un toucher à côté pendant que le paiement se vérifie.
+  const settled = state !== "verifying" && state !== "retrying";
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4">
-      <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-t-3xl border border-hairline bg-surface p-10 text-center sm:rounded-3xl">
-        {state === "verifying" ? (
-          <p aria-busy className="text-sm text-muted">
-            Confirmation du paiement…
-          </p>
-        ) : state === "paid" ? (
-          <>
-            <span className="ember-text font-display text-5xl">✓</span>
-            <h3 className="font-display text-2xl font-medium">
-              Paiement reçu — merci&nbsp;!
-            </h3>
-            <p className="text-sm leading-relaxed text-muted">
-              Votre commande part en cuisine pour {table}. Un serveur vous
-              l&rsquo;apporte dès qu&rsquo;elle est prête.
+    <Sheet onClosed={() => setOpen(false)} backdropCloses={settled} label="Paiement">
+      {(dismiss) => (
+        <div className="flex flex-col items-center gap-4 p-10 text-center">
+          {state === "verifying" ? (
+            <p role="status" aria-busy className="text-sm text-muted">
+              Confirmation du paiement…
             </p>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="ember-gradient mt-2 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
-            >
-              Continuer
-            </button>
-          </>
-        ) : state === "retry_failed" ? (
-          <>
-            <h3 className="font-display text-xl font-medium">
-              Le paiement n&rsquo;a pas pu démarrer.
-            </h3>
-            <p className="text-sm leading-relaxed text-muted">{counter}</p>
-            {closeButton("Continuer")}
-          </>
-        ) : (
-          <>
-            <h3 className="font-display text-xl font-medium">
-              {state === "cancelled" ? "Paiement annulé." : "Paiement non confirmé."}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted">{counter}</p>
-            <div className="flex gap-2">
+          ) : state === "paid" ? (
+            <>
+              <span className="ember-text font-display text-5xl">✓</span>
+              <h3 className="font-display text-2xl font-medium">
+                Paiement reçu — merci&nbsp;!
+              </h3>
+              <p className="text-sm leading-relaxed text-muted">
+                Votre commande part en cuisine pour {table}. Un serveur vous
+                l&rsquo;apporte dès qu&rsquo;elle est prête.
+              </p>
               <button
                 type="button"
-                onClick={goToCounter}
+                onClick={dismiss}
+                className="ember-gradient mt-2 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+              >
+                Continuer
+              </button>
+            </>
+          ) : state === "retry_failed" ? (
+            <>
+              <h3 className="font-display text-xl font-medium">
+                Le paiement n&rsquo;a pas pu démarrer.
+              </h3>
+              <p className="text-sm leading-relaxed text-muted">{counter}</p>
+              <button
+                type="button"
+                onClick={dismiss}
                 className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold"
               >
-                Payer au comptoir
+                Continuer
               </button>
-              <button
-                type="button"
-                onClick={() => void retry()}
-                disabled={state === "retrying"}
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-              >
-                {state === "retrying" ? "Un instant…" : "Réessayer par carte"}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+            </>
+          ) : (
+            <>
+              <h3 className="font-display text-xl font-medium">
+                {state === "cancelled" ? "Paiement annulé." : "Paiement non confirmé."}
+              </h3>
+              <p className="text-sm leading-relaxed text-muted">{counter}</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={goToCounter}
+                  className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold"
+                >
+                  Payer au comptoir
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void retry()}
+                  disabled={state === "retrying"}
+                  className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+                >
+                  {state === "retrying" ? "Un instant…" : "Réessayer par carte"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </Sheet>
   );
 }

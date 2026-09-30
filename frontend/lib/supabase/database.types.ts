@@ -1099,6 +1099,7 @@ export type Database = {
           day_end_hour: number
           etablissement_id: string
           features: Json
+          order_number_reset_hour: number
           order_tabs: Database["public"]["Enums"]["order_tab"][]
           updated_at: string
         }
@@ -1106,6 +1107,7 @@ export type Database = {
           day_end_hour?: number
           etablissement_id: string
           features?: Json
+          order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
           updated_at?: string
         }
@@ -1113,6 +1115,7 @@ export type Database = {
           day_end_hour?: number
           etablissement_id?: string
           features?: Json
+          order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
           updated_at?: string
         }
@@ -1147,6 +1150,7 @@ export type Database = {
           payment_pin_set: boolean
           phone: string
           platform_fee_percent: number
+          service_mode: Database["public"]["Enums"]["service_mode"]
           siret: string | null
           slug: string
           square_location_id: string | null
@@ -1172,6 +1176,7 @@ export type Database = {
           payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
+          service_mode?: Database["public"]["Enums"]["service_mode"]
           siret?: string | null
           slug: string
           square_location_id?: string | null
@@ -1197,6 +1202,7 @@ export type Database = {
           payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
+          service_mode?: Database["public"]["Enums"]["service_mode"]
           siret?: string | null
           slug?: string
           square_location_id?: string | null
@@ -2040,6 +2046,32 @@ export type Database = {
           },
         ]
       }
+      order_number_counters: {
+        Row: {
+          day: string
+          etablissement_id: string
+          last_number: number
+        }
+        Insert: {
+          day: string
+          etablissement_id: string
+          last_number: number
+        }
+        Update: {
+          day?: string
+          etablissement_id?: string
+          last_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_number_counters_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_payments: {
         Row: {
           amount: number
@@ -2090,6 +2122,7 @@ export type Database = {
           id: string
           loyalty_customer_id: string | null
           online_payment_started_at: string | null
+          order_number: number | null
           paid_online: boolean
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
@@ -2116,6 +2149,7 @@ export type Database = {
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
+          order_number?: number | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
@@ -2142,6 +2176,7 @@ export type Database = {
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
+          order_number?: number | null
           paid_online?: boolean
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
@@ -4595,6 +4630,19 @@ export type Database = {
         }
         Returns: Json
       }
+      order_ticket: {
+        Args: { p_order: string }
+        Returns: {
+          created_at: string
+          due: number
+          items: Json
+          order_number: number
+          paid: boolean
+          paying: boolean
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+        }[]
+      }
       outreach_variant_stats: {
         Args: { settled_before: string }
         Returns: {
@@ -4801,6 +4849,7 @@ export type Database = {
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
+      service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
       shop_message_sender: "customer" | "shop"
@@ -5048,6 +5097,7 @@ export const Constants = {
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
+      service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],
       shop_message_sender: ["customer", "shop"],

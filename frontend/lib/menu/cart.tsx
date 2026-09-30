@@ -10,8 +10,10 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { ServiceMode } from "@/lib/gestion/types";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
+import { TicketsProvider } from "./tickets";
 import {
   createTracker,
   type MenuTracker,
@@ -95,6 +97,13 @@ export interface CartConfig {
   tableNumber: number | null;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
+  /**
+   * Fast food : le client commande sans table et reçoit un numéro du jour.
+   * Absent ⇒ restaurant, la commande part d'une table scannée.
+   */
+  serviceMode?: ServiceMode;
+  /** Nom de l'établissement, en tête du ticket fast food. */
+  restaurantName?: string;
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
@@ -114,6 +123,9 @@ export interface CartConfig {
 }
 
 interface CartContextValue extends CartConfig {
+  /** Le client peut commander d'ici : à sa table, ou au comptoir en fast food. */
+  canOrder: boolean;
+  fastFood: boolean;
   lines: CartLine[];
   count: number;
   total: number;
@@ -124,6 +136,11 @@ interface CartContextValue extends CartConfig {
   addLine: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
+  /**
+   * Oublie le panier gardé sans toucher à l'écran : juste avant de quitter la
+   * page, un rendu qui fermerait une feuille ferait annuler la navigation.
+   */
+  forgetSaved: () => void;
   /** Retire les lignes offertes (le client change de contact, donc de solde). */
   clearRewards: () => void;
   /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
@@ -218,6 +235,14 @@ export function CartProvider({
 
   const clear = useCallback(() => setLines([]), []);
 
+  const forgetSaved = useCallback(() => {
+    try {
+      sessionStorage.removeItem(storageKey);
+    } catch {
+      // Stockage indisponible : rien n'était gardé.
+    }
+  }, [storageKey]);
+
   const clearRewards = useCallback(
     () => setLines((current) => current.filter((l) => !l.reward)),
     []
@@ -249,8 +274,11 @@ export function CartProvider({
       if (l.reward) pointsSpent += l.reward.points * l.quantity;
       else earningTotal += l.unitPrice * l.quantity;
     }
+    const fastFood = config.serviceMode === "fast_food";
     return {
       ...config,
+      fastFood,
+      canOrder: config.orderingEnabled && (fastFood || config.tableNumber !== null),
       lines,
       count,
       total,
@@ -259,6 +287,7 @@ export function CartProvider({
       addLine,
       setQuantity,
       clear,
+      forgetSaved,
       clearRewards,
       track,
       ready: restoredKey === storageKey,
@@ -269,13 +298,24 @@ export function CartProvider({
     addLine,
     setQuantity,
     clear,
+    forgetSaved,
     clearRewards,
     track,
     restoredKey,
     storageKey,
   ]);
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {config.serviceMode === "fast_food" ? (
+        <TicketsProvider slug={config.slug} preview={config.preview}>
+          {children}
+        </TicketsProvider>
+      ) : (
+        children
+      )}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart(): CartContextValue {

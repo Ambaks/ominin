@@ -15,9 +15,10 @@ import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
-  isPaidStatus,
+  isPaid,
   isServiceToday,
   orderTotal,
+  placeLabel,
   serviceDate,
   serviceDayKey,
   tipsByStaff,
@@ -101,7 +102,7 @@ function PaymentRow({
   const isCollect = order.type === "collect";
   const heading = isCollect
     ? order.customerName ?? "Client"
-    : `Table ${state.tables.find((t) => t.id === order.tableId)?.number ?? "—"}`;
+    : placeLabel(order, state.tables);
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   // Tout encaissement au comptoir se corrige et s'annule ; un règlement en
@@ -229,8 +230,12 @@ export default function PaiementsPage() {
   const paid = dedupeById([
     // Le snapshot en dernier : sa version (realtime) prime sur la page chargée.
     ...history,
-    ...state.orders.filter((order) => isPaidStatus(order.status)),
-  ]).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    ...state.orders,
+  ])
+    // Filtré après fusion : la page chargée compte aussi les commandes
+    // collect prêtes (PAID_ORDER_STATUSES), réglées mais pas encore retirées.
+    .filter(isPaid)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const visible =
     filter === "tous"

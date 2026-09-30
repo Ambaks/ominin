@@ -80,7 +80,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
   return (
     // pt : quand le contenu dépasse la hauteur minimale (téléphone, logo
     // haut), le centrage ne laisse plus d'air et le logo touche le bord.
-    <header className="relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 pt-12 lg:min-h-[72svh] lg:pb-28 lg:pt-16">
+    <header className="logo-hero relative flex min-h-[62svh] w-full flex-col items-center justify-center overflow-hidden pb-24 pt-12 lg:min-h-[72svh] lg:pb-28 lg:pt-16">
       <div className="absolute inset-0 bg-background" />
 
       {/* Lueurs et halo : aux couleurs de la marque par défaut, qu'un thème
@@ -263,7 +263,7 @@ export function Hero({
   }
 
   return (
-    <header className="relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
+    <header className="cover-hero relative h-[46svh] min-h-80 w-full overflow-hidden lg:h-[52svh] lg:min-h-96">
       {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
       <img
         src={restaurant.coverImage}

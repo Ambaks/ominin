@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CounterCard } from "@/components/gestion/commandes/counter-card";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
@@ -15,7 +16,9 @@ import {
   awaitsPayment,
   awaitsService,
   cardCount,
+  earlierNumberingDay,
   isHistoryStatus,
+  placeLabel,
 } from "@/lib/gestion/selectors";
 import {
   fetchOrderHistory,
@@ -105,11 +108,14 @@ export default function CommandesPage() {
   );
 
   const isCuisinier = state?.role === "cuisinier";
+  const fastFood = state?.etablissement.serviceMode === "fast_food";
   // Le filet : une assiette qui attend sans que son ticket soit sorti, ou un
-  // boîtier tombé, rajoutent « À servir » même si le réglage l'exclut.
+  // boîtier tombé, rajoutent « À servir » même si le réglage l'exclut. En
+  // fast food, c'est la file du comptoir : l'onglet est toujours là.
   const serviceNet =
     !(state?.orderTabs ?? ORDER_TABS).includes("a_servir") &&
-    (printerOffline ||
+    (fastFood ||
+      printerOffline ||
       (state?.orders.some((order) => awaitsService(order)) ?? false));
   const wanted = state?.orderTabs ?? ORDER_TABS;
   const tabs = (serviceNet ? [...wanted, "a_servir" as OrderTab] : wanted)
@@ -140,8 +146,6 @@ export default function CommandesPage() {
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
-  const tableNo = (order: Order) =>
-    order.tableId ? (tableNumbersById.get(order.tableId) ?? 0) : 0;
   const matchesHistoryTable = (order: Order) =>
     historyTable === null ||
     (historyTable.id !== null && order.tableId === historyTable.id);
@@ -162,14 +166,18 @@ export default function CommandesPage() {
           .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
   // Une carte par table pour l'addition et le service ; les commandes collect
-  // et l'historique restent des cartes individuelles.
+  // et l'historique restent des cartes individuelles. Une commande fast food
+  // a son addition à elle, et sa place dans la file du comptoir.
   const byTable = new Map<string, Order[]>();
+  const numbered: Order[] = [];
   const singles: Order[] = [];
   for (const order of visible) {
     if (filter !== "historique" && order.type === "sur_place" && order.tableId) {
       const list = byTable.get(order.tableId) ?? [];
       list.push(order);
       byTable.set(order.tableId, list);
+    } else if (filter !== "historique" && order.orderNumber !== undefined) {
+      numbered.push(order);
     } else {
       singles.push(order);
     }
@@ -238,7 +246,7 @@ export default function CommandesPage() {
         />
       )}
 
-      {filter === "historique" && (
+      {filter === "historique" && !fastFood && (
         <form
           className="flex max-w-md flex-wrap gap-2"
           onSubmit={(event) => {
@@ -309,7 +317,9 @@ export default function CommandesPage() {
             body={
               filter === "historique" && historyTable
                 ? `Aucune commande passée sur la table ${historyTable.number}.`
-                : EMPTY_BODIES[filter]
+                : fastFood && filter === "a_servir"
+                  ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
+                  : EMPTY_BODIES[filter]
             }
           />
         )
@@ -331,13 +341,42 @@ export default function CommandesPage() {
               />
             )
           )}
+          {filter === "a_encaisser"
+            ? numbered.map((order) => (
+                <EncaisserCard
+                  key={order.id}
+                  orders={[order]}
+                  title={[
+                    placeLabel(order, state.tables),
+                    earlierNumberingDay(order, state.orderNumberResetHour),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+              ))
+            : numbered.length > 0 && (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {numbered.map((order) => (
+                    <CounterCard
+                      key={order.id}
+                      order={order}
+                      resetHour={state.orderNumberResetHour}
+                      readOnly={isCuisinier}
+                    />
+                  ))}
+                </div>
+              )}
           {singles.map((order) =>
             isServeur ? (
               <div key={order.id} className="order-pop">
-                <OrderCard order={order} tableNo={tableNo(order)} />
+                <OrderCard order={order} place={placeLabel(order, state.tables)} />
               </div>
             ) : (
-              <OrderCard key={order.id} order={order} tableNo={tableNo(order)} />
+              <OrderCard
+                key={order.id}
+                order={order}
+                place={placeLabel(order, state.tables)}
+              />
             )
           )}
           {filter === "historique" && cursor && (

@@ -53,6 +53,7 @@ interface OrderContext {
   customer_name: string | null;
   pickup_at: string | null;
   paid_online: boolean;
+  order_number: number | null;
   tables: { number: number } | null;
   order_items: { quantity: number }[];
   order_payments: { mode: string; paid_at: string }[];
@@ -62,8 +63,12 @@ function composeBody(order: OrderContext): string {
   const count = order.order_items.reduce((sum, item) => sum + item.quantity, 0);
   const articles = `${count} article${count > 1 ? "s" : ""}`;
   if (order.type === "sur_place") {
-    const table = order.tables ? `Table ${order.tables.number}` : "Sur place";
-    return `${table} · ${articles}`;
+    const place = order.tables
+      ? `Table ${order.tables.number}`
+      : order.order_number
+        ? `N° ${order.order_number}`
+        : "Sur place";
+    return `${place} · ${articles}`;
   }
   const retrait = order.pickup_at
     ? `retrait ${pickupTime.format(new Date(order.pickup_at))}`
@@ -95,7 +100,7 @@ export async function dispatchOrderEvent(
   const { data: order, error: orderError } = await db
     .from("orders")
     .select(
-      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, paid_online, tables (number), order_items (quantity), order_payments (mode, paid_at)"
+      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, paid_online, order_number, tables (number), order_items (quantity), order_payments (mode, paid_at)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();

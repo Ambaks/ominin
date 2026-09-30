@@ -9,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * relues en base (elles-mêmes figées par place_order). La session Checkout
  * est créée sur le compte Stripe connecté du restaurant — l'argent va au
  * restaurateur. Une seule session ouverte par commande : la précédente
- * (annulée, onglet fermé) est expirée avant d'en ouvrir une neuve, pour
+ * (annulée, onglet fermé) est expirée une fois la neuve enregistrée, pour
  * qu'un onglet oublié ne puisse pas régler deux fois. Le webhook connecté
  * ou /api/stripe/verify marque ensuite la commande payée. Tant que la
  * session vit, la commande attend hors de la caisse : l'heure de la
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, status, paid_online, stripe_session_id")
+    .select("id, etablissement_id, table_id, order_number, status, paid_online, stripe_session_id")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
@@ -95,12 +95,6 @@ export async function POST(request: Request) {
 
   const stripe = getStripe();
   const stripeAccount = { stripeAccount: account.id };
-  if (order.stripe_session_id) {
-    // Déjà réglée ou expirée : Stripe refuse, sans conséquence.
-    await stripe.checkout.sessions
-      .expire(order.stripe_session_id, {}, stripeAccount)
-      .catch(() => {});
-  }
 
   // Retour sur le menu de la table, avec la commande à confirmer.
   const returnUrl = new URL(`${menuSiteUrl}/m/${etab.slug}`);
@@ -113,7 +107,9 @@ export async function POST(request: Request) {
   };
   const description = table
     ? `Table ${table.number} — ${etab.name}`
-    : `Commande — ${etab.name}`;
+    : order.order_number
+      ? `Commande n° ${order.order_number} — ${etab.name}`
+      : `Commande — ${etab.name}`;
 
   const session = await stripe.checkout.sessions.create(
     {
@@ -170,6 +166,16 @@ export async function POST(request: Request) {
     .eq("id", orderId);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // L'ancienne session n'expire qu'une fois la nouvelle enregistrée : son
+  // webhook « expirée » supprime la commande qui porte encore son id, et
+  // tombait sinon sur celle que le client est en train de régler. Déjà
+  // réglée ou expirée : Stripe refuse, sans conséquence.
+  if (order.stripe_session_id) {
+    await stripe.checkout.sessions
+      .expire(order.stripe_session_id, {}, stripeAccount)
+      .catch(() => {});
   }
 
   return NextResponse.json({ url: session.url });

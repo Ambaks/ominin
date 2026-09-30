@@ -48,9 +48,17 @@ export function isHistoryStatus(status: Order["status"]): boolean {
   return status === "servie" || status === "annulee" || status === "retiree";
 }
 
-/** Encaissée : payée sur place (servie ou non), ou retirée (collect, payée en ligne). */
-export function isPaidStatus(status: Order["status"]): boolean {
-  return status === "payee" || status === "servie" || status === "retiree";
+/**
+ * Encaissée : payée sur place (servie ou non ; prête au comptoir en fast
+ * food), ou retirée (collect, payée en ligne).
+ */
+export function isPaid(order: Order): boolean {
+  return (
+    order.status === "payee" ||
+    order.status === "servie" ||
+    order.status === "retiree" ||
+    (order.orderNumber !== undefined && order.status === "prete")
+  );
 }
 
 /**
@@ -79,7 +87,8 @@ export function awaitsPayment(order: Order): boolean {
 
 /**
  * À servir : commande sur place payée (partie en cuisine) dont il reste des
- * lignes à apporter, ou commande collect encore en cours.
+ * lignes à apporter, commande fast food pas encore remise, ou commande
+ * collect encore en cours.
  */
 export function awaitsService(order: Order): boolean {
   if (order.type === "collect") {
@@ -89,7 +98,34 @@ export function awaitsService(order: Order): boolean {
       order.status === "prete"
     );
   }
-  return order.status === "payee";
+  return (
+    order.status === "payee" ||
+    (order.orderNumber !== undefined && order.status === "prete")
+  );
+}
+
+/**
+ * Le jour (« lun. 28 ») d'une commande numérotée d'un jour de numérotation
+ * passé, jamais remise : son numéro a pu resservir depuis, le jour la
+ * distingue de celle d'aujourd'hui. Null pour une commande du jour, ou quand
+ * l'heure de remise à zéro est inconnue.
+ */
+export function earlierNumberingDay(order: Order, resetHour: number | null): string | null {
+  if (resetHour === null || order.orderNumber === undefined) return null;
+  if (serviceDayKey(order.createdAt, resetHour) === serviceDayKey(new Date().toISOString(), resetHour)) {
+    return null;
+  }
+  return new Date(order.createdAt).toLocaleDateString("fr-FR", {
+    weekday: "short",
+    day: "numeric",
+  });
+}
+
+/** Une commande sur place à l'écran : sa table, ou son numéro du jour en fast food. */
+export function placeLabel(order: Order, tables: Table[]): string {
+  if (order.orderNumber !== undefined) return `N° ${order.orderNumber}`;
+  const table = tables.find((candidate) => candidate.id === order.tableId);
+  return `Table ${table?.number ?? "—"}`;
 }
 
 /**
@@ -233,7 +269,7 @@ export function revenueToday(state: GestionState): number {
   return state.orders
     .filter(
       (order) =>
-        isPaidStatus(order.status) &&
+        isPaid(order) &&
         isServiceToday(order.createdAt, state.dayEndHour)
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);
@@ -320,7 +356,7 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
     index.set(date.toDateString(), point);
   }
   for (const order of state.orders) {
-    if (!isPaidStatus(order.status)) continue;
+    if (!isPaid(order)) continue;
     const point = index.get(serviceDayKey(order.createdAt, state.dayEndHour));
     if (!point) continue;
     point.revenue += orderTotal(order);
@@ -335,7 +371,7 @@ export function periodStats(
   days: number
 ): { revenue: number; orders: number; avgTicket: number } {
   const paid = ordersInPeriod(state, days).filter((order) =>
-    isPaidStatus(order.status)
+    isPaid(order)
   );
   const revenue = paid.reduce((sum, order) => sum + orderTotal(order), 0);
   return {

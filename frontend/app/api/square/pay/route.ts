@@ -106,7 +106,7 @@ export async function POST(request: Request) {
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, etablissement_id, table_id, status, paid_online, square_order_id, square_idempotency_key"
+      "id, etablissement_id, table_id, order_number, status, paid_online, square_order_id, square_idempotency_key"
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -161,9 +161,13 @@ export async function POST(request: Request) {
 
   const locationId = etab.square_location_id;
   const existingOrderId = order.square_order_id;
-  // « Table 7 » : ce que le personnel doit voir d'un coup d'œil sur son
-  // écran de caisse et sur le ticket imprimé.
-  const ticketName = table ? `Table ${table.number}` : `Commande — ${etab.name}`;
+  // « Table 7 », « N° 42 » : ce que le personnel doit voir d'un coup d'œil
+  // sur son écran de caisse et sur le ticket imprimé.
+  const ticketName = table
+    ? `Table ${table.number}`
+    : order.order_number
+      ? `N° ${order.order_number}`
+      : `Commande — ${etab.name}`;
 
   try {
     let placed: SquareOrder | null = null;

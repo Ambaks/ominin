@@ -9,6 +9,7 @@ import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
+import { TicketTracker } from "@/components/menu/order-ticket";
 import { PaymentReturn } from "@/components/menu/payment-return";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
@@ -71,6 +72,7 @@ export default async function MenuPage({
     onlinePayment,
     paymentProvider,
     squareLocationId,
+    serviceMode,
     callServer,
     loyalty,
     formules,
@@ -88,6 +90,8 @@ export default async function MenuPage({
   const tableNumber =
     Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
   const orderingEnabled = offre === "smart" || offre === "connect";
+  // Fast food : un seul QR, au comptoir ; on commande sans table.
+  const fastFood = orderingEnabled && serviceMode === "fast_food";
   // Retour de Stripe Checkout : la feuille de confirmation s'affiche par-dessus le menu.
   const paymentOutcome =
     paiement === "succes" || paiement === "annule" ? paiement : null;
@@ -139,8 +143,12 @@ export default async function MenuPage({
     <CartProvider
       config={{
         slug,
-        tableNumber,
+        // Un ancien QR de table ne compte plus en fast food : ni panier par
+        // table, ni table dans l'analytique.
+        tableNumber: fastFood ? null : tableNumber,
         orderingEnabled,
+        serviceMode,
+        restaurantName: restaurant.name,
         onlinePayment: orderingEnabled && onlinePayment,
         paymentProvider,
         squareLocationId,
@@ -151,6 +159,7 @@ export default async function MenuPage({
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <div
         data-menu-root
+        data-service={fastFood ? "fast-food" : undefined}
         className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <script
@@ -166,6 +175,11 @@ export default async function MenuPage({
           }
         />
         <MenuHighlights highlights={restaurant.highlights} />
+        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+            bout de la carte. */}
+        <TicketTracker />
+        <CartBar />
         <CategoryNav
           categories={categoryLinks}
           embedded={embed === "1"}
@@ -189,7 +203,6 @@ export default async function MenuPage({
           restaurant={restaurant}
           themeToggle={!restaurantThemeClass(slug)}
         />
-        <CartBar />
         {callServer && <CallServerButton />}
         {paymentOutcome && paymentOrderId && (
           <PaymentReturn

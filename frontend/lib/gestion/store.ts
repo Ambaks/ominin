@@ -15,6 +15,7 @@ import {
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
   PAID_ORDER_STATUSES,
+  TABLE_FEATURES,
 } from "./constants";
 import {
   assembleCategories,
@@ -355,7 +356,7 @@ async function load(): Promise<void> {
       // seule décide : maybeSingle plutôt qu'une erreur de chargement.
       supabase
         .from("etablissement_settings")
-        .select("features, order_tabs, day_end_hour")
+        .select("features, order_tabs, day_end_hour, order_number_reset_hour")
         .eq("etablissement_id", etablissementId)
         .maybeSingle()
         .then((result) => result.data),
@@ -372,6 +373,7 @@ async function load(): Promise<void> {
     // Même logique que les capacités : réglage absent, valeur par défaut.
     orderTabs: [],
     dayEndHour: DEFAULT_DAY_END_HOUR,
+    orderNumberResetHour: null,
     members: members.map(rowToMember),
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
@@ -385,9 +387,10 @@ async function load(): Promise<void> {
   >;
   state = {
     ...loaded,
-    features: resolveFeatures(activeProducts(loaded), featureOverrides),
+    features: resolvedFeatures(loaded),
     orderTabs: settings?.order_tabs ?? ORDER_TABS,
     dayEndHour: settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
+    orderNumberResetHour: settings?.order_number_reset_hour ?? null,
   };
   notify();
   // Les mois offerts arrivés à terme se tranchent à l'ouverture de l'espace.
@@ -448,8 +451,19 @@ export function getState(): GestionState {
 }
 
 export function commit(next: GestionState) {
-  state = next;
+  const modeChanged =
+    state?.etablissement.serviceMode !== next.etablissement.serviceMode;
+  state = modeChanged ? { ...next, features: resolvedFeatures(next) } : next;
   notify();
+}
+
+/** Capacités de l'offre et des réglages, moins ce que le type de service exclut. */
+function resolvedFeatures(snapshot: GestionState): GestionState["features"] {
+  const features = resolveFeatures(activeProducts(snapshot), featureOverrides);
+  if (snapshot.etablissement.serviceMode === "fast_food") {
+    for (const feature of TABLE_FEATURES) features[feature] = false;
+  }
+  return features;
 }
 
 /** Relit les commandes sans attendre l'événement realtime (après un place_order local). */
@@ -513,7 +527,7 @@ export async function refreshSubscription(): Promise<void> {
   const merged = { ...state, ...next };
   state = {
     ...merged,
-    features: resolveFeatures(activeProducts(merged), featureOverrides),
+    features: resolvedFeatures(merged),
   };
   notify();
 }

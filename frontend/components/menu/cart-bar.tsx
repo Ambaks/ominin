@@ -2,12 +2,14 @@
 
 import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
+import { PaymentReturn } from "@/components/menu/payment-return";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { SquarePayment } from "@/components/menu/square-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
-import { fallBackToCounter } from "@/lib/menu/online-payment";
+import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
+import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
@@ -44,6 +46,7 @@ function BinIcon() {
 
 export function CartBar() {
   const cart = useCart();
+  const tickets = useTickets();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
   const [paymentChoice, setPayment] = useState<PaymentChoice>("carte");
@@ -90,9 +93,13 @@ export function CartBar() {
   } else if (bump.count !== cart.count) {
     const added = cart.count > bump.count;
     setBump({ count: cart.count, n: added ? bump.n + 1 : bump.n });
+    // Vidé par l'envoi d'une commande fast food : c'est son ticket qui
+    // s'annonce, avec le numéro.
     setAnnouncement(
       cart.count === 0
-        ? "Panier vide."
+        ? tickets?.shownId
+          ? ""
+          : "Panier vide."
         : `${added ? "Ajouté" : "Retiré"}. ${cart.count} article${
             cart.count > 1 ? "s" : ""
           } au panier, ${formatPrice(cart.total)}.`
@@ -119,18 +126,76 @@ export function CartBar() {
     return () => observer.disconnect();
   });
   useSheetHistoryReset();
+  // Fast food : la commande partie, la feuille du panier cède la place au
+  // ticket — même fond, le ticket la remplace. C'est lui qu'on suit désormais.
+  const handOff = (orderId: string, notices: string[] = []) => {
+    setOpen(false);
+    setState("idle");
+    setSumupPayment(null);
+    setSquarePayment(null);
+    tickets?.show(orderId, { notices });
+  };
+  // Commande partie chez Stripe, pour le retour arrière.
+  const leaving = useRef<string | null>(null);
+  // Revenue de Stripe par « Retour » sans payer (restaurant) : la même
+  // feuille qu'une annulation chez Stripe.
+  const [returned, setReturned] = useState<string | null>(null);
+  // Page restituée telle quelle par un retour arrière depuis Stripe : la
+  // feuille restait figée sur « Envoi… », le panier plein — de quoi
+  // commander deux fois. La commande a changé de mains : en fast food, son
+  // ticket prend la suite ; au restaurant, l'écran d'un paiement annulé.
+  const onPageShow = useRef<(event: PageTransitionEvent) => void>(() => {});
+  useEffect(() => {
+    onPageShow.current = (event) => {
+      if (!event.persisted) return;
+      setState((current) => (current === "sending" ? "idle" : current));
+      const orderId = leaving.current;
+      if (!orderId) return;
+      leaving.current = null;
+      cart.clear();
+      if (cart.fastFood) {
+        handOff(orderId, [CARD_NOTICES.unfinished]);
+      } else {
+        setOpen(false);
+        setReturned(orderId);
+      }
+    };
+  });
+  // Où en est le règlement par carte dans la feuille (Square, SumUp).
+  const cardPhase = useRef<CardPhase>("form");
+  // Changée, la feuille du panier se remonte (sur la confirmation).
+  const [sheetKey, setSheetKey] = useState(0);
+  const onCardPhase = (phase: CardPhase) => {
+    cardPhase.current = phase;
+  };
+  useEffect(() => {
+    const onShow = (event: PageTransitionEvent) => onPageShow.current(event);
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
   const titleId = useId();
+  const hintId = useId();
 
   // Toujours dans la page tant qu'on peut commander : une zone annoncée n'est
   // lue que si elle existait avant son changement.
   const status = (
-    <p role="status" className="sr-only">
-      {announcement}
-    </p>
+    <>
+      <p role="status" className="sr-only">
+        {announcement}
+      </p>
+      {returned && (
+        <PaymentReturn
+          key={returned}
+          outcome="annule"
+          orderId={returned}
+          tableNumber={cart.tableNumber}
+        />
+      )}
+    </>
   );
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
-  if (!cart.orderingEnabled || cart.tableNumber === null) return null;
+  if (!cart.canOrder) return null;
   if (cart.count === 0 && state !== "sent") return status;
 
   // Sans paiement en ligne, ou tout offert en points (rien à régler par
@@ -142,8 +207,9 @@ export function CartBar() {
 
   // Pourboire du règlement par carte : pourcentage du total arrondi au
   // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
+  // Au comptoir d'un fast food, pas de service à table : pas de pourboire.
   const tipAmount =
-    payment !== "carte" || tipChoice === null
+    payment !== "carte" || tipChoice === null || cart.fastFood
       ? 0
       : tipChoice === "autre"
         ? Math.max(
@@ -153,13 +219,52 @@ export function CartBar() {
         : Math.round(cart.total * tipChoice) / 100;
 
   // Le règlement par carte n'aura pas lieu : l'addition passe au comptoir.
+  // Le ticket fast food le sait tout de suite (il ne dit plus « paiement en
+  // cours »), sans attendre la relecture.
   const giveUpCard = (orderId: string) => {
     setCardFailed(true);
-    void fallBackToCounter(orderId);
+    void fallBackToCounter(orderId).then(
+      (ok) => ok && tickets?.patch(orderId, { paying: false })
+    );
   };
 
+  // Les points se gagnent à l'encaissement : déjà fait si la carte est passée.
+  const loyaltyNotices = (paid = false) =>
+    loyaltyContact
+      ? [
+          paid
+            ? `Vos points de fidélité sont crédités sur ${loyaltyContact}.`
+            : `Vos points de fidélité seront crédités sur ${loyaltyContact} à l’encaissement.`,
+        ]
+      : [];
+
   const submit = async () => {
-    if (cart.tableNumber === null || cart.preview) return;
+    if (!cart.canOrder) return;
+    // Aperçu fast food : rien ne part, mais le ticket se montre — c'est ce
+    // que le client verra, sur un numéro fictif.
+    if (cart.preview) {
+      if (!tickets) return;
+      // Par nom et par choix, comme order_ticket.
+      const lines = new Map<string, TicketLine>();
+      for (const line of cart.lines) {
+        const key = [line.name, ...line.optionSummary].join("\n");
+        const known = lines.get(key);
+        lines.set(key, {
+          name: line.name,
+          quantity: (known?.quantity ?? 0) + line.quantity,
+          choices: line.optionSummary,
+        });
+      }
+      const id = crypto.randomUUID();
+      tickets.add(id, {
+        status: payment === "carte" ? "payee" : "en_attente",
+        total: cart.total,
+        lines: [...lines.values()],
+      });
+      cart.clear();
+      handOff(id);
+      return;
+    }
     setState("sending");
     setError(null);
     setCardFailed(false);
@@ -182,7 +287,9 @@ export function CartBar() {
       "place_order",
       {
         p_slug: cart.slug,
-        p_table_number: cart.tableNumber,
+        // Nul en fast food (la base y refuse une table) : les types générés
+        // ne connaissent pas d'argument nul.
+        p_table_number: cart.tableNumber as number,
         p_items: payload,
         // Réglée en ligne, la commande attend son paiement hors de la caisse ;
         // c'est le paiement (ou son abandon) qui la fera arriver en salle.
@@ -199,6 +306,15 @@ export function CartBar() {
     setSentPayment(payment);
     // Le solde affiché ne vaut plus : il se relira à la prochaine commande.
     setBalance(null);
+    // Fast food : le numéro est gardé dès maintenant, quel que soit le
+    // règlement — un client qui quitte la page de paiement le retrouve.
+    tickets?.add(orderId);
+    // Un échec de démarrage du règlement par carte, pour conclure le parcours.
+    let failed = false;
+    const fail = () => {
+      failed = true;
+      giveUpCard(orderId);
+    };
     // Prévient la salle (push) : la commande attend son encaissement au
     // comptoir. Sans bloquer le parcours client.
     if (payment === "comptoir") notifyOrderEvent(orderId, "en_attente");
@@ -220,15 +336,20 @@ export function CartBar() {
         });
         const body = (await response.json()) as { url?: string };
         if (response.ok && body.url) {
-          cart.clear();
+          // Rien ne change à l'écran avant de partir : une feuille qui se
+          // ferme ici lance un history.back(), et Chrome annule alors la
+          // navigation vers Stripe. Le panier gardé est seulement oublié :
+          // un retour arrière ne ramène pas de quoi commander deux fois.
+          cart.forgetSaved();
+          leaving.current = orderId;
           window.location.assign(body.url);
           return;
         }
-        giveUpCard(orderId);
+        fail();
       } catch {
         // Le règlement en ligne a échoué : la commande reste valable,
         // le client paiera au comptoir.
-        giveUpCard(orderId);
+        fail();
       }
     }
 
@@ -249,10 +370,10 @@ export function CartBar() {
         if (response.ok && body.checkoutId) {
           setSumupPayment({ orderId, checkoutId: body.checkoutId });
         } else {
-          giveUpCard(orderId);
+          fail();
         }
       } catch {
-        giveUpCard(orderId);
+        fail();
       }
     }
 
@@ -269,15 +390,47 @@ export function CartBar() {
           tipAmount,
         });
       } else {
-        giveUpCard(orderId);
+        fail();
       }
     }
 
     cart.clear();
-    setState("sent");
+    // Fast food : le ticket, sauf si le règlement se poursuit dans la
+    // feuille (SumUp, Square) — il viendra à sa fin.
+    const inPage = payment === "carte" && !failed && cart.paymentProvider !== "stripe";
+    if (cart.fastFood && !inPage) {
+      handOff(orderId, [...(failed ? [CARD_NOTICES.failed] : []), ...loyaltyNotices()]);
+    } else {
+      setState("sent");
+    }
   };
 
   const close = () => {
+    // Fast food : un paiement carte dans la feuille qu'on referme (Échap,
+    // retour) ne se rouvrirait pas — le ticket prend la suite. Formulaire
+    // encore à remplir : l'addition passe au comptoir, où la salle voit la
+    // commande. Débit en cours : il aboutira ou non, le ticket le dira — la
+    // passer au comptoir maintenant l'y ferait encaisser une seconde fois.
+    const pending = sumupPayment?.orderId ?? squarePayment?.orderId;
+    if (cart.fastFood && state === "sent" && pending) {
+      const abandoned = cardPhase.current === "form";
+      if (abandoned) giveUpCard(pending);
+      handOff(pending, [
+        ...(abandoned ? [CARD_NOTICES.declined] : []),
+        ...loyaltyNotices(cardPhase.current === "paid"),
+      ]);
+      return;
+    }
+    // Au restaurant, même formulaire refermé sans payer : l'addition passe au
+    // comptoir — sinon la commande restait invisible en salle, sans fin — et
+    // la feuille revient sur la confirmation, qui le dit.
+    if (state === "sent" && pending && cardPhase.current === "form") {
+      giveUpCard(pending);
+      setSumupPayment(null);
+      setSquarePayment(null);
+      setSheetKey((key) => key + 1);
+      return;
+    }
     setOpen(false);
     if (state === "sent") {
       setState("idle");
@@ -300,10 +453,24 @@ export function CartBar() {
           className={`cart-bar ${bump.n === 0 ? "" : bump.n % 2 ? "cart-bump-a" : "cart-bump-b"} ember-gradient pointer-events-auto flex w-full max-w-md items-center justify-between gap-4 rounded-full px-6 py-3.5 text-background shadow-2xl shadow-black/40`}
         >
           <span className="flex items-center gap-2.5 text-sm font-semibold">
-            <span className="flex size-6 items-center justify-center rounded-full bg-background text-xs font-bold text-foreground">
+            {/* Libellé effacé (à côté des tickets), le sac dit « panier » :
+                réduite au compte, la barre passait pour un numéro de plus. */}
+            <svg
+              viewBox="0 0 24 24"
+              className="cart-bar-icon hidden size-5 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 016 0v2" />
+            </svg>
+            <span className="cart-bar-count flex size-6 items-center justify-center rounded-full bg-background text-xs font-bold text-foreground">
               {cart.count}
             </span>
-            <span className="whitespace-nowrap">Voir la commande</span>
+            <span className="cart-bar-label whitespace-nowrap">Voir la commande</span>
           </span>
           <span className="cart-bar-total text-sm font-bold">
             {formatPrice(cart.total)}
@@ -313,6 +480,7 @@ export function CartBar() {
 
       {open && (
         <Sheet
+          key={sheetKey}
           onClosed={close}
           backdropCloses
           labelledBy={state === "sent" ? undefined : titleId}
@@ -324,9 +492,16 @@ export function CartBar() {
                 <SumUpPayment
                   orderId={sumupPayment.orderId}
                   initialCheckoutId={sumupPayment.checkoutId}
+                  onPhase={onCardPhase}
                   onDone={(paid) => {
                     setSumupPayment(null);
                     if (!paid) giveUpCard(sumupPayment.orderId);
+                    if (cart.fastFood) {
+                      handOff(
+                        sumupPayment.orderId,
+                        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
+                      );
+                    }
                   }}
                 />
               ) : state === "sent" && squarePayment ? (
@@ -335,9 +510,16 @@ export function CartBar() {
                   locationId={squarePayment.locationId}
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
+                  onPhase={onCardPhase}
                   onDone={(paid) => {
                     setSquarePayment(null);
                     if (!paid) giveUpCard(squarePayment.orderId);
+                    if (cart.fastFood) {
+                      handOff(
+                        squarePayment.orderId,
+                        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
+                      );
+                    }
                   }}
                 />
               ) : state === "sent" ? (
@@ -364,7 +546,7 @@ export function CartBar() {
                   </p>
                   {cardFailed && (
                     <p className="text-sm leading-relaxed text-ember-3">
-                      Le paiement par carte n&rsquo;a pas pu démarrer&nbsp;: vous
+                      Le paiement par carte n&rsquo;a pas abouti&nbsp;: vous
                       réglerez votre addition au comptoir.
                     </p>
                   )}
@@ -390,8 +572,10 @@ export function CartBar() {
                   <div className="cart-head sticky top-0 z-10 flex items-center justify-between border-b border-hairline bg-surface p-5">
                     <h3 id={titleId} className="cart-title font-display text-lg font-medium">
                       Votre commande
-                      <span className="block text-xs font-normal normal-case tracking-normal text-muted">
-                        Table {cart.tableNumber}
+                      <span className="mt-0.5 block font-sans text-xs font-normal normal-case tracking-normal text-muted">
+                        {cart.fastFood
+                          ? "À récupérer au comptoir"
+                          : `Table ${cart.tableNumber}`}
                       </span>
                     </h3>
                     <button
@@ -513,29 +697,66 @@ export function CartBar() {
                       </span>
                     </div>
                     {cart.onlinePayment && cart.total > 0 && (
-                      <div className="mb-4 flex gap-2">
+                      <div
+                        role="radiogroup"
+                        aria-label="Règlement"
+                        aria-describedby={cart.fastFood ? hintId : undefined}
+                        className="mb-4 flex gap-2"
+                      >
                         {(
                           [
                             ["carte", "Payer en ligne"],
-                            ["comptoir", "Payer au comptoir"],
+                            ["comptoir", "Payer au\u00a0comptoir"],
                           ] as const
                         ).map(([value, label]) => (
                           <button
                             key={value}
                             type="button"
+                            role="radio"
+                            aria-checked={payment === value}
                             onClick={() => setPayment(value)}
-                            className={`flex-1 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-colors ${
+                            className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
                               payment === value
                                 ? "border-ember-2/60 bg-surface-raised text-foreground"
                                 : "border-hairline text-muted"
                             }`}
                           >
+                            {/* Le choix se lit aussi à sa pastille, pas qu'au filet. */}
+                            <span
+                              aria-hidden
+                              className={`size-2.5 shrink-0 rounded-full ${
+                                payment === value
+                                  ? "ember-gradient"
+                                  : "border border-current opacity-50"
+                              }`}
+                            />
                             {label}
                           </button>
                         ))}
                       </div>
                     )}
-                    {payment === "carte" && (
+                    {/* Fast food : ce que le choix change pour la suite. Les
+                        deux phrases occupent la même case, l'autre cachée :
+                        d'un choix à l'autre, la feuille ne saute pas. */}
+                    {cart.fastFood && cart.onlinePayment && cart.total > 0 && (
+                      <p id={hintId} className="mb-4 grid text-xs leading-relaxed text-muted">
+                        {(
+                          [
+                            ["carte", "Payée maintenant, elle part tout de suite en cuisine."],
+                            ["comptoir", "Elle part en cuisine une fois réglée au\u00a0comptoir."],
+                          ] as const
+                        ).map(([choice, text]) => (
+                          <span
+                            key={choice}
+                            aria-hidden={choice !== payment || undefined}
+                            className={`[grid-area:1/1] ${choice === payment ? "" : "invisible"}`}
+                          >
+                            {text}
+                          </span>
+                        ))}
+                      </p>
+                    )}
+                    {payment === "carte" && !cart.fastFood && (
                       <div className="mb-4 flex flex-col gap-2.5">
                         <p className="text-xs font-medium text-muted">
                           Un pourboire pour l&rsquo;équipe&nbsp;?
@@ -602,21 +823,29 @@ export function CartBar() {
                         if (event.detail <= 1) void submit();
                       }}
                       disabled={
-                        state === "sending" || cart.count === 0 || cart.preview
+                        state === "sending" ||
+                        cart.count === 0 ||
+                        (cart.preview && !cart.fastFood)
                       }
                       className={`w-full rounded-full px-6 py-3 text-sm font-semibold ${
                         // L'aperçu dit pourquoi rien ne part : un texte à lire,
                         // pas un bouton estompé.
-                        cart.preview
+                        cart.preview && !cart.fastFood
                           ? "border border-hairline bg-surface-raised text-foreground"
                           : "ember-gradient text-background disabled:opacity-60"
                       }`}
                     >
                       {cart.preview
-                        ? "Aperçu\u00a0: envoi désactivé"
+                        ? cart.fastFood
+                          ? "Aperçu\u00a0: voir le ticket"
+                          : "Aperçu\u00a0: envoi désactivé"
                         : state === "sending"
                           ? "Envoi…"
-                          : "Envoyer la commande"}
+                          : !cart.fastFood
+                            ? "Envoyer la commande"
+                            : payment === "carte"
+                              ? `Commander et payer · ${formatPrice(cart.total)}`
+                              : "Commander · payer au comptoir"}
                     </button>
                     {/* Refermer à portée du pouce : la croix est tout en haut.
                         Écran court : « Retour » seul, sur la ligne du total. */}

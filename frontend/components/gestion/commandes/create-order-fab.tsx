@@ -201,6 +201,8 @@ function CreateOrderDialog({
   }, [etablissementId]);
 
   const tables = [...state.tables].sort((a, b) => a.number - b.number);
+  // Fast food : pas de table à choisir, la commande prend son numéro du jour.
+  const fastFood = state.etablissement.serviceMode === "fast_food";
   // Vide tant que les tarifs ne sont pas là : la carte se déplie d'un coup,
   // aux bons prix, plutôt que de les voir changer sous les yeux du serveur.
   const categories =
@@ -270,18 +272,22 @@ function CreateOrderDialog({
   };
 
   const submit = async () => {
-    if (tableNumber === null || lines.length === 0) return;
+    if ((!fastFood && tableNumber === null) || lines.length === 0) return;
     setSending(true);
     try {
-      await api.createStaffOrder(
-        tableNumber,
+      const orderNumber = await api.createStaffOrder(
+        fastFood ? null : tableNumber,
         lines.map((line) => ({
           itemId: line.itemId,
           quantity: line.quantity,
           choices: line.choices,
         }))
       );
-      toast.success(`Commande enregistrée — table ${tableNumber}, à encaisser.`);
+      toast.success(
+        fastFood
+          ? `Commande n° ${orderNumber ?? "—"} enregistrée, à encaisser.`
+          : `Commande enregistrée — table ${tableNumber}, à encaisser.`
+      );
       onClose();
     } catch (error) {
       toast.error(
@@ -317,7 +323,9 @@ function CreateOrderDialog({
           </span>
           <button
             type="button"
-            disabled={tableNumber === null || lines.length === 0 || sending}
+            disabled={
+              (!fastFood && tableNumber === null) || lines.length === 0 || sending
+            }
             onClick={() => void submit()}
             className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
           >
@@ -327,43 +335,45 @@ function CreateOrderDialog({
       }
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2.5">
-          <p className="text-sm font-medium">Table</p>
-          <div className="flex flex-wrap gap-2">
-            {tables.map((table) => {
-              const selected = tableNumber === table.number;
-              return (
-                <button
-                  key={table.id}
-                  type="button"
-                  onClick={() => {
-                    setPickedNumber(table.number);
-                    setNewNumberRaw("");
-                  }}
-                  className={`flex size-10 items-center justify-center rounded-xl text-sm font-semibold tabular-nums transition-colors ${
-                    selected
-                      ? "ember-gradient text-background"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                  }`}
-                >
-                  {table.number}
-                </button>
-              );
-            })}
-            <label className="flex h-10 items-center gap-2 rounded-xl border border-dashed border-hairline px-3 text-xs font-semibold text-muted transition-colors focus-within:border-ember-2/50">
-              Nouvelle
-              <input
-                type="text"
-                inputMode="numeric"
-                value={newNumberRaw}
-                onChange={(event) => setNewNumberRaw(event.target.value)}
-                placeholder="n°"
-                aria-label="Numéro d'une nouvelle table"
-                className="w-10 bg-transparent text-center text-sm font-semibold tabular-nums text-foreground outline-none placeholder:text-faint"
-              />
-            </label>
+        {!fastFood && (
+          <div className="flex flex-col gap-2.5">
+            <p className="text-sm font-medium">Table</p>
+            <div className="flex flex-wrap gap-2">
+              {tables.map((table) => {
+                const selected = tableNumber === table.number;
+                return (
+                  <button
+                    key={table.id}
+                    type="button"
+                    onClick={() => {
+                      setPickedNumber(table.number);
+                      setNewNumberRaw("");
+                    }}
+                    className={`flex size-10 items-center justify-center rounded-xl text-sm font-semibold tabular-nums transition-colors ${
+                      selected
+                        ? "ember-gradient text-background"
+                        : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                    }`}
+                  >
+                    {table.number}
+                  </button>
+                );
+              })}
+              <label className="flex h-10 items-center gap-2 rounded-xl border border-dashed border-hairline px-3 text-xs font-semibold text-muted transition-colors focus-within:border-ember-2/50">
+                Nouvelle
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={newNumberRaw}
+                  onChange={(event) => setNewNumberRaw(event.target.value)}
+                  placeholder="n°"
+                  aria-label="Numéro d'une nouvelle table"
+                  className="w-10 bg-transparent text-center text-sm font-semibold tabular-nums text-foreground outline-none placeholder:text-faint"
+                />
+              </label>
+            </div>
           </div>
-        </div>
+        )}
 
         {lines.length > 0 && (
           <div className="flex flex-col gap-2.5">

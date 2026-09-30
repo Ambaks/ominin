@@ -7,6 +7,7 @@ import { CollectSettings } from "@/components/gestion/collect-settings";
 import { GiftIcon } from "@/components/gestion/icons";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
+import { ServiceModeSettings } from "@/components/gestion/service-mode-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
@@ -134,6 +135,14 @@ export default function EtablissementPage() {
             key={state.etablissement.slug}
             etablissement={state.etablissement}
           />
+          {/* Le type de service n'a de sens qu'avec la commande en ligne. */}
+          {hasFeature("commandes") && state.etablissement.offre !== null && (
+            <ServiceModeSettings
+              initialMode={state.etablissement.serviceMode}
+              slug={state.etablissement.slug}
+              resetHour={state.orderNumberResetHour}
+            />
+          )}
           <PaymentSettings
             initialEnabled={state.etablissement.onlinePayment}
             initialProvider={

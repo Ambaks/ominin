@@ -45,7 +45,7 @@ const lineName = (item: MenuItem) =>
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
-  const { orderingEnabled, tableNumber, addLine, track, lines } = useCart();
+  const { orderingEnabled, canOrder, addLine, track, lines } = useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -74,7 +74,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     );
   }
 
-  if (tableNumber === null) {
+  if (!canOrder) {
     return (
       <button
         type="button"

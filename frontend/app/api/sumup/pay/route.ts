@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, status, paid_online")
+    .select("id, etablissement_id, table_id, order_number, status, paid_online")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
@@ -92,7 +92,9 @@ export async function POST(request: Request) {
     merchant_code: merchant.merchantCode,
     description: table
       ? `Table ${table.number} — ${etab.name}`
-      : `Commande — ${etab.name}`,
+      : order.order_number
+        ? `Commande n° ${order.order_number} — ${etab.name}`
+        : `Commande — ${etab.name}`,
     return_url: `${requestUrl.protocol}//${host}/api/sumup/webhook`,
   };
 

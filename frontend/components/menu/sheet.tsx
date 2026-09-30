@@ -4,6 +4,21 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 /**
+ * Le réglage de défilement du navigateur avant toute feuille, lu une fois :
+ * une feuille ouverte pendant que la précédente se referme le lisait encore
+ * à « manual », et l'y laissait en partant.
+ */
+let pageScrollRestoration: ScrollRestoration | null = null;
+
+/**
+ * Le « Retour » d'une feuille qui se referme, tant que son « popstate » n'est
+ * pas revenu. Une feuille ouverte dans la foulée (le panier qui cède la place
+ * au ticket) l'attend pour empiler son entrée : empilée avant, c'est elle que
+ * ce retour dépilait, et elle se refermait aussitôt ouverte.
+ */
+let pendingBack: Promise<void> | null = null;
+
+/**
  * Une page rechargée alors qu'une feuille était ouverte garde l'entrée
  * d'historique qu'elle avait empilée, en défilement manuel : on la rend
  * ordinaire, sans quoi le navigateur ne rend pas au lecteur sa place.
@@ -47,10 +62,18 @@ export function Sheet({
   backdropCloses,
   labelledBy,
   label,
+  enter = "rise",
   children,
 }: {
   /** Appelé une fois la feuille descendue. */
   onClosed: () => void;
+  /**
+   * « swap » : elle remplace une feuille qui vient de partir (le panier cède
+   * la place au ticket) — pleine d'emblée, elle ne fait que se poser ; en
+   * fondu, le fond restait seul un instant entre les deux. Lu à l'ouverture
+   * seulement : changée ensuite, la classe relançait l'entrée.
+   */
+  enter?: "rise" | "swap";
   /** Toucher le fond ferme-t-il la feuille ? */
   backdropCloses: boolean;
   labelledBy?: string;
@@ -65,6 +88,7 @@ export function Sheet({
   // panier tapé trois fois) passe, une rafale qui glisse ailleurs non.
   const lastAccepted = useRef<Element | null>(null);
   const [closing, setClosing] = useState(false);
+  const [entrance] = useState(enter);
   // Le parent recrée souvent son rappel : le lire dans une ref évite de
   // relancer les effets (et de renvoyer le focus au déclencheur) à chaque rendu.
   const onClosedRef = useRef(onClosed);
@@ -158,13 +182,20 @@ export function Sheet({
     // Revenir sur l'entrée faisait restaurer au navigateur le défilement
     // mémorisé à l'ouverture : la page sautait sous le doigt. Défilement
     // manuel le temps de la feuille, rétabli une fois l'entrée dépilée.
-    const restoration = history.scrollRestoration;
-    const push = setTimeout(() => {
+    pageScrollRestoration ??= history.scrollRestoration;
+    const restoration = pageScrollRestoration;
+    let unmounted = false;
+    const push = setTimeout(async () => {
+      if (pendingBack) await pendingBack;
+      if (unmounted) return;
       history.scrollRestoration = "manual";
       history.pushState({ ...history.state, ominninSheet: sheetId }, "");
       pushed = true;
     });
     const onPopState = () => {
+      // Avant sa propre entrée, un « popstate » vient d'une feuille qui se
+      // referme juste avant celle-ci (son history.back()) : pas le sien.
+      if (!pushed) return;
       if (history.state?.ominninSheet === sheetId) return;
       popped = true;
       setClosing(true);
@@ -173,15 +204,20 @@ export function Sheet({
 
     document.addEventListener("keydown", onKeyDown);
     return () => {
+      unmounted = true;
       clearTimeout(push);
       window.removeEventListener("popstate", onPopState);
       if (pushed && !popped && history.state?.ominninSheet === sheetId) {
-        window.addEventListener(
-          "popstate",
-          () => {
-            history.scrollRestoration = restoration;
-          },
-          { once: true }
+        pendingBack = new Promise((resolve) =>
+          window.addEventListener(
+            "popstate",
+            () => {
+              pendingBack = null;
+              resolve();
+              history.scrollRestoration = restoration;
+            },
+            { once: true }
+          )
         );
         history.back();
       } else if (pushed) {
@@ -241,7 +277,7 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-label={label}
-        className={`${closing ? "sheet-fall" : "sheet-rise"} flex max-h-[88dvh] w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
+        className={`${closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-[88dvh] w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
         onClick={(event) => event.stopPropagation()}
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) return;
@@ -252,6 +288,10 @@ export function Sheet({
         {children(close)}
       </div>
     </div>,
-    document.querySelector("[data-menu-root]") ?? document.body
+    // Pas une copie encore masquée de la page (rendu en flux), que React
+    // retire en la révélant : la feuille partait avec, la page restait figée.
+    [...document.querySelectorAll("[data-menu-root]")].find(
+      (root) => !root.closest("[hidden]")
+    ) ?? document.body
   );
 }

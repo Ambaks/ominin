@@ -24,11 +24,12 @@ import { StatusBadge } from "./status-badge";
  */
 export function OrderCard({
   order,
-  tableNo,
+  place,
   pulse = false,
 }: {
   order: Order;
-  tableNo: number;
+  /** Sur place : la table ou le numéro du jour (placeLabel). */
+  place: string;
   /** L'action principale respire (soft-pulse) : la prochaine chose à faire. */
   pulse?: boolean;
 }) {
@@ -53,14 +54,12 @@ export function OrderCard({
     }
   };
 
-  const heading = isCollect
-    ? order.customerName ?? "Client"
-    : `Table ${tableNo}`;
+  const heading = isCollect ? order.customerName ?? "Client" : place;
   const cancelMessage = declining
     ? `La commande de ${order.customerName ?? "ce client"} sera refusée et le client en sera informé.`
     : isCollect
       ? `La commande de ${order.customerName ?? "ce client"} sera annulée définitivement.`
-      : `La commande de la table ${tableNo} sera annulée définitivement.`;
+      : `${place} : la commande sera annulée définitivement.`;
 
   return (
     <article className="rounded-2xl border border-hairline bg-surface p-5">
@@ -76,7 +75,12 @@ export function OrderCard({
             {formatTime(order.createdAt)}
           </span>
         </div>
-        <StatusBadge status={order.status} />
+        <StatusBadge
+          status={order.status}
+          label={
+            order.orderNumber !== undefined && order.status === "servie" ? "Remise" : undefined
+          }
+        />
       </div>
 
       {isCollect && order.pickupAt && (

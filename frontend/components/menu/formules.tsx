@@ -42,7 +42,7 @@ function FormuleModal({
   formule: Formule;
   onClose: () => void;
 }) {
-  const { orderingEnabled, tableNumber, addLine, track } = useCart();
+  const { orderingEnabled, canOrder, addLine, track } = useCart();
   const [picks, setPicks] = useState<Picks>({});
   const bodyRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -100,8 +100,6 @@ function FormuleModal({
         [etapeId]: { ...pick, options: { ...pick.options, [group.id]: next } },
       };
     });
-
-  const canOrder = orderingEnabled && tableNumber !== null;
 
   const confirm = (close: () => void) => {
     if (missing.length > 0) {

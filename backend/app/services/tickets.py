@@ -98,10 +98,17 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
             ),
             SIZE_NORMAL,
         ]
-    else:
+    elif order["tables"]:
         out += [
             BOLD_ON, SIZE_DOUBLE,
             _line(f"TABLE {order['tables']['number']}"),
+            SIZE_NORMAL, BOLD_OFF,
+        ]
+    else:
+        # Fast food : pas de table, le numéro que le comptoir appellera.
+        out += [
+            BOLD_ON, SIZE_TRIPLE,
+            _line(f"N\xb0 {order['order_number']}"),
             SIZE_NORMAL, BOLD_OFF,
         ]
 

@@ -176,7 +176,7 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
             supabase.table("print_jobs")
             .select(
                 "id, kind, printer_id, created_at, printers(name), "
-                "orders(type, created_at, customer_name, pickup_at, "
+                "orders(type, created_at, customer_name, pickup_at, order_number, "
                 "tables(number), "
                 "order_items(id, item_id, name, quantity, options, components, "
                 "items(print_name, categories(name, position))))"

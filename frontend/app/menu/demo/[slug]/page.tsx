@@ -6,6 +6,7 @@ import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
+import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
@@ -24,6 +25,9 @@ import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
  * ?theme=ominin retire l'habillage de l'établissement : la même carte dans la
  * palette et les polices d'Ominin. De quoi poser la question au gérant —
  * « vos couleurs ou les nôtres ? » — sans reconstruire une seconde page.
+ *
+ * ?service=fast-food montre le parcours fast food : commande sans table, puis
+ * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
@@ -60,7 +64,8 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme } = await searchParams;
+  const { theme, service } = await searchParams;
+  const fastFood = service === "fast-food";
   const restaurant = getRestaurant(slug);
   if (!restaurant) notFound();
 
@@ -75,9 +80,12 @@ export default async function MenuPreviewPage({
     <CartProvider
       config={{
         slug,
-        tableNumber: DEMO_TABLE,
+        tableNumber: fastFood ? null : DEMO_TABLE,
         orderingEnabled: true,
-        onlinePayment: false,
+        serviceMode: fastFood ? "fast_food" : "restaurant",
+        restaurantName: restaurant.name,
+        // Fast food : le choix du règlement fait partie de ce qu'on montre.
+        onlinePayment: fastFood,
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
@@ -85,10 +93,16 @@ export default async function MenuPreviewPage({
     >
       <div
         data-menu-root
+        data-service={fastFood ? "fast-food" : undefined}
         className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <Hero restaurant={restaurant} />
         <MenuHighlights highlights={restaurant.highlights} />
+        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+            bout de la carte. */}
+        <TicketTracker />
+        <CartBar />
         <CategoryNav
           categories={categoryLinks}
           themeLocked={Boolean(themeClass)}
@@ -99,7 +113,6 @@ export default async function MenuPreviewPage({
           ))}
         </main>
         <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
-        <CartBar />
       </div>
     </CartProvider>
   );

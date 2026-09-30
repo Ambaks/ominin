@@ -274,6 +274,7 @@ export function seed(): GestionState {
       phone: restaurant.phone,
       hours: restaurant.hours,
       offre: "connect",
+      serviceMode: "restaurant",
       onlinePayment: false,
       paymentProvider: null,
       collectSlotCapacity: 5,
@@ -293,6 +294,7 @@ export function seed(): GestionState {
     ) as GestionState["features"],
     orderTabs: ORDER_TABS,
     dayEndHour: DEFAULT_DAY_END_HOUR,
+    orderNumberResetHour: null,
     staff: [],
     categories,
     // La démo montre la carte telle quelle : un tarif planifié se règle, il

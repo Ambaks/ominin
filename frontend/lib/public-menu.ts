@@ -1,5 +1,5 @@
 import { assembleCategories, rowToFormule } from "@/lib/gestion/mappers";
-import type { Formule } from "@/lib/gestion/types";
+import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getRestaurant, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
@@ -46,6 +46,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
   qrMenu: boolean;
+  /** Restaurant (commande depuis la table) ou fast food (sans table, numérotée). */
+  serviceMode: ServiceMode;
   /** Le menu propose d'appeler un serveur ; retiré, le bouton n'existe pas. */
   callServer: boolean;
   /** Programme de fidélité ouvert par Ominin et allumé par le gérant. */
@@ -159,7 +161,10 @@ export async function fetchRestaurant(slug: string): Promise<{
     paymentProvider: etablissement.payment_provider ?? "stripe",
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,
-    callServer: features?.appel_serveur !== false,
+    serviceMode: etablissement.service_mode,
+    // Au comptoir, personne ne vient à table : pas de serveur à appeler.
+    callServer:
+      features?.appel_serveur !== false && etablissement.service_mode === "restaurant",
     loyalty,
     formules,
     restaurant: {

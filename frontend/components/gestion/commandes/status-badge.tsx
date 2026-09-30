@@ -11,12 +11,19 @@ const STATUS_CLASSES: Record<OrderStatus, string> = {
   retiree: "border-hairline bg-surface text-faint",
 };
 
-export function StatusBadge({ status }: { status: OrderStatus }) {
+export function StatusBadge({
+  status,
+  label = ORDER_STATUS_LABELS[status],
+}: {
+  status: OrderStatus;
+  /** Le mot du contexte : une commande fast food est « Remise », pas « Servie ». */
+  label?: string;
+}) {
   return (
     <span
       className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${STATUS_CLASSES[status]}`}
     >
-      {ORDER_STATUS_LABELS[status]}
+      {label}
     </span>
   );
 }

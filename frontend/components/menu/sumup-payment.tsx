@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CardPhase } from "@/lib/menu/online-payment";
 
 /*
  * Règlement d'une commande dans la page via le widget SumUp (carte, Apple Pay
@@ -58,14 +59,28 @@ export function SumUpPayment({
   orderId,
   initialCheckoutId,
   onDone,
+  onPhase,
 }: {
   orderId: string;
   initialCheckoutId: string;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
+  onPhase?: (phase: CardPhase) => void;
 }) {
   const [checkoutId, setCheckoutId] = useState(initialCheckoutId);
   const [state, setState] = useState<PaymentState>("widget");
+  // Carte envoyée par le widget (ou défi de la banque ouvert) : le débit est
+  // en cours avant même notre vérification.
+  const [sent, setSent] = useState(false);
+  const phase: CardPhase =
+    state === "verifying" || (state === "widget" && sent)
+      ? "charging"
+      : state === "paid"
+        ? "paid"
+        : "form";
+  useEffect(() => {
+    onPhase?.(phase);
+  }, [phase, onPhase]);
   const [busy, setBusy] = useState(false);
   const widgetRef = useRef<{ unmount?: () => void } | null>(null);
 
@@ -95,6 +110,8 @@ export function SumUpPayment({
           checkoutId,
           locale: "fr-FR",
           onResponse: (type) => {
+            if (type === "sent" || type === "auth-screen") setSent(true);
+            if (type === "invalid") setSent(false);
             if (type === "success") void verify();
             if (type === "error" || type === "fail") setState("declined");
           },
@@ -121,6 +138,7 @@ export function SumUpPayment({
       const body = (await response.json()) as { checkoutId?: string };
       if (!response.ok || !body.checkoutId) throw new Error();
       setCheckoutId(body.checkoutId);
+      setSent(false);
       setState("widget");
     } catch {
       setState("error");

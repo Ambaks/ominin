@@ -26,6 +26,7 @@ import type {
   PriceRuleTarget,
   PriceRuleUnit,
   Role,
+  ServiceMode,
   Staff,
 } from "./types";
 
@@ -384,17 +385,21 @@ export interface StaffOrderLine {
 /**
  * Commande prise en salle par un membre de l'équipe (client qui commande
  * directement au serveur). Même RPC que le menu QR : place_order valide
- * articles, stock et options, et ouvre la table si son numéro est nouveau.
- * La commande attend son encaissement ; elle part en cuisine une fois payée.
+ * articles, stock et options, et ouvre la table si son numéro est nouveau —
+ * en fast food, sans table, elle prend son numéro du jour. La commande
+ * attend son encaissement ; elle part en cuisine une fois payée. Rend le
+ * numéro du jour, s'il y en a un.
  */
 export async function createStaffOrder(
-  tableNumber: number,
+  tableNumber: number | null,
   lines: StaffOrderLine[]
-): Promise<void> {
+): Promise<number | undefined> {
   const supabase = createClient();
   const { data: orderId, error } = await supabase.rpc("place_order", {
     p_slug: getState().etablissement.slug,
-    p_table_number: tableNumber,
+    // Nul en fast food (la base y refuse une table) : les types générés
+    // ne connaissent pas d'argument nul.
+    p_table_number: tableNumber as number,
     p_items: lines.map((line) => ({
       item_id: line.itemId,
       quantity: line.quantity,
@@ -403,7 +408,17 @@ export async function createStaffOrder(
   });
   if (error) throw new Error(error.message);
   notifyOrderEvent(orderId, "en_attente");
-  await refreshOrdersNow();
+  // Fast food : le numéro se relit sur la commande — une relecture déjà en
+  // cours rendrait la main avant de l'avoir.
+  if (getState().etablissement.serviceMode !== "fast_food") {
+    await refreshOrdersNow();
+    return undefined;
+  }
+  const [{ data: order }] = await Promise.all([
+    supabase.from("orders").select("order_number").eq("id", orderId).single(),
+    refreshOrdersNow(),
+  ]);
+  return order?.order_number ?? undefined;
 }
 
 export async function updateOrderStatus(
@@ -802,6 +817,7 @@ export type EtablissementInput = Omit<
   | "collectSlotCapacity"
   | "adminPinSet"
   | "paymentPinSet"
+  | "serviceMode"
 >;
 
 export async function updateEtablissement(
@@ -859,6 +875,24 @@ export async function setOnlinePayment(enabled: boolean): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.onlinePayment = enabled;
+  });
+}
+
+/**
+ * Restaurant ou fast food (gérant). Le menu QR suit à sa prochaine
+ * revalidation ; l'espace, tout de suite — les écrans des tables se ferment
+ * ou reviennent avec le choix.
+ */
+export async function setServiceMode(mode: ServiceMode): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("etablissements")
+      .update({ service_mode: mode })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.serviceMode = mode;
   });
 }
 

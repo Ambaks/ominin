@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatPrice } from "@/lib/menu-data";
+import type { CardPhase } from "@/lib/menu/online-payment";
 import { SQUARE_COUNTRY, SQUARE_CURRENCY } from "@/lib/square/config";
 
 /*
@@ -184,6 +185,7 @@ export function SquarePayment({
   total,
   tipAmount,
   onDone,
+  onPhase,
 }: {
   orderId: string;
   locationId: string;
@@ -192,10 +194,15 @@ export function SquarePayment({
   tipAmount: number;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
+  onPhase?: (phase: CardPhase) => void;
 }) {
   // APP_ID est figé au build : son absence est un état de départ, pas un
   // événement à poser depuis l'effet.
   const [state, setState] = useState<PaymentState>(APP_ID ? "loading" : "error");
+  const phase: CardPhase = state === "paying" ? "charging" : state === "paid" ? "paid" : "form";
+  useEffect(() => {
+    onPhase?.(phase);
+  }, [phase, onPhase]);
   // Une tentative refusée démonte le formulaire : « Réessayer » en remonte un
   // neuf, avec un jeton carte neuf (ceux de Square sont à usage unique).
   const [attempt, setAttempt] = useState(0);

@@ -82,7 +82,7 @@ export function CategoryNav({
   }, [activeId]);
 
   return (
-    <nav className={`sticky z-10 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
+    <nav className={`sticky z-20 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
         {/* Le fondu des bords signale le défilement ; la marge intérieure qui
             l'égale garde la première et la dernière pastille hors du fondu
