@@ -38,7 +38,7 @@ export function AccountsTab({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-60 flex-1">
           <p className="font-medium">Instagram &amp; Facebook</p>
           <p className="mt-0.5 text-sm text-muted">
             Une seule autorisation Meta relie toutes les Pages Facebook
@@ -82,8 +82,8 @@ export function AccountsTab({
                     !accounts.some(
                       (other) =>
                         other.brand === brand.id &&
-                        other.platform === account.platform,
-                    ),
+                        other.platform === account.platform
+                    )
                 ).map((brand) => (
                   <option key={brand.id} value={brand.id}>
                     {brand.name}
@@ -115,7 +115,7 @@ export function AccountsTab({
                   accounts.find(
                     (account) =>
                       account.brand === brand.id &&
-                      account.platform === platform.id,
+                      account.platform === platform.id
                   ) ?? null
                 }
                 onChange={onChange}
@@ -216,7 +216,7 @@ function AccountRow({
               },
               account.enabled
                 ? "Compte en pause : l'agent n'y publie plus."
-                : "Compte réactivé.",
+                : "Compte réactivé."
             )
           }
           className={SECONDARY_BUTTON}
@@ -230,7 +230,7 @@ function AccountRow({
               // La suppression emporte les stories déjà préparées pour ce compte.
               if (
                 !window.confirm(
-                  `Retirer @${account.handle} et son historique ?`,
+                  `Retirer @${account.handle} et son historique ?`
                 )
               ) {
                 return;

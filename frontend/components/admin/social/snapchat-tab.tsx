@@ -49,7 +49,11 @@ export function SnapchatTab({
         <div className="flex flex-col gap-3">
           <p className={SECTION_TITLE}>À poster</p>
           {toPost.map((item) => (
-            <ToPostCard key={item.publication.id} item={item} onChange={onChange} />
+            <ToPostCard
+              key={item.publication.id}
+              item={item}
+              onChange={onChange}
+            />
           ))}
         </div>
       )}
@@ -57,7 +61,11 @@ export function SnapchatTab({
         <div className="flex flex-col gap-3">
           <p className={SECTION_TITLE}>Vues à reporter</p>
           {awaitingViews.map((item) => (
-            <ViewsRow key={item.publication.id} item={item} onChange={onChange} />
+            <ViewsRow
+              key={item.publication.id}
+              item={item}
+              onChange={onChange}
+            />
           ))}
         </div>
       )}
@@ -69,8 +77,8 @@ function Heading({ item }: { item: SnapchatItem }) {
   return (
     <div className="min-w-0 flex-1">
       <p className="text-xs text-faint">
-        {formatDay(item.post.postDate)} · {BRAND_BY_ID.get(item.post.brand)?.name}{" "}
-        · @{item.publication.handle}
+        {formatDay(item.post.postDate)} ·{" "}
+        {BRAND_BY_ID.get(item.post.brand)?.name} · @{item.publication.handle}
       </p>
       <p className="font-medium">{item.post.topic}</p>
     </div>

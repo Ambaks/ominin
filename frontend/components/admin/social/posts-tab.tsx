@@ -7,13 +7,15 @@ import type { SocialPost, SocialPublication } from "@/lib/admin/social";
 import { BRAND_BY_ID, PLATFORMS, slideUrl } from "@/lib/social/brands";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
-const STATUS: Record<SocialPublication["status"], { label: string; tone: string }> =
-  {
-    published: { label: "Publié", tone: "text-status-signed" },
-    posted: { label: "Posté", tone: "text-status-signed" },
-    to_post: { label: "À poster", tone: "text-ember-2" },
-    failed: { label: "Échec", tone: "text-status-lost" },
-  };
+const STATUS: Record<
+  SocialPublication["status"],
+  { label: string; tone: string }
+> = {
+  published: { label: "Publié", tone: "text-status-signed" },
+  posted: { label: "Posté", tone: "text-status-signed" },
+  to_post: { label: "À poster", tone: "text-ember-2" },
+  failed: { label: "Échec", tone: "text-status-lost" },
+};
 
 /* Libellés des chiffres renvoyés par Meta (et des vues Snapchat saisies). */
 const METRIC_LABELS: Record<string, string> = {
@@ -59,8 +61,9 @@ export function PostsTab({ posts }: { posts: SocialPost[] }) {
               />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <p className="text-xs text-faint">
-                  {formatDay(post.postDate)} · {BRAND_BY_ID.get(post.brand)?.name}{" "}
-                  · ligne v{post.playbookVersion}
+                  {formatDay(post.postDate)} ·{" "}
+                  {BRAND_BY_ID.get(post.brand)?.name} · ligne v
+                  {post.playbookVersion}
                 </p>
                 <p className="font-medium">{post.topic}</p>
                 <p className="text-sm text-muted">{post.angle}</p>

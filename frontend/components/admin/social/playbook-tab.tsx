@@ -105,7 +105,9 @@ export function PlaybookTab({
                     <button
                       type="button"
                       onClick={() =>
-                        setExpanded(expanded === playbook.id ? null : playbook.id)
+                        setExpanded(
+                          expanded === playbook.id ? null : playbook.id
+                        )
                       }
                       className={SECONDARY_BUTTON}
                     >

@@ -1,16 +1,13 @@
-import type {
-  Slide,
-  SocialBrand,
-  SocialPlatform,
-} from "@/lib/social/brands";
+import type { Slide, SocialBrand, SocialPlatform } from "@/lib/social/brands";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
 
 /*
  * Réseaux sociaux : comptes reliés, publications de l'agent et historique de
- * sa ligne éditoriale. Comme pour Léa, l'admin n'appelle jamais le backend :
- * il lit et écrit sous RLS, et les runs quotidiens relisent la base. Seule la
- * connexion Meta passe par une route serveur — elle manipule des jetons.
+ * sa ligne éditoriale. Comme pour Léa, l'admin lit et écrit sous RLS et les
+ * runs quotidiens relisent la base. Deux gestes passent par une route
+ * serveur parce qu'ils manipulent un secret : la connexion Meta, et le
+ * lancement d'un run à la main.
  */
 
 export interface SocialAccount {
@@ -98,7 +95,9 @@ export async function assignAccountBrand(
   id: string,
   brand: SocialBrand | null
 ): Promise<void> {
-  check(await createClient().from("social_accounts").update({ brand }).eq("id", id));
+  check(
+    await createClient().from("social_accounts").update({ brand }).eq("id", id)
+  );
 }
 
 export async function setAccountEnabled(
@@ -106,7 +105,10 @@ export async function setAccountEnabled(
   enabled: boolean
 ): Promise<void> {
   check(
-    await createClient().from("social_accounts").update({ enabled }).eq("id", id)
+    await createClient()
+      .from("social_accounts")
+      .update({ enabled })
+      .eq("id", id)
   );
 }
 
@@ -194,7 +196,10 @@ export async function fetchPlaybooks(): Promise<SocialPlaybook[]> {
       .order("version", { ascending: false })
   );
   return rows.map((row) => {
-    const findings = (row.findings ?? {}) as Record<string, string[] | undefined>;
+    const findings = (row.findings ?? {}) as Record<
+      string,
+      string[] | undefined
+    >;
     return {
       id: row.id,
       brand: row.brand as SocialBrand,
@@ -227,4 +232,51 @@ export async function restorePlaybook(
         change_summary: `Retour manuel à la version ${playbook.version}.`,
       })
   );
+}
+
+export type SocialJob = "social_post" | "social_research";
+
+export interface SocialRun {
+  job: SocialJob;
+  status: "running" | "succeeded" | "failed";
+  startedAt: string;
+  finishedAt: string | null;
+  error: string | null;
+}
+
+/** Dernier run d'un job, pour l'état affiché à côté de son bouton. */
+export async function fetchLatestSocialRun(
+  job: SocialJob
+): Promise<SocialRun | null> {
+  const { data, error } = await createClient()
+    .from("outreach_runs")
+    .select("status, started_at, finished_at, error")
+    .eq("job", job)
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (
+    data && {
+      job,
+      status: data.status as SocialRun["status"],
+      startedAt: data.started_at,
+      finishedAt: data.finished_at,
+      error: data.error,
+    }
+  );
+}
+
+export async function triggerSocialRun(job: SocialJob): Promise<void> {
+  const response = await fetch("/api/social/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ job }),
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new Error(body.error ?? "Lancement impossible.");
+  }
 }

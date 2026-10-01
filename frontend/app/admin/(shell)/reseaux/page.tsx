@@ -6,6 +6,7 @@ import { ShareIcon } from "@/components/admin/icons";
 import { AccountsTab } from "@/components/admin/social/accounts-tab";
 import { PlaybookTab } from "@/components/admin/social/playbook-tab";
 import { PostsTab } from "@/components/admin/social/posts-tab";
+import { RunPanel } from "@/components/admin/social/run-panel";
 import {
   SnapchatTab,
   type SnapchatItem,
@@ -32,7 +33,10 @@ type TabId = "accounts" | "posts" | "snapchat" | "playbook";
 
 /** Retours du flux OAuth Meta (?meta=…), posés par /api/social/meta/callback. */
 const META_OUTCOMES: Record<string, { ok: boolean; message: string }> = {
-  ok: { ok: true, message: "Comptes Meta reliés — rattache-les à leur marque." },
+  ok: {
+    ok: true,
+    message: "Comptes Meta reliés — rattache-les à leur marque.",
+  },
   vide: {
     ok: false,
     message:
@@ -122,6 +126,8 @@ export default function SocialPage() {
         </div>
       </div>
 
+      <RunPanel onRefresh={reloadPosts} />
+
       <PillTabs
         tabs={[
           { id: "accounts", label: "Comptes", count: unassigned },
@@ -141,7 +147,11 @@ export default function SocialPage() {
         ))}
       {tab === "posts" && (posts ? <PostsTab posts={posts} /> : loading)}
       {tab === "snapchat" &&
-        (posts ? <SnapchatTab items={snapchat} onChange={reloadPosts} /> : loading)}
+        (posts ? (
+          <SnapchatTab items={snapchat} onChange={reloadPosts} />
+        ) : (
+          loading
+        ))}
       {tab === "playbook" &&
         (playbooks ? (
           <PlaybookTab playbooks={playbooks} onChange={reloadPlaybooks} />
