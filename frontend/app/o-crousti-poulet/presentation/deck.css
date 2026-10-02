@@ -1,0 +1,71 @@
+/*
+  La présentation : chaque diapositive est dessinée à 1 920 × 1 080 px. À
+  l'écran, son cadre prend la largeur disponible et la diapositive s'y met à
+  l'échelle — tan(atan2(a, b)) donne le rapport a/b de deux longueurs, sans
+  script. À l'impression (export PDF, scripts/pitch-pdf.mjs), une page par
+  diapositive, à sa taille exacte.
+*/
+@page {
+  size: 1920px 1080px;
+  margin: 0;
+}
+
+.deck {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  background: #0b0c0d;
+}
+
+.deck-frame {
+  container-type: inline-size;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.deck-slide {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--ocp-black);
+  transform-origin: 0 0;
+  scale: tan(atan2(100cqw, 1920px));
+}
+
+@media print {
+  .deck {
+    gap: 0;
+    padding: 0;
+  }
+
+  .deck-frame {
+    border-radius: 0;
+    break-after: page;
+  }
+
+  /* Chrome exporte chaque flou (ombre portée, halo) en image à masque, que
+     l'Aperçu et Quick Look d'Apple affichent en rectangle translucide : le
+     PDF n'en garde aucun. Les appareils retrouvent leur liseré sans flou. */
+  .deck-slide *,
+  .deck-slide *::before,
+  .deck-slide *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .deck-slide :is(.device-phone, .device-tablet, .device-browser) {
+    outline: 1px solid rgba(255, 255, 255, 0.13);
+    outline-offset: -1px;
+  }
+
+  /* Le dégradé découpé dans le texte ne sort pas pareil d'une page à l'autre :
+     le mot-symbole d'Ominin passe en aplat, sa teinte médiane. */
+  .deck-slide .om-wordmark {
+    background: none;
+    color: #e2764b;
+  }
+}

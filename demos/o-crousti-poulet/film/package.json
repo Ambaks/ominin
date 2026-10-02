@@ -1,0 +1,31 @@
+{
+  "name": "o-crousti-film",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio",
+    "render:16x9": "remotion render Film-16x9 out/film-16x9-1080p.mp4",
+    "render:16x9:4k": "remotion render Film-16x9 out/film-16x9-2160p.mp4 --scale=2",
+    "render:9x16": "remotion render Film-9x16 out/film-9x16.mp4",
+    "still": "remotion still",
+    "typecheck": "tsc",
+    "capture": "node scripts/capture.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.530",
+    "@remotion/google-fonts": "4.0.530",
+    "@remotion/media": "4.0.530",
+    "@remotion/transitions": "4.0.530",
+    "qrcode": "1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.530"
+  },
+  "devDependencies": {
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "playwright": "1.63.0",
+    "typescript": "5.9.3"
+  }
+}

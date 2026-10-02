@@ -1,0 +1,357 @@
+{
+  "counter": {
+    "viewport": {
+      "width": 1180,
+      "height": 820
+    },
+    "before": "captures/tablet-counter.webp",
+    "after": "captures/tablet-counter-ready.webp",
+    "tap": {
+      "x": 61,
+      "y": 362,
+      "width": 314,
+      "height": 44
+    },
+    "header": {
+      "x": 41,
+      "y": 77,
+      "width": 354,
+      "height": 108
+    }
+  },
+  "network": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "states": [
+      "captures/desktop-network-1237.webp",
+      "captures/desktop-network-1237-n39.webp"
+    ],
+    "tiles": {
+      "orders": {
+        "x": 24,
+        "y": 134.5625,
+        "width": 456,
+        "height": 181.5
+      },
+      "till": {
+        "x": 496,
+        "y": 134.5625,
+        "width": 456,
+        "height": 181.5
+      },
+      "sales": {
+        "x": 968,
+        "y": 134.5625,
+        "width": 456,
+        "height": 181.5
+      },
+      "feed": {
+        "x": 968,
+        "y": 332.0625,
+        "width": 456,
+        "height": 723.9375
+      },
+      "ranking": {
+        "x": 1440,
+        "y": 332.0625,
+        "width": 456,
+        "height": 723.9375
+      }
+    },
+    "compare": {
+      "x": 645.84375,
+      "y": 206.0625,
+      "width": 109.375,
+      "height": 18
+    },
+    "home": {
+      "before": {
+        "x": 1441,
+        "y": 616.734375,
+        "width": 454,
+        "height": 39.421875
+      },
+      "after": {
+        "x": 1441,
+        "y": 577.3125,
+        "width": 454,
+        "height": 39.421875
+      },
+      "rank": 1481
+    },
+    "fresh": {
+      "x": 969,
+      "y": 394.0625,
+      "width": 454,
+      "height": 73.546875
+    },
+    "rush": {
+      "x": 1441,
+      "y": 813.84375,
+      "width": 454,
+      "height": 39.421875
+    },
+    "surface": "rgb(26, 27, 30)",
+    "freed": "33",
+    "share": "30 %"
+  },
+  "phone": {
+    "viewport": {
+      "width": 393,
+      "height": 798
+    },
+    "orderNumber": 39,
+    "total": "20,00 €",
+    "order": {
+      "at": "12:35",
+      "items": [
+        {
+          "category": "Nos Menus",
+          "name": "Menu Duo",
+          "options": [
+            {
+              "group": "Sauce",
+              "choice": "Sauce Verte"
+            },
+            {
+              "group": "1er accompagnement",
+              "choice": "Potatoes"
+            },
+            {
+              "group": "2e accompagnement",
+              "choice": "Pâtes Crémo"
+            },
+            {
+              "group": "1re canette",
+              "choice": "Pepsi"
+            },
+            {
+              "group": "2e canette",
+              "choice": "7Up"
+            }
+          ]
+        },
+        {
+          "category": "Desserts",
+          "name": "Tarte Daim",
+          "options": []
+        }
+      ]
+    },
+    "menu": {
+      "src": "captures/phone-menu.webp",
+      "height": 1864,
+      "scrollTo": 1066,
+      "composerTap": {
+        "x": 241.28125,
+        "y": 537.265625,
+        "width": 114.71875,
+        "height": 44
+      },
+      "categoryBar": {
+        "x": 0,
+        "y": 285.5625,
+        "width": 393,
+        "height": 59
+      }
+    },
+    "composer": {
+      "sheetTop": 95.765625,
+      "states": [
+        {
+          "screen": "captures/phone-duo-0.webp",
+          "content": "captures/phone-duo-0-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 208.765625,
+            "width": 391,
+            "height": 511.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 100,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 112.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-1.webp",
+          "content": "captures/phone-duo-1-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 208.765625,
+            "width": 391,
+            "height": 511.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 300,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 312.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-2.webp",
+          "content": "captures/phone-duo-2-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 457,
+          "body": {
+            "x": 1,
+            "y": 208.765625,
+            "width": 391,
+            "height": 511.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 864,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 876.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-3.webp",
+          "content": "captures/phone-duo-3-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 657,
+          "body": {
+            "x": 1,
+            "y": 208.765625,
+            "width": 391,
+            "height": 511.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 1012,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 1024.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-4.webp",
+          "content": "captures/phone-duo-4-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 841,
+          "body": {
+            "x": 1,
+            "y": 192.765625,
+            "width": 391,
+            "height": 527.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 1264,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 1276.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-5.webp",
+          "content": "captures/phone-duo-5-body.webp",
+          "contentHeight": 1384,
+          "scrollTop": 841,
+          "body": {
+            "x": 1,
+            "y": 192.765625,
+            "width": 391,
+            "height": 527.234375
+          }
+        }
+      ],
+      "addTap": {
+        "x": 110.984375,
+        "y": 737,
+        "width": 265.015625,
+        "height": 44
+      }
+    },
+    "added": {
+      "duo": "captures/phone-added-duo.webp",
+      "dessert": {
+        "src": "captures/phone-dessert.webp",
+        "scrollTo": 9591,
+        "tap": {
+          "x": 251.390625,
+          "y": 514.5,
+          "width": 104.609375,
+          "height": 44
+        },
+        "price": "3,00 €"
+      },
+      "src": "captures/phone-added.webp",
+      "cartTap": {
+        "x": 16,
+        "y": 725.4375,
+        "width": 361,
+        "height": 56.5625
+      }
+    },
+    "cart": {
+      "src": "captures/phone-cart.webp",
+      "sheetTop": 95.765625,
+      "payTap": {
+        "x": 21,
+        "y": 681,
+        "width": 351,
+        "height": 44
+      }
+    },
+    "ticket": {
+      "sheetTop": 95.765625,
+      "etaBox": {
+        "x": 46,
+        "y": 480.765625,
+        "width": 301,
+        "height": 128.5
+      },
+      "numberBox": {
+        "x": 160.734375,
+        "y": 197.265625,
+        "width": 105.09375,
+        "height": 112
+      },
+      "eta": {
+        "3": "captures/phone-ticket-3.webp",
+        "4": "captures/phone-ticket-4.webp",
+        "5": "captures/phone-ticket-5.webp",
+        "6": "captures/phone-ticket-6.webp"
+      },
+      "ready": "captures/phone-ticket-ready.webp"
+    }
+  }
+}

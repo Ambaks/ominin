@@ -1,0 +1,365 @@
+/*
+  Pitch O'Crousti Poulet (page privée et présentation) : l'identité de
+  l'enseigne — noir d'enseigne, jaune du logo posé à plat, or et citron en
+  rampe — et les marques partagées. Tout est rangé sous .pitch : rien ne
+  déborde sur le reste du site.
+*/
+.pitch {
+  --ocp-black: #131416;
+  --ocp-surface: #1c1d20;
+  --ocp-raised: #26282c;
+  --ocp-yellow: #f7ee21;
+  --ocp-gold: #f2cc12;
+  --ocp-lemon: #fff35c;
+  --ocp-white: #f7f7f2;
+  /* Gris du thème de la carte, éclaircis : projetés, ceux-là se perdaient. */
+  --ocp-muted: #c0c2c6;
+  --ocp-faint: #9d9fa4;
+  --ocp-line: rgba(247, 247, 242, 0.12);
+
+  background-color: var(--ocp-black);
+  color: var(--ocp-white);
+  font-family: var(--font-pitch-poppins), var(--font-instrument-sans), sans-serif;
+  color-scheme: dark;
+}
+
+/* Pas de mot seul en fin de paragraphe ; dans la couche base, pour que les
+   utilitaires (text-balance des titres) gardent la main. */
+@layer base {
+  .pitch :is(p, li, dd) {
+    text-wrap: pretty;
+  }
+}
+
+.pitch ::selection {
+  background: var(--ocp-yellow);
+  color: var(--ocp-black);
+}
+
+.pitch :focus-visible {
+  outline: 2px solid var(--ocp-yellow);
+  outline-offset: 3px;
+}
+
+.font-anton {
+  font-family: var(--font-pitch-anton), sans-serif;
+  font-weight: 400;
+}
+
+/* Le script des titres du panneau-menu, allumé comme un néon. */
+.font-neon {
+  font-family: var(--font-pitch-playball), cursive;
+  font-weight: 400;
+  color: var(--ocp-lemon);
+  text-shadow:
+    0 0 0.08em rgba(255, 243, 92, 0.9),
+    0 0 0.45em rgba(247, 238, 33, 0.45);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 999px;
+  background: var(--ocp-yellow);
+  box-shadow: 0 0 0.6em rgba(247, 238, 33, 0.6);
+}
+
+/* Le mot en aplat jaune, comme sur les écrans-menus. L'aplat couvre les
+   lettres, pas toute la boîte de la police (1,4 em chez Poppins) : sur des
+   titres serrés, il mordait sur la ligne du dessus. */
+.mark {
+  background: linear-gradient(var(--ocp-yellow), var(--ocp-yellow)) 0 85% / 100% 1.2em no-repeat;
+  color: var(--ocp-black);
+  padding: 0 0.12em;
+  margin: 0 -0.03em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* En début de ligne, l'aplat déborde dans la marge : les lettres restent
+   alignées sur celles des lignes au-dessus. */
+.mark-start {
+  margin-left: -0.12em;
+}
+
+/* La lumière chaude de la vitrine, et les bords qui s'assombrissent. */
+.pitch-vignette {
+  background:
+    radial-gradient(60% 55% at 50% 38%, rgba(247, 238, 33, 0.055), transparent 70%),
+    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55));
+}
+
+/* ——— Le verrou de l'enseigne ——————————————————————————————— */
+
+.ocp-lockup-coq {
+  width: auto;
+  translate: -0.935em 0;
+  margin-bottom: -0.1em;
+}
+
+.ocp-lockup-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "name name" "rule tag";
+  align-items: center;
+  gap: 0.075em 0.094em;
+}
+
+.ocp-lockup-name {
+  grid-area: name;
+  display: flex;
+  column-gap: 0.21em;
+  font-family: var(--font-pitch-didact), sans-serif;
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-text-stroke: 0.03em currentColor;
+  paint-order: stroke fill;
+  text-shadow: 0 0 0.45em rgba(255, 255, 255, 0.16);
+}
+
+.ocp-lit {
+  color: var(--ocp-yellow);
+  text-shadow: 0 0 0.45em rgba(247, 238, 33, 0.3);
+}
+
+.ocp-lockup-rule {
+  grid-area: rule;
+  align-self: end;
+  height: 0.12em;
+  margin-bottom: 0.054em;
+  border-radius: 0.02em;
+  background: var(--ocp-yellow);
+  box-shadow: 0 0 0.11em rgba(247, 238, 33, 0.4);
+}
+
+.ocp-lockup-tag {
+  grid-area: tag;
+  font-family: var(--font-pitch-poppins), sans-serif;
+  font-weight: 800;
+  font-size: 0.3em;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #fff;
+}
+
+.om-wordmark {
+  font-family: var(--font-fraunces), serif;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.08em;
+  background-image: linear-gradient(100deg, #f0b35b, #e2764b 55%, #c94f5e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ——— Le ticket ——————————————————————————————————————————— */
+
+.ocp-ticket {
+  --notch: var(--ocp-black);
+  width: 8.6em;
+  padding: 0.62em 0.7em 0.55em;
+  border-radius: 0.34em;
+  background: linear-gradient(165deg, var(--ocp-lemon), var(--ocp-yellow) 42%, var(--ocp-gold));
+  color: var(--ocp-black);
+  box-shadow:
+    0 0.5em 1.4em rgba(0, 0, 0, 0.45),
+    0 0 2.2em rgba(247, 238, 33, 0.16);
+}
+
+.ocp-ticket-label {
+  text-align: center;
+  font-size: 0.25em;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.ocp-ticket-number {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.06em;
+  font-family: var(--font-pitch-anton), sans-serif;
+  font-size: 4.2em;
+  line-height: 1;
+  margin-top: 0.04em;
+}
+
+.ocp-ticket-no {
+  font-family: var(--font-pitch-poppins), sans-serif;
+  font-weight: 800;
+  font-size: 0.2em;
+  margin-top: 0.55em;
+}
+
+.ocp-ticket-tear {
+  position: relative;
+  margin: 0.34em -0.7em 0.4em;
+  border-top: 0.035em dashed rgba(19, 20, 22, 0.35);
+}
+
+.ocp-ticket-tear::before,
+.ocp-ticket-tear::after {
+  content: "";
+  position: absolute;
+  top: -0.2em;
+  width: 0.36em;
+  height: 0.36em;
+  border-radius: 999px;
+  background: var(--notch);
+}
+
+.ocp-ticket-tear::before {
+  left: -0.18em;
+}
+
+.ocp-ticket-tear::after {
+  right: -0.18em;
+}
+
+.ocp-ticket-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.26em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.ocp-ticket-foot svg {
+  height: 2.6em;
+  width: auto;
+}
+
+.ocp-ticket-brand {
+  display: block;
+  font-family: var(--font-pitch-didact), sans-serif;
+  font-size: 1.45em;
+  -webkit-text-stroke: 0.02em currentColor;
+}
+
+/* ——— Appareils ——————————————————————————————————————————— */
+
+.device-phone {
+  padding: 2.4%;
+  border-radius: 13% / 6%;
+  background: linear-gradient(150deg, #3a3c41, #1a1b1e 40%, #0c0c0d);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 1.4em 3em rgba(0, 0, 0, 0.5);
+}
+
+.device-phone-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10.5% / 4.9%;
+  background: var(--ocp-black);
+}
+
+.device-phone-camera {
+  position: absolute;
+  top: 1.3%;
+  left: 50%;
+  width: 3.4%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 999px;
+  background: #050505;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.device-tablet {
+  padding: 1.6%;
+  border-radius: 3.2% / 4.6%;
+  background: linear-gradient(150deg, #34363b, #18191c 45%, #0c0c0d);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.13),
+    0 1.4em 3em rgba(0, 0, 0, 0.5);
+}
+
+.device-tablet-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.8% / 2.6%;
+}
+
+.device-browser {
+  overflow: hidden;
+  border-radius: 0.7em;
+  background: #0c0c0d;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 1.4em 3em rgba(0, 0, 0, 0.5);
+}
+
+.device-browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  height: 2.4em;
+  padding: 0 1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1b1e;
+}
+
+.device-browser-dots {
+  display: flex;
+  gap: 0.4em;
+}
+
+.device-browser-dots span {
+  width: 0.62em;
+  height: 0.62em;
+  border-radius: 999px;
+  background: #3a3c41;
+}
+
+.device-browser-badge {
+  flex-shrink: 0;
+  padding: 0.25em 0.9em;
+  border: 1px solid rgba(247, 238, 33, 0.45);
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: var(--ocp-lemon);
+}
+
+/* Une capture recadrée au-dessus de son bas : elle s'efface au lieu de
+   couper une ligne en deux. */
+.device-screen-fade::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 18%;
+  background: linear-gradient(transparent, #0c0c0d);
+}
+
+.device-browser-url {
+  flex: 1;
+  max-width: 28em;
+  margin: 0 auto;
+  padding: 0.3em 1em;
+  border-radius: 999px;
+  background: #0f1012;
+  font-size: 0.8em;
+  text-align: center;
+  color: var(--ocp-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
