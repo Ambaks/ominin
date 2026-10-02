@@ -16,13 +16,11 @@ import {
   forHeadOffice,
   forRevenue,
   forTeams,
-  growth,
   pageCopy,
   pitchDate,
   pricing,
   promise,
   proposal,
-  rush,
   screens,
   solution,
   sources,
@@ -136,42 +134,6 @@ function CoverSlide(props: SlideProps) {
   );
 }
 
-function GrowthSlide(props: SlideProps) {
-  return (
-    <Slide {...props} eyebrow={growth.eyebrow} note={<Footnote ids={growth.sources} />} rays={{ cx: 50, cy: 120 }}>
-      <h2 className={`mt-[40px] ${titleFull}`}>«&nbsp;{growth.quote}&nbsp;»</h2>
-      <p className="mt-[20px] text-[24px] text-(--ocp-faint)">— {growth.quoteSource}</p>
-      <p className="mt-auto text-[20px] font-bold uppercase tracking-[0.24em] text-(--ocp-faint)">{growth.unit}</p>
-      {/* Chaque flèche au milieu de l'écart entre deux chiffres ; le filet court sous toute la rangée. */}
-      <ol className="mt-[20px] grid grid-cols-[auto_1fr_auto_1fr_auto]">
-        {growth.steps.map((step, i) => (
-          <li key={step.value} className="contents">
-            {i > 0 && (
-              <span aria-hidden className="flex flex-col">
-                <span className="flex h-[246px] items-center justify-center text-[64px] font-light text-(--ocp-yellow)">→</span>
-                <span className="mt-[28px] border-t border-(--ocp-line)" />
-              </span>
-            )}
-            <div>
-              <p
-                className={`font-anton text-[300px] leading-[0.82] tracking-[-0.01em] ${
-                  i === 2 ? "text-(--ocp-yellow)" : i === 0 ? "text-(--ocp-faint)" : ""
-                }`}
-              >
-                {step.value}
-              </p>
-              <p className="mt-[28px] border-t border-(--ocp-line) pt-[22px] text-[28px] font-semibold">{step.label}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-[56px] text-[34px] font-medium text-(--ocp-muted)">
-        À chaque ouverture, la même scène&nbsp;: <span className="text-(--ocp-white)">ballons jaunes, file sur le trottoir.</span>
-      </p>
-    </Slide>
-  );
-}
-
 function PromiseSlide(props: SlideProps) {
   return (
     <Slide {...props} eyebrow={promise.eyebrow} note={<Footnote ids={promise.sources} />} rays={{ cx: 26, cy: 55 }}>
@@ -199,33 +161,6 @@ function PromiseSlide(props: SlideProps) {
         </div>
       </div>
       <p className="mb-[8px] text-[34px] font-medium text-(--ocp-muted)">{promise.closing}</p>
-    </Slide>
-  );
-}
-
-function RushSlide(props: SlideProps) {
-  return (
-    <Slide {...props} eyebrow={rush.eyebrow} note={<Footnote ids={rush.sources} />} rays={{ cx: 22, cy: 52 }}>
-      <div className="grid flex-1 grid-cols-[820px_1fr] items-center gap-[80px]">
-        <div>
-          <p className="whitespace-nowrap font-anton text-[250px] leading-[0.85] tracking-[-0.01em]">
-            {rush.clock}
-            <span className="ml-[8px] inline-block size-[44px] bg-(--ocp-yellow) align-baseline" aria-hidden />
-          </p>
-          <p className="font-neon mt-[36px] text-[92px] leading-none">{rush.neon}</p>
-        </div>
-        <div>
-          <h2 className="eyebrow text-[20px] text-(--ocp-muted)">{rush.evidence}</h2>
-          <ul className="mt-[24px] flex flex-col">
-            {rush.items.map((item) => (
-              <li key={item.key} className="border-t border-(--ocp-line) py-[24px]">
-                <p className="text-[30px] font-bold">{item.key}</p>
-                <p className="mt-[6px] text-[23px] leading-[1.45] text-(--ocp-muted)">{item.text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
     </Slide>
   );
 }
@@ -630,9 +565,7 @@ function SourcesSlide(props: SlideProps) {
 
 const SLIDES = [
   CoverSlide,
-  GrowthSlide,
   PromiseSlide,
-  RushSlide,
   WalkAwaySlide,
   SolutionSlide,
   CustomersSlide,

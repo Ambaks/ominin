@@ -16,6 +16,8 @@
   --ocp-muted: #c0c2c6;
   --ocp-faint: #9d9fa4;
   --ocp-line: rgba(247, 247, 242, 0.12);
+  /* Le noir des bords du film : ses bandes se fondent dans l'écran. */
+  --ocp-film: #0f0f11;
 
   background-color: var(--ocp-black);
   color: var(--ocp-white);
@@ -362,4 +364,73 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ——— Le film d'ouverture ———————————————————————————————————————————
+   Caché tant que le script en ligne de FilmOpener n'a pas posé
+   html[data-ocp-film] : sans JavaScript, ou à la visite suivante, la page
+   s'affiche seule. Pendant le film, la page ne défile pas. */
+.ocp-opener {
+  display: none;
+  touch-action: none;
+}
+
+:root:is([data-ocp-film="intro"], [data-ocp-film="sortie"]) .ocp-opener {
+  display: flex;
+}
+
+:root[data-ocp-film="intro"] {
+  overflow: hidden;
+}
+
+/* Le film en 16:9 remplit l'écran tant que le recadrage reste léger (12 %
+   au plus) ; au-delà — téléphone tenu droit, tablette —, il tient entier. */
+@media (min-aspect-ratio: 14/9) and (max-aspect-ratio: 2/1) {
+  .ocp-opener-wide {
+    object-fit: cover;
+  }
+}
+
+/* Téléphone tenu droit, plus étroit que le 9:16 : le film laisse une bande en
+   haut et en bas. Un fondu sur sa lisière l'y fait entrer sans trait. */
+.ocp-opener-feather {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-aspect-ratio: 9/16) {
+  .ocp-opener-feather {
+    display: block;
+    position: absolute;
+    inset-inline: 0;
+    height: 18vw;
+    pointer-events: none;
+    background: linear-gradient(var(--ocp-film) 4px, transparent);
+  }
+
+  .ocp-opener-feather:first-of-type {
+    top: calc(50dvh - 88.9vw - 2px);
+  }
+
+  .ocp-opener-feather:last-of-type {
+    bottom: calc(50dvh - 88.9vw - 2px);
+    rotate: 180deg;
+  }
+}
+
+/* « Passer » a le focus dès l'ouverture ; son contour attend une première
+   touche du clavier (data-clavier), sinon il ferait un second jaune à l'écran. */
+.ocp-opener:not([data-clavier]) :focus-visible {
+  outline: none;
+}
+
+.ocp-opener[data-leaving] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocp-opener[data-leaving] {
+    transition-duration: 120ms;
+  }
 }

@@ -28,6 +28,9 @@ export const pilot = { days: 30 };
  */
 export const filmSrc: string | null = "/pitch/o-crousti-poulet/film.mp4";
 
+/** Le même film en 9:16, pour l'ouverture sur un téléphone tenu droit. */
+export const filmVerticalSrc = "/pitch/o-crousti-poulet/film-vertical.mp4";
+
 /** Le PDF de la présentation ; null ⇒ lien vers la version web. */
 export const deckPdfHref: string | null = "/pitch/o-crousti-poulet/o-crousti-poulet-ominin.pdf";
 
@@ -236,6 +239,7 @@ export const screens = {
   comptoir: { src: shot("comptoir-service"), alt: "L’écran du comptoir : les commandes du coup de feu, les boutons Marquer prête et Remettre" },
   reseau: { src: shot("reseau-siege"), alt: "La vue réseau du siège : restaurants en rush, commandes en direct et classement des 40 restaurants" },
   poster: { src: shot("film-poster"), alt: "12:30. Et la file s’allonge." },
+  posterVertical: { src: shot("film-poster-vertical"), alt: "12:30. Et la file s’allonge." },
 } as const;
 
 /** Dimensions en pixels CSS des captures (téléphone à 3×, le reste à 2×). */
@@ -259,11 +263,6 @@ export const sources = {
     full: "ocroustipouletoriginal.com\u00a0— Nos restaurants, Notre histoire, Devenir franchisé (consulté le 29/09/2026)",
     url: "https://ocroustipouletoriginal.com/nos-restaurants",
   },
-  linkedin: {
-    short: "LinkedIn, Achraf Ben Taleb et O’Crousti Poulet Original, 23/08, 19/09 et 28/09/2026",
-    full: "LinkedIn\u00a0— O’Crousti Poulet Original et Achraf Ben Taleb, publications des 23/08, 19/09 et 28/09/2026",
-    url: "https://www.linkedin.com/company/o-crousti-poulet-original/",
-  },
   linkedinAbout: {
     short: "LinkedIn, O’Crousti Poulet Original (page «\u00a0À propos\u00a0»)",
     full: "LinkedIn\u00a0— O’Crousti Poulet Original, page «\u00a0À propos\u00a0», consultée le 29/09/2026",
@@ -277,11 +276,6 @@ export const sources = {
   reviews: {
     short: "Relevé Ominin des avis Google, 29/09/2026",
     full: "Relevé Ominin des fiches Google Maps du réseau, 29/09/2026\u00a0— note et nombre d’avis de 35 restaurants (Lyon Vaise et Toulouse exclus\u00a0: avis hérités d’un commerce précédent)\u00a0; lecture d’au plus 5 avis «\u00a0les plus pertinents\u00a0» par restaurant (3 à Mâcon et Palavas), 34 restaurants\u00a0: 166 avis",
-  },
-  actu: {
-    short: "actu.fr, Nîmes, 04/06/2026",
-    full: "actu.fr\u00a0— ouverture du restaurant de Nîmes, 4 juin 2026",
-    url: "https://actu.fr/occitanie/nimes_30189/on-n-a-pas-une-minute-de-pause-ouvert-il-y-a-quelques-jours-ce-fast-food-ou-le-poulet-est-roi-fait-fureur-a-nimes_64350769.html",
   },
   akto: {
     short: "AKTO / Toluna-Harris Interactive, 2024",
@@ -349,20 +343,6 @@ export const cover = {
   lead: "Vos clients commandent et paient depuis la file\u00a0; le ticket sort en cuisine. Sans changer de caisse.",
 };
 
-export const growth = {
-  eyebrow: "Ce que vous avez bâti",
-  quote: "Ça défile dès le premier jour.",
-  quoteSource: "ocroustipouletoriginal.com",
-  unit: "Restaurants",
-  steps: [
-    { value: "15", label: "mi-janvier 2026" },
-    { value: "40", label: "aujourd’hui" },
-    { value: "50", label: "visés d’ici décembre" },
-  ],
-  scene: "À chaque ouverture, la même scène\u00a0: ballons jaunes, file sur le trottoir.",
-  sources: ["linkedin", "site"] as SourceId[],
-};
-
 export const promise = {
   eyebrow: "Votre promesse",
   slogan: ["Vite, oui.", "Mais bien."],
@@ -370,39 +350,11 @@ export const promise = {
   rating: { value: "4,67", label: `de moyenne sur ${thousands(6841)} avis Google (35\u00a0fiches relevées)` },
   speed: {
     value: "18\u00a0%",
-    label: "des avis étudiés saluent la rapidité\u00a0: quatre fois plus que ceux qui se plaignent d’attendre.",
-    detail: "30 contre 7, sur 166 avis",
+    label: "des avis étudiés saluent la rapidité.",
+    detail: "30 avis sur 166",
   },
   closing: "Le rush met cette promesse à l’épreuve.",
-  sources: ["reviews"] as SourceId[],
-};
-
-export const rush = {
-  eyebrow: "Le coup de feu",
-  clock: "12\u00a0h\u00a030",
-  neon: "Et la file s’allonge.",
-  evidence: "Ce que montrent les avis et la presse",
-  items: [
-    {
-      figure: "Plus de\u00a020",
-      key: "Pas une minute de pause",
-      text: "À Nîmes, la presse locale décrit un équipier qui enchaîne plus de 20 clients en une vingtaine de minutes.",
-      detail: "clients en une vingtaine de minutes pour un seul équipier, à Nîmes, selon la presse locale.",
-    },
-    {
-      figure: "7\u00a0sur\u00a0166",
-      key: "Des attentes rares, mais sévères",
-      text: "7 avis sur 166 se plaignent d’une attente, dont 5 notés une ou deux étoiles\u00a0; trois évoquent une demi-heure ou plus, dont un plus d’une\u00a0heure.",
-      detail: "avis se plaignent d’une attente, dont 5 notés une ou deux étoiles\u00a0; trois évoquent une demi-heure ou plus, dont un plus d’une\u00a0heure.",
-    },
-    {
-      figure: "6\u00a0sur\u00a0166",
-      key: "Un détail peut sauter",
-      text: "6 avis sur 166 signalent une commande incomplète ou erronée\u00a0: des ailes au lieu des pilons, une sauce oubliée.",
-      detail: "avis signalent une commande incomplète ou erronée\u00a0: des ailes au lieu des pilons, une sauce oubliée.",
-    },
-  ],
-  sources: ["reviews", "actu"] as SourceId[],
+  sources: ["site", "reviews"] as SourceId[],
 };
 
 export const walkAway = {
@@ -660,14 +612,22 @@ export const pageCopy = {
     { value: "1", label: `restaurant pilote, ${pilot.days}\u00a0jours, matériel\u00a0fourni` },
   ],
   tryDemo: "Essayer la démo",
-  rushTitle: "Le rush, vu de la file.",
   sourcesToggle: "Sources et méthode",
   demoEyebrow: "Essayez la démo",
   demoTitle: "Votre carte, prête à tester.",
   demoLead:
     "La carte nationale, vos menus, vos boissons PepsiCo\u00a0: ouvrez-la comme un client, puis passez de l’autre côté du comptoir.",
   demoScan: "Scannez avec votre téléphone",
-  openDemo: "Ouvrir la démo →",
+  demoOpen: "Ouvrir la démo",
+  demoLive: "Démos en ligne, sur données de démonstration\u00a0: chacune s’ouvre dans un nouvel onglet.",
+  newTab: "(nouvel onglet)",
+  opener: {
+    label: "Le film d’O’Crousti Poulet × Ominin",
+    skip: "Passer",
+    soundOn: "Activer le son",
+    soundOff: "Couper le son",
+    play: "Lancer le film",
+  },
   demoShort: "La démo",
   ctaDeck: "Télécharger la présentation (PDF)",
   ctaDeckWeb: "Voir la présentation",

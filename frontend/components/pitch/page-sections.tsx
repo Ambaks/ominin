@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { OmininMark, PartnerMarks, Rays, TicketCard } from "@/components/pitch/brand";
 import { buttonPrimary, buttonSecondary } from "@/components/pitch/buttons";
 import { BrowserFrame, PhoneFrame, TabletFrame } from "@/components/pitch/devices";
+import { FilmOpener } from "@/components/pitch/film-opener";
 import { FilmPlayer } from "@/components/pitch/film-player";
 import { MobileContactBar } from "@/components/pitch/mobile-contact-bar";
 import { QrCode } from "@/components/pitch/qr-code";
@@ -15,16 +16,15 @@ import {
   deployment,
   etaNotice,
   filmSrc,
+  filmVerticalSrc,
   forCustomers,
   forHeadOffice,
   forRevenue,
   forTeams,
-  growth,
   pageCopy,
   pricing,
   promise,
   proposal,
-  rush,
   screens,
   solution,
   sources,
@@ -65,6 +65,18 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
     <section id={id} className={`relative scroll-mt-4 border-t border-(--ocp-line) py-14 md:py-24 ${className}`}>
       {children}
     </section>
+  );
+}
+
+/** La flèche des liens qui ouvrent une démo dans un nouvel onglet, et son équivalent lu. */
+function NewTab({ className = "" }: { className?: string }) {
+  return (
+    <>
+      <svg viewBox="0 0 24 24" aria-hidden className={`size-4 shrink-0 fill-none stroke-current ${className}`} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 17 17 7M9 7h8v8" />
+      </svg>
+      <span className="sr-only">{pageCopy.newTab}</span>
+    </>
   );
 }
 
@@ -138,6 +150,7 @@ function Demo() {
           <Eyebrow>{pageCopy.demoEyebrow}</Eyebrow>
           <h2 className={`${h2} mt-4`}>{pageCopy.demoTitle}</h2>
           <p className={`${lead} mt-5 max-w-2xl`}>{pageCopy.demoLead}</p>
+          {/* Chaque carte est un seul lien vers sa démo en ligne : le bouton jaune le dit, la carte entière réagit. */}
           <ul className="mt-8 flex flex-col gap-3">
             {demos.map((demo) => (
               <li key={demo.id}>
@@ -145,22 +158,31 @@ function Demo() {
                   href={demo.href}
                   target="_blank"
                   rel="noopener"
-                  className="group flex items-center gap-5 rounded-2xl border border-(--ocp-line) bg-(--ocp-surface) px-5 py-4 transition-colors hover:border-(--ocp-yellow)"
+                  aria-label={`${demo.label}, ${demo.title} : ${pageCopy.demoOpen.toLowerCase()} ${pageCopy.newTab}`}
+                  className="group flex cursor-pointer flex-col gap-4 rounded-2xl border border-(--ocp-line) bg-(--ocp-surface) p-5 transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-(--ocp-yellow) hover:bg-(--ocp-raised) focus-visible:border-(--ocp-yellow) active:translate-y-0 active:scale-[0.99] sm:flex-row sm:items-center sm:gap-6"
                 >
-                  <span className="flex min-w-0 flex-1 flex-col md:flex-row md:items-baseline md:gap-4">
-                    <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.2em] text-(--ocp-yellow) md:w-32">{demo.label}</span>
-                    <span className="min-w-0">
-                      <span className="block text-lg font-bold leading-snug">{demo.title}</span>
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-(--ocp-yellow)">
+                      <span aria-hidden className="size-1.5 rounded-full bg-(--ocp-yellow) shadow-[0_0_8px_var(--ocp-yellow)]" />
+                      {demo.label}
+                    </span>
+                    <span className="mt-2 min-w-0">
+                      <span className="block text-balance text-lg font-bold leading-snug">{demo.title}</span>
                       <span className="block text-sm leading-relaxed text-(--ocp-muted)">{demo.description}</span>
                     </span>
                   </span>
-                  <span aria-hidden className="text-xl text-(--ocp-yellow) transition-transform group-hover:translate-x-1">
-                    →
+                  <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-stretch rounded-full bg-(--ocp-yellow) px-5 text-sm font-bold text-(--ocp-black) transition-colors group-hover:bg-(--ocp-lemon) sm:self-center">
+                    {pageCopy.demoOpen}
+                    <NewTab className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </span>
                 </a>
               </li>
             ))}
           </ul>
+          <p className="mt-3 flex items-center gap-2 text-xs text-(--ocp-faint)">
+            <span aria-hidden className="size-1.5 rounded-full bg-(--ocp-yellow)" />
+            {pageCopy.demoLive}
+          </p>
         </div>
         <div className="hidden flex-col items-center lg:flex">
           <div className="rounded-[28px] bg-(--ocp-yellow) p-7 text-(--ocp-black) shadow-[0_0_80px_rgba(247,238,33,0.15)]">
@@ -177,31 +199,6 @@ function Demo() {
 function Story() {
   return (
     <>
-      <Section>
-        <div className={container}>
-          <Eyebrow>{growth.eyebrow}</Eyebrow>
-          <h2 className={`${h2} mt-4`}>«&nbsp;{growth.quote}&nbsp;»</h2>
-          <p className="mt-3 text-sm text-(--ocp-faint)">— {growth.quoteSource}</p>
-          <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.24em] text-(--ocp-faint) md:mt-14 md:text-xs">{growth.unit}</p>
-          <ol className="mt-3 grid grid-cols-3 gap-4 md:gap-10">
-            {growth.steps.map((step, i) => (
-              <li key={step.value}>
-                <p
-                  className={`font-anton text-[64px] leading-[0.85] sm:text-[110px] lg:text-[170px] ${
-                    i === 2 ? "text-(--ocp-yellow)" : i === 0 ? "text-(--ocp-faint)" : ""
-                  }`}
-                >
-                  {step.value}
-                </p>
-                <p className="mt-3 border-t border-(--ocp-line) pt-3 text-sm font-semibold leading-snug md:text-lg">{step.label}</p>
-              </li>
-            ))}
-          </ol>
-          <p className={`${lead} mt-10`}>{growth.scene}</p>
-          <SourceNote ids={growth.sources} className="mt-5" />
-        </div>
-      </Section>
-
       <Section className="overflow-hidden">
         <Rays cx={20} cy={40} className="opacity-70" />
         <div className={`${container} relative`}>
@@ -233,26 +230,6 @@ function Story() {
         <div className={`${container} relative`}>
           <p className={`${lead} mt-12`}>{promise.closing}</p>
           <SourceNote ids={promise.sources} className="mt-5" />
-        </div>
-      </Section>
-
-      <Section>
-        <div className={container}>
-          <Eyebrow>{rush.eyebrow}</Eyebrow>
-          <h2 className={`${h2} mt-4`}>{pageCopy.rushTitle}</h2>
-          <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.2em] text-(--ocp-faint)">{rush.evidence}</p>
-          <ul className="mt-4 grid gap-4 md:grid-cols-3 md:gap-6">
-            {rush.items.map((item) => (
-              <li key={item.key} className="rounded-3xl bg-(--ocp-surface) p-6">
-                <p className="text-lg font-bold md:min-h-14">{item.key}</p>
-                <p className="mt-3 leading-relaxed text-(--ocp-muted)">
-                  <span className="mr-2 font-anton text-4xl leading-none text-(--ocp-white)">{item.figure}</span>
-                  {item.detail}
-                </p>
-              </li>
-            ))}
-          </ul>
-          <SourceNote ids={rush.sources} className="mt-4" />
         </div>
       </Section>
 
@@ -395,8 +372,9 @@ function Benefits() {
             ))}
             <p className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-(--ocp-faint)">
               {forTeams.caption}
-              <a href={demos[1].href} target="_blank" rel="noopener" className="text-sm font-semibold text-(--ocp-yellow)">
-                {pageCopy.openDemo}
+              <a href={demos[1].href} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--ocp-yellow)">
+                {pageCopy.demoOpen}
+                <NewTab />
               </a>
             </p>
             <p className="mt-8 max-w-3xl border-t border-(--ocp-line) pt-5 text-sm leading-relaxed text-(--ocp-muted)">{forTeams.simple}</p>
@@ -431,8 +409,9 @@ function Benefits() {
             ))}
             <p className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-(--ocp-faint)">
               <span className="lg:hidden">{forHeadOffice.rushKey}</span>
-              <a href={demos[2].href} target="_blank" rel="noopener" className="text-sm font-semibold text-(--ocp-yellow)">
-                {pageCopy.openDemo}
+              <a href={demos[2].href} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--ocp-yellow)">
+                {pageCopy.demoOpen}
+                <NewTab />
               </a>
             </p>
           </div>
@@ -689,6 +668,15 @@ function Footer() {
 export function PitchPage() {
   return (
     <>
+      {filmSrc && (
+        <FilmOpener
+          wide={filmSrc}
+          vertical={filmVerticalSrc}
+          poster={screens.poster.src}
+          posterVertical={screens.posterVertical.src}
+          copy={pageCopy.opener}
+        />
+      )}
       <MobileContactBar watch="hero-actions" demoHref="#demo" demoLabel={pageCopy.demoShort} mailHref={contact.mailto} mailLabel={closing.mail} />
       <main className="flex-1">
         <Hero />

@@ -5424,9 +5424,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/film-player.tsx": {
-    "mtime": 1790715286.0,
-    "seen": 1790956071.498302,
-    "ast_hash": "529b6dc84a40ca037c09f81d955bc2d5",
+    "mtime": 1790966026.9182956,
+    "seen": 1790966605.8602939,
+    "ast_hash": "7fe8f32543576420ecb0b51f2212bc61",
     "semantic_hash": ""
   },
   "frontend/components/pitch/fonts.ts": {
@@ -5442,9 +5442,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/page-sections.tsx": {
-    "mtime": 1790962151.6778247,
-    "seen": 1790962204.2307642,
-    "ast_hash": "50f83028a4ae04bf45098fcb9aee1408",
+    "mtime": 1790966306.7893565,
+    "seen": 1790966605.860296,
+    "ast_hash": "3c96d7655246100a183d15f0abd6c650",
     "semantic_hash": ""
   },
   "frontend/components/pitch/qr-code.tsx": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/slides.tsx": {
-    "mtime": 1790962060.6064951,
-    "seen": 1790962204.230766,
-    "ast_hash": "644173ebb6f077189b7f02366c655a34",
+    "mtime": 1790965558.6921697,
+    "seen": 1790966605.860297,
+    "ast_hash": "eabc2405f05015016a70ee8cd466267b",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/carte.ts": {
@@ -5484,9 +5484,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/o-crousti-poulet.ts": {
-    "mtime": 1790962060.6051407,
-    "seen": 1790962204.230927,
-    "ast_hash": "1041d221749684b1427d05aa7cb7fe05",
+    "mtime": 1790966437.4211917,
+    "seen": 1790966605.860394,
+    "ast_hash": "476744a21334fa1f3670841cedbb43cd",
     "semantic_hash": ""
   },
   "frontend/scripts/pitch-pdf.mjs": {
@@ -5826,15 +5826,33 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/o-crousti-poulet/o-crousti-poulet-ominin.pdf": {
-    "mtime": 1790962195.2372258,
-    "seen": 1790962204.231086,
-    "ast_hash": "41cf18dc52a7fad2d090a759b271cdc4",
+    "mtime": 1790966591.765777,
+    "seen": 1790966605.860527,
+    "ast_hash": "563ac25f895e2e64a90694c3a2c4a981",
     "semantic_hash": ""
   },
   "frontend/public/pitch/o-crousti-poulet/film.mp4": {
     "mtime": 1790956633.7778463,
     "seen": 1790957876.664727,
     "ast_hash": "65ca0047552bde5779fc76cbe0f74183",
+    "semantic_hash": ""
+  },
+  "frontend/components/pitch/film-opener.tsx": {
+    "mtime": 1790966306.7883081,
+    "seen": 1790966605.8602931,
+    "ast_hash": "cb0383beddf4ffd3916973a22ddec7c9",
+    "semantic_hash": ""
+  },
+  "frontend/public/pitch/o-crousti-poulet/film-poster-vertical.webp": {
+    "mtime": 1790964511.8134563,
+    "seen": 1790966605.860578,
+    "ast_hash": "fb8ec01a9deef68b87c7b09ecae37268",
+    "semantic_hash": ""
+  },
+  "frontend/public/pitch/o-crousti-poulet/film-vertical.mp4": {
+    "mtime": 1790964260.3125184,
+    "seen": 1790966605.860598,
+    "ast_hash": "0b9f280670f35b7374ad61397e8c2233",
     "semantic_hash": ""
   }
 }
