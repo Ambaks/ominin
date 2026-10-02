@@ -124,14 +124,18 @@ function Popover({ id, title, children }: { id: string; title: string; children:
 }
 
 /** Les conditions, telles que le siège les lira partout : conclusion et fenêtre du bandeau. */
-function Terms({ rate, aside }: { rate: string; aside?: React.ReactNode }) {
+function Terms({ rate, aside }: { rate: React.ReactNode; aside?: React.ReactNode }) {
   return (
     <>
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <dl className="grid flex-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-3 lg:max-w-3xl">
+        <dl className="grid flex-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-[1fr_1.6fr_1fr] lg:max-w-3xl">
           {[
             { value: "0", unit: "€", label: "d’abonnement" },
-            { value: rate, unit: "%", label: "du montant des commandes payées en ligne, rien sur celles réglées en caisse" },
+            {
+              value: rate,
+              unit: "%",
+              label: "des commandes payées en ligne, dégressif selon le chiffre d’affaires (paliers fixés ensemble) ; rien sur celles réglées en caisse",
+            },
             { value: "1", unit: "pilote", label: "dans le restaurant de votre choix, équipé par Ominin" },
           ].map((term) => (
             <div key={term.label}>
@@ -364,7 +368,14 @@ export function NetworkDashboard({
   const weekday = WEEKDAYS[sim.weekday];
   // Heure imposée (film, lien de démonstration) : la journée simulée dit son nom.
   const dayLabel = clock.follow ? "Aujourd’hui" : `${capitalize(weekday)} simulé`;
-  const rate = formatNumber(offer.commissionPercent);
+  // La commission, dégressive selon le chiffre d'affaires : « 1 à 3 % ».
+  const rate = (
+    <>
+      {formatNumber(offer.commissionPercent.min)}
+      <span className="mx-1.5 text-[0.6em] text-muted">à</span>
+      {formatNumber(offer.commissionPercent.max)}
+    </>
+  );
   const assumptions = [
     "Restaurants, adresses et horaires : les vôtres ; carte et prix : votre carte nationale.",
     `Volumes calés sur votre CA moyen annoncé (${fixture.announcedRevenue}), selon le jour de la semaine et les pointes du midi et du soir.`,

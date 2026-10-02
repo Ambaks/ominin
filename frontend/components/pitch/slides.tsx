@@ -127,8 +127,8 @@ function CoverSlide(props: SlideProps) {
       <ul className="mt-[48px] flex justify-between gap-[48px] border-t border-(--ocp-line) pt-[28px]">
         {pageCopy.heroFacts.map((fact) => (
           <li key={fact.label} className="flex items-center gap-[20px]">
-            <span className="font-anton text-[60px] leading-none text-(--ocp-yellow)">{fact.value}</span>
-            <span className="max-w-[320px] text-[21px] font-medium leading-[1.3]">{fact.label}</span>
+            <span className="whitespace-nowrap font-anton text-[60px] leading-none text-(--ocp-yellow)">{fact.value}</span>
+            <span className="max-w-[420px] text-[21px] font-medium leading-[1.3]">{fact.label}</span>
           </li>
         ))}
       </ul>
@@ -370,6 +370,7 @@ function RevenueSlide(props: SlideProps) {
       <p className="mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--ocp-muted)">{forRevenue.mechanism}</p>
       <div className="my-auto rounded-[28px] border-[2px] border-dashed border-(--ocp-yellow)/45 px-[48px] py-[40px]">
         <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--ocp-lemon)">{forRevenue.illustrationLabel}</p>
+        <p className="mt-[8px] text-[21px] text-(--ocp-muted)">{forRevenue.rateNote}</p>
         <ol className="mt-[24px] grid grid-cols-3 gap-[56px]">
           {forRevenue.sum.map((term) => (
             <li key={term.value}>
@@ -445,16 +446,17 @@ function PriceSlide(props: SlideProps) {
   const { example } = pricing;
   return (
     <Slide {...props} eyebrow={pricing.eyebrow} note={<Footnote ids={pricing.sources} />} rays={{ cx: 16, cy: 30 }}>
-      <h2 className="mt-[12px] whitespace-nowrap text-[76px] font-extrabold leading-[1.04] tracking-[-0.04em]">
+      <h2 className="mt-[12px] whitespace-nowrap text-[72px] font-extrabold leading-[1.04] tracking-[-0.04em]">
         <span className="block">{pricing.headline.subscription}</span>
         <span className="block">
-          <span className="mark mark-start">{pricing.headline.commission}</span> {pricing.headline.basis}
+          <span className="mark mark-start [word-spacing:0.12em]">{pricing.headline.commission}</span> {pricing.headline.basis}
         </span>
       </h2>
-      <p className="mt-[36px] max-w-[1600px] text-[25px] font-medium leading-[1.4] text-(--ocp-muted)">{pricing.lead}</p>
+      <p className="mt-[24px] max-w-[1600px] text-[25px] font-medium leading-[1.4] text-(--ocp-muted)">{pricing.lead}</p>
       <div className="my-auto grid grid-cols-[560px_1fr] items-start gap-[64px]">
         <div className="rounded-[28px] bg-(--ocp-surface) px-[40px] py-[32px]">
           <p className="text-[24px] font-semibold">{example.label}</p>
+          <p className="mt-[2px] text-[19px] text-(--ocp-lemon)">{example.rateNote}</p>
           <dl className="mt-[18px] flex flex-col gap-[10px] text-[23px]">
             {example.lines.map((line) => (
               <div key={line.label} className="flex justify-between gap-[24px] text-(--ocp-muted)">

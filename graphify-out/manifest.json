@@ -5352,9 +5352,9 @@
     "semantic_hash": ""
   },
   "frontend/components/demo/reseau/dashboard.tsx": {
-    "mtime": 1790876320.9230318,
-    "seen": 1790956071.498241,
-    "ast_hash": "534ed6d1d349745c727afe5fc358295b",
+    "mtime": 1790962060.608083,
+    "seen": 1790962204.230665,
+    "ast_hash": "085db93b07dbb11a55e083ea527996c2",
     "semantic_hash": ""
   },
   "frontend/components/demo/reseau/figure.tsx": {
@@ -5442,9 +5442,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/page-sections.tsx": {
-    "mtime": 1790885379.5595572,
-    "seen": 1790956071.498304,
-    "ast_hash": "0fdd65c5b3a9f8b97fe502f8dde901d2",
+    "mtime": 1790962151.6778247,
+    "seen": 1790962204.2307642,
+    "ast_hash": "50f83028a4ae04bf45098fcb9aee1408",
     "semantic_hash": ""
   },
   "frontend/components/pitch/qr-code.tsx": {
@@ -5454,9 +5454,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/slides.tsx": {
-    "mtime": 1790885461.671688,
-    "seen": 1790956071.498305,
-    "ast_hash": "89618baecaa6dd9495f4ff1c8a64c0d1",
+    "mtime": 1790962060.6064951,
+    "seen": 1790962204.230766,
+    "ast_hash": "644173ebb6f077189b7f02366c655a34",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/carte.ts": {
@@ -5484,9 +5484,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/o-crousti-poulet.ts": {
-    "mtime": 1790956528.5435507,
-    "seen": 1790957876.664521,
-    "ast_hash": "1f95d25fbb324e313c1d454049883b31",
+    "mtime": 1790962060.6051407,
+    "seen": 1790962204.230927,
+    "ast_hash": "1041d221749684b1427d05aa7cb7fe05",
     "semantic_hash": ""
   },
   "frontend/scripts/pitch-pdf.mjs": {
@@ -5826,9 +5826,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/o-crousti-poulet/o-crousti-poulet-ominin.pdf": {
-    "mtime": 1790956518.6860585,
-    "seen": 1790957876.6646552,
-    "ast_hash": "2bc9ecd8b2e138f449429c8473a2acb2",
+    "mtime": 1790962195.2372258,
+    "seen": 1790962204.231086,
+    "ast_hash": "41cf18dc52a7fad2d090a759b271cdc4",
     "semantic_hash": ""
   },
   "frontend/public/pitch/o-crousti-poulet/film.mp4": {

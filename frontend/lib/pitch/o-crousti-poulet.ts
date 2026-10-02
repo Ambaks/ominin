@@ -41,13 +41,15 @@ export const pitchDate = "octobre 2026";
 
 /*
  * Offre propre à ce réseau, décidée par le propriétaire : ni abonnement ni
- * plafond, une commission sur les commandes payées en ligne, un pilote
- * entièrement fourni. Au déploiement, chaque restaurant règle sa mise en
+ * plafond, une commission sur les commandes payées en ligne, dégressive selon
+ * le chiffre d'affaires du restaurant (paliers fixés avec le réseau, non
+ * publiés), un pilote entièrement fourni. Les calculs affichés prennent le
+ * taux maximal : ce qu'un restaurant paie au plus. Au déploiement, chaque restaurant règle sa mise en
  * place : le boîtier et la livraison de la commande de démarrage
  * (starterKit) ; les supports QR se chiffrent avec le réseau.
  */
 export const offer = {
-  commissionPercent: 3,
+  commissionPercent: { min: 1, max: 3 },
   setupFee: [starterKit.omilink, starterKit.shipping],
 } as const;
 
@@ -109,6 +111,12 @@ export const euros = (amount: number) =>
 export const percent = (value: number) =>
   `${value.toLocaleString("fr-FR")}\u00a0%`;
 
+/** « 1 à 3 % » : la commission, du palier le plus bas au plus haut. */
+export const commissionRange = `${offer.commissionPercent.min.toLocaleString("fr-FR")}\u00a0à\u00a0${percent(offer.commissionPercent.max)}`;
+
+/** « 3 % », le taux de tous les calculs affichés. */
+const maxRate = percent(offer.commissionPercent.max);
+
 const thousands = (value: number) => value.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
 
 // ——— Calculs affichés ————————————————————————————————————————————
@@ -119,7 +127,7 @@ const cardFee = (ticket: number) =>
 /** Une commande type payée en ligne : ce qu'elle coûte, ligne par ligne. */
 export const exampleOrder = (() => {
   const ticket = illustration.basket;
-  const ominin = (ticket * offer.commissionPercent) / 100;
+  const ominin = (ticket * offer.commissionPercent.max) / 100;
   const card = Math.round(cardFee(ticket) * 100) / 100;
   return {
     ticket,
@@ -134,7 +142,7 @@ export const exampleOrder = (() => {
 export const monthlyExample = (() => {
   const online = (illustration.announcedYearlyRevenue * onlineShareExample) / 100 / 12;
   const orders = online / illustration.basket;
-  const ominin = (online * offer.commissionPercent) / 100;
+  const ominin = (online * offer.commissionPercent.max) / 100;
   const card = orders * cardFee(illustration.basket);
   // Ce que la même somme aurait coûté par carte au comptoir : le vrai surcoût est la différence.
   const counter = (online * counterCardPercent) / 100;
@@ -490,12 +498,13 @@ export const forRevenue = {
   mechanism:
     "On reste ou on repart selon la longueur de la file (Lu et al., 2013). Celui qui a commandé attend hors de la file\u00a0: elle paraît plus courte à celui qui arrive.",
   illustrationLabel: "Illustration, pas une promesse",
+  rateNote: `Calculé au taux maximal (${maxRate})\u00a0: le taux baisse quand le chiffre d’affaires du restaurant augmente.`,
   /** Le calcul, posé en trois chiffres : tous par mois et par restaurant. */
   sum: [
     {
       value: `≈\u00a0${euros(monthlyExample.extra)}`,
       unit: "par mois",
-      text: `de surcoût si ${percent(monthlyExample.share)} du chiffre d’affaires est payé en ligne\u00a0: ≈\u00a0${euros(monthlyExample.ominin)} pour Ominin et ≈\u00a0${euros(monthlyExample.card)} de frais de carte, moins ≈\u00a0${euros(monthlyExample.counter)} que le TPE coûte déjà`,
+      text: `de surcoût si ${percent(monthlyExample.share)} du chiffre d’affaires est payé en ligne\u00a0: ≈\u00a0${euros(monthlyExample.ominin)} au plus pour Ominin et ≈\u00a0${euros(monthlyExample.card)} de frais de carte, moins ≈\u00a0${euros(monthlyExample.counter)} que le TPE coûte déjà`,
     },
     {
       value: `≈\u00a0${euros(monthlyExample.coveringSales)}`,
@@ -558,14 +567,15 @@ export const pricing = {
   eyebrow: "Le prix",
   headline: {
     subscription: "0\u00a0€ d’abonnement.",
-    commission: percent(offer.commissionPercent),
+    commission: commissionRange,
     basis: "sur les commandes payées en ligne.",
   },
-  lead: `Le siège ne paie rien, et Ominin ne prend rien sur les ventes au comptoir. Votre redevance fixe ne bouge pas\u00a0: la commande mobile peut rejoindre votre «\u00a0Digital inclus\u00a0».`,
+  lead: `Dégressif selon le chiffre d’affaires de chaque restaurant, paliers fixés ensemble. Le siège ne paie rien, et Ominin ne prend rien sur les ventes au comptoir. Votre redevance fixe ne bouge pas\u00a0: la commande mobile peut rejoindre votre «\u00a0Digital inclus\u00a0».`,
   example: {
     label: `Une commande de ${euros(exampleOrder.ticket)} payée en ligne`,
+    rateNote: `Au taux maximal de ${maxRate}`,
     lines: [
-      { label: `Ominin, ${percent(offer.commissionPercent)}`, value: euros(exampleOrder.ominin) },
+      { label: `Ominin, ${maxRate}`, value: euros(exampleOrder.ominin) },
       { label: "Frais de carte Stripe", value: euros(exampleOrder.card) },
     ],
     totalLabel: "Total",
@@ -595,15 +605,15 @@ export const proposal = {
     lead: `Le restaurant de votre choix, ${pilot.days}\u00a0jours.`,
     points: [
       "Matériel fourni et installé par Ominin, sans frais pour le restaurant pilote\u00a0: supports QR et boîtier Omilink pour imprimer en cuisine.",
-      `${percent(offer.commissionPercent)} sur les commandes payées en ligne, plus les frais de carte.`,
-      "Sans engagement\u00a0; objectifs chiffrés fixés ensemble avant le lancement.",
+      `De ${commissionRange} des commandes payées en ligne selon le chiffre d’affaires, plus les frais de carte.`,
+      "Sans engagement\u00a0; paliers et objectifs chiffrés fixés ensemble avant le lancement.",
       "Assistance par e-mail et par téléphone\u00a0; la ligne directe vous est donnée au lancement.",
       "Côté restaurant\u00a0: ouvrir son compte Stripe, avec notre aide.",
     ],
   },
   network: {
     title: "Le réseau",
-    lead: `Même ${percent(offer.commissionPercent)}, plus ${euros(offer.setupFee.reduce((sum, line) => sum + line.price, 0))} de boîtier livré, une seule fois.`,
+    lead: `Même tarif (${commissionRange}), plus ${euros(offer.setupFee.reduce((sum, line) => sum + line.price, 0))} de boîtier livré, une seule fois.`,
     points: [
       `${setupFeeLabel[0].toUpperCase()}${setupFeeLabel.slice(1)}, réglés une fois par le restaurant, à l’installation.`,
       "Supports QR\u00a0: format et tarif à définir ensemble, selon la façon dont vous souhaitez afficher vos QR codes.",
@@ -646,7 +656,7 @@ export const pageCopy = {
   heroLead: cover.lead,
   heroFacts: [
     { value: "0\u00a0€", label: "d’abonnement" },
-    { value: percent(offer.commissionPercent), label: "sur les commandes payées en ligne, plus les frais de carte" },
+    { value: commissionRange, label: "des commandes en ligne, dégressif selon le chiffre d’affaires du restaurant\u00a0; frais de carte en sus" },
     { value: "1", label: `restaurant pilote, ${pilot.days}\u00a0jours, matériel\u00a0fourni` },
   ],
   tryDemo: "Essayer la démo",

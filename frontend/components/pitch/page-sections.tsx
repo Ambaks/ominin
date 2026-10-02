@@ -102,10 +102,10 @@ function Hero() {
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
           <div>
             <p className={`${lead} mt-6 max-w-2xl`}>{pageCopy.heroLead}</p>
-            <ul className="mt-8 flex max-w-3xl flex-col gap-3 sm:grid sm:grid-cols-3 sm:gap-8">
+            <ul className="mt-8 flex max-w-4xl flex-col gap-3 sm:grid sm:grid-cols-[1fr_1.6fr_1fr] sm:gap-8">
               {pageCopy.heroFacts.map((fact) => (
                 <li key={fact.label} className="flex items-center gap-4 sm:block">
-                  <p className="w-16 shrink-0 font-anton text-4xl leading-none text-(--ocp-yellow) sm:w-auto md:text-5xl">{fact.value}</p>
+                  <p className="w-[7.5rem] shrink-0 whitespace-nowrap font-anton text-4xl leading-none text-(--ocp-yellow) sm:w-auto md:text-5xl">{fact.value}</p>
                   <p className="text-sm font-medium leading-snug text-(--ocp-muted) sm:mt-2">{fact.label}</p>
                 </li>
               ))}
@@ -451,6 +451,7 @@ function Calculation() {
         <p className={`${lead} mt-5 max-w-3xl`}>{forRevenue.mechanism}</p>
         <div className="mt-10 rounded-3xl border-2 border-dashed border-(--ocp-yellow)/45 p-6 md:p-10">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--ocp-lemon)">{forRevenue.illustrationLabel}</p>
+          <p className="mt-2 text-sm text-(--ocp-muted)">{forRevenue.rateNote}</p>
           <ol className="mt-6 grid gap-8 md:grid-cols-3 md:gap-10">
             {forRevenue.sum.map((term) => (
               <li key={term.value}>
@@ -498,16 +499,17 @@ function Pricing() {
       <Rays cx={15} cy={20} className="opacity-70" />
       <div className={`${container} relative`}>
         <Eyebrow>{pricing.eyebrow}</Eyebrow>
-        <h2 className="mt-4 text-[31px] font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-[48px] lg:text-[54px]">
+        <h2 className="mt-4 text-[31px] font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-[48px] lg:text-[50px]">
           <span className="block">{pricing.headline.subscription}</span>
           <span className="block lg:whitespace-nowrap">
-            <span className="mark mark-start">{pricing.headline.commission}</span> {pricing.headline.basis}
+            <span className="mark mark-start [word-spacing:0.12em]">{pricing.headline.commission}</span> {pricing.headline.basis}
           </span>
         </h2>
         <p className={`${lead} mt-5 max-w-3xl`}>{pricing.lead}</p>
         <div className="mt-10 grid gap-4 lg:grid-cols-[0.9fr_1.3fr] lg:gap-8">
           <div className="self-start rounded-3xl bg-(--ocp-surface) p-6 md:p-8">
             <p className="font-semibold">{example.label}</p>
+            <p className="mt-0.5 text-sm text-(--ocp-lemon)">{example.rateNote}</p>
             <dl className="mt-4 flex flex-col gap-2">
               {example.lines.map((line) => (
                 <div key={line.label} className="flex justify-between gap-4 text-(--ocp-muted)">
