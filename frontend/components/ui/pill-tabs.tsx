@@ -16,7 +16,7 @@ export function PillTabs({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:px-0">
+    <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
       {tabs.map((tab) => {
         const active = tab.id === activeId;
         return (
@@ -33,7 +33,7 @@ export function PillTabs({
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
               <span
-                className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums ${
+                className={`ml-1.5 inline-block min-w-6 rounded-full px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums ${
                   active ? "bg-background/20" : "bg-surface-raised text-faint"
                 }`}
               >

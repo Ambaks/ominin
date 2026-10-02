@@ -57,7 +57,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const push = useCallback((kind: ToastEntry["kind"], message: string) => {
     const id = nextId.current++;
-    setToasts((current) => [...current, { id, kind, message }]);
+    // Une confirmation à la fois : la plus récente remplace la précédente,
+    // au lieu d'empiler des bulles sur le contenu.
+    setToasts([{ id, kind, message }]);
     setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id));
     }, TOAST_DURATION_MS);

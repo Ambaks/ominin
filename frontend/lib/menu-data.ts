@@ -1517,41 +1517,53 @@ const lzFood: Restaurant = {
 };
 
 /*
- * O’Crousti Poulet (Montpellier) — prospect, franchisé du réseau « O’Crousti
- * Poulet Original » (poulet braisé halal). Carte transcrite du panneau
- * lumineux photographié en boutique (demos/o-crousti-poulet/docs/) : un menu
- * et quatorze suppléments, aux prix de Montpellier. Le panneau ne décrit
- * aucun article : pas de description inventée. Adresse, téléphone et avis :
- * la boutique de Port Marianne (230 rue Vendémiaire). Photos : les visuels
- * produits du site de la franchise, et trois photos de banque (frites,
- * canette, bouteille) recadrées — toutes dans public/o-crousti-poulet/.
- * Source de vérité du profil : demos/o-crousti-poulet/profile.json.
+ * O’Crousti Poulet Original — prospect : le siège du réseau (poulet braisé
+ * halal, une quarantaine de restaurants en France et en Suisse). Carte
+ * nationale transcrite de ocroustipouletoriginal.com/notre-carte (noms,
+ * descriptions et prix tels que publiés, « à titre indicatif » selon le
+ * site) ; photos : les visuels produits de ce même site, recadrés dans
+ * public/o-crousti-poulet/. Établissement affiché : la boutique de
+ * Montpellier Vendémiaire (adresse, téléphone, avis Google), pour qui la
+ * démo a d'abord été faite. Source de vérité du profil :
+ * demos/o-crousti-poulet/profile.json.
  */
 
 /*
- * « +1 accompagnement au choix » : le panneau ne les nomme pas. Ce sont les
- * trois accompagnements de sa liste de suppléments — déduction à confirmer
- * avec le gérant.
+ * « 1 accompagnement » : le site n'en restreint aucun, ni ne dit si le Riz
+ * Crousti (4,90 €) ou l'Alloco coûtent plus cher en menu. Les six de la
+ * carte, sans supplément — à confirmer avec le siège.
  */
-const OCP_ACCOMPAGNEMENTS = ["Frites", "Riz oriental", "Pâtes crémo"] as const;
-
-/*
- * Le panneau n'imprime que « Boisson 33cl » et « Bouteille », sans marque.
- * Canettes lues sur la page Uber Eats de la boutique Vendémiaire (celles à
- * 2,00 €, le prix du panneau) — à confirmer avec le gérant.
- */
-const OCP_BOISSONS = [
-  "Coca-Cola",
-  "Coca-Cola Zéro",
-  "Coca-Cola Cherry",
-  "Fanta Orange",
-  "Orangina",
-  "Ice Tea Pêche",
+const OCP_ACCOMPAGNEMENTS = [
+  "Potatoes",
+  "Patates Sautées",
+  "Riz Oriental",
+  "Riz Crousti",
+  "Pâtes Crémo",
+  "Alloco",
 ] as const;
 
-const ocpBoisson = groupeChoix("boisson", "Boisson", OCP_BOISSONS, {
-  obligatoire: true,
-});
+/*
+ * Le site ne nomme aucune boisson. Depuis juin 2026, le réseau sert la
+ * gamme PepsiCo, annoncée « Pepsi • 7Up • Lipton » : les trois marques,
+ * sans parfum inventé. Même liste pour les boissons des menus et pour la
+ * canette et la bouteille vendues seules.
+ */
+const OCP_BOISSONS = ["Pepsi", "7Up", "Lipton"] as const;
+
+/* Les trois sauces du tableau des allergènes du site, nommées comme il les
+   imprime, sans prix publié : une offerte au choix, ou « Sans sauce » — à
+   confirmer avec le siège. Choix obligatoire, juste après la viande : le
+   ticket dit toujours ce qu'il faut servir, et le choix se voit en ouvrant
+   la feuille au lieu de rester sous le bord. */
+const OCP_SAUCES = ["Sauce Oignons", "Sauce Verte", "Sauce Piquante", "Sans sauce"] as const;
+
+const ocpAccompagnement = (id: string, name: string) =>
+  groupeChoix(id, name, OCP_ACCOMPAGNEMENTS, { obligatoire: true });
+
+const ocpBoisson = (id: string, name: string) =>
+  groupeChoix(id, name, OCP_BOISSONS, { obligatoire: true });
+
+const ocpSauce = groupeChoix("sauce", "Sauce", OCP_SAUCES, { obligatoire: true });
 
 const oCroustiPoulet: Restaurant = {
   slug: "o-crousti-poulet",
@@ -1567,65 +1579,243 @@ const oCroustiPoulet: Restaurant = {
     "https://search.google.com/local/writereview?placeid=ChIJCXg4SkyvthIR3btCb5k3PUI",
   categories: [
     {
-      id: "menu-solo",
-      name: "Menu Solo Inclus",
+      id: "nos-menus",
+      name: "Nos Menus",
+      /* Compositions imprimées sur le site, une ligne par élément, liées
+         par « + » comme sur le panneau. Espaces insécables écrites dans les
+         libellés : un nombre reste avec ce qu'il compte, « ou » et « + » avec
+         ce qu'ils introduisent. */
       items: [
         {
           id: "menu-solo",
           name: "Menu Solo",
           description:
-            // Espaces insécables (\u00a0) : « ou 2 saucisses » ne se coupe
-            // pas, la ligne ne se casse que devant un « ou », comme sur le
-            // panneau.
-            "1\u00a0cuisse de\u00a0poulet ou\u00a03\u00a0pilons ou\u00a04\u00a0ailes ou\u00a02\u00a0saucisses\n+\u00a01\u00a0accompagnement au\u00a0choix\n+\u00a01\u00a0boisson 33\u00a0cl",
+            "1\u00a0cuisse, 3\u00a0pilons, 2\u00a0tenders, 2\u00a0saucisses ou\u00a04\u00a0ailes\n+\u00a01\u00a0accompagnement\n+\u00a01\u00a0canette",
           price: 6.9,
           image: "/o-crousti-poulet/menu-solo.webp",
           options: [
             groupeChoix(
               "viande",
               "Viande",
-              ["1 cuisse de poulet", "3 pilons", "4 ailes", "2 saucisses"],
+              ["1\u00a0cuisse", "3\u00a0pilons", "2\u00a0tenders", "2\u00a0saucisses", "4\u00a0ailes"],
               { obligatoire: true }
             ),
-            groupeChoix("accompagnement", "Accompagnement", OCP_ACCOMPAGNEMENTS, {
+            ocpSauce,
+            ocpAccompagnement("accompagnement", "Accompagnement"),
+            ocpBoisson("canette", "Canette"),
+          ],
+        },
+        {
+          id: "menu-costaud",
+          name: "Menu Costaud",
+          description: "1\u00a0poulet\n+\u00a01\u00a0accompagnement\n+\u00a01\u00a0canette",
+          price: 12.5,
+          image: "/o-crousti-poulet/menu-costaud.webp",
+          options: [
+            ocpSauce,
+            ocpAccompagnement("accompagnement", "Accompagnement"),
+            ocpBoisson("canette", "Canette"),
+          ],
+        },
+        {
+          id: "menu-duo",
+          name: "Menu Duo",
+          description: "1\u00a0poulet\n+\u00a02\u00a0accompagnements\n+\u00a02\u00a0canettes",
+          price: 17,
+          image: "/o-crousti-poulet/menu-duo.webp",
+          options: [
+            ocpSauce,
+            ocpAccompagnement("accompagnement-1", "1er\u00a0accompagnement"),
+            ocpAccompagnement("accompagnement-2", "2e\u00a0accompagnement"),
+            ocpBoisson("canette-1", "1re\u00a0canette"),
+            ocpBoisson("canette-2", "2e\u00a0canette"),
+          ],
+        },
+        {
+          id: "menu-gourmand",
+          name: "Menu Gourmand",
+          description: "4\u00a0cuisses ou\u00a010\u00a0pilons\n+\u00a02\u00a0accompagnements\n+\u00a02\u00a0canettes",
+          price: 19.5,
+          image: "/o-crousti-poulet/menu-gourmand.webp",
+          options: [
+            groupeChoix("viande", "Viande", ["4\u00a0cuisses", "10\u00a0pilons"], {
               obligatoire: true,
             }),
-            groupeChoix("boisson", "Boisson 33\u00a0cl", OCP_BOISSONS, {
+            ocpSauce,
+            ocpAccompagnement("accompagnement-1", "1er\u00a0accompagnement"),
+            ocpAccompagnement("accompagnement-2", "2e\u00a0accompagnement"),
+            ocpBoisson("canette-1", "1re\u00a0canette"),
+            ocpBoisson("canette-2", "2e\u00a0canette"),
+          ],
+        },
+        {
+          id: "menu-family",
+          name: "Menu Family",
+          description: "2\u00a0poulets ou\u00a04\u00a0cuisses\n+\u00a04\u00a0accompagnements\n+\u00a01\u00a0bouteille 1,5\u00a0L",
+          price: 31.5,
+          image: "/o-crousti-poulet/menu-family.webp",
+          options: [
+            groupeChoix("viande", "Viande", ["2\u00a0poulets", "4\u00a0cuisses"], {
               obligatoire: true,
             }),
+            ocpSauce,
+            ocpAccompagnement("accompagnement-1", "1er\u00a0accompagnement"),
+            ocpAccompagnement("accompagnement-2", "2e\u00a0accompagnement"),
+            ocpAccompagnement("accompagnement-3", "3e\u00a0accompagnement"),
+            ocpAccompagnement("accompagnement-4", "4e\u00a0accompagnement"),
+            ocpBoisson("bouteille", "Bouteille 1,5\u00a0L"),
           ],
         },
       ],
     },
     {
-      id: "supplements",
-      name: "Nos Suppléments",
+      id: "poulet-a-la-carte",
+      name: "Poulet à la Carte",
       items: [
-        { id: "poulet", name: "Poulet", price: 8.5, image: "/o-crousti-poulet/poulet.webp" },
-        { id: "demi-poulet", name: "Demi poulet", price: 4.5, image: "/o-crousti-poulet/demi-poulet.webp" },
-        { id: "cuisse", name: "Cuisse", price: 2.8, image: "/o-crousti-poulet/cuisse.webp" },
-        { id: "pilons", name: "Pilons", detail: "x3", price: 2.8, image: "/o-crousti-poulet/pilons.webp" },
-        { id: "ailes", name: "Ailes", detail: "x4", price: 2.8, image: "/o-crousti-poulet/ailes.webp" },
-        { id: "blanc-de-poulet", name: "Blanc de poulet", price: 4, image: "/o-crousti-poulet/blanc-de-poulet.webp" },
-        { id: "donut", name: "Donut", price: 2.5, image: "/o-crousti-poulet/donut.webp" },
-        { id: "saucisse", name: "Saucisse", price: 2, image: "/o-crousti-poulet/saucisse.webp" },
-        { id: "riz-oriental", name: "Riz oriental", price: 3.8, image: "/o-crousti-poulet/riz-oriental.webp" },
-        { id: "pates-cremo", name: "Pâtes crémo", price: 3.8, image: "/o-crousti-poulet/pates-cremo.webp" },
-        { id: "frites", name: "Frites", price: 3.5, image: "/o-crousti-poulet/frites.webp" },
-        { id: "boisson", name: "Boisson", detail: "33\u00a0cl", price: 2, image: "/o-crousti-poulet/boisson.webp", options: [ocpBoisson] },
-        { id: "bouteille", name: "Bouteille", price: 4, image: "/o-crousti-poulet/bouteille.webp", options: [ocpBoisson] },
         {
-          id: "dessert",
-          name: "Dessert",
+          id: "poulet-entier",
+          name: "Poulet Entier",
+          description: "Entier, braisé, mariné 24h. Une peau craquante dorée, une chair fondante.",
+          price: 8.5,
+          image: "/o-crousti-poulet/poulet.webp",
+        },
+        {
+          id: "demi-poulet",
+          name: "Demi Poulet",
+          description: "La bonne dose. La moitié d’un poulet entier braisé, idéale pour un repas généreux.",
+          price: 4.5,
+          image: "/o-crousti-poulet/demi-poulet.webp",
+        },
+        {
+          id: "cuisse",
+          name: "Cuisse de Poulet",
+          description: "La star de la carte. Marinée 24h, dorée à la perfection.",
+          price: 2.8,
+          image: "/o-crousti-poulet/cuisse.webp",
+        },
+        {
+          id: "pilons",
+          name: "Pilons de Poulet",
+          detail: "x3",
+          description: "Trois bouchées de pur plaisir, la pièce parfaite pour picorer.",
+          price: 2.8,
+          image: "/o-crousti-poulet/pilons.webp",
+        },
+        {
+          id: "blanc-de-poulet",
+          name: "Blanc de Poulet",
+          description: "La pièce noble, version croustillante : tendre, juteuse, aromatisée à notre façon.",
+          price: 5.5,
+          image: "/o-crousti-poulet/blanc-de-poulet.webp",
+        },
+        {
+          id: "saucisse",
+          name: "Saucisse",
+          detail: "x2",
+          description: "Big saucisses de volaille caramélisées, servies par 2.",
+          price: 3.5,
+          image: "/o-crousti-poulet/saucisse.webp",
+        },
+        {
+          id: "donut",
+          name: "Donut Poulet & Cheese",
+          description: "La surprise qu’on n’attend pas, beignet de poulet braisé au fromage fondant.",
+          price: 2.5,
+          image: "/o-crousti-poulet/donut.webp",
+        },
+        {
+          id: "tenders",
+          name: "Tenders croustillants",
+          detail: "x2",
+          description: "Aiguillettes de poulet panées, croustillantes à souhait, fondantes à cœur.",
+          price: 2.5,
+          image: "/o-crousti-poulet/tenders.webp",
+        },
+        {
+          id: "nems",
+          name: "Nems au Poulet",
+          description: "Nems dorés à la friture, garnis de poulet braisé et légumes croquants.",
+          price: 1,
+          image: "/o-crousti-poulet/nems.webp",
+        },
+        {
+          id: "bricks",
+          name: "Bricks au Poulet",
+          description: "Feuilles de brick croustillantes garnies de poulet braisé épicé.",
+          price: 2,
+          image: "/o-crousti-poulet/bricks.webp",
+        },
+        {
+          id: "ailes",
+          name: "Ailes de Poulet",
+          detail: "x4",
+          description: "Ailes croustillantes bien épicées",
+          price: 2.8,
+          image: "/o-crousti-poulet/ailes.webp",
+        },
+      ],
+    },
+    {
+      id: "accompagnements",
+      name: "Accompagnements",
+      items: [
+        { id: "potatoes", name: "Potatoes", description: "Potatoes dorées et croustillantes", price: 3.5, image: "/o-crousti-poulet/potatoes.webp" },
+        { id: "patates-sautees", name: "Patates Sautées", description: "Patates sautées maison", price: 3.5, image: "/o-crousti-poulet/patates-sautees.webp" },
+        { id: "riz-oriental", name: "Riz Oriental", description: "Riz parfumé aux épices orientales", price: 3.8, image: "/o-crousti-poulet/riz-oriental.webp" },
+        {
+          id: "riz-crousti",
+          name: "Riz Crousti",
+          description: "Le riz qui fait toute la différence. Notre riz, assaisonné maison.",
+          price: 4.9,
+          image: "/o-crousti-poulet/riz-crousti.webp",
+        },
+        {
+          id: "pates-cremo",
+          name: "Pâtes Crémo",
+          description: "La douceur après le croustillant. Pâtes à la sauce crémeuse maison, onctueuses.",
+          price: 3.8,
+          image: "/o-crousti-poulet/pates-cremo.webp",
+        },
+        {
+          id: "alloco",
+          name: "Alloco",
+          description: "Bananes plantains frites, dorées et légèrement sucrées. Touche africaine au menu.",
           price: 4,
-          image: "/o-crousti-poulet/tiramisu.webp",
-          /* Les deux desserts à 4 € de la carte nationale du réseau ; le
-             panneau n'en nomme aucun. À confirmer avec le gérant. */
-          options: [
-            groupeChoix("dessert", "Dessert", ["Tiramisu", "Tarte Daim"], {
-              obligatoire: true,
-            }),
-          ],
+          image: "/o-crousti-poulet/alloco.webp",
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        { id: "tiramisu", name: "Tiramisu", description: "Tiramisu fait maison", price: 3, image: "/o-crousti-poulet/tiramisu.webp" },
+        { id: "tarte-daim", name: "Tarte Daim", description: "Tarte au chocolat Daim", price: 3, image: "/o-crousti-poulet/tarte-daim.webp" },
+      ],
+    },
+    {
+      /* Le site ne vend les boissons qu'en menu, sans prix à l'unité : ceux
+         du panneau de la boutique (Boisson 33 cl 2,00 €, Bouteille 4,00 €).
+         Sans photo, l'une comme l'autre : le réseau n'en publie aucune, et
+         aucune photo libre ne montre sa gamme au logo actuel
+         (demos/o-crousti-poulet/profile.json). */
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "canette",
+          name: "Canette",
+          detail: "33\u00a0cl",
+          description: "Pepsi, 7Up ou Lipton.",
+          price: 2,
+          options: [ocpBoisson("boisson", "Boisson")],
+        },
+        {
+          id: "bouteille",
+          name: "Bouteille",
+          description: "Pepsi, 7Up ou Lipton.",
+          price: 4,
+          options: [ocpBoisson("boisson", "Boisson")],
         },
       ],
     },

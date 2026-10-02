@@ -19,7 +19,7 @@ export function minutesSince(iso: string, now: Date): number {
 
 /** "à l'instant", "5 min", "1 h 05" — temps d'attente d'une commande. */
 export function formatWait(minutes: number): string {
-  if (minutes < 1) return "à l'instant";
+  if (minutes < 1) return "à l’instant";
   if (minutes < 60) return `${minutes} min`;
   const hours = Math.floor(minutes / 60);
   return `${hours} h ${String(minutes % 60).padStart(2, "0")}`;

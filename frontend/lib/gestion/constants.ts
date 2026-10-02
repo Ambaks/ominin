@@ -86,6 +86,10 @@ export const OPEN_ORDER_STATUSES: OrderStatus[] = [
 export const SERVICE_CLOCK_TICK_MS = 1000;
 /** Temps d'attente affichés (en minutes) : cadence de recalcul. */
 export const WAIT_TICK_MS = 30_000;
+/** Comptoir fast food : minutes de préparation au-delà desquelles une commande se signale… */
+export const COUNTER_WAIT_WARN_MINUTES = 8;
+/** … puis passe en retard. */
+export const COUNTER_WAIT_LATE_MINUTES = 15;
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";

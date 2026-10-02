@@ -307,14 +307,15 @@ html.light {
 }
 
 /*
-  O’Crousti Poulet (Montpellier) — poulet braisé halal, deux adresses.
-  Identité relevée sur le logo, l'enseigne lumineuse, le panneau-menu et la
-  vitrophanie de la porte (demos/o-crousti-poulet/docs/) : noir d'enseigne,
+  O’Crousti Poulet — la carte nationale du réseau (poulet braisé halal),
+  à l'enseigne de la boutique de Montpellier Vendémiaire. Identité relevée
+  sur le logo, l'enseigne lumineuse, le panneau-menu et la vitrophanie de la
+  porte (demos/o-crousti-poulet/docs/) : noir d'enseigne,
   blanc, et le jaune citron du logo (#F7EE21, mesuré sur le fichier), posé à
   plat comme les lettres éclairées — pas en dégradé. Le jaune porte la
   structure : le trait de l'enseigne, le ruban « Ouvert 7j/7 », les prix, les
   boutons. Typographie du panneau : Poppins grasse pour les articles, Anton
-  pour les prix, les titres manuscrits de « Nos Suppléments » ; le nom dans la
+  pour les prix, ses titres manuscrits pour les sections ; le nom dans la
   géométrique de l'enseigne.
 */
 .theme-o-crousti-poulet {
@@ -409,12 +410,6 @@ html.light {
   display: none;
 }
 
-/*
-  Le verrou de l'enseigne lumineuse : le coq posé sur le nom, le nom sur une
-  seule ligne — « O’ » et « Poulet » en jaune, « Crousti » en blanc — puis le
-  long trait jaune qui finit sur « ORIGINAL ». L'enveloppe .hero-lockup, sans
-  effet ailleurs, devient ici une grille aussi large que le nom.
-*/
 /* Le coq perché sur « Crousti », au ras des lettres, comme sur l'enseigne.
    0,935 em : l'écart mesuré entre le centre de « Crousti » et celui du nom,
    dans la taille du nom. translate, pas transform : l'entrée animée du héros
@@ -461,6 +456,12 @@ html.light {
   display: none;
 }
 
+/*
+  Le verrou de l'enseigne lumineuse : le coq posé sur le nom, le nom sur une
+  seule ligne — « O’ » et « Poulet » en jaune, « Crousti » en blanc — puis le
+  long trait jaune qui finit sur « ORIGINAL ». L'enveloppe .hero-lockup, sans
+  effet ailleurs, devient ici une grille aussi large que le nom.
+*/
 .theme-o-crousti-poulet .hero-lockup {
   position: relative;
   z-index: 10;
@@ -540,11 +541,6 @@ html.light {
   display: none;
 }
 
-/* La pastille active rayonne jaune, pas du halo orangé d'Ominin. */
-.theme-o-crousti-poulet nav a.ember-gradient {
-  box-shadow: 0 0 18px rgba(247, 238, 33, 0.28);
-}
-
 .theme-o-crousti-poulet nav [data-category] {
   font-weight: 600;
 }
@@ -556,9 +552,8 @@ html.light {
 }
 
 /* Le ruban jaune du bas du panneau, où « OUVERT 7J/7 » voisine la médaille
-   halal. */
-/* Le ruban du panneau est une bannière, pas une bande d'un bord à l'autre :
-   à sa largeur, posé à cheval sur le bas du héros. */
+   halal : une bannière à sa largeur, pas une bande d'un bord à l'autre,
+   posée à cheval sur le bas du héros. */
 .theme-o-crousti-poulet .menu-highlights {
   position: relative;
   z-index: 9;
@@ -583,6 +578,7 @@ html.light {
   background: var(--ember-2);
   box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.7);
   rotate: -1.5deg;
+  column-gap: 0.8em;
 }
 
 .theme-o-crousti-poulet .menu-highlights li {
@@ -600,10 +596,6 @@ html.light {
   margin-right: 0.8em;
   background: currentColor;
   vertical-align: -0.12em;
-}
-
-.theme-o-crousti-poulet .menu-highlights ul {
-  column-gap: 0.8em;
 }
 
 /*
@@ -676,6 +668,10 @@ html.light {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.01em;
+  /* Retrait suspendu : sur deux lignes, le nom reste aligné derrière sa
+     pastille (0,62 em de pastille + 0,45 em de marge). */
+  padding-left: 1.07em;
+  text-indent: -1.07em;
 }
 
 .theme-o-crousti-poulet article h3::before,
@@ -715,61 +711,8 @@ html.light {
   font-variant-numeric: tabular-nums;
 }
 
-/*
-  Les vignettes (« Nos Suppléments », voir les règles communes) : le nom en
-  petites capitales, le prix en Anton — et le bouton en simple contour, pour
-  que le prix jaune reste ce qu'on lit en premier, comme sur le panneau.
-*/
-.theme-o-crousti-poulet .dish-grid-tiles h3 {
-  font-size: 0.95rem;
-  /* Retrait suspendu : sur deux lignes, le nom reste aligné derrière sa
-     pastille (0,62 em de pastille + 0,45 em de marge). */
-  padding-left: 1.07em;
-  text-indent: -1.07em;
-}
-
-.theme-o-crousti-poulet .dish-grid-tiles .dish-action > button {
-  background: transparent;
-  color: var(--ember-2);
-  box-shadow: inset 0 0 0 2px var(--ember-2);
-}
-
-/* Au survol d'une souris seulement : au doigt, la teinte restait collée
-   au bouton après le toucher. */
-@media (hover: hover) {
-  .theme-o-crousti-poulet .dish-grid-tiles .dish-action > button:hover {
-    background: rgba(247, 238, 33, 0.12);
-  }
-}
-
-@media (min-width: 1024px) {
-  .theme-o-crousti-poulet .dish-grid-tiles h3 {
-    font-size: 1.15rem;
-  }
-
-  .theme-o-crousti-poulet .dish-grid-tiles .dish-price {
-    font-size: 2rem;
-  }
-}
-
-/* Les vignettes posées sur le noir du panneau, sans carte grise : la photo
-   arrondie, le nom et le prix dessous, comme un article du panneau. */
-.theme-o-crousti-poulet .dish-grid-tiles > article {
-  border-color: transparent;
-  background: transparent;
-  border-radius: 0;
-}
-
-.theme-o-crousti-poulet .dish-grid-tiles .dish-photo {
-  border-radius: 1rem;
-}
-
-.theme-o-crousti-poulet .dish-grid-tiles .dish-body {
-  padding-inline: 0.15rem;
-}
-
-/* La composition du Menu Solo, comme sur le panneau : trois lignes en
-   capitales blanches, chacune derrière sa pastille jaune. */
+/* La composition des menus, comme celle du Menu Solo sur le panneau : une
+   ligne par élément, en capitales blanches, derrière sa pastille jaune. */
 .theme-o-crousti-poulet .dish-lines {
   display: flex;
   flex-direction: column;
@@ -806,67 +749,197 @@ html.light {
 }
 
 /*
-  Le Menu Solo, vedette du panneau : son prix est la plus grande chose de la
-  page, comme le « €6.90 » ; son bouton le seul plein, sur toute la largeur.
-  Pas de pastille devant son nom — les trois lignes en ont déjà.
+  Les deux versions de la carte (thème et ?theme=ominin), repérées par ses
+  images (public/o-crousti-poulet/, le coq du héros compris). Les visuels du
+  réseau à bord franc, à plat comme les lettres de l'enseigne : le fondu vers
+  la carte salissait leur jaune en olive.
 */
-.theme-o-crousti-poulet article:only-child h3 {
-  white-space: nowrap;
-}
-
-.theme-o-crousti-poulet article:only-child h3::before,
-.theme-o-crousti-poulet [role="dialog"] h3[data-compose]::before {
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo-fade {
   display: none;
 }
 
-.theme-o-crousti-poulet article:only-child .dish-head {
+/* Cadrage 16:9 des visuels dont le haut porte le plat : l'os de la cuisse,
+   l'aile du demi-poulet, les pâtes du Menu Costaud (son accompagnement). */
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/cuisse.webp"] {
+  object-position: 50% 5%;
+}
+
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/demi-poulet.webp"] {
+  object-position: 50% 20%;
+}
+
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/menu-costaud.webp"] {
+  object-position: 50% 0%;
+}
+
+/* Sur une carte sans photo (les boissons), le compte au panier se pose sur le
+   coin du bouton : au coin de la carte, il cachait le prix. */
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) article:not(:has(.dish-photo)) .dish-action > button {
+  position: relative;
+}
+
+[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) article:not(:has(.dish-photo)) .cart-count {
+  top: -0.5rem;
+  right: -0.5rem;
+}
+
+/* Le nom d'un menu tient sur une ligne ; trop étroit, c'est le prix qui
+   passe dessous (« MENU / COSTAUD » se coupait à côté de « MENU DUO »). */
+.theme-o-crousti-poulet main > section:first-of-type h3 {
+  white-space: nowrap;
+}
+
+.theme-o-crousti-poulet main > section:first-of-type .dish-head {
   flex-wrap: wrap;
-  align-items: flex-end;
   row-gap: 0.25rem;
 }
 
-.theme-o-crousti-poulet article:only-child .dish-price {
-  font-size: 3.6rem;
+/* En tablette, deux menus côte à côte : tous prennent leur prix sous le nom,
+   sans quoi « MENU COSTAUD » le passait dessous et « MENU DUO » non, et
+   leurs lignes ne s'alignaient plus d'une carte à l'autre. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:not(:first-child) h3 {
+    flex-basis: 100%;
+  }
 }
 
-.theme-o-crousti-poulet article:only-child .dish-action > button {
+/*
+  Le Menu Solo, vedette du panneau et offre d'entrée du réseau, ouvre « Nos
+  Menus », la première section : son prix en très grand, comme le « €6.90 »
+  du panneau ; son bouton sur toute la largeur ; son nom en titre, sans
+  pastille (ses lignes de composition en portent une).
+*/
+.theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child h3 {
+  padding-left: 0;
+  text-indent: 0;
+}
+
+.theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child h3::before {
+  display: none;
+}
+
+.theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-head {
+  align-items: flex-end;
+}
+
+.theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-action > button {
   width: 100%;
 }
 
-/* Le haut de la photo du comptoir n'est que rebord de bac et mur gris. */
-.theme-o-crousti-poulet article:only-child .dish-photo img {
-  object-position: 50% 65%;
-}
-
-/* Au téléphone, seul sur sa rangée, le Menu Solo va d'un bord à l'autre de
-   l'écran (la marge de main, px-5, rendue) ; son texte garde l'alignement
-   de la page. Photo plus plate : plus large et plus haute, elle poussait le
-   bouton hors du premier écran. */
+/* Au téléphone, le Menu Solo va d'un bord à l'autre de l'écran (la marge de
+   main, px-5, rendue) ; son texte garde l'alignement de la page. Photo plus
+   plate, cadrée sur les pilons : plus haute, elle poussait le bouton hors du
+   premier écran. */
 @media (max-width: 767px) {
-  .theme-o-crousti-poulet .dish-grid > article:only-child {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-price {
+    font-size: 3.6rem;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child {
     margin-inline: -1.25rem;
     border-inline: 0;
     border-radius: 0;
   }
 
-  [data-menu-root].theme-o-crousti-poulet .dish-grid > article:only-child .dish-photo {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-photo {
     aspect-ratio: 5 / 2;
   }
 
-  .theme-o-crousti-poulet .dish-grid > article:only-child .dish-body {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-photo img {
+    object-position: 50% 62%;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-body {
     padding-inline: 1.25rem;
   }
 }
 
+/* Plus large, il prend toute la rangée, photo à gauche et texte à droite ;
+   les quatre autres menus suivent deux par deux. Tablette et bureau en
+   plages disjointes, qui ne dépendent pas de l'ordre des règles : sur un
+   build de production (aperçu du 2026-09-30), la règle « dès 768 px » est
+   passée après celle « dès 1024 » et le bureau prenait les valeurs de la
+   tablette. */
+@media (min-width: 768px) {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child {
+    grid-column: 1 / -1;
+    display: grid;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-photo {
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-body {
+    justify-content: center;
+    padding: 2rem;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
-  .theme-o-crousti-poulet article:only-child .dish-price {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-price {
     font-size: 3rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .theme-o-crousti-poulet article:only-child .dish-price {
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child {
+    grid-template-columns: 1.15fr 1fr;
+  }
+
+  .theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:first-child .dish-price {
     font-size: 4.5rem;
+  }
+}
+
+/* Deux cartes côte à côte : leurs boutons alignés en bas, même quand un nom
+   passe sur deux lignes à côté d'un nom qui tient sur une. */
+@media (min-width: 768px) {
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article > .dish-body {
+    flex: 1;
+  }
+
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article .dish-action {
+    margin-top: auto;
+  }
+}
+
+/* Deux colonnes, un nombre impair de cartes : la dernière se centre sous les
+   autres au lieu de rester seule à gauche, une case vide à côté. Dans le
+   thème, le Menu Solo tient toute la première rangée de ses menus : leur
+   nombre y redevient pair. */
+@media (min-width: 768px) {
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  [data-menu-root].theme-o-crousti-poulet main > section:first-of-type .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+    grid-column: auto;
+    justify-self: stretch;
+    width: auto;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+    width: calc((100% - 1rem) / 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+    width: calc((100% - 1.25rem) / 2);
   }
 }
 
@@ -891,15 +964,35 @@ html.light {
 }
 
 /* L'option choisie cerclée du jaune plein de l'enseigne : à 60 %, il virait
-   au kaki sur le gris de la feuille. */
-.theme-o-crousti-poulet .choice-row.is-checked {
+   au kaki sur le gris de la feuille. De même le règlement choisi au panier. */
+.theme-o-crousti-poulet .choice-row.is-checked,
+.theme-o-crousti-poulet .cart-foot [role="radio"][aria-checked="true"] {
   border-color: var(--ember-2);
 }
 
-/* Les vignettes ne rognent plus l'anneau de focus de leur bouton : c'est la
-   photo, seule, qui arrondit ses coins. */
-.theme-o-crousti-poulet .dish-grid-tiles > article {
-  overflow: visible;
+/* Le ticket à plat lui aussi : le talon jaune de « Prête », les traits et
+   les pastilles des étapes franchies. */
+.theme-o-crousti-poulet .order-ticket-head::before,
+.theme-o-crousti-poulet .order-step:is([data-state="done"], [data-state="current"]) + .order-step:is([data-state="done"], [data-state="current"])::before,
+.theme-o-crousti-poulet .order-step[data-state="done"] .order-step-dot {
+  background-image: none;
+  background-color: var(--ember-2);
+}
+
+/* Les textes en dégradé du ticket (numéro, « Prête ») à plat, comme le reste
+   du jaune. */
+.theme-o-crousti-poulet .order-ticket .ember-text {
+  background-image: none;
+  color: var(--ember-2);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Au survol, la carte se cerne du jaune plein : à 45 %, le liseré virait à
+   l'olive sur le gris. */
+@media (hover: hover) {
+  .theme-o-crousti-poulet .dish-grid > article:hover {
+    border-color: var(--ember-2);
+  }
 }
 
 /* Rebond au-dessus ou au-dessous de la page (téléphone) : le fond du
@@ -917,7 +1010,7 @@ html:has(.theme-o-crousti-poulet) body {
 }
 
 /* Le panier parle comme la carte : capitales grasses, prix en Anton. */
-.theme-o-crousti-poulet .cart-title {
+.theme-o-crousti-poulet :is(.cart-title, .cart-line-name) {
   font-weight: 800;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -928,12 +1021,6 @@ html:has(.theme-o-crousti-poulet) body {
   font-size: 1.25rem;
   font-weight: 400;
   letter-spacing: 0.01em;
-}
-
-.theme-o-crousti-poulet .cart-line-name {
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
 }
 
 .theme-o-crousti-poulet .cart-line-price,
@@ -959,7 +1046,7 @@ html:has(.theme-o-crousti-poulet) body {
 */
 .theme-o-crousti-poulet footer {
   border-top: 0;
-  padding: 3rem 1.25rem;
+  padding-inline: 1.25rem;
   background-color: #ffffff;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23FFD109' stroke-width='112' stroke-linecap='round'%3E%3Cpath d='M-150 120C150 -80 380 330 660 140S1080 -60 1350 170'/%3E%3Cpath d='M-150 470C200 260 440 690 780 470S1140 280 1350 500'/%3E%3Cpath d='M-150 820C180 610 480 1010 840 800S1180 640 1350 850'/%3E%3C/g%3E%3C/svg%3E");
   background-size: cover;
@@ -1310,6 +1397,7 @@ html:has(.theme-o-crousti-poulet) body {
   [data-menu-root] .dish-grid > article:only-child .dish-photo {
     aspect-ratio: 2 / 1;
   }
+
 }
 
 /* Cases à cocher et boutons radio aux couleurs de la carte : les disques
@@ -2758,6 +2846,7 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   [data-menu-root]:not([class*="theme-"]) .hero-name {
     font-size: 5.5rem;
   }
+
 }
 
 /* La composition d'un menu : ses lignes s'espacent, pour qu'une ligne
@@ -2875,6 +2964,7 @@ html.light [data-menu-root]:not([class*="theme-"]) {
     .dish-photo-fade {
     background-image: linear-gradient(to left, var(--surface), transparent 16%);
   }
+
 }
 
 html.light [data-menu-root]:not([class*="theme-"]) .ember-particle {
@@ -3881,5 +3971,130 @@ body {
     animation: none;
     transform: none;
     opacity: 1;
+  }
+}
+
+/*
+  Vue réseau (démo pour le siège d'une enseigne, /menu/demo/<slug>/reseau) :
+  le tableau de bord d'Ominin posé sur le noir d'enseigne d'O’Crousti, son
+  jaune pour seul accent, réservé à l'activité. Sombre quel que soit le thème
+  enregistré. En grand écran, la page tient dans la fenêtre et grandit avec
+  elle : 1 rem = 16 px en 1920 × 1080, 21,3 px en 2560 × 1440 — la capture
+  du film garde la même composition à toutes les définitions.
+*/
+.reseau {
+  --background: #131416;
+  --foreground: #f4f4ef;
+
+  --surface: #1a1b1e;
+  --surface-raised: #232529;
+  --hairline: rgba(244, 244, 239, 0.08);
+
+  --muted: #a4a7ad;
+  --faint: #9a9ea5;
+
+  --ember-1: #fff35c;
+  --ember-2: #f7ee21;
+  --ember-3: #f2cc12;
+
+  --reseau-down: #f08a7e;
+
+  color-scheme: dark;
+}
+
+html:has(.reseau),
+html:has(.reseau) body {
+  background-color: #131416;
+}
+
+@media (min-width: 96rem) {
+  html:has(.reseau) {
+    font-size: max(16px, min(0.8333vw, 1.4815vh));
+  }
+}
+
+/* Les chiffres en Fraunces sans ses glyphes « wonky » (le 4 à boule passait
+   pour une tache), en chiffres proportionnels : en chasse fixe, le 1 laissait
+   un trou dans « 1 284 ». */
+.reseau .font-display {
+  font-variation-settings: "WONK" 0;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
+.reseau :focus-visible {
+  outline: 2px solid var(--ember-2);
+  outline-offset: 2px;
+}
+
+.reseau-popover::backdrop {
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(4px) saturate(0.5);
+}
+
+/* Sous le plein écran, la fiche d'un restaurant s'ouvre par-dessus la page :
+   celle-ci ne défile plus derrière. */
+@media (width < 96rem) {
+  html:has(.reseau-sheet) {
+    overflow: hidden;
+  }
+}
+
+/* Sans mouvement, l'anneau du rush reste affiché, immobile ; l'onde d'une
+   nouvelle commande ne se montre pas. */
+.reseau-pulse {
+  opacity: 0.45;
+}
+
+.reseau-ripple {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reseau-pulse,
+  .reseau-ripple {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .reseau-pulse {
+    animation: reseau-pulse 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  }
+
+  .reseau-ripple {
+    animation: reseau-pulse 1.6s cubic-bezier(0.2, 0.6, 0.3, 1);
+  }
+
+  .reseau-enter {
+    animation: reseau-enter 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .reseau-live {
+    animation: led-breathe 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes reseau-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes reseau-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    background-color: color-mix(in srgb, var(--ember-2) 10%, transparent);
+  }
+  40% {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    background-color: transparent;
   }
 }
