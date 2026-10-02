@@ -10,7 +10,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import { formatTime } from "@/lib/gestion/format";
+import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { createClient } from "@/lib/supabase/client";
 
@@ -93,8 +93,6 @@ interface TicketsValue {
   notices: string[];
   /** Ouvert en relais d'une autre feuille : il la remplace, sans fondu. */
   handedOff: boolean;
-  /** Les tickets peuvent porter une heure prévue (l'aperçu seulement, pour l'instant). */
-  estimates: boolean;
   /** Dernier changement, pour la zone annoncée aux lecteurs d'écran. */
   announcement: string;
   /** Aperçu commercial : l'étape suivante se joue à la main. */
@@ -144,11 +142,9 @@ const previewEstimate = (): ReadyEstimate => {
 
 /** Ce que disent les tickets quand le paiement par carte n'aboutit pas. */
 export const CARD_NOTICES = {
-  failed: "Le paiement par carte n’a pas pu démarrer\u00a0: réglez votre commande au comptoir.",
+  failed: "Le paiement par carte n’a pas pu démarrer\u00a0: réglez votre commande au\u00a0comptoir.",
   // Refusé, ou le client a choisi le comptoir : le même mot pour les deux.
-  declined: "Le paiement par carte n’a pas été fait\u00a0: réglez votre commande au comptoir.",
-  // Retour de Stripe sans paiement confirmé : il peut encore reprendre.
-  unfinished: "Le paiement en ligne n’a pas abouti\u00a0: reprenez-le, ou réglez au comptoir.",
+  declined: "Le paiement par carte n’a pas été fait\u00a0: réglez votre commande au\u00a0comptoir.",
 };
 
 /** Ce que dit la zone annoncée quand une commande change d'état. */
@@ -175,7 +171,9 @@ const unknownTicket = (id: string): Ticket => ({
 
 /** L'heure prévue telle que le ticket l'affiche, tant que la commande est en cuisine. */
 const readyTime = (ticket: Ticket) =>
-  ticket.status === "payee" && ticket.estimate ? formatTime(ticket.estimate.readyAt) : null;
+  ticket.status === "payee" && ticket.estimate
+    ? frenchTime(new Date(ticket.estimate.readyAt))
+    : null;
 
 /**
  * L'écran reste allumé tant que le client attend, carte ouverte ou ticket
@@ -336,7 +334,7 @@ export function TicketsProvider({
           const spoken = ticket.paying ? "paiement en cours." : SPOKEN[ticket.status!];
           const time = readyTime(ticket);
           return spoken
-            ? `Commande n° ${ticket.number} : ${spoken}${time ? ` Prête vers ${time}.` : ""}`
+            ? `Commande n° ${ticket.number}\u00a0: ${spoken}${time ? ` Prête vers ${time}.` : ""}`
             : "";
         })
         .filter(Boolean)
@@ -484,7 +482,6 @@ export function TicketsProvider({
       hide: () => setShownId(null),
       notices,
       handedOff,
-      estimates: preview,
       announcement,
       advance: preview ? advance : null,
     }),

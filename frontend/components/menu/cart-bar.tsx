@@ -106,23 +106,25 @@ export function CartBar() {
     );
   }
   const closeRef = useRef<HTMLButtonElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const footRef = useRef<HTMLDivElement>(null);
-  // Le pied collé couvre le bas de la feuille : le défilement au clavier
-  // garde la ligne qui a le focus au-dessus de lui.
+  // L'en-tête et le pied collés couvrent le haut et le bas de la feuille : le
+  // défilement au clavier garde la ligne qui a le focus entre eux
+  // (--cart-head, --cart-foot, globals.css). Une marge sur les lignes, pas
+  // sur la feuille : les boutons du pied eux-mêmes, au focus, faisaient
+  // défiler la commande hors de vue.
   useEffect(() => {
     const foot = footRef.current;
     const panel = foot?.closest<HTMLElement>('[role="dialog"]');
+    const head = panel?.querySelector<HTMLElement>(".cart-head");
     if (!foot || !panel) return;
-    const content = contentRef.current;
     const sync = () => {
-      const h = foot.offsetHeight;
-      panel.style.scrollPaddingBottom = `${h}px`;
-      if (content) content.style.paddingBottom = `${h}px`;
+      panel.style.setProperty("--cart-foot", `${foot.offsetHeight}px`);
+      if (head) panel.style.setProperty("--cart-head", `${head.offsetHeight}px`);
     };
     sync();
     const observer = new ResizeObserver(sync);
     observer.observe(foot);
+    if (head) observer.observe(head);
     return () => observer.disconnect();
   });
   useSheetHistoryReset();
@@ -154,7 +156,7 @@ export function CartBar() {
       leaving.current = null;
       cart.clear();
       if (cart.fastFood) {
-        handOff(orderId, [CARD_NOTICES.unfinished]);
+        handOff(orderId);
       } else {
         setOpen(false);
         setReturned(orderId);
@@ -252,7 +254,8 @@ export function CartBar() {
         lines.set(key, {
           name: line.name,
           quantity: (known?.quantity ?? 0) + line.quantity,
-          choices: line.optionSummary,
+          // Sans le supplément « (+0,50 €) » : order_ticket ne rend que le nom.
+          choices: line.optionSummary.map((choice) => choice.replace(/ \(\+[^)]*\)$/, "")),
         });
       }
       const id = crypto.randomUUID();
@@ -447,7 +450,10 @@ export function CartBar() {
           type="button"
           onClick={(event) => {
             // Second toucher d'un double-tap sur « Ajouter » : pas le panier.
-            if (event.detail <= 1) setOpen(true);
+            if (event.detail > 1) return;
+            // Safari ne donne pas le focus au bouton touché (voir AddToOrder).
+            event.currentTarget.focus({ preventScroll: true });
+            setOpen(true);
           }}
           aria-label={`Voir la commande\u00a0: ${cart.count} article${cart.count > 1 ? "s" : ""}, ${formatPrice(cart.total)}`}
           className={`cart-bar ${bump.n === 0 ? "" : bump.n % 2 ? "cart-bump-a" : "cart-bump-b"} ember-gradient pointer-events-auto flex w-full max-w-md items-center justify-between gap-4 rounded-full px-6 py-3.5 text-background shadow-2xl shadow-black/40`}
@@ -589,7 +595,7 @@ export function CartBar() {
                     </button>
                   </div>
 
-                  <div ref={contentRef} className="shrink-0 p-5">
+                  <div className="cart-content shrink-0 p-5">
                     <ul className="flex flex-col gap-4">
                       {cart.lines.map((line) => (
                         <li key={line.key} className="flex gap-3">
@@ -700,12 +706,14 @@ export function CartBar() {
                       <div
                         role="radiogroup"
                         aria-label="Règlement"
-                        aria-describedby={cart.fastFood ? hintId : undefined}
+                        // La phrase du choix fait seulement : masquées, les deux se
+                        // lisaient ensemble.
+                        aria-describedby={cart.fastFood ? `${hintId}-${payment}` : undefined}
                         className="mb-4 flex gap-2"
                       >
                         {(
                           [
-                            ["carte", "Payer en ligne"],
+                            ["carte", "Payer en\u00a0ligne"],
                             ["comptoir", "Payer au\u00a0comptoir"],
                           ] as const
                         ).map(([value, label]) => (
@@ -714,7 +722,21 @@ export function CartBar() {
                             type="button"
                             role="radio"
                             aria-checked={payment === value}
+                            data-choice={value}
+                            // Un groupe de radios : un seul arrêt de tabulation,
+                            // les flèches passent d'un choix à l'autre.
+                            tabIndex={payment === value ? 0 : -1}
                             onClick={() => setPayment(value)}
+                            onKeyDown={(event) => {
+                              if (!event.key.startsWith("Arrow")) return;
+                              if (event.altKey || event.metaKey || event.ctrlKey) return;
+                              event.preventDefault();
+                              const other = value === "carte" ? "comptoir" : "carte";
+                              setPayment(other);
+                              event.currentTarget.parentElement
+                                ?.querySelector<HTMLElement>(`[data-choice="${other}"]`)
+                                ?.focus();
+                            }}
                             className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
                               payment === value
                                 ? "border-ember-2/60 bg-surface-raised text-foreground"
@@ -730,7 +752,7 @@ export function CartBar() {
                                   : "border border-current opacity-50"
                               }`}
                             />
-                            {label}
+                            <span className="text-balance">{label}</span>
                           </button>
                         ))}
                       </div>
@@ -739,15 +761,16 @@ export function CartBar() {
                         deux phrases occupent la même case, l'autre cachée :
                         d'un choix à l'autre, la feuille ne saute pas. */}
                     {cart.fastFood && cart.onlinePayment && cart.total > 0 && (
-                      <p id={hintId} className="mb-4 grid text-xs leading-relaxed text-muted">
+                      <p className="cart-hint mb-4 grid text-pretty text-xs leading-relaxed text-muted">
                         {(
                           [
-                            ["carte", "Payée maintenant, elle part tout de suite en cuisine."],
-                            ["comptoir", "Elle part en cuisine une fois réglée au\u00a0comptoir."],
+                            ["carte", "Payée maintenant, elle part tout\u00a0de\u00a0suite en\u00a0cuisine."],
+                            ["comptoir", "Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."],
                           ] as const
                         ).map(([choice, text]) => (
                           <span
                             key={choice}
+                            id={`${hintId}-${choice}`}
                             aria-hidden={choice !== payment || undefined}
                             className={`[grid-area:1/1] ${choice === payment ? "" : "invisible"}`}
                           >

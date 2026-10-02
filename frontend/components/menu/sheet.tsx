@@ -128,8 +128,8 @@ export function Sheet({
     // celui qui est coché, ou le premier si aucun ne l'est.
     const tabbables = () => {
       const all = [
-        ...panel.querySelectorAll<HTMLElement>("button, input, [href]"),
-      ].filter((el) => !el.hasAttribute("disabled"));
+        ...panel.querySelectorAll<HTMLElement>("button, input, [href], [tabindex]"),
+      ].filter((el) => el.tabIndex >= 0 && !el.hasAttribute("disabled"));
       const seen = new Set<string>();
       return all.filter((el) => {
         if (!(el instanceof HTMLInputElement) || el.type !== "radio") return true;
@@ -159,10 +159,19 @@ export function Sheet({
       // perdu hors d'elle (la ligne du panier qui le portait a disparu).
       const active = document.activeElement;
       const inside = active !== panel && panel.contains(active);
-      if (event.shiftKey && (!inside || active === first)) {
+      // Un groupe de radios sans choix s'entre par son dernier quand on remonte :
+      // tout le groupe est un seul arrêt — sinon le focus sortait de la feuille.
+      const at = (stop: HTMLElement) =>
+        active === stop ||
+        (active instanceof HTMLInputElement &&
+          stop instanceof HTMLInputElement &&
+          active.type === "radio" &&
+          stop.type === "radio" &&
+          active.name === stop.name);
+      if (event.shiftKey && (!inside || at(first))) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && (!inside || active === last)) {
+      } else if (!event.shiftKey && (!inside || at(last))) {
         event.preventDefault();
         first.focus();
       }
@@ -226,15 +235,48 @@ export function Sheet({
       document.removeEventListener("keydown", onKeyDown);
       for (const el of behind) el.inert = false;
       document.body.style.overflow = bodyOverflow;
-      // Le déclencheur a pu disparaître (la barre du panier, panier vidé) :
-      // le focus reste alors dans la carte au lieu de tomber sur <body>.
+      // Le déclencheur a pu disparaître (la barre du panier, panier vidé) : le
+      // focus reste alors dans la carte, là où en est le client — le nom du
+      // restaurant, le titre de la section ou la carte d'un plat entiers à
+      // l'écran, sinon ce qui en occupe le plus (le haut de la page, un plat
+      // plus haut que l'écran, le pied de page) —, jamais sous la barre des
+      // catégories ni sous le bas de page fixé. Jamais un bouton ni un lien :
+      // un Entrée réflexe ajoutait un plat, appelait le restaurant ou ouvrait
+      // son plan. Depuis <main>, la tabulation repartait du premier plat, tout
+      // en haut.
+      // preventScroll : la page n'a pas bougé sous la feuille ; un déclencheur
+      // passé sous la barre des catégories la faisait sauter en revenant.
       if (opener?.isConnected) {
-        opener.focus();
+        opener.focus({ preventScroll: true });
       } else {
-        const main = root?.querySelector("main");
-        if (main) {
-          main.tabIndex = -1;
-          main.focus({ preventScroll: true });
+        const main = root?.querySelector<HTMLElement>("main");
+        // Entier à l'écran : ses bords haut et bas, pas seulement son milieu.
+        const shown = (el: HTMLElement) => {
+          const box = el.getBoundingClientRect();
+          if (!box.width || !box.height) return false;
+          const x = box.left + box.width / 2;
+          return [box.top + 1, box.bottom - 1].every((y) => {
+            const hit = document.elementFromPoint(x, y);
+            return hit !== null && el.contains(hit);
+          });
+        };
+        const seen = (el: HTMLElement) => {
+          const box = el.getBoundingClientRect();
+          return Math.min(box.bottom, innerHeight) - Math.max(box.top, 0);
+        };
+        const all = (selector: string) => [
+          ...(root?.querySelectorAll<HTMLElement>(selector) ?? []),
+        ];
+        const here =
+          all(":scope > header h1, main h2, main article").find(shown) ??
+          all(":scope > header, main article, footer").reduce<HTMLElement | undefined>(
+            (best, el) => (seen(el) > (best ? seen(best) : 0) ? el : best),
+            undefined
+          ) ??
+          main;
+        if (here) {
+          here.tabIndex = -1;
+          here.focus({ preventScroll: true });
         }
       }
     };
@@ -277,7 +319,7 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-label={label}
-        className={`${closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-[88dvh] w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
+        className={`${closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-(--sheet-max) w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
         onClick={(event) => event.stopPropagation()}
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) return;

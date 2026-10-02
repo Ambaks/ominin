@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/menu/sheet";
 import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
+import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { formatPrice } from "@/lib/menu-data";
@@ -42,7 +43,7 @@ interface Stage {
 const STAGES: Partial<Record<OrderStatus, Stage>> = {
   en_attente: {
     title: "À régler au\u00a0comptoir",
-    body: "Présentez ce numéro au comptoir\u00a0: votre commande part en cuisine dès le règlement.",
+    body: "Présentez ce numéro au\u00a0comptoir\u00a0:\nvotre\u00a0commande part en\u00a0cuisine dès le règlement.",
     step: 1,
     waiting: true,
     chip: "À régler",
@@ -55,19 +56,19 @@ const STAGES: Partial<Record<OrderStatus, Stage>> = {
   },
   prete: {
     title: "C’est prêt\u00a0!",
-    body: "Venez chercher votre commande au comptoir.",
+    body: "Venez chercher votre commande au\u00a0comptoir.",
     step: 2,
     chip: "Prête\u00a0!",
   },
   servie: {
     title: "Bon appétit\u00a0!",
-    body: "Votre commande vous a été remise. Merci de votre visite.",
+    body: "Votre commande vous a été remise.\nMerci de votre visite.",
     step: STEPS.length,
     chip: "Remise",
   },
   annulee: {
     title: "Commande annulée",
-    body: "Adressez-vous au comptoir.",
+    body: "Adressez-vous au\u00a0comptoir.",
     step: -1,
     chip: "Annulée",
   },
@@ -79,7 +80,7 @@ const STAGES: Partial<Record<OrderStatus, Stage>> = {
  */
 const PAYING: Stage = {
   title: "Paiement en cours",
-  body: "Le paiement en ligne n’est pas terminé. Reprenez-le, ou touchez «\u00a0Payer au comptoir à la place\u00a0»\u00a0: votre commande y apparaîtra.",
+  body: "Le paiement en ligne n’est pas terminé. Reprenez-le, ou touchez «\u00a0Payer au\u00a0comptoir à la place\u00a0»\u00a0: votre commande y apparaîtra.",
   step: 1,
   waiting: true,
   chip: "Paiement…",
@@ -91,11 +92,6 @@ const stageOf = (ticket: Ticket): Stage | null =>
     : ticket.status
       ? (STAGES[ticket.status] ?? null)
       : null;
-
-const timeFormat = new Intl.DateTimeFormat("fr-FR", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
 
 /**
  * En cuisine, quand ce sera prêt : les minutes qui restent, l'heure, et une
@@ -123,7 +119,7 @@ function ReadyCountdown({ estimate }: { estimate: ReadyEstimate }) {
         ) : (
           <span className="order-eta-minutes mt-2 font-display text-5xl font-semibold leading-none tabular-nums">
             {Math.ceil((at - now) / 60_000)}
-            <span className="font-sans text-lg font-semibold text-muted"> min</span>
+            <span className="font-sans text-lg font-semibold normal-case text-muted"> min</span>
           </span>
         )}
       </p>
@@ -137,10 +133,11 @@ function ReadyCountdown({ estimate }: { estimate: ReadyEstimate }) {
         />
       </span>
       <p className="order-eta-caption mt-2.5 flex w-full items-baseline justify-between gap-3 text-xs text-muted">
-        <span>Estimation en temps réel</span>
+        {/* L'heure prévue n'existe que dans l'aperçu : elle le dit. */}
+        <span>Estimation · aperçu</span>
         {!late && (
           <time dateTime={estimate.readyAt} className="font-semibold tabular-nums text-foreground">
-            vers {timeFormat.format(at)}
+            vers {frenchTime(new Date(at))}
           </time>
         )}
       </p>
@@ -163,9 +160,41 @@ function OrderTicket({
   const [problem, setProblem] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const footRef = useRef<HTMLDivElement>(null);
+  const [footScrolls, setFootScrolls] = useState(false);
   const stage = stageOf(ticket);
+  const tracked = !!stage && stage.step >= 0;
   const ready = ticket.status === "prete";
   const active = isActiveTicket(ticket);
+  // Téléphone couché : le volet de l'état défile seul. Quand il déborde, le
+  // clavier doit pouvoir y entrer — une zone nommée, dans l'ordre de tabulation.
+  // Les étapes paraissent ou disparaissent avec le paiement : on réobserve.
+  useEffect(() => {
+    const foot = footRef.current;
+    if (!foot) return;
+    const measure = () => {
+      // La place du fondu du bas (globals.css) ne cache rien ; sa moitié, le
+      // bas ordinaire du volet : une ligne collée au bord se lit coupée.
+      const pad = parseFloat(getComputedStyle(foot).paddingBottom) / 2;
+      const scrolls = foot.scrollHeight - pad > foot.clientHeight + 1;
+      // Plus un arrêt de tabulation : le focus ne retombe pas sur la page.
+      if (!scrolls && document.activeElement === foot) {
+        closeRef.current?.focus({ preventScroll: true });
+      }
+      setFootScrolls(scrolls);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(foot);
+    for (const child of foot.children) observer.observe(child);
+    // Défilé, le haut du volet s'efface aussi (globals.css).
+    const onScroll = () => foot.toggleAttribute("data-scrolled", foot.scrollTop > 0);
+    foot.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      observer.disconnect();
+      foot.removeEventListener("scroll", onScroll);
+    };
+  }, [tracked]);
   // Seul Stripe se reprend d'ici (une nouvelle session de paiement) ; le
   // formulaire carte de SumUp ou de Square vivait dans la feuille du panier,
   // refermée : il ne reste que le comptoir — qui ne voit la commande qu'une
@@ -173,23 +202,22 @@ function OrderTicket({
   const resumable = paymentProvider === "stripe";
   const body =
     stage === PAYING && !resumable
-      ? "Le paiement en ligne n’est pas terminé. Touchez «\u00a0Payer au comptoir\u00a0»\u00a0: votre commande y apparaîtra."
+      ? "Le paiement en ligne n’est pas terminé. Touchez «\u00a0Payer au\u00a0comptoir\u00a0»\u00a0: votre commande y apparaîtra."
       : stage?.body;
+  const estimate = ticket.status === "payee" ? ticket.estimate : null;
   // Payée entre-temps (un débit qui aboutit après la fermeture de la feuille) :
-  // un avis de paiement manqué mentirait ; passée au comptoir, l'invitation à
-  // reprendre le paiement aussi.
+  // un avis de paiement manqué mentirait.
   const cardNotices: string[] = Object.values(CARD_NOTICES);
   const notices =
-    tickets?.notices.filter(
-      (notice) =>
-        (!ticket.paid || !cardNotices.includes(notice)) &&
-        (ticket.paying || notice !== CARD_NOTICES.unfinished)
-    ) ?? [];
+    tickets?.notices.filter((notice) => !ticket.paid || !cardNotices.includes(notice)) ?? [];
 
   // Prête pendant que le client lisait le bas du ticket : le numéro revient
-  // en vue, c'est lui qu'il montrera au comptoir.
+  // en vue, c'est lui qu'il montrera au comptoir — et, téléphone couché,
+  // « C'est prêt ! » en haut de son volet.
   useEffect(() => {
-    if (ready) rootRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
+    if (!ready) return;
+    rootRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
+    footRef.current?.scrollTo({ top: 0 });
   }, [ready]);
 
   // Retour arrière depuis Stripe, page restituée telle quelle : le bouton
@@ -239,31 +267,24 @@ function OrderTicket({
       // Traité comme un refus, juste en dessous.
     }
     setBusy(null);
-    setProblem("Le paiement en ligne n’a pas pu reprendre. Réglez au comptoir, ou réessayez.");
+    setProblem("Le paiement en ligne n’a pas pu reprendre. Réglez au\u00a0comptoir, ou réessayez.");
   };
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-5 p-5 pt-6">
-      {notices.map((notice) => (
-        <p
-          key={notice}
-          className="rounded-xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-center text-sm leading-relaxed"
-        >
-          {notice}
-        </p>
-      ))}
+    <div ref={rootRef} className="order-ticket-sheet flex flex-col gap-5 p-5 pt-6">
       <div
         data-ready={ready || undefined}
         data-done={!active || undefined}
+        data-issued={tickets?.handedOff || undefined}
         className="order-ticket relative"
       >
         <div className="order-ticket-head flex flex-col items-center rounded-t-2xl border border-b-0 border-hairline bg-background px-6 pb-6 pt-5 text-center">
           <p className="order-ticket-meta flex w-full items-center justify-between text-[10px] font-semibold uppercase tracking-[0.22em] text-muted">
             <span className="truncate">{restaurantName ?? "Commande"}</span>
             {ticket.createdAt && (
-              <time dateTime={ticket.createdAt} className="tabular-nums">
+              <time dateTime={ticket.createdAt} className="normal-case tabular-nums">
                 <span className="sr-only">Commandée à </span>
-                {timeFormat.format(new Date(ticket.createdAt))}
+                {frenchTime(new Date(ticket.createdAt))}
               </time>
             )}
           </p>
@@ -296,11 +317,11 @@ function OrderTicket({
                   : "border-ember-2/50 bg-ember-2/10 text-foreground"
               }`}
             >
+              {/* Paiement en cours : le titre de l'état le dit, le montant
+                  reste à régler — sur une ligne, comme au comptoir. */}
               {ticket.paid
                 ? `${formatPrice(ticket.total)} · réglée`
-                : ticket.paying
-                  ? `${formatPrice(ticket.total)} · paiement en ligne en cours`
-                  : `${formatPrice(ticket.due ?? ticket.total)} à régler`}
+                : `${formatPrice(ticket.due ?? ticket.total)} à régler`}
             </p>
           )}
         </div>
@@ -312,8 +333,16 @@ function OrderTicket({
           <span className="absolute -right-2.5 size-5 rounded-full border border-hairline bg-surface" />
         </div>
 
-        <div className="order-ticket-foot rounded-b-2xl border border-t-0 border-hairline bg-background px-6 pb-6 pt-4">
-          {stage && stage.step >= 0 && (
+        <div
+          ref={footRef}
+          {...(footScrolls && {
+            tabIndex: 0,
+            role: "region",
+            "aria-label": "Suivi et détail de la commande",
+          })}
+          className="order-ticket-foot rounded-b-2xl border border-t-0 border-hairline bg-background px-6 pb-6 pt-4"
+        >
+          {tracked && (
             <ol className="grid grid-cols-3" aria-label="Avancement de la commande">
               {STEPS.map((label, index) => {
                 const done = index < stage.step;
@@ -328,7 +357,8 @@ function OrderTicket({
                 return (
                   <li
                     key={label}
-                    aria-current={current ? "step" : undefined}
+                    // En attente du règlement, l'étape n'a pas commencé.
+                    aria-current={state === "current" ? "step" : undefined}
                     data-state={state}
                     className="order-step flex flex-col items-center gap-2 text-center"
                   >
@@ -342,6 +372,11 @@ function OrderTicket({
                     >
                       {label}
                       {done && <span className="sr-only"> (fait)</span>}
+                      {/* « Prête (en cours) » se lisait mal : la dernière étape se dit seule. */}
+                      {state === "current" && index < STEPS.length - 1 && (
+                        <span className="sr-only"> (en cours)</span>
+                      )}
+                      {state === "todo" && <span className="sr-only"> (à venir)</span>}
                       {state === "waiting" && (
                         <span className="block whitespace-nowrap font-normal text-muted">
                           après règlement
@@ -353,31 +388,45 @@ function OrderTicket({
               })}
             </ol>
           )}
-          {/* Hauteur réservée — celle de l'heure prévue quand il y en a une :
-              d'un état à l'autre, le ticket ne saute pas. */}
-          <div
-            data-estimates={tickets?.estimates || undefined}
-            className="order-ticket-status mt-5 flex min-h-28 flex-col items-center text-center"
-          >
-            {stage ? (
-              <>
-                {ticket.status === "payee" && ticket.estimate ? (
-                  <ReadyCountdown estimate={ticket.estimate} />
-                ) : (
-                  <p
-                    className={`order-ticket-title text-balance font-display font-medium ${
-                      ready ? "ember-text text-3xl" : "text-2xl"
-                    }`}
-                  >
-                    {stage.title}
-                  </p>
-                )}
-                <p className="mx-auto mt-1.5 max-w-xs text-balance text-sm leading-relaxed text-muted">
-                  {body}
-                </p>
-              </>
-            ) : (
+          <div className="order-ticket-status mt-5 flex flex-col items-center text-center">
+            {!stage ? (
               <p className="text-sm text-muted">Un instant…</p>
+            ) : (
+              // Sous l'heure prévue, le titre reste dit : chaque état a le sien.
+              <h3
+                className={
+                  estimate
+                    ? "sr-only"
+                    : `order-ticket-title text-balance font-display font-medium ${
+                        ready ? "ember-text text-3xl" : "text-2xl"
+                      }`
+                }
+              >
+                {stage.title}
+              </h3>
+            )}
+            {estimate && <ReadyCountdown estimate={estimate} />}
+            {/* Sous le titre de l'état, dans le ticket : un avis qui s'en va ne
+                déplace pas le numéro, et ne glisse pas sous les boutons. */}
+            {notices.map((notice) => (
+              <p
+                key={notice}
+                className="mb-1.5 mt-3 w-full rounded-xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm leading-relaxed text-foreground"
+              >
+                {notice}
+              </p>
+            ))}
+            {/* Une phrase par ligne quand le texte le demande (\n), chacune
+                équilibrée : avec pre-line, Chrome n'équilibrait plus et
+                laissait « règlement. » seul sur sa ligne. */}
+            {body && (
+              <p className="mx-auto mt-1.5 max-w-xs text-balance text-sm leading-relaxed text-muted">
+                {body.split("\n").map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
+              </p>
             )}
           </div>
           {ticket.lines.length > 0 && (
@@ -388,15 +437,24 @@ function OrderTicket({
               {ticket.lines.map((line, index) => (
                 // Par position : deux compositions d'un plat portent son nom.
                 <li key={index} className="flex gap-2">
-                  <span className="tabular-nums">{line.quantity}×</span>
+                  <span className="w-6 shrink-0 tabular-nums">{line.quantity}×</span>
                   <span className="min-w-0 flex-1">
                     <span className="text-foreground">{line.name}</span>
-                    {/* Un choix par ligne : « Coca-Cola » ne se coupe plus. */}
-                    {line.choices.map((choice, i) => (
-                      <span key={i} className="block">
-                        {choice}
+                    {/* Les choix sur une ligne, comme au panier : chacun d'un bloc
+                        (« Coca-Cola » ne se coupe pas), le point avec celui qui le
+                        précède. Un par ligne, un tacos en prenait sept. */}
+                    {line.choices.length > 0 && (
+                      <span className="block">
+                        {line.choices.map((choice, i) => (
+                          <Fragment key={i}>
+                            <span className="inline-block max-w-full">
+                              {choice}
+                              {i < line.choices.length - 1 && "\u00a0·"}
+                            </span>{" "}
+                          </Fragment>
+                        ))}
                       </span>
-                    ))}
+                    )}
                   </span>
                 </li>
               ))}
@@ -411,7 +469,7 @@ function OrderTicket({
           l'étape suivante. */}
       <div className="order-ticket-exit sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 bg-surface px-5 pb-5 pt-3">
         {stage === PAYING && (
-          <div className="flex flex-col gap-2">
+          <div className="order-ticket-paying flex flex-col gap-2">
             {resumable && (
               <button
                 type="button"
@@ -464,10 +522,10 @@ function OrderTicket({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className={`min-h-11 flex-1 rounded-full px-4 py-3 text-sm font-semibold ${
+            className={`min-h-11 flex-1 rounded-full border px-4 py-3 text-sm font-semibold ${
               active
-                ? "border border-hairline text-foreground"
-                : "ember-gradient text-background"
+                ? "border-hairline text-foreground"
+                : "ember-gradient border-transparent bg-origin-border text-background"
             }`}
           >
             {active ? "Retour à la carte" : "Fermer"}
@@ -479,7 +537,7 @@ function OrderTicket({
 }
 
 /** Ce qui s'efface d'une rangée trop étroite, dans l'ordre (globals.css). */
-const DOCK_FIT_STEPS = ["pill", "cooking", "total", "due", "ready"] as const;
+const DOCK_FIT_STEPS = ["pill", "tight", "cooking", "total", "due", "ready", "count"] as const;
 
 /**
  * Les commandes en cours, en pastilles au-dessus de la barre du panier : le
@@ -494,12 +552,10 @@ export function TicketTracker() {
   const shownId = tickets?.shownId ?? null;
   const dockRef = useRef<HTMLDivElement>(null);
 
-  // Une seule rangée, à gauche de la pastille du panier où qu'elle soit (en
-  // bas, ou couchée à droite) : si elle déborde, des mots s'effacent — voir
-  // globals.css, data-dock-fit —, puis la rangée passe à la ligne. Sur grand
-  // écran, où elle s'empile d'elle-même à côté du panier, rien ne s'efface.
-  // Mesuré, pas calculé : la largeur tient à la police de la maison et au
-  // montant du panier.
+  // Une seule rangée, à gauche de la pastille du panier : si elle déborde, des
+  // mots s'effacent — voir globals.css, data-dock-fit —, puis, en dernier
+  // recours, elle passe à la ligne. Mesuré, pas calculé : la largeur tient à
+  // la police de la maison et au montant du panier.
   const fitDock = useRef(() => {});
   useLayoutEffect(() => {
     const dock = dockRef.current;
@@ -512,7 +568,6 @@ export function TicketTracker() {
       };
       dock.style.paddingRight = "";
       apply();
-      if (getComputedStyle(dock).flexWrap !== "nowrap") return;
       const room = () => {
         const box = dock.getBoundingClientRect();
         const bar = root.querySelector(".cart-bar")?.getBoundingClientRect();
@@ -528,9 +583,10 @@ export function TicketTracker() {
         apply();
       }
       if (fits()) return;
-      dock.style.paddingRight = `${dock.getBoundingClientRect().right - room()}px`;
-      steps.push("wrap");
+      // Sur deux rangées, la place revient : le compte du panier aussi.
+      steps.splice(steps.indexOf("count"), 1, "wrap");
       apply();
+      dock.style.paddingRight = `${dock.getBoundingClientRect().right - room()}px`;
     };
     fitDock.current();
     return () => {
@@ -538,6 +594,42 @@ export function TicketTracker() {
       delete root.dataset.dockFit;
     };
   });
+  // Le fondu sous les pastilles efface la carte qui passe derrière elles ; sur
+  // le pied de page de l'établissement, il le salissait : il s'en va quand
+  // sa bande ne couvre plus que le pied.
+  const docked = (tickets?.tickets ?? []).some(
+    (ticket) => isActiveTicket(ticket) && ticket.number !== null
+  );
+  useEffect(() => {
+    const dock = dockRef.current?.parentElement;
+    const root = dock?.closest<HTMLElement>("[data-menu-root]");
+    const footer = root?.querySelector("footer");
+    if (!dock || !root || !footer) return;
+    let observer: IntersectionObserver | null = null;
+    let band = -1;
+    // La bande du fondu (::before de .ticket-dock) change avec l'orientation :
+    // l'observateur ne se refait que si elle a changé.
+    const watch = () => {
+      const next = parseFloat(getComputedStyle(dock, "::before").height) || 0;
+      if (next === band) return;
+      band = next;
+      observer?.disconnect();
+      observer = new IntersectionObserver(
+        (entries) =>
+          root.toggleAttribute("data-footer-seen", entries[entries.length - 1].isIntersecting),
+        { rootMargin: `0px 0px -${band}px 0px` }
+      );
+      observer.observe(footer);
+    };
+    watch();
+    window.addEventListener("resize", watch);
+    return () => {
+      window.removeEventListener("resize", watch);
+      observer?.disconnect();
+      root.removeAttribute("data-footer-seen");
+    };
+  }, [docked]);
+
   useEffect(() => {
     const refit = () => fitDock.current();
     let live = true;
@@ -560,11 +652,13 @@ export function TicketTracker() {
     }
     const id = lastShown.current;
     lastShown.current = null;
-    // Remise, sa pastille est partie : la première qui reste prend le focus.
+    // Remise, sa pastille est partie : la première qui reste prend le focus,
+    // ou, plus aucune, la barre du panier.
     if (id) {
       (
         document.querySelector<HTMLElement>(`[data-ticket="${id}"]`) ??
-        document.querySelector<HTMLElement>("[data-ticket]")
+        document.querySelector<HTMLElement>("[data-ticket]") ??
+        document.querySelector<HTMLElement>(".cart-bar")
       )?.focus({ preventScroll: true });
     }
   }, [shownId]);

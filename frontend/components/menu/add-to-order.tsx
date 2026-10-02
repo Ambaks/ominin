@@ -124,6 +124,9 @@ export function AddToOrder({ item }: { item: MenuItem }) {
           if (event.detail > 1) return;
           if (!hasOptions) return addPlain();
           track("plat", { items: [item.id] });
+          // Safari ne donne pas le focus au bouton touché : la feuille le
+          // retrouve en se refermant, et le lecteur d'écran sa place.
+          event.currentTarget.focus({ preventScroll: true });
           setModalOpen(true);
         }}
         // Onze « + Ajouter » identiques ne disent rien à un lecteur d'écran.
@@ -380,7 +383,10 @@ export function OptionsModal({
           </div>
           <div
             ref={bodyRef}
-            className="flex-1 overflow-y-auto overscroll-contain px-6 pb-6 pt-5"
+            // relative : les textes masqués (« choix fait ») se placent dans la
+            // liste — hors d'elle, ils faisaient défiler la feuille entière,
+            // titre compris.
+            className="relative flex-1 overflow-y-auto overscroll-contain px-6 pb-6 pt-5"
             onPointerDown={() => {
               pointer.current = true;
             }}

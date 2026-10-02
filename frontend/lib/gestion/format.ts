@@ -35,6 +35,11 @@ export function amountToInput(value: number): string {
   return value.toFixed(2).replace(".", ",");
 }
 
+/** « 18 h 37 », l'heure dans une phrase (le ticket fast food, ses annonces). */
+export function frenchTime(date: Date): string {
+  return `${date.getHours()}\u00a0h\u00a0${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
 export function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("fr-FR", {
     hour: "2-digit",

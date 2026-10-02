@@ -8,6 +8,15 @@
 */
 
 :root {
+  /* Hauteur des feuilles (Sheet) : le ticket fast food la relève sur un
+     écran bas et s'y règle. */
+  --sheet-max: 88dvh;
+  /* Réserve sous la barre des catégories, collée en haut : le focus et les
+     ancres s'arrêtent dessous. */
+  --nav-band: 6rem;
+  /* Bande opaque sous les pastilles fast food (.ticket-dock::before) : le
+     focus clavier s'arrête au-dessus. */
+  --dock-band: 7.5rem;
   --background: #0c0a08;
   --foreground: #f3ece1;
 
@@ -660,16 +669,17 @@ html.light {
 
 /* Les articles : capitales extra-grasses, précédées de la pastille jaune du
    panneau — sur la carte comme dans sa modale d'options (le panier, étiqueté
-   autrement, garde son titre). */
+   autrement, garde son titre, et le ticket fast food l'état de la
+   commande : la pastille décentrait ses deux lignes). */
 .theme-o-crousti-poulet article h3,
-.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title) {
+.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title, .order-ticket-title) {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.01em;
 }
 
 .theme-o-crousti-poulet article h3::before,
-.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title)::before {
+.theme-o-crousti-poulet [role="dialog"] h3:not(.cart-title, .order-ticket-title)::before {
   content: "";
   display: inline-block;
   width: 0.62em;
@@ -860,8 +870,11 @@ html.light {
   }
 }
 
-/* La barre du panier, jaune, cerclée de noir pour se détacher de tout. */
-.theme-o-crousti-poulet .cart-bar {
+/* La barre du panier, jaune, cerclée de noir pour se détacher de tout — et,
+   dans tous les thèmes, une fois le fondu des pastilles parti sur le pied de
+   page (TicketTracker) : sur un pied de sa couleur, elle s'y fondait. */
+.theme-o-crousti-poulet .cart-bar,
+[data-footer-seen] .cart-bar {
   box-shadow:
     0 0 0 2px var(--background),
     0 25px 50px -12px rgba(0, 0, 0, 0.4);
@@ -1362,9 +1375,17 @@ html:has(.theme-o-crousti-poulet) body {
   }
 }
 
-/* La barre du panier flotte sur le bas de page : tant qu'elle est là, le
-   pied s'allonge d'autant, dans sa propre couleur. */
-[data-menu-root]:has(.cart-bar) footer {
+/* Dans la feuille du panier, ce qui prend le focus dans la liste s'arrête
+   entre l'en-tête et le pied collés (hauteurs mesurées par CartBar). */
+.cart-content :is(button, input, a) {
+  scroll-margin-top: var(--cart-head, 0px);
+  scroll-margin-bottom: var(--cart-foot, 0px);
+}
+
+/* La barre du panier (et, en fast food, les pastilles des commandes) flotte
+   sur le bas de page : tant qu'elle est là, le pied s'allonge d'autant, dans
+   sa propre couleur. */
+[data-menu-root]:is(:has(.cart-bar), :has(.ticket-dock)) footer {
   padding-bottom: 6rem;
 }
 
@@ -1374,11 +1395,21 @@ html:has(.theme-o-crousti-poulet) body {
   du panier, en bas.
 */
 html:has([data-menu-root]) {
-  scroll-padding-top: 6rem;
+  scroll-padding-top: var(--nav-band);
+}
+
+/* La barre elle-même est collée : sans cette marge, Chrome remonte la page à
+   chaque Tab d'une catégorie à l'autre pour la sortir de cette réserve. */
+[data-menu-root] nav :is(a, button) {
+  scroll-margin-top: calc(-1 * var(--nav-band));
 }
 
 html:has(.cart-bar) {
   scroll-padding-bottom: 6rem;
+}
+
+html:has(.ticket-dock) {
+  scroll-padding-bottom: var(--dock-band);
 }
 
 /*
@@ -1540,16 +1571,101 @@ html:has(.cart-bar) {
   }
 }
 
+/* Fast food, téléphone couché : le pied du panier — total, choix du
+   règlement, envoi — prenait toute la hauteur, aucune ligne ne se lisait. Le
+   panier passe en deux volets, comme le ticket : la commande à gauche, qui
+   défile, le règlement à droite, toujours en vue. */
+@media (orientation: landscape) and (max-height: 500px) {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-foot) {
+    max-width: 44rem;
+    height: calc(100dvh - 1rem);
+    display: grid;
+    grid-template: auto minmax(0, 1fr) / minmax(0, 1fr) minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  [data-service="fast-food"] [role="dialog"] > .cart-head {
+    grid-column: 1 / -1;
+  }
+
+  [data-service="fast-food"] [role="dialog"] > :is(.cart-content, .cart-foot) {
+    position: relative;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  [data-service="fast-food"] [role="dialog"] > .cart-foot {
+    position: static;
+    align-content: start;
+    border-top: 0;
+    border-left: 1px solid var(--hairline);
+  }
+
+  [data-service="fast-food"] .cart-content :is(button, input, a) {
+    scroll-margin: 0;
+  }
+}
+
+/* Deux volets étroits (568 × 320) : « Payer au comptoir » passait à la ligne,
+   pas « Payer en ligne » ; les deux s'y mettent. */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 39.99rem) {
+  [data-service="fast-food"] .cart-foot [role="radio"] > .text-balance {
+    width: min-content;
+  }
+}
+
+/* Deux volets très bas (568 × 320) : la phrase sous le choix du règlement
+   repoussait l'envoi hors de l'écran ; le bouton dit déjà où l'on paie. */
+@media (orientation: landscape) and (max-height: 359px) {
+  [data-service="fast-food"] .cart-hint {
+    display: none;
+  }
+}
+
+/* Téléphone très étroit (340 px et moins) : les deux choix de règlement l'un
+   sous l'autre, chacun sur une ligne — côte à côte, l'un passait à la ligne
+   et pas l'autre. */
+@media (max-width: 21.25rem) {
+  [data-menu-root] .cart-foot > [role="radiogroup"] {
+    flex-direction: column;
+  }
+}
+
+/* Cibles de focus sans geste (le haut de la page, le titre d'une section, la
+   carte d'un plat, le pied de page, rendus focalisables par Sheet) : ce ne
+   sont pas des contrôles. Au clavier, un anneau discret dit où l'on reprend. */
+[data-menu-root] :is(header, h1, main, main h2, main article, footer)[tabindex="-1"]:focus {
+  outline: none;
+}
+
+[data-menu-root] :is(header, h1, main, main h2, main article, footer)[tabindex="-1"]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ember-1) 60%, transparent);
+  outline-offset: 2px;
+}
+
+/* Pleine largeur : l'anneau à l'intérieur, sinon ses côtés sortaient de
+   l'écran. */
+[data-menu-root] :is(header, main, footer)[tabindex="-1"]:focus-visible {
+  outline-offset: -4px;
+}
+
 /* Tout ce qui se touche le montre à la souris (Tailwind 4 laisse la flèche). */
 [data-menu-root] :is(button, label:has(input)):not(:disabled) {
   cursor: pointer;
 }
 
 /* Une feuille ouverte : l'animation du héros s'arrête derrière son voile
-   flouté, qui la recalculait à chaque image. */
+   flouté, qui la recalculait à chaque image. Une commande fast food en cours
+   aussi : la page reste ouverte des minutes, elle ne doit pas repeindre sans
+   fin. */
 [data-menu-root]:has([role="dialog"]) > header,
 [data-menu-root]:has([role="dialog"]) > header *,
-[data-menu-root]:has([role="dialog"]) > header::after {
+[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) > header::after,
+/* L'entrée du héros (.hero-entrance) va à son terme : figée par les
+   pastilles, qui restent, elle laissait le texte à demi effacé. La bande des
+   formules défile toujours : arrêtée, ses autres offres ne se lisaient plus. */
+[data-menu-root]:has(.ticket-dock) > header,
+[data-menu-root]:has(.ticket-dock) > header :not(.hero-entrance, .marquee-track) {
   animation-play-state: paused;
 }
 
@@ -1827,10 +1943,19 @@ html:has(.cart-bar) {
   font-size: min(var(--digits-size), 28cqi);
 }
 
-/* L'heure prévue (aperçu) est plus haute qu'un titre : sa place est tenue
-   dans tous les états, le numéro ne monte ni ne descend. */
-.order-ticket-status[data-estimates] {
-  min-height: 13.5rem;
+/* Le numéro tamponné quand le ticket prend la place du panier : le geste de
+   ticket-pop sous un autre nom — un ticket tamponné qui devient prêt rejoue
+   ainsi le sien. */
+@keyframes ticket-stamp {
+  0% {
+    transform: scale(0.88);
+  }
+  60% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: none;
+  }
 }
 
 @keyframes ticket-pop {
@@ -1891,7 +2016,8 @@ html:has(.cart-bar) {
 /*
   Rangée trop étroite (TicketTracker, data-dock-fit sur la racine) : les mots
   s'effacent du moins utile au plus utile — le libellé du panier (son sac le
-  remplace), « En cuisine », le montant du panier, « À régler », « Prête ! » ;
+  remplace), puis, la rangée serrée, « En cuisine », le montant du panier,
+  « À régler », « Prête ! » ;
   en dernier recours, la rangée passe à la ligne. Sans son mot, la pastille se
   réduit au numéro, son point d'état en badge dans l'angle.
 */
@@ -1907,6 +2033,22 @@ html:has(.cart-bar) {
 
 [data-dock-fit~="wrap"] .ticket-dock-column {
   flex-wrap: wrap;
+}
+
+/* Avant de perdre leurs mots, les pastilles se serrent : un écart plus
+   court, des numéros (trois chiffres en fin de journée) moins larges. */
+[data-dock-fit~="tight"] .ticket-dock-column {
+  gap: 0.375rem;
+}
+
+[data-dock-fit~="tight"] .ticket-chip {
+  column-gap: 0.5rem;
+  padding-inline: 0.25rem 0.75rem;
+}
+
+[data-dock-fit~="tight"] .ticket-chip > span:first-child {
+  padding-inline: 0.375rem;
+  font-size: 1rem;
 }
 
 /* Le sac et son compte, sans disque : un disque numéroté se lisait comme
@@ -1940,6 +2082,12 @@ html:has(.cart-bar) {
   top: 0.125rem;
   right: 0.125rem;
   box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Prête, réduite au numéro : un point allumé dans l'angle — de la couleur du
+   fond, il passait pour un trou dans son cerne. */
+[data-dock-fit~="ready"] .ticket-chip[data-ready] .ticket-chip-dot {
+  background: var(--ember-2);
 }
 
 /* Plein de la teinte de la pastille : creux, il laissait passer le contour et
@@ -2010,8 +2158,14 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Quelques battements, comme les pastilles : la page reste ouverte, elle
+     ne doit pas repeindre sans fin. */
   .order-ticket[data-ready] {
-    animation: ticket-glow 2.4s ease-in-out infinite;
+    animation: ticket-glow 2.4s ease-in-out 3 forwards;
+  }
+
+  .order-ticket[data-issued] .order-ticket-number {
+    animation: ticket-stamp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
   .order-ticket[data-ready] .order-ticket-number {
@@ -2024,7 +2178,9 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
     inset: -2px;
     border-radius: 9999px;
     border: 2px solid var(--ember-2);
-    animation: step-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+    /* Quelques battements à chaque étape, puis le calme : la page reste
+       ouverte. */
+    animation: step-ping 1.8s cubic-bezier(0, 0, 0.2, 1) 3;
   }
 
   /* Quelques battements, pas un clignotement sans fin (WCAG 2.2.2) : la
@@ -2045,67 +2201,81 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   position: absolute;
   inset: auto 0 0;
   z-index: -1;
-  height: 7.5rem;
+  height: var(--dock-band);
   background: linear-gradient(to top, var(--background) 55%, transparent);
   pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
-/* Le pied de page s'arrête au-dessus des pastilles et de leur fondu : une
-   marge, pas un rembourrage — sa couleur ne passe plus sous le fondu. */
-[data-menu-root]:has(.ticket-dock) footer {
-  margin-bottom: 7.5rem;
-}
-
-/* Téléphone à l'horizontale : la barre du panier est une pastille à droite
-   (plus haut) ; les tickets restent en bas, à gauche, sur la même ligne. */
-@media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
-  [data-menu-root] .ticket-dock,
-  [data-menu-root]:has(.cart-bar) .ticket-dock {
-    bottom: 0;
-    justify-content: flex-start;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .ticket-dock::before {
-    height: 4rem;
-  }
+/* Arrivé sur le pied de page de l'établissement (TicketTracker l'observe),
+   le fondu s'en va : il en salissait la couleur. Le pied, lui, s'allonge
+   sous les pastilles, dans sa propre couleur. */
+[data-footer-seen] .ticket-dock::before {
+  opacity: 0;
 }
 
 /*
   Tickets et panier sur une seule rangée, sur la largeur du texte de la carte
-  (pas serrés au milieu, ni collés au bord d'une tablette) : les tickets à
-  gauche, la barre du panier en pastille à droite, de leur hauteur
-  (TicketTracker mesure la place). Sur téléphone et tablette, la pastille
-  perd son libellé pour son sac (le bouton garde son nom complet pour les
-  lecteurs d'écran).
+  (même marge que les plats ; pas serrés au milieu, ni collés au bord d'une
+  tablette) : les tickets à gauche, la barre du panier en pastille à droite,
+  de leur hauteur (TicketTracker mesure la place). Sous la largeur d'un
+  ordinateur, la pastille perd son libellé pour son sac (le bouton garde son
+  nom complet pour les lecteurs d'écran).
 */
-@media not ((orientation: landscape) and (max-height: 500px)) {
-  [data-menu-root] {
-    --dock-width: 28rem;
+[data-menu-root] {
+  --dock-width: 39.5rem;
+}
+
+.ticket-dock {
+  padding-inline: 1.25rem;
+}
+
+.ticket-dock-column {
+  max-width: var(--dock-width);
+}
+
+[data-menu-root]:has(.ticket-dock) div:has(> .cart-bar) {
+  justify-content: flex-end;
+  padding-inline: max(1.25rem, calc((100% - var(--dock-width)) / 2));
+}
+
+[data-menu-root]:has(.ticket-dock) .cart-bar {
+  width: auto;
+  height: 3rem;
+  padding-block: 0;
+  padding-inline: 1.25rem;
+}
+
+/* Rangée serrée (data-dock-fit « tight ») : la pastille aussi. */
+[data-menu-root][data-dock-fit~="tight"] .cart-bar {
+  padding-inline: 1rem;
+}
+
+/* Téléphone couché : la barre du panier descend près du bord (voir plus
+   haut) ; les pastilles, sur la même ligne. */
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
+  .ticket-dock {
+    padding-block: 0.5rem;
   }
 
-  .ticket-dock-column {
-    max-width: var(--dock-width);
+  /* Plein jusqu'en haut des pastilles : les boutons des plats passaient entre
+     elles. */
+  :root {
+    --dock-band: 5rem;
   }
 
-  [data-menu-root]:has(.ticket-dock) div:has(> .cart-bar) {
-    justify-content: flex-end;
-    padding-inline: max(1rem, calc((100% - var(--dock-width)) / 2));
-  }
-
-  [data-menu-root]:has(.ticket-dock) .cart-bar {
-    width: auto;
-    height: 3rem;
-    padding-block: 0;
-    padding-inline: 1.25rem;
-  }
-
-  [data-menu-root]:has(.cart-bar) .ticket-dock {
-    bottom: 0;
+  .ticket-dock::before {
+    background: linear-gradient(to top, var(--background) 70%, transparent);
   }
 }
 
-@media (max-width: 63.99rem) and (not ((orientation: landscape) and (max-height: 500px))) {
+/* Plus de place pour le nom des pastilles : le compte du panier s'efface en
+   tout dernier (TicketTracker), son sac reste. */
+[data-dock-fit~="count"] .cart-bar-count {
+  display: none;
+}
+
+@media (max-width: 63.99rem) {
   [data-menu-root]:has(.ticket-dock) .cart-bar-label {
     display: none;
   }
@@ -2124,39 +2294,118 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
 
 /* La largeur du texte de la carte : max-w-2xl puis max-w-5xl, moins leurs
    marges intérieures. */
-@media (min-width: 40rem) {
-  [data-menu-root] {
-    --dock-width: 39.5rem;
-  }
-}
-
 @media (min-width: 64rem) {
   [data-menu-root] {
     --dock-width: 59rem;
   }
 }
 
-/* Écran bas : le ticket se resserre pour garder numéro et état ensemble. */
+/*
+  Tablette et ordinateur : la feuille ne monte plus du bas, elle se pose au
+  milieu — et changeait de hauteur d'un état à l'autre en déplaçant le
+  numéro. Posé en haut, là où se poserait une feuille de pleine hauteur
+  (--sheet-max, plus haute sur un écran bas ; 1rem : la marge du fond,
+  sm:p-4), le ticket garde son numéro en place sans hauteur réservée : il
+  s'arrête avec la commande.
+*/
+@media (min-width: 40rem) and (not ((orientation: landscape) and (max-height: 500px))) {
+  [data-menu-root] [role="dialog"]:has(.order-ticket) {
+    align-self: flex-start;
+    margin-top: max(0px, calc((100dvh - var(--sheet-max)) / 2 - 1rem));
+    /* Barre de défilement classique (Windows) : sa place reste prise, des
+       deux côtés — le numéro reste centré et ne glisse pas quand un état
+       déborde et le suivant non. */
+    scrollbar-gutter: stable both-edges;
+  }
+}
+
+/* Téléphone étroit (320 px) : les trois étapes ont la place de ne pas se
+   toucher. */
+@media (max-width: 22.5rem) {
+  .order-ticket-foot {
+    padding-inline: 1rem;
+  }
+}
+
+/*
+  Téléphone à la verticale : la feuille du ticket prend toujours toute sa
+  hauteur. D'un état à l'autre — l'heure prévue qui arrive, les boutons d'un
+  paiement en cours qui s'en vont, l'annulation —, le haut de la feuille et
+  le numéro ne bougent pas. Le ticket descend jusqu'aux boutons : son état au
+  milieu, la commande en bas, pas de plateau vide sous la carte.
+*/
+@media (max-width: 39.99rem) and (not ((orientation: landscape) and (max-height: 500px))) {
+  [data-menu-root] [role="dialog"]:has(.order-ticket) {
+    --sheet-max: 94dvh;
+    height: var(--sheet-max);
+  }
+
+  .order-ticket-sheet,
+  .order-ticket,
+  .order-ticket-foot {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .order-ticket-foot {
+    justify-content: space-between;
+  }
+}
+
+/* Téléphone de 621 à 900 px de haut : les marges du ticket se serrent, l'heure
+   prévue de l'aperçu aussi — l'état le plus haut et deux lignes de commande
+   tiennent sans défiler. Sous 700 px, le bloc des écrans bas (le suivant)
+   resserre encore, le numéro compris. */
+@media (max-width: 39.99rem) and (620px < height <= 900px) {
+  .order-ticket-sheet {
+    row-gap: 1rem;
+    padding-top: 1rem;
+  }
+
+  .order-ticket-status {
+    margin-top: 1rem;
+  }
+
+  .order-ticket-head {
+    padding-top: 1rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .order-ticket-head > h2 {
+    margin-top: 1rem;
+  }
+
+  .order-ticket-foot {
+    padding-top: 0.75rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .order-eta-minutes {
+    font-size: 2.5rem;
+  }
+
+  .order-eta-track {
+    margin-top: 0.75rem;
+  }
+}
+
+/* 700 px de haut ou moins (iPhone 12 à 15 dans Safari, 390 × 664 ; iPhone SE,
+   375 × 553) : tout se resserre, la feuille gagne le haut de l'écran, « À
+   régler » et sa ligne de commande tiennent au-dessus de « Retour à la
+   carte ». */
 @media (max-height: 700px) {
   .order-ticket-head {
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
 
-  /* La feuille tient déjà toute la hauteur : rien à réserver, tout à gagner. */
-  .order-ticket-status,
-  .order-ticket-status[data-estimates],
   .order-step-label {
     min-height: 0;
   }
-}
 
-/* Plus bas encore (iPhone SE dans Safari, 375 × 553 ; 320 × 460) : tout se
-   resserre, la feuille gagne le haut de l'écran, le titre de l'état tient
-   au-dessus de « Retour à la carte ». */
-@media (max-height: 620px) {
   [data-menu-root] [role="dialog"]:has(.order-ticket) {
-    max-height: 94dvh;
+    --sheet-max: 94dvh;
   }
 
   .order-ticket-digits {
@@ -2193,6 +2442,16 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   }
 }
 
+/* Paiement en cours, écran bas à la verticale : ses deux boutons montent le
+   bas de la feuille ; les étapes, qui n'avancent pas avant le règlement,
+   laissent la place au titre et à son explication (entière jusqu'à 640 px de
+   haut ; en dessous, la feuille défile). */
+@media (max-height: 700px) and (orientation: portrait) {
+  [role="dialog"]:has(.order-ticket-paying) .order-ticket-foot > ol {
+    display: none;
+  }
+}
+
 /* À la verticale sous 500 px (320 × 460) : le nom et l'heure, en tête du
    ticket, et la légende de l'heure prévue cèdent leur ligne à l'état. */
 @media (max-height: 500px) and (orientation: portrait) {
@@ -2209,7 +2468,10 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
 /* Téléphone couché : le ticket en deux volets, le numéro à gauche, l'état à
    droite, dans une feuille élargie. */
 @media (orientation: landscape) and (max-height: 500px) {
+  /* La part du talon (le numéro) dans la largeur du ticket, lue aussi par le
+     fondu du bas ; 1.25rem : la marge intérieure du ticket (OrderTicket). */
   [data-menu-root] [role="dialog"]:has(.order-ticket) {
+    --ticket-head-share: 0.4;
     max-width: 44rem;
   }
 
@@ -2218,11 +2480,13 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
      « Retour à la carte » collé au bas de la feuille. */
   .order-ticket {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-columns: minmax(0, calc(var(--ticket-head-share) * 100%)) minmax(0, 1fr);
   }
 
+  /* Une seule taille, que le ticket garde avec la rangée de boutons d'un
+     paiement en cours : le numéro ne change pas quand elle s'en va. */
   .order-ticket-digits {
-    --digits-size: clamp(4.5rem, 24svh, 7rem);
+    --digits-size: clamp(3rem, 18svh, 7rem);
   }
 
   .order-ticket .order-ticket-head {
@@ -2240,14 +2504,77 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
     letter-spacing: 0.12em;
   }
 
-  /* Comme à la verticale, la place de l'état est tenue : le numéro et le
-     bouton ne bougent plus d'un état à l'autre. */
-  .order-ticket-status {
-    min-height: 7rem;
+  /* La feuille prend toute la hauteur dans tous les états : le numéro et le
+     bouton ne bougent pas, sans hauteur réservée — le volet de l'état défile
+     seul s'il déborde, le talon reste en vue. */
+  [data-menu-root] [role="dialog"]:has(.order-ticket) {
+    height: calc(100dvh - 1rem);
+    max-height: calc(100dvh - 1rem);
   }
 
-  .order-ticket-status[data-estimates] {
-    min-height: 12.5rem;
+  .order-ticket-sheet,
+  .order-ticket {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .order-ticket {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* La place du fondu du bas, toujours là : réservée seulement quand le volet
+     défilait, elle le faisait encore défiler pour quelques pixels une fois
+     l'état suivant arrivé. */
+  .order-ticket .order-ticket-foot {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 3rem;
+  }
+
+  /* Quand il défile (role="region", OrderTicket), le bas du volet s'efface :
+     la commande coupée net ne disait pas qu'il en restait. Défilé, le haut
+     s'efface de même : les étapes n'y sont plus tranchées. */
+  .order-ticket .order-ticket-foot[role="region"][data-scrolled]::before {
+    content: "";
+    position: sticky;
+    top: -1rem;
+    z-index: 1;
+    display: block;
+    height: 2.5rem;
+    margin: -1rem 0 -1.5rem;
+    background: linear-gradient(to bottom, var(--background), transparent);
+    pointer-events: none;
+  }
+
+  .order-ticket .order-ticket-foot[role="region"]::after {
+    content: "";
+    position: sticky;
+    bottom: -3rem;
+    display: block;
+    height: 3rem;
+    margin-bottom: -3rem;
+    background: linear-gradient(to top, var(--background), transparent);
+    pointer-events: none;
+  }
+
+  /* Le fondu du bas, sur le volet de l'état seulement : sur le talon prêt,
+     il en salissait la couleur. */
+  .order-ticket-exit::before {
+    left: calc(1.25rem + (100% - 2.5rem) * var(--ticket-head-share));
+  }
+
+  /* Reprendre le paiement ou payer au comptoir, côte à côte : empilés, ils
+     couvraient le numéro. */
+  .order-ticket-paying {
+    flex-flow: row wrap;
+  }
+
+  .order-ticket-paying > button {
+    flex: 1;
+  }
+
+  .order-ticket-paying > p {
+    flex-basis: 100%;
   }
 
   .order-ticket .order-ticket-tear {
@@ -2258,6 +2585,32 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
     border-top-width: 1px;
     border-left: 2px dashed var(--hairline);
     border-radius: 0 1rem 1rem 0;
+  }
+}
+
+/* Téléphone couché, très bas (640 × 360, 667 × 375) : l'en-tête du ticket
+   se réduit au numéro et au montant, dans tous les états — avec les boutons
+   d'un paiement en cours, le montant débordait du ticket, et l'en-tête qui
+   ne se resserrait qu'alors déplaçait le numéro. */
+@media (orientation: landscape) and (max-height: 379px) {
+  .order-ticket-meta {
+    @apply sr-only;
+  }
+
+  .order-ticket .order-ticket-head {
+    padding-block: 0.75rem;
+  }
+
+  .order-ticket-head > h2 {
+    margin-top: 0;
+  }
+}
+
+/* Plus bas encore (568 × 320) : « Votre numéro » ne se dit plus qu'au lecteur
+   d'écran, dans le titre de la feuille. */
+@media (orientation: landscape) and (max-height: 359px) {
+  .order-ticket-label {
+    @apply sr-only;
   }
 }
 
@@ -2313,7 +2666,7 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   }
 
   .order-eta[data-late] .order-eta-fill {
-    animation: eta-breathe 2.4s ease-in-out infinite;
+    animation: eta-breathe 2.4s ease-in-out 3;
   }
 }
 

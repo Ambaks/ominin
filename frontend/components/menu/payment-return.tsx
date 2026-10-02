@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Sheet } from "@/components/menu/sheet";
 import { useCart } from "@/lib/menu/cart";
 import { fallBackToCounter } from "@/lib/menu/online-payment";
-import { CARD_NOTICES, useTickets } from "@/lib/menu/tickets";
+import { useTickets } from "@/lib/menu/tickets";
 
 /*
  * Retour de Stripe Checkout (?paiement=succes|annule&commande=<id>). Le
@@ -83,11 +83,11 @@ export function PaymentReturn({
   }, [ready, clear]);
 
   // Fast food : chaque issue se conclut sur le ticket, qui prend la place de
-  // cette feuille.
-  const toTicket = (notices: string[] = []) => {
+  // cette feuille — un paiement inabouti s'y dit « Paiement en cours ».
+  const toTicket = () => {
     if (!tickets) return false;
     tickets.add(orderId);
-    tickets.show(orderId, { notices });
+    tickets.show(orderId, { notices: [] });
     setOpen(false);
     return true;
   };
@@ -98,7 +98,7 @@ export function PaymentReturn({
 
   useEffect(() => {
     if (outcome !== "succes") {
-      toTicketRef.current([CARD_NOTICES.unfinished]);
+      toTicketRef.current();
       return;
     }
     let cancelled = false;
@@ -110,11 +110,11 @@ export function PaymentReturn({
       .then((response) => response.json())
       .then((body: { paid?: boolean }) => {
         if (cancelled) return;
-        if (toTicketRef.current(body.paid ? [] : [CARD_NOTICES.unfinished])) return;
+        if (toTicketRef.current()) return;
         setState(body.paid ? "paid" : "unpaid");
       })
       .catch(() => {
-        if (!cancelled && !toTicketRef.current([CARD_NOTICES.unfinished])) setState("unpaid");
+        if (!cancelled && !toTicketRef.current()) setState("unpaid");
       });
     return () => {
       cancelled = true;
