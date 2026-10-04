@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces } from "next/font/google";
+import { PAGE_META, makeFmt } from "@/lib/report/copy";
+import { report } from "@/lib/report/data";
 import "./report.css";
 
 /*
@@ -14,9 +16,8 @@ const frauncesItalic = Fraunces({
   axes: ["opsz"],
 });
 
-const title = "Field results · Ominin";
-const description =
-  "Live data from a Toulouse bar-restaurant running on Ominin: paid online, an order reaches the kitchen in 18 seconds, against 4 min 39 at the counter.";
+const { title } = PAGE_META;
+const description = PAGE_META.description(report, makeFmt("en"));
 
 // openGraph et twitter remplacent ceux du layout racine en bloc : image, nom du
 // site et type sont redonnés, sans quoi un lien partagé perd son aperçu.

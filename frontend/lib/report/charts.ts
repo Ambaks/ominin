@@ -1,14 +1,14 @@
-import { isWeekend, onlineShare, type Copy, type Fmt } from "./copy";
+import { dowIndex, isWeekend, onlineRevShare, onlineShare, type Copy, type Fmt } from "./copy";
 import type { Night, Report } from "./data";
 
 /*
  * Graphiques de la page de résultats : SVG dessiné à la largeur réelle de son
- * conteneur (texte net, pas de mise à l'échelle), redessiné au redimensionnement
- * et au changement de langue. Couleurs et typo viennent des jetons CSS de
- * report.css ; l'animation d'entrée est une classe posée par le composant.
+ * conteneur (texte net, pas de mise à l'échelle), redessiné quand ce conteneur
+ * change de largeur et au changement de langue. Couleurs et typo viennent des
+ * jetons de report.css ; l'animation d'entrée est pilotée par le composant.
  */
 
-export type ChartContext = { r: Report; c: Copy; f: Fmt; tip: HTMLElement };
+type ChartContext = { r: Report; c: Copy; f: Fmt; tip: HTMLElement };
 type Frame = { svg: SVGSVGElement; w: number; h: number; x0: number; x1: number; y0: number; y1: number };
 type Margin = { t: number; r: number; b: number; l: number };
 
@@ -21,15 +21,15 @@ function el<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, 
   return node;
 }
 
-function text(parent: Element, x: number, y: number, str: string, cls: string, anchor = "start", style?: string) {
-  const t = el("text", { x, y, class: cls, "text-anchor": anchor, "dominant-baseline": "middle", ...(style ? { style } : {}) }, parent);
+function text(parent: Element, x: number, y: number, str: string, cls: string, anchor = "start") {
+  const t = el("text", { x, y, class: cls, "text-anchor": anchor, "dominant-baseline": "middle" }, parent);
   t.textContent = str;
   return t;
 }
 
 function frame(host: HTMLElement, h: number, m: Margin, label: string): Frame {
   host.replaceChildren();
-  const w = Math.max(280, host.clientWidth);
+  const w = host.clientWidth;
   const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img", "aria-label": label }, host);
   return { svg, w, h, x0: m.l, x1: w - m.r, y0: h - m.b, y1: m.t };
 }
@@ -64,27 +64,32 @@ const row = (color: string, label: string, value: string | number) =>
   `<div class="tr"><span class="sw" style="background:${color}"></span><span>${label}</span><b>${value}</b></div>`;
 const head = (t: string) => `<div class="th">${t}</div>`;
 
-function showTip(tip: HTMLElement, html: string, e: PointerEvent) {
-  tip.innerHTML = html;
-  tip.hidden = false;
-  const r = tip.getBoundingClientRect();
-  let x = e.clientX + 14;
-  let y = e.clientY + 14;
-  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
-  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
-  tip.style.transform = `translate(${Math.max(8, x)}px, ${Math.max(8, y)}px)`;
-}
-
-function hover(ctx: ChartContext, target: Element, html: () => string, onToggle?: (on: boolean) => void) {
-  const show = (e: Event) => {
-    showTip(ctx.tip, html(), e as PointerEvent);
-    onToggle?.(true);
+/*
+ * Souris : l'infobulle suit le pointeur et part avec lui. Tactile : elle se
+ * pose au-dessus du doigt et reste après le lever ; le composant la ferme au
+ * prochain toucher hors graphique ou au défilement.
+ */
+function hover(ctx: ChartContext, target: Element, html: (e: PointerEvent) => string, onLeave?: () => void) {
+  const show = (ev: Event) => {
+    const e = ev as PointerEvent;
+    const tip = ctx.tip;
+    tip.innerHTML = html(e);
+    tip.hidden = false;
+    const box = tip.getBoundingClientRect();
+    const touch = e.pointerType !== "mouse";
+    let x = e.clientX + 14;
+    let y = touch ? e.clientY - box.height - 24 : e.clientY + 14;
+    if (x + box.width > innerWidth - 8) x = e.clientX - box.width - 14;
+    if (y + box.height > innerHeight - 8 || y < 8) y = touch ? e.clientY + 24 : e.clientY - box.height - 14;
+    tip.style.transform = `translate(${Math.max(8, x)}px, ${Math.max(8, y)}px)`;
   };
+  target.setAttribute("data-tip", "");
   target.addEventListener("pointermove", show);
   target.addEventListener("pointerdown", show);
-  target.addEventListener("pointerleave", () => {
+  target.addEventListener("pointerleave", (ev) => {
+    if ((ev as PointerEvent).pointerType !== "mouse") return;
     ctx.tip.hidden = true;
-    onToggle?.(false);
+    onLeave?.();
   });
 }
 
@@ -108,7 +113,7 @@ function nightAxis(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<t
     if (!roomy && i % 2 && i !== nights.length - 1) return;
     const d = +n.day.slice(8);
     text(g, X.x(i), f.y0 + 14, d === 1 ? ctx.c.oct1 : String(d), "tick", "middle");
-    if (roomy) text(g, X.x(i), f.y0 + 28, ctx.c.days.short[["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(n.dow)], "tick sub", "middle");
+    if (roomy) text(g, X.x(i), f.y0 + 28, ctx.c.days.short[dowIndex(n)], "tick sub", "middle");
   });
 }
 
@@ -117,11 +122,12 @@ function nightHits(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<t
   const line = cross ? el("line", { class: "cross", y1: f.y1, y2: f.y0, visibility: "hidden" }, g) : null;
   nights.forEach((n, i) => {
     const hit = el("rect", { x: X.x(i) - X.band / 2, y: f.y1, width: X.band, height: f.y0 - f.y1, class: "hit" }, g);
-    hover(ctx, hit, () => html(n), line ? (on) => {
-      line.setAttribute("x1", String(X.x(i)));
-      line.setAttribute("x2", String(X.x(i)));
-      line.setAttribute("visibility", on ? "visible" : "hidden");
-    } : undefined);
+    hover(ctx, hit, () => {
+      line?.setAttribute("x1", String(X.x(i)));
+      line?.setAttribute("x2", String(X.x(i)));
+      line?.setAttribute("visibility", "visible");
+      return html(n);
+    }, () => line?.setAttribute("visibility", "hidden"));
   });
 }
 
@@ -130,14 +136,14 @@ function nightHits(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<t
 function share(host: HTMLElement, ctx: ChartContext) {
   const { r, c, f: fmt } = ctx;
   const N = r.nights;
+  const m = r.milestones;
   const f = frame(host, 270, { t: 34, r: 40, b: 40, l: 40 }, c.adoption.shareTitle);
   const X = nightScale(f, N.length);
   const y = (v: number) => f.y0 - (v / 60) * (f.y0 - f.y1);
   weekendBands(f, N, X);
   yGrid(f, [0, 20, 40, 60], y, (v) => fmt.pct(v));
   nightAxis(ctx, f, N, X);
-  // Repères des évolutions produit : 23, 24, 26 et 29 septembre.
-  ["2026-09-23", "2026-09-24", "2026-09-26", "2026-09-29"].forEach((day, k) => {
+  [m.card_live, m.launch, m.default_online, m.fix].forEach((day, k) => {
     const i = N.findIndex((n) => n.day === day);
     el("line", { x1: X.x(i), x2: X.x(i), y1: f.y1 - 8, y2: f.y0, class: "evt" }, f.svg);
     el("circle", { cx: X.x(i), cy: f.y1 - 16, r: 8, class: "evt-c" }, f.svg);
@@ -150,13 +156,13 @@ function share(host: HTMLElement, ctx: ChartContext) {
   pts.forEach((p, i) => el("circle", { cx: p[0], cy: p[1], r: 4, class: "dot mk-pop", style: `fill:var(--r-online);--i:${i}` }, f.svg));
   const last = pts.length - 1;
   text(f.svg, pts[last][0] + 9, pts[last][1], fmt.pct(onlineShare(N[last])), "lab");
-  const sat26 = N.findIndex((n) => n.day === "2026-09-26");
-  text(f.svg, pts[sat26][0] + 8, pts[sat26][1] - 12, fmt.pct(onlineShare(N[sat26])), "lab");
+  const switched = N.findIndex((n) => n.day === m.default_online);
+  text(f.svg, pts[switched][0] + 8, pts[switched][1] - 12, fmt.pct(onlineShare(N[switched])), "lab");
   nightHits(ctx, f, N, X, (n) =>
     head(c.nightName(n)) +
     row("var(--r-online)", c.charts.paidOnline, fmt.pct(onlineShare(n), 1)) +
     row("transparent", c.charts.onlineOrders, c.charts.ofTotal(n.online, n.orders)) +
-    row("transparent", c.charts.onlineRevenue, n.rev ? fmt.pct((n.rev_online / n.rev) * 100, 1) : "–"), true);
+    row("transparent", c.charts.onlineRevenue, fmt.pct(onlineRevShare(n), 1)), true);
 }
 
 function stack(host: HTMLElement, ctx: ChartContext) {
@@ -191,29 +197,32 @@ function stack(host: HTMLElement, ctx: ChartContext) {
     row("transparent", c.charts.revenue, fmt.eur(n.rev)), false);
 }
 
+/** Segments d'une barre 100 % : couleur du segment et couleur de son libellé intérieur. */
+const PAYMENT_SEGMENTS = [
+  ["en_ligne", "var(--r-online)", "var(--r-on-online)"],
+  ["carte", "var(--r-card)", "var(--r-on-card)"],
+  ["especes", "var(--r-cash)", "var(--r-on-cash)"],
+] as const;
+
 function mix(host: HTMLElement, ctx: ChartContext) {
   const { r, c, f: fmt } = ctx;
   const rows = [r.mix.before, r.mix.after, r.mix.last_weekend];
+  const names = { en_ligne: c.legend.online, carte: c.legend.card, especes: c.legend.cash };
   const rh = 58;
   const f = frame(host, rows.length * rh, { t: 0, r: 0, b: 0, l: 0 }, c.adoption.mixTitle);
-  const segs = [
-    ["en_ligne", "var(--r-online)", "var(--r-on-online)", c.legend.online],
-    ["carte", "var(--r-card)", "var(--r-on-dark)", c.legend.card],
-    ["especes", "var(--r-cash)", "var(--r-on-dark)", c.legend.cash],
-  ] as const;
   rows.forEach((m, ri) => {
     const label = c.adoption.mixRows[ri];
     const y0 = ri * rh;
     text(f.svg, 0, y0 + 10, label, "lab-2");
-    const present = segs.filter(([k]) => m[k] > 0);
+    const present = PAYMENT_SEGMENTS.filter(([k]) => m[k] > 0);
     let x = 0;
-    present.forEach(([k, color, on, name], j) => {
+    present.forEach(([k, color, on], j) => {
       const v = m[k];
       const last = j === present.length - 1;
       const wSeg = (v / 100) * f.w - (last ? 0 : 2);
       const p = el("path", { d: last ? barPath(x, y0 + 24, wSeg, 24) : rectPath(x, y0 + 24, wSeg, 24), class: "mk-bar", style: `fill:${color};--i:${ri * 3 + j}` }, f.svg);
-      if (wSeg > 44) text(f.svg, x + 10, y0 + 36.5, fmt.pct(v), "in", "start", `fill:${on}`);
-      hover(ctx, p, () => head(label) + row(color, name, fmt.pct(v, 1)));
+      if (wSeg > 44) text(f.svg, x + 10, y0 + 36.5, fmt.pct(v), "in", "start").style.fill = on;
+      hover(ctx, p, () => head(label) + row(color, names[k], fmt.pct(v, 1)));
       x += wSeg + 2;
     });
   });
@@ -245,21 +254,15 @@ function ecdf(host: HTMLElement, ctx: ChartContext) {
   });
   const cross = el("line", { class: "cross", y1: f.y1, y2: f.y0, visibility: "hidden" }, f.svg);
   const hit = el("rect", { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, class: "hit" }, f.svg);
-  const at = (e: PointerEvent) => {
+  hover(ctx, hit, (e) => {
     const box = f.svg.getBoundingClientRect();
     const m = ((((e.clientX - box.left) / box.width) * f.w - f.x0) / (f.x1 - f.x0)) * maxM;
     const i = Math.round(Math.min(maxM, Math.max(0, m)) / (M[1] - M[0]));
     cross.setAttribute("x1", String(x(M[i])));
     cross.setAttribute("x2", String(x(M[i])));
     cross.setAttribute("visibility", "visible");
-    showTip(ctx.tip, head(c.charts.afterX(fmt.dur(M[i] * 60))) + row("var(--r-online)", c.legend.paidOnline, fmt.pct(r.ecdf.online[i], 1)) + row("var(--r-card)", c.legend.paidCounter, fmt.pct(r.ecdf.counter[i], 1)), e);
-  };
-  hit.addEventListener("pointermove", at);
-  hit.addEventListener("pointerdown", at);
-  hit.addEventListener("pointerleave", () => {
-    cross.setAttribute("visibility", "hidden");
-    ctx.tip.hidden = true;
-  });
+    return head(c.charts.afterX(fmt.dur(M[i] * 60))) + row("var(--r-online)", c.legend.paidOnline, fmt.pct(r.ecdf.online[i], 1)) + row("var(--r-card)", c.legend.paidCounter, fmt.pct(r.ecdf.counter[i], 1));
+  }, () => cross.setAttribute("visibility", "hidden"));
 }
 
 function load(host: HTMLElement, ctx: ChartContext) {
@@ -306,18 +309,19 @@ function nightWait(host: HTMLElement, ctx: ChartContext) {
 
 function success(host: HTMLElement, ctx: ChartContext) {
   const { r, c, f: fmt } = ctx;
-  const S = r.nights.filter((n) => n.day >= "2026-09-24");
+  const { launch, after_fix } = r.milestones;
+  const S = r.nights.filter((n) => n.day >= launch);
   const f = frame(host, 270, { t: 30, r: 12, b: 40, l: 40 }, c.reliability.successTitle);
   const y = (v: number) => f.y0 - (v / 100) * (f.y0 - f.y1);
   yGrid(f, [0, 25, 50, 75, 100], y, (v) => fmt.pct(v));
   const X = nightScale(f, S.length);
   const w = Math.min(24, X.band * 0.55);
-  const firstAfter = S.findIndex((n) => n.day >= "2026-09-30");
+  const firstAfter = S.findIndex((n) => n.day >= after_fix);
+  const color = (n: Night) => (n.day >= after_fix ? "var(--r-online)" : "var(--r-quiet)");
   nightAxis(ctx, f, S, X);
   S.forEach((n, i) => {
     const v = (n.online / n.intent) * 100;
-    const color = i >= firstAfter ? "var(--r-online)" : "var(--r-quiet)";
-    el("path", { d: colPath(X.x(i) - w / 2, y(v), w, f.y0 - y(v)), class: "mk-col", style: `fill:${color};--i:${i}` }, f.svg);
+    el("path", { d: colPath(X.x(i) - w / 2, y(v), w, f.y0 - y(v)), class: "mk-col", style: `fill:${color(n)};--i:${i}` }, f.svg);
   });
   const o = r.online_funnel;
   ([[0, firstAfter - 1, o.pre_rate], [firstAfter, S.length - 1, o.post_rate]] as const).forEach(([a, b, v]) => {
@@ -325,7 +329,7 @@ function success(host: HTMLElement, ctx: ChartContext) {
   });
   nightHits(ctx, f, S, X, (n) =>
     head(c.nightName(n)) +
-    row(n.day >= "2026-09-30" ? "var(--r-online)" : "var(--r-quiet)", c.charts.successRate, fmt.pct((n.online / n.intent) * 100, 1)) +
+    row(color(n), c.charts.successRate, fmt.pct((n.online / n.intent) * 100, 1)) +
     row("transparent", c.charts.attempts, n.intent) +
     row("transparent", c.charts.paidOnline, n.online) +
     row("transparent", c.charts.abandoned, n.abandoned), false);
@@ -336,7 +340,7 @@ function outcome(host: HTMLElement, ctx: ChartContext) {
   const o = r.online_funnel;
   const parts = [
     [c.reliability.outcomes[0], o.paid, "var(--r-online)", "var(--r-on-online)"],
-    [c.reliability.outcomes[1], o.fallback, "var(--r-card)", "var(--r-on-dark)"],
+    [c.reliability.outcomes[1], o.fallback, "var(--r-card)", "var(--r-on-card)"],
     [c.reliability.outcomes[2], o.abandoned + o.cancelled, "var(--r-quiet)", "var(--r-ink)"],
   ] as const;
   const f = frame(host, 40, { t: 0, r: 0, b: 0, l: 0 }, c.reliability.outcomeTitle(r, fmt));
@@ -345,7 +349,7 @@ function outcome(host: HTMLElement, ctx: ChartContext) {
     const last = j === parts.length - 1;
     const wSeg = (v / o.intent) * f.w - (last ? 0 : 2);
     const p = el("path", { d: last ? barPath(x, 4, wSeg, 32) : rectPath(x, 4, wSeg, 32), class: "mk-bar", style: `fill:${color};--i:${j}` }, f.svg);
-    if (wSeg > 50) text(f.svg, x + 10, 20.5, fmt.pct((v / o.intent) * 100), "in", "start", `fill:${on}`);
+    if (wSeg > 50) text(f.svg, x + 10, 20.5, fmt.pct((v / o.intent) * 100), "in", "start").style.fill = on;
     hover(ctx, p, () => head(name) + row(color, c.charts.attempts, fmt.int(v)) + row("transparent", c.charts.share, fmt.pct((v / o.intent) * 100, 1)));
     x += wSeg + 2;
   });
@@ -360,13 +364,17 @@ function heat(host: HTMLElement, ctx: ChartContext) {
   const f = frame(host, top + rh * 7 + 44, { t: 0, r: 0, b: 0, l: 0 }, c.rhythm.heatTitle);
   const cw = (f.w - lw) / H.hours.length;
   const max = Math.max(...H.rows.flat());
-  const tint = (v: number) => `color-mix(in oklab, var(--r-online) ${Math.round(6 + 94 * (v / max))}%, var(--r-surface))`;
-  H.hours.forEach((h, j) => text(f.svg, lw + cw * (j + 0.5), 10, c.charts.hours(h), "tick", "middle"));
+  const mixPct = (v: number) => Math.round(6 + 94 * (v / max));
+  const tint = (v: number) => `color-mix(in oklab, var(--r-online) ${mixPct(v)}%, var(--r-surface))`;
+  // Colonnes étroites (téléphone) : une heure sur deux, sinon les libellés se chevauchent.
+  const step = cw < 36 ? 2 : 1;
+  H.hours.forEach((h, j) => j % step === 0 && text(f.svg, lw + cw * (j + 0.5), 10, c.charts.hours(h), "tick", "middle"));
   H.rows.forEach((cells, i) => {
     text(f.svg, 0, top + rh * i + rh / 2, c.days.short[i], "tick");
     cells.forEach((v, j) => {
       const cell = el("rect", { x: lw + cw * j + 1, y: top + rh * i + 1, width: cw - 2, height: rh - 2, rx: 4, class: "mk-cell", style: `fill:${tint(v)};--i:${i * H.hours.length + j}` }, f.svg);
-      if (v >= 15) text(f.svg, lw + cw * (j + 0.5), top + rh * i + rh / 2 + 0.5, fmt.int(v), "in", "middle", `fill:${v / max > 0.52 ? "var(--r-on-online)" : "var(--r-ink)"}`);
+      // Thème sombre : blanc pur sous 80 % d'ambre, noir pur au-delà ; les deux restent ≥ 4,6:1 de part et d'autre.
+      if (v >= 15) text(f.svg, lw + cw * (j + 0.5), top + rh * i + rh / 2 + 0.5, fmt.int(v), mixPct(v) >= 80 ? "in heat-lab hot" : "in heat-lab", "middle");
       hover(ctx, cell, () => head(`${c.days.long[i]} · ${c.charts.hours(H.hours[j])}–${c.charts.hours((H.hours[j] + 1) % 24)}`) + row(tint(v), c.charts.avgOrders, fmt.num(v, 1)) + row("transparent", c.charts.nightsSeen, H.nights_dow[i]));
     });
   });

@@ -926,5 +926,6 @@
   "default_online_at": "22:38",
   "fix": "2026-09-29",
   "after_fix": "2026-09-30"
- }
+ },
+ "day_end_hour": 5
 }
