@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { menuSiteUrl } from "@/lib/site";
 import { connectedAccount, getStripe } from "@/lib/stripe/server";
+import { ONLINE_PAYMENT_TTL_S } from "@/lib/menu/online-payment-ttl";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -17,13 +18,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * paiement annulé. Expirée sans paiement, la commande est supprimée par le
  * webhook connecté.
  */
-
-/**
- * Durée de vie d'une session Checkout : le minimum accordé par Stripe est
- * 30 min, mesurées à la réception de la requête — une minute de marge
- * absorbe la latence.
- */
-const CHECKOUT_TTL_S = 31 * 60;
 
 export async function POST(request: Request) {
   const { orderId, tipAmount } = (await request.json().catch(() => ({}))) as {
@@ -148,7 +142,7 @@ export async function POST(request: Request) {
         metadata: { order_id: orderId },
         ...(feeCents > 0 && { application_fee_amount: feeCents }),
       },
-      expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_TTL_S,
+      expires_at: Math.floor(Date.now() / 1000) + ONLINE_PAYMENT_TTL_S,
       locale: "fr",
       success_url: withOutcome("succes"),
       cancel_url: withOutcome("annule"),

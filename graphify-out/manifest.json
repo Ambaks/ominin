@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
-    "mtime": 1791110322.3120365,
-    "seen": 1791112061.456226,
-    "ast_hash": "f8f272ae97c62bc3f471d2f471427511",
+    "mtime": 1791114164.6117404,
+    "seen": 1791115400.2537532,
+    "ast_hash": "11171a3dfc0bff066435cfdd6e749a9a",
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/webhook-connect/route.ts": {
@@ -1074,9 +1074,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1791110322.5624995,
-    "seen": 1791112061.4565709,
-    "ast_hash": "e0e72bd549a990e6454642c41a0f71d4",
+    "mtime": 1791114308.2829528,
+    "seen": 1791115400.25409,
+    "ast_hash": "9bdbd93e4d10b27bedbb153a5d77f7fe",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791113639.6816783,
-    "seen": 1791113649.158098,
-    "ast_hash": "fe4f50b0c5f4bd4c60be07102b3ff99a",
+    "mtime": 1791115390.9996893,
+    "seen": 1791115400.254186,
+    "ast_hash": "1980c20a359bd00920b12692779b89f0",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -3558,9 +3558,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/pay/route.ts": {
-    "mtime": 1791110322.30999,
-    "seen": 1791112061.4562209,
-    "ast_hash": "00fc7ca589e6033da04baf9049b7bb44",
+    "mtime": 1791114164.6109922,
+    "seen": 1791115400.253748,
+    "ast_hash": "b03e1c257e1da90e22010142aecc2304",
     "semantic_hash": ""
   },
   "frontend/app/api/square/refresh/route.ts": {
@@ -5901,6 +5901,30 @@
     "mtime": 1791110459.9259586,
     "seen": 1791112061.456552,
     "ast_hash": "6431e4e80332a0d77ed38d4843bdc26f",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/square/expire/route.ts": {
+    "mtime": 1791114154.1171305,
+    "seen": 1791115400.253747,
+    "ast_hash": "99f0f65e280374dcdb67aeae6303d91a",
+    "semantic_hash": ""
+  },
+  "frontend/lib/menu/online-payment-ttl.ts": {
+    "mtime": 1791114154.1082516,
+    "seen": 1791115400.254057,
+    "ast_hash": "bb466b88b9c44d10617299314b135ba6",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261004000002_tentatives_en_ligne_expirees.sql": {
+    "mtime": 1791115339.5691538,
+    "seen": 1791115400.254158,
+    "ast_hash": "04b0f8204698e54b8bbe1704cc9ee2f7",
+    "semantic_hash": ""
+  },
+  ".github/workflows/square-expire.yml": {
+    "mtime": 1791114154.1239243,
+    "seen": 1791115400.2541828,
+    "ast_hash": "60ce37077a2a2ba3b2242ed3f87f171f",
     "semantic_hash": ""
   }
 }

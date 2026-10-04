@@ -1,0 +1,29 @@
+# Tentatives de paiement Square abandonnées : une commande dont le client a
+# quitté le paiement en ligne est écartée une fois passée la durée de vie
+# d'une session Stripe (31 min), comme Stripe le fait à l'expiration de la
+# sienne. Toutes les 15 minutes : une commande abandonnée retient son stock,
+# et un plat limité ne doit pas paraître épuisé pendant le service.
+#
+# L'échec du workflow EST le canal d'alerte : la route laisse en place et
+# signale toute tentative qu'elle n'a pas pu vérifier auprès de Square.
+name: square-expire
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  expire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Écarter les tentatives Square abandonnées
+        run: |
+          response=$(curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/square/expire")
+          echo "$response"
+          echo "$response" | grep -q '"failed":\[\]' || {
+            echo "::error::Des tentatives Square abandonnées n'ont pas pu être traitées."
+            exit 1
+          }

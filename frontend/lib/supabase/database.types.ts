@@ -4550,6 +4550,10 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: undefined
       }
+      discard_stale_online_payment: {
+        Args: { p_order_id: string; p_started_before: string }
+        Returns: boolean
+      }
       gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
@@ -4688,6 +4692,10 @@ export type Database = {
       reprint_order_tickets: {
         Args: { p_order_ids: string[] }
         Returns: number
+      }
+      begin_square_payment: {
+        Args: { p_idempotency_key: string; p_order_id: string }
+        Returns: boolean
       }
       cancel_order_item: {
         Args: { p_item_id: string; p_quantity?: number }

@@ -219,13 +219,21 @@ export async function POST(request: Request) {
     // Clé persistée AVANT l'appel : une relance réseau la réutilise et ne
     // peut pas débiter deux fois. Renouvelée à chaque tentative du client,
     // qui arrive avec un jeton carte neuf (les jetons Square sont à usage
-    // unique : le précédent ne peut de toute façon plus être débité).
+    // unique : le précédent ne peut de toute façon plus être débité). La même
+    // écriture revendique la commande : écartée entre-temps comme tentative
+    // abandonnée (/api/square/expire), elle n'est pas débitée.
     const idempotencyKey = crypto.randomUUID();
-    const { error: keyError } = await admin
-      .from("orders")
-      .update({ square_idempotency_key: idempotencyKey })
-      .eq("id", orderId);
+    const { data: claimed, error: keyError } = await admin.rpc("begin_square_payment", {
+      p_order_id: orderId,
+      p_idempotency_key: idempotencyKey,
+    });
     if (keyError) throw new Error(keyError.message);
+    if (!claimed) {
+      return NextResponse.json(
+        { error: "Cette commande n'est plus à régler." },
+        { status: 409 }
+      );
+    }
 
     const { payment } = await call((token) =>
       createPayment(token, {
