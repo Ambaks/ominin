@@ -33,6 +33,7 @@ export default function BadgeagePage() {
       <Badgeuse
         staff={state.staff}
         entries={open.entries}
+        showHours={false}
         onChange={open.reload}
       />
     </div>

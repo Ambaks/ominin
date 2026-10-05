@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import { ROLE_LABELS } from "@/lib/gestion/constants";
+import { DEFAULT_DAY_END_HOUR, ROLE_LABELS } from "@/lib/gestion/constants";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { weekStart } from "@/lib/gestion/temps";
 import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
@@ -330,7 +330,13 @@ export default function EquipePage() {
   const state = useGestion();
   const { role, hasFeature } = useGestionAccess();
   const [pane, setPane] = useState<PaneId>("membres");
-  const [start, setStart] = useState(() => weekStart(new Date()));
+  // Semaine choisie aux flèches ; avant, celle en cours, qui attend l'heure
+  // de bascule du restaurant (rien ne se charge tant que l'état manque).
+  const [chosenStart, setStart] = useState<Date | null>(null);
+  const start = chosenStart ?? weekStart(
+    new Date(),
+    state?.dayEndHour ?? DEFAULT_DAY_END_HOUR
+  );
   const etablissementId = state?.etablissement.id ?? "";
   const { data, reload } = useWeek(etablissementId, start);
   const open = useOpenEntries(etablissementId);
@@ -399,6 +405,7 @@ export default function EquipePage() {
               <Badgeuse
                 staff={state.staff}
                 entries={open.entries}
+                showHours
                 onChange={badged}
               />
               <WeekNav start={start} onChange={setStart} />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PlanningPublic } from "@/components/gestion/temps/planning-public";
 import { createPublicClient } from "@/lib/supabase/public";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { addDays, weekStart } from "@/lib/gestion/temps";
 
 /*
@@ -30,7 +31,10 @@ export default async function PlanningPage({
   params,
 }: PageProps<"/menu/planning/[token]">) {
   const { token } = await params;
-  const start = weekStart(new Date());
+  // Le lien anonyme ne lit pas les réglages du restaurant : semaine
+  // calendaire. Il montre des créneaux ; les heures qui se paient se
+  // comptent côté gérant, sur la semaine de service.
+  const start = weekStart(new Date(), DEFAULT_DAY_END_HOUR);
   const { data } = await createPublicClient().rpc("staff_planning", {
     p_token: token,
     p_from: start.toISOString(),
