@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Organisation du projet sur GitHub, et faille de `discard_online_payment` (2026-10-05, branche `fix/discard-online-payment-droits`, migration à appliquer) :** **(1) GitHub devient la source de vérité du travail à faire.** Le dépôt n'avait ni milestones ni issues : il a maintenant 13 gates (milestones datées, une ou deux par produit, plus trois transverses) et 73 issues, tirées de tout ce que ce README laissait ouvert (entrées « à faire », « jamais testé », « reporté », anciennes listes de TACHES-AMBAKA, décisions en suspens). Les conventions sont décrites dans la section « Gestion du projet » plus bas ; la section Projet de l'admin les lira (issue #59 pour la PR #8, puis la section elle-même). Les dates des gates sont des cibles posées le 2026-10-05, à ajuster. **(2) Faille corrigée :** `discard_online_payment` (suppression d'une commande en attente de paiement en ligne, réservée au webhook Stripe) n'était retirée qu'à `public` dans `20260915000001` ; or Supabase accorde l'exécution des fonctions à `anon` et `authenticated` par défaut — vérifié en production : un visiteur anonyme pouvait l'appeler, pour peu qu'il connaisse l'identifiant d'une session Stripe en cours. `20261005000003_discard_online_payment_droits.sql` la retire aux trois rôles, comme `begin_square_payment` et `discard_stale_online_payment`. Le seul appelant (`/api/stripe/webhook-connect`) passe par la clé service : rien ne change pour lui. Les autres fonctions révoquées « from public » seulement ont été passées en revue : toutes sont accordées à `anon` à dessein. **Relevé au passage, non corrigé :** le paiement Collect (`/api/collect/checkout`) crée la session sur le compte Stripe d'Ominin, sans compte connecté ni commission — aucune commande Collect en production à ce jour, issue prioritaire dans la gate « Premier client Collect ». **Numéros de migration :** `20261005000001` est prise par `offert_avec_achat` (travail en cours sur `main`), la migration de la PR #8 passe donc à `20261005000002`. **À faire :** `npm run db:push`, qui bloque tant que les migrations `20261001000001` et `20261004000001`, appliquées en production, ne sont pas dans le dépôt (issue dédiée, assignée à Ambaka) ; si cette PR passe avant la #8, pousser avec `--include-all`. Graphe non rafraîchi : seuls une migration SQL et le README changent, et graphify n'extrait rien des fichiers SQL sur ce poste.
+
 > **Tentatives de paiement Square abandonnées (2026-10-04, `main`, migration `20261004000002` appliquée) :** un client qui quittait le paiement en ligne Square (onglet fermé, refus sans « Payer au comptoir ») laissait sa commande en attente pour toujours, hors de la caisse et son stock retenu : 164 commandes au BOHO entre le 16 sept. et le 3 oct. Stripe les écarte à l'expiration de sa session ; Square n'en a pas. Le workflow `square-expire.yml` (toutes les 15 min) appelle `/api/square/expire`, qui écarte les tentatives Square de plus de 31 min (durée d'une session Stripe, `lib/menu/online-payment-ttl.ts`) par `discard_stale_online_payment` : annulée (stock rendu) puis supprimée, comme `discard_online_payment`. Une tentative qui a atteint Square est d'abord relue auprès de Square (réglée : close comme par le webhook ; invérifiable : laissée en place, le workflow échoue). `/api/square/pay` revendique la commande par `begin_square_payment` avant de débiter (clé d'idempotence + heure de tentative rafraîchie en une écriture) : l'expiration ne peut pas écarter une commande en cours de débit, et une commande écartée n'est pas débitée. Les deux fonctions sont réservées au `service_role`. **Vérifié** : scénarios et course concurrente sur un Postgres local, droits vérifiés en production. **À reprendre** : `discard_online_payment` (Stripe, 20260915000001) reste exécutable par `anon`/`authenticated` (révoqué seulement de `public`).
 
 > **Page publique de résultats terrain (2026-10-04, `main`, ominin.com/r7k2) :** les 16 premiers soirs de production du BOHO (18 sept. – 3 oct.), anonymisés (« un bar-restaurant toulousain », noms de plats génériques, ni client ni salarié), en accès libre et indexable mais hors sitemap. Bilingue anglais/français (bouton, `?lang=fr`, choix mémorisé, français par défaut pour un navigateur francophone ; rendu serveur en anglais). Données figées dans `frontend/lib/report/data.json` (extraites en lecture seule le 4 oct.), textes dans `lib/report/copy.ts`, graphiques SVG dans `lib/report/charts.ts`, page dans `app/r7k2/` + `components/report/field-report.tsx`, styles rangés sous `.report`. Chiffres clés : commande payée en ligne en cuisine en 18 s (médiane) contre 4 min 39 s au comptoir ; 47 % des commandes payées en ligne le week-end des 2–3 oct. ; réussite du paiement en ligne 51 % → 92 % après le correctif 3-D Secure du 29 sept. **Vérifié** : rendu anglais et français, mobile 320 et 375 px sans débordement, métadonnées de partage (image, canonique), contrastes des étiquettes ≥ 4,5:1 dans les deux thèmes. Boucle de relecture par agents indépendants, cible 8/10 fixée par l'utilisateur : traduction 9/10, revue technique 8/10. Second envoi : chiffres et dates calculés depuis les données, langue reportée dans `?lang=`, infobulles tactiles, graphiques hors écran animés à leur apparition sans retour à zéro, ResizeObserver, champs inutilisés retirés de data.json.
@@ -788,6 +790,31 @@ same version. The graph output lives in `graphify-out/` once built and is also
 committed — do not gitignore either folder.
 
 ---
+
+## Gestion du projet (GitHub)
+
+Le travail à faire vit dans les issues du dépôt, pas dans ce README ni dans
+TACHES-AMBAKA.md. La section Projet de l'admin les lit.
+
+- **Gates = milestones**, nommées `<Produit> · <objectif>` (« Shop · Première
+  vente MyBox conforme »), avec une date cible. Une gate sans date est un lot
+  « plus tard ».
+- **Une issue = une tâche concrète**, rattachée à une gate. Le titre est un
+  verbe à l'infinitif ; le corps dit pourquoi, et d'où ça vient.
+- **Labels** : un produit (`produit:menu`, `produit:collect`, `produit:shop`,
+  `produit:clip`, `produit:agents`, `produit:sur-mesure`, ou `transverse`),
+  un type (`type:code`, `type:config` pour un dashboard ou une étape
+  manuelle, `type:décision`, `type:test`), et au besoin `statut:en-cours`,
+  `statut:bloqué` (dire quoi en commentaire), `priorité:haute` (bloque une
+  vente ou touche la sécurité).
+- **Assignation** : décisions et tests terrain à Marwan, réglages de
+  dashboards à Ambaka, code à qui le prend.
+- **Tout changement passe par une branche et une pull request** qui cite son
+  issue (`Closes #12`) : la fusion ferme l'issue, la gate avance. Un agent
+  fait de même — il ouvre la PR, un humain la relit.
+- **Numéros de migration** : avant d'en créer une, vérifier les migrations
+  des branches ouvertes et de la production (`migration list --linked`) ;
+  deux migrations du même numéro font échouer `db push`.
 
 ## Setup guide (written for an LLM agent)
 
