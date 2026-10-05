@@ -7,7 +7,7 @@ valeur à décider. Il se remplit au fil des chantiers.
 ## Refonte de la navigation admin (branche `claude/fervent-pasteur-6wfvqw`)
 
 - [ ] **Avant de fusionner** : appliquer la migration
-      `supabase/migrations/20261005000001_crm_produits_vises.sql`
+      `supabase/migrations/20261005000002_crm_produits_vises.sql`
       (`npm run db:push` depuis `frontend/`). Le front lit
       `crm_leads.target_products` au chargement du CRM : déployé sans la
       migration, l'admin affiche « Chargement impossible ».
