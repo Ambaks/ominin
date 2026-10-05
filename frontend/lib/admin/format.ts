@@ -30,13 +30,10 @@ export function isTomorrow(iso: string, now = new Date()): boolean {
   );
 }
 
-/** Fin de la semaine courante : dimanche 23:59:59 local. */
-export function endOfWeek(now = new Date()): Date {
-  const start = dayStart(now);
-  // getDay() : dimanche = 0 → la semaine française se termine ce jour-là.
-  const daysLeft = start.getDay() === 0 ? 0 : 7 - start.getDay();
-  const end = addDays(start, daysLeft + 1);
-  return new Date(end.getTime() - 1);
+/** Début des 7 derniers jours glissants, aujourd'hui compris : la « semaine »
+ * de l'Aperçu. */
+export function rollingWeekStart(now = new Date()): Date {
+  return addDays(dayStart(now), -6);
 }
 
 /** « il y a 5 min », « hier », « dans 3 j »… Passé et futur symétriques. */

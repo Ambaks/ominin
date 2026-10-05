@@ -8,6 +8,7 @@ import * as api from "@/lib/admin/api";
 import { CATEGORY_LABELS } from "@/lib/admin/constants";
 import { formatDayTime, formatRelative, httpHref } from "@/lib/admin/format";
 import { useLeadDetail } from "@/lib/admin/lead-cache";
+import { PRODUCTS, PRODUCT_LABELS, type Product } from "@/lib/admin/products";
 import { useAdmin } from "@/lib/admin/store";
 import type { LeadDetail } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
@@ -84,6 +85,16 @@ export function LeadPanel({
 
   const lite =
     state?.leads.find((lead) => lead.restaurantId === restaurantId) ?? null;
+
+  const toggleProduct = (product: Product) => {
+    if (!lite) return;
+    const next = PRODUCTS.filter((candidate) =>
+      candidate === product
+        ? !lite.targetProducts.includes(product)
+        : lite.targetProducts.includes(candidate)
+    );
+    void run(() => api.updateTargetProducts(restaurantId, next));
+  };
 
   const focusNote = () => {
     // Gestionnaire d'événement : l'accès au ref n'a pas lieu pendant le rendu.
@@ -290,6 +301,32 @@ export function LeadPanel({
                 </p>
               )}
             </section>
+
+            {lite && (
+              <section className="flex flex-col gap-2">
+                <SectionTitle>Produits visés</SectionTitle>
+                <div className="flex flex-wrap gap-1.5">
+                  {PRODUCTS.map((product) => {
+                    const on = lite.targetProducts.includes(product);
+                    return (
+                      <button
+                        key={product}
+                        type="button"
+                        aria-pressed={on}
+                        onClick={() => toggleProduct(product)}
+                        className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                          on
+                            ? "border-ember-2/50 bg-ember-2/10 text-foreground"
+                            : "border-hairline text-muted hover:text-foreground"
+                        }`}
+                      >
+                        {PRODUCT_LABELS[product]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             <section className="flex flex-col gap-2.5">
               <div className="flex items-center justify-between">

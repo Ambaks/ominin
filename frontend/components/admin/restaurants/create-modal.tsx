@@ -5,6 +5,7 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
+import { useAdminBasePath } from "@/lib/admin/base-path";
 import { CATEGORY_LABELS } from "@/lib/admin/constants";
 import type { RestaurantCategory } from "@/lib/admin/types";
 
@@ -17,7 +18,8 @@ const DUPLICATE_REASON_LABELS: Record<string, string> = {
 /*
  * Création manuelle d'un restaurant. Avant d'insérer, crm_find_duplicates
  * signale les fiches proches (téléphone, email, nom flou) — l'humain tranche,
- * rien n'est bloqué en dur.
+ * rien n'est bloqué en dur. Créée depuis la vue d'un produit, la fiche vise
+ * ce produit — sinon elle disparaîtrait de l'écran qui vient de la créer.
  */
 export function CreateRestaurantModal({
   onClose,
@@ -27,6 +29,7 @@ export function CreateRestaurantModal({
   onCreated: (restaurantId: string) => void;
 }) {
   const toast = useToast();
+  const { product } = useAdminBasePath();
   const [name, setName] = useState("");
   const [category, setCategory] = useState<RestaurantCategory>("restaurant");
   const [address, setAddress] = useState("");
@@ -61,6 +64,7 @@ export function CreateRestaurantModal({
       email,
       website,
       ownerName,
+      targetProducts: product ? [product] : undefined,
     });
     toast.success("Restaurant créé");
     onCreated(id);

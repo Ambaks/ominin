@@ -1,6 +1,13 @@
-import type { Slide, SocialBrand, SocialPlatform } from "@/lib/social/brands";
+import {
+  BRANDS,
+  type Slide,
+  type SocialBrand,
+  type SocialPlatform,
+} from "@/lib/social/brands";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
+import { rollingWeekStart } from "./format";
+import { PRODUCTS, type Product } from "./products";
 
 /*
  * Réseaux sociaux : comptes reliés, publications de l'agent et historique de
@@ -9,6 +16,63 @@ import { check, must } from "@/lib/supabase/result";
  * serveur parce qu'ils manipulent un secret : la connexion Meta, et le
  * lancement d'un run à la main.
  */
+
+/** Produits qui publient sous leur propre marque : leur vue Réseaux ne
+ * montre qu'elle. La marque Ominin, elle, n'apparaît qu'en vue d'ensemble. */
+export const SOCIAL_PRODUCTS = PRODUCTS.filter(
+  (product): product is Extract<Product, SocialBrand> =>
+    BRANDS.some((brand) => brand.id === product)
+);
+
+/** Métriques de portée (comptes touchés) : Instagram, puis Facebook.
+ * Snapchat ne remonte que des vues, saisies à la main. */
+const REACH_METRICS = ["reach", "post_total_media_view_unique"];
+
+export interface SocialWeek {
+  /** Publications parties ces 7 derniers jours, par l'agent ou à la main. */
+  published: number;
+  /** Portée cumulée de ces publications, Instagram et Facebook. */
+  reach: number;
+  /** Stories Snapchat préparées par l'agent, pas encore postées. */
+  snapchatToPost: number;
+}
+
+/** Résumé de l'Aperçu : une marque, ou toutes en vue d'ensemble. */
+export async function fetchSocialWeek(
+  brand: SocialBrand | null
+): Promise<SocialWeek> {
+  const supabase = createClient();
+  let published = supabase
+    .from("social_publications")
+    .select("metrics, social_posts!inner(brand)")
+    .in("status", ["published", "posted"])
+    .gte("published_at", rollingWeekStart().toISOString());
+  let toPost = supabase
+    .from("social_publications")
+    .select("id, social_accounts!inner(platform), social_posts!inner(brand)", {
+      count: "exact",
+      head: true,
+    })
+    .eq("status", "to_post")
+    .eq("social_accounts.platform", "snapchat");
+  if (brand) {
+    published = published.eq("social_posts.brand", brand);
+    toPost = toPost.eq("social_posts.brand", brand);
+  }
+  const [publishedResult, pending] = await Promise.all([published, toPost]);
+  check(pending);
+  const rows = must(publishedResult);
+  let reach = 0;
+  for (const row of rows) {
+    const metrics = (row.metrics ?? {}) as Record<string, number>;
+    for (const name of REACH_METRICS) reach += metrics[name] ?? 0;
+  }
+  return {
+    published: rows.length,
+    reach,
+    snapchatToPost: pending.count ?? 0,
+  };
+}
 
 export interface SocialAccount {
   id: string;

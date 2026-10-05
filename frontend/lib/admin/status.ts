@@ -56,7 +56,7 @@ export const STATUS_DOT_CLASSES: Record<LeadStatus, string> = {
   no_email: "bg-status-no-email",
 };
 
-/** Puces de classification des réponses (page E-mails), sur la même gamme
+/** Puces de classification des réponses (page Prospection), sur la même gamme
  * que les statuts de lead correspondants. */
 export const CLASSIFICATION_BADGE_CLASSES: Record<
   OutreachClassification,

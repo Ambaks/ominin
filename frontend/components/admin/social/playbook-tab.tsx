@@ -7,7 +7,7 @@ import { useRunMutation } from "@/components/ui/toast";
 import { formatDayTime } from "@/lib/admin/format";
 import * as api from "@/lib/admin/social";
 import type { SocialPlaybook } from "@/lib/admin/social";
-import { BRANDS, type SocialBrand } from "@/lib/social/brands";
+import type { Brand, SocialBrand } from "@/lib/social/brands";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 /*
@@ -17,14 +17,17 @@ import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
  * version part dans le mauvais sens.
  */
 export function PlaybookTab({
+  brands,
   playbooks,
   onChange,
 }: {
+  /** Marques de la vue : une seule dans la vue d'un produit. */
+  brands: readonly Brand[];
   playbooks: SocialPlaybook[];
   onChange: () => void;
 }) {
   const run = useRunMutation();
-  const [brand, setBrand] = useState<SocialBrand>(BRANDS[0].id);
+  const [brand, setBrand] = useState<SocialBrand>(brands[0].id);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   // Déjà triées de la plus récente à la plus ancienne.
@@ -41,11 +44,13 @@ export function PlaybookTab({
 
   return (
     <div className="flex flex-col gap-5">
-      <PillTabs
-        tabs={BRANDS.map((item) => ({ id: item.id, label: item.name }))}
-        activeId={brand}
-        onSelect={(id) => setBrand(id as SocialBrand)}
-      />
+      {brands.length > 1 && (
+        <PillTabs
+          tabs={brands.map((item) => ({ id: item.id, label: item.name }))}
+          activeId={brand}
+          onSelect={(id) => setBrand(id as SocialBrand)}
+        />
+      )}
 
       {!current ? (
         <EmptyState

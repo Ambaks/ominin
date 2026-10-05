@@ -829,6 +829,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["crm_priority"]
           restaurant_id: string
           status: Database["public"]["Enums"]["crm_lead_status"]
+          target_products: Database["public"]["Enums"]["ominin_product"][]
           updated_at: string
         }
         Insert: {
@@ -842,6 +843,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["crm_priority"]
           restaurant_id: string
           status?: Database["public"]["Enums"]["crm_lead_status"]
+          target_products?: Database["public"]["Enums"]["ominin_product"][]
           updated_at?: string
         }
         Update: {
@@ -855,6 +857,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["crm_priority"]
           restaurant_id?: string
           status?: Database["public"]["Enums"]["crm_lead_status"]
+          target_products?: Database["public"]["Enums"]["ominin_product"][]
           updated_at?: string
         }
         Relationships: [
@@ -4822,6 +4825,13 @@ export type Database = {
         | "commande"
         | "paiement"
       offre: "digital" | "smart" | "connect"
+      ominin_product:
+        | "menu"
+        | "collect"
+        | "shop"
+        | "clip"
+        | "agents"
+        | "sur-mesure"
       order_status:
         | "en_attente"
         | "en_preparation"
@@ -5067,6 +5077,14 @@ export const Constants = {
         "paiement",
       ],
       offre: ["digital", "smart", "connect"],
+      ominin_product: [
+        "menu",
+        "collect",
+        "shop",
+        "clip",
+        "agents",
+        "sur-mesure",
+      ],
       order_status: [
         "en_attente",
         "en_preparation",

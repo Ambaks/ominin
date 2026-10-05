@@ -1,21 +1,31 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { FilterBar } from "@/components/admin/filter-bar";
 import { PlusIcon } from "@/components/admin/icons";
+import { PipelineBoard } from "@/components/admin/pipeline/board";
 import { CreateRestaurantModal } from "@/components/admin/restaurants/create-modal";
 import { LeadStatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import { CATEGORY_LABELS, STATUS_LABELS, PRIORITY_LABELS } from "@/lib/admin/constants";
 import { toCsv, downloadCsv, type CsvColumn } from "@/lib/admin/csv";
 import { formatDate, formatRelative } from "@/lib/admin/format";
-import { useFilteredLeads } from "@/lib/admin/filters";
+import { setFilters, useFilteredLeads } from "@/lib/admin/filters";
 import { sortLeads, type LeadSortKey } from "@/lib/admin/selectors";
 import { useAdmin } from "@/lib/admin/store";
+
+/*
+ * Les prospects, une seule source : le Kanban pour les faire avancer, la
+ * liste pour trier, exporter et parcourir ce que le Kanban plafonne. Mêmes
+ * filtres pour les deux — passer de l'un à l'autre garde le sous-ensemble.
+ */
+type View = "pipeline" | "liste";
 
 /*
  * Export : les colonnes techniques gardent les en-têtes de l'import
@@ -101,6 +111,7 @@ export default function RestaurantsPage() {
     key: "name",
     dir: 1,
   });
+  const [view, setView] = useState<View>("pipeline");
   const [creating, setCreating] = useState(false);
   const [exporting, setExporting] = useState(false);
 
@@ -146,6 +157,12 @@ export default function RestaurantsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-medium">Restaurants</h1>
         <div className="flex items-center gap-2">
+          <Link
+            href={`${basePath}/import`}
+            className="hidden rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:block"
+          >
+            Importer
+          </Link>
           <button
             type="button"
             onClick={() => void exportCsv()}
@@ -165,9 +182,26 @@ export default function RestaurantsPage() {
         </div>
       </div>
 
+      <PillTabs
+        tabs={[
+          { id: "pipeline", label: "Pipeline" },
+          { id: "liste", label: "Liste", count: sorted.length },
+        ]}
+        activeId={view}
+        onSelect={(id) => setView(id as View)}
+      />
+
       <FilterBar />
 
-      {sorted.length === 0 ? (
+      {view === "pipeline" ? (
+        <PipelineBoard
+          leads={leads}
+          onSeeAll={(column) => {
+            setFilters({ statuses: new Set(column.statuses) });
+            setView("liste");
+          }}
+        />
+      ) : sorted.length === 0 ? (
         <EmptyState
           title="Aucun restaurant"
           body="Ajustez les filtres, créez une fiche ou importez un CSV."

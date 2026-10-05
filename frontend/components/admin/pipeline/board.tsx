@@ -14,14 +14,14 @@ import {
 import { formatRelative } from "@/lib/admin/format";
 import { selectNextTaskByLead } from "@/lib/admin/selectors";
 import { STATUS_DOT_CLASSES } from "@/lib/admin/status";
-import { setFilters } from "@/lib/admin/filters";
 import { useAdmin } from "@/lib/admin/store";
 import type { LeadLite, LeadStatus, TaskRow } from "@/lib/admin/types";
 import { StatusMenu } from "../lead/status-menu";
 import { useBoardDrag } from "./use-board-drag";
 
 /*
- * Kanban du pipeline. Optimisme local : pendingMoves rend la carte dans sa
+ * Kanban du pipeline, sur les fiches filtrées de la page Restaurants.
+ * Optimisme local : pendingMoves rend la carte dans sa
  * colonne cible dès le drop ; le store reste l'autorité — en cas d'échec de
  * l'écriture, retirer l'entrée suffit à faire revenir la carte (le toast de
  * useRunMutation explique pourquoi).
@@ -112,7 +112,14 @@ function LeadCard({
   );
 }
 
-export function PipelineBoard() {
+export function PipelineBoard({
+  leads,
+  onSeeAll,
+}: {
+  leads: LeadLite[];
+  /** Colonne plafonnée : la suite se lit dans la liste. */
+  onSeeAll: (column: PipelineColumn) => void;
+}) {
   const state = useAdmin();
   const run = useRunMutation();
   const router = useRouter();
@@ -147,7 +154,6 @@ export function PipelineBoard() {
   const { drag, overColumn, cardHandlers, registerColumn, registerBoard, guardClick } =
     useBoardDrag(onDrop);
 
-  const leads = state?.leads ?? [];
   const effectiveStatus = (lead: LeadLite): LeadStatus =>
     pendingMoves.get(lead.restaurantId) ?? lead.status;
   const byColumn = (column: PipelineColumn) =>
@@ -159,11 +165,6 @@ export function PipelineBoard() {
   const draggedLead = drag
     ? (leads.find((lead) => lead.restaurantId === drag.restaurantId) ?? null)
     : null;
-
-  const seeAll = (column: PipelineColumn) => {
-    setFilters({ statuses: new Set(column.statuses) });
-    router.push(`${basePath}/restaurants`);
-  };
 
   return (
     <>
@@ -217,7 +218,7 @@ export function PipelineBoard() {
                 {columnLeads.length > PIPELINE_COLUMN_CAP && (
                   <button
                     type="button"
-                    onClick={() => seeAll(column)}
+                    onClick={() => onSeeAll(column)}
                     className="rounded-xl border border-dashed border-hairline px-3 py-2 text-xs font-medium text-muted transition-colors hover:text-foreground"
                   >
                     Voir les {columnLeads.length - PIPELINE_COLUMN_CAP} autres

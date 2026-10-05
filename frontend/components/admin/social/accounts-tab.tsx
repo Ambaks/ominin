@@ -21,9 +21,12 @@ import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
  */
 export function AccountsTab({
   accounts,
+  brands,
   onChange,
 }: {
   accounts: SocialAccount[];
+  /** Marques de la vue : une seule dans la vue d'un produit. */
+  brands: readonly Brand[];
   onChange: () => void;
 }) {
   const run = useRunMutation();
@@ -96,7 +99,7 @@ export function AccountsTab({
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {BRANDS.map((brand) => (
+        {brands.map((brand) => (
           <div
             key={brand.id}
             className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4"

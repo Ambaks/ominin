@@ -147,7 +147,7 @@ def _send_one(sb, row: dict, stats: dict) -> None:
                 "Léa — réponse approuvée NON envoyée (adresse désinscrite)",
                 f"Destinataire : {row['to_email']}\n"
                 f"Objet : {row.get('subject') or ''}\n\n"
-                f"{settings.frontend_origin}/admin/emails",
+                f"{settings.frontend_origin}/admin/prospection",
             )
         return
 

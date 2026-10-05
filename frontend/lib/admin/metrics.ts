@@ -34,6 +34,16 @@ export function periodOf(days: number): Period {
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
+/** La période de même durée qui précède immédiatement. */
+export function previousPeriod(period: Period): Period {
+  const from = new Date(period.from);
+  const length = new Date(period.to).getTime() - from.getTime();
+  return {
+    from: new Date(from.getTime() - length).toISOString(),
+    to: period.from,
+  };
+}
+
 export async function fetchOverview(period: Period): Promise<ClientOverview[]> {
   return createClient()
     .rpc("admin_menu_overview", { p_from: period.from, p_to: period.to })
