@@ -5,8 +5,8 @@ import {
   adminUrl,
   fetchPages,
   publicBase,
-  requireAdmin,
 } from "@/lib/social/server";
+import { requireAdmin } from "@/lib/admin/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*

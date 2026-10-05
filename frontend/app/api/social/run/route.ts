@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/social/server";
+import { requireAdmin } from "@/lib/admin/server";
 
 /*
  * Lancement à la main des deux jobs de l'agent social, depuis /reseaux.

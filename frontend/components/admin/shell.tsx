@@ -25,11 +25,14 @@ import {
   BotIcon,
   CalendarIcon,
   ChartIcon,
+  FlagIcon,
   MapPinIcon,
+  PullRequestIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
   StoreIcon,
+  TaskIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
 
@@ -42,6 +45,8 @@ interface NavItem {
   products?: readonly Product[];
   /** Écrans rattachés, sans entrée propre. */
   subPaths?: readonly string[];
+  /** Actif sur son seul chemin : ses sous-chemins sont d'autres entrées. */
+  exact?: boolean;
 }
 
 interface Section {
@@ -51,10 +56,11 @@ interface Section {
 }
 
 /*
- * Deux métiers, deux onglets. Marketing va chercher des restaurants ;
- * Clients regarde ceux qui ont signé. Le mot « Restaurants » désigne des
- * prospects (crm_restaurants) d'un côté et n'existe pas de l'autre : les
- * clients sont des établissements, jamais des fiches de prospection.
+ * Trois questions, trois onglets. Marketing va chercher des restaurants ;
+ * Clients regarde ceux qui ont signé ; Projet dit ce qu'on construit, lu
+ * depuis GitHub. Le mot « Restaurants » désigne des prospects
+ * (crm_restaurants) d'un côté et n'existe pas de l'autre : les clients sont
+ * des établissements, jamais des fiches de prospection.
  *
  * Sous les onglets, la barre produit : la vue d'ensemble montre tout, la vue
  * d'un produit ne garde que les écrans qui le concernent, filtrés sur lui.
@@ -117,10 +123,23 @@ const SECTIONS: Section[] = [
       },
     ],
   },
+  {
+    id: "projet",
+    label: "Projet",
+    items: [
+      { href: "/projet", label: "Planning", icon: FlagIcon, exact: true },
+      { href: "/projet/taches", label: "Tâches", icon: TaskIcon },
+      {
+        href: "/projet/pull-requests",
+        label: "Pull requests",
+        icon: PullRequestIcon,
+      },
+    ],
+  },
 ];
 
 function isActive(localPath: string, item: NavItem): boolean {
-  if (item.href === "/") return localPath === "/";
+  if (item.href === "/" || item.exact) return localPath === item.href;
   return [item.href, ...(item.subPaths ?? [])].some(
     (path) => localPath === path || localPath.startsWith(`${path}/`),
   );
