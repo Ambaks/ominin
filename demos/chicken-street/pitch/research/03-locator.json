@@ -1,0 +1,474 @@
+[
+{
+"name": "LE + PROCHE",
+"address": "LA CARTE"
+},
+{
+"name": "PARIS 18 LA CHAPELLE",
+"address": "52 Rue de la Chapelle Paris, 75018"
+},
+{
+"name": "ALGER",
+"address": "P56W+WP, Bab Ezzouar,, Algérie"
+},
+{
+"name": "AMIENS CENTRE CATHÉDRALE",
+"address": "Rue du Maréchal de Lattre de Tassigny Amiens, 80000"
+},
+{
+"name": "ANGERS BRESSIGNY",
+"address": "14 Rue Bressigny Angers, 49100"
+},
+{
+"name": "ANNECY CENTRE",
+"address": "5 avenue du Rhône Annecy, 74000"
+},
+{
+"name": "ANNEMASSE",
+"address": "8 All. Annie Girardot Annemasse, 74100"
+},
+{
+"name": "ARGENTEUIL SARTROUVILLE",
+"address": "140 Rte de Pontoise Argenteuil, 95100"
+},
+{
+"name": "ARRAS BOULEVARD DE STRASBOURG",
+"address": "6 Bd de Strasbourg Arras, 62000"
+},
+{
+"name": "ATHIS-MONS",
+"address": "29 Av. François Mitterrand Athis-Mons, 91200"
+},
+{
+"name": "AUBERVILLIERS JEAN JAURÈS",
+"address": "89 Av. Jean Jaurès Aubervilliers, 93300"
+},
+{
+"name": "AVIGNON CAP SUD",
+"address": "CC Cap Sud 162 Av. Pierre Semard, Avignon, 84000"
+},
+{
+"name": "AVIGNON LE PONTET",
+"address": "160 Rue Jean et René Reinaudo, Le Pontet, 84130"
+},
+{
+"name": "BELFORT",
+"address": "1 Avenue Thomas Woodrow Wilson Belfort, 90000"
+},
+{
+"name": "BESANÇON",
+"address": "28 Grande Rue Besançon, FRANCE 25000"
+},
+{
+"name": "BONNEUIL-SUR-MARNE",
+"address": "11 Av. de Boissy Bonneuil-sur-Marne, 94380"
+},
+{
+"name": "BORDEAUX MERIGNAC",
+"address": "5 Rue Albert Einstein Mérignac, 33700"
+},
+{
+"name": "BORDEAUX SAINTE CATHERINE",
+"address": "160 Rue Sainte-Catherine Bordeaux, 33000"
+},
+{
+"name": "BOULOGNE BILANCOURT",
+"address": "54T Av. Edouard Vaillant, Boulogne-Billancourt, 92100"
+},
+{
+"name": "BOURG-EN-BRESSE",
+"address": "21 Av. Alsace Lorraine Bourg-en-Bresse, 1000"
+},
+{
+"name": "BUSSY-SAINT-GEORGES",
+"address": "7 rue Jean Monnet Bussy-Saint-Georges, 77600"
+},
+{
+"name": "CAEN SAINT-PIERRE",
+"address": "8 Boulevard des alliés Caen, 14000"
+},
+{
+"name": "CERGY PRÉFECTURE",
+"address": "16 Pl. des Cerclades, Cergy, 95000"
+},
+{
+"name": "CHALON-SUR-SAÔNE",
+"address": "2 Av. Jean Jaurès Chalon-sur-Saône, 71100"
+},
+{
+"name": "CHAMPIGNY-SUR-MARNE",
+"address": "29 Rue Jean Jaurès Champigny-sur-Marne, 94500"
+},
+{
+"name": "CHAMPS SUR MARNE",
+"address": "7 Bd Newton Champs-sur-Marne, 77420"
+},
+{
+"name": "CHARLEROI",
+"address": "1 Rue du Commerce Charleroi, 6000"
+},
+{
+"name": "CHOISY-LE-ROI",
+"address": "31 Av. Anatole France Choisy-le-Roi, 94600"
+},
+{
+"name": "CLICHY LA GARENNE",
+"address": "136 Bd Jean Jaurès Clichy, 92110"
+},
+{
+"name": "COLOMBES",
+"address": "165 Bd Charles de Gaulle Colombes, 92700"
+},
+{
+"name": "CORBEIL-ESSONNES",
+"address": "2 Bd Jean Jaurès, Corbeil-Essonnes, FRANCE 91100"
+},
+{
+"name": "COURBEVOIE",
+"address": "41 boulevard de Verdun Courbevoie, 92400"
+},
+{
+"name": "CREIL SAINT MAXIMIN",
+"address": "Rue Saint-Just Saint-Maximin, 60740"
+},
+{
+"name": "CRÉTEIL",
+"address": "126 Av. du Maréchal Foch, Créteil, 94000"
+},
+{
+"name": "DAKAR",
+"address": "Sacré cœur 3 Rue SC 87, villa 23B rez-de-chaussé, Sénégal 25544"
+},
+{
+"name": "DAKAR MAMELLES",
+"address": "PFGX+HQV, Rte de la Corniche O, Dakar, 12300"
+},
+{
+"name": "DIJON FOCH",
+"address": "13 Avenue du Maréchal Foch, Dijon, 21000"
+},
+{
+"name": "DIJON GARIBALDI",
+"address": "13 Av. Garibaldi Dijon, 21000"
+},
+{
+"name": "DOUAI",
+"address": "39 Pl. d'Armes, Douai, 59500"
+},
+{
+"name": "DRANCY",
+"address": "233 Avenue Henri Barbusse, Drancy, 93700"
+},
+{
+"name": "DUBAI",
+"address": "45 Al Diyafah Street - Al Hudaiba, Dubai, Émirats arabes unis"
+},
+{
+"name": "EVRY-COURCOURONNES",
+"address": "505 Pl. des Champs Elysées Évry-Courcouronnes, 91080"
+},
+{
+"name": "GARE DE L'EST PARIS",
+"address": "121 Rue du Faubourg Saint-Martin Paris, 75010"
+},
+{
+"name": "GARGES-LÈS-GONESSE",
+"address": "15 Av. de Stalingrad Garges-lès-Gonesse, 95140"
+},
+{
+"name": "GOUSSAINVILLE",
+"address": "24 Avenue du 6 Juin 1944 Goussainville, 95190"
+},
+{
+"name": "GRENOBLE ÉCHIROLLES",
+"address": "2 Rue du Cotentin, Échirolles, 38100"
+},
+{
+"name": "IVRY-SUR-SEINE",
+"address": "67 Bd Paul Vaillant Couturier Ivry-sur-Seine, 94200"
+},
+{
+"name": "JUVISY-SUR-ORGE",
+"address": "13 Rue de Draveil Juvisy-sur-Orge, 91260"
+},
+{
+"name": "KREMLIN BICÊTRE",
+"address": "4 Rue du Général Leclerc Le Kremlin-Bicêtre, 94270"
+},
+{
+"name": "LA ROCHE SUR YON",
+"address": "4 Rue Salvador Allende La Roche-sur-Yon, 85000"
+},
+{
+"name": "LE HAVRE",
+"address": "53 Av. René Coty Le Havre, 76600"
+},
+{
+"name": "LE MANS CENTRE GARE",
+"address": "17 Bd Robert Jarry Le Mans, 72100"
+},
+{
+"name": "LENS",
+"address": "12 Place de Jean Jaurès, Lens, 62300"
+},
+{
+"name": "LES LILAS",
+"address": "138 Rue de Paris Les Lilas, 93260"
+},
+{
+"name": "LILLE FLANDRES",
+"address": "11 rue de Tournai Lille, 59777"
+},
+{
+"name": "LILLE POSTES",
+"address": "239 Rue des Postes Lille, 59000"
+},
+{
+"name": "LYON 1ER",
+"address": "5 Rue Sainte-Catherine, Lyon, 69001"
+},
+{
+"name": "MÂCON",
+"address": "281 Quai Lamartine, Mâcon, 71000"
+},
+{
+"name": "MARRAKECH",
+"address": "41 avenue Mohammed V Marrakech, 40000"
+},
+{
+"name": "MARSEILLE BELSUNCE",
+"address": "54 Cr Belsunce Marseille, 13001"
+},
+{
+"name": "MARSEILLE PLOMBIÈRES",
+"address": "1 Bd Simon Bolivar, Marseille, 13015"
+},
+{
+"name": "MARSEILLE SAINT-ANTOINE",
+"address": "185 Av. de Saint-Antoine Marseille, 13015"
+},
+{
+"name": "MASSY ANTONY",
+"address": "Rue de la Division Leclerc Massy, 91300"
+},
+{
+"name": "MEAUX ARISTIDE BRIAND",
+"address": "53 Rue Aristide Briand Meaux, 77100"
+},
+{
+"name": "MELUN PLACE SAINT JEAN",
+"address": "13 Pl. Saint-Jean Melun, 77000"
+},
+{
+"name": "METZ MUSE",
+"address": "Centre commercial Muse, 2 Rue des Messageries, Metz, 57000"
+},
+{
+"name": "MONTARGIS GÉNÉRAL DE GAULLE",
+"address": "57 Av. du Général de Gaulle Montargis, 45200"
+},
+{
+"name": "MONTÉLIMAR",
+"address": "138 Avenue Jean Jaurés, Montélimar, 26200"
+},
+{
+"name": "MONTFERMEIL",
+"address": "1 Rue Utrillo, Montfermeil, 93370"
+},
+{
+"name": "MONTIGNY-LE-BRETONNEUX",
+"address": "13 Quai Fernand Pouillon, Montigny-le-Bretonneux, 78180"
+},
+{
+"name": "MONTPELLIER",
+"address": "7 Rue de Maguelone, Montpellier, 34000"
+},
+{
+"name": "MONTREUIL ROSNY",
+"address": "162 Bd de la Boissière Montreuil, 93100"
+},
+{
+"name": "MONTROUGE MALAKOFF",
+"address": "121 Av. Pierre Brossolette Montrouge, 92120"
+},
+{
+"name": "MOSTAGANEM",
+"address": "W384+WV9, Mostaganem,, Algérie"
+},
+{
+"name": "MULHOUSE CENTRE VILLE",
+"address": "11 Av. de Colmar Mulhouse, 68200"
+},
+{
+"name": "NANCY PLACE DES VOSGES",
+"address": "16 Av. du Général Leclerc Nancy, 54000"
+},
+{
+"name": "NANTES FEYDEAU",
+"address": "4 cours Olivier de Clisson, Nantes, 44000"
+},
+{
+"name": "NANTES NORD",
+"address": "147 Bd Robert Schuman Nantes, 44300"
+},
+{
+"name": "NICE MASSENA",
+"address": "56 Bd Jean Jaurès Nice, 6300"
+},
+{
+"name": "NICE PROMENADE",
+"address": "223 Avenue de la Californie, Nice, 06200"
+},
+{
+"name": "NÎMES AMIRAL COURBET",
+"address": "8 Bd Amiral Courbet, Nîmes, 30000"
+},
+{
+"name": "NOISY LE SEC",
+"address": "39 Rue Jean Jaurès, Noisy-le-Sec, 93130"
+},
+{
+"name": "O'PARINOR",
+"address": "Le Haut De Galy, Aulnay-sous-Bois, 93606"
+},
+{
+"name": "ORAN EL AKID LOTFI",
+"address": "PCG6+GCR, Bir El Djir, Oran, Algérie"
+},
+{
+"name": "ORAN ES SENIA",
+"address": "JCQ5+586, Oran, Algérie"
+},
+{
+"name": "ORLÉANS GARE",
+"address": "All. Anne du Bourg Orléans, 45000"
+},
+{
+"name": "PARIS 11",
+"address": "160 Rue Oberkampf Paris, 75011"
+},
+{
+"name": "PARIS 19",
+"address": "147 Rue de Crimée Paris, 75019"
+},
+{
+"name": "PARIS AVENUE DE CLICHY",
+"address": "42 Av. de Clichy Paris, 75018"
+},
+{
+"name": "PARIS CHÂTELET",
+"address": "17 rue de Saint Denis Paris, 75001"
+},
+{
+"name": "PERPIGNAN BAS-VERNET",
+"address": "235 Av. d'Espagne, Perpignan, 66000"
+},
+{
+"name": "PERSAN",
+"address": "2 Rue Maria Deraismes, zac du chemin herbu, Persan, 95340"
+},
+{
+"name": "PLAISIR",
+"address": "10 Rue Paul Langevin, Plaisir, 78370"
+},
+{
+"name": "POITIERS",
+"address": "2 avenue de LaFayette Poitiers, 86000"
+},
+{
+"name": "PONTAULT-COMBAULT",
+"address": "29 Av. de la République Pontault-Combault, 77340"
+},
+{
+"name": "PORTE DE MONTREUIL",
+"address": "261 Rue de Parisn Montreuil, 93100"
+},
+{
+"name": "QWARTZ 92",
+"address": "4 Boulevard Gallieni, Villeneuve-la-Garenne, 92390"
+},
+{
+"name": "REIMS CENTRE VILLE",
+"address": "Rue de Vesle Reims, 51100"
+},
+{
+"name": "ROUBAIX BOULEVARD GAMBETTA",
+"address": "127 Bd Gambetta Roubaix, 59100"
+},
+{
+"name": "ROUEN RUE LAFAYETTE",
+"address": "40 Rue Pavée Rouen, 76100"
+},
+{
+"name": "SAINT-DENIS UNIVERSITÉ",
+"address": "14 Av. Roger Semat Saint-Denis, 93200"
+},
+{
+"name": "SAINT-ETIENNE FOURNEYRON",
+"address": "42 Rue Etienne Mimard Saint-Étienne, 42000"
+},
+{
+"name": "SAINT-OUEN AVENUE MICHELET",
+"address": "54 Av. Michelet Saint-Ouen-sur-Seine, 93400"
+},
+{
+"name": "SAINT-PRIEST PLACE DANIEL BALAVOINE",
+"address": "9 Rue Mozart Saint-Priest, 69800"
+},
+{
+"name": "SENS",
+"address": "Chemin des canetières Sens , 89100"
+},
+{
+"name": "SEVRAN",
+"address": "Route des Petits Ponts, Sevran, 93270"
+},
+{
+"name": "STRASBOURG",
+"address": "7 Rue de Boston, Strasbourg,, 67000"
+},
+{
+"name": "TOULOUSE JEAN D'ARC",
+"address": "59 Bd de Strasbourg Toulouse, 31000"
+},
+{
+"name": "TOURS PLACE LIBERTÉ",
+"address": "9 Pl. de la Liberté Tours, 37000"
+},
+{
+"name": "TROYES CENTRE",
+"address": "13 Rue des Bas Trevois Troyes, 10000"
+},
+{
+"name": "VALENCE 2",
+"address": "2 Av. de Romans Valence, 26000"
+},
+{
+"name": "VANNES",
+"address": "81 Avenue de la Marne, Vannes, 56000"
+},
+{
+"name": "VAULX-EN-VELIN 7 CHEMINS",
+"address": "236 Av. Franklin Roosevelt Vaulx-en-Velin, 69120"
+},
+{
+"name": "VÉNISSIEUX PAUL BERT",
+"address": "22 Rue Paul Bert Vénissieux, 69200"
+},
+{
+"name": "VIENNE",
+"address": "4 Quai Anatole France, Vienne, 38200"
+},
+{
+"name": "VILLEFRANCHE-SUR-SAONE",
+"address": "Rue de la Quarantaine Villefranche-sur-Saône, 69400"
+},
+{
+"name": "VILLEMOMBLE GAGNY",
+"address": "182 Grande Rue Villemomble, 93250"
+},
+{
+"name": "VILLEURBANNE LA PERRALIÈRE",
+"address": "150 Rue du 4 Août 1789 Villeurbanne, 69100"
+}
+]

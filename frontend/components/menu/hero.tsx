@@ -77,6 +77,16 @@ function NameWords({ name }: { name: string }) {
 }
 
 function LogoHero({ restaurant }: { restaurant: Restaurant }) {
+  // Un mot-symbole est le titre : lu en premier, avant l'accroche.
+  const nameInLogo = Boolean(restaurant.logo && restaurant.logoIsName);
+  const logo = restaurant.logo && (
+    // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+    <img
+      src={restaurant.logo}
+      alt={nameInLogo ? restaurant.name : ""}
+      className={`relative h-28 w-auto sm:h-32 lg:h-40 xl:h-44 ${restaurant.whiteLogo ? "logo-white" : ""}`}
+    />
+  );
   return (
     // pt : quand le contenu dépasse la hauteur minimale (téléphone, logo
     // haut), le centrage ne laisse plus d'air et le logo touche le bord.
@@ -133,12 +143,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
                 "radial-gradient(circle, var(--hero-halo-1, var(--ember-1)), var(--hero-halo-2, var(--ember-2)) 60%, transparent 80%)",
             }}
           />
-          {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-          <img
-            src={restaurant.logo}
-            alt=""
-            className={`relative h-28 w-auto sm:h-32 lg:h-40 xl:h-44 ${restaurant.whiteLogo ? "logo-white" : ""}`}
-          />
+          {nameInLogo ? <h1 className="relative">{logo}</h1> : logo}
         </div>
       )}
 
@@ -153,12 +158,14 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
           {restaurant.tagline}
         </p>
 
-        <h1
-          className="hero-name hero-entrance relative z-10 mt-3 px-5 text-center font-display text-6xl font-medium leading-none tracking-tight max-[359px]:text-5xl sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
-          style={{ animationDelay: "350ms" }}
-        >
-          <NameWords name={restaurant.name} />
-        </h1>
+        {!nameInLogo && (
+          <h1
+            className="hero-name hero-entrance relative z-10 mt-3 px-5 text-center font-display text-6xl font-medium leading-none tracking-tight max-[359px]:text-5xl sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
+            style={{ animationDelay: "350ms" }}
+          >
+            <NameWords name={restaurant.name} />
+          </h1>
+        )}
 
         <div
           className="hero-rule hero-entrance ember-gradient relative z-10 mt-6 h-px w-20 opacity-50 lg:mt-8 lg:w-28"

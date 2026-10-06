@@ -100,7 +100,7 @@ const stageOf = (ticket: Ticket): Stage | null =>
  * ne s'annonce — la zone annoncée dit l'heure prévue une fois, pas chaque
  * minute qui passe ; la barre, muette, double le texte.
  */
-function ReadyCountdown({ estimate }: { estimate: ReadyEstimate }) {
+function ReadyCountdown({ estimate, ai }: { estimate: ReadyEstimate; ai?: boolean }) {
   const now = useNow(SERVICE_CLOCK_TICK_MS).getTime();
   const from = Date.parse(estimate.from);
   const at = Date.parse(estimate.readyAt);
@@ -134,7 +134,7 @@ function ReadyCountdown({ estimate }: { estimate: ReadyEstimate }) {
       </span>
       <p className="order-eta-caption mt-2.5 flex w-full items-baseline justify-between gap-3 text-xs text-muted">
         {/* L'heure prévue n'existe que dans l'aperçu : elle le dit. */}
-        <span>Estimation · aperçu</span>
+        <span>{ai ? "Estimation IA · aperçu" : "Estimation · aperçu"}</span>
         {!late && (
           <time dateTime={estimate.readyAt} className="font-semibold tabular-nums text-foreground">
             vers {frenchTime(new Date(at))}
@@ -154,7 +154,7 @@ function OrderTicket({
   titleId: string;
   onClose: () => void;
 }) {
-  const { restaurantName, paymentProvider } = useCart();
+  const { restaurantName, paymentProvider, estimatorLive } = useCart();
   const tickets = useTickets();
   const [busy, setBusy] = useState<"reprise" | "comptoir" | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -405,7 +405,7 @@ function OrderTicket({
                 {stage.title}
               </h3>
             )}
-            {estimate && <ReadyCountdown estimate={estimate} />}
+            {estimate && <ReadyCountdown estimate={estimate} ai={estimatorLive} />}
             {/* Sous le titre de l'état, dans le ticket : un avis qui s'en va ne
                 déplace pas le numéro, et ne glisse pas sous les boutons. */}
             {notices.map((notice) => (

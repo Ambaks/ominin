@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRestaurant } from "@/lib/menu-data";
 import { ComptoirDemo } from "./comptoir-demo";
-import { hasCounterDemo, SCENARIOS } from "./fixtures";
+import { counterTitle, hasCounterDemo, SCENARIOS } from "./fixtures";
 
 /*
  * Le comptoir d'un restaurant fast food, vu du personnel : l'onglet
@@ -42,7 +42,7 @@ export default async function ComptoirDemoPage({
   return (
     <ComptoirDemo
       slug={slug}
-      name={restaurant.name}
+      name={counterTitle(slug, restaurant.name)}
       scenario={SCENARIOS.find((name) => name === scenario) ?? "rush"}
     />
   );

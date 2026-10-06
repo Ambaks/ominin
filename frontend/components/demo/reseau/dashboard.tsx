@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getNetwork, type NetworkFixture } from "@/lib/demo/reseau/data";
-import { offer, setupFeeLabel } from "@/lib/pitch/o-crousti-poulet";
+import { offer, setupFeeLabel } from "@/lib/pitch/kit";
 import {
   formatCents,
   formatClock,
@@ -24,10 +24,12 @@ import {
   activityWindow,
   addDays,
   bucketed,
+  handoffMinutes,
   latestOrders,
   minutesOf,
   networkTotals,
   parisClock,
+  readyWaiting,
   restaurantSnapshot,
   simulateDay,
   tillWaits,
@@ -43,6 +45,7 @@ import { LiveFeed } from "./live-feed";
 import { NetworkMap } from "./network-map";
 import { Ranking } from "./ranking";
 import { RestaurantPanel } from "./restaurant-panel";
+import { TownInset } from "./town-inset";
 import { useRowFit } from "./use-row-fit";
 
 /*
@@ -53,7 +56,6 @@ import { useRowFit } from "./use-row-fit";
  * tailles, que c'est une démonstration, et laisse choisir l'hypothèse dont
  * tout dépend : la part des commandes passées par QR.
  */
-
 
 function useSimClock(fixture: NetworkFixture, clock: Clock) {
   const [now, setNow] = useState({ day: clock.day, seconds: clock.seconds });
@@ -124,7 +126,7 @@ function Popover({ id, title, children }: { id: string; title: string; children:
 }
 
 /** Les conditions, telles que le siège les lira partout : conclusion et fenêtre du bandeau. */
-function Terms({ rate, aside }: { rate: React.ReactNode; aside?: React.ReactNode }) {
+function Terms({ rate, elsewhere, aside }: { rate: React.ReactNode; elsewhere: string; aside?: React.ReactNode }) {
   return (
     <>
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -134,7 +136,7 @@ function Terms({ rate, aside }: { rate: React.ReactNode; aside?: React.ReactNode
             {
               value: rate,
               unit: "%",
-              label: "des commandes payées en ligne, dégressif selon le chiffre d’affaires (paliers fixés ensemble) ; rien sur celles réglées en caisse",
+              label: `des commandes payées en ligne, dégressif selon le chiffre d’affaires (paliers fixés ensemble) ; rien sur ${elsewhere}`,
             },
             { value: "1", unit: "pilote", label: "dans le restaurant de votre choix, équipé par Ominin" },
           ].map((term) => (
@@ -261,15 +263,15 @@ function Kpi({
 }) {
   return (
     <div className={`flex min-w-0 flex-col gap-2 overflow-hidden px-4 py-3.5 sm:px-5 sm:py-4 ${CARD}`}>
-      <div className="flex flex-col gap-0.5 2xl:flex-row 2xl:items-baseline 2xl:justify-between 2xl:gap-3">
+      <div className="flex flex-col gap-0.5 wall:flex-row wall:items-baseline wall:justify-between wall:gap-3">
         <p className={`truncate ${PANEL_TITLE}`}>
-          <span className="2xl:hidden">{short}</span>
-          <span className="hidden 2xl:inline">{label}</span>
+          <span className="wall:hidden">{short}</span>
+          <span className="hidden wall:inline">{label}</span>
         </p>
         {tag && <p className="shrink-0 truncate text-xs text-faint sm:text-[0.8125rem]">{tag}</p>}
       </div>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <p className="font-display text-[1.75rem] font-medium leading-none sm:text-[2.25rem] 2xl:text-[3rem]">
+        <p className="font-display text-[1.75rem] font-medium leading-none sm:text-[2.25rem] wall:text-[3rem]">
           <Figure value={<AnimatedNumber value={value} format={format} duration={tweenMs} />} unit={unit} />
         </p>
         {versus && <p className="text-[0.8125rem] text-muted max-xl:hidden sm:text-sm">{versus}</p>}
@@ -342,6 +344,34 @@ export function NetworkDashboard({
     return () => observer.disconnect();
   }, []);
 
+  // Sous le plein écran, la fiche couvre la page : c'est un dialogue, le focus y reste.
+  const [sheetModal, setSheetModal] = useState(false);
+  useEffect(() => {
+    // La condition de la variante « wall » (globals.css, en tête) : à garder identiques.
+    const query = window.matchMedia("(min-width: 96rem) and (min-height: 66rem)");
+    const update = () => setSheetModal(!query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  const trapFocus = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (!sheetModal || event.key !== "Tab") return;
+    const focusable = [
+      ...event.currentTarget.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])"),
+    ];
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement as HTMLElement;
+    if (event.shiftKey && (active === first || !focusable.includes(active))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   const select = useCallback((index: number) => {
     if (document.activeElement instanceof HTMLElement) opener.current = document.activeElement;
     setSelected(index);
@@ -360,7 +390,12 @@ export function NetworkDashboard({
     .sort((a, b) => (b.waitNow ?? 0) - (a.waitNow ?? 0) || a.index - b.index);
   const rushOrder = rush.map((s) => s.index);
   const fresh = snapshots.filter((s) => s.isNew);
-  const byRevenue = [...snapshots].sort((a, b) => b.revenue - a.revenue);
+  // Le rang de la fiche, celui du classement par défaut : à égalité, par nom.
+  const byRevenue = [...snapshots].sort(
+    (a, b) =>
+      b.revenue - a.revenue ||
+      fixture.restaurants[a.index].name.localeCompare(fixture.restaurants[b.index].name, "fr")
+  );
   const current: RestaurantSnapshot | null = selected == null ? null : snapshots[selected];
   const firstOpening = formatHour(range.start / 60);
   const count = fixture.restaurants.length;
@@ -376,13 +411,25 @@ export function NetworkDashboard({
       {formatNumber(offer.commissionPercent.max)}
     </>
   );
+  const kiosks = simulation.withoutQr === "bornes";
+  // Ce sur quoi Ominin ne prend rien.
+  const elsewhere = kiosks ? "les ventes aux bornes ni au comptoir" : "celles réglées en caisse";
+  const [pickupMin, pickupMax] = simulation.pickupMinutes;
   const assumptions = [
     "Restaurants, adresses et horaires : les vôtres ; carte et prix : votre carte nationale.",
     `Volumes calés sur votre CA moyen annoncé (${fixture.announcedRevenue}), selon le jour de la semaine et les pointes du midi et du soir.`,
-    "Ce qu’Ominin mesurerait en service : les commandes passées par QR, leur montant, l’heure annoncée au client et l’heure où la commande est prête.",
-    `Ce qui est estimé ici : les clients sans QR, la file et l’attente en caisse, à ${formatDecimal(simulation.tillMinutes)}\u00a0min de passage par client et ${formatInteger(simulation.tills)}\u00a0caisse${simulation.tills > 1 ? "s" : ""} par restaurant.`,
+    kiosks
+      ? "Ce qu’Ominin mesurerait en service : les commandes passées par QR, leur montant, l’heure annoncée au client, l’heure où la commande est prête et celle de sa remise."
+      : "Ce qu’Ominin mesurerait en service : les commandes passées par QR, leur montant, l’heure annoncée au client et l’heure où la commande est prête.",
+    kiosks
+      ? `Ce qui est estimé ici : les clients sans QR, qui commandent aux bornes et passent par la même cuisine, et la remise, de ${formatDecimal(pickupMin)} à ${formatWait(pickupMax)} après l’alerte « C’est prêt ! ».`
+      : `Ce qui est estimé ici : les clients sans QR, la file et l’attente en caisse, à ${formatDecimal(simulation.tillMinutes)}\u00a0min de passage par client et ${formatInteger(simulation.tills)}\u00a0caisse${simulation.tills > 1 ? "s" : ""} par restaurant.`,
     `Délai tenu à ±${formatWait(simulation.estimateToleranceMinutes)} : simulé ici, la préparation variant autour du délai annoncé ; mesuré au pilote.`,
-    "La file est simulée client par client : à la pointe, la caisse sature ; lui retirer les commandes payées en ligne fait tomber l’attente bien plus que le nombre de passages.",
+    kiosks
+      ? "Chaque cuisine est simulée commande par commande, dimensionnée pour le samedi ; une équipe qui ouvre tourne plus près de sa limite qu’une équipe rodée."
+      : "La file est simulée client par client : à la pointe, la caisse sature ; lui retirer les commandes payées en ligne fait tomber l’attente bien plus que le nombre de passages.",
+    "Numéros de commande : un seul carnet par restaurant, commandes QR et sans QR confondues, d’où un N° plus haut que le nombre de commandes QR.",
+    ...(simulation.notes ?? []),
   ];
 
   // Tendances des chiffres clés : les tranches terminées seulement — la
@@ -415,17 +462,21 @@ export function NetworkDashboard({
   // forcément le même) ; s'il dépasse l'instant, l'attente du moment ne le dit plus.
   const qrPeakIndex = waits.reduce((best, w, i) => (w.withQr > (waits[best]?.withQr ?? 0) ? i : best), 0);
   const dayPeak = peakWait && { withQr: waits[qrPeakIndex].withQr, withoutQr: peakWait.withoutQr };
-  const pastPeak = dayPeak && tillWait && tillWait.withoutQr < dayPeak.withoutQr ? dayPeak : null;
-  // File retombée : la tuile montre le pic du jour, l'instant passe en note.
-  const quiet = pastPeak && tillWait && tillWait.withoutQr < display.tillQuietMinutes ? pastPeak : null;
-  const tillShown = quiet ?? tillWait;
-  const tillMoment = quiet ? "pic du jour" : "maintenant";
   const lastWeekTill = tillWaits(lastWeek, range.start, range.end - 1, bucket, tillService);
   const tillGhost = lastWeekTill.map((w) => w.withQr);
   const usualPeak =
     range.start + lastWeekTill.reduce((best, w, i) => (w.withoutQr > lastWeekTill[best].withoutQr ? i : best), 0) * bucket;
+  // Avant la pointe habituelle, le pire quart d'heure n'est pas encore un « pic du jour ».
+  const pastPeak = dayPeak && tillWait && usualPeak <= seconds && tillWait.withoutQr < dayPeak.withoutQr ? dayPeak : null;
+  // File retombée : la tuile montre le pic du jour, l'instant passe en note.
+  const quiet = pastPeak && tillWait && tillWait.withoutQr < display.tillQuietMinutes ? pastPeak : null;
+  const tillShown = quiet ?? tillWait;
+  const tillMoment = quiet ? "pic du jour" : "maintenant";
   // Le temps de caisse que n'ont pas pris les commandes réglées en ligne.
   const tillHours = (totals.online * simulation.tillMinutes) / 60;
+  // Aux bornes : les commandes prêtes que leur client n'a pas encore prises, et le délai de remise.
+  const readyNow = snapshots.reduce((sum, s) => sum + s.queue.prete, 0);
+  const handoff = handoffMinutes(sim, seconds);
   // Le rush à revoir : le pic de la caisse, sinon la pointe du déjeuner prévue.
   const replayAt = peakWait ? peakWait.at : minutesOf(simulation.peaks[0].at) * 60;
   const replayName = simulation.peaks.reduce((best, p) =>
@@ -446,22 +497,38 @@ export function NetworkDashboard({
       ...activity(sim.orders, range.start, range.end, bucket, step).map((p) => p.count),
       ...reference.map((p) => p.count)
     ) * display.headroom;
-  // Calme : la prochaine pointe, d'après le même jour de la semaine passée.
-  const ahead = reference.filter((p) => p.at > seconds);
-  const peak = ahead.length ? ahead.reduce((best, p) => (p.count > best.count ? p : best)) : null;
+  // Calme : la prochaine pointe, d'après le même jour de la semaine passée —
+  // le premier sommet à venir (le plus haut à une heure à la ronde, au moins la
+  // moitié du pic du jour), pas le plus haut qui reste : le midi et le soir se
+  // valent presque, le plus haut des deux basculait au gré de l'aléa.
+  const referencePeak = Math.max(...reference.map((p) => p.count), 0);
+  const peak =
+    reference.find(
+      (p) =>
+        p.at > seconds &&
+        p.count >= referencePeak / 2 &&
+        reference.every((q) => Math.abs(q.at - p.at) > 3600 || q.count <= p.count)
+    ) ?? null;
+  // Sa fenêtre commence une tranche avant son sommet : elle doit être encore à venir.
+  const peakStart = peak && Math.round((peak.at - bucket) / bucket) * bucket;
   const nextPeak =
-    !rush.length && totals.openCount > 0 && peak && peak.count > (todayCurve.at(-1)?.count ?? 0) ? peak : null;
+    !rush.length && totals.openCount > 0 && peak && peakStart! > seconds && peak.count >= 1 && peak.count > (todayCurve.at(-1)?.count ?? 0)
+      ? peak
+      : null;
   // Le rythme du moment, tant qu'un restaurant est ouvert.
   const pace = seconds >= range.start && seconds <= range.end ? (todayCurve.at(-1)?.count ?? null) : null;
   // Le début de la fenêtre de pointe, à la tranche près : « vers 20 h ».
-  const peakFrom = nextPeak && formatHour((Math.round((nextPeak.at - bucket) / bucket) * bucket) / 60);
+  const peakFrom = nextPeak && formatHour(peakStart! / 60);
 
   return (
-    <div className="reseau flex min-h-dvh flex-col bg-background text-foreground 2xl:h-dvh 2xl:overflow-hidden">
+    <div
+      className="reseau flex min-h-dvh flex-col bg-background text-foreground wall:h-dvh wall:overflow-hidden"
+      style={{ "--ember-1": fixture.ember[0], "--ember-2": fixture.ember[1], "--ember-3": fixture.ember[2] } as React.CSSProperties}
+    >
       <header className="flex items-center gap-x-3 gap-y-3 border-b border-hairline px-4 py-3 sm:gap-x-6 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-hairline bg-black sm:size-11">
-            <Image src="/o-crousti-poulet/coq.webp" alt="" width={480} height={346} className="w-6.5 sm:w-8" />
+            <Image src={fixture.logo.src} alt="" width={fixture.logo.width} height={fixture.logo.height} className="w-6.5 sm:w-8" />
           </span>
           <div className="min-w-0">
             <p className={PANEL_TITLE}>
@@ -480,7 +547,7 @@ export function NetworkDashboard({
             <time className="font-semibold tabular-nums">{formatClock(seconds)}</time>
           </p>
           <a
-            href={`/menu/demo/${slug}?service=fast-food`}
+            href={`/menu/demo/${slug}?service=fast-food`} target="_blank" rel="noopener"
             className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground lg:inline-flex"
           >
             Côté client
@@ -511,7 +578,7 @@ export function NetworkDashboard({
             <button type="button" popoverTarget="reseau-conditions" className={LINK}>
               Conditions
             </button>
-            <a href={`/menu/demo/${slug}?service=fast-food`} className={`${LINK} lg:hidden`}>
+            <a href={`/menu/demo/${slug}?service=fast-food`} target="_blank" rel="noopener" className={`${LINK} lg:hidden`}>
               Côté client
             </a>
           </span>
@@ -540,7 +607,7 @@ export function NetworkDashboard({
       </div>
 
       <main className="flex min-h-0 flex-1 flex-col gap-4 p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-6">
-        <div ref={kpis} className="grid grid-cols-2 gap-3 lg:grid-cols-4 2xl:gap-4">
+        <div ref={kpis} className="grid grid-cols-2 gap-3 lg:grid-cols-4 wall:gap-4">
           <Kpi
             label="Commandes par QR"
             short="Commandes QR"
@@ -561,42 +628,65 @@ export function NetworkDashboard({
               <Joined
                 parts={[
                   `${formatInteger(totals.online)} payées en ligne (${formatPercent(totals.online / totals.orders)})`,
-                  `≈\u00a0${formatInteger(tillHours)}\u00a0h de caisse libérées`,
+                  ...(!kiosks && tillHours >= 1 ? [`≈\u00a0${formatInteger(tillHours)}\u00a0h de caisse libérées`] : []),
                 ]}
               />
+            ) : totals.openCount ? (
+              "Pas encore de commande"
             ) : (
               `Ouverture à ${firstOpening}`
             )}
           </Kpi>
-          <Kpi
-            label="Attente en caisse"
-            short="Attente caisse"
-            tag={`estimée · ${tillMoment}`}
-            value={tillShown ? tillShown.withQr : 0}
-            format={(v) => (tillShown ? formatDecimal(v) : "—")}
-            unit={tillShown ? "min" : undefined}
-            versus={
-              tillShown && (
-                <span className="whitespace-nowrap font-medium">sans QR : {formatMinutes(tillShown.withoutQr)}</span>
-              )
-            }
-            tweenMs={display.tweenMs}
-            trend={waits.map((w) => w.withQr)}
-            ghost={tillGhost}
-            span={span}
-            mark={pastPeak ? qrPeakIndex : undefined}
-            compactNote={tillShown ? `sans QR : ${formatMinutes(tillShown.withoutQr)}` : false}
-          >
-            {quiet
-              ? `Maintenant : sous ${formatWait(display.tillQuietMinutes)}`
-              : pastPeak
-                ? `Pic du jour : ${formatMinutes(pastPeak.withQr)} (${formatDecimal(pastPeak.withoutQr)} sans QR)`
-                : tillWait && usualPeak > seconds
-                ? `Pic attendu vers ${formatHour(usualPeak / 60)}`
-                : tillWait
-                  ? "Pic du jour : maintenant"
+          {kiosks ? (
+            <Kpi
+              label="Prêtes, en attente du client"
+              short="À remettre"
+              tag="maintenant"
+              value={readyNow}
+              format={formatInteger}
+              tweenMs={display.tweenMs}
+              trend={readyWaiting(sim, range.start, done - 1, bucket)}
+              ghost={readyWaiting(lastWeek, range.start, range.end - 1, bucket)}
+              span={span}
+              compactNote={handoff != null ? `remise en ${formatMinutes(handoff)}` : false}
+            >
+              {handoff != null
+                ? `Remises en ${formatMinutes(handoff)} en moyenne après « C’est prêt ! »`
+                : totals.openCount
+                  ? "Aucune commande remise encore"
                   : `Ouverture à ${firstOpening}`}
-          </Kpi>
+            </Kpi>
+          ) : (
+            <Kpi
+              label="Attente en caisse"
+              short="Attente caisse"
+              tag={`estimée · ${tillMoment}`}
+              value={tillShown ? tillShown.withQr : 0}
+              format={(v) => (tillShown ? formatDecimal(v) : "—")}
+              unit={tillShown ? "min" : undefined}
+              versus={
+                tillShown && (
+                  <span className="whitespace-nowrap font-medium">sans QR : {formatMinutes(tillShown.withoutQr)}</span>
+                )
+              }
+              tweenMs={display.tweenMs}
+              trend={waits.map((w) => w.withQr)}
+              ghost={tillGhost}
+              span={span}
+              mark={pastPeak ? qrPeakIndex : undefined}
+              compactNote={tillShown ? `sans QR : ${formatMinutes(tillShown.withoutQr)}` : false}
+            >
+              {quiet
+                ? `Maintenant : sous ${formatWait(display.tillQuietMinutes)}`
+                : pastPeak
+                  ? `Pic du jour : ${formatMinutes(pastPeak.withQr)} (${formatDecimal(pastPeak.withoutQr)} sans QR)`
+                  : tillWait && usualPeak > seconds
+                  ? `Pic attendu vers ${formatHour(usualPeak / 60)}`
+                  : tillWait
+                    ? "Pic du jour : maintenant"
+                    : `Ouverture à ${firstOpening}`}
+            </Kpi>
+          )}
           <Kpi
             label="CA commandé par QR"
             short="CA QR"
@@ -624,24 +714,25 @@ export function NetworkDashboard({
             span={span}
             compactNote={
               totals.ready
-                ? `${formatPercent(totals.onTime / totals.ready)} tenus à ±${formatWait(simulation.estimateToleranceMinutes)}`
+                ? `${simulation.estimatorLive ? "Heure annoncée par l’IA" : "Heure annoncée en développement"} · ${formatPercent(totals.onTime / totals.ready)} tenus à ±${formatWait(simulation.estimateToleranceMinutes)} (simulé)`
                 : undefined
             }
           >
             <Joined
               parts={[
-                "Annoncé au paiement",
+                // L'heure estimée, livrée ou non selon ce que dit le pitch du réseau : la vue le dit, comme le deck.
+                simulation.estimatorLive ? "Annoncé au paiement par l’estimateur IA" : "Annoncé au paiement (en développement)",
                 ...(totals.ready
-                  ? [`${formatPercent(totals.onTime / totals.ready)} tenus à ±${formatWait(simulation.estimateToleranceMinutes)}`]
+                  ? [`${formatPercent(totals.onTime / totals.ready)} tenus à ±${formatWait(simulation.estimateToleranceMinutes)} (simulé)`]
                   : []),
               ]}
             />
           </Kpi>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] 2xl:min-h-0 2xl:flex-1 2xl:grid-cols-12">
-          <div className="flex min-h-0 flex-col gap-4 2xl:col-span-6">
-            <section className={`flex min-h-0 flex-col overflow-hidden 2xl:flex-1 ${CARD}`}>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] wall:min-h-0 wall:flex-1 wall:grid-cols-12">
+          <div className="flex min-h-0 flex-col gap-4 wall:col-span-6">
+            <section className={`flex min-h-0 flex-col overflow-hidden wall:flex-1 ${CARD}`}>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 pt-4">
                 <h2 className="font-display text-lg font-medium">Le réseau maintenant</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.8125rem] text-muted">
@@ -659,36 +750,39 @@ export function NetworkDashboard({
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span aria-hidden className="size-2.5 rounded-full border border-foreground/60" />
-                    {`Ouvert depuis ${simulation.newDays}\u00a0j`}
+                    {`${simulation.newVerb ?? "Ouvert"} il y a moins de ${simulation.newDays}\u00a0j`}
                   </span>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={showCoverage}
-                    onClick={() => setShowCoverage((on) => !on)}
-                    className="flex items-center gap-2 transition-colors hover:text-foreground"
-                  >
-                    <span
-                      aria-hidden
-                      className={`relative h-4 w-7 rounded-full border transition-colors ${
-                        showCoverage ? "border-foreground bg-foreground" : "border-foreground/25 bg-background"
-                      }`}
+                  {simulation.coverageKm ? (
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={showCoverage}
+                      onClick={() => setShowCoverage((on) => !on)}
+                      className="flex items-center gap-2 transition-colors hover:text-foreground"
                     >
                       <span
-                        className={`absolute left-0 top-px size-3 rounded-full transition-transform ${
-                          showCoverage ? "translate-x-3 bg-background" : "translate-x-px bg-foreground/60"
+                        aria-hidden
+                        className={`relative h-4 w-7 rounded-full border transition-colors ${
+                          showCoverage ? "border-foreground bg-foreground" : "border-foreground/25 bg-background"
                         }`}
-                      />
-                    </span>
-                    {`Couverture ${simulation.coverageKm}\u00a0km`}
-                  </button>
+                      >
+                        <span
+                          className={`absolute left-0 top-px size-3 rounded-full transition-transform ${
+                            showCoverage ? "translate-x-3 bg-background" : "translate-x-px bg-foreground/60"
+                          }`}
+                        />
+                      </span>
+                      {`Couverture ${simulation.coverageKm}\u00a0km`}
+                    </button>
+                  ) : null}
                 </div>
               </div>
-              <div className="flex min-h-0 flex-1 flex-col gap-5 p-5 pt-4 2xl:flex-row 2xl:pb-0 2xl:pr-0">
-                {/* En plein écran, un bloc qui ne tient pas en entier passe dans une
-                    colonne hors cadre plutôt que d'être coupé. */}
-                <div className="order-2 grid content-start gap-5 sm:grid-cols-2 2xl:order-1 2xl:flex 2xl:w-56 2xl:shrink-0 2xl:flex-col 2xl:flex-wrap 2xl:overflow-hidden 2xl:pb-5">
-                  <div className="2xl:w-full">
+              <div className="flex min-h-0 flex-1 flex-col gap-5 p-5 pt-4 xl:flex-row wall:pb-0 wall:pr-0">
+                {/* À côté de la carte dès 1 280 px : rush et ouvertures dans le
+                    premier écran. En plein écran, un bloc qui ne tient pas en
+                    entier passe dans une colonne hors cadre plutôt que d'être coupé. */}
+                <div className="order-2 grid content-start gap-5 sm:grid-cols-2 xl:order-1 xl:flex xl:w-56 xl:shrink-0 xl:flex-col wall:flex-wrap wall:overflow-hidden wall:pb-5">
+                  <div className="wall:w-full">
                     <h3 className={`flex items-baseline justify-between ${PANEL_TITLE}`}>
                       En rush
                       <span className="tabular-nums">{rush.length}</span>
@@ -713,7 +807,7 @@ export function NetworkDashboard({
                               <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-ember-2 text-[0.6875rem] font-bold text-background tabular-nums">
                                 {rank + 1}
                               </span>
-                              <span className="min-w-0 flex-1 truncate text-sm">{fixture.restaurants[s.index].name}</span>
+                              <span className="min-w-0 flex-1 text-sm leading-snug text-balance">{fixture.restaurants[s.index].name}</span>
                               <span className="shrink-0 text-sm font-medium text-ember-2 tabular-nums">{formatWait(s.waitNow ?? 0)}</span>
                             </button>
                           </li>
@@ -743,12 +837,14 @@ export function NetworkDashboard({
                         <p className="mt-1 text-[0.8125rem] text-faint">
                           {`≈ ${formatInteger(nextPeak.count)} cmd QR / ${display.bucketMinutes}\u00a0min ${weekday} dernier`}
                         </p>
-                        <a
-                          href={`?heure=${formatClockParam(replayAt)}&jour=${day}`}
-                          className="mt-2.5 inline-flex min-h-9 items-center rounded-full border border-hairline px-3.5 text-sm font-medium transition-colors hover:border-foreground/40"
-                        >
-                          {`Revoir le rush ${replayName}`}
-                        </a>
+                        {replayAt < seconds && (
+                          <a
+                            href={`?heure=${formatClockParam(replayAt)}&jour=${day}`}
+                            className="mt-2.5 inline-flex min-h-9 items-center rounded-full border border-hairline px-3.5 text-sm font-medium transition-colors hover:border-foreground/40"
+                          >
+                            {`Revoir le rush ${replayName}`}
+                          </a>
+                        )}
                       </div>
                     ) : (
                       <p className="text-sm text-muted">
@@ -758,12 +854,26 @@ export function NetworkDashboard({
                       </p>
                     )}
                   </div>
+                  {/* L'agglomération avant les ouvertures récentes : en plein écran, la
+                      colonne coupe le dernier bloc qui ne tient pas, et « Nouveaux »
+                      se lit aussi au classement. */}
+                  <div className="wall:w-full">
+                    <TownInset
+                      fixture={fixture}
+                      snapshots={snapshots}
+                      rushOrder={rushOrder}
+                      selected={selected}
+                      onSelect={select}
+                      title={PANEL_TITLE}
+                    />
+                  </div>
                   {fresh.length > 0 && (
-                    <div className="2xl:w-full">
+                    <div className="wall:w-full">
+                      {/* « Nouveaux » : la légende au-dessus de la carte, au même anneau, dit « ouvert (ou inauguré) il y a moins de 30 j ». */}
                       <h3 className={`mb-1.5 flex items-center justify-between ${PANEL_TITLE}`}>
                         <span className="flex items-center gap-2">
                           <span aria-hidden className="size-2.5 rounded-full border border-foreground/60" />
-                          {`Ouverts depuis ${simulation.newDays}\u00a0jours`}
+                          Nouveaux
                         </span>
                         <span className="tabular-nums">{fresh.length}</span>
                       </h3>
@@ -787,7 +897,7 @@ export function NetworkDashboard({
                     </div>
                   )}
                 </div>
-                <div className="order-1 w-full 2xl:order-2 2xl:min-h-0 2xl:min-w-0 2xl:flex-1">
+                <div className="order-1 w-full xl:order-2 xl:min-w-0 xl:flex-1 wall:min-h-0">
                   <NetworkMap
                     fixture={fixture}
                     snapshots={snapshots}
@@ -801,7 +911,7 @@ export function NetworkDashboard({
               </div>
             </section>
 
-            <section className={`flex flex-col px-5 py-4 2xl:h-[16rem] ${CARD}`}>
+            <section className={`flex flex-col px-5 py-4 wall:h-[16rem] ${CARD}`}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <h2 className="font-display text-lg font-medium">
                   <span className="sm:hidden">{`Commandes QR / ${display.bucketMinutes}\u00a0min`}</span>
@@ -813,7 +923,7 @@ export function NetworkDashboard({
                   unit={`cmd / ${display.bucketMinutes}\u00a0min`}
                 />
               </div>
-              <div className="mt-3 h-48 2xl:h-auto 2xl:min-h-0 2xl:flex-1">
+              <div className="mt-3 h-48 wall:h-auto wall:min-h-0 wall:flex-1">
                 <ActivityChart
                   today={todayCurve}
                   reference={reference}
@@ -830,8 +940,8 @@ export function NetworkDashboard({
             </section>
           </div>
 
-          <div className="relative min-h-0 lg:h-0 lg:min-h-full 2xl:col-span-3">
-            <section className={`flex h-full min-h-0 flex-col ${CARD} ${current ? "2xl:hidden" : ""}`}>
+          <div className="relative min-h-0 lg:h-0 lg:min-h-full wall:col-span-3">
+            <section className={`flex h-full min-h-0 flex-col ${CARD} ${current ? "wall:hidden" : ""}`}>
               <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-4">
                 <h2 className="font-display text-lg font-medium">Commandes en direct</h2>
                 <p className="flex items-center gap-2 text-[0.8125rem] text-muted tabular-nums">
@@ -844,7 +954,7 @@ export function NetworkDashboard({
                   fixture={fixture}
                   orders={latestOrders(sim, seconds, feedRows ?? display.feedPreview)}
                   now={seconds}
-                  opensAt={firstOpening}
+                  opensAt={totals.openCount ? null : firstOpening}
                   onSelect={select}
                 />
               </div>
@@ -852,10 +962,13 @@ export function NetworkDashboard({
 
             {current && (
               <>
-                <div aria-hidden onClick={close} className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm backdrop-saturate-50 2xl:hidden" />
+                <div aria-hidden onClick={close} className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm backdrop-saturate-50 wall:hidden" />
                 <aside
+                  role={sheetModal ? "dialog" : undefined}
+                  aria-modal={sheetModal || undefined}
+                  onKeyDown={trapFocus}
                   aria-label={`Fiche du restaurant ${fixture.restaurants[current.index].name}`}
-                  className={`reseau-sheet fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-hidden rounded-b-none shadow-2xl shadow-black/60 lg:inset-y-4 lg:left-auto lg:right-4 lg:max-h-none lg:w-[26rem] lg:rounded-b-2xl 2xl:static 2xl:z-auto 2xl:h-full 2xl:w-auto 2xl:shadow-none ${CARD}`}
+                  className={`reseau-sheet fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col overflow-hidden rounded-b-none shadow-2xl shadow-black/60 lg:inset-y-4 lg:left-auto lg:right-4 lg:max-h-none lg:w-[26rem] lg:rounded-b-2xl wall:static wall:z-auto wall:h-full wall:w-auto wall:shadow-none ${CARD}`}
                 >
                   <RestaurantPanel
                     fixture={fixture}
@@ -873,11 +986,14 @@ export function NetworkDashboard({
             )}
           </div>
 
-          <section className={`flex min-h-0 flex-col lg:col-span-2 2xl:col-span-3 ${CARD}`}>
+          <section className={`flex min-h-0 flex-col lg:col-span-2 wall:col-span-3 ${CARD}`}>
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-5 pb-2 pt-4">
               <h2 className="font-display text-lg font-medium">Classement du jour</h2>
               <p className="flex items-center gap-1.5 text-[0.8125rem] text-muted">
                 <span>Délai : en ce moment</span>
+                <span aria-hidden className="text-faint">·</span>
+                <span aria-hidden className="size-2 rounded-full bg-ember-2" />
+                en rush
                 <span aria-hidden className="text-faint">·</span>
                 <span aria-hidden className="size-2 rounded-full border border-foreground/50" />
                 nouveau
@@ -886,7 +1002,6 @@ export function NetworkDashboard({
             <Ranking
               fixture={fixture}
               snapshots={snapshots}
-              rushOrder={rushOrder}
               selected={selected}
               onSelect={select}
             />
@@ -895,17 +1010,18 @@ export function NetworkDashboard({
 
         <section
           ref={closing}
-          className={`p-5 2xl:hidden ${CARD}`}
+          className={`p-5 wall:hidden ${CARD}`}
         >
           <h2 className="font-display text-lg font-medium">Ce que le réseau reçoit</h2>
           <p className="mt-1 text-sm text-pretty text-muted">
-            Dans chaque restaurant, sans changer de caisse : un menu QR aux couleurs de l’enseigne, le paiement
-            en ligne et des tickets numérotés avec l’heure de retrait, imprimés sur les imprimantes de cuisine en
+            Dans chaque restaurant, sans changer de caisse&nbsp;: un menu QR aux couleurs de l’enseigne, le paiement
+            en ligne et des tickets numérotés {simulation.estimatorLive ? "avec l’heure de retrait estimée par l’IA" : "(l’heure de retrait estimée\u00a0: en développement)"}, imprimés sur les imprimantes de cuisine en
             place. Pour le siège, cette vue du réseau.
           </p>
           <div className="mt-5">
             <Terms
               rate={rate}
+              elsewhere={elsewhere}
               aside={
                 <div className="flex shrink-0 flex-col gap-2 sm:items-start lg:items-end">
                   <a
@@ -926,13 +1042,14 @@ export function NetworkDashboard({
 
       <Popover id="reseau-hypotheses" title="Hypothèses de la simulation">
         <ul className="flex flex-col divide-y divide-hairline [&>li]:py-2.5 [&>li:first-child]:pt-0 [&>li:last-child]:pb-0">
+          {/* Espace insécable avant « : ; ! ? » : au téléphone, un deux-points restait seul en début de ligne. */}
           {assumptions.map((line) => (
-            <li key={line}>{line}</li>
+            <li key={line}>{line.replace(/ ([:;!?])/g, "\u00a0$1")}</li>
           ))}
         </ul>
       </Popover>
       <Popover id="reseau-conditions" title="Les conditions">
-        <Terms rate={rate} />
+        <Terms rate={rate} elsewhere={elsewhere} />
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
           <p>Un appel de 30 minutes, puis le choix du pilote.</p>
           <a

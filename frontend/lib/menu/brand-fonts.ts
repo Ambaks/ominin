@@ -1,5 +1,6 @@
 import {
   Anton,
+  Archivo,
   Archivo_Black,
   Barlow_Semi_Condensed,
   Didact_Gothic,
@@ -24,6 +25,18 @@ const archivoBlack = Archivo_Black({
   variable: "--font-archivo-black",
   subsets: ["latin"],
   weight: "400",
+  preload: false,
+});
+
+/**
+ * Chicken Street — le texte de la carte : Archivo, une grotesque à chasse
+ * variable ; les titres passent en Anton, condensée comme les capitales de
+ * l'enseigne.
+ */
+const archivo = Archivo({
+  variable: "--font-archivo",
+  subsets: ["latin"],
+  axes: ["wdth"],
   preload: false,
 });
 
@@ -78,6 +91,7 @@ const playball = Playball({
 
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
+  archivo,
   archivoBlack,
   barlowSemiCondensed,
   poppins,

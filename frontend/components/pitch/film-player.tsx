@@ -11,7 +11,7 @@ import { useState } from "react";
 export function FilmPlayer({ src, poster, alt }: { src: string | null; poster: string; alt: string }) {
   const [playing, setPlaying] = useState(false);
 
-  const frame = "relative aspect-video overflow-hidden rounded-2xl border border-(--ocp-line) bg-black md:rounded-3xl";
+  const frame = "relative aspect-video overflow-hidden rounded-2xl border border-(--pitch-line) bg-black md:rounded-3xl";
 
   if (src && playing) {
     return (
@@ -32,8 +32,8 @@ export function FilmPlayer({ src, poster, alt }: { src: string | null; poster: s
         {cover}
         <span className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/0" />
       </span>
-      <span className="mt-3 inline-flex items-center gap-3 rounded-full bg-(--ocp-yellow) py-2 pl-2 pr-5 text-sm font-bold text-(--ocp-black) shadow-lg sm:absolute sm:bottom-4 sm:left-4 sm:mt-0 md:bottom-6 md:left-6 md:text-base">
-        <span className="flex size-9 items-center justify-center rounded-full bg-(--ocp-black) text-(--ocp-yellow) md:size-10">
+      <span className="mt-3 inline-flex items-center gap-3 rounded-full bg-(--pitch-accent) py-2 pl-2 pr-5 text-sm font-bold text-(--pitch-on-accent) shadow-lg sm:absolute sm:bottom-4 sm:left-4 sm:mt-0 md:bottom-6 md:left-6 md:text-base">
+        <span className="flex size-9 items-center justify-center rounded-full bg-(--pitch-on-accent) text-(--pitch-accent) md:size-10">
           <svg viewBox="0 0 24 24" aria-hidden className="ml-0.5 size-4 fill-current">
             <path d="M7 4.5v15l12.5-7.5z" />
           </svg>

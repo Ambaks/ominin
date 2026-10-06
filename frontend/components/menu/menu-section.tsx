@@ -41,7 +41,7 @@ export function MenuSection({
           />
         </div>
         {category.tagline && (
-          <p className="mt-2 text-sm italic text-muted lg:text-base">
+          <p className="category-tagline mt-2 text-sm italic text-muted lg:text-base">
             {category.tagline}
           </p>
         )}

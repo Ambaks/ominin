@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Vue réseau d'un seul tenant (h-dvh, colonnes à hauteur comptée) : un grand
+   écran, en largeur ET en hauteur — 1 920 × 1 080 en plein écran, 2 560 ×
+   1 440. Une fenêtre de navigateur sur un écran de 1 080 (≈ 950 px utiles) ou
+   un portable y était à l'étroit : carte en bande, détail de Toulouse coupé.
+   Là, la page défile. below-wall : son contraire (Tailwind ne dérive pas de
+   max-* d'une variante maison). */
+@custom-variant wall (@media (min-width: 96rem) and (min-height: 66rem));
+@custom-variant below-wall (@media not all and (min-width: 96rem) and (min-height: 66rem));
+
 /*
   Ominin menu — "candlelit trattoria" premium theme.
   Dark (default): warm near-black surfaces, ember gradient accents
@@ -749,36 +758,36 @@ html.light {
 }
 
 /*
-  Les deux versions de la carte (thème et ?theme=ominin), repérées par ses
-  images (public/o-crousti-poulet/, le coq du héros compris). Les visuels du
-  réseau à bord franc, à plat comme les lettres de l'enseigne : le fondu vers
-  la carte salissait leur jaune en olive.
+  Les deux versions de la carte (thème et ?theme=ominin), repérées par leur
+  établissement (data-slug). Les visuels du réseau à bord franc, à plat comme
+  les lettres de l'enseigne : le fondu vers la carte salissait leur jaune en
+  olive.
 */
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo-fade {
+div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo-fade {
   display: none;
 }
 
 /* Cadrage 16:9 des visuels dont le haut porte le plat : l'os de la cuisse,
    l'aile du demi-poulet, les pâtes du Menu Costaud (son accompagnement). */
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/cuisse.webp"] {
+div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/cuisse.webp"] {
   object-position: 50% 5%;
 }
 
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/demi-poulet.webp"] {
+div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/demi-poulet.webp"] {
   object-position: 50% 20%;
 }
 
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-photo img[src$="/menu-costaud.webp"] {
+div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/menu-costaud.webp"] {
   object-position: 50% 0%;
 }
 
 /* Sur une carte sans photo (les boissons), le compte au panier se pose sur le
    coin du bouton : au coin de la carte, il cachait le prix. */
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) article:not(:has(.dish-photo)) .dish-action > button {
+div[data-menu-root][data-slug="o-crousti-poulet"] article:not(:has(.dish-photo)) .dish-action > button {
   position: relative;
 }
 
-[data-menu-root]:has(img[src^="/o-crousti-poulet/"]) article:not(:has(.dish-photo)) .cart-count {
+div[data-menu-root][data-slug="o-crousti-poulet"] article:not(:has(.dish-photo)) .cart-count {
   top: -0.5rem;
   right: -0.5rem;
 }
@@ -900,16 +909,16 @@ html.light {
 /* Deux cartes côte à côte : leurs boutons alignés en bas, même quand un nom
    passe sur deux lignes à côté d'un nom qui tient sur une. */
 @media (min-width: 768px) {
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article {
     display: flex;
     flex-direction: column;
   }
 
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article > .dish-body {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article > .dish-body {
     flex: 1;
   }
 
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article .dish-action {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article .dish-action {
     margin-top: auto;
   }
 }
@@ -919,7 +928,7 @@ html.light {
    thème, le Menu Solo tient toute la première rangée de ses menus : leur
    nombre y redevient pair. */
 @media (min-width: 768px) {
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
     grid-column: 1 / -1;
     justify-self: center;
   }
@@ -932,13 +941,13 @@ html.light {
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
     width: calc((100% - 1rem) / 2);
   }
 }
 
 @media (min-width: 1024px) {
-  [data-menu-root]:has(img[src^="/o-crousti-poulet/"]) .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
+  div[data-menu-root][data-slug="o-crousti-poulet"] .dish-grid > article:last-child:nth-child(odd):not(:only-child) {
     width: calc((100% - 1.25rem) / 2);
   }
 }
@@ -1180,6 +1189,328 @@ html:has(.theme-o-crousti-poulet) body {
 }
 
 /*
+  Chicken Street — le jaune de l'enseigne (#FCD403) en page, comme les
+  bandeaux de chickenstreet.fr ; le noir des boîtes et du fronton pour le
+  héros et le bandeau d'arguments, le logo blanc et jaune dessus. Titres en
+  Anton, capitales condensées et grasses à la place de WoodHeinz (police du
+  site, licence inconnue) ; texte en Archivo.
+
+  Deux étages de jetons : la page, jaune, texte noir ; les
+  fiches, feuilles et panier, blancs, boutons noirs.
+*/
+.theme-chicken-street {
+  --cs-yellow: #fcd403;
+  --cs-ink: #111111;
+
+  --background: var(--cs-yellow);
+  --foreground: var(--cs-ink);
+
+  --surface: #f2cb00;
+  --surface-raised: #e8c200;
+  --hairline: rgba(17, 17, 17, 0.22);
+
+  --muted: var(--cs-ink);
+  --faint: #2b2b2b;
+
+  /* Sur la page, l'accent est le noir : boutons noirs, texte jaune. */
+  --ember-1: var(--cs-ink);
+  --ember-2: var(--cs-ink);
+  --ember-3: var(--cs-ink);
+
+  --shimmer-highlight: rgba(255, 255, 255, 0.2);
+  --glow-inner: rgba(0, 0, 0, 0.04);
+  --glow-outer: rgba(0, 0, 0, 0.06);
+  --hero-glow-1: transparent;
+  --hero-glow-2: transparent;
+  --hero-glow-3: transparent;
+
+  --brand-display: var(--font-anton), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+.theme-chicken-street :is(article, [role="dialog"]) {
+  --background: #ffffff;
+  --foreground: var(--cs-ink);
+  --surface: #ffffff;
+  --surface-raised: #f4f4f4;
+  --hairline: rgba(17, 17, 17, 0.12);
+  --muted: #45454a;
+  --faint: #5a5a60;
+  --ember-1: var(--cs-ink);
+  --ember-2: var(--cs-ink);
+  --ember-3: var(--cs-ink);
+  --shimmer-highlight: rgba(252, 212, 3, 0.18);
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+.theme-chicken-street :focus-visible {
+  outline: 3px solid var(--cs-ink);
+  outline-offset: 3px;
+}
+
+.theme-chicken-street .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-2);
+}
+
+.theme-chicken-street .ember-text {
+  background-image: none;
+  color: var(--ember-2);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Sur la page jaune, les boutons noirs écrivent en jaune, comme le site. */
+.theme-chicken-street .ember-gradient.text-background {
+  color: var(--cs-yellow);
+}
+
+.theme-chicken-street :is(article, [role="dialog"]) .ember-gradient.text-background {
+  color: #ffffff;
+}
+
+html:has(.theme-chicken-street),
+html:has(.theme-chicken-street) body {
+  background-color: #fcd403;
+}
+
+/* Les visuels détourés du site, entiers, sur un fond gris clair. */
+.theme-chicken-street .dish-photo {
+  margin: 0.75rem 0.75rem 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, #f6f6f6 58%, #e8e8e8);
+}
+
+div[data-menu-root][data-slug="chicken-street"] .dish-photo-fade {
+  display: none;
+}
+
+div[data-menu-root][data-slug="chicken-street"] .dish-photo img {
+  object-fit: contain;
+}
+
+div[data-menu-root][data-slug="chicken-street"] .dish-grid > article {
+  display: flex;
+  flex-direction: column;
+}
+
+div[data-menu-root][data-slug="chicken-street"] .dish-body {
+  flex: 1;
+}
+
+div[data-menu-root][data-slug="chicken-street"] .dish-action {
+  margin-top: auto;
+}
+
+@media (min-width: 1280px) {
+  .theme-chicken-street :is(main, nav > div:first-child, footer > div) {
+    max-width: 80rem;
+  }
+
+  .theme-chicken-street .dish-grid:not(.dish-grid-tiles) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ——— Le héros : le logo sur le noir du fronton ——— */
+
+.theme-chicken-street > header {
+  background-color: var(--cs-ink);
+  color: #ffffff;
+}
+
+.theme-chicken-street :is(.ember-particle, .logo-breathe, .hero-gradient-drift) {
+  display: none;
+}
+
+.theme-chicken-street .hero-logo {
+  margin-bottom: 1.25rem;
+}
+
+.theme-chicken-street .hero-logo img {
+  width: min(84vw, 34rem);
+  height: auto;
+}
+
+.theme-chicken-street .hero-tagline {
+  color: var(--cs-yellow);
+  font-family: var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-chicken-street > header :is(p, a, span) {
+  --muted: #e6e6e6;
+  --faint: #cfcfcf;
+}
+
+.theme-chicken-street .hero-rule {
+  display: none;
+}
+
+.theme-chicken-street .menu-highlights {
+  background: var(--cs-ink);
+  color: var(--cs-yellow);
+  border-color: transparent;
+  font-family: var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-chicken-street .menu-highlights ul {
+  max-width: none;
+}
+
+/* ——— Navigation et titres : capitales Anton ——— */
+
+.theme-chicken-street nav [data-category] {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.theme-chicken-street .category-heading {
+  font-family: var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  line-height: 0.95;
+}
+
+.theme-chicken-street .category-rule {
+  display: none;
+}
+
+.theme-chicken-street .category-tagline {
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ——— Les fiches : blanches, arrondies ——— */
+
+.theme-chicken-street .dish-grid > article {
+  border-color: transparent;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 28px -16px rgba(60, 45, 0, 0.6);
+}
+
+.theme-chicken-street article h3,
+.theme-chicken-street [role="dialog"] h3:not(.cart-title, .order-ticket-title) {
+  color: var(--cs-ink);
+  font-family: var(--brand-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+.theme-chicken-street .dish-price {
+  color: var(--cs-ink);
+  font-weight: 800;
+}
+
+.theme-chicken-street .dish-detail {
+  border-color: var(--cs-ink);
+  color: var(--cs-ink);
+  font-weight: 700;
+}
+
+.theme-chicken-street article .dish-action > button,
+.theme-chicken-street [role="dialog"] button.ember-gradient {
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .theme-chicken-street .dish-grid > article:hover {
+    box-shadow: 0 22px 40px -16px rgba(60, 45, 0, 0.75);
+  }
+}
+
+/* L'option choisie : cerclée de noir, fond jaune pâle. */
+.theme-chicken-street .choice-row.is-checked,
+.theme-chicken-street .cart-foot [role="radio"][aria-checked="true"] {
+  border-color: var(--cs-ink);
+  background-color: #fff8cc;
+}
+
+/* ——— La barre du panier : noire, texte jaune ——— */
+
+.theme-chicken-street .cart-bar {
+  border-radius: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 25px 50px -12px rgba(40, 30, 0, 0.55);
+}
+
+.theme-chicken-street :is(.cart-title, .cart-line-name) {
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.theme-chicken-street :is(.cart-line-price, .cart-total) {
+  color: var(--cs-ink);
+  font-weight: 800;
+}
+
+/* Le ticket : le talon et les étapes franchies, au jaune de l'enseigne. */
+.theme-chicken-street .order-ticket-head::before,
+.theme-chicken-street .order-step:is([data-state="done"], [data-state="current"]) + .order-step:is([data-state="done"], [data-state="current"])::before,
+.theme-chicken-street .order-step[data-state="done"] .order-step-dot {
+  background-image: none;
+  background-color: var(--cs-yellow);
+}
+
+.theme-chicken-street .ticket-dock::before {
+  height: 5rem;
+  background: var(--background);
+  box-shadow: 0 -12px 24px -20px rgba(60, 45, 0, 0.8);
+}
+
+/* Le héros : le noir du fronton sous le logo blanc et jaune. */
+.theme-chicken-street .logo-hero {
+  --background: var(--cs-ink);
+  --foreground: #ffffff;
+}
+
+/* Prête : le talon passe au jaune, le numéro reste noir (blanc, il ne tenait pas sur le jaune). */
+.theme-chicken-street .order-ticket[data-ready] .order-ticket-head,
+.theme-chicken-street .order-ticket[data-ready] .order-ticket-head :is(.order-ticket-meta, .order-ticket-label, .order-ticket-number > span:first-child),
+.theme-chicken-street .order-ticket[data-ready] .order-ticket-amount {
+  color: var(--cs-ink);
+}
+
+.theme-chicken-street .order-ticket[data-ready] .order-ticket-digits {
+  color: var(--cs-ink);
+  -webkit-text-fill-color: var(--cs-ink);
+}
+
+.theme-chicken-street .order-ticket[data-ready] .order-ticket-amount {
+  border-color: rgba(17, 17, 17, 0.35);
+}
+
+/* ——— Le pied de page : le noir, le logo dessus ——— */
+
+.theme-chicken-street footer:not([role="dialog"] footer) {
+  background-color: var(--cs-ink);
+  color: #ffffff;
+  --muted: #e6e6e6;
+  --faint: #cfcfcf;
+  --hairline: rgba(255, 255, 255, 0.2);
+  --ember-1: var(--cs-yellow);
+  --ember-2: var(--cs-yellow);
+  --ember-3: var(--cs-yellow);
+}
+
+.theme-chicken-street footer:not([role="dialog"] footer) .ember-gradient.text-background {
+  color: var(--cs-ink);
+}
+
+/*
   Menu — règles communes à toutes les cartes, thème ou pas.
 */
 
@@ -1243,27 +1574,27 @@ html:has(.theme-o-crousti-poulet) body {
   leur mise en page. :where() garde ces règles légères, qu'un thème affine.
   Pas de fondu sur les photos : il virait à l'olive le jaune des visuels.
 */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   > article {
   display: flex;
   flex-direction: column;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-photo {
   aspect-ratio: 4 / 3;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-body {
   flex: 1;
@@ -1271,13 +1602,13 @@ html:has(.theme-o-crousti-poulet) body {
   padding: 0.75rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-photo-fade {
   display: none;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-head {
   flex: 1;
@@ -1286,14 +1617,14 @@ html:has(.theme-o-crousti-poulet) body {
   gap: 0.35rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   h3 {
   font-size: 1.05rem;
   line-height: 1.2;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-action
   > button {
@@ -1301,7 +1632,7 @@ html:has(.theme-o-crousti-poulet) body {
 }
 
 @media (max-width: 359px) {
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     h3 {
     font-size: 0.85rem;
@@ -1311,37 +1642,37 @@ html:has(.theme-o-crousti-poulet) body {
 @media (min-width: 1024px) {
   /* Six colonnes, deux par vignette : la dernière rangée incomplète se
      centre au lieu de laisser un trou à droite. */
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1.25rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     > article {
     grid-column: span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     > article:nth-last-child(2):nth-child(3n + 1) {
     grid-column: 2 / span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     > article:last-child:nth-child(3n + 1) {
     grid-column: 3 / span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     .dish-body {
     padding: 1rem 1.1rem 1.1rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     h3 {
     font-size: 1.2rem;
@@ -1371,7 +1702,7 @@ html:has(.theme-o-crousti-poulet) body {
 
 /* Les boutons des vignettes tiennent sur une ligne, même étroits
    (paysage, 320 px) : le « + » ne part plus seul à la ligne. */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-action
   > button {
@@ -1382,7 +1713,7 @@ html:has(.theme-o-crousti-poulet) body {
 /* Deux colonnes, un nombre impair de vignettes : la dernière se centre au
    lieu de rester seule à gauche. */
 @media (max-width: 1023px) {
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles
     > article:last-child:nth-child(odd) {
     grid-column: 1 / -1;
@@ -1397,7 +1728,6 @@ html:has(.theme-o-crousti-poulet) body {
   [data-menu-root] .dish-grid > article:only-child .dish-photo {
     aspect-ratio: 2 / 1;
   }
-
 }
 
 /* Cases à cocher et boutons radio aux couleurs de la carte : les disques
@@ -1436,6 +1766,18 @@ html:has(.theme-o-crousti-poulet) body {
   background: var(--ember-2);
 }
 
+/* La coche, au trait, de la couleur du fond : une case pleine ne disait pas
+   qu'elle était cochée. */
+[data-menu-root] [role="dialog"] input[type="checkbox"]:checked::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.3rem;
+  border-bottom: 2px solid var(--background);
+  border-left: 2px solid var(--background);
+  rotate: -45deg;
+  translate: 0 -0.06rem;
+}
+
 /* « x3 », « 33 cl » à l'intérieur du nom : sans hauteur de ligne propre, ils
    agrandissaient la ligne et abaissaient ce nom sous celui du voisin. */
 [data-menu-root] .dish-detail {
@@ -1444,7 +1786,7 @@ html:has(.theme-o-crousti-poulet) body {
 
 /* Dans une rangée de vignettes, les prix s'alignent en bas quand un nom
    voisin passe sur deux lignes. */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
   .dish-grid-tiles
   .dish-head {
   justify-content: space-between;
@@ -1507,13 +1849,13 @@ html:has(.ticket-dock) {
 */
 @media (max-width: 639px) {
   /* Le héros au logo seulement : une photo de couverture garde sa hauteur. */
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     > header:has(.hero-lockup) {
     min-height: 0;
     padding-bottom: 2.5rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
@@ -1551,17 +1893,17 @@ html:has(.ticket-dock) {
     position: static;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     > header:has(.hero-lockup) {
     min-height: 0;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     .dish-grid-tiles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1593,7 +1935,7 @@ html:has(.ticket-dock) {
     --ocp-name: min(9vw, 15svh);
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
     > header:has(.hero-lockup) {
     padding-block: 1.5rem;
   }
@@ -2846,7 +3188,6 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   [data-menu-root]:not([class*="theme-"]) .hero-name {
     font-size: 5.5rem;
   }
-
 }
 
 /* La composition d'un menu : ses lignes s'espacent, pour qu'une ligne
@@ -2964,7 +3305,6 @@ html.light [data-menu-root]:not([class*="theme-"]) {
     .dish-photo-fade {
     background-image: linear-gradient(to left, var(--surface), transparent 16%);
   }
-
 }
 
 html.light [data-menu-root]:not([class*="theme-"]) .ember-particle {
@@ -2975,7 +3315,6 @@ html.light [data-menu-root]:not([class*="theme-"]) .ember-particle {
 html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   filter: invert(1);
 }
-
 
 @theme inline {
   --color-background: var(--background);
@@ -3976,8 +4315,8 @@ body {
 
 /*
   Vue réseau (démo pour le siège d'une enseigne, /menu/demo/<slug>/reseau) :
-  le tableau de bord d'Ominin posé sur le noir d'enseigne d'O’Crousti, son
-  jaune pour seul accent, réservé à l'activité. Sombre quel que soit le thème
+  le tableau de bord d'Ominin posé sur un noir d'enseigne, la couleur de
+  l'enseigne pour seul accent, réservée à l'activité. Sombre quel que soit le thème
   enregistré. En grand écran, la page tient dans la fenêtre et grandit avec
   elle : 1 rem = 16 px en 1920 × 1080, 21,3 px en 2560 × 1440 — la capture
   du film garde la même composition à toutes les définitions.
@@ -3993,9 +4332,7 @@ body {
   --muted: #a4a7ad;
   --faint: #9a9ea5;
 
-  --ember-1: #fff35c;
-  --ember-2: #f7ee21;
-  --ember-3: #f2cc12;
+  /* --ember-1/2/3 : les couleurs de l'enseigne, posées par la vue (NetworkFixture.ember). */
 
   --reseau-down: #f08a7e;
 
@@ -4007,8 +4344,9 @@ html:has(.reseau) body {
   background-color: #131416;
 }
 
-@media (min-width: 96rem) {
-  html:has(.reseau) {
+/* La vue d'un seul tenant (la variante « wall », en tête de fichier) grandit avec l'écran. */
+html:has(.reseau) {
+  @variant wall {
     font-size: max(16px, min(0.8333vw, 1.4815vh));
   }
 }
@@ -4031,10 +4369,10 @@ html:has(.reseau) body {
   backdrop-filter: blur(4px) saturate(0.5);
 }
 
-/* Sous le plein écran, la fiche d'un restaurant s'ouvre par-dessus la page :
-   celle-ci ne défile plus derrière. */
-@media (width < 96rem) {
-  html:has(.reseau-sheet) {
+/* Hors de la vue d'un seul tenant (« below-wall »), la fiche d'un restaurant
+   s'ouvre par-dessus la page : celle-ci ne défile plus derrière. */
+html:has(.reseau-sheet) {
+  @variant below-wall {
     overflow: hidden;
   }
 }

@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Posé quand le film s'est terminé ou a été passé : les visites suivantes vont droit à la page. */
-const SEEN_KEY = "ocp-pitch-film-vu";
 /** Sans image dans ce délai (réseau, fichier introuvable), la page reprend la main. */
 const START_TIMEOUT_MS = 8000;
 /** Le fondu vers la page ; pitch.css le réduit sous prefers-reduced-motion. */
@@ -11,12 +9,13 @@ const FADE_MS = 600;
 
 /*
  * Avant la première peinture, sur un chargement complet : premier passage,
- * html[data-ocp-film="intro"] — pitch.css affiche alors le film par-dessus la
+ * html[data-pitch-film="intro"] — pitch.css affiche alors le film par-dessus la
  * page et bloque le défilement, sans attendre React. Stockage indisponible :
  * le film aussi. Ailleurs dans le cycle de vie, l'attribut vaut « sortie »
  * (le fondu) puis « fin ».
  */
-const DECIDE = `try{if(!localStorage.getItem("${SEEN_KEY}"))document.documentElement.dataset.ocpFilm="intro"}catch(e){document.documentElement.dataset.ocpFilm="intro"}`;
+const decide = (seenKey: string) =>
+  `try{if(!localStorage.getItem(${JSON.stringify(seenKey)}))document.documentElement.dataset.pitchFilm="intro"}catch(e){document.documentElement.dataset.pitchFilm="intro"}`;
 
 type Phase = "attente" | "lecture" | "sortie" | "fin";
 
@@ -35,12 +34,15 @@ export function FilmOpener({
   vertical,
   poster,
   posterVertical,
+  seenKey,
   copy,
 }: {
   wide: string;
   vertical: string;
   poster: string;
   posterVertical: string;
+  /** Posé quand le film s'est terminé ou a été passé : les visites suivantes vont droit à la page. */
+  seenKey: string;
   copy: Copy;
 }) {
   const [phase, setPhase] = useState<Phase>("attente");
@@ -60,7 +62,7 @@ export function FilmOpener({
     const html = document.documentElement;
     // Le script en ligne a tranché avant React : visite suivante, navigation
     // côté client ou film déjà joué dans ce document, la page seule.
-    if (html.dataset.ocpFilm !== "intro") {
+    if (html.dataset.pitchFilm !== "intro") {
       // Le choix dépend de l'état posé avant l'hydratation : ce rendu de plus est voulu.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPhase("fin");
@@ -99,17 +101,17 @@ export function FilmOpener({
       clearStart();
       if (seen) {
         try {
-          localStorage.setItem(SEEN_KEY, "1");
+          localStorage.setItem(seenKey, "1");
         } catch {}
       }
       videoRef.current?.pause();
       release();
       // On arrive sur la page par son haut.
       window.scrollTo(0, 0);
-      html.dataset.ocpFilm = "sortie";
+      html.dataset.pitchFilm = "sortie";
       setPhase("sortie");
       fade = window.setTimeout(() => {
-        html.dataset.ocpFilm = "fin";
+        html.dataset.pitchFilm = "fin";
         setPhase("fin");
       }, FADE_MS);
     };
@@ -130,7 +132,7 @@ export function FilmOpener({
       window.removeEventListener("keydown", onKeydown);
       release();
     };
-  }, [vertical, wide]);
+  }, [vertical, wide, seenKey]);
 
   // Lecture muette, la seule qu'un navigateur lance sans geste. Refusée quand
   // même (mode économie d'énergie sur iPhone) : un bouton la lance au toucher.
@@ -178,7 +180,7 @@ export function FilmOpener({
       <script
         type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: DECIDE }}
+        dangerouslySetInnerHTML={{ __html: decide(seenKey) }}
       />
       <div
         ref={rootRef}
@@ -186,7 +188,7 @@ export function FilmOpener({
         aria-modal="true"
         aria-label={copy.label}
         data-leaving={phase === "sortie" || undefined}
-        className="ocp-opener fixed inset-0 z-[70] items-center justify-center bg-(--ocp-film)"
+        className="pitch-opener fixed inset-0 z-[70] items-center justify-center bg-(--pitch-film)"
       >
         {src && (
           <video
@@ -195,7 +197,7 @@ export function FilmOpener({
             playsInline
             preload="auto"
             aria-hidden
-            className={`absolute inset-0 h-full w-full object-contain ${src === wide ? "ocp-opener-wide" : ""}`}
+            className={`absolute inset-0 h-full w-full object-contain ${src === wide ? "pitch-opener-wide" : ""}`}
             onPlaying={() => {
               if (startTimer.current !== null) window.clearTimeout(startTimer.current);
               startTimer.current = null;
@@ -220,11 +222,11 @@ export function FilmOpener({
             s'efface d'un coup à la première image, le film s'ouvrant sur le noir. */}
         <picture className={`pointer-events-none absolute inset-0 ${started ? "invisible" : ""}`}>
           <source media="(orientation: portrait)" srcSet={posterVertical} />
-          <img src={poster} alt="" className="ocp-opener-wide h-full w-full object-contain" />
+          <img src={poster} alt="" className="pitch-opener-wide h-full w-full object-contain" />
         </picture>
         <div aria-hidden className="contents">
-          <span className="ocp-opener-feather" />
-          <span className="ocp-opener-feather" />
+          <span className="pitch-opener-feather" />
+          <span className="pitch-opener-feather" />
         </div>
 
         <button
@@ -244,9 +246,9 @@ export function FilmOpener({
           <button
             type="button"
             onClick={playWithSound}
-            className={`${pill} relative bg-(--ocp-yellow) py-3 pl-3 pr-7 text-lg text-(--ocp-black) shadow-[0_0_60px_rgba(247,238,33,0.25)] hover:bg-(--ocp-lemon) active:scale-[0.98]`}
+            className={`${pill} relative bg-(--pitch-accent) py-3 pl-3 pr-7 text-lg text-(--pitch-on-accent) shadow-[0_0_60px_color-mix(in_srgb,var(--pitch-accent)_25%,transparent)] hover:bg-(--pitch-accent-light) active:scale-[0.98]`}
           >
-            <span className="flex size-11 items-center justify-center rounded-full bg-(--ocp-black) text-(--ocp-yellow)">
+            <span className="flex size-11 items-center justify-center rounded-full bg-(--pitch-on-accent) text-(--pitch-accent)">
               <svg viewBox="0 0 24 24" aria-hidden className="ml-0.5 size-5 fill-current">
                 <path d="M7 4.5v15l12.5-7.5z" />
               </svg>
@@ -260,13 +262,13 @@ export function FilmOpener({
             aria-pressed={!muted}
             className={`${pill} absolute bottom-[max(2.5rem,calc(env(safe-area-inset-bottom)+1.5rem))] left-1/2 -translate-x-1/2 whitespace-nowrap active:scale-[0.98] md:bottom-12 ${
               muted
-                ? "bg-(--ocp-yellow) py-3 pl-3 pr-6 text-base text-(--ocp-black) shadow-[0_0_60px_rgba(247,238,33,0.25)] hover:bg-(--ocp-lemon) md:text-lg"
+                ? "bg-(--pitch-accent) py-3 pl-3 pr-6 text-base text-(--pitch-on-accent) shadow-[0_0_60px_color-mix(in_srgb,var(--pitch-accent)_25%,transparent)] hover:bg-(--pitch-accent-light) md:text-lg"
                 : "border border-white/30 bg-black/45 py-2 pl-2 pr-5 text-sm text-white backdrop-blur-sm hover:border-white/60 hover:bg-black/65"
             }`}
           >
             <span
               className={`flex items-center justify-center rounded-full ${
-                muted ? "size-10 bg-(--ocp-black) text-(--ocp-yellow)" : "size-8 bg-white/10 text-white"
+                muted ? "size-10 bg-(--pitch-on-accent) text-(--pitch-accent)" : "size-8 bg-white/10 text-white"
               }`}
             >
               <svg viewBox="0 0 24 24" aria-hidden className="size-5 fill-none stroke-current" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -279,7 +281,7 @@ export function FilmOpener({
         )}
 
         <div aria-hidden className="absolute inset-x-0 bottom-[env(safe-area-inset-bottom)] h-[3px] bg-white/15">
-          <div ref={progressRef} style={{ transform: "scaleX(0)" }} className="h-full origin-left bg-(--ocp-yellow)" />
+          <div ref={progressRef} style={{ transform: "scaleX(0)" }} className="h-full origin-left bg-(--pitch-accent)" />
         </div>
       </div>
     </>

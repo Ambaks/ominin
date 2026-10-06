@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { screenSizes } from "@/lib/pitch/o-crousti-poulet";
+import { screenSizes } from "@/lib/pitch/kit";
 
 /*
  * Cadres d'appareils sobres autour des captures réelles des démos : un

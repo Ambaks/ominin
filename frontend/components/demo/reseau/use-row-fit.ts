@@ -15,7 +15,7 @@ export function useRowFit(ref: RefObject<HTMLElement | null>): number | null {
   useEffect(() => {
     const box = ref.current;
     if (!box) return;
-    const observer = new ResizeObserver(() => {
+    const measure = () => {
       // Les lignes visibles seulement : une variante masquée (display: none)
       // mesure zéro.
       const shown = (selector: string) =>
@@ -35,9 +35,17 @@ export function useRowFit(ref: RefObject<HTMLElement | null>): number | null {
         if (node === row) break;
       }
       setFit(Math.max(1, Math.floor((box.clientHeight - head) / height)));
-    });
-    observer.observe(box);
-    return () => observer.disconnect();
+    };
+    // La taille du cadre, et l'arrivée des lignes : vide à l'ouverture (avant
+    // la première commande), il ne changeait pas de taille et ne remesurait pas.
+    const resized = new ResizeObserver(measure);
+    const filled = new MutationObserver(measure);
+    resized.observe(box);
+    filled.observe(box, { childList: true, subtree: true });
+    return () => {
+      resized.disconnect();
+      filled.disconnect();
+    };
   }, [ref]);
   return fit;
 }

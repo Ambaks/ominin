@@ -100,9 +100,11 @@ export async function playChime(): Promise<void> {
 /**
  * Sonne à chaque commande « en attente » qui apparaît dans le store (flux
  * realtime). Le premier instantané initialise sans sonner — recharger la
- * page ne rejoue pas les commandes déjà là.
+ * page ne rejoue pas les commandes déjà là. `enabled` remplace la préférence
+ * de l'appareil : la démo du comptoir garde la sienne, sans couper le son du
+ * vrai comptoir ouvert sur le même navigateur.
  */
-export function useOrderChime(): void {
+export function useOrderChime(enabled?: boolean): void {
   const state = useGestion();
   const known = useRef<Set<string> | null>(null);
 
@@ -132,6 +134,6 @@ export function useOrderChime(): void {
         !previous.has(order.id) &&
         (order.status === "en_attente" || order.paidOnline)
     );
-    if (arrived && chimeEnabled()) playChime();
-  }, [state]);
+    if (arrived && (enabled ?? chimeEnabled())) playChime();
+  }, [state, enabled]);
 }

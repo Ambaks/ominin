@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useId, useRef, useState } from "react";
+import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PaymentReturn } from "@/components/menu/payment-return";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
@@ -603,7 +604,7 @@ export function CartBar() {
                         <li key={line.key} className="flex gap-3">
                           <div className="min-w-0 flex-1">
                             <p className="cart-line-name font-display text-sm font-medium">
-                              {line.name}
+                              {keepHyphenated(line.name)}
                             </p>
                             {line.quantity > 1 && (
                               <p className="mt-0.5 text-xs text-muted">
@@ -611,13 +612,20 @@ export function CartBar() {
                               </p>
                             )}
                             {line.optionSummary.length > 0 && (
-                              // Un choix ne se coupe pas en fin de ligne (« Coca- / Cola »).
+                              // Chaque choix d'un bloc, comme sur le ticket : il passe entier à
+                              // la ligne, et ne se coupe entre ses mots que plus long qu'elle
+                              // (jamais sur un trait d'union, « Coca- / Cola », ni avant son
+                              // supplément) ; « · » est dans le bloc du précédent, il ne commence
+                              // jamais une ligne. Insécable en entier, un long choix passait sous
+                              // les boutons de quantité.
                               <p className="mt-0.5 text-xs text-muted">
                                 {line.optionSummary.map((option, i) => (
                                   // Clé par position : un tacos « Poulet + Poulet » répète le libellé.
                                   <Fragment key={i}>
-                                    {i > 0 && " · "}
-                                    <span className="whitespace-nowrap">{option}</span>
+                                    <span className="inline-block max-w-full">
+                                      {keepHyphenated(option.replace(" (+", "\u00a0(+"))}
+                                      {i < line.optionSummary.length - 1 && "\u00a0·"}
+                                    </span>{" "}
                                   </Fragment>
                                 ))}
                               </p>

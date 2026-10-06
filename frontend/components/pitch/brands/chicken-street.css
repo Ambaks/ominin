@@ -1,0 +1,62 @@
+/*
+  Pitch Chicken Street : le noir des boîtes et du fronton, le jaune de
+  l'enseigne (#FCD403) en aplats, texte noir dessus comme sur le site ; le
+  blanc du logo. Anton, à la place de WoodHeinz, pour les chiffres et la
+  touche de l'enseigne.
+*/
+.pitch-chicken-street {
+  --pitch-ground: #0f0f0f;
+  --pitch-surface: #1b1b1b;
+  --pitch-raised: #262626;
+  --pitch-accent: #fcd403;
+  --pitch-accent-deep: #d9b500;
+  --pitch-accent-light: #ffe45c;
+  --pitch-accent-text: #fcd403;
+  --pitch-on-accent: #0f0f0f;
+  --pitch-ink: #f6f6f6;
+  --pitch-muted: #c6c6c6;
+  --pitch-faint: #a4a4a4;
+  --pitch-line: rgba(246, 246, 246, 0.12);
+  --pitch-film: #0b0b0b;
+
+  --font-pitch-flourish: var(--font-pitch-numeral);
+  --font-pitch-wordmark: var(--font-pitch-numeral);
+}
+
+/* Anton n'a qu'une graisse : pas de gras synthétique. */
+.pitch-chicken-street :is(.font-numeral, .pitch-ticket-number, .flourish, .pitch-ticket-brand) {
+  font-weight: 400;
+}
+
+/* La touche de l'enseigne : capitales Anton, noires sur un aplat jaune penché. */
+.pitch-chicken-street .flourish {
+  display: inline-block;
+  padding: 0.02em 0.28em 0.06em;
+  background: var(--pitch-accent);
+  color: var(--pitch-on-accent);
+  text-shadow: none;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transform: skewX(-8deg);
+}
+
+.pitch-chicken-street .pitch-ticket-brand {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Les QR codes : modules noirs sur blanc dans un cadre jaune. */
+.pitch-chicken-street .pitch-qr {
+  background-color: #ffffff;
+  color: var(--pitch-ground);
+  box-shadow: 0 0 0 12px var(--pitch-accent);
+}
+
+/* Les titres dans la face condensée des chiffres, comme les capitales
+   WoodHeinz de l'enseigne ; Anton n'a qu'une graisse, sans resserrage. */
+.pitch-chicken-street :is(h1, h2) {
+  font-family: var(--font-pitch-numeral), sans-serif;
+  font-weight: 400;
+  font-stretch: normal;
+  letter-spacing: 0;
+}

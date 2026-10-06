@@ -9,6 +9,9 @@ interface CategoryLink {
   name: string;
 }
 
+/** Ligne qu'un titre de section doit passer pour allumer sa catégorie, en part de la hauteur d'écran. */
+const ACTIVE_LINE = 0.4;
+
 export function CategoryNav({
   categories,
   embedded,
@@ -25,25 +28,11 @@ export function CategoryNav({
   const [progress, setProgress] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
 
-  // Scroll-spy: highlight the category whose section is under the nav
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveId(entry.target.id);
-        }
-      },
-      // A thin band just below the sticky nav decides the active section
-      { rootMargin: "-15% 0px -80% 0px" }
-    );
-    for (const { id } of categories) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
-  }, [categories]);
-
-  // Gradient progress bar tracking page scroll
+  // La catégorie allumée et la jauge, relues à chaque défilement : la
+  // dernière section dont le titre a passé la ligne des 40 % de l'écran, la
+  // première tant qu'aucun ne l'a passée. (Un observateur d'intersection à
+  // bande haute laissait allumée la section du dessous quand on remontait :
+  // deux sections y tenaient à la fois, celle du dessus n'y rentrait jamais.)
   useEffect(() => {
     let frame = 0;
     const onScroll = () => {
@@ -51,6 +40,13 @@ export function CategoryNav({
       frame = requestAnimationFrame(() => {
         const max = document.documentElement.scrollHeight - window.innerHeight;
         setProgress(max > 0 ? window.scrollY / max : 0);
+        const line = window.innerHeight * ACTIVE_LINE;
+        let active = categories[0]?.id;
+        for (const { id } of categories) {
+          const section = document.getElementById(id);
+          if (section && section.getBoundingClientRect().top <= line) active = id;
+        }
+        setActiveId(active);
       });
     };
     onScroll();
@@ -59,30 +55,17 @@ export function CategoryNav({
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [categories]);
 
   // Keep the active pill visible in the horizontal rail.
   useEffect(() => {
     const rail = railRef.current;
-    if (!activeId || !rail) return;
-    const pill = rail.querySelector<HTMLElement>(`[data-category="${activeId}"]`);
-    if (!pill) return;
-    /*
-     * scrollIntoView ferait défiler TOUS les conteneurs défilables, document
-     * compris : pendant un saut d'ancre, le scroll-spy s'allume à chaque
-     * section traversée et chacun de ces appels annulait le saut en cours —
-     * on n'arrivait jamais plus loin que la catégorie voisine. Ici on ne
-     * touche qu'au défilement horizontal du rail.
-     */
-    const railBox = rail.getBoundingClientRect();
-    const pillBox = pill.getBoundingClientRect();
-    const offset =
-      pillBox.left - railBox.left - (railBox.width - pillBox.width) / 2;
-    rail.scrollTo({ left: rail.scrollLeft + offset, behavior: "smooth" });
+    const pill = rail?.querySelector<HTMLElement>(`[data-category="${activeId}"]`);
+    if (rail && pill) centerInRail(rail, pill);
   }, [activeId]);
 
   return (
-    <nav className={`sticky z-20 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
+    <nav aria-label="Catégories" className={`sticky z-20 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
         {/* Le fondu des bords signale le défilement ; la marge intérieure qui
             l'égale garde la première et la dernière pastille hors du fondu
@@ -101,6 +84,8 @@ export function CategoryNav({
                 data-category={id}
                 aria-current={active ? "location" : undefined}
                 onClick={() => track("categorie")}
+                // Au clavier, la pastille atteinte vient au milieu du rail.
+                onFocus={(event) => railRef.current && centerInRail(railRef.current, event.currentTarget)}
                 className={`min-h-11 shrink-0 rounded-full px-4 py-2.5 text-sm font-medium transition-all max-[359px]:px-3 max-[359px]:text-[13px] max-[339px]:px-2.5 lg:px-5 lg:py-3 lg:text-base ${
                   active
                     ? "ember-gradient text-background shadow-[0_0_18px_color-mix(in_srgb,var(--ember-2)_35%,transparent)]"
@@ -123,4 +108,20 @@ export function CategoryNav({
       />
     </nav>
   );
+}
+
+/** Amène une pastille au milieu du rail, sans toucher au défilement de la page. */
+function centerInRail(rail: HTMLElement, pill: HTMLElement) {
+  /*
+   * scrollIntoView ferait défiler TOUS les conteneurs défilables, document
+   * compris : pendant un saut d'ancre, le scroll-spy s'allume à chaque
+   * section traversée et chacun de ces appels annulait le saut en cours —
+   * on n'arrivait jamais plus loin que la catégorie voisine. Ici on ne
+   * touche qu'au défilement horizontal du rail.
+   */
+  const railBox = rail.getBoundingClientRect();
+  const pillBox = pill.getBoundingClientRect();
+  const offset =
+    pillBox.left - railBox.left - (railBox.width - pillBox.width) / 2;
+  rail.scrollTo({ left: rail.scrollLeft + offset, behavior: "smooth" });
 }

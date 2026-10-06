@@ -95,6 +95,24 @@ export interface Restaurant {
    * Ominin l'inverse quand elle passe en clair, où il disparaîtrait.
    */
   whiteLogo?: boolean;
+  /** Le logo écrit déjà le nom (un mot-symbole) : le hero et le pied de page ne le retapent pas, le titre reste lu. */
+  logoIsName?: boolean;
+  /** Logo du pied de page aux couleurs de l'enseigne (chemin public) ; la palette Ominin garde `logo`. */
+  footerLogo?: string;
+  /**
+   * Icônes de l'établissement à la place de celles d'Ominin (chemins publics) :
+   * l'onglet, un PNG de 32 × 32 (déclaré à sa taille, le navigateur le préfère
+   * au favicon.ico d'Ominin), et le raccourci d'écran d'accueil d'iOS.
+   */
+  icons?: { tab: string; homeScreen: string };
+  /**
+   * Couleur de la barre du navigateur sur la version aux couleurs de
+   * l'établissement. Comme `icons`, lue par /menu/demo seulement : à brancher
+   * sur /menu/m le jour où l'établissement y passe.
+   */
+  themeColor?: string;
+  /** Tableau des allergènes publié par l'établissement, lié en pied de carte. */
+  allergensUrl?: string;
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
@@ -113,6 +131,8 @@ export interface Restaurant {
   categories: MenuCategory[];
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
+  /** Aperçu d'un pitch qui présente l'estimateur IA comme livré : le ticket le nomme. */
+  estimatorLive?: boolean;
 }
 
 export const unsplash = (id: string, w = 1200) =>
@@ -139,21 +159,25 @@ const slugLibelle = (label: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-");
 
-/** Groupe à choix unique tiré d'une liste de libellés, ids dérivés du groupe. */
+/**
+ * Groupe tiré d'une liste de libellés, ids dérivés du groupe : à choix unique,
+ * ou à choix multiples (`multiple`). Un libellé peut porter son propre
+ * supplément, [libellé, supplément] ; sinon celui du groupe s'applique.
+ */
 const groupeChoix = (
   id: string,
   name: string,
-  labels: readonly string[],
-  { obligatoire = false, supplement = 0, prefixe = "" } = {}
+  labels: readonly (string | readonly [string, number])[],
+  { obligatoire = false, multiple = false, supplement = 0, prefixe = "" } = {}
 ): OptionGroup => ({
   id,
   name,
   obligatoire,
-  choices: labels.map((label) => ({
-    id: `${id}-${slugLibelle(label)}`,
-    name: `${prefixe}${label}`,
-    supplement,
-  })),
+  ...(multiple && { multiple }),
+  choices: labels.map((entry) => {
+    const [label, prix] = typeof entry === "string" ? [entry, supplement] : entry;
+    return { id: `${id}-${slugLibelle(label)}`, name: `${prefixe}${label}`, supplement: prix };
+  }),
 });
 
 const trattoriaLucia: Restaurant = {
@@ -1822,11 +1846,180 @@ const oCroustiPoulet: Restaurant = {
   ],
 };
 
+/*
+ * Chicken Street — démo pour le pitch au siège (CS DEVELOPPEMENT, Saint-Denis).
+ * Noms et visuels : chickenstreet.fr/la-carte (visuels détourés posés en 16:9
+ * dans public/chicken-street/) ; le site ne publie ni prix ni descriptions :
+ * prix d'un agrégateur tiers (fastfoodsmenu.com, 08/03/2026), variables selon
+ * le restaurant ; sauces, suppléments et nappages : tableau des allergènes du
+ * 27/08/2026. Établissement affiché : Paris Gare de l'Est. Prix des menus,
+ * suppléments et boissons déduits, questions au siège :
+ * demos/chicken-street/profile.json.
+ */
+
+/* Les sauces du tableau des allergènes, hors BBQ (« suspendue momentanément »). */
+const CS_SAUCES = ["Blanche", "Algérienne", "Samouraï", "Dynamite", "Monster", "Cheddar", "Sweet Thaï", "Ketchup", "Mayonnaise", "Moutarde Dijon", "Poivre"];
+/* Boissons : la gamme que liste l'agrégateur (non confirmée par le siège). */
+const CS_BOISSONS = ["Coca-Cola", "Coca-Cola Zero", "Coca-Cola Cherry", "Fanta Orange", "Sprite", "Fuze Tea", "Oasis Tropical"];
+
+const csSauce = groupeChoix("sauce", "Sauce", CS_SAUCES, { obligatoire: true, prefixe: "Sauce " });
+const csSauceEnPlus = groupeChoix("sauce-plus", "En plus", CS_SAUCES, { multiple: true, supplement: 0.2, prefixe: "Sauce " });
+/* Les suppléments du tableau des allergènes ; leurs prix ne sont publiés nulle part (profile.json). */
+const csSupplements = groupeChoix(
+  "supplement",
+  "Suppléments",
+  [["Cheddar", 0.5], ["Œuf", 0.5], ["Boursin", 1], ["Galette de pomme de terre", 1], ["Steak haché", 2]],
+  { multiple: true }
+);
+const csBoisson = groupeChoix("boisson", "Boisson 33\u00a0cl", CS_BOISSONS, { obligatoire: true });
+const csAccompagnement = groupeChoix("accompagnement", "Accompagnement", [["Frites", 0], ["Onion rings", 1]], { obligatoire: true });
+/* Nappages et brisures des glaces (tableau des allergènes). */
+const csNappage = groupeChoix("nappage", "Nappage", ["Caramel salé", "Chocolat", "Nutella", "Fruits rouges", "Chocolat blanc"], { obligatoire: true });
+const csBrisures = groupeChoix("brisures", "Brisures", ["Speculoos", "Daim", "M&M’s", "Oreo"], { obligatoire: true });
+
+/** Écart supposé entre un article seul et son menu (frites, boisson) : à confirmer avec le siège. */
+const CS_MENU_SUPPLEMENT = 3;
+
+/** Un menu : l'article à la carte, frites ou onion rings, boisson, sauce. */
+const csMenu = (id: string, name: string, base: number, image: string): MenuItem => ({
+  id: `menu-${id}`,
+  name: `Menu ${name}`,
+  description: `${name}, frites ou onion rings, boisson 33\u00a0cl et sauce au choix.`,
+  price: base + CS_MENU_SUPPLEMENT,
+  image: `/chicken-street/${image}.webp`,
+  options: [csAccompagnement, csBoisson, csSauce, csSauceEnPlus],
+});
+
+/** Un article à la carte : sa sauce, ses suppléments s'il en prend, une sauce en plus. */
+const csItem = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}, supplements = true): MenuItem => ({
+  id,
+  name,
+  price,
+  image: `/chicken-street/${id}.webp`,
+  options: supplements ? [csSauce, csSupplements, csSauceEnPlus] : [csSauce, csSauceEnPlus],
+  ...extra,
+});
+
+const chickenStreet: Restaurant = {
+  slug: "chicken-street",
+  name: "Chicken Street",
+  tagline: "Paris Gare de l’Est",
+  logo: "/chicken-street/logo.png",
+  whiteLogo: true,
+  logoIsName: true,
+  icons: { tab: "/chicken-street/favicon.png", homeScreen: "/chicken-street/icon.png" },
+  themeColor: "#000000",
+  allergensUrl: "https://www.chickenstreet.fr/wp-content/uploads/2026/09/ALLERGENE-27-08-2026.pdf",
+  address: "121 rue du Faubourg Saint-Martin, 75010 Paris",
+  phone: "",
+  // Fiche Google du restaurant, relevée le 06/10/2026.
+  hours: "Tous les jours\u00a011h–\u20602h",
+  highlights: ["Naan & fried chicken", "Halal", "La Street, c’est chic\u00a0!"],
+  estimatorLive: true,
+  categories: [
+    {
+      id: "menus",
+      name: "Menus",
+      tagline: "Frites ou onion rings, boisson et sauce",
+      items: [
+        csMenu("naan-tenders", "Naan Tenders", 7.5, "naan-tenders"),
+        csMenu("naan-mix", "Naan Mix", 8.5, "naan-mix"),
+        csMenu("street-b", "Street B", 6.5, "street-b"),
+        csMenu("monster", "Monster", 6.5, "monster"),
+        csMenu("tenders-5", "Tenders 5\u00a0pièces", 7.5, "tenders-5"),
+        csMenu("burger-naan-dynamite", "Burger Naan Dynamite", 8.5, "burger-naan-dynamite"),
+      ],
+    },
+    {
+      id: "naans",
+      name: "Naans",
+      tagline: "La référence depuis 2011",
+      items: [
+        csItem("naan-tenders", "Naan Tenders", 7.5),
+        csItem("naan-mix", "Naan Mix", 8.5),
+        csItem("naan-farmer", "Naan Farmer", 8.5),
+        csItem("naan-curry", "Naan Curry", 8.5),
+        csItem("naan-tenders-steak", "Naan Tenders Steak", 8.5),
+        csItem("naan-supreme", "Naan Supreme", 8.5),
+        csItem("naan-thai", "Naan Thaï", 7.5),
+        csItem("naan-steak", "Naan Steak", 7.5),
+        csItem("naan-radikal", "Naan Radikal", 8.5),
+        csItem("naan-tikka", "Naan Tikka", 8.5),
+        csItem("naan-imperial", "Naan Imperial", 8.5),
+      ],
+    },
+    {
+      id: "fried-chicken",
+      name: "Fried Chicken",
+      items: [
+        csItem("tenders-5", "Tenders 5\u00a0pièces", 7.5, {}, false),
+        csItem("wings", "Wings 10\u00a0pièces", 9.5, {}, false),
+        csItem("tenders-n-cheese", "Tenders N Cheese", 5.5, {}, false),
+        csItem("family-tenders", "Family Tenders", 29.9, { description: "20 tenders, à partager." }, false),
+        csItem("family-mix", "Family Mix", 29.9, { description: "10 tenders et 15 wings, à partager." }, false),
+        csItem("family-spicy", "Family Spicy", 29.9, { description: "33 wings épicés, à partager." }, false),
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers & Wraps",
+      items: [
+        csItem("burger-naan-dynamite", "Burger Naan Dynamite", 8.5),
+        csItem("burger-naan-onion-rings-bacon", "Burger Naan Onion Rings Bacon", 8.5),
+        csItem("street-b", "Street B", 6.5),
+        csItem("monster", "Monster", 6.5),
+        csItem("twice", "Twice", 6.5),
+        csItem("double-cheese", "Double Cheese", 4.95),
+      ],
+    },
+    {
+      id: "ptits-plaisirs",
+      name: "P’tits plaisirs",
+      items: [
+        csItem("box-mix-16", "Box Mix 16\u00a0pièces", 11.9, {}, false),
+        csItem("box-mix-solo", "Box Mix Solo", 4.9, {}, false),
+        csItem("tenders-3", "Tenders 3\u00a0pièces", 4.5, {}, false),
+        csItem("wings-3", "Wings 3\u00a0pièces", 3.5, {}, false),
+        csItem("nuggets-4", "Nuggets 4\u00a0pièces", 3.5, {}, false),
+        csItem("cheese", "Cheese", 3.5, {}, false),
+        { id: "box-onion-rings", name: "Box Onion Rings", price: 2.95, image: "/chicken-street/box-onion-rings.webp" },
+      ],
+    },
+    {
+      id: "enfants",
+      name: "Menus enfant",
+      items: [
+        { id: "menu-enfant-nuggets", name: "Menu Enfant Nuggets", price: 5.5, image: "/chicken-street/menu-enfant-nuggets.webp", options: [csBoisson] },
+        { id: "menu-enfant-cheese", name: "Menu Enfant Cheese", price: 5.5, image: "/chicken-street/menu-enfant-cheese.webp", options: [csBoisson] },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        { id: "ice-street", name: "Ice Street", price: 3.5, image: "/chicken-street/ice-street.webp", options: [csNappage, csBrisures] },
+        { id: "ice-mix", name: "Ice Mix", price: 3.95, image: "/chicken-street/ice-mix.webp", options: [csNappage, csBrisures] },
+        { id: "tiramisu", name: "Tiramisu", price: 3.5, image: "/chicken-street/tiramisu.webp" },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        { id: "soda", name: "Soda 33\u00a0cl", price: 2.2, options: [groupeChoix("gout", "Goût", CS_BOISSONS, { obligatoire: true })] },
+        { id: "fuze-tea-50", name: "Fuze Tea 50\u00a0cl", price: 2.7 },
+        { id: "cristaline", name: "Cristaline 50\u00a0cl", price: 1.5 },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
+  [chickenStreet.slug]: chickenStreet,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -1836,6 +2029,7 @@ const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
+  [chickenStreet.slug]: "theme-chicken-street",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

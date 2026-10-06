@@ -17,11 +17,11 @@ const COLUMNS: {
 }[] = [
   { key: "orders", label: "Cmd", className: "hidden w-10 sm:table-cell", value: (s) => s.orders },
   { key: "revenue", label: "CA QR", className: "w-20 max-sm:pr-5", value: (s) => s.revenue },
-  // Fermé : en bas de la liste, quel que soit le sens.
-  { key: "wait", label: "Délai", className: "hidden w-18 pr-5 sm:table-cell", value: (s) => s.waitNow ?? -1 },
+  { key: "wait", label: "Délai", className: "hidden w-18 pr-5 sm:table-cell", value: (s) => s.waitNow ?? 0 },
 ];
 
-const waitLabel = (s: RestaurantSnapshot) => (s.waitNow == null ? "Fermé" : formatWait(s.waitNow));
+const waitLabel = (s: RestaurantSnapshot) =>
+  s.waitNow != null ? formatWait(s.waitNow) : s.hours ? "Fermé" : "À venir";
 
 /**
  * Le classement du jour, trié au choix. En plein écran il montre les lignes
@@ -34,14 +34,11 @@ const waitLabel = (s: RestaurantSnapshot) => (s.waitNow == null ? "Fermé" : for
 export function Ranking({
   fixture,
   snapshots,
-  rushOrder,
   selected,
   onSelect,
 }: {
   fixture: NetworkFixture;
   snapshots: RestaurantSnapshot[];
-  /** Restaurants en rush, dans l'ordre de leur liste : leur numéro, comme sur la carte. */
-  rushOrder: number[];
   selected: number | null;
   onSelect: (index: number) => void;
 }) {
@@ -56,6 +53,8 @@ export function Ranking({
   const name = (s: RestaurantSnapshot) => fixture.restaurants[s.index].name;
   const column = COLUMNS.find((c) => c.key === sort.key);
   const rows = [...snapshots].sort((a, b) => {
+    // Fermé ou à venir, sans délai : en bas de la liste, quel que soit le sens.
+    if (column?.key === "wait" && (a.waitNow == null) !== (b.waitNow == null)) return a.waitNow == null ? 1 : -1;
     const order = column
       ? column.value(a) - column.value(b)
       : name(a).localeCompare(name(b), "fr");
@@ -132,10 +131,9 @@ export function Ranking({
                 >
                   <span className="w-5 shrink-0 text-right text-[0.8125rem] text-faint tabular-nums">{offset + i + 1}</span>
                   <span aria-hidden className="flex w-4 shrink-0 justify-center">
+                    {/* Un point, pas le numéro de la liste « En rush » : à côté du rang, deux chiffres se suivaient (« 6 ③ »). */}
                     {s.rush ? (
-                      <span className="flex size-4 items-center justify-center rounded-full bg-ember-2 text-[0.625rem] font-bold text-background tabular-nums">
-                        {rushOrder.indexOf(s.index) + 1}
-                      </span>
+                      <span className="size-2.5 rounded-full bg-ember-2" />
                     ) : (
                       s.isNew && <span className="size-2 rounded-full border border-foreground/50" />
                     )}
@@ -181,16 +179,16 @@ export function Ranking({
     <>
       <div
         ref={scroller}
-        className={`min-h-0 flex-1 2xl:overflow-y-auto ${
-          expanded ? "2xl:pb-12 2xl:[mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]" : ""
+        className={`min-h-0 flex-1 wall:overflow-y-auto ${
+          expanded ? "wall:pb-12 wall:[mask-image:linear-gradient(to_bottom,black_calc(100%-3rem),transparent)]" : ""
         }`}
       >
         {/* En tablette, deux colonnes : une seule laissait un vide entre les noms et les chiffres. */}
-        <div className="max-lg:hidden 2xl:hidden lg:grid lg:grid-cols-2 lg:divide-x lg:divide-hairline">
+        <div className="max-lg:hidden wall:hidden lg:grid lg:grid-cols-2 lg:divide-x lg:divide-hairline">
           {table(visible.slice(0, half), 0)}
           {table(visible.slice(half), half)}
         </div>
-        <div className="h-full lg:max-2xl:hidden">{table(visible, 0)}</div>
+        <div className="h-full lg:below-wall:hidden">{table(visible, 0)}</div>
       </div>
       {rows.length > shown || expanded ? (
         <button

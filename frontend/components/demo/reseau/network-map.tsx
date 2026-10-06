@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MAP_FRAME, MAP_HEIGHT, MAP_PATHS, MAP_WIDTH, project } from "@/lib/demo/reseau/carte";
 import type { NetworkFixture } from "@/lib/demo/reseau/data";
-import { formatHour, formatInteger, formatWait } from "@/lib/demo/reseau/format";
+import { formatHourInText, formatInteger, formatWait } from "@/lib/demo/reseau/format";
 import type { RestaurantSnapshot } from "@/lib/demo/reseau/simulation";
 
 /** Kilomètres par degré de latitude (rayon terrestre moyen). */
@@ -18,6 +18,8 @@ interface Point {
   y: number;
   /** Rayon du maillage visé, en unités de la carte. */
   coverage: number;
+  /** Rayon de la zone cliquable : jamais sur un voisin. */
+  hit: number;
 }
 
 /**
@@ -25,15 +27,16 @@ interface Point {
  * se superposent à cette échelle : elles s'écartent en couronne autour de
  * leur centre, chacune gardant sa direction réelle.
  */
-function layout(fixture: NetworkFixture): Point[] {
-  const { clusterUnder, clusterRadius } = fixture.display.map;
+function layout(fixture: NetworkFixture): { points: Point[]; groups: number[][] } {
+  const { clusterUnder, clusterRadius, dotMax } = fixture.display.map;
   const points = fixture.restaurants.map(({ lng, lat }) => {
     const [x, y] = project(lng, lat);
-    const [, north] = project(lng, lat + fixture.simulation.coverageKm / KM_PER_DEGREE);
+    const [, north] = project(lng, lat + (fixture.simulation.coverageKm ?? 0) / KM_PER_DEGREE);
     return { x, y, coverage: y - north };
   });
   const placed = points.map((p) => ({ ...p }));
   const grouped = new Set<number>();
+  const groups: number[][] = [];
   points.forEach((_, i) => {
     if (grouped.has(i)) return;
     const group = [i];
@@ -45,6 +48,7 @@ function layout(fixture: NetworkFixture): Point[] {
     }
     group.forEach((j) => grouped.add(j));
     if (group.length < 2) return;
+    groups.push(group);
     const cx = group.reduce((s, j) => s + points[j].x, 0) / group.length;
     const cy = group.reduce((s, j) => s + points[j].y, 0) / group.length;
     const bearing = (j: number) => Math.atan2(points[j].y - cy, points[j].x - cx);
@@ -56,7 +60,24 @@ function layout(fixture: NetworkFixture): Point[] {
       placed[j].y = cy + clusterRadius * Math.sin(angle);
     });
   });
-  return placed.map((p) => ({ x: round(p.x), y: round(p.y), coverage: round(p.coverage) }));
+  const hit = (i: number) =>
+    Math.min(dotMax, ...placed.flatMap((q, j) => (j === i ? [] : [Math.hypot(placed[i].x - q.x, placed[i].y - q.y) / 2])));
+  return {
+    points: placed.map((p, i) => ({ x: round(p.x), y: round(p.y), coverage: round(p.coverage), hit: round(hit(i)) })),
+    groups,
+  };
+}
+
+/**
+ * L'agglomération trop dense pour l'échelle de la France (display.map.inset) :
+ * la plus grande couronne, si elle compte assez de restaurants. Elle se
+ * résume sur la carte à un repère ; TownInset la montre en détail.
+ */
+export function townGroup(fixture: NetworkFixture): number[] | null {
+  const { inset } = fixture.display.map;
+  if (!inset) return null;
+  const largest = layout(fixture).groups.reduce<number[]>((best, group) => (group.length > best.length ? group : best), []);
+  return largest.length >= inset.minRestaurants ? largest : null;
 }
 
 /**
@@ -84,7 +105,15 @@ export function NetworkMap({
   onSelect: (index: number) => void;
   showCoverage: boolean;
 }) {
-  const points = useMemo(() => layout(fixture), [fixture]);
+  const { points } = useMemo(() => layout(fixture), [fixture]);
+  const town = useMemo(() => townGroup(fixture), [fixture]);
+  const inTown = (index: number) => town?.includes(index) ?? false;
+  const hub = town && {
+    x: town.reduce((sum, i) => sum + points[i].x, 0) / town.length,
+    y: town.reduce((sum, i) => sum + points[i].y, 0) / town.length,
+  };
+  // Ses restaurants en rush, dits sur le repère : sans quoi la carte n'en montrait que hors de Toulouse.
+  const townRush = town ? town.filter((i) => snapshots[i].rush).length : 0;
   const [hover, setHover] = useState<number | null>(null);
   const frame = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number; rem: number } | null>(null);
@@ -129,11 +158,12 @@ export function NetworkMap({
       ? Math.max(map.dotMin, map.dotMax * Math.sqrt(Math.min(1, s.recent / map.fullAt)))
       : map.closedDot;
   // Les petits points par-dessus les gros : aucun ne disparaît dessous.
-  const drawOrder = [...snapshots].sort(
+  const drawOrder = snapshots.filter((s) => !inTown(s.index)).sort(
     (a, b) => Number(a.index === selected) - Number(b.index === selected) || b.recent - a.recent
   );
   const hovered = hover == null ? null : snapshots[hover];
-  const current = selected == null ? null : snapshots[selected];
+  // Le restaurant ouvert, s'il est sur la carte (sinon, le détail de l'agglomération le montre).
+  const current = selected == null || inTown(selected) ? null : snapshots[selected];
   // Pastilles des restaurants en rush, numérotées comme leur liste.
   const markers: { index: number; rank: number; left: number; top: number }[][] = [];
   // L'étiquette du restaurant ouvert se pose du côté où elle ne couvre
@@ -142,6 +172,7 @@ export function NetworkMap({
   if (size) {
     const reach = (map.markerRem + map.markerGapRem) * size.rem;
     rushOrder.forEach((index, rank) => {
+      if (inTown(index)) return;
       const at = { index, rank, ...px(points[index].x, points[index].y) };
       const near = markers.find((group) =>
         group.some((m) => Math.hypot(m.left - at.left, m.top - at.top) < reach)
@@ -184,7 +215,7 @@ export function NetworkMap({
   return (
     <div
       ref={frame}
-      className="relative aspect-[1000/913] w-full overflow-hidden rounded-xl 2xl:aspect-auto 2xl:h-full 2xl:rounded-none"
+      className="relative aspect-[1000/913] max-h-[min(60svh,36rem)] w-full overflow-hidden rounded-xl wall:aspect-auto wall:h-full wall:max-h-none wall:rounded-none"
       onMouseLeave={() => setHover(null)}
     >
       <svg
@@ -193,7 +224,8 @@ export function NetworkMap({
         role="img"
         aria-label={`Carte du réseau : ${snapshots.length} restaurants, dont ${rushOrder.length} en rush.`}
       >
-        {[MAP_PATHS.france, MAP_PATHS.suisse].map((d) => (
+        {/* La Suisse, seulement si le réseau y a un restaurant. */}
+        {[MAP_PATHS.france, ...(fixture.restaurants.some((r) => r.country === "CH") ? [MAP_PATHS.suisse] : [])].map((d) => (
           <path
             key={d.length}
             d={d}
@@ -210,6 +242,17 @@ export function NetworkMap({
             ))}
           </g>
         )}
+        {hub && (
+          <circle
+            cx={hub.x}
+            cy={hub.y}
+            r={map.clusterRadius}
+            className={townRush ? "fill-ember-2/[0.1] stroke-ember-2" : "fill-foreground/[0.06] stroke-foreground/45"}
+            strokeWidth={1}
+            strokeDasharray="3 3"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
         <g aria-hidden>
           {drawOrder.map((s) => {
             const { x, y } = points[s.index];
@@ -222,7 +265,7 @@ export function NetworkMap({
                 onMouseEnter={() => setHover(s.index)}
                 onClick={() => onSelect(s.index)}
               >
-                <circle cx={x} cy={y} r={Math.max(r, map.dotMax)} fill="transparent" />
+                <circle cx={x} cy={y} r={Math.max(r, points[s.index].hit)} fill="transparent" />
                 {fresh && !s.rush && (
                   <circle
                     key={s.last!.number}
@@ -303,6 +346,36 @@ export function NetworkMap({
           </span>
         ))}
 
+      {size && hub && fixture.display.map.inset && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -translate-x-1/2 whitespace-nowrap text-[0.6875rem] font-semibold text-muted"
+          style={{ left: px(hub.x, hub.y).left, top: px(hub.x, hub.y).top + map.clusterRadius * scale + 2 }}
+        >
+          {`${fixture.display.map.inset.name} · ${town!.length}`}
+          {townRush > 0 && <span className="text-ember-2">{` · ${townRush} en rush`}</span>}
+        </span>
+      )}
+
+      {size &&
+        map.labels &&
+        snapshots
+          .filter((s) => !inTown(s.index) && s.index !== current?.index)
+          .map((s) => {
+            const at = px(points[s.index].x, points[s.index].y);
+            const reach = s.rush ? (map.markerRem * size.rem) / 2 : radius(s) * scale;
+            return (
+              <span
+                key={fixture.restaurants[s.index].id}
+                aria-hidden
+                className="pointer-events-none absolute -translate-y-1/2 whitespace-nowrap text-[0.75rem] font-medium text-muted"
+                style={{ left: at.left + reach + 5, top: at.top }}
+              >
+                {fixture.restaurants[s.index].name}
+              </span>
+            );
+          })}
+
       {size && current && (
         <span
           aria-hidden
@@ -328,13 +401,15 @@ export function NetworkMap({
             {hovered.open
               ? `${hovered.rush ? "En rush" : "Ouvert"} · délai ${formatWait(hovered.waitNow ?? 0)}`
               : hovered.hours
-                ? `Fermé · ${formatHour(hovered.hours.open)} – ${formatHour(hovered.hours.close)}`
-                : "Fermé"}
+                ? `Fermé · ${formatHourInText(hovered.hours.open)} – ${formatHourInText(hovered.hours.close)}`
+                : "Pas encore ouvert"}
           </p>
-          <p className="text-xs text-faint tabular-nums">
-            {formatInteger(hovered.recent)} commande{hovered.recent > 1 ? "s" : ""} QR en{" "}
-            {fixture.simulation.recentMinutes}&nbsp;min
-          </p>
+          {hovered.hours && (
+            <p className="text-xs text-faint tabular-nums">
+              {formatInteger(hovered.recent)} commande{hovered.recent > 1 ? "s" : ""} QR en{" "}
+              {fixture.simulation.recentMinutes}&nbsp;min
+            </p>
+          )}
         </div>
       )}
 

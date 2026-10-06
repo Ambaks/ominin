@@ -104,6 +104,8 @@ export interface CartConfig {
   serviceMode?: ServiceMode;
   /** Nom de l'établissement, en tête du ticket fast food. */
   restaurantName?: string;
+  /** L'heure prévue du ticket se présente comme celle de l'estimateur IA (aperçu d'un pitch qui le dit livré). */
+  estimatorLive?: boolean;
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { pitchFontVariables } from "@/components/pitch/fonts";
-import "./pitch.css";
+import { oCroustiPouletFonts } from "@/components/pitch/brands/o-crousti-poulet-fonts";
+import "@/components/pitch/pitch.css";
+import "@/components/pitch/brands/o-crousti-poulet.css";
 
 /*
  * Le pitch au siège d'O'Crousti Poulet Original : une page privée et sa
@@ -24,5 +25,5 @@ export const viewport: Viewport = {
 };
 
 export default function PitchLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`pitch ${pitchFontVariables} flex flex-1 flex-col`}>{children}</div>;
+  return <div className={`pitch pitch-o-crousti-poulet ${oCroustiPouletFonts} flex flex-1 flex-col`}>{children}</div>;
 }

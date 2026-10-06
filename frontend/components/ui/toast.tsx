@@ -51,15 +51,23 @@ export function useRunMutation() {
   );
 }
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({
+  children,
+  placement = "bottom",
+}: {
+  children: React.ReactNode;
+  /** En haut, sous un en-tête collé, quand le bas de l'écran porte des boutons (l'écran du comptoir, dont l'en-tête prend deux lignes sous lg) ; à droite dès md : au centre, il couvrait le numéro d'une carte. */
+  placement?: "bottom" | "top";
+}) {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
   const nextId = useRef(0);
 
   const push = useCallback((kind: ToastEntry["kind"], message: string) => {
     const id = nextId.current++;
     // Une confirmation à la fois : la plus récente remplace la précédente,
-    // au lieu d'empiler des bulles sur le contenu.
-    setToasts([{ id, kind, message }]);
+    // au lieu d'empiler des bulles sur le contenu. Une erreur, elle, reste son
+    // temps : un « Table servie. » ne doit pas effacer un paiement refusé.
+    setToasts((current) => [...current.filter((toast) => toast.kind === "error"), { id, kind, message }]);
     setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id));
     }, TOAST_DURATION_MS);
@@ -78,7 +86,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex flex-col items-center gap-2 px-5 lg:bottom-6"
+        className={`pointer-events-none fixed inset-x-0 z-50 flex flex-col items-center gap-2 px-5 ${
+          placement === "top" ? "top-44 md:items-end md:px-10 lg:top-28" : "bottom-20 lg:bottom-6"
+        }`}
       >
         {toasts.map((toast) => (
           <div

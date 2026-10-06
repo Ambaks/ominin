@@ -1,11 +1,11 @@
 /*
- * Exporte la présentation O'Crousti Poulet (/o-crousti-poulet/presentation)
+ * Exporte la présentation d'un pitch (<chemin>/presentation, ex. /chicken-street)
  * en PDF : une page 1 920 × 1 080 par diapositive, texte sélectionnable et
  * liens cliquables. N'écrit que le fichier PDF.
  *
  * Usage, depuis frontend/, un serveur Next lancé :
- *   ../.claude/skills/new-restaurant/scripts/pw.sh scripts/pitch-pdf.mjs [origine] [fichier.pdf]
- * Défauts : http://localhost:3000, ./o-crousti-poulet-ominin.pdf. Contre la
+ *   ../.claude/skills/new-restaurant/scripts/pw.sh scripts/pitch-pdf.mjs <chemin> [origine] [fichier.pdf]
+ * Défauts : http://localhost:3000, ./<pitch>-ominin.pdf. Contre la
  * production, l'origine est https://ominin.com — le QR code et l'adresse
  * imprimés sont alors ceux de menu.ominin.com.
  *
@@ -19,8 +19,13 @@ import { resolve } from "node:path";
 
 const { chromium } = createRequire(import.meta.url)("playwright");
 
-const origin = process.argv[2] ?? "http://localhost:3000";
-const output = resolve(process.argv[3] ?? "o-crousti-poulet-ominin.pdf");
+const path = process.argv[2]?.replace(/\/+$/, "");
+if (!path?.startsWith("/")) {
+  console.error("Usage : pitch-pdf.mjs <chemin du pitch, ex. /big-smash> [origine] [fichier.pdf]");
+  process.exit(1);
+}
+const origin = process.argv[3] ?? "http://localhost:3000";
+const output = resolve(process.argv[4] ?? `${path.slice(1)}-ominin.pdf`);
 
 async function main() {
   const browser = await chromium.launch();
@@ -28,7 +33,7 @@ async function main() {
   // Pas de bannière de consentement dans le document.
   await context.addCookies([{ name: "ominin-consent", value: "denied", url: origin }]);
   const page = await context.newPage();
-  await page.goto(`${origin}/o-crousti-poulet/presentation`, { waitUntil: "networkidle" });
+  await page.goto(`${origin}${path}/presentation`, { waitUntil: "networkidle" });
   // L'indicateur du serveur de dev ne doit pas finir imprimé.
   await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
   await page.evaluate(async () => {

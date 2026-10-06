@@ -1,0 +1,14 @@
+{
+  "slug": "chicken-street",
+  "name": "Chicken Street",
+  "status": "prospect — pitch au siège (CS DEVELOPPEMENT, Saint-Denis), octobre 2026",
+  "demo": "/menu/demo/chicken-street?service=fast-food (établissement affiché : Paris Gare de l'Est)",
+  "inferred_and_questions": [
+    "Prix : aucun prix officiel publié ; prix d'un agrégateur tiers (fastfoodsmenu.com, 08/03/2026), variables selon le restaurant.",
+    "Menus : article à la carte + 3 € (frites ou onion rings + boisson 33 cl + sauce), écart supposé.",
+    "Suppléments (cheddar, œuf, Boursin, galette, steak) : noms du tableau des allergènes, prix supposés.",
+    "Boissons : gamme Coca-Cola listée par l'agrégateur, non confirmée par le siège.",
+    "Horaires du réseau : 11 h – minuit supposés dans la vue réseau ; Gare de l'Est relevé 11 h – 2 h.",
+    "Police : WoodHeinz (site) remplacée par Anton, licence inconnue."
+  ]
+}

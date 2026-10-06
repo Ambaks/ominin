@@ -5,8 +5,9 @@ import type { SimOrder } from "@/lib/demo/reseau/simulation";
 /**
  * Les commandes du réseau à mesure qu'elles arrivent, la plus récente en
  * haut. Le restaurant mène la ligne — c'est lui que le siège cherche ; le
- * numéro, propre à chaque comptoir, passe en second ; « réglée en caisse »
- * ouvre le panier quand la commande y est payée. En hauteur contrainte, les
+ * numéro, propre à chaque comptoir, passe en second ; « au comptoir » ouvre
+ * le panier quand la commande s'y paie (« à régler », puis « réglée », en plein
+ * écran). En hauteur contrainte, les
  * lignes se partagent le cadre.
  */
 export function LiveFeed({
@@ -19,14 +20,14 @@ export function LiveFeed({
   fixture: NetworkFixture;
   orders: SimOrder[];
   now: number;
-  /** Première ouverture du jour, pour le fil encore vide. */
-  opensAt: string;
+  /** Première ouverture du jour, pour le fil encore vide ; null si un restaurant est déjà ouvert. */
+  opensAt: string | null;
   onSelect: (index: number) => void;
 }) {
   if (!orders.length) {
     return (
       <p className="px-5 py-10 text-center text-sm text-muted">
-        Aucune commande pour l’instant. Premières ouvertures à {opensAt}.
+        {opensAt ? `Aucune commande pour l’instant. Premières ouvertures à ${opensAt}.` : "En attente des premières commandes."}
       </p>
     );
   }
@@ -38,7 +39,7 @@ export function LiveFeed({
           <li
             key={`${restaurant.id}-${order.number}`}
             data-row
-            className={`flex flex-col justify-center border-b border-hairline last:border-b-0 lg:flex-1 ${
+            className={`flex flex-col justify-center border-b border-hairline last:border-b-0 lg:max-h-24 lg:flex-1 ${
               now - order.createdAt < fixture.display.rippleSeconds ? "reseau-enter" : ""
             }`}
           >
@@ -62,13 +63,13 @@ export function LiveFeed({
                 <span className="flex min-w-0 flex-1 items-baseline text-[0.875rem] text-muted">
                   {!order.online && (
                     <span className="mr-2 shrink-0 self-center rounded bg-foreground/[0.08] px-1.5 py-px text-xs text-foreground/85">
-                      <span className="hidden 2xl:inline">réglée </span>en caisse
+                      <span className="hidden wall:inline">{order.paidAt <= now ? "réglée " : "à régler "}</span>au comptoir
                     </span>
                   )}
                   {/* Deux articles nommés en plein écran, un ailleurs ; le compte des autres ne se coupe jamais. */}
                   {[
-                    { parts: basketParts(order.lines, 2), className: "hidden 2xl:flex" },
-                    { parts: basketParts(order.lines, 1), className: "flex 2xl:hidden" },
+                    { parts: basketParts(order.lines, 2), className: "hidden wall:flex" },
+                    { parts: basketParts(order.lines, 1), className: "flex wall:hidden" },
                   ].map(({ parts, className }) => (
                     <span key={className} className={`min-w-0 items-baseline ${className}`}>
                       <span className="min-w-0 truncate">{parts.named}</span>

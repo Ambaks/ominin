@@ -11,7 +11,7 @@ import { PushPrompt } from "@/components/gestion/push-prompt";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import { ORDER_TAB_LABELS, ORDER_TABS } from "@/lib/gestion/constants";
+import { ORDER_TAB_LABELS, ORDER_TABS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
@@ -28,6 +28,7 @@ import {
   useRealtimeLive,
 } from "@/lib/gestion/store";
 import type { Order, OrderTab } from "@/lib/gestion/types";
+import { useNow } from "@/lib/gestion/use-now";
 import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
 
 /*
@@ -66,6 +67,7 @@ export default function CommandesPage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
   const live = useRealtimeLive();
+  const now = useNow(WAIT_TICK_MS);
   const printerOffline = usePrinterOffline(state?.etablissement.id ?? "");
   const toast = useToast();
   // Onglet choisi ; avant tout choix, celui du rôle (la cuisine n'encaisse pas).
@@ -363,6 +365,7 @@ export default function CommandesPage() {
                     <CounterCard
                       key={order.id}
                       order={order}
+                      now={now}
                       resetHour={state.orderNumberResetHour}
                       readOnly={isCuisinier}
                     />

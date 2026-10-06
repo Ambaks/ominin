@@ -4,12 +4,12 @@ import type { Hours, NetworkFixture, NetworkRestaurant, Product } from "./data";
  * Simulation d'une journée du réseau, déterministe : un même jour donne
  * toujours les mêmes commandes, à la seconde près. Chaque restaurant tire ses
  * commandes minute par minute (Poisson) sur une courbe d'affluence — fond
- * d'ouverture, pointes du déjeuner et du dîner —, dimensionnée pour que sa
- * part téléphone du CA annoncé tombe juste. Le comptoir est une file unique
- * où passent aussi les clients venus sans téléphone, tirés à part ; l'heure
- * annoncée au client en découle, et la préparation réelle s'en écarte d'un
- * aléa. Les temps sont en secondes depuis minuit du jour de service (au-delà
- * de 24 h : la nuit suivante).
+ * d'ouverture, pointes du déjeuner et du dîner —, dimensionnée sur le CA
+ * annoncé ; chaque client passe par QR selon la part choisie, les autres
+ * commandent en caisse ou aux bornes (withoutQr). Le passe de la cuisine les
+ * prend tous ; l'heure annoncée au client en découle, et la préparation réelle
+ * s'en écarte d'un aléa. Les temps sont en secondes depuis minuit du jour de
+ * service (au-delà de 24 h : la nuit suivante).
  */
 
 export interface OrderLine {
@@ -33,23 +33,23 @@ export interface SimOrder {
   lines: OrderLine[];
 }
 
-export interface TillQueue {
+interface TillQueue {
   arrivals: number[];
   ends: number[];
 }
 
-export interface RestaurantDay {
+interface RestaurantDay {
   /** Plage d'ouverture ; null si le restaurant n'était pas encore ouvert ce jour-là. */
   hours: { open: number; close: number } | null;
   isNew: boolean;
   orders: SimOrder[];
-  /** Clients venus commander au comptoir, sans téléphone : leur heure d'arrivée. */
+  /** Clients venus sans téléphone (en caisse ou aux bornes) : leur heure d'arrivée. */
   walkIns: number[];
   /** Le passe après chaque arrivée en cuisine (commande par QR ou non), dans l'ordre d'arrivée. */
   pass: { at: number; freeAt: number; qr: boolean }[];
   /** Temps de passe d'une commande, en secondes. */
   passTime: number;
-  /** La caisse, avec le QR puis sans : arrivée et sortie de chaque client, dans l'ordre. */
+  /** La caisse, avec le QR puis sans (vide aux bornes) : arrivée et sortie de chaque client, dans l'ordre. */
   till: TillQueue;
   tillWithoutQr: TillQueue;
   /** Préparation d'une commande de deux articles dans ce restaurant, en minutes. */
@@ -87,6 +87,9 @@ function random(seed: string): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+/** Partie fractionnaire du nombre d'or : une suite k·φ (mod 1) couvre [0, 1) régulièrement. */
+const GOLDEN = (Math.sqrt(5) - 1) / 2;
 
 const between = (rand: () => number, [min, max]: readonly [number, number]) =>
   min + (max - min) * rand();
@@ -199,24 +202,23 @@ function simulateRestaurant(
     return { hours: null, isNew: false, orders: [], walkIns: [], pass: [], passTime: 0, till: empty, tillWithoutQr: empty, typicalPrep: 0 };
   }
 
-  // Traits stables du restaurant, puis l'aléa du jour. Les clients du
-  // comptoir tirent le leur à part : régler le passe ne rebat pas les commandes.
+  // Traits stables du restaurant, puis l'aléa du jour.
   const traits = random(`${fixture.slug}|${restaurant.id}`);
   const share = adoption + sim.adoption.spread * (2 * traits() - 1);
   const onlineShare = between(traits, sim.onlineShare);
-  const peakLoad = between(traits, sim.kitchen.peakLoad);
+  const drawnLoad = between(traits, sim.kitchen.peakLoad);
   const prepSpeed = between(traits, sim.kitchen.prepSpeed);
   const rand = random(`${fixture.slug}|${restaurant.id}|${day}`);
-  const walkInRand = random(`${fixture.slug}|${restaurant.id}|${day}|comptoir`);
 
   const { open, close } = hoursOn(restaurant, weekday);
   const { opening, kitchen } = sim;
-  const ramp =
-    (1 + opening.buzz * Math.exp(-age / opening.buzzDays)) *
-    (opening.adoptionStart + (1 - opening.adoptionStart) * Math.min(1, age / opening.adoptionDays));
-  const planned =
-    ((sim.dailyRevenue * 100 * share) / ticket) * restaurant.volume * sim.weekday[weekday] * ramp;
-  const expected = planned * Math.exp(sim.dailyNoise * gaussian(rand));
+  const buzz = 1 + opening.buzz * Math.exp(-age / opening.buzzDays);
+  // Dans un restaurant récent, le QR gagne des clients peu à peu : sa part monte, pas la foule.
+  const qrShare =
+    share * (opening.adoptionStart + (1 - opening.adoptionStart) * Math.min(1, age / opening.adoptionDays));
+  // Clients d'un jour ordinaire, tous canaux : le CA annoncé au panier attendu.
+  const usual = ((sim.dailyRevenue * 100) / ticket) * restaurant.volume;
+  const crowd = usual * sim.weekday[weekday] * buzz * Math.exp(sim.dailyNoise * gaussian(rand));
 
   const weights: number[] = [];
   for (let m = open; m < close; m++) {
@@ -231,27 +233,44 @@ function simulateRestaurant(
 
   const orders: SimOrder[] = [];
   const walkIns: number[] = [];
+  // Le k-ième client du jour passe par QR si (départ + k·φ) mod 1 < part : la
+  // part choisie tombe juste à une commande près dans chaque restaurant, et
+  // les clients du QR à 10 % le restent à 30 et 50 %.
+  const routeStart = traits();
+  let arrived = 0;
+  // Aléas de cuisine et de retrait de chaque commande, tirés avec elle.
+  const drawn = new Map<SimOrder, { prepFactor: number; pickup: number }>();
   weights.forEach((w, i) => {
-    const count = poisson(rand, (expected * w) / weightSum);
+    const count = poisson(rand, (crowd * w) / weightSum);
     for (let k = 0; k < count; k++) {
-      const createdAt = (open + i) * 60 + Math.floor(rand() * 60);
-      const { lines, total } = drawBasket(rand, fixture);
-      const online = rand() < onlineShare;
-      orders.push({
+      // Chaque client tire son propre sort : la part QR choisie ne fait que
+      // le router, la foule du jour et ses paniers restent les mêmes.
+      const client = random(`${fixture.slug}|${restaurant.id}|${day}|${i}|${k}`);
+      const createdAt = (open + i) * 60 + Math.floor(client() * 60);
+      if ((routeStart + arrived++ * GOLDEN) % 1 >= qrShare) {
+        walkIns.push(createdAt);
+        continue;
+      }
+      const { lines, total } = drawBasket(client, fixture);
+      const online = client() < onlineShare;
+      const order: SimOrder = {
         restaurant: index,
         number: 0,
         createdAt,
-        paidAt: online ? createdAt : createdAt + Math.round(between(rand, sim.counterPayMinutes) * 60),
+        paidAt: online ? createdAt : createdAt + Math.round(between(client, sim.counterPayMinutes) * 60),
         estimatedAt: 0,
         readyAt: 0,
         pickedAt: 0,
         online,
         total,
         lines,
+      };
+      orders.push(order);
+      drawn.set(order, {
+        prepFactor: Math.exp(kitchen.prepNoise * gaussian(client) - (kitchen.prepNoise * kitchen.prepNoise) / 2),
+        pickup: between(client, sim.pickupMinutes),
       });
     }
-    const walkInCount = poisson(walkInRand, (expected * w * (1 - share)) / (share * weightSum));
-    for (let k = 0; k < walkInCount; k++) walkIns.push((open + i) * 60 + Math.floor(walkInRand() * 60));
   });
   orders.sort((a, b) => a.createdAt - b.createdAt);
   // Un seul carnet de numéros au comptoir : les clients sans téléphone en
@@ -259,29 +278,40 @@ function simulateRestaurant(
   walkIns.sort((a, b) => a - b);
   orders.forEach((order, i) => (order.number = i + 1 + countUntil(walkIns, order.createdAt, arrival)));
 
-  // La caisse : les clients venus sans téléphone y commandent et paient,
-  // ceux qui ont commandé par QR sans payer en ligne y règlent (paidAt, en
-  // attendant, porte leur arrivée au comptoir). Sans QR, tout le monde y
-  // serait passé : la même file, rejouée avec toutes les commandes.
+  // La caisse : ceux qui ont commandé par QR sans payer en ligne y règlent
+  // (paidAt, en attendant, porte leur arrivée au comptoir) ; en caisse, les
+  // clients venus sans téléphone y commandent aussi. Sans QR, tous y seraient
+  // passés : la même file, rejouée avec toutes les commandes. Aux bornes, ils
+  // n'y passent pas.
+  const atTill = sim.withoutQr === "caisse";
   const counterPaid = orders.filter((order) => !order.online).sort((a, b) => a.paidAt - b.paidAt);
-  const arrivals = [...walkIns.map((at) => ({ at, order: null })), ...counterPaid.map((order) => ({ at: order.paidAt, order }))].sort(
-    (a, b) => a.at - b.at
-  );
+  const arrivals = [
+    ...(atTill ? walkIns.map((at) => ({ at, order: null })) : []),
+    ...counterPaid.map((order) => ({ at: order.paidAt, order })),
+  ].sort((a, b) => a.at - b.at);
   const tillTime = sim.tillMinutes * 60;
   const tillEnds = till(arrivals.map((a) => a.at), tillTime, sim.tills);
   arrivals.forEach((arrival, i) => {
     if (arrival.order) arrival.order.paidAt = tillEnds[i];
   });
-  const withoutQr = [...walkIns, ...orders.map((order) => order.createdAt)].sort((a, b) => a - b);
+  const withoutQr = atTill ? [...walkIns, ...orders.map((order) => order.createdAt)].sort((a, b) => a - b) : [];
 
-  // Le passe, dimensionné pour la pointe prévue, clients du comptoir compris :
-  // les commandes réglées en ligne y arrivent tout de suite, les autres au
-  // sortir de la caisse.
-  const peakRate = ((planned / share) * Math.max(...weights)) / weightSum;
+  // Le passe, à `peakLoad` de sa capacité à la pointe, clients sans téléphone
+  // compris : les commandes réglées en ligne y arrivent tout de suite, les
+  // autres au sortir de la caisse ou de la borne.
+  const { maturityDays } = kitchen;
+  const peakLoad =
+    maturityDays == null
+      ? drawnLoad
+      : kitchen.peakLoad[0] + (kitchen.peakLoad[1] - kitchen.peakLoad[0]) * Math.exp(-age / maturityDays);
+  const sizedFor = maturityDays == null ? usual * sim.weekday[weekday] * buzz : usual * Math.max(...sim.weekday);
+  const peakRate = (sizedFor * Math.max(...weights)) / weightSum;
   const passTime = Math.min(kitchen.passMaxMinutes, peakLoad / peakRate) * 60;
   const kitchenQueue = [
     ...orders.map((order) => ({ at: order.paidAt, order })),
-    ...arrivals.flatMap((arrival, i) => (arrival.order ? [] : [{ at: tillEnds[i], order: null }])),
+    ...(atTill
+      ? arrivals.flatMap((arrival, i) => (arrival.order ? [] : [{ at: tillEnds[i], order: null }]))
+      : walkIns.map((at) => ({ at, order: null }))),
   ].sort((a, b) => a.at - b.at);
   const pass: RestaurantDay["pass"] = [];
   let free = open * 60;
@@ -290,13 +320,12 @@ function simulateRestaurant(
     free = start + passTime;
     pass.push({ at, freeAt: free, qr: order != null });
     if (!order) continue;
+    const { prepFactor, pickup } = drawn.get(order)!;
     const extra = itemCount(order.lines) - 1;
     const prep = (kitchen.prepMinutes + kitchen.prepPerItem * extra) * prepSpeed * 60;
     order.estimatedAt = Math.ceil((start + prep) / 60) * 60;
-    order.readyAt = Math.round(
-      start + prep * Math.exp(kitchen.prepNoise * gaussian(rand) - (kitchen.prepNoise * kitchen.prepNoise) / 2)
-    );
-    order.pickedAt = order.readyAt + Math.round(between(rand, sim.pickupMinutes) * 60);
+    order.readyAt = Math.round(start + prep * prepFactor);
+    order.pickedAt = order.readyAt + Math.round(pickup * 60);
   }
 
   return {
@@ -481,7 +510,7 @@ export function restaurantSnapshot(
   };
 }
 
-export interface NetworkTotals {
+interface NetworkTotals {
   orders: number;
   walkIns: number;
   tillLine: number;
@@ -567,6 +596,28 @@ export function activity(
   for (let at = start; at <= until; at += step) points.push({ at, count: count(at) });
   if ((until - start) % step !== 0) points.push({ at: until, count: count(until) });
   return points;
+}
+
+/** Commandes QR prêtes et pas encore remises, sur tout le réseau, à la fin de chaque pas jusqu'à `until`. */
+export function readyWaiting(sim: SimDay, start: number, until: number, bucket: number): number[] {
+  const count = until < start ? 0 : Math.floor((until - start) / bucket) + 1;
+  return Array.from({ length: count }, (_, i) => {
+    const t = start + (i + 1) * bucket;
+    return sim.orders.filter((order) => order.readyAt <= t && t < order.pickedAt).length;
+  });
+}
+
+/** Délai moyen entre « prête » et la remise, en minutes, des commandes remises à `t` ; null s'il n'y en a pas. */
+export function handoffMinutes(sim: SimDay, t: number): number | null {
+  let sum = 0;
+  let count = 0;
+  for (const order of sim.orders) {
+    if (order.createdAt > t) break;
+    if (order.pickedAt > t) continue;
+    sum += order.pickedAt - order.readyAt;
+    count++;
+  }
+  return count ? sum / count / 60 : null;
 }
 
 /**

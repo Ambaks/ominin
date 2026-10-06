@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
 import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
 import { formatPrice, type MenuItem, type OptionGroup } from "@/lib/menu-data";
+import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
 export function isUnavailable(item: MenuItem): boolean {
@@ -42,6 +43,15 @@ function revealAboveCartBar(button: HTMLElement | null) {
 /** Nom de la ligne du panier : avec son format, « Pilons x3 », « Boisson 33 cl ». */
 const lineName = (item: MenuItem) =>
   item.detail ? `${item.name} ${item.detail}` : item.name;
+
+/** « Sans salade, tomate » plutôt que « Sans salade, Sans tomate » : un premier mot commun ne se répète pas. */
+function shared(names: string[]): string {
+  const first = names[0].split(" ")[0];
+  const prefix = `${first} `;
+  return names.length > 1 && names.every((name) => name.startsWith(prefix) && name.length > prefix.length)
+    ? `${names[0]}, ${names.slice(1).map((name) => name.slice(prefix.length)).join(", ")}`
+    : names.join(", ");
+}
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
@@ -291,7 +301,7 @@ export function OptionsModal({
             .filter((choice) => chosen(group.id).includes(choice.id))
             .map((choice) => choice.name);
           if (names.length > 0)
-            return [{ id: group.id, text: names.join(", "), done: true }];
+            return [{ id: group.id, text: shared(names), done: true }];
           return group.obligatoire
             ? [{ id: group.id, text: group.name, done: false }]
             : [];
@@ -370,11 +380,9 @@ export function OptionsModal({
               <p className="mt-1.5 text-xs text-muted">
                 {recap.map((part, i) => (
                   <Fragment key={part.id}>
-                    {i > 0 && " · "}
-                    <span
-                      className={`whitespace-nowrap ${part.done ? "text-foreground" : ""}`}
-                    >
-                      {part.text}
+                    {i > 0 && "\u00a0· "}
+                    <span className={part.done ? "text-foreground" : undefined}>
+                      {keepHyphenated(part.text)}
                     </span>
                   </Fragment>
                 ))}

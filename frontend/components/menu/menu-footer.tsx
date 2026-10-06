@@ -76,13 +76,24 @@ export function MenuFooter({
   const phone = restaurant.phone.trim();
   const address = restaurant.address.trim();
   const hours = restaurant.hours.trim();
+  // La palette Ominin (themeToggle) garde le logo du héros, qu'elle sait éclaircir.
+  const brandLogo = themeToggle ? undefined : restaurant.footerLogo;
 
   return (
     <footer className="border-t border-hairline">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 px-5 py-12 text-center lg:max-w-5xl lg:px-10 lg:py-16">
         <div className="flex flex-col items-center gap-4">
           <p className="footer-name font-display text-2xl font-medium lg:text-3xl">
-            {restaurant.name}
+            {restaurant.logo && restaurant.logoIsName ? (
+              // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+              <img
+                src={brandLogo ?? restaurant.logo}
+                alt={restaurant.name}
+                className={brandLogo ? "h-auto w-72 max-w-full lg:w-96" : `h-12 w-auto lg:h-14 ${restaurant.whiteLogo ? "logo-white" : ""}`}
+              />
+            ) : (
+              restaurant.name
+            )}
           </p>
 
           {phone && (
@@ -142,6 +153,18 @@ export function MenuFooter({
         )}
 
         <div className="text-xs leading-relaxed text-muted">
+          {restaurant.allergensUrl && (
+            <p className="mb-2">
+              <a
+                href={restaurant.allergensUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center text-sm font-semibold text-foreground underline decoration-hairline underline-offset-4 transition-colors hover:decoration-foreground"
+              >
+                Tableau des allergènes
+              </a>
+            </p>
+          )}
           <p>Prix nets en euros, service compris.</p>
           <p>Photos non contractuelles.</p>
           <p className="mt-1 flex items-center justify-center gap-2">

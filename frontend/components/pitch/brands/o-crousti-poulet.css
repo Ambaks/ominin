@@ -1,0 +1,76 @@
+/*
+  Pitch O'Crousti Poulet : l'identité de l'enseigne — noir d'enseigne, jaune
+  du logo posé à plat, or et citron en rampe — et son verrou.
+*/
+.pitch-o-crousti-poulet {
+  --pitch-ground: #131416;
+  --pitch-surface: #1c1d20;
+  --pitch-raised: #26282c;
+  --pitch-accent: #f7ee21;
+  --pitch-accent-deep: #f2cc12;
+  --pitch-accent-light: #fff35c;
+  /* L'accent en petit texte : le même jaune, lisible sur le noir. */
+  --pitch-accent-text: #f7ee21;
+  --pitch-on-accent: #131416;
+  --pitch-ink: #f7f7f2;
+  /* Gris du thème de la carte, éclaircis : projetés, ceux-là se perdaient. */
+  --pitch-muted: #c0c2c6;
+  --pitch-faint: #9d9fa4;
+  --pitch-line: rgba(247, 247, 242, 0.12);
+  /* Le noir des bords du film : ses bandes se fondent dans l'écran. */
+  --pitch-film: #0f0f11;
+}
+
+/* Didact Gothic est maigre : le nom de l'enseigne s'épaissit d'un trait. */
+.pitch-o-crousti-poulet .pitch-ticket-brand {
+  -webkit-text-stroke: 0.02em currentColor;
+}
+
+/* ——— Le verrou de l'enseigne ——————————————————————————————— */
+
+.ocp-lockup-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "name name" "rule tag";
+  align-items: center;
+  gap: 0.075em 0.094em;
+}
+
+.ocp-lockup-name {
+  grid-area: name;
+  display: flex;
+  column-gap: 0.21em;
+  font-family: var(--font-pitch-wordmark), sans-serif;
+  line-height: 0.98;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  color: #fff;
+  -webkit-text-stroke: 0.03em currentColor;
+  paint-order: stroke fill;
+  text-shadow: 0 0 0.45em rgba(255, 255, 255, 0.16);
+}
+
+.ocp-lit {
+  color: var(--pitch-accent);
+  text-shadow: 0 0 0.45em rgba(247, 238, 33, 0.3);
+}
+
+.ocp-lockup-rule {
+  grid-area: rule;
+  align-self: end;
+  height: 0.12em;
+  margin-bottom: 0.054em;
+  border-radius: 0.02em;
+  background: var(--pitch-accent);
+  box-shadow: 0 0 0.11em rgba(247, 238, 33, 0.4);
+}
+
+.ocp-lockup-tag {
+  grid-area: tag;
+  font-family: var(--font-pitch-text), sans-serif;
+  font-weight: 800;
+  font-size: 0.3em;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: #fff;
+}

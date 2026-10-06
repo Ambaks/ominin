@@ -55,6 +55,9 @@ export function formatHour(minutes: number): string {
   return m % 60 ? `${h}\u00a0h\u00a0${pad(m % 60)}` : `${h}\u00a0h`;
 }
 
+/** Une heure dans une phrase : « jusqu'à minuit », pas « jusqu'à 0 h ». */
+export const formatHourInText = (minutes: number) => (minutes % 1440 === 0 ? "minuit" : formatHour(minutes));
+
 const lineName = (l: OrderLine) => (l.quantity > 1 ? `${l.quantity}× ${l.name}` : l.name);
 
 /** Le panier en entier : « 2× Menu Solo + Alloco + Tiramisu ». */
@@ -73,11 +76,14 @@ export function basketParts(lines: OrderLine[], count: number): { named: string;
   };
 }
 
-/** Ancienneté d'une commande : « à l'instant », « il y a 40 s », « il y a 3 min ». */
+/** Ancienneté d'une commande : « à l'instant », « il y a 40 s », « il y a 3 min », « il y a 1 h 18 ». */
 export function formatAgo(seconds: number): string {
   if (seconds < 10) return "à l’instant";
   if (seconds < 60) return `il y a ${Math.floor(seconds / 10) * 10}\u00a0s`;
-  return `il y a ${Math.floor(seconds / 60)}\u00a0min`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `il y a ${minutes}\u00a0min`;
+  const rest = minutes % 60;
+  return `il y a ${Math.floor(minutes / 60)}\u00a0h${rest ? `\u00a0${String(rest).padStart(2, "0")}` : ""}`;
 }
 
 export const WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];

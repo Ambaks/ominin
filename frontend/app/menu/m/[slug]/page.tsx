@@ -159,6 +159,7 @@ export default async function MenuPage({
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <div
         data-menu-root
+        data-slug={slug}
         data-service={fastFood ? "fast-food" : undefined}
         className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >

@@ -66,8 +66,12 @@ const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(21rem,100%),1fr))] gap
  * cela, le store partirait charger l'établissement du visiteur.
  */
 function useService(slug: string, scenario: Scenario) {
+  // L'heure d'ouverture prise au premier rendu, avant l'horloge de la page :
+  // amorcées plus tard (dans l'effet), les commandes paraissaient d'une minute
+  // plus jeunes jusqu'au premier battement.
+  const [openedAt] = useState(() => Date.now());
   useEffect(() => {
-    const demo = counterDemo(slug, Date.now(), scenario);
+    const demo = counterDemo(slug, openedAt, scenario);
     if (!demo) return;
     commit(demo.state);
     if (scenario === "fige") return;
@@ -87,7 +91,7 @@ function useService(slug: string, scenario: Scenario) {
     };
     schedule();
     return () => window.clearTimeout(timer);
-  }, [slug, scenario]);
+  }, [slug, scenario, openedAt]);
 }
 
 /**
@@ -242,7 +246,9 @@ export function ComptoirDemo({
 }) {
   useService(slug, scenario);
   const state = useGestion();
-  useOrderChime();
+  // Le son de la démo, à elle : le réglage du vrai comptoir reste intact.
+  const [chimeOn, setChimeOn] = useState(true);
+  useOrderChime(chimeOn);
   const [tab, setTab] = useState<OrderTab>("a_servir");
 
   const orders = state?.orders ?? [];
@@ -319,28 +325,54 @@ export function ComptoirDemo({
       )}
     </>
   );
+  // Figée, la file n'attend plus rien : elle ne se dit pas « en direct ».
   const live = (
-    <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">
-      <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
-      En direct
+    <span className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-muted">
+      {scenario === "fige" ? (
+        "File figée"
+      ) : (
+        <span className="flex items-center gap-1.5">
+          <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
+          En direct
+        </span>
+      )}
+      {/* Le carillon de chaque nouvelle commande, comme à l'espace de gestion : coupable d'un appui. */}
+      <button
+        type="button"
+        aria-pressed={chimeOn}
+        aria-label="Son des nouvelles commandes"
+        onClick={() => setChimeOn((on) => !on)}
+        className="flex min-h-9 items-center gap-1.5 rounded-full border border-hairline px-2.5 uppercase transition-colors hover:text-foreground"
+      >
+        <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M11 5 6 9H3v6h3l5 4V5z" />
+          {chimeOn ? <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /> : <path d="m16 9 6 6M22 9l-6 6" />}
+        </svg>
+        {chimeOn ? "Son" : "Muet"}
+      </button>
     </span>
   );
 
   return (
     // Grand écran de comptoir : la grille de la tablette, lue de plus loin.
-    <div className="flex min-h-dvh w-full flex-col min-[1600px]:[zoom:1.32]">
-      <ToastProvider>
+    // L'anneau de focus aux braises de la page, comme la vue réseau : celui du navigateur, bleu et fin, s'y perdait.
+    <div className="flex min-h-dvh w-full flex-col min-[1600px]:min-h-[calc(100dvh/1.32)] min-[1600px]:[zoom:1.32] [&_:focus-visible]:outline-2 [&_:focus-visible]:outline-offset-2 [&_:focus-visible]:outline-ember-2">
+      {/* Le message en haut, sous l'en-tête : en bas, il cachait le bouton d'une carte. */}
+      <ToastProvider placement="top">
         {/* Sous le filet, une bande pleine de l'écart des cartes : ce qui
             défile passe derrière elle, jamais une lamelle de carte coupée. */}
         <header ref={header} className="sticky top-0 z-40 bg-background pb-4">
           <div className="border-b border-hairline">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-2 lg:px-10">
+            {/* Une seule ligne dès lg, le nom se tronquant : un renvoi qui apparaît
+                faisait passer la barre sur deux lignes, ce qui changeait sa mesure
+                et le faisait disparaître, sans fin (1024 px). */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-2 lg:flex-nowrap lg:px-10">
               <div className="min-w-0">
                 <p className="truncate text-[10px] font-semibold">
                   <span className="ember-text uppercase tracking-[0.28em]">
                     Ominin {OFFRE_LABELS.connect}
                   </span>
-                  <span className="ml-2 text-faint">Démonstration</span>
+                  <span className="ml-2 text-xs font-medium text-muted">Démonstration</span>
                 </p>
                 <p className="truncate font-display text-lg font-medium">{name}</p>
               </div>
@@ -350,7 +382,7 @@ export function ComptoirDemo({
               {state && (
                 <nav
                   aria-label="Commandes"
-                  className="min-w-0 [&>div]:-m-4 [&>div]:p-4"
+                  className="min-w-0 lg:shrink-0 [&>div]:-m-4 [&>div]:p-4"
                 >
                   <PillTabs
                     tabs={state.orderTabs.map((id) => ({
@@ -365,14 +397,17 @@ export function ComptoirDemo({
               )}
               <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex">
                 {cues}
-                <div className="pl-3">{summary}</div>
+                {/* Le résumé de la file dès 1120 px : en dessous, avec les renvois, il ne laissait rien au nom. */}
+                <div className="hidden pl-3 min-[1120px]:block">{summary}</div>
                 <div className="pl-3">{live}</div>
               </div>
             </div>
             {/* Portrait : l'état de la file sur une seconde ligne, à la hauteur
-                d'un renvoi — un renvoi qui apparaît ne pousse pas la grille. */}
+                d'un renvoi — un renvoi qui apparaît ne pousse pas la grille.
+                Sur un téléphone, la ligne défile seule plutôt que la page :
+                ses bords s'estompent, et la marge garde l'anneau de focus entier. */}
             <div className="px-5 pb-2.5 lg:hidden">
-              <div className="flex min-h-9 items-center gap-3">
+              <div className="no-scrollbar -mx-3 -my-1 flex min-h-9 items-center gap-3 overflow-x-auto px-3 py-1 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)] [&>*]:shrink-0">
                 {summary}
                 <div className="ml-auto flex items-center gap-3">
                   {cues}
@@ -405,6 +440,7 @@ export function ComptoirDemo({
                     <div key={order.id} data-commande={order.orderNumber} className="order-pop grid">
                       <CounterCard
                         order={order}
+                        now={now}
                         resetHour={state.orderNumberResetHour}
                         setStatus={setStatusLocally}
                       />

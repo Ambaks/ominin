@@ -1,5 +1,6 @@
 import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
+import { keepHyphenated } from "./keep-hyphenated";
 
 function Badges({ badges }: { badges?: Badge[] }) {
   if (!badges?.length) return null;
@@ -70,9 +71,11 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
       <div className="dish-body flex flex-col gap-2 p-4 lg:gap-3 lg:p-5">
         <div className="dish-head flex items-baseline justify-between gap-4">
           <h3 className="font-display text-lg font-medium sm:text-xl lg:text-2xl">
-            {/* Nom et espace en un seul nœud de texte : séparés, Chrome
-                perdait l'espace et lisait « Pilonsx3 ». */}
-            {item.detail ? `${item.name} ` : item.name}
+            {/* L'espace reste collé au nom, dans son nœud de texte : séparé,
+                Chrome le perdait et lisait « Pilonsx3 ». Il est insécable, le
+                format part avec le dernier mot (pas seul, en retrait, sur sa
+                ligne) ; un trait d'union ne coupe pas (« Pop- / Corn »). */}
+            {keepHyphenated(item.detail ? `${item.name}\u00a0` : item.name)}
             {item.detail && (
               <span
                 data-detail={item.detail}

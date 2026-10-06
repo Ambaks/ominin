@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
@@ -56,7 +56,24 @@ export async function generateMetadata({
     openGraph: { title, description, images },
     twitter: { card: images ? "summary_large_image" : "summary", title, description, images },
     robots: { index: false, follow: false },
+    ...(restaurant.icons && {
+      icons: {
+        icon: { url: restaurant.icons.tab, sizes: "32x32", type: "image/png" },
+        apple: restaurant.icons.homeScreen,
+      },
+    }),
   };
+}
+
+/** La barre du navigateur aux couleurs de l'établissement, sauf sur la version Ominin. */
+export async function generateViewport({
+  params,
+  searchParams,
+}: PageProps<"/menu/demo/[slug]">): Promise<Viewport> {
+  const { slug } = await params;
+  const { theme } = await searchParams;
+  const themeColor = theme === "ominin" ? undefined : getRestaurant(slug)?.themeColor;
+  return themeColor ? { themeColor } : {};
 }
 
 export default async function MenuPreviewPage({
@@ -84,6 +101,7 @@ export default async function MenuPreviewPage({
         orderingEnabled: true,
         serviceMode: fastFood ? "fast_food" : "restaurant",
         restaurantName: restaurant.name,
+        estimatorLive: restaurant.estimatorLive,
         // Fast food : le choix du règlement fait partie de ce qu'on montre.
         onlinePayment: fastFood,
         paymentProvider: "stripe",
@@ -93,6 +111,7 @@ export default async function MenuPreviewPage({
     >
       <div
         data-menu-root
+        data-slug={slug}
         data-service={fastFood ? "fast-food" : undefined}
         className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >

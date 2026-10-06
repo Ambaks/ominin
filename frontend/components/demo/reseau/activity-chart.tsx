@@ -1,7 +1,7 @@
 import { formatHour, formatInteger } from "@/lib/demo/reseau/format";
 
 /** Le point « maintenant » : un anneau net, jamais un halo teinté (olive à l'image). */
-export const NOW_DOT = "rounded-full bg-ember-2 shadow-[0_0_0_2px_var(--surface),0_0_0_3.5px_var(--ember-2)]";
+const NOW_DOT = "rounded-full bg-ember-2 shadow-[0_0_0_2px_var(--surface),0_0_0_3.5px_var(--ember-2)]";
 
 type Point = { at: number; count: number };
 

@@ -1,0 +1,687 @@
+{
+ "restaurant": "Chicken Street",
+ "as_of": "2026-10-06",
+ "sources": {
+  "structure_names_images": "https://www.chickenstreet.fr/la-carte/ (6 sub-pages)",
+  "prices": "https://fastfoodsmenu.com/prix-menu-chicken-street-france/ (third-party, 2026-03-08). The official site shows NO prices and NO descriptions. Prices are delivery-platform-like and vary by franchisee.",
+  "options": "allergen sheet PDF 2026-08",
+  "current_range": "allergen sheet PDF 2026-08"
+ },
+ "categories": [
+  {
+   "category": "Naans",
+   "source": "https://www.chickenstreet.fr/nos-naans/",
+   "items": [
+    {
+     "name": "Naan Farmer",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/farmer-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/farmer_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Mix",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-mix-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/naan_mix_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Curry",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-curry-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/NAAN_CURRY_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Tenders Steak",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-tendersteak-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/naan_tendersteak_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (listed as \"Naan Tenders Steak Burger\")"
+    },
+    {
+     "name": "Naan Tenders",
+     "description": null,
+     "price_eur": 7.5,
+     "image_file": "assets/products/naan-tenders.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/NAAN_TENDERS.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Supreme",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/supreme-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/supreme_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Thaï",
+     "description": null,
+     "price_eur": 7.5,
+     "image_file": "assets/products/naan-thai-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/NAAN_Thai_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Steak",
+     "description": null,
+     "price_eur": 7.5,
+     "image_file": "assets/products/naan-steak-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/naan_steak_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Radikal",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/radikal-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/radikal_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location; allergen sheet 2026-08 says \"Suspendu momentanément\""
+    },
+    {
+     "name": "Naan Tikka",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-tikka.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/NAAN_TIKKA.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Naan Imperial",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-imperial-800x600.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/naan_imperial_800x600.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    }
+   ]
+  },
+  {
+   "category": "Fried Chicken",
+   "source": "https://www.chickenstreet.fr/fried-chicken/",
+   "items": [
+    {
+     "name": "Family Spicy",
+     "description": "33 wings",
+     "price_eur": 29.9,
+     "image_file": "assets/products/chicken-street-bucket-spicy-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/Chicken_Street_bucket_spicy_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Tenders 5 pièces",
+     "description": "5 pièces",
+     "price_eur": 7.5,
+     "image_file": "assets/products/tenders-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/Tenders_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Tenders N Cheese",
+     "description": null,
+     "price_eur": 5.5,
+     "image_file": "assets/products/tenders-cheese-300x300-v2.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/tenders_cheese_300x300_v2.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (6.95 for the bacon version)"
+    },
+    {
+     "name": "Family Mix",
+     "description": "10 tenders, 15 wings",
+     "price_eur": 29.9,
+     "image_file": "assets/products/chicken-street-bucket-mix-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/Chicken_Street_bucket_mix_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Wings 6 pièces",
+     "description": "6 pièces",
+     "price_eur": 6.5,
+     "image_file": "assets/products/wings-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/wings_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Family Tenders",
+     "description": "20 tenders",
+     "price_eur": 29.9,
+     "image_file": "assets/products/chicken-street-bucket-tenders-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/Chicken_Street_bucket_tenders_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Wings 10 pièces",
+     "description": "10 pièces",
+     "price_eur": 9.5,
+     "image_file": "assets/products/wings-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/wings_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location",
+     "note": "same photo as Wings 6"
+    }
+   ]
+  },
+  {
+   "category": "Burgers & Wraps",
+   "source": "https://www.chickenstreet.fr/burgers-wraps/",
+   "items": [
+    {
+     "name": "Burger Naan Dynamite",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-burger-dynamite-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2024/04/NAAN-BURGER_DYNAMITE_300X300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Street B",
+     "description": null,
+     "price_eur": 6.5,
+     "image_file": "assets/products/street-b-chicken-street-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/street_B_chicken_street_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Twister",
+     "description": null,
+     "price_eur": null,
+     "image_file": "assets/products/twister-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/twister_300x300.png",
+     "options": [],
+     "price_note": "not found in any source (aggregator has \"Wrap Tender\" 6.00 - unclear if same)"
+    },
+    {
+     "name": "Burger Naan Onion Rings Bacon",
+     "description": null,
+     "price_eur": 8.5,
+     "image_file": "assets/products/naan-burger-onion-rings-bacon-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2024/04/NAAN-BURGER_onion_rings_bacon_300X300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (listed as \"Burger Naan Bacon & Onion\")"
+    },
+    {
+     "name": "Tower",
+     "description": null,
+     "price_eur": null,
+     "image_file": "assets/products/tower-burger-chicken-street-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/tower_burger_chicken_street_300x300.png",
+     "options": [],
+     "price_note": "only seen as \"Menu Tower + 1 Cheese\" 12.90 (menu, not burger alone)"
+    },
+    {
+     "name": "Monster",
+     "description": null,
+     "price_eur": 6.5,
+     "image_file": "assets/products/monster-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/monster_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (listed as \"Wrap Monster\")"
+    },
+    {
+     "name": "Twice",
+     "description": null,
+     "price_eur": 6.5,
+     "image_file": "assets/products/twice-burger-chicken-street-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/twice_burger_chicken_street_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Double Cheese",
+     "description": null,
+     "price_eur": 4.95,
+     "image_file": "assets/products/double-cheese-burger-chicken-street-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/double_cheese_burger_chicken_street_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    }
+   ]
+  },
+  {
+   "category": "P'tits plaisirs",
+   "source": "https://www.chickenstreet.fr/ptits-plaisirs/",
+   "items": [
+    {
+     "name": "Cheese",
+     "description": null,
+     "price_eur": 3.5,
+     "image_file": "assets/products/cheese-300x300-v2.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/cheese_300x300_V2.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Nuggets 4 pièces",
+     "description": null,
+     "price_eur": 3.5,
+     "image_file": "assets/products/nuggets-4-pieces-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/nuggets_4_pieces_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Box Mix 16 pièces",
+     "description": null,
+     "price_eur": 11.9,
+     "image_file": "assets/products/box-mix-16-pieces-v2.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2023/11/box_mix_16-PIECES_V2.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (listed as \"Boîte à partager Mix 16 pièces\")"
+    },
+    {
+     "name": "Tenders 3 pièces",
+     "description": null,
+     "price_eur": 4.5,
+     "image_file": "assets/products/tenders-3-pieces-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/tenders_3_pieces_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Box Mix Solo",
+     "description": null,
+     "price_eur": 4.9,
+     "image_file": "assets/products/box-mix-solo-v2.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2023/11/box_mix_solo_V2.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Wings 3 pièces",
+     "description": null,
+     "price_eur": 3.5,
+     "image_file": "assets/products/wings-3-pieces-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/wings_3_pieces_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Box Onion Rings",
+     "description": null,
+     "price_eur": 2.95,
+     "image_file": "assets/products/box-onions-rings-v2.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2023/11/box_onions_rings_v2.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    }
+   ]
+  },
+  {
+   "category": "Menus enfant",
+   "source": "https://www.chickenstreet.fr/menus-enfant/",
+   "items": [
+    {
+     "name": "Menu Enfant Nuggets",
+     "description": null,
+     "price_eur": 5.5,
+     "image_file": "assets/products/menu-enfant-nuggets-chicken-street.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/MENU_ENFANT_nuggets_chicken_street.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Menu Enfant Cheese",
+     "description": null,
+     "price_eur": 5.5,
+     "image_file": "assets/products/menu-enfant-cheese-chicken-street.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2021/12/MENU_ENFANT_CHEESE_chicken_street.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    }
+   ]
+  },
+  {
+   "category": "Desserts",
+   "source": "https://www.chickenstreet.fr/nos-desserts/",
+   "items": [
+    {
+     "name": "Ice Mix",
+     "description": null,
+     "price_eur": 3.95,
+     "image_file": "assets/products/ice-mix-300x300-1.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/ice_mix_300x300-1.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Tiramisu",
+     "description": null,
+     "price_eur": 3.5,
+     "image_file": "assets/products/tiramisu-chicken-street-1.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/06/tiramisu_chicken_street-1.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location (several flavours at 3.50: Nutella, Kinder Bueno, Daim, Oreo, Fraise)"
+    },
+    {
+     "name": "Donut Speculoos",
+     "description": null,
+     "price_eur": null,
+     "image_file": "assets/products/donut-speculoos-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/donut_speculoos_300x300.png",
+     "options": [],
+     "price_note": "not found in any source (absent from 2026-08 allergen sheet: \"Donut sucré\" instead)"
+    },
+    {
+     "name": "Ice Street",
+     "description": null,
+     "price_eur": 3.5,
+     "image_file": "assets/products/ice-street-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/ice_street_300x300.png",
+     "options": [],
+     "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+    },
+    {
+     "name": "Cookie Nutella",
+     "description": null,
+     "price_eur": null,
+     "image_file": "assets/products/cookies-300x300.png",
+     "image_url": "https://www.chickenstreet.fr/wp-content/uploads/2022/02/cookies_300x300.png",
+     "options": [],
+     "price_note": "not found in any source"
+    }
+   ]
+  }
+ ],
+ "not_on_website": {
+  "note": "Items on the current range (allergen sheet 2026-08 https://www.chickenstreet.fr/wp-content/uploads/2026/09/ALLERGENE-27-08-2026.pdf and/or aggregator) but NOT on the website menu pages. The website carte is stale (photos from 2021-2024). No photos available.",
+  "items": [
+   {
+    "name": "Ritchie Box Wrap Monster",
+    "price_eur": 10.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Ritchie Box Naan Tenders",
+    "price_eur": 10.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Naan Burger Fury",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Naan Dynamite",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Burger Naan Chèvre Miel",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Burger Naan BBQ Épicé",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Burger Dynamite",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Wrap Tender",
+    "price_eur": 6.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Wrap Sweet Thaï",
+    "price_eur": null,
+    "price_note": "not found in any source"
+   },
+   {
+    "name": "G-Street",
+    "price_eur": 5.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Big Street",
+    "price_eur": 6.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Little Tender",
+    "price_eur": 3.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Little Tender BBQ",
+    "price_eur": 3.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Little Dynamite",
+    "price_eur": 3.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Enfant Little Tenders",
+    "price_eur": 5.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Nuggets x10",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Nuggets x6",
+    "price_eur": 6.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Tenders x10",
+    "price_eur": 15.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Tenders Dynamite",
+    "price_eur": 6.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Tenders'n'Cheese Bacon",
+    "price_eur": 6.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Box Stick Mozza x3",
+    "price_eur": 3.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Box Chili Cheese Nuggets x4",
+    "price_eur": 3.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Bowl Dynamite",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Bowl Cheddar Bacon",
+    "price_eur": 8.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Chicken Cheese Mayo",
+    "price_eur": 3.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Chicken Cheese BBQ",
+    "price_eur": 3.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Chicken Cheese",
+    "price_eur": 10.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Naan Tender + 3 Wings",
+    "price_eur": 12.9,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Tower + 1 Cheese",
+    "price_eur": 12.9,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Double Cheese + 3 Tenders",
+    "price_eur": 12.9,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Menu Monster + 4 Nuggets",
+    "price_eur": 12.9,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Street Fries",
+    "price_eur": 3.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Frites",
+    "price_eur": 2.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Frites Cheddar Crispy Cajun",
+    "price_eur": 3.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Frite Bacon de Boeuf",
+    "price_eur": 4.95,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Salade Caesar",
+    "price_eur": 8.0,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Pain Naan",
+    "price_eur": 2.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Beignet Choc de Dubaï",
+    "price_eur": 4.9,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Chick'n Cream",
+    "price_eur": 5.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   },
+   {
+    "name": "Tarte au Daim",
+    "price_eur": 2.5,
+    "price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location"
+   }
+  ]
+ },
+ "options": {
+  "sauces": [
+   "Monster",
+   "Moutarde Dijon",
+   "Poivre",
+   "Sauce salade",
+   "Samouraï",
+   "Algérienne",
+   "Ketchup",
+   "Mayonnaise",
+   "BBQ (suspendue momentanément)",
+   "BBQ épicée (suspendue momentanément)",
+   "Blanche",
+   "Dynamite",
+   "Cheddar",
+   "Sweet Thaï",
+   "Sauce pesto",
+   "Sauce crème de tomate"
+  ],
+  "sauce_price_eur": 0.2,
+  "sauce_price_note": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location",
+  "supplements": [
+   "Cheddar tranche",
+   "Oeuf",
+   "Boursin",
+   "Rondelle de volaille",
+   "Steak haché",
+   "Galette de pomme de terre",
+   "Pavé au poivre",
+   "Jambon de dinde"
+  ],
+  "dessert_nappages": [
+   "Caramel salé",
+   "Chocolat",
+   "Noisette",
+   "Nutella",
+   "Fruit rouge",
+   "Chocolat blanc"
+  ],
+  "brisures_toppings": [
+   "Nestlé Granola",
+   "Speculoos",
+   "Daim",
+   "M&Ms",
+   "Oreo"
+  ],
+  "source": "https://www.chickenstreet.fr/wp-content/uploads/2026/09/ALLERGENE-27-08-2026.pdf (names only; supplement prices not found)"
+ },
+ "drinks": {
+  "brands_listed_by_aggregator": [
+   "Coca-Cola (Cherry, Vanille, Zero)",
+   "Sprite",
+   "Fanta Orange",
+   "Fuze Tea",
+   "Oasis",
+   "Orangina",
+   "Schweppes",
+   "Perrier",
+   "Cristaline"
+  ],
+  "prices_eur": {
+   "33cl standard": 2.2,
+   "Coca Cherry/Vanille 33cl": 2.5,
+   "Fuze Tea 50cl": 2.7,
+   "Oasis Pomme Poire 33cl": 1.8,
+   "Cristaline 50cl": 1.5,
+   "Coca-Cola 1L / Zero 1L": 3.95,
+   "Orangina 1.5L": 3.95,
+   "Oasis Tropical 2L": 3.95
+  },
+  "source": "third-party aggregator fastfoodsmenu.com (2026-03-08), prices vary by location",
+  "tag": "[unverified] - confirm on a menu board/receipt"
+ }
+}

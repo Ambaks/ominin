@@ -6,14 +6,13 @@ import * as api from "@/lib/gestion/api";
 import {
   COUNTER_WAIT_LATE_MINUTES,
   COUNTER_WAIT_WARN_MINUTES,
-  WAIT_TICK_MS,
 } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import { can } from "@/lib/gestion/permissions";
 import { earlierNumberingDay } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
-import { formatWait, minutesSince, useNow } from "@/lib/gestion/use-now";
+import { formatWait, minutesSince } from "@/lib/gestion/use-now";
 import { formatPrice } from "@/lib/menu-data";
 
 /*
@@ -33,11 +32,16 @@ import { formatPrice } from "@/lib/menu-data";
  */
 export function CounterCard({
   order,
+  now,
   resetHour,
   readOnly = false,
   setStatus = api.updateOrderStatus,
 }: {
   order: Order;
+  /** L'heure de la page : une seule horloge pour toutes les cartes (et le
+   *  résumé de la file), sinon deux commandes du même âge passaient « en
+   *  retard » à des moments différents. */
+  now: Date;
   /** Heure où les numéros repartent de 1 ; inconnue, pas de jour affiché. */
   resetHour: number | null;
   /** Vue cuisine : la file du comptoir, sans ses gestes. */
@@ -48,7 +52,6 @@ export function CounterCard({
   const { role } = useGestionAccess();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  const now = useNow(WAIT_TICK_MS);
   const ready = order.status === "prete";
   const waited = minutesSince(order.createdAt, now);
   // En préparation seulement : une commande prête n'a pas l'heure où elle l'est devenue.
@@ -178,9 +181,14 @@ export function CounterCard({
               </p>
               {line.options?.map((option, index) => (
                 <p key={index} className="text-sm text-muted">
-                  {option.groupName} :{" "}
-                  <span className="text-foreground">{option.choiceName}</span>
-                  {option.supplement > 0 && ` (+${formatPrice(option.supplement)})`}
+                  {option.groupName}
+                  {"\u00a0: "}
+                  {/* Le choix et son supplément d'un bloc : passé à la ligne entier, pas
+                      coupé au milieu (« Frites / épicées »), le supplément jamais seul. */}
+                  <span className="inline-block max-w-full">
+                    <span className="text-foreground">{option.choiceName}</span>
+                    {option.supplement > 0 && `\u00a0(+${formatPrice(option.supplement)})`}
+                  </span>
                 </p>
               ))}
             </div>

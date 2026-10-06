@@ -36,6 +36,8 @@ interface Ticket {
 }
 
 interface Service {
+  /** Le restaurant que montre l'écran, quand la carte est celle de tout un réseau. */
+  site?: string;
   /** Le service jusqu'ici, numéros consécutifs : remises, prêtes, en préparation. */
   tickets: Ticket[];
   /**
@@ -86,10 +88,50 @@ const SERVICES: Record<string, Service> = {
     cadenceS: [6, 14, 11, 18, 9, 15, 21, 12],
     maxOpen: 14,
   },
+  "chicken-street": {
+    site: "Paris Gare de l’Est",
+    tickets: [
+      { number: 33, minutesAgo: 41, status: "servie", lines: [["Menu Naan Mix", 1, "Frites", "Coca-Cola", "Sauce Algérienne"]] },
+      { number: 34, minutesAgo: 37, status: "servie", lines: [["Family Tenders", 1, "Sauce Blanche"], ["Soda 33\u00a0cl", 2, "Coca-Cola"]] },
+      { number: 35, minutesAgo: 34, status: "servie", lines: [["Menu Street B", 1, "Frites", "Fanta Orange", "Sauce Samouraï"]] },
+      { number: 36, minutesAgo: 30, status: "servie", lines: [["Naan Tenders Steak", 2, "Sauce Blanche", "Cheddar"], ["Box Onion Rings", 1]] },
+      { number: 37, minutesAgo: 26, status: "servie", lines: [["Menu Burger Naan Dynamite", 1, "Frites", "Sprite", "Sauce Dynamite"]] },
+      { number: 38, minutesAgo: 22, status: "servie", lines: [["Menu Monster", 1, "Onion rings", "Coca-Cola Zero", "Sauce Monster"], ["Menu Enfant Nuggets", 1, "Oasis Tropical"]] },
+      { number: 39, minutesAgo: 17, status: "payee", lines: [["Naan Curry", 1, "Sauce Blanche"], ["Tiramisu", 1]] },
+      { number: 40, minutesAgo: 13, status: "prete", lines: [["Menu Tenders 5\u00a0pièces", 1, "Frites", "Fuze Tea", "Sauce Cheddar"]] },
+      { number: 41, minutesAgo: 11, status: "prete", lines: [["Menu Naan Mix", 2, "Frites", "Coca-Cola", "Sauce Algérienne"]] },
+      { number: 42, minutesAgo: 9, status: "payee", lines: [["Menu Naan Tenders", 1, "Frites", "Coca-Cola Cherry", "Sauce Algérienne", "Sauce Samouraï"], ["Ice Street", 1, "Caramel salé", "Oreo"]] },
+      { number: 43, minutesAgo: 7, status: "payee", lines: [["Box Mix 16\u00a0pièces", 1, "Sauce Dynamite"], ["Soda 33\u00a0cl", 2, "Coca-Cola"]] },
+      { number: 44, minutesAgo: 5, status: "payee", lines: [["Burger Naan Dynamite", 2, "Sauce Dynamite"], ["Box Onion Rings", 1]] },
+      { number: 45, minutesAgo: 4, status: "payee", lines: [["Menu Monster", 1, "Frites", "Sprite", "Sauce Poivre"]] },
+      { number: 46, minutesAgo: 3, status: "payee", lines: [["Naan Radikal", 1, "Sauce Algérienne", "Œuf"], ["Wings 3\u00a0pièces", 1, "Sauce Sweet Thaï"]] },
+      { number: 47, minutesAgo: 2, status: "payee", lines: [["Family Mix", 1, "Sauce Blanche"]] },
+      { number: 48, minutesAgo: 1, status: "payee", lines: [["Menu Naan Tenders", 1, "Frites", "Coca-Cola", "Sauce Blanche"], ["Ice Mix", 1, "Nutella", "Speculoos"]] },
+    ],
+    openAtStart: 5,
+    arrivals: [
+      [["Menu Street B", 1, "Frites", "Coca-Cola", "Sauce Algérienne"]],
+      [["Naan Supreme", 1, "Sauce Blanche"], ["Tenders 3\u00a0pièces", 1, "Sauce Cheddar"]],
+      [["Menu Tenders 5\u00a0pièces", 2, "Frites", "Coca-Cola Cherry", "Sauce Samouraï"]],
+      [["Family Spicy", 1, "Sauce Dynamite"], ["Soda 33\u00a0cl", 3, "Fanta Orange"]],
+      [["Menu Naan Mix", 1, "Onion rings", "Fuze Tea", "Sauce Blanche"], ["Menu Enfant Cheese", 1, "Oasis Tropical"]],
+      [["Twice", 1, "Sauce Ketchup"], ["Box Mix Solo", 1, "Sauce Algérienne"]],
+      [["Menu Burger Naan Dynamite", 1, "Frites", "Sprite", "Sauce Monster"]],
+      [["Naan Thaï", 1, "Sauce Sweet Thaï"], ["Ice Street", 1, "Chocolat", "Daim"]],
+    ],
+    cadenceS: [6, 30, 38, 26, 44, 29, 36, 24],
+    maxOpen: 14,
+  },
 };
 
 export function hasCounterDemo(slug: string): boolean {
   return Object.hasOwn(SERVICES, slug);
+}
+
+/** « Chicken Street · Paris Gare de l’Est » : l'enseigne, et le restaurant s'il est précisé. */
+export function counterTitle(slug: string, name: string): string {
+  const site = SERVICES[slug]?.site;
+  return site ? `${name} · ${site}` : name;
 }
 
 const sameLabel = (a: string, b: string) =>
@@ -124,7 +166,8 @@ function orderLine(
   return {
     id,
     itemId: item.id,
-    name: item.name,
+    // Le nom du ticket client : « Tenders x4 », pas « 2× Tenders ».
+    name: item.detail ? `${item.name} ${item.detail}` : item.name,
     quantity,
     // Convention de place_order : suppléments inclus dans unitPrice.
     unitPrice: options.reduce((sum, option) => sum + option.supplement, item.price),

@@ -7,8 +7,9 @@ import {
   formatBasket,
   formatCents,
   formatClock,
-  formatHour,
+  formatHourInText,
   formatInteger,
+  formatMinutes,
   formatPercent,
   formatEuroAmount,
   WEEKDAYS,
@@ -21,7 +22,7 @@ import { Joined } from "./joined";
 const GROUPS: { status: QueueStatus; title: string }[] = [
   { status: "en_preparation", title: "Commandes QR en préparation" },
   { status: "prete", title: "Prêtes, en attente du client" },
-  { status: "a_regler", title: "À régler en caisse" },
+  { status: "a_regler", title: "À régler au comptoir" },
 ];
 
 /** Un restaurant ouvert depuis la carte, le fil ou le classement : sa file, en direct. */
@@ -56,6 +57,13 @@ export function RestaurantPanel({
   const share = snapshot.orders ? snapshot.orders / (snapshot.orders + snapshot.walkIns) : 0;
   const bucket = display.bucketMinutes * 60;
   const orders = sim.restaurants[snapshot.index].orders;
+  const kiosks = fixture.simulation.withoutQr === "bornes";
+  const qrCooking = queue.filter((entry) => entry.status === "en_preparation").length;
+  // Aux bornes, ce qui attend au comptoir : les commandes prêtes et le temps qu'elles y restent.
+  const handed = orders.filter((order) => order.pickedAt <= seconds);
+  const handoff = handed.length
+    ? handed.reduce((sum, order) => sum + order.pickedAt - order.readyAt, 0) / handed.length / 60
+    : null;
   // Sa courbe suit ses propres horaires du jour, sinon ceux du réseau.
   const hours = sim.restaurants[snapshot.index].hours;
   const own = hours ? { start: Math.floor(hours.open / 60) * 3600, end: Math.ceil(hours.close / 60) * 3600 } : range;
@@ -89,12 +97,12 @@ export function RestaurantPanel({
   }, [onClose]);
 
   const status = snapshot.open
-    ? `${snapshot.rush ? "En rush · ouvert" : "Ouvert"} jusqu’à ${formatHour(snapshot.hours!.close)}`
+    ? `${snapshot.rush ? "En rush · ouvert" : "Ouvert"} jusqu’à ${formatHourInText(snapshot.hours!.close)}`
     : snapshot.hours
       ? seconds < snapshot.hours.open * 60
-        ? `Fermé · ouvre à ${formatHour(snapshot.hours.open)}`
-        : `Fermé depuis ${formatHour(snapshot.hours.close)}`
-      : "Fermé";
+        ? `Fermé · ouvre à ${formatHourInText(snapshot.hours.open)}`
+        : `Fermé depuis ${formatHourInText(snapshot.hours.close)}`
+      : "Pas encore ouvert";
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -140,7 +148,7 @@ export function RestaurantPanel({
             {
               label: "Commandes QR",
               value: formatInteger(snapshot.orders),
-              // Sans QR, le client passe en caisse : Ominin ne le voit pas, d'où « ≈ ».
+              // Sans QR, le client passe en caisse ou aux bornes : Ominin ne le voit pas, d'où « ≈ ».
               note: snapshot.orders ? (
                 <Joined parts={[`part QR ≈\u00a0${formatPercent(share)}`, `réseau ${formatPercent(networkShare)}`]} />
               ) : (
@@ -154,7 +162,8 @@ export function RestaurantPanel({
               note: (
                 <Joined
                   parts={[
-                    `${rank}${rank === 1 ? "er" : "e"} du réseau`,
+                    // Sans vente encore, pas de rang : l'égalité à 0 € ne classe personne.
+                    !snapshot.hours ? "pas encore ouvert" : snapshot.revenue ? `${rank}${rank === 1 ? "er" : "e"} du réseau` : "aucune vente encore",
                     ...(snapshot.orders ? [`panier ${formatCents(ticket)}`] : []),
                   ]}
                 />
@@ -164,16 +173,23 @@ export function RestaurantPanel({
               label: "Délai annoncé",
               value: snapshot.waitNow == null ? "—" : formatInteger(Math.round(snapshot.waitNow)),
               unit: snapshot.waitNow == null ? undefined : "min",
-              note: `≈\u00a0${formatInteger(snapshot.kitchen.total)} en cuisine, dont ${formatInteger(snapshot.kitchen.qr)} QR`,
+              // Les commandes QR comptées comme la liste ci-dessous ; les autres, estimées au passe.
+              note: `≈\u00a0${formatInteger(snapshot.kitchen.total - snapshot.kitchen.qr + qrCooking)} en cuisine, dont ${formatInteger(qrCooking)} QR`,
               accent: snapshot.rush,
             },
-            {
-              label: "File en caisse",
-              value: formatInteger(snapshot.tillLine),
-              unit: "pers.",
-              approx: true,
-              note: `sans QR : ≈\u00a0${formatInteger(snapshot.tillLineWithoutQr)}`,
-            },
+            kiosks
+              ? {
+                  label: "Prêtes, en attente",
+                  value: formatInteger(snapshot.queue.prete),
+                  note: handoff == null ? "Aucune remise encore" : `remises en ${formatMinutes(handoff)} en moyenne`,
+                }
+              : {
+                  label: "File en caisse",
+                  value: formatInteger(snapshot.tillLine),
+                  unit: "pers.",
+                  approx: true,
+                  note: `sans QR : ≈\u00a0${formatInteger(snapshot.tillLineWithoutQr)}`,
+                },
           ].map((stat) => (
             <div key={stat.label} className="bg-surface px-5 py-2">
               <dt className="text-[0.6875rem] font-medium uppercase tracking-wider text-faint">{stat.label}</dt>
@@ -257,7 +273,7 @@ export function RestaurantPanel({
                             {/* Réglée en caisse, elle n'est partie en cuisine qu'après. */}
                             {!order.online && order.paidAt <= seconds && (
                               <span className="ml-2 whitespace-nowrap rounded bg-foreground/[0.08] px-1.5 py-px text-xs text-foreground/85">
-                                {`réglée en caisse à ${formatClock(order.paidAt)}`}
+                                {`réglée au comptoir à ${formatClock(order.paidAt)}`}
                               </span>
                             )}
                           </span>
@@ -292,7 +308,6 @@ export function RestaurantPanel({
               </section>
             );
           })}
-
         </div>
       </div>
     </div>

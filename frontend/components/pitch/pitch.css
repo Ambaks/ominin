@@ -1,27 +1,15 @@
 /*
-  Pitch O'Crousti Poulet (page privée et présentation) : l'identité de
-  l'enseigne — noir d'enseigne, jaune du logo posé à plat, or et citron en
-  rampe — et les marques partagées. Tout est rangé sous .pitch : rien ne
-  déborde sur le reste du site.
+  Pitch aux réseaux (page privée et présentation) : la mise en page et les
+  marques partagées, sur les couleurs de l'enseigne — ses jetons --pitch-*,
+  posés par sa feuille (components/pitch/brands/<slug>.css) sur
+  .pitch-<slug>. La mise en page est rangée sous .pitch ; les classes de
+  marque (.font-numeral, .flourish, .eyebrow, .mark) restent globales : la
+  feuille n'est chargée que par les pages pitch.
 */
 .pitch {
-  --ocp-black: #131416;
-  --ocp-surface: #1c1d20;
-  --ocp-raised: #26282c;
-  --ocp-yellow: #f7ee21;
-  --ocp-gold: #f2cc12;
-  --ocp-lemon: #fff35c;
-  --ocp-white: #f7f7f2;
-  /* Gris du thème de la carte, éclaircis : projetés, ceux-là se perdaient. */
-  --ocp-muted: #c0c2c6;
-  --ocp-faint: #9d9fa4;
-  --ocp-line: rgba(247, 247, 242, 0.12);
-  /* Le noir des bords du film : ses bandes se fondent dans l'écran. */
-  --ocp-film: #0f0f11;
-
-  background-color: var(--ocp-black);
-  color: var(--ocp-white);
-  font-family: var(--font-pitch-poppins), var(--font-instrument-sans), sans-serif;
+  background-color: var(--pitch-ground);
+  color: var(--pitch-ink);
+  font-family: var(--font-pitch-text), var(--font-instrument-sans), sans-serif;
   color-scheme: dark;
 }
 
@@ -34,28 +22,28 @@
 }
 
 .pitch ::selection {
-  background: var(--ocp-yellow);
-  color: var(--ocp-black);
+  background: var(--pitch-accent);
+  color: var(--pitch-on-accent);
 }
 
 .pitch :focus-visible {
-  outline: 2px solid var(--ocp-yellow);
+  outline: 2px solid var(--pitch-accent);
   outline-offset: 3px;
 }
 
-.font-anton {
-  font-family: var(--font-pitch-anton), sans-serif;
+.font-numeral {
+  font-family: var(--font-pitch-numeral), sans-serif;
   font-weight: 400;
 }
 
-/* Le script des titres du panneau-menu, allumé comme un néon. */
-.font-neon {
-  font-family: var(--font-pitch-playball), cursive;
+/* La touche manuscrite de l'enseigne, allumée comme un néon. */
+.flourish {
+  font-family: var(--font-pitch-flourish), cursive;
   font-weight: 400;
-  color: var(--ocp-lemon);
+  color: var(--pitch-accent-light);
   text-shadow:
-    0 0 0.08em rgba(255, 243, 92, 0.9),
-    0 0 0.45em rgba(247, 238, 33, 0.45);
+    0 0 0.08em color-mix(in srgb, var(--pitch-accent-light) 90%, transparent),
+    0 0 0.45em color-mix(in srgb, var(--pitch-accent) 45%, transparent);
 }
 
 .eyebrow {
@@ -72,16 +60,16 @@
   width: 0.55em;
   height: 0.55em;
   border-radius: 999px;
-  background: var(--ocp-yellow);
-  box-shadow: 0 0 0.6em rgba(247, 238, 33, 0.6);
+  background: var(--pitch-accent);
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--pitch-accent) 60%, transparent);
 }
 
-/* Le mot en aplat jaune, comme sur les écrans-menus. L'aplat couvre les
+/* Le mot en aplat d'accent, comme sur les écrans-menus. L'aplat couvre les
    lettres, pas toute la boîte de la police (1,4 em chez Poppins) : sur des
    titres serrés, il mordait sur la ligne du dessus. */
 .mark {
-  background: linear-gradient(var(--ocp-yellow), var(--ocp-yellow)) 0 85% / 100% 1.2em no-repeat;
-  color: var(--ocp-black);
+  background: linear-gradient(var(--pitch-accent), var(--pitch-accent)) 0 85% / 100% 1.2em no-repeat;
+  color: var(--pitch-on-accent);
   padding: 0 0.12em;
   margin: 0 -0.03em;
   box-decoration-break: clone;
@@ -97,63 +85,8 @@
 /* La lumière chaude de la vitrine, et les bords qui s'assombrissent. */
 .pitch-vignette {
   background:
-    radial-gradient(60% 55% at 50% 38%, rgba(247, 238, 33, 0.055), transparent 70%),
+    radial-gradient(60% 55% at 50% 38%, color-mix(in srgb, var(--pitch-accent) 5.5%, transparent), transparent 70%),
     radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55));
-}
-
-/* ——— Le verrou de l'enseigne ——————————————————————————————— */
-
-.ocp-lockup-coq {
-  width: auto;
-  translate: -0.935em 0;
-  margin-bottom: -0.1em;
-}
-
-.ocp-lockup-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "name name" "rule tag";
-  align-items: center;
-  gap: 0.075em 0.094em;
-}
-
-.ocp-lockup-name {
-  grid-area: name;
-  display: flex;
-  column-gap: 0.21em;
-  font-family: var(--font-pitch-didact), sans-serif;
-  line-height: 0.98;
-  letter-spacing: -0.015em;
-  white-space: nowrap;
-  color: #fff;
-  -webkit-text-stroke: 0.03em currentColor;
-  paint-order: stroke fill;
-  text-shadow: 0 0 0.45em rgba(255, 255, 255, 0.16);
-}
-
-.ocp-lit {
-  color: var(--ocp-yellow);
-  text-shadow: 0 0 0.45em rgba(247, 238, 33, 0.3);
-}
-
-.ocp-lockup-rule {
-  grid-area: rule;
-  align-self: end;
-  height: 0.12em;
-  margin-bottom: 0.054em;
-  border-radius: 0.02em;
-  background: var(--ocp-yellow);
-  box-shadow: 0 0 0.11em rgba(247, 238, 33, 0.4);
-}
-
-.ocp-lockup-tag {
-  grid-area: tag;
-  font-family: var(--font-pitch-poppins), sans-serif;
-  font-weight: 800;
-  font-size: 0.3em;
-  letter-spacing: 0.03em;
-  line-height: 1;
-  color: #fff;
 }
 
 .om-wordmark {
@@ -170,19 +103,19 @@
 
 /* ——— Le ticket ——————————————————————————————————————————— */
 
-.ocp-ticket {
-  --notch: var(--ocp-black);
+.pitch-ticket {
+  --notch: var(--pitch-ground);
   width: 8.6em;
   padding: 0.62em 0.7em 0.55em;
   border-radius: 0.34em;
-  background: linear-gradient(165deg, var(--ocp-lemon), var(--ocp-yellow) 42%, var(--ocp-gold));
-  color: var(--ocp-black);
+  background: linear-gradient(165deg, var(--pitch-accent-light), var(--pitch-accent) 42%, var(--pitch-accent-deep));
+  color: var(--pitch-on-accent);
   box-shadow:
     0 0.5em 1.4em rgba(0, 0, 0, 0.45),
-    0 0 2.2em rgba(247, 238, 33, 0.16);
+    0 0 2.2em color-mix(in srgb, var(--pitch-accent) 16%, transparent);
 }
 
-.ocp-ticket-label {
+.pitch-ticket-label {
   text-align: center;
   font-size: 0.25em;
   font-weight: 800;
@@ -191,32 +124,32 @@
   opacity: 0.72;
 }
 
-.ocp-ticket-number {
+.pitch-ticket-number {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   gap: 0.06em;
-  font-family: var(--font-pitch-anton), sans-serif;
+  font-family: var(--font-pitch-numeral), sans-serif;
   font-size: 4.2em;
   line-height: 1;
   margin-top: 0.04em;
 }
 
-.ocp-ticket-no {
-  font-family: var(--font-pitch-poppins), sans-serif;
+.pitch-ticket-no {
+  font-family: var(--font-pitch-text), sans-serif;
   font-weight: 800;
   font-size: 0.2em;
   margin-top: 0.55em;
 }
 
-.ocp-ticket-tear {
+.pitch-ticket-tear {
   position: relative;
   margin: 0.34em -0.7em 0.4em;
-  border-top: 0.035em dashed rgba(19, 20, 22, 0.35);
+  border-top: 0.035em dashed color-mix(in srgb, var(--pitch-on-accent) 35%, transparent);
 }
 
-.ocp-ticket-tear::before,
-.ocp-ticket-tear::after {
+.pitch-ticket-tear::before,
+.pitch-ticket-tear::after {
   content: "";
   position: absolute;
   top: -0.2em;
@@ -226,15 +159,15 @@
   background: var(--notch);
 }
 
-.ocp-ticket-tear::before {
+.pitch-ticket-tear::before {
   left: -0.18em;
 }
 
-.ocp-ticket-tear::after {
+.pitch-ticket-tear::after {
   right: -0.18em;
 }
 
-.ocp-ticket-foot {
+.pitch-ticket-foot {
   display: flex;
   align-items: center;
   gap: 0.35em;
@@ -243,16 +176,15 @@
   line-height: 1.25;
 }
 
-.ocp-ticket-foot svg {
+.pitch-ticket-foot svg {
   height: 2.6em;
   width: auto;
 }
 
-.ocp-ticket-brand {
+.pitch-ticket-brand {
   display: block;
-  font-family: var(--font-pitch-didact), sans-serif;
+  font-family: var(--font-pitch-wordmark), sans-serif;
   font-size: 1.45em;
-  -webkit-text-stroke: 0.02em currentColor;
 }
 
 /* ——— Appareils ——————————————————————————————————————————— */
@@ -270,7 +202,7 @@
   position: relative;
   overflow: hidden;
   border-radius: 10.5% / 4.9%;
-  background: var(--ocp-black);
+  background: var(--pitch-ground);
 }
 
 .device-phone-camera {
@@ -334,11 +266,11 @@
 .device-browser-badge {
   flex-shrink: 0;
   padding: 0.25em 0.9em;
-  border: 1px solid rgba(247, 238, 33, 0.45);
+  border: 1px solid color-mix(in srgb, var(--pitch-accent) 45%, transparent);
   border-radius: 999px;
   font-size: 0.75em;
   font-weight: 700;
-  color: var(--ocp-lemon);
+  color: var(--pitch-accent-light);
 }
 
 /* Une capture recadrée au-dessus de son bas : elle s'efface au lieu de
@@ -360,7 +292,7 @@
   background: #0f1012;
   font-size: 0.8em;
   text-align: center;
-  color: var(--ocp-muted);
+  color: var(--pitch-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -368,50 +300,50 @@
 
 /* ——— Le film d'ouverture ———————————————————————————————————————————
    Caché tant que le script en ligne de FilmOpener n'a pas posé
-   html[data-ocp-film] : sans JavaScript, ou à la visite suivante, la page
+   html[data-pitch-film] : sans JavaScript, ou à la visite suivante, la page
    s'affiche seule. Pendant le film, la page ne défile pas. */
-.ocp-opener {
+.pitch-opener {
   display: none;
   touch-action: none;
 }
 
-:root:is([data-ocp-film="intro"], [data-ocp-film="sortie"]) .ocp-opener {
+:root:is([data-pitch-film="intro"], [data-pitch-film="sortie"]) .pitch-opener {
   display: flex;
 }
 
-:root[data-ocp-film="intro"] {
+:root[data-pitch-film="intro"] {
   overflow: hidden;
 }
 
 /* Le film en 16:9 remplit l'écran tant que le recadrage reste léger (12 %
    au plus) ; au-delà — téléphone tenu droit, tablette —, il tient entier. */
 @media (min-aspect-ratio: 14/9) and (max-aspect-ratio: 2/1) {
-  .ocp-opener-wide {
+  .pitch-opener-wide {
     object-fit: cover;
   }
 }
 
 /* Téléphone tenu droit, plus étroit que le 9:16 : le film laisse une bande en
    haut et en bas. Un fondu sur sa lisière l'y fait entrer sans trait. */
-.ocp-opener-feather {
+.pitch-opener-feather {
   display: none;
 }
 
 @media (orientation: portrait) and (max-aspect-ratio: 9/16) {
-  .ocp-opener-feather {
+  .pitch-opener-feather {
     display: block;
     position: absolute;
     inset-inline: 0;
     height: 18vw;
     pointer-events: none;
-    background: linear-gradient(var(--ocp-film) 4px, transparent);
+    background: linear-gradient(var(--pitch-film) 4px, transparent);
   }
 
-  .ocp-opener-feather:first-of-type {
+  .pitch-opener-feather:first-of-type {
     top: calc(50dvh - 88.9vw - 2px);
   }
 
-  .ocp-opener-feather:last-of-type {
+  .pitch-opener-feather:last-of-type {
     bottom: calc(50dvh - 88.9vw - 2px);
     rotate: 180deg;
   }
@@ -419,18 +351,18 @@
 
 /* « Passer » a le focus dès l'ouverture ; son contour attend une première
    touche du clavier (data-clavier), sinon il ferait un second jaune à l'écran. */
-.ocp-opener:not([data-clavier]) :focus-visible {
+.pitch-opener:not([data-clavier]) :focus-visible {
   outline: none;
 }
 
-.ocp-opener[data-leaving] {
+.pitch-opener[data-leaving] {
   opacity: 0;
   pointer-events: none;
   transition: opacity 600ms ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ocp-opener[data-leaving] {
+  .pitch-opener[data-leaving] {
     transition-duration: 120ms;
   }
 }
