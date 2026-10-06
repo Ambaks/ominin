@@ -7,11 +7,14 @@ import type { BrandKit } from "@/components/pitch/brand";
  * rayures des boîtes en filigrane. Les règles sont dans chicken-street.css.
  */
 
-/** « CHICKEN STREET — NAAN & FRIED CHICKEN », le logo du site : un em et demi, sa ligne de base comprise. */
+/**
+ * « CHICKEN STREET — NAAN & FRIED CHICKEN », le logo du site : un em et demi, sa ligne de base comprise.
+ * Taille en style : sans elle (feuille de style en retard), le PNG de 3 164 px s'étalait sur la diapositive.
+ */
 function Lockup({ className = "" }: { className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- logo vectorisé introuvable, PNG du site à sa taille
-    <img src="/chicken-street/logo.png" alt="Chicken Street" width={3164} height={822} className={`h-[1.5em] w-auto shrink-0 ${className}`} />
+    <img src="/chicken-street/logo.png" alt="Chicken Street" width={3164} height={822} style={{ height: "1.5em", width: "auto" }} className={`shrink-0 ${className}`} />
   );
 }
 
