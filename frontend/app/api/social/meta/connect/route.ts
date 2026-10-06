@@ -3,8 +3,8 @@ import {
   META_STATE_COOKIE,
   metaAuthorizeUrl,
   publicBase,
-  requireAdmin,
 } from "@/lib/social/server";
+import { requireAdmin } from "@/lib/admin/server";
 
 /*
  * Départ du flux OAuth Meta : renvoie l'URL d'autorisation, state anti-CSRF

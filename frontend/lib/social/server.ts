@@ -1,5 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
-
 /*
  * Connexion des comptes Meta (route handlers uniquement — secret d'app).
  * Une seule autorisation Facebook couvre toutes les Pages d'Ominin et les
@@ -114,15 +112,4 @@ export function adminUrl(request: Request, path: string): string {
   const prefix =
     publicHost(request) === process.env.NEXT_PUBLIC_ADMIN_HOST ? "" : "/admin";
   return `${publicBase(request)}${prefix}${path}`;
-}
-
-export async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Authentification requise.", status: 401 as const };
-  const { data: isAdmin } = await supabase.rpc("is_admin");
-  if (!isAdmin) return { error: "Réservé à l'admin.", status: 403 as const };
-  return { userId: user.id };
 }
