@@ -1,25 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { StatTile } from "@/components/admin/charts";
+import { AgentsClients } from "@/components/admin/clients/agents";
+import { ClipClients } from "@/components/admin/clients/clip";
+import {
+  ClientsSkeleton,
+  PeriodHeader,
+  usePeriodPair,
+} from "@/components/admin/clients/period";
+import { ShopClients } from "@/components/admin/clients/shop";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PillTabs } from "@/components/ui/pill-tabs";
-import { useToast } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
   CHURN_DROP_RATIO,
   CHURN_MIN_PREVIOUS_SESSIONS,
-  CLIENT_PERIOD_DAYS,
 } from "@/lib/admin/constants";
 import { formatEuros, formatPercent } from "@/lib/admin/format";
 import {
   conversionRate,
   fetchOverview,
-  periodOf,
-  previousPeriod,
   theoreticalCommission,
-  type ClientOverview,
 } from "@/lib/admin/metrics";
 import { OFFRE_LABELS } from "@/lib/gestion/constants";
 
@@ -32,45 +34,19 @@ import { OFFRE_LABELS } from "@/lib/gestion/constants";
  * comparée à celle d'avant, pour appeler le restaurant avant qu'il ne résilie.
  */
 
-interface Overview {
-  rows: ClientOverview[];
-  previous: ClientOverview[];
+/** Une synthèse par offre ; la vue d'ensemble garde celle du menu. */
+export default function ClientsPage() {
+  const { product } = useAdminBasePath();
+  if (product === "shop") return <ShopClients />;
+  if (product === "clip") return <ClipClients />;
+  if (product === "agents") return <AgentsClients />;
+  return <MenuClients />;
 }
 
-const PERIOD_TABS = CLIENT_PERIOD_DAYS.map((days) => ({
-  id: String(days),
-  label: `${days} j`,
-}));
-
-export default function ClientsPage() {
-  const toast = useToast();
+function MenuClients() {
   const { basePath } = useAdminBasePath();
-  const [days, setDays] = useState<number>(CLIENT_PERIOD_DAYS[1]);
-  const [data, setData] = useState<Overview | null>(null);
+  const { days, setDays, data } = usePeriodPair(fetchOverview);
   const rows = data?.rows ?? null;
-
-  const load = useCallback(async (days: number) => {
-    const period = periodOf(days);
-    const [current, previous] = await Promise.all([
-      fetchOverview(period),
-      fetchOverview(previousPeriod(period)),
-    ]);
-    setData({ rows: current, previous });
-  }, []);
-
-  useEffect(() => {
-    // Remise à zéro volontaire : la période a changé, la table repart en
-    // chargement. La suite du setState, elle, suit la réponse réseau.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setData(null);
-    load(days).catch((error) =>
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      )
-    );
-    // toast est stable (contexte).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [load, days]);
 
   const totals = useMemo(() => {
     const active = (rows ?? []).filter(
@@ -103,31 +79,15 @@ export default function ClientsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-medium">Synthèse</h1>
-          <p className="mt-1 text-sm text-muted">
-            Les établissements qui tournent — ce qu&apos;ils encaissent et ce que
-            leur menu convertit.
-          </p>
-        </div>
-        <PillTabs
-          tabs={PERIOD_TABS}
-          activeId={String(days)}
-          onSelect={(id) => setDays(Number(id))}
-        />
-      </div>
+      <PeriodHeader
+        title="Synthèse"
+        subtitle="Les établissements qui tournent — ce qu'ils encaissent et ce que leur menu convertit."
+        days={days}
+        onDays={setDays}
+      />
 
       {rows === null ? (
-        <div aria-busy className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="shimmer h-24 rounded-2xl" />
-            <div className="shimmer h-24 rounded-2xl" />
-            <div className="shimmer h-24 rounded-2xl" />
-            <div className="shimmer h-24 rounded-2xl" />
-          </div>
-          <div className="shimmer h-64 rounded-2xl" />
-        </div>
+        <ClientsSkeleton />
       ) : rows.length === 0 ? (
         <EmptyState
           title="Aucun client"

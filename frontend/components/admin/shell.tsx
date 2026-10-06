@@ -16,7 +16,12 @@ import {
   useAdminBasePath,
 } from "@/lib/admin/base-path";
 import { useProductAdmin } from "@/lib/admin/filters";
-import { PRODUCTS, PRODUCT_LABELS, type Product } from "@/lib/admin/products";
+import {
+  PRODUCTS,
+  PRODUCT_LABELS,
+  prospectsLabel,
+  type Product,
+} from "@/lib/admin/products";
 import { selectTasksDueBadge } from "@/lib/admin/selectors";
 import { SOCIAL_PRODUCTS } from "@/lib/admin/social";
 import { retryLoad, useAdminLoadError } from "@/lib/admin/store";
@@ -39,7 +44,7 @@ import { LeadPanelHost } from "./lead/lead-panel-host";
 interface NavItem {
   /** Chemin local (sans racine ni produit). */
   href: string;
-  label: string;
+  label: string | ((product: Product | null) => string);
   icon: React.ComponentType<IconProps>;
   /** Produits où l'écran a un sens ; absent : tous. */
   products?: readonly Product[];
@@ -58,9 +63,9 @@ interface Section {
 /*
  * Trois questions, trois onglets. Marketing va chercher des restaurants ;
  * Clients regarde ceux qui ont signé ; Projet dit ce qu'on construit, lu
- * depuis GitHub. Le mot « Restaurants » désigne des prospects
- * (crm_restaurants) d'un côté et n'existe pas de l'autre : les clients sont
- * des établissements, jamais des fiches de prospection.
+ * depuis GitHub. L'écran des fiches de prospection (crm_restaurants) prend le
+ * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
+ * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
  * Sous les onglets, la barre produit : la vue d'ensemble montre tout, la vue
  * d'un produit ne garde que les écrans qui le concernent, filtrés sur lui.
@@ -77,7 +82,7 @@ const SECTIONS: Section[] = [
       { href: "/carte", label: "Carte", icon: MapPinIcon },
       {
         href: "/restaurants",
-        label: "Restaurants",
+        label: prospectsLabel,
         icon: StoreIcon,
         subPaths: ["/import"],
       },
@@ -100,14 +105,14 @@ const SECTIONS: Section[] = [
   {
     id: "clients",
     label: "Clients",
-    // Chiffres du menu QR (commandes sur place, visites) : propres à Menu.
-    // Les capacités, elles, s'ouvrent aussi avec Collect.
+    // La synthèse existe par offre (Menu, Shop, Clip, Agents) ; l'activité
+    // suit le menu QR, propre à Menu. Les capacités s'ouvrent aussi avec Collect.
     items: [
       {
         href: "/clients",
         label: "Synthèse",
         icon: ChartIcon,
-        products: ["menu"],
+        products: ["menu", "shop", "clip", "agents"],
       },
       {
         href: "/activite",
@@ -154,6 +159,10 @@ function sectionOf(localPath: string): Section {
         section.items.some((item) => isActive(localPath, item)),
     ) ?? SECTIONS[0]
   );
+}
+
+function labelOf(item: NavItem, product: Product | null): string {
+  return typeof item.label === "string" ? item.label : item.label(product);
 }
 
 function availableIn(item: NavItem, product: Product | null): boolean {
@@ -287,13 +296,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     const fallback = items[0];
     return fallback ? (
       <EmptyState
-        title={`${screen.label} ne concerne pas ${PRODUCT_LABELS[target]}`}
+        title={`${labelOf(screen, product)} ne concerne pas ${PRODUCT_LABELS[target]}`}
         action={
           <Link
             href={adminHref(basePath, fallback.href)}
             className={ACTION_LINK}
           >
-            {fallback.label}
+            {labelOf(fallback, product)}
           </Link>
         }
       />
@@ -427,7 +436,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     <item.icon
                       className={`size-4.5 ${active ? "text-ember-1" : ""}`}
                     />
-                    {item.label}
+                    {labelOf(item, product)}
                     {badge(item, false)}
                   </Link>
                 );
@@ -467,7 +476,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     }`}
                   >
                     <item.icon className="size-5" />
-                    {item.label}
+                    {labelOf(item, product)}
                     {badge(item, true)}
                   </Link>
                 );

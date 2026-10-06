@@ -69,6 +69,9 @@ export const STATUS_IN_PROGRESS_LABEL = "statut:en-cours";
 export const STATUS_BLOCKED_LABEL = "statut:bloqué";
 export const PRIORITY_LABEL = "priorité:haute";
 const TYPE_LABEL_PREFIX = "type:";
+const LOOP_LABEL = "loop";
+/** « Loop · 2026-10-08 · Vidéo de vente Big Smash » */
+const LOOP_TITLE = /^Loop · (\d{4}-\d{2}-\d{2}) · (.+)$/;
 
 /** « Menu · LZ.FOOD autonome » → produit et objectif ; « Transverse · … » → null. */
 export function splitGateTitle(title: string): {
@@ -99,7 +102,18 @@ export function issueTypes(issue: ProjetIssue): string[] {
     .map((label) => label.slice(TYPE_LABEL_PREFIX.length));
 }
 
-export type IssueStatus = "todo" | "in_progress" | "blocked";
+/** Une loop : son jour (local, midi) et son livrable ; null pour une autre issue. */
+export function loopOf(
+  issue: ProjetIssue,
+): { at: string; title: string } | null {
+  if (!issue.labels.includes(LOOP_LABEL)) return null;
+  const match = LOOP_TITLE.exec(issue.title);
+  return match
+    ? { at: new Date(`${match[1]}T12:00:00`).toISOString(), title: match[2] }
+    : null;
+}
+
+export type IssueStatus ="todo" | "in_progress" | "blocked";
 
 /** Bloquée prime ; une PR ouverte qui la ferme vaut « en cours ». */
 export function issueStatus(

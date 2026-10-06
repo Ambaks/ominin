@@ -14,7 +14,7 @@ import {
   formatDayTime,
   formatPercent,
 } from "@/lib/admin/format";
-import type { Product } from "@/lib/admin/products";
+import { prospectsLabel, type Product } from "@/lib/admin/products";
 import {
   selectActiveLeadCount,
   selectFollowUpBuckets,
@@ -214,7 +214,7 @@ export default function ApercuPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Restaurants"
+          label={prospectsLabel(product)}
           value={String(leads.length)}
           href={`${basePath}/restaurants`}
         />
