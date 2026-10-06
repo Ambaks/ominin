@@ -18,6 +18,7 @@ import {
   cardCount,
   earlierNumberingDay,
   isHistoryStatus,
+  isServiceToday,
   placeLabel,
 } from "@/lib/gestion/selectors";
 import {
@@ -148,7 +149,9 @@ export default function CommandesPage() {
   );
   const matchesHistoryTable = (order: Order) =>
     historyTable === null ||
-    (historyTable.id !== null && order.tableId === historyTable.id);
+    (historyTable.id !== null &&
+      order.tableId === historyTable.id &&
+      isServiceToday(order.createdAt, state.dayEndHour));
 
   // Onglet Historique : les commandes closes du jour (déjà dans l'état) sont
   // fusionnées avec les pages plus anciennes chargées à la demande.
@@ -316,7 +319,7 @@ export default function CommandesPage() {
             title="Aucune commande"
             body={
               filter === "historique" && historyTable
-                ? `Aucune commande passée sur la table ${historyTable.number}.`
+                ? `Aucune commande sur la table ${historyTable.number} depuis le début du service.`
                 : fastFood && filter === "a_servir"
                   ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
                   : EMPTY_BODIES[filter]

@@ -206,6 +206,8 @@ export function CartBar() {
   const payment: PaymentChoice =
     cart.onlinePayment && cart.total > 0 ? paymentChoice : "comptoir";
   const loyaltyContact = cart.loyalty ? contact.trim() : "";
+  // Un article offert ne part pas seul : place_order le refuserait.
+  const rewardsOnly = cart.lines.length > 0 && cart.lines.every((line) => line.reward);
 
   // Pourboire du règlement par carte : pourcentage du total arrondi au
   // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
@@ -840,6 +842,12 @@ export function CartBar() {
                     {state === "error" && (
                       <p className="mb-3 text-sm text-ember-3">{error}</p>
                     )}
+                    {rewardsOnly && (
+                      <p className="mb-3 text-pretty text-xs leading-relaxed text-muted">
+                        Un article offert accompagne une commande&nbsp;: ajoutez
+                        au moins un article à régler.
+                      </p>
+                    )}
                     <button
                       type="button"
                       onClick={(event) => {
@@ -848,6 +856,7 @@ export function CartBar() {
                       disabled={
                         state === "sending" ||
                         cart.count === 0 ||
+                        rewardsOnly ||
                         (cart.preview && !cart.fastFood)
                       }
                       className={`w-full rounded-full px-6 py-3 text-sm font-semibold ${

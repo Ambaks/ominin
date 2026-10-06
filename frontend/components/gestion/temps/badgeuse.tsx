@@ -38,12 +38,15 @@ const ACTION_LABELS: Record<Action, string> = {
 export function Badgeuse({
   staff,
   entries,
+  showHours,
   onChange,
 }: {
   /** Équipe active : les fiches, avec ou sans compte. */
   staff: Staff[];
   /** Périodes de travail ouvertes, quelle que soit leur date. */
   entries: TimeEntry[];
+  /** Durées de service : le gérant seul les lit, pas la salle. */
+  showHours: boolean;
   onChange: () => void;
 }) {
   const toast = useToast();
@@ -81,9 +84,11 @@ export function Badgeuse({
         if (!open) throw new Error("Aucune arrivée à clôturer.");
         await clockOut(open.id, presented, signature);
         toast.success(
-          `Départ de ${chosen.name} — ${formatDuration(
-            minutesBetween(open.startedAt, new Date().toISOString())
-          )} de service.`
+          showHours
+            ? `Départ de ${chosen.name} — ${formatDuration(
+                minutesBetween(open.startedAt, new Date().toISOString())
+              )} de service.`
+            : `Départ de ${chosen.name} enregistré.`
         );
       }
       close();
@@ -166,11 +171,13 @@ export function Badgeuse({
                     Depuis {formatTime(open.startedAt)}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm tabular-nums text-ember-1">
-                  {formatDuration(
-                    minutesBetween(open.startedAt, now.toISOString())
-                  )}
-                </span>
+                {showHours && (
+                  <span className="shrink-0 text-sm tabular-nums text-ember-1">
+                    {formatDuration(
+                      minutesBetween(open.startedAt, now.toISOString())
+                    )}
+                  </span>
+                )}
               </li>
             );
           })}

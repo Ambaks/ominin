@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { menuSiteUrl } from "@/lib/site";
+import { serviceDate } from "./selectors";
 import type { Staff } from "./types";
 
 /*
@@ -44,12 +45,16 @@ export interface WeekData {
   entries: TimeEntry[];
 }
 
-/** Lundi minuit de la semaine contenant `reference`. */
-export function weekStart(reference: Date): Date {
-  const date = new Date(reference);
-  date.setHours(0, 0, 0, 0);
+/**
+ * Début de la semaine de service contenant `reference` : le lundi à l'heure
+ * de bascule du restaurant. Au BOHO, la semaine court du lundi 5h au lundi
+ * suivant 5h — le service du dimanche soir, fini à 3h, y reste entier.
+ */
+export function weekStart(reference: Date, dayEndHour: number): Date {
+  const date = serviceDate(reference, dayEndHour);
   // getDay() : 0 = dimanche, que la semaine française termine.
   date.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+  date.setHours(dayEndHour, 0, 0, 0);
   return date;
 }
 
@@ -59,13 +64,15 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
-/** Les sept jours de la semaine ouverte, du lundi au dimanche. */
+/** Les sept jours de service de la semaine ouverte, du lundi au dimanche. */
 export function weekDays(start: Date): Date[] {
   return Array.from({ length: 7 }, (_, index) => addDays(start, index));
 }
 
+/** L'instant tombe-t-il dans le jour de service qui commence à `day` ? */
 export function sameDay(iso: string, day: Date): boolean {
-  return new Date(iso).toDateString() === day.toDateString();
+  const time = new Date(iso).getTime();
+  return time >= day.getTime() && time < addDays(day, 1).getTime();
 }
 
 /** « 2 h 30 » — durées de travail, jamais des heures d'horloge. */
