@@ -20,6 +20,23 @@ export type ItemRanking = Fn["admin_menu_items"]["Returns"][number];
 export type LiveRow = Fn["admin_menu_live"]["Returns"][number];
 export type FeedRow = Fn["admin_menu_feed"]["Returns"][number];
 
+/** Le générateur de types tient toute colonne renvoyée pour non nulle ; celles
+ * qui viennent d'une jointure externe ne le sont pas. */
+type WithNull<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | null };
+
+export type ShopClient = WithNull<
+  Fn["admin_shop_overview"]["Returns"][number],
+  "owner_email" | "subscription_status" | "last_paid_at"
+>;
+export type ClipClient = WithNull<
+  Fn["admin_clip_overview"]["Returns"][number],
+  "last_post_at"
+>;
+export type AgentsClient = WithNull<
+  Fn["admin_agents_overview"]["Returns"][number],
+  "activated_at" | "last_run_at" | "last_error" | "mailbox_email" | "mailbox_error"
+>;
+
 export interface Period {
   from: string;
   to: string;
@@ -47,6 +64,26 @@ export function previousPeriod(period: Period): Period {
 export async function fetchOverview(period: Period): Promise<ClientOverview[]> {
   return createClient()
     .rpc("admin_menu_overview", { p_from: period.from, p_to: period.to })
+    .then(must);
+}
+
+export async function fetchShopClients(period: Period): Promise<ShopClient[]> {
+  return createClient()
+    .rpc("admin_shop_overview", { p_from: period.from, p_to: period.to })
+    .then(must);
+}
+
+export async function fetchClipClients(period: Period): Promise<ClipClient[]> {
+  return createClient()
+    .rpc("admin_clip_overview", { p_from: period.from, p_to: period.to })
+    .then(must);
+}
+
+export async function fetchAgentsClients(
+  period: Period
+): Promise<AgentsClient[]> {
+  return createClient()
+    .rpc("admin_agents_overview", { p_from: period.from, p_to: period.to })
     .then(must);
 }
 

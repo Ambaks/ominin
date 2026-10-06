@@ -13,6 +13,7 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
+import { prospectsLabel } from "@/lib/admin/products";
 import { CATEGORY_LABELS, STATUS_LABELS, PRIORITY_LABELS } from "@/lib/admin/constants";
 import { toCsv, downloadCsv, type CsvColumn } from "@/lib/admin/csv";
 import { formatDate, formatRelative } from "@/lib/admin/format";
@@ -106,7 +107,7 @@ export default function RestaurantsPage() {
   const leads = useFilteredLeads();
   const toast = useToast();
   const router = useRouter();
-  const { basePath, localPath } = useAdminBasePath();
+  const { basePath, localPath, product } = useAdminBasePath();
   const [sort, setSort] = useState<{ key: LeadSortKey; dir: 1 | -1 }>({
     key: "name",
     dir: 1,
@@ -155,7 +156,9 @@ export default function RestaurantsPage() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-2xl font-medium">Restaurants</h1>
+        <h1 className="font-display text-2xl font-medium">
+          {prospectsLabel(product)}
+        </h1>
         <div className="flex items-center gap-2">
           <Link
             href={`${basePath}/import`}
@@ -203,7 +206,7 @@ export default function RestaurantsPage() {
         />
       ) : sorted.length === 0 ? (
         <EmptyState
-          title="Aucun restaurant"
+          title="Aucune fiche"
           body="Ajustez les filtres, créez une fiche ou importez un CSV."
         />
       ) : (

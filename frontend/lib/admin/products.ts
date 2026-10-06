@@ -20,6 +20,20 @@ export const PRODUCT_LABELS: Record<Product, string> = {
   "sur-mesure": "Sur mesure",
 };
 
+/** Qui l'on prospecte pour ce produit : nomme l'écran des fiches CRM. */
+const PROSPECT_LABELS: Record<Product, string> = {
+  menu: "Restaurants",
+  collect: "Restaurants",
+  shop: "Boutiques",
+  clip: "Clippeurs",
+  agents: "Entreprises",
+  "sur-mesure": "Prospects",
+};
+
+export function prospectsLabel(product: Product | null): string {
+  return product ? PROSPECT_LABELS[product] : "Prospects";
+}
+
 export function isProduct(segment: string): segment is Product {
   return (PRODUCTS as readonly string[]).includes(segment);
 }

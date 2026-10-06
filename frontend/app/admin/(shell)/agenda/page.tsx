@@ -26,6 +26,17 @@ import {
   isToday,
   isTomorrow,
 } from "@/lib/admin/format";
+import { PRODUCT_LABELS } from "@/lib/admin/products";
+import {
+  gateState,
+  loopOf,
+  personLabel,
+  selectProjetFor,
+  splitGateTitle,
+  useProjet,
+  type Gate,
+  type ProjetIssue,
+} from "@/lib/admin/projet";
 import type {
   AppointmentRow,
   AppointmentStatus,
@@ -38,11 +49,19 @@ import type {
  * la fenêtre) ; l'historique — relances closes, RDV passés — se charge à la
  * demande. Une relance sans fiche n'appartient à aucun produit : seule la vue
  * d'ensemble la montre, comme dans le reste du CRM.
+ *
+ * S'y ajoutent, lues dans GitHub, les échéances des gates et les loops du
+ * plan, sur la même fenêtre que les RDV : « À venir » seulement, l'historique
+ * du projet vit dans la section Projet.
  */
 
 type Entry =
   | { kind: "task"; at: string | null; task: TaskRow }
-  | { kind: "rdv"; at: string; rdv: AppointmentRow };
+  | { kind: "rdv"; at: string; rdv: AppointmentRow }
+  | { kind: "gate"; at: string; gate: Gate }
+  | { kind: "loop"; at: string; issue: ProjetIssue; title: string };
+
+type DatedEntry = Extract<Entry, { kind: "gate" | "loop" }>;
 
 type TabId = "upcoming" | "history";
 
@@ -140,6 +159,54 @@ function AppointmentLine({
   );
 }
 
+/** Gate ou loop : renvoie vers GitHub, où elle se pilote. */
+function ProjetLine({
+  kind,
+  title,
+  detail,
+  url,
+}: {
+  kind: "gate" | "loop";
+  title: string;
+  detail: string;
+  url: string;
+}) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-3 rounded-2xl border border-hairline bg-surface px-3.5 py-3 transition-colors hover:border-ember-2/40"
+    >
+      <span
+        className={`w-20 shrink-0 text-[10px] font-semibold uppercase tracking-wider ${
+          kind === "gate" ? "text-ember-1" : "text-muted"
+        }`}
+      >
+        {kind === "gate" ? "Gate" : "Loop"}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{title}</p>
+        <p className="truncate text-xs text-faint">{detail}</p>
+      </div>
+    </a>
+  );
+}
+
+function gateLine(gate: Gate) {
+  const { product, goal } = splitGateTitle(gate.title);
+  const open = `${gate.openCount} tâche${gate.openCount > 1 ? "s" : ""} ouverte${gate.openCount > 1 ? "s" : ""}`;
+  return (
+    <ProjetLine
+      key={`gate-${gate.number}`}
+      kind="gate"
+      title={goal}
+      detail={`${product ? PRODUCT_LABELS[product] : "Transverse"} · ${open}`}
+      url={gate.url}
+    />
+  );
+}
+
 export default function AgendaPage() {
   const state = useProductAdmin();
   const toast = useToast();
@@ -152,6 +219,7 @@ export default function AgendaPage() {
   const [creatingRdv, setCreatingRdv] = useState(false);
   const [editing, setEditing] = useState<TaskRow | null>(null);
   const [outcomeFor, setOutcomeFor] = useState<AppointmentRow | null>(null);
+  const projet = useProjet();
 
   const nameById = useMemo(
     () =>
@@ -174,6 +242,33 @@ export default function AgendaPage() {
     (task) => task.dueAt !== null && task.dueAt < nowIso,
   );
   const undated = open.filter((task) => task.dueAt === null);
+
+  const todayIso = dayStart().toISOString();
+  const windowEnd = addDays(dayStart(), APPOINTMENTS_WINDOW_DAYS).toISOString();
+  const plan = projet.data ? selectProjetFor(projet.data, product) : null;
+  const gates = (plan?.gates ?? []).flatMap((gate): DatedEntry[] =>
+    gate.dueOn ? [{ kind: "gate", at: gate.dueOn, gate }] : [],
+  );
+  const loops = (plan?.issues ?? []).flatMap((issue): DatedEntry[] => {
+    const loop = loopOf(issue);
+    return loop ? [{ kind: "loop", at: loop.at, issue, title: loop.title }] : [];
+  });
+  const lateProjet = [
+    ...gates.filter(
+      (entry) => entry.kind === "gate" && gateState(entry.gate) === "late",
+    ),
+    ...loops.filter((entry) => entry.at < todayIso),
+  ];
+  const nextProjet = [
+    ...gates.filter(
+      (entry) =>
+        entry.kind === "gate" &&
+        gateState(entry.gate) === "upcoming" &&
+        entry.at <= windowEnd,
+    ),
+    ...loops.filter((entry) => entry.at >= todayIso && entry.at <= windowEnd),
+  ];
+
   const upcoming = groupByDay(
     [
       ...open
@@ -182,6 +277,7 @@ export default function AgendaPage() {
       ...(state?.appointments ?? []).map(
         (rdv): Entry => ({ kind: "rdv", at: rdv.startAt, rdv }),
       ),
+      ...nextProjet,
     ],
     false,
   );
@@ -232,34 +328,53 @@ export default function AgendaPage() {
   const openLead = (restaurantId: string) =>
     router.push(`${basePath}${localPath}?lead=${restaurantId}`);
 
-  const renderEntry = (entry: Entry) =>
-    entry.kind === "task" ? (
-      <TaskRowItem
-        key={entry.task.id}
-        task={entry.task}
-        restaurantName={
-          entry.task.restaurantId
-            ? (nameById.get(entry.task.restaurantId) ?? null)
-            : null
-        }
-        onEdit={
-          entry.task.status === "open"
-            ? () => setEditing(entry.task)
-            : undefined
-        }
-      />
-    ) : (
-      <AppointmentLine
-        key={entry.rdv.id}
-        rdv={entry.rdv}
-        restaurantName={nameById.get(entry.rdv.restaurantId) ?? null}
-        onOpen={() => openLead(entry.rdv.restaurantId)}
-        onOutcome={() => setOutcomeFor(entry.rdv)}
-      />
-    );
+  const renderEntry = (entry: Entry) => {
+    switch (entry.kind) {
+      case "task":
+        return (
+          <TaskRowItem
+            key={entry.task.id}
+            task={entry.task}
+            restaurantName={
+              entry.task.restaurantId
+                ? (nameById.get(entry.task.restaurantId) ?? null)
+                : null
+            }
+            onEdit={
+              entry.task.status === "open"
+                ? () => setEditing(entry.task)
+                : undefined
+            }
+          />
+        );
+      case "rdv":
+        return (
+          <AppointmentLine
+            key={entry.rdv.id}
+            rdv={entry.rdv}
+            restaurantName={nameById.get(entry.rdv.restaurantId) ?? null}
+            onOpen={() => openLead(entry.rdv.restaurantId)}
+            onOutcome={() => setOutcomeFor(entry.rdv)}
+          />
+        );
+      case "gate":
+        return gateLine(entry.gate);
+      case "loop":
+        return (
+          <ProjetLine
+            key={`loop-${entry.issue.number}`}
+            kind="loop"
+            title={entry.title}
+            detail={entry.issue.assignees.map(personLabel).join(", ")}
+            url={entry.issue.url}
+          />
+        );
+    }
+  };
 
+  const lateCount = overdue.length + lateProjet.length;
   const nothingUpcoming =
-    overdue.length === 0 && upcoming.length === 0 && undated.length === 0;
+    lateCount === 0 && upcoming.length === 0 && undated.length === 0;
 
   return (
     <div className="flex flex-col gap-5">
@@ -287,7 +402,7 @@ export default function AgendaPage() {
 
       <PillTabs
         tabs={[
-          { id: "upcoming", label: "À venir", count: overdue.length },
+          { id: "upcoming", label: "À venir", count: lateCount },
           { id: "history", label: "Historique" },
         ]}
         activeId={tab}
@@ -295,6 +410,12 @@ export default function AgendaPage() {
           id === "history" ? openHistory() : setTab("upcoming")
         }
       />
+
+      {tab === "upcoming" && projet.error && (
+        <p className="text-xs text-faint">
+          Gates et loops indisponibles : {projet.error}
+        </p>
+      )}
 
       {tab === "upcoming" ? (
         nothingUpcoming ? (
@@ -304,12 +425,13 @@ export default function AgendaPage() {
           />
         ) : (
           <>
-            {overdue.length > 0 && (
+            {lateCount > 0 && (
               <section className="flex flex-col gap-2">
                 <h2 className={`${SECTION_TITLE} text-ember-3`}>En retard</h2>
                 {overdue.map((task) =>
                   renderEntry({ kind: "task", at: task.dueAt, task }),
                 )}
+                {lateProjet.map(renderEntry)}
               </section>
             )}
             {upcoming.map(({ day, rows }) => (

@@ -4396,6 +4396,40 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
+      admin_agents_overview: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          activated_at: string
+          company_name: string
+          email: string
+          enabled: boolean
+          interested: number
+          last_error: string
+          last_run_at: string
+          mailbox_email: string
+          mailbox_error: string
+          mode: string
+          pending_approval: number
+          prospects: number
+          replies: number
+          sent: number
+          user_id: string
+        }[]
+      }
+      admin_clip_overview: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          email: string
+          failed: number
+          last_post_at: string
+          linked_at: string
+          partial: number
+          platforms: string[]
+          posts: number
+          published: number
+          user_id: string
+        }[]
+      }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
         Returns: {
@@ -4469,6 +4503,25 @@ export type Database = {
           orders_count: number
           revenue: number
           sessions: number
+        }[]
+      }
+      admin_shop_overview: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          charges_enabled: boolean
+          created_at: string
+          fee_cents: number
+          is_active: boolean
+          last_paid_at: string
+          name: string
+          owner_email: string
+          paid_orders: number
+          refunded: number
+          revenue_cents: number
+          shop_id: string
+          slug: string
+          subscription_status: string
+          to_prepare: number
         }[]
       }
       claim_gerant_link: { Args: { p_token: string }; Returns: string }
