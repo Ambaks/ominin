@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useSyncExternalStore } from "react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import {
@@ -9,32 +10,38 @@ import {
   LogoutIcon,
   type IconProps,
 } from "@/components/gestion/icons";
-import { adminLoginPath, useAdminBasePath } from "@/lib/admin/base-path";
+import {
+  adminHref,
+  adminLoginPath,
+  useAdminBasePath,
+} from "@/lib/admin/base-path";
+import { useProductAdmin } from "@/lib/admin/filters";
+import { PRODUCTS, PRODUCT_LABELS, type Product } from "@/lib/admin/products";
 import { selectTasksDueBadge } from "@/lib/admin/selectors";
-import { retryLoad, useAdmin, useAdminLoadError } from "@/lib/admin/store";
+import { SOCIAL_PRODUCTS } from "@/lib/admin/social";
+import { retryLoad, useAdminLoadError } from "@/lib/admin/store";
 import { createClient } from "@/lib/supabase/client";
 import {
   BotIcon,
   CalendarIcon,
   ChartIcon,
-  ImportIcon,
   MapPinIcon,
-  PipelineIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
   StoreIcon,
-  TaskIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
 
 interface NavItem {
-  /** Chemin local (sans préfixe /admin du mode inerte). */
+  /** Chemin local (sans racine ni produit). */
   href: string;
   label: string;
   icon: React.ComponentType<IconProps>;
-  /** Écran de bureau (grand tableau, import) : absent de la barre mobile. */
-  desktopOnly?: boolean;
+  /** Produits où l'écran a un sens ; absent : tous. */
+  products?: readonly Product[];
+  /** Écrans rattachés, sans entrée propre. */
+  subPaths?: readonly string[];
 }
 
 interface Section {
@@ -49,8 +56,11 @@ interface Section {
  * prospects (crm_restaurants) d'un côté et n'existe pas de l'autre : les
  * clients sont des établissements, jamais des fiches de prospection.
  *
- * Un seul groupe de routes porte les deux, sinon changer d'onglet
- * démonterait AdminShell et rechargerait le store à chaque bascule.
+ * Sous les onglets, la barre produit : la vue d'ensemble montre tout, la vue
+ * d'un produit ne garde que les écrans qui le concernent, filtrés sur lui.
+ *
+ * Un seul groupe de routes porte le tout, sinon changer d'onglet ou de
+ * produit démonterait AdminShell et rechargerait le store à chaque bascule.
  */
 const SECTIONS: Section[] = [
   {
@@ -59,35 +69,62 @@ const SECTIONS: Section[] = [
     items: [
       { href: "/", label: "Aperçu", icon: ApercuIcon },
       { href: "/carte", label: "Carte", icon: MapPinIcon },
-      { href: "/pipeline", label: "Pipeline", icon: PipelineIcon },
-      { href: "/lea", label: "Agent Léa", icon: BotIcon },
-      { href: "/reseaux", label: "Réseaux", icon: ShareIcon },
-      { href: "/taches", label: "Tâches", icon: TaskIcon },
-      { href: "/rdv", label: "RDV", icon: CalendarIcon },
       {
         href: "/restaurants",
         label: "Restaurants",
         icon: StoreIcon,
-        desktopOnly: true,
+        subPaths: ["/import"],
       },
       {
-        href: "/import",
-        label: "Import CSV",
-        icon: ImportIcon,
-        desktopOnly: true,
+        href: "/prospection",
+        label: "Prospection",
+        icon: BotIcon,
+        // Léa ne vend que la digitalisation du menu.
+        products: ["menu"],
       },
+      {
+        href: "/reseaux",
+        label: "Réseaux",
+        icon: ShareIcon,
+        products: SOCIAL_PRODUCTS,
+      },
+      { href: "/agenda", label: "Agenda", icon: CalendarIcon },
     ],
   },
   {
     id: "clients",
     label: "Clients",
+    // Chiffres du menu QR (commandes sur place, visites) : propres à Menu.
+    // Les capacités, elles, s'ouvrent aussi avec Collect.
     items: [
-      { href: "/clients", label: "Vue d'ensemble", icon: ChartIcon },
-      { href: "/activite", label: "Activité", icon: PulseIcon },
-      { href: "/capacites", label: "Capacités", icon: SlidersIcon },
+      {
+        href: "/clients",
+        label: "Synthèse",
+        icon: ChartIcon,
+        products: ["menu"],
+      },
+      {
+        href: "/activite",
+        label: "Activité",
+        icon: PulseIcon,
+        products: ["menu"],
+      },
+      {
+        href: "/capacites",
+        label: "Capacités",
+        icon: SlidersIcon,
+        products: ["menu", "collect"],
+      },
     ],
   },
 ];
+
+function isActive(localPath: string, item: NavItem): boolean {
+  if (item.href === "/") return localPath === "/";
+  return [item.href, ...(item.subPaths ?? [])].some(
+    (path) => localPath === path || localPath.startsWith(`${path}/`),
+  );
+}
 
 /** L'onglet suit l'URL : rien à mémoriser, un lien profond ouvre le bon. */
 function sectionOf(localPath: string): Section {
@@ -95,8 +132,27 @@ function sectionOf(localPath: string): Section {
     SECTIONS.find(
       (section) =>
         section.id !== "marketing" &&
-        section.items.some((item) => localPath.startsWith(item.href))
+        section.items.some((item) => isActive(localPath, item)),
     ) ?? SECTIONS[0]
+  );
+}
+
+function availableIn(item: NavItem, product: Product | null): boolean {
+  return !product || !item.products || item.products.includes(product);
+}
+
+/** L'écran existe-t-il dans la vue de ce produit ? (l'Aperçu y renvoie) */
+export function screenOpen(href: string, product: Product | null): boolean {
+  const item = SECTIONS.flatMap((section) => section.items).find(
+    (candidate) => candidate.href === href,
+  );
+  return item !== undefined && availableIn(item, product);
+}
+
+/** Premier écran d'une section ouvert au produit, à défaut le premier tout court. */
+function landingOf(section: Section, product: Product | null): NavItem {
+  return (
+    section.items.find((item) => availableIn(item, product)) ?? section.items[0]
   );
 }
 
@@ -107,10 +163,6 @@ async function signOut() {
   await createClient().auth.signOut();
   // Navigation complète : purge le store et repasse par le proxy.
   window.location.assign(adminLoginPath());
-}
-
-function isActive(localPath: string, href: string): boolean {
-  return href === "/" ? localPath === "/" : localPath.startsWith(href);
 }
 
 function ShellSkeleton() {
@@ -134,7 +186,9 @@ function LoadError({ message }: { message: string }) {
       <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
         Erreur
       </p>
-      <h1 className="font-display text-xl font-medium">Chargement impossible</h1>
+      <h1 className="font-display text-xl font-medium">
+        Chargement impossible
+      </h1>
       <p className="text-sm text-muted">{message}</p>
       <button
         type="button"
@@ -147,20 +201,51 @@ function LoadError({ message }: { message: string }) {
   );
 }
 
+const subscribeNever = () => () => {};
+
+/*
+ * Les pages de l'admin sont prérendues : servies par réécriture (/carte,
+ * /menu/carte), leur HTML a été produit pour /admin/carte. Tout ce que le
+ * shell déduit du chemin — liens, onglet et produit actifs, écrans proposés —
+ * attend donc la fin de l'hydratation, sans quoi React garderait les
+ * attributs du serveur. Le contenu, lui, attend déjà le store.
+ */
+function useHydrated(): boolean {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+}
+
+const ACTION_LINK =
+  "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background";
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const state = useAdmin();
+  const state = useProductAdmin();
   const loadError = useAdminLoadError();
-  const { basePath, localPath } = useAdminBasePath();
+  const hydrated = useHydrated();
+  const { rootPath, basePath, localPath, product } = useAdminBasePath();
   const section = sectionOf(localPath);
-  const mobileItems = section.items.filter((item) => !item.desktopOnly);
+  const current = section.items.find((item) => isActive(localPath, item));
+  const items = section.items.filter((item) => availableIn(item, product));
   const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
   const tasksDue = state ? selectTasksDueBadge(state.tasks) : 0;
   const pendingDrafts = state?.pendingDrafts ?? 0;
 
+  /** Changer de produit garde l'écran courant s'il le concerne. */
+  const productHref = (target: Product | null) => {
+    const screen =
+      current && availableIn(current, target)
+        ? localPath
+        : landingOf(section, target).href;
+    return adminHref(target ? `${rootPath}/${target}` : rootPath, screen);
+  };
+
   const badgeCount = (item: NavItem) =>
-    item.href === "/taches"
+    item.href === "/agenda"
       ? tasksDue
-      : item.href === "/lea"
+      : item.href === "/prospection"
         ? pendingDrafts
         : 0;
 
@@ -179,12 +264,41 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     ) : null;
   };
 
+  const unavailable = (screen: NavItem, target: Product) => {
+    const fallback = items[0];
+    return fallback ? (
+      <EmptyState
+        title={`${screen.label} ne concerne pas ${PRODUCT_LABELS[target]}`}
+        action={
+          <Link
+            href={adminHref(basePath, fallback.href)}
+            className={ACTION_LINK}
+          >
+            {fallback.label}
+          </Link>
+        }
+      />
+    ) : (
+      <EmptyState
+        title={`Rien côté ${section.label} pour ${PRODUCT_LABELS[target]}`}
+        body="Aucun écran de cette section ne suit encore ce produit."
+        action={
+          <Link href={productHref(null)} className={ACTION_LINK}>
+            Vue d&apos;ensemble
+          </Link>
+        }
+      />
+    );
+  };
+
   const content = !state ? (
     loadError ? (
       <LoadError message={loadError} />
     ) : (
       <ShellSkeleton />
     )
+  ) : current && product && !availableIn(current, product) ? (
+    unavailable(current, product)
   ) : (
     children
   );
@@ -194,46 +308,75 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-dvh w-full flex-col">
         <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md">
           <div
-            className={`flex w-full items-center justify-between gap-4 px-5 py-3 ${
+            className={`w-full px-5 ${
               fullBleed ? "lg:px-6" : "mx-auto max-w-2xl lg:max-w-6xl lg:px-10"
             }`}
           >
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <p className="truncate font-display text-lg font-medium leading-none">
-                Ominin Admin
-              </p>
-              <nav className="flex gap-1">
-                {SECTIONS.map((item) => {
-                  const active = item.id === section.id;
+            <div className="flex items-center justify-between gap-4 py-3">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <p className="truncate font-display text-lg font-medium leading-none">
+                  Ominin Admin
+                </p>
+                <nav className="flex h-6.5 gap-1">
+                  {hydrated &&
+                    SECTIONS.map((item) => {
+                      const active = item.id === section.id;
+                      return (
+                        <Link
+                          key={item.id}
+                          href={adminHref(
+                            basePath,
+                            landingOf(item, product).href,
+                          )}
+                          aria-current={active ? "page" : undefined}
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                            active
+                              ? "ember-gradient text-background"
+                              : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                </nav>
+              </div>
+              <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <ThemeToggle />
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  title="Se déconnecter"
+                  aria-label="Se déconnecter"
+                  className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                >
+                  <LogoutIcon className="size-3.5" />
+                </button>
+              </div>
+            </div>
+            <nav
+              aria-label="Produit"
+              className="no-scrollbar -mx-5 -mb-px flex h-7.5 gap-5 overflow-x-auto px-5 lg:mx-0 lg:px-0"
+            >
+              {hydrated &&
+                [null, ...PRODUCTS].map((target) => {
+                  const active = target === product;
                   return (
                     <Link
-                      key={item.id}
-                      href={`${basePath}${item.items[0].href}` || "/"}
+                      key={target ?? "ensemble"}
+                      href={productHref(target)}
                       aria-current={active ? "page" : undefined}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                      className={`shrink-0 border-b-2 pb-2 text-sm font-medium transition-colors ${
                         active
-                          ? "ember-gradient text-background"
-                          : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                          ? "border-ember-1 text-foreground"
+                          : "border-transparent text-muted hover:text-foreground"
                       }`}
                     >
-                      {item.label}
+                      {target ? PRODUCT_LABELS[target] : "Vue d'ensemble"}
                     </Link>
                   );
                 })}
-              </nav>
-            </div>
-            <div className="ml-auto flex shrink-0 items-center gap-1.5">
-              <ThemeToggle />
-              <button
-                type="button"
-                onClick={() => void signOut()}
-                title="Se déconnecter"
-                aria-label="Se déconnecter"
-                className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-              >
-                <LogoutIcon className="size-3.5" />
-              </button>
-            </div>
+            </nav>
           </div>
         </header>
 
@@ -245,30 +388,31 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           }
         >
           <aside
-            className={`sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex ${
+            className={`sticky top-28 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex ${
               fullBleed ? "ml-6" : ""
             }`}
           >
-            {section.items.map((item) => {
-              const active = isActive(localPath, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={`${basePath}${item.href}` || "/"}
-                  className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                    active
-                      ? "border border-hairline bg-surface text-foreground"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  <item.icon
-                    className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                  />
-                  {item.label}
-                  {badge(item, false)}
-                </Link>
-              );
-            })}
+            {hydrated &&
+              items.map((item) => {
+                const active = item === current;
+                return (
+                  <Link
+                    key={item.href}
+                    href={adminHref(basePath, item.href)}
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                      active
+                        ? "border border-hairline bg-surface text-foreground"
+                        : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon
+                      className={`size-4.5 ${active ? "text-ember-1" : ""}`}
+                    />
+                    {item.label}
+                    {badge(item, false)}
+                  </Link>
+                );
+              })}
           </aside>
 
           {fullBleed ? (
@@ -290,26 +434,28 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Suspense>
         )}
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
-          <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {mobileItems.map((item) => {
-              const active = isActive(localPath, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={`${basePath}${item.href}` || "/"}
-                  className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                    active ? "text-ember-1" : "text-faint"
-                  }`}
-                >
-                  <item.icon className="size-5" />
-                  {item.label}
-                  {badge(item, true)}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+        {hydrated && items.length > 0 && (
+          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
+            <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+              {items.map((item) => {
+                const active = item === current;
+                return (
+                  <Link
+                    key={item.href}
+                    href={adminHref(basePath, item.href)}
+                    className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                      active ? "text-ember-1" : "text-faint"
+                    }`}
+                  >
+                    <item.icon className="size-5" />
+                    {item.label}
+                    {badge(item, true)}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </div>
     </ToastProvider>
   );

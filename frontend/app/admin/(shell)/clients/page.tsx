@@ -7,24 +7,35 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
-import { CLIENT_PERIOD_DAYS } from "@/lib/admin/constants";
+import {
+  CHURN_DROP_RATIO,
+  CHURN_MIN_PREVIOUS_SESSIONS,
+  CLIENT_PERIOD_DAYS,
+} from "@/lib/admin/constants";
 import { formatEuros, formatPercent } from "@/lib/admin/format";
 import {
   conversionRate,
   fetchOverview,
   periodOf,
+  previousPeriod,
   theoreticalCommission,
   type ClientOverview,
 } from "@/lib/admin/metrics";
 import { OFFRE_LABELS } from "@/lib/gestion/constants";
 
 /*
- * Vue d'ensemble des clients. Deux questions, et rien d'autre : combien ils
+ * Synthèse des clients. Deux questions, et rien d'autre : combien ils
  * encaissent, et est-ce que leur menu convertit. La commission théorique est
  * posée à côté de la facturée parce que l'écart entre les deux — l'espèce et
  * le comptoir — est le seul chiffre qui dise ce que vaudrait un client
- * entièrement digitalisé.
+ * entièrement digitalisé. Au-dessus, ceux qui décrochent : la même période
+ * comparée à celle d'avant, pour appeler le restaurant avant qu'il ne résilie.
  */
+
+interface Overview {
+  rows: ClientOverview[];
+  previous: ClientOverview[];
+}
 
 const PERIOD_TABS = CLIENT_PERIOD_DAYS.map((days) => ({
   id: String(days),
@@ -35,17 +46,23 @@ export default function ClientsPage() {
   const toast = useToast();
   const { basePath } = useAdminBasePath();
   const [days, setDays] = useState<number>(CLIENT_PERIOD_DAYS[1]);
-  const [rows, setRows] = useState<ClientOverview[] | null>(null);
+  const [data, setData] = useState<Overview | null>(null);
+  const rows = data?.rows ?? null;
 
-  const load = useCallback(async (period: number) => {
-    setRows(await fetchOverview(periodOf(period)));
+  const load = useCallback(async (days: number) => {
+    const period = periodOf(days);
+    const [current, previous] = await Promise.all([
+      fetchOverview(period),
+      fetchOverview(previousPeriod(period)),
+    ]);
+    setData({ rows: current, previous });
   }, []);
 
   useEffect(() => {
     // Remise à zéro volontaire : la période a changé, la table repart en
     // chargement. La suite du setState, elle, suit la réponse réseau.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRows(null);
+    setData(null);
     load(days).catch((error) =>
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -70,11 +87,25 @@ export default function ClientsPage() {
     };
   }, [rows]);
 
+  const declining = useMemo(() => {
+    if (!data) return [];
+    const before = new Map(
+      data.previous.map((row) => [row.etablissement_id, row.sessions])
+    );
+    return data.rows.flatMap((row) => {
+      const previous = before.get(row.etablissement_id) ?? 0;
+      return previous >= CHURN_MIN_PREVIOUS_SESSIONS &&
+        row.sessions <= previous * (1 - CHURN_DROP_RATIO)
+        ? [{ row, previous }]
+        : [];
+    });
+  }, [data]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-medium">Vue d&apos;ensemble</h1>
+          <h1 className="font-display text-2xl font-medium">Synthèse</h1>
           <p className="mt-1 text-sm text-muted">
             Les établissements qui tournent — ce qu&apos;ils encaissent et ce que
             leur menu convertit.
@@ -126,6 +157,40 @@ export default function ClientsPage() {
               hint={`sur ${rows.length} établissement${rows.length > 1 ? "s" : ""}`}
             />
           </div>
+
+          {declining.length > 0 && (
+            <section className="flex flex-col gap-3 rounded-2xl border border-ember-3/40 bg-ember-3/5 p-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-ember-3">
+                  Clients qui décrochent
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Visites du menu en baisse d&apos;au moins{" "}
+                  {formatPercent(CHURN_DROP_RATIO)} sur les {days} derniers
+                  jours, par rapport aux {days} jours d&apos;avant.
+                </p>
+              </div>
+              <ul className="flex flex-col gap-1.5">
+                {declining.map(({ row, previous }) => (
+                  <li
+                    key={row.etablissement_id}
+                    className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm"
+                  >
+                    <Link
+                      href={`${basePath}/clients/${row.slug}`}
+                      className="font-medium hover:text-ember-1"
+                    >
+                      {row.name}
+                    </Link>
+                    <span className="tabular-nums text-muted">
+                      {previous} → {row.sessions} visites ·{" "}
+                      {formatPercent(row.sessions / previous - 1)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
             <table className="w-full min-w-184 text-sm">

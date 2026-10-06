@@ -241,7 +241,7 @@ export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
   suppressed: "Désinscrit",
 };
 
-/** Fenêtre de chargement de la page Agent Léa (lignes les plus récentes). */
+/** Fenêtre de chargement de la page Prospection (lignes les plus récentes). */
 export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
 export const OUTREACH_RUNS_FETCH_LIMIT = 50;
 export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
@@ -267,6 +267,15 @@ export const LIVE_SESSION_WINDOW_S = 120;
 
 /** Périodes proposées sur la fiche d'un client (jours calendaires). */
 export const CLIENT_PERIOD_DAYS = [7, 30, 90] as const;
+
+/**
+ * Client qui décroche : ses visites du menu ont baissé d'au moins cette part
+ * d'une période à la précédente (même durée, juste avant).
+ */
+export const CHURN_DROP_RATIO = 0.5;
+/** En dessous de ce nombre de visites sur la période précédente, une baisse
+ * ne dit rien (passer de 4 à 1 visite fait -75 %). */
+export const CHURN_MIN_PREVIOUS_SESSIONS = 20;
 
 /** Dernières commandes affichées dans le fil d'activité. */
 export const ACTIVITY_FEED_LIMIT = 30;
@@ -314,7 +323,7 @@ export const FOLLOW_UP_QUICK_OPTIONS: readonly { label: string; days: number }[]
 
 export const APPOINTMENT_DURATIONS_MIN: readonly number[] = [30, 60, 90, 120];
 export const APPOINTMENT_DEFAULT_DURATION_MIN = 60;
-/** Fenêtre des RDV chargés au démarrage et sur la page RDV (jours). */
+/** Fenêtre des RDV chargés au démarrage et dans l'Agenda (jours). */
 export const APPOINTMENTS_WINDOW_DAYS = 30;
 /** Fenêtre des tâches terminées chargées à la demande (jours). */
 export const COMPLETED_TASKS_WINDOW_DAYS = 30;

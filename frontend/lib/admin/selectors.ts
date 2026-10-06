@@ -1,11 +1,38 @@
 import { CATEGORY_LABELS, CLOSED_STATUSES, STATUS_ORDER } from "./constants";
 import { addDays, dayStart } from "./format";
-import type { LeadLite, LeadStatus, TaskRow } from "./types";
+import type { Product } from "./products";
+import type { AdminState, LeadLite, LeadStatus, TaskRow } from "./types";
 
 /*
  * Dérivations pures sur le snapshot (convention lib/gestion/selectors.ts) :
  * le tableau de bord, les badges de nav et les cartes du pipeline lisent ici.
  */
+
+/**
+ * Ce qu'une vue produit montre du snapshot : les prospects qui visent ce
+ * produit, avec leurs tâches et leurs RDV. Une tâche sans fiche n'appartient
+ * à aucun produit : seule la vue d'ensemble la montre.
+ */
+export function selectForProduct(
+  state: AdminState,
+  product: Product | null
+): AdminState {
+  if (!product) return state;
+  const leads = state.leads.filter((lead) =>
+    lead.targetProducts.includes(product)
+  );
+  const ids = new Set(leads.map((lead) => lead.restaurantId));
+  return {
+    ...state,
+    leads,
+    tasks: state.tasks.filter(
+      (task) => task.restaurantId !== null && ids.has(task.restaurantId)
+    ),
+    appointments: state.appointments.filter((rdv) =>
+      ids.has(rdv.restaurantId)
+    ),
+  };
+}
 
 export function selectStatusCounts(
   leads: LeadLite[]
@@ -92,7 +119,7 @@ export function selectFollowUpBuckets(
   };
 }
 
-/** Badge de nav Tâches : ouvertes, échues aujourd'hui ou en retard. */
+/** Badge de nav Agenda : relances ouvertes, échues aujourd'hui ou en retard. */
 export function selectTasksDueBadge(tasks: TaskRow[], now = new Date()): number {
   const endOfToday = addDays(dayStart(now), 1).toISOString();
   return tasks.filter(

@@ -32,24 +32,6 @@ export function MapPinIcon(props: IconProps) {
   );
 }
 
-export function PipelineIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M4 4.5v9M12 4.5v15M20 4.5v6" />
-      <path d="M2.5 4.5h3M10.5 4.5h3M18.5 4.5h3" />
-    </Svg>
-  );
-}
-
-export function TaskIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
-    </Svg>
-  );
-}
-
 export function CalendarIcon(props: IconProps) {
   return (
     <Svg {...props}>

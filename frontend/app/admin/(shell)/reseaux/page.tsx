@@ -20,13 +20,15 @@ import type {
   SocialPlaybook,
   SocialPost,
 } from "@/lib/admin/social";
+import { BRANDS, type SocialBrand } from "@/lib/social/brands";
 
 /*
  * Poste de pilotage de l'agent des réseaux sociaux. Il publie seul, chaque
  * jour, un carrousel par marque, et réécrit seul sa ligne éditoriale d'après
  * les résultats : rien ici n'attend une validation. L'écran sert à relier les
  * comptes, à voir ce qui est parti et ce que ça a donné, à poster Snapchat à
- * la main, et à reprendre la main sur la ligne éditoriale si besoin.
+ * la main, et à reprendre la main sur la ligne éditoriale si besoin. La vue
+ * d'un produit ne montre que sa marque ; la vue d'ensemble, toutes.
  */
 
 type TabId = "accounts" | "posts" | "snapchat" | "playbook";
@@ -48,7 +50,10 @@ const META_OUTCOMES: Record<string, { ok: boolean; message: string }> = {
 export default function SocialPage() {
   const toast = useToast();
   const router = useRouter();
-  const { basePath, localPath } = useAdminBasePath();
+  const { basePath, localPath, product } = useAdminBasePath();
+  // L'écran n'est ouvert qu'aux produits qui ont leur marque (voir le shell).
+  const brand = product as SocialBrand | null;
+  const brands = brand ? BRANDS.filter((item) => item.id === brand) : BRANDS;
 
   const [tab, setTab] = useState<TabId>("accounts");
   const [accounts, setAccounts] = useState<SocialAccount[] | null>(null);
@@ -95,14 +100,25 @@ export default function SocialPage() {
     router.replace(`${basePath}${localPath}`);
   }, [toast, router, basePath, localPath]);
 
+  const brandPosts = useMemo(
+    () => posts?.filter((post) => !brand || post.brand === brand) ?? null,
+    [posts, brand]
+  );
+  // Un compte pas encore rattaché reste visible partout : il est peut-être
+  // celui de cette marque.
+  const brandAccounts =
+    accounts?.filter(
+      (account) => !brand || account.brand === brand || account.brand === null
+    ) ?? null;
+
   const snapchat = useMemo<SnapchatItem[]>(
     () =>
-      (posts ?? []).flatMap((post) =>
+      (brandPosts ?? []).flatMap((post) =>
         post.publications
           .filter((publication) => publication.platform === "snapchat")
           .map((publication) => ({ post, publication }))
       ),
-    [posts]
+    [brandPosts]
   );
   const toPost = snapchat.filter(
     (item) => item.publication.status === "to_post"
@@ -140,21 +156,31 @@ export default function SocialPage() {
       />
 
       {tab === "accounts" &&
-        (accounts ? (
-          <AccountsTab accounts={accounts} onChange={reloadAccounts} />
+        (brandAccounts ? (
+          <AccountsTab
+            accounts={brandAccounts}
+            brands={brands}
+            onChange={reloadAccounts}
+          />
         ) : (
           loading
         ))}
-      {tab === "posts" && (posts ? <PostsTab posts={posts} /> : loading)}
+      {tab === "posts" &&
+        (brandPosts ? <PostsTab posts={brandPosts} /> : loading)}
       {tab === "snapchat" &&
-        (posts ? (
+        (brandPosts ? (
           <SnapchatTab items={snapchat} onChange={reloadPosts} />
         ) : (
           loading
         ))}
       {tab === "playbook" &&
         (playbooks ? (
-          <PlaybookTab playbooks={playbooks} onChange={reloadPlaybooks} />
+          <PlaybookTab
+            key={brand ?? "toutes"}
+            brands={brands}
+            playbooks={playbooks}
+            onChange={reloadPlaybooks}
+          />
         ) : (
           loading
         ))}

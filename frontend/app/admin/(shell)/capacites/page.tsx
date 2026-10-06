@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Capabilities } from "@/components/admin/clients/capabilities";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
+import { useAdminBasePath } from "@/lib/admin/base-path";
 import { clientFeatures, fetchClients, type Client } from "@/lib/admin/clients";
+import type { Product } from "@/lib/admin/products";
 import { OFFRE_LABELS, VIEWS } from "@/lib/gestion/constants";
 
 /*
@@ -12,6 +14,14 @@ import { OFFRE_LABELS, VIEWS } from "@/lib/gestion/constants";
  * gauche, l'arborescence à cocher à droite. C'est ici qu'on taille la solution
  * à la maison — le BOHO n'a pas les mêmes besoins que le prochain.
  */
+/** Clients du produit affiché : l'offre ouvre Menu, l'abonnement Collect le
+ * Collect. Les autres produits n'ont pas d'écran Capacités (voir le shell). */
+function hasProduct(client: Client, product: Product | null): boolean {
+  if (product === "menu") return client.products.offre !== null;
+  if (product === "collect") return client.products.collect;
+  return true;
+}
+
 function openViews(client: Client): number {
   const features = clientFeatures(client);
   return VIEWS.filter((view) => view.id == null || features[view.id]).length;
@@ -19,6 +29,7 @@ function openViews(client: Client): number {
 
 export default function CapacitesPage() {
   const toast = useToast();
+  const { product } = useAdminBasePath();
   const [clients, setClients] = useState<Client[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -58,8 +69,9 @@ export default function CapacitesPage() {
     );
   }
 
+  const visible = clients.filter((client) => hasProduct(client, product));
   const selected =
-    clients.find((client) => client.id === selectedId) ?? clients[0] ?? null;
+    visible.find((client) => client.id === selectedId) ?? visible[0] ?? null;
 
   return (
     <div className="flex flex-col gap-5">
@@ -79,7 +91,7 @@ export default function CapacitesPage() {
       ) : (
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
           <div className="flex shrink-0 flex-col gap-1.5 lg:w-64">
-            {clients.map((client) => {
+            {visible.map((client) => {
               const active = client.id === selected.id;
               return (
                 <button

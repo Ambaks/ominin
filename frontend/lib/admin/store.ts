@@ -206,8 +206,8 @@ export async function reloadLeads(): Promise<void> {
   }
 }
 
-/** Recompte les brouillons en attente (badge E-mails) — appelé par la page
- * E-mails à son chargement et après chaque approbation/rejet. */
+/** Recompte les brouillons en attente (badge Prospection) — appelé par la
+ * page Prospection à son chargement et après chaque approbation/rejet. */
 export async function refreshPendingDrafts(): Promise<void> {
   if (!state) return;
   const pendingDrafts = await fetchPendingDraftCount();

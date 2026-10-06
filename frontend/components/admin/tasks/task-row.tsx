@@ -3,13 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
-import { useAdminBasePath } from "@/lib/admin/base-path";
+import { adminHref, useAdminBasePath } from "@/lib/admin/base-path";
 import { formatRelative } from "@/lib/admin/format";
 import type { TaskRow } from "@/lib/admin/types";
 import { PriorityBadge } from "../status-badge";
 
 /*
- * Ligne de tâche partagée (page Tâches, tableau de bord). Le rond termine,
+ * Ligne de tâche partagée (Agenda, tableau de bord). Le rond termine,
  * le reste de la ligne édite, la puce restaurant ouvre la fiche.
  */
 export function TaskRowItem({
@@ -68,7 +68,9 @@ export function TaskRowItem({
         <button
           type="button"
           onClick={() =>
-            router.push(`${basePath}${localPath}?lead=${task.restaurantId}`)
+            router.push(
+              `${adminHref(basePath, localPath)}?lead=${task.restaurantId}`
+            )
           }
           className="hidden max-w-36 shrink-0 truncate rounded-full border border-hairline px-2.5 py-1 text-xs text-muted transition-colors hover:text-foreground sm:block"
         >

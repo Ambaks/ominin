@@ -1,4 +1,5 @@
 import type { Database, Json } from "@/lib/supabase/database.types";
+import type { Product } from "./products";
 
 export type LeadStatus = Database["public"]["Enums"]["crm_lead_status"];
 export type RestaurantCategory =
@@ -35,6 +36,8 @@ export interface LeadLite {
   ownerName: string | null;
   lastContactAt: string | null;
   nextFollowUpAt: string | null;
+  /** Produits qu'on cherche à lui vendre : les vues produit où il apparaît. */
+  targetProducts: Product[];
   createdAt: string;
   /** Champ de recherche pré-normalisé (nom, ville, adresse, contact…). */
   searchKey: string;
@@ -138,11 +141,11 @@ export interface LeadDetail {
 export interface AdminState {
   userId: string;
   leads: LeadLite[];
-  /** Tâches ouvertes, toutes (badge de nav, tableau de bord, pipeline). */
+  /** Tâches ouvertes, toutes (badge de nav, Aperçu, Agenda, pipeline). */
   tasks: TaskRow[];
   /** RDV prévus dans la fenêtre à venir (tableau de bord, filtres). */
   appointments: AppointmentRow[];
-  /** Brouillons de Léa en attente d'approbation (badge de nav E-mails). */
+  /** Brouillons de Léa en attente d'approbation (badge de nav Prospection). */
   pendingDrafts: number;
 }
 

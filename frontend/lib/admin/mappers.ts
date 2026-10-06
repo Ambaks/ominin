@@ -1,5 +1,6 @@
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import { normalizeText } from "./format";
+import type { Product } from "./products";
 import type {
   Activity,
   AppointmentRow,
@@ -29,7 +30,7 @@ export const toJson = (value: unknown): Json => value as Json;
 
 /** Projection de la ligne légère — voir LeadLite. */
 export const LEAD_LITE_SELECT =
-  "id, name, category, city, address, latitude, longitude, phone, email, website, owner_name, created_at, lead:crm_leads(id, status, priority, last_contact_at, next_follow_up_at)" as const;
+  "id, name, category, city, address, latitude, longitude, phone, email, website, owner_name, created_at, lead:crm_leads(id, status, priority, last_contact_at, next_follow_up_at, target_products)" as const;
 
 interface LeadLiteJoinRow {
   id: string;
@@ -50,6 +51,7 @@ interface LeadLiteJoinRow {
     priority: Lead["priority"];
     last_contact_at: string | null;
     next_follow_up_at: string | null;
+    target_products: Product[];
   } | null;
 }
 
@@ -74,6 +76,7 @@ export function rowToLeadLite(row: LeadLiteJoinRow): LeadLite | null {
     ownerName: row.owner_name,
     lastContactAt: row.lead.last_contact_at,
     nextFollowUpAt: row.lead.next_follow_up_at,
+    targetProducts: row.lead.target_products,
     createdAt: row.created_at,
     searchKey: normalizeText(
       [row.name, row.city, row.address, row.phone, row.email, row.owner_name]

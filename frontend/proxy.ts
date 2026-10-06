@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isProduct } from "@/lib/admin/products";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 
 /*
@@ -38,6 +39,12 @@ type ProductConfig = {
   legacyPaths: readonly string[];
   /** Chemins servis par l'arborescence d'un autre produit sur ce host. */
   rewriteOverrides?: readonly { path: string; prefix: string }[];
+  /**
+   * Premier segment d'URL que l'arborescence ignore. L'admin se lit par
+   * produit (/menu/carte) mais sert la même page qu'à /carte : le segment
+   * est retiré à la réécriture et relu côté client (useAdminBasePath).
+   */
+  isViewSegment?: (segment: string) => boolean;
 };
 
 /*
@@ -107,6 +114,7 @@ const PRODUCTS: readonly ProductConfig[] = [
     afterLogin: "/",
     legacyPaths: [],
     rewriteOverrides: LEGAL_OVERRIDES,
+    isViewSegment: isProduct,
   },
   {
     host: process.env.NEXT_PUBLIC_MENU_HOST,
@@ -136,6 +144,12 @@ const matchesPath = (pathname: string, base: string) =>
 const rewritePrefixFor = (product: ProductConfig, pathname: string) =>
   product.rewriteOverrides?.find((o) => matchesPath(pathname, o.path))
     ?.prefix ?? product.prefix;
+
+/** Chemin dans l'arborescence du produit, segment de vue retiré. */
+function treePath(product: ProductConfig, localPath: string): string {
+  const [, first = "", ...rest] = localPath.split("/");
+  return product.isViewSegment?.(first) ? `/${rest.join("/")}` : localPath;
+}
 
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host");
@@ -193,16 +207,34 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Produit atteint par son préfixe sur le domaine principal (mode inerte).
+  const prefixProduct =
+    !subdomain && !legacyProduct
+      ? PRODUCTS.find((p) => matchesPath(pathname, p.prefix))
+      : undefined;
+
   // Réponse par défaut : réécriture vers l'arborescence du produit (chemin nu
   // sur son sous-domaine, ancienne URL sur l'apex en mode inerte), passage
-  // direct sinon. Recréée dans setAll pour porter les cookies rafraîchis.
+  // direct sinon — sauf segment de vue à retirer sous le préfixe. Recréée
+  // dans setAll pour porter les cookies rafraîchis.
   const passthrough = () => {
-    const target = subdomain ?? legacyProduct;
-    if (!target) return NextResponse.next({ request });
     const url = request.nextUrl.clone();
-    const prefix = rewritePrefixFor(target, pathname);
-    url.pathname = pathname === "/" ? prefix : `${prefix}${pathname}`;
-    return NextResponse.rewrite(url, { request });
+    const target = subdomain ?? legacyProduct;
+    if (target) {
+      const local = treePath(target, pathname);
+      const prefix = rewritePrefixFor(target, local);
+      url.pathname = local === "/" ? prefix : `${prefix}${local}`;
+      return NextResponse.rewrite(url, { request });
+    }
+    if (prefixProduct) {
+      const local = pathname.slice(prefixProduct.prefix.length) || "/";
+      const tree = treePath(prefixProduct, local);
+      if (tree !== local) {
+        url.pathname = `${prefixProduct.prefix}${tree === "/" ? "" : tree}`;
+        return NextResponse.rewrite(url, { request });
+      }
+    }
+    return NextResponse.next({ request });
   };
   let response = passthrough();
 
@@ -235,10 +267,6 @@ export async function proxy(request: NextRequest) {
    * il faut retirer le préfixe. Les redirections reprennent la forme d'URL
    * que voit le visiteur, sur le host demandé.
    */
-  const prefixProduct =
-    !subdomain && !legacyProduct
-      ? PRODUCTS.find((p) => matchesPath(pathname, p.prefix))
-      : undefined;
   const product = subdomain ?? legacyProduct ?? prefixProduct;
   const prefix = prefixProduct?.prefix ?? "";
   const localPath = pathname.slice(prefix.length) || "/";
