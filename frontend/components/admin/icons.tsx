@@ -32,24 +32,6 @@ export function MapPinIcon(props: IconProps) {
   );
 }
 
-export function PipelineIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M4 4.5v9M12 4.5v15M20 4.5v6" />
-      <path d="M2.5 4.5h3M10.5 4.5h3M18.5 4.5h3" />
-    </Svg>
-  );
-}
-
-export function TaskIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
-    </Svg>
-  );
-}
-
 export function CalendarIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -257,6 +239,36 @@ export function ShareIcon(props: IconProps) {
       <circle cx="17.5" cy="5.5" r="2.5" />
       <circle cx="17.5" cy="18.5" r="2.5" />
       <path d="m8.2 10.8 7.1-4.1M8.2 13.2l7.1 4.1" />
+    </Svg>
+  );
+}
+
+export function FlagIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5.5 21V4" />
+      <path d="M5.5 4.5h11l-2.5 4 2.5 4h-11" />
+    </Svg>
+  );
+}
+
+export function TaskIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
+    </Svg>
+  );
+}
+
+export function PullRequestIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="6.5" cy="5.5" r="2.5" />
+      <circle cx="6.5" cy="18.5" r="2.5" />
+      <circle cx="17.5" cy="18.5" r="2.5" />
+      <path d="M6.5 8v8M17.5 16v-6.5a3 3 0 0 0-3-3H11" />
+      <path d="m13 4.5-2 2 2 2" />
     </Svg>
   );
 }

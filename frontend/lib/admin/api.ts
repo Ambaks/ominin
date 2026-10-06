@@ -9,7 +9,7 @@ import {
   OUTREACH_VARIANTS_FETCH_LIMIT,
   POSITIVE_CLASSIFICATIONS,
 } from "./constants";
-import { addDays, dayStart } from "./format";
+import { addDays, dayStart, rollingWeekStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
 import {
   LEAD_LITE_SELECT,
@@ -27,6 +27,7 @@ import {
   rowToTask,
   toJson,
 } from "./mappers";
+import type { Product } from "./products";
 import { slugify, uniqueSlug } from "./slug";
 import { commit, getState, reloadLeads } from "./store";
 import type {
@@ -120,6 +121,21 @@ export async function updateLeadStatus(
   });
   // L'activité « changement de statut » est posée par le trigger Postgres.
   refreshDetail(restaurantId);
+}
+
+export async function updateTargetProducts(
+  restaurantId: string,
+  targetProducts: Product[]
+): Promise<void> {
+  check(
+    await createClient()
+      .from("crm_leads")
+      .update({ target_products: targetProducts })
+      .eq("restaurant_id", restaurantId)
+  );
+  apply((draft) => {
+    findLite(draft, restaurantId).targetProducts = targetProducts;
+  });
 }
 
 export interface MarkVisitedInput {
@@ -277,6 +293,8 @@ export interface RestaurantInput {
   email?: string;
   website?: string;
   ownerName?: string;
+  /** Absent : le défaut de la base (Menu). */
+  targetProducts?: Product[];
 }
 
 /** Slug unique contre la base (suffixe -2, -3… si déjà pris). */
@@ -317,6 +335,14 @@ export async function createRestaurant(
       .select("id")
       .single()
   );
+  if (input.targetProducts) {
+    check(
+      await supabase
+        .from("crm_leads")
+        .update({ target_products: input.targetProducts })
+        .eq("restaurant_id", inserted.id)
+    );
+  }
   // Relit la ligne légère complète : le lead vient d'être créé par trigger.
   const row = must(
     await supabase
@@ -486,7 +512,7 @@ export async function completeTask(taskId: string): Promise<void> {
   }
 }
 
-/** Tâches terminées/annulées récentes, pour l'onglet « Terminées ». */
+/** Tâches terminées/annulées récentes, pour l'historique de l'Agenda. */
 export async function fetchClosedTasks(sinceDays: number): Promise<TaskRow[]> {
   const supabase = createClient();
   const rows = must(
@@ -591,7 +617,7 @@ export async function updateAppointmentStatus(
   });
 }
 
-/** RDV de la fenêtre demandée, tous statuts (page RDV). */
+/** RDV de la fenêtre demandée, tous statuts (historique de l'Agenda). */
 export async function fetchAppointments(range: {
   from: string;
   to: string;
@@ -618,16 +644,31 @@ export interface WeeklyActivityCounts {
   appointments: number;
 }
 
-/** Activité des 7 derniers jours glissants. */
-export async function fetchWeeklyActivityCounts(): Promise<WeeklyActivityCounts> {
+/**
+ * Activité des 7 derniers jours glissants. Dans la vue d'un produit, seule
+ * compte l'activité des fiches qui le visent : le filtre traverse la fiche
+ * jusqu'à son lead — l'activité ne porte pas toujours lead_id.
+ */
+export async function fetchWeeklyActivityCounts(
+  product: Product | null
+): Promise<WeeklyActivityCounts> {
   const supabase = createClient();
-  const since = addDays(dayStart(), -6).toISOString();
+  const since = rollingWeekStart().toISOString();
   const countOf = async (type: ActivityType) => {
-    const { count, error } = await supabase
+    let query = supabase
       .from("crm_activities")
-      .select("*", { count: "exact", head: true })
+      .select("id, crm_restaurants!inner(crm_leads!inner(target_products))", {
+        count: "exact",
+        head: true,
+      })
       .eq("type", type)
       .gte("created_at", since);
+    if (product) {
+      query = query.contains("crm_restaurants.crm_leads.target_products", [
+        product,
+      ]);
+    }
+    const { count, error } = await query;
     if (error) throw new Error(error.message);
     return count ?? 0;
   };
@@ -776,7 +817,7 @@ async function fetchAllSlugs(): Promise<string[]> {
 // Prospection automatisée (agent « Léa »)
 //
 // Les lignes outreach ne vivent pas dans le snapshot du store : la page
-// Agent Léa charge à la demande, comme les tâches terminées. L'approbation
+// Prospection charge à la demande, comme les tâches terminées. L'approbation
 // d'un brouillon ne déclenche aucun appel backend : la ligne passe à
 // « approved » sous RLS et le prochain run horaire /agent/inbox l'envoie.
 // Même logique pour les variantes de prompt : le statut change sous RLS et

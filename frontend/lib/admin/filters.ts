@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useSyncExternalStore } from "react";
+import { useAdminBasePath } from "./base-path";
 import { normalizeText } from "./format";
+import { selectForProduct } from "./selectors";
 import { useAdmin } from "./store";
 import type { AdminState, Filters, LeadLite } from "./types";
 
@@ -115,9 +117,20 @@ function appointmentIds(state: AdminState | null): Set<string> {
   return new Set(state?.appointments.map((a) => a.restaurantId) ?? []);
 }
 
+/** Le snapshot vu depuis le produit affiché (l'URL), ou entier en vue
+ * d'ensemble. Les mutations, elles, passent toujours par le store complet. */
+export function useProductAdmin(): AdminState | null {
+  const state = useAdmin();
+  const { product } = useAdminBasePath();
+  return useMemo(
+    () => (state ? selectForProduct(state, product) : null),
+    [state, product]
+  );
+}
+
 /** Sous-ensemble filtré courant — carte, liste et export lisent ici. */
 export function useFilteredLeads(): LeadLite[] {
-  const state = useAdmin();
+  const state = useProductAdmin();
   const current = useFilters();
   return useMemo(
     () =>
@@ -128,7 +141,7 @@ export function useFilteredLeads(): LeadLite[] {
 
 /** Valeurs distinctes pour les sélecteurs du volet Filtres. */
 export function useFilterOptions(): { cities: string[] } {
-  const state = useAdmin();
+  const state = useProductAdmin();
   return useMemo(() => {
     const cities = new Set<string>();
     for (const lead of state?.leads ?? []) {

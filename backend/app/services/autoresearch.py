@@ -79,7 +79,7 @@ def run_autoresearch(*, flush=None) -> dict:
         notify.send(
             "Léa — nouvelle variante de prompt proposée",
             f"{proposed.name}\n\n{proposed.hypothesis}\n\n"
-            f"À examiner : {settings.frontend_origin}/admin/lea",
+            f"À examiner : {settings.frontend_origin}/admin/prospection",
         )
 
     if flush:
