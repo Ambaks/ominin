@@ -1,9 +1,10 @@
 /*
   La présentation : chaque diapositive est dessinée à 1 920 × 1 080 px. À
   l'écran, son cadre prend la largeur disponible et la diapositive s'y met à
-  l'échelle — tan(atan2(a, b)) donne le rapport a/b de deux longueurs, sans
-  script. À l'impression (export PDF, scripts/pitch-pdf.mjs), une page par
-  diapositive, à sa taille exacte.
+  l'échelle par --deck-scale, que pose le script du Deck (slides.tsx). Pas de
+  tan(atan2(100cqw, 1920px)) : Safari le calcule faux et grossissait chaque
+  diapositive plusieurs fois. À l'impression (export PDF,
+  scripts/pitch-pdf.mjs), une page par diapositive, à sa taille exacte.
 */
 @page {
   size: 1920px 1080px;
@@ -11,6 +12,7 @@
 }
 
 .deck {
+  --deck-slide-width: 1920px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -19,7 +21,6 @@
 }
 
 .deck-frame {
-  container-type: inline-size;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -28,12 +29,12 @@
 
 .deck-slide {
   position: relative;
-  width: 1920px;
+  width: var(--deck-slide-width);
   height: 1080px;
   overflow: hidden;
   background: var(--pitch-ground);
   transform-origin: 0 0;
-  scale: tan(atan2(100cqw, 1920px));
+  scale: var(--deck-scale);
 }
 
 @media print {
@@ -45,6 +46,11 @@
   .deck-frame {
     border-radius: 0;
     break-after: page;
+  }
+
+  /* La page fait la largeur d'une diapositive. */
+  .deck-slide {
+    scale: none;
   }
 
   /* Chrome exporte chaque flou (ombre portée, halo) en image à masque, que
