@@ -3,7 +3,7 @@ import { proofSection } from "@/lib/landing-data";
 export function Proof() {
   return (
     <section className="relative">
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
         <h2 className="max-w-3xl kit-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
           {proofSection.titleStart}{" "}
           <span className="ember-text">{proofSection.titleAccent}</span>
@@ -31,9 +31,9 @@ export function Proof() {
                 href={item.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-auto text-xs text-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-foreground"
+                className="mt-auto text-xs font-semibold text-muted underline decoration-ember-2/50 underline-offset-4 transition-colors hover:text-foreground"
               >
-                {item.source}
+                {item.source} ↗
               </a>
             </div>
           ))}

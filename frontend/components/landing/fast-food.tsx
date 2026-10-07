@@ -15,7 +15,7 @@ function Ticket() {
       <div className="rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
         <div className="relative overflow-hidden rounded-[1.9rem] bg-background px-5 pb-6 pt-3">
           <div className="mx-auto mb-5 h-5 w-20 rounded-full bg-surface" />
-          <p className="text-center text-[10px] font-semibold uppercase tracking-[0.25em] text-faint">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-faint">
             {ticket.restaurant}
           </p>
           <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">Votre numéro</p>
@@ -27,7 +27,9 @@ function Ticket() {
                 key={step}
                 className={`flex flex-1 flex-col items-center gap-1.5 ${i === 2 ? "ticket-step-ready" : ""}`}
               >
-                <span className={`h-1.5 w-full rounded-full ${i < 2 ? "ember-gradient" : "bg-hairline"}`} />
+                <span className={`relative h-1.5 w-full overflow-hidden rounded-full ${i < 2 ? "ember-gradient" : "bg-hairline"}`}>
+                  {i === 2 && <span className="ticket-fill ember-gradient absolute inset-0" />}
+                </span>
                 {step}
               </li>
             ))}
@@ -37,7 +39,7 @@ function Ticket() {
             <div className="ticket-cooking absolute inset-0 rounded-2xl border border-hairline bg-surface p-4">
               <p className="flex items-center justify-between text-sm font-semibold">
                 {ticket.cooking}
-                <span className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ember-1">
+                <span className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-ember-1">
                   {ticket.etaSource}
                 </span>
               </p>
@@ -60,7 +62,7 @@ function Ticket() {
 export function FastFood() {
   return (
     <section id={fastFoodSection.id} className="scroll-mt-20">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-16 lg:px-10 lg:py-32">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 pb-8 pt-16 sm:px-6 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:gap-16 lg:px-10 lg:py-20">
         <div>
           <KitHeading
             eyebrow={fastFoodSection.eyebrow}

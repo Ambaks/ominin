@@ -88,7 +88,7 @@ export function CollectPricing() {
       id={pricingSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
         <KitHeading
           eyebrow={pricingSection.eyebrow}
           title={pricingSection.title}

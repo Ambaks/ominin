@@ -53,22 +53,24 @@ function Relay() {
       {/* Imprimante cuisine : le reçu sort de la fente et reste posé. Objet
           physique, mêmes couleurs dans les deux thèmes. */}
       <div
-        className="relay-float relative z-20 -mt-6 ml-auto w-[66%] sm:absolute sm:right-0 sm:top-[22%] sm:mt-0 sm:w-[40%]"
+        className="relay-float relative z-20 mt-3 ml-auto w-[66%] sm:absolute sm:right-0 sm:top-[22%] sm:mt-0 sm:w-[40%]"
         style={{ "--float-tilt": "2deg" } as React.CSSProperties}
       >
-        <div className="rounded-xl bg-[#1c1712] px-3 pb-2.5 pt-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#fbf6ee]/60 shadow-2xl">
-          {heroRelay.kitchenLabel}
-          <div className="mt-1.5 h-1 rounded-full bg-black" />
-        </div>
-        <div className="relay-ticket mx-2 rounded-b-lg border border-t-0 border-black/10 bg-white px-3.5 pb-4 pt-3 font-mono text-[#1c1712] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
-          <p className="text-[9px] uppercase tracking-[0.2em] opacity-60">{heroRelay.ticket.printer}</p>
-          <p className="mt-1 text-[11px] font-bold uppercase">{heroRelay.ticket.label}</p>
-          <p className="kit-display mt-0.5 text-3xl">{heroRelay.ticket.customer}</p>
-          <p className="mt-0.5 text-sm font-bold">{heroRelay.ticket.pickup}</p>
-          <div className="mt-2 border-t border-dashed border-[#1c1712]/30 pt-2 text-[11px] leading-relaxed">
-            {order.lines.map((line) => (
-              <p key={line.id} className="truncate">1 × {line.name}</p>
-            ))}
+        <div className="relay-printer">
+          <div className="rounded-xl bg-[#1c1712] px-3 pb-2.5 pt-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#fbf6ee]/60 shadow-2xl">
+            {heroRelay.kitchenLabel}
+            <div className="mt-1.5 h-1 rounded-full bg-black" />
+          </div>
+          <div className="relay-ticket mx-2 rounded-b-lg border border-t-0 border-black/10 bg-white px-3.5 pb-4 pt-3 font-mono text-[#1c1712] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
+            <p className="text-[9px] uppercase tracking-[0.2em] opacity-60">{heroRelay.ticket.printer}</p>
+            <p className="mt-1 text-[11px] font-bold uppercase">{heroRelay.ticket.label}</p>
+            <p className="kit-display mt-0.5 text-3xl">{heroRelay.ticket.customer}</p>
+            <p className="mt-0.5 text-sm font-bold">{heroRelay.ticket.pickup}</p>
+            <div className="mt-2 border-t border-dashed border-[#1c1712]/30 pt-2 text-[11px] leading-relaxed">
+              {order.lines.map((line) => (
+                <p key={line.id} className="truncate">1 × {line.name}</p>
+              ))}
+            </div>
           </div>
         </div>
       </div>

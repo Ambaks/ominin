@@ -167,10 +167,9 @@ export const hero = {
   stats: [
     {
       value: `0\u00a0€`,
-      label: `Connect, les ${connectTrial.months} premiers mois — puis voir les tarifs`,
-      href: "#tarifs",
+      label: `d'abonnement Connect, les ${connectTrial.months} premiers mois`,
     },
-    { value: "1\u00a0%", label: "de commission en ligne, 0\u00a0% au comptoir" },
+    { value: "1\u00a0%", label: "en ligne, + frais de carte ; 0\u00a0% au comptoir" },
     {
       value: "18\u00a0s",
       label: "de la table à la cuisine, mesuré en service",
@@ -242,19 +241,19 @@ export const howItWorks = {
  */
 export const fastFoodSection = {
   id: "fast-food",
-  eyebrow: "Mode fast food",
+  eyebrow: "Mode fast food · inclus dans Connect",
   title: "Au comptoir, la file disparaît.",
   lead: "Un QR au comptoir ou sur les tables : le client commande, paie et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone.",
   points: [
     {
-      title: "Un numéro du jour",
-      description:
-        "Le même sur le téléphone du client et sur le ticket cuisine, remis à zéro chaque matin.",
-    },
-    {
       title: "L'heure annoncée par l'IA",
       description:
         "Dès le paiement, le client lit « prête vers 12 h 52 ». L'estimateur apprend le rythme de votre cuisine sur vos propres commandes — la file, la taille du panier, l'heure du service — et ajuste l'heure en direct.",
+    },
+    {
+      title: "Un numéro du jour",
+      description:
+        "Le même sur le téléphone du client et sur le ticket cuisine, remis à zéro chaque matin.",
     },
     {
       title: "« C'est prêt ! » sur son téléphone",
@@ -272,7 +271,7 @@ export const fastFoodSection = {
     restaurant: "Votre fast food",
     steps: ["Commandée", "En cuisine", "Prête"],
     cooking: "En cuisine",
-    eta: "Prête vers 12:52",
+    eta: "Prête vers 12\u00a0h\u00a052",
     etaSource: "Estimée par l'IA",
     ready: "C'est prêt !",
     readyBody: "Venez chercher votre commande au comptoir.",
@@ -292,7 +291,7 @@ export const featuresSection = {
       wide: true,
     },
     {
-      stat: "30\u00a0s",
+      stat: "Direct",
       title: "Votre carte à jour",
       description: "Un prix, un plat épuisé, le spécial du jour : depuis votre téléphone, sur toutes les tables.",
     },
@@ -325,12 +324,7 @@ export const demoSection = {
   tableTag: "Table 12",
   sceneCaption:
     "Voilà exactement ce qui se passe à la table 12 de la Trattoria Lucia.",
-  // Photo d'ambiance (Unsplash) derrière le téléphone — à remplacer par une
-  // vraie photo de table cliente.
-  photo: {
-    src: unsplash("photo-1424847651672-bf20a4b0982b", 1600),
-    alt: "Table de restaurant au service du soir",
-  },
+  scrollHint: "Faites défiler dans le téléphone.",
 };
 
 export const proofSection = {
@@ -412,6 +406,7 @@ export const pricingSection = {
   ctaLabel: "Choisir",
   installLabel: "Se branche sur votre salle",
   installLink: "Voir comment ça se branche",
+  cardFeesNote: "Frais de carte de votre prestataire (Stripe ou Square) en sus.",
   plans: [
     {
       id: "digital",
@@ -421,7 +416,7 @@ export const pricingSection = {
       featuresLabel: "Inclus :",
       features: [
         "Menu digital par QR code",
-        `Vos Cachets à votre logo — ${formatPrice(starterKit.cachet.price)} par table + livraison, une fois`,
+        `Vos Cachets à votre logo — ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
         "Mise à jour en temps réel",
         "Espace de gestion",
       ],
@@ -446,7 +441,7 @@ export const pricingSection = {
     },
   ] satisfies Plan[],
   guarantees: [
-    `Cachets à votre logo : ${formatPrice(starterKit.cachet.price)} par table + livraison, une fois`,
+    `Cachets à votre logo : ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
@@ -471,8 +466,10 @@ export function trialPricing(plan: Plan) {
   return {
     price: formatPrice(0),
     unit: `${pricingSection.perMonth} pendant ${months} mois`,
+    /** La suite de l'offre, à lire aussi gros que le reste. */
+    then: `puis ${monthly}`,
     /** La règle, le seuil chiffré en moins. */
-    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(connectTrial.exemptionRevenue)} de commandes passées par Ominin.`,
+    note: `Ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(connectTrial.exemptionRevenue)} de commandes passées par Ominin (environ ${formatEuros(Math.round(connectTrial.exemptionRevenue / months / 1000) * 1000)} par mois).`,
   };
 }
 
@@ -497,7 +494,7 @@ export const installSection = {
   bill: {
     subscription: {
       label: "Abonnement Ominin",
-      value: `0 €/mois pendant ${connectTrial.months} mois`,
+      value: `0 € × ${connectTrial.months} mois, puis ${formatEuros(connectPrice)}/mois`,
     },
     commission: {
       label: "Commission",
@@ -743,7 +740,7 @@ export const qrShowcase = {
     {
       title: "À votre logo, prêts à coller",
       description:
-        `Conçus et imprimés par notre équipe, livrés prêts à coller : ${formatPrice(starterKit.cachet.price)} par table + livraison, réglés une fois à l'ouverture.`,
+        `Conçus et imprimés par notre équipe, livrés prêts à coller : ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, réglés une fois à l'ouverture.`,
     },
     {
       title: "Abîmé ? Remplacé sous 48 h",
@@ -808,7 +805,7 @@ export const faqSection = {
     {
       question: "Combien de temps pour être opérationnel ?",
       answer:
-        "Quelques minutes. Notre équipe conçoit votre menu digital, vous recevez vos Cachets à coller sur les tables. Aucune installation technique de votre côté.",
+        "Votre carte est en ligne en quelques minutes : notre équipe la conçoit pour vous. Vos Cachets imprimés arrivent sous 48 h, prêts à coller sur les tables. Aucune installation technique de votre côté.",
     },
     {
       question: "Puis-je modifier mon menu moi-même ?",
@@ -822,7 +819,7 @@ export const faqSection = {
     },
     {
       question: `Connect est offert ${connectTrial.months} mois : et après ?`,
-      answer: `Au terme des ${connectTrial.months} mois, nous regardons le chiffre d'affaires passé par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} a déjà payé le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
+      answer: `Au terme des ${connectTrial.months} mois, nous regardons les commandes passées par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} suffit à rémunérer le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
     },
     {
       question: "Y a-t-il un engagement ?",
@@ -838,7 +835,7 @@ export const finalCta = {
   subtitle:
     "Voyez ce que vos clients verront, ou écrivez-nous — on vous répond sous 24 heures.",
   contactLabel: "Nous écrire",
-  microcopy: ["Réponse sous 24 h", "Installation en 48 h"],
+  microcopy: ["Réponse sous 24 h", "Carte en ligne en quelques minutes", "Cachets livrés sous 48 h"],
 };
 
 export const footer = {

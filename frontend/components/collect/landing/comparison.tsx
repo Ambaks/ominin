@@ -66,7 +66,7 @@ export function CollectComparison() {
       id={comparisonSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-10 lg:py-32">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1.2fr] lg:px-10 lg:py-32">
         <KitHeading
           eyebrow={comparisonSection.eyebrow}
           title={comparisonSection.title}

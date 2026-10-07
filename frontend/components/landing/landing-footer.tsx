@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { brand, nav, footer } from "@/lib/landing-data";
-import { LEGAL_LINKS } from "@/lib/legal/constants";
+import { editor, LEGAL_LINKS } from "@/lib/legal/constants";
 
 export function LandingFooter() {
   return (
@@ -43,7 +43,11 @@ export function LandingFooter() {
           ))}
         </nav>
 
-        <p className="text-xs text-faint">© 2026 {brand}</p>
+        {/* Qui est derrière : l'identité publiée dans les mentions légales. */}
+        <p className="text-xs text-muted">
+          © 2026 {brand}, entreprise française
+          {editor.siren && ` · SIREN ${editor.siren}`}
+        </p>
       </div>
     </footer>
   );

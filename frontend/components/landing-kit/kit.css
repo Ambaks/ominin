@@ -154,6 +154,25 @@
     opacity: 0;
   }
 }
+/* L'imprimante n'entre en scène qu'avec son ticket : jamais une barre vide. */
+.relay-printer {
+  animation: relay-printer var(--relay) ease-out infinite;
+}
+@keyframes relay-printer {
+  0%,
+  17% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  21%,
+  96% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 /* Le reçu s'imprime de haut en bas (clip), puis reste posé, opaque. */
 .relay-ticket {
   animation: relay-ticket var(--relay) steps(14, end) infinite;
@@ -260,6 +279,17 @@
     transform: scaleX(1);
   }
 }
+.ticket-fill {
+  animation: ticket-fill var(--ticket) step-end infinite;
+}
+@keyframes ticket-fill {
+  0% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+}
 .ticket-step-ready {
   animation: ticket-step var(--ticket) step-end infinite;
 }
@@ -357,12 +387,14 @@
   .relay-ready,
   .relay-progress,
   .relay-float,
+  .relay-printer,
   .ticket-cooking,
   .ticket-eta-bar,
   .ticket-step-ready {
     animation: none;
   }
-  .ticket-ready {
+  .ticket-ready,
+  .ticket-fill {
     animation: none;
     display: none;
   }

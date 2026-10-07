@@ -37,7 +37,7 @@ function Bill({ path, inverse }: { path: InstallPath; inverse: boolean }) {
       <dl className="mt-3 flex flex-col gap-2.5">
         {lines.map((line) => (
           <div key={line.label} className="flex items-baseline gap-2 text-sm">
-            <dt className={inverse ? "text-background/70" : "text-muted"}>
+            <dt className={`min-w-0 ${inverse ? "text-background/70" : "text-muted"}`}>
               {line.label}
             </dt>
             <span
@@ -47,7 +47,7 @@ function Bill({ path, inverse }: { path: InstallPath; inverse: boolean }) {
               aria-hidden
             />
             <dd
-              className={`whitespace-nowrap font-semibold ${
+              className={`text-right font-semibold sm:whitespace-nowrap ${
                 line.own && !inverse ? "ember-text" : ""
               }`}
             >
@@ -142,7 +142,7 @@ export function Install() {
       id={installSection.id}
       className="install-scene scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
         <KitHeading
           eyebrow={installSection.eyebrow}
           title={installSection.title}

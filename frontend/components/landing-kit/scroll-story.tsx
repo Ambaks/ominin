@@ -29,7 +29,7 @@ function Phone({
   compact?: boolean;
 }) {
   return (
-    <div className={`relative mx-auto w-full rounded-[2.6rem] ${compact ? "max-w-[13rem]" : "max-w-[17.5rem]"} border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10`}>
+    <div className={`relative mx-auto w-full rounded-[2.6rem] ${compact ? "max-w-[15rem]" : "max-w-[17.5rem]"} border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10`}>
       <div className={`relative flex flex-col overflow-hidden rounded-[2.1rem] bg-background px-4 pb-5 pt-3 ${compact ? "" : "aspect-[9/18]"}`}>
         <div className="mx-auto mb-4 h-5 w-20 shrink-0 rounded-full bg-surface" aria-hidden />
         <div className="mb-4 shrink-0">{header}</div>
@@ -98,7 +98,7 @@ export function ScrollStory({
 
   return (
     <section id={id} className="scroll-mt-20 border-y border-hairline bg-surface/40">
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:pb-12 lg:pt-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:pb-10 lg:pt-24">
         <KitHeading eyebrow={eyebrow} title={title} />
         <div className="mt-16 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">
           <div className="hidden lg:block">

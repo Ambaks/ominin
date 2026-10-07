@@ -33,7 +33,7 @@ export function KitBento({
 }) {
   return (
     <section id={id} className="scroll-mt-20">
-      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-24 sm:px-6 lg:px-10 lg:pb-12 lg:pt-32">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8 pt-16 sm:px-6 sm:pt-24 lg:px-10 lg:pb-10 lg:pt-24">
         <KitHeading eyebrow={eyebrow} title={title} />
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item, i) => (

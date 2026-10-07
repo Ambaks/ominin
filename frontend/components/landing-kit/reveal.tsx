@@ -28,7 +28,7 @@ export function Reveal({
         node.dataset.shown = "";
         observer.disconnect();
       },
-      { rootMargin: "0px 0px -4% 0px" }
+      { rootMargin: "0px 0px 8% 0px" }
     );
     observer.observe(node);
     return () => observer.disconnect();

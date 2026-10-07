@@ -49,7 +49,7 @@ function PlanCard({ plan }: { plan: Plan }) {
         />
       )}
       {plan.badge && (
-        <span className="ember-gradient absolute -top-3 left-6 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-background">
+        <span className="ember-gradient absolute -top-3 left-6 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-background">
           {plan.badge}
         </span>
       )}
@@ -74,6 +74,9 @@ function PlanCard({ plan }: { plan: Plan }) {
             {trial ? trial.unit : pricingSection.perMonth}
           </span>
         </div>
+        {trial && (
+          <p className="w-full text-base font-bold text-foreground">{trial.then}</p>
+        )}
         {commission && (
           <p className="flex max-w-[15rem] items-center gap-3 pb-1.5 text-sm leading-snug text-muted">
             <span className="whitespace-nowrap rounded-full border border-ember-2/40 px-3 py-1 kit-display text-lg font-medium text-foreground">
@@ -81,6 +84,9 @@ function PlanCard({ plan }: { plan: Plan }) {
             </span>
             {commission.basis}
           </p>
+        )}
+        {commission && (
+          <p className="mt-1 text-xs text-muted">{pricingSection.cardFeesNote}</p>
         )}
       </div>
 
@@ -155,7 +161,7 @@ export function Pricing() {
       id={pricingSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
         <KitHeading
           eyebrow={pricingSection.eyebrow}
           title={pricingSection.title}
@@ -175,7 +181,7 @@ export function Pricing() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted lg:mt-14">
+        <div className="mt-10 flex flex-col gap-2 text-sm text-muted sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:text-xs lg:mt-14">
           {pricingSection.guarantees.map((g) => (
             <span key={g} className="flex items-center gap-1.5">
               <span className="text-ember-1">✓</span>

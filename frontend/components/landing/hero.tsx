@@ -17,7 +17,7 @@ function Relay() {
         className="relay-float relative z-10 w-[86%] rounded-[2rem] border border-hairline bg-surface p-4 shadow-2xl shadow-black/40 sm:w-[62%]"
         style={{ "--float-tilt": "-1.5deg" } as React.CSSProperties}
       >
-        <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">
+        <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
           <span>{heroRelay.phoneLabel}</span>
           <span className="size-1.5 rounded-full bg-ember-1" />
         </div>
@@ -51,21 +51,23 @@ function Relay() {
 
       {/* Imprimante cuisine : objet physique, mêmes couleurs dans les deux thèmes. */}
       <div
-        className="relay-float relative z-20 -mt-6 ml-auto w-[66%] sm:absolute sm:right-0 sm:top-[22%] sm:mt-0 sm:w-[40%]"
+        className="relay-float relative z-20 mt-3 ml-auto w-[66%] sm:absolute sm:right-0 sm:top-[22%] sm:mt-0 sm:w-[40%]"
         style={{ "--float-tilt": "2deg" } as React.CSSProperties}
       >
-        <div className="rounded-xl bg-[#1c1712] px-3 pb-2.5 pt-2 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#fbf6ee]/60 shadow-2xl">
-          {heroRelay.kitchenLabel}
-          <div className="mt-1.5 h-1 rounded-full bg-black" />
-        </div>
-        <div className="relay-ticket mx-2 rounded-b-lg border border-t-0 border-black/10 bg-white px-3.5 pb-4 pt-3 font-mono text-[#1c1712] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
-          <p className="text-[9px] uppercase tracking-[0.2em] opacity-60">{heroRelay.ticket.printer}</p>
-          <p className="kit-display mt-1 text-3xl">{heroRelay.ticket.label}</p>
-          <p className="mt-0.5 text-xs font-bold uppercase">{heroRelay.ticket.detail}</p>
-          <div className="mt-2 border-t border-dashed border-[#1c1712]/30 pt-2 text-[11px] leading-relaxed">
-            {order.lines.map((line) => (
-              <p key={line.id} className="truncate">1 × {line.name}</p>
-            ))}
+        <div className="relay-printer">
+          <div className="rounded-xl bg-[#1c1712] px-3 pb-2.5 pt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#fbf6ee]/60 shadow-2xl">
+            {heroRelay.kitchenLabel}
+            <div className="mt-1.5 h-1 rounded-full bg-black" />
+          </div>
+          <div className="relay-ticket mx-2 rounded-b-lg border border-t-0 border-black/10 bg-white px-3.5 pb-4 pt-3 font-mono text-[#1c1712] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
+            <p className="text-[11px] uppercase tracking-[0.2em] opacity-60">{heroRelay.ticket.printer}</p>
+            <p className="kit-display mt-1 text-3xl">{heroRelay.ticket.label}</p>
+            <p className="mt-0.5 text-xs font-bold uppercase">{heroRelay.ticket.detail}</p>
+            <div className="mt-2 border-t border-dashed border-[#1c1712]/30 pt-2 text-[11px] leading-relaxed">
+              {order.lines.map((line) => (
+                <p key={line.id} className="truncate">1 × {line.name}</p>
+              ))}
+            </div>
           </div>
         </div>
       </div>

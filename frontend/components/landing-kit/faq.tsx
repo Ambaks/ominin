@@ -14,7 +14,7 @@ export function KitFaq({
 }) {
   return (
     <section id={id} className="scroll-mt-20">
-      <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:px-10 lg:py-32">
+      <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1.5fr] lg:px-10 lg:py-24">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <KitHeading eyebrow={eyebrow} title={title} />
         </div>

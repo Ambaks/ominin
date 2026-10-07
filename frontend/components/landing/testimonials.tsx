@@ -8,7 +8,7 @@ export function Testimonials() {
       id={clientsSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
         <KitHeading
           eyebrow={clientsSection.eyebrow}
           title={clientsSection.title}
@@ -35,10 +35,10 @@ export function Testimonials() {
                   className="size-10 shrink-0 rounded-xl object-cover"
                 />
                 <div className="min-w-0">
-                  <p className="truncate kit-display text-sm font-medium">
+                  <p className="kit-display text-sm font-medium">
                     {client.name}
                   </p>
-                  <p className="truncate text-xs text-muted">
+                  <p className="text-xs text-muted">
                     {client.type} · {client.city}
                   </p>
                   <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-muted">
