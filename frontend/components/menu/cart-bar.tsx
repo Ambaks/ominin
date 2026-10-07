@@ -8,9 +8,9 @@ import {
 } from "@/components/collect/pickup-fields";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
-import { PaymentReturn } from "@/components/menu/payment-return";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { SquarePayment } from "@/components/menu/square-payment";
+import { StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref } from "@/lib/collect/shared";
@@ -77,7 +77,7 @@ export function CartBar() {
   // valable, il faut le dire au client (il paiera au comptoir).
   const [cardFailed, setCardFailed] = useState(false);
   // Règlement SumUp en cours : le widget s'affiche dans la feuille à la place
-  // de l'écran « commande envoyée » (Stripe redirige, SumUp encaisse en page).
+  // de l'écran « commande envoyée ».
   const [sumupPayment, setSumupPayment] = useState<{
     orderId: string;
     checkoutId: string;
@@ -89,6 +89,13 @@ export function CartBar() {
   const [squarePayment, setSquarePayment] = useState<{
     orderId: string;
     locationId: string;
+    total: number;
+    tipAmount: number;
+  } | null>(null);
+  // Règlement Stripe : même place, le Payment Intent se prépare au montage
+  // de la feuille de paiement.
+  const [stripePayment, setStripePayment] = useState<{
+    orderId: string;
     total: number;
     tipAmount: number;
   } | null>(null);
@@ -150,68 +157,25 @@ export function CartBar() {
     setState("idle");
     setSumupPayment(null);
     setSquarePayment(null);
+    setStripePayment(null);
     tickets?.show(orderId, { notices });
   };
-  // Commande partie chez Stripe, pour le retour arrière.
-  const leaving = useRef<string | null>(null);
-  // Revenue de Stripe par « Retour » sans payer (restaurant) : la même
-  // feuille qu'une annulation chez Stripe.
-  const [returned, setReturned] = useState<string | null>(null);
-  // Page restituée telle quelle par un retour arrière depuis Stripe : la
-  // feuille restait figée sur « Envoi… », le panier plein — de quoi
-  // commander deux fois. La commande a changé de mains : en fast food, son
-  // ticket prend la suite ; au restaurant, l'écran d'un paiement annulé.
-  const onPageShow = useRef<(event: PageTransitionEvent) => void>(() => {});
-  useEffect(() => {
-    onPageShow.current = (event) => {
-      if (!event.persisted) return;
-      setState((current) => (current === "sending" ? "idle" : current));
-      const orderId = leaving.current;
-      if (!orderId) return;
-      leaving.current = null;
-      // Click & collect : rien n'est passé tant que ce n'est pas payé, le
-      // panier gardé sert au nouvel essai.
-      if (cart.collect) return;
-      cart.clear();
-      if (cart.fastFood) {
-        handOff(orderId);
-      } else {
-        setOpen(false);
-        setReturned(orderId);
-      }
-    };
-  });
-  // Où en est le règlement par carte dans la feuille (Square, SumUp).
+  // Où en est le règlement par carte dans la feuille.
   const cardPhase = useRef<CardPhase>("form");
   // Changée, la feuille du panier se remonte (sur la confirmation).
   const [sheetKey, setSheetKey] = useState(0);
   const onCardPhase = (phase: CardPhase) => {
     cardPhase.current = phase;
   };
-  useEffect(() => {
-    const onShow = (event: PageTransitionEvent) => onPageShow.current(event);
-    window.addEventListener("pageshow", onShow);
-    return () => window.removeEventListener("pageshow", onShow);
-  }, []);
   const titleId = useId();
   const hintId = useId();
 
   // Toujours dans la page tant qu'on peut commander : une zone annoncée n'est
   // lue que si elle existait avant son changement.
   const status = (
-    <>
-      <p role="status" className="sr-only">
-        {announcement}
-      </p>
-      {returned && (
-        <PaymentReturn
-          key={returned}
-          outcome="annule"
-          orderId={returned}
-          tableNumber={cart.tableNumber}
-        />
-      )}
-    </>
+    <p role="status" className="sr-only">
+      {announcement}
+    </p>
   );
 
   // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
@@ -370,33 +334,9 @@ export function CartBar() {
     cart.track(payment === "carte" ? "paiement" : "commande", { orderId });
 
     if (payment === "carte" && cart.paymentProvider === "stripe") {
-      // La commande est enregistrée ; on enchaîne sur le règlement Stripe,
-      // qui la fera partir en cuisine.
-      try {
-        const response = await fetch("/api/stripe/pay", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            tipAmount > 0 ? { orderId, tipAmount } : { orderId }
-          ),
-        });
-        const body = (await response.json()) as { url?: string };
-        if (response.ok && body.url) {
-          // Rien ne change à l'écran avant de partir : une feuille qui se
-          // ferme ici lance un history.back(), et Chrome annule alors la
-          // navigation vers Stripe. Le panier gardé est seulement oublié :
-          // un retour arrière ne ramène pas de quoi commander deux fois.
-          if (!cart.collect) cart.forgetSaved();
-          leaving.current = orderId;
-          window.location.assign(body.url);
-          return;
-        }
-        fail();
-      } catch {
-        // Le règlement en ligne a échoué : la commande reste valable,
-        // le client paiera au comptoir.
-        fail();
-      }
+      // Le Payment Intent se prépare au montage de la feuille de paiement,
+      // qui fera partir la commande en cuisine.
+      setStripePayment({ orderId, total: cart.total, tipAmount });
     }
 
     if (payment === "carte" && cart.paymentProvider === "sumup") {
@@ -441,19 +381,47 @@ export function CartBar() {
     }
 
     if (cart.collect) {
-      // Stripe a échoué (erreur déjà affichée) ou Square se règle dans la
-      // feuille : le panier ne se vide qu'au paiement.
+      // Le règlement se fait dans la feuille (ou n'a pas pu démarrer, erreur
+      // affichée) : le panier ne se vide qu'au paiement.
       if (!failed) setState("sent");
       return;
     }
     cart.clear();
     // Fast food : le ticket, sauf si le règlement se poursuit dans la
-    // feuille (SumUp, Square) — il viendra à sa fin.
-    const inPage = payment === "carte" && !failed && cart.paymentProvider !== "stripe";
+    // feuille — il viendra à sa fin.
+    const inPage = payment === "carte" && !failed;
     if (cart.fastFood && !inPage) {
       handOff(orderId, [...(failed ? [CARD_NOTICES.failed] : []), ...loyaltyNotices()]);
     } else {
       setState("sent");
+    }
+  };
+
+  // Fin d'un règlement dans la feuille (Square, Stripe). Click & collect :
+  // payé, la page de suivi ; sinon la commande n'est pas passée, le panier
+  // reste. À table : non payé, l'addition passe au comptoir ; en fast food,
+  // le ticket prend la suite.
+  const finishInPage = (orderId: string, paid: boolean) => {
+    setSquarePayment(null);
+    setStripePayment(null);
+    if (cart.collect) {
+      if (paid) {
+        cart.clear();
+        window.location.assign(
+          `${collectHref(cart.slug)}/confirmation?commande=${orderId}`
+        );
+      } else {
+        setState("error");
+        setError("Le paiement n’a pas abouti : votre commande n’est pas passée.");
+      }
+      return;
+    }
+    if (!paid) giveUpCard(orderId);
+    if (cart.fastFood) {
+      handOff(
+        orderId,
+        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
+      );
     }
   };
 
@@ -463,7 +431,8 @@ export function CartBar() {
     // encore à remplir : l'addition passe au comptoir, où la salle voit la
     // commande. Débit en cours : il aboutira ou non, le ticket le dira — la
     // passer au comptoir maintenant l'y ferait encaisser une seconde fois.
-    const pending = sumupPayment?.orderId ?? squarePayment?.orderId;
+    const pending =
+      sumupPayment?.orderId ?? squarePayment?.orderId ?? stripePayment?.orderId;
     if (cart.fastFood && state === "sent" && pending) {
       const abandoned = cardPhase.current === "form";
       if (abandoned) giveUpCard(pending);
@@ -480,6 +449,7 @@ export function CartBar() {
       giveUpCard(pending);
       setSumupPayment(null);
       setSquarePayment(null);
+      setStripePayment(null);
       setSheetKey((key) => key + 1);
       return;
     }
@@ -488,6 +458,7 @@ export function CartBar() {
       setState("idle");
       setSumupPayment(null);
       setSquarePayment(null);
+      setStripePayment(null);
     }
   };
 
@@ -566,28 +537,15 @@ export function CartBar() {
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
                   onPhase={onCardPhase}
-                  onDone={(paid) => {
-                    setSquarePayment(null);
-                    if (cart.collect) {
-                      if (paid) {
-                        cart.clear();
-                        window.location.assign(
-                          `${collectHref(cart.slug)}/confirmation?commande=${squarePayment.orderId}`
-                        );
-                      } else {
-                        setState("error");
-                        setError("Le paiement n’a pas abouti : votre commande n’est pas passée.");
-                      }
-                      return;
-                    }
-                    if (!paid) giveUpCard(squarePayment.orderId);
-                    if (cart.fastFood) {
-                      handOff(
-                        squarePayment.orderId,
-                        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
-                      );
-                    }
-                  }}
+                  onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
+                />
+              ) : state === "sent" && stripePayment ? (
+                <StripePayment
+                  orderId={stripePayment.orderId}
+                  total={stripePayment.total}
+                  tipAmount={stripePayment.tipAmount}
+                  onPhase={onCardPhase}
+                  onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
               ) : state === "sent" ? (
                 <div className="flex flex-col items-center gap-4 p-10 text-center">

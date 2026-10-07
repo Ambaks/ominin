@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { getStripe, settleCheckoutSession } from "@/lib/stripe/server";
+import {
+  getStripe,
+  settleCheckoutSession,
+  settlePaymentIntent,
+} from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Webhook des comptes CONNECTÉS (paiements d'additions à table) — endpoint
- * Stripe distinct du webhook plateforme (abonnements), avec son propre
- * secret STRIPE_CONNECT_WEBHOOK_SECRET. À l'encaissement d'une session, la
- * commande est marquée payée en ligne et part en cuisine (ou le paiement est
+ * Webhook des comptes CONNECTÉS (paiements en ligne des commandes) —
+ * endpoint Stripe distinct du webhook plateforme (abonnements), avec son
+ * propre secret STRIPE_CONNECT_WEBHOOK_SECRET. À l'encaissement, la commande
+ * est marquée payée en ligne et part en cuisine (ou le paiement est
  * remboursé si l'addition a été réglée au comptoir entre-temps — voir
- * settleCheckoutSession). Une erreur de base renvoie 500 : Stripe rejoue,
- * le marquage est idempotent.
+ * settlePaymentIntent). Une erreur de base renvoie 500 : Stripe rejoue, le
+ * marquage est idempotent.
  */
 
 export async function POST(request: Request) {
@@ -40,6 +44,16 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
   switch (event.type) {
+    // Le paiement dans la page : le filet de la vérification faite par la
+    // feuille, si le client ferme l'onglet juste après avoir payé.
+    case "payment_intent.succeeded": {
+      if (event.account) {
+        await settlePaymentIntent(admin, stripe, event.data.object, event.account);
+      }
+      break;
+    }
+    // Les sessions Checkout ouvertes avant le passage au paiement dans la
+    // page.
     case "checkout.session.completed": {
       const session = event.data.object;
       if (event.account) {

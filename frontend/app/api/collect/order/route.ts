@@ -4,16 +4,16 @@ import type { OrderItemOption } from "@/lib/gestion/types";
 import {
   connectedAccount,
   getStripe,
-  settleCheckoutSession,
+  settlePaymentIntent,
 } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Suivi d'une commande à emporter par son identifiant (non devinable : il
  * sert de preuve, comme pour le ticket du menu). Tant qu'elle attend son
- * paiement Stripe, la session est relue chez Stripe à chaque passage — même
+ * paiement Stripe, l'intent est relu chez Stripe à chaque passage — même
  * marquage que le webhook connecté, qui peut arriver après le client.
- * Disparue : le paiement a expiré sans aboutir, la commande n'existe plus.
+ * Disparue : le paiement a été abandonné, la commande n'existe plus.
  */
 export async function GET(request: Request) {
   const orderId = new URL(request.url).searchParams.get("commande");
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     admin
       .from("orders")
       .select(
-        "status, paid_online, stripe_session_id, etablissement_id, created_at, pickup_at, estimated_ready_at, customer_name, order_items(name, quantity, unit_price, options)"
+        "status, paid_online, stripe_payment_intent_id, etablissement_id, created_at, pickup_at, estimated_ready_at, customer_name, order_items(name, quantity, unit_price, options)"
       )
       .eq("id", orderId)
       .eq("type", "collect")
@@ -36,16 +36,16 @@ export async function GET(request: Request) {
   if (error) {
     return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
   }
-  if (order && !order.paid_online && order.stripe_session_id) {
+  if (order && !order.paid_online && order.stripe_payment_intent_id) {
     const account = await connectedAccount(admin, order.etablissement_id);
     if (account) {
       const stripe = getStripe();
-      const session = await stripe.checkout.sessions.retrieve(
-        order.stripe_session_id,
+      const intent = await stripe.paymentIntents.retrieve(
+        order.stripe_payment_intent_id,
         {},
         { stripeAccount: account.id }
       );
-      if ((await settleCheckoutSession(admin, stripe, session, account.id)) === "paid") {
+      if ((await settlePaymentIntent(admin, stripe, intent, account.id)) === "paid") {
         ({ data: order, error } = await read());
         if (error) throw new Error(error.message);
       }

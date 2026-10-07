@@ -2,7 +2,7 @@ import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Où en est un règlement par carte dans la page (Square, SumUp) : le
+ * Où en est un règlement par carte dans la page (Stripe, Square, SumUp) : le
  * formulaire attend, un débit est en cours, ou c'est payé. La feuille qui le
  * porte ne se referme pas de la même façon selon le cas.
  */
@@ -10,7 +10,7 @@ export type CardPhase = "form" | "charging" | "paid";
 
 /**
  * Le règlement en ligne n'aura pas lieu — impossible à démarrer, refusé,
- * annulé chez Stripe, ou « Payer au comptoir » : l'addition redevient à
+ * abandonné, ou « Payer au comptoir » : l'addition redevient à
  * encaisser en salle, prévenue comme d'une commande ordinaire. Sans effet sur
  * une commande déjà réglée ou close (la RPC ne touche qu'une commande en
  * attente). Rend faux si la base n'a pas pu l'enregistrer.

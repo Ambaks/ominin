@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 };
 
 /*
- * Suivi d'une commande à emporter, au retour de Stripe Checkout ou après un
- * paiement Square dans la feuille : le composant client confirme le
- * paiement puis suit le statut (préparation → prête).
+ * Suivi d'une commande à emporter, après son paiement dans la feuille
+ * (Stripe ou Square) : le composant client confirme le paiement puis suit le
+ * statut (préparation → prête).
  */
 export default async function ConfirmationPage({
   params,

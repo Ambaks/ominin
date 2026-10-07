@@ -6,21 +6,28 @@ import {
   settleFromOrder,
   withFreshToken,
 } from "@/lib/square/server";
+import {
+  connectedAccount,
+  getStripe,
+  settlePaymentIntent,
+} from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Tentatives de paiement Square abandonnées (workflow square-expire.yml).
- * Square n'a pas de session qui expire, comme Stripe : sans ce passage, une
- * commande dont le client a quitté le paiement en ligne restait en attente
- * pour toujours, hors de la caisse, son stock retenu. Même sort pour une
- * tentative qui n'a atteint aucun encaisseur (session Stripe jamais créée,
- * onglet fermé avant) : rien n'expirerait pour elle.
+ * Tentatives de paiement en ligne abandonnées (workflow square-expire.yml).
+ * Ni Square ni un Payment Intent Stripe n'expirent d'eux-mêmes : sans ce
+ * passage, une commande dont le client a quitté le paiement en ligne restait
+ * en attente pour toujours, hors de la caisse, son stock retenu. Même sort
+ * pour une tentative qui n'a atteint aucun encaisseur (onglet fermé avant).
  *
- * Passé la durée de vie d'une session Stripe, la tentative est écartée
- * (discard_stale_online_payment). Une tentative qui a atteint Square
- * (square_order_id) est d'abord relue auprès de Square : réglée, elle est
- * close comme par le webhook ; invérifiable (compte délié, API en panne),
- * elle est laissée en place et signalée, jamais supprimée à l'aveugle.
+ * Passé ONLINE_PAYMENT_TTL_S, la tentative est écartée
+ * (discard_stale_online_payment). Celle qui a atteint un encaisseur est
+ * d'abord relue chez lui : réglée, elle est close comme par le webhook ; un
+ * Payment Intent inachevé est annulé avant, pour qu'il ne puisse plus être
+ * débité. Invérifiable (compte délié, API en panne), elle est laissée en
+ * place et signalée, jamais supprimée à l'aveugle. Les sessions Checkout
+ * encore ouvertes au passage au paiement dans la page expirent d'elles-mêmes
+ * (webhook connecté).
  */
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -41,6 +48,33 @@ async function settledAtSquare(
   return settleFromOrder(admin, order.id, squareOrder);
 }
 
+/**
+ * Vrai si l'intent Stripe a abouti, la commande étant alors close ; sinon il
+ * est annulé, et la commande peut être écartée.
+ */
+async function settledAtStripe(
+  admin: Admin,
+  order: { etablissement_id: string; stripe_payment_intent_id: string }
+): Promise<boolean> {
+  const account = await connectedAccount(admin, order.etablissement_id);
+  if (!account) throw new Error("Compte Stripe délié : règlement invérifiable.");
+  const stripe = getStripe();
+  const stripeAccount = { stripeAccount: account.id };
+  const intent = await stripe.paymentIntents.retrieve(
+    order.stripe_payment_intent_id,
+    {},
+    stripeAccount
+  );
+  if (intent.status === "succeeded") {
+    await settlePaymentIntent(admin, stripe, intent, account.id);
+    return true;
+  }
+  if (intent.status !== "canceled") {
+    await stripe.paymentIntents.cancel(intent.id, {}, stripeAccount);
+  }
+  return false;
+}
+
 export async function POST(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("x-cron-secret") !== secret) {
@@ -51,15 +85,16 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: candidates, error } = await admin
     .from("orders")
-    .select("id, etablissement_id, square_order_id, stripe_session_id, sumup_checkout_id, etablissements(payment_provider)")
+    .select("id, etablissement_id, square_order_id, stripe_session_id, stripe_payment_intent_id, sumup_checkout_id, etablissements(payment_provider)")
     .eq("status", "en_attente")
     .eq("paid_online", false)
     .lt("online_payment_started_at", startedBefore);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  // Une session Stripe expire d'elle-même (webhook connecté) : seules les
-  // tentatives Square, et celles qui n'ont atteint personne, passent ici.
+  // Une session Checkout expire d'elle-même (webhook connecté), SumUp a son
+  // propre suivi : passent ici les tentatives Square, les Payment Intents
+  // Stripe, et celles qui n'ont atteint personne.
   const stale = candidates.filter(
     (order) =>
       order.etablissements?.payment_provider === "square" ||
@@ -72,8 +107,12 @@ export async function POST(request: Request) {
   // En série : quelques commandes par passage, chacune relue puis écrite.
   for (const order of stale) {
     try {
-      const { square_order_id: squareOrderId } = order;
+      const { square_order_id: squareOrderId, stripe_payment_intent_id: intentId } = order;
       if (squareOrderId && (await settledAtSquare(admin, { ...order, square_order_id: squareOrderId }))) {
+        settled += 1;
+        continue;
+      }
+      if (intentId && (await settledAtStripe(admin, { ...order, stripe_payment_intent_id: intentId }))) {
         settled += 1;
         continue;
       }

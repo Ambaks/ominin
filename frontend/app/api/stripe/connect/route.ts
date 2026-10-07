@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getStripe, requireGerant } from "@/lib/stripe/server";
+import {
+  getStripe,
+  registerWalletDomains,
+  requireGerant,
+} from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -77,6 +81,15 @@ export async function POST(request: Request) {
       }
     }
 
+    // À chaque lien d'onboarding : un compte relié avant que le menu ne
+    // propose les portefeuilles se met à jour au passage. Un refus (domaine
+    // de dev, panne) n'empêche pas l'onboarding : la carte reste possible.
+    await registerWalletDomains(stripe, accountId).catch((error) =>
+      console.error("[stripe] domaines Apple Pay / Google Pay non enregistrés", {
+        accountId,
+        message: error instanceof Error ? error.message : String(error),
+      })
+    );
     const link = await stripe.accountLinks.create({
       account: accountId,
       type: "account_onboarding",
