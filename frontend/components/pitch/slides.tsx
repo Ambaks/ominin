@@ -666,10 +666,24 @@ const SLIDES: { slide: (props: SlideProps) => ReactNode; when?: (p: Pitch) => bo
   { slide: SourcesSlide },
 ];
 
+/**
+ * Pose --deck-scale (largeur d'un cadre ÷ largeur d'une diapositive) avant le
+ * premier rendu, puis à chaque redimensionnement. Script en ligne et non
+ * composant client : il s'exécute pendant l'analyse du HTML, sans attendre
+ * l'hydratation, donc sans diapositives géantes au chargement.
+ */
+const deckScaleScript = `(() => {
+  const deck = document.currentScript.parentElement;
+  const slideWidth = parseFloat(getComputedStyle(deck).getPropertyValue("--deck-slide-width"));
+  new ResizeObserver(([entry]) => deck.style.setProperty("--deck-scale", String(entry.contentRect.width / slideWidth))).observe(deck);
+})()`;
+
 export function Deck({ pitch, brand }: { pitch: Pitch; brand: BrandKit }) {
   const slides = SLIDES.filter((entry) => entry.when?.(pitch) ?? true).map((entry) => entry.slide);
   return (
-    <main className="deck">
+    // Le script pose un style sur <main> avant l'hydratation.
+    <main className="deck" suppressHydrationWarning>
+      <script dangerouslySetInnerHTML={{ __html: deckScaleScript }} />
       {slides.map((SlideContent, i) => (
         <SlideContent key={i} index={i + 1} total={slides.length} p={pitch} brand={brand} />
       ))}
