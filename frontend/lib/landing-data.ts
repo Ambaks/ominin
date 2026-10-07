@@ -69,13 +69,15 @@ export interface BillLine {
 }
 
 export interface InstallPath {
-  id: "omilink" | "square";
+  id: "omilink" | "caisse";
   label: string;
   title: string;
   lead: string;
   points: QrShowcasePoint[];
   /** La ligne de l'addition propre à ce chemin ; les autres sont communes. */
   cost: BillLine;
+  /** Un lien sous les points, pour qui ne s'y retrouve pas. */
+  cta?: { label: string; action: string; href: string };
 }
 
 export interface ClientRef {
@@ -99,6 +101,9 @@ export interface FaqItem {
 
 export const brand = "Ominin";
 
+/** Plancher du nombre de caisses compatibles : le texte dit « plus de ». */
+const compatibleTills = 40;
+
 export const contactEmail = "omininsupport@gmail.com";
 
 export const demoCta: Cta = {
@@ -116,7 +121,8 @@ export const planQuoteHref = (planId: string) =>
   `/devis?plan=${encodeURIComponent(planId)}`;
 
 /** Montants à quatre chiffres : sans l'espace des milliers, on les lit mal. */
-const formatEuros = (amount: number) => `${amount.toLocaleString("fr-FR")} €`;
+// Insécable : le montant ne se sépare jamais de son symbole.
+const formatEuros = (amount: number) => `${amount.toLocaleString("fr-FR")}\u00a0€`;
 
 const connectCommission: PlanCommission = {
   percent: 1,
@@ -307,8 +313,8 @@ export const featuresSection = {
     },
     {
       stat: "Caisse",
-      title: "Square, ou vos imprimantes",
-      description: "La commande arrive dans votre caisse Square, ou sort sur vos imprimantes tickets avec le boîtier Omilink.",
+      title: "Votre caisse et/ou vos imprimantes",
+      description: `La commande arrive dans votre caisse (Square, Zelty, Lightspeed… plus de ${compatibleTills} compatibles), et/ou sort sur vos imprimantes tickets avec le boîtier Omilink.`,
     },
   ],
 };
@@ -435,13 +441,13 @@ export const pricingSection = {
         "Gestion des tables",
         "Suivi des commandes en direct",
         "Vues serveur, cuisine et manager",
-        "Intégration Square, impression sur vos imprimantes tickets",
+        "Connexion à votre caisse, impression via le boîtier Omilink (en option)",
       ],
       badge: "Le plus choisi",
     },
   ] satisfies Plan[],
   guarantees: [
-    `Cachets à votre logo : ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
+    `Cachets à votre logo\u00a0: ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
@@ -473,37 +479,93 @@ export function trialPricing(plan: Plan) {
   };
 }
 
+interface IntegrationPartner {
+  name: string;
+  /** Une caisse reçoit la commande ; un prestataire de paiement, l'encaissement. */
+  kind: "caisse" | "paiement";
+  /**
+   * Icône officielle de la marque (public/partners), dans ses couleurs.
+   * bleed : l'icône est déjà une tuile pleine, sans marge autour.
+   */
+  icon: { src: string; bleed?: boolean };
+}
+
+/** L'écran de la caisse illustrée ; sans statut propre, celui de la commande. */
+interface TillScreen {
+  list: string;
+  status?: string;
+}
+
+/** Une caisse qu'Ominin ne nomme pas : la demande arrive au support. */
+const tillContactHref = `mailto:${contactEmail}?subject=${encodeURIComponent("Intégration de ma caisse")}`;
+
+/*
+ * Les partenaires que le panneau caisse fait défiler (« Ominin × … »), un
+ * toutes les installSection.integrations.intervalMs.
+ */
+const integrationPartners: IntegrationPartner[] = [
+  { name: "Square", kind: "caisse", icon: { src: "/partners/square.svg" } },
+  { name: "Stripe", kind: "paiement", icon: { src: "/partners/stripe.svg", bleed: true } },
+  { name: "Zelty", kind: "caisse", icon: { src: "/partners/zelty.png" } },
+  { name: "Lightspeed", kind: "caisse", icon: { src: "/partners/lightspeed.svg" } },
+  { name: "Popina", kind: "caisse", icon: { src: "/partners/popina.png", bleed: true } },
+  { name: "Clyo Systems", kind: "caisse", icon: { src: "/partners/clyo.jpg", bleed: true } },
+  // Pas d'icône Kezia publiée : celle de JDC, son éditeur.
+  { name: "Kezia II", kind: "caisse", icon: { src: "/partners/kezia.svg" } },
+  { name: "Tick'Eat", kind: "caisse", icon: { src: "/partners/tickeat.svg" } },
+  { name: "CarréPOS", kind: "caisse", icon: { src: "/partners/carrepos.svg" } },
+  { name: "Toporder", kind: "caisse", icon: { src: "/partners/toporder.svg" } },
+];
+
+const tillScreens: Record<IntegrationPartner["kind"], TillScreen> = {
+  caisse: { list: "Commandes" },
+  paiement: { list: "Paiements", status: "Réussi" },
+};
+
 /*
  * Installation de l'offre Connect : deux branchements indépendants, pas une
- * alternative. Côté caisse, l'intégration Square est prête ; pour une autre
- * caisse, l'intégration s'étudie au cas par cas, sans promesse. Côté
- * imprimantes, le boîtier Omilink est une option à l'achat pour qui a des
- * imprimantes tickets. Le plan de base Square ne coûte rien : ses options et
- * son terminal, si le restaurant en veut, se règlent chez Square.
+ * alternative. Côté caisse, Ominin se connecte à plus de compatibleTills
+ * caisses et encaisse par Stripe ou Square ; la connexion est incluse, sans
+ * abonnement de plus. Côté imprimantes, le boîtier Omilink est une option à
+ * l'achat pour qui a des imprimantes tickets. Le plan de base Square ne coûte
+ * rien : ses options et son terminal, si le restaurant en veut, se règlent
+ * chez Square.
  */
 export const installSection = {
   id: "installation",
   eyebrow: "Installation",
   title: "Ominin se branche sur votre salle.",
   subtitle:
-    "Côté caisse, l'intégration Square est prête — et pour une autre caisse, nous étudions l'intégration avec vous. Côté cuisine, si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement. Aucun abonnement de plus : la caisse Square est gratuite, le boîtier s'achète une fois.",
+    `Côté caisse, Ominin se connecte à plus de ${compatibleTills} caisses\u00a0: Square, Zelty, Lightspeed, Popina… Côté cuisine, si vous avez des imprimantes tickets, le boîtier Omilink s'y branche directement. Aucun abonnement de plus\u00a0: la connexion à votre caisse est incluse, le boîtier s'achète une\u00a0fois.`,
   sourceLabel: "Commande payée à table",
+  integrations: {
+    intervalMs: 2600,
+    partners: integrationPartners,
+    names: integrationPartners.map((partner) => partner.name),
+    icons: integrationPartners.map((partner) => partner.icon),
+    controls: {
+      pause: "Mettre en pause le défilé des partenaires",
+      play: "Reprendre le défilé des partenaires",
+    },
+    spoken: `${brand} se connecte à ${new Intl.ListFormat("fr", { type: "conjunction" }).format(integrationPartners.map((partner) => partner.name))}.`,
+    screens: tillScreens,
+  },
   joiner: "et/ou",
   billLabel: "L'addition",
   // Lignes communes aux deux additions, autour de la ligne propre au chemin.
   bill: {
     subscription: {
       label: "Abonnement Ominin",
-      value: `0 € × ${connectTrial.months} mois, puis ${formatEuros(connectPrice)}/mois`,
+      value: `${connectTrial.months}\u00a0mois offerts, puis\u00a0${formatEuros(connectPrice)}/mois`,
     },
     commission: {
       label: "Commission",
-      value: `${connectCommission.percent} % en ligne`,
+      value: `${connectCommission.percent}\u00a0% en ligne`,
     },
   } satisfies Record<string, BillLine>,
   // Commande d'illustration, la même sur le ticket imprimé et l'écran de caisse.
   order: {
-    table: "Table 7",
+    table: "Table\u00a07",
     time: "20:42",
     origin: "Ominin",
     lines: [
@@ -517,10 +579,44 @@ export const installSection = {
   },
   paths: [
     {
+      id: "caisse",
+      label: "La connexion caisse",
+      title: "Vos commandes, dans votre caisse.",
+      lead: "La commande payée à table arrive directement dans votre caisse, détaillée ligne par ligne et déjà réglée — et imprimée par votre caisse si elle a son imprimante. L'argent, lui, arrive sur votre compte Stripe ou Square.",
+      points: [
+        {
+          title: `Plus de ${compatibleTills} caisses compatibles`,
+          description:
+            "Square, Zelty, Lightspeed, Popina, Clyo Systems, Kezia II, Tick'Eat, CarréPOS, Toporder…",
+        },
+        {
+          title: "Une seule caisse",
+          description:
+            "Plus de double saisie ni de rapprochement à la clôture\u00a0: chaque commande Ominin y est déjà, marquée payée.",
+        },
+        {
+          title: "Connexion incluse",
+          description:
+            "Nous relions votre caisse à Ominin avec vous\u00a0: ni abonnement de plus, ni matériel à installer.",
+        },
+        {
+          title: "Pas encore de caisse\u00a0?",
+          description:
+            "Le plan de base Square est gratuit\u00a0: votre téléphone encaisse en sans-contact, et leur terminal reste une option, achetée chez eux.",
+        },
+      ],
+      cost: { label: "Connexion à votre caisse", value: "Incluse" },
+      cta: {
+        label: "Votre caisse n'est pas dans la liste\u00a0?",
+        action: "Dites-nous laquelle",
+        href: tillContactHref,
+      },
+    },
+    {
       id: "omilink",
       label: "Le boîtier Omilink",
-      title: "Des imprimantes ? On s'y branche.",
-      lead: "Le boîtier Omilink se connecte directement à vos imprimantes tickets : chaque commande sort en cuisine comme au bar. C'est son seul rôle — et il est optionnel.",
+      title: "Des imprimantes\u00a0? On s'y branche.",
+      lead: "Le boîtier Omilink se connecte directement à vos imprimantes tickets\u00a0: chaque commande sort en cuisine comme au bar. C'est son seul rôle — et il est optionnel.",
       points: [
         {
           title: "Compatible avec votre matériel",
@@ -532,53 +628,29 @@ export const installSection = {
           description: `${formatPrice(omilinkPrice)}, une seule fois. Le boîtier est expédié directement à votre restaurant.`,
         },
         {
+          title: "Cuisine, bar, comptoir",
+          description:
+            "Un seul boîtier pour toutes vos imprimantes\u00a0: chaque poste ne reçoit que ce qui le concerne.",
+        },
+        {
           title: "Deux câbles, c'est branché",
           description:
-            "L'alimentation et le réseau : il se connecte automatiquement, puis un clic dans votre espace de gestion.",
+            "L'alimentation et le réseau\u00a0: il se connecte automatiquement, puis un clic dans votre espace de gestion.",
         },
       ],
       cost: {
         label: "Boîtier Omilink",
-        value: `${formatPrice(omilinkPrice)}, une fois`,
+        value: `${formatPrice(omilinkPrice)}, une\u00a0fois`,
       },
-    },
-    {
-      id: "square",
-      label: "L'intégration Square",
-      title: "Vos commandes, dans votre caisse.",
-      lead: "Avec Square, la commande payée à table arrive directement dans votre caisse et votre gestionnaire de commandes — détaillée ligne par ligne, imprimée selon vos réglages.",
-      points: [
-        {
-          title: "Relié en quelques clics",
-          description:
-            "Vous connectez votre compte Square depuis votre espace de gestion, c'est tout.",
-        },
-        {
-          title: "Une seule caisse",
-          description:
-            "Plus de double saisie ni de rapprochement à la clôture : tout est déjà dans Square.",
-        },
-        {
-          title: "Une caisse à 0 €",
-          description:
-            "Le plan de base Square est gratuit, sans abonnement : votre téléphone encaisse en sans-contact, et leur terminal reste une option, achetée chez eux.",
-        },
-        {
-          title: "Une autre caisse ?",
-          description:
-            "Dites-nous laquelle : nous étudions l'intégration avec vous.",
-        },
-      ],
-      cost: { label: "Abonnement Square", value: "0 €/mois" },
     },
   ] satisfies InstallPath[],
   facts: [
-    "Espèces et paiements au comptoir : 0 % de commission",
-    "Pas d'imprimante ? Les commandes s'affichent en direct sur tablette",
+    "Espèces et paiements au comptoir\u00a0: 0\u00a0% de commission",
+    "Pas d'imprimante\u00a0? Les commandes s'affichent en direct sur tablette",
     "Résiliable à tout moment",
   ],
   footnote:
-    "Le plan de base Square est gratuit ; son terminal et ses options se souscrivent auprès de Square, qui les facture directement. La commission Ominin s'ajoute aux frais de transaction de votre prestataire de paiement (Stripe ou Square).",
+    "La commission Ominin s'ajoute aux frais de transaction de votre prestataire de paiement (Stripe ou Square). Le terminal Square et ses options, si vous en voulez, se règlent auprès de Square.",
 };
 
 /*
@@ -622,8 +694,8 @@ export const quotePage = {
       price: "Inclus",
     },
     otherTill: {
-      label: "Une autre caisse ? Parlons-en",
-      href: `mailto:${contactEmail}?subject=${encodeURIComponent("Intégration de ma caisse")}`,
+      label: "Une autre caisse que Square\u00a0? Nous la connectons avec vous, sans frais",
+      href: tillContactHref,
     },
   },
   bill: {
@@ -631,6 +703,8 @@ export const quotePage = {
     today: "À régler aujourd'hui",
     then: "Ensuite",
     noCommitment: "sans engagement",
+    squareLabel: "Abonnement Square",
+    squareCost: "0\u00a0€/mois",
     squareNote: "réglé auprès de Square",
     empty: "Indiquez votre nombre de tables.",
   },
@@ -813,12 +887,12 @@ export const faqSection = {
         "Oui, à tout moment, depuis votre espace de gestion : un prix, un plat épuisé, une nouvelle formule. Les changements sont visibles en temps réel sur toutes les tables.",
     },
     {
-      question: "Est-ce compatible avec ma caisse enregistreuse ?",
+      question: "Est-ce compatible avec ma caisse enregistreuse\u00a0?",
       answer:
-        "Avec Square, nativement : les commandes payées à table arrivent directement dans votre caisse — et leur plan de base est gratuit, sans abonnement. Avec une autre caisse, dites-nous laquelle : nous étudions l'intégration avec vous. Et si vous avez des imprimantes tickets, le boîtier Omilink s'y connecte directement.",
+        `Oui\u00a0: Ominin se connecte à plus de ${compatibleTills} caisses, dont Square, Zelty, Lightspeed, Popina, Clyo Systems et Kezia II. Les commandes payées à table y arrivent directement, déjà réglées, sans abonnement de plus. Pas encore de caisse\u00a0? Le plan de base Square est gratuit. Et si vous avez des imprimantes tickets, le boîtier Omilink s'y branche directement.`,
     },
     {
-      question: `Connect est offert ${connectTrial.months} mois : et après ?`,
+      question: `Connect est offert ${connectTrial.months}\u00a0mois\u00a0: et après\u00a0?`,
       answer: `Au terme des ${connectTrial.months} mois, nous regardons les commandes passées par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} suffit à rémunérer le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
     },
     {

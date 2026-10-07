@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
-import { SquareMark } from "@/components/landing/install-scenes";
 import { QrLive } from "@/components/landing/qr-live";
 import { IconButton } from "@/components/ui/icon-button";
 import {
-  installSection,
   pricingSection,
   qrShowcase,
   quotePage,
@@ -24,8 +22,18 @@ import {
   type StarterQuote,
 } from "@/lib/quote";
 
-const squareCost = installSection.paths.find((path) => path.id === "square")
-  ?.cost.value;
+/** Glyphe Square, monochrome : il prend la couleur du texte qui l'entoure. */
+function SquareMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 44 44" aria-hidden className={className}>
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M8 0h28a8 8 0 0 1 8 8v28a8 8 0 0 1-8 8H8a8 8 0 0 1-8-8V8a8 8 0 0 1 8-8zm2.5 8h23a2.5 2.5 0 0 1 2.5 2.5v23a2.5 2.5 0 0 1-2.5 2.5h-23A2.5 2.5 0 0 1 8 33.5v-23A2.5 2.5 0 0 1 10.5 8zm7 8h9a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-9a1.5 1.5 0 0 1-1.5-1.5v-9a1.5 1.5 0 0 1 1.5-1.5z"
+      />
+    </svg>
+  );
+}
 
 function StepHeading({
   index,
@@ -508,9 +516,9 @@ export function QuoteBuilder({
               )}
               {options && square && (
                 <p className="flex justify-between gap-3">
-                  <span className="text-muted">Abonnement Square</span>
+                  <span className="text-muted">{quotePage.bill.squareLabel}</span>
                   <span className="text-right font-semibold">
-                    {squareCost}, {quotePage.bill.squareNote}
+                    {quotePage.bill.squareCost}, {quotePage.bill.squareNote}
                   </span>
                 </p>
               )}

@@ -10,6 +10,9 @@ import { useEffect, useRef, useState } from "react";
  * animent déjà leur transform au survol, cumuler les deux sur le même nœud
  * ferait sauter l'un ou l'autre.
  */
+/** Déclenche un peu avant que l'élément n'affleure le bas du viewport. */
+export const revealMargin = "0px 0px -8% 0px";
+
 export function Reveal({
   children,
   delay = 0,
@@ -37,8 +40,7 @@ export function Reveal({
           observer.disconnect();
         }
       },
-      // Déclenche un peu avant que l'élément n'affleure le bas du viewport.
-      { rootMargin: "0px 0px -8% 0px" }
+      { rootMargin: revealMargin }
     );
     observer.observe(el);
     return () => observer.disconnect();
