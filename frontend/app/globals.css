@@ -4102,67 +4102,39 @@ body {
 /*
   Section « Installation » (landing menu) : le trajet d'une commande payée à
   table. Un point braise descend de la commande et bifurque vers l'un des deux
-  chemins, en alternance ; à son arrivée le ticket sort de l'imprimante
-  (Omilink) ou la commande glisse dans la file de la caisse (Square). Toutes
-  les scènes partagent --install-cycle ; le chemin de droite part à mi-cycle.
+  chemins : vers la caisse, à gauche, à chaque partenaire qui défile
+  (.fork-arrival), et la commande s'y allume (.till-ping) ; vers l'imprimante,
+  à droite, au rythme de --install-cycle, et le ticket sort à son arrivée.
 */
 .install-scene {
   --install-cycle: 7s;
 }
 
-@keyframes fork-left {
+/* Les étapes suivent la longueur des segments de la fourche (≈ 9 / 82 / 9 %) :
+   le point garde la même vitesse dans les coudes. */
+@keyframes fork-printer {
   0% {
     left: 50%;
     top: 0;
     opacity: 0;
   }
-  3% {
+  0.3% {
     opacity: 1;
   }
-  8% {
+  1.3% {
     left: 50%;
     top: 50%;
   }
-  19% {
-    left: 0%;
-    top: 50%;
-  }
-  25% {
-    left: 0%;
-    top: 100%;
-    opacity: 1;
-  }
-  28%,
-  100% {
-    left: 0%;
-    top: 100%;
-    opacity: 0;
-  }
-}
-
-@keyframes fork-right {
-  0% {
-    left: 50%;
-    top: 0;
-    opacity: 0;
-  }
-  3% {
-    opacity: 1;
-  }
-  8% {
-    left: 50%;
-    top: 50%;
-  }
-  19% {
+  11.6% {
     left: 100%;
     top: 50%;
   }
-  25% {
+  12.8% {
     left: 100%;
     top: 100%;
     opacity: 1;
   }
-  28%,
+  14.5%,
   100% {
     left: 100%;
     top: 100%;
@@ -4172,23 +4144,55 @@ body {
 
 .fork-pulse {
   opacity: 0;
-  animation: fork-left var(--install-cycle) linear infinite;
+  animation: fork-printer var(--install-cycle) linear infinite;
 }
 
-.fork-pulse-late {
-  animation-name: fork-right;
-  animation-delay: calc(var(--install-cycle) / 2);
+/* Un seul trajet, rejoué à chaque partenaire, à la vitesse du point de
+   l'imprimante : la commande s'allume dans la caisse à son arrivée
+   (.till-ping). */
+@keyframes fork-arrival {
+  0% {
+    left: 50%;
+    top: 0;
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  10% {
+    left: 50%;
+    top: 50%;
+  }
+  90% {
+    left: 0%;
+    top: 50%;
+  }
+  98% {
+    left: 0%;
+    top: 100%;
+    opacity: 1;
+  }
+  100% {
+    left: 0%;
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.fork-arrival {
+  opacity: 0;
+  animation: fork-arrival 0.9s linear both;
 }
 
 /* Le papier monte par à-coups, comme une tête thermique ligne à ligne. */
 @keyframes ticket-feed {
   0%,
-  25% {
+  13% {
     transform: translateY(100%);
     opacity: 1;
     animation-timing-function: steps(14, end);
   }
-  55%,
+  43%,
   90% {
     transform: translateY(0);
     opacity: 1;
@@ -4229,47 +4233,31 @@ body {
   );
 }
 
-/* La file de la caisse descend d'un cran (--pos-row) pour accueillir la commande. */
-@keyframes pos-queue {
-  0%,
-  25% {
-    transform: translateY(calc(var(--pos-row) * -1));
+/* La commande reçue s'allume dans la file de la caisse. Rejoué à chaque
+   partenaire, quand le point de la fourche arrive. */
+@keyframes till-ping {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgb(16 185 129 / 0.6);
   }
-  32%,
-  97% {
-    transform: translateY(0);
+  35% {
+    transform: scale(1.06);
   }
   100% {
-    transform: translateY(calc(var(--pos-row) * -1));
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgb(16 185 129 / 0);
   }
 }
 
-@keyframes pos-order-in {
-  0%,
-  27% {
-    opacity: 0;
-  }
-  34%,
-  90% {
-    opacity: 1;
-  }
-  97%,
-  100% {
-    opacity: 0;
-  }
+.till-ping {
+  animation: till-ping 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
 }
 
-.pos-queue {
-  animation: pos-queue var(--install-cycle) cubic-bezier(0.22, 1, 0.36, 1)
-    infinite;
-  animation-delay: calc(var(--install-cycle) / 2);
-  transform: translateY(calc(var(--pos-row) * -1));
-}
-
-.pos-order-in {
-  opacity: 0;
-  animation: pos-order-in var(--install-cycle) linear infinite;
-  animation-delay: calc(var(--install-cycle) / 2);
+/* Sans fourche (sous lg), rien à attendre : la commande s'allume avec le nom. */
+@media (max-width: 1023.98px) {
+  .till-ping {
+    animation-delay: 0.3s;
+  }
 }
 
 @keyframes led-breathe {
@@ -4297,14 +4285,88 @@ body {
   animation: cable-flow 1.2s linear infinite;
 }
 
-/* Sans mouvement : ticket sorti, commande en caisse, aucun point en transit. */
+/*
+  Panneau caisse : « Ominin × <partenaire> ». Le nom sortant s'envole lettre
+  à lettre, le suivant monte de dessous, un peu flou, puis se pose ; un trait
+  sous le nom mesure le temps qu'il lui reste. L'écran de la caisse change de
+  marque en fondu enchaîné (.partner-swap).
+*/
+.partner-name {
+  grid-area: 1 / 1;
+  justify-self: start;
+  position: relative;
+  white-space: nowrap;
+}
+
+.partner-letter {
+  display: inline-block;
+  transition:
+    opacity 0.35s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease;
+  transition-delay: calc(var(--i) * 22ms);
+}
+
+.partner-name[data-state="in"] .partner-letter {
+  transition-delay: calc(140ms + var(--i) * 28ms);
+}
+
+.partner-name[data-state="out"] .partner-letter {
+  opacity: 0;
+  transform: translateY(-0.6em);
+  filter: blur(3px);
+}
+
+/* En attente sous la ligne, sans transition : il n'en ressort qu'à son tour. */
+.partner-name[data-state="idle"] .partner-letter {
+  opacity: 0;
+  transform: translateY(0.6em);
+  filter: blur(3px);
+  transition: none;
+}
+
+@keyframes partner-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.partner-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -4px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  transform-origin: left;
+  animation: partner-progress linear forwards;
+}
+
+/* L'entrant, calé sur l'arrivée des lettres du nom dans l'en-tête, se pose
+   sur le sortant. */
+.partner-swap {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.partner-swap[data-active] {
+  opacity: 1;
+  transition: opacity 0.45s ease 140ms;
+}
+
+/* Sans mouvement : ticket sorti, commande en caisse, aucun point en transit.
+   Les partenaires ne défilent pas (PartnerCycle s'arrête). */
 @media (prefers-reduced-motion: reduce) {
-  .fork-pulse {
+  .fork-pulse,
+  .fork-arrival {
     display: none;
   }
   .ticket-feed,
-  .pos-queue,
-  .pos-order-in,
+  .till-ping,
   .led-breathe,
   .cable-flow {
     animation: none;

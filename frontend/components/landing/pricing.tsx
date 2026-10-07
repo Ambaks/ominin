@@ -7,7 +7,6 @@ import {
   type Plan,
 } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
-import { SquareMark } from "./install-scenes";
 import { KitHeading } from "@/components/landing-kit/heading";
 
 function Features({ plan, columns }: { plan: Plan; columns?: boolean }) {
@@ -111,16 +110,18 @@ function PlanCard({ plan }: { plan: Plan }) {
                 key={path.id}
                 href={`#${installSection.id}`}
                 className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-transform duration-300 hover:-translate-y-0.5 ${
-                  path.id === "square"
+                  path.id === "caisse"
                     ? "border-transparent bg-foreground text-background"
                     : "border-hairline bg-background/50"
                 }`}
               >
-                {path.id === "square" ? (
-                  <SquareMark className="size-5 shrink-0" />
-                ) : (
-                  <span className="ember-gradient size-2 shrink-0 rounded-full shadow-[0_0_8px_var(--ember-1)]" />
-                )}
+                <span
+                  className={`size-2 shrink-0 rounded-full ${
+                    path.id === "caisse"
+                      ? "bg-background"
+                      : "ember-gradient shadow-[0_0_8px_var(--ember-1)]"
+                  }`}
+                />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium">
                     {path.label}
