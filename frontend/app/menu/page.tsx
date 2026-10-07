@@ -4,6 +4,7 @@ import { menuSiteUrl } from "@/lib/site";
 import { LandingNav } from "@/components/landing/landing-nav";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { FastFood } from "@/components/landing/fast-food";
 import { QrShowcase } from "@/components/landing/qr-showcase";
 import { Features } from "@/components/landing/features";
 import { DemoShowcase } from "@/components/landing/demo-showcase";
@@ -43,6 +44,7 @@ export default function Home() {
         <Hero />
         <Marquee words={marquee} />
         <HowItWorks />
+        <FastFood />
         <QrShowcase />
         <Features />
         <DemoShowcase />

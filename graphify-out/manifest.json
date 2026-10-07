@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1791337745.669618,
-    "seen": 1791337808.027485,
-    "ast_hash": "a20110fff28dcf0242fde7f549645f46",
+    "mtime": 1791338328.6456838,
+    "seen": 1791338376.9441369,
+    "ast_hash": "98c20ffceeef0c3b5d67805a1664b085",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791337762.1534424,
-    "seen": 1791337808.027633,
-    "ast_hash": "098ecb8f1c1f8225f1d37486d1ce502b",
+    "mtime": 1791338364.372745,
+    "seen": 1791338376.944282,
+    "ast_hash": "9abbb104579329556a2c89ee31c0fa03",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1560,9 +1560,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/page.tsx": {
-    "mtime": 1791337172.914649,
-    "seen": 1791337808.02722,
-    "ast_hash": "2b0d43882b53646fcb66433f1a6310e6",
+    "mtime": 1791338310.8565211,
+    "seen": 1791338376.9438741,
+    "ast_hash": "058a5a3741e0c740e55d21d3c65799c9",
     "semantic_hash": ""
   },
   "frontend/app/sur-mesure/page.tsx": {
@@ -6585,6 +6585,12 @@
     "mtime": 1791337556.0461037,
     "seen": 1791337808.027363,
     "ast_hash": "8cb576c1a5e106e5773732a73b45c0f2",
+    "semantic_hash": ""
+  },
+  "frontend/components/landing/fast-food.tsx": {
+    "mtime": 1791338310.8412738,
+    "seen": 1791338376.9440188,
+    "ast_hash": "1183f9981af057f8e8bf5f5dc28f123e",
     "semantic_hash": ""
   }
 }

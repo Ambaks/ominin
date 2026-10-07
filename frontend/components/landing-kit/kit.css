@@ -207,6 +207,71 @@
   }
 }
 
+/*
+  Ticket fast food, boucle de 9 s : « En cuisine » avec l'heure annoncée et
+  sa barre qui avance, puis « C'est prêt ! » qui prend la place et pulse.
+*/
+.kit-ticket {
+  --ticket: 9s;
+}
+.ticket-cooking {
+  animation: ticket-cooking var(--ticket) ease-in-out infinite;
+}
+@keyframes ticket-cooking {
+  0%,
+  58% {
+    opacity: 1;
+    transform: none;
+  }
+  64%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.ticket-ready {
+  animation: ticket-ready var(--ticket) ease-out infinite;
+}
+@keyframes ticket-ready {
+  0%,
+  60% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  66%,
+  96% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.ticket-eta-bar {
+  transform-origin: left;
+  animation: ticket-eta var(--ticket) linear infinite;
+}
+@keyframes ticket-eta {
+  from {
+    transform: scaleX(0.08);
+  }
+  58%,
+  to {
+    transform: scaleX(1);
+  }
+}
+.ticket-step-ready {
+  animation: ticket-step var(--ticket) step-end infinite;
+}
+@keyframes ticket-step {
+  0% {
+    opacity: 0.35;
+  }
+  62% {
+    opacity: 1;
+  }
+}
+
 /* Barres du comparatif : elles se remplissent à l'apparition. */
 .kit-reveal .kit-bar {
   transform: scaleX(0);
@@ -291,8 +356,15 @@
   .relay-ticket,
   .relay-ready,
   .relay-progress,
-  .relay-float {
+  .relay-float,
+  .ticket-cooking,
+  .ticket-eta-bar,
+  .ticket-step-ready {
     animation: none;
+  }
+  .ticket-ready {
+    animation: none;
+    display: none;
   }
   .kit-card:hover,
   .kit-reveal .kit-bar {

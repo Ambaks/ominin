@@ -144,6 +144,7 @@ export const seo = {
 export const nav = {
   links: [
     { label: "Parcours", href: "#parcours" },
+    { label: "Fast food", href: "#fast-food" },
     { label: "Démo", href: "#demo" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
@@ -232,6 +233,50 @@ export const howItWorks = {
         "La commande arrive en cuisine en temps réel, sur vos imprimantes ou votre tablette. Le serveur apporte, sans avoir couru prendre la commande.",
     },
   ],
+};
+
+/*
+ * Mode fast food : un QR au comptoir, un numéro du jour, l'heure annoncée
+ * par l'estimateur IA et « C'est prêt ! » sur le téléphone. Même discours
+ * que les présentations réseau (lib/pitch).
+ */
+export const fastFoodSection = {
+  id: "fast-food",
+  eyebrow: "Mode fast food",
+  title: "Au comptoir, la file disparaît.",
+  lead: "Un QR au comptoir ou sur les tables : le client commande, paie et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone.",
+  points: [
+    {
+      title: "Un numéro du jour",
+      description:
+        "Le même sur le téléphone du client et sur le ticket cuisine, remis à zéro chaque matin.",
+    },
+    {
+      title: "L'heure annoncée par l'IA",
+      description:
+        "Dès le paiement, le client lit « prête vers 12 h 52 ». L'estimateur apprend le rythme de votre cuisine sur vos propres commandes — la file, la taille du panier, l'heure du service — et ajuste l'heure en direct.",
+    },
+    {
+      title: "« C'est prêt ! » sur son téléphone",
+      description:
+        "La page vibre et revient au premier plan : il vient chercher sa commande, sans écran d'appel ni bipeur.",
+    },
+    {
+      title: "Payée en ligne, ou au comptoir",
+      description:
+        "Payée sur le téléphone, la commande part en cuisine aussitôt ; sinon, elle attend son règlement au comptoir.",
+    },
+  ],
+  ticket: {
+    number: 42,
+    restaurant: "Votre fast food",
+    steps: ["Commandée", "En cuisine", "Prête"],
+    cooking: "En cuisine",
+    eta: "Prête vers 12:52",
+    etaSource: "Estimée par l'IA",
+    ready: "C'est prêt !",
+    readyBody: "Venez chercher votre commande au comptoir.",
+  },
 };
 
 export const featuresSection = {
@@ -740,6 +785,11 @@ export const faqSection = {
   eyebrow: "FAQ",
   title: "Questions fréquentes.",
   items: [
+    {
+      question: "Et pour un fast food, sans service à table ?",
+      answer:
+        "C'est le mode fast food : un QR au comptoir ou sur les tables, le client commande et paie sur son téléphone et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone — plus besoin d'appeler les numéros. Il s'active d'un réglage dans votre espace de gestion.",
+    },
     {
       question: "C'est quoi, « le Cachet » ?",
       answer:
