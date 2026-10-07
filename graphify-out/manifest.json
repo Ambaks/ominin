@@ -1302,9 +1302,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791328239.982012,
-    "seen": 1791328251.067945,
-    "ast_hash": "8d895c68b6ddad1f292ac4b62f280963",
+    "mtime": 1791331554.6674185,
+    "seen": 1791331564.3947148,
+    "ast_hash": "0fc9277bc8753f77c602ea9bfe8b5419",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -5412,9 +5412,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/page-sections.tsx": {
-    "mtime": 1791328042.5774446,
-    "seen": 1791328251.067719,
-    "ast_hash": "05327f47bc1248c1bde90d1f7e637f70",
+    "mtime": 1791328778.0990276,
+    "seen": 1791331564.3944662,
+    "ast_hash": "f29cf0ea6c3b5e02286866ab8194808d",
     "semantic_hash": ""
   },
   "frontend/components/pitch/qr-code.tsx": {
@@ -5424,9 +5424,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/slides.tsx": {
-    "mtime": 1791328042.5776982,
-    "seen": 1791328251.06772,
-    "ast_hash": "a41f3bf7f02b18936df49c546ef5f888",
+    "mtime": 1791330168.4847465,
+    "seen": 1791331564.394468,
+    "ast_hash": "a21eb4361982a729230f8ad09c670aa8",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/carte.ts": {
@@ -5436,9 +5436,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/data.ts": {
-    "mtime": 1791328080.901822,
-    "seen": 1791328251.0677829,
-    "ast_hash": "0af5f56832c274d2f63c2583aa9d436a",
+    "mtime": 1791329559.653849,
+    "seen": 1791331564.394539,
+    "ast_hash": "64de11fb175ca78e9ab313591a4a5e8a",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/format.ts": {
@@ -6096,9 +6096,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/chicken-street.tsx": {
-    "mtime": 1791326839.0,
-    "seen": 1791328251.067713,
-    "ast_hash": "d5a3de202694523bcd699f5d76dc1192",
+    "mtime": 1791329252.2112257,
+    "seen": 1791331564.3944588,
+    "ast_hash": "ffd30e64d68e964145ed34a940a029b0",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/coq-path.ts": {
@@ -6120,9 +6120,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/chicken-street.ts": {
-    "mtime": 1791328118.4813404,
-    "seen": 1791328251.067811,
-    "ast_hash": "204ddd79bbab143410c08ba724d1630c",
+    "mtime": 1791331490.2904487,
+    "seen": 1791331564.394582,
+    "ast_hash": "144254e6e767e294edbe5def9529aca7",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/kit.ts": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "demos/chicken-street/pitch/research/01-research.md": {
-    "mtime": 1791326233.0,
-    "seen": 1791328251.067946,
-    "ast_hash": "a560015d564437d44fc099b8b7151ca4",
+    "mtime": 1791330447.0911481,
+    "seen": 1791331564.3947158,
+    "ast_hash": "7c555808d8ae8f7b36af7e3501e56abb",
     "semantic_hash": ""
   },
   "demos/chicken-street/pitch/research/05-field-report.md": {
@@ -6168,9 +6168,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/chicken-street-ominin.pdf": {
-    "mtime": 1791327510.0,
-    "seen": 1791328251.067961,
-    "ast_hash": "77592c8ab6d2f623df0477dbc9ab2bd0",
+    "mtime": 1791331535.9610717,
+    "seen": 1791331564.394733,
+    "ast_hash": "e106f268ac1d4e8dd6b36b6b36202cb8",
     "semantic_hash": ""
   },
   "demos/chicken-street/docs/borne-16-9.jpg": {
@@ -6498,9 +6498,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/reseau-siege.webp": {
-    "mtime": 1791327468.0,
-    "seen": 1791328251.068036,
-    "ast_hash": "ba68ab9b8fd80c975af4c95448e8dffe",
+    "mtime": 1791329570.9424822,
+    "seen": 1791331564.394819,
+    "ast_hash": "b3ae8c64fe6d68783cf5714c6d28a366",
     "semantic_hash": ""
   },
   "frontend/public/pitch/ominin/film-poster-vertical.webp": {
@@ -6516,15 +6516,15 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/ominin/film-vertical.mp4": {
-    "mtime": 1791323506.0,
-    "seen": 1791328251.068057,
-    "ast_hash": "52ebca97bef5ba9a87a2bfcaf1742b88",
+    "mtime": 1791331119.4361906,
+    "seen": 1791331564.3948429,
+    "ast_hash": "78d2e9ee5677b704a5ebc5c3fb7ffc11",
     "semantic_hash": ""
   },
   "frontend/public/pitch/ominin/film.mp4": {
-    "mtime": 1791323506.0,
-    "seen": 1791328251.068058,
-    "ast_hash": "74bf0d774cf1fb5d2abe26f9d130fbb7",
+    "mtime": 1791331119.417124,
+    "seen": 1791331564.3948438,
+    "ast_hash": "aa347c992993570b7d94d6298e481dc8",
     "semantic_hash": ""
   }
 }

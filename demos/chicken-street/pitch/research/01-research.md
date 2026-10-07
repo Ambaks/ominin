@@ -116,3 +116,7 @@ Short snippets (Google reviews):
 - No Google rating for the whole chain (per-site only); Trustpilot not found; Tripadvisor blocked.
 - No kiosk vendor, no POS vendor, no loyalty mechanics, no numbers on app downloads.
 - Official menu prices and product descriptions do not exist on the website; the allergen PDF (2026-08-27) is the most current list of products and options.
+
+## Correction (2026-10-07, strict recount)
+
+The keyword counts above ("waiting 27", "missing/wrong items 27" among the 168 one/two-star reviews) are loose: they overlap and catch unrelated phrases. A strict recount finds about 6 reviews quoting an explicit wait of 20 to 50 minutes (Ivry, Lille Flandres), and the wrong/missing-item reviews are mostly Uber Eats / Deliveroo deliveries. The pitch therefore cites quotes, not these percentages.

@@ -54,9 +54,15 @@
 
 /* Les titres dans la face condensée des chiffres, comme les capitales
    WoodHeinz de l'enseigne ; Anton n'a qu'une graisse, sans resserrage. */
-.pitch-chicken-street :is(h1, h2) {
+.pitch-chicken-street :is(h1, h2, .pitch-quote) {
   font-family: var(--font-pitch-numeral), sans-serif;
   font-weight: 400;
   font-stretch: normal;
   letter-spacing: 0;
+}
+
+/* Le titre du calcul tient sur deux lignes : l'explication s'écartait à
+   peine du cadre de l'illustration. */
+.pitch-chicken-street .pitch-mechanism {
+  margin-bottom: 28px;
 }

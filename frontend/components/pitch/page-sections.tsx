@@ -186,7 +186,7 @@ function Story({ p, brand }: SectionProps) {
         </div>
         <div className={`${container} relative mt-4 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:items-center lg:gap-16`}>
           <div>
-            <p className="text-[56px] font-extrabold leading-[1.02] tracking-[-0.05em] sm:text-[84px] lg:whitespace-nowrap lg:text-[88px]">
+            <p className="pitch-quote text-[56px] font-extrabold leading-[1.02] tracking-[-0.05em] sm:text-[84px] lg:whitespace-nowrap lg:text-[88px]">
               <span className="block">«&nbsp;{p.promise.slogan[0]}</span>
               <span className="block text-(--pitch-accent)">{p.promise.slogan[1]}&nbsp;»</span>
             </p>
@@ -217,7 +217,7 @@ function Story({ p, brand }: SectionProps) {
         <div className={container}>
           <Eyebrow>{p.walkAway.eyebrow}</Eyebrow>
           <blockquote className="mt-6 max-w-4xl">
-            <p className="text-balance text-[28px] font-bold leading-[1.18] tracking-[-0.03em] sm:text-[40px] lg:text-[52px]">
+            <p className="pitch-quote text-balance text-[28px] font-bold leading-[1.18] tracking-[-0.03em] sm:text-[40px] lg:text-[52px]">
               «&nbsp;{p.walkAway.quote[0]} <span className="text-(--pitch-accent)">{p.walkAway.quote[1]}</span>&nbsp;»
             </p>
             <footer className="mt-4 text-sm text-(--pitch-muted)">— {p.walkAway.attribution}</footer>

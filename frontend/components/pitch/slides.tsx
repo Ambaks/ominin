@@ -150,7 +150,7 @@ function WalkAwaySlide(props: SlideProps) {
       rays={{ cx: 50, cy: -30 }}
     >
       <blockquote className="mt-[48px]">
-        <p className="text-balance text-[72px] font-bold leading-[1.12] tracking-[-0.03em]">
+        <p className="pitch-quote text-balance text-[72px] font-bold leading-[1.12] tracking-[-0.03em]">
           <span className="block">«&nbsp;{p.walkAway.quote[0]}</span>
           <span className="block text-(--pitch-accent)">{p.walkAway.quote[1]}&nbsp;»</span>
         </p>
@@ -283,7 +283,7 @@ function RevenueSlide(props: SlideProps) {
       rays={{ cx: 70, cy: 62 }}
     >
       <h2 className="mt-[16px] text-balance text-[72px] font-extrabold leading-[1.06] tracking-[-0.04em]">{p.forRevenue.title}</h2>
-      <p className="mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{p.forRevenue.mechanism}</p>
+      <p className="pitch-mechanism mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{p.forRevenue.mechanism}</p>
       <div className="my-auto rounded-[28px] border-[2px] border-dashed border-(--pitch-accent)/45 px-[48px] py-[40px]">
         <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{p.forRevenue.illustrationLabel}</p>
         <p className="mt-[8px] text-[21px] text-(--pitch-muted)">{p.forRevenue.rateNote}</p>

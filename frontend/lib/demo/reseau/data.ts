@@ -540,7 +540,8 @@ export const chickenStreet: NetworkFixture = {
     // Des bornes dans une partie des restaurants seulement : la caisse, l'hypothèse prudente.
     withoutQr: "caisse",
     tillMinutes: 1.6,
-    tills: 2,
+    // Une caisse par restaurant : hypothèse prudente, à caler sur vos restaurants.
+    tills: 1,
     onlineShare: [0.62, 0.8],
     weekday: [1.1, 0.86, 0.9, 0.98, 0.95, 1.12, 1.2],
     dailyNoise: 0.08,

@@ -42,16 +42,17 @@ const pilot = { days: 30 };
  * L'illustration du chiffre d'affaires, hypothèses affichées : le panier
  * déduit de la plaquette franchise 2026 (1,1 M€ par restaurant, 5 millions
  * de commandes pour ≈ 100 restaurants, soit ≈ 22 €), et ce CA moyen sur une
- * année. Deux clients retenus par jour couvrent le surcoût à 42 % de marge
- * brute (hors TVA de 10 %, redevances de 5 + 2 % comprises).
+ * année ; 30 % des ventes payées en ligne, l'hypothèse de la vue réseau.
+ * offerMath donne la marge brute à laquelle les clients retenus couvrent le
+ * surcoût (hors TVA de 10 %, redevances de 5 + 2 % comprises).
  */
 const illustration: Illustration = {
-  customersPerDay: 5,
+  customersPerDay: 8,
   basket: 22,
   daysPerYear: 365,
   announcedYearlyRevenue: 1_100_000,
-  onlineShare: 10,
-  coveringCustomers: 2,
+  onlineShare: 30,
+  coveringCustomers: 4,
   vatPercent: 10,
   royaltyPercent: 7,
 };
@@ -67,6 +68,11 @@ const field = { nights: 16, orders: 2_002, online: 435, counter: 1_545, onlineSe
 
 /** « 4 min 39 » : une durée en secondes, telle que la course l'affiche. */
 const minutesSeconds = (seconds: number) => `${Math.floor(seconds / 60)}\u00a0min\u00a0${String(seconds % 60).padStart(2, "0")}`;
+
+/** Les notes Google extrêmes des cinq fiches relevées : Gare de l'Est et Ivry. */
+const ratings = { best: 4.6, worst: 3.9 };
+
+const decimal = (value: number) => value.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
 
 /** Le relevé Ominin des avis Google : avis des cinq fiches, avis lus, dont à une ou deux étoiles. */
 const reviewSample = { ratings: 4_016, read: 750, negative: 168 };
@@ -195,9 +201,9 @@ const promise: Section<"promise"> = {
   sloganSource: "chickenstreet.fr",
   rating: { value: "4,3", label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de 3,9 à 4,6` },
   speed: {
-    value: "16\u00a0%",
-    label: "des avis à une ou deux étoiles parlent d’attente\u00a0— autant que d’articles oubliés ou erronés.",
-    detail: `27 avis sur ${reviewSample.negative} pour chacun, sur ${reviewSample.read} avis lus`,
+    value: decimal(ratings.best - ratings.worst),
+    label: `point d’écart sur Google entre Gare de l’Est (${decimal(ratings.best)}) et Ivry (${decimal(ratings.worst)})\u00a0: même carte, même enseigne.`,
+    detail: `Quelques avis à une ou deux étoiles citent 20 à 50\u00a0minutes d’attente (sur ${reviewSample.read} lus).`,
   },
   closing: "À 118 restaurants, dont 107 ouverts en France, et 37 ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.",
   sources: ["site", "reviews", "network"],
@@ -207,7 +213,7 @@ const walkAway: Section<"walkAway"> = {
   eyebrow: "Au comptoir",
   quote: ["La rapidité, l’atout clé de la restauration rapide", "est remis en cause."],
   attribution: "AKTO / Toluna-Harris Interactive, étude 2024 sur les clients de la restauration rapide",
-  followUp: "Dans les avis Google\u00a0: «\u00a050\u00a0min d’attente pour un menu\u00a0», «\u00a0attendu 30\u00a0min pour trois articles\u00a0», quand d’autres saluent une attente «\u00a0très raisonnable même quand il y a du monde\u00a0». La même enseigne, des attentes très différentes d’un restaurant à l’autre.",
+  followUp: "D’un côté «\u00a050\u00a0min d’attente pour un menu\u00a0», de l’autre une attente «\u00a0très raisonnable même quand il y a du monde\u00a0»\u00a0: l’écart existe d’un restaurant à l’autre, et la vue réseau le montre.",
   followUpSources: ["reviews"],
   facts: [
     {
@@ -244,7 +250,7 @@ const estimator: Section<"estimator"> = {
   eyebrow: "Estimateur IA",
   title: { text: "L’heure exacte", accent: "où c’est prêt." },
   lead: "Dès le paiement, le client lit «\u00a0prête vers 12\u00a0h\u00a052\u00a0». L’estimateur apprend le rythme de chaque cuisine sur ses propres commandes\u00a0— la file en cours, la taille du panier, l’heure du service\u00a0— et ajuste l’heure en direct.",
-  announced: { label: "Annoncée par l’IA", value: "12:52" },
+  announced: { label: "Annoncée", value: "12:52" },
   ready: { label: "Prête", value: "12:52" },
   verdict: "À la minute près, sur la commande N°\u00a042 de la démo.",
   points: [
@@ -280,11 +286,11 @@ const forCustomers: Section<"forCustomers"> = {
     {
       title: "Rien de mal compris.",
       text: "Le client compose sa commande lui-\u2060même\u00a0— sauces, suppléments, boisson\u00a0; le ticket sort tel quel en cuisine.",
-      fact: "Exactitude des commandes\u00a0: 44\u00a0% seulement des clients à emporter s’en disent très satisfaits, contre 60\u00a0% en livraison, où l’on commande dans une appli.",
+      fact: "Dans vos avis à une ou deux étoiles\u00a0: «\u00a0il me manque une part de frite\u00a0!\u00a0»",
     },
     {
       title: "Son numéro, et l’heure où c’est prêt.",
-      fact: "70\u00a0% des clients de la restauration rapide jugent important, pour choisir leur restaurant, d’être prévenus quand leur commande est prête (un bipper, dans l’étude)\u00a0: ici, c’est leur téléphone, page ouverte.",
+      fact: "70\u00a0% des clients de la restauration rapide jugent important, dans le choix d’un restaurant, qu’un bipper indique quand la commande est prête\u00a0: ici, c’est leur téléphone, page ouverte.",
       eta: true,
     },
   ],
@@ -294,7 +300,7 @@ const forCustomers: Section<"forCustomers"> = {
     pilot: "Le pilote le mesurera chez vous\u00a0: la part des commandes passées par QR.",
     sources: ["whatsapp", "burgerKing", "mcdo", "opinionway"],
   },
-  sources: ["akto"],
+  sources: ["reviews", "akto"],
 };
 
 const forTeams: Section<"forTeams"> = {
@@ -321,16 +327,16 @@ const forTeams: Section<"forTeams"> = {
 
 const forRevenue: Section<"forRevenue"> = {
   eyebrow: "Le calcul, pour un franchisé",
-  title: "Si vous retenez deux\u00a0clients de plus par\u00a0jour, le\u00a0surcoût est couvert.",
+  title: `Avec ${illustration.coveringCustomers}\u00a0clients de plus par\u00a0jour, le surcoût est couvert dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
   mechanism:
-    "On reste ou on repart selon la longueur de la file (Lu et al., 2013, étude sur le rayon traiteur d’un hypermarché). Celui qui a commandé depuis sa table n’est plus dans la file\u00a0: elle paraît plus courte à celui qui arrive.",
+    "On reste ou on repart selon la longueur de la file (Lu et al., 2013, rayon traiteur d’un hypermarché)\u00a0: qui commande depuis sa table raccourcit la file du suivant.",
   illustrationLabel: "Illustration, pas une promesse",
   rateNote: `Calculé au taux maximal (${maxRate})\u00a0: le taux baisse quand le chiffre d’affaires du restaurant augmente.`,
   sum: [
     {
       value: `≈\u00a0${euros(monthlyExample.extra)}`,
       unit: "par mois",
-      text: `de surcoût si ${percent(monthlyExample.share)} du chiffre d’affaires est payé en ligne\u00a0: ≈\u00a0${euros(monthlyExample.ominin)} au plus pour Ominin et ≈\u00a0${euros(monthlyExample.card)} de frais de carte, moins ≈\u00a0${euros(monthlyExample.counter)} de TPE si ces ventes étaient réglées par carte, soit ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du chiffre d’affaires`,
+      text: `de surcoût si ${percent(monthlyExample.share)} du chiffre d’affaires est payé en ligne par QR (41\u00a0% du CA chez notre client)\u00a0: ≈\u00a0${euros(monthlyExample.ominin)} au plus pour Ominin et ≈\u00a0${euros(monthlyExample.card)} de frais de carte, moins ≈\u00a0${euros(monthlyExample.counter)} de TPE si ces ventes étaient réglées par carte, soit ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du chiffre d’affaires`,
     },
     {
       value: `≈\u00a0${euros(monthlyExample.coveringSales)}`,
@@ -344,7 +350,7 @@ const forRevenue: Section<"forRevenue"> = {
     },
   ],
   beyond: `Au-delà\u00a0: à ${illustration.customersPerDay}\u00a0clients par jour (≈\u00a01 sur ${revenueIllustration.oneIn} des ≈\u00a0${revenueIllustration.ordersPerDay} commandes d’une journée moyenne), ≈\u00a0${euros(revenueIllustration.monthly)} de ventes en plus par mois, soit ≈\u00a0${euros(revenueIllustration.revenue)} par an. Hypothèses\u00a0: panier de ${euros(illustration.basket)} TTC déduit de votre plaquette (1,1\u00a0M€ par restaurant, 5\u00a0millions de commandes par an pour ≈\u00a0100 restaurants), ce chiffre d’affaires supposé TTC.`,
-  sources: ["lu", "brochure"],
+  sources: ["lu", "brochure", "report"],
 };
 
 const forHeadOffice: Section<"forHeadOffice"> = {
@@ -371,8 +377,8 @@ const deployment: Section<"deployment"> = {
   points: [
     {
       label: "Sur place",
-      title: "Rien à installer.",
-      text: "Le client scanne et commande, sans application ni compte, même s’il ne passe qu’une fois. Il paie sur son téléphone\u00a0; espèces et titres-restaurant se règlent au comptoir.",
+      title: "Ni appli ni compte.",
+      text: "Là où l’appli et WhatsApp demandent une installation ou un échange, le client scanne et commande, même s’il ne passe qu’une fois. Il paie sur son téléphone\u00a0; espèces et titres-restaurant se règlent au comptoir.",
     },
     {
       label: "Cuisine",
@@ -455,7 +461,6 @@ const proposal: Section<"proposal"> = {
     title: "Ce que le pilote mesurera",
     lead: "Cinq chiffres, relevés ensemble.",
     sources: [],
-    vendor: "Vous prenez déjà des commandes sur WhatsApp\u00a0? Au restaurant, le QR Ominin va plus loin\u00a0: paiement sur le téléphone, ticket imprimé en cuisine, numéro suivi jusqu’à «\u00a0C’est\u00a0prêt\u00a0!\u00a0» avec l’heure annoncée par l’IA, aucun abonnement.",
     points: [
       "La part des commandes passées par QR.",
       "Le délai entre la commande et le ticket cuisine.",
@@ -500,7 +505,7 @@ export const chickenStreet: Pitch<SourceId> = {
   },
   screens,
   sources,
-  sourcesNote: "Restaurants, adresses et carte\u00a0: d’après chickenstreet.fr et restaurants.chickenstreet.fr\u00a0; prix et boissons de la démo indicatifs, relevés par un agrégateur. Relevés et captures du 06–07/10/2026.",
+  sourcesNote: "Restaurants, adresses et carte\u00a0: d’après chickenstreet.fr et restaurants.chickenstreet.fr\u00a0; prix et boissons de la démo indicatifs, relevés par un agrégateur\u00a0; les paniers de la vue réseau en découlent (≈\u00a017\u00a0€), le calcul retient 22\u00a0€, déduit de votre plaquette. Relevés et captures du 06–07/10/2026.",
   cover,
   promise,
   walkAway,
