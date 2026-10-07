@@ -72,7 +72,9 @@ function DemoHint({
         className="flex items-center gap-2 rounded-full border border-hairline bg-surface px-4 py-2 text-xs text-muted"
       >
         <span className="size-1.5 animate-pulse rounded-full bg-ember-2" />
-        {COLLECT_DEMO.hints[demo.step]}
+        {demo.step === "menu" && Object.values(demo.cart).some((quantity) => quantity > 0)
+          ? COLLECT_DEMO.hints.menuReady
+          : COLLECT_DEMO.hints[demo.step]}
       </span>
       {needsSwitch && (
         <button

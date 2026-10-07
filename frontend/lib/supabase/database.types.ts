@@ -588,35 +588,6 @@ export type Database = {
         }
         Relationships: []
       }
-      collect_pending: {
-        Row: {
-          created_at: string
-          etablissement_id: string
-          id: string
-          payload: Json
-        }
-        Insert: {
-          created_at?: string
-          etablissement_id: string
-          id?: string
-          payload: Json
-        }
-        Update: {
-          created_at?: string
-          etablissement_id?: string
-          id?: string
-          payload?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collect_pending_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       contact_requests: {
         Row: {
           company: string | null
@@ -1136,7 +1107,9 @@ export type Database = {
         Row: {
           address: string
           admin_pin_set: boolean
+          collect_fee_percent: number | null
           collect_slot_capacity: number
+          collect_slot_minutes: number
           cover_image: string | null
           created_at: string
           google_review_url: string | null
@@ -1147,6 +1120,7 @@ export type Database = {
           name: string
           offre: Database["public"]["Enums"]["offre"] | null
           online_payment: boolean
+          opening_hours: Json | null
           payment_provider:
             | Database["public"]["Enums"]["payment_provider"]
             | null
@@ -1162,7 +1136,9 @@ export type Database = {
         Insert: {
           address?: string
           admin_pin_set?: boolean
+          collect_fee_percent?: number | null
           collect_slot_capacity?: number
+          collect_slot_minutes?: number
           cover_image?: string | null
           created_at?: string
           google_review_url?: string | null
@@ -1173,6 +1149,7 @@ export type Database = {
           name: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
+          opening_hours?: Json | null
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
@@ -1188,7 +1165,9 @@ export type Database = {
         Update: {
           address?: string
           admin_pin_set?: boolean
+          collect_fee_percent?: number | null
           collect_slot_capacity?: number
+          collect_slot_minutes?: number
           cover_image?: string | null
           created_at?: string
           google_review_url?: string | null
@@ -1199,6 +1178,7 @@ export type Database = {
           name?: string
           offre?: Database["public"]["Enums"]["offre"] | null
           online_payment?: boolean
+          opening_hours?: Json | null
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
@@ -4533,9 +4513,13 @@ export type Database = {
         Args: { p_code: string | null; p_entry_id: string; p_signature: string }
         Returns: undefined
       }
-      create_collect_order: {
-        Args: { p_pending_id: string; p_stripe_session_id: string }
-        Returns: string
+      collect_full_slots: {
+        Args: { p_from: string; p_slug: string; p_to: string }
+        Returns: string[]
+      }
+      collect_open_at: {
+        Args: { p_at: string; p_hours: Json }
+        Returns: boolean
       }
       create_etablissement: {
         Args: {
@@ -4725,6 +4709,7 @@ export type Database = {
       }
       place_order: {
         Args: {
+          p_collect?: Json
           p_items: Json
           p_loyalty_contact?: string | null
           p_online_payment?: boolean

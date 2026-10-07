@@ -1,6 +1,6 @@
 /*
- * Synchronise les produits/prix Stripe avec pricingSection, starterKit,
- * collectOffer (lib/landing-data.ts) et shopOffer (lib/shop-landing-data.ts) — les prix
+ * Synchronise les produits/prix Stripe avec pricingSection, starterKit
+ * (lib/landing-data.ts) et shopOffer (lib/shop-landing-data.ts) — les prix
  * affichés sur les sites sont la source de vérité, rien n'est dupliqué ici.
  * Idempotent :
  *  - lookup_key absent → produit + prix créés ;
@@ -25,7 +25,7 @@
  */
 
 import Stripe from "stripe";
-import { collectOffer, pricingSection, starterKit } from "../lib/landing-data";
+import { pricingSection, starterKit } from "../lib/landing-data";
 import { shopOffer } from "../lib/shop-landing-data";
 
 const live = process.argv.includes("--live");
@@ -66,11 +66,12 @@ const starterPlans: Plan[] = [
   starterKit.shipping,
 ].map(({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: false }));
 
-// Toutes les offres ont un tarif mensuel, mois offerts compris : celui de
-// Connect n'est facturé qu'à leur terme, et seulement si le chiffre
-// d'affaires n'en a pas dispensé le restaurant.
+// Toutes les offres de la salle ont un tarif mensuel, mois offerts compris :
+// celui de Connect n'est facturé qu'à leur terme, et seulement si le chiffre
+// d'affaires n'en a pas dispensé le restaurant. Le click & collect n'a que sa
+// commission : rien à créer chez Stripe.
 const plans: Plan[] = [
-  ...[...pricingSection.plans, collectOffer, { ...collectOffer.bundle }].map(
+  ...pricingSection.plans.map(
     ({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })
   ),
   ...starterPlans,

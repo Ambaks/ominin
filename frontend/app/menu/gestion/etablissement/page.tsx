@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { GiftIcon } from "@/components/gestion/icons";
+import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
 import { ServiceModeSettings } from "@/components/gestion/service-mode-settings";
@@ -12,6 +13,7 @@ import { TabletSettings } from "@/components/gestion/tablet-settings";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
+import { formatOpeningHours, type OpeningHours } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Etablissement } from "@/lib/gestion/types";
@@ -22,20 +24,38 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
   const [tagline, setTagline] = useState(etablissement.tagline);
   const [address, setAddress] = useState(etablissement.address);
   const [phone, setPhone] = useState(etablissement.phone);
-  const [hours, setHours] = useState(etablissement.hours);
+  // Un texte égal à celui des plages enregistrées n'est pas celui du
+  // gérant : le champ reste vide et suit les plages.
+  const [hours, setHours] = useState(
+    etablissement.openingHours &&
+      etablissement.hours === formatOpeningHours(etablissement.openingHours)
+      ? ""
+      : etablissement.hours
+  );
+  const [openingHours, setOpeningHours] = useState<OpeningHours>(
+    etablissement.openingHours ?? {}
+  );
   const [googleReviewUrl, setGoogleReviewUrl] = useState(
     etablissement.googleReviewUrl ?? ""
   );
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    const problem = hoursProblem(openingHours);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+    const generated = formatOpeningHours(openingHours);
     try {
       await api.updateEtablissement({
         name: name.trim(),
         tagline: tagline.trim(),
         address: address.trim(),
         phone: phone.trim(),
-        hours: hours.trim(),
+        // Le texte affiché est celui du gérant ; vide, il suit les plages.
+        hours: hours.trim() || generated,
+        openingHours: generated ? openingHours : null,
         googleReviewUrl: googleReviewUrl.trim() || undefined,
       });
       toast.success("Informations enregistrées.");
@@ -81,10 +101,23 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
           className={inputClass}
         />
       </Field>
-      <Field label="Horaires">
+      <fieldset className="flex flex-col gap-1.5">
+        <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
+          Horaires d&apos;ouverture
+        </legend>
+        <OpeningHoursEditor value={openingHours} onChange={setOpeningHours} />
+        <span className="text-xs text-faint">
+          Le click &amp; collect propose ses heures de retrait dans ces plages.
+        </span>
+      </fieldset>
+      <Field
+        label="Horaires affichés sur la carte"
+        hint="Votre texte ; laissé vide, il est écrit d'après les plages ci-dessus."
+      >
         <input
           value={hours}
           onChange={(event) => setHours(event.target.value)}
+          placeholder={formatOpeningHours(openingHours)}
           className={inputClass}
         />
       </Field>

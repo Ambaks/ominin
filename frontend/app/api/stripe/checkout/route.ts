@@ -27,11 +27,11 @@ type Product = Database["public"]["Enums"]["product"];
  * Crée une session Stripe Checkout (abonnement mensuel, sans essai) pour
  * l'établissement du gérant connecté. Le corps optionnel { product } choisit
  * l'abonnement : 'offre' (défaut — prix retrouvé par lookup_key =
- * etablissements.offre), 'collect', ou 'collect_connect' (formule groupée,
- * réservée à l'offre Connect, qui active les deux produits en un seul
- * abonnement). Prix créés par scripts/setup-stripe.ts — aucun montant côté
- * code. metadata.products dit au webhook quelles lignes de subscriptions
- * écrire.
+ * etablissements.offre) ou 'collect'. Le click & collect n'a pas
+ * d'abonnement : signé, il s'active sans passer par Stripe, et ses
+ * commissions sont posées sur l'établissement. Prix créés par
+ * scripts/setup-stripe.ts — aucun montant côté code. metadata.products dit
+ * au webhook quelles lignes de subscriptions écrire.
  *
  * La première activation d'une offre porte aussi la commande de démarrage
  * (lib/stripe/starter.ts) : un Cachet imprimé par table — recompté en base,
@@ -46,16 +46,31 @@ type Product = Database["public"]["Enums"]["product"];
 const PRODUCTS_BY_CHOICE: Record<string, Product[]> = {
   offre: ["offre"],
   collect: ["collect"],
-  collect_connect: ["offre", "collect"],
 };
 
-/** Formule groupée : le tarif unique, et l'offre qui y donne droit. */
-const BUNDLE_CHOICE = "collect_connect";
+/** Formule groupée : l'offre qui, avec le click & collect, y donne droit. */
 const BUNDLE_OFFRE = "connect";
 
 /** Statuts Stripe terminaux : seuls états autorisant un nouveau checkout. */
 const isTerminal = (status: string | null) =>
   !status || status === "canceled" || status === "incomplete_expired";
+
+/** Ligne d'abonnement du click & collect : active, sans abonnement Stripe. */
+async function upsertCollect(
+  admin: ReturnType<typeof createAdminClient>,
+  etablissementId: string
+) {
+  const { error } = await admin.from("subscriptions").upsert(
+    {
+      etablissement_id: etablissementId,
+      product: "collect",
+      status: "active",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "etablissement_id,product" }
+  );
+  if (error) throw new Error(error.message);
+}
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -126,12 +141,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Établissement introuvable." },
       { status: 404 }
-    );
-  }
-  if (choice === "collect_connect" && etablissement.offre !== "connect") {
-    return NextResponse.json(
-      { error: "La formule groupée est réservée à l'offre Connect." },
-      { status: 409 }
     );
   }
 
@@ -280,55 +289,33 @@ export async function POST(request: Request) {
     !offreState;
 
   /*
-   * Formule groupée. Connect et le click & collect pris ensemble valent le
-   * tarif groupé annoncé sur la landing, pas la somme des deux : le produit
-   * qui arrive rejoint l'abonnement déjà en cours (proratisé) au lieu d'en
-   * ouvrir un second — le click & collect ajouté à Connect, comme les
-   * mensualités de Connect dues alors que le click & collect tourne déjà.
-   * Rien à ressaisir — d'où une réponse sans URL de checkout. Le webhook
-   * customer.subscription.updated écrit les deux lignes d'abonnement à partir
-   * de metadata.products.
+   * Click & collect : rien à facturer, Ominin se rémunère sur la commission.
+   * Pris avec Connect, c'est la formule groupée : la commission du service à
+   * table passe au taux groupé. Un abonnement Connect en cours n'est pas
+   * touché ici.
    */
-  const liveRow = (product: Product) =>
-    subscriptions?.find(
-      (row) => row.product === product && !isTerminal(row.status)
-    );
-  const bundleFrom =
-    etablissement.offre !== BUNDLE_OFFRE
-      ? undefined
-      : choice === "collect"
-        ? liveRow("offre")
-        : choice === "offre" && !freeMonths
-          ? liveRow("collect")
-          : undefined;
-  if (bundleFrom?.stripe_subscription_id) {
-    const bundlePrice = await priceByLookupKey(BUNDLE_CHOICE);
-    if (!bundlePrice) {
-      return NextResponse.json(
-        {
-          error: `Tarif « ${BUNDLE_CHOICE} » introuvable dans Stripe — exécuter npm run setup:stripe.`,
-        },
-        { status: 500 }
-      );
-    }
-    const current = await stripe.subscriptions.retrieve(
-      bundleFrom.stripe_subscription_id
-    );
-    const metadata = {
-      etablissement_id: etablissement.id,
-      products: PRODUCTS_BY_CHOICE[BUNDLE_CHOICE].join(","),
-    };
+  if (choice === "collect") {
+    const bundled = etablissement.offre === BUNDLE_OFFRE;
     await sign({
-      product: BUNDLE_CHOICE,
-      monthly: collectOffer.bundle.price,
-      commission: quotePlan(BUNDLE_OFFRE)?.commission,
+      product: bundled ? collectOffer.bundle.id : collectOffer.id,
+      monthly: 0,
+      commission: collectOffer.commission,
+      ...(bundled && { menuCommission: collectOffer.bundle.menuCommission }),
     });
-    await stripe.subscriptions.update(current.id, {
-      items: [{ id: current.items.data[0].id, price: bundlePrice.id }],
-      proration_behavior: "create_prorations",
-      metadata,
-    });
-    return NextResponse.json({ bundled: true });
+    const { error: feeError } = await admin
+      .from("etablissements")
+      .update({
+        collect_fee_percent: collectOffer.commission.percent,
+        ...(bundled && {
+          platform_fee_percent: collectOffer.bundle.menuCommission.percent,
+        }),
+      })
+      .eq("id", etablissement.id);
+    if (feeError) {
+      return NextResponse.json({ error: feeError.message }, { status: 500 });
+    }
+    await upsertCollect(admin, etablissement.id);
+    return NextResponse.json({ activated: true });
   }
 
   // Offre en mois offerts déjà ouverte (exonération acquise, ou réouverture
@@ -397,9 +384,7 @@ export async function POST(request: Request) {
       square: freeMonths && body.square === true ? "1" : "0",
     }),
   };
-  // Retour Stripe sur la page qui a lancé le paiement : l'ajout du click &
-  // collect part de la page Produits, l'ouverture de l'offre de l'espace.
-  const returnPath = choice === "collect" ? "/gestion/produits" : "/gestion";
+  const returnPath = "/gestion";
   // Retour sur l'hôte qui a lancé le paiement : la session lui est attachée,
   // un retour sur un autre domaine y arriverait déconnecté. request.url peut
   // porter le host interne (routage Vercel), d'où l'en-tête transmis.
@@ -414,15 +399,11 @@ export async function POST(request: Request) {
    * c'est celui-là qui est facturé, donc celui-là qui est signé.
    */
   const signedPlan = choice === "offre" ? quotePlan(etablissement.offre!) : undefined;
-  const monthly = freeMonths
-    ? 0
-    : choice === "collect"
-      ? collectOffer.price
-      : (signedPlan?.price ?? 0);
+  const monthly = freeMonths ? 0 : (signedPlan?.price ?? 0);
   const signedLines: { label: string; amount: number }[] = [];
   if (!freeMonths) {
     signedLines.push({
-      label: signedPlan ? `Ominin ${signedPlan.name}` : collectOffer.name,
+      label: `Ominin ${signedPlan?.name}`,
       amount: monthly,
     });
   }

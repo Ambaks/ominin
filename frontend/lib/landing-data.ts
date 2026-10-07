@@ -574,30 +574,38 @@ export const quotePage = {
 export const collectOffer = {
   id: "collect",
   name: "Click & collect",
-  price: 100,
+  /** Sans abonnement : Ominin se rémunère sur la seule commission. */
+  price: 0,
   /*
    * Commission sur les commandes à emporter. Structurée ici et non écrite en
-   * toutes lettres ailleurs : le comparatif de la landing Collect et l'annexe
-   * tarifaire des CGV la lisent tous deux d'ici, et un contrat ne doit pas
-   * pouvoir annoncer un taux que le produit a cessé d'appliquer.
+   * toutes lettres ailleurs : la landing Collect, l'annexe tarifaire des CGV
+   * et le taux posé à l'activation la lisent tous d'ici, et un contrat ne
+   * doit pas pouvoir annoncer un taux que le produit a cessé d'appliquer.
    */
   commission: {
-    percent: 10,
+    percent: 5,
     basis: "des commandes à emporter payées en ligne",
   } satisfies PlanCommission,
-  tagline: "L'emporter à 10 %, pas 30.",
+  tagline: "L'emporter à 5 %, pas 30. Sans abonnement.",
   features: [
     "Votre page de commande à votre nom",
-    "Retrait tout de suite ou un autre jour",
-    "Paiement en ligne à la commande",
+    "Retrait tout de suite ou à l'heure choisie",
+    "Paiement en ligne, versé sur votre compte",
     "Commandes en temps réel dans votre espace de gestion",
     "Votre site web refait par nous, la commande intégrée",
-    "10 % par commande — 3× moins que la livraison",
   ],
+  /*
+   * Connect et le click & collect ensemble : plus d'abonnement, deux
+   * commissions — celle du service à table remplace celle de Connect.
+   */
   bundle: {
     id: "collect_connect",
     name: "Connect + Click & collect",
-    price: 150,
+    price: 0,
+    menuCommission: {
+      percent: 3,
+      basis: "des commandes à table payées en ligne",
+    } satisfies PlanCommission,
     tagline: "Le service complet, sur place et à emporter.",
   },
 };

@@ -26,7 +26,7 @@ export function BrowserFrame({
           <span className="size-3 rounded-full bg-[#febc2e]" />
           <span className="size-3 rounded-full bg-[#28c840]" />
         </span>
-        <span className="absolute left-1/2 -translate-x-1/2 rounded-full bg-background px-4 py-1 text-xs text-muted">
+        <span className="absolute left-1/2 max-w-[55%] -translate-x-1/2 truncate rounded-full bg-background px-4 py-1 text-xs text-muted">
           {url}
         </span>
       </div>

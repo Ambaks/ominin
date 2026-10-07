@@ -21,8 +21,7 @@ import {
 import { allowedActions } from "@/lib/gestion/permissions";
 import { activeProducts } from "@/lib/gestion/selectors";
 import { refreshSubscription, useGestion } from "@/lib/gestion/store";
-import { collectOffer, contactEmail, pricingSection } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { collectOffer, contactEmail } from "@/lib/landing-data";
 import {
   clipProduct,
   collectProduct,
@@ -181,12 +180,11 @@ export default function ProduitsPage() {
                           <span className="font-semibold">
                             {collectOffer.bundle.name}
                           </span>{" "}
-                          et je m’engage à régler{" "}
-                          <span className="font-semibold">
-                            {formatPrice(collectOffer.bundle.price)}
-                            {pricingSection.perMonth}
-                          </span>
-                          , au prorata de la période en cours.
+                          : {collectOffer.bundle.menuCommission.percent}&nbsp;%{" "}
+                          {collectOffer.bundle.menuCommission.basis} et{" "}
+                          {collectOffer.commission.percent}&nbsp;%{" "}
+                          {collectOffer.commission.basis}, sans abonnement
+                          mensuel.
                         </>
                       }
                     />

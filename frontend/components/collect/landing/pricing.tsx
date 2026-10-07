@@ -1,9 +1,9 @@
-import { SectionHeading } from "@/components/landing/section-heading";
 import { pricingSection, signupCta } from "@/lib/collect-landing-data";
+import { CollectHeading } from "./heading";
 
 function PriceCard({
   name,
-  price,
+  prices,
   tagline,
   features,
   badge,
@@ -11,7 +11,8 @@ function PriceCard({
   highlighted,
 }: {
   name: string;
-  price: number;
+  /** Un taux par assiette : « par commande », ou à table et à emporter. */
+  prices: { value: string; unit: string }[];
   tagline: string;
   features: string[];
   badge?: string;
@@ -20,7 +21,7 @@ function PriceCard({
 }) {
   return (
     <div
-      className={`relative flex flex-col gap-5 rounded-2xl border p-6 lg:rounded-3xl lg:p-8 ${
+      className={`collect-card relative flex flex-col gap-5 rounded-[2rem] border p-7 lg:p-9 ${
         highlighted
           ? "border-ember-2/40 bg-surface shadow-lg shadow-ember-2/5"
           : "border-hairline bg-surface"
@@ -33,19 +34,32 @@ function PriceCard({
       )}
 
       <div>
-        <h3 className="font-display text-xl font-medium lg:text-2xl">{name}</h3>
+        <h3 className="collect-display text-2xl lg:text-3xl">{name}</h3>
         <p className="mt-1 text-sm text-muted">{tagline}</p>
       </div>
 
       <div>
-        <div className="flex items-baseline gap-1.5">
-          <span className="ember-text font-display text-4xl font-medium">
-            {price} €
-          </span>
-          <span className="text-sm text-faint">{pricingSection.perMonth}</span>
+        <div className="flex flex-wrap gap-x-8 gap-y-3">
+          {prices.map((price) => (
+            <div key={price.unit}>
+              <span className="collect-display ember-text block whitespace-nowrap text-6xl lg:text-7xl">
+                {price.value}
+              </span>
+              <span className="mt-1 block text-sm text-muted">{price.unit}</span>
+            </div>
+          ))}
         </div>
         {note && <p className="mt-1 text-xs font-semibold text-muted">{note}</p>}
       </div>
+
+      <a
+        href={signupCta.href}
+        className={`rounded-full px-6 py-3 text-center text-sm font-bold transition-transform hover:scale-[1.02] ${
+          highlighted ? "ember-gradient text-background" : "border border-hairline hover:border-ember-2/50"
+        }`}
+      >
+        {signupCta.label}
+      </a>
 
       <div className="flex flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -72,10 +86,10 @@ export function CollectPricing() {
   return (
     <section
       id={pricingSection.id}
-      className="scroll-mt-20 border-t border-hairline"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <CollectHeading
           eyebrow={pricingSection.eyebrow}
           title={pricingSection.title}
           subtitle={pricingSection.subtitle}
@@ -85,44 +99,29 @@ export function CollectPricing() {
         <div className="mt-12 grid items-stretch gap-4 lg:mt-16 lg:grid-cols-[1fr_auto_1fr] lg:gap-5">
           <PriceCard
             name={offer.name}
-            price={offer.price}
+            prices={[{ value: `${offer.commission.percent}\u00a0%`, unit: pricingSection.perOrder }]}
             tagline={offer.tagline}
             features={offer.features}
             note={pricingSection.commissionLabel}
           />
           <div
-            className="flex items-center justify-center font-display text-xl text-faint"
+            className="collect-display flex items-center justify-center text-2xl text-faint"
             aria-hidden
           >
             {pricingSection.orLabel}
           </div>
           <PriceCard
             name={offer.bundle.name}
-            price={offer.bundle.price}
+            prices={[
+              { value: `${offer.bundle.menuCommission.percent}\u00a0%`, unit: pricingSection.bundleUnits.table },
+              { value: `${offer.commission.percent}\u00a0%`, unit: pricingSection.bundleUnits.takeaway },
+            ]}
             tagline={offer.bundle.tagline}
             features={pricingSection.bundleFeatures}
             badge={pricingSection.bundleBadge}
             note={pricingSection.bundleCommissionLabel}
             highlighted
           />
-        </div>
-
-        <div className="mt-10 text-center">
-          <a
-            href={signupCta.href}
-            className="ember-gradient inline-block rounded-full px-8 py-3.5 text-sm font-semibold text-background lg:text-base"
-          >
-            {pricingSection.ctaLabel}
-          </a>
-        </div>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted">
-          {pricingSection.guarantees.map((g) => (
-            <span key={g} className="flex items-center gap-1.5">
-              <span className="text-ember-1">✓</span>
-              {g}
-            </span>
-          ))}
         </div>
       </div>
     </section>

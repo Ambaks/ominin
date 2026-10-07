@@ -245,6 +245,7 @@ export function counterDemo(
         address: restaurant.address,
         phone: restaurant.phone,
         hours: restaurant.hours,
+        openingHours: null,
         offre: "connect",
         serviceMode: "fast_food",
         onlinePayment: true,

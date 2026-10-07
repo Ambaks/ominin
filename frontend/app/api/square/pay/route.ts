@@ -106,7 +106,7 @@ export async function POST(request: Request) {
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, etablissement_id, table_id, order_number, status, paid_online, square_order_id, square_idempotency_key"
+      "id, etablissement_id, table_id, order_number, type, status, paid_online, square_order_id, square_idempotency_key"
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, payment_provider, square_location_id, platform_fee_percent")
+      .select("name, online_payment, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -163,7 +163,9 @@ export async function POST(request: Request) {
   const existingOrderId = order.square_order_id;
   // « Table 7 », « N° 42 » : ce que le personnel doit voir d'un coup d'œil
   // sur son écran de caisse et sur le ticket imprimé.
-  const ticketName = table
+  const ticketName = order.type === "collect"
+    ? `À emporter — ${etab.name}`
+    : table
     ? `Table ${table.number}`
     : order.order_number
       ? `N° ${order.order_number}`
@@ -212,7 +214,10 @@ export async function POST(request: Request) {
         ? Math.min(Math.round(tipAmount * 100), amount)
         : 0;
 
-    const feePercent = etab.platform_fee_percent ?? 0;
+    const feePercent =
+      (order.type === "collect"
+        ? etab.collect_fee_percent
+        : etab.platform_fee_percent) ?? 0;
     const feeCents =
       feePercent > 0 ? Math.round((amount * feePercent) / 100) : 0;
 

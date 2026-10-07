@@ -10,6 +10,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
@@ -122,6 +123,11 @@ export interface CartConfig {
    * vrai client, sur la table fictive de l'aperçu. undefined ⇒ menu réel.
    */
   preview?: boolean;
+  /**
+   * Click & collect (collect.ominin.com/<slug>) : sans table, payé en ligne à
+   * la commande, retiré à l'heure choisie dans les horaires d'ouverture.
+   */
+  collect?: { hours: OpeningHours | null; slotMinutes: number };
 }
 
 interface CartContextValue extends CartConfig {
@@ -167,6 +173,11 @@ export function cartLineKey(
   return rewardId ? `${rewardId}/${key}` : key;
 }
 
+/** Clé du panier gardé dans l'onglet : par carte, par table, aperçu à part. */
+export function savedCartKey(slug: string, table: number | null, preview?: boolean) {
+  return `ominin-panier:${preview ? "apercu:" : ""}${slug}:${table ?? "-"}`;
+}
+
 export function CartProvider({
   config,
   children,
@@ -184,7 +195,7 @@ export function CartProvider({
    */
   // L'aperçu a sa propre clé : ses lignes (ids du registre) ne doivent pas
   // réapparaître dans le vrai menu du même restaurant, ni l'inverse.
-  const storageKey = `ominin-panier:${config.preview ? "apercu:" : ""}${config.slug}:${config.tableNumber ?? "-"}`;
+  const storageKey = savedCartKey(config.slug, config.tableNumber, config.preview);
   // Faux pendant l'hydratation (le rendu doit égaler celui du serveur), vrai
   // juste après : le panier gardé est relu à ce moment-là, une fois par clé.
   const hydrated = useSyncExternalStore(
@@ -280,7 +291,9 @@ export function CartProvider({
     return {
       ...config,
       fastFood,
-      canOrder: config.orderingEnabled && (fastFood || config.tableNumber !== null),
+      canOrder:
+        config.orderingEnabled &&
+        (fastFood || config.collect !== undefined || config.tableNumber !== null),
       lines,
       count,
       total,

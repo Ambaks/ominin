@@ -1,33 +1,10 @@
 import type { OrderItemOption, OrderStatus } from "@/lib/gestion/types";
 
-/*
- * Types et helpers partagés entre la page click & collect (client) et les
- * routes serveur. Le client n'envoie que des références (ids + quantités) :
- * noms et prix sont refigés côté serveur depuis la base.
- */
-
-export interface CartChoice {
-  groupId: string;
-  choiceId: string;
-}
-
-export interface CartLinePayload {
-  itemId: string;
-  quantity: number;
-  choices: CartChoice[];
-}
-
-export interface CollectCheckoutPayload {
-  slug: string;
-  customer: { name: string; phone: string };
-  /** ISO ; null = dès que possible. */
-  pickupAt: string | null;
-  lines: CartLinePayload[];
-}
-
-/** Commande telle qu'exposée au client sur la page de confirmation. */
+/** Commande telle qu'exposée au client sur la page de suivi. */
 export interface CollectOrderView {
   status: OrderStatus;
+  /** Le paiement en ligne a abouti : la commande est partie en cuisine. */
+  paid: boolean;
   createdAt: string;
   pickupAt: string | null;
   /** « Prête vers » (ISO) — posée par le restaurateur à l'acceptation. */
@@ -36,13 +13,14 @@ export interface CollectOrderView {
   items: {
     name: string;
     quantity: number;
+    /** Suppléments d'options compris. */
     unitPrice: number;
     options: OrderItemOption[];
   }[];
   total: number;
 }
 
-/** Relecture du statut de commande (le webhook écrit avec un léger différé). */
+/** Relecture du statut de commande par la page de suivi. */
 export const COLLECT_ORDER_POLL_MS = 3000;
 
 /**

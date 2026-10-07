@@ -88,12 +88,12 @@ export function awaitsPayment(order: Order): boolean {
 /**
  * À servir : commande sur place payée (partie en cuisine) dont il reste des
  * lignes à apporter, commande fast food pas encore remise, ou commande
- * collect encore en cours.
+ * collect payée encore en cours — non payée, elle n'existe pas pour la salle.
  */
 export function awaitsService(order: Order): boolean {
   if (order.type === "collect") {
     return (
-      order.status === "en_attente" ||
+      (order.status === "en_attente" && !awaitsOnlinePayment(order)) ||
       order.status === "en_preparation" ||
       order.status === "prete"
     );
@@ -150,7 +150,9 @@ export function cardCount(orders: Order[]): number {
 export function needsAttention(order: Order): boolean {
   return (
     awaitsPayment(order) ||
-    (order.type === "collect" && order.status === "en_attente")
+    (order.type === "collect" &&
+      order.status === "en_attente" &&
+      !awaitsOnlinePayment(order))
   );
 }
 

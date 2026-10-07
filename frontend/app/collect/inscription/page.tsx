@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
-import { collectOffer, pricingSection } from "@/lib/landing-data";
+import { collectOffer } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
   title: "Créer un compte — Ominin Collect",
@@ -19,7 +19,7 @@ export default async function CollectInscriptionPage({
       destination="/inscription/etablissement"
       mode="signup"
       otherHref="/connexion"
-      subtitle={`Votre page de commande à emporter, à votre nom — ${collectOffer.price} €${pricingSection.perMonth}.`}
+      subtitle={`Votre page de commande à emporter, à votre nom — ${collectOffer.commission.percent} % par commande, sans abonnement.`}
       authError={error === "auth"}
     />
   );

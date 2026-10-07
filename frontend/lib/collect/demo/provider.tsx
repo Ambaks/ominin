@@ -50,6 +50,8 @@ interface CollectDemoState {
   customerName: string;
   /** Index du créneau choisi : null = « Dès que possible ». */
   pickupSlot: number | null;
+  /** Retrait demain plutôt qu'aujourd'hui (créneaux seulement). */
+  pickupTomorrow: boolean;
   order: DemoOrder | null;
   /** La commande est visible côté restaurant (après le différé « webhook »). */
   orderVisible: boolean;
@@ -69,11 +71,11 @@ interface CollectDemoValue extends CollectDemoState {
   removeItem(id: string): void;
   setCustomerName(name: string): void;
   setPickupSlot(slot: number | null): void;
+  setPickupTomorrow(tomorrow: boolean): void;
   openCheckout(): void;
   backToMenu(): void;
   pay(): void;
   accept(etaMinutes: number): void;
-  refuse(): void;
   markReady(): void;
   markPickedUp(): void;
   replay(): void;
@@ -84,6 +86,7 @@ const initialState: CollectDemoState = {
   cart: {},
   customerName: COLLECT_DEMO.customer.name,
   pickupSlot: null,
+  pickupTomorrow: false,
   order: null,
   orderVisible: false,
   lastEvent: null,
@@ -206,6 +209,15 @@ export function CollectDemoProvider({
     setState((current) => ({ ...current, pickupSlot: slot }));
   }, []);
 
+  // Demain, pas de « dès que possible » : le premier créneau est choisi.
+  const setPickupTomorrow = useCallback((tomorrow: boolean) => {
+    setState((current) => ({
+      ...current,
+      pickupTomorrow: tomorrow,
+      pickupSlot: tomorrow && current.pickupSlot === null ? 0 : current.pickupSlot,
+    }));
+  }, []);
+
   const backToMenu = useCallback(() => {
     setState((current) =>
       current.step === "checkout"
@@ -228,7 +240,7 @@ export function CollectDemoProvider({
         const pickupLabel =
           current.pickupSlot === null
             ? "Dès que possible"
-            : formatSlotTime(current.pickupSlot);
+            : `${current.pickupTomorrow ? "Demain " : ""}${formatSlotTime(current.pickupSlot)}`;
         const order: DemoOrder = {
           lines,
           total: lines.reduce(
@@ -279,19 +291,6 @@ export function CollectDemoProvider({
     [relayEvent]
   );
 
-  const refuse = useCallback(() => {
-    setState((current) =>
-      current.step === "en_attente" && current.order
-        ? {
-            ...current,
-            step: "annulee",
-            hintActive: false,
-            lastEvent: relayEvent("toCustomer"),
-          }
-        : current
-    );
-  }, [relayEvent]);
-
   const markReady = useCallback(() => {
     setState((current) =>
       current.step === "en_preparation"
@@ -333,11 +332,11 @@ export function CollectDemoProvider({
       removeItem,
       setCustomerName,
       setPickupSlot,
+      setPickupTomorrow,
       openCheckout,
       backToMenu,
       pay,
       accept,
-      refuse,
       markReady,
       markPickedUp,
       replay,
@@ -351,11 +350,11 @@ export function CollectDemoProvider({
       removeItem,
       setCustomerName,
       setPickupSlot,
+      setPickupTomorrow,
       openCheckout,
       backToMenu,
       pay,
       accept,
-      refuse,
       markReady,
       markPickedUp,
       replay,
@@ -384,7 +383,6 @@ export function nextActionSide(
     case "prete":
       return "restaurant";
     case "retiree":
-    case "annulee":
       return "client";
   }
 }

@@ -1,59 +1,57 @@
-import { SectionHeading } from "@/components/landing/section-heading";
 import { useCasesSection } from "@/lib/collect-landing-data";
+import { CollectHeading } from "./heading";
+import { Reveal } from "./reveal";
 
-/*
- * Trois métiers, chacun en deux temps : le problème tel qu'il se vit au
- * comptoir, puis ce que la commande en ligne y change. Le second temps est
- * mis en avant (fond braise léger) — c'est la promesse ; le premier n'est là
- * que pour qu'on s'y reconnaisse.
- */
+/** Pictogrammes des trois métiers (trait, couleur du texte). */
+const ICONS = {
+  phone: "M8 3h8a1 1 0 011 1v16a1 1 0 01-1 1H8a1 1 0 01-1-1V4a1 1 0 011-1zm3 15h2M19 7c1.5 1.5 1.5 4.5 0 6",
+  cake: "M4 20h16M5 20v-7h14v7M5 13c2 1.5 4.5 1.5 7 0 2.5 1.5 5 1.5 7 0M8 13V9m4 4V8m4 5V9M8 6.5v-.5m4-.5v-.5m4 .5v-.5",
+  bag: "M5 8h14l-1 12H6L5 8zm4 0V6a3 3 0 016 0v2M9 12h6",
+} as const;
+
 export function CollectUseCases() {
   return (
-    <section
-      id={useCasesSection.id}
-      className="scroll-mt-20 border-t border-hairline"
-    >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+    <section id={useCasesSection.id} className="scroll-mt-20">
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <CollectHeading
           eyebrow={useCasesSection.eyebrow}
           title={useCasesSection.title}
           subtitle={useCasesSection.subtitle}
-          center
         />
-
-        <div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-3">
-          {useCasesSection.items.map((item) => (
-            <article
+        <div className="mt-14 grid gap-4 lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto]">
+          {useCasesSection.items.map((item, i) => (
+            <Reveal
               key={item.title}
-              className="flex flex-col overflow-hidden rounded-2xl border border-hairline bg-surface lg:rounded-3xl"
+              as="article"
+              delay={i * 120}
+              className="collect-card flex flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6 lg:row-span-4 lg:grid lg:grid-rows-subgrid lg:p-7"
             >
-              <div className="flex flex-col gap-2 p-6 pb-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ember-2">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-ember-1">
                   {item.kicker}
                 </p>
-                <h3 className="font-display text-xl font-medium">
-                  {item.title}
-                </h3>
+                <span className="ember-gradient flex size-11 shrink-0 items-center justify-center rounded-2xl text-background">
+                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d={ICONS[item.icon]} />
+                  </svg>
+                </span>
               </div>
-              <div className="flex flex-1 flex-col">
-                <div className="border-t border-hairline px-6 py-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                    {useCasesSection.problemLabel}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
-                    {item.problem}
-                  </p>
-                </div>
-                <div className="flex-1 border-t border-ember-2/30 bg-ember-2/5 px-6 py-4">
-                  <p className="ember-text text-[11px] font-semibold uppercase tracking-wider">
-                    {useCasesSection.solutionLabel}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed">
-                    {item.solution}
-                  </p>
-                </div>
-              </div>
-            </article>
+              <h3 className="collect-display text-balance text-2xl lg:text-[1.7rem]">
+                {item.title}
+              </h3>
+              <p className="text-sm leading-relaxed text-muted">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
+                  {useCasesSection.problemLabel}
+                </span>
+                <span className="mt-1 block text-foreground/75">{item.problem}</span>
+              </p>
+              <p className="mt-auto rounded-2xl border border-ember-2/25 bg-ember-2/10 p-4 pt-3.5 text-sm leading-relaxed">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-ember-1">
+                  {useCasesSection.solutionLabel}
+                </span>
+                <span className="mt-1 block">{item.solution}</span>
+              </p>
+            </Reveal>
           ))}
         </div>
       </div>
