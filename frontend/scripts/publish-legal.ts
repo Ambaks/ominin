@@ -65,7 +65,8 @@ const problems: string[] = [];
  * arrêter est celui d'un nouveau tarif applicable tout de suite.
  */
 function checkNotice(document: LegalDocument, isFirstVersion: boolean) {
-  if (isFirstVersion) return;
+  // Révision sans réacceptation (LegalDocument.reacceptance) : sans préavis.
+  if (isFirstVersion || document.reacceptance === false) return;
   // Arrondi vers le bas : « au moins 30 jours » ne peut pas être satisfait
   // par 29 jours et 16 heures.
   const days = Math.floor(

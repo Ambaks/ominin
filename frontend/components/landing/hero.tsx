@@ -155,7 +155,7 @@ export function Hero() {
           >
             {hero.clientsLabel} :{" "}
             <span className="font-semibold text-foreground">
-              {clientsSection.clients.map((client) => client.name).join(" · ")}
+              {[...hero.featuredClients, ...clientsSection.clients.map((client) => client.name)].join(" · ")}
             </span>
           </p>
         </div>

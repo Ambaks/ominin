@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { KitHeading } from "@/components/landing-kit/heading";
 import { Reveal } from "@/components/landing-kit/reveal";
 import { fastFoodSection } from "@/lib/landing-data";
@@ -15,7 +16,8 @@ function Ticket() {
       <div className="rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
         <div className="relative overflow-hidden rounded-[1.9rem] bg-background px-5 pb-6 pt-3">
           <div className="mx-auto mb-5 h-5 w-20 rounded-full bg-surface" />
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-faint">
+          <p className="flex items-center justify-center gap-2 text-sm font-semibold">
+            <Image src="/logo.png" alt="" width={22} height={22} />
             {ticket.restaurant}
           </p>
           <p className="mt-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">Votre numéro</p>
