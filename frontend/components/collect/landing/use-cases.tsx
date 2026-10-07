@@ -1,6 +1,6 @@
 import { useCasesSection } from "@/lib/collect-landing-data";
-import { CollectHeading } from "./heading";
-import { Reveal } from "./reveal";
+import { KitHeading } from "@/components/landing-kit/heading";
+import { Reveal } from "@/components/landing-kit/reveal";
 
 /** Pictogrammes des trois métiers (trait, couleur du texte). */
 const ICONS = {
@@ -12,8 +12,8 @@ const ICONS = {
 export function CollectUseCases() {
   return (
     <section id={useCasesSection.id} className="scroll-mt-20">
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
-        <CollectHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={useCasesSection.eyebrow}
           title={useCasesSection.title}
           subtitle={useCasesSection.subtitle}
@@ -24,7 +24,7 @@ export function CollectUseCases() {
               key={item.title}
               as="article"
               delay={i * 120}
-              className="collect-card flex flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6 lg:row-span-4 lg:grid lg:grid-rows-subgrid lg:p-7"
+              className="kit-card flex flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6 lg:row-span-4 lg:grid lg:grid-rows-subgrid lg:p-7"
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-ember-1">
@@ -36,7 +36,7 @@ export function CollectUseCases() {
                   </svg>
                 </span>
               </div>
-              <h3 className="collect-display text-balance text-2xl lg:text-[1.7rem]">
+              <h3 className="kit-display text-balance text-2xl lg:text-[1.7rem]">
                 {item.title}
               </h3>
               <p className="text-sm leading-relaxed text-muted">

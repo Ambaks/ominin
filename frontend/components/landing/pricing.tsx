@@ -8,7 +8,7 @@ import {
 } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
 import { SquareMark } from "./install-scenes";
-import { SectionHeading } from "./section-heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 function Features({ plan, columns }: { plan: Plan; columns?: boolean }) {
   return (
@@ -36,7 +36,7 @@ function PlanCard({ plan }: { plan: Plan }) {
   const trial = trialPricing(plan);
   return (
     <div
-      className={`relative flex h-full flex-col gap-6 rounded-2xl border p-6 lg:rounded-3xl lg:p-8 ${
+      className={`kit-card relative flex flex-col gap-6 rounded-[2rem] border p-7 lg:self-start lg:p-9 ${
         commission
           ? "border-ember-2/40 bg-surface shadow-lg shadow-ember-2/5"
           : "border-hairline bg-surface"
@@ -49,13 +49,13 @@ function PlanCard({ plan }: { plan: Plan }) {
         />
       )}
       {plan.badge && (
-        <span className="ember-gradient absolute -top-3 left-6 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-background">
+        <span className="ember-gradient absolute -top-3 left-6 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-background">
           {plan.badge}
         </span>
       )}
 
       <div className="relative">
-        <h3 className="font-display text-xl font-medium lg:text-2xl">
+        <h3 className="kit-display text-xl font-medium lg:text-2xl">
           {plan.name}
         </h3>
         <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
@@ -64,7 +64,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       <div className="relative flex flex-wrap items-end gap-x-5 gap-y-3">
         <div className="flex items-baseline gap-1">
           <span
-            className={`ember-text font-display font-medium ${
+            className={`ember-text kit-display font-medium ${
               commission ? "text-6xl lg:text-7xl" : "text-4xl"
             }`}
           >
@@ -74,13 +74,19 @@ function PlanCard({ plan }: { plan: Plan }) {
             {trial ? trial.unit : pricingSection.perMonth}
           </span>
         </div>
+        {trial && (
+          <p className="w-full text-base font-bold text-foreground">{trial.then}</p>
+        )}
         {commission && (
           <p className="flex max-w-[15rem] items-center gap-3 pb-1.5 text-sm leading-snug text-muted">
-            <span className="whitespace-nowrap rounded-full border border-ember-2/40 px-3 py-1 font-display text-lg font-medium text-foreground">
+            <span className="whitespace-nowrap rounded-full border border-ember-2/40 px-3 py-1 kit-display text-lg font-medium text-foreground">
               + {commission.percent} %
             </span>
             {commission.basis}
           </p>
+        )}
+        {commission && (
+          <p className="mt-1 text-xs text-muted">{pricingSection.cardFeesNote}</p>
         )}
       </div>
 
@@ -128,7 +134,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           </div>
           <a
             href={`#${installSection.id}`}
-            className="text-xs text-muted underline decoration-hairline underline-offset-4 transition-colors hover:text-foreground"
+            className="inline-flex self-start rounded-full border border-hairline px-4 py-2 text-xs font-semibold transition-colors hover:border-ember-2/50"
           >
             {pricingSection.installLink} ↓
           </a>
@@ -153,10 +159,10 @@ export function Pricing() {
   return (
     <section
       id={pricingSection.id}
-      className="scroll-mt-20 border-t border-hairline"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
+        <KitHeading
           eyebrow={pricingSection.eyebrow}
           title={pricingSection.title}
           subtitle={pricingSection.subtitle}
@@ -175,7 +181,7 @@ export function Pricing() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted lg:mt-14">
+        <div className="mt-10 flex flex-col gap-2 text-sm text-muted sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:text-xs lg:mt-14">
           {pricingSection.guarantees.map((g) => (
             <span key={g} className="flex items-center gap-1.5">
               <span className="text-ember-1">✓</span>

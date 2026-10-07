@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { comparisonSection } from "@/lib/collect-landing-data";
-import { CollectHeading } from "./heading";
-import { Reveal } from "./reveal";
+import { KitHeading } from "@/components/landing-kit/heading";
+import { Reveal } from "@/components/landing-kit/reveal";
 
 /*
  * Comparatif interactif : un curseur (ventes à emporter mensuelles) pilote
@@ -36,7 +36,7 @@ function CostBar({
           {label}{" "}
           <span className="text-xs font-normal text-faint">· {rateLabel}</span>
         </p>
-        <p className="collect-display text-xl tabular-nums">
+        <p className="kit-display text-xl tabular-nums">
           {euros(value)}
           <span className="text-xs text-faint">/mois</span>
         </p>
@@ -66,8 +66,8 @@ export function CollectComparison() {
       id={comparisonSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-10 lg:py-32">
-        <CollectHeading
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1.2fr] lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={comparisonSection.eyebrow}
           title={comparisonSection.title}
           subtitle={comparisonSection.subtitle}
@@ -89,7 +89,7 @@ export function CollectComparison() {
                 >
                   {comparisonSection.sliderLabel}
                 </label>
-                <span className="collect-display text-3xl tabular-nums text-ember-1">
+                <span className="kit-display text-3xl tabular-nums text-ember-1">
                   {euros(revenue)}
                   <span className="text-sm text-faint">/mois</span>
                 </span>
@@ -127,7 +127,7 @@ export function CollectComparison() {
             </div>
 
             <div className="flex flex-col items-center gap-1 border-t border-hairline pt-6 text-center">
-              <p className="collect-display ember-text text-6xl tabular-nums lg:text-7xl">
+              <p className="kit-display ember-text text-6xl tabular-nums lg:text-7xl">
                 {euros(savingsPerYear)}
               </p>
               <p className="text-sm font-semibold">

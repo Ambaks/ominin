@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
 /**
- * Apparition au défilement (.collect-reveal) : l'élément se marque
+ * Apparition au défilement (.kit-reveal) : l'élément se marque
  * data-shown la première fois qu'il entre à l'écran, puis n'est plus suivi.
  */
 export function Reveal({
@@ -28,7 +28,7 @@ export function Reveal({
         node.dataset.shown = "";
         observer.disconnect();
       },
-      { rootMargin: "0px 0px -4% 0px" }
+      { rootMargin: "0px 0px 8% 0px" }
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -36,7 +36,7 @@ export function Reveal({
   return (
     <Tag
       ref={ref as never}
-      className={`collect-reveal ${className}`}
+      className={`kit-reveal ${className}`}
       style={delay ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties) : undefined}
     >
       {children}

@@ -1,4 +1,5 @@
 import { DEMO_SLUG, formatPrice, unsplash } from "@/lib/menu-data";
+import { siteUrl } from "@/lib/site";
 
 export interface Cta {
   label: string;
@@ -142,7 +143,9 @@ export const seo = {
 
 export const nav = {
   links: [
-    { label: "Fonctionnalités", href: "#fonctionnalites" },
+    { label: "Parcours", href: "#parcours" },
+    { label: "Fast food", href: "#fast-food" },
+    { label: "Démo", href: "#demo" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
     { label: "FAQ", href: "#faq" },
@@ -152,79 +155,162 @@ export const nav = {
 };
 
 export const hero = {
-  eyebrow: "Menus digitaux · Commande à table · Paiement",
-  titleStart: "Vos tables prennent",
-  titleAccent: "les commandes.",
-  subtitle:
-    "Vos clients scannent le QR code de la table, consultent, commandent et payent — sans application, sans attente. Vous mettez votre menu à jour en 30 secondes, votre équipe respire, vos coûts baissent.",
-  secondaryCta: { label: "Découvrir les tarifs", href: "#tarifs" } satisfies Cta,
-  trustline: [
-    "Sans engagement",
-    "Résiliable à tout moment",
-    "Aucune application requise",
+  eyebrow: "Menu QR · Commande et paiement à table",
+  /** Trois lignes ; la marquée reçoit le pavé braise. */
+  lines: [
+    { text: "Vos tables" },
+    { text: "prennent les" },
+    { text: "commandes.", mark: true },
   ],
+  subtitle:
+    "Vos clients scannent le Cachet de la table, commandent et payent depuis leur téléphone — sans application, sans attendre un serveur. La commande part en cuisine, votre équipe sert.",
+  stats: [
+    {
+      value: `0\u00a0€`,
+      label: `d'abonnement Connect, les ${connectTrial.months} premiers mois`,
+    },
+    { value: "1\u00a0%", label: "en ligne, + frais de carte ; 0\u00a0% au comptoir" },
+    {
+      value: "18\u00a0s",
+      label: "de la table à la cuisine, mesuré en service",
+      href: `${siteUrl}/r7k2`,
+    },
+  ],
+  secondaryCta: { label: "Voir les tarifs", href: "#tarifs" } satisfies Cta,
   clientsLabel: "Ils servent déjà avec Ominin",
-  // Photo d'illustration (Unsplash) — à remplacer par une vraie photo de
-  // salle cliente au service du soir.
-  photo: {
-    src: unsplash("photo-1552566626-52f8b828add9", 2000),
-    alt: "Salle de restaurant chaleureuse, tables dressées pour le service",
-  },
 };
 
+/** Relais animé du hero : la table 12 de la démo, du Cachet à la cuisine. */
+export const heroRelay = {
+  table: 12,
+  phoneLabel: "Table 12 · Cachet scanné",
+  stamp: "Payée",
+  kitchenLabel: "Votre cuisine",
+  ticket: { printer: "Ticket cuisine", label: "Table 12", detail: "Payée · Carte" },
+  ready: "En cuisine en 18 s. Le serveur apporte.",
+};
+
+/** Bandeau défilant sous le hero. */
+export const marquee = [
+  "Restaurants",
+  "Brasseries",
+  "Pizzerias",
+  "Fast-foods",
+  "Bars",
+  "Lounges",
+  "Cafés",
+  "Food courts",
+];
+
 export const howItWorks = {
-  eyebrow: "Comment ça marche",
-  title: "De l'assise à la commande, en moins d'une minute.",
+  id: "parcours",
+  eyebrow: "Le parcours",
+  title: "De l'assise à la cuisine, en moins d'une minute.",
   steps: [
     {
-      title: "Le client scanne le Cachet",
+      kicker: "01 · Le Cachet",
+      title: "Le client scanne la table.",
       description:
         "Le Cachet, c'est le QR code à votre logo collé sur la table. Un scan, rien à installer, rien à expliquer.",
     },
     {
-      title: "Votre menu s'affiche",
+      kicker: "02 · La carte",
+      title: "Votre menu s'ouvre.",
       description:
-        "Photos, descriptions, prix à jour — directement dans le navigateur, en deux secondes.",
+        "Photos, formules, prix à jour — dans le navigateur, en deux secondes. Un plat épuisé disparaît d'un geste, sur toutes les tables.",
     },
     {
-      title: "Il commande depuis la table",
+      kicker: "03 · La commande",
+      title: "Il commande, et paye s'il veut.",
       description:
-        "Plats, options, commentaires : la commande part sans lever la main ni attendre un serveur.",
+        "Plats, options, commentaires — puis carte bancaire à table, ou l'addition au comptoir comme d'habitude.",
     },
     {
-      title: "Votre cuisine reçoit tout",
+      kicker: "04 · La cuisine",
+      title: "Le ticket sort. La salle tourne.",
       description:
-        "La commande arrive en cuisine en temps réel. Le service suit, la salle tourne.",
+        "La commande arrive en cuisine en temps réel, sur vos imprimantes ou votre tablette. Le serveur apporte, sans avoir couru prendre la commande.",
     },
-  ] satisfies Step[],
+  ],
+};
+
+/*
+ * Mode fast food : un QR au comptoir, un numéro du jour, l'heure annoncée
+ * par l'estimateur IA et « C'est prêt ! » sur le téléphone. Même discours
+ * que les présentations réseau (lib/pitch).
+ */
+export const fastFoodSection = {
+  id: "fast-food",
+  eyebrow: "Mode fast food · inclus dans Connect",
+  title: "Au comptoir, la file disparaît.",
+  lead: "Un QR au comptoir ou sur les tables : le client commande, paie et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone.",
+  points: [
+    {
+      title: "L'heure annoncée par l'IA",
+      description:
+        "Dès le paiement, le client lit « prête vers 12 h 52 ». L'estimateur apprend le rythme de votre cuisine sur vos propres commandes — la file, la taille du panier, l'heure du service — et ajuste l'heure en direct.",
+    },
+    {
+      title: "Un numéro du jour",
+      description:
+        "Le même sur le téléphone du client et sur le ticket cuisine, remis à zéro chaque matin.",
+    },
+    {
+      title: "« C'est prêt ! » sur son téléphone",
+      description:
+        "La page vibre et revient au premier plan : il vient chercher sa commande, sans écran d'appel ni bipeur.",
+    },
+    {
+      title: "Payée en ligne, ou au comptoir",
+      description:
+        "Payée sur le téléphone, la commande part en cuisine aussitôt ; sinon, elle attend son règlement au comptoir.",
+    },
+  ],
+  ticket: {
+    number: 42,
+    restaurant: "Votre fast food",
+    steps: ["Commandée", "En cuisine", "Prête"],
+    cooking: "En cuisine",
+    eta: "Prête vers 12\u00a0h\u00a052",
+    etaSource: "Estimée par l'IA",
+    ready: "C'est prêt !",
+    readyBody: "Venez chercher votre commande au comptoir.",
+  },
 };
 
 export const featuresSection = {
   id: "fonctionnalites",
   eyebrow: "Fonctionnalités",
-  title: "Pensé pour le service.",
-  subtitle:
-    "Chaque fonction répond à un vrai problème de salle : moins de pas, moins d'erreurs, moins de temps perdu.",
+  title: "Pensé pour le coup de feu.",
   features: [
     {
-      stat: "Instantané",
-      title: "Mettez votre menu à jour en un click",
+      stat: "18\u00a0s",
+      title: "De la table à la cuisine",
       description:
-        "Changez un prix, retirez un plat épuisé, ajoutez le spécial du jour — depuis votre téléphone, effet immédiat sur toutes les tables.",
+        "Mesuré en service chez un client : 18 secondes en médiane entre la commande payée à table et le ticket en cuisine — contre 4 min 39 au comptoir.",
+      wide: true,
     },
     {
-      stat: "QR Codes",
-      title: "Le Cachet : un par table",
-      description:
-        "Le Cachet, c'est votre QR code personnalisé à votre logo. On vous le fournit prêt à coller — pas de matériel, pas de formation, opérationnel en quelques minutes.",
+      stat: "Direct",
+      title: "Votre carte à jour",
+      description: "Un prix, un plat épuisé, le spécial du jour : depuis votre téléphone, sur toutes les tables.",
     },
     {
       stat: "3 vues",
-      title: "Toute l'équipe se connecte",
-      description:
-        "Serveur, cuisine, manager : chacun voit exactement ce dont il a besoin, rien de plus.",
+      title: "Toute l'équipe connectée",
+      description: "Serveur, cuisine, gérant : chacun voit ce dont il a besoin, rien de plus.",
     },
-  ] satisfies Feature[],
+    {
+      stat: "Cachet",
+      title: "Un QR par table, à votre logo",
+      description: "Conçus, imprimés et livrés prêts à coller. Abîmé ? Remplacé sous 48 h.",
+    },
+    {
+      stat: "Caisse",
+      title: "Square, ou vos imprimantes",
+      description: "La commande arrive dans votre caisse Square, ou sort sur vos imprimantes tickets avec le boîtier Omilink.",
+    },
+  ],
 };
 
 export const demoSection = {
@@ -238,12 +324,7 @@ export const demoSection = {
   tableTag: "Table 12",
   sceneCaption:
     "Voilà exactement ce qui se passe à la table 12 de la Trattoria Lucia.",
-  // Photo d'ambiance (Unsplash) derrière le téléphone — à remplacer par une
-  // vraie photo de table cliente.
-  photo: {
-    src: unsplash("photo-1424847651672-bf20a4b0982b", 1600),
-    alt: "Table de restaurant au service du soir",
-  },
+  scrollHint: "Faites défiler dans le téléphone.",
 };
 
 export const proofSection = {
@@ -325,6 +406,7 @@ export const pricingSection = {
   ctaLabel: "Choisir",
   installLabel: "Se branche sur votre salle",
   installLink: "Voir comment ça se branche",
+  cardFeesNote: "Frais de carte de votre prestataire (Stripe ou Square) en sus.",
   plans: [
     {
       id: "digital",
@@ -334,7 +416,7 @@ export const pricingSection = {
       featuresLabel: "Inclus :",
       features: [
         "Menu digital par QR code",
-        "Vos Cachets personnalisés à votre logo",
+        `Vos Cachets à votre logo — ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
         "Mise à jour en temps réel",
         "Espace de gestion",
       ],
@@ -359,7 +441,7 @@ export const pricingSection = {
     },
   ] satisfies Plan[],
   guarantees: [
-    "Cachets imprimés à votre logo",
+    `Cachets à votre logo : ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
@@ -384,8 +466,10 @@ export function trialPricing(plan: Plan) {
   return {
     price: formatPrice(0),
     unit: `${pricingSection.perMonth} pendant ${months} mois`,
+    /** La suite de l'offre, à lire aussi gros que le reste. */
+    then: `puis ${monthly}`,
     /** La règle, le seuil chiffré en moins. */
-    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent un seuil de commandes passées par Ominin..`,
+    note: `Ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(connectTrial.exemptionRevenue)} de commandes passées par Ominin (environ ${formatEuros(Math.round(connectTrial.exemptionRevenue / months / 1000) * 1000)} par mois).`,
   };
 }
 
@@ -410,7 +494,7 @@ export const installSection = {
   bill: {
     subscription: {
       label: "Abonnement Ominin",
-      value: `0 €/mois pendant ${connectTrial.months} mois`,
+      value: `0 € × ${connectTrial.months} mois, puis ${formatEuros(connectPrice)}/mois`,
     },
     commission: {
       label: "Commission",
@@ -656,7 +740,7 @@ export const qrShowcase = {
     {
       title: "À votre logo, prêts à coller",
       description:
-        "Conçus et imprimés par notre équipe, livrés prêts à coller sur vos tables.",
+        `Conçus et imprimés par notre équipe, livrés prêts à coller : ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, réglés une fois à l'ouverture.`,
     },
     {
       title: "Abîmé ? Remplacé sous 48 h",
@@ -699,6 +783,11 @@ export const faqSection = {
   title: "Questions fréquentes.",
   items: [
     {
+      question: "Et pour un fast food, sans service à table ?",
+      answer:
+        "C'est le mode fast food : un QR au comptoir ou sur les tables, le client commande et paie sur son téléphone et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone — plus besoin d'appeler les numéros. Il s'active d'un réglage dans votre espace de gestion.",
+    },
+    {
       question: "C'est quoi, « le Cachet » ?",
       answer:
         "Le Cachet, c'est le petit QR code personnalisé à votre logo qu'on colle sur chaque table. Vos clients le scannent avec leur téléphone et votre menu s'ouvre — sans application. C'est notre façon de remplacer la carte papier.",
@@ -716,7 +805,7 @@ export const faqSection = {
     {
       question: "Combien de temps pour être opérationnel ?",
       answer:
-        "Quelques minutes. Notre équipe conçoit votre menu digital, vous recevez vos Cachets à coller sur les tables. Aucune installation technique de votre côté.",
+        "Votre carte est en ligne en quelques minutes : notre équipe la conçoit pour vous. Vos Cachets imprimés arrivent sous 48 h, prêts à coller sur les tables. Aucune installation technique de votre côté.",
     },
     {
       question: "Puis-je modifier mon menu moi-même ?",
@@ -730,7 +819,7 @@ export const faqSection = {
     },
     {
       question: `Connect est offert ${connectTrial.months} mois : et après ?`,
-      answer: `Au terme des ${connectTrial.months} mois, nous regardons le chiffre d'affaires passé par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} a déjà payé le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
+      answer: `Au terme des ${connectTrial.months} mois, nous regardons les commandes passées par Ominin. Au-delà de ${formatEuros(connectTrial.exemptionRevenue)} sur la période, la commission de ${connectCommission.percent} % ${connectCommission.basis} suffit à rémunérer le service : votre abonnement reste à 0 €, définitivement. En dessous, il passe à ${formatPrice(connectPrice)}${pricingSection.perMonth}, résiliable à tout moment — la commission, elle, ne bouge pas, et nous ne prélevons toujours rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)}) ; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) reste optionnel, et la caisse Square est gratuite.`,
     },
     {
       question: "Y a-t-il un engagement ?",
@@ -746,7 +835,7 @@ export const finalCta = {
   subtitle:
     "Voyez ce que vos clients verront, ou écrivez-nous — on vous répond sous 24 heures.",
   contactLabel: "Nous écrire",
-  microcopy: ["Réponse sous 24 h", "Installation en 48 h"],
+  microcopy: ["Réponse sous 24 h", "Carte en ligne en quelques minutes", "Cachets livrés sous 48 h"],
 };
 
 export const footer = {

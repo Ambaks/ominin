@@ -40,7 +40,7 @@ export function OmilinkScene() {
             <span className="h-px w-5 bg-foreground/15" />
             <span className="h-px w-5 bg-foreground/15" />
           </div>
-          <p className="absolute bottom-2.5 left-3 text-[9px] font-semibold uppercase tracking-[0.3em] text-muted">
+          <p className="absolute bottom-2.5 left-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-muted">
             Omilink
           </p>
         </div>
@@ -138,7 +138,7 @@ export function SquareScene() {
 
               <div className="pos-order-in flex min-w-0 flex-1 flex-col p-2.5">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="text-[10px] font-bold">{order.table}</p>
+                  <p className="text-[11px] font-bold">{order.table}</p>
                   <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[6.5px] font-semibold text-emerald-700">
                     {order.paidLabel}
                   </span>
@@ -153,7 +153,7 @@ export function SquareScene() {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-auto flex justify-between border-t border-neutral-200 pt-1.5 text-[9px] font-bold">
+                <div className="mt-auto flex justify-between border-t border-neutral-200 pt-1.5 text-[11px] font-bold">
                   <span>Total</span>
                   <span>{formatPrice(order.total)}</span>
                 </div>

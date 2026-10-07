@@ -1,5 +1,5 @@
 import { pricingSection, signupCta } from "@/lib/collect-landing-data";
-import { CollectHeading } from "./heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 function PriceCard({
   name,
@@ -21,7 +21,7 @@ function PriceCard({
 }) {
   return (
     <div
-      className={`collect-card relative flex flex-col gap-5 rounded-[2rem] border p-7 lg:p-9 ${
+      className={`kit-card relative flex flex-col gap-5 rounded-[2rem] border p-7 lg:p-9 ${
         highlighted
           ? "border-ember-2/40 bg-surface shadow-lg shadow-ember-2/5"
           : "border-hairline bg-surface"
@@ -34,7 +34,7 @@ function PriceCard({
       )}
 
       <div>
-        <h3 className="collect-display text-2xl lg:text-3xl">{name}</h3>
+        <h3 className="kit-display text-2xl lg:text-3xl">{name}</h3>
         <p className="mt-1 text-sm text-muted">{tagline}</p>
       </div>
 
@@ -42,7 +42,7 @@ function PriceCard({
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           {prices.map((price) => (
             <div key={price.unit}>
-              <span className="collect-display ember-text block whitespace-nowrap text-6xl lg:text-7xl">
+              <span className="kit-display ember-text block whitespace-nowrap text-6xl lg:text-7xl">
                 {price.value}
               </span>
               <span className="mt-1 block text-sm text-muted">{price.unit}</span>
@@ -88,8 +88,8 @@ export function CollectPricing() {
       id={pricingSection.id}
       className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
-        <CollectHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={pricingSection.eyebrow}
           title={pricingSection.title}
           subtitle={pricingSection.subtitle}
@@ -105,7 +105,7 @@ export function CollectPricing() {
             note={pricingSection.commissionLabel}
           />
           <div
-            className="collect-display flex items-center justify-center text-2xl text-faint"
+            className="kit-display flex items-center justify-center text-2xl text-faint"
             aria-hidden
           >
             {pricingSection.orLabel}

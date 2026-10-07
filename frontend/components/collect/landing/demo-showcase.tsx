@@ -4,7 +4,7 @@ import { CollectDemoStage } from "@/components/collect/demo/stage";
 import { collectDemoHref } from "@/lib/collect/shared";
 import { useHostAwareHref } from "@/lib/collect/use-host-href";
 import { demoSection } from "@/lib/collect-landing-data";
-import { CollectHeading } from "./heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 /*
  * Vitrine de la démo sur la landing, jouable en place. Desktop : la scène
@@ -16,8 +16,8 @@ export function CollectDemoShowcase() {
 
   return (
     <section id={demoSection.id} className="scroll-mt-20 border-y border-hairline bg-surface/40">
-      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
-        <CollectHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={demoSection.eyebrow}
           title={demoSection.title}
           subtitle={demoSection.subtitle}

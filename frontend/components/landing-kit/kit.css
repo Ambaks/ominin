@@ -1,30 +1,31 @@
 /*
-  Landing Ominin Collect : titres Geist serrés, mot surligné à la braise,
-  apparitions au défilement, bandeau défilant et relais animé du hero
-  (commande → paiement → ticket → prête). Couleurs : les jetons du site
-  (--ember-*, --surface, --hairline), clair comme sombre.
+  Kit des landings produit (Collect, Menu) : titres Geist serrés, mot
+  surligné à la braise, apparitions au défilement, bandeau défilant, cartes,
+  FAQ, curseur. Couleurs : les jetons du site (--ember-*, --surface,
+  --hairline), clair comme sombre. Les animations propres à une page (relais
+  du hero…) vivent dans sa feuille.
 */
 
-.collect-landing {
-  font-family: var(--font-collect), var(--font-instrument-sans), sans-serif;
+.kit-landing {
+  font-family: var(--font-kit), var(--font-instrument-sans), sans-serif;
 }
 
-.collect-display {
-  font-family: var(--font-collect), sans-serif;
+.kit-display {
+  font-family: var(--font-kit), sans-serif;
   font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 0.92;
 }
 
 /* Le mot surligné : un pavé braise qui se pose derrière, de gauche à droite. */
-.collect-mark {
+.kit-mark {
   position: relative;
   display: inline-block;
   padding: 0 0.12em;
   color: var(--background);
   isolation: isolate;
 }
-.collect-mark::before {
+.kit-mark::before {
   content: "";
   position: absolute;
   inset: 0.08em -0.02em 0.02em;
@@ -35,7 +36,7 @@
 }
 
 /* Apparition au défilement : posée par <Reveal> (data-shown). */
-.collect-reveal {
+.kit-reveal {
   opacity: 0;
   transform: translateY(20px);
   transition:
@@ -43,56 +44,56 @@
     transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
   transition-delay: var(--reveal-delay, 0ms);
 }
-.collect-reveal[data-shown] {
+.kit-reveal[data-shown] {
   opacity: 1;
   transform: none;
 }
 
 /* Titre du hero : lignes qui montent une à une, puis le pavé qui se pose. */
-.collect-rise {
-  animation: collect-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+.kit-rise {
+  animation: kit-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   animation-delay: var(--rise-delay, 0ms);
 }
-.collect-rise .collect-mark::before {
-  animation: collect-wipe 0.7s cubic-bezier(0.6, 0, 0.2, 1) both;
+.kit-rise .kit-mark::before {
+  animation: kit-wipe 0.7s cubic-bezier(0.6, 0, 0.2, 1) both;
   animation-delay: calc(var(--rise-delay, 0ms) + 450ms);
 }
-@keyframes collect-rise {
+@keyframes kit-rise {
   from {
     opacity: 0;
     transform: translateY(0.45em);
     filter: blur(6px);
   }
 }
-@keyframes collect-wipe {
+@keyframes kit-wipe {
   from {
     transform: scaleX(0);
   }
 }
 
 /* Bandeau défilant sans fin : deux copies du contenu, décalées d'une moitié. */
-.collect-marquee {
+.kit-marquee {
   display: flex;
   width: max-content;
-  animation: collect-marquee 38s linear infinite;
+  animation: kit-marquee 38s linear infinite;
 }
-.collect-marquee:hover {
+.kit-marquee:hover {
   animation-play-state: paused;
 }
-@keyframes collect-marquee {
+@keyframes kit-marquee {
   to {
     transform: translateX(-50%);
   }
 }
 
 /* Halo braise qui respire derrière le hero. */
-.collect-aura {
+.kit-aura {
   background:
     radial-gradient(40% 50% at 70% 40%, color-mix(in oklab, var(--ember-2) 32%, transparent), transparent 70%),
     radial-gradient(30% 40% at 85% 75%, color-mix(in oklab, var(--ember-3) 22%, transparent), transparent 70%);
-  animation: collect-breathe 9s ease-in-out infinite alternate;
+  animation: kit-breathe 9s ease-in-out infinite alternate;
 }
-@keyframes collect-breathe {
+@keyframes kit-breathe {
   to {
     transform: translate3d(-3%, 2%, 0) scale(1.08);
     opacity: 0.75;
@@ -100,7 +101,7 @@
 }
 
 /* Grille fine, estompée vers le bas. */
-.collect-grid {
+.kit-grid {
   background-image:
     linear-gradient(var(--hairline) 1px, transparent 1px),
     linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
@@ -113,7 +114,7 @@
   paiement se tamponne, le ticket sort de l'imprimante, la commande passe
   « prête ». Chaque pièce lit la même horloge (--relay).
 */
-.collect-relay {
+.kit-relay {
   --relay: 10s;
 }
 .relay-line {
@@ -148,6 +149,25 @@
   96% {
     opacity: 1;
     transform: rotate(-8deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* L'imprimante n'entre en scène qu'avec son ticket : jamais une barre vide. */
+.relay-printer {
+  animation: relay-printer var(--relay) ease-out infinite;
+}
+@keyframes relay-printer {
+  0%,
+  17% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  21%,
+  96% {
+    opacity: 1;
+    transform: none;
   }
   100% {
     opacity: 0;
@@ -206,47 +226,123 @@
   }
 }
 
+/*
+  Ticket fast food, boucle de 9 s : « En cuisine » avec l'heure annoncée et
+  sa barre qui avance, puis « C'est prêt ! » qui prend la place et pulse.
+*/
+.kit-ticket {
+  --ticket: 9s;
+}
+.ticket-cooking {
+  animation: ticket-cooking var(--ticket) ease-in-out infinite;
+}
+@keyframes ticket-cooking {
+  0%,
+  58% {
+    opacity: 1;
+    transform: none;
+  }
+  64%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.ticket-ready {
+  animation: ticket-ready var(--ticket) ease-out infinite;
+}
+@keyframes ticket-ready {
+  0%,
+  60% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  66%,
+  96% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.ticket-eta-bar {
+  transform-origin: left;
+  animation: ticket-eta var(--ticket) linear infinite;
+}
+@keyframes ticket-eta {
+  from {
+    transform: scaleX(0.08);
+  }
+  58%,
+  to {
+    transform: scaleX(1);
+  }
+}
+.ticket-fill {
+  animation: ticket-fill var(--ticket) step-end infinite;
+}
+@keyframes ticket-fill {
+  0% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+}
+.ticket-step-ready {
+  animation: ticket-step var(--ticket) step-end infinite;
+}
+@keyframes ticket-step {
+  0% {
+    opacity: 0.35;
+  }
+  62% {
+    opacity: 1;
+  }
+}
+
 /* Barres du comparatif : elles se remplissent à l'apparition. */
-.collect-reveal .collect-bar {
+.kit-reveal .kit-bar {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s;
 }
-.collect-reveal[data-shown] .collect-bar {
+.kit-reveal[data-shown] .kit-bar {
   transform: none;
 }
 
 /* Cartes : légère montée et lueur braise au survol. */
-.collect-card {
+.kit-card {
   transition:
     transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
     border-color 0.4s,
     box-shadow 0.4s;
 }
-.collect-card:hover {
+.kit-card:hover {
   transform: translateY(-4px);
   border-color: color-mix(in oklab, var(--ember-2) 45%, transparent);
   box-shadow: 0 24px 60px -30px color-mix(in oklab, var(--ember-2) 60%, transparent);
 }
 
 /* Curseur du comparatif : piste fine, poignée braise à la taille du pouce. */
-.collect-landing input[type="range"] {
+.kit-landing input[type="range"] {
   appearance: none;
   height: 28px;
   background: transparent;
   cursor: pointer;
 }
-.collect-landing input[type="range"]::-webkit-slider-runnable-track {
+.kit-landing input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 999px;
   background: var(--hairline);
 }
-.collect-landing input[type="range"]::-moz-range-track {
+.kit-landing input[type="range"]::-moz-range-track {
   height: 6px;
   border-radius: 999px;
   background: var(--hairline);
 }
-.collect-landing input[type="range"]::-webkit-slider-thumb {
+.kit-landing input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 28px;
   height: 28px;
@@ -256,7 +352,7 @@
   background: linear-gradient(135deg, var(--ember-1), var(--ember-3));
   box-shadow: 0 4px 14px -4px var(--ember-2);
 }
-.collect-landing input[type="range"]::-moz-range-thumb {
+.kit-landing input[type="range"]::-moz-range-thumb {
   width: 22px;
   height: 22px;
   border: 3px solid var(--background);
@@ -265,36 +361,45 @@
 }
 
 /* FAQ : le signe + tourne en × à l'ouverture. */
-.collect-faq summary::-webkit-details-marker {
+.kit-faq summary::-webkit-details-marker {
   display: none;
 }
-.collect-faq .faq-sign {
+.kit-faq .faq-sign {
   transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.collect-faq[open] .faq-sign {
+.kit-faq[open] .faq-sign {
   transform: rotate(45deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .collect-reveal {
+  .kit-reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .collect-rise,
-  .collect-rise .collect-mark::before,
-  .collect-marquee,
-  .collect-aura,
+  .kit-rise,
+  .kit-rise .kit-mark::before,
+  .kit-marquee,
+  .kit-aura,
   .relay-line,
   .relay-stamp,
   .relay-ticket,
   .relay-ready,
   .relay-progress,
-  .relay-float {
+  .relay-float,
+  .relay-printer,
+  .ticket-cooking,
+  .ticket-eta-bar,
+  .ticket-step-ready {
     animation: none;
   }
-  .collect-card:hover,
-  .collect-reveal .collect-bar {
+  .ticket-ready,
+  .ticket-fill {
+    animation: none;
+    display: none;
+  }
+  .kit-card:hover,
+  .kit-reveal .kit-bar {
     transform: none;
   }
 }

@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { Reveal } from "./reveal";
+import { Reveal } from "@/components/landing-kit/reveal";
 
 /** Titre de section : sur-titre braise, titre Geist serré, chapeau. */
-export function CollectHeading({
+export function KitHeading({
   eyebrow,
   title,
   subtitle,
@@ -19,7 +19,7 @@ export function CollectHeading({
         <span aria-hidden className="ember-gradient size-1.5 rounded-full" />
         {eyebrow}
       </p>
-      <h2 className="collect-display mt-4 text-balance text-4xl sm:text-5xl lg:text-6xl">
+      <h2 className="kit-display mt-4 text-balance text-4xl sm:text-5xl lg:text-6xl">
         {title}
       </h2>
       {subtitle && (
