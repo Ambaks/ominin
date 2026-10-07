@@ -1,3 +1,4 @@
+import type { OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
@@ -54,6 +55,9 @@ export async function fetchRestaurant(slug: string): Promise<{
   loyalty: LoyaltyProgram | null;
   /** Formules disponibles, sans les choix dont l'article est épuisé. */
   formules: Formule[];
+  /** Horaires structurés : les créneaux de retrait du click & collect. */
+  openingHours: OpeningHours | null;
+  collectSlotMinutes: number;
   restaurant: Restaurant;
 } | null> {
   const supabase = createPublicClient();
@@ -167,6 +171,8 @@ export async function fetchRestaurant(slug: string): Promise<{
       features?.appel_serveur !== false && etablissement.service_mode === "restaurant",
     loyalty,
     formules,
+    openingHours: etablissement.opening_hours as OpeningHours | null,
+    collectSlotMinutes: etablissement.collect_slot_minutes,
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,

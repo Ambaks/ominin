@@ -273,6 +273,7 @@ export function seed(): GestionState {
       address: restaurant.address,
       phone: restaurant.phone,
       hours: restaurant.hours,
+      openingHours: null,
       offre: "connect",
       serviceMode: "restaurant",
       onlinePayment: false,

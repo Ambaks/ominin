@@ -13,7 +13,7 @@ import { DEMO_SLUG, getRestaurant, type MenuItem } from "@/lib/menu-data";
 
 /** Étapes de la démo : parcours client puis cycle de vie de la commande
  * (miroir du flux collect réel : en_attente → en_preparation → prete →
- * retiree, annulee en refus). */
+ * retiree ; payée en ligne, une commande ne se refuse pas). */
 export type DemoStep =
   | "menu"
   | "checkout"
@@ -21,8 +21,7 @@ export type DemoStep =
   | "en_attente"
   | "en_preparation"
   | "prete"
-  | "retiree"
-  | "annulee";
+  | "retiree";
 
 /** Sous-ensemble du menu par restaurant : la démo de la landing montre un
  * extrait de la Trattoria (assez pour que la navigation par catégories ait
@@ -79,6 +78,24 @@ export interface DemoRestaurantInfo {
   itineraryUrl: string;
 }
 
+/**
+ * La commande racontée par la landing (hero, parcours) : une pizza, des
+ * pâtes, un dessert de la carte jouée par la démo — la même histoire d'un
+ * bout à l'autre de la page.
+ */
+export function demoShowcaseOrder(slug: string = DEMO_SLUG) {
+  const sections = buildDemoMenu(slug);
+  const lines = ["pizzas", "pates", "desserts"].flatMap((id) => {
+    const item = sections.find((section) => section.id === id)?.items[0];
+    return item ? [item] : [];
+  });
+  return {
+    restaurant: getRestaurant(slug)!.name,
+    lines,
+    total: lines.reduce((sum, item) => sum + item.price, 0),
+  };
+}
+
 export function demoRestaurantInfo(slug: string = DEMO_SLUG): DemoRestaurantInfo {
   const restaurant = getRestaurant(slug)!;
   return {
@@ -118,24 +135,24 @@ export const COLLECT_DEMO = {
   /** Puce guide : la prochaine action, nommée — jamais d'auto-play. */
   hints: {
     menu: "Composez la commande sur le téléphone.",
+    /** Panier commencé : la suite, c'est de le valider. */
+    menuReady: "Validez le panier en bas du téléphone.",
     checkout: "Validez : le paiement est simulé, le parcours est le vrai.",
     paiement: "Paiement en cours…",
-    en_attente: "À vous de jouer côté restaurant : acceptez la commande.",
+    en_attente: "À vous de jouer côté restaurant : lancez la préparation.",
     en_preparation: "Votre client suit tout en direct. Marquez la commande prête.",
     prete: "Le client est prévenu — marquez-la retirée au comptoir.",
     retiree: "Et voilà : commandée, payée, retirée. Rejouez quand vous voulez.",
-    annulee: "Le client est prévenu du refus. Rejouez la démo.",
-  } satisfies Record<DemoStep, string>,
+  } satisfies Record<DemoStep | "menuReady", string>,
   /** Annonces lecteur d'écran (région aria-live du stage). Vide = silence. */
   announcements: {
     menu: "",
     checkout: "",
     paiement: "Paiement simulé en cours.",
     en_attente: "Commande envoyée au restaurant.",
-    en_preparation: "Commande acceptée, en préparation.",
+    en_preparation: "Préparation lancée.",
     prete: "Commande prête.",
     retiree: "Commande retirée. Démo terminée.",
-    annulee: "Commande refusée par le restaurant.",
   } satisfies Record<DemoStep, string>,
   /** Copy du suivi côté téléphone — miroir du vrai order-confirmation. */
   customerStatus: {
@@ -155,12 +172,8 @@ export const COLLECT_DEMO = {
       title: "Commande retirée",
       hint: "Merci et à bientôt !",
     },
-    annulee: {
-      title: "Commande annulée",
-      hint: "Le restaurant n'a pas pu honorer votre commande. Pour toute question — remboursement compris — contactez-le directement.",
-    },
   } satisfies Partial<Record<OrderStatus, { title: string; hint: string }>>,
   /** Micro-copy sous le bouton Payer — la démo assume qu'elle simule. */
   paymentNotice:
-    "Démo — paiement simulé. Dans le vrai parcours, paiement sécurisé par Stripe.",
+    "Démo — paiement simulé. Dans le vrai parcours : Stripe ou Square, versé sur le compte du restaurant.",
 } as const;

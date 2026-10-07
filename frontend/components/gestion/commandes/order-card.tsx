@@ -40,13 +40,11 @@ export function OrderCard({
 
   const isCollect = order.type === "collect";
   const targets = nextStatuses(order.status, role, order.type);
-  /** Refus (et non annulation) : commande collect pas encore acceptée. */
-  const declining = isCollect && order.status === "en_attente";
 
   const transition = async (target: OrderStatus, estimatedReadyAt?: string) => {
     try {
       await api.updateOrderStatus(order.id, target, estimatedReadyAt);
-      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : declining ? "refusée" : "annulée"}.`);
+      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : "annulée"}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -55,11 +53,7 @@ export function OrderCard({
   };
 
   const heading = isCollect ? order.customerName ?? "Client" : place;
-  const cancelMessage = declining
-    ? `La commande de ${order.customerName ?? "ce client"} sera refusée et le client en sera informé.`
-    : isCollect
-      ? `La commande de ${order.customerName ?? "ce client"} sera annulée définitivement.`
-      : `${place} : la commande sera annulée définitivement.`;
+  const cancelMessage = `${place} : la commande sera annulée définitivement.`;
 
   return (
     <article className="rounded-2xl border border-hairline bg-surface p-5">
@@ -209,7 +203,7 @@ export function OrderCard({
                 onClick={() => setCancelling(true)}
                 className="rounded-full border border-ember-3/40 px-4 py-2 text-xs font-semibold text-ember-3 transition-colors hover:bg-ember-3/10"
               >
-                {declining ? "Refuser" : "Annuler"}
+                Annuler
               </button>
             )}
           </div>
@@ -218,9 +212,9 @@ export function OrderCard({
 
       {cancelling && (
         <ConfirmDialog
-          title={declining ? "Refuser la commande ?" : "Annuler la commande ?"}
+          title="Annuler la commande ?"
           message={cancelMessage}
-          confirmLabel={declining ? "Refuser la commande" : "Annuler la commande"}
+          confirmLabel="Annuler la commande"
           destructive
           onClose={() => setCancelling(false)}
           onConfirm={async () => {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { menuSiteUrl } from "@/lib/site";
+import { collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import { connectedAccount, getStripe } from "@/lib/stripe/server";
 import { ONLINE_PAYMENT_TTL_S } from "@/lib/menu/online-payment-ttl";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, order_number, status, paid_online, stripe_session_id")
+    .select("id, etablissement_id, table_id, order_number, type, status, paid_online, stripe_session_id")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     await Promise.all([
       admin
         .from("etablissements")
-        .select("name, slug, online_payment, platform_fee_percent")
+        .select("name, slug, online_payment, platform_fee_percent, collect_fee_percent")
         .eq("id", order.etablissement_id)
         .single(),
       admin
@@ -83,14 +83,21 @@ export async function POST(request: Request) {
       ? Math.min(Math.round(tipAmount * 100) / 100, orderTotal)
       : 0;
 
-  const feePercent = etab.platform_fee_percent ?? 0;
+  // Commission d'Ominin : celle du click & collect sur une commande à
+  // emporter, celle de l'offre sur une commande à table.
+  const collect = order.type === "collect";
+  const feePercent =
+    (collect ? etab.collect_fee_percent : etab.platform_fee_percent) ?? 0;
   const feeCents =
     feePercent > 0 ? Math.round((orderTotal * 100 * feePercent) / 100) : 0;
 
   const stripe = getStripe();
   const stripeAccount = { stripeAccount: account.id };
 
-  // Retour sur le menu de la table, avec la commande à confirmer.
+  // Click & collect : retour sur sa page de suivi, ou sur la carte (panier
+  // gardé) si le client renonce. Sinon sur le menu de la table, avec la
+  // commande à confirmer.
+  const collectPage = `${collectSiteUrl}/${etab.slug}`;
   const returnUrl = new URL(`${menuSiteUrl}/m/${etab.slug}`);
   if (table) returnUrl.searchParams.set("table", String(table.number));
   returnUrl.searchParams.set("commande", orderId);
@@ -99,7 +106,9 @@ export async function POST(request: Request) {
     url.searchParams.set("paiement", outcome);
     return url.toString();
   };
-  const description = table
+  const description = collect
+    ? `À emporter — ${etab.name}`
+    : table
     ? `Table ${table.number} — ${etab.name}`
     : order.order_number
       ? `Commande n° ${order.order_number} — ${etab.name}`
@@ -144,8 +153,10 @@ export async function POST(request: Request) {
       },
       expires_at: Math.floor(Date.now() / 1000) + ONLINE_PAYMENT_TTL_S,
       locale: "fr",
-      success_url: withOutcome("succes"),
-      cancel_url: withOutcome("annule"),
+      success_url: collect
+        ? `${collectPage}/confirmation?commande=${orderId}`
+        : withOutcome("succes"),
+      cancel_url: collect ? collectPage : withOutcome("annule"),
     },
     stripeAccount
   );

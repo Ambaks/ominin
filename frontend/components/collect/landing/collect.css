@@ -1,0 +1,300 @@
+/*
+  Landing Ominin Collect : titres Geist serrés, mot surligné à la braise,
+  apparitions au défilement, bandeau défilant et relais animé du hero
+  (commande → paiement → ticket → prête). Couleurs : les jetons du site
+  (--ember-*, --surface, --hairline), clair comme sombre.
+*/
+
+.collect-landing {
+  font-family: var(--font-collect), var(--font-instrument-sans), sans-serif;
+}
+
+.collect-display {
+  font-family: var(--font-collect), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+/* Le mot surligné : un pavé braise qui se pose derrière, de gauche à droite. */
+.collect-mark {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.12em;
+  color: var(--background);
+  isolation: isolate;
+}
+.collect-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0.08em -0.02em 0.02em;
+  z-index: -1;
+  border-radius: 0.12em;
+  background: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  transform-origin: left;
+}
+
+/* Apparition au défilement : posée par <Reveal> (data-shown). */
+.collect-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.collect-reveal[data-shown] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Titre du hero : lignes qui montent une à une, puis le pavé qui se pose. */
+.collect-rise {
+  animation: collect-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+.collect-rise .collect-mark::before {
+  animation: collect-wipe 0.7s cubic-bezier(0.6, 0, 0.2, 1) both;
+  animation-delay: calc(var(--rise-delay, 0ms) + 450ms);
+}
+@keyframes collect-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(6px);
+  }
+}
+@keyframes collect-wipe {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Bandeau défilant sans fin : deux copies du contenu, décalées d'une moitié. */
+.collect-marquee {
+  display: flex;
+  width: max-content;
+  animation: collect-marquee 38s linear infinite;
+}
+.collect-marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes collect-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Halo braise qui respire derrière le hero. */
+.collect-aura {
+  background:
+    radial-gradient(40% 50% at 70% 40%, color-mix(in oklab, var(--ember-2) 32%, transparent), transparent 70%),
+    radial-gradient(30% 40% at 85% 75%, color-mix(in oklab, var(--ember-3) 22%, transparent), transparent 70%);
+  animation: collect-breathe 9s ease-in-out infinite alternate;
+}
+@keyframes collect-breathe {
+  to {
+    transform: translate3d(-3%, 2%, 0) scale(1.08);
+    opacity: 0.75;
+  }
+}
+
+/* Grille fine, estompée vers le bas. */
+.collect-grid {
+  background-image:
+    linear-gradient(var(--hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, black, transparent);
+}
+
+/*
+  Relais du hero, boucle de 10 s : les plats tombent dans le panier, le
+  paiement se tamponne, le ticket sort de l'imprimante, la commande passe
+  « prête ». Chaque pièce lit la même horloge (--relay).
+*/
+.collect-relay {
+  --relay: 10s;
+}
+.relay-line {
+  animation: relay-line var(--relay) cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+  animation-delay: var(--line-delay, 0s);
+}
+@keyframes relay-line {
+  0%,
+  2% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+  7%,
+  96% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.relay-stamp {
+  animation: relay-stamp var(--relay) cubic-bezier(0.3, 1.6, 0.4, 1) infinite;
+}
+@keyframes relay-stamp {
+  0%,
+  16% {
+    opacity: 0;
+    transform: rotate(-14deg) scale(1.8);
+  }
+  20%,
+  96% {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* Le reçu s'imprime de haut en bas (clip), puis reste posé, opaque. */
+.relay-ticket {
+  animation: relay-ticket var(--relay) steps(14, end) infinite;
+}
+@keyframes relay-ticket {
+  0%,
+  22% {
+    clip-path: inset(0 0 100% 0);
+  }
+  34%,
+  97% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+.relay-ready {
+  animation: relay-ready var(--relay) ease-out infinite;
+}
+@keyframes relay-ready {
+  0%,
+  44% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  50%,
+  96% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.relay-progress {
+  transform-origin: left;
+  animation: relay-progress var(--relay) linear infinite;
+}
+@keyframes relay-progress {
+  from {
+    transform: scaleX(0);
+  }
+}
+.relay-float {
+  animation: relay-float 7s ease-in-out infinite alternate;
+}
+@keyframes relay-float {
+  to {
+    transform: translateY(-10px) rotate(var(--float-tilt, 0deg));
+  }
+}
+
+/* Barres du comparatif : elles se remplissent à l'apparition. */
+.collect-reveal .collect-bar {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s;
+}
+.collect-reveal[data-shown] .collect-bar {
+  transform: none;
+}
+
+/* Cartes : légère montée et lueur braise au survol. */
+.collect-card {
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+.collect-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--ember-2) 45%, transparent);
+  box-shadow: 0 24px 60px -30px color-mix(in oklab, var(--ember-2) 60%, transparent);
+}
+
+/* Curseur du comparatif : piste fine, poignée braise à la taille du pouce. */
+.collect-landing input[type="range"] {
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+}
+.collect-landing input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hairline);
+}
+.collect-landing input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hairline);
+}
+.collect-landing input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border: 3px solid var(--background);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--ember-1), var(--ember-3));
+  box-shadow: 0 4px 14px -4px var(--ember-2);
+}
+.collect-landing input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--background);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--ember-1), var(--ember-3));
+}
+
+/* FAQ : le signe + tourne en × à l'ouverture. */
+.collect-faq summary::-webkit-details-marker {
+  display: none;
+}
+.collect-faq .faq-sign {
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.collect-faq[open] .faq-sign {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collect-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .collect-rise,
+  .collect-rise .collect-mark::before,
+  .collect-marquee,
+  .collect-aura,
+  .relay-line,
+  .relay-stamp,
+  .relay-ticket,
+  .relay-ready,
+  .relay-progress,
+  .relay-float {
+    animation: none;
+  }
+  .collect-card:hover,
+  .collect-reveal .collect-bar {
+    transform: none;
+  }
+}

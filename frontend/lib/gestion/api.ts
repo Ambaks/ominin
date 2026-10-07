@@ -833,6 +833,7 @@ export async function updateEtablissement(
         address: input.address,
         phone: input.phone,
         hours: input.hours,
+        opening_hours: input.openingHours,
         google_review_url: input.googleReviewUrl ?? null,
       })
       .eq("id", etablissementId())

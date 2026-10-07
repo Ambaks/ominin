@@ -128,10 +128,14 @@ export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   retiree: [],
 };
 
-/** Statuts exclus pour un type de commande donné (l'autre flux). */
+/**
+ * Statuts exclus pour un type de commande donné (l'autre flux). Une commande
+ * à emporter, payée en ligne, ne se refuse ni ne s'annule depuis l'espace :
+ * aucun remboursement n'en partirait.
+ */
 export const EXCLUDED_STATUSES: Record<OrderType, OrderStatus[]> = {
   sur_place: ["en_preparation", "prete", "retiree"],
-  collect: ["payee", "servie"],
+  collect: ["payee", "servie", "annulee"],
 };
 
 /** Libellé du bouton menant vers chaque statut cible. */

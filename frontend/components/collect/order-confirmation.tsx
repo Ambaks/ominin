@@ -7,14 +7,15 @@ import {
   mapsDirectionsHref,
   type CollectOrderView,
 } from "@/lib/collect/shared";
-import { formatTime } from "@/lib/gestion/format";
+import { formatPickup, formatTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
+import { savedCartKey } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
 
 /*
- * Suivi client d'une commande à emporter, par session Stripe : interroge
- * /api/collect/order jusqu'à l'apparition de la commande (créée par le
- * webhook) puis suit son statut jusqu'à un état terminal.
+ * Suivi client d'une commande à emporter : interroge /api/collect/order
+ * jusqu'à la confirmation du paiement, puis suit son statut jusqu'à un état
+ * terminal. Disparue, la commande n'a jamais été payée (paiement expiré).
  */
 
 const STATUS_COPY: Partial<
@@ -38,7 +39,7 @@ const STATUS_COPY: Partial<
   },
   annulee: {
     title: "Commande annulée",
-    hint: "Le restaurant n'a pas pu honorer votre commande. Pour toute question — remboursement compris — contactez-le directement.",
+    hint: "Pour toute question, contactez directement le restaurant.",
   },
 };
 
@@ -46,19 +47,20 @@ const isTerminal = (status: OrderStatus) =>
   status === "retiree" || status === "annulee";
 
 export function OrderConfirmation({
-  sessionId,
+  orderId,
   slug,
   restaurantName,
   address,
   phone,
 }: {
-  sessionId: string;
+  orderId: string;
   slug: string;
   restaurantName: string;
   address: string;
   phone?: string | null;
 }) {
   const [order, setOrder] = useState<CollectOrderView | null>(null);
+  const [missing, setMissing] = useState(false);
   const [failed, setFailed] = useState(false);
   // Horloge du compte à rebours, avancée à chaque relecture (le polling
   // re-rend déjà le composant : précision à la minute sans timer dédié).
@@ -66,11 +68,18 @@ export function OrderConfirmation({
 
   useEffect(() => {
     let stopped = false;
+    // Arrivé ici, le client a payé (ou payera dans la feuille) : le panier
+    // gardé pour un nouvel essai n'a plus lieu d'être.
+    try {
+      sessionStorage.removeItem(savedCartKey(slug, null));
+    } catch {
+      // Stockage indisponible : rien n'était gardé.
+    }
 
     const poll = async () => {
       try {
         const response = await fetch(
-          `/api/collect/order?session=${encodeURIComponent(sessionId)}`
+          `/api/collect/order?commande=${encodeURIComponent(orderId)}`
         );
         if (!response.ok) throw new Error();
         const body = (await response.json()) as {
@@ -82,6 +91,9 @@ export function OrderConfirmation({
           setOrder(body.order);
           setNow(Date.now());
           if (isTerminal(body.order.status)) stopped = true;
+        } else {
+          setMissing(true);
+          stopped = true;
         }
       } catch {
         if (!stopped) setFailed(true);
@@ -94,7 +106,7 @@ export function OrderConfirmation({
       stopped = true;
       clearTimeout(timer);
     };
-  }, [sessionId]);
+  }, [orderId, slug]);
 
   if (failed && !order) {
     return (
@@ -108,14 +120,32 @@ export function OrderConfirmation({
     );
   }
 
-  if (!order) {
+  if (missing) {
+    return (
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-hairline bg-surface p-8 text-center">
+        <h2 className="font-display text-xl font-medium">Paiement non abouti</h2>
+        <p className="text-sm text-muted">
+          Cette commande n&apos;a pas été réglée : elle n&apos;a pas été
+          transmise au restaurant, et rien ne vous a été débité.
+        </p>
+        <a
+          href={collectHref(slug)}
+          className="ember-gradient mt-2 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+        >
+          Commander à nouveau
+        </a>
+      </div>
+    );
+  }
+
+  if (!order || !order.paid) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-2xl border border-hairline bg-surface p-8 text-center">
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-          Paiement confirmé
+          Paiement en cours
         </p>
         <h2 className="font-display text-xl font-medium">
-          Enregistrement de votre commande…
+          Confirmation de votre paiement…
         </h2>
         <p className="text-sm text-muted">
           Quelques secondes, la page se met à jour toute seule.
@@ -162,7 +192,7 @@ export function OrderConfirmation({
           !cancelled && (
             <p className="mt-3 text-sm font-semibold">
               Retrait :{" "}
-              {order.pickupAt ? formatTime(order.pickupAt) : "dès que possible"}
+              {order.pickupAt ? formatPickup(order.pickupAt) : "dès que possible"}
             </p>
           )
         )}
@@ -217,14 +247,7 @@ export function OrderConfirmation({
                   {line.name}
                 </span>
                 <span className="tabular-nums text-muted">
-                  {formatPrice(
-                    line.quantity *
-                      (line.unitPrice +
-                        line.options.reduce(
-                          (sum, option) => sum + option.supplement,
-                          0
-                        ))
-                  )}
+                  {formatPrice(line.quantity * line.unitPrice)}
                 </span>
               </div>
               {line.options.map((option, optionIndex) => (

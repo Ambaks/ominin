@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { SectionHeading } from "@/components/landing/section-heading";
 import { comparisonSection } from "@/lib/collect-landing-data";
+import { CollectHeading } from "./heading";
+import { Reveal } from "./reveal";
 
 /*
  * Comparatif interactif : un curseur (ventes à emporter mensuelles) pilote
@@ -35,7 +36,7 @@ function CostBar({
           {label}{" "}
           <span className="text-xs font-normal text-faint">· {rateLabel}</span>
         </p>
-        <p className="font-display text-lg tabular-nums">
+        <p className="collect-display text-xl tabular-nums">
           {euros(value)}
           <span className="text-xs text-faint">/mois</span>
         </p>
@@ -63,17 +64,16 @@ export function CollectComparison() {
   return (
     <section
       id={comparisonSection.id}
-      className="scroll-mt-20 border-t border-hairline"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.2fr] lg:px-10 lg:py-32">
+        <CollectHeading
           eyebrow={comparisonSection.eyebrow}
           title={comparisonSection.title}
           subtitle={comparisonSection.subtitle}
-          center
         />
 
-        <div className="relative mt-12 overflow-hidden rounded-3xl border border-hairline lg:mt-16">
+        <Reveal className="relative overflow-hidden rounded-[2rem] border border-hairline bg-surface">
           <div
             className="collect-dash-motif absolute inset-0 [mask-image:radial-gradient(ellipse_90%_100%_at_50%_0%,black,transparent)]"
             aria-hidden
@@ -89,7 +89,7 @@ export function CollectComparison() {
                 >
                   {comparisonSection.sliderLabel}
                 </label>
-                <span className="font-display text-2xl tabular-nums text-ember-1">
+                <span className="collect-display text-3xl tabular-nums text-ember-1">
                   {euros(revenue)}
                   <span className="text-sm text-faint">/mois</span>
                 </span>
@@ -104,7 +104,7 @@ export function CollectComparison() {
                 onChange={(event) => setRevenue(Number(event.target.value))}
                 className="w-full accent-ember-1"
               />
-              <div className="flex justify-between text-[11px] tabular-nums text-faint">
+              <div className="flex justify-between text-xs tabular-nums text-muted">
                 <span>{euros(slider.min)}</span>
                 <span>{euros(slider.max)}</span>
               </div>
@@ -127,7 +127,7 @@ export function CollectComparison() {
             </div>
 
             <div className="flex flex-col items-center gap-1 border-t border-hairline pt-6 text-center">
-              <p className="ember-text font-display text-4xl font-medium tabular-nums lg:text-5xl">
+              <p className="collect-display ember-text text-6xl tabular-nums lg:text-7xl">
                 {euros(savingsPerYear)}
               </p>
               <p className="text-sm font-semibold">
@@ -136,11 +136,11 @@ export function CollectComparison() {
               <p className="text-xs text-muted">{comparisonSection.savingsHint}</p>
             </div>
 
-            <p className="text-center text-[11px] leading-relaxed text-faint">
+            <p className="text-center text-xs leading-relaxed text-muted">
               {comparisonSection.disclaimer}
             </p>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

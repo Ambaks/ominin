@@ -1,12 +1,19 @@
 "use client";
 
 import { Fragment, useEffect, useId, useRef, useState } from "react";
+import {
+  collectProblem,
+  PickupFields,
+  type CollectDetails,
+} from "@/components/collect/pickup-fields";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PaymentReturn } from "@/components/menu/payment-return";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { SquarePayment } from "@/components/menu/square-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
+import { isOpenAt } from "@/lib/collect/hours";
+import { collectHref } from "@/lib/collect/shared";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
@@ -59,6 +66,13 @@ export function CartBar() {
   const [tipChoice, setTipChoice] = useState<TipChoice>(null);
   const [customTip, setCustomTip] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Click & collect : fermé à l'ouverture de la feuille, pas de « dès que
+  // possible » — le client choisit son heure.
+  const [details, setDetails] = useState<CollectDetails>(() => ({
+    name: "",
+    phone: "",
+    pickupAt: cart.collect && !isOpenAt(cart.collect.hours, new Date()) ? "" : null,
+  }));
   // Paiement carte choisi mais impossible à démarrer : la commande reste
   // valable, il faut le dire au client (il paiera au comptoir).
   const [cardFailed, setCardFailed] = useState(false);
@@ -155,6 +169,9 @@ export function CartBar() {
       const orderId = leaving.current;
       if (!orderId) return;
       leaving.current = null;
+      // Click & collect : rien n'est passé tant que ce n'est pas payé, le
+      // panier gardé sert au nouvel essai.
+      if (cart.collect) return;
       cart.clear();
       if (cart.fastFood) {
         handOff(orderId);
@@ -204,8 +221,11 @@ export function CartBar() {
   // Sans paiement en ligne, ou tout offert en points (rien à régler par
   // carte, la salle valide l'addition à zéro : place_order la laisse
   // d'ailleurs au comptoir), l'addition se règle au comptoir.
-  const payment: PaymentChoice =
-    cart.onlinePayment && cart.total > 0 ? paymentChoice : "comptoir";
+  const payment: PaymentChoice = cart.collect
+    ? "carte"
+    : cart.onlinePayment && cart.total > 0
+      ? paymentChoice
+      : "comptoir";
   const loyaltyContact = cart.loyalty ? contact.trim() : "";
   // Un article offert ne part pas seul : place_order le refuserait.
   const rewardsOnly = cart.lines.length > 0 && cart.lines.every((line) => line.reward);
@@ -214,7 +234,7 @@ export function CartBar() {
   // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
   // Au comptoir d'un fast food, pas de service à table : pas de pourboire.
   const tipAmount =
-    payment !== "carte" || tipChoice === null || cart.fastFood
+    payment !== "carte" || tipChoice === null || cart.fastFood || cart.collect
       ? 0
       : tipChoice === "autre"
         ? Math.max(
@@ -271,6 +291,12 @@ export function CartBar() {
       handOff(id);
       return;
     }
+    const pickupProblem = cart.collect ? collectProblem(details, cart.collect.hours) : null;
+    if (pickupProblem) {
+      setState("error");
+      setError(pickupProblem);
+      return;
+    }
     setState("sending");
     setError(null);
     setCardFailed(false);
@@ -302,6 +328,13 @@ export function CartBar() {
         p_online_payment: payment === "carte",
         // Points débités ici, gagnés à l'encaissement.
         ...(loyaltyContact && { p_loyalty_contact: loyaltyContact }),
+        ...(cart.collect && {
+          p_collect: {
+            name: details.name.trim(),
+            phone: details.phone.trim(),
+            pickup_at: details.pickupAt ?? "",
+          },
+        }),
       }
     );
     if (rpcError) {
@@ -319,6 +352,13 @@ export function CartBar() {
     let failed = false;
     const fail = () => {
       failed = true;
+      // Click & collect : pas de comptoir où se rabattre. La commande non
+      // payée expire seule ; le panier reste pour réessayer.
+      if (cart.collect) {
+        setState("error");
+        setError("Le paiement n’a pas pu démarrer. Réessayez dans un instant.");
+        return;
+      }
       giveUpCard(orderId);
     };
     // Prévient la salle (push) : la commande attend son encaissement au
@@ -346,7 +386,7 @@ export function CartBar() {
           // ferme ici lance un history.back(), et Chrome annule alors la
           // navigation vers Stripe. Le panier gardé est seulement oublié :
           // un retour arrière ne ramène pas de quoi commander deux fois.
-          cart.forgetSaved();
+          if (!cart.collect) cart.forgetSaved();
           leaving.current = orderId;
           window.location.assign(body.url);
           return;
@@ -400,6 +440,12 @@ export function CartBar() {
       }
     }
 
+    if (cart.collect) {
+      // Stripe a échoué (erreur déjà affichée) ou Square se règle dans la
+      // feuille : le panier ne se vide qu'au paiement.
+      if (!failed) setState("sent");
+      return;
+    }
     cart.clear();
     // Fast food : le ticket, sauf si le règlement se poursuit dans la
     // feuille (SumUp, Square) — il viendra à sa fin.
@@ -522,6 +568,18 @@ export function CartBar() {
                   onPhase={onCardPhase}
                   onDone={(paid) => {
                     setSquarePayment(null);
+                    if (cart.collect) {
+                      if (paid) {
+                        cart.clear();
+                        window.location.assign(
+                          `${collectHref(cart.slug)}/confirmation?commande=${squarePayment.orderId}`
+                        );
+                      } else {
+                        setState("error");
+                        setError("Le paiement n’a pas abouti : votre commande n’est pas passée.");
+                      }
+                      return;
+                    }
                     if (!paid) giveUpCard(squarePayment.orderId);
                     if (cart.fastFood) {
                       handOff(
@@ -582,9 +640,11 @@ export function CartBar() {
                     <h3 id={titleId} className="cart-title font-display text-lg font-medium">
                       Votre commande
                       <span className="mt-0.5 block font-sans text-xs font-normal normal-case tracking-normal text-muted">
-                        {cart.fastFood
-                          ? "À récupérer au comptoir"
-                          : `Table ${cart.tableNumber}`}
+                        {cart.collect
+                          ? "À emporter"
+                          : cart.fastFood
+                            ? "À récupérer au comptoir"
+                            : `Table ${cart.tableNumber}`}
                       </span>
                     </h3>
                     <button
@@ -703,6 +763,23 @@ export function CartBar() {
                         onBalance={setBalance}
                       />
                     )}
+                    {cart.collect && (
+                      <PickupFields
+                        slug={cart.slug}
+                        hours={cart.collect.hours}
+                        slotMinutes={cart.collect.slotMinutes}
+                        value={details}
+                        onChange={(next) => {
+                          setDetails(next);
+                          // Le message d'un envoi refusé s'efface dès qu'on
+                          // corrige ce qui le causait.
+                          if (state === "error") {
+                            setState("idle");
+                            setError(null);
+                          }
+                        }}
+                      />
+                    )}
                   </div>
 
                   <div ref={footRef} className="cart-foot sticky bottom-0 border-t border-hairline bg-surface p-5">
@@ -712,7 +789,7 @@ export function CartBar() {
                         {formatPrice(cart.total)}
                       </span>
                     </div>
-                    {cart.onlinePayment && cart.total > 0 && (
+                    {cart.onlinePayment && cart.total > 0 && !cart.collect && (
                       <div
                         role="radiogroup"
                         aria-label="Règlement"
@@ -789,7 +866,7 @@ export function CartBar() {
                         ))}
                       </p>
                     )}
-                    {payment === "carte" && !cart.fastFood && (
+                    {payment === "carte" && !cart.fastFood && !cart.collect && (
                       <div className="mb-4 flex flex-col gap-2.5">
                         <p className="text-xs font-medium text-muted">
                           Un pourboire pour l&rsquo;équipe&nbsp;?
@@ -881,7 +958,9 @@ export function CartBar() {
                           : "Aperçu\u00a0: envoi désactivé"
                         : state === "sending"
                           ? "Envoi…"
-                          : !cart.fastFood
+                          : cart.collect
+                            ? `Commander et payer · ${formatPrice(cart.total)}`
+                            : !cart.fastFood
                             ? "Envoyer la commande"
                             : payment === "carte"
                               ? `Commander et payer · ${formatPrice(cart.total)}`

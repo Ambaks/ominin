@@ -6,8 +6,8 @@ import { CollectWordmark } from "@/components/collect/landing/wordmark";
 import { demoSection } from "@/lib/collect-landing-data";
 
 /*
- * Démo Collect en plein écran (cible mobile : la scène double de la landing
- * ne tient pas sous lg). Segment statique — « demo » est un slug réservé,
+ * Démo Collect en plein écran : la scène double sur grand écran, un volet à
+ * la fois en dessous (elle ne tient pas sous lg). Segment statique — « demo » est un slug réservé,
  * prioritaire sur /collect/[slug]. Données fictives : jamais indexée.
  */
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function CollectDemoPage() {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-6 px-5 py-6">
+    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-6 px-5 py-6 lg:max-w-6xl lg:px-10">
       <header className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-2">
           <Image src="/logo.png" alt="" width={24} height={24} />
@@ -28,7 +28,12 @@ export default function CollectDemoPage() {
         </span>
       </header>
 
-      <CollectDemoStage variant="switch" />
+      <div className="lg:hidden">
+        <CollectDemoStage variant="switch" />
+      </div>
+      <div className="hidden lg:block">
+        <CollectDemoStage variant="dual" />
+      </div>
 
       <BackToLandingLink />
     </div>

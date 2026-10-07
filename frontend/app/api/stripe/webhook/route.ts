@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { planTrial } from "@/lib/landing-data";
-import { dispatchOrderEvent } from "@/lib/push/server";
 import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
 import { STARTER_FLAG } from "@/lib/stripe/starter";
@@ -11,12 +10,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 type Product = Database["public"]["Enums"]["product"];
 
 /*
- * Webhook Stripe : source de vérité de l'état d'abonnement en base, et
- * création des commandes click & collect une fois le paiement confirmé.
+ * Webhook Stripe : source de vérité de l'état d'abonnement en base.
  * Signature vérifiée (STRIPE_WEBHOOK_SECRET) ; écriture via service_role.
  * metadata.etablissement_id et metadata.products voyagent depuis la création
- * de la session Checkout ; metadata.pending_id référence le panier à
- * convertir (collect_pending → create_collect_order, idempotent).
+ * de la session Checkout.
  * metadata.starter marque une commande de démarrage : sur une offre à mois
  * offerts (mode 'payment', sans abonnement Stripe), son paiement vaut
  * activation, et ouvre les mois offerts.
@@ -83,28 +80,6 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-
-      // Paiement d'une commande click & collect (mode 'payment').
-      if (session.metadata?.pending_id) {
-        if (session.payment_status === "paid") {
-          const db = createAdminClient();
-          const { data: orderId, error } = await db.rpc("create_collect_order", {
-            p_pending_id: session.metadata.pending_id,
-            p_stripe_session_id: session.id,
-          });
-          if (error) throw new Error(error.message);
-          // Push cuisine : la commande naît payée, c'est son seul point
-          // d'entrée. Idempotent (push_notified) même si Stripe rejoue
-          // l'événement ; un échec d'envoi ne doit pas faire rejouer le
-          // webhook entier.
-          if (orderId) {
-            await dispatchOrderEvent(orderId, "nouvelle_commande").catch(
-              () => {}
-            );
-          }
-        }
-        break;
-      }
 
       const etablissementId =
         session.metadata?.etablissement_id ?? session.client_reference_id;

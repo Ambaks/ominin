@@ -12,7 +12,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * Tentatives de paiement Square abandonnées (workflow square-expire.yml).
  * Square n'a pas de session qui expire, comme Stripe : sans ce passage, une
  * commande dont le client a quitté le paiement en ligne restait en attente
- * pour toujours, hors de la caisse, son stock retenu.
+ * pour toujours, hors de la caisse, son stock retenu. Même sort pour une
+ * tentative qui n'a atteint aucun encaisseur (session Stripe jamais créée,
+ * onglet fermé avant) : rien n'expirerait pour elle.
  *
  * Passé la durée de vie d'une session Stripe, la tentative est écartée
  * (discard_stale_online_payment). Une tentative qui a atteint Square
@@ -47,22 +49,28 @@ export async function POST(request: Request) {
 
   const startedBefore = new Date(Date.now() - ONLINE_PAYMENT_TTL_S * 1000).toISOString();
   const admin = createAdminClient();
-  const { data: stale, error } = await admin
+  const { data: candidates, error } = await admin
     .from("orders")
-    .select("id, etablissement_id, square_order_id, etablissements!inner(payment_provider)")
+    .select("id, etablissement_id, square_order_id, stripe_session_id, sumup_checkout_id, etablissements(payment_provider)")
     .eq("status", "en_attente")
     .eq("paid_online", false)
-    .lt("online_payment_started_at", startedBefore)
-    .eq("etablissements.payment_provider", "square");
+    .lt("online_payment_started_at", startedBefore);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  // Une session Stripe expire d'elle-même (webhook connecté) : seules les
+  // tentatives Square, et celles qui n'ont atteint personne, passent ici.
+  const stale = candidates.filter(
+    (order) =>
+      order.etablissements?.payment_provider === "square" ||
+      (!order.stripe_session_id && !order.square_order_id && !order.sumup_checkout_id)
+  );
 
   let discarded = 0;
   let settled = 0;
   const failed: string[] = [];
   // En série : quelques commandes par passage, chacune relue puis écrite.
-  for (const order of stale ?? []) {
+  for (const order of stale) {
     try {
       const { square_order_id: squareOrderId } = order;
       if (squareOrderId && (await settledAtSquare(admin, { ...order, square_order_id: squareOrderId }))) {

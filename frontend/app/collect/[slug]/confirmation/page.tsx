@@ -4,21 +4,22 @@ import { OrderConfirmation } from "@/components/collect/order-confirmation";
 import { fetchRestaurant } from "@/lib/public-menu";
 
 export const metadata: Metadata = {
-  title: "Commande — Click & collect",
+  title: "Votre commande à emporter",
+  robots: { index: false },
 };
 
 /*
- * Retour de Stripe Checkout. La commande est créée par le webhook, avec un
- * léger différé : le composant client interroge /api/collect/order jusqu'à
- * la voir apparaître, puis suit son statut (préparation → prête).
+ * Suivi d'une commande à emporter, au retour de Stripe Checkout ou après un
+ * paiement Square dans la feuille : le composant client confirme le
+ * paiement puis suit le statut (préparation → prête).
  */
 export default async function ConfirmationPage({
   params,
   searchParams,
 }: PageProps<"/collect/[slug]/confirmation">) {
   const { slug } = await params;
-  const { session_id } = await searchParams;
-  if (typeof session_id !== "string" || !session_id) notFound();
+  const { commande } = await searchParams;
+  if (typeof commande !== "string" || !commande) notFound();
 
   const data = await fetchRestaurant(slug);
   if (!data) notFound();
@@ -38,7 +39,7 @@ export default async function ConfirmationPage({
         </p>
       </header>
       <OrderConfirmation
-        sessionId={session_id}
+        orderId={commande}
         slug={slug}
         restaurantName={data.restaurant.name}
         address={data.restaurant.address}

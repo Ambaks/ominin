@@ -298,7 +298,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
         </button>
         <p className="font-display text-lg font-medium">Votre commande</p>
       </header>
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pb-6">
         <ul className="flex flex-col gap-2.5 rounded-2xl border border-hairline bg-surface p-4">
           {lines.map((line) => (
             <li key={line.item.id} className="flex items-center gap-3">
@@ -347,10 +347,28 @@ function CheckoutView({ topPad }: { topPad: string }) {
             </span>
           </div>
           <fieldset className="flex flex-col gap-1.5">
-            <legend className="text-[11px] font-semibold text-muted">
-              Retrait
+            <legend className="text-xs font-semibold text-muted">
+              Retrait · dès que possible ou par créneau de 15 min
             </legend>
+            <div className="flex gap-1.5" role="group" aria-label="Jour de retrait">
+              {([false, true] as const).map((tomorrow) => (
+                <button
+                  key={String(tomorrow)}
+                  type="button"
+                  aria-pressed={demo.pickupTomorrow === tomorrow}
+                  onClick={() => demo.setPickupTomorrow(tomorrow)}
+                  className={`rounded-lg px-3 py-1 text-xs font-semibold transition-colors ${
+                    demo.pickupTomorrow === tomorrow
+                      ? "bg-foreground text-background"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {tomorrow ? "Demain" : "Aujourd’hui"}
+                </button>
+              ))}
+            </div>
             <div className="flex flex-wrap gap-1.5">
+              {!demo.pickupTomorrow && (
               <button
                 type="button"
                 onClick={() => demo.setPickupSlot(null)}
@@ -362,10 +380,12 @@ function CheckoutView({ topPad }: { topPad: string }) {
               >
                 Dès que possible
               </button>
+              )}
               {Array.from(
                 { length: COLLECT_DEMO.slots.count },
                 (_, i) => {
-                  const taken = COLLECT_DEMO.slots.takenBySlot[i] ?? 0;
+                  // Demain, tout est encore libre.
+                  const taken = demo.pickupTomorrow ? 0 : (COLLECT_DEMO.slots.takenBySlot[i] ?? 0);
                   const remaining = COLLECT_DEMO.slots.capacity - taken;
                   const full = remaining <= 0;
                   const selected = demo.pickupSlot === i;
@@ -386,7 +406,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
                       {formatSlotTime(i)}
                       {!full && (
                         <span className={`text-[10px] ${selected ? "text-background/70" : "text-faint"}`}>
-                          ({remaining})
+                          {remaining} place{remaining > 1 ? "s" : ""}
                         </span>
                       )}
                       {full && (
@@ -400,7 +420,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
           </fieldset>
         </div>
       </div>
-      <div className="flex flex-col gap-2 px-5 pb-6 pt-1">
+      <div className="flex shrink-0 flex-col gap-2 border-t border-hairline bg-background px-5 pb-6 pt-3">
         <button
           type="button"
           onClick={demo.pay}
@@ -514,7 +534,6 @@ function TrackingView({ topPad }: { topPad: string }) {
   const demo = useCollectDemo();
   const now = useNow();
   const order = demo.order!;
-  const cancelled = demo.step === "annulee";
   const copy =
     COLLECT_DEMO.customerStatus[
       demo.step as keyof typeof COLLECT_DEMO.customerStatus
@@ -533,7 +552,6 @@ function TrackingView({ topPad }: { topPad: string }) {
 
   return (
     <div className={`flex flex-1 flex-col gap-4 overflow-y-auto px-5 pb-6 ${topPad}`}>
-      {!cancelled && (
         <ol className="flex items-start justify-between" aria-label="Avancement">
           {TIMELINE.map((entry, index) => {
             const done = currentIndex > index;
@@ -568,12 +586,9 @@ function TrackingView({ topPad }: { topPad: string }) {
             );
           })}
         </ol>
-      )}
 
       <div
-        className={`flex flex-col items-center gap-1 rounded-2xl border bg-surface p-5 text-center ${
-          cancelled ? "border-ember-3/40" : "border-hairline"
-        }`}
+        className="flex flex-col items-center gap-1 rounded-2xl border border-hairline bg-surface p-5 text-center"
       >
         {demo.step === "en_preparation" && <SteamingDish />}
         {demo.step === "prete" && (
@@ -644,7 +659,7 @@ function TrackingView({ topPad }: { topPad: string }) {
         </div>
       )}
 
-      {(demo.step === "retiree" || cancelled) && (
+      {demo.step === "retiree" && (
         <button
           type="button"
           onClick={demo.replay}

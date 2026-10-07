@@ -1,3 +1,4 @@
+import type { OpeningHours } from "@/lib/collect/hours";
 import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
 
 export type Offre = "digital" | "smart" | "connect";
@@ -90,6 +91,8 @@ export interface Etablissement {
   address: string;
   phone: string;
   hours: string;
+  /** Horaires structurés (créneaux du click & collect) ; null tant qu'ils ne sont pas saisis. */
+  openingHours: OpeningHours | null;
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
   serviceMode: ServiceMode;

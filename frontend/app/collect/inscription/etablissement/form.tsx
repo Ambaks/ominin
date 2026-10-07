@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { startCheckout } from "@/lib/gestion/checkout";
-import { collectOffer, pricingSection } from "@/lib/landing-data";
+import { collectOffer } from "@/lib/landing-data";
 import { signContract } from "@/lib/legal/client";
 import { collectProduct } from "@/lib/products";
 import { createClient } from "@/lib/supabase/client";
@@ -171,10 +171,10 @@ export function CollectSignupForm() {
         disabled={busy || !accepted || !contract}
         className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
       >
-        Continuer vers le paiement
+        Activer le click &amp; collect
       </button>
       <p className="text-center text-xs text-faint">
-        {collectOffer.price} €{pricingSection.perMonth}, sans engagement.
+        {collectOffer.commission.percent} % par commande payée en ligne, 0 € par mois, sans engagement.
       </p>
     </form>
   );

@@ -65,8 +65,8 @@ export const collectProduct: Product = {
   eyebrow: "Vente à emporter",
   name: collectBrand,
   tagline: collectOffer.tagline,
-  price: `${collectOffer.price} €`,
-  priceUnit: pricingSection.perMonth,
+  price: `${collectOffer.commission.percent} %`,
+  priceUnit: " par commande",
   features: collectOffer.features,
   href: collectSiteUrl,
 };

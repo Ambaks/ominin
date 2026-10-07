@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { footer, nav } from "@/lib/collect-landing-data";
-import { LEGAL_LINKS } from "@/lib/legal/constants";
+import { finalCta, footer, nav } from "@/lib/collect-landing-data";
+import { editor, LEGAL_LINKS } from "@/lib/legal/constants";
 import { CollectWordmark } from "./wordmark";
 
 export function CollectFooter() {
@@ -35,7 +35,7 @@ export function CollectFooter() {
 
         <nav
           aria-label="Documents légaux"
-          className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-faint"
+          className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted"
         >
           {LEGAL_LINKS.map((link) => (
             <Link
@@ -48,7 +48,11 @@ export function CollectFooter() {
           ))}
         </nav>
 
-        <p className="text-xs text-faint">© 2026 Ominin</p>
+        {/* Qui est derrière : l'identité publiée dans les mentions légales. */}
+        <p className="text-xs text-muted">
+          © 2026 {finalCta.identity}
+          {editor.siren && ` · SIREN ${editor.siren}`}
+        </p>
       </div>
     </footer>
   );

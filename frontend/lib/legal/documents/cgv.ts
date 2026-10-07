@@ -40,7 +40,16 @@ const trialPlan = plans.find((plan) => plan.trial);
 
 /** `PlanCommission.percent` compte des points ; le comparateur stocke un ratio. */
 const points = (value: number) => `${value.toLocaleString("fr-FR")} %`;
-const collectCommission = points(collectOffer.commission.percent);
+
+/**
+ * Le click & collect dans l'annexe : sa commission et ses lignes
+ * d'abonnement. Chaque version des CGV fige les siennes — un texte publié ne
+ * suit plus les tarifs du site.
+ */
+interface CollectTariff {
+  commission: string;
+  subscriptionLines: string[];
+}
 
 const starterLines = [starterKit.cachet, starterKit.shipping, starterKit.omilink];
 
@@ -78,16 +87,16 @@ const shopTariffLines = [
   "La mise en place n'est pas une Commande de démarrage au sens de l'article 10 : elle rémunère la construction de la Boutique et ne comprend aucune fourniture.",
 ];
 
-const commissionLines = [
+const commissionLines = (collect: CollectTariff) => [
   ...plans.flatMap((plan) =>
     plan.commission
       ? [`${plan.name} — ${points(plan.commission.percent)} ${plan.commission.basis}.`]
       : []
   ),
-  `${collectOffer.name} — ${collectCommission} des commandes à emporter payées en ligne.`,
+  `${collectOffer.name} — ${collect.commission} des commandes à emporter payées en ligne.`,
 ];
 
-const articles: LegalArticle[] = [
+const buildArticles = (collect: CollectTariff): LegalArticle[] => [
   {
     heading: "Article 1 — Objet et champ d'application",
     body: [
@@ -211,7 +220,7 @@ const articles: LegalArticle[] = [
     heading: "Article 12 — Commission",
     body: [
       "Certaines offres comportent une commission, qui s'ajoute à l'abonnement :",
-      commissionLines,
+      commissionLines(collect),
       "La commission ne porte que sur les paiements encaissés en ligne par l'intermédiaire des Services. Les règlements en espèces, par carte au comptoir, sur un terminal de paiement du Client ou par tout autre moyen extérieur aux Services n'en supportent aucune.",
       "Elle est calculée sur le montant payé par le Convive, pourboires exclus, et prélevée ou facturée mensuellement selon le mode d'encaissement retenu. Les commandes annulées et les sommes remboursées au Convive donnent lieu à restitution de la commission correspondante.",
       "Elle est distincte des frais du prestataire de paiement, qui s'y ajoutent et sont dus par le Client à ce prestataire.",
@@ -333,8 +342,7 @@ const articles: LegalArticle[] = [
       `Les prix s'entendent en euros, par Établissement et par mois. ${editor.vatMention}.`,
       "Abonnements :",
       [...plans.map(planTariff),
-        `${collectOffer.name} — ${euros(collectOffer.price)} par mois ; ${collectCommission} des commandes à emporter payées en ligne.`,
-        `${collectOffer.bundle.name} — ${euros(collectOffer.bundle.price)} par mois ; ${collectCommission} des commandes à emporter payées en ligne, aucune commission sur le service à table.`,
+        ...collect.subscriptionLines,
       ],
       `${shopBrand} — ${shopOffer.name} :`,
       shopTariffLines,
@@ -367,6 +375,28 @@ const articles: LegalArticle[] = [
   },
 ];
 
+/*
+ * Version du 2026-09-22, publiée et signée : son annexe porte les tarifs du
+ * click & collect d'alors, recopiés tels qu'ils ont été publiés.
+ */
+const collect20260922: CollectTariff = {
+  commission: points(10),
+  subscriptionLines: [
+    `${collectOffer.name} — ${euros(100)} par mois ; ${points(10)} des commandes à emporter payées en ligne.`,
+    `${collectOffer.bundle.name} — ${euros(150)} par mois ; ${points(10)} des commandes à emporter payées en ligne, aucune commission sur le service à table.`,
+  ],
+};
+
+/** Tarifs en cours du click & collect : sans abonnement, à la commission. */
+const collectCommission = points(collectOffer.commission.percent);
+const collectCurrent: CollectTariff = {
+  commission: collectCommission,
+  subscriptionLines: [
+    `${collectOffer.name} — sans abonnement ; ${collectCommission} ${collectOffer.commission.basis}.`,
+    `${collectOffer.bundle.name} — sans abonnement ; ${points(collectOffer.bundle.menuCommission.percent)} ${collectOffer.bundle.menuCommission.basis} et ${collectCommission} ${collectOffer.commission.basis}.`,
+  ],
+};
+
 export const cgv: LegalDocument = {
   doc: "cgv",
   version: "2026-09-22",
@@ -374,5 +404,14 @@ export const cgv: LegalDocument = {
   title: "Conditions générales de vente et d'abonnement",
   lead: "Contrat d'abonnement entre Ominin et les professionnels de la restauration qui souscrivent ses services. Les prix figurent à l'Annexe tarifaire, qui fait partie du contrat.",
   summary: "Première version.",
-  articles,
+  articles: buildArticles(collect20260922),
+};
+
+export const cgv20261007: LegalDocument = {
+  ...cgv,
+  version: "2026-10-07",
+  effectiveFrom: parisEffectiveDate("2026-10-07"),
+  summary:
+    "Click & collect sans abonnement, à 5 % des commandes à emporter payées en ligne ; formule Connect + Click & collect sans abonnement, à 3 % des commandes à table et 5 % des commandes à emporter payées en ligne.",
+  articles: buildArticles(collectCurrent),
 };

@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
 import { CollectComparison } from "@/components/collect/landing/comparison";
+import "@/components/collect/landing/collect.css";
 import { CollectDemoShowcase } from "@/components/collect/landing/demo-showcase";
 import { CollectFaq } from "@/components/collect/landing/faq";
 import { CollectFeatures } from "@/components/collect/landing/features";
 import { CollectFinalCta } from "@/components/collect/landing/final-cta";
+import { collectFont } from "@/components/collect/landing/font";
 import { CollectFooter } from "@/components/collect/landing/footer";
 import { CollectHero } from "@/components/collect/landing/hero";
-import { CollectHowItWorks } from "@/components/collect/landing/how-it-works";
-import { CollectModes } from "@/components/collect/landing/modes";
+import { CollectJourney } from "@/components/collect/landing/journey";
+import { CollectMarquee } from "@/components/collect/landing/marquee";
 import { CollectNav } from "@/components/collect/landing/nav";
 import { CollectPricing } from "@/components/collect/landing/pricing";
 import { CollectUseCases } from "@/components/collect/landing/use-cases";
+import { demoShowcaseOrder } from "@/lib/collect/demo/data";
 import { collectBrand, seo } from "@/lib/collect-landing-data";
 import { collectSiteUrl } from "@/lib/site";
 
@@ -38,27 +41,27 @@ export const metadata: Metadata = {
 };
 
 /*
- * Ordre : le besoin d'abord (à qui ça sert, ce que comprend l'offre), la
- * démo pour le voir, le comparatif pour le chiffrer, puis le déroulé, les
- * fonctionnalités, le tarif, l'appel et les objections.
+ * Ordre : la promesse (hero animé), à qui ça sert, le parcours raconté au
+ * défilement, la démo pour le jouer, le comparatif pour le chiffrer, l'offre,
+ * le tarif, les objections, puis l'appel.
  */
 export default function CollectHome() {
   return (
-    <>
+    <div className={`collect-landing ${collectFont.variable}`}>
       <CollectNav />
-      <main>
+      <main className="overflow-x-clip">
         <CollectHero />
+        <CollectMarquee />
         <CollectUseCases />
-        <CollectModes />
+        <CollectJourney order={demoShowcaseOrder()} />
         <CollectDemoShowcase />
         <CollectComparison />
-        <CollectHowItWorks />
         <CollectFeatures />
         <CollectPricing />
-        <CollectFinalCta />
         <CollectFaq />
+        <CollectFinalCta />
       </main>
       <CollectFooter />
-    </>
+    </div>
   );
 }

@@ -17,13 +17,17 @@ import { formatPrice } from "@/lib/menu-data";
 function EmptyState() {
   return (
     <div className="flex flex-1 flex-col justify-center gap-3">
-      <div className="rounded-2xl border border-dashed border-hairline p-5 text-center">
-        <p className="text-sm text-muted">En attente de commandes…</p>
-        <p className="mt-1 text-xs text-faint">
-          Passez commande sur le téléphone, elle arrive ici.
+      <div className="rounded-2xl border border-dashed border-ember-2/40 bg-ember-2/5 p-6 text-center">
+        <span className="relative mx-auto flex size-10 items-center justify-center" aria-hidden>
+          <span className="absolute inset-0 animate-ping rounded-full bg-ember-2/30 motion-reduce:animate-none" />
+          <span className="ember-gradient relative size-3 rounded-full" />
+        </span>
+        <p className="mt-3 text-sm font-semibold">En attente de commandes…</p>
+        <p className="mt-1 text-xs text-muted">
+          <span className="lg:hidden">Passez commande côté client : elle arrive ici, payée.</span>
+          <span className="hidden lg:inline">← Ajoutez un plat sur le téléphone : la commande arrive ici, payée.</span>
         </p>
       </div>
-      <div className="shimmer h-24 rounded-2xl border border-hairline" aria-hidden />
     </div>
   );
 }
@@ -56,6 +60,11 @@ function OrderCardDemo() {
         {order.readyAt && status === "en_preparation"
           ? `Prête vers : ${formatTime(order.readyAt)}`
           : `Retrait : ${order.pickupLabel.toLowerCase()}`}
+      </p>
+      <p className="mt-1 flex flex-wrap gap-x-2 text-[11px] font-semibold text-ember-1">
+        <span>Payée en ligne · versée sur votre compte</span>
+        <span aria-hidden className="text-faint">·</span>
+        <span>Ticket imprimé en cuisine (avec imprimante)</span>
       </p>
 
       <ul className="mt-3 flex flex-col gap-1.5">
@@ -106,10 +115,9 @@ function OrderCardDemo() {
               <button
                 type="button"
                 onClick={() => setChoosingEta(false)}
-                aria-label="Fermer le choix de délai"
-                className="px-1 text-sm text-faint transition-colors hover:text-foreground"
+                className="px-1 text-xs font-semibold text-faint transition-colors hover:text-foreground"
               >
-                ✕
+                Retour
               </button>
             </div>
           ) : (
@@ -122,13 +130,6 @@ function OrderCardDemo() {
                 }`}
               >
                 Commencer la préparation
-              </button>
-              <button
-                type="button"
-                onClick={demo.refuse}
-                className="rounded-full border border-ember-3/40 px-4 py-2 text-xs font-semibold text-ember-3 transition-colors hover:bg-ember-3/10"
-              >
-                Refuser
               </button>
             </div>
           ))}
@@ -160,11 +161,6 @@ function OrderCardDemo() {
         {status === "retiree" && (
           <span className="text-xs font-semibold text-muted">
             Remise au comptoir — commande clôturée.
-          </span>
-        )}
-        {status === "annulee" && (
-          <span className="text-xs font-semibold text-ember-3">
-            Commande refusée — le client est prévenu.
           </span>
         )}
       </div>

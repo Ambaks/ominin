@@ -61,6 +61,8 @@ export interface AcceptedTerms {
   /** Mensualité due, en euros. 0 sur une offre en mois offerts. */
   monthly?: number;
   commission?: { percent: number; basis: string };
+  /** Formule groupée : la commission du service à table, à côté de celle de l'emporter. */
+  menuCommission?: { percent: number; basis: string };
   /** Lignes réglées immédiatement (commande de démarrage). */
   lines?: { label: string; amount: number }[];
   total?: number;
