@@ -1,15 +1,15 @@
 import Image from "next/image";
 import { clientsSection } from "@/lib/landing-data";
-import { SectionHeading } from "./section-heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 export function Testimonials() {
   return (
     <section
       id={clientsSection.id}
-      className="scroll-mt-20 border-t border-hairline"
+      className="scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={clientsSection.eyebrow}
           title={clientsSection.title}
         />
@@ -20,7 +20,7 @@ export function Testimonials() {
               key={client.name}
               className="flex flex-col gap-5 rounded-2xl border border-hairline bg-surface p-6 lg:rounded-3xl lg:p-8"
             >
-              <span className="ember-text font-display text-4xl leading-none">
+              <span className="ember-text kit-display text-4xl leading-none">
                 &ldquo;
               </span>
               <blockquote className="-mt-4 flex-1 text-sm leading-relaxed text-foreground">
@@ -35,13 +35,13 @@ export function Testimonials() {
                   className="size-10 shrink-0 rounded-xl object-cover"
                 />
                 <div className="min-w-0">
-                  <p className="truncate font-display text-sm font-medium">
+                  <p className="truncate kit-display text-sm font-medium">
                     {client.name}
                   </p>
                   <p className="truncate text-xs text-muted">
                     {client.type} · {client.city}
                   </p>
-                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
+                  <p className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-muted">
                     {clientsSection.sinceLabel} {client.since}
                   </p>
                 </div>

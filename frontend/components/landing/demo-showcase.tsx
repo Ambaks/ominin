@@ -3,13 +3,13 @@ import Link from "next/link";
 import { demoSection, demoCta } from "@/lib/landing-data";
 import { IphoneFrame } from "./iphone-frame";
 import { QrCorners } from "./qr-corners";
-import { SectionHeading } from "./section-heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 export function DemoShowcase() {
   return (
-    <section className="border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+    <section id="demo" className="scroll-mt-20 border-y border-hairline bg-surface/40">
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={demoSection.eyebrow}
           title={demoSection.title}
           subtitle={demoSection.subtitle}
@@ -31,7 +31,7 @@ export function DemoShowcase() {
           />
 
           <div className="relative flex flex-col items-center gap-6 px-10 py-14">
-            <span className="rounded-full border border-hairline bg-background/60 px-4 py-1.5 font-display text-sm font-semibold backdrop-blur-sm">
+            <span className="rounded-full border border-hairline bg-background/60 px-4 py-1.5 kit-display text-sm font-semibold backdrop-blur-sm">
               {demoSection.tableTag}
             </span>
 
@@ -69,10 +69,10 @@ export function DemoShowcase() {
             className="absolute inset-0 bg-linear-to-b from-background/85 to-background/70"
             aria-hidden
           />
-          <span className="relative rounded-full border border-hairline bg-background/60 px-4 py-1.5 font-display text-sm font-semibold backdrop-blur-sm">
+          <span className="relative rounded-full border border-hairline bg-background/60 px-4 py-1.5 kit-display text-sm font-semibold backdrop-blur-sm">
             {demoSection.tableTag}
           </span>
-          <span className="relative text-sm font-semibold text-foreground">
+          <span className="ember-gradient relative rounded-full px-6 py-3 text-sm font-bold text-background">
             {demoSection.fullscreenLabel}
           </span>
           <span className="relative text-xs text-muted">

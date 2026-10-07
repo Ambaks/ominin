@@ -8,7 +8,7 @@ import {
 } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
 import { OmilinkScene, SquareMark, SquareScene } from "./install-scenes";
-import { SectionHeading } from "./section-heading";
+import { KitHeading } from "@/components/landing-kit/heading";
 
 /*
  * Le panneau Square s'inverse (fond = couleur du texte de la page) : noir et
@@ -28,7 +28,7 @@ function Bill({ path, inverse }: { path: InstallPath; inverse: boolean }) {
       }`}
     >
       <p
-        className={`font-display text-sm italic ${
+        className={`kit-display text-sm italic ${
           inverse ? "text-background/60" : "text-muted"
         }`}
       >
@@ -64,7 +64,7 @@ function PathPanel({ path }: { path: InstallPath }) {
   const inverse = path.id === "square";
   return (
     <article
-      className={`relative flex h-full flex-col gap-6 overflow-hidden rounded-3xl border p-6 sm:p-8 ${
+      className={`relative flex h-full min-w-0 flex-col gap-6 overflow-hidden rounded-3xl border p-6 sm:p-8 ${
         inverse
           ? "border-transparent bg-foreground text-background"
           : "border-ember-2/30 bg-surface shadow-lg shadow-ember-2/5"
@@ -81,7 +81,7 @@ function PathPanel({ path }: { path: InstallPath }) {
         {inverse && (
           <p className="flex items-center gap-2 text-sm font-semibold">
             <Image src="/logo.png" alt="" width={20} height={20} />
-            <span className="font-display">{brand}</span>
+            <span className="kit-display">{brand}</span>
             <span className="text-background/40" aria-hidden>
               ×
             </span>
@@ -91,10 +91,11 @@ function PathPanel({ path }: { path: InstallPath }) {
         )}
       </div>
 
-      {inverse ? <SquareScene /> : <OmilinkScene />}
+      {/* L'illustration est un plus : sur téléphone, le texte et l'addition suffisent. */}
+      <div className="hidden sm:block">{inverse ? <SquareScene /> : <OmilinkScene />}</div>
 
       <div>
-        <h3 className="font-display text-2xl font-medium tracking-tight">
+        <h3 className="kit-display text-2xl font-medium tracking-tight">
           {path.title}
         </h3>
         <p
@@ -139,10 +140,10 @@ export function Install() {
   return (
     <section
       id={installSection.id}
-      className="install-scene scroll-mt-20 border-t border-hairline"
+      className="install-scene scroll-mt-20"
     >
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <KitHeading
           eyebrow={installSection.eyebrow}
           title={installSection.title}
           subtitle={installSection.subtitle}
@@ -157,7 +158,7 @@ export function Install() {
             </span>
             <span className="text-muted">{installSection.sourceLabel}</span>
             <span className="font-medium">{order.table}</span>
-            <span className="ember-text font-display font-medium">
+            <span className="ember-text kit-display font-medium">
               {formatPrice(order.total)}
             </span>
           </div>
@@ -175,13 +176,13 @@ export function Install() {
           </div>
         </Reveal>
 
-        <div className="relative mt-8 grid gap-6 lg:mt-0 lg:grid-cols-2">
+        <div className="relative mt-8 grid grid-cols-[minmax(0,1fr)] gap-6 lg:mt-0 lg:grid-cols-2">
           {installSection.paths.map((path, index) => (
             <Reveal key={path.id} delay={index * 120} className="lg:row-start-1">
               <PathPanel path={path} />
             </Reveal>
           ))}
-          <span className="mx-auto max-lg:row-start-2 flex size-11 items-center justify-center rounded-full border border-hairline bg-background font-display text-xs italic text-muted lg:absolute lg:left-1/2 lg:top-1/2 lg:z-10 lg:-translate-x-1/2 lg:-translate-y-1/2">
+          <span className="mx-auto max-lg:row-start-2 flex size-11 items-center justify-center rounded-full border border-hairline bg-background kit-display text-xs italic text-muted lg:absolute lg:left-1/2 lg:top-1/2 lg:z-10 lg:-translate-x-1/2 lg:-translate-y-1/2">
             {installSection.joiner}
           </span>
         </div>

@@ -1,4 +1,5 @@
 import { DEMO_SLUG, formatPrice, unsplash } from "@/lib/menu-data";
+import { siteUrl } from "@/lib/site";
 
 export interface Cta {
   label: string;
@@ -142,7 +143,8 @@ export const seo = {
 
 export const nav = {
   links: [
-    { label: "Fonctionnalités", href: "#fonctionnalites" },
+    { label: "Parcours", href: "#parcours" },
+    { label: "Démo", href: "#demo" },
     { label: "Tarifs", href: "#tarifs" },
     { label: "Clients", href: "#clients" },
     { label: "FAQ", href: "#faq" },
@@ -152,79 +154,119 @@ export const nav = {
 };
 
 export const hero = {
-  eyebrow: "Menus digitaux · Commande à table · Paiement",
-  titleStart: "Vos tables prennent",
-  titleAccent: "les commandes.",
-  subtitle:
-    "Vos clients scannent le QR code de la table, consultent, commandent et payent — sans application, sans attente. Vous mettez votre menu à jour en 30 secondes, votre équipe respire, vos coûts baissent.",
-  secondaryCta: { label: "Découvrir les tarifs", href: "#tarifs" } satisfies Cta,
-  trustline: [
-    "Sans engagement",
-    "Résiliable à tout moment",
-    "Aucune application requise",
+  eyebrow: "Menu QR · Commande et paiement à table",
+  /** Trois lignes ; la marquée reçoit le pavé braise. */
+  lines: [
+    { text: "Vos tables" },
+    { text: "prennent les" },
+    { text: "commandes.", mark: true },
   ],
+  subtitle:
+    "Vos clients scannent le Cachet de la table, commandent et payent depuis leur téléphone — sans application, sans attendre un serveur. La commande part en cuisine, votre équipe sert.",
+  stats: [
+    {
+      value: `0\u00a0€`,
+      label: `Connect, les ${connectTrial.months} premiers mois — puis voir les tarifs`,
+      href: "#tarifs",
+    },
+    { value: "1\u00a0%", label: "de commission en ligne, 0\u00a0% au comptoir" },
+    {
+      value: "18\u00a0s",
+      label: "de la table à la cuisine, mesuré en service",
+      href: `${siteUrl}/r7k2`,
+    },
+  ],
+  secondaryCta: { label: "Voir les tarifs", href: "#tarifs" } satisfies Cta,
   clientsLabel: "Ils servent déjà avec Ominin",
-  // Photo d'illustration (Unsplash) — à remplacer par une vraie photo de
-  // salle cliente au service du soir.
-  photo: {
-    src: unsplash("photo-1552566626-52f8b828add9", 2000),
-    alt: "Salle de restaurant chaleureuse, tables dressées pour le service",
-  },
 };
 
+/** Relais animé du hero : la table 12 de la démo, du Cachet à la cuisine. */
+export const heroRelay = {
+  table: 12,
+  phoneLabel: "Table 12 · Cachet scanné",
+  stamp: "Payée",
+  kitchenLabel: "Votre cuisine",
+  ticket: { printer: "Ticket cuisine", label: "Table 12", detail: "Payée · Carte" },
+  ready: "En cuisine en 18 s. Le serveur apporte.",
+};
+
+/** Bandeau défilant sous le hero. */
+export const marquee = [
+  "Restaurants",
+  "Brasseries",
+  "Pizzerias",
+  "Fast-foods",
+  "Bars",
+  "Lounges",
+  "Cafés",
+  "Food courts",
+];
+
 export const howItWorks = {
-  eyebrow: "Comment ça marche",
-  title: "De l'assise à la commande, en moins d'une minute.",
+  id: "parcours",
+  eyebrow: "Le parcours",
+  title: "De l'assise à la cuisine, en moins d'une minute.",
   steps: [
     {
-      title: "Le client scanne le Cachet",
+      kicker: "01 · Le Cachet",
+      title: "Le client scanne la table.",
       description:
         "Le Cachet, c'est le QR code à votre logo collé sur la table. Un scan, rien à installer, rien à expliquer.",
     },
     {
-      title: "Votre menu s'affiche",
+      kicker: "02 · La carte",
+      title: "Votre menu s'ouvre.",
       description:
-        "Photos, descriptions, prix à jour — directement dans le navigateur, en deux secondes.",
+        "Photos, formules, prix à jour — dans le navigateur, en deux secondes. Un plat épuisé disparaît d'un geste, sur toutes les tables.",
     },
     {
-      title: "Il commande depuis la table",
+      kicker: "03 · La commande",
+      title: "Il commande, et paye s'il veut.",
       description:
-        "Plats, options, commentaires : la commande part sans lever la main ni attendre un serveur.",
+        "Plats, options, commentaires — puis carte bancaire à table, ou l'addition au comptoir comme d'habitude.",
     },
     {
-      title: "Votre cuisine reçoit tout",
+      kicker: "04 · La cuisine",
+      title: "Le ticket sort. La salle tourne.",
       description:
-        "La commande arrive en cuisine en temps réel. Le service suit, la salle tourne.",
+        "La commande arrive en cuisine en temps réel, sur vos imprimantes ou votre tablette. Le serveur apporte, sans avoir couru prendre la commande.",
     },
-  ] satisfies Step[],
+  ],
 };
 
 export const featuresSection = {
   id: "fonctionnalites",
   eyebrow: "Fonctionnalités",
-  title: "Pensé pour le service.",
-  subtitle:
-    "Chaque fonction répond à un vrai problème de salle : moins de pas, moins d'erreurs, moins de temps perdu.",
+  title: "Pensé pour le coup de feu.",
   features: [
     {
-      stat: "Instantané",
-      title: "Mettez votre menu à jour en un click",
+      stat: "18\u00a0s",
+      title: "De la table à la cuisine",
       description:
-        "Changez un prix, retirez un plat épuisé, ajoutez le spécial du jour — depuis votre téléphone, effet immédiat sur toutes les tables.",
+        "Mesuré en service chez un client : 18 secondes en médiane entre la commande payée à table et le ticket en cuisine — contre 4 min 39 au comptoir.",
+      wide: true,
     },
     {
-      stat: "QR Codes",
-      title: "Le Cachet : un par table",
-      description:
-        "Le Cachet, c'est votre QR code personnalisé à votre logo. On vous le fournit prêt à coller — pas de matériel, pas de formation, opérationnel en quelques minutes.",
+      stat: "30\u00a0s",
+      title: "Votre carte à jour",
+      description: "Un prix, un plat épuisé, le spécial du jour : depuis votre téléphone, sur toutes les tables.",
     },
     {
       stat: "3 vues",
-      title: "Toute l'équipe se connecte",
-      description:
-        "Serveur, cuisine, manager : chacun voit exactement ce dont il a besoin, rien de plus.",
+      title: "Toute l'équipe connectée",
+      description: "Serveur, cuisine, gérant : chacun voit ce dont il a besoin, rien de plus.",
     },
-  ] satisfies Feature[],
+    {
+      stat: "Cachet",
+      title: "Un QR par table, à votre logo",
+      description: "Conçus, imprimés et livrés prêts à coller. Abîmé ? Remplacé sous 48 h.",
+    },
+    {
+      stat: "Caisse",
+      title: "Square, ou vos imprimantes",
+      description: "La commande arrive dans votre caisse Square, ou sort sur vos imprimantes tickets avec le boîtier Omilink.",
+    },
+  ],
 };
 
 export const demoSection = {
@@ -334,7 +376,7 @@ export const pricingSection = {
       featuresLabel: "Inclus :",
       features: [
         "Menu digital par QR code",
-        "Vos Cachets personnalisés à votre logo",
+        `Vos Cachets à votre logo — ${formatPrice(starterKit.cachet.price)} par table + livraison, une fois`,
         "Mise à jour en temps réel",
         "Espace de gestion",
       ],
@@ -359,7 +401,7 @@ export const pricingSection = {
     },
   ] satisfies Plan[],
   guarantees: [
-    "Cachets imprimés à votre logo",
+    `Cachets à votre logo : ${formatPrice(starterKit.cachet.price)} par table + livraison, une fois`,
     "Aucune installation technique",
     "Votre menu conçu par notre équipe",
     "Résiliable à tout moment",
@@ -385,7 +427,7 @@ export function trialPricing(plan: Plan) {
     price: formatPrice(0),
     unit: `${pricingSection.perMonth} pendant ${months} mois`,
     /** La règle, le seuil chiffré en moins. */
-    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent un seuil de commandes passées par Ominin..`,
+    note: `Puis ${monthly} — ou 0 €, définitivement, si ces ${months} premiers mois dépassent ${formatEuros(connectTrial.exemptionRevenue)} de commandes passées par Ominin.`,
   };
 }
 
@@ -656,7 +698,7 @@ export const qrShowcase = {
     {
       title: "À votre logo, prêts à coller",
       description:
-        "Conçus et imprimés par notre équipe, livrés prêts à coller sur vos tables.",
+        `Conçus et imprimés par notre équipe, livrés prêts à coller : ${formatPrice(starterKit.cachet.price)} par table + livraison, réglés une fois à l'ouverture.`,
     },
     {
       title: "Abîmé ? Remplacé sous 48 h",

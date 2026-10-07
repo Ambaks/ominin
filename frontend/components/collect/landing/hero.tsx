@@ -12,7 +12,7 @@ const order = demoShowcaseOrder();
 
 function Relay() {
   return (
-    <div className="collect-relay relative mx-auto w-full min-w-0 max-w-md pb-8 sm:pb-12 lg:max-w-none" aria-hidden>
+    <div className="kit-relay relative mx-auto w-full min-w-0 max-w-md pb-8 sm:pb-12 lg:max-w-none" aria-hidden>
       {/* Téléphone du client */}
       <div
         className="relay-float relative z-10 w-[86%] rounded-[2rem] sm:w-[62%] border border-hairline bg-surface p-4 shadow-2xl shadow-black/40"
@@ -22,7 +22,7 @@ function Relay() {
           <span>{heroRelay.phoneLabel}</span>
           <span className="size-1.5 rounded-full bg-ember-1" />
         </div>
-        <p className="collect-display mt-3 text-2xl">{order.restaurant}</p>
+        <p className="kit-display mt-3 text-2xl">{order.restaurant}</p>
         <ul className="mt-4 flex flex-col gap-2">
           {order.lines.map((line, i) => (
             <li
@@ -40,7 +40,7 @@ function Relay() {
         </ul>
         <div className="relative mt-4 flex items-center justify-between rounded-2xl bg-background/60 px-3 py-3">
           <span className="text-sm text-muted">Total</span>
-          <span className="collect-display text-2xl tabular-nums">{formatPrice(order.total)}</span>
+          <span className="kit-display text-2xl tabular-nums">{formatPrice(order.total)}</span>
           <span className="relay-stamp absolute -top-4 left-1/3 rounded-lg border-2 border-ember-2 px-2.5 py-0.5 text-sm font-black uppercase tracking-widest text-ember-2">
             {heroRelay.stamp}
           </span>
@@ -63,7 +63,7 @@ function Relay() {
         <div className="relay-ticket mx-2 rounded-b-lg border border-t-0 border-black/10 bg-white px-3.5 pb-4 pt-3 font-mono text-[#1c1712] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
           <p className="text-[9px] uppercase tracking-[0.2em] opacity-60">{heroRelay.ticket.printer}</p>
           <p className="mt-1 text-[11px] font-bold uppercase">{heroRelay.ticket.label}</p>
-          <p className="collect-display mt-0.5 text-3xl">{heroRelay.ticket.customer}</p>
+          <p className="kit-display mt-0.5 text-3xl">{heroRelay.ticket.customer}</p>
           <p className="mt-0.5 text-sm font-bold">{heroRelay.ticket.pickup}</p>
           <div className="mt-2 border-t border-dashed border-[#1c1712]/30 pt-2 text-[11px] leading-relaxed">
             {order.lines.map((line) => (
@@ -85,48 +85,48 @@ function Relay() {
 export function CollectHero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="collect-grid absolute inset-0" aria-hidden />
-      <div className="collect-aura absolute inset-0 opacity-50 lg:opacity-100" aria-hidden />
+      <div className="kit-grid absolute inset-0" aria-hidden />
+      <div className="kit-aura absolute inset-0 opacity-50 lg:opacity-100" aria-hidden />
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-4 pt-8 sm:px-6 sm:pb-12 sm:pt-14 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:px-10 lg:pb-24 lg:pt-14">
         <div className="min-w-0">
-          <p className="collect-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">
+          <p className="kit-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">
             <span aria-hidden className="ember-gradient size-1.5 rounded-full" />
             {hero.eyebrow}
           </p>
-          <h1 className="collect-display mt-6 text-[clamp(2.6rem,11.5vw,5rem)] lg:text-[clamp(3.6rem,6.3vw,6.2rem)]">
+          <h1 className="kit-display mt-6 text-[clamp(2.6rem,11.5vw,5rem)] lg:text-[clamp(3.6rem,6.3vw,6.2rem)]">
             {hero.lines.map((line, i) => (
               <span
                 key={line.text}
-                className="collect-rise block sm:whitespace-nowrap"
+                className="kit-rise block sm:whitespace-nowrap"
                 style={{ "--rise-delay": `${120 + i * 140}ms` } as React.CSSProperties}
               >
-                {line.mark ? <span className="collect-mark">{line.text}</span> : line.text}
+                {line.mark ? <span className="kit-mark">{line.text}</span> : line.text}
                 {line.after}
               </span>
             ))}
           </h1>
           <p
-            className="collect-rise mt-7 max-w-xl text-pretty text-base leading-relaxed text-muted lg:text-lg"
+            className="kit-rise mt-7 max-w-xl text-pretty text-base leading-relaxed text-muted lg:text-lg"
             style={{ "--rise-delay": "560ms" } as React.CSSProperties}
           >
             {hero.subtitle}
           </p>
 
           <dl
-            className="collect-rise mt-7 grid grid-cols-3 gap-4 border-t border-hairline pt-6"
+            className="kit-rise mt-7 grid grid-cols-3 gap-4 border-t border-hairline pt-6"
             style={{ "--rise-delay": "680ms" } as React.CSSProperties}
           >
             {hero.stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="sr-only">{stat.label}</dt>
-                <dd className="collect-display ember-text text-3xl sm:text-4xl">{stat.value}</dd>
+                <dd className="kit-display ember-text text-3xl sm:text-4xl">{stat.value}</dd>
                 <dd className="mt-1.5 text-xs leading-snug text-muted sm:text-sm">{stat.label}</dd>
               </div>
             ))}
           </dl>
 
           <div
-            className="collect-rise mt-7 flex flex-wrap gap-3"
+            className="kit-rise mt-7 flex flex-wrap gap-3"
             style={{ "--rise-delay": "800ms" } as React.CSSProperties}
           >
             <a

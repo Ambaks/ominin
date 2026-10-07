@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import { CollectComparison } from "@/components/collect/landing/comparison";
-import "@/components/collect/landing/collect.css";
+import "@/components/landing-kit/kit.css";
 import { CollectDemoShowcase } from "@/components/collect/landing/demo-showcase";
 import { CollectFaq } from "@/components/collect/landing/faq";
 import { CollectFeatures } from "@/components/collect/landing/features";
 import { CollectFinalCta } from "@/components/collect/landing/final-cta";
-import { collectFont } from "@/components/collect/landing/font";
+import { kitFont } from "@/components/landing-kit/font";
 import { CollectFooter } from "@/components/collect/landing/footer";
 import { CollectHero } from "@/components/collect/landing/hero";
 import { CollectJourney } from "@/components/collect/landing/journey";
-import { CollectMarquee } from "@/components/collect/landing/marquee";
+import { Marquee } from "@/components/landing-kit/marquee";
 import { CollectNav } from "@/components/collect/landing/nav";
 import { CollectPricing } from "@/components/collect/landing/pricing";
 import { CollectUseCases } from "@/components/collect/landing/use-cases";
 import { demoShowcaseOrder } from "@/lib/collect/demo/data";
-import { collectBrand, seo } from "@/lib/collect-landing-data";
+import { collectBrand, marquee, seo } from "@/lib/collect-landing-data";
 import { collectSiteUrl } from "@/lib/site";
 
 // Canonical absolu : la réécriture du proxy rend cette page accessible à la
@@ -47,11 +47,11 @@ export const metadata: Metadata = {
  */
 export default function CollectHome() {
   return (
-    <div className={`collect-landing ${collectFont.variable}`}>
+    <div className={`kit-landing ${kitFont.variable}`}>
       <CollectNav />
       <main className="overflow-x-clip">
         <CollectHero />
-        <CollectMarquee />
+        <Marquee words={marquee} />
         <CollectUseCases />
         <CollectJourney order={demoShowcaseOrder()} />
         <CollectDemoShowcase />

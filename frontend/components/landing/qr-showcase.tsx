@@ -5,8 +5,8 @@ import { QrLive } from "./qr-live";
 
 export function QrShowcase() {
   return (
-    <section className="border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
+    <section className="relative">
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
         <div className="relative overflow-hidden rounded-3xl border border-hairline bg-surface">
           <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
 
@@ -15,7 +15,7 @@ export function QrShowcase() {
               <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em]">
                 {qrShowcase.label}
               </p>
-              <h3 className="font-display text-2xl font-medium tracking-tight sm:text-3xl">
+              <h3 className="kit-display text-2xl font-medium tracking-tight sm:text-3xl">
                 {qrShowcase.title}
               </h3>
               <p className="text-sm leading-relaxed text-muted lg:text-[15px]">
@@ -74,7 +74,7 @@ export function QrShowcase() {
                   <p className="ember-text text-[10px] font-bold uppercase tracking-[0.22em]">
                     {qrShowcase.sticker.brand}
                   </p>
-                  <p className="mt-1 font-display text-sm font-semibold text-foreground">
+                  <p className="mt-1 kit-display text-sm font-semibold text-foreground">
                     {qrShowcase.sticker.restaurant}
                   </p>
                   <div className="mx-auto mt-3 w-fit rounded-xl bg-white p-2">
@@ -84,7 +84,7 @@ export function QrShowcase() {
                       className="size-32 rounded-lg sm:size-36"
                     />
                   </div>
-                  <p className="mt-3 font-display text-xl font-semibold text-foreground">
+                  <p className="mt-3 kit-display text-xl font-semibold text-foreground">
                     {qrShowcase.sticker.table}
                   </p>
                   <p className="mt-1 text-[11px] text-muted">

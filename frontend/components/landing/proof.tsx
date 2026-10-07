@@ -2,9 +2,9 @@ import { proofSection } from "@/lib/landing-data";
 
 export function Proof() {
   return (
-    <section className="border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <h2 className="max-w-3xl font-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
+    <section className="relative">
+      <div className="mx-auto w-full max-w-6xl px-4 py-24 sm:px-6 lg:px-10 lg:py-32">
+        <h2 className="max-w-3xl kit-display text-2xl font-medium tracking-tight sm:text-3xl lg:text-4xl">
           {proofSection.titleStart}{" "}
           <span className="ember-text">{proofSection.titleAccent}</span>
         </h2>
@@ -18,10 +18,10 @@ export function Proof() {
               key={item.stat}
               className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-6 lg:rounded-3xl lg:p-8"
             >
-              <span className="ember-text font-display text-5xl font-medium lg:text-6xl">
+              <span className="ember-text kit-display text-5xl font-medium lg:text-6xl">
                 {item.stat}
               </span>
-              <h3 className="font-display text-base font-medium lg:text-lg">
+              <h3 className="text-base font-semibold leading-snug lg:text-lg">
                 {item.title}
               </h3>
               <p className="text-sm leading-relaxed text-muted">
