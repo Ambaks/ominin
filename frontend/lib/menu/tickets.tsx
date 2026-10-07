@@ -84,9 +84,8 @@ interface TicketsValue {
   /** Commande affichée en grand (feuille du ticket), ou null. */
   shownId: string | null;
   /**
-   * handOff : le ticket prend la place d'une feuille qui se ferme (le panier,
-   * le retour de paiement), avec ce qui vient de s'y passer (paiement qui n'a
-   * pas pu partir…).
+   * handOff : le ticket prend la place de la feuille du panier qui se ferme,
+   * avec ce qui vient de s'y passer (paiement qui n'a pas pu partir…).
    */
   show: (orderId: string, handOff?: { notices: string[] }) => void;
   hide: () => void;
@@ -379,8 +378,8 @@ export function TicketsProvider({
     if (update === null) setDropped((current) => [...current, id]);
     setTickets((current) =>
       update === null
-        ? // Une commande disparue pendant son paiement en ligne (session
-          // expirée, commande supprimée) : le client doit le savoir, elle
+        ? // Une commande disparue pendant son paiement en ligne (tentative
+          // abandonnée, commande supprimée) : le client doit le savoir, elle
           // passe « annulée ». D'un autre jour, elle quitte simplement la liste.
           current.flatMap((ticket) =>
             ticket.id !== id

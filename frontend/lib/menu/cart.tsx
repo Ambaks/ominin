@@ -144,11 +144,6 @@ interface CartContextValue extends CartConfig {
   addLine: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
   setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
-  /**
-   * Oublie le panier gardé sans toucher à l'écran : juste avant de quitter la
-   * page, un rendu qui fermerait une feuille ferait annuler la navigation.
-   */
-  forgetSaved: () => void;
   /** Retire les lignes offertes (le client change de contact, donc de solde). */
   clearRewards: () => void;
   /** Avancement de la visite, pour l'analytique (voir menu/analytics). */
@@ -248,14 +243,6 @@ export function CartProvider({
 
   const clear = useCallback(() => setLines([]), []);
 
-  const forgetSaved = useCallback(() => {
-    try {
-      sessionStorage.removeItem(storageKey);
-    } catch {
-      // Stockage indisponible : rien n'était gardé.
-    }
-  }, [storageKey]);
-
   const clearRewards = useCallback(
     () => setLines((current) => current.filter((l) => !l.reward)),
     []
@@ -302,7 +289,6 @@ export function CartProvider({
       addLine,
       setQuantity,
       clear,
-      forgetSaved,
       clearRewards,
       track,
       ready: restoredKey === storageKey,
@@ -313,7 +299,6 @@ export function CartProvider({
     addLine,
     setQuantity,
     clear,
-    forgetSaved,
     clearRewards,
     track,
     restoredKey,

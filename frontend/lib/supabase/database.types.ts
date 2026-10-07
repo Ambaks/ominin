@@ -2115,6 +2115,7 @@ export type Database = {
           square_payment_id: string | null
           staff_id: string | null
           status: Database["public"]["Enums"]["order_status"]
+          stripe_payment_intent_id: string | null
           stripe_session_id: string | null
           sumup_checkout_id: string | null
           table_id: string | null
@@ -2142,6 +2143,7 @@ export type Database = {
           square_payment_id?: string | null
           staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
           table_id?: string | null
@@ -2169,6 +2171,7 @@ export type Database = {
           square_payment_id?: string | null
           staff_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
           sumup_checkout_id?: string | null
           table_id?: string | null
@@ -4622,7 +4625,7 @@ export type Database = {
       }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
-        Returns: undefined
+        Returns: boolean
       }
       member_etablissements: { Args: never; Returns: string[] }
       menu_rollup: {

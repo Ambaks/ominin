@@ -10,7 +10,6 @@ import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { TicketTracker } from "@/components/menu/order-ticket";
-import { PaymentReturn } from "@/components/menu/payment-return";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { restaurantThemeClass } from "@/lib/menu-data";
@@ -62,7 +61,7 @@ export default async function MenuPage({
   searchParams,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
-  const { embed, table, paiement, commande } = await searchParams;
+  const { embed, table } = await searchParams;
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
@@ -92,10 +91,6 @@ export default async function MenuPage({
   const orderingEnabled = offre === "smart" || offre === "connect";
   // Fast food : un seul QR, au comptoir ; on commande sans table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
-  // Retour de Stripe Checkout : la feuille de confirmation s'affiche par-dessus le menu.
-  const paymentOutcome =
-    paiement === "succes" || paiement === "annule" ? paiement : null;
-  const paymentOrderId = typeof commande === "string" ? commande : null;
 
   const categoryLinks = [
     ...(!showBanner && formules.length > 0
@@ -205,13 +200,6 @@ export default async function MenuPage({
           themeToggle={!restaurantThemeClass(slug)}
         />
         {callServer && <CallServerButton />}
-        {paymentOutcome && paymentOrderId && (
-          <PaymentReturn
-            outcome={paymentOutcome}
-            orderId={paymentOrderId}
-            tableNumber={tableNumber}
-          />
-        )}
       </div>
     </CartProvider>
   );

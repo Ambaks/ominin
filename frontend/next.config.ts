@@ -23,8 +23,10 @@ const supabaseOrigins = (() => {
 /*
  * CSP additive et prudente, calquée sur les origines réellement utilisées :
  *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage.
- *  - Stripe : checkout par redirection (pas de stripe.js embarqué) ; js/checkout
- *    autorisés en frame-src par sécurité future.
+ *  - Stripe : Stripe.js embarqué sur le menu QR (Apple Pay, Google Pay et
+ *    carte dans la page) — script sur js.stripe.com et ses sous-domaines,
+ *    appels sur api.stripe.com, iframes des formulaires et de 3-D Secure
+ *    (js/hooks.stripe.com) couvertes par https: en frame-src.
  *  - Polices : next/font auto-héberge au build → aucun domaine Google requis.
  *  - Images d'illustration : Unsplash et Pexels.
  *  - OpenFreeMap (carte du CRM admin) : style, tuiles vectorielles, glyphes et
@@ -58,7 +60,7 @@ const csp = [
   `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
-  `script-src 'self' 'unsafe-inline' https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com https://google.com/pay${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,

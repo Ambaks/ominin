@@ -1,22 +1,27 @@
 import { NextResponse } from "next/server";
-import { collectSiteUrl, menuSiteUrl } from "@/lib/site";
-import { connectedAccount, getStripe } from "@/lib/stripe/server";
-import { ONLINE_PAYMENT_TTL_S } from "@/lib/menu/online-payment-ttl";
+import type Stripe from "stripe";
+import {
+  connectedAccount,
+  getStripe,
+  settlePaymentIntent,
+} from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Paiement en ligne d'une commande passée depuis le menu QR (appelant
- * anonyme). Le montant n'est JAMAIS fourni par le client : les lignes sont
- * relues en base (elles-mêmes figées par place_order). La session Checkout
- * est créée sur le compte Stripe connecté du restaurant — l'argent va au
- * restaurateur. Une seule session ouverte par commande : la précédente
- * (annulée, onglet fermé) est expirée une fois la neuve enregistrée, pour
- * qu'un onglet oublié ne puisse pas régler deux fois. Le webhook connecté
- * ou /api/stripe/verify marque ensuite la commande payée. Tant que la
- * session vit, la commande attend hors de la caisse : l'heure de la
- * tentative est (re)posée ici, ce qui couvre aussi la relance après un
- * paiement annulé. Expirée sans paiement, la commande est supprimée par le
- * webhook connecté.
+ * Paiement en ligne d'une commande passée depuis le menu QR, à table ou en
+ * click & collect (appelant anonyme) : prépare le Payment Intent que la
+ * feuille de paiement confirme dans la page, par Apple Pay, Google Pay ou
+ * carte. Le montant n'est JAMAIS fourni par le client : les lignes sont
+ * relues en base (elles-mêmes figées par place_order). L'intent vit sur le
+ * compte Stripe connecté du restaurant — l'argent va au restaurateur, la
+ * commission Ominin est prélevée au passage. Un seul intent par commande :
+ * celui d'une tentative refusée est repris (montant et pourboire remis à
+ * jour) ; un intent qui ne peut plus l'être est annulé une fois le neuf
+ * enregistré, pour qu'un onglet oublié ne puisse pas régler deux fois. Le
+ * webhook connecté ou /api/stripe/verify marque ensuite la commande payée.
+ * Tant que l'intent n'aboutit pas, la commande attend hors de la caisse :
+ * l'heure de la tentative est (re)posée ici ; abandonnée, /api/square/expire
+ * l'écarte.
  */
 
 export async function POST(request: Request) {
@@ -31,7 +36,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, order_number, type, status, paid_online, stripe_session_id")
+    .select("id, etablissement_id, table_id, order_number, type, status, paid_online, stripe_payment_intent_id, stripe_session_id")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
@@ -43,17 +48,25 @@ export async function POST(request: Request) {
       { status: 409 }
     );
   }
+  // Ouverte sur une page Stripe Checkout avant le paiement dans la page :
+  // elle s'y règle, un second encaissement la ferait payer deux fois.
+  if (order.stripe_session_id) {
+    return NextResponse.json(
+      { error: "Cette commande se règle sur la page Stripe déjà ouverte." },
+      { status: 409 }
+    );
+  }
 
   const [{ data: etab }, { data: lines }, { data: table }, account] =
     await Promise.all([
       admin
         .from("etablissements")
-        .select("name, slug, online_payment, platform_fee_percent, collect_fee_percent")
+        .select("name, online_payment, platform_fee_percent, collect_fee_percent")
         .eq("id", order.etablissement_id)
         .single(),
       admin
         .from("order_items")
-        .select("name, quantity, unit_price")
+        .select("quantity, unit_price")
         .eq("order_id", orderId),
       order.table_id
         ? admin.from("tables").select("number").eq("id", order.table_id).single()
@@ -69,6 +82,15 @@ export async function POST(request: Request) {
   }
   if (!lines?.length) {
     return NextResponse.json({ error: "Commande vide." }, { status: 409 });
+  }
+  // Publique, mais lue ici plutôt que figée au build : elle est toujours du
+  // même mode (test ou live) que la clé secrète qui crée l'intent.
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  if (!publishableKey) {
+    return NextResponse.json(
+      { error: "STRIPE_PUBLISHABLE_KEY manquante." },
+      { status: 500 }
+    );
   }
 
   // Pourboire choisi par le client — la seule part du montant qui vienne de
@@ -94,94 +116,132 @@ export async function POST(request: Request) {
   const stripe = getStripe();
   const stripeAccount = { stripeAccount: account.id };
 
-  // Click & collect : retour sur sa page de suivi, ou sur la carte (panier
-  // gardé) si le client renonce. Sinon sur le menu de la table, avec la
-  // commande à confirmer.
-  const collectPage = `${collectSiteUrl}/${etab.slug}`;
-  const returnUrl = new URL(`${menuSiteUrl}/m/${etab.slug}`);
-  if (table) returnUrl.searchParams.set("table", String(table.number));
-  returnUrl.searchParams.set("commande", orderId);
-  const withOutcome = (outcome: "succes" | "annule") => {
-    const url = new URL(returnUrl);
-    url.searchParams.set("paiement", outcome);
-    return url.toString();
-  };
+  // Sur le relevé Stripe du restaurant : la table ou la commande, pour la
+  // ressaisie en caisse.
   const description = collect
     ? `À emporter — ${etab.name}`
     : table
-    ? `Table ${table.number} — ${etab.name}`
-    : order.order_number
-      ? `Commande n° ${order.order_number} — ${etab.name}`
-      : `Commande — ${etab.name}`;
+      ? `Table ${table.number} — ${etab.name}`
+      : order.order_number
+        ? `Commande n° ${order.order_number} — ${etab.name}`
+        : `Commande — ${etab.name}`;
+  const amount =
+    lines.reduce(
+      (sum, line) => sum + Math.round(line.unit_price * 100) * line.quantity,
+      0
+    ) + Math.round(tip * 100);
+  const fee = feeCents > 0 ? { application_fee_amount: feeCents } : {};
 
-  const session = await stripe.checkout.sessions.create(
-    {
-      mode: "payment",
-      line_items: [
-        // Une ligne offerte avec des points sans supplément ne coûte rien :
-        // Checkout ne facture pas de ligne à zéro.
-        ...lines.filter((line) => line.unit_price > 0).map((line) => ({
-          quantity: line.quantity,
-          price_data: {
-            currency: "eur",
-            unit_amount: Math.round(line.unit_price * 100),
-            product_data: { name: line.name },
-          },
-        })),
-        ...(tip
-          ? [
-              {
-                quantity: 1,
-                price_data: {
-                  currency: "eur",
-                  unit_amount: Math.round(tip * 100),
-                  product_data: { name: "Pourboire" },
-                },
-              },
-            ]
-          : []),
-      ],
-      metadata: tip
-        ? { order_id: orderId, tip_amount: tip.toFixed(2) }
-        : { order_id: orderId },
-      // Sur le relevé Stripe du restaurant : la table et la commande, pour la
-      // ressaisie en caisse.
-      payment_intent_data: {
+  const previous = order.stripe_payment_intent_id
+    ? await stripe.paymentIntents.retrieve(
+        order.stripe_payment_intent_id,
+        {},
+        stripeAccount
+      )
+    : null;
+
+  // Réglée sans que la confirmation ait été enregistrée (onglet fermé,
+  // webhook en retard) : on clôt, sans débiter une seconde fois.
+  if (previous?.status === "succeeded") {
+    const outcome = await settlePaymentIntent(admin, stripe, previous, account.id);
+    return NextResponse.json({
+      paid: outcome === "paid" || outcome === "already_paid",
+    });
+  }
+
+  // Un débit en cours de traitement aboutira ou échouera de lui-même : en
+  // lancer un second risquerait de faire payer deux fois.
+  if (previous?.status === "processing") {
+    return NextResponse.json(
+      { error: "Paiement en cours de traitement." },
+      { status: 409 }
+    );
+  }
+
+  let intent: Stripe.PaymentIntent;
+  if (previous?.status === "requires_payment_method") {
+    // Carte refusée, ou jamais saisie : le même intent resert. Le pourboire
+    // peut avoir changé — « » l'efface.
+    intent = await stripe.paymentIntents.update(
+      previous.id,
+      {
+        amount,
         description,
-        metadata: { order_id: orderId },
-        ...(feeCents > 0 && { application_fee_amount: feeCents }),
+        metadata: { tip_amount: tip ? tip.toFixed(2) : "" },
+        ...fee,
       },
-      expires_at: Math.floor(Date.now() / 1000) + ONLINE_PAYMENT_TTL_S,
-      locale: "fr",
-      success_url: collect
-        ? `${collectPage}/confirmation?commande=${orderId}`
-        : withOutcome("succes"),
-      cancel_url: collect ? collectPage : withOutcome("annule"),
-    },
-    stripeAccount
-  );
+      stripeAccount
+    );
+  } else {
+    intent = await stripe.paymentIntents.create(
+      {
+        amount,
+        currency: "eur",
+        // Carte seule : Apple Pay et Google Pay en sont des portefeuilles et
+        // restent proposés ; Link, qui demande l'e-mail du client, non.
+        payment_method_types: ["card"],
+        description,
+        metadata: tip
+          ? { order_id: orderId, tip_amount: tip.toFixed(2) }
+          : { order_id: orderId },
+        ...fee,
+      },
+      stripeAccount
+    );
+  }
 
-  const { error } = await admin
+  // Inscrit seulement sur une commande qui attend encore : réglée
+  // entre-temps (un autre onglet, l'ancien intent), elle garde l'intent qui
+  // l'a réglée, et le neuf ne sert plus.
+  const { data: stored, error } = await admin
     .from("orders")
     .update({
-      stripe_session_id: session.id,
+      stripe_payment_intent_id: intent.id,
       online_payment_started_at: new Date().toISOString(),
       ...(feeCents > 0 && { platform_fee_cents: feeCents }),
     })
-    .eq("id", orderId);
+    .eq("id", orderId)
+    .eq("status", "en_attente")
+    .eq("paid_online", false)
+    .select("id");
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  // L'ancienne session n'expire qu'une fois la nouvelle enregistrée : son
-  // webhook « expirée » supprime la commande qui porte encore son id, et
-  // tombait sinon sur celle que le client est en train de régler. Déjà
-  // réglée ou expirée : Stripe refuse, sans conséquence.
-  if (order.stripe_session_id) {
-    await stripe.checkout.sessions
-      .expire(order.stripe_session_id, {}, stripeAccount)
-      .catch(() => {});
+  const cancel = (id: string) =>
+    stripe.paymentIntents.cancel(id, {}, stripeAccount);
+  if (!stored.length) {
+    await cancel(intent.id).catch(() => {});
+    return NextResponse.json(
+      { error: "Cette commande n'est plus à régler." },
+      { status: 409 }
+    );
   }
 
-  return NextResponse.json({ url: session.url });
+  // L'ancien intent (3-D Secure abandonné dans un autre onglet…) n'est
+  // annulé qu'une fois le neuf enregistré. S'il a abouti entre-temps, c'est
+  // lui qui règle la commande, et le neuf est annulé à sa place.
+  if (previous && previous.id !== intent.id) {
+    try {
+      await cancel(previous.id);
+    } catch {
+      const latest = await stripe.paymentIntents.retrieve(
+        previous.id,
+        {},
+        stripeAccount
+      );
+      if (latest.status === "succeeded") {
+        await cancel(intent.id).catch(() => {});
+        const outcome = await settlePaymentIntent(admin, stripe, latest, account.id);
+        return NextResponse.json({
+          paid: outcome === "paid" || outcome === "already_paid",
+        });
+      }
+    }
+  }
+
+  return NextResponse.json({
+    clientSecret: intent.client_secret,
+    accountId: account.id,
+    publishableKey,
+  });
 }

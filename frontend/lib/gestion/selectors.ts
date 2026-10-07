@@ -63,9 +63,10 @@ export function isPaid(order: Order): boolean {
 
 /**
  * Le client règle en ligne : la commande attend son paiement hors de la
- * caisse, et n'y revient que sur son geste (« Payer au comptoir »). Sans
- * paiement ni geste, la session Stripe expire et le webhook supprime la
- * commande — elle ne reparaît jamais, ni en caisse ni dans l'historique.
+ * caisse, et n'y revient que sur son geste (« Payer au comptoir », ou la
+ * feuille de paiement refermée). Sans paiement ni geste (onglet fermé), la
+ * tentative est écartée passé son délai (/api/square/expire) — elle ne
+ * reparaît jamais, ni en caisse ni dans l'historique.
  */
 export function awaitsOnlinePayment(order: Order): boolean {
   return (

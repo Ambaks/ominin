@@ -80,7 +80,7 @@ const STAGES: Partial<Record<OrderStatus, Stage>> = {
  */
 const PAYING: Stage = {
   title: "Paiement en cours",
-  body: "Le paiement en ligne n’est pas terminé. Reprenez-le, ou touchez «\u00a0Payer au\u00a0comptoir à la place\u00a0»\u00a0: votre commande y apparaîtra.",
+  body: "Le paiement en ligne n’est pas terminé. Touchez «\u00a0Payer au\u00a0comptoir\u00a0»\u00a0: votre commande y apparaîtra.",
   step: 1,
   waiting: true,
   chip: "Paiement…",
@@ -154,9 +154,9 @@ function OrderTicket({
   titleId: string;
   onClose: () => void;
 }) {
-  const { restaurantName, paymentProvider, estimatorLive } = useCart();
+  const { restaurantName, estimatorLive } = useCart();
   const tickets = useTickets();
-  const [busy, setBusy] = useState<"reprise" | "comptoir" | null>(null);
+  const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -195,15 +195,6 @@ function OrderTicket({
       foot.removeEventListener("scroll", onScroll);
     };
   }, [tracked]);
-  // Seul Stripe se reprend d'ici (une nouvelle session de paiement) ; le
-  // formulaire carte de SumUp ou de Square vivait dans la feuille du panier,
-  // refermée : il ne reste que le comptoir — qui ne voit la commande qu'une
-  // fois le bouton touché.
-  const resumable = paymentProvider === "stripe";
-  const body =
-    stage === PAYING && !resumable
-      ? "Le paiement en ligne n’est pas terminé. Touchez «\u00a0Payer au\u00a0comptoir\u00a0»\u00a0: votre commande y apparaîtra."
-      : stage?.body;
   const estimate = ticket.status === "payee" ? ticket.estimate : null;
   // Payée entre-temps (un débit qui aboutit après la fermeture de la feuille) :
   // un avis de paiement manqué mentirait.
@@ -220,16 +211,6 @@ function OrderTicket({
     footRef.current?.scrollTo({ top: 0 });
   }, [ready]);
 
-  // Retour arrière depuis Stripe, page restituée telle quelle : le bouton
-  // restait figé sur « Un instant… ».
-  useEffect(() => {
-    const onShow = (event: PageTransitionEvent) => {
-      if (event.persisted) setBusy(null);
-    };
-    window.addEventListener("pageshow", onShow);
-    return () => window.removeEventListener("pageshow", onShow);
-  }, []);
-
   // Le bouton qui vient de servir disparaît : le focus reste dans le ticket.
   const keepFocus = () =>
     requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
@@ -237,37 +218,16 @@ function OrderTicket({
   // Le client renonce au paiement en ligne : l'addition passe au comptoir,
   // où la salle la voit tout de suite.
   const payAtCounter = async () => {
-    setBusy("comptoir");
+    setBusy(true);
     setProblem(null);
     const ok = await fallBackToCounter(ticket.id);
-    setBusy(null);
+    setBusy(false);
     if (!ok) {
       setProblem("Le changement n’est pas passé. Vérifiez votre connexion et réessayez.");
       return;
     }
     tickets?.patch(ticket.id, { paying: false });
     keepFocus();
-  };
-
-  const resumePayment = async () => {
-    setBusy("reprise");
-    setProblem(null);
-    try {
-      const response = await fetch("/api/stripe/pay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: ticket.id }),
-      });
-      const body = (await response.json()) as { url?: string };
-      if (response.ok && body.url) {
-        window.location.assign(body.url);
-        return;
-      }
-    } catch {
-      // Traité comme un refus, juste en dessous.
-    }
-    setBusy(null);
-    setProblem("Le paiement en ligne n’a pas pu reprendre. Réglez au\u00a0comptoir, ou réessayez.");
   };
 
   return (
@@ -419,9 +379,9 @@ function OrderTicket({
             {/* Une phrase par ligne quand le texte le demande (\n), chacune
                 équilibrée : avec pre-line, Chrome n'équilibrait plus et
                 laissait « règlement. » seul sur sa ligne. */}
-            {body && (
+            {stage?.body && (
               <p className="mx-auto mt-1.5 max-w-xs text-balance text-sm leading-relaxed text-muted">
-                {body.split("\n").map((line) => (
+                {stage.body.split("\n").map((line) => (
                   <span key={line} className="block">
                     {line}
                   </span>
@@ -464,37 +424,20 @@ function OrderTicket({
       </div>
 
       {/* Collé au bas de la feuille : sur un petit écran, la sortie reste en
-          vue — avec, tant que le paiement en ligne n'a pas abouti, de quoi le
-          reprendre ou passer au comptoir, et, dans l'aperçu commercial,
-          l'étape suivante. */}
+          vue — avec, tant que le paiement en ligne n'a pas abouti, de quoi
+          passer au comptoir (le formulaire de paiement vivait dans la feuille
+          du panier, refermée), et, dans l'aperçu commercial, l'étape
+          suivante. */}
       <div className="order-ticket-exit sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 bg-surface px-5 pb-5 pt-3">
         {stage === PAYING && (
           <div className="order-ticket-paying flex flex-col gap-2">
-            {resumable && (
-              <button
-                type="button"
-                onClick={() => void resumePayment()}
-                disabled={busy !== null}
-                className="ember-gradient min-h-11 rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
-              >
-                {busy === "reprise" ? "Un instant…" : "Reprendre le paiement"}
-              </button>
-            )}
             <button
               type="button"
               onClick={() => void payAtCounter()}
-              disabled={busy !== null}
-              className={`min-h-11 rounded-full px-6 py-3 text-sm font-semibold disabled:opacity-60 ${
-                resumable
-                  ? "border border-ember-2/50 text-foreground"
-                  : "ember-gradient text-background"
-              }`}
+              disabled={busy}
+              className="ember-gradient min-h-11 rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
             >
-              {busy === "comptoir"
-                ? "Un instant…"
-                : resumable
-                  ? "Payer au\u00a0comptoir à la place"
-                  : "Payer au\u00a0comptoir"}
+              {busy ? "Un instant…" : "Payer au\u00a0comptoir"}
             </button>
             {problem && (
               <p role="alert" className="text-center text-xs text-ember-3">
