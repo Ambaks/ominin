@@ -1,7 +1,7 @@
 import { isIP } from "node:net";
 import type { Json } from "@/lib/supabase/database.types";
 import type { createAdminClient } from "@/lib/supabase/admin";
-import { findVersion, signedVersionsInForce } from "./documents";
+import { findVersion, signedVersionsInForce, versionInForce } from "./documents";
 import { documentHash, shortHash } from "./hash";
 import {
   LegalVersionError,
@@ -227,19 +227,20 @@ export async function acceptanceState(
     return null;
   }
 
-  const wanted = signedVersionsInForce();
-  const signed = new Set(
-    (data ?? []).map((row) => {
-      // La jointure !inner rend un objet, typé en tableau par le client.
-      const version = row.legal_versions as unknown as {
-        doc: string;
-        version: string;
-      };
-      return `${version.doc}@${version.version}`;
-    })
+  // La jointure !inner rend un objet, typé en tableau par le client.
+  const rows = (data ?? []).map(
+    (row) => row.legal_versions as unknown as { doc: string; version: string }
   );
+  const signed = new Set(rows.map((row) => `${row.doc}@${row.version}`));
+  const signedDocs = new Set(rows.map((row) => row.doc));
   return {
-    accepted: SIGNED_DOCS.every((doc) => signed.has(`${doc}@${wanted[doc]}`)),
+    accepted: SIGNED_DOCS.every((doc) => {
+      const current = versionInForce(doc);
+      return (
+        signed.has(`${doc}@${current.version}`) ||
+        (current.reacceptance === false && signedDocs.has(doc))
+      );
+    }),
     everSigned: signed.size > 0,
   };
 }

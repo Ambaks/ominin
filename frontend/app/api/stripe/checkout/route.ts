@@ -36,9 +36,9 @@ type Product = Database["public"]["Enums"]["product"];
  * La première activation d'une offre porte aussi la commande de démarrage
  * (lib/stripe/starter.ts) : un Cachet imprimé par table — recompté en base,
  * jamais lu du client —, la livraison, et le boîtier Omilink si { omilink }.
- * Une offre à mois offerts n'a pas d'abonnement tant qu'ils courent : sa
- * session est un paiement unique (mode 'payment'), que le webhook tient pour
- * activation. { square } voyage en métadonnée : le webhook présélectionne
+ * Une offre sans abonnement (prix à 0) n'en a jamais, une offre à mois
+ * offerts n'en a pas tant qu'ils courent : leur session est un paiement
+ * unique (mode 'payment'), que le webhook tient pour activation. { square } voyage en métadonnée : le webhook présélectionne
  * l'encaisseur. Les mois offerts échus sans exonération (fee_exempt = false)
  * ramènent l'offre au cas général : un abonnement mensuel.
  */
@@ -270,16 +270,19 @@ export async function POST(request: Request) {
   };
 
   /*
-   * Mois offerts : l'offre s'ouvre sur sa seule commande de démarrage, sans
-   * abonnement Stripe, et ils courent jusqu'à leur verdict (lib/offre/trial).
-   * Rendu et défavorable (fee_exempt = false), l'offre se facture comme les
-   * autres, au tarif de son palier.
+   * Offre sans mensualité : sans abonnement (prix à 0), ou en mois offerts —
+   * qui courent jusqu'à leur verdict (lib/offre/trial). Elle s'ouvre sur sa
+   * seule commande de démarrage, sans abonnement Stripe. Mois offerts rendus
+   * défavorables (fee_exempt = false) : l'offre se facture comme les autres,
+   * au tarif de son palier.
    */
   const offreState = subscriptions?.find((row) => row.product === "offre");
-  const freeMonths =
+  const signedPlan = choice === "offre" ? quotePlan(etablissement.offre!) : undefined;
+  const unbilled =
     choice === "offre" &&
-    planTrial(etablissement.offre) !== undefined &&
-    offreState?.fee_exempt !== false;
+    (signedPlan?.price === 0 ||
+      (planTrial(etablissement.offre) !== undefined &&
+        offreState?.fee_exempt !== false));
   // La commande de démarrage n'est due qu'une fois : un réabonnement après
   // résiliation ne rachète ni Cachets ni livraison. Une ancienne offre, plus
   // publiée, garde son parcours d'origine — son devis n'existe pas.
@@ -318,13 +321,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ activated: true });
   }
 
-  // Offre en mois offerts déjà ouverte (exonération acquise, ou réouverture
-  // après résiliation) : rien à facturer, l'accès est rendu tel quel.
-  if (freeMonths && !firstActivation) {
+  // Offre sans mensualité déjà ouverte (sans abonnement, exonération acquise,
+  // ou réouverture après résiliation) : rien à facturer, l'accès est rendu tel quel.
+  if (unbilled && !firstActivation) {
     await sign({
       product: choice,
       monthly: 0,
-      commission: quotePlan(etablissement.offre!)?.commission,
+      commission: signedPlan?.commission,
     });
     const { error } = await admin
       .from("subscriptions")
@@ -338,7 +341,7 @@ export async function POST(request: Request) {
   }
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-  if (!freeMonths) {
+  if (!unbilled) {
     const lookupKey = choice === "offre" ? etablissement.offre! : choice;
     const price = await priceByLookupKey(lookupKey);
     if (!price) {
@@ -350,7 +353,7 @@ export async function POST(request: Request) {
     lineItems.push({ price: price.id, quantity: 1 });
   }
 
-  const omilink = freeMonths && body.omilink === true;
+  const omilink = unbilled && body.omilink === true;
   let tables = 0;
   if (firstActivation) {
     const { count } = await supabase
@@ -381,7 +384,7 @@ export async function POST(request: Request) {
       starter: STARTER_FLAG,
       tables: String(tables),
       omilink: omilink ? "1" : "0",
-      square: freeMonths && body.square === true ? "1" : "0",
+      square: unbilled && body.square === true ? "1" : "0",
     }),
   };
   const returnPath = "/gestion";
@@ -398,10 +401,9 @@ export async function POST(request: Request) {
    * ici et non repris du client — le nombre de tables a été recompté en base,
    * c'est celui-là qui est facturé, donc celui-là qui est signé.
    */
-  const signedPlan = choice === "offre" ? quotePlan(etablissement.offre!) : undefined;
-  const monthly = freeMonths ? 0 : (signedPlan?.price ?? 0);
+  const monthly = unbilled ? 0 : (signedPlan?.price ?? 0);
   const signedLines: { label: string; amount: number }[] = [];
-  if (!freeMonths) {
+  if (!unbilled) {
     signedLines.push({
       label: `Ominin ${signedPlan?.name}`,
       amount: monthly,
@@ -437,7 +439,7 @@ export async function POST(request: Request) {
     customer_email: customerId ? undefined : user.email,
     client_reference_id: etablissement.id,
     metadata,
-    ...(freeMonths
+    ...(unbilled
       ? {
           mode: "payment" as const,
           // Le client Stripe sert aux achats suivants (click & collect…).

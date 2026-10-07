@@ -44,6 +44,12 @@ export interface LegalDocument {
   lead: string;
   /** Ce qui change depuis la version précédente, montré à la réacceptation. */
   summary: string;
+  /**
+   * false : révision applicable sans préavis ni réacceptation, sur décision de
+   * l'éditeur — la signature d'une version antérieure du document vaut pour
+   * celle-ci. Hors empreinte : c'est une règle d'application, pas du texte.
+   */
+  reacceptance?: false;
   articles: LegalArticle[];
 }
 

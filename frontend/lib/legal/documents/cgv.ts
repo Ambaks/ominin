@@ -28,15 +28,25 @@ import {
 import { euros, parisEffectiveDate } from "../format";
 import type { LegalArticle, LegalDocument } from "../types";
 
-const plans: Plan[] = pricingSection.plans;
+/** Offres menu & salle en cours, telles que la landing les publie. */
+const plansCurrent: Plan[] = pricingSection.plans;
+
 /*
- * Offre à mois offerts, s'il y en a une. Cherchée par sa caractéristique et
- * non par son identifiant : le jour où les mois offerts s'arrêtent, ou où
- * l'offre change de nom, l'article disparaît du contrat — il n'a plus d'objet
- * — au lieu de faire échouer l'import et, avec lui, les pages publiques et
- * les deux routes de paiement.
+ * Offres menu & salle des versions du 2026-09-22 et du 2026-10-07, recopiées
+ * telles qu'elles ont été publiées : Connect à 100 € par mois après trois mois
+ * offerts, exonéré au-delà de 100 000 € de chiffre d'affaires, et 1 % de
+ * commission.
  */
-const trialPlan = plans.find((plan) => plan.trial);
+const plans20260922: Plan[] = plansCurrent.map((plan) =>
+  plan.id === "connect"
+    ? {
+        ...plan,
+        price: 100,
+        commission: { percent: 1, basis: "des commandes payées en ligne par carte" },
+        trial: { months: 3, exemptionRevenue: 100_000 },
+      }
+    : plan
+);
 
 /** `PlanCommission.percent` compte des points ; le comparateur stocke un ratio. */
 const points = (value: number) => `${value.toLocaleString("fr-FR")} %`;
@@ -87,7 +97,7 @@ const shopTariffLines = [
   "La mise en place n'est pas une Commande de démarrage au sens de l'article 10 : elle rémunère la construction de la Boutique et ne comprend aucune fourniture.",
 ];
 
-const commissionLines = (collect: CollectTariff) => [
+const commissionLines = (collect: CollectTariff, plans: Plan[]) => [
   ...plans.flatMap((plan) =>
     plan.commission
       ? [`${plan.name} — ${points(plan.commission.percent)} ${plan.commission.basis}.`]
@@ -96,7 +106,30 @@ const commissionLines = (collect: CollectTariff) => [
   `${collectOffer.name} — ${collect.commission} des commandes à emporter payées en ligne.`,
 ];
 
-const buildArticles = (collect: CollectTariff): LegalArticle[] => [
+/*
+ * Offre à mois offerts, s'il y en a une, cherchée par sa caractéristique et
+ * non par son identifiant : le jour où les mois offerts s'arrêtent, ou où
+ * l'offre change de nom, l'article disparaît du contrat — il n'a plus d'objet
+ * — au lieu de faire échouer l'import et, avec lui, les pages publiques et
+ * les deux routes de paiement.
+ */
+const trialArticles = (plans: Plan[]): LegalArticle[] => {
+  const trialPlan = plans.find((plan) => plan.trial);
+  if (!trialPlan?.trial) return [];
+  return [
+    {
+      heading: "Article 13 — Mois offerts",
+      body: [
+        `L'offre ${trialPlan.name} s'ouvre sur ${trialPlan.trial.months} mois offerts : l'abonnement n'est pas dû pendant cette période. Seules la commission de l'article 12 et la Commande de démarrage le sont.`,
+        `À leur terme, le chiffre d'affaires encaissé par l'intermédiaire des Services sur ces ${trialPlan.trial.months} mois tranche une fois pour toutes. S'il atteint ${euros(trialPlan.trial.exemptionRevenue)}, l'abonnement reste à ${euros(0)} définitivement, la commission rémunérant seule le service. À défaut, le prix mensuel de l'offre, tel que fixé à l'Annexe 1, commence à courir.`,
+        "Le calcul est arrêté une seule fois, à l'échéance des mois offerts, et n'est pas révisé ensuite, dans un sens comme dans l'autre. Le relevé retenu est consultable dans l'espace de gestion.",
+        "Le bénéfice des mois offerts est acquis : une résiliation pendant ou après cette période ne donne lieu à aucun rattrapage.",
+      ],
+    },
+  ];
+};
+
+const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] => [
   {
     heading: "Article 1 — Objet et champ d'application",
     body: [
@@ -220,25 +253,13 @@ const buildArticles = (collect: CollectTariff): LegalArticle[] => [
     heading: "Article 12 — Commission",
     body: [
       "Certaines offres comportent une commission, qui s'ajoute à l'abonnement :",
-      commissionLines(collect),
+      commissionLines(collect, plans),
       "La commission ne porte que sur les paiements encaissés en ligne par l'intermédiaire des Services. Les règlements en espèces, par carte au comptoir, sur un terminal de paiement du Client ou par tout autre moyen extérieur aux Services n'en supportent aucune.",
       "Elle est calculée sur le montant payé par le Convive, pourboires exclus, et prélevée ou facturée mensuellement selon le mode d'encaissement retenu. Les commandes annulées et les sommes remboursées au Convive donnent lieu à restitution de la commission correspondante.",
       "Elle est distincte des frais du prestataire de paiement, qui s'y ajoutent et sont dus par le Client à ce prestataire.",
     ],
   },
-  ...(trialPlan?.trial
-    ? [
-        {
-          heading: "Article 13 — Mois offerts",
-          body: [
-            `L'offre ${trialPlan.name} s'ouvre sur ${trialPlan.trial.months} mois offerts : l'abonnement n'est pas dû pendant cette période. Seules la commission de l'article 12 et la Commande de démarrage le sont.`,
-            `À leur terme, le chiffre d'affaires encaissé par l'intermédiaire des Services sur ces ${trialPlan.trial.months} mois tranche une fois pour toutes. S'il atteint ${euros(trialPlan.trial.exemptionRevenue)}, l'abonnement reste à ${euros(0)} définitivement, la commission rémunérant seule le service. À défaut, le prix mensuel de l'offre, tel que fixé à l'Annexe 1, commence à courir.`,
-            "Le calcul est arrêté une seule fois, à l'échéance des mois offerts, et n'est pas révisé ensuite, dans un sens comme dans l'autre. Le relevé retenu est consultable dans l'espace de gestion.",
-            "Le bénéfice des mois offerts est acquis : une résiliation pendant ou après cette période ne donne lieu à aucun rattrapage.",
-          ],
-        },
-      ]
-    : []),
+  ...trialArticles(plans),
   {
     heading: "Article 14 — Données et amélioration des Services",
     body: [
@@ -404,7 +425,7 @@ export const cgv: LegalDocument = {
   title: "Conditions générales de vente et d'abonnement",
   lead: "Contrat d'abonnement entre Ominin et les professionnels de la restauration qui souscrivent ses services. Les prix figurent à l'Annexe tarifaire, qui fait partie du contrat.",
   summary: "Première version.",
-  articles: buildArticles(collect20260922),
+  articles: buildArticles(collect20260922, plans20260922),
 };
 
 export const cgv20261007: LegalDocument = {
@@ -413,5 +434,20 @@ export const cgv20261007: LegalDocument = {
   effectiveFrom: parisEffectiveDate("2026-10-07"),
   summary:
     "Click & collect sans abonnement, à 5 % des commandes à emporter payées en ligne ; formule Connect + Click & collect sans abonnement, à 3 % des commandes à table et 5 % des commandes à emporter payées en ligne.",
-  articles: buildArticles(collectCurrent),
+  articles: buildArticles(collectCurrent, plans20260922),
+};
+
+/*
+ * Connect sans abonnement, applicable dès sa publication et sans
+ * réacceptation, sur décision de l'éditeur : une signature d'une version
+ * antérieure vaut pour celle-ci.
+ */
+export const cgv20261007b: LegalDocument = {
+  ...cgv,
+  version: "2026-10-07.2",
+  effectiveFrom: "2026-10-07T13:00:00.000Z",
+  reacceptance: false,
+  summary:
+    "Connect sans abonnement, à 3 % des commandes payées en ligne par carte : les mois offerts et l'abonnement mensuel de Connect disparaissent.",
+  articles: buildArticles(collectCurrent, plansCurrent),
 };
