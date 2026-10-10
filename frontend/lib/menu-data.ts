@@ -1856,7 +1856,8 @@ const oCroustiPoulet: Restaurant = {
  * suppléments et boissons déduits, questions au siège :
  * demos/chicken-street/profile.json. La carte est celle du site : la Ritchie
  * Box, le Naan Burger Fury et les bowls, absents du site, n'y sont pas (ni
- * visuel ni prix officiel).
+ * visuel ni prix officiel). Le Naan Radikal, « suspendu momentanément » d'après
+ * le relevé du tableau des allergènes, n'y figure pas.
  */
 
 /* Les sauces du tableau des allergènes, hors BBQ (« suspendue momentanément »). */
@@ -1945,8 +1946,6 @@ const chickenStreet: Restaurant = {
         csItem("naan-supreme", "Naan Supreme", 8.5),
         csItem("naan-thai", "Naan Thaï", 7.5),
         csItem("naan-steak", "Naan Steak", 7.5),
-        // « Suspendu momentanément » au tableau des allergènes du 27/08/2026.
-        csItem("naan-radikal", "Naan Radikal", 8.5, { disponible: false }),
         csItem("naan-tikka", "Naan Tikka", 8.5),
         csItem("naan-imperial", "Naan Imperial", 8.5),
       ],

@@ -1014,9 +1014,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1791595782.0280132,
-    "seen": 1791596144.320711,
-    "ast_hash": "3a31ec971fb8a91784a6ba28d2c85998",
+    "mtime": 1791598256.6153722,
+    "seen": 1791598405.8390698,
+    "ast_hash": "f8a6d9677a4659adbb170b1ee2d1ef45",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -5256,9 +5256,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/comptoir/fixtures.ts": {
-    "mtime": 1791595782.0284266,
-    "seen": 1791596144.3204522,
-    "ast_hash": "f58062761a67e869e1a7bcf2716b2556",
+    "mtime": 1791598256.6164374,
+    "seen": 1791598405.838785,
+    "ast_hash": "f99a3fd8e1af4131835ca60100a1aa57",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/comptoir/page.tsx": {
@@ -5304,9 +5304,9 @@
     "semantic_hash": ""
   },
   "frontend/components/demo/reseau/dashboard.tsx": {
-    "mtime": 1791595877.3399446,
-    "seen": 1791596144.320557,
-    "ast_hash": "3cde6779a27a107a124b402005398b10",
+    "mtime": 1791598256.6169043,
+    "seen": 1791598405.838898,
+    "ast_hash": "bb6981295569b5d5e2a5888b495fcfeb",
     "semantic_hash": ""
   },
   "frontend/components/demo/reseau/figure.tsx": {
@@ -5406,9 +5406,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/data.ts": {
-    "mtime": 1791595854.9322202,
-    "seen": 1791596144.320692,
-    "ast_hash": "c7454fb9069727170861555a6d408d49",
+    "mtime": 1791598256.6173055,
+    "seen": 1791598405.839048,
+    "ast_hash": "17a779e8ae8e9f0044912cd38b224647",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/format.ts": {
@@ -6024,9 +6024,9 @@
     "semantic_hash": ""
   },
   "demos/chicken-street/profile.json": {
-    "mtime": 1791595904.1482997,
-    "seen": 1791596144.320342,
-    "ast_hash": "9ee195d36dff5e58b0ff755525c61684",
+    "mtime": 1791598340.8703163,
+    "seen": 1791598405.838665,
+    "ast_hash": "67adef11784c5c2f3c2442453b736c45",
     "semantic_hash": ""
   },
   "frontend/app/chicken-street/layout.tsx": {
@@ -6090,9 +6090,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/chicken-street.ts": {
-    "mtime": 1791595838.7621255,
-    "seen": 1791596144.320718,
-    "ast_hash": "1e0aea7ba5744b0caf7bd61f9007d3ad",
+    "mtime": 1791598256.6211932,
+    "seen": 1791598405.839078,
+    "ast_hash": "3827d75d7ce6c44e77dbd03cdb885192",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/kit.ts": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/chicken-street-ominin.pdf": {
-    "mtime": 1791596116.8247194,
-    "seen": 1791596144.32085,
-    "ast_hash": "f0ba11fadc709945ac4b35f54e271040",
+    "mtime": 1791598396.500559,
+    "seen": 1791598405.839224,
+    "ast_hash": "d6c511f674ac34d7a04e2daf7bb532b8",
     "semantic_hash": ""
   },
   "demos/chicken-street/docs/borne-16-9.jpg": {
@@ -6305,12 +6305,6 @@
     "ast_hash": "9e767cbe320bc40e9b3cc3bd42f3ee3a",
     "semantic_hash": ""
   },
-  "frontend/public/chicken-street/naan-radikal.webp": {
-    "mtime": 1791324854.0,
-    "seen": 1791596144.3208928,
-    "ast_hash": "36bf76ea62607f71da76fcb25da9b715",
-    "semantic_hash": ""
-  },
   "frontend/public/chicken-street/naan-steak.webp": {
     "mtime": 1791324852.0,
     "seen": 1791596144.320894,
@@ -6402,8 +6396,8 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/comptoir-service.webp": {
-    "mtime": 1791596056.8440187,
-    "seen": 1791596144.320927,
+    "mtime": 1791598351.4164553,
+    "seen": 1791598405.839317,
     "ast_hash": "e01d54473a96ee76b1d87a2ca272afc1",
     "semantic_hash": ""
   },
@@ -6444,9 +6438,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/reseau-siege.webp": {
-    "mtime": 1791596056.6777742,
-    "seen": 1791596144.320931,
-    "ast_hash": "576459366fad72132dbdbb9f311bc7b2",
+    "mtime": 1791598351.2539256,
+    "seen": 1791598405.8393211,
+    "ast_hash": "41fa7290baf673208ab72bcedba149a4",
     "semantic_hash": ""
   },
   "frontend/public/pitch/ominin/film-poster-vertical.webp": {

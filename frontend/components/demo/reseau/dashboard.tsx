@@ -416,7 +416,7 @@ export function NetworkDashboard({
   const elsewhere = kiosks ? "les ventes aux bornes ni au comptoir" : "celles réglées en caisse";
   const [pickupMin, pickupMax] = simulation.pickupMinutes;
   const assumptions = [
-    "Restaurants, adresses et horaires : les vôtres ; carte et prix : votre carte nationale.",
+    "Restaurants et adresses : les vôtres ; carte et prix : votre carte nationale.",
     `Volumes calés sur votre CA moyen annoncé (${fixture.announcedRevenue}), selon le jour de la semaine et les pointes du midi et du soir.`,
     kiosks
       ? "Ce qu’Ominin mesurerait en service : les commandes passées par QR, leur montant, l’heure annoncée au client, l’heure où la commande est prête et celle de sa remise."

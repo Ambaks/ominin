@@ -87,6 +87,12 @@ const order = { number: 42, readyAt: "12:52", handedOver: 40 };
 const readyAtSpoken = order.readyAt.replace(":", "\u00a0h\u00a0");
 const restaurantsInDemo = network.restaurants.length;
 
+/** Le jour simulé de la vue réseau, tel qu'on le lit : « 3 octobre ». */
+const simulatedDay = new Date(`${network.simulation.referenceDay}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }).replace(" ", "\u00a0");
+
+/** Le réseau tel que l'enseigne l'annonce en octobre 2026 (publications) et que son localisateur le liste en France. */
+const footprint = { restaurants: 118, inFrance: 108, openings: 37 };
+
 // ——— Démos en ligne ——————————————————————————————————————————————
 
 const demoBase = `${menuSiteUrl}/demo/chicken-street`;
@@ -110,7 +116,7 @@ const demos = [
     id: "reseau",
     label: "Côté siège",
     title: "Toutes les commandes QR du réseau, en direct",
-    description: "Commandes, délais et heures tenues, restaurant par restaurant.",
+    description: "Commandes en direct, délais annoncés par restaurant, part des heures tenues sur le réseau.",
     href: `${demoBase}/reseau?heure=12:55`,
   },
 ] as const;
@@ -146,7 +152,7 @@ const sources = {
   },
   network: {
     short: "Instagram @chickenstreetofficiel, octobre 2026",
-    full: "Publications Chicken Street d’octobre 2026 («\u00a0+118 restaurants\u00a0», «\u00a037 ouvertures à venir\u00a0») et localisateur restaurants.chickenstreet.fr (108 restaurants en France, dont Corbeil-Essonnes, inauguré le 10 octobre), relevés le 06/10/2026",
+    full: "Publications Chicken Street d’octobre 2026 («\u00a0+118 restaurants\u00a0», «\u00a037 ouvertures à venir\u00a0») et localisateur restaurants.chickenstreet.fr (108 restaurants en France, dont Corbeil-Essonnes, ouvert le 10 octobre, soit 107 ouverts au 3 octobre), relevés le 06/10/2026",
     url: "https://restaurants.chickenstreet.fr/",
   },
   reviews: {
@@ -215,7 +221,7 @@ const promise: Section<"promise"> = {
     label: `point d’écart sur Google entre Gare de l’Est (${decimal(ratings.best)}) et Ivry (${decimal(ratings.worst)})\u00a0: même carte, même enseigne, une expérience qui varie.`,
     detail: `Quelques avis à une ou deux étoiles citent 20 à 50\u00a0minutes d’attente (sur ${reviewSample.read} lus).`,
   },
-  closing: "À 118 restaurants, dont 108 en France, et 37 ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.",
+  closing: `À ${footprint.restaurants} restaurants, dont ${footprint.inFrance} en France, et ${footprint.openings} ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.`,
   sources: ["site", "reviews", "network"],
 };
 
@@ -266,7 +272,7 @@ const estimator: Section<"estimator"> = {
   points: [
     { title: "Le client attend où il veut.", text: "À table, dehors, sur son téléphone\u00a0: plus d’attroupement au comptoir pour demander «\u00a0c’est prêt quand\u00a0?\u00a0»." },
     { title: "Chaque cuisine, son rythme.", text: "Gare de l’Est n’est pas Ivry\u00a0: l’heure se calcule sur les commandes de chaque restaurant, pas sur une moyenne du réseau." },
-    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, restaurant par restaurant, dans la vue réseau." },
+    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, sur tout le réseau, dans la vue réseau." },
   ],
   screen: "suivi",
 };
@@ -337,7 +343,7 @@ const forTeams: Section<"forTeams"> = {
 
 const forRevenue: Section<"forRevenue"> = {
   eyebrow: "Le calcul, pour un franchisé",
-  title: `Si ${illustration.coveringCustomers}\u00a0clients de plus restent chaque\u00a0jour, le surcoût est couvert dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
+  title: `Si ${illustration.coveringCustomers}\u00a0clients de plus restent chaque\u00a0jour, le\u00a0surcoût est couvert dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
   mechanism:
     "On reste ou on repart selon la longueur de la file (Lu et al., 2013, rayon traiteur d’un hypermarché)\u00a0: qui commande depuis sa table raccourcit la file du suivant.",
   illustrationLabel: "Illustration, pas une promesse",
@@ -370,7 +376,7 @@ const forHeadOffice: Section<"forHeadOffice"> = {
   badge: "Données de démonstration",
   rushKey: `Les pastilles numérotées\u00a0: les restaurants en rush (délai annoncé de ${network.simulation.rush.waitMinutes}\u00a0min ou plus).`,
   delayKey: "Délais annoncés par l’estimateur IA.",
-  hypothesis: `Simulation sur vos ${restaurantsInDemo} restaurants ouverts en France au 3\u00a0octobre, ${percent(network.simulation.adoption.initial * 100)} des commandes par QR.`,
+  hypothesis: `Simulation sur vos ${restaurantsInDemo} restaurants ouverts en France au ${simulatedDay}, ${percent(network.simulation.adoption.initial * 100)} des commandes par QR.`,
   areas: [
     { label: "Qui est en rush", x: 24 },
     { label: "Ce qui part", x: 808 },
@@ -463,7 +469,7 @@ const proposal: Section<"proposal"> = {
     points: [
       `${setupFeeLabel[0].toUpperCase()}${setupFeeLabel.slice(1)}, réglés une fois par le restaurant, à l’installation.`,
       "Supports QR\u00a0: format et tarif à définir ensemble, selon la façon dont vous souhaitez afficher vos QR codes.",
-      "Chaque ouverture équipée dès le premier jour, à commencer par les 37 annoncées. Chaque restaurant garde ses propres prix de vente.",
+      `Chaque ouverture équipée dès le premier jour, à commencer par les ${footprint.openings} annoncées. Chaque restaurant garde ses propres prix de vente.`,
       "Assistance aux franchisés\u00a0: canal et horaires définis avec vous avant le déploiement.",
     ],
   },

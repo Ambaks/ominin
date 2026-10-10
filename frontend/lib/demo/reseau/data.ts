@@ -566,6 +566,7 @@ export const chickenStreet: NetworkFixture = {
       "Horaires : 11 h – minuit pour tous, supposés (Gare de l’Est, relevé : 11 h – 2 h) ; ouvertures non publiées, sauf Porte de Montreuil (3 octobre).",
       "Répartition des ventes entre le midi et le soir : supposée, à caler sur vos ventes par heure ; hors des pointes, un fond léger.",
       "Volume de chaque restaurant : le même pour tous, un peu plus fort dans quatre grandes adresses, en attendant vos chiffres ; le classement est donc illustratif.",
+      "La courbe du samedi dernier est simulée de la même façon : elle sert de repère pour la journée.",
     ],
     estimateToleranceMinutes: 2,
     estimatorLive: true,
