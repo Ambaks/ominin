@@ -22288,7 +22288,7 @@
       "file_type": "code",
       "norm_label": "getnetwork()",
       "source_file": "frontend/lib/demo/reseau/data.ts",
-      "source_location": "L596"
+      "source_location": "L597"
     },
     {
       "id": "frontend_lib_demo_reseau_simulation_resolveclock",
@@ -57330,7 +57330,7 @@
       "file_type": "code",
       "norm_label": "networks",
       "source_file": "frontend/lib/demo/reseau/data.ts",
-      "source_location": "L591"
+      "source_location": "L592"
     },
     {
       "id": "frontend_lib_demo_reseau_data_solo",
@@ -247465,7 +247465,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/demo/reseau/data.ts",
-      "source_location": "L591",
+      "source_location": "L592",
       "weight": 1.0
     },
     {
@@ -247476,7 +247476,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/demo/reseau/data.ts",
-      "source_location": "L596",
+      "source_location": "L597",
       "weight": 1.0
     },
     {
@@ -279920,5 +279920,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c568bb18b563ef7319b14c71ec057788c4311bee"
+  "built_at_commit": "c7c7c3c9f5011b1a0c0271f645028a1c9423f6d0"
 }

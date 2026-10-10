@@ -5406,9 +5406,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/data.ts": {
-    "mtime": 1791599620.0224972,
-    "seen": 1791599734.665637,
-    "ast_hash": "7672ae841aab33bc06c640eb48a16b3a",
+    "mtime": 1791600789.2439785,
+    "seen": 1791600851.1102111,
+    "ast_hash": "ff37f10e9166128183cbcfe876d76b65",
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/format.ts": {
@@ -6024,9 +6024,9 @@
     "semantic_hash": ""
   },
   "demos/chicken-street/profile.json": {
-    "mtime": 1791598340.8703163,
-    "seen": 1791598405.838665,
-    "ast_hash": "67adef11784c5c2f3c2442453b736c45",
+    "mtime": 1791600789.2488966,
+    "seen": 1791600851.109828,
+    "ast_hash": "890e0ba70703d376dc94d60fdb8423fc",
     "semantic_hash": ""
   },
   "frontend/app/chicken-street/layout.tsx": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/chicken-street-ominin.pdf": {
-    "mtime": 1791600603.9626262,
-    "seen": 1791600611.7259111,
-    "ast_hash": "a01cee2ab55b7cb879b3e1f4174fd32b",
+    "mtime": 1791600841.7443283,
+    "seen": 1791600851.11039,
+    "ast_hash": "59336e22ff85919b0f3f35aba95f7f84",
     "semantic_hash": ""
   },
   "demos/chicken-street/docs/borne-16-9.jpg": {
@@ -6438,9 +6438,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/reseau-siege.webp": {
-    "mtime": 1791598351.2539256,
-    "seen": 1791598405.8393211,
-    "ast_hash": "41fa7290baf673208ab72bcedba149a4",
+    "mtime": 1791600799.644404,
+    "seen": 1791600851.1104782,
+    "ast_hash": "101104b512f90b790e5d45eba0b2cf29",
     "semantic_hash": ""
   },
   "frontend/public/pitch/ominin/film-poster-vertical.webp": {
