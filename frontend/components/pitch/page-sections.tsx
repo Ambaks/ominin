@@ -446,10 +446,10 @@ function Benefits({ p }: SectionProps) {
           <h2 className={`${h2} mt-4`}>{p.forHeadOffice.title}</h2>
           <p className="mt-5 max-w-3xl text-lg font-semibold leading-relaxed text-(--pitch-accent-light) md:text-xl">{p.forHeadOffice.lead}</p>
           <div className="mt-10">
-            {/* En bureau, la carte, les restaurants en rush et le fil des commandes, lisibles ; au téléphone, la carte et ses pastilles de rush. */}
+            {/* En bureau, les trois panneaux : la carte et les restaurants en rush, le fil des commandes, le classement ; au téléphone, la carte et ses pastilles de rush. */}
             {(
               [
-                ["hidden lg:block", { x: 0, y: p.forHeadOffice.panelsTop, width: 1192, height: 368 }],
+                ["hidden lg:block", { x: 0, y: p.forHeadOffice.panelsTop, width: 1600, height: 368 }],
                 ["lg:hidden", { x: p.forHeadOffice.areas[0].x + 340, y: p.forHeadOffice.panelsTop + 48, width: 416, height: 388 }],
               ] as const
             ).map(([visibility, crop]) => (

@@ -5382,9 +5382,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/page-sections.tsx": {
-    "mtime": 1791599608.50348,
-    "seen": 1791599734.665567,
-    "ast_hash": "efb903a28446c5e5e3d6fcd0869a4966",
+    "mtime": 1791600544.3213737,
+    "seen": 1791600611.725573,
+    "ast_hash": "39b1dd066da41476c534a2d6e4ad8f79",
     "semantic_hash": ""
   },
   "frontend/components/pitch/qr-code.tsx": {
@@ -6066,9 +6066,9 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/chicken-street.tsx": {
-    "mtime": 1791595796.3502235,
-    "seen": 1791596144.320622,
-    "ast_hash": "66586e98c2ba41d396767eb74b8aefc2",
+    "mtime": 1791599951.4315326,
+    "seen": 1791600611.725566,
+    "ast_hash": "c245851a6c8aca955edb71bf2564f86f",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/coq-path.ts": {
@@ -6090,9 +6090,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/chicken-street.ts": {
-    "mtime": 1791599831.0829427,
-    "seen": 1791599920.971009,
-    "ast_hash": "54f5d9a55e60f45d3cb9468f72422784",
+    "mtime": 1791600544.3208354,
+    "seen": 1791600611.725707,
+    "ast_hash": "89d6a4104bcbd13e3c5a01cd5db17094",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/kit.ts": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/chicken-street-ominin.pdf": {
-    "mtime": 1791599913.3852494,
-    "seen": 1791599920.9711602,
-    "ast_hash": "8518320c758349dc7d37e17a3b1da2cb",
+    "mtime": 1791600603.9626262,
+    "seen": 1791600611.7259111,
+    "ast_hash": "a01cee2ab55b7cb879b3e1f4174fd32b",
     "semantic_hash": ""
   },
   "demos/chicken-street/docs/borne-16-9.jpg": {

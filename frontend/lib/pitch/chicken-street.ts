@@ -218,8 +218,8 @@ const promise: Section<"promise"> = {
   rating: { value: decimal(ratings.average), label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de ${decimal(ratings.worst)} à ${decimal(ratings.best)}` },
   speed: {
     value: decimal(ratings.best - ratings.worst),
-    label: `point d’écart sur Google entre vos fiches la mieux et la moins bien notées (${decimal(ratings.best)} et ${decimal(ratings.worst)})\u00a0: même carte, une note qui varie.`,
-    detail: `Avis à une ou deux étoiles\u00a0: commandes incomplètes, attentes de 20\u00a0min à 1\u00a0h (${reviewSample.read} avis lus).`,
+    label: `point d’écart sur Google entre deux des cinq fiches relevées (${decimal(ratings.best)} et ${decimal(ratings.worst)})\u00a0: même carte, une note qui varie.`,
+    detail: `Quelques avis sur ${reviewSample.read} citent 20\u00a0min à 1\u00a0h d’attente.`,
   },
   closing: `À ${footprint.restaurants} restaurants, dont ${footprint.inFrance} en France, et ${footprint.openings} ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.`,
   sources: ["site", "reviews", "network"],
@@ -421,7 +421,7 @@ const pricing: Section<"pricing"> = {
     commission: commissionRange,
     basis: "sur les commandes QR payées en\u00a0ligne.",
   },
-  lead: "Dégressif selon le chiffre d’affaires de chaque restaurant, paliers fixés ensemble. Rien à payer au niveau du siège. Chaque restaurant ne paie que sur ses commandes passées par Ominin et payées en ligne\u00a0: rien sur les bornes, le comptoir, votre application, WhatsApp ni la livraison.",
+  lead: `Plus ${euros(setupFeeTotal)} de boîtier livré, une fois par restaurant. Dégressif selon le chiffre d’affaires de chaque restaurant, paliers fixés ensemble. Rien à payer au niveau du siège. Chaque restaurant ne paie que sur ses commandes passées par Ominin et payées en ligne\u00a0: rien sur les bornes, le comptoir, votre application, WhatsApp ni la livraison.`,
   example: {
     label: `Une commande de ${euros(exampleOrder.ticket)} payée en ligne`,
     rateNote: `Au taux maximal de ${maxRate}`,
