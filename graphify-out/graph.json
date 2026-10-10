@@ -6020,7 +6020,7 @@
       "file_type": "code",
       "norm_label": "bridge",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L67"
+      "source_location": "L68"
     },
     {
       "id": "frontend_components_shop_store_context_shopidentity",
@@ -26644,7 +26644,7 @@
       "file_type": "code",
       "norm_label": ".code()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L84"
+      "source_location": "L89"
     },
     {
       "id": "claude_skills_new_restaurant_scripts_check_contrast_lin",
@@ -31564,7 +31564,7 @@
       "file_type": "code",
       "norm_label": ".check_printers()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L150"
+      "source_location": "L161"
     },
     {
       "id": "omilink_omilink_main_bridge_connect",
@@ -31576,7 +31576,7 @@
       "file_type": "code",
       "norm_label": ".connect()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L99"
+      "source_location": "L104"
     },
     {
       "id": "omilink_omilink_main_bridge_enroll",
@@ -31588,7 +31588,7 @@
       "file_type": "code",
       "norm_label": ".enroll()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L104"
+      "source_location": "L109"
     },
     {
       "id": "omilink_omilink_main_bridge_init",
@@ -31600,7 +31600,7 @@
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L68"
+      "source_location": "L69"
     },
     {
       "id": "omilink_omilink_main_bridge_lan_ip",
@@ -31612,7 +31612,7 @@
       "file_type": "code",
       "norm_label": ".lan_ip()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L87"
+      "source_location": "L92"
     },
     {
       "id": "omilink_omilink_main_bridge_print_jobs",
@@ -31624,7 +31624,7 @@
       "file_type": "code",
       "norm_label": ".print_jobs()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L135"
+      "source_location": "L140"
     },
     {
       "id": "omilink_omilink_main_bridge_run_once",
@@ -31636,7 +31636,7 @@
       "file_type": "code",
       "norm_label": ".run_once()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L180"
+      "source_location": "L191"
     },
     {
       "id": "omilink_omilink_main_bridge_scan",
@@ -31648,7 +31648,7 @@
       "file_type": "code",
       "norm_label": ".scan()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L161"
+      "source_location": "L172"
     },
     {
       "id": "omilink_omilink_main_bridge_scan_probe",
@@ -31660,7 +31660,7 @@
       "file_type": "code",
       "norm_label": "probe()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L168"
+      "source_location": "L179"
     },
     {
       "id": "omilink_omilink_main_bridge_sync",
@@ -31672,7 +31672,7 @@
       "file_type": "code",
       "norm_label": ".sync()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L118"
+      "source_location": "L123"
     },
     {
       "id": "omilink_omilink_main_bridge_tick",
@@ -31684,7 +31684,7 @@
       "file_type": "code",
       "norm_label": ".tick()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L193"
+      "source_location": "L204"
     },
     {
       "id": "omilink_omilink_main_ensure_token",
@@ -31696,7 +31696,7 @@
       "file_type": "code",
       "norm_label": "ensure_token()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L44"
+      "source_location": "L45"
     },
     {
       "id": "omilink_omilink_main_main",
@@ -31708,7 +31708,7 @@
       "file_type": "code",
       "norm_label": "main()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L209"
+      "source_location": "L220"
     },
     {
       "id": "omilink_omilink_main_read_serial",
@@ -31720,7 +31720,7 @@
       "file_type": "code",
       "norm_label": "read_serial()",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L33"
+      "source_location": "L34"
     },
     {
       "id": "frontend_app_shop_slug_commande_confirmation_page_confirmationpage",
@@ -70600,7 +70600,7 @@
       "source_location": "L1"
     },
     {
-      "id": "omilink_omilink_main_rationale_162",
+      "id": "omilink_omilink_main_rationale_173",
       "label": "H\u00f4tes du r\u00e9seau local r\u00e9pondant sur le port des imprimantes.",
       "_origin": "ast",
       "community": 76,
@@ -70608,10 +70608,10 @@
       "file_type": "rationale",
       "norm_label": "hotes du reseau local repondant sur le port des imprimantes.",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L162"
+      "source_location": "L173"
     },
     {
-      "id": "omilink_omilink_main_rationale_45",
+      "id": "omilink_omilink_main_rationale_46",
       "label": "Le jeton stock\u00e9 ne vaut que pour la machine qui l'a g\u00e9n\u00e9r\u00e9 : une carte clon\u00e9e\u2026",
       "_origin": "ast",
       "community": 76,
@@ -70619,10 +70619,10 @@
       "file_type": "rationale",
       "norm_label": "le jeton stocke ne vaut que pour la machine qui l'a genere : une carte clonee...",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L45"
+      "source_location": "L46"
     },
     {
-      "id": "omilink_omilink_main_rationale_88",
+      "id": "omilink_omilink_main_rationale_93",
       "label": "Adresse locale par laquelle on joint le backend (UDP connect : aucun paquet\u2026",
       "_origin": "ast",
       "community": 76,
@@ -70630,7 +70630,7 @@
       "file_type": "rationale",
       "norm_label": "adresse locale par laquelle on joint le backend (udp connect : aucun paquet...",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L88"
+      "source_location": "L93"
     },
     {
       "id": "frontend_app_shop_slug_commande_confirmation_page",
@@ -114740,7 +114740,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L156",
+      "source_location": "L167",
       "weight": 1.0
     },
     {
@@ -114752,7 +114752,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L111",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -114764,7 +114764,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L140",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -114776,7 +114776,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L182",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -114788,7 +114788,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L186",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -114800,7 +114800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L187",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -114812,7 +114812,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L188",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -114824,7 +114824,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L190",
+      "source_location": "L201",
       "weight": 1.0
     },
     {
@@ -114836,7 +114836,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L163",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -114848,7 +114848,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L195",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -114860,7 +114860,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L214",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -114872,7 +114872,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L223",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -114884,7 +114884,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L224",
+      "source_location": "L235",
       "weight": 1.0
     },
     {
@@ -114896,7 +114896,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L236",
+      "source_location": "L247",
       "weight": 1.0
     },
     {
@@ -170338,7 +170338,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -170350,7 +170350,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -170362,7 +170362,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0
     },
     {
@@ -170374,7 +170374,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -170386,7 +170386,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0
     },
     {
@@ -170398,7 +170398,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0
     },
     {
@@ -170410,7 +170410,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L17",
+      "source_location": "L18",
       "weight": 1.0
     },
     {
@@ -170422,7 +170422,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L21",
+      "source_location": "L22",
       "weight": 1.0
     },
     {
@@ -170434,7 +170434,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -210625,7 +210625,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -210637,7 +210637,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L19",
+      "source_location": "L20",
       "weight": 1.0
     },
     {
@@ -210649,7 +210649,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -210661,7 +210661,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -210937,7 +210937,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -210949,7 +210949,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -211021,7 +211021,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L99",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -262698,7 +262698,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L209",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -262709,7 +262709,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -262720,7 +262720,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0
     },
     {
@@ -262731,7 +262731,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L67",
+      "source_location": "L68",
       "weight": 1.0
     },
     {
@@ -269024,7 +269024,7 @@
     },
     {
       "source": "omilink_omilink_main_bridge",
-      "target": "omilink_omilink_main_bridge_enroll",
+      "target": "omilink_omilink_main_bridge_connect",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -269035,13 +269035,24 @@
     },
     {
       "source": "omilink_omilink_main_bridge",
+      "target": "omilink_omilink_main_bridge_enroll",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "omilink/omilink/__main__.py",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "omilink_omilink_main_bridge",
       "target": "omilink_omilink_main_bridge_sync",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L118",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -269052,7 +269063,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L135",
+      "source_location": "L140",
       "weight": 1.0
     },
     {
@@ -269063,7 +269074,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L150",
+      "source_location": "L161",
       "weight": 1.0
     },
     {
@@ -269074,7 +269085,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L161",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
@@ -269085,7 +269096,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L180",
+      "source_location": "L191",
       "weight": 1.0
     },
     {
@@ -269096,7 +269107,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L193",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -269107,7 +269118,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -269118,7 +269129,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L84",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -269129,18 +269140,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L87",
-      "weight": 1.0
-    },
-    {
-      "source": "omilink_omilink_main_bridge",
-      "target": "omilink_omilink_main_bridge_connect",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L99",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -270090,36 +270090,36 @@
       "weight": 1.0
     },
     {
-      "source": "omilink_omilink_main_rationale_162",
+      "source": "omilink_omilink_main_rationale_173",
       "target": "omilink_omilink_main_bridge_scan",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L162",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
-      "source": "omilink_omilink_main_rationale_45",
+      "source": "omilink_omilink_main_rationale_46",
       "target": "omilink_omilink_main_ensure_token",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L45",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
-      "source": "omilink_omilink_main_rationale_88",
+      "source": "omilink_omilink_main_rationale_93",
       "target": "omilink_omilink_main_bridge_lan_ip",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L88",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -276031,7 +276031,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L178",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -279247,7 +279247,7 @@
       "confidence_score": 0.95,
       "context": "parameter_type",
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 0.8
     },
     {
@@ -279781,10 +279781,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "omilink/omilink/__main__.py",
-      "source_location": "L68",
+      "source_location": "L69",
       "weight": 0.8
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f545468a44ca7fb87c1f70affa005490815603ad"
+  "built_at_commit": "fcb91a58cce4ebcbf72a1c4019de13c2184a2239"
 }
