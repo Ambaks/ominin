@@ -134,7 +134,7 @@ function ReadyCountdown({ estimate, ai }: { estimate: ReadyEstimate; ai?: boolea
       </span>
       <p className="order-eta-caption mt-2.5 flex w-full items-baseline justify-between gap-3 text-xs text-muted">
         {/* L'heure prévue n'existe que dans l'aperçu : elle le dit. */}
-        <span>{ai ? "Estimation IA · aperçu" : "Estimation · aperçu"}</span>
+        <span>{ai ? "Estimation IA" : "Estimation · aperçu"}</span>
         {!late && (
           <time dateTime={estimate.readyAt} className="font-semibold tabular-nums text-foreground">
             vers {frenchTime(new Date(at))}

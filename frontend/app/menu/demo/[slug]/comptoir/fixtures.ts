@@ -108,7 +108,7 @@ const SERVICES: Record<string, Service> = {
       { number: 47, minutesAgo: 2, status: "payee", lines: [["Family Mix", 1, "Sauce Blanche"]] },
       { number: 48, minutesAgo: 1, status: "payee", lines: [["Menu Naan Tenders", 1, "Frites", "Coca-Cola", "Sauce Blanche"], ["Ice Mix", 1, "Nutella", "Speculoos"]] },
     ],
-    openAtStart: 5,
+    openAtStart: 8,
     arrivals: [
       [["Menu Street B", 1, "Frites", "Coca-Cola", "Sauce Algérienne"]],
       [["Naan Supreme", 1, "Sauce Blanche"], ["Tenders 3\u00a0pièces", 1, "Sauce Cheddar"]],

@@ -386,6 +386,12 @@ const csMenuTenders = { name: "Menu Tenders 5 pièces", price: 1050 };
 const csMenuDynamite = { name: "Menu Burger Naan Dynamite", price: 1150 };
 const csFamilyMix = { name: "Family Mix", price: 2990 };
 const csMenuEnfant = { name: "Menu Enfant Nuggets", price: 550 };
+/**
+ * Menus par commande : souvent à deux ou trois. Calé pour un panier moyen
+ * d'environ 22 €, celui que donne la plaquette (1,1 M€ pour ≈ 50 000
+ * commandes par restaurant et par an).
+ */
+const MENUS_PER_ORDER = [0.5, 0.33, 0.17];
 
 export const chickenStreet: NetworkFixture = {
   slug: "chicken-street",
@@ -505,16 +511,16 @@ export const chickenStreet: NetworkFixture = {
   ],
   basket: {
     menus: [
-      { product: csMenuNaanTenders, weight: 18, quantities: [0.7, 0.22, 0.08] },
-      { product: csMenuNaanMix, weight: 14, quantities: [0.75, 0.2, 0.05] },
-      { product: csMenuStreetB, weight: 10, quantities: [0.8, 0.2] },
-      { product: csMenuMonster, weight: 9, quantities: [0.8, 0.2] },
-      { product: csMenuTenders, weight: 12, quantities: [0.75, 0.25] },
-      { product: csMenuDynamite, weight: 8, quantities: [0.8, 0.2] },
-      { product: csFamilyMix, weight: 7, quantities: [1] },
-      { product: csMenuEnfant, weight: 6, quantities: [0.6, 0.4] },
+      { product: csMenuNaanTenders, weight: 18, quantities: MENUS_PER_ORDER },
+      { product: csMenuNaanMix, weight: 14, quantities: MENUS_PER_ORDER },
+      { product: csMenuStreetB, weight: 10, quantities: MENUS_PER_ORDER },
+      { product: csMenuMonster, weight: 9, quantities: MENUS_PER_ORDER },
+      { product: csMenuTenders, weight: 12, quantities: MENUS_PER_ORDER },
+      { product: csMenuDynamite, weight: 8, quantities: MENUS_PER_ORDER },
+      { product: csFamilyMix, weight: 10, quantities: [1] },
+      { product: csMenuEnfant, weight: 6, quantities: [0.4, 0.4, 0.2] },
     ],
-    alaCarteWeight: 16,
+    alaCarteWeight: 14,
     alaCarte: [
       { product: { name: "Naan Tenders", price: 750 }, weight: 4 },
       { product: { name: "Naan Mix", price: 850 }, weight: 3 },
@@ -531,7 +537,7 @@ export const chickenStreet: NetworkFixture = {
       { product: { name: "Tiramisu", price: 350 }, weight: 2 },
       { product: { name: "Soda 33 cl", price: 220 }, weight: 3 },
     ],
-    extraChances: [0.45, 0.2],
+    extraChances: [0.65, 0.35, 0.15],
   },
   simulation: {
     // 1,1 M€ par restaurant et par an (plaquette franchise 2026), soit ≈ 3 000 € par jour.
@@ -548,7 +554,7 @@ export const chickenStreet: NetworkFixture = {
     // Servi jusqu'à minuit et plus : le soir pèse plus que le midi. Répartition supposée.
     peaks: [
       { at: "12:45", sigmaMinutes: 42, weight: 0.36, name: "de midi" },
-      { at: "20:30", sigmaMinutes: 60, weight: 0.5, name: "du soir" },
+      { at: "21:00", sigmaMinutes: 60, weight: 0.5, name: "du soir" },
     ],
     baseWeight: 0.14,
     opening: { buzz: 0.6, buzzDays: 10, adoptionStart: 1, adoptionDays: 60 },
@@ -556,7 +562,7 @@ export const chickenStreet: NetworkFixture = {
     counterPayMinutes: [1, 4],
     pickupMinutes: [0.5, 4],
     notes: [
-      "Panier moyen : celui de paniers types sur votre carte (prix relevés par un agrégateur, variables selon le restaurant).",
+      "Panier moyen : des paniers types sur votre carte (prix relevés par un agrégateur, variables selon le restaurant), calés sur ≈ 22 €, celui de votre plaquette.",
       "Horaires : 11 h – minuit pour tous, supposés (Gare de l’Est, relevé : 11 h – 2 h) ; ouvertures non publiées, sauf Porte de Montreuil (3 octobre).",
       "Répartition des ventes entre le midi et le soir : supposée, à caler sur vos ventes par heure ; hors des pointes, un fond léger.",
       "Volume de chaque restaurant : le même pour tous, un peu plus fort dans quatre grandes adresses, en attendant vos chiffres ; le classement est donc illustratif.",

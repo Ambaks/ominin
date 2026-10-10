@@ -730,7 +730,8 @@ export function NetworkDashboard({
           </Kpi>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] wall:min-h-0 wall:flex-1 wall:grid-cols-12">
+        {/* Une seule colonne au téléphone, bornée à l'écran : un nom de restaurant long ne l'élargit plus. */}
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] wall:min-h-0 wall:flex-1 wall:grid-cols-12">
           <div className="flex min-h-0 flex-col gap-4 wall:col-span-6">
             <section className={`flex min-h-0 flex-col overflow-hidden wall:flex-1 ${CARD}`}>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 pt-4">
