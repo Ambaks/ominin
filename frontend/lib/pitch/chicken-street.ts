@@ -218,8 +218,8 @@ const promise: Section<"promise"> = {
   rating: { value: decimal(ratings.average), label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de ${decimal(ratings.worst)} à ${decimal(ratings.best)}` },
   speed: {
     value: decimal(ratings.best - ratings.worst),
-    label: `point d’écart sur Google entre Gare de l’Est (${decimal(ratings.best)}) et Ivry (${decimal(ratings.worst)})\u00a0: même carte, même enseigne, une expérience qui varie.`,
-    detail: `Quelques avis à une ou deux étoiles citent 20 à 50\u00a0minutes d’attente (sur ${reviewSample.read} lus).`,
+    label: `point d’écart sur Google entre la fiche la mieux notée (${decimal(ratings.best)}) et la moins bien notée (${decimal(ratings.worst)}) de l’échantillon\u00a0: même carte, même enseigne, une note qui varie.`,
+    detail: `Dans les avis à une ou deux étoiles, des commandes incomplètes et des attentes de 20\u00a0minutes à une heure (sur ${reviewSample.read} avis lus).`,
   },
   closing: `À ${footprint.restaurants} restaurants, dont ${footprint.inFrance} en France, et ${footprint.openings} ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.`,
   sources: ["site", "reviews", "network"],
@@ -229,7 +229,7 @@ const walkAway: Section<"walkAway"> = {
   eyebrow: "Au comptoir",
   quote: ["La rapidité, l’atout clé de la restauration rapide", "est remis en cause."],
   attribution: "AKTO / Toluna-Harris Interactive, étude 2024 sur les clients de la restauration rapide",
-  followUp: "D’un côté «\u00a050\u00a0min d’attente pour un menu\u00a0», de l’autre une attente «\u00a0très raisonnable même quand il y a du monde\u00a0»\u00a0: l’écart existe d’un restaurant à l’autre\u00a0; la vue réseau permet de le mesurer.",
+  followUp: "D’un côté «\u00a050\u00a0min d’attente pour un menu\u00a0» (avis 1\u00a0étoile), de l’autre une attente «\u00a0très raisonnable même quand il y a du monde\u00a0» (avis 5\u00a0étoiles)\u00a0: d’un restaurant à l’autre, l’expérience varie\u00a0; la vue réseau permet de la mesurer.",
   followUpSources: ["reviews"],
   facts: [
     {
@@ -271,8 +271,8 @@ const estimator: Section<"estimator"> = {
   verdict: `À la minute près, sur la commande N°\u00a0${order.number} de la démo.`,
   points: [
     { title: "Le client attend où il veut.", text: "À table, dehors, sur son téléphone\u00a0: plus d’attroupement au comptoir pour demander «\u00a0c’est prêt quand\u00a0?\u00a0»." },
-    { title: "Chaque cuisine, son rythme.", text: "Gare de l’Est n’est pas Ivry\u00a0: l’heure se calcule sur les commandes de chaque restaurant, pas sur une moyenne du réseau." },
-    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, sur tout le réseau, dans la vue réseau." },
+    { title: "Chaque cuisine, son rythme.", text: "Une gare n’est pas un centre commercial\u00a0: l’heure se calcule sur les commandes de chaque restaurant, pas sur une moyenne du réseau." },
+    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, sur tout le réseau\u00a0; mesurée restaurant par restaurant dès le pilote." },
   ],
   screen: "suivi",
 };
@@ -302,7 +302,7 @@ const forCustomers: Section<"forCustomers"> = {
     {
       title: "Rien de mal compris.",
       text: "Le client compose sa commande lui-\u2060même\u00a0— sauces, suppléments, boisson\u00a0; le ticket sort tel quel en cuisine.",
-      fact: "Dans vos avis, une commande à emporter\u00a0: «\u00a0la moitié de ma commande n’a pas été effectué\u00a0».",
+      fact: "Dans vos avis, une commande à emporter\u00a0: «\u00a0la moitié de ma commande n’a pas été effectué[e]\u00a0».",
     },
     {
       title: "Son numéro, et l’heure où c’est prêt.",
@@ -343,7 +343,7 @@ const forTeams: Section<"forTeams"> = {
 
 const forRevenue: Section<"forRevenue"> = {
   eyebrow: "Le calcul, pour un franchisé",
-  title: `Si ${illustration.coveringCustomers}\u00a0clients de plus restent chaque\u00a0jour, le\u00a0surcoût est couvert dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
+  title: `Le surcoût\u00a0: ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du CA, couvert par ${illustration.coveringCustomers}\u00a0commandes de plus par jour, dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
   mechanism:
     "On reste ou on repart selon la longueur de la file (Lu et al., 2013, rayon traiteur d’un hypermarché)\u00a0: qui commande depuis sa table raccourcit la file du suivant.",
   illustrationLabel: "Illustration, pas une promesse",
@@ -388,7 +388,7 @@ const forHeadOffice: Section<"forHeadOffice"> = {
 const deployment: Section<"deployment"> = {
   eyebrow: "Face à vos outils",
   title: { text: "Ce que le QR", accent: "ajoute." },
-  lead: "Vous avez déjà WhatsApp, votre application et des bornes dans une partie des restaurants. Le QR sert le client déjà sur place, à table ou dans la file, sans rien remplacer\u00a0; Uber Eats et Deliveroo restent vos canaux de livraison.",
+  lead: "Vous avez déjà WhatsApp, votre application et des bornes dans une partie des restaurants. Le QR ne s’ajoute pas à la liste\u00a0: sur place, il prend le relais de l’échange WhatsApp et soulage les bornes aux heures de pointe\u00a0; Uber Eats et Deliveroo restent vos canaux de livraison.",
   sources: ["app", "whatsapp", "brochure"],
   points: [
     {
@@ -408,8 +408,8 @@ const deployment: Section<"deployment"> = {
     },
     {
       label: "Caisse",
-      title: "Votre caisse reste la vôtre.",
-      text: "Les ventes QR arrivent sur le compte Stripe du restaurant, exportables pour le comptable et vos redevances. Lien caisse et fidélité\u00a0: à voir avec votre éditeur.",
+      title: "Les ventes QR, sur le compte du restaurant.",
+      text: "Votre caisse ne change pas. Les ventes QR arrivent sur le compte Stripe du restaurant, exportables pour le comptable et vos redevances. Lien caisse et fidélité\u00a0: à voir avec votre éditeur.",
     },
   ],
 };

@@ -562,7 +562,7 @@ export const chickenStreet: NetworkFixture = {
     counterPayMinutes: [1, 4],
     pickupMinutes: [0.5, 4],
     notes: [
-      "Panier moyen : des paniers types sur votre carte (prix relevés par un agrégateur, variables selon le restaurant), calés sur ≈ 22 €, celui de votre plaquette.",
+      "Panier moyen : des paniers types sur votre carte (prix relevés par un agrégateur, variables selon le restaurant), calés sur ≈ 22 €, déduit de votre plaquette (110 M€ pour 5 millions de commandes).",
       "Horaires : 11 h – minuit pour tous, supposés (Gare de l’Est, relevé : 11 h – 2 h) ; ouvertures non publiées, sauf Porte de Montreuil (3 octobre).",
       "Répartition des ventes entre le midi et le soir : supposée, à caler sur vos ventes par heure ; hors des pointes, un fond léger.",
       "Volume de chaque restaurant : le même pour tous, un peu plus fort dans quatre grandes adresses, en attendant vos chiffres ; le classement est donc illustratif.",

@@ -1955,6 +1955,7 @@ const chickenStreet: Restaurant = {
       name: "Fried Chicken",
       items: [
         csItem("tenders-5", "Tenders 5\u00a0pièces", 7.5, {}, false),
+        csItem("wings-6", "Wings 6\u00a0pièces", 6.5, { image: "/chicken-street/wings.webp" }, false),
         csItem("wings", "Wings 10\u00a0pièces", 9.5, {}, false),
         csItem("tenders-n-cheese", "Tenders N Cheese", 5.5, {}, false),
         csItem("family-tenders", "Family Tenders", 29.9, { description: "20 tenders, à partager." }, false),

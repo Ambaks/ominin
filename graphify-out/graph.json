@@ -8500,7 +8500,7 @@
       "file_type": "code",
       "norm_label": "getrestaurant()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2041"
+      "source_location": "L2042"
     },
     {
       "id": "frontend_lib_menu_data_restaurantthemeclass",
@@ -8512,7 +8512,7 @@
       "file_type": "code",
       "norm_label": "restaurantthemeclass()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2037"
+      "source_location": "L2038"
     },
     {
       "id": "frontend_app_api_sumup_callback_route_get",
@@ -29920,7 +29920,7 @@
       "file_type": "code",
       "norm_label": "displayaddress()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2070"
+      "source_location": "L2071"
     },
     {
       "id": "frontend_lib_menu_data_displayphone",
@@ -29932,7 +29932,7 @@
       "file_type": "code",
       "norm_label": "displayphone()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2065"
+      "source_location": "L2066"
     },
     {
       "id": "frontend_lib_menu_data_mapsurl",
@@ -29944,7 +29944,7 @@
       "file_type": "code",
       "norm_label": "mapsurl()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2052"
+      "source_location": "L2053"
     },
     {
       "id": "frontend_app_menu_planning_token_page_planningpage",
@@ -34384,7 +34384,7 @@
       "file_type": "code",
       "norm_label": "formatprice()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2057"
+      "source_location": "L2058"
     },
     {
       "id": "frontend_lib_pitch_chicken_street_decimal",
@@ -71909,7 +71909,7 @@
       "file_type": "code",
       "norm_label": "restaurants",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2019"
+      "source_location": "L2020"
     },
     {
       "id": "frontend_lib_menu_data_themeclasses",
@@ -71920,7 +71920,7 @@
       "file_type": "code",
       "norm_label": "themeclasses",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2030"
+      "source_location": "L2031"
     },
     {
       "id": "frontend_lib_menu_data_trattorialucia",
@@ -74759,7 +74759,7 @@
       "file_type": "code",
       "norm_label": "demo_slug",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2045"
+      "source_location": "L2046"
     },
     {
       "id": "frontend_app_shop_slug_page_page",
@@ -253977,7 +253977,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2019",
+      "source_location": "L2020",
       "weight": 1.0
     },
     {
@@ -253988,7 +253988,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2030",
+      "source_location": "L2031",
       "weight": 1.0
     },
     {
@@ -253999,7 +253999,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2037",
+      "source_location": "L2038",
       "weight": 1.0
     },
     {
@@ -254010,7 +254010,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2041",
+      "source_location": "L2042",
       "weight": 1.0
     },
     {
@@ -254021,7 +254021,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2045",
+      "source_location": "L2046",
       "weight": 1.0
     },
     {
@@ -254032,7 +254032,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2052",
+      "source_location": "L2053",
       "weight": 1.0
     },
     {
@@ -254043,7 +254043,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2057",
+      "source_location": "L2058",
       "weight": 1.0
     },
     {
@@ -254054,7 +254054,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2065",
+      "source_location": "L2066",
       "weight": 1.0
     },
     {
@@ -254065,7 +254065,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2070",
+      "source_location": "L2071",
       "weight": 1.0
     },
     {
@@ -279920,5 +279920,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c65f74081bd40d0f0fe44435cc6996b3bf17c8f0"
+  "built_at_commit": "c568bb18b563ef7319b14c71ec057788c4311bee"
 }
