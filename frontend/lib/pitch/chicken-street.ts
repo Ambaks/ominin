@@ -218,8 +218,8 @@ const promise: Section<"promise"> = {
   rating: { value: decimal(ratings.average), label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de ${decimal(ratings.worst)} à ${decimal(ratings.best)}` },
   speed: {
     value: decimal(ratings.best - ratings.worst),
-    label: `point d’écart sur Google entre la fiche la mieux notée (${decimal(ratings.best)}) et la moins bien notée (${decimal(ratings.worst)}) de l’échantillon\u00a0: même carte, même enseigne, une note qui varie.`,
-    detail: `Dans les avis à une ou deux étoiles, des commandes incomplètes et des attentes de 20\u00a0minutes à une heure (sur ${reviewSample.read} avis lus).`,
+    label: `point d’écart sur Google entre vos fiches la mieux et la moins bien notées (${decimal(ratings.best)} et ${decimal(ratings.worst)})\u00a0: même carte, une note qui varie.`,
+    detail: `Avis à une ou deux étoiles\u00a0: commandes incomplètes, attentes de 20\u00a0min à 1\u00a0h (${reviewSample.read} avis lus).`,
   },
   closing: `À ${footprint.restaurants} restaurants, dont ${footprint.inFrance} en France, et ${footprint.openings} ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.`,
   sources: ["site", "reviews", "network"],
@@ -343,7 +343,7 @@ const forTeams: Section<"forTeams"> = {
 
 const forRevenue: Section<"forRevenue"> = {
   eyebrow: "Le calcul, pour un franchisé",
-  title: `Le surcoût\u00a0: ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du CA, couvert par ${illustration.coveringCustomers}\u00a0commandes de plus par jour, dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
+  title: `Le surcoût\u00a0: ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du CA, couvert par ${illustration.coveringCustomers}\u00a0clients de plus par jour, dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
   mechanism:
     "On reste ou on repart selon la longueur de la file (Lu et al., 2013, rayon traiteur d’un hypermarché)\u00a0: qui commande depuis sa table raccourcit la file du suivant.",
   illustrationLabel: "Illustration, pas une promesse",
@@ -493,7 +493,7 @@ const closing: Section<"closing"> = {
   steps: ["Un appel\u00a0: vos imprimantes et votre carte", "Vous choisissez le restaurant pilote", `Un pilote de ${pilot.days}\u00a0jours\u00a0: nous installons, nous mesurons ensemble`],
   mail: "Écrire au cofondateur",
   interlocutor: `Votre interlocuteur direct\u00a0: ${founder.name}, ${founder.role}.`,
-  company: "Nous concevons et exploitons des outils pour la restauration\u00a0: commande et paiement en ligne, estimateur IA de l’heure de retrait, impression en cuisine.",
+  company: "Nous concevons et exploitons des outils pour la restauration\u00a0: commande et paiement en ligne, estimateur IA, impression en cuisine.",
   reference: "Ominin est déjà en service chez plusieurs restaurants indépendants\u00a0; nous l’ouvrons aujourd’hui aux réseaux.",
   scanTitle: "Votre carte, prête à tester.",
   scanPage: "Testez votre carte comme un client.",

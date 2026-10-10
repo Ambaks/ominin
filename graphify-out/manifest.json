@@ -6090,9 +6090,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/chicken-street.ts": {
-    "mtime": 1791599608.5026863,
-    "seen": 1791599734.665668,
-    "ast_hash": "0360464648250929b211d87bdfcb9ecf",
+    "mtime": 1791599831.0829427,
+    "seen": 1791599920.971009,
+    "ast_hash": "54f5d9a55e60f45d3cb9468f72422784",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/kit.ts": {
@@ -6138,9 +6138,9 @@
     "semantic_hash": ""
   },
   "frontend/public/pitch/chicken-street/chicken-street-ominin.pdf": {
-    "mtime": 1791599722.487549,
-    "seen": 1791599734.665814,
-    "ast_hash": "685d7633a81b2597a635789ee9f149cb",
+    "mtime": 1791599913.3852494,
+    "seen": 1791599920.9711602,
+    "ast_hash": "8518320c758349dc7d37e17a3b1da2cb",
     "semantic_hash": ""
   },
   "demos/chicken-street/docs/borne-16-9.jpg": {
