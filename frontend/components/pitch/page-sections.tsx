@@ -450,7 +450,7 @@ function Benefits({ p }: SectionProps) {
             {(
               [
                 ["hidden lg:block", { x: 0, y: p.forHeadOffice.panelsTop, width: 1192, height: 368 }],
-                ["lg:hidden", { x: p.forHeadOffice.areas[0].x + 376, y: p.forHeadOffice.panelsTop, width: 392, height: 436 }],
+                ["lg:hidden", { x: p.forHeadOffice.areas[0].x + 340, y: p.forHeadOffice.panelsTop + 48, width: 416, height: 388 }],
               ] as const
             ).map(([visibility, crop]) => (
               <BrowserFrame
