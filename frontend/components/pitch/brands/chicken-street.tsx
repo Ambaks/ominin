@@ -8,13 +8,13 @@ import type { BrandKit } from "@/components/pitch/brand";
  */
 
 /**
- * « CHICKEN STREET — NAAN & FRIED CHICKEN », le logo du site : un em et demi, sa ligne de base comprise.
- * Taille en style : sans elle (feuille de style en retard), le PNG de 3 164 px s'étalait sur la diapositive.
+ * « CHICKEN STREET — NAAN & FRIED CHICKEN », le logo du site : 1,4 em, sa ligne de base comprise.
+ * Taille en style : sans elle (feuille de style en retard), le PNG du logo s'étalait sur la diapositive.
  */
 function Lockup({ className = "" }: { className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- logo vectorisé introuvable, PNG du site à sa taille
-    <img src="/chicken-street/logo.png" alt="Chicken Street" width={3164} height={822} style={{ height: "1.5em", width: "auto" }} className={`shrink-0 ${className}`} />
+    <img src="/chicken-street/logo.png" alt="Chicken Street" width={1200} height={312} style={{ height: "1.4em", width: "auto" }} className={`shrink-0 ${className}`} />
   );
 }
 

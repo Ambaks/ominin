@@ -1,12 +1,16 @@
 [Unit]
-Description=Vérification nocturne d'une nouvelle image du pont Omilink
+Description=Vérification quotidienne d'une nouvelle image du pont Omilink
 
 [Timer]
-OnCalendar=*-*-* 04:00:00
+# En fin d'après-midi, avant le service du soir : la nuit, un restaurant coupe
+# souvent sa box internet (au BOHO, rien ne passe entre ≈ 2 h 30 et ≈ 17 h 30)
+# et une mise à jour tentée à ce moment-là échoue sans être retentée.
+OnCalendar=*-*-* 18:00:00
 # Étale les tirages sur une heure : une flotte de boîtiers ne sollicite pas
 # GHCR à la même seconde.
 RandomizedDelaySec=1h
-# Boîtier éteint la nuit (restaurant fermé) : rattrape au démarrage suivant.
+# Boîtier éteint à l'heure prévue : rattrape au démarrage suivant. Un tour
+# lancé mais en échec (réseau coupé) n'est pas rattrapé.
 Persistent=true
 
 [Install]

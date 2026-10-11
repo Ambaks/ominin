@@ -5,8 +5,9 @@ vie, état des imprimantes observé depuis le tour précédent, configuration à
 jour, tickets en attente, éventuel résultat de balayage), envoie chaque ticket
 à son imprimante et l'acquitte. Un ticket n'est acquitté qu'une fois ses
 octets transmis ; une imprimante injoignable est signalée au tour suivant et
-le ticket réessayé. Un 401 (boîtier retiré) renvoie en appairage. Toute
-erreur est journalisée et la boucle continue."""
+le ticket réessayé. Un acquittement refusé par le backend est retenté seul :
+le ticket, déjà sorti, n'est pas réimprimé. Un 401 (boîtier retiré) renvoie
+en appairage. Toute erreur est journalisée et la boucle continue."""
 
 import base64
 import hashlib
@@ -79,6 +80,10 @@ class Bridge:
         self.checked_at = float("-inf")
         # Résultat du dernier balayage, livré à la prochaine synchronisation.
         self.discovered: list[str] | None = None
+        # Tickets transmis à leur imprimante dont l'acquittement a échoué
+        # (backend en erreur) : la file les rend encore en attente, mais ils sont
+        # déjà sortis.
+        self.unacked: set[str] = set()
 
     @property
     def code(self) -> str:
@@ -134,17 +139,23 @@ class Bridge:
 
     def print_jobs(self, jobs: list[dict]) -> None:
         printers = {printer["id"]: printer for printer in self.printers}
+        # Absent de la file, un ticket n'est plus en attente : son
+        # acquittement avait abouti malgré l'erreur, ou il a été annulé.
+        self.unacked &= {job["id"] for job in jobs}
         for job in jobs:
             printer = printers[job["printer_id"]]
-            try:
-                with self.connect(printer) as conn:
-                    conn.sendall(base64.b64decode(job["data"]))
-            except OSError as exc:
-                self.status[printer["id"]] = str(exc)
-                log.warning("job %s: %s unreachable (%s)", job["id"], printer["host"], exc)
-                continue
-            self.status[printer["id"]] = None
+            if job["id"] not in self.unacked:
+                try:
+                    with self.connect(printer) as conn:
+                        conn.sendall(base64.b64decode(job["data"]))
+                except OSError as exc:
+                    self.status[printer["id"]] = str(exc)
+                    log.warning("job %s: %s unreachable (%s)", job["id"], printer["host"], exc)
+                    continue
+                self.status[printer["id"]] = None
+                self.unacked.add(job["id"])
             self.backend.post(f"/omilink/jobs/{job['id']}/printed").raise_for_status()
+            self.unacked.discard(job["id"])
             log.info("printed job %s on %s", job["id"], printer["host"])
 
     def check_printers(self) -> None:

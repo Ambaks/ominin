@@ -8,8 +8,8 @@
 # up` (sinon Docker crée un dossier à sa place) ; ne jamais définir
 # DEVICE_TOKEN dans `environment:` (une variable d'environnement primerait
 # sur le fichier). Réseau hôte : le conteneur atteint l'imprimante sur le LAN
-# du restaurant sans NAT. La mise à jour de l'image est assurée chaque nuit par
-# omilink-update.timer (voir systemd/) et non par Watchtower, dont l'image
+# du restaurant sans NAT. La mise à jour de l'image est assurée chaque jour à
+# 18 h par omilink-update.timer (voir systemd/) et non par Watchtower, dont l'image
 # publique est figée sur une API Docker que le démon refuse désormais. Les
 # journaux sont plafonnés pour ménager la carte SD.
 services:

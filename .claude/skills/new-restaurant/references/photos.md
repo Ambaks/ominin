@@ -110,6 +110,10 @@ doesn't pay for it again.
 | `16007xx`, `16038xx`, `16335xx` | "SAUDI BROASTED" crate in the background |
 | `29306xxx` | "ÖMER KEBAB" printed wrapper |
 | `37025062` | "POLLO … HERMA…" printed wrapper |
+| `176921xx` (17692187–92) | "SUMIBOZU / GÀ NƯỚNG THAN" chopstick sleeve |
+| `19205235` | Ülker chocolate wrappers |
+| `30350296` | printed plate rim |
+| `32641693`, `32645121`–`32645123` | Versace-pattern plates |
 | `41092xx` | McDonald's red fry box, hands (O’Crousti, fries) |
 | Unsplash `photo-1746635*` | "Sidral Mundet" soda bottles on yellow |
 
@@ -122,7 +126,10 @@ sauce sachet with a phone number), Unsplash `photo-1773620494344-a9b87d73031b`
 (labelled sauce bottle). On O’Crousti Poulet: `7731979`, `7731983` and Unsplash
 `photo-1642447944075-895b146ccbf2` (McDonald's fry box), `15754939` ("MEAT
 burger" paper), `9932888` (printed fry cup), `11659577` (Mirinda), Unsplash
-`photo-1690988109029-aa2377d08b12` (Coke Studio promo with a QR code).
+`photo-1690988109029-aa2377d08b12` (Coke Studio promo with a QR code). On BOHO:
+Unsplash `photo-1778855400007-37cbd89592ef` (Gemini watermark, AI image),
+Unsplash `photo-1731703698022-2bcf47d3d09b` ("SANDYS" printed paper),
+`10115297` (labelled water bottle).
 
 ## French dishes stock libraries don't have
 
