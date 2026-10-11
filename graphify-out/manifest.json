@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1791751648.2960427,
-    "seen": 1791754619.774148,
-    "ast_hash": "36b3d2b4824d61b1102f2dca0a17c0c5",
+    "mtime": 1791755712.467036,
+    "seen": 1791755775.312578,
+    "ast_hash": "78d871080c52f7caa51af17b89a092f8",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791754606.224023,
-    "seen": 1791754619.774314,
-    "ast_hash": "6f39847a2aa190827fba7f9bd8095ce7",
+    "mtime": 1791755759.8053,
+    "seen": 1791755775.312764,
+    "ast_hash": "5bbfb8b5338827d567dccc6007bed967",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
