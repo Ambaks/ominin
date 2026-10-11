@@ -391,6 +391,40 @@ export const starterKit = {
     price: 20,
     tagline: "Expédition de la commande de démarrage au restaurant.",
   },
+  /*
+   * Proposés par le composeur Connect (/composer), facturés avec la commande
+   * de démarrage. Imprimante et câble : prix Amazon arrondis à l'euro
+   * supérieur (relevé du 2026-10-11). Prix null : « sur devis », la ligne
+   * n'est pas facturée.
+   */
+  printer: {
+    id: "network_printer",
+    name: "Imprimante tickets réseau",
+    price: 80,
+    tagline: "80 mm, découpe automatique, 250 mm/s, en Wi-Fi ou en USB.",
+    model: "Geon ZAZOO80BW",
+    href: "https://www.amazon.fr/dp/B0FQW6DF8F",
+  },
+  ethernetCable: {
+    id: "ethernet_cable",
+    name: "Câble Ethernet",
+    price: 5,
+    tagline: "Relie le boîtier Omilink à votre box internet.",
+    model: "Amazon Basics Cat-6, 3 m",
+    href: "https://www.amazon.fr/dp/B089MGNQXF",
+  },
+  poster: {
+    id: "poster_a3",
+    name: "Affiche A3",
+    price: 10,
+    tagline: "Au comptoir, au mur ou en file d'attente.",
+  },
+  sticker: {
+    id: "window_sticker",
+    name: "Vitrophanie",
+    price: null,
+    tagline: "Sur la vitrine : on commande avant même d'entrer.",
+  },
   /** Pays livrés (codes ISO, adresse saisie dans Stripe Checkout). */
   shippingCountries: ["FR"],
 } as const;
@@ -508,6 +542,51 @@ const integrationPartners: IntegrationPartner[] = [
   { name: "Tick'Eat", kind: "caisse", icon: { src: "/partners/tickeat.svg" } },
   { name: "CarréPOS", kind: "caisse", icon: { src: "/partners/carrepos.svg" } },
   { name: "Toporder", kind: "caisse", icon: { src: "/partners/toporder.svg" } },
+];
+
+/*
+ * Caisses que le composeur propose sous « Une autre », en plus des
+ * partenaires affichés en logos. compatible : caisse de l'annuaire HubRise
+ * (catégorie « Logiciels de caisse », vendue en France, qui reçoit les
+ * commandes — relevé du 2026-10-10) ; check : hors HubRise, à vérifier avec
+ * le restaurant avant l'installation.
+ */
+export interface TillOption {
+  name: string;
+  support: "compatible" | "check";
+}
+
+export const otherTills: TillOption[] = [
+  { name: "Adixon Caisse", support: "compatible" },
+  { name: "Drive Eat", support: "compatible" },
+  { name: "French Caisse", support: "compatible" },
+  { name: "Jalia par JDC", support: "compatible" },
+  { name: "LEO2 / Atoo", support: "compatible" },
+  { name: "Lightspeed Restaurant (K-Series)", support: "compatible" },
+  { name: "Mealenium", support: "compatible" },
+  { name: "MiiPos", support: "compatible" },
+  { name: "Nestor", support: "compatible" },
+  { name: "OneTouch by JSONE", support: "compatible" },
+  { name: "OrderLord POS", support: "compatible" },
+  { name: "POS HELPER", support: "compatible" },
+  { name: "Restaurant Manager", support: "compatible" },
+  { name: "Restomax", support: "compatible" },
+  { name: "restoPOS", support: "compatible" },
+  { name: "Synapsy", support: "compatible" },
+  { name: "T.A.L.C Informatique", support: "compatible" },
+  { name: "UltimaPOS", support: "compatible" },
+  { name: "Aloha (NCR)", support: "check" },
+  { name: "Cashpad", support: "check" },
+  { name: "Hiboutik", support: "check" },
+  { name: "Innovorder", support: "check" },
+  { name: "Loyverse", support: "check" },
+  { name: "Merim", support: "check" },
+  { name: "Odoo", support: "check" },
+  { name: "Oracle Simphony", support: "check" },
+  { name: "Revo XEF", support: "check" },
+  { name: "SumUp POS (ex-Tiller)", support: "check" },
+  { name: "Tactill", support: "check" },
+  { name: "Zettle", support: "check" },
 ];
 
 const tillScreens: Record<IntegrationPartner["kind"], TillScreen> = {
@@ -715,6 +794,164 @@ export const quotePage = {
   ],
   /** Nombre de tables proposé à l'ouverture du devis. */
   defaultTables: 12,
+};
+
+/*
+ * Composeur Connect (/composer) : quelques questions sur la salle, et l'offre
+ * se compose à côté, chaque recommandation justifiée. La logique vit dans
+ * lib/composer.ts ; ici, seulement les mots.
+ */
+export const composerPage = {
+  seoTitle: "Composez votre Connect — Ominin",
+  eyebrow: "Ominin Connect",
+  title: "Composons votre Connect.",
+  subtitle:
+    "Quelques questions sur votre salle : on vous dit ce qu'il vous faut, et seulement ça.",
+  progress: (index: number, count: number) => `Question ${index} sur ${count}`,
+  back: "Retour",
+  next: "Continuer",
+  finish: "Voir mon offre",
+  questions: {
+    hasTill: {
+      title: "Avez-vous une caisse enregistreuse ?",
+      hint: "Si oui, les commandes payées à table y arrivent directement.",
+      options: {
+        yes: "Oui",
+        no: "Non",
+        soon: "Pas encore, j'en cherche une",
+      },
+    },
+    till: {
+      title: "Laquelle ?",
+      other: "Une autre",
+      search: "Rechercher votre caisse",
+      compatible: "Compatible",
+      check: "À vérifier",
+      typed: (name: string) => `Ma caisse : « ${name} »`,
+      typedHint: "Pas dans la liste ? On vérifie la connexion avec vous.",
+    },
+    tickets: {
+      title: "Voulez-vous des tickets imprimés en cuisine ou au bar ?",
+      hint: "Sinon, les commandes s'affichent sur une tablette ou un téléphone.",
+      options: {
+        yes: { label: "Oui, des tickets", detail: "La commande sort sur papier" },
+        no: { label: "Non, un écran suffit", detail: "Tablette ou téléphone en cuisine" },
+      },
+    },
+    hasPrinters: {
+      title: "Avez-vous déjà des imprimantes tickets ?",
+      options: { yes: "Oui", no: "Non" },
+    },
+    tillPrints: {
+      title: (till: string | null) =>
+        till
+          ? `Votre caisse ${till} imprime-t-elle déjà vos tickets en cuisine ?`
+          : "Votre caisse imprime-t-elle déjà vos tickets en cuisine ?",
+      options: {
+        yes: "Oui",
+        no: "Non, les imprimantes sont à part",
+        unsure: "Je ne sais pas",
+      },
+    },
+    link: {
+      title: "Comment votre imprimante est-elle branchée ?",
+      hint: "Regardez à l'arrière : une prise comme celle de votre box internet, c'est un câble réseau.",
+      options: {
+        ethernet: { label: "Câble réseau", detail: "Relié à la box ou à un switch" },
+        wifi: { label: "Wi-Fi", detail: "Aucun câble de données" },
+        usb: { label: "Câble USB", detail: "Relié à la caisse ou à un ordinateur" },
+        unsure: { label: "Je ne sais pas", detail: "On vérifiera ensemble" },
+      },
+    },
+    printerOffer: {
+      title: "On vous en fournit une ?",
+      titleUsb: "On la remplace par une imprimante réseau ?",
+      hint: "Livrée réglée, avec le boîtier Omilink : vous la branchez, les tickets sortent.",
+      hintUsb:
+        "Une imprimante USB ne parle qu'à l'appareil qui la porte. Une imprimante réseau reçoit les commandes d'Ominin directement.",
+      productLink: "Voir la fiche produit",
+      count: "Combien d'imprimantes ?",
+      countHint: "Une par poste : cuisine, bar, pâtisserie…",
+      options: {
+        yes: "Ajouter à ma commande",
+        no: "Non merci, un écran suffit",
+      },
+    },
+    cable: {
+      title: "Avez-vous un câble Ethernet pour le boîtier ?",
+      hint: "Le boîtier Omilink se branche à votre box internet par un câble réseau.",
+      options: {
+        add: { label: "Non, ajoutez-en un", detail: "Livré avec le boîtier" },
+        own: { label: "Oui, j'en ai un" },
+      },
+    },
+    service: {
+      title: "Comment vos clients commandent-ils ?",
+      options: {
+        restaurant: { label: "À table", detail: "Ils scannent le QR de leur table" },
+        fast_food: { label: "Au comptoir", detail: "Fast food : un numéro par commande" },
+        both: { label: "Les deux", detail: "Une salle, et un comptoir" },
+      },
+    },
+    tables: {
+      title: "Combien de tables avez-vous ?",
+      titleFastFood: "Combien de tables en salle ?",
+      hint: `Un Cachet à votre logo sur chaque table, ${formatPrice(starterKit.cachet.price)} l'unité.`,
+      hintFastFood: "Aucune ? Mettez 0 : vos affiches suffiront.",
+      decrease: "Une de moins",
+      increase: "Une de plus",
+    },
+    supports: {
+      title: "Où vos clients verront-ils votre QR ?",
+      hint: "Tout est imprimé à votre logo. Touchez un support pour le voir en place.",
+      cachetAuto: (tables: number) =>
+        `${tables} ${tables > 1 ? "tables" : "table"}, un Cachet chacune`,
+    },
+  },
+  recap: {
+    label: "Votre Connect",
+    today: "À régler aujourd'hui",
+    pending: "sur devis",
+    pendingTotal: "+ articles sur devis",
+    then: "Ensuite",
+    subscription: "Abonnement",
+    subscriptionValue: "0 €/mois",
+    commission: "Commission",
+    understood: "Ce qu'on a compris",
+    empty: "Répondez aux questions : votre offre se compose ici.",
+    cta: "Créer mon compte et commander",
+    doneTitle: "Votre Connect est prêt.",
+    doneLead:
+      "Votre commande est récapitulée : ce qu'il vous faut, et pourquoi. Il reste votre compte, le nom de votre restaurant, et le paiement.",
+    restart: "Recommencer",
+  },
+  notes: {
+    square:
+      "Intégration Square incluse : les commandes payées arrivent dans votre caisse, et le paiement à table passe par Square.",
+    till: (till: string) =>
+      `Connexion à ${till} incluse : les commandes payées arrivent dans votre caisse.`,
+    otherTill: (till: string) =>
+      `${till || "Votre caisse"} : on vérifie la connexion avec vous avant l'installation.`,
+    noTill:
+      "Ominin devient votre prise de commande. Le paiement à table passe par Stripe.",
+    soonTill:
+      "Pas encore de caisse ? Le plan de base Square est gratuit, et Ominin s'y connecte.",
+    screen:
+      "Les commandes s'affichent en cuisine sur une tablette ou un téléphone. Aucun matériel.",
+    tillPrints: "Votre caisse imprime déjà vos tickets : pas besoin de boîtier Omilink.",
+    tillPrintsUnsure:
+      "On vérifie avec vous si votre caisse imprime en cuisine. Si oui, on retire le boîtier.",
+    omilink: "Le boîtier Omilink envoie les commandes à vos imprimantes, sur le réseau du restaurant.",
+    linkUnsure:
+      "Envoyez-nous une photo de l'arrière de votre imprimante : on vérifie avant d'expédier.",
+    supplied: (count: number) =>
+      `${count > 1 ? `${count} imprimantes réseau` : "Une imprimante réseau"} et le boîtier Omilink, livrés réglés.`,
+    cable: "Un câble Ethernet pour brancher le boîtier à votre box internet.",
+    usbDeclined:
+      "Votre imprimante USB reste comme elle est : les commandes s'afficheront à l'écran.",
+    fastFood: "Mode comptoir : chaque commande prend un numéro du jour.",
+    both: "Salle et comptoir : un QR par table, et vos affiches au comptoir.",
+  },
 };
 
 /*

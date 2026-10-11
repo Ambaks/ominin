@@ -4,6 +4,7 @@ import { planTrial } from "@/lib/landing-data";
 import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
 import { STARTER_FLAG } from "@/lib/stripe/starter";
+import { notifyStarterOrder } from "@/lib/stripe/starter-notify";
 import type { Database } from "@/lib/supabase/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -119,6 +120,14 @@ export async function POST(request: Request) {
               .eq("id", etablissementId)
               .is("payment_provider", null);
             if (error) throw new Error(error.message);
+          }
+          // L'activation est faite : un échec d'e-mail ne doit pas faire
+          // relivrer l'événement par Stripe. La commande reste lisible dans
+          // la fiche client de l'admin.
+          try {
+            await notifyStarterOrder(stripe, session, etablissementId);
+          } catch (cause) {
+            console.error("E-mail de commande de démarrage :", cause);
           }
         }
         break;

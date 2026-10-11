@@ -1,5 +1,5 @@
 import { LegalVersionError, type LegalDoc, type LegalDocument, type SignedDoc } from "../types";
-import { cgv, cgv20261007, cgv20261007b } from "./cgv";
+import { cgv, cgv20261007, cgv20261007b, cgv20261011 } from "./cgv";
 import { confidentialite } from "./confidentialite";
 import { dpa } from "./dpa";
 
@@ -19,7 +19,7 @@ import { dpa } from "./dpa";
  * effet sur les CGV.
  */
 export const documents: Record<LegalDoc, LegalDocument[]> = {
-  cgv: [cgv, cgv20261007, cgv20261007b],
+  cgv: [cgv, cgv20261007, cgv20261007b, cgv20261011],
   dpa: [dpa],
   confidentialite: [confidentialite],
 };
