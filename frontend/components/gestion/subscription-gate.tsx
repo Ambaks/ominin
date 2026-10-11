@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { QuoteBuilder } from "@/components/quote/quote-builder";
+import { compose, parseAnswers, starterExtras, type Answers } from "@/lib/composer";
 import { startCheckout } from "@/lib/gestion/checkout";
 import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
@@ -11,6 +12,7 @@ import { pricingSection, quotePage } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu-data";
 import { collectProduct, offreProducts } from "@/lib/products";
 import { quotePlan } from "@/lib/quote";
+import { createClient } from "@/lib/supabase/client";
 
 /*
  * Écran affiché à la place de l'espace de gestion tant qu'aucun produit
@@ -22,11 +24,13 @@ import { quotePlan } from "@/lib/quote";
  * et ce composant est démonté (l'intervalle est nettoyé).
  */
 export function SubscriptionGate({
+  etablissementId,
   role,
   offre,
   tableCount,
   feeDue,
 }: {
+  etablissementId: string;
   role: Role;
   /** Null ⇒ inscription par le click & collect : c'est lui qu'on active. */
   offre: Offre | null;
@@ -44,6 +48,18 @@ export function SubscriptionGate({
   // le même engagement, il ne peut pas tenir à l'écran par lequel on passe.
   const { contract, contractError } = useContract();
   const [accepted, setAccepted] = useState(false);
+  // Réponses du composeur, s'il y en a : le devis repart du boîtier et du
+  // matériel choisis, que le checkout facture. undefined : en lecture.
+  const [setup, setSetup] = useState<Answers | null | undefined>(undefined);
+
+  useEffect(() => {
+    createClient()
+      .from("starter_setups")
+      .select("answers")
+      .eq("etablissement_id", etablissementId)
+      .maybeSingle()
+      .then(({ data }) => setSetup(data ? parseAnswers(data.answers) : null));
+  }, [etablissementId]);
 
   useEffect(() => {
     if (!confirming) return;
@@ -68,15 +84,19 @@ export function SubscriptionGate({
             {role === "gerant" ? quotePage.gateSubtitle : quotePage.staffOnly}
           </p>
         </div>
-        {role === "gerant" && (
+        {role === "gerant" && setup === undefined && (
+          <div aria-busy className="shimmer h-96 rounded-3xl" />
+        )}
+        {role === "gerant" && setup !== undefined && (
           <QuoteBuilder
             locked
             initial={{
               plan: offre,
               tables: tableCount,
-              omilink: false,
-              square: false,
+              omilink: setup ? compose(setup).omilink : false,
+              square: setup?.hasTill === "yes" && setup.till === "Square",
             }}
+            extras={setup ? starterExtras(setup) : []}
             submitLabel={quotePage.submit.gate}
             onSubmit={async ({ omilink, square }, signed) => {
               if (!signed) return;

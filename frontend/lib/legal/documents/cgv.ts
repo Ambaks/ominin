@@ -61,7 +61,65 @@ interface CollectTariff {
   subscriptionLines: string[];
 }
 
-const starterLines = [starterKit.cachet, starterKit.shipping, starterKit.omilink];
+/*
+ * Commande de démarrage telle que chaque version la décrit. Celles du
+ * 2026-09-22 au 2026-10-07.2 : Cachets, livraison, boîtier Omilink
+ * remboursable sur retour. Depuis le 2026-10-11 : le matériel du composeur
+ * Connect s'y ajoute (imprimantes, câble, affiches, vitrophanie sur devis), et
+ * rien de ce qui est livré n'est repris ni remboursé. Les textes publiés sont
+ * recopiés tels quels : leur empreinte ne doit pas bouger.
+ */
+interface StarterTerms {
+  /** Article 7, troisième alinéa : ce que la rétractation ne couvre pas. */
+  withdrawal: string;
+  /** Article 10, alinéas propres à la version, avant ceux qui sont communs. */
+  order: string[];
+  /** Article 10 : ce qui suit le transfert de propriété. */
+  afterSale: string[];
+  /** Annexe 1 : une ligne par article de la commande. */
+  annex: string[];
+  /** Annexe 2, en tête du formulaire. */
+  withdrawalForm: string;
+}
+
+const starterTerms20260922: StarterTerms = {
+  withdrawal: `La rétractation ne porte pas sur les Cachets imprimés de la Commande de démarrage : confectionnés à la marque et aux références du Client, ce sont des biens nettement personnalisés, exclus du droit de rétractation par l'article L221-28 3° du code de la consommation. Ils restent dus dès leur mise en fabrication. Le ${starterKit.omilink.name}, s'il a été commandé, est remboursé sur retour en état neuf dans son emballage d'origine, les frais de retour restant à la charge du Client.`,
+  order: [
+    `L'ouverture du service donne lieu à une commande réglée en une fois : un ${starterKit.cachet.name} par table, à ${euros(starterKit.cachet.price)} l'unité, la livraison de l'envoi à ${euros(starterKit.shipping.price)} et, en option sur les offres comportant la commande à table, le ${starterKit.omilink.name} à ${euros(starterKit.omilink.price)}, qui relie les Services aux imprimantes tickets de l'Établissement.`,
+  ],
+  afterSale: [],
+  annex: [starterKit.cachet, starterKit.shipping, starterKit.omilink].map((line) =>
+    line.id === starterKit.cachet.id
+      ? `${line.name} — ${euros(line.price)} par table : ${line.tagline}`
+      : `${line.name} — ${euros(line.price)} : ${line.tagline}`
+  ),
+  withdrawalForm: `À compléter et à renvoyer uniquement si vous souhaitez vous rétracter de votre abonnement dans le délai de ${WITHDRAWAL_DAYS} jours prévu à l'article 7. Les Cachets imprimés, biens nettement personnalisés, en sont exclus.`,
+};
+
+/** Matériel vendu à l'unité dans la Commande de démarrage (Annexe 1). */
+const perUnit = (item: { name: string; price: number; tagline: string }, unit: string) =>
+  `${item.name} — ${euros(item.price)} ${unit} : ${item.tagline}`;
+
+const starterTermsMateriel: StarterTerms = {
+  withdrawal:
+    "La rétractation ne porte pas sur la Commande de démarrage (article 10). Les Cachets imprimés, confectionnés à la marque et aux références du Client, sont en outre des biens nettement personnalisés, exclus du droit de rétractation par l'article L221-28 3° du code de la consommation.",
+  order: [
+    `L'ouverture du service donne lieu à une commande réglée en une fois : un ${starterKit.cachet.name} par table et la livraison de l'envoi, ainsi que, sur les offres comportant la commande à table, le matériel que le Client choisit à la souscription — le ${starterKit.omilink.name}, qui relie les Services aux imprimantes tickets de l'Établissement, des imprimantes tickets, un câble Ethernet et des affiches. Leurs prix figurent à l'Annexe 1 ; la vitrophanie est réalisée sur devis.`,
+  ],
+  afterSale: [
+    "Les Cachets, matériels et supports livrés ne sont ni repris, ni échangés, ni remboursés, y compris en cas de résiliation. La Commande de démarrage reste due dès son règlement, sans préjudice des garanties légales de conformité et des vices cachés.",
+  ],
+  annex: [
+    `${starterKit.cachet.name} — ${euros(starterKit.cachet.price)} par table : ${starterKit.cachet.tagline}`,
+    `${starterKit.omilink.name} — ${euros(starterKit.omilink.price)} : ${starterKit.omilink.tagline}`,
+    perUnit(starterKit.printer, "par imprimante"),
+    perUnit(starterKit.ethernetCable, "par câble"),
+    perUnit(starterKit.poster, "par affiche"),
+    `${starterKit.sticker.name} — sur devis : ${starterKit.sticker.tagline}`,
+    `${starterKit.shipping.name} — ${euros(starterKit.shipping.price)} : ${starterKit.shipping.tagline}`,
+  ],
+  withdrawalForm: `À compléter et à renvoyer uniquement si vous souhaitez vous rétracter de votre abonnement dans le délai de ${WITHDRAWAL_DAYS} jours prévu à l'article 7. La Commande de démarrage en est exclue (article 10).`,
+};
 
 const planTariff = (plan: Plan) => {
   const parts = [`${plan.name} — ${euros(plan.price)} par mois`];
@@ -129,7 +187,11 @@ const trialArticles = (plans: Plan[]): LegalArticle[] => {
   ];
 };
 
-const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] => [
+const buildArticles = (
+  collect: CollectTariff,
+  plans: Plan[],
+  starter: StarterTerms = starterTerms20260922
+): LegalArticle[] => [
   {
     heading: "Article 1 — Objet et champ d'application",
     body: [
@@ -203,7 +265,7 @@ const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] =>
     body: [
       "Le droit de rétractation n'est pas dû entre professionnels. L'article L221-3 du code de la consommation l'étend toutefois au professionnel employant cinq salariés au plus lorsque le contrat, conclu hors établissement, n'entre pas dans le champ de son activité principale — qualification discutée s'agissant d'un logiciel de restaurant. Plutôt que d'en débattre, Ominin l'accorde contractuellement.",
       `Le Client dispose de ${WITHDRAWAL_DAYS} jours à compter de la souscription pour se rétracter de son abonnement, sans motif ni pénalité. Il notifie sa décision par une déclaration dénuée d'ambiguïté adressée à ${contactEmail} ; le formulaire de l'Annexe 2 peut être utilisé. Les sommes versées au titre de l'abonnement sont remboursées dans les ${WITHDRAWAL_DAYS} jours suivant la réception de la demande.`,
-      `La rétractation ne porte pas sur les Cachets imprimés de la Commande de démarrage : confectionnés à la marque et aux références du Client, ce sont des biens nettement personnalisés, exclus du droit de rétractation par l'article L221-28 3° du code de la consommation. Ils restent dus dès leur mise en fabrication. Le ${starterKit.omilink.name}, s'il a été commandé, est remboursé sur retour en état neuf dans son emballage d'origine, les frais de retour restant à la charge du Client.`,
+      starter.withdrawal,
       "Le Client qui demande l'exécution immédiate des Services pendant le délai reste redevable du montant correspondant au service fourni jusqu'à sa rétractation.",
     ],
   },
@@ -230,9 +292,10 @@ const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] =>
   {
     heading: "Article 10 — Commande de démarrage",
     body: [
-      `L'ouverture du service donne lieu à une commande réglée en une fois : un ${starterKit.cachet.name} par table, à ${euros(starterKit.cachet.price)} l'unité, la livraison de l'envoi à ${euros(starterKit.shipping.price)} et, en option sur les offres comportant la commande à table, le ${starterKit.omilink.name} à ${euros(starterKit.omilink.price)}, qui relie les Services aux imprimantes tickets de l'Établissement.`,
+      ...starter.order,
       "Les Cachets sont imprimés à la marque du Client, d'après les éléments qu'il fournit et dont il garantit détenir les droits. Ils sont expédiés à l'adresse indiquée à la souscription, dans les pays desservis rappelés au récapitulatif de commande.",
       "Les matériels livrés sont vendus : la propriété en est transférée au paiement intégral du prix, les risques à la livraison.",
+      ...starter.afterSale,
       "La Commande de démarrage est due une seule fois. Le Client qui résilie puis souscrit de nouveau pour le même Établissement, avec le même matériel, ne la règle pas une seconde fois ; seuls les Cachets supplémentaires et le remplacement de matériel sont facturés.",
     ],
   },
@@ -368,11 +431,7 @@ const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] =>
       `${shopBrand} — ${shopOffer.name} :`,
       shopTariffLines,
       "Commande de démarrage, réglée une seule fois à la souscription (article 10) :",
-      starterLines.map((line) =>
-        line.id === starterKit.cachet.id
-          ? `${line.name} — ${euros(line.price)} par table : ${line.tagline}`
-          : `${line.name} — ${euros(line.price)} : ${line.tagline}`
-      ),
+      starter.annex,
       "S'y ajoutent, le cas échéant, les frais du prestataire de paiement retenu par le Client, qui ne sont pas perçus par Ominin.",
       "Les montants ci-dessus sont ceux en vigueur à la date d'effet indiquée en tête des présentes.",
     ],
@@ -380,7 +439,7 @@ const buildArticles = (collect: CollectTariff, plans: Plan[]): LegalArticle[] =>
   {
     heading: "Annexe 2 — Formulaire de rétractation",
     body: [
-      `À compléter et à renvoyer uniquement si vous souhaitez vous rétracter de votre abonnement dans le délai de ${WITHDRAWAL_DAYS} jours prévu à l'article 7. Les Cachets imprimés, biens nettement personnalisés, en sont exclus.`,
+      starter.withdrawalForm,
       [
         `À l'attention de ${editorLegalName} — ${contactEmail}`,
         "Je vous notifie par la présente ma rétractation du contrat d'abonnement aux Services Ominin.",
@@ -450,4 +509,19 @@ export const cgv20261007b: LegalDocument = {
   summary:
     "Connect sans abonnement, à 3 % des commandes payées en ligne par carte : les mois offerts et l'abonnement mensuel de Connect disparaissent.",
   articles: buildArticles(collectCurrent, plansCurrent),
+};
+
+/*
+ * Matériel du composeur Connect et fin des retours, applicable dès sa
+ * publication et sans réacceptation, sur décision de l'éditeur : il ne
+ * concerne que les Commandes de démarrage passées sous cette version.
+ */
+export const cgv20261011: LegalDocument = {
+  ...cgv,
+  version: "2026-10-11",
+  effectiveFrom: parisEffectiveDate("2026-10-11"),
+  reacceptance: false,
+  summary:
+    "Commande de démarrage : imprimantes tickets, câble Ethernet et affiches A3 au prix de l'Annexe 1, vitrophanie sur devis ; rien de ce qui est livré n'est repris, échangé ni remboursé.",
+  articles: buildArticles(collectCurrent, plansCurrent, starterTermsMateriel),
 };

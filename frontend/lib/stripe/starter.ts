@@ -3,7 +3,7 @@ import { starterKit } from "@/lib/landing-data";
 
 /*
  * Commande de démarrage côté Stripe : Cachets imprimés (un par table),
- * boîtier Omilink en option, livraison. Paiements uniques, retrouvés par
+ * boîtier Omilink en option, matériel choisi dans le composeur, livraison. Paiements uniques, retrouvés par
  * lookup_key (créés par scripts/setup-stripe.ts) — aucun montant ici. Un
  * prix unique se pose aussi bien sur une session 'payment' que sur la
  * première facture d'une session 'subscription'.
@@ -22,11 +22,21 @@ export class MissingPriceError extends Error {
 
 export async function starterLineItems(
   stripe: Stripe,
-  { tables, omilink }: { tables: number; omilink: boolean }
+  {
+    tables,
+    omilink,
+    extras,
+  }: {
+    tables: number;
+    omilink: boolean;
+    /** Matériel choisi dans le composeur (imprimantes, câble, affiches…). */
+    extras: { id: string; quantity: number }[];
+  }
 ): Promise<Stripe.Checkout.SessionCreateParams.LineItem[]> {
   const wanted = [
     { key: starterKit.cachet.id, quantity: tables },
     ...(omilink ? [{ key: starterKit.omilink.id, quantity: 1 }] : []),
+    ...extras.map((extra) => ({ key: extra.id, quantity: extra.quantity })),
     { key: starterKit.shipping.id, quantity: 1 },
   ];
   const { data } = await stripe.prices.list({
