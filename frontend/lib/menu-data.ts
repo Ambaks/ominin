@@ -1854,7 +1854,10 @@ const oCroustiPoulet: Restaurant = {
  * le restaurant ; sauces, suppléments et nappages : tableau des allergènes du
  * 27/08/2026. Établissement affiché : Paris Gare de l'Est. Prix des menus,
  * suppléments et boissons déduits, questions au siège :
- * demos/chicken-street/profile.json.
+ * demos/chicken-street/profile.json. La carte est celle du site : la Ritchie
+ * Box, le Naan Burger Fury et les bowls, absents du site, n'y sont pas (ni
+ * visuel ni prix officiel). Le Naan Radikal, « suspendu momentanément » d'après
+ * le relevé du tableau des allergènes, n'y figure pas.
  */
 
 /* Les sauces du tableau des allergènes, hors BBQ (« suspendue momentanément »). */
@@ -1943,7 +1946,6 @@ const chickenStreet: Restaurant = {
         csItem("naan-supreme", "Naan Supreme", 8.5),
         csItem("naan-thai", "Naan Thaï", 7.5),
         csItem("naan-steak", "Naan Steak", 7.5),
-        csItem("naan-radikal", "Naan Radikal", 8.5),
         csItem("naan-tikka", "Naan Tikka", 8.5),
         csItem("naan-imperial", "Naan Imperial", 8.5),
       ],
@@ -1953,6 +1955,7 @@ const chickenStreet: Restaurant = {
       name: "Fried Chicken",
       items: [
         csItem("tenders-5", "Tenders 5\u00a0pièces", 7.5, {}, false),
+        csItem("wings-6", "Wings 6\u00a0pièces", 6.5, { image: "/chicken-street/wings.webp" }, false),
         csItem("wings", "Wings 10\u00a0pièces", 9.5, {}, false),
         csItem("tenders-n-cheese", "Tenders N Cheese", 5.5, {}, false),
         csItem("family-tenders", "Family Tenders", 29.9, { description: "20 tenders, à partager." }, false),

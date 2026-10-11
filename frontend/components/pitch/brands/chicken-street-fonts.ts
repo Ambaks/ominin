@@ -9,7 +9,6 @@ import { Anton, Archivo } from "next/font/google";
 const archivo = Archivo({
   variable: "--font-pitch-text",
   subsets: ["latin"],
-  axes: ["wdth"],
 });
 
 const anton = Anton({

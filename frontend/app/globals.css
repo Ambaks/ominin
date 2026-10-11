@@ -1374,6 +1374,14 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
   letter-spacing: 0.03em;
 }
 
+/* Huit catégories : en bureau, toutes tiennent sur la ligne. */
+@media (min-width: 1024px) {
+  .theme-chicken-street nav [data-category] {
+    letter-spacing: 0;
+    padding-inline: 0.85rem;
+  }
+}
+
 .theme-chicken-street .category-heading {
   font-family: var(--brand-display);
   font-weight: 400;
@@ -1471,6 +1479,11 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
   box-shadow: 0 -12px 24px -20px rgba(60, 45, 0, 0.8);
 }
 
+/* Sur le noir du héros et du pied de page, l'anneau de focus passe au jaune. */
+.theme-chicken-street :is(.logo-hero, footer:not([role="dialog"] footer)) :focus-visible {
+  outline-color: var(--cs-yellow);
+}
+
 /* Le héros : le noir du fronton sous le logo blanc et jaune. */
 .theme-chicken-street .logo-hero {
   --background: var(--cs-ink);
@@ -1498,6 +1511,7 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
 .theme-chicken-street footer:not([role="dialog"] footer) {
   background-color: var(--cs-ink);
   color: #ffffff;
+  --foreground: #ffffff;
   --muted: #e6e6e6;
   --faint: #cfcfcf;
   --hairline: rgba(255, 255, 255, 0.2);
