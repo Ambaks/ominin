@@ -1,17 +1,17 @@
-# Graph Report - ominin-connect  (2026-10-11)
+# Graph Report - gallant-darwin-696afb  (2026-10-12)
 
 ## Corpus Check
-- 944 files · ~2,996,540 words
+- 945 files · ~2,997,005 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 42 file(s) not represented in the graph (top: (none) 13, .css 9, .HEIC 4)
 
 ## Summary
-- 6931 nodes · 18309 edges · 399 communities (251 shown, 148 thin omitted)
+- 6932 nodes · 18309 edges · 400 communities (251 shown, 149 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 488 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2a7e7d8f`
+- Built from commit: `fa8b2096`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -405,7 +405,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (399 total, 148 thin omitted)
+## Communities (400 total, 149 thin omitted)
 
 ### Community 0 - "PhoneFlow.tsx"
 Cohesion: 0.07
@@ -1413,8 +1413,8 @@ Nodes (53): ShopOrderPage(), metadata, PackingSlipPage(), AccountOrderPage(), me
 
 ## Knowledge Gaps
 - **1605 isolated node(s):** `{ chromium }`, `[url, w = "390", h = "844", mode]`, `{ chromium }`, `failures`, `{ chromium }` (+1600 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2475 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **148 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2476 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **149 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
