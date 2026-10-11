@@ -307,6 +307,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               <ReacceptanceGate scope="etablissement">{children}</ReacceptanceGate>
             ) : (
               <SubscriptionGate
+                etablissementId={state.etablissement.id}
                 role={state.role}
                 offre={state.etablissement.offre}
                 tableCount={state.tables.length}

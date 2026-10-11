@@ -59,21 +59,30 @@ const shopPlans: Plan[] = [
   { id: "shop_monthly", name: `${shopOffer.name} — abonnement`, price: shopOffer.monthlyPrice, tagline: shopOffer.tagline, monthly: true },
 ];
 
-// Commande de démarrage : Cachets, boîtier, livraison — paiements uniques.
+// Commande de démarrage : Cachets, boîtier, matériel du composeur, livraison
+// — paiements uniques. Un article sans prix fixé n'a pas encore de tarif.
 const starterPlans: Plan[] = [
   starterKit.cachet,
   starterKit.omilink,
+  starterKit.printer,
+  starterKit.ethernetCable,
+  starterKit.poster,
+  starterKit.sticker,
   starterKit.shipping,
-].map(({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: false }));
+].flatMap(({ id, name, price, tagline }) =>
+  price === null ? [] : [{ id, name, price, tagline, monthly: false }]
+);
 
 // Toutes les offres de la salle ont un tarif mensuel, mois offerts compris :
 // celui de Connect n'est facturé qu'à leur terme, et seulement si le chiffre
 // d'affaires n'en a pas dispensé le restaurant. Le click & collect n'a que sa
 // commission : rien à créer chez Stripe.
 const plans: Plan[] = [
-  ...pricingSection.plans.map(
-    ({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })
-  ),
+  // Une offre sans abonnement (Connect : la seule commission) n'a pas de
+  // tarif mensuel à créer — son 0 € n'est pas un oubli.
+  ...pricingSection.plans
+    .filter((plan) => !(plan.price === 0 && plan.commission))
+    .map(({ id, name, price, tagline }) => ({ id, name, price, tagline, monthly: true })),
   ...starterPlans,
   // Ominin Shop reste « sur devis » tant que l'offre n'est pas publiée : aucun
   // tarif n'est créé, un prix à 0 € serait facturable par erreur.

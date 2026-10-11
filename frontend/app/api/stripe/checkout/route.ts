@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { parseAnswers, starterExtras } from "@/lib/composer";
 import { collectOffer, planTrial, starterKit } from "@/lib/landing-data";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import {
@@ -355,6 +356,7 @@ export async function POST(request: Request) {
 
   const omilink = unbilled && body.omilink === true;
   let tables = 0;
+  let extras: ReturnType<typeof starterExtras> = [];
   if (firstActivation) {
     const { count } = await supabase
       .from("tables")
@@ -367,8 +369,20 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
+    // Matériel choisi dans le composeur, relu en base : c'est la même
+    // composition que celle affichée au gérant, au prix de starterKit.
+    const { data: setup, error: setupError } = await supabase
+      .from("starter_setups")
+      .select("answers")
+      .eq("etablissement_id", etablissement.id)
+      .maybeSingle();
+    if (setupError) {
+      return NextResponse.json({ error: setupError.message }, { status: 500 });
+    }
+    const answers = setup && parseAnswers(setup.answers);
+    extras = answers ? starterExtras(answers) : [];
     try {
-      lineItems.push(...(await starterLineItems(stripe, { tables, omilink })));
+      lineItems.push(...(await starterLineItems(stripe, { tables, omilink, extras })));
     } catch (cause) {
       if (cause instanceof MissingPriceError) {
         return NextResponse.json({ error: cause.message }, { status: 500 });
@@ -419,6 +433,9 @@ export async function POST(request: Request) {
         label: starterKit.omilink.name,
         amount: starterKit.omilink.price,
       });
+    }
+    for (const extra of extras) {
+      signedLines.push({ label: `${extra.label} × ${extra.quantity}`, amount: extra.amount });
     }
     signedLines.push({
       label: starterKit.shipping.name,

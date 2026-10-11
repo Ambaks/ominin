@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { Offre } from "@/lib/gestion/types";
+import { decodeSetup, SETUP_PARAM } from "@/lib/composer";
 import { parseQuote } from "@/lib/quote";
 import { createClient } from "@/lib/supabase/server";
 import { OnboardingForm } from "./onboarding-form";
@@ -35,13 +36,15 @@ export default async function OnboardingPage({
 
   // parseQuote ne retient qu'une offre publiée sur la landing : son id est
   // donc une valeur d'Offre.
-  const quote = parseQuote(await searchParams);
+  const params = await searchParams;
+  const quote = parseQuote(params);
 
   return (
     <OnboardingForm
       initialOffre={quote?.plan as Offre | undefined}
       initialTables={quote?.tables}
       starter={quote && { omilink: quote.omilink, square: quote.square }}
+      setup={decodeSetup(params[SETUP_PARAM])}
     />
   );
 }
