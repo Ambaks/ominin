@@ -116,9 +116,12 @@ export const signupCta: Cta = {
   href: "/inscription",
 };
 
-/** CTA d'une carte tarif : le devis, avec l'offre présélectionnée. */
+/**
+ * CTA d'une carte tarif : Connect s'ouvre sur le composeur (questions sur la
+ * salle, matériel compris), les autres offres sur le devis présélectionné.
+ */
 export const planQuoteHref = (planId: string) =>
-  `/devis?plan=${encodeURIComponent(planId)}`;
+  planId === "connect" ? "/composer" : `/devis?plan=${encodeURIComponent(planId)}`;
 
 /** Montants à quatre chiffres : sans l'espace des milliers, on les lit mal. */
 // Insécable : le montant ne se sépare jamais de son symbole.
