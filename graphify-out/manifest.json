@@ -1206,9 +1206,9 @@
     "semantic_hash": ""
   },
   ".claude/CLAUDE.md": {
-    "mtime": 1791592069.4465768,
-    "seen": 1791592328.900264,
-    "ast_hash": "03984138d6c2b99636df949a9d37ed3d",
+    "mtime": 1791750750.4360218,
+    "seen": 1791750850.241672,
+    "ast_hash": "086c394fe04da2044b088d4f87eedbc8",
     "semantic_hash": ""
   },
   ".claude/plans/clip-phase2-espace.md": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791593064.578278,
-    "seen": 1791593074.7821188,
-    "ast_hash": "a16479690fd290611c380edb2258db95",
+    "mtime": 1791750839.4640756,
+    "seen": 1791750850.241696,
+    "ast_hash": "234e4872308685aeb206648dc5129bf3",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1890,9 +1890,9 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/SKILL.md": {
-    "mtime": 1791592069.4480848,
-    "seen": 1791592328.9002712,
-    "ast_hash": "399024f4862c28c4bac85850d9ad343c",
+    "mtime": 1791750750.4382248,
+    "seen": 1791750850.2416809,
+    "ast_hash": "e97cd4911828f2cda049591bd26dfa61",
     "semantic_hash": ""
   },
   "frontend/app/collect/demo/[slug]/page.tsx": {
@@ -2022,9 +2022,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/sumup/server.ts": {
-    "mtime": 1791592070.645082,
-    "seen": 1791592328.9001899,
-    "ast_hash": "edad18cb79369aebbbb477edfc2e6e68",
+    "mtime": 1791750750.4340308,
+    "seen": 1791750850.241539,
+    "ast_hash": "10ad98f7d9dbffcd1c0357ca50f640b9",
     "semantic_hash": ""
   },
   "supabase/migrations/20260817000001_sumup.sql": {
@@ -3618,9 +3618,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/square/server.ts": {
-    "mtime": 1791592070.6444578,
-    "seen": 1791592328.900189,
-    "ast_hash": "bdb935286841f7c067fccfdef8fc0872",
+    "mtime": 1791750750.4318368,
+    "seen": 1791750850.241537,
+    "ast_hash": "664c6d12d937a22e0b1f926cf676122b",
     "semantic_hash": ""
   },
   "supabase/migrations/20260909000001_shop_share_image.sql": {
@@ -4728,9 +4728,9 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/scripts/check_order.cjs": {
-    "mtime": 1791592069.449788,
-    "seen": 1791592328.899743,
-    "ast_hash": "52aafb70da7d0d23e6bfb248b93e914d",
+    "mtime": 1791750750.4449615,
+    "seen": 1791750850.2407832,
+    "ast_hash": "66caea5b4241816eed9171928ab5e3c3",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/scripts/check_page.cjs": {
@@ -4794,9 +4794,9 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/photos.md": {
-    "mtime": 1791592069.4492002,
-    "seen": 1791592328.9002721,
-    "ast_hash": "6865834a8b87085ad118b7ceab5e5c15",
+    "mtime": 1791750750.4426513,
+    "seen": 1791750850.241683,
+    "ast_hash": "506ee0cca5c3f565a2fb9d5c06e57e2c",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/research.md": {
@@ -4806,9 +4806,9 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/scoring.md": {
-    "mtime": 1791592069.449493,
-    "seen": 1791592328.9002728,
-    "ast_hash": "9073d050557bb4106169e0416f854314",
+    "mtime": 1791750750.4402845,
+    "seen": 1791750850.241685,
+    "ast_hash": "adf1d7663e488f2267f4b41a5049d431",
     "semantic_hash": ""
   },
   "Screenshot 2026-09-23 at 01.10.50.png": {
@@ -6669,6 +6669,180 @@
     "mtime": 1791592072.1782959,
     "seen": 1791592328.900257,
     "ast_hash": "5de18b3125f7f4f0dcf832ebd6c102cf",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/package.json": {
+    "mtime": 1791314738.0,
+    "seen": 1791750850.2415621,
+    "ast_hash": "232c1eb0289ebc4d54fe0e6177ac3af2",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/public/audio/sources.json": {
+    "mtime": 1791049349.0,
+    "seen": 1791750850.2415638,
+    "ast_hash": "8b9cc9521659a21c21e78632c186ad2a",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/remotion.config.ts": {
+    "mtime": 1791071103.0,
+    "seen": 1791750850.241565,
+    "ast_hash": "b88e3a4b1eb82450931453f7e6a64de0",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/Film.tsx": {
+    "mtime": 1791330823.0,
+    "seen": 1791750850.241566,
+    "ast_hash": "ef58d456416fb77a959a237011f45993",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/Root.tsx": {
+    "mtime": 1791314738.0,
+    "seen": 1791750850.241566,
+    "ast_hash": "bebb33012b3c78d38e909a8dfeebe024",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/brand/OmininMark.tsx": {
+    "mtime": 1791321830.0,
+    "seen": 1791750850.241567,
+    "ast_hash": "e7158ebc7cb3ecad237b4db20ca621d3",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/brand/fonts.ts": {
+    "mtime": 1791321830.0,
+    "seen": 1791750850.241567,
+    "ast_hash": "c8d55a8b33c5e005dbcaf359d4e73db7",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/brand/tokens.ts": {
+    "mtime": 1791312223.0,
+    "seen": 1791750850.241568,
+    "ast_hash": "226e73b8f392a88e888074a32ee17ab7",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/index.ts": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.241569,
+    "ast_hash": "c96add9e4c09d452ec267482e9d4629c",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/Device.tsx": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.241569,
+    "ast_hash": "1946a1d2c103b0e3eb601192857d73d6",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/Soundtrack.tsx": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.24157,
+    "ast_hash": "4935853ba71e13ad7ff8421942663343",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/Tap.tsx": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.24157,
+    "ast_hash": "ad6e1a60bd8a357c3aca558e02b74cfb",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/atmosphere.tsx": {
+    "mtime": 1791312223.0,
+    "seen": 1791750850.2415712,
+    "ast_hash": "fa5da534a8150686c6ac9f0fb7c57ea6",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/layout.ts": {
+    "mtime": 1791314764.0,
+    "seen": 1791750850.2415721,
+    "ast_hash": "d303bde2817aa3ad00e777c8223956ac",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/motion.ts": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.2415721,
+    "ast_hash": "b04ed1b7c9c7f581b716e338c1506079",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/kit/type.tsx": {
+    "mtime": 1791311902.0,
+    "seen": 1791750850.241573,
+    "ast_hash": "01d6caf72c3d77bdd52e664775db98ce",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/Audiences.tsx": {
+    "mtime": 1791330240.0,
+    "seen": 1791750850.241573,
+    "ast_hash": "8c8c540bf708398f08669a219629bd0d",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/Finale.tsx": {
+    "mtime": 1791330240.0,
+    "seen": 1791750850.2415738,
+    "ast_hash": "42a5488126540274eb033b88624b1c39",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/Hook.tsx": {
+    "mtime": 1791318734.0,
+    "seen": 1791750850.2415738,
+    "ast_hash": "9b1d8dbe04c0cee7c1cfc88dcbd5281a",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/Intro.tsx": {
+    "mtime": 1791330240.0,
+    "seen": 1791750850.241575,
+    "ast_hash": "2a540d2759ca728393c534ae0b6b20a6",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/art.tsx": {
+    "mtime": 1791312254.0,
+    "seen": 1791750850.241575,
+    "ast_hash": "59b88966df99cadd08ecbb90e9ba04b9",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/common.tsx": {
+    "mtime": 1791318304.0,
+    "seen": 1791750850.241576,
+    "ast_hash": "539dbd1c725f490d0ab1b315b483f863",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/product/Product.tsx": {
+    "mtime": 1791330240.0,
+    "seen": 1791750850.241577,
+    "ast_hash": "2fa6d73303b7782b3aca3ac8d0c84814",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/product/callouts.tsx": {
+    "mtime": 1791330823.0,
+    "seen": 1791750850.241577,
+    "ast_hash": "f2332ef347ee4ecb97948628b4520931",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/product/panels.tsx": {
+    "mtime": 1791330823.0,
+    "seen": 1791750850.241578,
+    "ast_hash": "5a3bb09b3be772e96f7153442cc5fe5d",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/product/screens.tsx": {
+    "mtime": 1791321830.0,
+    "seen": 1791750850.241578,
+    "ast_hash": "9e33eed786bb5918486c7c318d9e4de4",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/scenes/product/times.ts": {
+    "mtime": 1791330844.0,
+    "seen": 1791750850.241579,
+    "ast_hash": "7c142f7576789a4c3974e2ab8da7a09e",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/src/timeline.ts": {
+    "mtime": 1791330240.0,
+    "seen": 1791750850.24158,
+    "ast_hash": "5986d300d493837a6c4f4ef3b00af7f3",
+    "semantic_hash": ""
+  },
+  "marketing/linkedin-film/tsconfig.json": {
+    "mtime": 1791049349.0,
+    "seen": 1791750850.24158,
+    "ast_hash": "af9c0dc360fef6fa473389d32a37004d",
     "semantic_hash": ""
   }
 }

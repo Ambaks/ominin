@@ -4,46 +4,69 @@
 1. [How a round works](#how-a-round-works)
 2. [The rubric](#the-rubric)
 3. [Constraints block](#constraints-block)
-4. [Holistic scorer — every round](#holistic-scorer--every-round)
-5. [Ordering stress-tester](#ordering-stress-tester)
-6. [Accuracy auditor](#accuracy-auditor)
-7. [Triage](#triage)
-8. [Pass and stop](#pass-and-stop)
+4. [Holistic scorer — full audits](#holistic-scorer--full-audits)
+5. [Change-only reviewer](#change-only-reviewer)
+6. [Ordering stress-tester](#ordering-stress-tester)
+7. [Accuracy auditor](#accuracy-auditor)
+8. [Engineering reviewer — every round](#engineering-reviewer--every-round)
+9. [Triage](#triage)
+10. [Pass and stop](#pass-and-stop)
 
 ---
 
 ## How a round works
 
-| Agent | Round 1 | Later rounds | Runs |
+Round 1 is a **full audit**. After a round with findings, the next rounds
+are **change-only**: they review what was fixed, not the whole page again,
+until every version holds 9. Then run a full audit again; if it finds
+issues, go back to change-only rounds, then audit again.
+
+| Agent | Full audit | Change-only round | Runs |
 |---|---|---|---|
-| Holistic scorer | **two**, independent | two, every round | 2 |
-| Ordering stress-tester | if the carte has options | when ordering code or option data changed | 0-1 |
-| Accuracy auditor | yes | when carte text (names, prices, descriptions, claims) changed | 0-1 |
+| Holistic scorer | **two**, independent | — | 2 / 0 |
+| Change-only reviewer | — | **one**, covering the versions still below 9 or touched by a fix | 0 / 1 |
+| Ordering stress-tester | round 1 if the carte has options; later, if ordering code or option data changed since the last full audit | — | 0-1 / 0 |
+| Accuracy auditor | round 1; later, if carte text (names, prices, descriptions, claims) changed since the last full audit | — | 0-1 / 0 |
+| Engineering reviewer | the whole diff against `main` | the code changed since the last round | 1 / 1 |
 
-Spawn the round's agents **in one message** (`general-purpose`, background).
-Each round gets **new** agents: one that remembers its last verdict anchors
-on it. Fill the templates below; pass nothing else — not the pass
-threshold, not earlier scores, not your view of the page. Don't edit the
-code or restart the dev server until they have all reported.
+A version that holds 9 drops out of change-only rounds until a fix touches
+it. Spawn the round's agents **in one message** (`general-purpose`,
+background). Each round gets **new** agents: one that remembers its last
+verdict anchors on it. Fill the templates below; pass nothing else — not
+the pass threshold, not earlier scores, not your view of the page. That
+holds for change-only briefs too: on Big Smash (October 2026) briefs that
+said "last round 8/10, does it now reach 9?" got a 9 from every change-only
+check while five fresh full audits in a row gave 8. Don't edit the code or
+restart the dev server until they have all reported.
 
-The round's score for each version is the **lower** of the two holistic
-scores. Two scorers disagreeing by more than 2 points usually means one of
-them missed something — read both reports before fixing.
+When you launch a round, snapshot the code for the next round's engineering
+reviewer: `git stash create` prints a commit of the working tree without
+touching the tree, the index or the stash list (empty output means a clean
+tree: use `HEAD`). Record the SHA in the round log, and from then on list
+every untracked file you create or edit — `git diff <SHA>` doesn't show
+them.
+
+In a full audit, the round's score for each version is the **lower** of
+the two holistic scores. Two scorers disagreeing by more than 2 points
+usually means one of them missed something — read both reports before
+fixing. In a change-only round, it is the reviewer's score.
 
 **Budget: 30 agent runs for the whole loop.** Every agent above counts one.
-Round 1 typically costs 4, later rounds 2-3: that's roughly 10-12 rounds.
+Round 1 typically costs 5, a change-only round 2, a later full audit 3-5.
 Before launching a round, check it fits in what's left; if not, stop and
 report.
 
-Keep a round log in the scratchpad: round, runs spent, both scores per
-version, the constraints block as sent, fixes, findings rejected (with
-evidence) and taste calls declined (with the reason). The hand-off quotes
-it.
+Keep a round log in the scratchpad: round and its type (full audit or
+change-only), runs spent, the scores per version, the engineering score,
+the code snapshot, the constraints block as sent, the change list sent,
+fixes, findings rejected (with evidence) and taste calls declined (with the
+reason). The hand-off quotes it.
 
 ## The rubric
 
-Paste it into the holistic scorer's prompt unchanged. Anchors are what make
-two different fresh scorers produce comparable numbers.
+Paste it into the holistic scorer's and the change-only reviewer's prompts
+unchanged. Anchors are what make two different fresh scorers produce
+comparable numbers.
 
 ```
 Whole numbers only.
@@ -91,7 +114,7 @@ penalise them blindly:
 
 ---
 
-## Holistic scorer — every round
+## Holistic scorer — full audits
 
 ```
 You are the final reviewer on a customer-facing restaurant menu before it
@@ -161,6 +184,56 @@ OUTPUT — be decisive:
 Don't pad a score to be kind; don't withhold one it deserves.
 ```
 
+## Change-only reviewer
+
+Write the change list from your fix log: what changed, where to see it,
+how to trigger it. List the declined findings with their one-line reason
+so they aren't raised again; scores and the target stay out.
+
+```
+You are reviewing fixes on a customer-facing restaurant menu before it goes
+to the client. The page was reviewed in full earlier: judge the changes
+listed below and the areas they touch, not the whole page again. Be
+exacting; generic praise is worthless.
+
+THE RESTAURANT: <same lines as the holistic brief>.
+
+VERSIONS TO REVIEW — score each separately:
+<A. Restaurant version: http://localhost:3000/menu/demo/<slug> — judged
+   against the restaurant's own identity (source: <ABSOLUTE PATHS>)>
+<B. Ominin version: http://localhost:3000/menu/demo/<slug>?theme=ominin —
+   judged against Ominin's house style: warm near-black, gold ember
+   accents, Fraunces + Instrument Sans>
+
+CHANGES SINCE THE LAST ROUND:
+1. <what changed, in which version, where to see it (section, item,
+   width, state) and how to trigger it>
+2. …
+
+ALREADY DECIDED — don't raise again: <declined findings, one line each with
+the reason; owner decisions>.
+
+<CONSTRAINTS BLOCK>
+
+HOW TO LOOK — the same tools as a full review (.claude/skills/new-restaurant/
+scripts/, through pw.sh). Start from the previous round's scripts in
+<PREVIOUS SCRATCH> and adapt them; don't rewrite them. Write files ONLY
+under <SCRATCH>, never in the repo. One browser at a time.
+
+CHECK:
+1. Each change: verified / not fixed / regressed, with the evidence you
+   measured.
+2. Regressions in the areas the changes touch, at 320, 390 and 1440 px.
+
+RUBRIC — use it exactly:
+<RUBRIC>
+
+OUTPUT: 1. each change with its verdict and evidence; 2. regressions;
+3. a score for each version reviewed, one sentence each, and everything
+you saw between it and a 10, ranked, split into (a) fixable in code now
+and (b) needs an asset or a decision from the client.
+```
+
 ## Ordering stress-tester
 
 ```
@@ -207,9 +280,9 @@ the list of checks that PASSED, so we know what was verified.
 ## Accuracy auditor
 
 ```
-Audit a restaurant's QR menu for factual accuracy against its source, and
-for code quality. Be pedantic — a wrong price on a live menu is a real
-problem for a real business.
+Audit a restaurant's QR menu for factual accuracy against its source. Be
+pedantic — a wrong price on a live menu is a real problem for a real
+business.
 
 THE SOURCE: <ABSOLUTE PATHS of the original files AND the rendered PNGs>.
 It is dense: read it region by region with
@@ -234,20 +307,81 @@ CHECK EVERY ONE and report every mismatch:
 - anything recorded as a placeholder in demos/<slug>/profile.json
   (options_a_valider etc.) is known — verify it's flagged, don't re-report it
 
-Then technical: `cd frontend && npx tsc --noEmit` and `npx eslint` on the
-changed files; console errors on the page; every image loads; the other
+Then technical: console errors on the page; every image loads; the other
 restaurants in the registry still render in their own style
-(/menu/demo/<other-slug>); code against /CLAUDE.md house rules (no dead
-code, no speculative abstraction, French comments are the convention).
-Theme tokens (hex values in .theme-<slug>) and carte data (prices, names)
-ARE the data of this feature — they are not "hardcoded constants" in the
-CLAUDE.md sense; don't report them as such. Alcoholic drinks must carry
-vatRate: 20.
+(/menu/demo/<other-slug>). Alcoholic drinks must carry vatRate: 20.
 
 OUTPUT: a score out of 10; a table of every factual mismatch (or "none" per
 section — say which sections you verified); technical defects ranked with
 file:line and fix; must-fix vs would-elevate. Never guess at the source —
 crop in and read it; say so if something is illegible.
+```
+
+## Engineering reviewer — every round
+
+No UX scorer reads the code, yet the shared components (cart bar, cart
+sheet, dish card, category bar, payment screens, toast) serve paying
+restaurants live. Full audits review the whole diff against `main`;
+change-only rounds review only what changed since the snapshot in the
+round log.
+
+```
+You are a senior full-stack engineer doing an independent, adversarial
+review of code before it ships to paying restaurants. Score it out of 10
+and say exactly what stands between it and a 10.
+
+THE CODE: <REPO OR WORKTREE PATH> — Next.js frontend in frontend/ (read
+frontend/AGENTS.md: this Next version differs from your training data),
+FastAPI backend in backend/, migrations in supabase/migrations/. Orient with
+`graphify query "<question>"` from the repo root before grepping.
+
+SCOPE — <pick one>:
+  The whole change: `git diff main`, plus the untracked files listed by
+  `git status --short`.
+  — or — The changes since the last round: `git diff <SNAPSHOT SHA>`, plus
+  these untracked files: <PATHS>. Read the surrounding code, but report
+  only on what changed.
+
+WHAT IT IS: <2-3 lines: the client, what the change does, which files are
+shared with other restaurants>.
+
+OWNER DECISIONS — not defects: <constants and behaviours the user has
+already approved, or "none">.
+
+CHECK, at least:
+1. Regressions for everyone else: anything shared (components,
+   globals.css, lib/menu/*, lib/gestion/*, API routes) must keep table
+   service, fast-food mode and every restaurant in the registry intact.
+2. Correctness: React rules (hooks, effects and their cleanup, stale
+   closures, hydration), state and arithmetic in the ordering and payment
+   paths, any SQL against every path that writes the same tables.
+3. `cd frontend && npx tsc --noEmit`, and `npx eslint <changed files>`.
+4. /CLAUDE.md house rules: no dead code, filler comments, duplication or
+   speculative abstraction; French comments matching the codebase. List
+   every NEW constant (timeout, delay, size, threshold, tuning value) not
+   under OWNER DECISIONS, with file:line — the owner decides where each
+   lives, so don't propose values. Theme tokens (hex values in
+   .theme-<slug>) and carte data (prices, names) are this feature's data,
+   not constants.
+
+RULES: read-only — never edit a file in the repo. Never run `npm run build`
+in a tree whose dev server is running (they share .next), and nothing
+against the production database. One browser at a time if you need one,
+closed in a finally. Write files ONLY under <SCRATCH>.
+
+RUBRIC — whole numbers:
+10  Reference-grade; nothing left to fix.
+ 9  Ship it to paying restaurants: only polish remains, no bug a customer,
+    a member of staff or the business would hit.
+ 8  Good; a few real issues, none serious.
+ 7  Several real defects.
+≤6  A bug in a main path (ordering, payment, printing) or a regression for
+    an existing client.
+
+OUTPUT: 1. score with a one-paragraph justification; 2. every defect
+ranked, each with file:line, a concrete failure scenario (inputs/state →
+wrong outcome) and the fix; 3. must-fix vs polish; 4. the new constants;
+5. what you verified as passing.
 ```
 
 ---
@@ -266,20 +400,26 @@ For every finding, before touching code:
    the log with the reason; if the user has expressed a preference
    (e.g. "modern and professional, not cartoonish"), that wins over a
    reviewer.
+5. **New constants** from the engineering reviewer → ask the user where each
+   one lives (config, `.env` or inline); CLAUDE.md makes it their call.
+   Approved ones go under OWNER DECISIONS in the next brief.
 
 Then re-run Phase 7 (all mechanical checks green) before the next round.
 
 ## Pass and stop
 
-**Pass** — in one round: **both** holistic scorers give **≥ 9 to version A
-and ≥ 9 to version B**, and no must-fix is open from the ordering tester or
-the accuracy auditor.
+**Pass** — only in a full audit: **both** holistic scorers give **≥ 9 to
+version A and ≥ 9 to version B**, the engineering reviewer gives **≥ 9**,
+and no must-fix is open from the ordering tester, the accuracy auditor or
+the engineering reviewer. A change-only round can't pass the page: when
+every version scores 9 there, the next round is a full audit.
 
 **Stop without passing** when either:
 - the 30-run budget is spent (or the next round wouldn't fit), or
-- two consecutive rounds raised neither version's round score (the lower of
-  the two scorers) while every remaining finding is client-blocked,
-  verified wrong, or a declined taste call.
+- two consecutive full audits raised neither version's round score (the
+  lower of the two scorers) nor the engineering score while every
+  remaining finding is client-blocked, verified wrong, or a declined taste
+  call.
 
 On a stop, report honestly: the last scores, what separates each version
 from 9, and exactly which asset or decision from the owner would close each

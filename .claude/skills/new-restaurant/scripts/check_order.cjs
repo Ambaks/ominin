@@ -161,6 +161,12 @@ const inspectDialog = (page) =>
     await plain.scrollIntoViewIfNeeded();
     await plain.click();
     await page.waitForTimeout(900);
+    // « + Ajouter » sur un plat à suppléments facultatifs ouvre sa feuille
+    // (rien d'obligatoire, le bouton de validation ajoute tel quel).
+    if (await page.locator('[role="dialog"]').count()) {
+      await page.locator('[role="dialog"] button').last().click();
+      await page.waitForTimeout(900);
+    }
   }
   const bar = await page.evaluate(() =>
     [...document.querySelectorAll("body *")]
