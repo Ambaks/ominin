@@ -274,13 +274,14 @@ export async function confirmOrderPaid(
     );
     tip = Math.round((checkout.amount - linesTotal) * 100) / 100;
   }
-  const { error } = await admin.rpc("mark_order_paid_online", {
+  const { data: settled, error } = await admin.rpc("mark_order_paid_online", {
     p_order_id: order.id,
     p_tip: tip > 0 ? tip : null,
   });
   if (error) throw new Error(error.message);
   // La commande attendait son règlement hors de la caisse : elle arrive en
-  // salle maintenant.
-  await dispatchOrderEvent(order.id, "nouvelle_commande");
+  // salle maintenant — une fois, même quand webhook et vérification se
+  // croisent.
+  if (settled) await dispatchOrderEvent(order.id, "nouvelle_commande");
   return true;
 }
