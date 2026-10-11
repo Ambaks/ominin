@@ -1,0 +1,22 @@
+{
+  "music/energetic-funky-groove.mp3": {
+    "title": "Energetic Funky Groove",
+    "author": "_Music_for_Creators_",
+    "source": "https://pixabay.com/music/funk-energetic-funky-groove-138634/",
+    "license": "Pixabay Content License (commercial use, no attribution; no standalone redistribution)"
+  },
+  "sfx/ambience.wav": { "title": "Restaurant crowd talking ambience (first 20 s)", "source": "https://assets.mixkit.co/active_storage/sfx/444/444.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/whoosh-small.wav": { "title": "Fast whoosh transition", "source": "https://assets.mixkit.co/active_storage/sfx/1490/1490.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/whoosh-large.wav": { "title": "Cinematic whoosh fast transition", "source": "https://assets.mixkit.co/active_storage/sfx/1492/1492.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/tap.wav": { "title": "Interface device click", "source": "https://assets.mixkit.co/active_storage/sfx/2577/2577.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/scan.wav": { "title": "Positive interface beep", "source": "https://assets.mixkit.co/active_storage/sfx/221/221.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/payment.wav": { "title": "Success software tone", "source": "https://assets.mixkit.co/active_storage/sfx/2865/2865.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/printer.wav": { "title": "Vintage dot printing", "source": "https://assets.mixkit.co/active_storage/sfx/1371/1371.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/ready.wav": { "title": "Bell notification", "source": "https://assets.mixkit.co/active_storage/sfx/933/933.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/bass-hit.wav": { "title": "Short bass hit", "source": "https://assets.mixkit.co/active_storage/sfx/2299/2299.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/impact.wav": { "title": "Big cinematic impact (from preview mp3)", "source": "https://assets.mixkit.co/active_storage/sfx/788/788-preview.mp3", "license": "Mixkit Sound Effects Free License" },
+  "sfx/riser.wav": { "title": "Cinematic trailer riser", "source": "https://assets.mixkit.co/active_storage/sfx/790/790.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/tick.wav": { "title": "Clock ticker single", "source": "https://assets.mixkit.co/active_storage/sfx/1061/1061.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/coins.wav": { "title": "Clinking coins", "source": "https://assets.mixkit.co/active_storage/sfx/1993/1993.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/vibration.wav": { "title": "Phone vibration, two pulses", "source": "synthesized with ffmpeg aevalsrc (171 Hz square + 342 Hz, 0.44 s pulses)", "license": "own work" }
+}
