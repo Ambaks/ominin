@@ -38,10 +38,15 @@ const inspectDialog = (page) =>
           d.parentElement?.parentElement === document.body),
       // …et elle doit rester habillée comme la page (thème + polices) : rendue
       // dans document.body, elle retombait en palette et polices Ominin.
+      // Un thème peut redéfinir ses jetons sur les fiches et les feuilles
+      // (Big Smash : page rouge, panneaux blancs) : la feuille ressemble alors
+      // aux fiches de la carte plutôt qu'à la page.
       themed: (() => {
         const root = document.querySelector("[data-menu-root]") || document.body;
-        const same = (v) =>
-          getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(root).getPropertyValue(v).trim();
+        const card = document.querySelector("main article");
+        const sameAs = (other, v) =>
+          !!other && getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(other).getPropertyValue(v).trim();
+        const same = (v) => sameAs(root, v) || sameAs(card, v);
         // Le titre de la modale est un nom de plat : il se compare aux noms
         // des cartes, pas aux titres de section (manuscrits chez O’Crousti).
         const title = d.querySelector("h3");
@@ -185,7 +190,10 @@ const inspectDialog = (page) =>
       const b = [...document.querySelectorAll("button")].find((x) => /envoy|aperçu/i.test(x.textContent));
       return b ? { disabled: b.disabled, label: b.textContent.trim() } : null;
     });
-    if (send?.disabled && /aperçu/i.test(send.label)) ok("envoi verrouillé sur l'aperçu", `« ${send.label} »`);
+    // Aperçu fast food : le bouton montre le ticket sur un numéro fictif, sans
+    // rien envoyer (cart-bar.tsx, submit() s'arrête à cart.preview).
+    const fastFoodPreview = url.includes("service=fast-food") && /aperçu.*ticket/i.test(send?.label ?? "");
+    if ((send?.disabled && /aperçu/i.test(send.label)) || fastFoodPreview) ok("envoi verrouillé sur l'aperçu", `« ${send.label} »`);
     else fail("l'aperçu peut ENVOYER une commande réelle", JSON.stringify(send));
   }
 
