@@ -3,6 +3,7 @@ import { heroDelay } from "@/components/menu/hero-delay";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { SectionLink } from "@/components/menu/section-link";
 import {
+  brandName,
   displayAddress,
   displayPhone,
   mapsUrl,
@@ -110,7 +111,7 @@ function LogoHero({
     // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
     <img
       src={restaurant.logo}
-      alt={nameInLogo ? restaurant.name : ""}
+      alt={nameInLogo ? brandName(restaurant) : ""}
       className={`relative h-28 w-auto sm:h-32 lg:h-40 xl:h-44 ${restaurant.whiteLogo ? "logo-white" : ""}`}
     />
   );
@@ -190,7 +191,7 @@ function LogoHero({
             className="hero-name hero-entrance relative z-10 mt-3 px-5 text-center font-display text-6xl font-medium leading-none tracking-tight max-[359px]:text-5xl sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
             style={heroDelay("350ms")}
           >
-            <NameWords name={restaurant.name} />
+            <NameWords name={brandName(restaurant)} />
           </h1>
         )}
 
@@ -260,7 +261,7 @@ function PosterHero({
           fetchPriority="high"
           className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
         />
-        <h1 className="sr-only">{restaurant.name}</h1>
+        <h1 className="sr-only">{brandName(restaurant)}</h1>
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
@@ -324,7 +325,7 @@ export function Hero({
           {restaurant.tagline}
         </p>
         <h1 className="mt-2 font-display text-5xl font-medium leading-none tracking-tight sm:text-6xl lg:text-7xl">
-          {restaurant.name}
+          {brandName(restaurant)}
         </h1>
 
         <ContactPills

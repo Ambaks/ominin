@@ -1,31 +1,11 @@
-import { DEFAULT_DAY_END_HOUR, FEATURES } from "@/lib/gestion/constants";
-import { orderTotal } from "@/lib/gestion/selectors";
-import type {
-  GestionState,
-  Order,
-  OrderItem,
-  OrderItemOption,
-} from "@/lib/gestion/types";
-import { getRestaurant, type MenuItem } from "@/lib/menu-data";
+import { getRestaurant } from "@/lib/menu-data";
+import { demoState, paidOrder, type Line, type Scenario, type ServiceDemo } from "../_service/fixtures";
 
 /*
  * Un coup de feu au comptoir, joué sans base : les commandes payées en ligne
- * d'un restaurant fast food, telles que l'espace de gestion les reçoit. Les
- * articles sont désignés par leur nom sur la carte (lib/menu-data) et leurs
- * choix par libellé : chaque libellé va au premier groupe de l'article qui
- * le propose, un groupe obligatoire sans libellé prend son premier choix, et
- * une ligne dont l'article a quitté la carte disparaît de la commande.
+ * d'un restaurant fast food, telles que l'espace de gestion les reçoit ; leurs
+ * lignes se désignent comme dans ../_service/fixtures.
  */
-
-/**
- * rush : le coup de feu commence, la file se remplit sous les yeux ; fige :
- * la file pleine, rien n'arrive.
- */
-export const SCENARIOS = ["rush", "fige"] as const;
-export type Scenario = (typeof SCENARIOS)[number];
-
-/** Article par son nom sur la carte, quantité, libellés des choix voulus. */
-type Line = readonly [name: string, quantity: number, ...choices: string[]];
 
 interface Ticket {
   number: number;
@@ -170,90 +150,12 @@ export function counterTitle(slug: string, name: string): string {
   return site ? `${name} · ${site}` : name;
 }
 
-const sameLabel = (a: string, b: string) =>
-  a.localeCompare(b, "fr", { sensitivity: "base" }) === 0;
-
-function orderLine(
-  items: MenuItem[],
-  [name, quantity, ...wanted]: Line,
-  id: string
-): OrderItem | null {
-  const item = items.find((candidate) => sameLabel(candidate.name, name));
-  if (!item) return null;
-  const left = [...wanted];
-  const options: OrderItemOption[] = [];
-  for (const group of item.options ?? []) {
-    const matches = left.flatMap((label) => {
-      const choice = group.choices.find((candidate) => sameLabel(candidate.name, label));
-      return choice ? [choice] : [];
-    });
-    const chosen = group.multiple ? matches : matches.slice(0, 1);
-    if (chosen.length === 0 && group.obligatoire) chosen.push(group.choices[0]);
-    for (const choice of chosen) {
-      const index = left.findIndex((label) => sameLabel(label, choice.name));
-      if (index !== -1) left.splice(index, 1);
-      options.push({
-        groupName: group.name,
-        choiceName: choice.name,
-        supplement: choice.supplement,
-      });
-    }
-  }
-  return {
-    id,
-    itemId: item.id,
-    // Le nom du ticket client : « Tenders x4 », pas « 2× Tenders ».
-    name: item.detail ? `${item.name} ${item.detail}` : item.name,
-    quantity,
-    // Convention de place_order : suppléments inclus dans unitPrice.
-    unitPrice: options.reduce((sum, option) => sum + option.supplement, item.price),
-    options: options.length > 0 ? options : undefined,
-    paidMode: "en_ligne",
-  };
-}
-
-function paidOnline(
-  items: MenuItem[],
-  number: number,
-  status: Order["status"],
-  lines: readonly Line[],
-  createdAt: string
-): Order | null {
-  const orderItems = lines.flatMap(
-    (line, index) => orderLine(items, line, `demo-${number}-${index}`) ?? []
-  );
-  if (orderItems.length === 0) return null;
-  const order: Order = {
-    id: `demo-${number}`,
-    type: "sur_place",
-    tableId: null,
-    orderNumber: number,
-    status,
-    createdAt,
-    items: orderItems,
-    paymentMode: "carte",
-    paidOnline: true,
-    payments: [],
-  };
-  order.payments = [{ mode: "en_ligne", amount: orderTotal(order), paidAt: createdAt }];
-  return order;
-}
-
-export interface CounterDemo {
-  state: GestionState;
-  /** La index-ième commande payée après l'ouverture, datée de createdAt. */
-  arrival: (index: number, createdAt: string) => Order | null;
-  /** Attente avant l'arrivée index, en millisecondes. */
-  delayMs: (index: number) => number;
-  maxOpen: number;
-}
-
-/** Le service au comptoir de slug, ouvert à openedAt (ms). */
+/** Le service au comptoir de slug, ouvert à openedAt (ms), à l'heure de l'appareil. */
 export function counterDemo(
   slug: string,
   openedAt: number,
   scenario: Scenario
-): CounterDemo | null {
+): ServiceDemo | null {
   const restaurant = getRestaurant(slug);
   if (!restaurant || !hasCounterDemo(slug)) return null;
   const service = SERVICES[slug];
@@ -270,58 +172,20 @@ export function counterDemo(
     index < deferred.length
       ? deferred[index].lines
       : service.arrivals[(index - deferred.length) % service.arrivals.length];
+  const ticket = (number: number, status: Ticket["status"], lines: readonly Line[], createdAt: string) =>
+    paidOrder(items, `demo-${number}`, lines, createdAt, { status, tableId: null, orderNumber: number });
 
   return {
-    state: {
-      etablissement: {
-        id: `demo-${slug}`,
-        slug,
-        name: restaurant.name,
-        tagline: restaurant.tagline,
-        address: restaurant.address,
-        phone: restaurant.phone,
-        hours: restaurant.hours,
-        openingHours: null,
-        offre: "connect",
-        serviceMode: "fast_food",
-        onlinePayment: true,
-        paymentProvider: "stripe",
-        collectSlotCapacity: 0,
-        adminPinSet: false,
-        paymentPinSet: false,
-      },
-      subscriptionStatus: "active",
-      offreTrial: null,
-      collectSubscriptionStatus: null,
-      userId: "demo",
-      visitesVues: null,
-      role: "gerant",
-      members: [],
-      features: Object.fromEntries(
-        FEATURES.map((feature) => [feature, true])
-      ) as GestionState["features"],
-      // Tout est réglé en ligne : pas d'addition à encaisser au comptoir.
-      orderTabs: ["a_servir", "historique"],
-      dayEndHour: DEFAULT_DAY_END_HOUR,
-      orderNumberResetHour: null,
-      staff: [],
-      categories: restaurant.categories,
-      formules: [],
-      priceRules: [],
-      tables: [],
-      orders: present.flatMap(
+    state: demoState(
+      restaurant,
+      "fast_food",
+      [],
+      present.flatMap(
         ({ number, minutesAgo, status, lines }) =>
-          paidOnline(
-            items,
-            number,
-            status,
-            lines,
-            new Date(openedAt - minutesAgo * 60_000).toISOString()
-          ) ?? []
-      ),
-    },
-    arrival: (index, createdAt) =>
-      paidOnline(items, firstArrival + index, "payee", linesOf(index), createdAt),
+          ticket(number, status, lines, new Date(openedAt - minutesAgo * 60_000).toISOString()) ?? []
+      )
+    ),
+    arrival: (index, createdAt) => ticket(firstArrival + index, "payee", linesOf(index), createdAt),
     delayMs: (index) => service.cadenceS[index % service.cadenceS.length] * 1000,
     maxOpen: service.maxOpen,
   };

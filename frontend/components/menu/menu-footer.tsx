@@ -1,6 +1,7 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import {
+  brandName,
   displayAddress,
   displayPhone,
   mapsUrl,
@@ -64,23 +65,44 @@ export function MenuFooter({
   const phone = restaurant.phone.trim();
   const address = restaurant.address.trim();
   const hours = restaurant.hours.trim();
+  // Une carte qui imprime des allergènes renvoie aussi vers l'équipe : la liste
+  // ne remplace pas la question d'un client allergique.
+  const printsAllergens = restaurant.categories.some((category) =>
+    category.items.some((item) => item.allergens?.length)
+  );
   // La palette Ominin (themeToggle) garde le logo du héros, qu'elle sait éclaircir.
   const brandLogo = themeToggle ? undefined : restaurant.footerLogo;
 
   return (
     <footer className="border-t border-hairline">
       <div className="mx-auto flex max-w-2xl flex-col items-center gap-8 px-5 py-12 text-center lg:max-w-5xl lg:px-10 lg:py-16">
+        {restaurant.glossary && (
+          <section aria-labelledby="menu-glossary" className="footer-glossary w-full max-w-md text-left">
+            <h2 id="menu-glossary" className="font-display text-xl">
+              Infos
+            </h2>
+            <dl className="mt-3 flex flex-col gap-2 text-sm">
+              {restaurant.glossary.map(({ term, definition }) => (
+                <div key={term}>
+                  <dt className="inline font-semibold text-foreground">{keepHyphenated(term)}</dt>
+                  <dd className="inline text-muted">{keepHyphenated(`\u00a0: ${definition}`)}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
         <div className="flex flex-col items-center gap-4">
           <p className="footer-name font-display text-2xl font-medium lg:text-3xl">
             {restaurant.logo && restaurant.logoIsName ? (
               // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
               <img
                 src={brandLogo ?? restaurant.logo}
-                alt={restaurant.name}
+                alt={brandName(restaurant)}
                 className={brandLogo ? "h-auto w-72 max-w-full lg:w-96" : `h-12 w-auto lg:h-14 ${restaurant.whiteLogo ? "logo-white" : ""}`}
               />
             ) : (
-              restaurant.name
+              brandName(restaurant)
             )}
           </p>
 
@@ -109,6 +131,12 @@ export function MenuFooter({
           )}
 
           {hours && <p className="text-sm text-muted">{hours}</p>}
+
+          {printsAllergens && (
+            <p className="text-sm text-muted">
+              Allergies ou intolérances&nbsp;: demandez à l&rsquo;équipe avant de commander.
+            </p>
+          )}
         </div>
 
         {restaurant.googleReviewUrl && (

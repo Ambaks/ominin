@@ -44,6 +44,14 @@ export function orderTotal(order: Order): number {
   return order.items.reduce((sum, line) => sum + lineTotal(line), 0);
 }
 
+/** L'heure où la dernière ligne d'une commande est arrivée à table, si elle l'est. */
+export function lastServedAt(order: Order): string | undefined {
+  return order.items.reduce<string | undefined>(
+    (last, line) => (line.servedAt && (!last || line.servedAt > last) ? line.servedAt : last),
+    undefined
+  );
+}
+
 /** Close : servie (sur place), retirée (collect) ou annulée. */
 export function isHistoryStatus(status: Order["status"]): boolean {
   return status === "servie" || status === "annulee" || status === "retiree";

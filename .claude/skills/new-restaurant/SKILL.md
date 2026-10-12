@@ -71,8 +71,10 @@ outward-facing and some are hard to undo (Phase 9 has the safe procedure).
 8. **Nobody ever presses the final "Envoyer la commande" / pay button** — not
    you, not a scorer, not a tester. The dev server talks to the production
    database: on a seeded restaurant a real order would reach its kitchen.
-   The preview route locks that button (`CartConfig.preview`), and
-   `check_order.cjs` verifies the lock; production checks stop at the cart.
+   On the preview route the last button only shows the confirmation
+   locally (`CartConfig.preview`, « Aperçu : voir la confirmation »);
+   `check_order.cjs` presses it there alone, blocking every order request,
+   and checks nothing left. Production checks stop at the cart.
 9. **Everything customer-facing is French.** Comments in this codebase are
    French too — match the surrounding code.
 
@@ -89,7 +91,7 @@ They exist because each was rewritten by hand, repeatedly, during LZ.FOOD.
 | `photo_sheet.py --from-menu <slug> <dir>` | verify every photo URL, flag duplicates, draw numbered sheets: `full-*` (branding, dish, diet) and `card-*` (the 16:9 crop shown) |
 | `pw.sh tour.cjs <url> <prefix> [w] [h] [n]` | scroll-through screenshots to *look at* |
 | `pw.sh check_page.cjs <url>` | theme + fonts actually applied, photos, overflow 320-1440, every category jump, reduced motion, console |
-| `pw.sh check_order.cjs <url>` | one options modal per section (dialog semantics, on-screen, CTA), a multi-group item completed by pointer taps (each must register), add to cart, cart bar — never submits |
+| `pw.sh check_order.cjs <url>` | one options modal per section (dialog semantics, on-screen, CTA), a multi-group item completed by pointer taps (each must register), add to cart, cart bar; on a preview URL only, presses « Aperçu » with order requests blocked and checks the local confirmation |
 | `pw.sh check_contrast.cjs <url> [w] [h] [--light]` | contrast of every button, link and price measured on pixels (gradients, photos, veils) — run on both versions, `--light` for the Ominin light mode |
 | `dev_server.sh status \| css-has <text> [url] \| restart` | is the served CSS the CSS you wrote? |
 
@@ -330,7 +332,8 @@ Final message to the user:
 - the next steps it does not take without a go-ahead: seeding production,
   committing, creating the owner account. Once the code is pushed, the
   preview is shareable with the owner at
-  `https://menu.ominin.com/demo/<slug>` — ordering is locked there.
+  `https://menu.ominin.com/demo/<slug>` — its last button only shows the
+  confirmation locally; nothing is sent.
 
 **When the user says go live**, follow the production checklist in
 [references/build.md](references/build.md#going-live): confirm which

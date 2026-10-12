@@ -26,6 +26,14 @@ export const menuSiteUrl = menuHost
   : `${siteUrl}/menu`;
 
 /**
+ * L'adresse du menu QR telle qu'elle s'imprime (présentation en PDF, film) :
+ * son sous-domaine de production, même rendue par un serveur qui, sans
+ * NEXT_PUBLIC_MENU_HOST, sert le menu sous /menu. Le domaine principal
+ * redirige sa forme préfixée vers ce sous-domaine (proxy.ts).
+ */
+export const menuPrintUrl = `https://${process.env.NEXT_PUBLIC_MENU_HOST ?? "menu.ominin.com"}`;
+
+/**
  * Origine publique du sous-domaine clippers, pour les canonicals des pages
  * /clip (accessibles aussi via ominin.com/clip à cause de la réécriture).
  * Dérivée du même host que la réécriture du proxy (NEXT_PUBLIC_CLIP_HOST).

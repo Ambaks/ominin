@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRestaurant } from "@/lib/menu-data";
+import { SCENARIOS } from "../_service/fixtures";
 import { ComptoirDemo } from "./comptoir-demo";
-import { counterTitle, hasCounterDemo, SCENARIOS } from "./fixtures";
+import { counterTitle, hasCounterDemo } from "./fixtures";
 
 /*
  * Le comptoir d'un restaurant fast food, vu du personnel : l'onglet

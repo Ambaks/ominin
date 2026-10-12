@@ -1,0 +1,178 @@
+SOURCE: Google Maps listing "BAÏ-KŌ restaurant coréen à Montpellier"
+URL: https://www.google.com/maps/place/BA%C3%8F-K%C5%8C+restaurant+cor%C3%A9en+%C3%A0+Montpellier/@43.6093486,3.866426,17z/data=!4m7!3m6!1s0x12b6af115dfe1383:0xb03475f5a9213802!8m2!3d43.6093486!4d3.866426!16s%2Fg%2F11z75ftkwd?hl=fr
+Read: 2026-10-12, built-in browser, interface in French, sort = "Avis les moins favorables".
+Dates are Google's relative dates as shown on 2026-10-12 ("il y a 4 mois" ~ June 2026).
+Rating at read time: 4,8 / 556 reviews. Distribution: 5★ 504, 4★ 23, 3★ 8, 2★ 8, 1★ 13.
+This file holds ALL 52 reviews rated 1 to 4 stars (13 + 8 + 8 + 23), verbatim, with the
+structured fields Google shows ("details") and the owner's reply when there is one.
+Reviewer display names are reduced to initials.
+
+==================== 1 STAR (13) ====================
+
+[1★] N.S. — il y a 3 mois (~juillet 2026)
+"Très déçu par l’accueil. Le serveur a été impoli et nous a parlé de manière irrespectueuse, ce qui a gâché notre expérience. Un minimum de courtoisie est attendu dans un restaurant. C’est d’autant plus dommage que nous étions impatients de venir découvrir et manger dans ce restaurant."
+details: Prix par personne 20–30 € | Cuisine 5 | Service 1 | Ambiance 5 | Bruit peu élevé | Groupe 9 personnes ou plus | Parking payant
+owner reply: none
+
+[1★] S.B. — il y a 4 mois (~juin 2026)
+"Faut vraiment pas se fier à tous ces faux commentaires, postés le même jour d'ailleurs (ils n'ont pas autant de clients). Le serveur est désagréable et parfois impoli, il se permet de faire des commentaires assez gênants alors que personne lui a rien demandé. De plus la cuisine n'est vraiment pas terrible. On a demandé quelque chose d'épicé et c'était juste trop salé personne n'a pu finir, en plus le poulet servi ressemble plutôt à des abats. Très décevant"
+details: Cuisine 1 | Service 1 | Ambiance 2
+owner reply (4 mois): "Bonjour. Les avis ont été postés le même jour ? Je vous invite a regarder plus profondément la date et les heures de tous les commentaires... Les retours clients sur la nourriture coréenne de bai-ko sont plus que favorables. En ce qui concerne les serveurs, là encore les retours sont plus que positifs et le personnel est a disposition de ses clients. A propos des plats épicés, essayez les ramyeon ou le volcano dakglabi et revenez nous en dire plus sur la saveurs de nos plats 🙂. Baï-ko montpellier vous souhaite une agréable journée."
+
+[1★] W.G. — il y a un mois (~septembre 2026)
+"Service désagréable de la Part du serveur asiatique, cuisine surgelé en tous cas pour les nems. Revanche, le monsieur avec les cheveux poivre et sel a été très agréable du début à la fin malgré notre mauvaise expérience"
+details: Cuisine 2 | Service 1 | Ambiance 1
+owner reply: none
+
+[1★] G.T. (Local Guide, 120 avis) — il y a 2 mois (~août 2026)
+"La cuisine est à revoir, notamment le bœuf bulgogi qui n'avait de bulgogi que le nom. Il était fade, sans les saveurs caractéristiques de ce plat coréen. C'est malheureusement l'exemple de nombreux restaurants qui prétendent proposer une cuisine thaïlandaise et coréenne, mais dont les plats sont très éloignés des recettes et des saveurs authentiques. Une expérience globalement décevante."
+details: Prix 20–30 € | Cuisine 1 | Service 1 | Ambiance 1 | Temps d’attente 10-30 min
+owner reply (2 mois): "Bonjour, merci d’avoir pris le temps de partager votre retour. Nous sommes sincèrement désolés que votre expérience n’ait pas été à la hauteur de vos attentes. Concernent notre bœuf bulgogi, nous avons fait le choix de proposer une recette qui s’inspire de la cuisine coréenne tout en étant adaptée au goût d’une clientèle variée."
+
+[1★] Q.D. — il y a 4 mois
+"Très déçu."
+owner reply: none
+
+[1★] M.R. — il y a 4 mois
+"Décevant"
+details: Type de commande Repas sur place | Prix 20–30 € | Bruit élevé (mais il est possible de discuter) | Temps d’attente 10 min maximum | Stationnement difficile
+owner reply: "Pourriez-vous nous en dire plus ?"
+
+[1★] I.E. (Local Guide) — il y a 4 jours (~8 octobre 2026)
+"Sans intérêt, nous avons pris le bœuf bulgogi qui avait l’air succulent en apparence, mais n’avait aucun goût. Trop cher pour manger un plat sans saveur. Seul le corn dog était bon."
+details: Dîner | Prix 30–40 € | Cuisine 1 | Service 1 | Ambiance 2 | Bruit modéré | Temps d’attente 10 min maximum | Parking payant dans la rue
+owner reply: none
+
+[1★] C.G. — il y a 6 jours (~6 octobre 2026)
+"A fuir. N’a de coréen que le nom des plats. J’ai pris une salade au bœuf. Salade en sachet, imbibé de mayonnaise écœurante et sans goût. 3 concombres et des énormes radis asiatiques. Boeuf soi disant avec une sauce au miel et au yuzu… sans goût à part le goût du gras. Je n’ai mangé qu’1/4 de la salade. La serveuse semblait désolée mais aucun geste commercial. Quelle déception ! N’y allez pas !"
+details: Prix 10–20 € | Cuisine 1 | Service 3 | Ambiance 1
+owner reply: none
+
+[1★] N. — il y a 2 semaines (~fin septembre 2026)
+"C’est dommage le plat avait l’air bon. Malheureusement le service est un peu lent et les serveurs ne se comprennent pas entre eux. Et pour le plat j’ai pris la viande et le fromage qui cuisent devant nous. En apparence c’était très beau et appétissant mais malheureusement je pense que quelque chose avait passé la date. Car le goût n’était pas du tout au rendez vous, impossible de finir. Dommage"
+details: Cuisine 1 | Service 2 | Ambiance 5
+owner reply: none
+
+[1★] A. (Local Guide, 63 avis) — il y a un mois (~septembre 2026)
+"Je laisse rarement des notes négatives, mais alors, le service est lent, très lent, 20 minutes à avoir le menu, et 20 minutes après la serveuse est aller prendre la commande d’un groupe arriver il y’a 10 minutes sur une table à côté, alors qu’on attendais à côté, nous sommes partis suite à ce manque de professionnalisme. La décoration est okay, et la carte est assez diverse avec des options végétarienne et halal."
+details: Service 1 | Bruit élevé (mais il est possible de discuter) | Groupe 3-4 personnes | Espace repas intérieur | Stationnement difficile
+owner reply (un mois): "Bonjour nous sommes désolés par cette expérience malheureusement le manque de personnel fait que certains service peuvent être compliqué. Nous faisons notre maximum afin d'être opérationnel au plus vite. Nous vous invitons de même à ne pas rester sur cette impression négative et a venir tester de nouveau notre expérience coréen. En espérant que celle ci soit a la hauteur de vos attentes 😀. L'équipe bai-ko"
+
+[1★] G. — il y a 2 mois (~août 2026)
+"Que dire... Payer 13€ une salade végétarienne pour être servie de la laitue iceberg avec du maïs en boîte, le tout surmonté d'une épaisse couche de mayonnaise et 4 morceaux de tofu qui se battent en duel. Leur sauce la plus pimentée est une espèce de sauce barbecue fade... Un restaurant ok pour les palais occidentaux j'imagine mais si vous cherchez un dépaysement passez votre chemin..."
+details: Prix 10–20 € | Cuisine 1 | Service 2 | Ambiance 2
+owner reply (2 mois): "Dans la salade végétarienne effectivement il y a de la salade, du maïs du Radis jaune des carottes du Concombre du tofu etc etc 😄 pour être totalement dépaysée il aurait fallu choisir un plat typique coréen, comme le bibimbap au tofu ! …"
+NOTE: "13€" salade végétarienne vs 14,90 € on the website today (Tofu Salad) — possible price change, or menu-deal price. [unverified]
+
+[1★] L.B. — il y a 3 mois — (no text)
+[1★] M.K. (Local Guide) — il y a 3 semaines — (no text) Cuisine 1 | Service 1 | Ambiance 1
+
+==================== 2 STARS (8) ====================
+
+[2★] F.C. (Local Guide, 82 avis) — il y a un mois
+"Ça semblait bien, cadre et serveuse agréable, mais le cuisinier a oublié l'œuf dans le Bibimbap. Du coup ça manquait de liant et c'était fade. Nous faisons remarquer cela à la serveuse mais aucun geste commercial n'a été fait. Elle nous a juste dit qu'ils feront mieux la prochaine fois mais cette première expérience ne nous donne pas envie d'y retourner..."
+details: Prix 20–30 € | Cuisine 2 | Service 4 | Ambiance 4
+owner reply (un mois): "Bonsoir, nous sommes désolés que votre expérience n’ait pas été à la hauteur de vos attentes. Notre serveuse débute et ce soir là le responsable n’était exceptionnellement pas là. N’hésitez pas à revenir pour rester sur une note positive, nous ferons attention à vous."
+
+[2★] L. — il y a 2 mois
+"L’ambiance et le service étaient au rendez-vous, malheureusement la nourriture n’a pas suivit. Des prix parisiens sans la qualité qui suit. Une cuisine qui n’est pas authentique et qui manque de goût. Un autre restaurant TikTok…"
+details: Prix 20–30 € | Cuisine 1 | Service 4 | Ambiance 5
+owner reply (2 mois): "Merci d’avoir pris le temps de partager votre avis. Nous sommes ravis que vous ayez apprécié l’ambiance et le service, mais regrettons que notre cuisine n’ait pas répondu à vos attentes. Nos recettes sont préparées avec soin et inspirées de la cuisine coréenne, avec notre propre identité. Nous prenons néanmoins votre retour en considération ."
+
+[2★] E.M. — il y a 2 mois  (TAKEAWAY, ordered at the counter)
+"Je suis venu commander un repas à emporter avec mon père. Lors de la commande, j’ai demandé des cheese chicken katsu, comme indiqué sur la carte. L’employé au comptoir ne semblait visiblement pas savoir de quoi il s’agissait. Mon père a simplement répété le nom du plat, pensant qu’il avait mal entendu. L’employé lui a alors répondu d’un ton sec et déplacé : « Oui, j’ai très bien entendu, Monsieur. » ce qui m’a tout de suite mise mal à l’aise. Mon père n’y a pas prêté attention et nous avons finalement commandé autre chose. Une fois la commande récupérée, nous sommes repartis. Les plats que nous avons pris étaient corrects. En revanche, l’accueil nous a laissés sur une mauvaise impression. Il n’est pas très agréable d’être reçu de cette manière, surtout lorsqu’il s’agit simplement de demander un plat figurant sur la carte."
+details: Prix 1–10 €
+owner reply (2 mois): "Bonjour, nous sommes désolés d’apprendre que votre ressenti concernant l’accueil n’a pas été à la hauteur de vos attentes. Nous sommes toutefois ravis de voir que les plats commandés vous ont plu. Vos remarques ont été prises en compte et seront partagées à l’équipe pour améliorer l’expérience client"
+
+[2★] A.M. — il y a 2 mois  (WAIT > 1 hour)
+"Expérience atroce plus d'une heure d'attente pour servir un volcano (plat cru qu'on fait chauffer nous même) avec une entrée au poulet, l'entièreté de la salle servis avant nous (alors qu'arriver bien après) le volcano bulgogi n'as aucune épice, malgré que ce soit marqué sur la carte, un plat de fromage râpé et de boeuf a 34€ ça la fou mal ! Même nos voisin de droite se plaigne du manque de saveur et ceux de gauche de l'attente de l'arrivé des desserts ! C'est dommage car le personnel lui est sympathique et agréable !"
+details: Dîner | Prix 20–30 € | Cuisine 2 | Service 1 | Ambiance 2 | Bruit très élevé (il est difficile de s'entendre) | Espace repas intérieur, Banquettes
+owner reply: none
+
+[2★] M. — il y a 3 semaines
+"Le service était vraiment sympa, les employés étaient cool et agréables, donc rien à redire de ce côté-là. Pour l’ambiance, c’était simplement trop bruyant à mon goût. Il fallait parler assez fort pour réussir à discuter avec la personne en face, donc pas vraiment l’endroit où on peut passer un moment tranquille. Par contre, la cuisine… franchement, grosse déception. On s’attendait à être surpris, et on l’a effectivement été, mais clairement pas dans le bon sens. La plupart des plats étaient extrêmement fades. Certains avaient un peu plus de goût parce qu’ils étaient blindés de sauce, mais forcément, quand tu mets une tonne de sauce partout, ça finit par avoir du goût. Dès qu’on sortait de ça, c’était soit « ok », soit complètement fade. Et c’est surtout là que je ne comprends absolument pas la note de 4,8/5. Quand tu vois tous les avis qui présentent le restaurant comme incroyable, exceptionnel, etc., tu t’attends forcément à quelque chose de vraiment très bon. Au final, on a eu l’impression d’un restaurant largement surcoté. À ce niveau-là, j’ai presque l’impression que les gens se sont tous mis d’accord pour le booster de malade alors que, franchement, ce n’est pas fou. Pour être totalement honnête, je pense que tu peux faire un meilleur plat chez toi. Même certains trucs achetés à Monoprix pourraient facilement avoir plus de goût. Et franchement, je serais même pas surpris que la bouffe du CROUS soit meilleure. Bref, le service était très bien, mais pour la cuisine, je ne comprends vraiment pas toute cette hype. 4,8 étoiles, c’est complètement déconnecté de l’expérience qu’on a eue. Pour nous, ça vaut plutôt autour de 3/5 grand maximum."
+details: Cuisine 2 | Service 4 | Ambiance 3
+owner reply: none
+
+[2★] A.D. (Local Guide, 86 avis) — il y a un mois
+"Trop cher pour ce que c’est, la cuisine est moyenne. J’ai trouvé le poulet frit sec et le volcano au bœuf était mid et beaucoup trop cher (34euros)."
+details: Cuisine 2 | Service 5 | Ambiance 5
+
+[2★] M.D. (Local Guide, 727 avis) — il y a un mois
+"Cadre est joli mais le cuisinier ne métrise pas ce type de cuisine. Le bibimbap est très fade sans saveur typique pour ce plat et le riz était trop cuit."
+details: Dîner | Prix 10–20 € | Cuisine 1 | Service 3 | Ambiance 5 | Temps d’attente Aucune attente
+
+[2★] A.B. (Local Guide) — il y a un mois  (ADDING TO AN ORDER)
+"Frustré et déçu, le cadre est sympa mais sans plus, il ne faut surtout pas poser une demi question au serveur qui fait mine de ne pas comprendre tellement pour lui les questions sont stupides, il ne faut rien rajouter à la première commande sinon yeux aux plafonds et souffle les bougies d’anniversaires de qui veut bien … dommage ! La base même d’un bon restaurant avant l’assiette c’est l’accueil et la convivialité de la team…"
+details: Prix 20–30 € | Cuisine 3 | Service 1 | Ambiance 1 | Réservation Aucune réservation requise | Bruit élevé | Groupe 2 / 3-4 personnes
+
+==================== 3 STARS (8) ====================
+
+[3★] I.N. — il y a 4 mois (~juin 2026)  (SEATING PROCESS: announce yourself at the counter)
+"J’avais hâte d’aller tester ce nouveau restaurant, mais une fois arrivée sur place je n’ai même pas eu le temps de regarder les tables disponible que je me suis faite brusquement interpeller par un employé qui m’a dit qu’il ne fallait pas m’installer avant de prévenir le personnel au comptoir alors que j’étais encore debout au pied de la porte du restaurant. Je vous laisse imaginer l’ambiance lorsque suite à ça, une fois installée, ce même employé à a peine 1m50 de nous se permet de dire à sa collègue que « c’est insupportable les clients qui se permette de s'asseoir sans prévenir ». Spoiler alerte : on entend touuut ( n’oubliant pas le fait que j’avais à peine eu le temps de passer le pas de la porte du restaurant !!). Comme vous pouvez vous en doutez, suite à cette mésaventure nous avons décidé de ne prendre qu’une petite entrée mon amie et moi ,à la place d’un repas classique .Car le comportement était étonnant de la part d’un restaurant qui a ouvert il y a peu de temps et qui avait l’air très attrayant. Je ne vous dirai pas de fuir ce restaurant afin de vous laisser vous faire votre propre avis car la nourriture n’y est pas mauvaise."
+details: Prix 1–10 € | Cuisine 4 | Service 1 | Ambiance 1 | Bruit modéré | Temps d’attente 10 min maximum
+owner reply (4 mois): "Bonjour Iman. Tout d'abord, nous vous remercions pour votre visite. Merci pour votre commentaire constructif, qui va nous permettre de mieux former nos équipes à l'accueil client. Nous vous présentons nos sincères excuses au nom de toute l'équipe et vous invitons à revenir goûter la suite. À très vite chez Baï-Ko. 🥰😍"
+
+[3★] L.P. — il y a un mois
+"Restaurant avec un très beau cadre, personnel très agréable. Cuisine assez fade (légumes, riz,..) mise à part le poulet qui était très bon."
+
+[3★] R.C. — il y a 2 mois
+"Le service et les lieux sont incroyables malheureusement la nourriture n’est pas généreuse et pas très goûtue"
+
+[3★] D.A. — il y a 4 mois  (TAKEAWAY)
+"C’est super bon , fractionné je recommande, on découvre de nouveaux plats."
+details: Type de commande À emporter | Prix 30–40 € | Cuisine 4 | Service 4 | Ambiance 3 | Temps d’attente 10-30 min
+
+[3★] A.H. — il y a un mois
+"Service et ambiance sympathique, cependant la cuisine manquait de saveur. Le poulet n’était pas croustillant."
+
+[3★] M.Q. — il y a une semaine
+"Le personnel est sympathique. La nourriture n'est pas préparée par des Coréens. Le bibimbap est correct grâce à la saveur du gochujang, mais le poulet frit assaisonné est à éviter. Le poulet frit coréen est vraiment délicieux, c'est dommage."
+details: Déjeuner | Prix 10–20 € | Temps d’attente Aucune attente
+
+[3★] A.T. — il y a 4 semaines — (no text) Cuisine 3 | Service 3 | Ambiance 4
+
+[3★] E.L. (Local Guide, 108 avis) — il y a un mois  (LUNCH; gas burner at table; hygiene)
+"Il n'y a pas beaucoup de restaurants coréens à Montpellier, alors nous avons décidé d'essayer celui-ci. Malheureusement, j'ai trouvé l'endroit juste correct, selon les standards asiatiques ; le riz était étrangement cuit, visiblement mal dosé. Cependant, j'étais contente qu'ils proposent d'autres plats coréens que le bibimbap. Le ragoût de bœuf au fromage pour deux était une option originale, et il aurait été encore meilleur avec des accompagnements coréens. Au départ, le riz a mis longtemps à cuire car la bouteille de gaz n'était pas assez chargée. Le serveur n'a pas eu le temps de vérifier, et nous avons donc attendu un moment avant de nous en apercevoir. L'hygiène du restaurant laissait à désirer ; nous avons parfois vu des restes de nourriture sur les chaises et dans les coins. Nous sommes arrivés à midi, et l'expérience n'a pas été très satisfaisante. En résumé, cela vaut le coup d'essayer si vous cherchez quelque chose de nouveau, mais je n'y retournerais pas forcément."
+details: Prix 20–30 € | Cuisine 3 | Service 4 | Ambiance 5 | Réservation Aucune réservation requise | Groupe 2 / 3-4
+
+==================== 4 STARS (23) ====================
+
+[4★] W.R. (LG) — 2 mois — "Plutôt bon en général, ambiance très agréable" | Réservation Aucune réservation requise | Groupe 3-4 | Stationnement difficile
+[4★] O.B. — 4 mois — "Très bon délicieux ! À refaire je conseille" | Groupe 5-8 | Temps d’attente Aucune attente
+[4★] L.P. — 4 mois — "Sympa entre amis !"
+[4★] A.O. — 1 jour — "Très bonne expérience, la nourriture était délicieuse et le service au top ! Je recommande 😊" | Prix 30–40 € | Groupe 5-8 | Aucune attente
+[4★] C.U. (LG) — 6 jours — "Très bonne surprise, service sympa, merci à Léa !! On reviendra 😉"
+[4★] J.D. (LG) — 2 semaines — "Ambiance neon-futuriste sympa pour nourriture copieuse et savoureuse !! Mention spéciale pour la serveuse franco-thaïlandaise très sympa !" | Déjeuner | 10–20 €
+[4★] C. (LG) — 3 semaines — "Nous avons bien mangé. Merci à Léa pour l'accueil" | Déjeuner | 20–30 €
+[4★] T.P. — 3 semaines — "Serveuse extrement sympathique (lea)"
+[4★] M.I. (LG) — 1 mois — "Belle découverte" | Dîner | 20–30 € | Plats recommandés Pad Tai Poulet | Temps d’attente 10 min maximum
+[4★] N.D. — 1 mois — "Agréable mais il faut aimé la cuisine coréenne en tout cas moi j’ai apprécié"
+[4★] J.E. — 1 mois — "Vraiment pour une première fois j’ai aimé et je vous conseille d’y aller." | 30–40 €
+[4★] L.A. (LG, 149 avis) — 2 mois — "Très beau restaurant où l'on plonge dans l'univers K dès la porte d'entrée. Pas mal de places à l'intérieur, plats Coréens et Thai copieux et très raisonnable en prix, pas de la grande cuisine fine mais ce n'est pas ce que l'on cherche en venant ici et c'est quand même très bon. Serveur très poli, à l'écoute, gentil." | Déjeuner | 20–30 € | Aucune attente | "Les allergènes sont notés par 1 code couleur très pratique et visuel" | Parking: "Quelques places dans la rue mais souvent prises. Le mieux est de venir en tram"
+[4★] M.B. (LG) — 2 mois — "Plus qu'un restaurant coréen-thaïlandais, je dirais que c'est un restaurant fusion." (translated from Italian by Google) | 10–20 € | Temps d’attente 10 min maximum
+[4★] 10 further 4★ reviews with no text (ratings only): S.S., F.-Z. ("Lieux sans réservation", groupe 5-8), L.A., T.P., P. (Aucune attente), I. (40–50 €), T.C., Y.T. (Aucune attente), D., C.M.
+
+==================== SELECTED 5★ REVIEWS RELEVANT TO OPERATIONS ====================
+(found by keyword scan of all 556 reviews sorted "plus récents"; texts may be cut by Google with "…")
+
+[5★] il y a une semaine — "Expérience incroyable ! Léa est vraiment au top ! Elle était toute seule et malgré le monde qu’il y avait elle gérait comme une cheffe, super souriante, gentille et le contact super facile ! Elle prenait le temps de nous demander si tout …"
+[5★] il y a 4 mois — "Le service était top malgré qu'il était seul et s'est arrivé vite ! Je me suis sentie bien accueilli et j'ai pu avoir de bons conseils sur les plats à prendre."
+[5★] il y a 3 mois — "On s’est régalés, service très rapide pourtant quasiment toutes les tables étaient prises. Tout est délicieux avec beaucoup de saveurs. Merci à Naomie et Mika pour leur accueil"
+[5★] il y a un mois — "Très bonne découverte ! Service chaleureux et seulement 5 minutes d’attente pour avoir une table."
+[5★] il y a 2 mois — "10/10 !!! Par quoi commencer ? Je n’ai jamais été servie aussi vite : à peine 5 minutes ! Le concept est génial et tout est excellent. …"
+[5★] il y a 2 mois — "Très bon, des plats typiquement Coréens savoureux, goutûs ! Service très rapide, le serveur est très agréable et a pris le temps de nous expliquer TOUTE la carte et nous conseiller sur les plats."
+[5★] il y a 2 mois — "Excellent, service au top et rapide. Prix du plat à partager rentable, bon rapport qualité prix."
+[5★] il y a 2 mois — "On a découvert ce restaurant un midi. Malheureusement on avait pas beaucoup de temps mais on a très bien mangé avec un service parfait."
+[5★] il y a 2 mois — "Très bon resto coréen, le corndog est excellent, les tteokbokki sont spéciaux quand même, il y a beaucoup de fromages contrairement à la recette originale mais ils sont bons quand même ! Bibimpap bien garni aussi, très bon bulgogi et prix corrects! Pensez à réserver si vous venez nombreux, on a eu de la chance en venant" (details: Réservations recommandées)
+[5★] il y a 3 mois — "Enfin un restau coréen hallal sur Montpellier avec ambiance coréenne g vraiment kiffé le décor le repas j'avais pris à emporter la prochaine fois je teste sur place inchaallah"
+[5★] il y a un mois — "Repas coréen bien travaillé. Dommage pour le barbecue qu'il soit sur de l'aluminium avec une gazinière portable plutôt qu'un vrai barbecue coréen en fonte. Les portions sont copieuses. Les ramyun sont à base de nouilles udon. Décoration très sympa. Parking payant en sous sol pas très loin. Et proche du tramway."
+[5★] il y a 3 mois — "Nourriture très qualitative. Le serveur est super sympa et le décor du restaurant est juste magnifique."
+[5★] il y a un mois — "Bonne expérience avec ratio qualité / quantité/prix au top. Mention speciale aux gérants du restaurants très sympathique."
+[5★] il y a 4 mois — "Merci beaucoup a Augustine et Mika qui ont su nous accommoder, et au patron du restaurant qui est très accueillant."
+[5★] il y a 4 mois — "On a découvert aujourd’hui ce magnifique restaurant coréen et franchement c’était excellent. Service rapide, propreté irréprochable, les plats étaient excellents, je recommande à 100 %. Félicitations pour ce nouveau restaurant et bonne continuation et beaucoup de succès à vous inchallah."
+[5★] il y a 4 mois — "Bel endroit avec une deco pop et immersive. Carte variée, service rapide et attentionné. Point bonus pour la playlist !"
+[5★] il y a 4 mois — "Excellent restaurant ! Super accueil, ça change des spécialités habituelles et l’ambiance est vraiment conviviale. Un grand merci à Mika pour son accueil et sa gentillesse. On a très bien mangé, je recommande. Mention spéciale pour le Volcano Cheese Beef."
+[5★] il y a 4 mois — "Franchement incroyable ... la salle est trop trop belle, avec les LED et l’ambiance on dirait vraiment qu’on est en Corée 🇰🇷. La déco est magnifique."
+[5★] il y a 2 mois — "Excellent restaurant ! ... Le rapport qualité-prix est vraiment excellent, c'est à peu près les même prix que les grandes chaînes de restaurants asiatiques mais avec une qualité supérieure."
+[5★] il y a un mois — "Venue 21h. Super accueil ! La nourriture excellente, volcano et corn dog de tester hâte de revenir." (Prix 40–50 €, 2 personnes)

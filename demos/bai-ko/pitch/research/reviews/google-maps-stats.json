@@ -1,0 +1,37 @@
+{
+  "source": "Google Maps listing 'BAÏ-KŌ restaurant coréen à Montpellier' (place id 0x12b6af115dfe1383:0xb03475f5a9213802), interface fr, read 2026-10-12 in the built-in browser",
+  "listing": {
+    "name_on_google": "BAÏ-KŌ restaurant coréen à Montpellier",
+    "category": "Restaurant coréen",
+    "rating": 4.8,
+    "review_count": 556,
+    "distribution": {"5": 504, "4": 23, "3": 8, "2": 8, "1": 13},
+    "price_per_person": "10–20 € (reported by 256 people)",
+    "phone_on_google": "07 61 94 62 86",
+    "hours_on_google": {"lundi-vendredi": "11:30–14:30, 18:00–22:30", "samedi-dimanche": "11:30–22:30"},
+    "services": ["Repas sur place", "Vente à emporter", "Livraison"],
+    "knowledge_panel_says": "Ne prend pas de réservations",
+    "about_tab_planning": "Réservations acceptées",
+    "about_tab_payments": ["Cartes de crédit", "Cartes de débit", "Chèque Déjeuner", "Paiements mobiles NFC", "Ticket Restaurant", "Titres restaurant"],
+    "about_tab_other": ["Wi-Fi gratuit", "Toilettes", "Chiens autorisés à l'intérieur", "Entrée/places/toilettes accessibles en fauteuil roulant", "Groupes", "Touristes", "Dîner en solo", "Petites portions à partager"],
+    "review_topic_chips": {"service": 47, "cuisine": 34, "serveur": 31, "fromage": 16, "corn dog": 11, "concept": 11, "halal": 9, "décoration": 8, "entrée": 7, "pad thaï": 5}
+  },
+  "what_was_read": {
+    "all_reviews_loaded_sorted_newest": 556,
+    "reviews_with_text": 434,
+    "reviews_with_owner_reply": 319,
+    "read_in_full_by_me": "all 52 reviews rated 1-4 stars, plus about 38 five-star reviews from the 'least favorable' sort, plus 36 reviews matched by an operations keyword scan (wait, speed, counter, takeaway, alone, forgot, minutes, hour, pay) across all 434 text reviews. About 110 distinct reviews in total.",
+    "note": "Google shows some long texts cut with '…'. The keyword scan ran on the text as displayed, so a few long reviews may have been missed."
+  },
+  "reviews_per_relative_date_bucket": {
+    "il y a 4 mois (~mi-mai a mi-juin 2026, opening month)": 168,
+    "il y a 3 mois": 96,
+    "il y a 2 mois": 101,
+    "il y a un mois": 76,
+    "last ~4 weeks (4 semaines down to 12 heures)": 115
+  },
+  "low_star_reviews_per_bucket": {"il y a 4 mois": 5, "il y a 3 mois": 2, "il y a 2 mois": 6, "il y a un mois": 9, "last ~4 weeks": 7},
+  "staff_name_mentions_in_review_text": {"Léa": 51, "Noémie/Naomie": 11, "Mika": 7, "Augustine": "at least 2"},
+  "theme_counts_in_text": {"décor / néon / LED": 68, "prix / cher": 37, "volcano": 10, "corn dog": 9, "halal": 8, "étudiant / bento": 0, "QR / tablette / borne / caisse / addition / CB": 0},
+  "operations_keyword_hits": {"rapide": 19, "vite": 5, "minutes": 3, "attente": 2, "lent": 2, "seul / toute seule": 3, "à emporter": 2, "comptoir": 1, "oublié": 1, "heure": 1}
+}

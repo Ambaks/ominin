@@ -10,7 +10,7 @@ import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { SquarePayment } from "@/components/menu/square-payment";
-import { StripePayment } from "@/components/menu/stripe-payment";
+import { preloadStripe, StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref } from "@/lib/collect/shared";
@@ -27,6 +27,19 @@ type TipChoice = number | "autre" | null;
 
 /** Pourboires proposés au règlement par carte (en % du total, arrondi au centime). */
 const TIP_PERCENTS = [5, 10, 15] as const;
+
+/**
+ * Un montant saisi à la française, en centimes : « 5 », « 2,50 », « 1 000 »
+ * (espaces de milliers), « 3 € » ; le point vaut la virgule (claviers réglés
+ * en anglais). Tout le reste — « 1e3 », « -5 », « abc », trois décimales — :
+ * null.
+ */
+function parseCents(text: string): number | null {
+  const match = /^(\d{1,3}(?:\s\d{3})+|\d+)(?:[,.](\d{0,2}))?(?:\s?€)?$/.exec(text);
+  return match
+    ? Number(match[1].replace(/\s/g, "")) * 100 + Number((match[2] ?? "").padEnd(2, "0"))
+    : null;
+}
 
 /** Une ligne du panier, nommée avec ses choix : deux Menu Solo se distinguent.
     Les étapes d'une formule se séparent d'un point-virgule : leurs choix ont
@@ -67,6 +80,10 @@ export function CartBar() {
   const [balance, setBalance] = useState<number | null>(null);
   const [tipChoice, setTipChoice] = useState<TipChoice>(null);
   const [customTip, setCustomTip] = useState("");
+  // Le champ du montant libre prend le focus quand on choisit « Autre », pas
+  // à chaque montage : autoFocus le reprenait en revenant sur « Payer en
+  // ligne » et, à la réouverture du panier, passait pour son déclencheur.
+  const focusCustomTip = useRef(false);
   const [error, setError] = useState<string | null>(null);
   // Click & collect : fermé à l'ouverture de la feuille, pas de « dès que
   // possible » — le client choisit son heure.
@@ -117,13 +134,21 @@ export function CartBar() {
   } else if (bump.count !== cart.count) {
     const added = cart.count > bump.count;
     setBump({ count: cart.count, n: added ? bump.n + 1 : bump.n });
-    // Vidé par l'envoi d'une commande fast food : c'est son ticket qui
-    // s'annonce, avec le numéro.
+    // Vidé par l'envoi d'une commande : à table, c'est l'envoi qui
+    // s'annonce ; en fast food, son ticket, avec le numéro ; en click &
+    // collect, la page de suivi. Un règlement dans la page encore ouvert : la
+    // commande ne part qu'une fois payée, son formulaire parle pour elle.
     setAnnouncement(
       cart.count === 0
-        ? tickets?.shownId
-          ? ""
-          : "Panier vide."
+        ? state === "sent"
+          ? cart.tableNumber === null || stripePayment || squarePayment || sumupPayment
+            ? ""
+            : `Commande envoyée, table ${cart.tableNumber}.${
+                cart.preview ? " Aperçu\u00a0: rien n’a été envoyé ni payé." : ""
+              }`
+          : tickets?.shownId
+            ? ""
+            : "Panier vide."
         : `${added ? "Ajouté" : "Retiré"}. ${cart.count} article${
             cart.count > 1 ? "s" : ""
           } au panier, ${formatPrice(cart.total)}.`
@@ -142,11 +167,20 @@ export function CartBar() {
     const head = panel?.querySelector<HTMLElement>(".cart-head");
     if (!foot || !panel) return;
     const sync = () => {
-      panel.style.setProperty("--cart-foot", `${foot.offsetHeight}px`);
+      // Écran bas (paysage, zoom, pourboire libre ouvert) : collés, l'en-tête
+      // et le pied ne laissaient plus voir une seule ligne de la commande. Le
+      // pied se décolle alors, et la feuille défile en entier.
+      const line = panel.querySelector<HTMLElement>(".cart-content li");
+      const cramped =
+        panel.clientHeight - (head?.offsetHeight ?? 0) - foot.offsetHeight <
+        (line?.offsetHeight ?? 0);
+      foot.style.position = cramped ? "static" : "";
+      panel.style.setProperty("--cart-foot", cramped ? "0px" : `${foot.offsetHeight}px`);
       if (head) panel.style.setProperty("--cart-head", `${head.offsetHeight}px`);
     };
     sync();
     const observer = new ResizeObserver(sync);
+    observer.observe(panel);
     observer.observe(foot);
     if (head) observer.observe(head);
     return () => observer.disconnect();
@@ -180,10 +214,6 @@ export function CartBar() {
     </p>
   );
 
-  // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
-  if (!cart.canOrder) return null;
-  if (cart.count === 0 && state !== "sent") return status;
-
   // Sans paiement en ligne, ou tout offert en points (rien à régler par
   // carte, la salle valide l'addition à zéro : place_order la laisse
   // d'ailleurs au comptoir), l'addition se règle au comptoir.
@@ -192,22 +222,52 @@ export function CartBar() {
     : cart.onlinePayment && cart.total > 0
       ? paymentChoice
       : "comptoir";
+  // Stripe.js ne se charge qu'à l'approche du règlement : panier ouvert sur
+  // « Payer en ligne », d'une vraie carte. Un échec ici se rejoue au paiement.
+  const stripeAhead =
+    open && !cart.preview && payment === "carte" && cart.paymentProvider === "stripe";
+  useEffect(() => {
+    if (stripeAhead) preloadStripe().catch(() => {});
+  }, [stripeAhead]);
+
+  // Rien à afficher tant que la commande n'est pas possible ou le panier vide.
+  if (!cart.canOrder) return null;
+  if (cart.count === 0 && state !== "sent") return status;
+
   const loyaltyContact = cart.loyalty ? contact.trim() : "";
   // Un article offert ne part pas seul : place_order le refuserait.
   const rewardsOnly = cart.lines.length > 0 && cart.lines.every((line) => line.reward);
 
-  // Pourboire du règlement par carte : pourcentage du total arrondi au
-  // centime, ou montant libre. La borne finale (≤ total) est côté serveur.
-  // Au comptoir d'un fast food, pas de service à table : pas de pourboire.
-  const tipAmount =
-    payment !== "carte" || tipChoice === null || cart.fastFood || cart.collect
+  // Pourboire du règlement par carte, en centimes : pourcentage du total
+  // arrondi au centime, ou montant libre — au plus le total, la borne du
+  // serveur. Au comptoir d'un fast food, pas de service à table : pas de
+  // pourboire.
+  const tipOffered = payment === "carte" && !cart.fastFood && !cart.collect;
+  const totalCents = Math.round(cart.total * 100);
+  const typedTip = tipOffered && tipChoice === "autre" ? customTip.trim() : "";
+  const typedCents = typedTip ? parseCents(typedTip) : null;
+  const tipError = !typedTip
+    ? null
+    : typedCents === null
+      ? "Montant non reconnu\u00a0: écrivez-le comme 2,50."
+      : typedCents > totalCents
+        ? `Au plus ${formatPrice(cart.total)}\u00a0: le montant de la commande.`
+        : null;
+  const tipCents =
+    !tipOffered || tipChoice === null || tipError
       ? 0
       : tipChoice === "autre"
-        ? Math.max(
-            0,
-            Math.round(Number(customTip.replace(",", ".")) * 100) / 100 || 0
-          )
-        : Math.round(cart.total * tipChoice) / 100;
+        ? (typedCents ?? 0)
+        : Math.round((totalCents * tipChoice) / 100);
+  const tipAmount = tipCents / 100;
+
+  // Partie, une commande ne lègue ni son règlement ni son pourboire à la
+  // suivante.
+  const resetChoices = () => {
+    setPayment("carte");
+    setTipChoice(null);
+    setCustomTip("");
+  };
 
   // Le règlement par carte n'aura pas lieu : l'addition passe au comptoir.
   // Le ticket fast food le sait tout de suite (il ne dit plus « paiement en
@@ -231,9 +291,16 @@ export function CartBar() {
 
   const submit = async () => {
     if (!cart.canOrder) return;
-    // Aperçu fast food : rien ne part, mais le ticket se montre — c'est ce
-    // que le client verra, sur un numéro fictif.
+    // Aperçu : rien ne part, mais la suite se montre — à table, la
+    // confirmation ; en fast food, le ticket, sur un numéro fictif.
     if (cart.preview) {
+      if (!cart.fastFood) {
+        setSentPayment(payment);
+        cart.clear();
+        resetChoices();
+        setState("sent");
+        return;
+      }
       if (!tickets) return;
       // Par nom et par choix, comme order_ticket.
       const lines = new Map<string, TicketLine>();
@@ -243,9 +310,12 @@ export function CartBar() {
         lines.set(key, {
           name: line.name,
           quantity: (known?.quantity ?? 0) + line.quantity,
-          // Sans les suppléments « (+0,50 €) », d'un plat comme des choix
-          // d'une formule : order_ticket ne rend que les noms.
-          choices: line.optionSummary.map((choice) => choice.replace(/ \(\+[^)]*\)/g, "")),
+          // Sans les suppléments, « (+0,50 €) » ou rangés dans les parenthèses du
+          // nom (« (épicé, +1,00 €) »), d'un plat comme des choix d'une formule :
+          // order_ticket ne rend que les noms.
+          choices: line.optionSummary.map((choice) =>
+            choice.replace(/ \(\+[^)]*\)/g, "").replace(/,\u00a0\+[^)]*\)/g, ")")
+          ),
           // L'aperçu montre une formule étape par étape, comme le panier ; le
           // vrai ticket (order_ticket) en aligne les choix sur une ligne.
           formule: Boolean(line.formule) || undefined,
@@ -258,6 +328,7 @@ export function CartBar() {
         lines: [...lines.values()],
       });
       cart.clear();
+      resetChoices();
       handOff(id);
       return;
     }
@@ -393,6 +464,7 @@ export function CartBar() {
       return;
     }
     cart.clear();
+    resetChoices();
     // Fast food : le ticket, sauf si le règlement se poursuit dans la
     // feuille — il viendra à sa fin.
     const inPage = payment === "carte" && !failed;
@@ -471,44 +543,48 @@ export function CartBar() {
   return (
     <>
       {status}
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4">
-        <button
-          type="button"
-          onClick={(event) => {
-            // Second toucher d'un double-tap sur « Ajouter » : pas le panier.
-            if (event.detail > 1) return;
-            // Safari ne donne pas le focus au bouton touché (voir AddToOrder).
-            event.currentTarget.focus({ preventScroll: true });
-            setOpen(true);
-          }}
-          aria-label={`Voir la commande\u00a0: ${cart.count} article${cart.count > 1 ? "s" : ""}, ${formatPrice(cart.total)}`}
-          className={`cart-bar ${bump.n === 0 ? "" : bump.n % 2 ? "cart-bump-a" : "cart-bump-b"} ember-gradient pointer-events-auto flex w-full max-w-md items-center justify-between gap-4 rounded-full px-6 py-3.5 text-background shadow-2xl shadow-black/40`}
-        >
-          <span className="flex items-center gap-2.5 text-sm font-semibold">
-            {/* Libellé effacé (à côté des tickets), le sac dit « panier » :
-                réduite au compte, la barre passait pour un numéro de plus. */}
-            <svg
-              viewBox="0 0 24 24"
-              className="cart-bar-icon hidden size-5 shrink-0"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 016 0v2" />
-            </svg>
-            <span className="cart-bar-count flex size-6 items-center justify-center rounded-full bg-background text-xs font-bold text-foreground">
-              {cart.count}
+      {/* Après l'envoi, le panier est vide : pas de barre « 0 » sous la confirmation. */}
+      {cart.count > 0 && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-4">
+          <button
+            type="button"
+            onClick={(event) => {
+              // Second toucher d'un double-tap sur « Ajouter » : pas le panier.
+              if (event.detail > 1) return;
+              // Safari ne donne pas le focus au bouton touché (voir AddToOrder).
+              event.currentTarget.focus({ preventScroll: true });
+              setOpen(true);
+            }}
+            aria-haspopup="dialog"
+            aria-label={`Voir la commande\u00a0: ${cart.count} article${cart.count > 1 ? "s" : ""}, ${formatPrice(cart.total)}`}
+            className={`cart-bar ${bump.n === 0 ? "" : bump.n % 2 ? "cart-bump-a" : "cart-bump-b"} ember-gradient pointer-events-auto flex w-full max-w-md items-center justify-between gap-4 rounded-full px-6 py-3.5 text-background shadow-2xl shadow-black/40`}
+          >
+            <span className="flex items-center gap-2.5 text-sm font-semibold">
+              {/* Libellé effacé (à côté des tickets), le sac dit « panier » :
+                  réduite au compte, la barre passait pour un numéro de plus. */}
+              <svg
+                viewBox="0 0 24 24"
+                className="cart-bar-icon hidden size-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 016 0v2" />
+              </svg>
+              <span className="cart-bar-count flex size-6 items-center justify-center rounded-full bg-background text-xs font-bold text-foreground">
+                {cart.count}
+              </span>
+              <span className="cart-bar-label whitespace-nowrap">Voir la commande</span>
             </span>
-            <span className="cart-bar-label whitespace-nowrap">Voir la commande</span>
-          </span>
-          <span className="cart-bar-total text-sm font-bold">
-            {formatPrice(cart.total)}
-          </span>
-        </button>
-      </div>
+            <span className="cart-bar-total text-sm font-bold">
+              {formatPrice(cart.total)}
+            </span>
+          </button>
+        </div>
+      )}
 
       {open && (
         <Sheet
@@ -556,8 +632,8 @@ export function CartBar() {
               ) : state === "sent" ? (
                 <div className="flex flex-col items-center gap-4 p-10 text-center">
                   <span className="ember-text font-display text-5xl">✓</span>
-                  <h3 className="font-display text-2xl font-medium">
-                    Commande envoyée !
+                  <h3 className="cart-sent-title font-display text-2xl font-medium">
+                    Commande envoyée&nbsp;!
                   </h3>
                   <p className="text-sm leading-relaxed text-muted">
                     {sentPayment === "carte" && !cardFailed ? (
@@ -587,10 +663,24 @@ export function CartBar() {
                       à l&rsquo;encaissement.
                     </p>
                   )}
+                  {/* La route d'aperçu est publique et saute le paiement : la
+                      mention dit que rien n'est parti et où le paiement s'ouvre,
+                      sans quoi « Paiement reçu » se lisait au-dessus de « rien payé ». */}
+                  {cart.preview && (
+                    <p className="rounded-2xl border border-hairline px-4 py-1.5 text-xs font-medium text-muted">
+                      Aperçu&nbsp;:{" "}
+                      {sentPayment === "carte"
+                        ? "à table, le paiement par carte s’ouvre avant cet écran. Ici, rien n’a été envoyé ni payé."
+                        : "rien n’a été envoyé ni payé."}
+                    </p>
+                  )}
+                  {/* Le bouton d'envoi, qui portait le focus, a disparu : il
+                      passe ici, l'envoi s'annonce dans la zone d'état. */}
                   <button
                     type="button"
                     onClick={dismiss}
-                    className="ember-gradient mt-2 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+                    autoFocus
+                    className="ember-gradient mt-2 min-h-11 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
                   >
                     Continuer
                   </button>
@@ -628,7 +718,17 @@ export function CartBar() {
                         <li key={line.key} className="flex gap-3">
                           <div className="min-w-0 flex-1">
                             <p className="cart-line-name font-display text-sm font-medium">
-                              {keepHyphenated(line.name)}
+                              {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 ». */}
+                              {line.detail ? (
+                                <>
+                                  {keepHyphenated(`${line.name.slice(0, -line.detail.length - 1)} `)}
+                                  <span className="whitespace-nowrap text-xs font-normal text-muted">
+                                    {line.detail}
+                                  </span>
+                                </>
+                              ) : (
+                                keepHyphenated(line.name)
+                              )}
                             </p>
                             {line.quantity > 1 && (
                               <p className="mt-0.5 text-xs text-muted">
@@ -749,11 +849,22 @@ export function CartBar() {
                   </div>
 
                   <div ref={footRef} className="cart-foot sticky bottom-0 border-t border-hairline bg-surface p-5">
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className="text-sm text-muted">Total</span>
-                      <span className="cart-total font-display text-xl font-semibold">
-                        {formatPrice(cart.total)}
-                      </span>
+                    {/* Avec le pourboire : ce que le règlement débitera (les
+                        routes de paiement l'ajoutent aux lignes). */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted">
+                          {tipCents > 0 ? "Total à régler" : "Total"}
+                        </span>
+                        <span className="cart-total font-display text-xl font-semibold">
+                          {formatPrice((totalCents + tipCents) / 100)}
+                        </span>
+                      </div>
+                      {tipCents > 0 && (
+                        <p className="mt-0.5 text-right text-xs text-muted">
+                          Dont pourboire {formatPrice(tipAmount)}, reversé au service.
+                        </p>
+                      )}
                     </div>
                     {cart.onlinePayment && cart.total > 0 && !cart.collect && (
                       <div
@@ -832,60 +943,64 @@ export function CartBar() {
                         ))}
                       </p>
                     )}
-                    {payment === "carte" && !cart.fastFood && !cart.collect && (
+                    {tipOffered && (
                       <div className="mb-4 flex flex-col gap-2.5">
-                        <p className="text-xs font-medium text-muted">
+                        <p id={`${hintId}-tip`} className="text-xs font-medium text-muted">
                           Un pourboire pour l&rsquo;équipe&nbsp;?
                         </p>
-                        <div className="flex gap-2">
-                          {TIP_PERCENTS.map((percent) => (
+                        <div
+                          role="group"
+                          aria-labelledby={`${hintId}-tip`}
+                          className="flex gap-2"
+                        >
+                          {[...TIP_PERCENTS, "autre" as const].map((choice) => (
                             <button
-                              key={percent}
+                              key={choice}
                               type="button"
-                              onClick={() =>
-                                setTipChoice(
-                                  tipChoice === percent ? null : percent
-                                )
-                              }
-                              className={`flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
-                                tipChoice === percent
+                              aria-pressed={tipChoice === choice}
+                              onClick={() => {
+                                focusCustomTip.current = choice === "autre" && tipChoice !== "autre";
+                                setTipChoice(tipChoice === choice ? null : choice);
+                              }}
+                              className={`min-h-11 flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                                tipChoice === choice
                                   ? "border-ember-2/60 bg-surface-raised text-foreground"
                                   : "border-hairline text-muted"
                               }`}
                             >
-                              {percent}&nbsp;%
+                              {choice === "autre" ? "Autre" : `${choice}\u00a0%`}
                             </button>
                           ))}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setTipChoice(tipChoice === "autre" ? null : "autre")
-                            }
-                            className={`flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
-                              tipChoice === "autre"
-                                ? "border-ember-2/60 bg-surface-raised text-foreground"
-                                : "border-hairline text-muted"
-                            }`}
-                          >
-                            Autre
-                          </button>
                         </div>
                         {tipChoice === "autre" && (
                           <input
+                            ref={(node) => {
+                              if (node && focusCustomTip.current) {
+                                focusCustomTip.current = false;
+                                // Au milieu de la feuille : sous le pied collé, il restait à moitié caché à 320 px.
+                                node.focus({ preventScroll: true });
+                                node.scrollIntoView({ block: "center" });
+                              }
+                            }}
                             type="text"
                             inputMode="decimal"
                             value={customTip}
                             onChange={(event) => setCustomTip(event.target.value)}
                             placeholder="Montant en €"
                             aria-label="Montant du pourboire en euros"
-                            autoFocus
-                            className="rounded-xl border border-hairline bg-background px-3 py-2.5 text-sm outline-none transition-colors focus:border-ember-2/50"
+                            aria-invalid={tipError !== null}
+                            aria-describedby={tipError ? `${hintId}-tip-error` : undefined}
+                            // 16 px : en dessous, Safari sur iPhone zoome la page au focus.
+                            className={`rounded-xl border bg-background px-3 py-2.5 text-base outline-none transition-colors ${
+                              tipError
+                                ? "border-ember-3/70"
+                                : "border-hairline focus:border-ember-2/50"
+                            }`}
                           />
                         )}
-                        {tipAmount > 0 && (
-                          <p className="text-xs text-muted">
-                            Pourboire&nbsp;: {formatPrice(tipAmount)} — réglé avec
-                            l&rsquo;addition, reversé au service.
+                        {tipError && (
+                          <p id={`${hintId}-tip-error`} role="alert" className="text-xs text-ember-3">
+                            {tipError}
                           </p>
                         )}
                       </div>
@@ -908,20 +1023,14 @@ export function CartBar() {
                         state === "sending" ||
                         cart.count === 0 ||
                         rewardsOnly ||
-                        (cart.preview && !cart.fastFood)
+                        tipError !== null
                       }
-                      className={`w-full rounded-full px-6 py-3 text-sm font-semibold ${
-                        // L'aperçu dit pourquoi rien ne part : un texte à lire,
-                        // pas un bouton estompé.
-                        cart.preview && !cart.fastFood
-                          ? "border border-hairline bg-surface-raised text-foreground"
-                          : "ember-gradient text-background disabled:opacity-60"
-                      }`}
+                      className="ember-gradient w-full rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
                     >
                       {cart.preview
                         ? cart.fastFood
                           ? "Aperçu\u00a0: voir le ticket"
-                          : "Aperçu\u00a0: envoi désactivé"
+                          : "Aperçu\u00a0: voir la confirmation"
                         : state === "sending"
                           ? "Envoi…"
                           : cart.collect

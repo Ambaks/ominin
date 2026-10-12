@@ -67,6 +67,14 @@ In `frontend/lib/menu-data.ts`:
    - `highlights` — 1-3 short selling points from the source, shown in a
      full-width band under the hero (`MenuHighlights`). Only printed claims.
    - `googleReviewUrl` — only a real review link.
+   - `ticker` — the scrolling band of announcements at the top of the page
+     (`MenuTicker`), taken from the restaurant's own site or flyer:
+     `{ text, tone? }`, `tone: "accent"` for an offer, `"brand"` for its
+     signature line.
+   - `whatsapp: false` — hides the footer's « Commander sur WhatsApp » when
+     the number doesn't take orders by WhatsApp.
+   - `onlinePayment` — on `/menu/demo` at a table, « Payer en ligne » and
+     the tip, as for a client whose customers pay at the table.
 4. Fields on `MenuItem`: `id` (kebab-case ASCII, unique within the
    restaurant), `name`, `description`, `price` (number, euros), `detail`
    (format/portion shown as a pill: "33 cm", "x6"), `image`, `badges`
@@ -74,7 +82,17 @@ In `frontend/lib/menu-data.ts`:
    badge on every item of a section distinguishes nothing), `options`,
    `vatRate` (**20 for alcohol** — the default is 10, and the rate goes to
    the till), `printName` (a shorter kitchen-ticket name when the menu name
-   is long).
+   is long). Then, exactly as the restaurant's carte prints them —
+   `undefined` means "nothing printed", not "none": `spice` (1 to 3 chillies),
+   `tags` (`"vegetarien"`, `"fermente"`), `allergens` (the 14 INCO
+   allergens, `Allergen`).
+   On `MenuCategory`, `kicker: { text, lang }` is the name in the cuisine's
+   language, set before the title (안주 before « Anju »); `lang` is its
+   language tag (`"ko"`).
+   The database doesn't hold these four yet: `/m/<slug>` joins them from
+   the registry (`lib/public-menu.ts`): kickers by category name, the rest by
+   item name across the whole carte (the last duplicate wins), so keep the
+   registry's names identical to the seeded ones and unique.
 5. A repeated shape (every pizza is 33 cm with the same supplements) gets a
    small factory like `lzPizza()`.
 6. **Don't run Prettier on this file** — it rewrites the other restaurants'
@@ -238,10 +256,27 @@ restaurant uses it and why.
 ## 7. The preview route
 
 `frontend/app/menu/demo/[slug]/page.tsx` renders any registry slug without
-the database: ordering open on a fictitious table (`DEMO_TABLE`), analytics
-off (`tracking: false`), `CartBar` rendered, `?theme=ominin` drops the theme
-class. You shouldn't need to touch it. The final "Commander" fails without a
-seeded establishment — expected on the preview.
+the database, in preview mode (`CartConfig.preview`): the whole ordering
+flow shows, but nothing is counted or sent — no analytics, no order. You
+shouldn't need to touch it.
+
+- **The table.** Ordering opens on a fictitious table (`DEMO_TABLE`);
+  `?table=N` prints a real table number instead, for captures and pitch
+  demos (`?table=7`).
+- **The confirmation.** The cart's last button reads « Aperçu : voir la
+  confirmation »: it empties the cart and shows the confirmation locally.
+- `?theme=ominin` drops the theme class; `?service=fast-food` shows the
+  fast-food flow (no table, a numbered ticket whose steps the preview
+  advances by hand).
+- **The room demo.** `/menu/demo/<slug>/salle` is the table-service
+  counterpart of `/comptoir`: the « À servir » cards per table from the
+  Commandes tab, replayed on a demo service — no login, no database,
+  gestures stay in the tab, never indexed. It 404s until the slug has an
+  entry in `SERVICES` (`salle/fixtures.ts`): the room's table count, the
+  orders so far, the arrivals and their cadence; lines name items by their
+  carte name, with quantity and choice labels (`Line`, `_service/fixtures.ts`).
+  `?scenario=rush` (default) brings orders in live; `?scenario=fige` is the
+  full room, frozen.
 
 ## 8. Gotchas
 

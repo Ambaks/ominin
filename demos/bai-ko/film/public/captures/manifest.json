@@ -1,0 +1,198 @@
+{
+  "phone": {
+    "viewport": {
+      "width": 393,
+      "height": 798
+    },
+    "table": 7,
+    "total": "18,90 €",
+    "order": {
+      "at": "12:41",
+      "items": [
+        {
+          "category": "Bibimbap",
+          "name": "Dak Bap Spicy",
+          "options": [
+            {
+              "group": "Version",
+              "choice": "Dolsot"
+            }
+          ]
+        },
+        {
+          "category": "Sides",
+          "name": "Kimchi",
+          "options": []
+        }
+      ]
+    },
+    "menu": {
+      "src": "captures/phone-menu.webp",
+      "height": 4196,
+      "scrollTo": 3398,
+      "composerTap": {
+        "x": 268.53125,
+        "y": 540.671875,
+        "width": 87.46875,
+        "height": 44
+      },
+      "categoryBar": {
+        "x": 0,
+        "y": 394.484375,
+        "width": 393,
+        "height": 59
+      }
+    },
+    "composer": {
+      "sheetTop": 480,
+      "states": [
+        {
+          "screen": "captures/phone-main-0.webp",
+          "content": "captures/phone-main-0-body.webp",
+          "contentHeight": 168,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 552,
+            "width": 391,
+            "height": 168
+          },
+          "tap": {
+            "x": 25,
+            "y": 100,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 112.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-main-1.webp",
+          "content": "captures/phone-main-1-body.webp",
+          "contentHeight": 168,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 552,
+            "width": 391,
+            "height": 168
+          }
+        }
+      ],
+      "addTap": {
+        "x": 107.78125,
+        "y": 737,
+        "width": 268.21875,
+        "height": 44
+      }
+    },
+    "added": {
+      "main": "captures/phone-added-main.webp",
+      "side": {
+        "src": "captures/phone-side.webp",
+        "tap": {
+          "x": 254.640625,
+          "y": 552.609375,
+          "width": 101.359375,
+          "height": 44
+        },
+        "price": "3,00 €"
+      },
+      "src": "captures/phone-added.webp",
+      "cartTap": {
+        "x": 16,
+        "y": 730,
+        "width": 361,
+        "height": 52
+      }
+    },
+    "cart": {
+      "src": "captures/phone-cart.webp",
+      "sheetTop": 186,
+      "payTap": {
+        "x": 21,
+        "y": 681,
+        "width": 351,
+        "height": 44
+      }
+    }
+  },
+  "salle": {
+    "viewport": {
+      "width": 1180,
+      "height": 820
+    },
+    "before": "captures/tablet-salle.webp",
+    "leave": [
+      {
+        "at": 0,
+        "src": "captures/tablet-salle-served-0.webp"
+      },
+      {
+        "at": 100,
+        "src": "captures/tablet-salle-served-100.webp"
+      },
+      {
+        "at": 200,
+        "src": "captures/tablet-salle-served-200.webp"
+      },
+      {
+        "at": 300,
+        "src": "captures/tablet-salle-served-300.webp"
+      },
+      {
+        "at": 400,
+        "src": "captures/tablet-salle-served-400.webp"
+      },
+      {
+        "at": 500,
+        "src": "captures/tablet-salle-served-500.webp"
+      },
+      {
+        "at": 600,
+        "src": "captures/tablet-salle-served-600.webp"
+      }
+    ],
+    "tap": {
+      "x": 1053.4375,
+      "y": 413.25,
+      "width": 65.5625,
+      "height": 44
+    },
+    "card": {
+      "x": 784,
+      "y": 278,
+      "width": 356,
+      "height": 341,
+      "content": 284
+    },
+    "served": {
+      "x": 811.75,
+      "y": 17,
+      "width": 124.9375,
+      "height": 26
+    },
+    "clock": "12:50"
+  },
+  "collect": {
+    "viewport": {
+      "width": 366,
+      "height": 743
+    },
+    "dish": "Pad Thaï Chicken",
+    "at": "12:20",
+    "pickup": "12:45",
+    "checkout": "captures/collect-checkout.webp",
+    "payTap": {
+      "x": 20,
+      "y": 675,
+      "width": 326,
+      "height": 44
+    },
+    "paid": "captures/collect-paid.webp"
+  }
+}

@@ -74,7 +74,7 @@ export function CategoryNav({
             sous le bouton clair/sombre quand il est là. */}
         <div
           ref={railRef}
-          className={`no-scrollbar ${themeLocked ? "-mx-3" : "-ml-3"} flex flex-1 gap-2 overflow-x-auto px-3 py-1.5 lg:gap-3 lg:py-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]`}
+          className={`category-rail no-scrollbar ${themeLocked ? "-mx-3" : "-ml-3"} flex flex-1 gap-2 overflow-x-auto px-3 py-1.5 lg:gap-3 lg:py-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]`}
         >
           {categories.map(({ id, name }) => {
             const active = id === activeId;
