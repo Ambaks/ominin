@@ -14,7 +14,7 @@ import { StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref } from "@/lib/collect/shared";
-import { useCart } from "@/lib/menu/cart";
+import { useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu-data";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
@@ -28,10 +28,12 @@ type TipChoice = number | "autre" | null;
 /** Pourboires proposés au règlement par carte (en % du total, arrondi au centime). */
 const TIP_PERCENTS = [5, 10, 15] as const;
 
-/** Une ligne du panier, nommée avec ses choix : deux Menu Solo se distinguent. */
-const lineLabel = (line: { name: string; optionSummary: string[] }) =>
+/** Une ligne du panier, nommée avec ses choix : deux Menu Solo se distinguent.
+    Les étapes d'une formule se séparent d'un point-virgule : leurs choix ont
+    déjà leurs virgules. */
+const lineLabel = (line: Pick<CartLine, "name" | "optionSummary" | "formule">) =>
   line.optionSummary.length > 0
-    ? `${line.name} (${line.optionSummary.join(", ")})`
+    ? `${line.name} (${line.optionSummary.join(line.formule ? " ; " : ", ")})`
     : line.name;
 
 /** Retirer la ligne : à la quantité 1, « − » la supprime — l'icône le dit. */
@@ -241,8 +243,12 @@ export function CartBar() {
         lines.set(key, {
           name: line.name,
           quantity: (known?.quantity ?? 0) + line.quantity,
-          // Sans le supplément « (+0,50 €) » : order_ticket ne rend que le nom.
-          choices: line.optionSummary.map((choice) => choice.replace(/ \(\+[^)]*\)$/, "")),
+          // Sans les suppléments « (+0,50 €) », d'un plat comme des choix
+          // d'une formule : order_ticket ne rend que les noms.
+          choices: line.optionSummary.map((choice) => choice.replace(/ \(\+[^)]*\)/g, "")),
+          // L'aperçu montre une formule étape par étape, comme le panier ; le
+          // vrai ticket (order_ticket) en aligne les choix sur une ligne.
+          formule: Boolean(line.formule) || undefined,
         });
       }
       const id = crypto.randomUUID();
@@ -639,10 +645,12 @@ export function CartBar() {
                               <p className="mt-0.5 text-xs text-muted">
                                 {line.optionSummary.map((option, i) => (
                                   // Clé par position : un tacos « Poulet + Poulet » répète le libellé.
+                                  // Une formule, une étape par ligne : à la suite, ses étapes et
+                                  // leurs choix faisaient un bloc de sept lignes.
                                   <Fragment key={i}>
-                                    <span className="inline-block max-w-full">
-                                      {keepHyphenated(option.replace(" (+", "\u00a0(+"))}
-                                      {i < line.optionSummary.length - 1 && "\u00a0·"}
+                                    <span className={line.formule ? "block" : "inline-block max-w-full"}>
+                                      {keepHyphenated(option.replaceAll(" (+", "\u00a0(+"))}
+                                      {!line.formule && i < line.optionSummary.length - 1 && "\u00a0·"}
                                     </span>{" "}
                                   </Fragment>
                                 ))}

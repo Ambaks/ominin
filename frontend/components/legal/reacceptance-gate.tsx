@@ -29,10 +29,17 @@ import { AcceptTerms, useContractState } from "./accept-terms";
 export function ReacceptanceGate({
   scope,
   children,
+  unlocked,
 }: {
   /** Espace qui monte le verrou : c'est son contrat qu'on signe ici. */
   scope: ContractScope;
   children: React.ReactNode;
+  /**
+   * Rendu seulement une fois le verrou tranché ouvert, jamais pendant la
+   * lecture du contrat : ce qui ne doit pas apparaître pour disparaître
+   * aussitôt sous la demande d'accord (la visite guidée).
+   */
+  unlocked?: React.ReactNode;
 }) {
   const { state, error: loadError, reload } = useContractState({ scope });
   const [accepted, setAccepted] = useState(false);
@@ -69,6 +76,7 @@ export function ReacceptanceGate({
           </div>
         )}
         {children}
+        {(state !== null || loadError !== null) && unlocked}
       </>
     );
   }

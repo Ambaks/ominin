@@ -294,6 +294,7 @@ export function counterDemo(
       offreTrial: null,
       collectSubscriptionStatus: null,
       userId: "demo",
+      visitesVues: null,
       role: "gerant",
       members: [],
       features: Object.fromEntries(

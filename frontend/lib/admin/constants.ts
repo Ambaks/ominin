@@ -288,6 +288,7 @@ export const CLIENT_VIEWS = [
   { id: "revenus", label: "Revenus" },
   { id: "analytique", label: "Analytique" },
   { id: "activite", label: "Activité" },
+  { id: "demarrage", label: "Démarrage" },
   { id: "reglages", label: "Réglages" },
 ] as const;
 

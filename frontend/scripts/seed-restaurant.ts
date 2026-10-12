@@ -17,7 +17,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { SEED_TABLE_COUNT } from "../lib/gestion/constants";
-import { getRestaurant } from "../lib/menu-data";
+import { formatPrice, getRestaurant } from "../lib/menu-data";
 import type { Database, Json, TablesInsert } from "../lib/supabase/database.types";
 import { must } from "../lib/supabase/result";
 
@@ -173,6 +173,15 @@ async function main() {
     `« ${restaurant!.name} » inséré (offre connect) : ${categories.length} catégories, ` +
       `${items.length} plats, ${tables.length} tables — ${accountNote}.`
   );
+  // Les formules du registre ne servent qu'à l'aperçu : leurs articles
+  // pointent sur des identifiants du registre, pas sur les plats insérés.
+  const formules = restaurant!.formules ?? [];
+  if (formules.length > 0) {
+    console.warn(
+      `Formules non insérées, à créer depuis l'espace gérant : ` +
+        formules.map((formule) => `${formule.name} (${formatPrice(formule.price)})`).join(", ")
+    );
+  }
 }
 
 main().catch((error) => {

@@ -53,11 +53,6 @@ BRANDS: dict[str, dict[str, str]] = {
             "serveur, cuisine, manager.\n"
             "Notre équipe conçoit la carte numérique et fournit les Cachets : "
             "aucune installation technique côté restaurant.\n"
-            "Offres mensuelles sans engagement : Digital 59 €/mois (carte par "
-            "QR code, Cachets, mise à jour en temps réel, espace de gestion) ; "
-            "Smart 79 €/mois (+ commande à table, gestion des tables, suivi des "
-            "commandes en direct) ; Connect 99 €/mois (+ paiement à table par "
-            "carte bancaire, intégration caisse, vues serveur/cuisine/manager).\n"
             "Problèmes réglés : carte papier à réimprimer à chaque changement, "
             "clients qui attendent pour commander puis pour payer, "
             "allers-retours des serveurs, additions à gérer en plein coup de "
@@ -84,9 +79,7 @@ BRANDS: dict[str, dict[str, str]] = {
             "son nom et à ses couleurs — pas dans l'application d'une "
             "plateforme : ses clients restent les siens. Le site web est "
             "compris dans l'offre : refait s'il date, créé s'il n'existe pas.\n"
-            "Tarif : 100 € par mois et 10 % par commande, sans engagement, là "
-            "où les plateformes de livraison prélèvent jusqu'à 30 %. Offre "
-            "groupée avec Ominin Menu Connect : 150 € par mois.\n"
+            "Les plateformes de livraison prélèvent jusqu'à 30 % par commande.\n"
             "Problèmes réglés : le téléphone qui sonne en plein coup de feu, "
             "le gâteau réservé sur un bout de papier, la commission des "
             "plateformes."
@@ -186,22 +179,29 @@ class ResearchFindings(BaseModel):
     change_summary: str | None = None
 
 
-def _brand_sheet(brand: str) -> str:
+def _brand_sheet(brand: str, pricing: str | None = None) -> str:
     sheet = BRANDS[brand]
+    prices = (
+        f"\n\nTARIFS EN VIGUEUR (lus sur le site ce jour, seuls montants "
+        f"citables) :\n{pricing}"
+        if pricing
+        else ""
+    )
     return (
         f"MARQUE : {sheet['name']} ({sheet['url']})\n"
         f"CIBLE : {sheet['audience']}\n\n"
         f"FICHE (seule source de vérité sur le produit) :\n{sheet['facts']}"
+        f"{prices}"
     )
 
 
-def compose_system(brand: str, guidelines: str) -> str:
+def compose_system(brand: str, guidelines: str, pricing: str | None) -> str:
     return f"""\
 Tu rédiges les publications des réseaux sociaux de la marque ci-dessous. \
 Aujourd'hui : un carrousel d'images, publié sans relecture humaine sur les \
 comptes officiels de la marque. Ce que tu écris part tel quel en public.
 
-{_brand_sheet(brand)}
+{_brand_sheet(brand, pricing)}
 
 RÈGLES INTANGIBLES :
 {INVARIANTS}
@@ -215,7 +215,10 @@ images, texte seul, mises en page par un gabarit. La première est la \
 couverture, la dernière l'appel à l'action.
   - kicker : étiquette de 1 à 3 mots au-dessus du titre (ex. « Idée reçue », \
 « Étape 2 »). Chaîne vide si inutile.
-  - title : 70 caractères au plus. C'est ce qui se lit en premier.
+  - title : 70 caractères au plus. C'est ce qui se lit en premier. Encadre \
+de [[ ]] les un à trois mots qui portent l'idée (« Vos tables [[commandent \
+seules]] ») : le gabarit les pose sur le dégradé de la marque. Un seul \
+passage par titre, et pas sur toutes les images.
   - body : 220 caractères au plus. Chaîne vide sur la couverture.
 - caption_instagram : légende Instagram, hashtags compris.
 - caption_facebook : légende Facebook, sans hashtags en rafale, avec \

@@ -4142,6 +4142,35 @@ export type Database = {
           },
         ]
       }
+      starter_setups: {
+        Row: {
+          answers: Json
+          created_at: string
+          etablissement_id: string
+          notified_at: string | null
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          etablissement_id: string
+          notified_at?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          etablissement_id?: string
+          notified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "starter_setups_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           etablissement_id: string
@@ -4746,6 +4775,10 @@ export type Database = {
         Returns: undefined
       }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
+      save_starter_setup: {
+        Args: { p_etablissement_id: string; p_setup: Json }
+        Returns: undefined
+      }
       set_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined

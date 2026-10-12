@@ -71,21 +71,23 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
       onSubmit={onSubmit}
       className="flex max-w-xl flex-col gap-5 rounded-2xl border border-hairline bg-surface p-5 lg:p-6"
     >
-      <Field label="Nom" required>
-        <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          required
-          className={inputClass}
-        />
-      </Field>
-      <Field label="Slogan" hint="Affiché en haut de votre menu en ligne.">
-        <input
-          value={tagline}
-          onChange={(event) => setTagline(event.target.value)}
-          className={inputClass}
-        />
-      </Field>
+      <div data-visite="etablissement-fiche" className="visite-encart flex flex-col gap-5">
+        <Field label="Nom" required>
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Slogan" hint="Affiché en haut de votre menu en ligne.">
+          <input
+            value={tagline}
+            onChange={(event) => setTagline(event.target.value)}
+            className={inputClass}
+          />
+        </Field>
+      </div>
       <Field label="Adresse">
         <input
           value={address}

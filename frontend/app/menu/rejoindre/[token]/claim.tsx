@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { enrollVisites } from "@/lib/gestion/visites-inscription";
 import { createClient } from "@/lib/supabase/client";
 
 function Shell({
@@ -58,6 +59,7 @@ export function ClaimCard({
       setBusy(false);
       return;
     }
+    await enrollVisites();
     window.location.assign("/gestion");
   };
 

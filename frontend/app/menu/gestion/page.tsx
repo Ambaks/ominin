@@ -234,7 +234,7 @@ export default function ApercuPage() {
       <StripePrompt />
 
       {hasCommandes && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div data-visite="apercu-jour" className="grid gap-4 rounded-2xl sm:grid-cols-2">
           <StatCard
             label="Commandes en cours"
             value={String(openOrders(state).length)}

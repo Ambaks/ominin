@@ -4,11 +4,14 @@ import { useState } from "react";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import type { Answers } from "@/lib/composer";
 import { startCheckout, type StarterOptions } from "@/lib/gestion/checkout";
+import { enrollVisites } from "@/lib/gestion/visites-inscription";
 import { signContract } from "@/lib/legal/client";
 import type { Offre } from "@/lib/gestion/types";
 import { pricingSection } from "@/lib/landing-data";
 import { createClient } from "@/lib/supabase/client";
+import type { Json } from "@/lib/supabase/database.types";
 
 function slugify(value: string): string {
   return value
@@ -26,11 +29,14 @@ export function OnboardingForm({
   initialOffre,
   initialTables,
   starter,
+  setup,
 }: {
   initialOffre?: Offre;
   initialTables?: number;
   /** Branchements choisis sur /devis, repris dans la commande de démarrage. */
   starter?: StarterOptions | null;
+  /** Réponses du composeur Connect, enregistrées sur l'établissement créé. */
+  setup?: Answers | null;
 }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -61,7 +67,7 @@ export function OnboardingForm({
     }
     setBusy(true);
     const supabase = createClient();
-    const { error } = await supabase.rpc("create_etablissement", {
+    const { data: etablissementId, error } = await supabase.rpc("create_etablissement", {
       p_name: name.trim(),
       p_slug: slug,
       p_offre: offre,
@@ -78,6 +84,18 @@ export function OnboardingForm({
       );
       setBusy(false);
       return;
+    }
+    await enrollVisites();
+
+    // Les réponses du composeur partent avec l'établissement : l'équipe les
+    // lit à la commande de démarrage. Un échec ne bloque pas l'ouverture —
+    // la commande arrive quand même, sans le détail de la salle.
+    if (setup) {
+      const { error: setupError } = await supabase.rpc("save_starter_setup", {
+        p_etablissement_id: etablissementId,
+        p_setup: setup as unknown as Json,
+      });
+      if (setupError) console.error(setupError.message);
     }
 
     // La signature suit la création : elle référence l'établissement, qui
