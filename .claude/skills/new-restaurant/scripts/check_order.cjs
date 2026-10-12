@@ -44,10 +44,15 @@ const inspectDialog = (page) =>
           d.parentElement?.parentElement === document.body),
       // …et elle doit rester habillée comme la page (thème + polices) : rendue
       // dans document.body, elle retombait en palette et polices Ominin.
+      // Un thème peut redéfinir ses jetons sur les fiches et les feuilles
+      // (Big Smash : page rouge, panneaux blancs) : la feuille ressemble alors
+      // aux fiches de la carte plutôt qu'à la page.
       themed: (() => {
         const root = document.querySelector("[data-menu-root]") || document.body;
-        const same = (v) =>
-          getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(root).getPropertyValue(v).trim();
+        const card = document.querySelector("main article");
+        const sameAs = (other, v) =>
+          !!other && getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(other).getPropertyValue(v).trim();
+        const same = (v) => sameAs(root, v) || sameAs(card, v);
         // Le titre de la modale est un nom de plat : il se compare aux noms
         // des cartes, pas aux titres de section (manuscrits chez O’Crousti).
         const title = d.querySelector("h3");
@@ -73,7 +78,9 @@ const inspectDialog = (page) =>
     if (ORDER_REQUEST.test(r.url())) orderRequests.push(`${r.method()} ${new URL(r.url()).pathname}`);
   });
   // Un robot de recette ne doit jamais compter comme visite d'un client réel.
-  await page.route(/\/rpc\/menu_track/, (route) => route.abort());
+  // place_order aussi : le script ne presse jamais l'envoi, mais une
+  // régression du verrou de l'aperçu ne doit rien faire partir.
+  await page.route(/\/rpc\/(menu_track|place_order)/, (route) => route.abort());
   await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
   // Les outils de développement de Next ont leur propre dialogue : hors de la page, ils
   // ne doivent pas répondre aux sélecteurs [role="dialog"] des feuilles de la carte.
@@ -125,10 +132,13 @@ const inspectDialog = (page) =>
     if (problems.length) fail(`${name}`, problems.join(", "));
     else ok(`${name}`, d.groups.join(" · "));
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(300);
-    if (await page.locator('[role="dialog"]').count()) {
+    // La feuille descend avant de partir : sa durée varie avec la charge.
+    const dialog = page.locator('[role="dialog"]');
+    await dialog.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
+    if (await dialog.count()) {
       fail(`${name} : Échap ne ferme pas la modale`);
-      await page.locator('[role="dialog"] button', { hasText: "Annuler" }).click();
+      const cancel = dialog.locator("button", { hasText: "Annuler" });
+      if (await cancel.count()) await cancel.click();
     }
   }
   if (!opened) console.log("  INFO    aucun article à options");

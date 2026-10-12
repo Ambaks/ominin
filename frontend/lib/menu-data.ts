@@ -1,3 +1,5 @@
+import type { Formule } from "@/lib/gestion/types";
+
 export type Badge = "maison" | "top" | "nouveau";
 
 export const BADGE_LABELS: Record<Badge, string> = {
@@ -201,8 +203,6 @@ export interface Restaurant {
   formulesBanner?: FormulesBanner;
   address: string;
   phone: string;
-  /** false ⇒ pas de « Commander sur WhatsApp » au pied de carte : le numéro ne prend pas de commandes par WhatsApp. */
-  whatsapp?: boolean;
   hours: string;
   /** Arguments courts affichés sous le hero (halal, livraison, promotion). */
   highlights?: string[];
@@ -211,13 +211,30 @@ export interface Restaurant {
   /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
   glossary?: { term: string; definition: string }[];
   categories: MenuCategory[];
+  /**
+   * Formules d'une carte d'aperçu (/menu/demo) : en production elles vivent
+   * en base, à part de la carte, et la page les charge elle-même.
+   */
+  formules?: Formule[];
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
+  /**
+   * Identifiant de la fiche Google de l'établissement : le lien d'adresse
+   * ouvre la fiche (voir mapsUrl). Registre seulement, la base n'en a pas.
+   */
+  placeId?: string;
   /** Aperçu d'un pitch qui présente l'estimateur IA comme livré : le ticket le nomme. */
   estimatorLive?: boolean;
   /** /menu/demo à table : « Payer en ligne » et le pourboire, comme chez un client qui règle à table. */
   onlinePayment?: boolean;
 }
+
+/**
+ * L'entrée « Formules » de la barre des catégories, et l'ancre de la section
+ * qu'elle vise. Ici et non dans components/menu/formules (module client) :
+ * les pages serveur n'y recevaient qu'une référence, sans id.
+ */
+export const FORMULES_LINK = { id: "formules", name: "Formules" };
 
 export const unsplash = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
@@ -263,6 +280,19 @@ const groupeChoix = (
     return { id: `${id}-${slugLibelle(label)}`, name: `${prefixe}${label}`, supplement: prix };
   }),
 });
+
+/** Cuisson d'une viande grillée, demandée à chaque commande. */
+const CUISSON: OptionGroup = {
+  id: "cuisson",
+  name: "Cuisson",
+  obligatoire: true,
+  choices: [
+    { id: "a-point", name: "À point", supplement: 0 },
+    { id: "saignant", name: "Saignant", supplement: 0 },
+    { id: "bleu", name: "Bleu", supplement: 0 },
+    { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+  ],
+};
 
 const trattoriaLucia: Restaurant = {
   slug: "trattoria-lucia",
@@ -679,19 +709,7 @@ const boho: Restaurant = {
             "Grillée à la perfection, notre sauce verte maison, frites fraîches et salade.",
           price: 20,
           badges: ["top"],
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "piece-boeuf",
@@ -699,19 +717,7 @@ const boho: Restaurant = {
           name: "Pièce de bœuf grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "piece-poulet",
@@ -726,19 +732,7 @@ const boho: Restaurant = {
           name: "Magret de canard grillé",
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "saumon-plancha",
@@ -746,19 +740,7 @@ const boho: Restaurant = {
           name: "Escalope de saumon frais à la plancha",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "burger-boho",
@@ -767,19 +749,7 @@ const boho: Restaurant = {
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
           badges: ["maison"],
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
       ],
     },
@@ -1227,17 +1197,8 @@ const lzParfumCanette = groupeChoix("parfum", "Parfum", LZ_BOISSONS, {
   obligatoire: true,
 });
 
-const lzSupplements = (id: string, noms: string[]): OptionGroup => ({
-  id,
-  name: "Suppléments",
-  obligatoire: false,
-  multiple: true,
-  choices: noms.map((nom) => ({
-    id: `${id}-${slugLibelle(nom)}`,
-    name: nom,
-    supplement: 1,
-  })),
-});
+const lzSupplements = (id: string, noms: string[]) =>
+  groupeChoix(id, "Suppléments", noms, { supplement: 1, multiple: true });
 
 const lzSupplementsSnack = lzSupplements("supplement", [
   "Cheddar",
@@ -1931,6 +1892,542 @@ const oCroustiPoulet: Restaurant = {
 };
 
 /*
+ * Big Smash — prospect : le siège du réseau (smash burgers et poulet frit
+ * halal, une dizaine de restaurants en France, groupe NSup, Toulouse). Carte
+ * transcrite de bigsmash.fr/la-carte (noms et descriptions tels que publiés ;
+ * prix présents dans la page mais masqués à l'affichage, cohérents avec ceux
+ * cités par Snacking en 2025 : menus dès 9,90 €, Big Combo 14,90 €) ; photos :
+ * les visuels produits du même site, détourés et posés en 16:9 dans
+ * public/big-smash/. Établissement affiché : Toulouse Matabiau, le premier
+ * restaurant (2021). Suppléments déduits, questions au siège :
+ * demos/big-smash/profile.json.
+ */
+
+/*
+ * Accompagnement d'un menu : la liste des fiches menus du site. Le site ne
+ * publie pas le supplément en menu ; ceux-ci reprennent l'écart de prix à la
+ * carte avec les frites nature (3 €) — à confirmer avec le siège.
+ */
+const BS_ACCOMPAGNEMENTS = [
+  ["Frites nature", 0],
+  ["Frites épicées", 0.5],
+  ["Frites cheddar", 1],
+  ["Frites cheddar bacon", 2],
+  ["Pops nature", 0.5],
+  ["Pops cheddar", 1.5],
+  ["Pops cheddar bacon", 2.5],
+] as const;
+
+/* Les thés et limonades : le site les vend en un seul article, « THÉ &
+   LIMONADE » ; leurs noms viennent de la carte Deliveroo de l'enseigne. */
+const BS_THES_LIMONADES = [
+  "Thé Blanc Tropical",
+  "Limonade Red Cherry",
+  "Limonade Fizz Yuzu",
+  "Limonade Blue Mango Passion",
+  "Limonade Lime Watermelon",
+];
+
+/*
+ * Boisson d'un menu : la liste des fiches menus du site (gamme Coca-Cola, pas
+ * de Pepsi), plus le Coca Cola Sans Sucres que montre son visuel et que vend
+ * sa carte Deliveroo, le Cherry et les parfums de Volvic de la carte (leur
+ * visuel). Même règle que les accompagnements : l'écart de prix à la carte
+ * avec le Coca Cola (1,90 €), à confirmer.
+ */
+const BS_BOISSONS = [
+  ["Coca Cola", 0],
+  ["Coca Cola Sans Sucres", 0],
+  ["Coca Cola Cherry", 0],
+  ["Badoit", 0],
+  ["Evian", 0],
+  ["Volvic Juicy Fraise", 0.6],
+  ["Volvic Zest Citron", 0.6],
+  ["Red Bull", 1],
+  ...BS_THES_LIMONADES.map((nom) => [nom, 1] as const),
+] as const;
+
+/* Les sauces maison du site (« SAUCES 0.40 € »). */
+const BS_SAUCES = ["Big Smash", "Spicy", "Ranch", "Miel-Moutarde"];
+/* Le site ne dit pas quels burgers le combo admet ni à quel prix : les
+   quatre que leur carte Deliveroo y inclut sans supplément. */
+const BS_COMBO_BURGERS = ["Smash Classic", "Smash Spicy", "Original Cheese", "Big Fish"];
+
+const bsAccompagnement = groupeChoix("accompagnement", "Accompagnement", BS_ACCOMPAGNEMENTS, { obligatoire: true });
+const bsBoisson = groupeChoix("boisson", "Boisson", BS_BOISSONS, { obligatoire: true });
+/* « Sauce Big Smash » au panier : « Big Smash (+0,40 €) » se lisait comme un
+   burger. Les noms de groupe se lisent aussi au comptoir, devant le choix :
+   « En plus : Sauce Big Smash », « Retirer : Sans tomate ». */
+const bsSauceEnPlus = groupeChoix("sauce", "En plus", BS_SAUCES, { multiple: true, supplement: 0.4, prefixe: "Sauce " });
+
+/* « Nous ne changeons pas les recettes de nos burgers, mais nous pouvons
+   retirer les ingrédients de votre choix » (FAQ du site). L'option veggie
+   (« steak veggie » ou « poulet veggie », même FAQ) n'est pas proposée :
+   son prix n'est pas publié (profile.json, question 2). */
+const bsRetirer = (...ingredients: string[]) =>
+  groupeChoix("retirer", "Retirer", ingredients, { multiple: true, prefixe: "Sans " });
+
+/** Un menu : son burger, frites ou pops, boisson, puis ce que le client retire ou ajoute. */
+const bsMenu = (item: Omit<MenuItem, "options">, retirer: string[]): MenuItem => ({
+  ...item,
+  options: [bsAccompagnement, bsBoisson, bsRetirer(...retirer), bsSauceEnPlus],
+});
+
+/** Un burger seul : ce que le client retire ou ajoute. */
+const bsBurger = (item: Omit<MenuItem, "options">, retirer: string[]): MenuItem => ({
+  ...item,
+  options: [bsRetirer(...retirer), bsSauceEnPlus],
+});
+
+/* Coulis et toppings du Big Sundae et du Kool Dog (visuels du site). */
+const bsCoulis = groupeChoix("coulis", "Coulis", ["Speculoos", "Caramel", "Fraise", "Nutella"], { obligatoire: true });
+const bsTopping = groupeChoix("topping", "Topping", ["Speculoos", "Oreo", "Daim"], { obligatoire: true });
+
+const bigSmash: Restaurant = {
+  slug: "big-smash",
+  name: "Big Smash",
+  tagline: "Toulouse Matabiau",
+  logo: "/big-smash/logo.svg",
+  whiteLogo: true,
+  logoIsName: true,
+  // Le mot-symbole en relief, blanc et rouge : l'image de partage du site et le bas de sa carte.
+  footerLogo: "/big-smash/logo-relief.svg",
+  icons: { tab: "/big-smash/favicon.png", homeScreen: "/big-smash/icon.png" },
+  themeColor: "#d72215",
+  allergensUrl: "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/681916480339e273bbeb0584_TABLEAU%20ALLERGE%CC%80NES.pdf",
+  address: "68 rue de Bayard, 31000 Toulouse",
+  phone: "",
+  // Ni coupure dans une plage (« dim 12h– / 23h ») ni « · » en début de ligne.
+  hours: "Lun–\u2060jeu\u00a011h–\u206023h\u00a0· ven–\u2060sam\u00a011h–\u20600h30\u00a0· dim\u00a012h–\u206023h",
+  // « toutes nos viandes sont certifiées AVS et Achahada » (FAQ) ; « fried chicken maison » (accueil).
+  highlights: ["Viandes certifiées halal", "Fried chicken maison"],
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+  estimatorLive: true,
+  categories: [
+    {
+      id: "menus",
+      name: "Menus",
+      tagline: "Servis avec frites et boisson",
+      items: [
+        bsMenu(
+          {
+            id: "menu-smash-classic",
+            name: "Menu Smash Classic",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-smash-classic.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsMenu(
+          {
+            // Le site décrit ce menu avec un filet de poulet : la description du burger Smash Spicy (profile.json, question 5).
+            id: "menu-smash-spicy",
+            name: "Menu Smash Spicy",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, jalapenos et sauce Spicy servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-smash-spicy.webp",
+          },
+          ["salade", "tomate", "cheddar", "jalapenos"]
+        ),
+        bsMenu(
+          {
+            id: "menu-smash-bacon",
+            name: "Menu Smash Bacon",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash servi avec frites et boisson.",
+            price: 10.9,
+            image: "/big-smash/menu-smash-bacon.webp",
+          },
+          ["salade", "tomate", "cheddar", "bacon"]
+        ),
+        bsMenu(
+          {
+            id: "menu-original-cheese",
+            name: "Menu Original Cheese",
+            description: "Potato bun, steak haché smashé, oignons frais, double cheddar, sauce ketchup et moutarde US servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-original-cheese.webp",
+          },
+          ["oignons", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-smash",
+            name: "Menu Big Smash",
+            description: "Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-big-smash.webp",
+          },
+          ["pickles", "salade", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-cheese",
+            name: "Menu Big Cheese",
+            description: "Potato bun, double steak haché smashé, oignons frais, pickles, salade, double cheddar et sauce Big Smash servi avec frites et boisson.",
+            price: 8.9,
+            image: "/big-smash/menu-big-cheese.webp",
+          },
+          ["oignons", "pickles", "salade", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-grilled-smash",
+            name: "Menu Grilled Smash",
+            description: "Butter bread toasté, steak haché smashé, cheddar, oignons confit et sauce Big Smash servi avec frites et boisson.",
+            price: 8.9,
+            image: "/big-smash/menu-grilled-smash.webp",
+          },
+          ["cheddar", "oignons confits"]
+        ),
+        bsMenu(
+          {
+            id: "menu-surf-turf",
+            name: "Menu Surf & Turf",
+            description: "Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety servi avec frites et boisson.",
+            price: 11.9,
+            image: "/big-smash/menu-surf-turf.webp",
+          },
+          ["cheddar", "sésame"]
+        ),
+        bsMenu(
+          {
+            id: "menu-original-chicken",
+            name: "Menu Original Chicken",
+            description: "Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-original-chicken.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-chicken",
+            name: "Menu Big Chicken",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce smokey BBQ servi avec frites et boisson.",
+            price: 10.9,
+            image: "/big-smash/menu-big-chicken.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-chicken-spicy",
+            name: "Menu Chicken Spicy",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-chicken-spicy.webp",
+          },
+          ["salade", "tomate", "jalapenos", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-fish",
+            name: "Menu Big Fish",
+            description: "Potato bun, filet de colin pané maison, cheddar et sauce Tartare servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-big-fish.webp",
+          },
+          ["cheddar"]
+        ),
+        {
+          id: "big-combo",
+          name: "Big Combo",
+          description: "C'est l'occasion de te faire plaisir avec deux burgers dans ton menu\u00a0!",
+          price: 14.9,
+          image: "/big-smash/big-combo.webp",
+          options: [
+            groupeChoix("burger-1", "1er\u00a0burger", BS_COMBO_BURGERS, { obligatoire: true }),
+            groupeChoix("burger-2", "2e\u00a0burger", BS_COMBO_BURGERS, { obligatoire: true }),
+            bsAccompagnement,
+            bsBoisson,
+          ],
+        },
+        {
+          id: "big-kids",
+          name: "Big Kids",
+          description: "Menu enfant 7-11 ans, cheeseburger ou nuggets x5 au choix, frites, dessert au choix, boisson au choix et jouet.",
+          price: 6.9,
+          image: "/big-smash/big-kids.webp",
+          /* Desserts et boissons : ceux de leur carte Deliveroo, le site n'en nomme aucun. */
+          options: [
+            groupeChoix("plat", "Plat", ["Cheeseburger", "Nuggets x5"], { obligatoire: true }),
+            groupeChoix("dessert", "Dessert", ["Kinder Country", "Pom'Potes"], { obligatoire: true }),
+            groupeChoix("boisson", "Boisson", ["Evian", "Capri-Sun"], { obligatoire: true }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers",
+      items: [
+        bsBurger(
+          {
+            id: "smash-classic",
+            name: "Smash Classic",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash.",
+            price: 6.9,
+            image: "/big-smash/smash-classic.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "smash-spicy",
+            name: "Smash Spicy",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, jalapenos et sauce Spicy.",
+            price: 6.9,
+            image: "/big-smash/smash-spicy.webp",
+          },
+          ["salade", "tomate", "cheddar", "jalapenos"]
+        ),
+        bsBurger(
+          {
+            id: "smash-bacon",
+            name: "Smash Bacon",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash.",
+            price: 7.9,
+            image: "/big-smash/smash-bacon.webp",
+          },
+          ["salade", "tomate", "cheddar", "bacon"]
+        ),
+        bsBurger(
+          {
+            id: "original-cheese",
+            name: "Original Cheese",
+            description: "Potato bun, steak haché smashé, oignons frais, double cheddar, pickles, sauce ketchup et moutarde US.",
+            price: 6.9,
+            image: "/big-smash/original-cheese.webp",
+          },
+          ["oignons", "cheddar", "pickles"]
+        ),
+        bsBurger(
+          {
+            id: "big-smash-burger",
+            name: "Big Smash Burger",
+            description: "Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash.",
+            price: 6.9,
+            image: "/big-smash/big-smash-burger.webp",
+          },
+          ["cheddar", "pickles", "salade"]
+        ),
+        bsBurger(
+          {
+            id: "surf-turf",
+            name: "Surf Turf",
+            description: "Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety.",
+            price: 8.9,
+            image: "/big-smash/surf-turf.webp",
+          },
+          ["cheddar", "sésame"]
+        ),
+        bsBurger(
+          {
+            id: "original-chicken",
+            name: "Original Chicken",
+            description: "Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch.",
+            price: 6.9,
+            image: "/big-smash/original-chicken.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+        bsBurger(
+          {
+            id: "big-chicken",
+            name: "Big Chicken",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Smokey BBQ.",
+            price: 7.9,
+            image: "/big-smash/big-chicken.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "chicken-spicy",
+            name: "Chicken Spicy",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy.",
+            price: 7.9,
+            image: "/big-smash/chicken-spicy.webp",
+          },
+          ["salade", "tomate", "jalapenos", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "big-mountain",
+            name: "Big Mountain",
+            description: "Potato Bun, filet de poulet pané maison, oignon confit, raclette, bacon et sauce Ranch.",
+            price: 8.9,
+            image: "/big-smash/big-mountain.webp",
+          },
+          ["oignon confit", "raclette", "bacon"]
+        ),
+        bsBurger(
+          {
+            id: "big-fish",
+            name: "Big Fish",
+            description: "Potato bun, filet de colin pané maison, cheddar, salade iceberg et sauce Tartare.",
+            price: 6.9,
+            image: "/big-smash/big-fish.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+      ],
+    },
+    {
+      id: "hot-dogs",
+      name: "Hot-dogs",
+      items: [
+        { id: "classic-dog", name: "Classic Dog", description: "Potato bun long, saucisse 100% boeuf, ketchup, moutarde US et oignons frits.", price: 3.9, image: "/big-smash/classic-dog.webp" },
+        { id: "spicy-dog", name: "Spicy Dog", description: "Potato bun long, saucisse 100% boeuf, jalapenos émincé et sauce Spicy.", price: 3.9, image: "/big-smash/spicy-dog.webp" },
+        { id: "cheesy-dog", name: "Cheesy Dog", description: "Potato bun long, saucisse 100% boeuf, sauce cheddar, pickles émincés et oignons frits.", price: 4.9, image: "/big-smash/cheesy-dog.webp" },
+        { id: "bacon-dog", name: "Bacon Dog", description: "Potato bun long, saucisse 100% boeuf bacon, sauce smokey BBQ et oignons frits.", price: 4.9, image: "/big-smash/bacon-dog.webp" },
+      ],
+    },
+    {
+      id: "sides",
+      name: "Sides",
+      items: [
+        { id: "frites-nature", name: "Frites nature", price: 3, image: "/big-smash/frites-nature.webp" },
+        { id: "frites-epicees", name: "Frites épicées", price: 3.5, image: "/big-smash/frites-epicees.webp" },
+        { id: "frites-cheddar", name: "Frites cheddar", price: 4, image: "/big-smash/frites-cheddar.webp" },
+        { id: "frites-cheddar-bacon", name: "Frites cheddar bacon", price: 5, image: "/big-smash/frites-cheddar-bacon.webp" },
+        { id: "pops-nature", name: "Pops nature", description: "Pomme de terre rapées assaisonnées en forme de petite boule.", price: 3.5, image: "/big-smash/pops-nature.webp" },
+        { id: "pops-cheddar", name: "Pops cheddar", description: "Pomme de terre rapées assaisonnées en forme de petite boule avec sauce cheddar.", price: 4.5, image: "/big-smash/pops-cheddar.webp" },
+        {
+          id: "pops-cheddar-bacon",
+          name: "Pops cheddar bacon",
+          description: "Pomme de terre rapées assaisonnées en forme de petite boule avec sauce cheddar bacon.",
+          price: 5.5,
+          // Pas de visuel propre sur le site : celui des Pops cheddar.
+          image: "/big-smash/pops-cheddar.webp",
+        },
+        { id: "chicken-pop-corn", name: "Chicken Pop-Corn", detail: "x15", description: "Morceaux de filet de poulet pané maison.", price: 5.9, image: "/big-smash/chicken-pop-corn.webp" },
+        { id: "chicken-pop-corn-spicy", name: "Chicken Pop-Corn Spicy", description: "Morceaux de filet de poulet pané maison servi avec sa sauce spicy.", price: 7.9, image: "/big-smash/chicken-pop-corn-spicy.webp" },
+        { id: "tenders", name: "Tenders", detail: "x4", description: "Filet de poulet pané maison.", price: 5.9, image: "/big-smash/tenders.webp" },
+        { id: "nuggets", name: "Nuggets", detail: "x5", description: "Nuggets de poulet croustillant.", price: 3.9, image: "/big-smash/nuggets.webp" },
+        {
+          id: "crevettes-panees",
+          name: "Crevettes panées",
+          description: "Beignets de crevettes décortiquées croustillants servi avec sauce Big Sweety.",
+          price: 5.9,
+          image: "/big-smash/crevettes-panees.webp",
+          /* « 5.90 - 9.90 » sur le site ; x5 et x10 sur leur carte Deliveroo. */
+          options: [groupeChoix("quantite", "Quantité", [["x5", 0], ["x10", 4]], { obligatoire: true })],
+        },
+        { id: "little-smash", name: "Little Smash", description: "Potato bun, steak haché frais et smashé, cheddar, pickles et sauce Big Smash.", price: 4, image: "/big-smash/little-smash.webp" },
+        {
+          id: "little-wrap",
+          name: "Little Wrap",
+          description: "Galette garnie de tenders maison, salade, cheddar, oignons frits, avec la sauce de votre choix (Ranch ou Miel-Moutarde).",
+          price: 2.95,
+          image: "/big-smash/little-wrap.webp",
+          options: [groupeChoix("sauce", "Sauce", ["Ranch", "Miel-Moutarde"], { obligatoire: true })],
+        },
+        { id: "little-wrap-spicy", name: "Little Wrap Spicy", description: "Galette garnie de cheddar, tenders, salade, jalapenos et sauce Spicy.", price: 2.95, image: "/big-smash/little-wrap-spicy.webp" },
+        {
+          id: "taco-smash",
+          name: "Taco Smash",
+          description: "Choisis ton Taco Smash (classique ou épicé).",
+          price: 4.9,
+          image: "/big-smash/taco-smash.webp",
+          options: [groupeChoix("taco", "Taco", ["Classique", "Épicé"], { obligatoire: true })],
+        },
+        { id: "grilled-cheese", name: "Grilled Cheese", price: 2.5, image: "/big-smash/grilled-cheese.webp" },
+        { id: "grilled-cheese-bacon", name: "Grilled Cheese Bacon", price: 3.5, image: "/big-smash/grilled-cheese-bacon.webp" },
+        {
+          id: "big-salade",
+          name: "Big Salade",
+          description: "Salade fraîche, tenders croustillants ou crevettes panées, tomates cerises, copeaux de parmesan, oignons frits et sauce Ranch ou Big Sweety.",
+          price: 9.9,
+          image: "/big-smash/big-salade.webp",
+          options: [
+            groupeChoix("garniture", "Garniture", ["Tenders croustillants", "Crevettes panées"], { obligatoire: true }),
+            groupeChoix("sauce", "Sauce", ["Ranch", "Big Sweety"], { obligatoire: true }),
+          ],
+        },
+        {
+          id: "sauces",
+          name: "Sauces",
+          description: "Découvrez nos sauces exclusives Big Smash\u00a0: Big Smash, Spicy, Ranch et Miel-Moutarde\u00a0!",
+          price: 0.4,
+          image: "/big-smash/sauces.webp",
+          options: [groupeChoix("sauce", "Sauce", BS_SAUCES, { obligatoire: true })],
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "milkshake",
+          name: "Milkshake",
+          description: "Milkshake avec parfum au choix (caramel, fraise & vanille) et chantilly.",
+          price: 4.5,
+          image: "/big-smash/milkshake.webp",
+          options: [groupeChoix("parfum", "Parfum", ["Caramel", "Fraise", "Vanille"], { obligatoire: true })],
+        },
+        { id: "milkshake-pistache-macadamia", name: "Milkshake Pistache Macadamia", price: 4.95, image: "/big-smash/milkshake-pistache-macadamia.webp" },
+        {
+          id: "big-sundae",
+          name: "Big Sundae",
+          description: "Glace vanille avec coulis et topping au choix.",
+          price: 3.5,
+          image: "/big-smash/big-sundae.webp",
+          options: [bsCoulis, bsTopping],
+        },
+        { id: "big-sundae-pistachio", name: "Big Sundae Pistachio", description: "Nappage pistache et éclats de pistache caramélisés.", price: 3.95, image: "/big-smash/big-sundae-pistachio.webp" },
+        {
+          id: "kool-dog",
+          name: "Kool Dog",
+          description: "Pain hot-dog, glace vanille avec coulis et topping au choix.",
+          price: 3.9,
+          image: "/big-smash/kool-dog.webp",
+          options: [bsCoulis, bsTopping],
+        },
+        { id: "grilled-nutella", name: "Grilled Nutella", description: "Butter bread toasté et garni de Nutella.", price: 2.5, image: "/big-smash/grilled-nutella.webp" },
+        { id: "kinder-country", name: "Kinder Country", description: "Chocolat Kinder au cœur au lait fondant et des céréales soufflées croustillantes.", price: 1, image: "/big-smash/kinder-country.webp" },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "the-limonade",
+          name: "Thé & Limonade",
+          price: 2.9,
+          image: "/big-smash/the-limonade.webp",
+          options: [groupeChoix("parfum", "Parfum", BS_THES_LIMONADES, { obligatoire: true })],
+        },
+        {
+          id: "coca-cola",
+          name: "Coca Cola",
+          price: 1.9,
+          image: "/big-smash/coca-cola.webp",
+          // Les trois canettes du visuel du site.
+          options: [groupeChoix("gout", "Goût", ["Original", "Sans Sucres", "Cherry"], { obligatoire: true })],
+        },
+        { id: "fuze-tea-peche", name: "Fuze Tea Pêche", price: 2.2, image: "/big-smash/fuze-tea-peche.webp" },
+        { id: "red-bull", name: "Red Bull", price: 2.9, image: "/big-smash/red-bull.webp" },
+        { id: "capri-sun", name: "Capri-Sun", price: 2, image: "/big-smash/capri-sun.webp" },
+        { id: "badoit", name: "Badoit", price: 1.9, image: "/big-smash/badoit.webp" },
+        { id: "evian", name: "Evian", price: 1.5, image: "/big-smash/evian.webp" },
+        {
+          id: "volvic",
+          name: "Volvic",
+          price: 2.5,
+          image: "/big-smash/volvic.webp",
+          // Les deux bouteilles du visuel du site.
+          options: [groupeChoix("parfum", "Parfum", ["Juicy Fraise", "Zest Citron"], { obligatoire: true })],
+        },
+      ],
+    },
+  ],
+};
+
+/*
  * Chicken Street — démo pour le pitch au siège (CS DEVELOPPEMENT, Saint-Denis).
  * Noms et visuels : chickenstreet.fr/la-carte (visuels détourés posés en 16:9
  * dans public/chicken-street/) ; le site ne publie ni prix ni descriptions :
@@ -2175,8 +2672,6 @@ const baiKo: Restaurant = {
   themeColor: "#0a0a0c",
   address: "2 Avenue de Lodève, 34070 Montpellier",
   phone: "+33 6 14 05 59 71",
-  // Le site donne ce numéro pour appeler et réserver, jamais pour commander par WhatsApp.
-  whatsapp: false,
   onlinePayment: true,
   hours: "Tous les jours\u00a012h–14h30 · 18h30–23h30 (fermeture\u00a0cuisine 30\u00a0min avant)",
   // Les pastilles du site, sauf « Livraison » (le bandeau l'annonce déjà, par Uber Eats) ; en tête le
@@ -2408,13 +2903,381 @@ const baiKo: Restaurant = {
   ],
 };
 
+/*
+ * L'Adresse (Portet-sur-Garonne, au sud-ouest de Toulouse) — prospect,
+ * « restaurant lounge » : cuisine maison, cocktails sans alcool, chichas.
+ * Carte transcrite de leur menu numérique (NFC For You, mis à jour le
+ * 2 octobre 2026), articles disponibles seulement ; coquilles évidentes
+ * corrigées, chacune listée dans le profil. Identité relevée sur leur logo,
+ * la carte imprimée de 2021 et la façade : anthracite bleuté, dorure, nom
+ * manuscrit, ruban « Restaurant Lounge ». Source de vérité du profil :
+ * demos/l-adresse/profile.json.
+ */
+
+/* « Accompagnement : purée, purée de patate douce, poêlé de légumes » — une
+   ligne sans prix de leur carte. Les viandes en proposent un au choix :
+   déduction à confirmer avec le gérant. */
+const ADRESSE_ACCOMPAGNEMENTS = [
+  "Purée",
+  "Purée de patate douce",
+  "Poêlée de légumes",
+] as const;
+
+const adresseAccompagnement = groupeChoix(
+  "accompagnement",
+  "Accompagnement",
+  ADRESSE_ACCOMPAGNEMENTS,
+  { obligatoire: true }
+);
+
+/* « Supplément accompagnement : 4 € », en tête des plats. « … en plus » :
+   sur la feuille comme sur le ticket, ne se confond pas avec celui inclus. */
+const adresseSupplement = groupeChoix(
+  "supplement-accompagnement",
+  "Accompagnement supplémentaire",
+  ADRESSE_ACCOMPAGNEMENTS.map((label) => `${label} en plus`),
+  { supplement: 4, multiple: true }
+);
+
+const adresseViande = [CUISSON, adresseAccompagnement, adresseSupplement];
+
+const adresseSaladeCesar = groupeChoix(
+  "poulet",
+  "Préparation du poulet",
+  ["Poulet", "Poulet pané"],
+  { obligatoire: true }
+);
+
+/* La fiche Google de l'établissement : avis et itinéraire. */
+const ADRESSE_FICHE_GOOGLE = "ChIJVVswUVa5rhIR5meIm1C9vkM";
+
+const lAdresse: Restaurant = {
+  slug: "l-adresse",
+  name: "L’Adresse",
+  tagline: "Restaurant Lounge",
+  // Le logo tracé d'après leur fichier (docs/logo.png) : le nom manuscrit ;
+  // le ruban suit, à part, sous l'accroche (.theme-l-adresse).
+  logo: "/l-adresse/logo-nom.svg",
+  logoIsName: true,
+  footerLogo: "/l-adresse/logo.svg",
+  themeColor: "#24272f",
+  icons: { tab: "/l-adresse/favicon.png", homeScreen: "/l-adresse/icon.png" },
+  address: "8 Chemin des Genêts, 31120 Portet-sur-Garonne",
+  phone: "+33 5 34 49 07 66",
+  // Insécables dans chaque groupe de jours, gluon (U+2060) après le tiret :
+  // la ligne ne se coupe qu'entre deux groupes.
+  hours:
+    "Mer,\u00a0jeu,\u00a0dim\u00a019h30–\u20602h · Ven,\u00a0sam\u00a019h30–\u20603h · Fermé\u00a0lun,\u00a0mar",
+  highlights: ["Cuisine maison", "Cocktails sans alcool", "Chichas premium"],
+  googleReviewUrl: `https://search.google.com/local/writereview?placeid=${ADRESSE_FICHE_GOOGLE}`,
+  placeId: ADRESSE_FICHE_GOOGLE,
+  formules: [
+    {
+      id: "formule-classique",
+      name: "Formule Classique",
+      description: "Entrée, plat, dessert",
+      price: 36,
+      disponible: true,
+      etapes: [
+        {
+          id: "entree",
+          name: "Entrée",
+          obligatoire: true,
+          articles: [
+            {
+              id: "salade-cesar",
+              name: "Salade César",
+              detail: "poulet ou poulet pané, croûtons, œuf, parmesan, romaine, sauce césar maison",
+              supplement: 0,
+              itemId: "salade-cesar",
+              options: [adresseSaladeCesar],
+            },
+            {
+              id: "salade-burrata",
+              name: "Salade Burrata",
+              detail: "mesclun, pignons, tomate, pesto et réduction balsamique",
+              supplement: 0,
+              itemId: "salade-burrata",
+            },
+            {
+              id: "salade-paysanne",
+              name: "Salade paysanne",
+              detail: "toast de chèvre (cabécou) et petits lardons fumés",
+              supplement: 0,
+              itemId: "salade-paysanne",
+            },
+          ],
+        },
+        {
+          id: "plat",
+          name: "Plat",
+          obligatoire: true,
+          articles: [
+            { id: "tagliatelles-saumon", name: "Tagliatelles, saumon", supplement: 0, itemId: "tagliatelles-saumon" },
+            { id: "tagliatelles-pesto-burrata", name: "Tagliatelles, pesto burrata", supplement: 0, itemId: "tagliatelles-pesto-burrata" },
+            {
+              id: "faux-filet",
+              name: "Faux filet",
+              supplement: 0,
+              itemId: "faux-filet",
+              // Les options du plat de la carte, comme le fera la base : un
+              // article de formule lié à un plat en reprend les options.
+              options: adresseViande,
+            },
+            { id: "tagliatelles-forestiere", name: "Tagliatelles forestière", supplement: 0, itemId: "tagliatelles-forestiere" },
+          ],
+        },
+        {
+          id: "dessert",
+          name: "Dessert",
+          obligatoire: true,
+          articles: [
+            { id: "fondant-chocolat", name: "Fondant chocolat", supplement: 0, itemId: "fondant-chocolat" },
+            { id: "tiramisu-du-moment", name: "Tiramisu du moment", supplement: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  categories: [
+    {
+      id: "entrees",
+      name: "Entrées",
+      items: [
+        {
+          id: "salade-cesar",
+          name: "Salade César",
+          image: pexels("28618639/pexels-photo-28618639.jpeg", 800),
+          description:
+            "Poulet ou poulet pané, croûtons, œuf, parmesan, romaine, sauce césar maison",
+          price: 15,
+          options: [adresseSaladeCesar],
+        },
+        {
+          id: "salade-burrata",
+          name: "Salade Burrata",
+          image: pexels("3510248/pexels-photo-3510248.jpeg", 800),
+          description: "Mesclun, pignons, tomate, pesto et réduction balsamique",
+          price: 15,
+        },
+        {
+          id: "salade-paysanne",
+          name: "Salade paysanne",
+          description: "Toast de chèvre (cabécou) et petits lardons fumés",
+          price: 15,
+        },
+        {
+          id: "medaillon-foie-gras",
+          name: "Médaillon de foie gras",
+          image: pexels("6880221/pexels-photo-6880221.jpeg", 800),
+          description: "Toasts grillés, confiture de figues",
+          price: 18,
+        },
+        { id: "hot-wings", name: "Hot Wings", detail: "8 pièces", price: 12, image: pexels("7230625/pexels-photo-7230625.jpeg", 800) },
+        { id: "nuggets", name: "Nuggets", detail: "8 pièces", price: 12, image: pexels("20535805/pexels-photo-20535805.jpeg", 800) },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      tagline:
+        "Accompagnements : purée, purée de patate douce ou poêlée de légumes (poivrons rouges et verts, courgettes, brocolis) · supplément\u00a0accompagnement\u00a04\u00a0€ · supplément\u00a0sauce\u00a03\u00a0€",
+      items: [
+        {
+          id: "entrecote",
+          name: "Entrecôte",
+          image: pexels("16272317/pexels-photo-16272317.jpeg", 800),
+          detail: "350\u00a0g",
+          price: 26,
+          options: adresseViande,
+        },
+        { id: "faux-filet", name: "Faux filet", price: 25, options: adresseViande, image: pexels("36734926/pexels-photo-36734926.jpeg", 800) },
+        { id: "magret-canard", name: "Magret de canard", price: 28, options: adresseViande, image: pexels("34629958/pexels-photo-34629958.jpeg", 800) },
+        {
+          id: "souris-agneau",
+          name: "Souris d’agneau",
+          image: pexels("16588046/pexels-photo-16588046.jpeg", 800),
+          price: 29,
+          options: [adresseAccompagnement, adresseSupplement],
+        },
+        {
+          id: "supreme-volaille",
+          name: "Suprême de volaille sauce foie gras",
+          image: unsplash("photo-1552723545-1dd9665ace51", 800),
+          description: "Blanc de poulet, tagliatelles, sauce forestière",
+          price: 25,
+        },
+        {
+          id: "pave-saumon",
+          name: "Pavé de saumon",
+          image: pexels("17681856/pexels-photo-17681856.jpeg", 800),
+          description:
+            "Accompagné d’une sauce beurre blanc à l’aneth et écrasée de pomme de terre",
+          price: 25,
+        },
+        {
+          id: "tagliatelles-truffe",
+          name: "Tagliatelles à la truffe et sabota crémeuse",
+          image: pexels("7491886/pexels-photo-7491886.jpeg", 800),
+          price: 24,
+        },
+        { id: "tagliatelles-pesto-burrata", name: "Tagliatelles, pesto burrata", price: 20, image: pexels("39956106/pexels-photo-39956106.jpeg", 800) },
+        // Sans photo : la seule libre montrait un saumon gris, qu'on prenait
+        // pour du poulet. Les lignes sans photo suivent un nombre pair de
+        // plats photographiés (voir .theme-l-adresse, la grille en bureau).
+        { id: "tagliatelles-saumon", name: "Tagliatelles, saumon", price: 24 },
+        {
+          id: "fusilli-truffe-burrata",
+          name: "Fusilli à la truffe avec burrata",
+          description: "Pâtes à la truffe",
+          price: 25,
+        },
+        { id: "tagliatelles-forestiere", name: "Tagliatelles forestière", price: 20, image: unsplash("photo-1727005217349-66276af3aa7d", 800) },
+        { id: "beef-burger", name: "Beef Burger", price: 18, options: [CUISSON], image: pexels("10922928/pexels-photo-10922928.jpeg", 800) },
+        { id: "chicken-burger", name: "Chicken Burger", price: 18, image: pexels("7963144/pexels-photo-7963144.jpeg", 800) },
+        { id: "supplement-foie-gras", name: "Supplément foie gras", price: 7 },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      tagline: "Tous nos desserts sont faits maison",
+      items: [
+        { id: "creme-brulee-pistache", name: "Crème brûlée pistache", price: 8, image: pexels("36295521/pexels-photo-36295521.jpeg", 800) },
+        { id: "fondant-chocolat", name: "Fondant chocolat", price: 8, image: pexels("20377567/pexels-photo-20377567.jpeg", 800) },
+        {
+          id: "brioche-perdue",
+          name: "Brioche perdue, glace vanille et caramel beurre salé",
+          image: pexels("30458468/pexels-photo-30458468.jpeg", 800),
+          printName: "Brioche perdue",
+          price: 8,
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      tagline: "Sans alcool",
+      items: [
+        {
+          id: "copacabana",
+          name: "Copacabana",
+          image: pexels("24038051/pexels-photo-24038051.jpeg", 800),
+          description: "Purée de passion, purée de mangue, lait",
+          price: 8,
+        },
+        {
+          id: "mojito",
+          name: "Mojito",
+          image: pexels("7259054/pexels-photo-7259054.jpeg", 800),
+          description: "Classique / Mangue / Fraise / Fruits rouges",
+          price: 8,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Classique", "Mangue", "Fraise", "Fruits rouges"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        { id: "sunset", name: "SunSet", description: "Ananas, mangue, kiwi", price: 8, image: pexels("10986584/pexels-photo-10986584.jpeg", 800) },
+        { id: "pina-colada", name: "Piña Colada", description: "Ananas, lait de coco", price: 8, image: pexels("13906952/pexels-photo-13906952.jpeg", 800) },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "coca-cola",
+          name: "Coca-Cola",
+          description: "Classique / Cherry / Zéro",
+          price: 4,
+          options: [
+            groupeChoix("variante", "Variante", ["Classique", "Cherry", "Zéro"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        { id: "orangina", name: "Orangina", price: 4 },
+        { id: "sprite", name: "Sprite", price: 4 },
+        { id: "ice-tea", name: "Ice Tea", price: 4 },
+        { id: "oasis", name: "Oasis", price: 4 },
+        { id: "schweppes-agrumes", name: "Schweppes Agrumes", price: 4 },
+        {
+          id: "diabolo",
+          name: "Diabolo",
+          description:
+            "Sirop au choix : menthe, grenadine, fraise, pêche, cassis, cerise, kiwi, violette, framboise",
+          price: 4,
+          options: [
+            groupeChoix("sirop", "Sirop", [
+              "Menthe",
+              "Grenadine",
+              "Fraise",
+              "Pêche",
+              "Cassis",
+              "Cerise",
+              "Kiwi",
+              "Violette",
+              "Framboise",
+            ], { obligatoire: true }),
+          ],
+        },
+        { id: "red-bull", name: "Red Bull", price: 5 },
+        // La contenance dans le nom, et non en mention de format : une ligne de
+        // commande ne garde que le nom, le bar lisait « Eau plate » pour les
+        // deux bouteilles.
+        { id: "eau-plate-50cl", name: "Eau plate 50\u00a0cl", price: 3.5 },
+        { id: "eau-plate-1l", name: "Eau plate 1\u00a0L", price: 5 },
+        { id: "eau-petillante-50cl", name: "Eau pétillante 50\u00a0cl", price: 4 },
+        { id: "eau-petillante-1l", name: "Eau pétillante 1\u00a0L", price: 6 },
+        { id: "the-menthe", name: "Thé menthe fraîche", price: 2 },
+      ],
+    },
+    {
+      id: "chichas",
+      name: "Chichas",
+      tagline: "Tabac sans nicotine",
+      items: [
+        {
+          id: "chicha-plate",
+          name: "Chicha Plate",
+          image: pexels("35688051/pexels-photo-35688051.jpeg", 800),
+          description: "Menthe, Hawaii, Love, Mi Amor",
+          price: 15,
+          vatRate: 20,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Menthe", "Hawaii", "Love", "Mi Amor"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        {
+          id: "chicha-khaloud",
+          name: "Chicha Khaloud",
+          image: pexelsRecadre("11089743/pexels-photo-11089743.jpeg", 800),
+          description: "Mi Amor, Hawaii, Love 66",
+          price: 20,
+          vatRate: 20,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Mi Amor", "Hawaii", "Love 66"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
+  [bigSmash.slug]: bigSmash,
   [chickenStreet.slug]: chickenStreet,
   [baiKo.slug]: baiKo,
+  [lAdresse.slug]: lAdresse,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -2424,8 +3287,10 @@ const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
+  [bigSmash.slug]: "theme-big-smash",
   [chickenStreet.slug]: "theme-chicken-street",
   [baiKo.slug]: "theme-bai-ko",
+  [lAdresse.slug]: "theme-l-adresse",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
@@ -2440,11 +3305,14 @@ export const DEMO_SLUG = trattoriaLucia.slug;
 
 /**
  * Lien « itinéraire » vers l'adresse de l'établissement. Recherche Google Maps
- * plutôt qu'un point GPS : on n'a que l'adresse écrite, et la recherche est
- * reprise par l'application de cartographie par défaut du téléphone.
+ * plutôt qu'un point GPS, reprise par l'application de cartographie par défaut
+ * du téléphone. Avec l'identifiant de la fiche, la recherche ouvre la fiche
+ * elle-même : l'adresse seule tombe sur la rue — sur le voisin, quand elle
+ * est celle d'un centre commercial.
  */
-export function mapsUrl(address: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+export function mapsUrl(address: string, placeId?: string): string {
+  const fiche = placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}${fiche}`;
 }
 
 /** Le nom que lit le client sur sa carte. */
@@ -2467,7 +3335,7 @@ export function formatPrice(price: number): string {
 
 /**
  * Le numéro tel qu'un client français le lit (« 07 49 20 64 34 ») ; le
- * lien, lui, garde la forme internationale (tel:, wa.me).
+ * lien, lui, garde la forme internationale (tel:).
  */
 export function displayPhone(phone: string): string {
   return phone.replace(/^\+33\s?/, "0");

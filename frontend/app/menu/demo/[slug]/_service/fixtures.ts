@@ -155,6 +155,7 @@ export function demoState(
     offreTrial: null,
     collectSubscriptionStatus: null,
     userId: "demo",
+    visitesVues: null,
     role: "gerant",
     members: [],
     features: Object.fromEntries(FEATURES.map((feature) => [feature, true])) as GestionState["features"],

@@ -220,87 +220,92 @@ function Demo({ p }: SectionProps) {
 }
 
 function Story({ p, brand }: SectionProps) {
+  const { promise, walkAway } = p;
   return (
     <>
-      <Section className="overflow-hidden">
-        <brand.Backdrop cx={20} cy={40} className="opacity-70" />
-        <div className={`${container} relative`}>
-          <Eyebrow>{p.promise.eyebrow}</Eyebrow>
-        </div>
-        <div className={`${container} relative mt-4 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:items-center lg:gap-16`}>
-          <div>
-            <p className="pitch-quote text-[56px] font-extrabold leading-[1.02] tracking-[-0.05em] sm:text-[84px] lg:whitespace-nowrap lg:text-[88px]">
-              <span className="block">«&nbsp;{p.promise.slogan[0]}</span>
-              <span className="block text-(--pitch-accent)">{p.promise.slogan[1]}&nbsp;»</span>
-            </p>
-            <p className="mt-4 text-sm text-(--pitch-faint)">— {p.promise.sloganSource}</p>
-            {p.promise.photos && (
-              <div className="mt-8 grid grid-cols-2 gap-3 md:gap-5">
-                {p.promise.photos.map((photo) => (
-                  <div key={photo.src} className="relative aspect-[4/3] overflow-hidden rounded-2xl md:rounded-3xl">
-                    <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 340px, 50vw" className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
+      {promise && (
+        <Section className="overflow-hidden">
+          <brand.Backdrop cx={20} cy={40} className="opacity-70" />
+          <div className={`${container} relative`}>
+            <Eyebrow>{promise.eyebrow}</Eyebrow>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+          <div className={`${container} relative mt-4 grid gap-12 lg:grid-cols-[1.5fr_1fr] lg:items-center lg:gap-16`}>
             <div>
-              <p className="flex items-start gap-2">
-                <span className="font-numeral text-[88px] leading-[0.85] md:text-[120px]">{p.promise.rating.value}</span>
-                <span aria-hidden className="text-4xl text-(--pitch-accent)">★</span>
+              <p className="pitch-quote text-[56px] font-extrabold leading-[1.02] tracking-[-0.05em] sm:text-[84px] lg:whitespace-nowrap lg:text-[88px]">
+                <span className="block">«&nbsp;{promise.slogan[0]}</span>
+                <span className="block text-(--pitch-accent)">{promise.slogan[1]}&nbsp;»</span>
               </p>
-              <p className="mt-3 text-(--pitch-muted)">{p.promise.rating.label}</p>
-            </div>
-            <div className="border-t border-(--pitch-line) pt-8 sm:border-t-0 sm:pt-0 lg:border-t lg:pt-8">
-              {p.promise.speed.eyebrow && (
-                <div className="mb-4">
-                  <Eyebrow>{p.promise.speed.eyebrow}</Eyebrow>
+              <p className="mt-4 text-sm text-(--pitch-faint)">— {promise.sloganSource}</p>
+              {promise.photos && (
+                <div className="mt-8 grid grid-cols-2 gap-3 md:gap-5">
+                  {promise.photos.map((photo) => (
+                    <div key={photo.src} className="relative aspect-[4/3] overflow-hidden rounded-2xl md:rounded-3xl">
+                      <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 340px, 50vw" className="object-cover" />
+                    </div>
+                  ))}
                 </div>
               )}
-              <p className="font-numeral text-[72px] leading-[0.85] text-(--pitch-accent) md:text-[96px]">{p.promise.speed.value}</p>
-              <p className="mt-3 text-(--pitch-muted)">{p.promise.speed.label}</p>
-              <p className="mt-1 text-sm text-(--pitch-faint)">{p.promise.speed.detail}</p>
+            </div>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+              <div>
+                <p className="flex items-start gap-2">
+                  <span className="font-numeral text-[88px] leading-[0.85] md:text-[120px]">{promise.rating.value}</span>
+                  <span aria-hidden className="text-4xl text-(--pitch-accent)">★</span>
+                </p>
+                <p className="mt-3 text-(--pitch-muted)">{promise.rating.label}</p>
+              </div>
+              <div className="border-t border-(--pitch-line) pt-8 sm:border-t-0 sm:pt-0 lg:border-t lg:pt-8">
+                {promise.speed.eyebrow && (
+                  <div className="mb-4">
+                    <Eyebrow>{promise.speed.eyebrow}</Eyebrow>
+                  </div>
+                )}
+                <p className="font-numeral text-[72px] leading-[0.85] text-(--pitch-accent) md:text-[96px]">{promise.speed.value}</p>
+                <p className="mt-3 text-(--pitch-muted)">{promise.speed.label}</p>
+                <p className="mt-1 text-sm text-(--pitch-faint)">{promise.speed.detail}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className={`${container} relative`}>
-          <p className={`${lead} mt-12`}>{p.promise.closing}</p>
-          <SourceNote p={p} ids={p.promise.sources} className="mt-5" />
-        </div>
-      </Section>
-
-      <Section>
-        <div className={container}>
-          <Eyebrow>{p.walkAway.eyebrow}</Eyebrow>
-          <blockquote className="mt-6 max-w-4xl">
-            <p className="pitch-quote text-balance text-[28px] font-bold leading-[1.18] tracking-[-0.03em] sm:text-[40px] lg:text-[52px]">
-              «&nbsp;{p.walkAway.quote[0]} <span className="text-(--pitch-accent)">{p.walkAway.quote[1]}</span>&nbsp;»
-            </p>
-            <footer className="mt-4 text-sm text-(--pitch-muted)">— {p.walkAway.attribution}</footer>
-          </blockquote>
-          {p.walkAway.voices && (
-            <ul className="mt-8 grid gap-3 md:grid-cols-3">
-              {p.walkAway.voices.map((voice) => (
-                <li key={voice.text} className="rounded-2xl bg-(--pitch-surface) px-5 py-4">
-                  <ReviewStars stars={voice.stars} className="text-sm tracking-[0.2em]" />
-                  <p className="mt-1 font-medium leading-snug">«&nbsp;{voice.text}&nbsp;»</p>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {p.walkAway.facts.map((fact) => (
-              <div key={fact.value} className="rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
-                <p className="font-numeral text-[64px] leading-[0.85] md:text-[88px]">{fact.value}</p>
-                <p className="mt-4 leading-relaxed text-(--pitch-muted)">{fact.text}</p>
-              </div>
-            ))}
+          <div className={`${container} relative`}>
+            <p className={`${lead} mt-12`}>{promise.closing}</p>
+            <SourceNote p={p} ids={promise.sources} className="mt-5" />
           </div>
-          <p className="mt-8 text-2xl font-extrabold tracking-[-0.01em] text-(--pitch-ink) md:text-3xl">{p.walkAway.followUp}</p>
-          <SourceNote p={p} ids={[...p.walkAway.facts.map((fact) => fact.source), ...(p.walkAway.followUpSources ?? [])]} className="mt-4" />
-        </div>
-      </Section>
+        </Section>
+      )}
+
+      {walkAway && (
+        <Section>
+          <div className={container}>
+            <Eyebrow>{walkAway.eyebrow}</Eyebrow>
+            <blockquote className="mt-6 max-w-4xl">
+              <p className="pitch-quote text-balance text-[28px] font-bold leading-[1.18] tracking-[-0.03em] sm:text-[40px] lg:text-[52px]">
+                «&nbsp;{walkAway.quote[0]} <span className="text-(--pitch-accent)">{walkAway.quote[1]}</span>&nbsp;»
+              </p>
+              <footer className="mt-4 text-sm text-(--pitch-muted)">— {walkAway.attribution}</footer>
+            </blockquote>
+            {walkAway.voices && (
+              <ul className="mt-8 grid gap-3 md:grid-cols-3">
+                {walkAway.voices.map((voice) => (
+                  <li key={voice.text} className="rounded-2xl bg-(--pitch-surface) px-5 py-4">
+                    <ReviewStars stars={voice.stars} className="text-sm tracking-[0.2em]" />
+                    <p className="mt-1 font-medium leading-snug">«&nbsp;{voice.text}&nbsp;»</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {walkAway.facts.map((fact) => (
+                <div key={fact.value} className="rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
+                  <p className="font-numeral text-[64px] leading-[0.85] md:text-[88px]">{fact.value}</p>
+                  <p className="mt-4 leading-relaxed text-(--pitch-muted)">{fact.text}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-8 text-2xl font-extrabold tracking-[-0.01em] text-(--pitch-ink) md:text-3xl">{walkAway.followUp}</p>
+            <SourceNote p={p} ids={[...walkAway.facts.map((fact) => fact.source), ...(walkAway.followUpSources ?? [])]} className="mt-4" />
+          </div>
+        </Section>
+      )}
     </>
   );
 }
@@ -407,6 +412,7 @@ function Estimator({ p }: SectionProps) {
             <p className="w-full text-2xl font-extrabold tracking-[-0.02em] sm:w-auto md:text-3xl">{e.verdict}</p>
           </div>
           <PointList points={e.points} />
+          {e.sources && <SourceNote p={p} ids={e.sources} className="mt-6" />}
         </div>
         <PhoneFrame src={p.screens[e.screen].src} alt={p.screens[e.screen].alt} sizes="(min-width: 1024px) 320px, 240px" className="mx-auto w-full max-w-[240px] lg:max-w-[320px]" />
       </div>
@@ -458,56 +464,59 @@ function FieldProof({ p }: SectionProps) {
 }
 
 function Benefits({ p }: SectionProps) {
-  const customerScreen = p.screens[p.forCustomers.screen ?? "composer"] ?? p.screens.composer;
+  const { forCustomers } = p;
+  const customerScreen = p.screens[forCustomers?.screen ?? "composer"] ?? p.screens.composer;
   return (
     <>
-      <Section>
-        <div className={`${container} grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-x-16 lg:gap-y-0`}>
-          <div>
-            <Eyebrow>{p.forCustomers.eyebrow}</Eyebrow>
-            <h2 className={`${h2} mt-4`}>
-              <span className="lg:block">{p.forCustomers.title[0]}</span>{" "}
-              <span className="lg:block">{p.titleMarks ? <span className="mark">{p.forCustomers.title[1]}</span> : p.forCustomers.title[1]}</span>
-            </h2>
-          </div>
-          {p.forCustomers.mobileCrop ? (
-            // Au téléphone, le téléphone entier se lisait à 5 px : un plat de la carte, à la largeur de la page.
-            <div className="w-full lg:row-span-2 lg:mx-auto lg:max-w-[340px] lg:self-center">
-              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="100vw" crop={p.forCustomers.mobileCrop} className="w-full lg:hidden" />
-              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="340px" className="hidden w-full lg:block" />
+      {forCustomers && (
+        <Section>
+          <div className={`${container} grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-x-16 lg:gap-y-0`}>
+            <div>
+              <Eyebrow>{forCustomers.eyebrow}</Eyebrow>
+              <h2 className={`${h2} mt-4`}>
+                <span className="lg:block">{forCustomers.title[0]}</span>{" "}
+                <span className="lg:block">{p.titleMarks ? <span className="mark">{forCustomers.title[1]}</span> : forCustomers.title[1]}</span>
+              </h2>
             </div>
-          ) : (
-            <div className="mx-auto w-full max-w-[200px] lg:row-span-2 lg:max-w-[340px] lg:self-center">
-              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="(min-width: 1024px) 340px, 240px" className="w-full" />
+            {forCustomers.mobileCrop ? (
+              // Au téléphone, le téléphone entier se lisait à 5 px : un plat de la carte, à la largeur de la page.
+              <div className="w-full lg:row-span-2 lg:mx-auto lg:max-w-[340px] lg:self-center">
+                <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="100vw" crop={forCustomers.mobileCrop} className="w-full lg:hidden" />
+                <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="340px" className="hidden w-full lg:block" />
+              </div>
+            ) : (
+              <div className="mx-auto w-full max-w-[200px] lg:row-span-2 lg:max-w-[340px] lg:self-center">
+                <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="(min-width: 1024px) 340px, 240px" className="w-full" />
+              </div>
+            )}
+            <div>
+              <ul className="flex flex-col gap-6 lg:mt-8 lg:gap-7">
+                {forCustomers.points.map((point) => (
+                  <li key={point.title} className="grid grid-cols-[14px_1fr] gap-3 md:grid-cols-[24px_1fr]">
+                    <span aria-hidden className="mt-2 size-2.5 rounded-full bg-(--pitch-accent)" />
+                    <div>
+                      <p className="text-lg font-bold leading-snug md:text-xl">{point.title}</p>
+                      {"text" in point && <p className="mt-1 text-pretty leading-relaxed text-(--pitch-muted)">{point.text}</p>}
+                      <p className="mt-2 text-sm leading-relaxed text-(--pitch-faint)">{point.fact}</p>
+                      {point.eta && p.etaNotice && (
+                        <div className="mt-3 rounded-2xl border border-(--pitch-accent)/45 bg-(--pitch-accent)/[0.06] px-4 py-3">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--pitch-accent-light)">{p.etaNotice.tag}</p>
+                          <p className="mt-1 text-sm leading-relaxed text-(--pitch-muted)">{p.etaNotice.text}</p>
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-7 border-t border-(--pitch-line) pt-4 leading-relaxed text-(--pitch-muted)">
+                <span className="font-bold text-(--pitch-ink)">{forCustomers.scan.question}</span> {forCustomers.scan.answer}{" "}
+                {forCustomers.scan.pilot}
+              </p>
+              <SourceNote p={p} ids={[...forCustomers.sources, ...(forCustomers.scan.sources ?? [])]} className="mt-4" />
             </div>
-          )}
-          <div>
-            <ul className="flex flex-col gap-6 lg:mt-8 lg:gap-7">
-              {p.forCustomers.points.map((point) => (
-                <li key={point.title} className="grid grid-cols-[14px_1fr] gap-3 md:grid-cols-[24px_1fr]">
-                  <span aria-hidden className="mt-2 size-2.5 rounded-full bg-(--pitch-accent)" />
-                  <div>
-                    <p className="text-lg font-bold leading-snug md:text-xl">{point.title}</p>
-                    {"text" in point && <p className="mt-1 text-pretty leading-relaxed text-(--pitch-muted)">{point.text}</p>}
-                    <p className="mt-2 text-sm leading-relaxed text-(--pitch-faint)">{point.fact}</p>
-                    {point.eta && p.etaNotice && (
-                      <div className="mt-3 rounded-2xl border border-(--pitch-accent)/45 bg-(--pitch-accent)/[0.06] px-4 py-3">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--pitch-accent-light)">{p.etaNotice.tag}</p>
-                        <p className="mt-1 text-sm leading-relaxed text-(--pitch-muted)">{p.etaNotice.text}</p>
-                      </div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-7 border-t border-(--pitch-line) pt-4 leading-relaxed text-(--pitch-muted)">
-              <span className="font-bold text-(--pitch-ink)">{p.forCustomers.scan.question}</span> {p.forCustomers.scan.answer}{" "}
-              {p.forCustomers.scan.pilot}
-            </p>
-            <SourceNote p={p} ids={[...p.forCustomers.sources, ...(p.forCustomers.scan.sources ?? [])]} className="mt-4" />
           </div>
-        </div>
-      </Section>
+        </Section>
+      )}
 
       <Section>
         <div className={container}>
@@ -606,20 +615,19 @@ function HeadOffice({ p }: { p: Pitch }) {
 }
 
 function Calculation({ p }: SectionProps) {
-  const revenue = p.forRevenue;
-  if (!revenue) return null;
-  const takeaway = p.demos.find((demo) => demo.id === "emporter");
+  const { forRevenue } = p;
+  if (!forRevenue) return null;
   return (
     <Section>
       <div className={container}>
-        <Eyebrow>{revenue.eyebrow}</Eyebrow>
-        <h2 className={`${h2} mt-4`}>{revenue.title}</h2>
-        <p className={`${lead} mt-5 max-w-3xl`}>{revenue.mechanism}</p>
+        <Eyebrow>{forRevenue.eyebrow}</Eyebrow>
+        <h2 className={`${h2} mt-4`}>{forRevenue.title}</h2>
+        <p className={`${lead} mt-5 max-w-3xl`}>{forRevenue.mechanism}</p>
         <div className="mt-10 rounded-3xl border-2 border-dashed border-(--pitch-accent)/45 p-6 md:p-10">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{revenue.illustrationLabel}</p>
-          <p className="mt-2 text-sm text-(--pitch-muted)">{revenue.rateNote}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{forRevenue.illustrationLabel}</p>
+          <p className="mt-2 text-sm text-(--pitch-muted)">{forRevenue.rateNote}</p>
           <ol className="mt-6 grid gap-8 md:grid-cols-3 md:gap-10">
-            {revenue.sum.map((term) => (
+            {forRevenue.sum.map((term) => (
               <li key={term.value}>
                 <p className="font-numeral text-[56px] leading-none text-(--pitch-accent) md:text-[64px]">{term.value}</p>
                 <p className="mt-2 text-lg font-bold">{term.unit}</p>
@@ -627,31 +635,27 @@ function Calculation({ p }: SectionProps) {
               </li>
             ))}
           </ol>
-          <p className="mt-8 border-t border-(--pitch-line) pt-4 text-sm leading-relaxed text-(--pitch-muted)">{revenue.beyond}</p>
-          {takeaway && (
-            <a href={takeaway.href} target="_blank" rel="noopener" className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)">
-              {takeaway.label} · {pitchUi.demoOpen}
-              <NewTab />
-            </a>
-          )}
+          <p className="mt-8 border-t border-(--pitch-line) pt-4 text-sm leading-relaxed text-(--pitch-muted)">{forRevenue.beyond}</p>
         </div>
-        <SourceNote p={p} ids={revenue.sources} className="mt-5" />
+        <SourceNote p={p} ids={forRevenue.sources} className="mt-5" />
       </div>
     </Section>
   );
 }
 
 function Deployment({ p }: SectionProps) {
+  const { deployment } = p;
+  if (!deployment) return null;
   return (
     <Section>
       <div className={container}>
-        <Eyebrow>{p.deployment.eyebrow}</Eyebrow>
+        <Eyebrow>{deployment.eyebrow}</Eyebrow>
         <h2 className={`${h2} mt-4`}>
-          {p.deployment.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{p.deployment.title.accent}</span>
+          {deployment.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{deployment.title.accent}</span>
         </h2>
-        <p className={`${lead} mt-5 max-w-3xl`}>{p.deployment.lead}</p>
+        <p className={`${lead} mt-5 max-w-3xl`}>{deployment.lead}</p>
         <ol className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {p.deployment.points.map((point) => (
+          {deployment.points.map((point) => (
             <li key={point.title} className="rounded-3xl bg-(--pitch-surface) p-6">
               <p className="eyebrow text-[11px] text-(--pitch-accent-text)">{point.label}</p>
               <p className="mt-3 text-lg font-bold leading-snug">{point.title}</p>
@@ -659,14 +663,14 @@ function Deployment({ p }: SectionProps) {
             </li>
           ))}
         </ol>
-        {p.deployment.sources && <SourceNote p={p} ids={p.deployment.sources} className="mt-5" />}
+        {deployment.sources && <SourceNote p={p} ids={deployment.sources} className="mt-5" />}
       </div>
     </Section>
   );
 }
 
 function Pricing({ p, brand }: SectionProps) {
-  const pricing = p.pricing;
+  const { pricing } = p;
   if (!pricing) return null;
   const { example } = pricing;
   return (
@@ -734,21 +738,23 @@ function Pricing({ p, brand }: SectionProps) {
 }
 
 function Proposal({ p }: SectionProps) {
+  const { proposal } = p;
+  if (!proposal) return null;
   const columns = [
-    { ...p.proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
-    { ...p.proposal.network, tone: "bg-(--pitch-surface)" },
+    { ...proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
+    { ...proposal.network, tone: "bg-(--pitch-surface)" },
   ];
   return (
     <Section>
       <div className={container}>
-        <Eyebrow>{p.proposal.eyebrow}</Eyebrow>
+        <Eyebrow>{proposal.eyebrow}</Eyebrow>
         <h2 className={`${h2} mt-4`}>
-          {p.proposal.titleAccent ? (
+          {proposal.titleAccent ? (
             <>
-              {p.proposal.title} <span className="mark">{p.proposal.titleAccent}</span>
+              {proposal.title} <span className="mark">{proposal.titleAccent}</span>
             </>
           ) : (
-            p.proposal.title
+            proposal.title
           )}
         </h2>
         <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1fr_0.85fr]">
@@ -767,23 +773,23 @@ function Proposal({ p }: SectionProps) {
             </div>
           ))}
           <div className={p.page.measuresFilled ? "rounded-3xl bg-(--pitch-surface) p-6 md:p-8" : "rounded-3xl border border-(--pitch-line) p-6 md:p-8"}>
-            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-muted)">{p.proposal.measures.title}</p>
-            <p className="mt-3 text-2xl font-extrabold leading-tight tracking-[-0.02em]">{p.proposal.measures.lead}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-muted)">{proposal.measures.title}</p>
+            <p className="mt-3 text-2xl font-extrabold leading-tight tracking-[-0.02em]">{proposal.measures.lead}</p>
             <ul className="mt-5 flex flex-col gap-3">
-              {p.proposal.measures.points.map((point) => (
+              {proposal.measures.points.map((point) => (
                 <li key={point} className="flex gap-3 font-medium leading-relaxed">
                   <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-(--pitch-accent)" />
                   {point}
                 </li>
               ))}
             </ul>
-            {p.proposal.measures.vendor && (
-              <p className="mt-5 border-t border-(--pitch-line) pt-4 font-semibold leading-relaxed">{p.proposal.measures.vendor}</p>
+            {proposal.measures.vendor && (
+              <p className="mt-5 border-t border-(--pitch-line) pt-4 font-semibold leading-relaxed">{proposal.measures.vendor}</p>
             )}
           </div>
         </div>
-        {p.proposal.trial && (
-          <p className="mt-4 rounded-3xl border-2 border-(--pitch-accent)/45 p-6 text-lg font-bold leading-snug md:p-8 md:text-xl">{p.proposal.trial}</p>
+        {proposal.trial && (
+          <p className="mt-4 rounded-3xl border-2 border-(--pitch-accent)/45 p-6 text-lg font-bold leading-snug md:p-8 md:text-xl">{proposal.trial}</p>
         )}
       </div>
     </Section>
@@ -869,6 +875,7 @@ function MailText({ p, className }: { p: Pitch; className: string }) {
 }
 
 function Sources({ p }: SectionProps) {
+  if (p.sourcesNote === undefined) return null;
   return (
     <section id="sources" className="scroll-mt-4 border-t border-(--pitch-line) py-12">
       <div className={container}>

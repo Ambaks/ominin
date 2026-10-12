@@ -19,6 +19,7 @@ import {
   earlierNumberingDay,
   isHistoryStatus,
   isServiceToday,
+  orderTabsShown,
   placeLabel,
 } from "@/lib/gestion/selectors";
 import {
@@ -112,21 +113,7 @@ export default function CommandesPage() {
 
   const isCuisinier = state?.role === "cuisinier";
   const fastFood = state?.etablissement.serviceMode === "fast_food";
-  // Le filet : une assiette qui attend sans que son ticket soit sorti, ou un
-  // boîtier tombé, rajoutent « À servir » même si le réglage l'exclut. En
-  // fast food, c'est la file du comptoir : l'onglet est toujours là.
-  const serviceNet =
-    !(state?.orderTabs ?? ORDER_TABS).includes("a_servir") &&
-    (fastFood ||
-      printerOffline ||
-      (state?.orders.some((order) => awaitsService(order)) ?? false));
-  const wanted = state?.orderTabs ?? ORDER_TABS;
-  const tabs = (serviceNet ? [...wanted, "a_servir" as OrderTab] : wanted)
-    // La cuisine n'encaisse pas : son onglet d'addition n'a pas de sens.
-    .filter((tab) => tab !== "a_encaisser" || !isCuisinier);
-  // Un restaurant peut n'avoir gardé que l'addition ; la cuisine se retrouve
-  // alors sans onglet, et l'historique tient lieu de repli.
-  const shown: OrderTab[] = tabs.length > 0 ? tabs : ["historique"];
+  const shown = state ? orderTabsShown(state, printerOffline) : ORDER_TABS;
   // L'onglet retenu peut disparaître sous les pieds (le filet qui se retire) :
   // on retombe alors sur le premier de ce restaurant.
   const filter = chosenFilter && shown.includes(chosenFilter)
@@ -206,6 +193,7 @@ export default function CommandesPage() {
         </div>
         {live !== null && (
           <span
+            data-visite="commandes-direct"
             className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider ${
               live ? "text-muted" : "text-ember-3"
             }`}
@@ -235,6 +223,7 @@ export default function CommandesPage() {
 
       {shown.length > 1 && (
         <PillTabs
+          visite="commandes-etapes"
           tabs={shown.map((id) => ({
             id,
             label: ORDER_TAB_LABELS[id],

@@ -147,7 +147,9 @@ export async function fetchRestaurant(slug: string): Promise<{
       : null;
 
   // Un choix dont l'article est supprimé, retiré ou épuisé n'est pas proposé
-  // (la base le refuserait) ; une étape obligatoire vidée emporte sa formule.
+  // (la base le refuserait) ; une étape obligatoire vidée emporte sa formule,
+  // une facultative disparaît (formule_line n'exige que les obligatoires), et
+  // une formule sans plus aucune étape ne se vend pas à vide.
   // Hors de ses jours, la formule n'apparaît pas (formule_du_jour en base).
   const today = serviceIsoDay(
     etablissement.etablissement_settings?.day_end_hour ?? 0
@@ -178,6 +180,11 @@ export async function fetchRestaurant(slug: string): Promise<{
         (etape) => !etape.obligatoire || etape.articles.length > 0
       )
     )
+    .map((formule) => ({
+      ...formule,
+      etapes: formule.etapes.filter((etape) => etape.articles.length > 0),
+    }))
+    .filter((formule) => formule.etapes.length > 0)
     .sort((a, b) => a.price - b.price);
 
   return {
@@ -211,7 +218,6 @@ export async function fetchRestaurant(slug: string): Promise<{
       glossary: staticData?.glossary,
       address: etablissement.address,
       phone: etablissement.phone,
-      whatsapp: staticData?.whatsapp,
       hours: etablissement.hours,
       googleReviewUrl: etablissement.google_review_url ?? undefined,
       categories,

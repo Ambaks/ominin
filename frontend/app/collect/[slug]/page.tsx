@@ -12,7 +12,7 @@ import { formatOpeningHours, isOpenAt } from "@/lib/collect/hours";
 import { isCollectActive } from "@/lib/collect/server";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { restaurantThemeClass } from "@/lib/menu-data";
+import { FORMULES_LINK, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { collectSiteUrl } from "@/lib/site";
 
@@ -114,7 +114,7 @@ export default async function CollectPage({
     formules.some((formule) => banner.formules.includes(formule.name));
   const categoryLinks = [
     ...(!showBanner && formules.length > 0
-      ? [{ id: "formules", name: "Formules" }]
+      ? [FORMULES_LINK]
       : []),
     ...restaurant.categories.map(({ id, name }) => ({ id, name })),
   ];
@@ -141,6 +141,7 @@ export default async function CollectPage({
       >
         <Hero
           restaurant={restaurant}
+          firstSectionId={categoryLinks[0]?.id}
           banner={
             showBanner ? (
               <FormulesBanner banner={banner} formules={formules} />
@@ -176,8 +177,14 @@ export default async function CollectPage({
               La carte est en préparation — revenez bientôt.
             </p>
           ) : (
-            restaurant.categories.map((category, i) => (
-              <MenuSection key={category.id} category={category} first={i === 0} />
+            restaurant.categories.map((category) => (
+              <MenuSection
+                key={category.id}
+                category={category}
+                // La première photo ne se charge d'emblée qu'en tête de carte :
+                // sous des formules, elle est déjà loin sous le premier écran.
+                first={category.id === categoryLinks[0]?.id}
+              />
             ))
           )}
         </main>

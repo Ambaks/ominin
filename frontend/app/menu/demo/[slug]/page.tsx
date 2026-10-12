@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
+import { FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
@@ -10,7 +11,7 @@ import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { brandName, FORMULES_LINK, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 
 /*
@@ -58,11 +59,14 @@ export async function generateMetadata({
     openGraph: { title, description, images },
     twitter: { card: images ? "summary_large_image" : "summary", title, description, images },
     robots: { index: false, follow: false },
+    // Ses icônes et son nom sur l'écran d'accueil, comme une boutique (voir
+    // shop/[slug]/layout) : le raccourci d'un client portait « Ominin ».
     ...(restaurant.icons && {
       icons: {
         icon: { url: restaurant.icons.tab, sizes: "32x32", type: "image/png" },
         apple: restaurant.icons.homeScreen,
       },
+      appleWebApp: { capable: false, title: restaurant.name },
     }),
   };
 }
@@ -93,10 +97,14 @@ export default async function MenuPreviewPage({
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
 
-  const categoryLinks = restaurant.categories.map(({ id, name }) => ({
-    id,
-    name,
-  }));
+  // Comme la page en production (fetchRestaurant) : une formule désactivée
+  // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
+  // montré n'importe quel jour.
+  const formules = (restaurant.formules ?? []).filter((formule) => formule.disponible);
+  const categoryLinks = [
+    ...(formules.length > 0 ? [FORMULES_LINK] : []),
+    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+  ];
 
   return (
     <CartProvider
@@ -122,7 +130,7 @@ export default async function MenuPreviewPage({
         className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
         <MenuTicker items={restaurant.ticker} />
-        <Hero restaurant={restaurant} />
+        <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
         <MenuHighlights highlights={restaurant.highlights} />
         {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
             tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
@@ -134,8 +142,15 @@ export default async function MenuPreviewPage({
           themeLocked={Boolean(themeClass)}
         />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {restaurant.categories.map((category, i) => (
-            <MenuSection key={category.id} category={category} first={i === 0} />
+          {formules.length > 0 && <FormulesSection formules={formules} />}
+          {restaurant.categories.map((category) => (
+            <MenuSection
+              key={category.id}
+              category={category}
+              // La première photo ne se charge d'emblée qu'en tête de carte :
+              // sous des formules, elle est déjà loin sous le premier écran.
+              first={category.id === categoryLinks[0]?.id}
+            />
           ))}
         </main>
         <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />

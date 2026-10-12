@@ -34,6 +34,8 @@ export interface TicketLine {
   quantity: number;
   /** Les choix de la ligne (options, étapes d'une formule), dans l'ordre. */
   choices: string[];
+  /** Une formule de l'aperçu : une étape par ligne, comme au panier. */
+  formule?: boolean;
 }
 
 /** L'heure où la commande devrait être prête, comptée depuis `from` (le règlement). */

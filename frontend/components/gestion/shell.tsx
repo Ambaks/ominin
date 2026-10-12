@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
+import * as api from "@/lib/gestion/api";
 import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
@@ -21,6 +23,7 @@ import {
   useChimeEnabled,
   useOrderChime,
 } from "@/lib/gestion/use-order-chime";
+import { VISITE_IDS, visiteFor, type VisiteId } from "@/lib/gestion/visites";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
@@ -31,6 +34,7 @@ import {
   GiftIcon,
   PaymentsIcon,
   GearIcon,
+  HelpIcon,
   LogoutIcon,
   MenuIcon,
   PrinterIcon,
@@ -40,8 +44,10 @@ import {
   type IconProps,
 } from "./icons";
 import { AdminLockButton } from "./admin-lock-button";
+import { hasProviderReturn } from "./payment-settings";
 import { ReacceptanceGate } from "@/components/legal/reacceptance-gate";
 import { SubscriptionGate } from "./subscription-gate";
+import { VisiteGuidee } from "./visite-guidee";
 
 interface NavItem {
   href: string;
@@ -170,6 +176,49 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
     : 0;
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
+  // Visite de la page, pour le gérant (la vue salle d'une tablette
+  // verrouillée se présente en serveur : elle n'en voit aucune). Elle s'ouvre
+  // d'elle-même au premier passage d'un gérant inscrit, sauf au retour d'un
+  // onboarding Stripe ou Square (la page y affiche son résultat), ou à la
+  // demande, par le bouton « ? ». L'ouverture d'elle-même se décide à
+  // l'arrivée sur la page : la carte qui se remplit sous la visite « menu
+  // vide » n'ouvre pas celle du menu par-dessus la feuille des catégories,
+  // qui attendra le passage suivant — le « ? » relance, lui, la visite du
+  // moment.
+  const visite =
+    state?.role === "gerant" ? visiteFor(pathname, state) : undefined;
+  // L'abonnement compte dans l'arrivée : revenu de Stripe Checkout avant le
+  // webhook, le gérant arrive sur l'écran d'activation, et l'accueil s'ouvre
+  // quand l'espace se déverrouille.
+  const arrivalKey = `${pathname} ${state?.role ?? ""} ${subscribed}`;
+  const [arrival, setArrival] = useState<{ key: string; id?: VisiteId } | null>(null);
+  const [replay, setReplay] = useState<VisiteId | null>(null);
+  if (state && arrival?.key !== arrivalKey) {
+    setArrival({ key: arrivalKey, id: visite?.id });
+    // Une visite relancée puis quittée par le bouton retour du navigateur ne
+    // se rouvre pas au passage suivant.
+    setReplay(null);
+  }
+  const arrivedWith = arrival?.key === arrivalKey ? arrival.id : undefined;
+  const [providerReturn] = useState(() =>
+    typeof window !== "undefined" && hasProviderReturn(window.location.search)
+      ? window.location.pathname
+      : null
+  );
+  // Fermée sans être vue, jusqu'à la prochaine ouverture de l'espace : son
+  // geste a été fait depuis la carte, ou l'accueil a été remis d'une croix.
+  const [later, setLater] = useState<VisiteId[]>([]);
+  // Visite dont une étape au moins est à l'écran : le « ? » n'apparaît
+  // qu'alors.
+  const [shownVisite, setShownVisite] = useState<VisiteId | null>(null);
+  const visiteAuto = Boolean(
+    visite &&
+      visite.id === arrivedWith &&
+      pathname !== providerReturn &&
+      !later.includes(visite.id) &&
+      state?.visitesVues &&
+      !state.visitesVues.includes(visite.id)
+  );
   const surtitre = state
     ? `${
         state.etablissement.offre
@@ -181,7 +230,10 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
       <div className="flex min-h-dvh w-full flex-col">
-        <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden">
+        <header
+          data-visite-bord="haut"
+          className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden"
+        >
           <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 lg:max-w-5xl lg:px-10">
             <div className="min-w-0">
               {/* Produit et rôle en surtitre : nomme l'espace où l'on est
@@ -206,11 +258,27 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
             {state && (
-              <div className="ml-auto flex shrink-0 items-center gap-1.5">
+              // Le bouton Admin du code de tablette et le « ? » ensemble
+              // tiennent sur un téléphone de 375 px en resserrant la rangée ;
+              // plus étroit, elle passe à la ligne plutôt que de déborder.
+              <div className="ml-auto flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-1.5">
+                {visite && shownVisite === visite.id && (
+                  <button
+                    type="button"
+                    data-visite="aide"
+                    onClick={() => setReplay(visite.id)}
+                    title="Visite guidée de cette page"
+                    aria-label="Visite guidée de cette page"
+                    className={HEADER_ICON_CLASS}
+                  >
+                    <HelpIcon className="size-4" />
+                  </button>
+                )}
                 <AdminLockButton />
                 <ThemeToggle />
                 <a
                   href={`/m/${state.etablissement.slug}`}
+                  data-visite="voir-menu"
                   target="_blank"
                   rel="noopener"
                   title="Voir mon menu"
@@ -233,6 +301,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 {can(state.role, "etablissement.edit") && (
                   <Link
                     href="/gestion/etablissement"
+                    data-visite="etablissement"
                     title="Établissement"
                     aria-label="Établissement"
                     className={HEADER_ICON_CLASS}
@@ -267,31 +336,34 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
-          <aside className="sticky top-20 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex print:hidden">
-            {(showProduits ? [...items, PRODUITS_ITEM] : items).map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                    active
-                      ? "border border-hairline bg-surface text-foreground"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
-                  <item.icon
-                    className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                  />
-                  {item.label}
-                  {item.href === "/gestion/commandes" && pendingCount > 0 && (
-                    <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
-                      {pendingCount}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+          <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
+            <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
+              {(showProduits ? [...items, PRODUITS_ITEM] : items).map((item) => {
+                const active = isActive(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                      active
+                        ? "border border-hairline bg-surface text-foreground"
+                        : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon
+                      className={`size-4.5 ${active ? "text-ember-1" : ""}`}
+                    />
+                    {item.label}
+                    {item.href === "/gestion/commandes" && pendingCount > 0 && (
+                      <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </aside>
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
@@ -303,8 +375,31 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
               )
             ) : subscribed ? (
               // Le contrat prime sur l'abonnement : un espace ouvert sur des
-              // conditions non signées facturerait sans accord.
-              <ReacceptanceGate scope="etablissement">{children}</ReacceptanceGate>
+              // conditions non signées facturerait sans accord. La visite
+              // attend que le verrou soit tranché ouvert : elle ne s'affiche
+              // pas pour disparaître sous la demande d'accord.
+              <ReacceptanceGate
+                scope="etablissement"
+                unlocked={
+                  visite && (
+                    <VisiteGuidee
+                      key={visite.id}
+                      visite={visite}
+                      state={state}
+                      open={visiteAuto || replay === visite.id}
+                      auto={visiteAuto}
+                      onShown={setShownVisite}
+                      onClose={(fin) => {
+                        setReplay(null);
+                        if (fin === "plus-tard") setLater((ids) => [...ids, visite.id]);
+                        else void api.markVisitesVues(fin === "toutes" ? VISITE_IDS : [visite.id]);
+                      }}
+                    />
+                  )
+                }
+              >
+                {children}
+              </ReacceptanceGate>
             ) : (
               <SubscriptionGate
                 etablissementId={state.etablissement.id}
@@ -317,7 +412,11 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden">
+        <nav
+          data-visite="nav"
+          data-visite-bord="bas"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
+        >
           <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
             {items.filter((item) => !item.sidebarOnly).map((item) => {
               const active = isActive(pathname, item.href);
@@ -325,6 +424,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
                   className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
                     active ? "text-ember-1" : "text-faint"
                   }`}

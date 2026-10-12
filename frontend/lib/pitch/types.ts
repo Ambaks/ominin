@@ -3,7 +3,8 @@
  * que la présentation (components/pitch/slides) et la page privée
  * (components/pitch/page-sections) lisent. Chaque client a son module
  * (lib/pitch/<slug>.ts), le même récit à ses chiffres, sa carte et ses mots ;
- * S nomme ses sources.
+ * S nomme ses sources. Une partie facultative absente n'a ni diapositive ni
+ * section.
  */
 
 export interface Source {
@@ -117,13 +118,14 @@ export interface Pitch<S extends string = string> {
   /** Le ticket de la couverture ; absent ⇒ « Votre numéro », à retirer au comptoir. */
   ticket?: TicketWording;
   sources: Record<S, Source>;
-  sourcesNote: string;
+  /** Absente : ni diapositive ni liste des sources, les pieds de diapositive et de section les citent seuls. */
+  sourcesNote?: string;
   cover: {
     eyebrow: string;
     title: { first: string; second: Accented };
     lead: string;
   };
-  promise: {
+  promise?: {
     eyebrow: string;
     slogan: readonly [string, string];
     sloganSource: string;
@@ -135,7 +137,7 @@ export interface Pitch<S extends string = string> {
     photos?: Shot[];
     sources: S[];
   };
-  walkAway: {
+  walkAway?: {
     eyebrow: string;
     quote: readonly [string, string];
     /** Qui parle : le signataire, ou la source citée mot pour mot. */
@@ -166,6 +168,7 @@ export interface Pitch<S extends string = string> {
     verdict: string;
     points: Point[];
     screen: ScreenId;
+    sources?: S[];
   };
   /** Les chiffres mesurés chez un client Ominin : la course commande → ticket cuisine, et ce qui l'entoure. */
   fieldProof?: {
@@ -180,7 +183,7 @@ export interface Pitch<S extends string = string> {
     takeaway: string;
     sources: S[];
   };
-  forCustomers: {
+  forCustomers?: {
     eyebrow: string;
     title: readonly [string, string];
     points: { title: string; text?: string; fact: string; eta?: boolean }[];
@@ -209,7 +212,6 @@ export interface Pitch<S extends string = string> {
     crops?: { desktop: Crop; mobile: Crop; deck?: Crop };
     sources: S[];
   };
-  /** Le calcul de la vente à emporter ; absent ⇒ ni diapositive ni section. */
   forRevenue?: {
     eyebrow: string;
     title: string;
@@ -236,14 +238,13 @@ export interface Pitch<S extends string = string> {
     /** Le haut des panneaux dans la même capture : les recadrages de la diapositive et de la page partent de là. */
     panelsTop: number;
   };
-  deployment: {
+  deployment?: {
     eyebrow: string;
     title: Accented;
     lead: string;
     sources?: S[];
     points: (Point & { label: string })[];
   };
-  /** Le prix, son exemple et la comparaison ; absent ⇒ ni diapositive ni section. */
   pricing?: {
     eyebrow: string;
     headline: { subscription: string; commission: string; basis: string };
@@ -268,7 +269,7 @@ export interface Pitch<S extends string = string> {
     cardFees: string;
     sources: S[];
   };
-  proposal: {
+  proposal?: {
     eyebrow: string;
     title: string;
     /** La fin du titre, en aplat (titleMarks). */

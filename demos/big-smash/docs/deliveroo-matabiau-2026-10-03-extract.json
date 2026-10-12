@@ -1,0 +1,674 @@
+{
+ "source": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+ "accessed": "2026-10-03",
+ "how": "Extracted from the page __NEXT_DATA__ JSON in a normal browser session (curl gets a Cloudflare challenge, see *-BLOCKED-challenge*.html). Prices are Deliveroo DELIVERY prices.",
+ "restaurant": {
+  "name": "Big Smash - Matabiau",
+  "deliveroo_id": "474545",
+  "address": "68 Rue de Bayard, Toulouse, 31000",
+  "tags": [
+   "Américain",
+   "Burgers",
+   "Halal"
+  ],
+  "rating": "4.4 Très bien",
+  "reviews": "500+ (\"Voir les 500 avis\")",
+  "promo": "-15 % sur tout le menu (1re commande Deliveroo, 15 € min.)"
+ },
+ "item_count": 78,
+ "items": [
+  {
+   "category": "NOUVEAUTÉS",
+   "name": "Chunky Cookies®",
+   "price_eur": 4.5,
+   "image": "https://rs-menus-api.roocdn.com/images/ff4d8599-bff5-4034-916d-d379d13e1fc6/image.jpeg"
+  },
+  {
+   "category": "NOUVEAUTÉS",
+   "name": "Menu Big Italy Beef",
+   "price_eur": 13.9,
+   "image": "https://rs-menus-api.roocdn.com/images/792455ce-50c8-4498-83ce-8da8fd95bf34/image.jpeg"
+  },
+  {
+   "category": "NOUVEAUTÉS",
+   "name": "Menu Big Italy Chicken",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/364d0f3b-170f-4d2d-88b1-3ad5cfe80600/image.jpeg"
+  },
+  {
+   "category": "NOUVEAUTÉS",
+   "name": "Limonade DELLA MAMMA",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/07ea429c-86e0-43ee-bea3-9f4f42c80e7f/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Big Cheese + Frites",
+   "price_eur": 13.5,
+   "image": "https://rs-menus-api.roocdn.com/images/7506672e-67bb-4664-871e-7e034788c051/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Big Smash + Frites",
+   "price_eur": 11.9,
+   "image": "https://rs-menus-api.roocdn.com/images/bb047e58-d882-4f86-b1b5-5e9e02500883/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Smash Classic + Frites",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/7cdcd3a8-d296-4e0c-853f-a12701b2cea8/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Original Chicken + Frites",
+   "price_eur": 11.9,
+   "image": "https://rs-menus-api.roocdn.com/images/75fc4d86-0309-4e66-891c-2cf4b379694d/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Smash Bacon + Frites",
+   "price_eur": 11.9,
+   "image": "https://rs-menus-api.roocdn.com/images/1f5c6a4b-0ab7-4eb6-8d36-40be09e76add/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Big Chicken + Frites",
+   "price_eur": 13.5,
+   "image": "https://rs-menus-api.roocdn.com/images/759385a7-0171-4086-8d98-939d53fbf892/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Smash Spicy + Frites",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/8c18a3c3-3c9f-42e5-934a-33d2ed37faa1/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Big Fish + Frites",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/bfc02b88-0778-498c-b0ba-61361ef455d3/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Grilled Smash + Frites",
+   "price_eur": 13.5,
+   "image": "https://rs-menus-api.roocdn.com/images/63e84bb0-27ab-4a42-8be8-d9ca462cea62/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Original Cheeseburger + Frites",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/d7925714-d3c9-4a54-aad9-489aaf2faa06/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Chicken Spicy + Frites",
+   "price_eur": 13.5,
+   "image": "https://rs-menus-api.roocdn.com/images/b0e009a3-9b7b-4f57-a007-97014cc75af3/image.jpeg"
+  },
+  {
+   "category": "BURGERS + FRITES",
+   "name": "Surf & Turf + Frites",
+   "price_eur": 13.5,
+   "image": "https://rs-menus-api.roocdn.com/images/5139fd85-16d6-4600-b358-4da648040838/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Big Smash",
+   "price_eur": 13.9,
+   "image": "https://rs-menus-api.roocdn.com/images/9fbf260b-1c0e-4c90-a62e-1926e302418a/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Smash Bacon",
+   "price_eur": 13.9,
+   "image": "https://rs-menus-api.roocdn.com/images/370b3cb4-f9a2-4509-bf9f-3a8ca056ad0e/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Smash Classic",
+   "price_eur": 12.9,
+   "image": "https://rs-menus-api.roocdn.com/images/774fa55e-6c25-4d96-aa32-a9950c65594b/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Original Chicken",
+   "price_eur": 13.9,
+   "image": "https://rs-menus-api.roocdn.com/images/3839e824-2bdd-4a65-b240-68b30aa2c477/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Big Cheese",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/5d38b44f-920f-4eb3-b841-85ae77d62356/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Smash Spicy",
+   "price_eur": 12.9,
+   "image": "https://rs-menus-api.roocdn.com/images/742335b9-6bfe-4334-804c-399067b631bd/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Big Fish",
+   "price_eur": 12.9,
+   "image": "https://rs-menus-api.roocdn.com/images/191c1998-cd10-4408-a95b-11b8ab689fd3/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Big Chicken",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/2073e13c-9fcf-4fc8-b933-d82c1abc273a/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Surf & Turf",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/6c44eb31-b780-4628-8731-c026b089ed48/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Grilled Smash",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/e23db077-d7e6-4208-abb0-9463afd17647/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Chicken Spicy",
+   "price_eur": 14.9,
+   "image": "https://rs-menus-api.roocdn.com/images/991afd89-702b-407a-8fd3-8ceef424e273/image.jpeg"
+  },
+  {
+   "category": "MENUS BURGERS",
+   "name": "Menu Original Cheeseburger",
+   "price_eur": 12.9,
+   "image": "https://rs-menus-api.roocdn.com/images/54ab0863-5bac-446b-85cd-4631d6b39089/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Grilled Smash",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/215d7280-37ad-4fd5-b8dd-1e3ee5a04155/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Big Smash",
+   "price_eur": 9.9,
+   "image": "https://rs-menus-api.roocdn.com/images/2f70459a-2bfd-402a-a977-4ea5670b312f/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Big Cheese",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/97ec6450-2969-48c3-a48f-78c88c93671a/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Smash Classic",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/d1a20fb1-d8fc-439f-b7d1-77a9ab9020f2/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Smash Bacon",
+   "price_eur": 9.9,
+   "image": "https://rs-menus-api.roocdn.com/images/b7887451-7cf1-4b1f-810c-614af0f14c63/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Big Fish",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/5468e261-fd0c-42b2-914f-7014c4484b64/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Original Cheese",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/4ad90b06-3293-4934-847f-8e590c650891/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Big Italy Beef",
+   "price_eur": 9.9,
+   "image": "https://rs-menus-api.roocdn.com/images/db13dfa1-5915-42dc-bc44-6ea58a54b1e3/image.jpeg"
+  },
+  {
+   "category": "SMASH BURGERS",
+   "name": "Surf & Turf",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/688d3bbc-375a-4076-9fc6-d095a62cfe70/image.jpeg"
+  },
+  {
+   "category": "CHICKEN BURGERS",
+   "name": "Original Chicken",
+   "price_eur": 9.9,
+   "image": "https://rs-menus-api.roocdn.com/images/9e52b61b-754b-49f9-9da8-3301f50b544a/image.jpeg"
+  },
+  {
+   "category": "CHICKEN BURGERS",
+   "name": "Big Italy Chicken",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/378e1234-97a5-45b8-851f-93cf92fa31ae/image.jpeg"
+  },
+  {
+   "category": "CHICKEN BURGERS",
+   "name": "Big Chicken",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/8ac47bcf-b7bf-4b52-8d29-269d3d009d64/image.jpeg"
+  },
+  {
+   "category": "CHICKEN BURGERS",
+   "name": "Chicken Spicy",
+   "price_eur": 10.9,
+   "image": "https://rs-menus-api.roocdn.com/images/9b9d9de7-6ef7-4806-8f10-16803b6f0d78/image.jpeg"
+  },
+  {
+   "category": "COMBO",
+   "name": "Menu Big Combo",
+   "price_eur": 19.9,
+   "image": "https://rs-menus-api.roocdn.com/images/16ab3622-79d3-4188-a8f8-17cb34e5ce79/image.jpeg"
+  },
+  {
+   "category": "HOT DOG",
+   "name": "Classic dog",
+   "price_eur": 4.9,
+   "image": "https://rs-menus-api.roocdn.com/images/908142df-07eb-41bc-bc62-4b40aeca3115/image.jpeg"
+  },
+  {
+   "category": "HOT DOG",
+   "name": "Spicy Dog",
+   "price_eur": 4.9,
+   "image": "https://rs-menus-api.roocdn.com/images/b6518c30-7d89-494a-b60c-7301acbf3286/image.jpeg"
+  },
+  {
+   "category": "HOT DOG",
+   "name": "Cheesy dog",
+   "price_eur": 5.9,
+   "image": "https://rs-menus-api.roocdn.com/images/678ca6cb-4abb-4b44-a781-994af9f1b88e/image.jpeg"
+  },
+  {
+   "category": "HOT DOG",
+   "name": "Bacon dog",
+   "price_eur": 5.9,
+   "image": "https://rs-menus-api.roocdn.com/images/d452e3d3-5c90-414c-88eb-0a4a6d487f09/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Chicken Pop-Corn x9",
+   "price_eur": 4.9,
+   "image": "https://rs-menus-api.roocdn.com/images/9b35295f-8eda-4dcf-86dd-7169db72d5c4/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Crevettes Panées",
+   "price_eur": 7.5,
+   "image": "https://rs-menus-api.roocdn.com/images/994f8926-e225-4407-b19d-a3ae1e893052/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Little Wrap",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/ad613f64-5ee3-4879-a089-844b4eb23fec/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Taco Smash",
+   "price_eur": 5.9,
+   "image": "https://rs-menus-api.roocdn.com/images/744cc439-161b-4eba-b5a2-5476db993aea/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Frites",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/bbfd9916-8c1a-4d52-8081-4f7248e334c1/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Little Smash",
+   "price_eur": 5.9,
+   "image": "https://rs-menus-api.roocdn.com/images/2aaee49b-7058-4240-96ce-291fa9948e38/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Chicken Pop-Corn x15",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/9b35295f-8eda-4dcf-86dd-7169db72d5c4/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Nuggets",
+   "price_eur": 4.9,
+   "image": "https://rs-menus-api.roocdn.com/images/745ee094-885c-48b8-b42c-ce340036b381/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Grilled Cheese",
+   "price_eur": 3.5,
+   "image": "https://rs-menus-api.roocdn.com/images/ed1388b3-6741-4513-ac91-71598ea60cd1/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Chicken Pop-Corn Spicy x15",
+   "price_eur": 9.9,
+   "image": "https://rs-menus-api.roocdn.com/images/f9f9dc93-dfa7-456d-95ca-4992108900ea/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Tenders x4",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/80bffcc1-1a06-4079-a590-aafe15a972d4/image.jpeg"
+  },
+  {
+   "category": "SIDES",
+   "name": "Big Salade",
+   "price_eur": 12.5,
+   "image": "https://rs-menus-api.roocdn.com/images/2bc40732-0451-46ce-ba1a-cfc0baba8462/image.jpeg"
+  },
+  {
+   "category": "MENU ENFANT",
+   "name": "Menu Big Kids",
+   "price_eur": 8.9,
+   "image": "https://rs-menus-api.roocdn.com/images/cf46b0e9-e663-4579-b876-9065e2685c10/image.jpeg"
+  },
+  {
+   "category": "DESSERTS",
+   "name": "Big Sundae",
+   "price_eur": 4.5,
+   "image": "https://rs-menus-api.roocdn.com/images/6bf43ff6-81da-43ae-99d0-3a6e96ab4d6c/image.jpeg"
+  },
+  {
+   "category": "DESSERTS",
+   "name": "Grilled Nutella",
+   "price_eur": 3.5,
+   "image": "https://rs-menus-api.roocdn.com/images/cedf4667-d2e6-4b3c-9d65-0c65b734dd99/image.jpeg"
+  },
+  {
+   "category": "DESSERTS",
+   "name": "Sundae Pistachio",
+   "price_eur": 4.95,
+   "image": "https://rs-menus-api.roocdn.com/images/561da25b-0252-4394-878d-d1ca45ab7808/image.jpeg"
+  },
+  {
+   "category": "MILKSHAKE",
+   "name": "Milkshake Pistache-Macadamia",
+   "price_eur": 5.95,
+   "image": "https://rs-menus-api.roocdn.com/images/748d4c39-9f28-4439-bb7a-ea76febd6df3/image.jpeg"
+  },
+  {
+   "category": "MILKSHAKE",
+   "name": "Milkshake",
+   "price_eur": 5.5,
+   "image": "https://rs-menus-api.roocdn.com/images/aeaddad6-3bd7-45d1-a468-dc169f4da6c8/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Coca Cola",
+   "price_eur": 2.9,
+   "image": "https://rs-menus-api.roocdn.com/images/b34c7ad8-ecc5-4390-9ff1-405b575b785a/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Limonade RED CHERRY",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/1712388e-d7f0-4545-b0cf-b2940a54c39a/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Limonade LIME WATERMELON",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/7b2d373a-b5a8-4e5a-95dc-cff1ade86e4b/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Limonade BLUE MANGO PASSION",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/95b9d045-8996-439b-a6a9-aaa54746b52e/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Limonade FIZZ YUZU",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/4ed8de89-85ff-477d-9e34-9aeb79302a74/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Thé blanc TROPICAL",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/39bd0495-6e0d-41ba-a3b9-3143d85cc772/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Evian 50cl",
+   "price_eur": 2.0,
+   "image": "https://rs-menus-api.roocdn.com/images/5aa4e4fa-c16f-4407-9570-4fe2c99552a3/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Coca Cola Zéro",
+   "price_eur": 2.9,
+   "image": "https://rs-menus-api.roocdn.com/images/0cc535d9-7b9c-4270-b1a3-05d454cf2d04/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Fuze Tea Pêche",
+   "price_eur": 2.9,
+   "image": "https://rs-menus-api.roocdn.com/images/2ad1fd27-6eb5-4f76-8602-7b8165ec58d7/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Badoit 50cl",
+   "price_eur": 2.5,
+   "image": "https://rs-menus-api.roocdn.com/images/29a1544c-7304-42dd-8fab-2a74842ab405/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Capri-sun 20cl",
+   "price_eur": 1.5,
+   "image": "https://rs-menus-api.roocdn.com/images/8a3ed75b-f123-4245-8959-c2429eb130da/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Volvic Juicy Fraise 50cl",
+   "price_eur": 3.2,
+   "image": "https://rs-menus-api.roocdn.com/images/a24ebfac-c848-46df-999e-a6e47a6fb5ff/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Volvic Fruits Exotique 50cl",
+   "price_eur": 3.2,
+   "image": "https://rs-menus-api.roocdn.com/images/1a505423-a27b-464a-ab41-b06685c8c838/image.jpeg"
+  },
+  {
+   "category": "BOISSONS",
+   "name": "Redbull Original",
+   "price_eur": 3.9,
+   "image": "https://rs-menus-api.roocdn.com/images/14824e82-108f-4f02-bff3-4309f3654666/image.jpeg"
+  }
+ ],
+ "modifiers": {
+  "Choisis tes frites (menus, required)": {
+   "Frites Nature": 0,
+   "Frites Épicées": 0.9,
+   "Frites Cheddar": 1.9,
+   "Frites Cheddar Bacon": 2.9
+  },
+  "Choisis ta boisson (menus, required)": {
+   "Coca Cola": 0,
+   "Coca Zéro": 0,
+   "Fuze Tea Pêche": 0,
+   "Badoit": 0,
+   "Evian": 0,
+   "Volvic Fraise": 1.0,
+   "Volvic Fruits Exotiques": 1.0,
+   "Limonade Lime Watermelon": 1.5,
+   "Limonade Blue Mango Passion": 1.5,
+   "Limonade Red Cherry": 1.5,
+   "Limonade Fizz Yuzu": 1.5,
+   "Thé Blanc Tropical": 1.5,
+   "Limonade Della Mamma": 1.5,
+   "Red Bull": 1.5
+  },
+  "Choisis tes sauces (menus, max 2)": {
+   "Sauce Mayonnaise": 0,
+   "Sauce Barbecue": 0,
+   "Sauce Ketchup": 0,
+   "Sauce Moutarde US": 0,
+   "Sauce Big Smash": 0.5,
+   "Sauce Spicy": 0.5,
+   "Sauce Ranch": 0.5,
+   "Sauce Big Sweety": 0.5
+  },
+  "Supplément sauce (max 8)": {
+   "Sauce Big Smash": 0.5,
+   "Sauce Spicy": 0.5,
+   "Sauce Ranch": 0.5,
+   "Sauce Big Sweety": 0.5,
+   "Sauce Mayonnaise": 0.2,
+   "Sauce Ketchup": 0.2,
+   "Sauce Barbecue": 0.2,
+   "Sauce Moutarde US": 0.2
+  },
+  "Tu souhaites un supplément ? (beef burgers)": {
+   "Cheddar": 1.5,
+   "Supplément steak": 2.9
+  },
+  "Tu souhaites un supplément ? (chicken burgers)": {
+   "Cheddar": 1.5,
+   "Option veggie (supplément steak non disponible)": 1.5
+  },
+  "Version veggie ?": {
+   "Option veggie (supplément steak non disponible)": "1.50 (menus) / 1.00 (burger + frites)"
+  },
+  "Combien de steaks souhaites-tu ? (solo burgers)": {
+   "Simple Steak": 0,
+   "Double Steak": 2.5,
+   "Triple Steak": 4.0
+  },
+  "Big Cheese steaks": {
+   "Double Steak": 0,
+   "Triple Steak": 2.5
+  },
+  "Petite douceur ? (burger + frites, optional)": {
+   "Grilled Nutella": 3.5,
+   "Big Sundae": 4.5,
+   "Milkshake": 5.9
+  },
+  "Menu Big Combo: Choisis ton 1er / 2ème Burger": {
+   "Smash Classic": 0,
+   "Smash Spicy": 0,
+   "Original Cheese": 0,
+   "Big Fish": 0,
+   "Original Chicken": 1.5,
+   "Smash Bacon": 1.5,
+   "Big Smash": 1.5,
+   "Big Chicken": 1.5,
+   "Chicken Spicy": 1.5,
+   "Big Italy Beef": 1.5,
+   "Big Cheese": 2.5,
+   "Surf & Turf": 2.5,
+   "Big Italy Chicken": 2.5,
+   "Grilled Smash": 2.5
+  },
+  "Menu Big Kids": {
+   "plat": [
+    "Cheeseburger",
+    "Nuggets x5",
+    "Grilled Cheese enfant"
+   ],
+   "accompagnement": "Frites Enfant",
+   "dessert": [
+    "Kinder Country",
+    "Pom'Potes"
+   ],
+   "boisson": [
+    "Evian",
+    "Capri-Sun"
+   ],
+   "jouet": [
+    "Jouet Garçon",
+    "Jouet Fille"
+   ]
+  },
+  "Big Sundae": {
+   "coulis": [
+    "Caramel",
+    "Fraise",
+    "Speculoos",
+    "Nutella",
+    "Sans coulis"
+   ],
+   "topping": [
+    "Daim",
+    "Oréo",
+    "Speculoos",
+    "Sans topping"
+   ]
+  },
+  "Milkshake": {
+   "saveur": [
+    "Caramel",
+    "Fraise",
+    "Vanille"
+   ],
+   "chantilly": {
+    "Avec chantilly": 0.7,
+    "Sans chantilly": 0
+   }
+  },
+  "Chunky Cookies® saveur": [
+   "Choco Chunk",
+   "Peanut Chunk",
+   "Pista Chunk",
+   "White Chunk"
+  ],
+  "Crevettes Panées": {
+   "x5": 0,
+   "x10": 4.9
+  },
+  "Nuggets": {
+   "x5": 0,
+   "x10": 4.5
+  },
+  "Grilled Cheese": {
+   "Grilled Cheese": 0,
+   "Grilled Cheese Bacon": 1.4
+  },
+  "Little Wrap": [
+   "Little Wrap BBQ",
+   "Little Wrap Ranch",
+   "Little Wrap Spicy"
+  ],
+  "Taco Smash": [
+   "Taco Smash Classic",
+   "Taco Smash Spicy"
+  ],
+  "Frites (side)": {
+   "Frites Nature": 0,
+   "Frites Épicées": 0.9,
+   "Frites Cheddar": 1.9,
+   "Frites Cheddar Bacon": 2.9
+  },
+  "Big Salade": {
+   "base": [
+    "Poulet",
+    "Crevettes",
+    "Option veggie"
+   ],
+   "sauce": [
+    "Sauce Ranch",
+    "Sauce Big Sweety",
+    "Sans sauce"
+   ]
+  },
+  "Sides sauces (Une sauce ?, max 2 included)": {
+   "Barbecue/Ketchup/Mayonnaise/Moutarde US": 0,
+   "Big Smash/Big Sweety/Ranch/Spicy": 0.5
+  },
+  "Removals (On enlève quelque chose ?)": "free: Sans cheddar / pickles / salade / tomates / sauce / oignons / jalapenos / bacon / oignons confits / mozzarella / pesto tomate / roquette (per recipe)"
+ },
+ "other_restaurants_checked": {
+  "Croix de Pierre": "identical prices; 4.3 (231 avis); Cookies Chocolat Noisette 3,50 € instead of Chunky Cookies",
+  "Montpellier": "identical prices; 4.3 (153 avis); Cookies Chocolat Noisette 3,50 €"
+ }
+}

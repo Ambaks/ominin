@@ -282,8 +282,6 @@ export const pitchUi = {
   ctaDeckWeb: "Voir la présentation",
   /** Mention des captures cliquables : dans le PDF, chaque écran ouvre sa démo. */
   clickToOpen: "Démo en ligne\u00a0: cliquez sur l’écran.",
-  /** « À emporter, démo en ligne : … » : le lien d'une démo dans le texte d'une diapositive. */
-  liveDemo: "démo en ligne",
   /** Sous la conclusion du PDF : la page privée, pour qui le reçoit transféré. */
   filmAndDemos: "Le film et les démos\u00a0:",
   opener: {

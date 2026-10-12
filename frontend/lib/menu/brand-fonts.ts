@@ -8,6 +8,7 @@ import {
   Didact_Gothic,
   Playball,
   Poppins,
+  Source_Serif_4,
 } from "next/font/google";
 
 /*
@@ -33,7 +34,9 @@ const archivoBlack = Archivo_Black({
 /**
  * Chicken Street — le texte de la carte : Archivo, une grotesque à chasse
  * variable ; les titres passent en Anton, condensée comme les capitales de
- * l'enseigne.
+ * l'enseigne. Big Smash — bigsmash.fr est en Obviously (commerciale) : Archivo
+ * en est la plus proche des Google Fonts, que le thème élargit pour les noms
+ * et les titres ; les titres les plus gras reprennent Archivo Black.
  */
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -111,6 +114,20 @@ const dmSans = DM_Sans({
   preload: false,
 });
 
+/**
+ * L'Adresse — la carte imprimée est tout entière en Source Serif (titres,
+ * plats, descriptions). Variable avec l'axe de taille optique : les titres
+ * prennent le dessin de titrage, les descriptions celui du texte.
+ */
+const sourceSerif4 = Source_Serif_4({
+  variable: "--font-source-serif-4",
+  subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -122,6 +139,7 @@ export const brandFontVariables = [
   playball,
   bebasNeue,
   dmSans,
+  sourceSerif4,
 ]
   .map((font) => font.variable)
   .join(" ");

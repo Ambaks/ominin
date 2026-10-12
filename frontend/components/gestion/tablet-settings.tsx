@@ -39,6 +39,7 @@ export function TabletSettings({ pinSet }: { pinSet: boolean }) {
   return (
     <form
       onSubmit={save}
+      data-visite="etablissement-tablette"
       className="flex max-w-xl flex-col gap-5 rounded-2xl border border-hairline bg-surface p-5 lg:p-6"
     >
       <div>

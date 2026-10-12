@@ -106,6 +106,9 @@ export function Sheet({
     const bodyOverflow = document.body.style.overflow;
     panel.focus();
     document.body.style.overflow = "hidden";
+    // Un saut de catégorie encore en cours (défilement doux) continuait
+    // derrière la feuille : le plat touché n'était plus là à la fermeture.
+    window.scrollTo({ top: window.scrollY, behavior: "instant" });
 
     // aria-modal ne suffit qu'à VoiceOver : pour TalkBack, NVDA et JAWS, la
     // page derrière reste parcourable. On la rend inerte le temps de la feuille.

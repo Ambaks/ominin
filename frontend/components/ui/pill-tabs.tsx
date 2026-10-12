@@ -10,12 +10,15 @@ export function PillTabs({
   tabs,
   activeId,
   onSelect,
+  visite,
 }: {
   tabs: PillTab[];
   activeId: string;
   onSelect: (id: string) => void;
+  /** Repère de visite guidée : l'enveloppe épouse les pastilles. */
+  visite?: string;
 }) {
-  return (
+  const strip = (
     <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0">
       {tabs.map((tab) => {
         const active = tab.id === activeId;
@@ -47,5 +50,12 @@ export function PillTabs({
         );
       })}
     </div>
+  );
+  return visite ? (
+    <div data-visite={visite} className="w-fit max-w-full rounded-full">
+      {strip}
+    </div>
+  ) : (
+    strip
   );
 }

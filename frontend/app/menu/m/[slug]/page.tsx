@@ -13,7 +13,7 @@ import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { brandName, restaurantThemeClass } from "@/lib/menu-data";
+import { brandName, FORMULES_LINK, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
@@ -94,7 +94,7 @@ export default async function MenuPage({
 
   const categoryLinks = [
     ...(!showBanner && formules.length > 0
-      ? [{ id: "formules", name: "Formules" }]
+      ? [FORMULES_LINK]
       : []),
     ...restaurant.categories.map(({ id, name }) => ({ id, name })),
   ];
@@ -165,6 +165,7 @@ export default async function MenuPage({
         <MenuTicker items={restaurant.ticker} />
         <Hero
           restaurant={restaurant}
+          firstSectionId={categoryLinks[0]?.id}
           banner={
             showBanner ? (
               <FormulesBanner banner={banner} formules={formules} />
@@ -191,8 +192,14 @@ export default async function MenuPage({
               La carte est en préparation — revenez bientôt.
             </p>
           ) : (
-            restaurant.categories.map((category, i) => (
-              <MenuSection key={category.id} category={category} first={i === 0} />
+            restaurant.categories.map((category) => (
+              <MenuSection
+                key={category.id}
+                category={category}
+                // La première photo ne se charge d'emblée qu'en tête de carte :
+                // sous des formules, elle est déjà loin sous le premier écran.
+                first={category.id === categoryLinks[0]?.id}
+              />
             ))
           )}
         </main>

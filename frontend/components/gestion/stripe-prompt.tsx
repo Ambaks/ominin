@@ -18,6 +18,7 @@ export function StripePrompt() {
   const [chargesEnabled, setChargesEnabled] = useState<boolean | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const eligible =
     state !== null &&
@@ -32,9 +33,13 @@ export function StripePrompt() {
       .then((body: { chargesEnabled?: boolean }) => {
         setChargesEnabled(Boolean(body.chargesEnabled));
       })
-      .catch(() => setChargesEnabled(null));
+      .catch(() => setChargesEnabled(null))
+      .finally(() => setChecked(true));
   }, [eligible]);
 
+  // Statut pas encore lu : la visite d'accueil, dont une étape montre ce
+  // bandeau, attend de savoir s'il paraîtra.
+  if (eligible && !checked) return <span data-visite-attente hidden />;
   if (!eligible || dismissed || chargesEnabled !== false) return null;
 
   const startOnboarding = async () => {
@@ -55,10 +60,13 @@ export function StripePrompt() {
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-ember-2/40 bg-surface p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
+    <section
+      data-visite="stripe"
+      className="flex flex-col gap-4 rounded-2xl border border-ember-2/40 bg-surface p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6"
+    >
       <div>
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-          Dernière étape
+          Paiement en ligne
         </p>
         <h2 className="mt-1 font-display text-lg font-medium">
           Reliez votre compte Stripe
@@ -71,6 +79,7 @@ export function StripePrompt() {
       <div className="flex shrink-0 items-center gap-4">
         <button
           type="button"
+          data-visite="stripe-relier"
           onClick={() => void startOnboarding()}
           disabled={busy}
           className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"

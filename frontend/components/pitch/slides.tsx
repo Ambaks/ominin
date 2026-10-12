@@ -112,18 +112,19 @@ function CoverSlide(props: SlideProps) {
 
 function PromiseSlide(props: SlideProps) {
   const { p } = props;
+  const promise = p.promise!;
   return (
-    <Slide {...props} eyebrow={p.promise.eyebrow} note={<Footnote p={p} ids={p.promise.sources} />} rays={{ cx: 26, cy: 55 }}>
+    <Slide {...props} eyebrow={promise.eyebrow} note={<Footnote p={p} ids={promise.sources} />} rays={{ cx: 26, cy: 55 }}>
       <div className="grid flex-1 grid-cols-[1060px_1fr] items-center gap-[64px]">
         <div>
           <h2 className="text-[140px] font-extrabold leading-[1.02] tracking-[-0.05em]">
-            <span className="block">«&nbsp;{p.promise.slogan[0]}</span>
-            <span className="block text-(--pitch-accent)">{p.promise.slogan[1]}&nbsp;»</span>
+            <span className="block">«&nbsp;{promise.slogan[0]}</span>
+            <span className="block text-(--pitch-accent)">{promise.slogan[1]}&nbsp;»</span>
           </h2>
-          <p className="mt-[28px] text-[24px] text-(--pitch-faint)">— {p.promise.sloganSource}</p>
-          {p.promise.photos && (
+          <p className="mt-[28px] text-[24px] text-(--pitch-faint)">— {promise.sloganSource}</p>
+          {promise.photos && (
             <div className="mt-[28px] flex gap-[24px]">
-              {p.promise.photos.map((photo) => (
+              {promise.photos.map((photo) => (
                 <div key={photo.src} className="relative aspect-[4/3] h-[300px] overflow-hidden rounded-[24px]">
                   <Image src={photo.src} alt={photo.alt} fill sizes="920px" unoptimized className="object-cover" />
                 </div>
@@ -132,45 +133,46 @@ function PromiseSlide(props: SlideProps) {
           )}
         </div>
         {/* Avec son libellé, le second chiffre se resserre : la colonne tient au-dessus de la conclusion. */}
-        <div className={`flex flex-col ${p.promise.speed.eyebrow ? "gap-[32px]" : "gap-[48px]"}`}>
+        <div className={`flex flex-col ${promise.speed.eyebrow ? "gap-[32px]" : "gap-[48px]"}`}>
           <div>
             <p className="flex items-start gap-[18px]">
-              <span className="font-numeral text-[176px] leading-[0.85]">{p.promise.rating.value}</span>
+              <span className="font-numeral text-[176px] leading-[0.85]">{promise.rating.value}</span>
               <span aria-hidden className="mt-[8px] text-[68px] leading-none text-(--pitch-accent)">★</span>
             </p>
-            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{p.promise.rating.label}</p>
+            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{promise.rating.label}</p>
           </div>
-          <div className={`border-t border-(--pitch-line) ${p.promise.speed.eyebrow ? "pt-[28px]" : "pt-[44px]"}`}>
-            {p.promise.speed.eyebrow && <p className="eyebrow mb-[16px] text-[18px] text-(--pitch-muted)">{p.promise.speed.eyebrow}</p>}
-            <p className="font-numeral text-[128px] leading-[0.85] text-(--pitch-accent)">{p.promise.speed.value}</p>
-            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{p.promise.speed.label}</p>
-            <p className="mt-[6px] text-[22px] text-(--pitch-faint)">{p.promise.speed.detail}</p>
+          <div className={`border-t border-(--pitch-line) ${promise.speed.eyebrow ? "pt-[28px]" : "pt-[44px]"}`}>
+            {promise.speed.eyebrow && <p className="eyebrow mb-[16px] text-[18px] text-(--pitch-muted)">{promise.speed.eyebrow}</p>}
+            <p className="font-numeral text-[128px] leading-[0.85] text-(--pitch-accent)">{promise.speed.value}</p>
+            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{promise.speed.label}</p>
+            <p className="mt-[6px] text-[22px] text-(--pitch-faint)">{promise.speed.detail}</p>
           </div>
         </div>
       </div>
       {/* Sous des photos, la conclusion s'en détache : collée à elles, elle se lisait comme leur légende. */}
-      <p className={`${p.promise.photos ? "mt-[40px] " : ""}mb-[8px] text-[34px] font-medium text-(--pitch-muted)`}>{p.promise.closing}</p>
+      <p className={`${promise.photos ? "mt-[40px] " : ""}mb-[8px] text-[34px] font-medium text-(--pitch-muted)`}>{promise.closing}</p>
     </Slide>
   );
 }
 
 function WalkAwaySlide(props: SlideProps) {
   const { p } = props;
-  const { voices } = p.walkAway;
+  const walkAway = p.walkAway!;
+  const { voices } = walkAway;
   const quote = (
     <blockquote className="mt-[48px]">
       <p className="pitch-quote text-balance text-[72px] font-bold leading-[1.12] tracking-[-0.03em]">
-        <span className="block">«&nbsp;{p.walkAway.quote[0]}</span>
-        <span className="block text-(--pitch-accent)">{p.walkAway.quote[1]}&nbsp;»</span>
+        <span className="block">«&nbsp;{walkAway.quote[0]}</span>
+        <span className="block text-(--pitch-accent)">{walkAway.quote[1]}&nbsp;»</span>
       </p>
-      <footer className="mt-[28px] text-[28px] font-medium text-(--pitch-muted)">— {p.walkAway.attribution}</footer>
+      <footer className="mt-[28px] text-[28px] font-medium text-(--pitch-muted)">— {walkAway.attribution}</footer>
     </blockquote>
   );
   return (
     <Slide
       {...props}
-      eyebrow={p.walkAway.eyebrow}
-      note={<Footnote p={p} ids={[...p.walkAway.facts.map((fact) => fact.source), ...(p.walkAway.followUpSources ?? [])]} />}
+      eyebrow={walkAway.eyebrow}
+      note={<Footnote p={p} ids={[...walkAway.facts.map((fact) => fact.source), ...(walkAway.followUpSources ?? [])]} />}
       rays={{ cx: 50, cy: -30 }}
     >
       {voices ? (
@@ -190,7 +192,7 @@ function WalkAwaySlide(props: SlideProps) {
       )}
       {/* Sous les avis, les chiffres en reprennent les colonnes et l'écart : la seconde carte prolonge la pile des avis. */}
       <div className={voices ? "mt-[14px] grid grid-cols-[1fr_820px] gap-x-[64px]" : "mt-auto grid grid-cols-2 gap-[48px]"}>
-        {p.walkAway.facts.map((fact) => (
+        {walkAway.facts.map((fact) => (
           <div key={fact.value} className="flex items-center gap-[40px] rounded-[28px] bg-(--pitch-surface) px-[44px] py-[36px]">
             <p className="shrink-0 font-numeral text-[120px] leading-[0.85]">{fact.value}</p>
             <p className="text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{fact.text}</p>
@@ -198,7 +200,7 @@ function WalkAwaySlide(props: SlideProps) {
         ))}
       </div>
       {/* En blanc : en rouge, plus fort que le titre et d'un rouge à 3,6:1 au projecteur. */}
-      <p className={`${voices ? "mb-[56px] mt-auto pt-[36px]" : "mb-[56px] mt-[36px]"} text-[34px] font-extrabold leading-[1.25] tracking-[-0.01em] text-(--pitch-ink)`}>{p.walkAway.followUp}</p>
+      <p className={`${voices ? "mb-[56px] mt-auto pt-[36px]" : "mb-[56px] mt-[36px]"} text-[34px] font-extrabold leading-[1.25] tracking-[-0.01em] text-(--pitch-ink)`}>{walkAway.followUp}</p>
     </Slide>
   );
 }
@@ -240,8 +242,7 @@ function PhoneShot({ shot, sizes, crop }: { shot?: { src: string; alt: string };
   return shot ? <PhoneFrame src={shot.src} alt={shot.alt} sizes={sizes} unoptimized crop={crop} className="w-full" /> : null;
 }
 
-function EtaBadge({ notice, className = "" }: { notice?: Pitch["etaNotice"]; className?: string }) {
-  if (!notice) return null;
+function EtaBadge({ notice, className = "" }: { notice: NonNullable<Pitch["etaNotice"]>; className?: string }) {
   return (
     <div className={`rounded-[18px] border border-(--pitch-accent)/45 bg-(--pitch-accent)/[0.06] px-[22px] py-[14px] ${className}`}>
       <p className="text-[16px] font-bold uppercase tracking-[0.2em] text-(--pitch-accent-light)">{notice.tag}</p>
@@ -251,20 +252,21 @@ function EtaBadge({ notice, className = "" }: { notice?: Pitch["etaNotice"]; cla
 }
 
 /** « Et vos clients scanneront-ils ? » : la question en gras, sa réponse. */
-function ScanAnswer({ p, className }: { p: Pitch; className: string }) {
+function ScanAnswer({ scan, className }: { scan: NonNullable<Pitch["forCustomers"]>["scan"]; className: string }) {
   return (
     <p className={`${className} text-[21px] leading-[1.45] text-(--pitch-muted)`}>
-      <span className="font-bold text-(--pitch-ink)">{p.forCustomers.scan.question}</span> {p.forCustomers.scan.answer}
+      <span className="font-bold text-(--pitch-ink)">{scan.question}</span> {scan.answer}
     </p>
   );
 }
 
 function CustomersSlide(props: SlideProps) {
   const { p } = props;
-  const customerScreen = p.screens[p.forCustomers.screen ?? "composer"] ?? p.screens.composer;
-  const { scan, scanOnSlide } = p.forCustomers;
+  const forCustomers = p.forCustomers!;
+  const customerScreen = p.screens[forCustomers.screen ?? "composer"] ?? p.screens.composer;
+  const { scan, scanOnSlide } = forCustomers;
   return (
-    <Slide {...props} note={<Footnote p={p} ids={[...p.forCustomers.sources, ...(scanOnSlide ? (scan.sources ?? []) : [])]} />} rays={{ cx: 20, cy: 60 }}>
+    <Slide {...props} note={<Footnote p={p} ids={[...forCustomers.sources, ...(scanOnSlide ? (scan.sources ?? []) : [])]} />} rays={{ cx: 20, cy: 60 }}>
       <div className="grid flex-1 grid-cols-[500px_1fr] gap-[112px]">
         <div className="flex items-center justify-center">
           <a href={p.demos[0].href} className="block w-[380px]">
@@ -272,26 +274,26 @@ function CustomersSlide(props: SlideProps) {
           </a>
         </div>
         <div className="flex flex-col justify-center">
-          <p className="eyebrow mb-[32px] text-[20px] text-(--pitch-muted)">{p.forCustomers.eyebrow}</p>
+          <p className="eyebrow mb-[32px] text-[20px] text-(--pitch-muted)">{forCustomers.eyebrow}</p>
           <h2 className={titleSplit}>
-            <span className="block">{p.forCustomers.title[0]}</span>
-            <span className="block">{p.titleMarks ? <span className="mark">{p.forCustomers.title[1]}</span> : p.forCustomers.title[1]}</span>
+            <span className="block">{forCustomers.title[0]}</span>
+            <span className="block">{p.titleMarks ? <span className="mark">{forCustomers.title[1]}</span> : forCustomers.title[1]}</span>
           </h2>
           {/* Avec la question du scan dessous, les points se resserrent pour lui laisser sa place. */}
           <ul className={scanOnSlide ? "mt-[28px] flex flex-col gap-[24px]" : "mt-[40px] flex flex-col gap-[32px]"}>
-            {p.forCustomers.points.map((point) => (
+            {forCustomers.points.map((point) => (
               <li key={point.title} className="grid grid-cols-[36px_1fr] gap-[16px]">
                 <span aria-hidden className="mt-[12px] size-[14px] rounded-full bg-(--pitch-accent)" />
                 <div>
                   <p className="text-[30px] font-bold leading-[1.18]">{point.title}</p>
                   {"text" in point && <p className="mt-[6px] text-[23px] leading-[1.45] text-(--pitch-muted)">{point.text}</p>}
                   <p className="mt-[8px] text-[21px] leading-[1.4] text-(--pitch-faint)">{point.fact}</p>
-                  {point.eta && <EtaBadge notice={p.etaNotice} className="mt-[14px] max-w-[780px]" />}
+                  {point.eta && p.etaNotice && <EtaBadge notice={p.etaNotice} className="mt-[14px] max-w-[780px]" />}
                 </div>
               </li>
             ))}
           </ul>
-          {scanOnSlide && <ScanAnswer p={p} className="mt-[24px] border-t border-(--pitch-line) pt-[16px]" />}
+          {scanOnSlide && <ScanAnswer scan={scan} className="mt-[24px] border-t border-(--pitch-line) pt-[16px]" />}
         </div>
       </div>
     </Slide>
@@ -329,18 +331,21 @@ function TeamsSlide(props: SlideProps) {
 
 function RevenueSlide(props: SlideProps) {
   const { p } = props;
-  const revenue = p.forRevenue;
-  if (!revenue) return null;
-  const takeaway = p.demos.find((demo) => demo.id === "emporter");
+  const forRevenue = p.forRevenue!;
   return (
-    <Slide {...props} eyebrow={revenue.eyebrow} note={<Footnote p={p} ids={revenue.sources} />} rays={{ cx: 70, cy: 62 }}>
-      <h2 className="mt-[16px] text-balance text-[72px] font-extrabold leading-[1.06] tracking-[-0.04em]">{revenue.title}</h2>
-      <p className="pitch-mechanism mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{revenue.mechanism}</p>
+    <Slide
+      {...props}
+      eyebrow={forRevenue.eyebrow}
+      note={<Footnote p={p} ids={forRevenue.sources} />}
+      rays={{ cx: 70, cy: 62 }}
+    >
+      <h2 className="mt-[16px] text-balance text-[72px] font-extrabold leading-[1.06] tracking-[-0.04em]">{forRevenue.title}</h2>
+      <p className="pitch-mechanism mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{forRevenue.mechanism}</p>
       <div className="my-auto rounded-[28px] border-[2px] border-dashed border-(--pitch-accent)/45 px-[48px] py-[40px]">
-        <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{revenue.illustrationLabel}</p>
-        <p className="mt-[8px] text-[21px] text-(--pitch-muted)">{revenue.rateNote}</p>
+        <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{forRevenue.illustrationLabel}</p>
+        <p className="mt-[8px] text-[21px] text-(--pitch-muted)">{forRevenue.rateNote}</p>
         <ol className="mt-[24px] grid grid-cols-3 gap-[56px]">
-          {revenue.sum.map((term) => (
+          {forRevenue.sum.map((term) => (
             <li key={term.value}>
               <p className="font-numeral text-[96px] leading-none text-(--pitch-accent)">{term.value}</p>
               <p className="mt-[10px] text-[24px] font-bold">{term.unit}</p>
@@ -348,12 +353,7 @@ function RevenueSlide(props: SlideProps) {
             </li>
           ))}
         </ol>
-        <p className="mt-[28px] border-t border-(--pitch-line) pt-[18px] text-[19px] leading-[1.45] text-(--pitch-faint)">{revenue.beyond}</p>
-        {takeaway && (
-          <a href={takeaway.href} className="mt-[14px] block w-fit text-[21px] font-semibold text-(--pitch-accent-text)">
-            {takeaway.label}, {pitchUi.liveDemo}&nbsp;: {takeaway.href.replace(/^https?:\/\//, "")}&nbsp;→
-          </a>
-        )}
+        <p className="mt-[28px] border-t border-(--pitch-line) pt-[18px] text-[19px] leading-[1.45] text-(--pitch-faint)">{forRevenue.beyond}</p>
       </div>
     </Slide>
   );
@@ -404,19 +404,20 @@ function HeadOfficeSlide(props: SlideProps) {
 
 function DeploymentSlide(props: SlideProps) {
   const { p } = props;
+  const deployment = p.deployment!;
   return (
     <Slide
       {...props}
-      eyebrow={p.deployment.eyebrow}
-      note={p.deployment.sources && <Footnote p={p} ids={p.deployment.sources} />}
+      eyebrow={deployment.eyebrow}
+      note={deployment.sources && <Footnote p={p} ids={deployment.sources} />}
       rays={{ cx: 50, cy: 115 }}
     >
       <h2 className={`mt-[24px] ${titleFull}`}>
-        {p.deployment.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{p.deployment.title.accent}</span>
+        {deployment.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{deployment.title.accent}</span>
       </h2>
-      <p className="mt-[24px] max-w-[1500px] text-[30px] font-medium leading-[1.4] text-(--pitch-muted)">{p.deployment.lead}</p>
+      <p className="mt-[24px] max-w-[1500px] text-[30px] font-medium leading-[1.4] text-(--pitch-muted)">{deployment.lead}</p>
       <ol className="mb-auto mt-[40px] grid grid-cols-4 gap-[28px]">
-        {p.deployment.points.map((point) => (
+        {deployment.points.map((point) => (
           <li key={point.title} className="flex flex-col rounded-[28px] bg-(--pitch-surface) p-[40px]">
             <span className="eyebrow text-[19px] text-(--pitch-accent-text)">{point.label}</span>
             <p className="mt-[22px] text-[31px] font-bold leading-[1.16]">{point.title}</p>
@@ -430,8 +431,7 @@ function DeploymentSlide(props: SlideProps) {
 
 function PriceSlide(props: SlideProps) {
   const { p } = props;
-  const pricing = p.pricing;
-  if (!pricing) return null;
+  const pricing = p.pricing!;
   const { example } = pricing;
   return (
     <Slide {...props} eyebrow={pricing.eyebrow} note={<Footnote p={p} ids={pricing.sources} />} rays={{ cx: 16, cy: 30 }}>
@@ -498,21 +498,23 @@ function PriceSlide(props: SlideProps) {
 
 function ProposalSlide(props: SlideProps) {
   const { p } = props;
+  const proposal = p.proposal!;
   const columns = [
-    { ...p.proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
-    { ...p.proposal.network, tone: "bg-(--pitch-surface)" },
+    { ...proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
+    { ...proposal.network, tone: "bg-(--pitch-surface)" },
   ];
-  const { scan, scanOnSlide } = p.forCustomers;
-  const sources = [...p.proposal.measures.sources, ...(scanOnSlide ? [] : (scan.sources ?? []))];
+  // La question du scan, ici sauf si la diapositive des clients la porte déjà.
+  const scan = p.forCustomers?.scanOnSlide ? undefined : p.forCustomers?.scan;
+  const sources = [...proposal.measures.sources, ...(scan?.sources ?? [])];
   return (
-    <Slide {...props} eyebrow={p.proposal.eyebrow} note={sources.length > 0 && <Footnote p={p} ids={sources} />} rays={{ cx: 20, cy: 110 }}>
+    <Slide {...props} eyebrow={proposal.eyebrow} note={sources.length > 0 && <Footnote p={p} ids={sources} />} rays={{ cx: 20, cy: 110 }}>
       <h2 className={`mt-[16px] ${titleSplit}`}>
-        {p.proposal.titleAccent ? (
+        {proposal.titleAccent ? (
           <>
-            {p.proposal.title} <span className="mark">{p.proposal.titleAccent}</span>
+            {proposal.title} <span className="mark">{proposal.titleAccent}</span>
           </>
         ) : (
-          p.proposal.title
+          proposal.title
         )}
       </h2>
       <div className="mb-auto mt-[48px]">
@@ -532,25 +534,25 @@ function ProposalSlide(props: SlideProps) {
             </div>
           ))}
           <div className="rounded-[28px] bg-(--pitch-surface) px-[36px] py-[34px]">
-            <p className="text-[18px] font-bold uppercase tracking-[0.22em] opacity-70">{p.proposal.measures.title}</p>
-            <p className="mt-[14px] text-[32px] font-extrabold leading-[1.12] tracking-[-0.01em]">{p.proposal.measures.lead}</p>
+            <p className="text-[18px] font-bold uppercase tracking-[0.22em] opacity-70">{proposal.measures.title}</p>
+            <p className="mt-[14px] text-[32px] font-extrabold leading-[1.12] tracking-[-0.01em]">{proposal.measures.lead}</p>
             <ul className="mt-[20px] flex flex-col gap-[10px]">
-              {p.proposal.measures.points.map((point) => (
+              {proposal.measures.points.map((point) => (
                 <li key={point} className="flex gap-[14px] text-[20px] leading-[1.4] opacity-90">
                   <span aria-hidden className="mt-[10px] size-[10px] shrink-0 rounded-full bg-(--pitch-accent)" />
                   {point}
                 </li>
               ))}
             </ul>
-            {p.proposal.measures.vendor && (
-              <p className="mt-[24px] border-t border-(--pitch-line) pt-[20px] text-[20px] font-semibold leading-[1.4]">{p.proposal.measures.vendor}</p>
+            {proposal.measures.vendor && (
+              <p className="mt-[24px] border-t border-(--pitch-line) pt-[20px] text-[20px] font-semibold leading-[1.4]">{proposal.measures.vendor}</p>
             )}
           </div>
         </div>
-        {p.proposal.trial && (
-          <p className="mt-[28px] rounded-[24px] border-[2px] border-(--pitch-accent)/45 px-[36px] py-[24px] text-[28px] font-bold leading-[1.35]">{p.proposal.trial}</p>
+        {proposal.trial && (
+          <p className="mt-[28px] rounded-[24px] border-[2px] border-(--pitch-accent)/45 px-[36px] py-[24px] text-[28px] font-bold leading-[1.35]">{proposal.trial}</p>
         )}
-        {!scanOnSlide && <ScanAnswer p={p} className="mt-[28px]" />}
+        {scan && <ScanAnswer scan={scan} className="mt-[28px]" />}
       </div>
     </Slide>
   );
@@ -651,7 +653,21 @@ function EstimatorSlide(props: SlideProps) {
   const { p } = props;
   const e = p.estimator!;
   return (
-    <Slide {...props} eyebrow={e.eyebrow} note={pitchUi.clickToOpen} rays={{ cx: 82, cy: 40 }}>
+    <Slide
+      {...props}
+      eyebrow={e.eyebrow}
+      note={
+        <>
+          {e.sources && (
+            <>
+              <Footnote p={p} ids={e.sources} /> ·{" "}
+            </>
+          )}
+          {pitchUi.clickToOpen}
+        </>
+      }
+      rays={{ cx: 82, cy: 40 }}
+    >
       <div className="grid flex-1 grid-cols-[1fr_420px] gap-[96px]">
         <div className="flex flex-col justify-center">
           <h2 className={titleSplit}>
@@ -738,20 +754,20 @@ function FieldProofSlide(props: SlideProps) {
  */
 const SLIDES: { slide: (props: SlideProps) => ReactNode; when?: (p: Pitch) => boolean; parts?: (p: Pitch) => number }[] = [
   { slide: CoverSlide },
-  { slide: PromiseSlide },
-  { slide: WalkAwaySlide },
+  { slide: PromiseSlide, when: (p) => Boolean(p.promise) },
+  { slide: WalkAwaySlide, when: (p) => Boolean(p.walkAway) },
   { slide: SolutionSlide },
   { slide: EstimatorSlide, when: (p) => Boolean(p.estimator) },
   { slide: FieldProofSlide, when: (p) => Boolean(p.fieldProof) },
-  { slide: CustomersSlide },
+  { slide: CustomersSlide, when: (p) => Boolean(p.forCustomers) },
   { slide: TeamsSlide },
   { slide: HeadOfficeSlide, when: (p) => Boolean(p.forHeadOffice) },
-  { slide: DeploymentSlide },
+  { slide: DeploymentSlide, when: (p) => Boolean(p.deployment) },
   { slide: PriceSlide, when: (p) => Boolean(p.pricing) },
   { slide: RevenueSlide, when: (p) => Boolean(p.forRevenue) },
-  { slide: ProposalSlide },
+  { slide: ProposalSlide, when: (p) => Boolean(p.proposal) },
   { slide: ClosingSlide },
-  { slide: SourcesSlide, parts: sourceParts },
+  { slide: SourcesSlide, when: (p) => p.sourcesNote !== undefined, parts: sourceParts },
 ];
 
 /**
