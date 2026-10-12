@@ -1,3 +1,5 @@
+import type { Formule } from "@/lib/gestion/types";
+
 export type Badge = "maison" | "top" | "nouveau";
 
 export const BADGE_LABELS: Record<Badge, string> = {
@@ -129,11 +131,28 @@ export interface Restaurant {
   /** Arguments courts affichés sous le hero (halal, livraison, promotion). */
   highlights?: string[];
   categories: MenuCategory[];
+  /**
+   * Formules d'une carte d'aperçu (/menu/demo) : en production elles vivent
+   * en base, à part de la carte, et la page les charge elle-même.
+   */
+  formules?: Formule[];
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
+  /**
+   * Identifiant de la fiche Google de l'établissement : le lien d'adresse
+   * ouvre la fiche (voir mapsUrl). Registre seulement, la base n'en a pas.
+   */
+  placeId?: string;
   /** Aperçu d'un pitch qui présente l'estimateur IA comme livré : le ticket le nomme. */
   estimatorLive?: boolean;
 }
+
+/**
+ * L'entrée « Formules » de la barre des catégories, et l'ancre de la section
+ * qu'elle vise. Ici et non dans components/menu/formules (module client) :
+ * les pages serveur n'y recevaient qu'une référence, sans id.
+ */
+export const FORMULES_LINK = { id: "formules", name: "Formules" };
 
 export const unsplash = (id: string, w = 1200) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
@@ -179,6 +198,19 @@ const groupeChoix = (
     return { id: `${id}-${slugLibelle(label)}`, name: `${prefixe}${label}`, supplement: prix };
   }),
 });
+
+/** Cuisson d'une viande grillée, demandée à chaque commande. */
+const CUISSON: OptionGroup = {
+  id: "cuisson",
+  name: "Cuisson",
+  obligatoire: true,
+  choices: [
+    { id: "a-point", name: "À point", supplement: 0 },
+    { id: "saignant", name: "Saignant", supplement: 0 },
+    { id: "bleu", name: "Bleu", supplement: 0 },
+    { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
+  ],
+};
 
 const trattoriaLucia: Restaurant = {
   slug: "trattoria-lucia",
@@ -595,19 +627,7 @@ const boho: Restaurant = {
             "Grillée à la perfection, notre sauce verte maison, frites fraîches et salade.",
           price: 20,
           badges: ["top"],
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "piece-boeuf",
@@ -615,19 +635,7 @@ const boho: Restaurant = {
           name: "Pièce de bœuf grillée",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "piece-poulet",
@@ -642,19 +650,7 @@ const boho: Restaurant = {
           name: "Magret de canard grillé",
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "saumon-plancha",
@@ -662,19 +658,7 @@ const boho: Restaurant = {
           name: "Escalope de saumon frais à la plancha",
           description: "Servie avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
         {
           id: "burger-boho",
@@ -683,19 +667,7 @@ const boho: Restaurant = {
           description: "Servi avec frites fraîches maison et salade assaisonnée.",
           price: 16.9,
           badges: ["maison"],
-          options: [
-            {
-              id: "cuisson",
-              name: "Cuisson",
-              obligatoire: true,
-              choices: [
-                { id: "a-point", name: "À point", supplement: 0 },
-                { id: "saignant", name: "Saignant", supplement: 0 },
-                { id: "bleu", name: "Bleu", supplement: 0 },
-                { id: "bien-cuit", name: "Bien cuit", supplement: 0 },
-              ],
-            },
-          ],
+          options: [CUISSON],
         },
       ],
     },
@@ -1143,17 +1115,8 @@ const lzParfumCanette = groupeChoix("parfum", "Parfum", LZ_BOISSONS, {
   obligatoire: true,
 });
 
-const lzSupplements = (id: string, noms: string[]): OptionGroup => ({
-  id,
-  name: "Suppléments",
-  obligatoire: false,
-  multiple: true,
-  choices: noms.map((nom) => ({
-    id: `${id}-${slugLibelle(nom)}`,
-    name: nom,
-    supplement: 1,
-  })),
-});
+const lzSupplements = (id: string, noms: string[]) =>
+  groupeChoix(id, "Suppléments", noms, { supplement: 1, multiple: true });
 
 const lzSupplementsSnack = lzSupplements("supplement", [
   "Cheddar",
@@ -2017,12 +1980,379 @@ const chickenStreet: Restaurant = {
   ],
 };
 
+/*
+ * L'Adresse (Portet-sur-Garonne, au sud-ouest de Toulouse) — prospect,
+ * « restaurant lounge » : cuisine maison, cocktails sans alcool, chichas.
+ * Carte transcrite de leur menu numérique (NFC For You, mis à jour le
+ * 2 octobre 2026), articles disponibles seulement ; coquilles évidentes
+ * corrigées, chacune listée dans le profil. Identité relevée sur leur logo,
+ * la carte imprimée de 2021 et la façade : anthracite bleuté, dorure, nom
+ * manuscrit, ruban « Restaurant Lounge ». Source de vérité du profil :
+ * demos/l-adresse/profile.json.
+ */
+
+/* « Accompagnement : purée, purée de patate douce, poêlé de légumes » — une
+   ligne sans prix de leur carte. Les viandes en proposent un au choix :
+   déduction à confirmer avec le gérant. */
+const ADRESSE_ACCOMPAGNEMENTS = [
+  "Purée",
+  "Purée de patate douce",
+  "Poêlée de légumes",
+] as const;
+
+const adresseAccompagnement = groupeChoix(
+  "accompagnement",
+  "Accompagnement",
+  ADRESSE_ACCOMPAGNEMENTS,
+  { obligatoire: true }
+);
+
+/* « Supplément accompagnement : 4 € », en tête des plats. « … en plus » :
+   sur la feuille comme sur le ticket, ne se confond pas avec celui inclus. */
+const adresseSupplement = groupeChoix(
+  "supplement-accompagnement",
+  "Accompagnement supplémentaire",
+  ADRESSE_ACCOMPAGNEMENTS.map((label) => `${label} en plus`),
+  { supplement: 4, multiple: true }
+);
+
+const adresseViande = [CUISSON, adresseAccompagnement, adresseSupplement];
+
+const adresseSaladeCesar = groupeChoix(
+  "poulet",
+  "Préparation du poulet",
+  ["Poulet", "Poulet pané"],
+  { obligatoire: true }
+);
+
+/* La fiche Google de l'établissement : avis et itinéraire. */
+const ADRESSE_FICHE_GOOGLE = "ChIJVVswUVa5rhIR5meIm1C9vkM";
+
+const lAdresse: Restaurant = {
+  slug: "l-adresse",
+  name: "L’Adresse",
+  tagline: "Restaurant Lounge",
+  // Le logo tracé d'après leur fichier (docs/logo.png) : le nom manuscrit ;
+  // le ruban suit, à part, sous l'accroche (.theme-l-adresse).
+  logo: "/l-adresse/logo-nom.svg",
+  logoIsName: true,
+  footerLogo: "/l-adresse/logo.svg",
+  themeColor: "#24272f",
+  icons: { tab: "/l-adresse/favicon.png", homeScreen: "/l-adresse/icon.png" },
+  address: "8 Chemin des Genêts, 31120 Portet-sur-Garonne",
+  phone: "+33 5 34 49 07 66",
+  // Insécables dans chaque groupe de jours, gluon (U+2060) après le tiret :
+  // la ligne ne se coupe qu'entre deux groupes.
+  hours:
+    "Mer,\u00a0jeu,\u00a0dim\u00a019h30–\u20602h · Ven,\u00a0sam\u00a019h30–\u20603h · Fermé\u00a0lun,\u00a0mar",
+  highlights: ["Cuisine maison", "Cocktails sans alcool", "Chichas premium"],
+  googleReviewUrl: `https://search.google.com/local/writereview?placeid=${ADRESSE_FICHE_GOOGLE}`,
+  placeId: ADRESSE_FICHE_GOOGLE,
+  formules: [
+    {
+      id: "formule-classique",
+      name: "Formule Classique",
+      description: "Entrée, plat, dessert",
+      price: 36,
+      disponible: true,
+      etapes: [
+        {
+          id: "entree",
+          name: "Entrée",
+          obligatoire: true,
+          articles: [
+            {
+              id: "salade-cesar",
+              name: "Salade César",
+              detail: "poulet ou poulet pané, croûtons, œuf, parmesan, romaine, sauce césar maison",
+              supplement: 0,
+              itemId: "salade-cesar",
+              options: [adresseSaladeCesar],
+            },
+            {
+              id: "salade-burrata",
+              name: "Salade Burrata",
+              detail: "mesclun, pignons, tomate, pesto et réduction balsamique",
+              supplement: 0,
+              itemId: "salade-burrata",
+            },
+            {
+              id: "salade-paysanne",
+              name: "Salade paysanne",
+              detail: "toast de chèvre (cabécou) et petits lardons fumés",
+              supplement: 0,
+              itemId: "salade-paysanne",
+            },
+          ],
+        },
+        {
+          id: "plat",
+          name: "Plat",
+          obligatoire: true,
+          articles: [
+            { id: "tagliatelles-saumon", name: "Tagliatelles, saumon", supplement: 0, itemId: "tagliatelles-saumon" },
+            { id: "tagliatelles-pesto-burrata", name: "Tagliatelles, pesto burrata", supplement: 0, itemId: "tagliatelles-pesto-burrata" },
+            {
+              id: "faux-filet",
+              name: "Faux filet",
+              supplement: 0,
+              itemId: "faux-filet",
+              // Les options du plat de la carte, comme le fera la base : un
+              // article de formule lié à un plat en reprend les options.
+              options: adresseViande,
+            },
+            { id: "tagliatelles-forestiere", name: "Tagliatelles forestière", supplement: 0, itemId: "tagliatelles-forestiere" },
+          ],
+        },
+        {
+          id: "dessert",
+          name: "Dessert",
+          obligatoire: true,
+          articles: [
+            { id: "fondant-chocolat", name: "Fondant chocolat", supplement: 0, itemId: "fondant-chocolat" },
+            { id: "tiramisu-du-moment", name: "Tiramisu du moment", supplement: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  categories: [
+    {
+      id: "entrees",
+      name: "Entrées",
+      items: [
+        {
+          id: "salade-cesar",
+          name: "Salade César",
+          image: pexels("28618639/pexels-photo-28618639.jpeg", 800),
+          description:
+            "Poulet ou poulet pané, croûtons, œuf, parmesan, romaine, sauce césar maison",
+          price: 15,
+          options: [adresseSaladeCesar],
+        },
+        {
+          id: "salade-burrata",
+          name: "Salade Burrata",
+          image: pexels("3510248/pexels-photo-3510248.jpeg", 800),
+          description: "Mesclun, pignons, tomate, pesto et réduction balsamique",
+          price: 15,
+        },
+        {
+          id: "salade-paysanne",
+          name: "Salade paysanne",
+          description: "Toast de chèvre (cabécou) et petits lardons fumés",
+          price: 15,
+        },
+        {
+          id: "medaillon-foie-gras",
+          name: "Médaillon de foie gras",
+          image: pexels("6880221/pexels-photo-6880221.jpeg", 800),
+          description: "Toasts grillés, confiture de figues",
+          price: 18,
+        },
+        { id: "hot-wings", name: "Hot Wings", detail: "8 pièces", price: 12, image: pexels("7230625/pexels-photo-7230625.jpeg", 800) },
+        { id: "nuggets", name: "Nuggets", detail: "8 pièces", price: 12, image: pexels("20535805/pexels-photo-20535805.jpeg", 800) },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      tagline:
+        "Accompagnements : purée, purée de patate douce ou poêlée de légumes (poivrons rouges et verts, courgettes, brocolis) · supplément\u00a0accompagnement\u00a04\u00a0€ · supplément\u00a0sauce\u00a03\u00a0€",
+      items: [
+        {
+          id: "entrecote",
+          name: "Entrecôte",
+          image: pexels("16272317/pexels-photo-16272317.jpeg", 800),
+          detail: "350\u00a0g",
+          price: 26,
+          options: adresseViande,
+        },
+        { id: "faux-filet", name: "Faux filet", price: 25, options: adresseViande, image: pexels("36734926/pexels-photo-36734926.jpeg", 800) },
+        { id: "magret-canard", name: "Magret de canard", price: 28, options: adresseViande, image: pexels("34629958/pexels-photo-34629958.jpeg", 800) },
+        {
+          id: "souris-agneau",
+          name: "Souris d’agneau",
+          image: pexels("16588046/pexels-photo-16588046.jpeg", 800),
+          price: 29,
+          options: [adresseAccompagnement, adresseSupplement],
+        },
+        {
+          id: "supreme-volaille",
+          name: "Suprême de volaille sauce foie gras",
+          image: unsplash("photo-1552723545-1dd9665ace51", 800),
+          description: "Blanc de poulet, tagliatelles, sauce forestière",
+          price: 25,
+        },
+        {
+          id: "pave-saumon",
+          name: "Pavé de saumon",
+          image: pexels("17681856/pexels-photo-17681856.jpeg", 800),
+          description:
+            "Accompagné d’une sauce beurre blanc à l’aneth et écrasée de pomme de terre",
+          price: 25,
+        },
+        {
+          id: "tagliatelles-truffe",
+          name: "Tagliatelles à la truffe et sabota crémeuse",
+          image: pexels("7491886/pexels-photo-7491886.jpeg", 800),
+          price: 24,
+        },
+        { id: "tagliatelles-pesto-burrata", name: "Tagliatelles, pesto burrata", price: 20, image: pexels("39956106/pexels-photo-39956106.jpeg", 800) },
+        // Sans photo : la seule libre montrait un saumon gris, qu'on prenait
+        // pour du poulet. Les lignes sans photo suivent un nombre pair de
+        // plats photographiés (voir .theme-l-adresse, la grille en bureau).
+        { id: "tagliatelles-saumon", name: "Tagliatelles, saumon", price: 24 },
+        {
+          id: "fusilli-truffe-burrata",
+          name: "Fusilli à la truffe avec burrata",
+          description: "Pâtes à la truffe",
+          price: 25,
+        },
+        { id: "tagliatelles-forestiere", name: "Tagliatelles forestière", price: 20, image: unsplash("photo-1727005217349-66276af3aa7d", 800) },
+        { id: "beef-burger", name: "Beef Burger", price: 18, options: [CUISSON], image: pexels("10922928/pexels-photo-10922928.jpeg", 800) },
+        { id: "chicken-burger", name: "Chicken Burger", price: 18, image: pexels("7963144/pexels-photo-7963144.jpeg", 800) },
+        { id: "supplement-foie-gras", name: "Supplément foie gras", price: 7 },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      tagline: "Tous nos desserts sont faits maison",
+      items: [
+        { id: "creme-brulee-pistache", name: "Crème brûlée pistache", price: 8, image: pexels("36295521/pexels-photo-36295521.jpeg", 800) },
+        { id: "fondant-chocolat", name: "Fondant chocolat", price: 8, image: pexels("20377567/pexels-photo-20377567.jpeg", 800) },
+        {
+          id: "brioche-perdue",
+          name: "Brioche perdue, glace vanille et caramel beurre salé",
+          image: pexels("30458468/pexels-photo-30458468.jpeg", 800),
+          printName: "Brioche perdue",
+          price: 8,
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      tagline: "Sans alcool",
+      items: [
+        {
+          id: "copacabana",
+          name: "Copacabana",
+          image: pexels("24038051/pexels-photo-24038051.jpeg", 800),
+          description: "Purée de passion, purée de mangue, lait",
+          price: 8,
+        },
+        {
+          id: "mojito",
+          name: "Mojito",
+          image: pexels("7259054/pexels-photo-7259054.jpeg", 800),
+          description: "Classique / Mangue / Fraise / Fruits rouges",
+          price: 8,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Classique", "Mangue", "Fraise", "Fruits rouges"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        { id: "sunset", name: "SunSet", description: "Ananas, mangue, kiwi", price: 8, image: pexels("10986584/pexels-photo-10986584.jpeg", 800) },
+        { id: "pina-colada", name: "Piña Colada", description: "Ananas, lait de coco", price: 8, image: pexels("13906952/pexels-photo-13906952.jpeg", 800) },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "coca-cola",
+          name: "Coca-Cola",
+          description: "Classique / Cherry / Zéro",
+          price: 4,
+          options: [
+            groupeChoix("variante", "Variante", ["Classique", "Cherry", "Zéro"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        { id: "orangina", name: "Orangina", price: 4 },
+        { id: "sprite", name: "Sprite", price: 4 },
+        { id: "ice-tea", name: "Ice Tea", price: 4 },
+        { id: "oasis", name: "Oasis", price: 4 },
+        { id: "schweppes-agrumes", name: "Schweppes Agrumes", price: 4 },
+        {
+          id: "diabolo",
+          name: "Diabolo",
+          description:
+            "Sirop au choix : menthe, grenadine, fraise, pêche, cassis, cerise, kiwi, violette, framboise",
+          price: 4,
+          options: [
+            groupeChoix("sirop", "Sirop", [
+              "Menthe",
+              "Grenadine",
+              "Fraise",
+              "Pêche",
+              "Cassis",
+              "Cerise",
+              "Kiwi",
+              "Violette",
+              "Framboise",
+            ], { obligatoire: true }),
+          ],
+        },
+        { id: "red-bull", name: "Red Bull", price: 5 },
+        // La contenance dans le nom, et non en mention de format : une ligne de
+        // commande ne garde que le nom, le bar lisait « Eau plate » pour les
+        // deux bouteilles.
+        { id: "eau-plate-50cl", name: "Eau plate 50\u00a0cl", price: 3.5 },
+        { id: "eau-plate-1l", name: "Eau plate 1\u00a0L", price: 5 },
+        { id: "eau-petillante-50cl", name: "Eau pétillante 50\u00a0cl", price: 4 },
+        { id: "eau-petillante-1l", name: "Eau pétillante 1\u00a0L", price: 6 },
+        { id: "the-menthe", name: "Thé menthe fraîche", price: 2 },
+      ],
+    },
+    {
+      id: "chichas",
+      name: "Chichas",
+      tagline: "Tabac sans nicotine",
+      items: [
+        {
+          id: "chicha-plate",
+          name: "Chicha Plate",
+          image: pexels("35688051/pexels-photo-35688051.jpeg", 800),
+          description: "Menthe, Hawaii, Love, Mi Amor",
+          price: 15,
+          vatRate: 20,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Menthe", "Hawaii", "Love", "Mi Amor"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        {
+          id: "chicha-khaloud",
+          name: "Chicha Khaloud",
+          image: pexelsRecadre("11089743/pexels-photo-11089743.jpeg", 800),
+          description: "Mi Amor, Hawaii, Love 66",
+          price: 20,
+          vatRate: 20,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Mi Amor", "Hawaii", "Love 66"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
   [chickenStreet.slug]: chickenStreet,
+  [lAdresse.slug]: lAdresse,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -2033,6 +2363,7 @@ const themeClasses: Record<string, string> = {
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
   [chickenStreet.slug]: "theme-chicken-street",
+  [lAdresse.slug]: "theme-l-adresse",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
@@ -2047,11 +2378,14 @@ export const DEMO_SLUG = trattoriaLucia.slug;
 
 /**
  * Lien « itinéraire » vers l'adresse de l'établissement. Recherche Google Maps
- * plutôt qu'un point GPS : on n'a que l'adresse écrite, et la recherche est
- * reprise par l'application de cartographie par défaut du téléphone.
+ * plutôt qu'un point GPS, reprise par l'application de cartographie par défaut
+ * du téléphone. Avec l'identifiant de la fiche, la recherche ouvre la fiche
+ * elle-même : l'adresse seule tombe sur la rue — sur le voisin, quand elle
+ * est celle d'un centre commercial.
  */
-export function mapsUrl(address: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+export function mapsUrl(address: string, placeId?: string): string {
+  const fiche = placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}${fiche}`;
 }
 
 /** Espace insécable avant € : le prix ne se coupe jamais de sa devise. */
@@ -2061,7 +2395,7 @@ export function formatPrice(price: number): string {
 
 /**
  * Le numéro tel qu'un client français le lit (« 07 49 20 64 34 ») ; le
- * lien, lui, garde la forme internationale (tel:, wa.me).
+ * lien, lui, garde la forme internationale (tel:).
  */
 export function displayPhone(phone: string): string {
   return phone.replace(/^\+33\s?/, "0");

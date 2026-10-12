@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { SectionLink } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
 
@@ -78,22 +79,26 @@ export function CategoryNav({
           {categories.map(({ id, name }) => {
             const active = id === activeId;
             return (
-              <a
+              <SectionLink
                 key={id}
-                href={`#${id}`}
+                sectionId={id}
                 data-category={id}
                 aria-current={active ? "location" : undefined}
-                onClick={() => track("categorie")}
+                onJump={() => track("categorie")}
                 // Au clavier, la pastille atteinte vient au milieu du rail.
                 onFocus={(event) => railRef.current && centerInRail(railRef.current, event.currentTarget)}
-                className={`min-h-11 shrink-0 rounded-full px-4 py-2.5 text-sm font-medium transition-all max-[359px]:px-3 max-[359px]:text-[13px] max-[339px]:px-2.5 lg:px-5 lg:py-3 lg:text-base ${
+                // Une bordure des deux côtés, transparente sur la pastille
+                // active : sans elle, chaque changement de section décalait
+                // les voisines de 2 px. bg-origin-border : le dégradé passe
+                // sous la bordure au lieu d'y répéter son autre bout.
+                className={`min-h-11 shrink-0 rounded-full border px-4 py-2.5 text-sm font-medium transition-all max-[359px]:px-3 max-[359px]:text-[13px] max-[339px]:px-2.5 lg:px-5 lg:py-3 lg:text-base ${
                   active
-                    ? "ember-gradient text-background shadow-[0_0_18px_color-mix(in_srgb,var(--ember-2)_35%,transparent)]"
-                    : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                    ? "ember-gradient border-transparent bg-origin-border text-background shadow-[0_0_18px_color-mix(in_srgb,var(--ember-2)_35%,transparent)]"
+                    : "border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
                 }`}
               >
                 {name}
-              </a>
+              </SectionLink>
             );
           })}
         </div>

@@ -402,14 +402,15 @@ function OrderTicket({
                     <span className="text-foreground">{line.name}</span>
                     {/* Les choix sur une ligne, comme au panier : chacun d'un bloc
                         (« Coca-Cola » ne se coupe pas), le point avec celui qui le
-                        précède. Un par ligne, un tacos en prenait sept. */}
+                        précède — un par ligne, un tacos en prenait sept. Sauf une
+                        formule de l'aperçu : une étape par ligne, comme au panier. */}
                     {line.choices.length > 0 && (
                       <span className="block">
                         {line.choices.map((choice, i) => (
                           <Fragment key={i}>
-                            <span className="inline-block max-w-full">
+                            <span className={line.formule ? "block" : "inline-block max-w-full"}>
                               {choice}
-                              {i < line.choices.length - 1 && "\u00a0·"}
+                              {!line.formule && i < line.choices.length - 1 && "\u00a0·"}
                             </span>{" "}
                           </Fragment>
                         ))}

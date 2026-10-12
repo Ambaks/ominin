@@ -303,12 +303,6 @@ html.light {
   background-color: var(--ember-1);
 }
 
-/* WhatsApp en blanc pur : le blanc cassé de la palette ne donnait que 4,25:1
-   sur le rouge. */
-.theme-lz-food .footer-whatsapp {
-  color: #ffffff;
-}
-
 .theme-lz-food footer .ember-text {
   background-image: none;
   color: #ffffff;
@@ -1102,12 +1096,6 @@ html:has(.theme-o-crousti-poulet) body {
   .theme-o-crousti-poulet .footer-name {
     font-size: 1.35rem;
   }
-
-  .theme-o-crousti-poulet .footer-whatsapp {
-    padding-inline: 1rem;
-    font-size: 0.8125rem;
-    white-space: nowrap;
-  }
 }
 
 @media (min-width: 768px) {
@@ -1154,8 +1142,7 @@ html:has(.theme-o-crousti-poulet) body {
   -webkit-text-fill-color: currentColor;
 }
 
-/* Téléphone, WhatsApp, avis Google : encre noire, comme les dessins de la
-   porte. */
+/* Téléphone, avis Google : encre noire, comme les dessins de la porte. */
 .theme-o-crousti-poulet .footer-phone {
   background-image: none;
   background-color: var(--background);
@@ -1163,17 +1150,11 @@ html:has(.theme-o-crousti-poulet) body {
   font-weight: 700;
 }
 
-/* Trois boutons, une seule taille. */
-.theme-o-crousti-poulet :is(.footer-phone, .footer-whatsapp, .footer-review) {
+/* Deux boutons, une seule taille. */
+.theme-o-crousti-poulet :is(.footer-phone, .footer-review) {
   justify-content: center;
   min-width: min(16rem, 100%);
   min-height: 3rem;
-}
-
-.theme-o-crousti-poulet .footer-whatsapp {
-  border-color: rgba(19, 20, 22, 0.4);
-  background-color: #ffffff;
-  color: var(--background);
 }
 
 .theme-o-crousti-poulet .footer-review {
@@ -1522,6 +1503,1381 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
 
 .theme-chicken-street footer:not([role="dialog"] footer) .ember-gradient.text-background {
   color: var(--cs-ink);
+}
+
+/*
+  L'Adresse (Portet-sur-Garonne) — restaurant lounge. Identité relevée sur
+  leur logo, la carte imprimée de 2021 et la façade (demos/l-adresse/docs/) :
+  fond anthracite bleuté (#272a33 mesuré sur la carte), or du logo (#f4c549
+  → #f7e7b4) et dorure à chaud de la carte (#fbc889 → #9c6717), bandeaux
+  dorés sous chaque titre, cadre à coins rabattus, rosace en soleil,
+  filigranes. Le nom et son ruban sont ceux du logo, tracés en vectoriel
+  (public/l-adresse/logo-*.svg) ; tout le texte est en Source Serif, comme la
+  carte. Le mouvement reprend la matière : la plume écrit le nom, le ruban se
+  déroule, la lumière passe sur la dorure, la rosace tourne à peine.
+*/
+.theme-l-adresse {
+  --background: #24272f;
+  --foreground: #f4efe6;
+
+  --surface: #2b2f38;
+  --surface-raised: #353a45;
+  --hairline: rgba(216, 173, 104, 0.18);
+
+  --muted: #bdb8ad;
+  --faint: #a19c91;
+
+  --ember-1: #f3d499;
+  --ember-2: #dfb06a;
+  --ember-3: #bd8c42;
+
+  --shimmer-highlight: rgba(243, 212, 153, 0.12);
+  --glow-inner: rgba(243, 212, 153, 0.08);
+  --glow-outer: rgba(189, 140, 66, 0.05);
+
+  /* La feuille d'or des bandeaux : blond, bronze et reflets, comme la
+     dorure photographiée sur la carte. */
+  --adresse-or: linear-gradient(
+    100deg,
+    #a8772d 0%,
+    #d6a75e 16%,
+    #f6d9a1 34%,
+    #e5b872 50%,
+    #c08c40 68%,
+    #f1cd8d 86%,
+    #b5843a 100%
+  );
+  --adresse-filet: rgba(216, 173, 104, 0.5);
+  /* La colonne des lignes de carte (boissons, plats sans photo). */
+  --adresse-colonne: 46rem;
+
+  --brand-display: var(--font-source-serif-4), var(--font-fraunces), serif;
+  --brand-sans: var(--font-source-serif-4), var(--font-instrument-sans), serif;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has(.theme-l-adresse),
+html:has(.theme-l-adresse) body {
+  background-color: #24272f;
+}
+
+/* Boutons, pastille active, barre du panier : la dorure, plus resserrée que
+   celle des bandeaux — son reflet le plus sombre garde 5,3:1 sous l'encre. */
+.theme-l-adresse .ember-gradient {
+  background-image: linear-gradient(
+    100deg,
+    #c99a52,
+    #f3d499 45%,
+    #dcab62 70%,
+    #c49248
+  );
+}
+
+/* ---- Le cadre de la carte : filets et coins rabattus ----------------- */
+
+/*
+  Quatre coins dorés (public/l-adresse/coin-*.svg : l'équerre épaisse de la
+  carte et l'échancrure du filet autour d'elle) et quatre filets qui les
+  relient, posés en fonds : le filet passe à --coin × 4,5/64 du bord, au
+  milieu de l'épaisseur de l'équerre, comme dans le dessin du coin. Servi au
+  héros et à la formule.
+*/
+.theme-l-adresse > header::before,
+.theme-l-adresse .formule-tile::after {
+  --coin: clamp(4.75rem, 3.5rem + 4vw, 7rem);
+  --filet: calc(var(--coin) * 4.5 / 64);
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  background-image:
+    url("/l-adresse/coin-hg.svg"),
+    url("/l-adresse/coin-hd.svg"),
+    url("/l-adresse/coin-bg.svg"),
+    url("/l-adresse/coin-bd.svg"),
+    linear-gradient(var(--adresse-filet), var(--adresse-filet)),
+    linear-gradient(var(--adresse-filet), var(--adresse-filet)),
+    linear-gradient(var(--adresse-filet), var(--adresse-filet)),
+    linear-gradient(var(--adresse-filet), var(--adresse-filet));
+  /* Les filets centrés sur --filet, comme le trait du dessin des coins :
+     posés à partir de --filet, ils marchaient d'un pixel à la jointure. */
+  background-position:
+    top left,
+    top right,
+    bottom left,
+    bottom right,
+    50% calc(var(--filet) - 0.5px),
+    50% calc(100% - var(--filet) + 0.5px),
+    calc(var(--filet) - 0.5px) 50%,
+    calc(100% - var(--filet) + 0.5px) 50%;
+  background-size:
+    var(--coin) var(--coin),
+    var(--coin) var(--coin),
+    var(--coin) var(--coin),
+    var(--coin) var(--coin),
+    calc(100% - 2 * var(--coin)) 1px,
+    calc(100% - 2 * var(--coin)) 1px,
+    1px calc(100% - 2 * var(--coin)),
+    1px calc(100% - 2 * var(--coin));
+  background-repeat: no-repeat;
+}
+
+/* ---- Héros : la couverture de la carte ------------------------------- */
+
+/* Les coins se posent, puis chaque filet se trace depuis le milieu de son
+   côté. */
+.theme-l-adresse > header::before {
+  inset: 0.9rem;
+  z-index: 1;
+  animation: adresse-cadre 1.2s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes adresse-cadre {
+  from {
+    background-size:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 1px,
+      0 1px,
+      1px 0,
+      1px 0;
+  }
+}
+
+/* La rosace en soleil de la couverture, sous le ruban comme sur la carte,
+   entière dans le cadre : plus large, ses rayons passaient sous les filets.
+   Elle tourne en s'ouvrant quand on quitte la couverture (plus bas), au
+   rythme du défilement : aucun mouvement sans fin, qu'on ne pourrait pas
+   arrêter. */
+.theme-l-adresse > header::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: min(calc(100vw - 4rem), calc(62svh - 2rem), 50rem);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: url("/l-adresse/mandala.svg") center / contain no-repeat;
+  opacity: 0.3;
+  mask-image: radial-gradient(circle closest-side, black 55%, transparent 100%);
+  pointer-events: none;
+  animation: adresse-rosace-entree 1.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes adresse-rosace-entree {
+  from {
+    opacity: 0;
+    scale: 0.82;
+  }
+}
+
+/* Le nom : le logo lui-même, que la plume écrit de gauche à droite ; son
+   enveloppe n'a pas d'entrée propre. */
+.theme-l-adresse .hero-logo {
+  margin-bottom: 0.4rem;
+  opacity: 1;
+  animation: none;
+}
+
+.theme-l-adresse .hero-logo img {
+  display: block;
+  width: min(80vw, 30rem);
+  height: auto;
+  animation: adresse-ecriture 1.3s cubic-bezier(0.55, 0.05, 0.3, 1) 0.15s both;
+}
+
+/* Le ruban et le filigrane dans une vraie boîte (display: contents par
+   défaut) : ils s'élèvent avec le nom quand on quitte la couverture. */
+.theme-l-adresse .hero-lockup {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Le dock des tickets (fast food) met la tête en pause, sauf les entrées
+   (règle commune, plus bas) : le nom, écrit hors de .hero-entrance, restait
+   à demi tracé, le ruban, figé en plein envol, couvrait le nom, et la rosace
+   s'arrêtait à demi apparue. */
+[data-menu-root].theme-l-adresse:has(.ticket-dock) > header .hero-logo img,
+[data-menu-root].theme-l-adresse:has(.ticket-dock) > header .hero-lockup,
+[data-menu-root].theme-l-adresse:has(.ticket-dock) > header::after {
+  animation-play-state: running;
+}
+
+@keyframes adresse-ecriture {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* Deux reflets passent sur l'or du nom, puis il se repose : le dessin du
+   logo sert de masque, la lumière glisse dessous. */
+.theme-l-adresse .hero-logo h1::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 250, 235, 0.8) 50%,
+      transparent 65%
+    )
+    100% 0 / 300% 100% no-repeat;
+  mask: url("/l-adresse/logo-nom.svg") center / 100% 100% no-repeat;
+  pointer-events: none;
+  animation: adresse-reflet 1.8s ease-in-out 1.5s 2 both;
+}
+
+@keyframes adresse-reflet {
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* Le ruban du logo sous le nom ; l'accroche « Restaurant Lounge » reste
+   dans la page pour les lecteurs d'écran, le ruban la dessine. Il se
+   déroule depuis son centre. */
+.theme-l-adresse .hero-tagline {
+  width: min(74vw, 27.5rem);
+  aspect-ratio: 396 / 86;
+  overflow: hidden;
+  white-space: nowrap;
+  background: url("/l-adresse/logo-ruban.svg") center / contain no-repeat;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: 1;
+  animation: adresse-ruban 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+}
+
+/* Couleurs forcées (Windows) : le dessin du ruban part, l'accroche reste
+   en texte — forcée, sa couleur s'imprimait par-dessus le ruban. */
+@media (forced-colors: active) {
+  .theme-l-adresse .hero-tagline {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+@keyframes adresse-ruban {
+  from {
+    clip-path: inset(0 50%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* Le filet devient le filigrane des pieds de page, qui s'ouvre. */
+.theme-l-adresse .hero-rule {
+  width: 12rem;
+  height: 2rem;
+  margin-top: 1.25rem;
+  background: url("/l-adresse/ornement.svg") center / contain no-repeat;
+  opacity: 1;
+  animation: adresse-ruban 0.7s cubic-bezier(0.65, 0, 0.35, 1) 1.1s both;
+}
+
+.theme-l-adresse .hero-contact {
+  font-size: 0.875rem;
+  animation-delay: 0.6s;
+}
+
+/* Une adresse plus longue que la ligne ne coupe pas les filets dorés ; le
+   fond presque plein : la rosace passait sous les chiffres. */
+.theme-l-adresse .hero-contact a {
+  max-width: calc(100vw - 4.5rem);
+  text-align: center;
+  color: var(--foreground);
+  background-color: rgba(36, 39, 47, 0.88);
+}
+
+/* Au téléphone, les pastilles s'empilent, et l'adresse se range sur deux
+   lignes dont la pastille prend la largeur — côte à côte ou étirée, elle
+   débordait sur les filets dorés. */
+@media (max-width: 413px) {
+  .theme-l-adresse .hero-contact {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .theme-l-adresse .hero-contact .address-line {
+    display: block;
+  }
+}
+
+/* Les braises, le halo qui respire et la lueur qui dérive sont la signature
+   d'Ominin : la seule lumière de la couverture est celle de la dorure. */
+.theme-l-adresse :is(.ember-particle, .logo-breathe, .hero-gradient-drift) {
+  display: none;
+}
+
+.theme-l-adresse .hero-cue {
+  border-radius: 9999px;
+  color: var(--ember-2);
+}
+
+.theme-l-adresse .hero-cue > span {
+  font-size: 11px;
+}
+
+/* Le chevron rebondit trois fois puis se pose. */
+.theme-l-adresse .scroll-bounce {
+  animation-iteration-count: 3;
+}
+
+@media (min-width: 640px) {
+  .theme-l-adresse .hero-contact {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-l-adresse > header::before {
+    inset: 1.75rem;
+  }
+
+  /* La couverture est plus haute en bureau (72svh), son cadre plus en
+     retrait (1,75 rem). */
+  .theme-l-adresse > header::after {
+    width: min(50rem, calc(72svh - 4rem));
+  }
+
+  .theme-l-adresse .hero-logo img {
+    width: 36rem;
+  }
+
+  .theme-l-adresse .hero-tagline {
+    width: 30rem;
+  }
+
+  .theme-l-adresse .hero-rule {
+    width: 15rem;
+    height: 2.5rem;
+    margin-top: 1.75rem;
+  }
+}
+
+/* ---- Bandeau d'arguments : une barre dorée de la carte --------------- */
+
+/* Dorure fixe aux reflets assez clairs pour l'encre (4,8:1 au plus
+   sombre) ; un reflet la traverse deux fois au chargement. */
+/* isolate : le reflet (z-index -1) passe sur la dorure, sous le texte — au-
+   dessus, il grisait l'encre des mots qu'il traversait. */
+.theme-l-adresse .menu-highlights {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 0;
+  background-image: linear-gradient(
+    100deg,
+    #b98a3f,
+    #e2b56f 18%,
+    #f6d9a1 38%,
+    #e5b872 55%,
+    #c99a52 75%,
+    #f1cd8d 90%,
+    #bf8f45
+  );
+  box-shadow: 0 10px 30px -18px rgba(223, 176, 106, 0.6);
+}
+
+.theme-l-adresse .menu-highlights::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 30%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 248, 230, 0.5),
+    transparent
+  );
+  translate: -120% 0;
+  pointer-events: none;
+  animation: adresse-balayage 2.4s ease-in-out 1.4s 2 both;
+}
+
+@keyframes adresse-balayage {
+  to {
+    translate: 420% 0;
+  }
+}
+
+.theme-l-adresse .menu-highlights ul {
+  column-gap: 1.5rem;
+}
+
+/* Au téléphone, un argument par ligne : à deux plus un, sans losange, les
+   deux premiers se lisaient d'un seul tenant. */
+@media (max-width: 639px) {
+  .theme-l-adresse .menu-highlights ul {
+    flex-direction: column;
+  }
+}
+
+.theme-l-adresse .menu-highlights li {
+  font-family: var(--brand-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #24272f;
+}
+
+/* Le losange entre deux arguments, dès qu'ils tiennent sur une ligne : au
+   téléphone, il commençait la seconde. */
+@media (min-width: 640px) {
+  .theme-l-adresse .menu-highlights li + li::before {
+    content: "◆";
+    content: "◆" / "";
+    margin-right: 1.5rem;
+    font-size: 0.6em;
+    vertical-align: 0.25em;
+    color: #6b4a17;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-l-adresse .menu-highlights ul {
+    column-gap: 2.5rem;
+  }
+
+  .theme-l-adresse .menu-highlights li {
+    font-size: 14px;
+  }
+
+  .theme-l-adresse .menu-highlights li + li::before {
+    margin-right: 2.5rem;
+  }
+}
+
+/* ---- La barre des catégories ----------------------------------------- */
+
+/* Pastilles resserrées sous le bureau : en tablette, les sept tiennent dans
+   la largeur de la carte (« Chichas » était coupée) ; au téléphone, la
+   cinquième dépasse franchement du bord et dit que le rail défile — à
+   390 px, il semblait s'arrêter à « Desserts ». Sous 360 px, Tailwind les
+   resserre déjà. */
+@media (min-width: 360px) and (max-width: 671px) {
+  .theme-l-adresse nav [data-category] {
+    padding-inline: 0.75rem;
+  }
+
+  .theme-l-adresse nav div:has(> [data-category]) {
+    gap: 0.25rem;
+  }
+}
+
+@media (min-width: 672px) and (max-width: 1023px) {
+  .theme-l-adresse nav [data-category] {
+    padding-inline: 0.875rem;
+  }
+
+  .theme-l-adresse nav div:has(> [data-category]) {
+    gap: 0.375rem;
+  }
+}
+
+/* Centrée sur la carte dès que le rail cesse de grandir ; les marges
+   automatiques retombent à zéro quand il défile. */
+@media (min-width: 672px) {
+  .theme-l-adresse nav [data-category]:first-child {
+    margin-left: auto;
+  }
+
+  .theme-l-adresse nav [data-category]:last-child {
+    margin-right: auto;
+  }
+}
+
+/* De l'air entre la dernière section et le pied de page, où le filigrane
+   touchait presque la dernière carte. */
+.theme-l-adresse main {
+  padding-bottom: 5rem;
+}
+
+/* La barre du panier, dorée comme les bandeaux des sections qui passent
+   dessous, s'en détache d'un liseré de fond. */
+.theme-l-adresse .cart-bar {
+  box-shadow:
+    0 0 0 3px var(--background),
+    0 18px 36px -12px rgba(0, 0, 0, 0.85);
+}
+
+/* La carte commence à 3,5 rem de la barre, comme en bureau : plus près, un
+   saut vers la première section (les formules, « Découvrir la carte ») se
+   posait avant que la barre ne colle, et un liseré du bandeau doré restait
+   visible au-dessus. */
+@media (max-width: 1023px) {
+  .theme-l-adresse main {
+    padding-top: 3.5rem;
+  }
+}
+
+/* ---- Titres de section : le bandeau doré de la carte ----------------- */
+
+/* clip, et non hidden, ici comme sur les plats : hidden en ferait un
+   conteneur de défilement, auquel ses effets liés au défilement (view())
+   s'accrocheraient au lieu de la page — ils restaient figés. */
+.theme-l-adresse .category-heading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
+  width: 100%;
+  padding: 0.4em 1em 0.45em;
+  text-align: center;
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: #24272f;
+}
+
+.theme-l-adresse .category-heading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--adresse-or);
+}
+
+/* Le reflet qui traverse le bandeau quand il entre à l'écran. */
+.theme-l-adresse .category-heading::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 40%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 246, 222, 0.55) 50%,
+    transparent
+  );
+  translate: -110% 0;
+}
+
+.theme-l-adresse .category-rule {
+  display: none;
+}
+
+.theme-l-adresse .category-tagline {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .theme-l-adresse .category-heading {
+    font-size: 1.75rem;
+  }
+}
+
+/* ---- Plats ------------------------------------------------------------ */
+
+.theme-l-adresse .dish-grid > article {
+  border-radius: 0.875rem;
+  background-image: linear-gradient(180deg, #2c3039, #272a32);
+  box-shadow: 0 22px 44px -32px rgba(0, 0, 0, 0.9);
+}
+
+.theme-l-adresse :is(.dish-grid > article, .dish-photo) {
+  overflow: clip;
+}
+
+/* Le fondu est un masque sur la photo, qui s'efface dans le fond de la
+   carte : en calque par-dessus, le bord de la photo agrandie (pendant
+   qu'elle se pose) dépassait du calque d'une fraction de pixel — un liseré
+   clair sous chaque photo. */
+.theme-l-adresse .dish-photo img {
+  mask-image: linear-gradient(to top, transparent, #000 50%);
+}
+
+.theme-l-adresse .dish-photo-fade {
+  display: none;
+}
+
+/* Deux plats côte à côte : les boutons au même niveau, quelle que soit la
+   longueur des descriptions. */
+@media (min-width: 768px) {
+  .theme-l-adresse .dish-grid > article:has(.dish-photo) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .theme-l-adresse .dish-grid > article:has(.dish-photo) .dish-body {
+    flex: 1;
+  }
+
+  .theme-l-adresse .dish-grid > article:has(.dish-photo) .dish-action {
+    margin-top: auto;
+  }
+}
+
+/* Le prix au bout de pointillés, comme sur la carte imprimée : ils partent
+   du dernier mot du nom, passé à la ligne ou non, jusqu'au prix, posé sur
+   cette dernière ligne. */
+.theme-l-adresse .dish-head {
+  gap: 0.5rem;
+  align-items: last baseline;
+}
+
+/* Un nom sur deux lignes s'y répartit : pas de mot seul à la ligne avec
+   ses pointillés. */
+.theme-l-adresse .dish-head > h3 {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  overflow: clip;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+/*
+  Les pointillés suivent le dernier mot, auquel les soude un gluon (U+2060,
+  aucune coupure possible entre eux) : 0,75 em au moins tiennent sur sa
+  ligne, sinon le mot passe à la suivante avec eux — pas de point isolé qui
+  se lirait comme un point final. Au-delà, leur marge négative les laisse
+  courir jusqu'au bord du nom, qui les rogne. Tracés en fond, sur la ligne
+  de base : une bordure se poserait sous les jambages.
+*/
+.theme-l-adresse .dish-head > h3::after {
+  content: "\2060";
+  content: "\2060" / "";
+  margin-left: 0.4em;
+  padding-right: 100vw;
+  margin-right: calc(0.75em - 100vw);
+  background: radial-gradient(circle closest-side, rgba(216, 173, 104, 0.6) 90%, transparent)
+    left bottom 0.28em / 4px 2px repeat-x;
+}
+
+.theme-l-adresse .dish-price {
+  font-weight: 500;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-l-adresse :is(.dish-detail, .sheet-detail) {
+  font-style: italic;
+  color: var(--ember-2);
+}
+
+/* Pas de mot seul en dernière ligne (« fumés »). */
+.theme-l-adresse .dish-body > p {
+  text-wrap: pretty;
+}
+
+/* Trente boutons pleins alourdissaient la page : un contour doré, et la
+   dorure pleine au survol. Le seul aplat reste la barre du panier. */
+.theme-l-adresse .dish-action > button.ember-gradient {
+  background-image: none;
+  color: var(--ember-1);
+  box-shadow: inset 0 0 0 1px rgba(223, 176, 106, 0.7);
+  /* scale : l'enfoncement d'active:scale-95 (Tailwind 4 anime scale). */
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    scale 0.15s;
+}
+
+@media (hover: hover) {
+  .theme-l-adresse .dish-action > button.ember-gradient:hover {
+    background-color: var(--ember-2);
+    color: #24272f;
+  }
+}
+
+/* Les équerres dorées du cadre de la carte s'allument au survol d'un plat. */
+.theme-l-adresse .dish-grid > article::after {
+  content: "";
+  position: absolute;
+  inset: 0.45rem;
+  z-index: 2;
+  background:
+    url("/l-adresse/equerre-hg.svg") top left / 1.25rem no-repeat,
+    url("/l-adresse/equerre-bd.svg") bottom right / 1.25rem no-repeat;
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+
+.theme-l-adresse .dish-grid > article:has(:focus-visible)::after {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .theme-l-adresse .dish-grid > article:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Un filet d'or au sommet de chaque plat, tracé quand il entre à l'écran. */
+.theme-l-adresse .dish-grid > article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  z-index: 2;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ember-1), transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/*
+  Un plat sans photo (les boissons, la salade paysanne…) : une ligne de
+  carte — nom, pointillés, prix, puis le bouton au bout — et non une carte
+  vide. Le bouton a une largeur fixe : les prix s'alignent d'une ligne à
+  l'autre, « Choisir » ou « + Ajouter ».
+*/
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) {
+  background-image: none;
+  background-color: rgba(43, 47, 56, 0.45);
+  box-shadow: none;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 0;
+  padding: 0.75rem 0.75rem 0.75rem 1rem;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-body > p {
+  margin-top: 0.2rem;
+}
+
+/* Toutes les lignes de carte à la même échelle, boissons comme plats sans
+   photo ; le prix pas plus grand que le nom, comme sur la carte imprimée. */
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) h3 {
+  font-size: 1.0625rem;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-price {
+  font-size: 1.125rem;
+}
+
+/* Un plat sans photo parmi les plats (salade paysanne, fusilli) : le nom à
+   l'échelle des cartes voisines — à celle des boissons, une salade à 15 €
+   se lisait comme un soda. */
+.theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
+  font-size: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
+    font-size: 1.5rem;
+  }
+}
+
+/* Le bouton face au prix ; la description passe dessous, sur toute la
+   largeur. */
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-body > * {
+  grid-column: 1 / -1;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-head {
+  grid-column: 1;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-action {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  margin-top: 0;
+}
+
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-action > button {
+  position: relative;
+  min-width: 6.25rem;
+  padding-inline: 0.9rem;
+  font-size: 0.8125rem;
+}
+
+/* Un plat sans photo garde le corps de bouton et les marges intérieures des
+   cartes voisines : son nom et son prix s'alignent sur les leurs. */
+.theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) .dish-action > button {
+  font-size: revert-layer;
+}
+
+.theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) .dish-body {
+  padding: revert-layer;
+}
+
+/* Au téléphone, la ligne se resserre pour que « Eau pétillante 50 cl » et
+   son prix tiennent à côté du bouton. */
+@media (max-width: 639px) {
+  .theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-body {
+    column-gap: 0.5rem;
+    padding-left: 0.75rem;
+  }
+
+  .theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-head h3 {
+    font-size: 1rem;
+  }
+
+  .theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-price {
+    font-size: 1.0625rem;
+  }
+
+  .theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article .dish-action > button {
+    min-width: 5rem;
+    padding-inline: 0.625rem;
+  }
+}
+
+/* Sous 385 px — 412 px pour les plats, au nom plus grand (« Supplément foie
+   / gras ») —, la ligne ne tient plus : le bouton passe dessous (sous la
+   description s'il y en a une), à droite, plutôt que de mordre sur le prix. */
+@media (max-width: 384px) {
+  .theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .dish-action {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: end;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 411px) {
+  .theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) .dish-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) .dish-action {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: end;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Le compte au panier au coin du bouton : en haut à droite de la carte, où
+   le pose une carte à photo, il couvrait le prix. */
+.theme-l-adresse .dish-grid > article:not(:has(.dish-photo)) .cart-count {
+  top: -0.55rem;
+  right: -0.55rem;
+}
+
+/* Une section toute en lignes (les boissons) : une seule liste encadrée
+   d'or, ses lignes séparées d'un filet, comme la page Boissons de la carte
+   imprimée — resserrée et centrée en bureau. En deux colonnes, les lignes à
+   description laissaient des trous ; en cartes séparées, treize boîtes
+   hachaient la page. */
+.theme-l-adresse .dish-grid:not(:has(.dish-photo)) {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: var(--adresse-colonne);
+  margin-inline: auto;
+  padding-inline: 0.25rem;
+  border: 1px solid rgba(216, 173, 104, 0.3);
+  border-radius: 0.875rem;
+  background-color: rgba(43, 47, 56, 0.45);
+}
+
+.theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article {
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article + article {
+  border-top: 1px solid var(--hairline);
+}
+
+/* Une ligne de la liste ne porte ni filet ni équerres : elle s'éclaire au
+   survol. */
+.theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article::before,
+.theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article::after {
+  display: none;
+}
+
+@media (hover: hover) {
+  .theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article:hover {
+    background-color: rgba(223, 176, 106, 0.06);
+  }
+}
+
+@media (min-width: 768px) {
+  /* Un plat sans photo parmi des plats photographiés : une ligne de carte à
+     sa place dans la section (après un nombre pair de plats photographiés,
+     dans les données : sinon le dernier d'avant resterait seul), sur toute
+     la largeur de la grille, bords alignés sur les cartes. */
+  .theme-l-adresse .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) {
+    grid-column: 1 / -1;
+  }
+
+  /* Le dernier plat photographié, seul sur sa rangée (compté parmi les plats
+     photographiés : les lignes sans photo s'intercalent) : toute la largeur,
+     photo à gauche, comme un plat seul (voir .dish-grid > article:only-child),
+     plutôt qu'une demi-rangée et un trou. Fond uni : la photo s'y efface
+     sans arête, là où le dégradé de la carte en laissait une. */
+  .theme-l-adresse .dish-grid:not(.dish-grid-tiles) > article:nth-child(odd of :has(.dish-photo)):nth-last-child(1 of :has(.dish-photo)) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    background-image: none;
+    background-color: var(--surface);
+
+    & .dish-photo {
+      aspect-ratio: auto;
+      min-height: 15rem;
+    }
+
+    & .dish-photo img {
+      mask-image: linear-gradient(to left, transparent, #000 30%);
+    }
+
+    & .dish-body {
+      justify-content: center;
+    }
+
+    /* Nom et bouton centrés à côté de la photo : le bouton calé en bas des
+       cartes jumelles (margin-top: auto) laissait un trou entre eux. */
+    & .dish-action {
+      margin-top: revert-layer;
+    }
+  }
+}
+
+/* Desserts : une photo et un nom. Des cartes comme les autres au téléphone,
+   trois de front ensuite : nom, pointillés et prix comme partout, prix au
+   corps du nom, et bouton calé en bas — les boutons s'alignent d'une
+   vignette à l'autre. */
+@media (max-width: 767px) {
+  .theme-l-adresse .dish-grid-tiles {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 768px) {
+  .theme-l-adresse .dish-grid-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .theme-l-adresse .dish-grid-tiles > article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .theme-l-adresse .dish-grid-tiles .dish-body {
+    flex: 1;
+    padding: 0.85rem 0.9rem 0.9rem;
+  }
+
+  .theme-l-adresse .dish-grid-tiles :is(h3, .dish-price) {
+    font-size: 1rem;
+  }
+
+  .theme-l-adresse .dish-grid-tiles .dish-action {
+    margin-top: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-l-adresse .dish-grid-tiles :is(h3, .dish-price) {
+    font-size: 1.25rem;
+  }
+}
+
+/* ---- Formules : la page « Menu » de la carte ------------------------- */
+
+.theme-l-adresse .formule-tile {
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  align-items: center;
+  border-radius: 0.5rem;
+  border-color: rgba(216, 173, 104, 0.3);
+  background-image: radial-gradient(
+    ellipse 90% 70% at 50% 0%,
+    rgba(223, 176, 106, 0.16),
+    transparent 70%
+  );
+  background-color: #262a32;
+  padding: 2.25rem 2rem 2rem;
+  text-align: center;
+}
+
+.theme-l-adresse .formule-tile:only-child {
+  grid-column: 1 / -1;
+}
+
+.theme-l-adresse .formule-tile::after {
+  --coin: 3.5rem;
+  inset: 0.45rem;
+}
+
+.theme-l-adresse .formule-glow {
+  display: none;
+}
+
+.theme-l-adresse .formule-name {
+  color: var(--ember-1);
+}
+
+/* « Entrée, plat, dessert » sous le nom, en italique : les étapes le disent
+   déjà en titres. */
+.theme-l-adresse .formule-description {
+  margin-top: -0.25rem;
+  font-size: 0.9375rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Comme la page « Menu » de la carte : le titre de chaque étape souligné
+   d'un filet, puis un plat par ligne, « ou » estompé devant les suivants. */
+.theme-l-adresse .formule-etapes {
+  align-items: center;
+  gap: 1.1rem;
+  font-size: 1rem;
+  color: var(--foreground);
+}
+
+.theme-l-adresse .formule-etape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.theme-l-adresse .formule-etape-nom {
+  margin-bottom: 0.3rem;
+  padding: 0 0.35rem 0.15rem;
+  border-bottom: 1px solid var(--adresse-filet);
+  font-size: 1.125rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+}
+
+/* Le « : » reste dans le texte lu, pas à l'écran. */
+.theme-l-adresse .formule-deux-points {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.theme-l-adresse .formule-article {
+  display: block;
+  text-wrap: balance;
+}
+
+.theme-l-adresse .formule-ou {
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .theme-l-adresse .formule-name {
+    font-size: 3rem;
+  }
+}
+
+/* En bureau, les étapes côte à côte, comme les colonnes d'un menu ; plus
+   étroites, en tablette, elles coupaient un plat sur trois. */
+@media (min-width: 1024px) {
+  .theme-l-adresse .formule-tile {
+    max-width: none;
+    padding: 2.75rem 3rem 2.5rem;
+  }
+
+  .theme-l-adresse .formule-etapes {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: start;
+    align-self: stretch;
+    column-gap: 2rem;
+    font-size: 1.0625rem;
+  }
+}
+
+/* Le prix et « Composer » passent l'un sous l'autre s'ils ne tiennent pas
+   côte à côte (320 px). */
+.theme-l-adresse .formule-foot {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1rem;
+}
+
+.theme-l-adresse .formule-action {
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding-inline: 1.25rem;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px rgba(223, 176, 106, 0.7);
+  color: var(--ember-1);
+  font-size: 0.875rem;
+  transition:
+    background-color 0.25s,
+    color 0.25s;
+}
+
+/* Survolée ou atteinte au clavier, l'offre le reste : bord doré et
+   « Composer » plein, comme les boutons des plats. */
+.theme-l-adresse .formule-tile:focus-visible .formule-action {
+  background-color: var(--ember-2);
+  color: #24272f;
+}
+
+@media (hover: hover) {
+  .theme-l-adresse .formule-tile:hover {
+    border-color: rgba(223, 176, 106, 0.65);
+  }
+
+  .theme-l-adresse .formule-tile:hover .formule-action {
+    background-color: var(--ember-2);
+    color: #24272f;
+  }
+}
+
+/* Le reflet de la dorure passe sur la formule au survol. */
+.theme-l-adresse .formule-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 240, 205, 0.13) 50%,
+    transparent
+  );
+  translate: -120% 0;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .theme-l-adresse .formule-tile::before {
+    transition: translate 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .theme-l-adresse .formule-tile:hover::before {
+    translate: 260% 0;
+  }
+}
+
+/* ---- Feuilles et panier ---------------------------------------------- */
+
+/* Un filet d'or au haut de chaque feuille : la même main que la page. */
+.theme-l-adresse [role="dialog"] {
+  border-color: rgba(216, 173, 104, 0.3);
+  background-image: linear-gradient(90deg, transparent, var(--ember-2), transparent);
+  background-size: 70% 1px;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.theme-l-adresse .choice-row.is-checked {
+  border-color: var(--ember-2);
+  background-color: rgba(223, 176, 106, 0.1);
+}
+
+/* ---- Pied de page : le filigrane et le logo -------------------------- */
+
+/* > footer : les feuilles de paiement, rendues dans la racine, ont aussi
+   leur <footer>. */
+.theme-l-adresse > footer {
+  position: relative;
+  border-top: 0;
+  background-color: #1e2128;
+}
+
+/* Le filet du haut s'interrompt sous le filigrane. */
+.theme-l-adresse > footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(216, 173, 104, 0.45) 12%,
+    rgba(216, 173, 104, 0.45) calc(50% - 8.25rem),
+    transparent calc(50% - 7.75rem),
+    transparent calc(50% + 7.75rem),
+    rgba(216, 173, 104, 0.45) calc(50% + 8.25rem),
+    rgba(216, 173, 104, 0.45) 88%,
+    transparent
+  );
+}
+
+.theme-l-adresse > footer::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 15rem;
+  height: 2.5rem;
+  translate: -50% -50%;
+  background: url("/l-adresse/ornement.svg") center / contain no-repeat;
+}
+
+/* L'adresse sur une ligne en bureau. */
+.theme-l-adresse .footer-address {
+  max-width: 28rem;
+}
+
+/* ---- Mouvement lié au défilement ------------------------------------- */
+
+/*
+  Les sections ne se cachent jamais en attendant le JavaScript (voir
+  MenuSection) : ces entrées sont des animations CSS liées au défilement, et
+  aucune ne touche à l'opacité — une capture pleine page ou une impression,
+  qui voient la page sans la faire défiler, montraient sinon des cartes
+  transparentes. Sans prise en charge, ou en mouvement réduit, rien ne bouge.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .theme-l-adresse .dish-grid > article,
+    .theme-l-adresse .formule-tile {
+      animation: adresse-carte linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    /* Les lignes d'une liste encadrée restent dans leur cadre. */
+    .theme-l-adresse .dish-grid:not(:has(.dish-photo)) > article {
+      animation: none;
+    }
+
+    .theme-l-adresse .dish-photo img {
+      animation: adresse-photo linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+
+    .theme-l-adresse .dish-grid > article::before {
+      animation: adresse-filet linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 40%;
+    }
+
+    .theme-l-adresse .category-heading::before {
+      background-size: 180% 100%;
+      animation: adresse-barre linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    .theme-l-adresse .category-heading::after {
+      animation: adresse-eclat linear both;
+      animation-timeline: view();
+      animation-range: entry 60% cover 45%;
+    }
+
+    /* On quitte la couverture : le nom et son ruban s'élèvent ensemble
+       (même distance, en rem) plus vite que la page, la rosace s'ouvre. La
+       page en haut, rien ne bouge : inset 0, sinon la marge de défilement
+       de la page (--nav-band) comptait la couverture comme déjà sortante. */
+    .theme-l-adresse > header {
+      view-timeline-name: --adresse-couverture;
+      view-timeline-inset: 0;
+    }
+
+    .theme-l-adresse :is(.hero-logo, .hero-lockup) {
+      animation: adresse-envol linear both;
+      animation-timeline: --adresse-couverture;
+      animation-range: exit 0% exit 100%;
+    }
+
+    .theme-l-adresse > header::after {
+      animation:
+        adresse-rosace-entree 1.6s cubic-bezier(0.22, 1, 0.36, 1) both,
+        adresse-rosace-ouverture linear both;
+      animation-timeline: auto, --adresse-couverture;
+      animation-range: normal, exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes adresse-carte {
+  from {
+    translate: 0 1.75rem;
+  }
+}
+
+@keyframes adresse-photo {
+  from {
+    transform: scale(1.14);
+  }
+}
+
+@keyframes adresse-filet {
+  from {
+    scale: 0 1;
+  }
+}
+
+/* La lumière glisse sur la dorure au fil du défilement. */
+@keyframes adresse-barre {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes adresse-eclat {
+  from {
+    translate: -110% 0;
+  }
+  to {
+    translate: 260% 0;
+  }
+}
+
+@keyframes adresse-envol {
+  to {
+    translate: 0 -6rem;
+  }
+}
+
+/* transform, pas scale : l'entrée de la rosace anime déjà scale. */
+@keyframes adresse-rosace-ouverture {
+  to {
+    transform: scale(1.35) rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-l-adresse > header::before,
+  .theme-l-adresse > header::after,
+  .theme-l-adresse .hero-logo img,
+  .theme-l-adresse .hero-logo h1::after,
+  .theme-l-adresse .hero-tagline,
+  .theme-l-adresse .hero-rule,
+  .theme-l-adresse .menu-highlights::after {
+    animation: none;
+  }
 }
 
 /*
@@ -2076,13 +3432,15 @@ html:has(.ticket-dock) {
 }
 
 /* Cibles de focus sans geste (le haut de la page, le titre d'une section, la
-   carte d'un plat, le pied de page, rendus focalisables par Sheet) : ce ne
-   sont pas des contrôles. Au clavier, un anneau discret dit où l'on reprend. */
+   carte d'un plat, le pied de page, rendus focalisables par Sheet ou par
+   SectionLink) : ce ne sont pas des contrôles. Au clavier, un anneau discret
+   dit où l'on reprend ; pas après un toucher (data-pointer-focus) — Safari
+   tient pour visible un focus posé par script. */
 [data-menu-root] :is(header, h1, main, main h2, main article, footer)[tabindex="-1"]:focus {
   outline: none;
 }
 
-[data-menu-root] :is(header, h1, main, main h2, main article, footer)[tabindex="-1"]:focus-visible {
+[data-menu-root] :is(header, h1, main, main h2, main article, footer)[tabindex="-1"]:not([data-pointer-focus]):focus-visible {
   outline: 2px solid color-mix(in srgb, var(--ember-1) 60%, transparent);
   outline-offset: 2px;
 }
@@ -2750,16 +4108,27 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   numéro. Posé en haut, là où se poserait une feuille de pleine hauteur
   (--sheet-max, plus haute sur un écran bas ; 1rem : la marge du fond,
   sm:p-4), le ticket garde son numéro en place sans hauteur réservée : il
-  s'arrête avec la commande.
+  s'arrête avec la commande. La formule de même : les questions d'un plat
+  s'ouvrent sous lui, et la feuille recentrée remontait sous le doigt.
 */
 @media (min-width: 40rem) and (not ((orientation: landscape) and (max-height: 500px))) {
-  [data-menu-root] [role="dialog"]:has(.order-ticket) {
+  [data-menu-root] [role="dialog"]:is(:has(.order-ticket), :has(.formule-sheet)) {
     align-self: flex-start;
     margin-top: max(0px, calc((100dvh - var(--sheet-max)) / 2 - 1rem));
-    /* Barre de défilement classique (Windows) : sa place reste prise, des
-       deux côtés — le numéro reste centré et ne glisse pas quand un état
-       déborde et le suivant non. */
+  }
+
+  /* Barre de défilement classique (Windows) : sa place reste prise, des
+     deux côtés — le numéro reste centré et ne glisse pas quand un état
+     déborde et le suivant non. */
+  [data-menu-root] [role="dialog"]:has(.order-ticket) {
     scrollbar-gutter: stable both-edges;
+  }
+
+  /* Une formule dont un plat ouvre des questions prend d'emblée toute sa
+     hauteur : elle grandissait à l'ouverture, et le bouton de validation
+     descendait. Sans questions, elle garde la sienne. */
+  [data-menu-root] [role="dialog"]:has(.formule-sheet[data-questions]) {
+    height: var(--sheet-max);
   }
 }
 
@@ -3909,9 +5278,18 @@ body {
   }
 }
 
+/* Le délai d'entrée posé sur un élément (heroDelay) ne passe pas à ceux
+   qu'il contient. */
+@property --hero-delay {
+  syntax: "<time>";
+  inherits: false;
+  initial-value: 0s;
+}
+
 .hero-entrance {
   opacity: 0;
   animation: hero-entrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--hero-delay);
 }
 
 @keyframes logo-breathe {
