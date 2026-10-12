@@ -2,7 +2,8 @@
  * La forme d'un pitch au siège d'une enseigne : ce que la présentation
  * (components/pitch/slides) et la page privée (components/pitch/page-sections)
  * lisent. Chaque enseigne a son module (lib/pitch/<slug>.ts), le même récit
- * à ses chiffres, sa carte et ses mots ; S nomme ses sources.
+ * à ses chiffres, sa carte et ses mots ; S nomme ses sources. Une partie
+ * facultative absente n'a ni diapositive ni section.
  */
 
 export interface Source {
@@ -76,13 +77,14 @@ export interface Pitch<S extends string = string> {
   contact: { email: string; mailto: string };
   screens: Record<ScreenId, { src: string; alt: string }>;
   sources: Record<S, Source>;
-  sourcesNote: string;
+  /** Absente : ni diapositive ni liste des sources, les pieds de diapositive et de section les citent seuls. */
+  sourcesNote?: string;
   cover: {
     eyebrow: string;
     title: { first: string; second: Accented };
     lead: string;
   };
-  promise: {
+  promise?: {
     eyebrow: string;
     slogan: readonly [string, string];
     sloganSource: string;
@@ -91,7 +93,7 @@ export interface Pitch<S extends string = string> {
     closing: string;
     sources: S[];
   };
-  walkAway: {
+  walkAway?: {
     eyebrow: string;
     quote: readonly [string, string];
     /** Qui parle : le signataire, ou la source citée mot pour mot. */
@@ -107,7 +109,7 @@ export interface Pitch<S extends string = string> {
     steps: { title: string; text: string; screen: ScreenId }[];
     note: string;
   };
-  etaNotice: { tag: string; text: string };
+  etaNotice?: { tag: string; text: string };
   /** L'estimateur IA de l'heure de retrait, en diapositive et section à part. */
   estimator?: {
     eyebrow: string;
@@ -118,6 +120,7 @@ export interface Pitch<S extends string = string> {
     verdict: string;
     points: Point[];
     screen: ScreenId;
+    sources?: S[];
   };
   /** Les chiffres mesurés chez un client Ominin : la course commande → ticket cuisine, et ce qui l'entoure. */
   fieldProof?: {
@@ -130,7 +133,7 @@ export interface Pitch<S extends string = string> {
     takeaway: string;
     sources: S[];
   };
-  forCustomers: {
+  forCustomers?: {
     eyebrow: string;
     title: readonly [string, string];
     points: { title: string; text?: string; fact: string; eta?: boolean }[];
@@ -146,7 +149,7 @@ export interface Pitch<S extends string = string> {
     caption: string;
     sources: S[];
   };
-  forRevenue: {
+  forRevenue?: {
     eyebrow: string;
     title: string;
     mechanism: string;
@@ -171,14 +174,14 @@ export interface Pitch<S extends string = string> {
     /** Le haut des panneaux dans la même capture : les recadrages de la diapositive et de la page partent de là. */
     panelsTop: number;
   };
-  deployment: {
+  deployment?: {
     eyebrow: string;
     title: Accented;
     lead: string;
     sources?: S[];
     points: (Point & { label: string })[];
   };
-  pricing: {
+  pricing?: {
     eyebrow: string;
     headline: { subscription: string; commission: string; basis: string };
     lead: string;
@@ -202,7 +205,7 @@ export interface Pitch<S extends string = string> {
     cardFees: string;
     sources: S[];
   };
-  proposal: {
+  proposal?: {
     eyebrow: string;
     title: string;
     pilot: { title: string; lead: string; points: string[] };

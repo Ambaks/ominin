@@ -1,0 +1,64 @@
+/*
+  Pitch Big Smash : le noir des frontons, le rouge de l'enseigne (#D72215,
+  celui du site et des murs) en aplats, le blanc du mot-symbole. Archivo
+  remplace Obviously, la police du site : élargie pour les titres, serrée
+  pour les grands chiffres, comme le logo.
+*/
+.pitch-big-smash {
+  --pitch-ground: #121212;
+  --pitch-surface: #1c1c1c;
+  --pitch-raised: #272727;
+  --pitch-accent: #d72215;
+  --pitch-accent-deep: #a8160b;
+  --pitch-accent-light: #ff8473;
+  /* Le rouge de l'enseigne est trop sombre pour un petit texte sur le noir :
+     éclairci, il tient 5:1. */
+  --pitch-accent-text: #ff6a57;
+  --pitch-on-accent: #ffffff;
+  --pitch-ink: #f6f6f6;
+  --pitch-muted: #c4c4c4;
+  --pitch-faint: #a2a2a2;
+  --pitch-line: rgba(246, 246, 246, 0.12);
+  --pitch-film: #0e0e0e;
+
+  /* Le nom de l'enseigne, imprimé sur le ticket, en Archivo Black. */
+  --font-pitch-wordmark: var(--font-pitch-flourish);
+}
+
+/* Les titres : Archivo grasse et un peu élargie, la carrure d'Obviously. */
+.pitch-big-smash :is(h1, h2) {
+  font-stretch: 104%;
+}
+
+/* Les grands chiffres en Big Shoulders, extra-gras. */
+.pitch-big-smash :is(.font-numeral, .pitch-ticket-number) {
+  font-weight: 800;
+}
+
+/* La touche de l'enseigne n'est pas manuscrite : capitales larges et noires,
+   blanches sur un aplat rouge penché, comme le bandeau du site. */
+.pitch-big-smash .flourish {
+  display: inline-block;
+  padding: 0.04em 0.3em 0.08em;
+  background: var(--pitch-accent);
+  color: var(--pitch-on-accent);
+  text-shadow: none;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  transform: skewX(-8deg);
+}
+
+/* Le ticket : le nom de l'enseigne en capitales grasses. */
+.pitch-big-smash .pitch-ticket-brand {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Les QR codes : modules noirs sur blanc dans un cadre rouge. Blancs sur le
+   rouge de l'accent (le texte « sur accent »), une partie des lecteurs ne les
+   décodait pas. */
+.pitch-big-smash .pitch-qr {
+  background-color: #ffffff;
+  color: var(--pitch-ground);
+  box-shadow: 0 0 0 12px var(--pitch-accent);
+}

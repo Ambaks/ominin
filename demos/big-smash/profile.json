@@ -1,0 +1,68 @@
+{
+  "$schema": "../_template/profile.schema.json",
+  "slug": "big-smash",
+  "name": "Big Smash",
+  "tagline": "Toulouse Matabiau",
+  "prospect": "Le siège du réseau Big Smash (MASTER BS, groupe NSup, Toulouse), pas un franchisé : la démo montre la carte du site sous l'adresse du premier restaurant, Toulouse Matabiau (2021). L'équipe d'Ominin connaît personnellement le dirigeant (2026-10-03). Pitch construit sur le modèle de celui d'O'Crousti Poulet : page privée, présentation, film, carte, comptoir, vue réseau.",
+  "cuisine": "Smash burgers, poulet frit maison, hot-dogs et milkshakes, halal (AVS et Achahada) · réseau en franchise, une dizaine de restaurants en France",
+  "address": "68 rue de Bayard, 31000 Toulouse",
+  "city": "Toulouse",
+  "phone": "",
+  "hours": "Lundi–jeudi 11:00–23:00, vendredi et samedi 11:00–00:30, dimanche 12:00–23:00 (site, carte « Toulouse Bayard », relevé le 2026-10-03)",
+  "website": "https://www.bigsmash.fr (carte : /la-carte ; franchise : /franchise ; click & collect : shop.bigsmash.fr)",
+  "socials": {
+    "instagram": "@bigsmashfrance (19K abonnés au 2026-10-03)",
+    "tiktok": "@bigsmashfrance (117,7K abonnés)",
+    "facebook": "https://www.facebook.com/bigsmashfrance31/ (72,6K)",
+    "snapchat": "bigsmashfrance (48,1K)",
+    "whatsapp": "",
+    "google_maps": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c (Matabiau, 4,6 ★, 2 381 avis au 2026-10-03 ; lien d'avis en bas de carte)"
+  },
+  "legal": {
+    "raison_sociale": "SMASH N SHAKE (société historique, nommée par les mentions légales) ; MASTER BS (franchiseur)",
+    "forme": "SAS, capital 1 000 € chacune",
+    "siren": "898 897 251 (SMASH N SHAKE) ; 941 471 955 (MASTER BS)",
+    "siret": "",
+    "naf": "56.10C",
+    "president": "SMASH N SHAKE : NST INDUSTRY (Selim Jaouadi et Anthony Mazzone), DG SNS MK CONCEPT (Rachid Kaïd et Fethi Mabrouka). MASTER BS : NEW SCHOOL UP (groupe NSup), DG SNS MK CONCEPT.",
+    "creation": "SMASH N SHAKE 03/05/2021 ; MASTER BS 29/01/2025",
+    "debut_activite": "01/06/2021",
+    "source": "pappers.fr, annuaire-entreprises.data.gouv.fr, bigsmash.fr/mentions-legales (2026-10-03). La presse (Snacking, 19/09/2025) nomme Rachid Kaïd et Fethi Mabrouka fondateurs de la marque (2019) ; le site présente Selim Jaouadi (« Le mot du fondateur »). Dans le pitch : « le siège de Big Smash », « groupe NSup », personne nommé fondateur."
+  },
+  "design": {
+    "primary_color": "#D72215",
+    "secondary_color": "#141414",
+    "accent_color": "#A8160B",
+    "style_notes": "Rouge #D72215 : --base--rouge de la feuille du site et fond de ses pages ; #A8160B son rouge foncé ; noir des frontons (#141414 pour l'écran). La carte reprend la page rouge du site, ses fiches blanches à 20 px de rayon avec le nom en rouge, ses boutons cerclés de noir (barre du panier), et le zigzag peint de son fond (motif-zigzag.webp, tiré de pattern-fond-bs.svg) en filigrane noir à 12 % sous le héros. Police du site : Obviously (OH no Type Co., commerciale) ; Archivo (Google Fonts, chasse variable) la remplace, élargie à 108–112 % pour les noms et la navigation, Archivo Black pour les titres de catégorie et le nom du pied de page. Le logo : le mot-symbole officiel en SVG (logo-horizontal-blanc.svg), jamais retapé. Deux étages de jetons : page rouge à texte blanc, fiches et feuilles blanches à texte noir et rouge.",
+    "interior_vibe": "Murs rouges, comptoir et carrelage blancs, signalétique ORDER / PICK UP, suspensions rouges, chaises rouges, plateaux rouges ; frontons noirs ou rouges, monogramme BIG en vitrine ; « urbain, moderne et minimaliste » (page franchise).",
+    "reference_images": [
+      "demos/big-smash/docs/logo-horizontal-blanc.svg",
+      "demos/big-smash/docs/badge-logo.svg",
+      "demos/big-smash/docs/og-image-rouge.jpg",
+      "demos/big-smash/docs/pattern-fond-bs.svg",
+      "demos/big-smash/docs/pattern-fond-bs-big.svg"
+    ]
+  },
+  "menu": {
+    "source": "bigsmash.fr/la-carte, relevée le 2026-10-03 (copie : demos/big-smash/docs/site-la-carte-2026-10-03.html). Noms et descriptions tels que publiés (espaces avant les virgules retirées). Les prix sont dans le code de la page mais masqués à l'affichage (.prix-card { display: none }) ; ils concordent avec ceux que cite Snacking (19/09/2025 : menus dès 9,90 €, combo 14,90 €). Deliveroo affiche 29 à 34 % de plus, la boutique Delicity de Montpellier entre les deux. La carte elle-même vit dans frontend/lib/menu-data.ts (const bigSmash) — ne pas la dupliquer ici. Le bloc « Nouveautés » de la page est masqué sur le site en ligne (class « carte-block none ») : ses articles propres (Menu Big Mountain, Menu Taco Smash, Taco Smash x2) ne sont pas repris ; Menu Surf & Turf, Crevettes panées et Chicken Pop-Corn x15, présents aussi dans les rubriques visibles, le sont, sans pastille « Nouveauté » (« Chicken Pop-Corn » avec le trait d'union du bloc Nouveautés et du Chicken Pop-Corn Spicy ; la rubrique Sides du site écrit « CHICKEN POP CORN X15 »). Aucune pastille « Top vente » ni « Recette maison » : la source n'en imprime pas. Rubriques : les neuf du site (Burgers, Menus burger, Combo, Hot-dogs, Menus enfant, Sides, Desserts, Desserts glacés, Boissons) deviennent six, les menus d'abord (menus burger, combo et menu enfant réunis sous « Menus », où se fait l'essentiel du ticket), les desserts glacés avec les desserts ; dans chaque rubrique, les articles sont regroupés par famille (le site les liste dans un ordre sans logique apparente : menus au poulet entre deux menus au bœuf, frites après les wraps).",
+    "categories_summary": [
+      "Menus — 14 (12 menus burger 8,90–11,90 €, Big Combo 14,90 €, Big Kids 6,90 €)",
+      "Burgers — 11 seuls, 6,90–8,90 €",
+      "Hot-dogs — 4, 3,90–4,90 €",
+      "Sides — 20, 0,40–9,90 € (frites, pops, poulet, crevettes, Little Smash, wraps, taco, grilled cheese, Big Salade, sauces)",
+      "Desserts — 7, 1,00–4,95 € (milkshakes, sundaes, Kool Dog, Grilled Nutella, Kinder Country)",
+      "Boissons — 8, 1,50–2,90 € (gamme Coca-Cola, eaux, Red Bull, Capri-Sun, thés et limonades maison)"
+    ],
+    "photos": "Toutes les photos sont les visuels produits de bigsmash.fr (WebP détourés), posées sans rognage dans un cadre 16:9 transparent (public/big-smash/), le produit centré (son ombre douce écartée du calcul) et son plus grand côté à 86 % du cadre. Les Pops cheddar bacon reprennent le visuel des Pops cheddar : le site leur donne celui des Frites cheddar bacon, qui aurait fait doublon. Le Grilled Cheese Bacon a son propre visuel sur le site, identique à l'œil à celui du Grilled Cheese.",
+    "options_a_valider": "Déduits ou repris d'ailleurs, à confirmer avec le siège : (1) suppléments en menu : accompagnements (+0,50 épicées, +1,00 cheddar, +2,00 cheddar bacon, +0,50 pops, +1,50 pops cheddar, +2,50 pops cheddar bacon) et boissons (+0,60 Volvic Juicy Fraise ou Zest Citron, +1,00 Red Bull et thés/limonades ; Coca Cola Cherry sans supplément), tirés des écarts de prix à la carte du site ; (2) Big Combo : les quatre burgers que leur carte Deliveroo y admet sans supplément (Smash Classic, Smash Spicy, Original Cheese, Big Fish) ; (3) Big Kids : desserts (Kinder Country, Pom'Potes) et boissons (Evian, Capri-Sun) de leur carte Deliveroo ; (4) Crevettes panées x5 / x10 (« 5.90 - 9.90 » sur le site, quantités de Deliveroo) ; (5) coulis et toppings du Big Sundae et du Kool Dog : ceux des visuels du site, un choix obligatoire (Deliveroo propose aussi « Sans coulis » et « Sans topping ») ; (6) « En plus » : une sauce à 0,40 € (prix de l'article SAUCES du site) ; « Retirer » : les ingrédients du burger (FAQ du site : retrait d'ingrédients possible), sans la sauce (Deliveroo propose « sans sauce »). (6 bis) Nuggets x5 : le nombre de pièces de leur carte Deliveroo et du Big Kids (« nuggets x5 »), que la fiche du site ne donne pas ; le visuel en montre davantage. (7) Boissons : le Coca Cola Sans Sucres dans les boissons des menus (visuel du site, carte Deliveroo), les goûts du Coca Cola (Original, Sans Sucres, Cherry) et les parfums de la Volvic (Juicy Fraise, Zest Citron) tirés des visuels du site ; les noms des thés et limonades (Thé Blanc Tropical, Limonade Red Cherry, Fizz Yuzu, Blue Mango Passion, Lime Watermelon) viennent de la carte Deliveroo, le site les vend en un seul article « THÉ & LIMONADE », dont le visuel imprime sur deux gobelets « BLUE TROPIC » et « PASTÈQUE CITRON VERT » : le nom en restaurant de deux d'entre elles est à confirmer."
+  },
+  "offers": [
+    "-15 % sur la première commande en ligne (bandeau du site)"
+  ],
+  "research": {
+    "date": "2026-10-03",
+    "files": "demos/big-smash/pitch/research/ : 01-network.md (réseau, sociétés, économie, technologie), 02-queue-evidence.md (avis et attente), 03-industry-stats.md (chiffres sectoriels), 04-competitors.md (outils de commande comparables), 06-brand-and-menu.md (identité, carte, photos)",
+    "stack": "Bornes en restaurant (FAQ du site, marque non publiée) ; click & collect shop.bigsmash.fr sur Teréza (écosystème 6XPos), paiement Stripe ; fidélité Avomark MaCarte ; Uber Eats et Deliveroo ; Delicity à Montpellier. Aucune commande à table ou sur place activée. 6XPos et Teréza vendent tous deux un « QR code à table »."
+  },
+  "notes": "Prospect : le siège du réseau. Démo : /menu/demo/big-smash (thème de l'enseigne), ?theme=ominin (palette Ominin), ?service=fast-food (commande au comptoir et ticket numéroté) ; comptoir : /menu/demo/big-smash/comptoir ; vue réseau : /menu/demo/big-smash/reseau. Questions pour le siège : (1) Prix : la carte du site masque ses prix ; sont-ils ceux des restaurants (Menu Big Cheese et Menu Grilled Smash à 8,90 €, moins que le Menu Smash Classic à 9,90 €, semblent anciens) ? Quelle grille montrer ? (2) Suppléments en menu (accompagnements, boissons), supplément steak, cheddar, option veggie (« steak veggie » ou « poulet veggie », FAQ) : leurs prix en restaurant. (3) Big Combo : quels burgers, quels suppléments ? (4) Big Kids : desserts et boissons au choix. (5) Le site décrit le Menu Smash Spicy avec un « filet de poulet pané maison » : la démo reprend la description du burger Smash Spicy (steak haché smashé). (6) Nouveautés : la gamme Big Italy (Deliveroo, août 2026) n'est pas sur le site ; l'ajouter ? (7) Matériel : marque de la caisse, des bornes et des imprimantes de cuisine ; écrans de cuisine (KDS) ? (8) Restaurants : Tanger et Grenoble (cités par d'anciennes pages) sont-ils fermés ? Dates d'ouverture : la vue réseau prend les inaugurations publiées (Blagnac 19/09/2026 et Paris 18 26/09/2026 sur les réseaux de l'enseigne, Fenouillet fin juin, Lyon en août), Muret vers avril 2026 d'après un avis, Échirolles estimée ; Blagnac (KING'SMASH depuis 2022, BIGGER COMPANY créée le 28/01/2026) et Fenouillet (ouverture discrète le 07/02/2026) servaient-ils avant leur inauguration ? Échirolles ouvre-t-il vraiment à 14 h le vendredi (horaire du site) ? (9) Téléphone de Matabiau : aucun n'est publié ; la démo n'en affiche pas. (10) Visuels : le Big Combo montre un burger au poulet et un double steak, que la liste provisoire du combo n'offre pas ; le Big Kids montre un Kinder Pingui et un grilled cheese (le site annonce cheeseburger ou nuggets x5). (11) Le Big Smash Burger (2 steaks) est au prix des burgers à un steak (6,90 €) sur le site : à confirmer. (12) Le site décrit le Menu Original Cheese sans les cornichons du burger Original Cheese, et le Menu Big Fish sans la salade iceberg du burger Big Fish : la démo reprend ces descriptions, donc le client ne peut pas retirer ces ingrédients dans ces menus. Erreur du site ou recette différente en menu ?"
+}

@@ -1170,13 +1170,413 @@ html:has(.theme-o-crousti-poulet) body {
 }
 
 /*
+  Big Smash — bigsmash.fr et ses restaurants : la page rouge de l'enseigne
+  (#D72215, celle du site et des murs), les fiches blanches à 20 px de rayon
+  où le nom s'écrit en rouge, les boutons blancs cerclés de noir, et le
+  zigzag peint du site en filigrane du héros. Texte en Archivo (le site est
+  en Obviously, commerciale), élargie et en capitales pour les noms et les
+  titres ; le logo du site pour seul nom.
+
+  Deux étages de jetons : la page, rouge, texte blanc ; les fiches, feuilles
+  et panier, blancs, texte noir et rouge — redéfinis sur ces conteneurs, que
+  tout leur contenu hérite.
+*/
+.theme-big-smash {
+  --bs-red: #d72215;
+  --bs-red-dark: #a8160b;
+  --bs-ink: #141414;
+
+  --background: var(--bs-red);
+  --foreground: #ffffff;
+
+  --surface: #c71e12;
+  --surface-raised: var(--bs-red-dark);
+  --hairline: rgba(255, 255, 255, 0.28);
+
+  /* Blanc : le rose pâle ne tenait que 4,6:1 sur le rouge. */
+  --muted: #ffffff;
+  --faint: #ffffff;
+
+  /* Sur la page, l'accent est le blanc : boutons blancs, texte rouge. */
+  --ember-1: #ffffff;
+  --ember-2: #ffffff;
+  --ember-3: #ffffff;
+
+  --shimmer-highlight: rgba(255, 255, 255, 0.18);
+  --glow-inner: rgba(255, 255, 255, 0.08);
+  --glow-outer: rgba(0, 0, 0, 0.06);
+  /* Le rouge du site est un aplat : pas de lueur derrière le logo. */
+  --hero-glow-1: transparent;
+  --hero-glow-2: transparent;
+  --hero-glow-3: transparent;
+
+  --brand-display: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  /* Le zigzag du site en ton sur ton, à 7,5 % de noir, sur toute la page. */
+  background-image: url("/big-smash/motif-zigzag-fond.webp");
+  background-size: 1600px auto;
+
+  color-scheme: light;
+}
+
+/* Les fiches, les feuilles (options, panier, ticket) et la barre du panier :
+   le blanc des cartes du site, le nom en rouge, les boutons rouges. */
+.theme-big-smash :is(article, [role="dialog"]) {
+  --background: #ffffff;
+  --foreground: var(--bs-ink);
+  --surface: #ffffff;
+  --surface-raised: #f3f3f4;
+  --hairline: rgba(20, 20, 20, 0.12);
+  --muted: #4d4d55;
+  --faint: #5e5e66;
+  --ember-1: var(--bs-red);
+  --ember-2: var(--bs-red);
+  --ember-3: var(--bs-red-dark);
+  --shimmer-highlight: rgba(215, 34, 21, 0.08);
+  /* La couleur héritée est déjà calculée (le blanc de la page) : la reposer. */
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+.theme-big-smash :focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.theme-big-smash :is(article, [role="dialog"]) :focus-visible {
+  outline-color: var(--bs-ink);
+}
+
+/* Aplats : ni dégradé ni braise, le rouge et le blanc du site. */
+.theme-big-smash .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-2);
+}
+
+.theme-big-smash .ember-text {
+  background-image: none;
+  color: var(--ember-2);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Rebond au-dessus ou au-dessous de la page : le rouge, pas le fond d'Ominin. */
+html:has(.theme-big-smash),
+html:has(.theme-big-smash) body {
+  background-color: #d72215;
+}
+
+/* Les visuels du site, détourés, comme sur sa carte : dans un cadre gris
+   clair arrondi, en retrait du bord de la fiche, un sol plus soutenu sous le
+   produit ; ni fondu ni rognage (vignettes des boissons comprises). Mêmes
+   règles de photo sur la version Ominin. */
+.theme-big-smash .dish-photo {
+  margin: 0.75rem 0.75rem 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, #f6f6f7 58%, #e6e6e8);
+}
+
+div[data-menu-root][data-slug="big-smash"] .dish-photo-fade {
+  display: none;
+}
+
+div[data-menu-root][data-slug="big-smash"] .dish-grid-tiles .dish-photo img {
+  object-fit: contain;
+}
+
+/* Les boutons au pied de chaque fiche : dans une rangée de deux, ils
+   s'alignaient au gré de la longueur des descriptions. */
+div[data-menu-root][data-slug="big-smash"] .dish-grid > article {
+  display: flex;
+  flex-direction: column;
+}
+
+div[data-menu-root][data-slug="big-smash"] .dish-body {
+  flex: 1;
+}
+
+div[data-menu-root][data-slug="big-smash"] .dish-action {
+  margin-top: auto;
+}
+
+/*
+  Les boissons, quatre de front dès la tablette : huit en deux rangées
+  pleines, des canettes à leur taille. Les rangées incomplètes restent à
+  gauche, comme sur la carte du site (pas de centrage des vignettes).
+*/
+@media (min-width: 768px) {
+  .theme-big-smash .dish-grid-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .theme-big-smash .dish-grid-tiles {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  /* Le centrage commun des rangées de trois ne vaut pas sur quatre colonnes : défait pour l'avant-dernière comme pour la dernière. */
+  .theme-big-smash .dish-grid-tiles > article:is(:nth-last-child(2), :last-child):nth-child(3n + 1) {
+    grid-column: span 2;
+  }
+}
+
+/* Trois fiches par rangée en grand écran, comme la carte du site. */
+@media (min-width: 1280px) {
+  /* Le premier enfant de la barre : le second est la jauge de défilement, pleine largeur. */
+  .theme-big-smash :is(main, nav > div:first-child, footer > div) {
+    max-width: 80rem;
+  }
+
+  .theme-big-smash .dish-grid:not(.dish-grid-tiles) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Au tiers de la largeur, 24 px cassaient vingt-six noms sur soixante-quatre. */
+  .theme-big-smash .dish-grid:not(.dish-grid-tiles) article h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* À 320 px, les noms élargis passaient sur trois lignes. */
+@media (max-width: 359px) {
+  .theme-big-smash article h3 {
+    font-stretch: 100%;
+  }
+}
+
+/* ——— Le héros : le logo blanc sur le rouge, le zigzag du site dessous ——— */
+
+.theme-big-smash :is(.ember-particle, .logo-breathe, .hero-gradient-drift) {
+  display: none;
+}
+
+.theme-big-smash > header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #000000;
+  mask: url("/big-smash/motif-zigzag.webp") center / cover no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.theme-big-smash .hero-logo {
+  margin-bottom: 1.25rem;
+}
+
+.theme-big-smash .hero-logo img {
+  width: min(84vw, 36rem);
+  height: auto;
+}
+
+.theme-big-smash .hero-tagline {
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: 0.24em;
+  font-size: 0.8125rem;
+}
+
+.theme-big-smash .hero-rule {
+  display: none;
+}
+
+/* ——— Les points forts : un bandeau noir, comme le fronton des boutiques ——— */
+
+.theme-big-smash .menu-highlights {
+  background: var(--bs-ink);
+  color: #ffffff;
+  border-color: transparent;
+  font-weight: 700;
+  font-stretch: 110%;
+  letter-spacing: 0.06em;
+}
+
+/* Les arguments sur une ligne dès la tablette : élargis, ils ne tenaient
+   plus dans la colonne de la carte. */
+.theme-big-smash .menu-highlights ul {
+  max-width: none;
+}
+
+.theme-big-smash .menu-highlights li {
+  text-wrap: balance;
+}
+
+/* ——— Navigation des catégories : pastilles blanches cerclées sur le rouge ——— */
+
+.theme-big-smash nav [data-category] {
+  font-weight: 700;
+  font-stretch: 108%;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ——— Titres de catégorie : « Burgers » en noir épais, blanc, sans filet, comme le site ——— */
+
+.theme-big-smash .category-heading {
+  font-family: var(--font-archivo-black), var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.95;
+}
+
+.theme-big-smash .category-rule {
+  display: none;
+}
+
+.theme-big-smash .category-tagline {
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ——— Les fiches : blanches, 20 px de rayon, sans liseré ——— */
+
+.theme-big-smash .dish-grid > article {
+  border-color: transparent;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 28px -14px rgba(60, 0, 0, 0.55);
+}
+
+.theme-big-smash article h3,
+.theme-big-smash [role="dialog"] h3:not(.cart-title, .order-ticket-title) {
+  color: var(--bs-red);
+  font-weight: 800;
+  font-stretch: 112%;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+}
+
+.theme-big-smash .dish-price {
+  color: var(--bs-ink);
+  font-weight: 800;
+  font-stretch: 108%;
+}
+
+.theme-big-smash .dish-detail {
+  border-color: var(--bs-red);
+  color: var(--bs-red);
+  font-weight: 700;
+}
+
+/* Les boutons : coins de 0,6 rem comme ceux du site, rouge foncé au survol
+   (son jeton de survol). */
+.theme-big-smash article .dish-action > button,
+.theme-big-smash [role="dialog"] button {
+  border-radius: 0.6rem;
+}
+
+.theme-big-smash article .dish-action > button,
+.theme-big-smash [role="dialog"] button.ember-gradient {
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .theme-big-smash :is(article, [role="dialog"]) .ember-gradient:hover:not(:disabled) {
+    background-color: var(--bs-red-dark);
+  }
+
+  /* L'ombre se creuse, sans liseré : un liseré noir signale déjà la fiche au panier. */
+  .theme-big-smash .dish-grid > article:hover {
+    box-shadow: 0 22px 40px -16px rgba(50, 0, 0, 0.75);
+  }
+}
+
+/* L'option choisie cerclée du rouge plein. */
+.theme-big-smash .choice-row.is-checked,
+.theme-big-smash .cart-foot [role="radio"][aria-checked="true"] {
+  border-color: var(--bs-red);
+}
+
+/* ——— La barre du panier : le bouton du site, blanc, cerclé de noir ——— */
+
+.theme-big-smash .cart-bar {
+  border: 0.15rem solid var(--bs-ink);
+  border-radius: 0.6rem;
+  font-weight: 700;
+  box-shadow: 0 25px 50px -12px rgba(40, 0, 0, 0.5);
+}
+
+/* La barre est blanche, sur des fiches blanches : l'anneau blanc de la page
+   ne s'y voyait pas. Un anneau noir, détaché d'un liseré blanc. */
+.theme-big-smash .cart-bar:focus-visible {
+  outline: 3px solid var(--bs-ink);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 25px 50px -12px rgba(40, 0, 0, 0.5);
+}
+
+.theme-big-smash :is(.cart-title, .cart-line-name) {
+  font-weight: 800;
+  font-stretch: 110%;
+  text-transform: uppercase;
+}
+
+/* Comme sur les fiches : le nom en rouge, le prix en noir. */
+.theme-big-smash .cart-line-name {
+  color: var(--bs-red);
+}
+
+.theme-big-smash :is(.cart-line-price, .cart-total) {
+  color: var(--bs-ink);
+  font-weight: 800;
+}
+
+/* Le ticket : le talon et les étapes franchies, rouges à plat. */
+.theme-big-smash .order-ticket-head::before,
+.theme-big-smash .order-step:is([data-state="done"], [data-state="current"]) + .order-step:is([data-state="done"], [data-state="current"])::before,
+.theme-big-smash .order-step[data-state="done"] .order-step-dot {
+  background-image: none;
+  background-color: var(--bs-red);
+}
+
+/* Sous les tickets, une bande rouge pleine : le fondu vers le rouge teintait
+   de rose les fiches blanches qui passaient dessous. */
+.theme-big-smash .ticket-dock::before {
+  height: 5rem;
+  background: var(--background);
+  box-shadow: 0 -12px 24px -20px rgba(50, 0, 0, 0.8);
+}
+
+/* ——— Le pied de page : le bas de la carte du site, le ruban de monogrammes
+   blanc incliné puis le mot-symbole en relief, sur le rouge ——— */
+
+.theme-big-smash footer {
+  position: relative;
+  border-top: 0;
+  padding-top: 4.5rem;
+  overflow-x: clip;
+  --hairline: rgba(255, 255, 255, 0.4);
+}
+
+.theme-big-smash footer::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: -5%;
+  right: -5%;
+  height: 3.5rem;
+  background: #ffffff url("/big-smash/ruban-monogramme.svg") repeat-x center / auto 100%;
+  transform: rotate(-2deg);
+}
+
+.theme-big-smash footer .footer-review {
+  border-color: #ffffff;
+  background-color: transparent;
+}
+
+/*
   Chicken Street — le jaune de l'enseigne (#FCD403) en page, comme les
   bandeaux de chickenstreet.fr ; le noir des boîtes et du fronton pour le
   héros et le bandeau d'arguments, le logo blanc et jaune dessus. Titres en
   Anton, capitales condensées et grasses à la place de WoodHeinz (police du
   site, licence inconnue) ; texte en Archivo.
 
-  Deux étages de jetons : la page, jaune, texte noir ; les
+  Deux étages de jetons, comme Big Smash : la page, jaune, texte noir ; les
   fiches, feuilles et panier, blancs, boutons noirs.
 */
 .theme-chicken-street {
@@ -2944,27 +3344,27 @@ html:has(.theme-l-adresse) body {
   leur mise en page. :where() garde ces règles légères, qu'un thème affine.
   Pas de fondu sur les photos : il virait à l'olive le jaune des visuels.
 */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   > article {
   display: flex;
   flex-direction: column;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-photo {
   aspect-ratio: 4 / 3;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-body {
   flex: 1;
@@ -2972,13 +3372,13 @@ html:has(.theme-l-adresse) body {
   padding: 0.75rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-photo-fade {
   display: none;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-head {
   flex: 1;
@@ -2987,14 +3387,14 @@ html:has(.theme-l-adresse) body {
   gap: 0.35rem;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   h3 {
   font-size: 1.05rem;
   line-height: 1.2;
 }
 
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-action
   > button {
@@ -3002,7 +3402,7 @@ html:has(.theme-l-adresse) body {
 }
 
 @media (max-width: 359px) {
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     h3 {
     font-size: 0.85rem;
@@ -3012,37 +3412,37 @@ html:has(.theme-l-adresse) body {
 @media (min-width: 1024px) {
   /* Six colonnes, deux par vignette : la dernière rangée incomplète se
      centre au lieu de laisser un trou à droite. */
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles {
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1.25rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     > article {
     grid-column: span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     > article:nth-last-child(2):nth-child(3n + 1) {
     grid-column: 2 / span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     > article:last-child:nth-child(3n + 1) {
     grid-column: 3 / span 2;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     .dish-body {
     padding: 1rem 1.1rem 1.1rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     h3 {
     font-size: 1.2rem;
@@ -3072,7 +3472,7 @@ html:has(.theme-l-adresse) body {
 
 /* Les boutons des vignettes tiennent sur une ligne, même étroits
    (paysage, 320 px) : le « + » ne part plus seul à la ligne. */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-action
   > button {
@@ -3083,7 +3483,7 @@ html:has(.theme-l-adresse) body {
 /* Deux colonnes, un nombre impair de vignettes : la dernière se centre au
    lieu de rester seule à gauche. */
 @media (max-width: 1023px) {
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles
     > article:last-child:nth-child(odd) {
     grid-column: 1 / -1;
@@ -3156,7 +3556,7 @@ html:has(.theme-l-adresse) body {
 
 /* Dans une rangée de vignettes, les prix s'alignent en bas quand un nom
    voisin passe sur deux lignes. */
-:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+:where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
   .dish-grid-tiles
   .dish-head {
   justify-content: space-between;
@@ -3219,13 +3619,13 @@ html:has(.ticket-dock) {
 */
 @media (max-width: 639px) {
   /* Le héros au logo seulement : une photo de couverture garde sa hauteur. */
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     > header:has(.hero-lockup) {
     min-height: 0;
     padding-bottom: 2.5rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
@@ -3263,17 +3663,17 @@ html:has(.ticket-dock) {
     position: static;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     > header:has(.hero-lockup) {
     min-height: 0;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     .dish-grid-tiles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -3305,7 +3705,7 @@ html:has(.ticket-dock) {
     --ocp-name: min(9vw, 15svh);
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-big-smash, .theme-chicken-street)
     > header:has(.hero-lockup) {
     padding-block: 1.5rem;
   }

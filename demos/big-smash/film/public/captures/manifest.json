@@ -1,0 +1,351 @@
+{
+  "counter": {
+    "viewport": {
+      "width": 1180,
+      "height": 820
+    },
+    "before": "captures/tablet-counter.webp",
+    "after": "captures/tablet-counter-ready.webp",
+    "tap": {
+      "x": 61,
+      "y": 383,
+      "width": 314,
+      "height": 44
+    },
+    "header": {
+      "x": 41,
+      "y": 78,
+      "width": 354,
+      "height": 108
+    }
+  },
+  "network": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "states": [
+      "captures/desktop-network-1246.webp",
+      "captures/desktop-network-1246-n39.webp"
+    ],
+    "tiles": {
+      "orders": {
+        "x": 24,
+        "y": 134.5625,
+        "width": 456,
+        "height": 201.5
+      },
+      "ready": {
+        "x": 496,
+        "y": 134.5625,
+        "width": 456,
+        "height": 201.5
+      },
+      "sales": {
+        "x": 968,
+        "y": 134.5625,
+        "width": 456,
+        "height": 201.5
+      },
+      "feed": {
+        "x": 968,
+        "y": 352.0625,
+        "width": 456,
+        "height": 703.9375
+      },
+      "ranking": {
+        "x": 1440,
+        "y": 352.0625,
+        "width": 456,
+        "height": 703.9375
+      }
+    },
+    "compare": {
+      "x": 517,
+      "y": 300.0625,
+      "width": 329.6875,
+      "height": 18
+    },
+    "home": {
+      "before": {
+        "x": 1441,
+        "y": 818.25,
+        "width": 454,
+        "height": 59.1875
+      },
+      "after": {
+        "x": 1441,
+        "y": 759.0625,
+        "width": 454,
+        "height": 59.1875
+      },
+      "rank": 1481
+    },
+    "fresh": {
+      "x": 969,
+      "y": 414.0625,
+      "width": 454,
+      "height": 71.3125
+    },
+    "surface": "rgb(26, 27, 30)",
+    "paidOnline": "525",
+    "share": "30 %"
+  },
+  "phone": {
+    "viewport": {
+      "width": 393,
+      "height": 798
+    },
+    "orderNumber": 39,
+    "total": "19,65 €",
+    "order": {
+      "at": "12:45",
+      "items": [
+        {
+          "category": "Menus",
+          "name": "Menu Smash Bacon",
+          "options": [
+            {
+              "group": "Accompagnement",
+              "choice": "Frites cheddar bacon"
+            },
+            {
+              "group": "Boisson",
+              "choice": "Thé Blanc Tropical"
+            },
+            {
+              "group": "Retirer",
+              "choice": "Sans tomate"
+            },
+            {
+              "group": "En plus",
+              "choice": "Sauce Big Smash"
+            },
+            {
+              "group": "En plus",
+              "choice": "Sauce Spicy"
+            }
+          ]
+        },
+        {
+          "category": "Desserts",
+          "name": "Milkshake Pistache Macadamia",
+          "options": []
+        }
+      ]
+    },
+    "menu": {
+      "src": "captures/phone-menu.webp",
+      "height": 1847,
+      "scrollTo": 1049,
+      "composerTap": {
+        "x": 246.28125,
+        "y": 539.25,
+        "width": 109.71875,
+        "height": 44
+      },
+      "categoryBar": {
+        "x": 0,
+        "y": 283.625,
+        "width": 393,
+        "height": 59
+      }
+    },
+    "composer": {
+      "sheetTop": 95.765625,
+      "states": [
+        {
+          "screen": "captures/phone-duo-0.webp",
+          "content": "captures/phone-duo-0-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 187.765625,
+            "width": 391,
+            "height": 532.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 204,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 216.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-1.webp",
+          "content": "captures/phone-duo-1-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 0,
+          "body": {
+            "x": 1,
+            "y": 187.765625,
+            "width": 391,
+            "height": 532.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 872,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 884.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-2.webp",
+          "content": "captures/phone-duo-2-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 628,
+          "body": {
+            "x": 1,
+            "y": 187.765625,
+            "width": 391,
+            "height": 532.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 1228,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 1240.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-3.webp",
+          "content": "captures/phone-duo-3-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 984,
+          "body": {
+            "x": 1,
+            "y": 187.765625,
+            "width": 391,
+            "height": 532.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 1428,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 1440.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-4.webp",
+          "content": "captures/phone-duo-4-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 984,
+          "body": {
+            "x": 1,
+            "y": 203.765625,
+            "width": 391,
+            "height": 516.234375
+          },
+          "tap": {
+            "x": 25,
+            "y": 1480,
+            "width": 343,
+            "height": 44
+          },
+          "radio": {
+            "x": 42,
+            "y": 1492.796875,
+            "width": 18.390625,
+            "height": 18.390625
+          }
+        },
+        {
+          "screen": "captures/phone-duo-5.webp",
+          "content": "captures/phone-duo-5-body.webp",
+          "contentHeight": 1652,
+          "scrollTop": 1008,
+          "body": {
+            "x": 1,
+            "y": 203.765625,
+            "width": 391,
+            "height": 516.234375
+          }
+        }
+      ],
+      "addTap": {
+        "x": 106.265625,
+        "y": 737,
+        "width": 269.734375,
+        "height": 44
+      }
+    },
+    "added": {
+      "duo": "captures/phone-added-duo.webp",
+      "dessert": {
+        "src": "captures/phone-dessert.webp",
+        "scrollTo": 19583,
+        "tap": {
+          "x": 255.15625,
+          "y": 510.203125,
+          "width": 100.84375,
+          "height": 44
+        },
+        "price": "4,95 €"
+      },
+      "src": "captures/phone-added.webp",
+      "cartTap": {
+        "x": 16,
+        "y": 726,
+        "width": 361,
+        "height": 56
+      }
+    },
+    "cart": {
+      "src": "captures/phone-cart.webp",
+      "sheetTop": 204.5,
+      "payTap": {
+        "x": 21,
+        "y": 681,
+        "width": 351,
+        "height": 44
+      }
+    },
+    "ticket": {
+      "sheetTop": 47.890625,
+      "etaBox": {
+        "x": 46,
+        "y": 404.890625,
+        "width": 301,
+        "height": 109.5
+      },
+      "numberBox": {
+        "x": 151.046875,
+        "y": 133.390625,
+        "width": 124.109375,
+        "height": 112
+      },
+      "eta": {
+        "3": "captures/phone-ticket-3.webp",
+        "4": "captures/phone-ticket-4.webp",
+        "5": "captures/phone-ticket-5.webp",
+        "6": "captures/phone-ticket-6.webp"
+      },
+      "ready": "captures/phone-ticket-ready.webp"
+    }
+  }
+}

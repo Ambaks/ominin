@@ -1810,6 +1810,542 @@ const oCroustiPoulet: Restaurant = {
 };
 
 /*
+ * Big Smash — prospect : le siège du réseau (smash burgers et poulet frit
+ * halal, une dizaine de restaurants en France, groupe NSup, Toulouse). Carte
+ * transcrite de bigsmash.fr/la-carte (noms et descriptions tels que publiés ;
+ * prix présents dans la page mais masqués à l'affichage, cohérents avec ceux
+ * cités par Snacking en 2025 : menus dès 9,90 €, Big Combo 14,90 €) ; photos :
+ * les visuels produits du même site, détourés et posés en 16:9 dans
+ * public/big-smash/. Établissement affiché : Toulouse Matabiau, le premier
+ * restaurant (2021). Suppléments déduits, questions au siège :
+ * demos/big-smash/profile.json.
+ */
+
+/*
+ * Accompagnement d'un menu : la liste des fiches menus du site. Le site ne
+ * publie pas le supplément en menu ; ceux-ci reprennent l'écart de prix à la
+ * carte avec les frites nature (3 €) — à confirmer avec le siège.
+ */
+const BS_ACCOMPAGNEMENTS = [
+  ["Frites nature", 0],
+  ["Frites épicées", 0.5],
+  ["Frites cheddar", 1],
+  ["Frites cheddar bacon", 2],
+  ["Pops nature", 0.5],
+  ["Pops cheddar", 1.5],
+  ["Pops cheddar bacon", 2.5],
+] as const;
+
+/* Les thés et limonades : le site les vend en un seul article, « THÉ &
+   LIMONADE » ; leurs noms viennent de la carte Deliveroo de l'enseigne. */
+const BS_THES_LIMONADES = [
+  "Thé Blanc Tropical",
+  "Limonade Red Cherry",
+  "Limonade Fizz Yuzu",
+  "Limonade Blue Mango Passion",
+  "Limonade Lime Watermelon",
+];
+
+/*
+ * Boisson d'un menu : la liste des fiches menus du site (gamme Coca-Cola, pas
+ * de Pepsi), plus le Coca Cola Sans Sucres que montre son visuel et que vend
+ * sa carte Deliveroo, le Cherry et les parfums de Volvic de la carte (leur
+ * visuel). Même règle que les accompagnements : l'écart de prix à la carte
+ * avec le Coca Cola (1,90 €), à confirmer.
+ */
+const BS_BOISSONS = [
+  ["Coca Cola", 0],
+  ["Coca Cola Sans Sucres", 0],
+  ["Coca Cola Cherry", 0],
+  ["Badoit", 0],
+  ["Evian", 0],
+  ["Volvic Juicy Fraise", 0.6],
+  ["Volvic Zest Citron", 0.6],
+  ["Red Bull", 1],
+  ...BS_THES_LIMONADES.map((nom) => [nom, 1] as const),
+] as const;
+
+/* Les sauces maison du site (« SAUCES 0.40 € »). */
+const BS_SAUCES = ["Big Smash", "Spicy", "Ranch", "Miel-Moutarde"];
+/* Le site ne dit pas quels burgers le combo admet ni à quel prix : les
+   quatre que leur carte Deliveroo y inclut sans supplément. */
+const BS_COMBO_BURGERS = ["Smash Classic", "Smash Spicy", "Original Cheese", "Big Fish"];
+
+const bsAccompagnement = groupeChoix("accompagnement", "Accompagnement", BS_ACCOMPAGNEMENTS, { obligatoire: true });
+const bsBoisson = groupeChoix("boisson", "Boisson", BS_BOISSONS, { obligatoire: true });
+/* « Sauce Big Smash » au panier : « Big Smash (+0,40 €) » se lisait comme un
+   burger. Les noms de groupe se lisent aussi au comptoir, devant le choix :
+   « En plus : Sauce Big Smash », « Retirer : Sans tomate ». */
+const bsSauceEnPlus = groupeChoix("sauce", "En plus", BS_SAUCES, { multiple: true, supplement: 0.4, prefixe: "Sauce " });
+
+/* « Nous ne changeons pas les recettes de nos burgers, mais nous pouvons
+   retirer les ingrédients de votre choix » (FAQ du site). L'option veggie
+   (« steak veggie » ou « poulet veggie », même FAQ) n'est pas proposée :
+   son prix n'est pas publié (profile.json, question 2). */
+const bsRetirer = (...ingredients: string[]) =>
+  groupeChoix("retirer", "Retirer", ingredients, { multiple: true, prefixe: "Sans " });
+
+/** Un menu : son burger, frites ou pops, boisson, puis ce que le client retire ou ajoute. */
+const bsMenu = (item: Omit<MenuItem, "options">, retirer: string[]): MenuItem => ({
+  ...item,
+  options: [bsAccompagnement, bsBoisson, bsRetirer(...retirer), bsSauceEnPlus],
+});
+
+/** Un burger seul : ce que le client retire ou ajoute. */
+const bsBurger = (item: Omit<MenuItem, "options">, retirer: string[]): MenuItem => ({
+  ...item,
+  options: [bsRetirer(...retirer), bsSauceEnPlus],
+});
+
+/* Coulis et toppings du Big Sundae et du Kool Dog (visuels du site). */
+const bsCoulis = groupeChoix("coulis", "Coulis", ["Speculoos", "Caramel", "Fraise", "Nutella"], { obligatoire: true });
+const bsTopping = groupeChoix("topping", "Topping", ["Speculoos", "Oreo", "Daim"], { obligatoire: true });
+
+const bigSmash: Restaurant = {
+  slug: "big-smash",
+  name: "Big Smash",
+  tagline: "Toulouse Matabiau",
+  logo: "/big-smash/logo.svg",
+  whiteLogo: true,
+  logoIsName: true,
+  // Le mot-symbole en relief, blanc et rouge : l'image de partage du site et le bas de sa carte.
+  footerLogo: "/big-smash/logo-relief.svg",
+  icons: { tab: "/big-smash/favicon.png", homeScreen: "/big-smash/icon.png" },
+  themeColor: "#d72215",
+  allergensUrl: "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/681916480339e273bbeb0584_TABLEAU%20ALLERGE%CC%80NES.pdf",
+  address: "68 rue de Bayard, 31000 Toulouse",
+  phone: "",
+  // Ni coupure dans une plage (« dim 12h– / 23h ») ni « · » en début de ligne.
+  hours: "Lun–\u2060jeu\u00a011h–\u206023h\u00a0· ven–\u2060sam\u00a011h–\u20600h30\u00a0· dim\u00a012h–\u206023h",
+  // « toutes nos viandes sont certifiées AVS et Achahada » (FAQ) ; « fried chicken maison » (accueil).
+  highlights: ["Viandes certifiées halal", "Fried chicken maison"],
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+  estimatorLive: true,
+  categories: [
+    {
+      id: "menus",
+      name: "Menus",
+      tagline: "Servis avec frites et boisson",
+      items: [
+        bsMenu(
+          {
+            id: "menu-smash-classic",
+            name: "Menu Smash Classic",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-smash-classic.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsMenu(
+          {
+            // Le site décrit ce menu avec un filet de poulet : la description du burger Smash Spicy (profile.json, question 5).
+            id: "menu-smash-spicy",
+            name: "Menu Smash Spicy",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, jalapenos et sauce Spicy servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-smash-spicy.webp",
+          },
+          ["salade", "tomate", "cheddar", "jalapenos"]
+        ),
+        bsMenu(
+          {
+            id: "menu-smash-bacon",
+            name: "Menu Smash Bacon",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash servi avec frites et boisson.",
+            price: 10.9,
+            image: "/big-smash/menu-smash-bacon.webp",
+          },
+          ["salade", "tomate", "cheddar", "bacon"]
+        ),
+        bsMenu(
+          {
+            id: "menu-original-cheese",
+            name: "Menu Original Cheese",
+            description: "Potato bun, steak haché smashé, oignons frais, double cheddar, sauce ketchup et moutarde US servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-original-cheese.webp",
+          },
+          ["oignons", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-smash",
+            name: "Menu Big Smash",
+            description: "Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-big-smash.webp",
+          },
+          ["pickles", "salade", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-cheese",
+            name: "Menu Big Cheese",
+            description: "Potato bun, double steak haché smashé, oignons frais, pickles, salade, double cheddar et sauce Big Smash servi avec frites et boisson.",
+            price: 8.9,
+            image: "/big-smash/menu-big-cheese.webp",
+          },
+          ["oignons", "pickles", "salade", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-grilled-smash",
+            name: "Menu Grilled Smash",
+            description: "Butter bread toasté, steak haché smashé, cheddar, oignons confit et sauce Big Smash servi avec frites et boisson.",
+            price: 8.9,
+            image: "/big-smash/menu-grilled-smash.webp",
+          },
+          ["cheddar", "oignons confits"]
+        ),
+        bsMenu(
+          {
+            id: "menu-surf-turf",
+            name: "Menu Surf & Turf",
+            description: "Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety servi avec frites et boisson.",
+            price: 11.9,
+            image: "/big-smash/menu-surf-turf.webp",
+          },
+          ["cheddar", "sésame"]
+        ),
+        bsMenu(
+          {
+            id: "menu-original-chicken",
+            name: "Menu Original Chicken",
+            description: "Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-original-chicken.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-chicken",
+            name: "Menu Big Chicken",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce smokey BBQ servi avec frites et boisson.",
+            price: 10.9,
+            image: "/big-smash/menu-big-chicken.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-chicken-spicy",
+            name: "Menu Chicken Spicy",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-chicken-spicy.webp",
+          },
+          ["salade", "tomate", "jalapenos", "cheddar"]
+        ),
+        bsMenu(
+          {
+            id: "menu-big-fish",
+            name: "Menu Big Fish",
+            description: "Potato bun, filet de colin pané maison, cheddar et sauce Tartare servi avec frites et boisson.",
+            price: 9.9,
+            image: "/big-smash/menu-big-fish.webp",
+          },
+          ["cheddar"]
+        ),
+        {
+          id: "big-combo",
+          name: "Big Combo",
+          description: "C'est l'occasion de te faire plaisir avec deux burgers dans ton menu\u00a0!",
+          price: 14.9,
+          image: "/big-smash/big-combo.webp",
+          options: [
+            groupeChoix("burger-1", "1er\u00a0burger", BS_COMBO_BURGERS, { obligatoire: true }),
+            groupeChoix("burger-2", "2e\u00a0burger", BS_COMBO_BURGERS, { obligatoire: true }),
+            bsAccompagnement,
+            bsBoisson,
+          ],
+        },
+        {
+          id: "big-kids",
+          name: "Big Kids",
+          description: "Menu enfant 7-11 ans, cheeseburger ou nuggets x5 au choix, frites, dessert au choix, boisson au choix et jouet.",
+          price: 6.9,
+          image: "/big-smash/big-kids.webp",
+          /* Desserts et boissons : ceux de leur carte Deliveroo, le site n'en nomme aucun. */
+          options: [
+            groupeChoix("plat", "Plat", ["Cheeseburger", "Nuggets x5"], { obligatoire: true }),
+            groupeChoix("dessert", "Dessert", ["Kinder Country", "Pom'Potes"], { obligatoire: true }),
+            groupeChoix("boisson", "Boisson", ["Evian", "Capri-Sun"], { obligatoire: true }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers",
+      items: [
+        bsBurger(
+          {
+            id: "smash-classic",
+            name: "Smash Classic",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash.",
+            price: 6.9,
+            image: "/big-smash/smash-classic.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "smash-spicy",
+            name: "Smash Spicy",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, jalapenos et sauce Spicy.",
+            price: 6.9,
+            image: "/big-smash/smash-spicy.webp",
+          },
+          ["salade", "tomate", "cheddar", "jalapenos"]
+        ),
+        bsBurger(
+          {
+            id: "smash-bacon",
+            name: "Smash Bacon",
+            description: "Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash.",
+            price: 7.9,
+            image: "/big-smash/smash-bacon.webp",
+          },
+          ["salade", "tomate", "cheddar", "bacon"]
+        ),
+        bsBurger(
+          {
+            id: "original-cheese",
+            name: "Original Cheese",
+            description: "Potato bun, steak haché smashé, oignons frais, double cheddar, pickles, sauce ketchup et moutarde US.",
+            price: 6.9,
+            image: "/big-smash/original-cheese.webp",
+          },
+          ["oignons", "cheddar", "pickles"]
+        ),
+        bsBurger(
+          {
+            id: "big-smash-burger",
+            name: "Big Smash Burger",
+            description: "Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash.",
+            price: 6.9,
+            image: "/big-smash/big-smash-burger.webp",
+          },
+          ["cheddar", "pickles", "salade"]
+        ),
+        bsBurger(
+          {
+            id: "surf-turf",
+            name: "Surf Turf",
+            description: "Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety.",
+            price: 8.9,
+            image: "/big-smash/surf-turf.webp",
+          },
+          ["cheddar", "sésame"]
+        ),
+        bsBurger(
+          {
+            id: "original-chicken",
+            name: "Original Chicken",
+            description: "Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch.",
+            price: 6.9,
+            image: "/big-smash/original-chicken.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+        bsBurger(
+          {
+            id: "big-chicken",
+            name: "Big Chicken",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Smokey BBQ.",
+            price: 7.9,
+            image: "/big-smash/big-chicken.webp",
+          },
+          ["salade", "tomate", "pickles", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "chicken-spicy",
+            name: "Chicken Spicy",
+            description: "Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy.",
+            price: 7.9,
+            image: "/big-smash/chicken-spicy.webp",
+          },
+          ["salade", "tomate", "jalapenos", "cheddar"]
+        ),
+        bsBurger(
+          {
+            id: "big-mountain",
+            name: "Big Mountain",
+            description: "Potato Bun, filet de poulet pané maison, oignon confit, raclette, bacon et sauce Ranch.",
+            price: 8.9,
+            image: "/big-smash/big-mountain.webp",
+          },
+          ["oignon confit", "raclette", "bacon"]
+        ),
+        bsBurger(
+          {
+            id: "big-fish",
+            name: "Big Fish",
+            description: "Potato bun, filet de colin pané maison, cheddar, salade iceberg et sauce Tartare.",
+            price: 6.9,
+            image: "/big-smash/big-fish.webp",
+          },
+          ["cheddar", "salade"]
+        ),
+      ],
+    },
+    {
+      id: "hot-dogs",
+      name: "Hot-dogs",
+      items: [
+        { id: "classic-dog", name: "Classic Dog", description: "Potato bun long, saucisse 100% boeuf, ketchup, moutarde US et oignons frits.", price: 3.9, image: "/big-smash/classic-dog.webp" },
+        { id: "spicy-dog", name: "Spicy Dog", description: "Potato bun long, saucisse 100% boeuf, jalapenos émincé et sauce Spicy.", price: 3.9, image: "/big-smash/spicy-dog.webp" },
+        { id: "cheesy-dog", name: "Cheesy Dog", description: "Potato bun long, saucisse 100% boeuf, sauce cheddar, pickles émincés et oignons frits.", price: 4.9, image: "/big-smash/cheesy-dog.webp" },
+        { id: "bacon-dog", name: "Bacon Dog", description: "Potato bun long, saucisse 100% boeuf bacon, sauce smokey BBQ et oignons frits.", price: 4.9, image: "/big-smash/bacon-dog.webp" },
+      ],
+    },
+    {
+      id: "sides",
+      name: "Sides",
+      items: [
+        { id: "frites-nature", name: "Frites nature", price: 3, image: "/big-smash/frites-nature.webp" },
+        { id: "frites-epicees", name: "Frites épicées", price: 3.5, image: "/big-smash/frites-epicees.webp" },
+        { id: "frites-cheddar", name: "Frites cheddar", price: 4, image: "/big-smash/frites-cheddar.webp" },
+        { id: "frites-cheddar-bacon", name: "Frites cheddar bacon", price: 5, image: "/big-smash/frites-cheddar-bacon.webp" },
+        { id: "pops-nature", name: "Pops nature", description: "Pomme de terre rapées assaisonnées en forme de petite boule.", price: 3.5, image: "/big-smash/pops-nature.webp" },
+        { id: "pops-cheddar", name: "Pops cheddar", description: "Pomme de terre rapées assaisonnées en forme de petite boule avec sauce cheddar.", price: 4.5, image: "/big-smash/pops-cheddar.webp" },
+        {
+          id: "pops-cheddar-bacon",
+          name: "Pops cheddar bacon",
+          description: "Pomme de terre rapées assaisonnées en forme de petite boule avec sauce cheddar bacon.",
+          price: 5.5,
+          // Pas de visuel propre sur le site : celui des Pops cheddar.
+          image: "/big-smash/pops-cheddar.webp",
+        },
+        { id: "chicken-pop-corn", name: "Chicken Pop-Corn", detail: "x15", description: "Morceaux de filet de poulet pané maison.", price: 5.9, image: "/big-smash/chicken-pop-corn.webp" },
+        { id: "chicken-pop-corn-spicy", name: "Chicken Pop-Corn Spicy", description: "Morceaux de filet de poulet pané maison servi avec sa sauce spicy.", price: 7.9, image: "/big-smash/chicken-pop-corn-spicy.webp" },
+        { id: "tenders", name: "Tenders", detail: "x4", description: "Filet de poulet pané maison.", price: 5.9, image: "/big-smash/tenders.webp" },
+        { id: "nuggets", name: "Nuggets", detail: "x5", description: "Nuggets de poulet croustillant.", price: 3.9, image: "/big-smash/nuggets.webp" },
+        {
+          id: "crevettes-panees",
+          name: "Crevettes panées",
+          description: "Beignets de crevettes décortiquées croustillants servi avec sauce Big Sweety.",
+          price: 5.9,
+          image: "/big-smash/crevettes-panees.webp",
+          /* « 5.90 - 9.90 » sur le site ; x5 et x10 sur leur carte Deliveroo. */
+          options: [groupeChoix("quantite", "Quantité", [["x5", 0], ["x10", 4]], { obligatoire: true })],
+        },
+        { id: "little-smash", name: "Little Smash", description: "Potato bun, steak haché frais et smashé, cheddar, pickles et sauce Big Smash.", price: 4, image: "/big-smash/little-smash.webp" },
+        {
+          id: "little-wrap",
+          name: "Little Wrap",
+          description: "Galette garnie de tenders maison, salade, cheddar, oignons frits, avec la sauce de votre choix (Ranch ou Miel-Moutarde).",
+          price: 2.95,
+          image: "/big-smash/little-wrap.webp",
+          options: [groupeChoix("sauce", "Sauce", ["Ranch", "Miel-Moutarde"], { obligatoire: true })],
+        },
+        { id: "little-wrap-spicy", name: "Little Wrap Spicy", description: "Galette garnie de cheddar, tenders, salade, jalapenos et sauce Spicy.", price: 2.95, image: "/big-smash/little-wrap-spicy.webp" },
+        {
+          id: "taco-smash",
+          name: "Taco Smash",
+          description: "Choisis ton Taco Smash (classique ou épicé).",
+          price: 4.9,
+          image: "/big-smash/taco-smash.webp",
+          options: [groupeChoix("taco", "Taco", ["Classique", "Épicé"], { obligatoire: true })],
+        },
+        { id: "grilled-cheese", name: "Grilled Cheese", price: 2.5, image: "/big-smash/grilled-cheese.webp" },
+        { id: "grilled-cheese-bacon", name: "Grilled Cheese Bacon", price: 3.5, image: "/big-smash/grilled-cheese-bacon.webp" },
+        {
+          id: "big-salade",
+          name: "Big Salade",
+          description: "Salade fraîche, tenders croustillants ou crevettes panées, tomates cerises, copeaux de parmesan, oignons frits et sauce Ranch ou Big Sweety.",
+          price: 9.9,
+          image: "/big-smash/big-salade.webp",
+          options: [
+            groupeChoix("garniture", "Garniture", ["Tenders croustillants", "Crevettes panées"], { obligatoire: true }),
+            groupeChoix("sauce", "Sauce", ["Ranch", "Big Sweety"], { obligatoire: true }),
+          ],
+        },
+        {
+          id: "sauces",
+          name: "Sauces",
+          description: "Découvrez nos sauces exclusives Big Smash\u00a0: Big Smash, Spicy, Ranch et Miel-Moutarde\u00a0!",
+          price: 0.4,
+          image: "/big-smash/sauces.webp",
+          options: [groupeChoix("sauce", "Sauce", BS_SAUCES, { obligatoire: true })],
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "milkshake",
+          name: "Milkshake",
+          description: "Milkshake avec parfum au choix (caramel, fraise & vanille) et chantilly.",
+          price: 4.5,
+          image: "/big-smash/milkshake.webp",
+          options: [groupeChoix("parfum", "Parfum", ["Caramel", "Fraise", "Vanille"], { obligatoire: true })],
+        },
+        { id: "milkshake-pistache-macadamia", name: "Milkshake Pistache Macadamia", price: 4.95, image: "/big-smash/milkshake-pistache-macadamia.webp" },
+        {
+          id: "big-sundae",
+          name: "Big Sundae",
+          description: "Glace vanille avec coulis et topping au choix.",
+          price: 3.5,
+          image: "/big-smash/big-sundae.webp",
+          options: [bsCoulis, bsTopping],
+        },
+        { id: "big-sundae-pistachio", name: "Big Sundae Pistachio", description: "Nappage pistache et éclats de pistache caramélisés.", price: 3.95, image: "/big-smash/big-sundae-pistachio.webp" },
+        {
+          id: "kool-dog",
+          name: "Kool Dog",
+          description: "Pain hot-dog, glace vanille avec coulis et topping au choix.",
+          price: 3.9,
+          image: "/big-smash/kool-dog.webp",
+          options: [bsCoulis, bsTopping],
+        },
+        { id: "grilled-nutella", name: "Grilled Nutella", description: "Butter bread toasté et garni de Nutella.", price: 2.5, image: "/big-smash/grilled-nutella.webp" },
+        { id: "kinder-country", name: "Kinder Country", description: "Chocolat Kinder au cœur au lait fondant et des céréales soufflées croustillantes.", price: 1, image: "/big-smash/kinder-country.webp" },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      items: [
+        {
+          id: "the-limonade",
+          name: "Thé & Limonade",
+          price: 2.9,
+          image: "/big-smash/the-limonade.webp",
+          options: [groupeChoix("parfum", "Parfum", BS_THES_LIMONADES, { obligatoire: true })],
+        },
+        {
+          id: "coca-cola",
+          name: "Coca Cola",
+          price: 1.9,
+          image: "/big-smash/coca-cola.webp",
+          // Les trois canettes du visuel du site.
+          options: [groupeChoix("gout", "Goût", ["Original", "Sans Sucres", "Cherry"], { obligatoire: true })],
+        },
+        { id: "fuze-tea-peche", name: "Fuze Tea Pêche", price: 2.2, image: "/big-smash/fuze-tea-peche.webp" },
+        { id: "red-bull", name: "Red Bull", price: 2.9, image: "/big-smash/red-bull.webp" },
+        { id: "capri-sun", name: "Capri-Sun", price: 2, image: "/big-smash/capri-sun.webp" },
+        { id: "badoit", name: "Badoit", price: 1.9, image: "/big-smash/badoit.webp" },
+        { id: "evian", name: "Evian", price: 1.5, image: "/big-smash/evian.webp" },
+        {
+          id: "volvic",
+          name: "Volvic",
+          price: 2.5,
+          image: "/big-smash/volvic.webp",
+          // Les deux bouteilles du visuel du site.
+          options: [groupeChoix("parfum", "Parfum", ["Juicy Fraise", "Zest Citron"], { obligatoire: true })],
+        },
+      ],
+    },
+  ],
+};
+
+/*
  * Chicken Street — démo pour le pitch au siège (CS DEVELOPPEMENT, Saint-Denis).
  * Noms et visuels : chickenstreet.fr/la-carte (visuels détourés posés en 16:9
  * dans public/chicken-street/) ; le site ne publie ni prix ni descriptions :
@@ -2351,6 +2887,7 @@ const restaurants: Record<string, Restaurant> = {
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
+  [bigSmash.slug]: bigSmash,
   [chickenStreet.slug]: chickenStreet,
   [lAdresse.slug]: lAdresse,
 };
@@ -2362,6 +2899,7 @@ const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
+  [bigSmash.slug]: "theme-big-smash",
   [chickenStreet.slug]: "theme-chicken-street",
   [lAdresse.slug]: "theme-l-adresse",
 };

@@ -32,7 +32,9 @@ const archivoBlack = Archivo_Black({
 /**
  * Chicken Street — le texte de la carte : Archivo, une grotesque à chasse
  * variable ; les titres passent en Anton, condensée comme les capitales de
- * l'enseigne.
+ * l'enseigne. Big Smash — bigsmash.fr est en Obviously (commerciale) : Archivo
+ * en est la plus proche des Google Fonts, que le thème élargit pour les noms
+ * et les titres ; les titres les plus gras reprennent Archivo Black.
  */
 const archivo = Archivo({
   variable: "--font-archivo",

@@ -38,10 +38,15 @@ const inspectDialog = (page) =>
           d.parentElement?.parentElement === document.body),
       // …et elle doit rester habillée comme la page (thème + polices) : rendue
       // dans document.body, elle retombait en palette et polices Ominin.
+      // Un thème peut redéfinir ses jetons sur les fiches et les feuilles
+      // (Big Smash : page rouge, panneaux blancs) : la feuille ressemble alors
+      // aux fiches de la carte plutôt qu'à la page.
       themed: (() => {
         const root = document.querySelector("[data-menu-root]") || document.body;
-        const same = (v) =>
-          getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(root).getPropertyValue(v).trim();
+        const card = document.querySelector("main article");
+        const sameAs = (other, v) =>
+          !!other && getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(other).getPropertyValue(v).trim();
+        const same = (v) => sameAs(root, v) || sameAs(card, v);
         // Le titre de la modale est un nom de plat : il se compare aux noms
         // des cartes, pas aux titres de section (manuscrits chez O’Crousti).
         const title = d.querySelector("h3");
