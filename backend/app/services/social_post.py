@@ -40,6 +40,14 @@ def run_social_post(*, flush=None) -> dict:
     stats: dict = {"composed": 0, "published": 0, "to_post": 0, "failed": 0}
     errors: list[str] = []
 
+    try:
+        pricing = _pricing()
+    except httpx.HTTPError as exc:
+        # Sans les tarifs du site, le rédacteur n'en cite aucun : la fiche le
+        # lui interdit. On publie quand même, et on prévient.
+        pricing = {}
+        errors.append(f"tarifs illisibles sur le site : {exc}")
+
     accounts = (
         sb.table("social_accounts")
         .select("id, brand, platform, external_id, handle, social_tokens(access_token)")
@@ -56,7 +64,7 @@ def run_social_post(*, flush=None) -> dict:
         try:
             post = _todays_post(sb, brand, today)
             if post is None:
-                post = _compose(sb, brand, today)
+                post = _compose(sb, brand, today, pricing.get(brand))
                 stats["composed"] += 1
         except Exception as exc:  # noqa: BLE001 — one brand must not stop the others
             stats["failed"] += 1
@@ -92,7 +100,21 @@ def run_social_post(*, flush=None) -> dict:
             f"{stats['to_post']} story à poster : "
             f"{settings.frontend_origin}/admin/reseaux",
         )
+    if stats["failed"] and not stats["published"]:
+        # Rien n'est parti : le run est un échec, et l'admin l'affiche comme
+        # tel — un run « réussi » a masqué une semaine sans publication.
+        raise RuntimeError("aucune publication réussie\n" + "\n".join(errors))
     return stats
+
+
+def _pricing() -> dict[str, str]:
+    """Tarifs en vigueur par marque, tels que les landings les affichent."""
+    response = httpx.get(
+        f"{settings.frontend_origin}/api/social/tarifs",
+        timeout=settings.internal_http_timeout_seconds,
+    )
+    response.raise_for_status()
+    return response.json()
 
 
 def _todays_post(sb, brand: str, today) -> dict | None:
@@ -134,7 +156,7 @@ def current_playbook(sb, brand: str) -> dict:
     ).data[0]
 
 
-def _compose(sb, brand: str, today) -> dict:
+def _compose(sb, brand: str, today, pricing: str | None) -> dict:
     playbook = current_playbook(sb, brand)
     recent = (
         sb.table("social_posts")
@@ -146,7 +168,7 @@ def _compose(sb, brand: str, today) -> dict:
     ).data
 
     draft = parse_structured(
-        compose_system(brand, playbook["guidelines"]),
+        compose_system(brand, playbook["guidelines"], pricing),
         compose_content(today, recent),
         CarouselDraft,
     )
