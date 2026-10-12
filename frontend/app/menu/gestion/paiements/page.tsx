@@ -276,11 +276,13 @@ export default function PaiementsPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Encaissé aujourd'hui"
-          value={formatPrice(todayTotal)}
-          hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}`}
-        />
+        <div data-visite="paiements-jour" className="grid rounded-2xl">
+          <StatCard
+            label="Encaissé aujourd'hui"
+            value={formatPrice(todayTotal)}
+            hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}`}
+          />
+        </div>
         <StatCard
           label="Espèces"
           value={formatPrice(todayByMode.especes)}
@@ -329,6 +331,7 @@ export default function PaiementsPage() {
         </section>
       )}
       <PillTabs
+        visite="paiements-modes"
         tabs={MODE_FILTERS.map(({ id, label }) => ({ id, label }))}
         activeId={filter}
         onSelect={(id) => setFilter(id as ModeFilter)}

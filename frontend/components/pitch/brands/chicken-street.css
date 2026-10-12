@@ -49,7 +49,8 @@
 .pitch-chicken-street .pitch-qr {
   background-color: #ffffff;
   color: var(--pitch-ground);
-  box-shadow: 0 0 0 12px var(--pitch-accent);
+  /* Un contour, pas une ombre : l'impression du PDF retire toutes les ombres. */
+  outline: 12px solid var(--pitch-accent);
 }
 
 /* Les titres dans la face condensée des chiffres, comme les capitales
@@ -57,7 +58,6 @@
 .pitch-chicken-street :is(h1, h2, .pitch-quote) {
   font-family: var(--font-pitch-numeral), sans-serif;
   font-weight: 400;
-  font-stretch: normal;
   letter-spacing: 0;
 }
 

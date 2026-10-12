@@ -88,7 +88,12 @@ export function ServiceModeSettings({
           ouvert le recharge.
         </p>
       </div>
-      <div role="radiogroup" aria-label="Type de service" className="grid gap-3 sm:grid-cols-2">
+      <div
+        role="radiogroup"
+        aria-label="Type de service"
+        data-visite="etablissement-service"
+        className="grid gap-3 rounded-2xl sm:grid-cols-2"
+      >
         {MODES.map((option) => {
           const selected = mode === option.id;
           return (

@@ -416,7 +416,7 @@ export function NetworkDashboard({
   const elsewhere = kiosks ? "les ventes aux bornes ni au comptoir" : "celles réglées en caisse";
   const [pickupMin, pickupMax] = simulation.pickupMinutes;
   const assumptions = [
-    "Restaurants, adresses et horaires : les vôtres ; carte et prix : votre carte nationale.",
+    "Restaurants et adresses : les vôtres ; carte et prix : votre carte nationale.",
     `Volumes calés sur votre CA moyen annoncé (${fixture.announcedRevenue}), selon le jour de la semaine et les pointes du midi et du soir.`,
     kiosks
       ? "Ce qu’Ominin mesurerait en service : les commandes passées par QR, leur montant, l’heure annoncée au client, l’heure où la commande est prête et celle de sa remise."
@@ -730,7 +730,8 @@ export function NetworkDashboard({
           </Kpi>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] wall:min-h-0 wall:flex-1 wall:grid-cols-12">
+        {/* Une seule colonne au téléphone, bornée à l'écran : un nom de restaurant long ne l'élargit plus. */}
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] wall:min-h-0 wall:flex-1 wall:grid-cols-12">
           <div className="flex min-h-0 flex-col gap-4 wall:col-span-6">
             <section className={`flex min-h-0 flex-col overflow-hidden wall:flex-1 ${CARD}`}>
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 pt-4">

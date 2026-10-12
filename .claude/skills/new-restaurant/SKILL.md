@@ -1,6 +1,6 @@
 ---
 name: new-restaurant
-description: Onboard a new restaurant client end to end and build their customer-facing QR menu in two versions — one in the restaurant's own identity, one in the Ominin house style — from whatever the user hands over (flyer, menu photos, PDF, notes, links), completed by web research on the business, then loop with fresh, independent scoring agents until both pages score 9/10. Use this whenever the user says they signed, met or visited a restaurant, wants to add a client or prospect, sends a flyer or menu to turn into a page, asks for a demo or a menu page for a restaurant, or wants to update an existing client's carte, photos or theme — even if they never say "onboard". Trigger: /new-restaurant
+description: Onboard a new restaurant client end to end and build their customer-facing QR menu in two versions — one in the restaurant's own identity, one in the Ominin house style — from whatever the user hands over (flyer, menu photos, PDF, notes, links), completed by web research on the business, then loop with fresh, independent scoring agents until both pages score 9/10 and the code passes an engineering review. Use this whenever the user says they signed, met or visited a restaurant, wants to add a client or prospect, sends a flyer or menu to turn into a page, asks for a demo or a menu page for a restaurant, or wants to update an existing client's carte, photos or theme — even if they never say "onboard". Trigger: /new-restaurant
 ---
 
 # /new-restaurant
@@ -9,7 +9,8 @@ Turn what a restaurant hands over — a flyer, menu photos, a PDF, a few
 notes — into its Ominin QR menu, in two versions: one wearing the
 restaurant's own identity, one in the Ominin house style. Research the
 business on the web, build, verify mechanically, then keep handing the page
-to fresh scoring agents until both versions score 9/10.
+to fresh scoring agents until both versions score 9/10, and the code to an
+engineering reviewer until it scores 9/10 too.
 
 LZ.FOOD (Montpellier, September 2026) was built this way and is the
 reference implementation throughout: `const lzFood` in
@@ -251,23 +252,36 @@ scripts can't tell you a heading is ugly. Also run `check_page.cjs` on every
 other slug in the registry: shared components changed for one client must
 not break another.
 
-## Phase 8 — Scoring loop (target: 9/10 on both versions)
+## Phase 8 — Scoring loop (target: 9/10 on both versions and on the code)
 
 The loop is the point of this skill; its mechanics, prompts and rubric are in
 [references/scoring.md](references/scoring.md). In short:
 
-1. **Each round, spawn fresh agents in parallel** (`general-purpose`, one
-   message): **two independent holistic scorers** every round; the ordering
-   stress-tester in round 1 and whenever ordering code or options changed;
-   the accuracy auditor in round 1 and whenever carte text changed. Fresh
-   agents each round — one that has seen its earlier verdict anchors on it.
-   The **lower** of the two holistic scores is the round's score for each
-   version: one lenient scorer can't pass the page.
+1. **Round 1 is a full audit; then change-only rounds until every version
+   holds 9; then a full audit again.** Each round spawns fresh agents in
+   parallel (`general-purpose`, one message) — one that has seen its
+   earlier verdict anchors on it.
+   - **Full audit:** **two independent holistic scorers** — the **lower**
+     score is the round's score for each version, so one lenient scorer
+     can't pass the page; **an engineering reviewer** on the whole diff
+     against `main` (no scorer reads the code, and shared components serve
+     paying restaurants live); the ordering stress-tester and the accuracy
+     auditor in round 1, and later when ordering code or carte text changed
+     since the last full audit.
+   - **Change-only round:** **one reviewer** for the versions still below 9
+     or touched by a fix, working from the change list, plus the
+     engineering reviewer on the code changed since the last round. A
+     version at 9 drops out until a fix touches it.
+
+   If a full audit finds issues, go back to change-only rounds, then audit
+   again.
 2. **Give scorers the brief, the URLs, the source path and the constraints —
    nothing else.** Not the target, not previous scores, not your opinion of
    the page. The constraints are copied from the owner questions already in
    `profile.json`, never written for the occasion; log the block each round
-   so any drift is visible.
+   so any drift is visible. A change-only reviewer also gets the change
+   list, still without scores or target. The engineering reviewer gets the
+   diff and the constants the user has already approved instead.
 3. **Don't touch the code or restart the server while agents run.**
 4. **Triage every report**: reproduce each claim (screenshot, script, source
    crop) before acting. Fix everything real and code-fixable. Record
@@ -275,19 +289,22 @@ The loop is the point of this skill; its mechanics, prompts and rubric are in
    wrong, with the evidence, and taste calls you declined, with the reason.
 5. **Re-run Phase 7**, then start the next round.
 
-**Pass:** in the same round, **both** holistic scorers give **≥ 9 to the
-restaurant version and ≥ 9 to the Ominin version** (whole numbers), and
-neither the ordering tester nor the accuracy auditor has a must-fix open.
+**Pass:** only in a full audit — **both** holistic scorers give **≥ 9 to
+the restaurant version and ≥ 9 to the Ominin version** (whole numbers), the
+engineering reviewer gives **≥ 9**, and none of the ordering tester, the
+accuracy auditor or the engineering reviewer has a must-fix open. A 9 in a
+change-only round only means the next round is a full audit.
 
-**Budget: 30 agent runs** for the whole loop — each scorer, tester and
-auditor you launch in this phase counts one. A typical round costs 2-4.
-Before a round, check it fits; if it doesn't, stop.
+**Budget: 30 agent runs** for the whole loop — each scorer, tester, auditor
+and reviewer you launch in this phase counts one. Round 1 costs about 5, a
+change-only round 2, a later full audit 3-5. Before a round, check it fits;
+if it doesn't, stop.
 
 **Stop without passing** — and say so plainly — when either:
 - the budget is spent, or
-- two consecutive rounds raised neither version's score while every
-  remaining finding is client-blocked, verified wrong, or a declined taste
-  call.
+- two consecutive full audits raised neither version's score nor the
+  engineering score while every remaining finding is client-blocked,
+  verified wrong, or a declined taste call.
 
 Then report the last scores, what stands between them and 9, and exactly
 which asset or decision from the owner would close each gap. Never argue a
@@ -297,9 +314,12 @@ scorer up, never hide a known defect, never round up.
 
 Final message to the user:
 
-- both preview URLs, and the last round's scores per version
+- both preview URLs, and the last round's scores per version and for the
+  code
 - what was built (compact) and anything shared that changed for every
   restaurant
+- new constants the engineering reviewer listed that still await the
+  user's decision
 - **every inference and placeholder** still in the carte
 - the questions for the owner (hours, claim scopes, invented options,
   postcode discrepancies, missing photos) — also written into
@@ -338,7 +358,8 @@ theme tweak):
 2. Apply the change with the same rules: source is truth, claims keep their
    scope, new photos go through `photo_sheet.py`.
 3. Close the questions it answers in `profile.json`; keep the rest open.
-4. Run Phase 7. For a visual change, run one scoring round.
+4. Run Phase 7. For a visual change, run one change-only round on what
+   changed.
 5. If the restaurant is live, tell the user the database copy won't change
    until it's re-seeded or edited from the owner's space — and don't
    re-seed a live restaurant without asking: the seed purges the

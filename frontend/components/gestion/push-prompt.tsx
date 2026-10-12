@@ -31,7 +31,10 @@ export function PushPrompt() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-hairline bg-surface px-4 py-3.5">
+    <div
+      data-visite="notifications-push"
+      className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-hairline bg-surface px-4 py-3.5"
+    >
       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-raised">
         <BellIcon className="size-4.5 text-ember-1" />
       </span>
@@ -53,6 +56,7 @@ export function PushPrompt() {
         </button>
         <Link
           href="/gestion/notifications"
+          data-visite="notifications-activer"
           className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
         >
           Activer

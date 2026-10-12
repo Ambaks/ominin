@@ -63,7 +63,9 @@ const inspectDialog = (page) =>
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   // Un robot de recette ne doit jamais compter comme visite d'un client réel.
-  await page.route(/\/rpc\/menu_track/, (route) => route.abort());
+  // place_order aussi : le script ne presse jamais l'envoi, mais une
+  // régression du verrou de l'aperçu ne doit rien faire partir.
+  await page.route(/\/rpc\/(menu_track|place_order)/, (route) => route.abort());
   await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
   await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   await page.waitForTimeout(1500);
@@ -113,10 +115,13 @@ const inspectDialog = (page) =>
     if (problems.length) fail(`${name}`, problems.join(", "));
     else ok(`${name}`, d.groups.join(" · "));
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(300);
-    if (await page.locator('[role="dialog"]').count()) {
+    // La feuille descend avant de partir : sa durée varie avec la charge.
+    const dialog = page.locator('[role="dialog"]');
+    await dialog.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
+    if (await dialog.count()) {
       fail(`${name} : Échap ne ferme pas la modale`);
-      await page.locator('[role="dialog"] button', { hasText: "Annuler" }).click();
+      const cancel = dialog.locator("button", { hasText: "Annuler" });
+      if (await cancel.count()) await cancel.click();
     }
   }
   if (!opened) console.log("  INFO    aucun article à options");
@@ -161,6 +166,12 @@ const inspectDialog = (page) =>
     await plain.scrollIntoViewIfNeeded();
     await plain.click();
     await page.waitForTimeout(900);
+    // « + Ajouter » sur un plat à suppléments facultatifs ouvre sa feuille
+    // (rien d'obligatoire, le bouton de validation ajoute tel quel).
+    if (await page.locator('[role="dialog"]').count()) {
+      await page.locator('[role="dialog"] button').last().click();
+      await page.waitForTimeout(900);
+    }
   }
   const bar = await page.evaluate(() =>
     [...document.querySelectorAll("body *")]
@@ -179,7 +190,11 @@ const inspectDialog = (page) =>
       const b = [...document.querySelectorAll("button")].find((x) => /envoy|aperçu/i.test(x.textContent));
       return b ? { disabled: b.disabled, label: b.textContent.trim() } : null;
     });
-    if (send?.disabled && /aperçu/i.test(send.label)) ok("envoi verrouillé sur l'aperçu", `« ${send.label} »`);
+    // En fast food, l'aperçu montre le ticket sans rien envoyer : le bouton
+    // reste actif (« Aperçu : voir le ticket »), place_order est bloqué ici.
+    const fastFood = url.includes("service=fast-food");
+    if (send && /aperçu/i.test(send.label) && (send.disabled || fastFood))
+      ok("envoi verrouillé sur l'aperçu", `« ${send.label} »`);
     else fail("l'aperçu peut ENVOYER une commande réelle", JSON.stringify(send));
   }
 

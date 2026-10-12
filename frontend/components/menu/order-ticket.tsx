@@ -134,7 +134,7 @@ function ReadyCountdown({ estimate, ai }: { estimate: ReadyEstimate; ai?: boolea
       </span>
       <p className="order-eta-caption mt-2.5 flex w-full items-baseline justify-between gap-3 text-xs text-muted">
         {/* L'heure prévue n'existe que dans l'aperçu : elle le dit. */}
-        <span>{ai ? "Estimation IA · aperçu" : "Estimation · aperçu"}</span>
+        <span>{ai ? "Estimation IA" : "Estimation · aperçu"}</span>
         {!late && (
           <time dateTime={estimate.readyAt} className="font-semibold tabular-nums text-foreground">
             vers {frenchTime(new Date(at))}
@@ -402,14 +402,15 @@ function OrderTicket({
                     <span className="text-foreground">{line.name}</span>
                     {/* Les choix sur une ligne, comme au panier : chacun d'un bloc
                         (« Coca-Cola » ne se coupe pas), le point avec celui qui le
-                        précède. Un par ligne, un tacos en prenait sept. */}
+                        précède — un par ligne, un tacos en prenait sept. Sauf une
+                        formule de l'aperçu : une étape par ligne, comme au panier. */}
                     {line.choices.length > 0 && (
                       <span className="block">
                         {line.choices.map((choice, i) => (
                           <Fragment key={i}>
-                            <span className="inline-block max-w-full">
+                            <span className={line.formule ? "block" : "inline-block max-w-full"}>
                               {choice}
-                              {i < line.choices.length - 1 && "\u00a0·"}
+                              {!line.formule && i < line.choices.length - 1 && "\u00a0·"}
                             </span>{" "}
                           </Fragment>
                         ))}

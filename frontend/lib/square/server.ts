@@ -412,14 +412,14 @@ export async function settlePayment(
   // Le pourboire est un fait nouveau choisi par le client : lu dans ce que
   // Square a enregistré, pas dans ce que le navigateur avait annoncé.
   const tip = (tipMoney?.amount ?? 0) / 100;
-  const { error } = await admin.rpc("mark_order_paid_online", {
+  const { data: settled, error } = await admin.rpc("mark_order_paid_online", {
     p_order_id: orderId,
     p_tip: tip > 0 ? tip : null,
   });
   if (error) throw new Error(error.message);
   // La commande attendait son règlement hors de la caisse : elle arrive en
-  // salle maintenant.
-  await dispatchOrderEvent(orderId, "nouvelle_commande");
+  // salle maintenant — une fois, même quand webhook et route se croisent.
+  if (settled) await dispatchOrderEvent(orderId, "nouvelle_commande");
 }
 
 /**

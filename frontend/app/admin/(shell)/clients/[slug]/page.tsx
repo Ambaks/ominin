@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/admin/icons";
 import { ClientActivity } from "@/components/admin/clients/activity";
 import { ClientAnalytique } from "@/components/admin/clients/analytique";
+import { ClientDemarrage } from "@/components/admin/clients/demarrage";
 import { ClientReglages } from "@/components/admin/clients/reglages";
 import { ClientRevenus } from "@/components/admin/clients/revenus";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -121,7 +122,7 @@ function ClientDetail() {
             {client.name}
           </h1>
         </div>
-        {view !== "reglages" && (
+        {view !== "reglages" && view !== "demarrage" && (
           <PillTabs
             tabs={PERIOD_TABS}
             activeId={String(days)}
@@ -142,6 +143,9 @@ function ClientDetail() {
       )}
       {view === "activite" && (
         <ClientActivity etablissementId={client.etablissement_id} />
+      )}
+      {view === "demarrage" && (
+        <ClientDemarrage etablissementId={client.etablissement_id} />
       )}
       {view === "reglages" && <ClientReglages client={client} />}
     </div>

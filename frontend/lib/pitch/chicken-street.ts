@@ -17,6 +17,7 @@ import {
   type Illustration,
 } from "@/lib/pitch/kit";
 import type { Pitch, Source } from "@/lib/pitch/types";
+import { chickenStreet as network } from "@/lib/demo/reseau/data";
 import { menuSiteUrl } from "@/lib/site";
 
 /*
@@ -35,7 +36,7 @@ import { menuSiteUrl } from "@/lib/site";
 /** Signataire du pitch : la phrase d'ouverture et le contact sont les siens. */
 const founder = { name: "Ambaka\u00a0Le\u00a0Grégam", role: "cofondateur d’Ominin" };
 
-/** Le pilote : sa durée et l'assistance, telles que le propriétaire les a fixées. */
+/** Le pilote : sa durée, telle que le propriétaire l'a fixée. */
 const pilot = { days: 30 };
 
 /**
@@ -69,13 +70,28 @@ const field = { nights: 16, orders: 2_002, online: 435, counter: 1_545, onlineSe
 /** « 4 min 39 » : une durée en secondes, telle que la course l'affiche. */
 const minutesSeconds = (seconds: number) => `${Math.floor(seconds / 60)}\u00a0min\u00a0${String(seconds % 60).padStart(2, "0")}`;
 
-/** Les notes Google extrêmes des cinq fiches relevées : Gare de l'Est et Ivry. */
-const ratings = { best: 4.6, worst: 3.9 };
+/** Les notes Google des cinq fiches relevées : la moyenne pondérée, Gare de l'Est et Ivry. */
+const ratings = { average: 4.3, best: 4.6, worst: 3.9 };
 
 const decimal = (value: number) => value.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
 
 /** Le relevé Ominin des avis Google : avis des cinq fiches, avis lus, dont à une ou deux étoiles. */
 const reviewSample = { ratings: 4_016, read: 750, negative: 168 };
+
+/**
+ * La commande que suivent les captures et le film : son numéro, l'heure
+ * annoncée puis tenue, et le numéro remis au comptoir sur la capture du
+ * comptoir (fixtures du comptoir, Paris Gare de l'Est).
+ */
+const order = { number: 42, readyAt: "12:52", handedOver: 40 };
+const readyAtSpoken = order.readyAt.replace(":", "\u00a0h\u00a0");
+const restaurantsInDemo = network.restaurants.length;
+
+/** Le jour simulé de la vue réseau, tel qu'on le lit : « 3 octobre ». */
+const simulatedDay = new Date(`${network.simulation.referenceDay}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }).replace(" ", "\u00a0");
+
+/** Le réseau tel que l'enseigne l'annonce en octobre 2026 (publications) et que son localisateur le liste en France. */
+const footprint = { restaurants: 118, inFrance: 108, openings: 37 };
 
 // ——— Démos en ligne ——————————————————————————————————————————————
 
@@ -100,7 +116,7 @@ const demos = [
     id: "reseau",
     label: "Côté siège",
     title: "Toutes les commandes QR du réseau, en direct",
-    description: "Commandes, délais et heures tenues, restaurant par restaurant.",
+    description: "Commandes en direct, délais annoncés par restaurant, part des heures tenues sur le réseau.",
     href: `${demoBase}/reseau?heure=12:55`,
   },
 ] as const;
@@ -113,8 +129,8 @@ const screens = {
   menu: { src: shot("phone-menu"), alt: "La carte Chicken Street ouverte sur un téléphone" },
   composer: { src: shot("phone-composer"), alt: "Le Menu Naan Tenders composé par le client : frites, boisson, deux sauces" },
   commande: { src: shot("phone-commande"), alt: "La commande, réglée en ligne ou au comptoir" },
-  suivi: { src: shot("phone-suivi"), alt: "Le ticket n°\u00a042\u00a0: en cuisine, prête vers 12\u00a0h\u00a052 selon l’estimateur IA" },
-  prete: { src: shot("phone-prete"), alt: "Le ticket N° 42 : c’est prêt, venez au comptoir" },
+  suivi: { src: shot("phone-suivi"), alt: `Le ticket n°\u00a0${order.number}\u00a0: en cuisine, prête vers ${readyAtSpoken} selon l’estimateur IA` },
+  prete: { src: shot("phone-prete"), alt: `Le ticket N°\u00a0${order.number}\u00a0: c’est prêt, venez au comptoir` },
   comptoir: { src: shot("comptoir-service"), alt: "L’écran du comptoir : les commandes du coup de feu, les boutons Marquer prête et Remettre" },
   reseau: { src: shot("reseau-siege"), alt: "La vue réseau du siège : restaurants en rush, commandes en direct et classement des restaurants" },
   poster: { src: "/pitch/ominin/film-poster.webp", alt: "Ominin : la commande en ligne et l’IA, le film" },
@@ -136,7 +152,7 @@ const sources = {
   },
   network: {
     short: "Instagram @chickenstreetofficiel, octobre 2026",
-    full: "Publications Chicken Street d’octobre 2026 («\u00a0+118 restaurants\u00a0», «\u00a037 ouvertures à venir\u00a0») et localisateur restaurants.chickenstreet.fr (108 restaurants en France, dont Corbeil-Essonnes, qui ouvre le 10 octobre), relevés le 06/10/2026",
+    full: "Publications Chicken Street d’octobre 2026 («\u00a0+118 restaurants\u00a0», «\u00a037 ouvertures à venir\u00a0») et localisateur restaurants.chickenstreet.fr (108 restaurants en France, dont Corbeil-Essonnes, ouvert le 10 octobre, soit 107 ouverts au 3 octobre), relevés le 06/10/2026",
     url: "https://restaurants.chickenstreet.fr/",
   },
   reviews: {
@@ -199,13 +215,13 @@ const promise: Section<"promise"> = {
   eyebrow: "Votre promesse",
   slogan: ["La faim", "n’attend\u00a0pas\u00a0!"],
   sloganSource: "chickenstreet.fr",
-  rating: { value: "4,3", label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de 3,9 à 4,6` },
+  rating: { value: decimal(ratings.average), label: `de moyenne sur ${thousands(reviewSample.ratings)} avis Google de cinq fiches relevées à Paris, Ivry, Lille et Marseille, de ${decimal(ratings.worst)} à ${decimal(ratings.best)}` },
   speed: {
     value: decimal(ratings.best - ratings.worst),
-    label: `point d’écart sur Google entre Gare de l’Est (${decimal(ratings.best)}) et Ivry (${decimal(ratings.worst)})\u00a0: même carte, même enseigne.`,
-    detail: `Quelques avis à une ou deux étoiles citent 20 à 50\u00a0minutes d’attente (sur ${reviewSample.read} lus).`,
+    label: `point d’écart sur Google entre deux des cinq fiches relevées (${decimal(ratings.best)} et ${decimal(ratings.worst)})\u00a0: même carte, une note qui varie.`,
+    detail: `Quelques avis sur ${reviewSample.read} citent 20\u00a0min à 1\u00a0h d’attente.`,
   },
-  closing: "À 118 restaurants, dont 107 ouverts en France, et 37 ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.",
+  closing: `À ${footprint.restaurants} restaurants, dont ${footprint.inFrance} en France, et ${footprint.openings} ouvertures annoncées, cette promesse se tient restaurant par restaurant, rush après rush.`,
   sources: ["site", "reviews", "network"],
 };
 
@@ -213,7 +229,7 @@ const walkAway: Section<"walkAway"> = {
   eyebrow: "Au comptoir",
   quote: ["La rapidité, l’atout clé de la restauration rapide", "est remis en cause."],
   attribution: "AKTO / Toluna-Harris Interactive, étude 2024 sur les clients de la restauration rapide",
-  followUp: "D’un côté «\u00a050\u00a0min d’attente pour un menu\u00a0», de l’autre une attente «\u00a0très raisonnable même quand il y a du monde\u00a0»\u00a0: l’écart existe d’un restaurant à l’autre, et la vue réseau le montre.",
+  followUp: "D’un côté «\u00a050\u00a0min d’attente pour un menu\u00a0» (avis 1\u00a0étoile), de l’autre une attente «\u00a0très raisonnable même quand il y a du monde\u00a0» (avis 5\u00a0étoiles)\u00a0: d’un restaurant à l’autre, l’expérience varie\u00a0; la vue réseau permet de la mesurer.",
   followUpSources: ["reviews"],
   facts: [
     {
@@ -243,20 +259,20 @@ const solution: Section<"solution"> = {
 
 const etaNotice: Section<"etaNotice"> = {
   tag: "Estimateur IA",
-  text: "L’heure annoncée («\u00a0prête vers 12\u00a0h\u00a052\u00a0») suit le rythme réel de chaque cuisine, appris sur ses propres commandes.",
+  text: `L’heure annoncée («\u00a0prête vers ${readyAtSpoken}\u00a0») suit le rythme réel de chaque cuisine, appris sur ses propres commandes.`,
 };
 
 const estimator: Section<"estimator"> = {
   eyebrow: "Estimateur IA",
   title: { text: "L’heure exacte", accent: "où c’est prêt." },
-  lead: "Dès le paiement, le client lit «\u00a0prête vers 12\u00a0h\u00a052\u00a0». L’estimateur apprend le rythme de chaque cuisine sur ses propres commandes\u00a0— la file en cours, la taille du panier, l’heure du service\u00a0— et ajuste l’heure en direct.",
-  announced: { label: "Annoncée", value: "12:52" },
-  ready: { label: "Prête", value: "12:52" },
-  verdict: "À la minute près, sur la commande N°\u00a042 de la démo.",
+  lead: `Dès le paiement, le client lit «\u00a0prête vers ${readyAtSpoken}\u00a0». L’estimateur apprend le rythme de chaque cuisine sur ses propres commandes\u00a0— la file en cours, la taille du panier, l’heure du service\u00a0— et ajuste l’heure en direct.`,
+  announced: { label: "Annoncée", value: order.readyAt },
+  ready: { label: "Prête", value: order.readyAt },
+  verdict: `À la minute près, sur la commande N°\u00a0${order.number} de la démo.`,
   points: [
     { title: "Le client attend où il veut.", text: "À table, dehors, sur son téléphone\u00a0: plus d’attroupement au comptoir pour demander «\u00a0c’est prêt quand\u00a0?\u00a0»." },
-    { title: "Chaque cuisine, son rythme.", text: "Gare de l’Est n’est pas Ivry\u00a0: l’heure se calcule sur les commandes de chaque restaurant, pas sur une moyenne du réseau." },
-    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, restaurant par restaurant, dans la vue réseau." },
+    { title: "Chaque cuisine, son rythme.", text: "Une gare n’est pas un centre commercial\u00a0: l’heure se calcule sur les commandes de chaque restaurant, pas sur une moyenne du réseau." },
+    { title: "Le siège voit l’heure tenue.", text: "La part des commandes prêtes à l’heure annoncée, sur tout le réseau\u00a0; mesurée restaurant par restaurant dès le pilote." },
   ],
   screen: "suivi",
 };
@@ -286,7 +302,7 @@ const forCustomers: Section<"forCustomers"> = {
     {
       title: "Rien de mal compris.",
       text: "Le client compose sa commande lui-\u2060même\u00a0— sauces, suppléments, boisson\u00a0; le ticket sort tel quel en cuisine.",
-      fact: "Dans vos avis à une ou deux étoiles\u00a0: «\u00a0il me manque une part de frite\u00a0!\u00a0»",
+      fact: "Dans vos avis, une commande à emporter\u00a0: «\u00a0la moitié de ma commande n’a pas été effectué[e]\u00a0».",
     },
     {
       title: "Son numéro, et l’heure où c’est prêt.",
@@ -309,7 +325,7 @@ const forTeams: Section<"forTeams"> = {
   points: [
     {
       title: "Le client est prévenu, la\u00a0remise\u00a0confirmée.",
-      text: "«\u00a0Marquer prête\u00a0» fait passer sa page à «\u00a0C’est prêt\u00a0!\u00a0»\u00a0; «\u00a0Remettre N°\u00a040\u00a0» clôt la commande, numéro à l’appui. Sur une tablette ou un téléphone du restaurant.",
+      text: `«\u00a0Marquer prête\u00a0» fait passer sa page à «\u00a0C’est prêt\u00a0!\u00a0»\u00a0; «\u00a0Remettre N°\u00a0${order.handedOver}\u00a0» clôt la commande, numéro à l’appui. Sur une tablette ou un téléphone du restaurant.`,
     },
     {
       title: "Moins de monde au\u00a0comptoir.",
@@ -317,17 +333,17 @@ const forTeams: Section<"forTeams"> = {
     },
     {
       title: "Un produit épuisé, retiré de la carte.",
-      text: "Un appui le masque en ligne, un autre le rétablit.",
+      text: "Depuis l’espace de gestion, un appui le masque en ligne, un autre le rétablit.",
     },
   ],
-  simple: `Deux boutons, pensés pour s’apprendre en un service\u00a0: ils trouvent leur place dans le module «\u00a0comptoir, bornes et gestion de la livraison à domicile\u00a0» de votre formation franchisé.`,
+  simple: `«\u00a0Marquer prête\u00a0» et «\u00a0Remettre\u00a0»\u00a0: deux boutons, pensés pour s’apprendre en un service\u00a0; ils trouvent leur place dans le module «\u00a0comptoir, bornes et gestion de la livraison à domicile\u00a0» de votre formation franchisé.`,
   caption: "L’espace de gestion Ominin, au comptoir",
   sources: ["brochure"],
 };
 
 const forRevenue: Section<"forRevenue"> = {
   eyebrow: "Le calcul, pour un franchisé",
-  title: `Avec ${illustration.coveringCustomers}\u00a0clients de plus par\u00a0jour, le surcoût est couvert dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
+  title: `Le surcoût\u00a0: ≈\u00a0${percent(monthlyExample.extraOfRevenue)} du CA, couvert par ${illustration.coveringCustomers}\u00a0clients de plus par jour, dès ${percent(monthlyExample.breakEvenMargin)} de marge\u00a0brute.`,
   mechanism:
     "On reste ou on repart selon la longueur de la file (Lu et al., 2013, rayon traiteur d’un hypermarché)\u00a0: qui commande depuis sa table raccourcit la file du suivant.",
   illustrationLabel: "Illustration, pas une promesse",
@@ -356,11 +372,11 @@ const forRevenue: Section<"forRevenue"> = {
 const forHeadOffice: Section<"forHeadOffice"> = {
   eyebrow: "Pour le siège",
   title: "Tout le réseau, en direct.",
-  lead: "Le réseau sur un écran\u00a0: ce qui part, ce qui attend au comptoir, qui est en rush et si l’heure annoncée par l’IA est tenue, restaurant par restaurant, nouvelles ouvertures comprises.",
+  lead: "Le réseau sur un écran\u00a0: ce qui part, ce qui attend au comptoir, qui est en rush et quels délais l’IA annonce, restaurant par restaurant, nouvelles ouvertures comprises.",
   badge: "Données de démonstration",
-  rushKey: "Les pastilles numérotées\u00a0: les restaurants en rush (délai annoncé de 10\u00a0min ou plus).",
+  rushKey: `Les pastilles numérotées\u00a0: les restaurants en rush (délai annoncé de ${network.simulation.rush.waitMinutes}\u00a0min ou plus).`,
   delayKey: "Délais annoncés par l’estimateur IA.",
-  hypothesis: "Simulation sur vos 107 restaurants ouverts en France, 30\u00a0% des commandes par QR.",
+  hypothesis: `Simulation sur vos ${restaurantsInDemo} restaurants ouverts en France au ${simulatedDay}, ${percent(network.simulation.adoption.initial * 100)} des commandes par QR.`,
   areas: [
     { label: "Qui est en rush", x: 24 },
     { label: "Ce qui part", x: 808 },
@@ -370,9 +386,9 @@ const forHeadOffice: Section<"forHeadOffice"> = {
 };
 
 const deployment: Section<"deployment"> = {
-  eyebrow: "Déploiement",
+  eyebrow: "Face à vos outils",
   title: { text: "Ce que le QR", accent: "ajoute." },
-  lead: "Vous avez déjà WhatsApp, votre application et des bornes dans une partie des restaurants. Le QR sert le client déjà sur place, à table ou dans la file, sans rien remplacer\u00a0; Uber Eats et Deliveroo restent vos canaux de livraison.",
+  lead: "Vous avez déjà WhatsApp, votre application et des bornes dans une partie des restaurants. Le QR ne s’ajoute pas à la liste\u00a0: sur place, il prend le relais de l’échange WhatsApp et soulage les bornes aux heures de pointe\u00a0; Uber Eats et Deliveroo restent vos canaux de livraison.",
   sources: ["app", "whatsapp", "brochure"],
   points: [
     {
@@ -392,8 +408,8 @@ const deployment: Section<"deployment"> = {
     },
     {
       label: "Caisse",
-      title: "Votre caisse reste la vôtre.",
-      text: "Les ventes QR arrivent sur le compte Stripe du restaurant, exportables pour le comptable et vos redevances. Lien caisse et fidélité\u00a0: à voir avec votre éditeur.",
+      title: "Les ventes QR, sur le compte du restaurant.",
+      text: "Votre caisse ne change pas. Les ventes QR arrivent sur le compte Stripe du restaurant, exportables pour le comptable et vos redevances. Lien caisse et fidélité\u00a0: à voir avec votre éditeur.",
     },
   ],
 };
@@ -405,7 +421,7 @@ const pricing: Section<"pricing"> = {
     commission: commissionRange,
     basis: "sur les commandes QR payées en\u00a0ligne.",
   },
-  lead: "Dégressif selon le chiffre d’affaires de chaque restaurant, paliers fixés ensemble. Rien à payer au niveau du siège. Chaque restaurant ne paie que sur ses commandes passées par Ominin et payées en ligne\u00a0: rien sur les bornes, le comptoir, votre application, WhatsApp ni la livraison.",
+  lead: `Plus ${euros(setupFeeTotal)} de boîtier livré, une fois par restaurant. Dégressif selon le chiffre d’affaires de chaque restaurant, paliers fixés ensemble. Rien à payer au niveau du siège. Chaque restaurant ne paie que sur ses commandes passées par Ominin et payées en ligne\u00a0: rien sur les bornes, le comptoir, votre application, WhatsApp ni la livraison.`,
   example: {
     label: `Une commande de ${euros(exampleOrder.ticket)} payée en ligne`,
     rateNote: `Au taux maximal de ${maxRate}`,
@@ -453,13 +469,13 @@ const proposal: Section<"proposal"> = {
     points: [
       `${setupFeeLabel[0].toUpperCase()}${setupFeeLabel.slice(1)}, réglés une fois par le restaurant, à l’installation.`,
       "Supports QR\u00a0: format et tarif à définir ensemble, selon la façon dont vous souhaitez afficher vos QR codes.",
-      "Chaque ouverture équipée dès le premier jour\u00a0: Corbeil-Essonnes, puis les 37 ouvertures annoncées. Chaque restaurant garde ses propres prix de vente.",
+      `Chaque ouverture équipée dès le premier jour, à commencer par les ${footprint.openings} annoncées. Chaque restaurant garde ses propres prix de vente.`,
       "Assistance aux franchisés\u00a0: canal et horaires définis avec vous avant le déploiement.",
     ],
   },
   measures: {
     title: "Ce que le pilote mesurera",
-    lead: "Cinq chiffres, relevés ensemble.",
+    lead: "Cinq chiffres, objectifs fixés ensemble avant le lancement.",
     sources: [],
     points: [
       "La part des commandes passées par QR.",
@@ -477,7 +493,7 @@ const closing: Section<"closing"> = {
   steps: ["Un appel\u00a0: vos imprimantes et votre carte", "Vous choisissez le restaurant pilote", `Un pilote de ${pilot.days}\u00a0jours\u00a0: nous installons, nous mesurons ensemble`],
   mail: "Écrire au cofondateur",
   interlocutor: `Votre interlocuteur direct\u00a0: ${founder.name}, ${founder.role}.`,
-  company: "Nous concevons et exploitons des outils pour la restauration\u00a0: commande et paiement en ligne, estimateur IA de l’heure de retrait, impression en cuisine.",
+  company: "Nous concevons et exploitons des outils pour la restauration\u00a0: commande et paiement en ligne, estimateur IA, impression en cuisine.",
   reference: "Ominin est déjà en service chez plusieurs restaurants indépendants\u00a0; nous l’ouvrons aujourd’hui aux réseaux.",
   scanTitle: "Votre carte, prête à tester.",
   scanPage: "Testez votre carte comme un client.",
@@ -489,7 +505,7 @@ const closing: Section<"closing"> = {
 
 export const chickenStreet: Pitch<SourceId> = {
   path: "/chicken-street",
-  ticketNumber: 42,
+  ticketNumber: order.number,
   brandName: "Chicken Street",
   filmSeenKey: "chickenstreet-pitch-film-vu",
   filmSrc: "/pitch/ominin/film.mp4",
@@ -505,7 +521,7 @@ export const chickenStreet: Pitch<SourceId> = {
   },
   screens,
   sources,
-  sourcesNote: "Restaurants, adresses et carte\u00a0: d’après chickenstreet.fr et restaurants.chickenstreet.fr\u00a0; prix et boissons de la démo indicatifs, relevés par un agrégateur\u00a0; les paniers de la vue réseau en découlent (≈\u00a017\u00a0€), le calcul retient 22\u00a0€, déduit de votre plaquette. Relevés et captures du 06–07/10/2026.",
+  sourcesNote: "Restaurants, adresses et carte\u00a0: d’après chickenstreet.fr et restaurants.chickenstreet.fr\u00a0; prix et boissons de la démo indicatifs, relevés par un agrégateur. Relevés et captures du 06–07/10/2026.",
   cover,
   promise,
   walkAway,

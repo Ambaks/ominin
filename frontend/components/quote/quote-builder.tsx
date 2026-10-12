@@ -19,6 +19,7 @@ import {
   quoteLines,
   quotePlan,
   quoteTotal,
+  type QuoteLine,
   type StarterQuote,
 } from "@/lib/quote";
 
@@ -103,12 +104,18 @@ function Switch({ on, inverse }: { on: boolean; inverse?: boolean }) {
 export function QuoteBuilder({
   initial,
   locked = false,
+  extras = [],
   submitLabel,
   onSubmit,
 }: {
   initial: StarterQuote;
   /** Offre et tables figées : l'établissement existe déjà (activation). */
   locked?: boolean;
+  /**
+   * Matériel choisi dans le composeur, déjà chiffré : le checkout le facture
+   * avec le devis, l'addition doit donc le montrer.
+   */
+  extras?: QuoteLine[];
   submitLabel: string;
   /**
    * Le contrat n'accompagne que la variante « locked » : c'est la seule qui
@@ -145,7 +152,10 @@ export function QuoteBuilder({
   const options = hasInstallOptions(plan);
   const selected = quotePlan(plan);
   const selectedTrial = selected ? trialPricing(selected) : null;
-  const total = quoteTotal(quote);
+  // La livraison ferme l'addition : le matériel se glisse avant elle.
+  const baseLines = quoteLines(quote);
+  const lines = [...baseLines.slice(0, -1), ...extras, ...baseLines.slice(-1)];
+  const total = quoteTotal(quote) + extras.reduce((sum, line) => sum + line.amount, 0);
 
   const submit = async () => {
     setBusy(true);
@@ -396,7 +406,7 @@ export function QuoteBuilder({
 
           {tables > 0 ? (
             <dl className="flex flex-col gap-3">
-              {quoteLines(quote).map((line) => (
+              {lines.map((line) => (
                 <div key={line.id} className="rise flex items-baseline gap-2 text-sm">
                   <dt className="text-muted">
                     {line.label}
