@@ -158,7 +158,7 @@ function LoyaltyManager({
 
   return (
     <div className="flex max-w-xl flex-col gap-8">
-      <section className="flex flex-col gap-3">
+      <section data-visite="fidelite-programme" className="flex flex-col gap-3">
         <h2 className="font-display text-lg font-medium">Programme</h2>
         <div className={`${cardClass} flex items-center justify-between gap-3`}>
           <div>
@@ -202,7 +202,7 @@ function LoyaltyManager({
         </form>
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section data-visite="fidelite-paliers" className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Paliers</h2>
           <button

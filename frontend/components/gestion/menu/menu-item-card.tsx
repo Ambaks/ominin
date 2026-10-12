@@ -64,6 +64,8 @@ export function MenuItemCard({
 
   return (
     <article
+      // La première fiche de la catégorie sert d'exemple à la visite du Menu.
+      data-visite={first ? "menu-article" : undefined}
       className={`flex gap-4 rounded-2xl border border-hairline bg-surface p-4 ${
         available ? "" : "opacity-60"
       }`}

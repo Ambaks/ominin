@@ -401,7 +401,7 @@ function TerminauxManager({
 
   return (
     <div className="flex max-w-xl flex-col gap-8">
-      <section className="flex flex-col gap-3">
+      <section data-visite="terminaux-omilink" className="visite-encart flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Boîtiers Omilink</h2>
           {devices.length > 0 && addDeviceButton}
@@ -429,7 +429,7 @@ function TerminauxManager({
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
+      <section data-visite="terminaux-imprimantes" className="visite-encart flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Imprimantes</h2>
           {devices.length > 0 && (

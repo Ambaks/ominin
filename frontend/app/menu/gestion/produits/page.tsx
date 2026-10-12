@@ -105,7 +105,11 @@ export default function ProduitsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {offreProduct && (
-          <ProductCard product={offreProduct} badge={<Pill>Actif</Pill>} />
+          <ProductCard
+            product={offreProduct}
+            badge={<Pill>Actif</Pill>}
+            visite="produits-offre"
+          />
         )}
 
         <section className={cardClass}>
@@ -162,7 +166,7 @@ export default function ProduitsPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             {!collectActive && (
-              <ProductCard product={collectProduct}>
+              <ProductCard product={collectProduct} visite="produits-collect">
                 {confirming ? (
                   <p className="text-sm text-muted">
                     Paiement reçu, activation en cours…
@@ -204,9 +208,13 @@ export default function ProduitsPage() {
               </ProductCard>
             )}
 
-            {otherOffres.map((product) => (
+            {otherOffres.map((product, index) => (
               <ProductCard key={product.id} product={product}>
-                <a href={changeOffreHref} className={productLinkClass}>
+                <a
+                  href={changeOffreHref}
+                  data-visite={index === 0 ? "produits-autres" : undefined}
+                  className={productLinkClass}
+                >
                   Passer à {product.name}
                 </a>
               </ProductCard>

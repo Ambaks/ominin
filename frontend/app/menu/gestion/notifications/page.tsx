@@ -76,7 +76,7 @@ function DeviceStatusCard({
   };
 
   return (
-    <section className={cardClass}>
+    <section data-visite="notifications-appareil" className={cardClass}>
       <h2 className="font-display text-lg font-medium">Cet appareil</h2>
       {status === null ? (
         <div aria-busy className="shimmer mt-4 h-16 rounded-xl" />
@@ -124,6 +124,7 @@ function DeviceStatusCard({
             onClick={() =>
               void act(enablePush, "Notifications activées sur cet appareil.")
             }
+            data-visite="notifications-activer-appareil"
             className="ember-gradient mt-4 rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
           >
             {busy ? "Activation…" : "Activer les notifications"}
@@ -197,7 +198,7 @@ function PrefsCard({
   };
 
   return (
-    <section className={cardClass}>
+    <section data-visite="notifications-choix" className={cardClass}>
       <h2 className="font-display text-lg font-medium">Ce que je reçois</h2>
       <p className="mt-1 text-sm leading-relaxed text-muted">
         Vos choix valent pour tous vos appareils. Chaque membre de
@@ -238,7 +239,7 @@ function ChimeCard() {
   const enabled = useChimeEnabled();
 
   return (
-    <section className={cardClass}>
+    <section data-visite="notifications-carillon" className={cardClass}>
       <h2 className="font-display text-lg font-medium">Carillon</h2>
       <p className="mt-1 text-sm leading-relaxed text-muted">
         Tant que l&rsquo;espace de gestion est ouvert sur cet appareil, chaque

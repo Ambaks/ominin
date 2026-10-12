@@ -1,5 +1,6 @@
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
+import type { VisiteId } from "./visites";
 
 export type Offre = "digital" | "smart" | "connect";
 export type Role = "gerant" | "cuisinier" | "serveur";
@@ -271,6 +272,8 @@ export interface GestionState {
   collectSubscriptionStatus: string | null;
   userId: string;
   role: Role;
+  /** Visites guidées déjà vues ; null ⇒ compte jamais inscrit aux visites. */
+  visitesVues: VisiteId[] | null;
   /** Capacités résolues : l'offre, ajustée par les réglages d'Ominin. */
   features: Record<Feature, boolean>;
   /** Étapes de l'onglet Commandes, dans l'ordre voulu par le restaurant. */
