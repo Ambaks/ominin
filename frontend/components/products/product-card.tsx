@@ -54,33 +54,41 @@ export function DiscoverLink({ product }: { product: Product }) {
 export function ProductCard({
   product,
   badge,
+  visite,
   children,
 }: {
   product: Product;
   badge?: React.ReactNode;
+  /** Repère de visite guidée sur l'en-tête de la carte (nom, prix). */
+  visite?: string;
   /** Action de la carte, rendue en pied. */
   children?: React.ReactNode;
 }) {
   return (
     <article className={cardClass}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className={eyebrowClass}>{product.eyebrow}</p>
-          <h3 className="font-display text-xl font-medium">{product.name}</h3>
+      <div
+        data-visite={visite}
+        className={`flex flex-col gap-4 ${visite ? "visite-encart" : ""}`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className={eyebrowClass}>{product.eyebrow}</p>
+            <h3 className="font-display text-xl font-medium">{product.name}</h3>
+          </div>
+          {badge}
         </div>
-        {badge}
-      </div>
-      <p className="text-sm text-muted">{product.tagline}</p>
-      <div>
-        <p className="font-display text-2xl font-medium">
-          {product.price}
-          {product.priceUnit && (
-            <span className="text-sm text-faint">{product.priceUnit}</span>
+        <p className="text-sm text-muted">{product.tagline}</p>
+        <div>
+          <p className="font-display text-2xl font-medium">
+            {product.price}
+            {product.priceUnit && (
+              <span className="text-sm text-faint">{product.priceUnit}</span>
+            )}
+          </p>
+          {product.priceNote && (
+            <p className="mt-1 text-sm text-muted">{product.priceNote}</p>
           )}
-        </p>
-        {product.priceNote && (
-          <p className="mt-1 text-sm text-muted">{product.priceNote}</p>
-        )}
+        </div>
       </div>
       {product.featuresLabel && (
         <p className="text-xs font-medium text-faint">{product.featuresLabel}</p>

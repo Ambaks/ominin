@@ -481,6 +481,7 @@ export function CreateOrderFab({ state }: { state: GestionState }) {
     <>
       <button
         type="button"
+        data-visite="prise-commande"
         onClick={() => setOpen(true)}
         aria-label="Nouvelle commande"
         title="Nouvelle commande"

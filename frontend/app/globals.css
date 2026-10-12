@@ -4012,6 +4012,72 @@ body {
   animation: fab-breathe 2.6s ease-in-out infinite;
 }
 
+/* Visite guidée de l'espace de gestion : tout s'assombrit sauf la cible,
+   cernée de braise. L'ombre porte le voile — un seul élément, que la visite
+   fait glisser d'une cible à l'autre. Le cerne est intérieur : rentré dans
+   l'écran, le halo d'une barre collée au bord le garde entier. */
+.visite {
+  --visite-voile: rgb(4 3 2 / 0.78);
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+
+html.light .visite {
+  --visite-voile: rgb(34 27 19 / 0.78);
+}
+
+.visite-halo {
+  box-shadow:
+    inset 0 0 0 2px var(--ember-2),
+    0 0 24px 2px color-mix(in srgb, var(--ember-2) 45%, transparent),
+    0 0 0 200vmax var(--visite-voile);
+}
+
+/* Étape sans cible : le voile seul, sans braise au centre de l'écran. */
+.visite-halo[data-centre] {
+  box-shadow: 0 0 0 200vmax var(--visite-voile);
+}
+
+/* La page ne défile pas sous une visite : la cible resterait en place sous
+   la carte, le halo sur autre chose. La visite, elle, la fait défiler par
+   script (scrollBy passe outre). */
+html:has(dialog.visite[open]) {
+  overflow: hidden;
+  /* La barre de défilement qui disparaît décalerait la page d'autant. */
+  scrollbar-gutter: stable;
+}
+
+/* De la place sous la page : une cible du bas peut monter jusqu'à laisser
+   sa carte au-dessus d'elle, plutôt que de passer dessous. */
+html:has(dialog.visite[open]) body {
+  padding-bottom: 100dvh;
+}
+
+/* Repère sans bord ni fond (une section, un en-tête) : rentré dans la marge
+   qui l'entoure, le halo garde ses distances avec le texte. */
+.visite-encart {
+  margin: -0.75rem;
+  padding: 0.75rem;
+  border-radius: 1rem;
+}
+
+/* Les barres collées sont translucides : sous le halo, la page défilerait
+   au travers. */
+body:has(dialog.visite[open]) [data-visite-bord] {
+  background-color: var(--background);
+}
+
+@keyframes visite-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.visite-card {
+  animation: visite-in 0.24s ease-out;
+}
+
 /* Bandeau des offres : la piste porte trois copies du visuel et recule
    d'une copie par tour, la suivante prenant exactement sa place. Durée
    posée en ligne (--marquee-duration), selon le nombre d'offres. */
@@ -4055,7 +4121,8 @@ body {
   .scroll-bounce,
   .ember-flow,
   .fab-breathe,
-  .marquee-track {
+  .marquee-track,
+  .visite-card {
     animation: none;
   }
   .hero-entrance {

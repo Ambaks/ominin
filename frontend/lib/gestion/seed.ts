@@ -287,6 +287,7 @@ export function seed(): GestionState {
     offreTrial: null,
     collectSubscriptionStatus: null,
     userId: "demo-user",
+    visitesVues: null,
     role: "gerant",
     members: [],
     // La démonstration montre tout : l'offre connect ouvre chaque écran.

@@ -6,6 +6,7 @@ import { Field, inputClass } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { Answers } from "@/lib/composer";
 import { startCheckout, type StarterOptions } from "@/lib/gestion/checkout";
+import { enrollVisites } from "@/lib/gestion/visites-inscription";
 import { signContract } from "@/lib/legal/client";
 import type { Offre } from "@/lib/gestion/types";
 import { pricingSection } from "@/lib/landing-data";
@@ -84,6 +85,7 @@ export function OnboardingForm({
       setBusy(false);
       return;
     }
+    await enrollVisites();
 
     // Les réponses du composeur partent avec l'établissement : l'équipe les
     // lit à la commande de démarrage. Un échec ne bloque pas l'ouverture —

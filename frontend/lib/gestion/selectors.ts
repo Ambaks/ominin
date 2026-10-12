@@ -5,6 +5,7 @@ import type {
   GestionState,
   Order,
   OrderItem,
+  OrderTab,
   PaymentLeg,
   Staff,
   Table,
@@ -103,6 +104,27 @@ export function awaitsService(order: Order): boolean {
     order.status === "payee" ||
     (order.orderNumber !== undefined && order.status === "prete")
   );
+}
+
+/**
+ * Onglets de Commandes affichés, dans l'ordre du restaurant. Le filet : une
+ * assiette qui attend sans que son ticket soit sorti, ou un boîtier tombé,
+ * rajoutent « À servir » même si le réglage l'exclut ; en fast food, c'est la
+ * file du comptoir, l'onglet est toujours là. La cuisine n'encaisse pas : son
+ * onglet d'addition n'a pas de sens. Un restaurant peut n'avoir gardé que
+ * l'addition ; la cuisine se retrouve alors sans onglet, et l'historique
+ * tient lieu de repli.
+ */
+export function orderTabsShown(state: GestionState, printerOffline: boolean): OrderTab[] {
+  const serviceNet =
+    !state.orderTabs.includes("a_servir") &&
+    (state.etablissement.serviceMode === "fast_food" ||
+      printerOffline ||
+      state.orders.some((order) => awaitsService(order)));
+  const tabs = (serviceNet ? [...state.orderTabs, "a_servir" as OrderTab] : state.orderTabs).filter(
+    (tab) => tab !== "a_encaisser" || state.role !== "cuisinier"
+  );
+  return tabs.length > 0 ? tabs : ["historique"];
 }
 
 /**

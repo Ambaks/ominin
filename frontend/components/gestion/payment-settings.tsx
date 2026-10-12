@@ -50,6 +50,17 @@ interface SquareStatus {
 const NO_STRIPE: StripeStatus = { connected: false, chargesEnabled: false };
 const NO_SQUARE: SquareStatus = { connected: false };
 
+/** Paramètre d'échec posé par l'URL de retour, à côté de celui du résultat. */
+const errorParam = (provider: Provider) => `${provider}_error`;
+
+/** L'URL porte un retour d'onboarding, que takeReturn lira. */
+export function hasProviderReturn(search: string): boolean {
+  const params = new URLSearchParams(search);
+  return (["stripe", "square"] satisfies Provider[]).some(
+    (provider) => params.has(provider) || params.has(errorParam(provider))
+  );
+}
+
 /** Paramètres posés par les URLs de retour, lus une fois puis retirés. */
 function takeReturn(provider: Provider): {
   outcome: string | null;
@@ -57,7 +68,7 @@ function takeReturn(provider: Provider): {
 } {
   const url = new URL(window.location.href);
   const outcome = url.searchParams.get(provider);
-  const errorKey = `${provider}_error`;
+  const errorKey = errorParam(provider);
   const error = url.searchParams.get(errorKey);
   if (outcome === null && error === null) return { outcome, error };
   url.searchParams.delete(provider);
@@ -291,7 +302,7 @@ export function PaymentSettings({
       {loading ? (
         <div aria-busy className="shimmer h-10 rounded-xl" />
       ) : (
-        <>
+        <div data-visite="etablissement-paiement" className="visite-encart flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium">Paiement en ligne</p>
@@ -442,7 +453,7 @@ export function PaymentSettings({
               </div>
             )
           )}
-        </>
+        </div>
       )}
     </section>
   );

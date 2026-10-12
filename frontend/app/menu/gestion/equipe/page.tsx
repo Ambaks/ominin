@@ -173,6 +173,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
     <div className="flex max-w-xl flex-col gap-8">
       <form
         onSubmit={invite}
+        data-visite="equipe-inviter"
         className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 lg:p-6"
       >
         <h2 className="font-display text-lg font-medium">Inviter un membre</h2>
@@ -376,6 +377,7 @@ export default function EquipePage() {
       ) : (
         <>
           <PillTabs
+            visite="equipe-volets"
             tabs={panes.map(({ id, label }) => ({ id, label }))}
             activeId={active}
             onSelect={(id) => setPane(id as PaneId)}
