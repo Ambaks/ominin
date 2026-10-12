@@ -10,7 +10,6 @@ export { app, emberGradient, om } from "../../../marketing/linkedin-film/src/bra
 export { Grain } from "../../../marketing/linkedin-film/src/kit/atmosphere";
 export { Device, DEVICES, pose, type Pose } from "../../../marketing/linkedin-film/src/kit/Device";
 export { springs } from "../../../marketing/linkedin-film/src/kit/motion";
-export { AUDIENCES, Audiences } from "../../../marketing/linkedin-film/src/scenes/Audiences";
 export { Qr } from "../../../marketing/linkedin-film/src/scenes/art";
 export { Accent, Backdrop, Check, clamp, ramp } from "../../../marketing/linkedin-film/src/scenes/common";
 export { KitchenTicket, PANEL } from "../../../marketing/linkedin-film/src/scenes/product/panels";

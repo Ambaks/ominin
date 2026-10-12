@@ -1,7 +1,7 @@
 import { loadFont } from "@remotion/google-fonts/Geist";
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import { AbsoluteFill, cancelRender, Easing, interpolate, Sequence, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { Backdrop, clamp, Device, DEVICES, fonts, Grain, om, OmininMark, PhoneScreen, pose, springs, type Pose } from "./film";
+import { Backdrop, clamp, Device, DEVICES, fonts, Grain, om, OmininMark, PhoneScreen, pose, Qr, springs, type Pose } from "./film";
 
 /* The landings' display face: Geist 800, set tight (components/landing-kit/kit.css). */
 const black = loadFont("normal", { subsets: ["latin"], weights: ["800"] });
@@ -232,8 +232,17 @@ export const filmTime =
       clamp,
     );
 
+/**
+ * Where the phone rests: its bottom edge stops above the Reels UI (y 1570),
+ * its top below the captions. During a hook it sits lower, under the text.
+ */
+export const PHONE = { size: 980, rest: 90, peek: 560 };
+
+/** The phone's y: under the hook, then up to its rest from frame `at`. */
+export const usePhoneY = (at: number) => PHONE.peek + (PHONE.rest - PHONE.peek) * useIn(at, springs.push);
+
 /** The film's 3D phone with the customer's screens, played on film time. */
-export const Phone = ({ map, at, size = 1040, place }: { map: (frame: number) => number; at: number; size?: number; place: Partial<Pose> }) => {
+export const Phone = ({ map, at, size = PHONE.size, place }: { map: (frame: number) => number; at: number; size?: number; place: Partial<Pose> }) => {
   const frame = useCurrentFrame();
   const enter = useIn(at, springs.heavy);
   if (frame < at) return null;
@@ -294,8 +303,8 @@ export const Lockup = ({ size }: { size: number }) => {
   );
 };
 
-/** Last card: lockup, one line, the URL; all inside the safe zone. */
-export const EndCard = ({ at, line }: { at: number; line: ReactNode }) => {
+/** Last card: lockup, one line, the offer in a smaller line, the URL; all inside the safe zone. */
+export const EndCard = ({ at, line, sub }: { at: number; line: ReactNode; sub?: ReactNode }) => {
   const pill = useIn(at + 10, springs.snappy);
   const frame = useCurrentFrame();
   if (frame < at) return null;
@@ -320,12 +329,44 @@ export const EndCard = ({ at, line }: { at: number; line: ReactNode }) => {
       >
         {line}
       </Rise>
-      <div style={{ marginTop: 80, opacity: Math.min(1, pill * 1.5), transform: `scale(${0.8 + 0.2 * pill})` }}>
+      {sub && (
+        <Rise at={at + 7} style={{ marginTop: 36, maxWidth: WIDTH - 2 * SAFE.x, textAlign: "center", fontSize: 46, fontWeight: 600, lineHeight: 1.25, color: om.muted, textWrap: "balance" }}>
+          {sub}
+        </Rise>
+      )}
+      <div style={{ marginTop: 70, opacity: Math.min(1, pill * 1.5), transform: `scale(${0.8 + 0.2 * pill})` }}>
         <UrlPill />
       </div>
     </AbsoluteFill>
   );
 };
+
+/** The Cachet as it is delivered: the restaurant's logo over the table's QR. */
+export const Cachet = ({ scale = 1 }: { scale?: number }) => (
+  <div style={{ width: 260 * scale, padding: `${22 * scale}px ${22 * scale}px ${18 * scale}px`, borderRadius: 30 * scale, background: "#fff", color: "#1A1512", textAlign: "center", fontWeight: 700 }}>
+    <div
+      style={{
+        margin: `0 auto ${16 * scale}px`,
+        width: 92 * scale,
+        height: 92 * scale,
+        borderRadius: "50%",
+        display: "grid",
+        placeItems: "center",
+        background: "#1A1512",
+        color: "#fff",
+        fontSize: 17 * scale,
+        lineHeight: 1.1,
+        letterSpacing: "0.04em",
+      }}
+    >
+      VOTRE
+      <br />
+      LOGO
+    </div>
+    <Qr size={216 * scale} />
+    <div style={{ marginTop: 10 * scale, fontSize: 26 * scale }}>Table 12</div>
+  </div>
+);
 
 /** A dark card in the landings' surface. */
 export const Card = ({ children, style }: { children: ReactNode; style?: CSSProperties }) => (

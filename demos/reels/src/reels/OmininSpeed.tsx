@@ -5,85 +5,77 @@ import { Captions, Card, DISPLAY, EndCard, Eyebrow, Figure, Headline, Hot, Mark,
 /*
  * Le rapport public ominin.com/r7k2 : de la commande au ticket cuisine,
  * 18 s en médiane payée en ligne, 4 min 39 payée au comptoir
- * (frontend/lib/report/data.json, speed). A ouvre sur le comptoir, B sur 18 s.
+ * (frontend/lib/report/data.json, speed). Accroche issue du test A/B : les
+ * deux chiffres ensemble.
  */
 const ONLINE = 18;
 const COUNTER = 4 * 60 + 39;
 
-const HOOKS = {
-  A: { figure: "4 min 39", size: 196, sub: "pour qu’une commande payée au comptoir arrive en cuisine." },
-  B: { figure: "18 s", size: 330, sub: "pour qu’une commande payée depuis la table arrive en cuisine." },
-};
-
-const HOOK_END = s(2.6);
-const RACE = s(2.8);
-/** The race replays the medians fast: the first 18 s over 2 s, the rest of the counter's wait over 4.5 s. */
-const clock = (frame: number) => interpolate(frame, [RACE + 12, RACE + 72, RACE + 207], [0, ONLINE, COUNTER], clamp);
-const ONLINE_DONE = RACE + 72;
-const COUNTER_DONE = RACE + 207;
-const END = s(13.8);
-export const OMININ_SPEED_DURATION = s(17);
+const HOOK_END = s(2.3);
+/** The race replays the medians fast: the first 18 s over 2 s, the rest of the counter's wait over 4 s. */
+const ONLINE_DONE = HOOK_END + s(2);
+const COUNTER_DONE = ONLINE_DONE + s(4);
+const clock = (frame: number) => interpolate(frame, [HOOK_END, ONLINE_DONE, COUNTER_DONE], [0, ONLINE, COUNTER], clamp);
+const END = COUNTER_DONE + s(2.4);
+export const OMININ_SPEED_DURATION = END + s(4);
 
 const time = (seconds: number) => {
   const total = Math.round(seconds);
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 };
 
+/** One payment's lane, on the counter's scale: 18 s fills 6 % of it. */
 const Lane = ({ label, target, value }: { label: string; target: number; value: string }) => {
   const frame = useCurrentFrame();
   const accent = useAccent();
-  const elapsed = clock(frame);
-  const done = elapsed >= target;
+  const elapsed = Math.min(clock(frame), target);
+  const done = clock(frame) >= target;
   return (
-    <div style={{ marginTop: 44 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 46, fontWeight: 700 }}>
+    <div style={{ marginTop: 48 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 50, fontWeight: 700 }}>
         <span>{label}</span>
         {done && (
-          <span style={{ display: "flex", alignItems: "center", gap: 12, fontFamily: DISPLAY, fontWeight: 800, fontSize: 58 }}>
-            <Check size={48} color={om.ready} />
+          <span style={{ display: "flex", alignItems: "center", gap: 12, fontFamily: DISPLAY, fontWeight: 800, fontSize: 64 }}>
+            <Check size={52} color={om.ready} />
             {value}
           </span>
         )}
       </div>
-      <div style={{ marginTop: 18, height: 30, borderRadius: 15, background: om.raised, overflow: "hidden" }}>
-        <div style={{ width: `${Math.min(1, elapsed / target) * 100}%`, height: "100%", borderRadius: 15, background: done ? accent : om.muted }} />
+      <div style={{ marginTop: 18, height: 36, borderRadius: 18, background: om.raised, overflow: "hidden" }}>
+        <div style={{ width: `${(elapsed / COUNTER) * 100}%`, minWidth: elapsed > 0 ? 36 : 0, height: "100%", borderRadius: 18, background: done ? accent : om.muted }} />
       </div>
     </div>
   );
 };
 
-export const OmininSpeed = ({ hook }: { hook: keyof typeof HOOKS }) => {
+export const OmininSpeed = () => {
   const frame = useCurrentFrame();
-  const { figure, size, sub } = HOOKS[hook];
   return (
     <Stage brand="ominin">
-      <Eyebrow label="Données réelles · ominin.com/r7k2" until={END - 6} />
-      <Headline lines={[<Mark at={6}>{figure}</Mark>]} at={-30} until={HOOK_END} size={size} top={520} />
-      <Rise at={-30} until={HOOK_END} style={{ position: "absolute", top: 560 + size * 1.05, left: SAFE.x, right: SAFE.x, fontSize: 72, fontWeight: 700, lineHeight: 1.1, textWrap: "balance" }}>
-        {sub}
-      </Rise>
+      <Eyebrow label="Données réelles" until={END - 6} />
+      <Headline lines={[<><Mark at={6}>18 s</Mark> au lieu</>, "de 4 min 39."]} at={-30} until={HOOK_END} size={124} top={SAFE.top + 110} />
       <Captions
         top={SAFE.top + 110}
         lines={[
-          { at: RACE, until: ONLINE_DONE + 26, text: <>Payée depuis la table : en cuisine en <Hot>18 s.</Hot></> },
-          { at: ONLINE_DONE + 30, until: COUNTER_DONE + 10, text: <>Payée au comptoir : <Hot>4 min 39.</Hot></> },
-          { at: COUNTER_DONE + 14, until: END - 6, text: <>L’écart, c’est <Hot>la file pour payer.</Hot></> },
+          { at: HOOK_END + 4, until: ONLINE_DONE + 20, text: <>Payée depuis la table : en cuisine en <Hot>18 s.</Hot></> },
+          { at: ONLINE_DONE + 24, until: COUNTER_DONE + 6, text: <>Payée au comptoir : <Hot>4 min 39.</Hot></> },
+          { at: COUNTER_DONE + 10, until: END - 6, text: <>L’écart : <Hot>se déplacer, faire la queue, payer.</Hot></> },
         ]}
       />
-      <Rise at={RACE + 4} until={END - 6} style={{ position: "absolute", top: 620, left: SAFE.x, right: SAFE.x }}>
-        <Card style={{ padding: "44px 48px 52px" }}>
-          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: om.muted }}>Commande → ticket cuisine</div>
-          <Figure size={170} style={{ marginTop: 18, fontVariantNumeric: "tabular-nums" }}>
+      <Rise at={-30} until={END - 6} style={{ position: "absolute", top: 660, left: SAFE.x, right: SAFE.x }}>
+        <Card style={{ padding: "44px 48px 56px" }}>
+          <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: om.muted }}>Commande → ticket cuisine</div>
+          <Figure size={200} style={{ marginTop: 18, fontVariantNumeric: "tabular-nums" }}>
             {time(clock(frame))}
           </Figure>
           <Lane label="Payée en ligne" target={ONLINE} value="18 s" />
           <Lane label="Payée au comptoir" target={COUNTER} value="4 min 39" />
         </Card>
-        <div style={{ marginTop: 28, fontSize: 32, fontWeight: 500, lineHeight: 1.3, color: om.muted }}>
-          Médianes d’un bar-restaurant toulousain, 18 sept. – 3 oct. 2026, rejouées en accéléré.
+        <div style={{ marginTop: 26, fontSize: 38, fontWeight: 600, lineHeight: 1.25, color: om.cream, opacity: 0.8 }}>
+          Médianes d’un bar-restaurant toulousain, rejouées en accéléré. Source : ominin.com/r7k2
         </div>
       </Rise>
-      <EndCard at={END} line="Commande et paiement depuis la table." />
+      <EndCard at={END} line="Vos clients paient depuis la table." sub="Ominin Menu · 0 €/mois · 3 % des paiements en ligne + frais de carte" />
     </Stage>
   );
 };

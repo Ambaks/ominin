@@ -1,71 +1,72 @@
 import { useCurrentFrame } from "remotion";
-import { om, Qr, T } from "../film";
-import { Captions, Card, EndCard, Eyebrow, Figure, filmTime, Headline, Hot, Mark, Phone, Pop, s, SAFE, Stage } from "../kit";
+import { om, T } from "../film";
+import { Cachet, Captions, Card, EndCard, Eyebrow, Figure, filmTime, Headline, Hot, Mark, Phone, Pop, Rise, s, SAFE, Stage, usePhoneY } from "../kit";
 
 /*
  * Ominin Menu, le tarif : Connect à 0 € par mois, 3 % des commandes payées
- * en ligne (+ frais de carte), le Cachet à 1,50 € par table, une fois
- * (frontend/lib/landing-data.ts).
+ * en ligne (+ frais de carte), le Cachet à votre logo à 1,50 € par table,
+ * une fois (frontend/lib/landing-data.ts).
  */
 const HOOK_END = s(2.4);
-const PHONE_IN = s(2.1);
-const PHONE_OUT = s(6.4);
-const RATE = s(6.6);
-const CACHET = s(10);
-const END = s(13.4);
-export const MENU_TARIF_DURATION = s(16.5);
+const RATE = s(4.3);
+const CACHET = s(7.3);
+const END = s(10.2);
+export const MENU_TARIF_DURATION = s(14.2);
 
 const film = filmTime([
-  [PHONE_IN, T.MENU + 10],
-  [s(3.6), T.TAPS[0] + 4],
-  [s(4.4), T.TAPS[1] + 4],
-  [s(5.2), T.TAPS[3]],
-  [PHONE_OUT, T.PAID + 20],
+  [0, T.MENU + 10],
+  [HOOK_END, T.MENU + 20],
+  [s(3), T.TAPS[0] + 4],
+  [s(3.5), T.TAPS[1] + 4],
+  [RATE, T.TAPS[1] + 20],
 ]);
 
-const figureBlock = { position: "absolute", top: 620, left: SAFE.x, right: SAFE.x } as const;
-const note = { marginTop: 36, fontSize: 52, fontWeight: 600, lineHeight: 1.2, color: om.muted, textWrap: "balance" } as const;
+const block = { position: "absolute", top: 620, left: SAFE.x, right: SAFE.x } as const;
+const lead = { marginTop: 24, fontSize: 64, fontWeight: 700, lineHeight: 1.1 } as const;
+const note = { marginTop: 30, fontSize: 52, fontWeight: 600, lineHeight: 1.2, color: om.cream, opacity: 0.75 } as const;
 
 export const MenuTarif = () => {
   const frame = useCurrentFrame();
+  const y = usePhoneY(HOOK_END - 6);
   return (
     <Stage brand="menu">
       <Eyebrow label="Ominin Menu · Tarif" until={END - 6} />
-      <Headline lines={["Le menu QR", "qui encaisse :", <Mark at={6}>0 € par mois.</Mark>]} at={-30} until={HOOK_END} size={140} top={560} />
+      <Headline lines={["Le menu QR", <Mark at={6}>0 € par mois.</Mark>]} at={-30} until={HOOK_END} size={150} top={SAFE.top + 110} />
+      <Rise at={-30} until={HOOK_END} style={{ position: "absolute", top: SAFE.top + 440, left: SAFE.x, right: SAFE.x, fontSize: 64, fontWeight: 700, lineHeight: 1.1 }}>
+        3 % seulement sur ce qui est <Hot>payé en ligne.</Hot>
+      </Rise>
       <Captions
         top={SAFE.top + 110}
         lines={[
-          { at: HOOK_END + 2, until: PHONE_OUT - 4, text: <>Vos clients commandent et <Hot>paient depuis la table.</Hot></> },
-          { at: RATE, until: CACHET - 6, text: "Ominin se rémunère sur ce qui est payé en ligne." },
-          { at: CACHET, until: END - 6, text: "Le QR code à votre logo, collé sur chaque table." },
+          { at: HOOK_END + 2, until: RATE - 6, text: <>Vos clients commandent et <Hot>paient depuis la table.</Hot></> },
+          { at: RATE, until: CACHET - 6, text: "Pas d’abonnement : une commission sur les paiements en ligne." },
+          { at: CACHET, until: END - 6, text: <>Le QR de table, <Hot>à votre logo.</Hot></> },
         ]}
       />
-      {frame < PHONE_OUT + 20 && <Phone map={film} at={PHONE_IN} place={{ y: frame < PHONE_OUT ? 400 : 400 + (frame - PHONE_OUT) * 70 }} />}
-      <Pop at={RATE + 4} until={CACHET - 6} style={figureBlock}>
+      {frame < RATE + 20 && <Phone map={film} at={-60} place={{ y: frame < RATE - 4 ? y : y + (frame - RATE + 4) * 70 }} />}
+      <Pop at={RATE + 4} until={CACHET - 6} style={block}>
         <Card style={{ padding: "56px 56px 60px" }}>
           <Figure size={300}>
-            <Hot>3&#8239;%</Hot>
+            <Hot>3 %</Hot>
           </Figure>
-          <div style={{ marginTop: 24, fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>des commandes payées en ligne</div>
-          <div style={note}>+ frais de carte. 0 € d’abonnement.</div>
+          <div style={lead}>des commandes payées en ligne</div>
+          <div style={note}>+ frais de carte · 0 € d’abonnement</div>
         </Card>
       </Pop>
-      <Pop at={CACHET + 4} until={END - 6} style={figureBlock}>
-        <Card style={{ padding: "56px 56px 60px", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
-            <div style={{ padding: 18, borderRadius: 28, background: "#fff", color: "#1A1512", textAlign: "center", fontWeight: 700, fontSize: 26 }}>
-              <Qr size={170} />
-              <div style={{ marginTop: 10 }}>Table 12</div>
+      <Pop at={CACHET + 4} until={END - 6} style={block}>
+        <Card style={{ padding: "52px 52px 56px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
+            <Cachet />
+            <div>
+              <Figure size={140}>
+                <Hot>1,50 €</Hot>
+              </Figure>
+              <div style={lead}>par table, une fois.</div>
             </div>
-            <Figure size={160}>
-              <Hot>1,50&#8239;€</Hot>
-            </Figure>
           </div>
-          <div style={{ marginTop: 40, fontSize: 60, fontWeight: 700, lineHeight: 1.1 }}>par table, une fois.</div>
-          <div style={note}>Le Cachet : il ouvre votre carte, sans application.</div>
         </Card>
       </Pop>
-      <EndCard at={END} line="0 € par mois. 3 % en ligne." />
+      <EndCard at={END} line="0 € par mois. 3 % en ligne." sub="+ frais de carte · QR à votre logo : 1,50 € par table, une fois" />
     </Stage>
   );
 };
