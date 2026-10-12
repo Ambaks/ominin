@@ -47,6 +47,7 @@ export function StripeDashboardButton() {
   return (
     <button
       type="button"
+      data-visite="stripe-espace"
       onClick={() => void open()}
       disabled={busy}
       className="min-h-11 shrink-0 rounded-full border border-hairline px-4 text-sm font-medium transition-colors hover:border-ember-2/40 disabled:opacity-60 lg:pointer-fine:min-h-9"

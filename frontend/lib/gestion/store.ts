@@ -29,6 +29,7 @@ import {
 } from "./mappers";
 import { can, resolveFeatures } from "./permissions";
 import { activeProducts, dayStart } from "./selectors";
+import { parseVisitesVues } from "./visites";
 import type {
   Action,
   ActiveProducts,
@@ -375,6 +376,7 @@ async function load(): Promise<void> {
     ...subscription,
     userId: user.id,
     role: membership.role,
+    visitesVues: parseVisitesVues(user.user_metadata),
     // Résolu une fois pour toutes : les écrans lisent un oui ou un non, sans
     // avoir à savoir ce qui vient de l'offre et ce qui vient des réglages.
     features: {} as GestionState["features"],

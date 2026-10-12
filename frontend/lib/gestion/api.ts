@@ -29,6 +29,8 @@ import type {
   ServiceMode,
   Staff,
 } from "./types";
+import { parseVisitesVues, type VisiteId } from "./visites";
+import { VISITES_METADATA_KEY } from "./visites-inscription";
 
 /*
  * Surface de mutation du back-office : chaque fonction écrit dans Supabase
@@ -1023,4 +1025,56 @@ export async function deletePriceRule(ruleId: string): Promise<void> {
   apply((draft) => {
     draft.priceRules = draft.priceRules.filter((r) => r.id !== ruleId);
   });
+}
+
+// ---------------------------------------------------------------------------
+// Visites guidées
+
+let visitesWrite: Promise<void> = Promise.resolve();
+const VISITE_NON_ENREGISTREE = "Visite guidée non enregistrée :";
+
+/**
+ * Visites fermées : elles ne se relancent plus d'elles-mêmes. C'est une
+ * préférence d'affichage, pas une donnée du restaurant — appliquée avant
+ * l'écriture, pour qu'un échec réseau ne rouvre pas une visite à la page
+ * suivante (elle reviendrait seulement à la prochaine connexion). Les
+ * écritures passent une à une, chacune relue sur le compte juste avant :
+ * deux fermetures rapprochées ne s'effacent pas, et ce qu'un autre appareil
+ * a fermé plus tôt est gardé.
+ */
+export function markVisitesVues(ids: VisiteId[]): Promise<void> {
+  const vues = getState().visitesVues;
+  if (!vues || ids.every((id) => vues.includes(id))) return visitesWrite;
+  commit({ ...getState(), visitesVues: [...new Set([...vues, ...ids])] });
+  visitesWrite = visitesWrite
+    .then(saveVisitesVues)
+    .catch((error: unknown) => console.error(VISITE_NON_ENREGISTREE, error));
+  return visitesWrite;
+}
+
+async function saveVisitesVues(): Promise<void> {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    console.error(VISITE_NON_ENREGISTREE, error?.message);
+    return;
+  }
+  const local = getState().visitesVues ?? [];
+  const merged = [
+    ...new Set([...(parseVisitesVues(user.user_metadata) ?? []), ...local]),
+  ];
+  if (merged.length > local.length) commit({ ...getState(), visitesVues: merged });
+  // Écrit sur les ids bruts du compte : un onglet resté sur une version
+  // antérieure n'efface pas les visites qu'une version plus récente a notées.
+  const stored: unknown = user.user_metadata?.[VISITES_METADATA_KEY];
+  const raw = Array.isArray(stored)
+    ? stored.filter((id): id is string => typeof id === "string")
+    : [];
+  const { error: writeError } = await supabase.auth.updateUser({
+    data: { [VISITES_METADATA_KEY]: [...new Set([...raw, ...local])] },
+  });
+  if (writeError) console.error(VISITE_NON_ENREGISTREE, writeError.message);
 }

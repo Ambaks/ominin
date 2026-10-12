@@ -73,6 +73,7 @@ export default function TablesPage() {
             )}
             <button
               type="button"
+              data-visite="tables-reunir"
               onClick={() => (joining ? void join() : setJoining([]))}
               disabled={joining != null && joining.length < 2}
               className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
@@ -84,13 +85,15 @@ export default function TablesPage() {
       </div>
 
       {tables.length === 0 ? (
-        <EmptyState
-          title="Aucune table en service"
-          body="Appuyez sur + pour ouvrir une table et prendre une commande. Les commandes du menu QR ouvrent leur table d'elles-mêmes."
-        />
+        <div data-visite="tables-salle">
+          <EmptyState
+            title="Aucune table en service"
+            body="Appuyez sur + pour ouvrir une table et prendre une commande. Les commandes du menu QR ouvrent leur table d'elles-mêmes."
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {tables.map((service) => {
+          {tables.map((service, index) => {
             const { table, tables: joined, toPay, toServe } = service;
             const selected = joining?.includes(table.id) ?? false;
             // Une table déjà réunie ne se réunit pas une seconde fois.
@@ -102,6 +105,7 @@ export default function TablesPage() {
               <button
                 key={table.id}
                 type="button"
+                data-visite={index === 0 ? "tables-salle" : undefined}
                 disabled={joining != null && !selectable}
                 onClick={() =>
                   joining

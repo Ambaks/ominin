@@ -150,7 +150,10 @@ export default function MenuPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="flex rounded-full border border-hairline p-1">
+          <div
+            data-visite="menu-vues"
+            className="flex rounded-full border border-hairline p-1"
+          >
             {viewTab("menu", "Menu")}
             {viewTab("formules", "Formules")}
           </div>
@@ -160,6 +163,7 @@ export default function MenuPage() {
           <div className="flex gap-2">
             <button
               type="button"
+              data-visite="menu-categories"
               onClick={() => setManagingCats(true)}
               className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
             >
@@ -168,6 +172,7 @@ export default function MenuPage() {
             {category && (
               <button
                 type="button"
+                data-visite="menu-ajouter"
                 onClick={() => setCreatingItem(true)}
                 className="ember-gradient rounded-full px-4 py-2.5 text-sm font-semibold text-background"
               >
@@ -198,6 +203,7 @@ export default function MenuPage() {
                 canEditMenu && (
                   <button
                     type="button"
+                    data-visite="menu-premiere-categorie"
                     onClick={() => setManagingCats(true)}
                     className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
                   >
