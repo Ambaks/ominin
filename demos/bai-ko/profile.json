@@ -1,0 +1,99 @@
+{
+  "slug": "bai-ko",
+  "name": "Baï-Kō",
+  "tagline": "Thaï & Korean Food",
+  "prospect": "Pitch au restaurant (octobre 2026) : page privée /bai-ko, présentation /bai-ko/presentation, film, démos carte, salle et vente à emporter. Aucun contact pris à ce jour ; la société s'est opposée à la prospection commerciale à partir de ses données du registre (Pappers) : approche en personne, au restaurant.",
+  "cuisine": "Street food coréenne et thaïe, 100 % halal ; salle néon « pojangmacha », plats à partager cuits à table (Volcano Cheese).",
+  "address": "2 Avenue de Lodève, 34070 Montpellier",
+  "city": "Montpellier (quartier des Arceaux)",
+  "phone": "06 14 05 59 71",
+  "hours": "Tous les jours 12h–14h30 · 18h30–23h30 (bai-ko.com, fermeture cuisine 30 min avant)",
+  "website": "https://bai-ko.com",
+  "socials": {
+    "instagram": "https://www.instagram.com/baiko.montpellier/",
+    "tiktok": "https://www.tiktok.com/@baiko.montpellier",
+    "facebook": "",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "https://www.google.com/maps/place/BA%C3%8F-K%C5%8C+restaurant+cor%C3%A9en+%C3%A0+Montpellier/@43.6093486,3.866426,17z"
+  },
+  "legal": {
+    "raison_sociale": "BMZ GROUP",
+    "forme": "SAS",
+    "siren": "102929015",
+    "siret": "10292901500018",
+    "naf": "56.10A Restauration traditionnelle",
+    "president": "voir demos/bai-ko/pitch/research/01-research.md",
+    "creation": "2026-03-12",
+    "debut_activite": "2026-05-12",
+    "source": "recherche-entreprises.api.gouv.fr, relevé du 12/10/2026 ; adresse au registre 34000 Montpellier (34070 sur les canaux du restaurant)"
+  },
+  "design": {
+    "primary_color": "#FF3C78",
+    "secondary_color": "#0A0A0C",
+    "accent_color": "#7C6BC4",
+    "style_notes": "Jetons de la feuille de style de bai-ko.com (:root, relevée le 12/10/2026) : fond #0a0a0c, surfaces #111115 / #17171e, rose néon #ff3c78 (boutons, noms coréens des sections, puces), cyan #3ce4ff (pastille des horaires), or #f0b754 (prix, offres du bandeau), violet #7c6bc4 (logo, signature du bandeau), vert #4ecb71 (halal, végétarien), rouge #ff5533 (piment). Polices du site : Bebas Neue (titres de section, prix), DM Sans (texte, noms des plats), Noto Sans KR (noms coréens). Dispositifs repris sur la carte : le bandeau défilant du haut (mêmes annonces, même pas de 8 s par annonce), le nom coréen en néon rose devant chaque section, les pastilles du héros (halal en vert, horaires en cyan), les pastilles colorées piment / fermenté / végétarien, le filet rose → cyan des plats à partager, la grille discrète du fond. Logo : le PNG du site (bol, 바이코, « BAÏ-KŌ » au pinceau), jamais retapé ; favicon tiré du bol et de 바이코. Ni thème Ominin pour cette carte (demande du propriétaire, 12/10/2026).",
+    "interior_vibe": "Salle sombre aux néons roses, violets et cyan, enseignes coréennes lumineuses, vaisselle inox, box pour les groupes, plaques chauffantes à table pour les Volcano Cheese.",
+    "reference_images": [
+      "demos/bai-ko/docs/logo.png",
+      "demos/bai-ko/docs/homepage-1440.jpg",
+      "demos/bai-ko/docs/site-index-2026-10-12.html",
+      "demos/bai-ko/docs/site-galerie-2026-10-12.html"
+    ]
+  },
+  "menu": {
+    "source": "bai-ko.com, relevé le 12/10/2026 : noms, prix, descriptions, piment, mentions (fermenté, végétarien) et allergènes plat par plat, ceux posés sur un titre de section appliqués à toute la section. La carte vit dans frontend/lib/menu-data.ts (const baiKo).",
+    "categories_summary": [
+      "Anju — Tapas : 9 plats, 5,00–10,00 €",
+      "Bibimbap : 4 plats à 14,90 €, version dolsot +1 €",
+      "Pad Thaï : 4 plats, 14,90–15,90 €",
+      "À partager ! : 4 Volcano Cheese pour 2, 32–34 €, suppléments viande ou rabokki 5 €",
+      "Ramyeon : 3 plats à 16,00 €",
+      "Salades : 3 à 14,90 €",
+      "Sides : 4, 3,00–4,50 €",
+      "Desserts : Mochi 3,50 €, Mango Rice 8,00 €",
+      "Boissons : 9, 2,50–4,00 €",
+      "Formules : Menu Midi 16,90 €, Menu 20,90 €"
+    ],
+    "photos": "12 photos de la galerie de bai-ko.com, recadrées en 16:9, posées sur leur plat (frontend/public/bai-ko/) ; le film en reprend d'autres (le Dak Bap Spicy en dolsot). Les plats sans photo n'en ont pas : aucune photo de banque. À photographier : sotteok, kimchi bomb, mandu, nems, katsu, beef bulgogi bap, dak bap sweet, tofu bap, pad thaï shrimp et veggie, volcano dakgalbi et rabokki, les trois ramyeon, les trois salades, riz, frites, gamja, mochi, boissons.",
+    "options_a_valider": [
+      "Pad Thaï : le site écrit « Beef », « Chicken »… sous le titre de section ; la carte écrit « Pad Thaï Beef »… pour que le panier et le ticket de cuisine se lisent seuls.",
+      "Formules : plat au choix modélisé en 14 choix, les 4 bibimbap en bol puis en dolsot (+1 €) ; « Menu Midi » sans restriction d'horaire, faute de mention.",
+      "Mochi : parfum au choix obligatoire ; le prix (3,50 €) s'entend pour une portion, sans précision du site.",
+      "Korean Fried Chicken : sauce Spicy ou Sweet obligatoire ; le site pose 🌶 sur « Spicy » seulement : la carte écrit « Spicy (épicé) » dans la description et le choix, pas de piment sur le plat.",
+      "Boissons groupées sur le site (« Evian, San Pellegrino », « Coca / Coca Zéro / Coca Cherry », Soda, Milkis) : un article, le goût au choix.",
+      "« Sprit Coréen Chilsung » : orthographe du site conservée.",
+      "Bibimbap : choix « Bol » ou « Dolsot » (+1 €), noms courts pour la salle et le ticket ; le titre de section dit ce qu'est un dolsot.",
+      "Formules : le site pose 🌶 sur le poulet spicy et 🌶🌶 sur la salade au poulet ; la carte l'écrit « (épicé) », « (épicée) » dans le choix.",
+      "Plats à partager : un groupe « Supplément » à choix multiples, Viande ou Rabokki, 5 € chacun (« Supplément viande ou rabokki 5 € » du site).",
+      "Mango Rice : arachides, d'après la légende de sa photo dans la galerie du site (« cacahuètes ») ; la carte du site n'en donne aucun. Sésame visible sur la photo : à confirmer.",
+      "Allergènes à confirmer : Gamja Crispy (parmesan) et les Volcano Cheese (fromage) sans lait ; Kimchi Bomb sans les crustacés et poissons du kimchi ; Mochi et boissons sans données ; Volcano Cheese Mandu : « sauce épicée » dans la galerie, sans piment sur la carte.",
+      "Allergènes : le « Lactose » de la légende du site s'affiche « Lait », le nom du règlement INCO.",
+      "Mango Rice : un filet blanc sur la photo, qu'aucune source ne nomme ; si c'est du lait concentré, ajouter Lait.",
+      "Volcano Cheese Mandu (végétarien) : le « Supplément viande » de la section lui est proposé comme aux autres ; quelle viande, et faut-il le retirer de ce plat ?",
+      "Livraison : le pied du site cite Uber Eats et Deliveroo ; aucune fiche Deliveroo trouvée."
+    ]
+  },
+  "offers": [
+    "Bandeau du site : « Uber Eats — livraison disponible » ; « Réservation possible à partir de 6 personnes » ; « Baï·Kō — Thaï & Korean Food » ; « Menu étudiant Bento Box 10,90 € — à partir du 1er septembre 2026 ».",
+    "Affiche (TikTok du 11/09/2026) : « BAÏ-KŌ BOX ÉTUDIANTE · 10,90 € · dès le 1er septembre · MIDI UNIQUEMENT 12H00-14H30 · À EMPORTER » ; 20 box offertes le 14/09 aux premières commandes, une par étudiant.",
+    "Uber Eats (fiche « BAÏ-KO ») : prix relevés ≈ +34 % au-dessus de la carte du site (Beef bulgogi bap 19,90 € contre 14,90 €, menu plat + boisson 23,90 € contre 16,90 €)."
+  ],
+  "research": {
+    "date": "2026-10-12",
+    "files": "demos/bai-ko/pitch/research/ (01-research.md, 02-sector-evidence.md, delivery-ubereats.md, social-captions.txt, reviews/)",
+    "google": "4,8 ★ sur 556 avis au 12/10/2026 (5★ 504, 4★ 23, 3★ 8, 2★ 8, 1★ 13) ; ouvert le 12/05/2026",
+    "exploitation": "Service à table (serveurs, carte papier apportée à table), vente à emporter commandée au comptoir, Uber Eats seul canal en ligne. Aucun QR, tablette ou borne cité dans les avis. Le gérant répond publiquement au manque de personnel."
+  },
+  "notes": [
+    "Horaires : le site dit 12h–14h30 / 18h30–23h30 ; Google et les biographies TikTok/Instagram disent 11h30–14h30 / 18h–22h30, le week-end 11h30–22h30. Lesquels sont justes ?",
+    "Téléphone : 06 14 05 59 71 (site) ou 07 61 94 62 86 (Google, Uber Eats, affiche de la Box) ? La carte affiche celui du site.",
+    "Code postal : 34070 sur les canaux du restaurant, 34000 au registre et dans la Base Adresse Nationale.",
+    "Combien de tables et de box ? Le pitch compte 16 Cachets, en hypothèse affichée.",
+    "Comment se prennent les commandes aujourd'hui (carnet, terminal) ? Quelle caisse, certifiée NF525 ? Y a-t-il une imprimante en cuisine ?",
+    "Part des titres-restaurant (Swile, Ticket Restaurant, Up, Chèque Déjeuner) et des espèces ?",
+    "Box étudiante : contenu exact (la photo montre mandu, riz, viande en sauce, kimchi), justificatif demandé, volume par midi ? Elle n'est pas sur la carte de la démo, faute de contenu publié.",
+    "Réservations : le site dit « à partir de 6 personnes », la fiche Google « ne prend pas de réservations ».",
+    "Organisme certificateur du halal, pour l'afficher sur la carte ?"
+  ]
+}

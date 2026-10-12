@@ -1,4 +1,6 @@
 import { useId, type ComponentType } from "react";
+import { reviewScale, starsLabel } from "@/lib/pitch/kit";
+import type { TicketWording } from "@/lib/pitch/types";
 
 /*
  * Les marques du pitch, en em : chaque pièce prend la taille de police de son
@@ -59,6 +61,33 @@ export function PartnerMarks({ brand, className = "" }: { brand: BrandKit; class
 }
 
 /**
+ * Une durée de la course, « 18 s » ou « 4 min 39 », ses unités dans la police
+ * du texte (.pitch-unit) : pour une police des chiffres qui n'a que des
+ * capitales (fieldProof.unitsInText).
+ */
+export function Duration({ value }: { value: string }) {
+  return value.split(/(\p{L}+)/u).map((part, i) => (i % 2 ? <span key={i} className="pitch-unit">{part}</span> : part));
+}
+
+/** La note d'un avis cité : ses étoiles, les autres éteintes jusqu'à cinq ; lue en toutes lettres. */
+export function ReviewStars({ stars, className = "" }: { stars: 1 | 2 | 3 | 4 | 5; className?: string }) {
+  return (
+    <p className={className}>
+      <span aria-hidden className="text-(--pitch-accent)">
+        {"★".repeat(stars)}
+      </span>
+      <span aria-hidden className="text-(--pitch-faint) opacity-40">
+        {"★".repeat(reviewScale - stars)}
+      </span>
+      <span className="sr-only">{starsLabel(stars)}</span>
+    </p>
+  );
+}
+
+/** Le ticket du fast food : un numéro, retiré au comptoir. */
+const counterTicket: TicketWording = { label: "Votre numéro", prefix: "N°", foot: "À retirer au comptoir" };
+
+/**
  * Le ticket du client, en objet : l'aplat de l'enseigne, le numéro dans ses
  * chiffres, la découpe et ses encoches — le même que dans le film.
  */
@@ -66,19 +95,21 @@ export function TicketCard({
   brand,
   name,
   number,
+  ticket = counterTicket,
   className = "",
 }: {
   brand: BrandKit;
   /** Le nom de l'enseigne imprimé au pied du ticket. */
   name: string;
   number: number;
+  ticket?: TicketWording;
   className?: string;
 }) {
   return (
     <div className={`pitch-ticket ${className}`}>
-      <p className="pitch-ticket-label">Votre numéro</p>
+      <p className="pitch-ticket-label">{ticket.label}</p>
       <p className="pitch-ticket-number">
-        <span className="pitch-ticket-no">N°</span>
+        <span className="pitch-ticket-no">{ticket.prefix}</span>
         <span>{number}</span>
       </p>
       <div aria-hidden className="pitch-ticket-tear" />
@@ -86,7 +117,7 @@ export function TicketCard({
         <brand.Emblem className="h-[1.1em] shrink-0" />
         <p>
           <span className="pitch-ticket-brand">{name}</span>
-          <span className="block">À retirer au comptoir</span>
+          <span className="block">{ticket.foot}</span>
         </p>
       </div>
     </div>

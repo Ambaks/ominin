@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Galerie · Baï-Ko · Thaï &amp; Korean Food · Montpellier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0a0c;--surface:#111115;--surface2:#17171e;
+  --pink:#ff3c78;--blue:#3ce4ff;--gold:#f0b754;--orange:#ff6b35;
+  --violet:#7c6bc4;
+  --muted:#5a5a6a;--text:#eeeef5;--soft:#9090a8;
+  --border:rgba(255,60,120,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.45}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--pink);border-radius:2px}
+
+#topnav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:64px;
+  background:rgba(10,10,12,.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--text);text-decoration:none;display:flex;align-items:center}
+.nav-logo img{height:42px;width:auto;display:block}
+.nav-logo span{color:var(--pink)}
+.nav-back{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--soft);text-decoration:none;
+  padding:8px 20px;border:1px solid var(--border);border-radius:20px;
+  transition:all .2s;
+}
+.nav-back:hover{border-color:var(--pink);color:var(--pink)}
+
+#g-hero{
+  padding:150px 24px 60px;text-align:center;position:relative;overflow:hidden;
+}
+.g-hero-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255,60,120,.09) 0%, transparent 70%);
+  z-index:-1;
+}
+.g-kr{font-family:'Noto Sans KR',sans-serif;font-size:14px;letter-spacing:6px;color:var(--pink);text-transform:uppercase;text-shadow:0 0 10px rgba(255,60,120,.4)}
+#g-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,7vw,72px);letter-spacing:4px;margin-top:10px}
+#g-hero h1 span{color:var(--gold)}
+#g-hero p{color:var(--soft);max-width:520px;margin:16px auto 0;font-size:14.5px}
+
+.gallery-wrap{max-width:1180px;margin:0 auto;padding:20px 24px 100px}
+.dish-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:26px;
+}
+.dish-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;transition:transform .3s,border-color .3s;
+}
+.dish-card:hover{transform:translateY(-6px);border-color:rgba(255,60,120,.4)}
+.dish-card-img{aspect-ratio:4/5;overflow:hidden;background:#000}
+.dish-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.dish-card:hover .dish-card-img img{transform:scale(1.07)}
+.dish-card-body{padding:18px 20px 22px}
+.dish-card-kr{font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--gold);letter-spacing:1px}
+.dish-card-body h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin:4px 0 8px;color:var(--text)}
+.dish-card-body p{font-size:12.5px;color:var(--soft);line-height:1.6}
+
+.bonus-title{
+  font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;
+  text-align:center;margin:80px 0 30px;color:var(--violet);
+}
+.bonus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.bonus-card{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/10}
+.bonus-card img{width:100%;height:100%;object-fit:cover;display:block}
+.bonus-cap{
+  position:absolute;bottom:0;left:0;right:0;padding:16px 18px;
+  background:linear-gradient(0deg,rgba(0,0,0,.88),transparent);
+  font-size:13px;color:var(--text);letter-spacing:.5px;
+}
+
+.g-cta{text-align:center;margin-top:90px}
+.g-cta a{
+  display:inline-block;padding:15px 38px;border-radius:4px;
+  background:var(--pink);color:#fff;font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;text-decoration:none;font-weight:500;
+  box-shadow:0 0 24px rgba(255,60,120,.4);transition:all .25s;
+}
+.g-cta a:hover{box-shadow:0 0 36px rgba(255,60,120,.6);transform:translateY(-2px)}
+
+footer{padding:50px 24px 30px;text-align:center;border-top:1px solid var(--border)}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:6px;color:var(--text)}
+.footer-logo span{color:var(--pink)}
+.footer-copy{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:14px}
+
+@media(max-width:640px){
+  #g-hero{padding:110px 20px 40px}
+  .dish-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .dish-card-body{padding:12px 14px 16px}
+  .dish-card-body h3{font-size:16px}
+  .dish-card-body p{display:none}
+  .bonus-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <a class='nav-logo' href='/'><img src="data:image/…(retiré)" alt="Baï-kō"></a>
+  <a class='nav-back' href='/#menu-section'>← Retour au menu</a>
+</nav>
+
+<section id="g-hero">
+  <div class="g-hero-bg"></div>
+  <span class="g-kr">사진첩</span>
+  <h1>NOS PLATS <span>EN IMAGES</span></h1>
+  <p>Un aperçu de ce qui vous attend en salle — Korean Street Food &amp; Asian Spirit, préparé maison chaque jour.</p>
+</section>
+
+<div class="gallery-wrap">
+  <div class="dish-grid">
+    
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Corn Dog - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">콘도그</span>
+          <h3>Corn Dog</h3>
+          <p>Saucisse & mozzarella panées, sauce ketchup & mayo</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Korean Fried Chicken Spicy - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">치킨 매운맛</span>
+          <h3>Korean Fried Chicken Spicy</h3>
+          <p>Poulet frit croustillant, sauce épicée, graines de sésame</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Pad Thaï Chicken - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">팟타이</span>
+          <h3>Pad Thaï Chicken</h3>
+          <p>Nouilles de riz sautées, poulet, cacahuètes concassées, citron vert</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Tteokbokki - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">떡볶이</span>
+          <h3>Tteokbokki</h3>
+          <p>Gâteaux de riz mijotés dans une sauce gochujang</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Pad Thaï Bœuf - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">팟타이 소고기</span>
+          <h3>Pad Thaï Bœuf</h3>
+          <p>Nouilles de riz sautées, bœuf, cacahuètes, citron vert</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Kimchi - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">김치</span>
+          <h3>Kimchi</h3>
+          <p>Chou fermenté épicé, maison</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Mango Sticky Rice - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">망고 스티키 라이스</span>
+          <h3>Mango Sticky Rice</h3>
+          <p>Riz gluant, mangue fraîche, lait de coco, cacahuètes</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Volcano Cheese Beef Bulgogi - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">치즈 불고기</span>
+          <h3>Volcano Cheese Beef Bulgogi</h3>
+          <p>Bœuf mariné bulgogi, fromage fondu filant, ciboule</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Volcano Cheese Mandu - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">치즈 만두</span>
+          <h3>Volcano Cheese Mandu</h3>
+          <p>Raviolis grillés, fromage fondu, riz, sauce épicée</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Bibimbap Dak Bap Spicy - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">매운 닭밥</span>
+          <h3>Bibimbap Dak Bap Spicy</h3>
+          <p>Riz, poulet croustillant sauce épicée, légumes marinés, œuf</p>
+        </div>
+      </div>
+
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Bibimbap Dak Bap Spicy — Dolsot - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">돌솥 매운 닭밥</span>
+          <h3>Bibimbap Dak Bap Spicy — Dolsot</h3>
+          <p>Servi dans un bol en pierre chauffé, poulet croustillant sauce épicée, légumes marinés</p>
+        </div>
+      </div>
+      <div class="dish-card">
+        <div class="dish-card-img"><img src="data:image/…(retiré)" alt="Corn Cheese - Baï-kō" loading="lazy"></div>
+        <div class="dish-card-body">
+          <span class="dish-card-kr">콘치즈</span>
+          <h3>Corn Cheese</h3>
+          <p>Maïs et mozzarella fondante, dans une sauce mayonnaise sucrée</p>
+        </div>
+      </div>
+</div>
+
+  <h2 class="bonus-title">L'INSTANT CHEESE PULL</h2>
+  <div class="bonus-grid">
+    
+      <div class="bonus-card">
+        <img src="data:image/…(retiré)" alt="Volcano Cheese — le fromage qui s'étire à l'infini - Baï-kō" loading="lazy">
+        <div class="bonus-cap">Volcano Cheese — le fromage qui s'étire à l'infini</div>
+      </div>
+      <div class="bonus-card">
+        <img src="data:image/…(retiré)" alt="Milkis — nos boissons coréennes - Baï-kō" loading="lazy">
+        <div class="bonus-cap">Milkis — nos boissons coréennes</div>
+      </div>
+  </div>
+
+  <div class="g-cta">
+    <a href='/#menu-section'>Voir tout le menu</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">BAÏ<span>·</span>KO</div>
+  <div class="footer-copy">© 2025 Baï-Ko · Thaï &amp; Korean Food · Montpellier · BMZ Group SAS</div>
+</footer>
+
+</body>
+</html>

@@ -2,7 +2,7 @@ import type { OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
-import { getRestaurant, type MenuItem, type Restaurant } from "@/lib/menu-data";
+import { getRestaurant, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -27,6 +27,25 @@ function serviceIsoDay(dayEndHour: number): number {
     weekday: "short",
   }).format(new Date(Date.now() - dayEndHour * 3_600_000));
   return ISO_DAYS[weekday];
+}
+
+/**
+ * Piment, mentions, allergènes et nom dans la langue de la cuisine : la base
+ * ne les porte pas encore, le registre statique si. Rattachés par nom, la
+ * carte en ligne imprime ce que montre /menu/demo ; sans registre, rien.
+ */
+function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | undefined): MenuCategory[] {
+  if (!registry) return categories;
+  const kickers = new Map(registry.categories.map((category) => [category.name, category.kicker]));
+  const printed = new Map(registry.categories.flatMap((category) => category.items.map((item) => [item.name, item])));
+  return categories.map((category) => ({
+    ...category,
+    kicker: kickers.get(category.name),
+    items: category.items.map((item) => {
+      const source = printed.get(item.name);
+      return source ? { ...item, spice: source.spice, tags: source.tags, allergens: source.allergens } : item;
+    }),
+  }));
 }
 
 /*
@@ -90,11 +109,14 @@ export async function fetchRestaurant(slug: string): Promise<{
     fidelite?: boolean;
   } | null;
 
-  const categories = applyTarifs(
-    assembleCategories(etablissement.categories, etablissement.items).filter(
-      (category) => category.items.length > 0
+  const categories = withPrintedDetails(
+    applyTarifs(
+      assembleCategories(etablissement.categories, etablissement.items).filter(
+        (category) => category.items.length > 0
+      ),
+      tarifs
     ),
-    tarifs
+    staticData
   );
 
   // Fidélité : fermée tant qu'Ominin n'a pas ouvert la capacité — aucune
@@ -176,6 +198,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,
+      brandName: staticData?.brandName,
       tagline: etablissement.tagline,
       coverImage: staticData
         ? staticData.coverImage
@@ -184,8 +207,11 @@ export async function fetchRestaurant(slug: string): Promise<{
       poster: staticData?.poster,
       formulesBanner: staticData?.formulesBanner,
       highlights: staticData?.highlights,
+      ticker: staticData?.ticker,
+      glossary: staticData?.glossary,
       address: etablissement.address,
       phone: etablissement.phone,
+      whatsapp: staticData?.whatsapp,
       hours: etablissement.hours,
       googleReviewUrl: etablissement.google_review_url ?? undefined,
       categories,

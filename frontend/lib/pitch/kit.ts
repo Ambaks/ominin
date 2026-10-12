@@ -2,10 +2,10 @@ import { starterKit } from "@/lib/landing-data";
 import type { Source } from "@/lib/pitch/types";
 
 /*
- * Ce que les pitchs aux réseaux partagent : l'offre faite aux enseignes, les
- * tarifs de paiement relevés, les formats et le calcul affiché, les sources
- * sectorielles et les libellés d'interface. Le récit propre à chaque enseigne
- * est dans son module, lib/pitch/<slug>.ts.
+ * Ce que les pitchs partagent, aux réseaux comme aux restaurants seuls :
+ * l'offre, les tarifs de paiement relevés, les formats et le calcul affiché,
+ * le relevé terrain, les sources sectorielles et les libellés d'interface.
+ * Le récit propre à chaque client est dans son module, lib/pitch/<slug>.ts.
  *
  * Typographie : espace insécable (\u00a0) avant « : ; ! ? », à l'intérieur
  * des guillemets, avant « € » et « % » et entre les milliers.
@@ -76,6 +76,9 @@ export const percent = (value: number) => `${value.toLocaleString("fr-FR")}\u00a
 
 export const thousands = (value: number) => value.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
 
+/** « 4,8 », « 0,7 » : une décimale au plus. */
+export const decimal = (value: number) => value.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
+
 /** « 1 à 3 % » : la commission, du palier le plus bas au plus haut. */
 export const commissionRange = `${offer.commissionPercent.min.toLocaleString("fr-FR")}\u00a0à\u00a0${percent(offer.commissionPercent.max)}`;
 
@@ -116,22 +119,29 @@ export interface Illustration {
 
 const cardFee = (ticket: number) => (ticket * cardFees.standard.percent) / 100 + cardFees.standard.fixed;
 
+/**
+ * Une commande payée en ligne, ce qu'elle coûte ligne par ligne : Ominin au
+ * taux donné, la carte au tarif Stripe standard, et ce que la même somme
+ * aurait coûté par carte au comptoir.
+ */
+export function onlineOrderCost(ticket: number, ratePercent: number) {
+  const ominin = Math.round(ticket * ratePercent) / 100;
+  const card = Math.round(cardFee(ticket) * 100) / 100;
+  return {
+    ticket,
+    ominin,
+    card,
+    total: Math.round((ominin + card) * 100) / 100,
+    counter: Math.round(ticket * counterCardPercent) / 100,
+  };
+}
+
 export function offerMath(illustration: Illustration) {
   const { customersPerDay, basket, daysPerYear, announcedYearlyRevenue, onlineShare, coveringCustomers, vatPercent = 0, royaltyPercent = 0 } = illustration;
   const rate = offer.commissionPercent.max;
 
   /** Une commande type payée en ligne : ce qu'elle coûte, ligne par ligne. */
-  const exampleOrder = (() => {
-    const ominin = (basket * rate) / 100;
-    const card = Math.round(cardFee(basket) * 100) / 100;
-    return {
-      ticket: basket,
-      ominin,
-      card,
-      total: Math.round((ominin + card) * 100) / 100,
-      counter: Math.round(basket * counterCardPercent) / 100,
-    };
-  })();
+  const exampleOrder = onlineOrderCost(basket, rate);
 
   /** Ce que paie par mois un restaurant au CA annoncé, dont une part passe en ligne. */
   const monthlyExample = (() => {
@@ -186,6 +196,21 @@ export function offerMath(illustration: Illustration) {
   return { exampleOrder, monthlyExample, revenueIllustration };
 }
 
+// ——— Le relevé terrain ————————————————————————————————————————————
+
+/**
+ * Relevé terrain d'un client Ominin (ominin.com/r7k2) : soirs de service,
+ * commandes payées (dont en ligne et au comptoir), médianes commande → ticket
+ * cuisine en secondes.
+ */
+export const fieldReport = { nights: 16, orders: 2_002, online: 435, counter: 1_545, onlineSeconds: 18, counterSeconds: 279 };
+
+/** « 4 min 39 » : une durée en secondes, telle que la course l'affiche. */
+export const minutesSeconds = (seconds: number) => `${Math.floor(seconds / 60)}\u00a0min\u00a0${String(seconds % 60).padStart(2, "0")}`;
+
+/** Les heures de délai en moins avant le ticket cuisine sur le relevé : commandes en ligne × l'écart médian. */
+export const fieldHoursSaved = decimal((fieldReport.online * (fieldReport.counterSeconds - fieldReport.onlineSeconds)) / 3600);
+
 /** La barre d'une durée, à l'échelle de la plus longue : jamais moins de 2 %, pour rester visible. */
 export const raceBarWidth = (seconds: number, longest: number) => `${Math.max(2, (seconds / longest) * 100)}%`;
 
@@ -222,6 +247,11 @@ export const commonSources = {
     full: "Prix publiés des bornes de commande\u00a0— Biborne (16/04/2024), Innovorder (02/09/2026), Tabesto",
     url: "https://biborne.com/fr-blog/quel-prix-borne-de-commande/",
   },
+  report: {
+    short: "Ominin, relevé terrain (ominin.com/r7k2)",
+    full: `Ominin\u00a0— relevé terrain d’un bar-restaurant toulousain équipé d’Ominin, ${fieldReport.nights} soirs de service du 18/09 au 03/10/2026, ${thousands(fieldReport.orders)} commandes payées\u00a0: médianes commande → ticket cuisine sur ${fieldReport.online} commandes en ligne et ${thousands(fieldReport.counter)} au comptoir`,
+    url: "https://www.ominin.com/r7k2?lang=fr",
+  },
   saas: {
     short: "Sunday, Obypay",
     full: "Tarifs publics des logiciels de commande\u00a0— Sunday (29 à 199\u00a0€ par\u00a0mois) et Obypay (49 à 199\u00a0€\u00a0HT par\u00a0mois), consultés le 29/09/2026",
@@ -252,6 +282,8 @@ export const pitchUi = {
   ctaDeckWeb: "Voir la présentation",
   /** Mention des captures cliquables : dans le PDF, chaque écran ouvre sa démo. */
   clickToOpen: "Démo en ligne\u00a0: cliquez sur l’écran.",
+  /** « À emporter, démo en ligne : … » : le lien d'une démo dans le texte d'une diapositive. */
+  liveDemo: "démo en ligne",
   /** Sous la conclusion du PDF : la page privée, pour qui le reçoit transféré. */
   filmAndDemos: "Le film et les démos\u00a0:",
   opener: {
@@ -261,6 +293,12 @@ export const pitchUi = {
     play: "Lancer le film",
   },
 };
+
+/** Les avis Google se notent sur cinq étoiles. */
+export const reviewScale = 5;
+
+/** La note d'un avis cité, lue à la place de ses étoiles. */
+export const starsLabel = (stars: number) => `${stars}\u00a0étoile${stars > 1 ? "s" : ""} sur ${reviewScale}`;
 
 /** « Source : … » / « Sources : … » en pied de bloc. */
 export const sourcesLabel = (count: number) => (count > 1 ? "Sources\u00a0: " : "Source\u00a0: ");

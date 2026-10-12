@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { screenSizes } from "@/lib/pitch/kit";
+import type { Crop } from "@/lib/pitch/types";
 
 /*
  * Cadres d'appareils sobres autour des captures réelles des démos : un
@@ -19,8 +20,18 @@ type Shot = {
   className?: string;
 };
 
-export function PhoneFrame({ src, alt, sizes, unoptimized, priority, className = "" }: Shot) {
+/** crop : une zone de l'écran seulement, la feuille qui compte, à la largeur du cadre ; coupée net, sans fondu. */
+export function PhoneFrame({ src, alt, sizes, unoptimized, priority, crop, className = "" }: Shot & { crop?: Crop }) {
   const { width, height } = screenSizes.phone;
+  if (crop) {
+    return (
+      <div className={`device-phone device-phone-crop ${className}`}>
+        <div className="device-phone-screen">
+          <Screen src={src} alt={alt} sizes={sizes} unoptimized={unoptimized} size={screenSizes.phone} crop={crop} fade={false} />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={`device-phone ${className}`}>
       <div className="device-phone-screen" style={{ aspectRatio: `${width} / ${height}` }}>
@@ -41,9 +52,6 @@ export function TabletFrame({ src, alt, sizes, unoptimized, crop, className = ""
   );
 }
 
-/** Une zone de la capture, en pixels CSS de la capture. */
-type Crop = { x: number; y: number; width: number; height: number };
-
 /**
  * L'écran d'un cadre : la capture entière, ou seulement la zone crop — la
  * vue réseau entière, réduite à la largeur d'une diapositive, ne se lisait
@@ -56,11 +64,12 @@ function Screen({
   unoptimized,
   size,
   crop,
-}: Omit<Shot, "className"> & { size: { width: number; height: number }; crop?: Crop }) {
+  fade = true,
+}: Omit<Shot, "className"> & { size: { width: number; height: number }; crop?: Crop; fade?: boolean }) {
   const view = crop ?? { x: 0, y: 0, ...size };
   return (
     <div
-      className={`relative overflow-hidden ${crop && crop.y + crop.height < size.height ? "device-screen-fade" : ""}`}
+      className={`relative overflow-hidden ${fade && crop && crop.y + crop.height < size.height ? "device-screen-fade" : ""}`}
       style={{ aspectRatio: `${view.width} / ${view.height}` }}
     >
       <Image

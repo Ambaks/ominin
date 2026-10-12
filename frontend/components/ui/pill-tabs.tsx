@@ -23,6 +23,7 @@ export function PillTabs({
           <button
             key={tab.id}
             type="button"
+            aria-pressed={active}
             onClick={() => onSelect(tab.id)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
               active
@@ -31,10 +32,12 @@ export function PillTabs({
             }`}
           >
             {tab.label}
+            {/* Pastille pleine, aux couleurs du texte de la page : lisible
+                sur le dégradé de l'onglet actif, en sombre comme en clair. */}
             {tab.count !== undefined && tab.count > 0 && (
               <span
-                className={`ml-1.5 inline-block min-w-6 rounded-full px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums ${
-                  active ? "bg-background/20" : "bg-surface-raised text-faint"
+                className={`ml-1.5 inline-block min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs font-semibold tabular-nums ${
+                  active ? "bg-background text-foreground" : "bg-surface-raised text-muted"
                 }`}
               >
                 {tab.count}

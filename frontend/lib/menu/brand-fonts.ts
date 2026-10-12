@@ -3,6 +3,8 @@ import {
   Archivo,
   Archivo_Black,
   Barlow_Semi_Condensed,
+  Bebas_Neue,
+  DM_Sans,
   Didact_Gothic,
   Playball,
   Poppins,
@@ -89,6 +91,26 @@ const playball = Playball({
   preload: false,
 });
 
+/**
+ * Baï-Kō — les polices de son site : Bebas Neue, capitales condensées, pour
+ * les titres de section et les prix ; DM Sans pour le texte. Les noms
+ * coréens des sections (안주, 라면…) prennent le hangeul du système
+ * (globals.css, .category-kicker).
+ */
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas-neue",
+  // latin-ext : le « Ō » de « Baï·Kō » dans le bandeau.
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  preload: false,
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -98,6 +120,8 @@ export const brandFontVariables = [
   anton,
   didactGothic,
   playball,
+  bebasNeue,
+  dmSans,
 ]
   .map((font) => font.variable)
   .join(" ");

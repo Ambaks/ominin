@@ -342,6 +342,7 @@ export default function CommandesPage() {
                 key={tableId}
                 orders={orders}
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
+                now={now}
                 readOnly={isCuisinier}
               />
             )

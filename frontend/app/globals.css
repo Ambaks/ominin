@@ -781,17 +781,6 @@ div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/menu-co
   object-position: 50% 0%;
 }
 
-/* Sur une carte sans photo (les boissons), le compte au panier se pose sur le
-   coin du bouton : au coin de la carte, il cachait le prix. */
-div[data-menu-root][data-slug="o-crousti-poulet"] article:not(:has(.dish-photo)) .dish-action > button {
-  position: relative;
-}
-
-div[data-menu-root][data-slug="o-crousti-poulet"] article:not(:has(.dish-photo)) .cart-count {
-  top: -0.5rem;
-  right: -0.5rem;
-}
-
 /* Le nom d'un menu tient sur une ligne ; trop étroit, c'est le prix qui
    passe dessous (« MENU / COSTAUD » se coupait à côté de « MENU DUO »). */
 .theme-o-crousti-poulet main > section:first-of-type h3 {
@@ -1525,8 +1514,638 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
 }
 
 /*
+  Baï-Kō (Montpellier) — l'identité de bai-ko.com, relevée dans sa feuille de
+  style le 12/10/2026 : nuit #0a0a0c, rose néon #ff3c78 des boutons et des
+  noms coréens, violet #7c6bc4 du logo, cyan #3ce4ff des horaires, or
+  #f0b754 des prix, vert #4ecb71 du halal et du végétarien, rouge #ff5533 du
+  piment. Bebas Neue pour les titres et les prix, DM Sans pour le texte,
+  le hangeul du système pour les noms coréens des sections. Le néon porte la
+  structure : le nom coréen lumineux de chaque section, le liseré rose des
+  fiches, la pastille active de la navigation.
+*/
+.theme-bai-ko {
+  --bk-pink: #ff3c78;
+  --bk-violet: #7c6bc4;
+  /* Le violet du logo, éclairci pour se lire en petit sur la nuit (4,9:1). */
+  --bk-violet-text: #8a79d0;
+  --bk-cyan: #3ce4ff;
+  --bk-gold: #f0b754;
+  --bk-green: #4ecb71;
+  --bk-red: #ff5533;
+
+  --background: #0a0a0c;
+  --foreground: #eeeef5;
+
+  --surface: #111115;
+  --surface-raised: #17171e;
+  --hairline: rgba(255, 60, 120, 0.16);
+
+  --muted: #9090a8;
+  --faint: #8282a0;
+
+  --ember-1: var(--bk-pink);
+  --ember-2: var(--bk-pink);
+  --ember-3: var(--bk-violet);
+
+  --shimmer-highlight: rgba(255, 60, 120, 0.12);
+  --glow-inner: rgba(255, 60, 120, 0.08);
+  --glow-outer: rgba(124, 107, 196, 0.08);
+  --hero-glow-1: var(--bk-violet);
+  --hero-glow-2: var(--bk-cyan);
+  --hero-glow-3: var(--bk-pink);
+
+  --brand-display: var(--font-bebas-neue), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has([data-menu-root].theme-bai-ko),
+html:has([data-menu-root].theme-bai-ko) body {
+  background-color: #0a0a0c;
+}
+
+.theme-bai-ko :focus-visible {
+  outline: 2px solid var(--bk-cyan);
+  outline-offset: 3px;
+}
+
+/* Le rose à plat, comme les boutons du site ; l'encre de nuit dessus (5,8:1). */
+.theme-bai-ko .ember-gradient {
+  background-image: none;
+  background-color: var(--bk-pink);
+}
+
+/* Au survol, le néon s'allume, comme les boutons du site. */
+@media (hover: hover) {
+  .theme-bai-ko button.ember-gradient:hover {
+    box-shadow: 0 0 18px rgba(255, 60, 120, 0.55);
+  }
+}
+
+/* Les messages d'erreur de la carte en rouge piment : le violet du logo, qui
+   tient lieu de troisième braise, ne se lisait pas en petit (4,3:1). */
+.theme-bai-ko .text-ember-3 {
+  color: var(--bk-red);
+}
+
+.theme-bai-ko .ember-text {
+  background-image: none;
+  color: var(--bk-pink);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Le titre est le logo : si l'image manque, son texte de remplacement se lit en Bebas. */
+.theme-bai-ko h1 {
+  font-family: var(--brand-display);
+}
+
+/* Bebas Neue n'a qu'une graisse. */
+.theme-bai-ko .font-display {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+/* ——— Le bandeau défilant : celui du haut du site ——— */
+
+.theme-bai-ko .menu-ticker {
+  background: linear-gradient(90deg, var(--surface-raised), var(--surface));
+}
+
+.theme-bai-ko .menu-ticker-item {
+  position: relative;
+}
+
+.theme-bai-ko .menu-ticker-item::after {
+  content: "✦" / "";
+  position: absolute;
+  right: -0.3em;
+  color: var(--bk-pink);
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+.theme-bai-ko .menu-ticker-item[data-tone="accent"] {
+  color: var(--bk-gold);
+}
+
+.theme-bai-ko .menu-ticker-item[data-tone="brand"] {
+  color: var(--bk-violet-text);
+  font-family: var(--brand-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 10px rgba(124, 107, 196, 0.5);
+}
+
+/* ——— Le héros : le logo dans la nuit, la grille néon du site ——— */
+
+.theme-bai-ko :is(.ember-particle, .logo-breathe) {
+  display: none;
+}
+
+.theme-bai-ko > header.logo-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, black, transparent);
+  pointer-events: none;
+}
+
+.theme-bai-ko .hero-logo img {
+  width: min(82vw, 30rem);
+  height: auto;
+  filter: drop-shadow(0 0 22px rgba(124, 107, 196, 0.35));
+}
+
+.theme-bai-ko .hero-tagline {
+  letter-spacing: 0.32em;
+  text-shadow: 0 0 14px rgba(255, 60, 120, 0.45);
+}
+
+.theme-bai-ko .hero-rule {
+  display: none;
+}
+
+/* Comme sur le site, les pastilles suivent le logo : pas de premier écran vide à faire défiler. */
+.theme-bai-ko > header.logo-hero {
+  min-height: 0;
+  padding-bottom: 1.75rem;
+}
+
+.theme-bai-ko .hero-cue {
+  display: none;
+}
+
+/* Les pastilles du site sous le logo : contour fin, les horaires en cyan, le halal en vert. */
+.theme-bai-ko .menu-highlights {
+  background: transparent;
+  border-color: transparent;
+}
+
+.theme-bai-ko .menu-highlights li {
+  border: 1px solid rgba(238, 238, 245, 0.18);
+  border-radius: 9999px;
+  padding: 0.45rem 1rem;
+  color: var(--foreground);
+  font-family: var(--brand-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.theme-bai-ko .menu-highlights li:first-child {
+  border-color: rgba(78, 203, 113, 0.5);
+  color: var(--bk-green);
+}
+
+.theme-bai-ko .menu-highlights li:last-child {
+  border-color: var(--bk-cyan);
+  color: var(--bk-cyan);
+  box-shadow: 0 0 14px rgba(60, 228, 255, 0.18);
+}
+
+.theme-bai-ko .menu-highlights ul {
+  gap: 0.6rem;
+  padding-block: 0.25rem 1.5rem;
+}
+
+/* Au téléphone, halal, sur place et à emporter tiennent sur une ligne, les horaires dessous. */
+@media (max-width: 639px) {
+  .theme-bai-ko .menu-highlights ul {
+    gap: 0.45rem;
+  }
+
+  .theme-bai-ko .menu-highlights li {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* À 320 px, « Takeaway » partait seul à la ligne. */
+@media (max-width: 359px) {
+  .theme-bai-ko .menu-highlights ul {
+    gap: 0.35rem;
+  }
+
+  .theme-bai-ko .menu-highlights li {
+    padding-inline: 0.55rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ——— Navigation : les pastilles du site, l'active cerclée de rose ——— */
+
+.theme-bai-ko nav [data-category] {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.theme-bai-ko nav [data-category][aria-current] {
+  background-color: transparent;
+  border: 1px solid var(--bk-pink);
+  color: var(--bk-pink);
+  box-shadow: 0 0 14px rgba(255, 60, 120, 0.3), inset 0 0 10px rgba(255, 60, 120, 0.12);
+}
+
+/* Assez large, le rail prend toute la page : les dix pastilles tiennent sur
+   une ligne, la barre collante ne mange plus 15 % de l'écran. */
+@media (min-width: 1280px) {
+  .theme-bai-ko nav > div:has(> .category-rail) {
+    max-width: none;
+  }
+}
+
+/* En bureau, les dix pastilles débordaient du rail sans barre de défilement :
+   une souris n'atteignait pas les dernières. Elles passent sur deux lignes,
+   une seule dès que le rail prend la page ; sur deux lignes, la réserve des
+   ancres grandit d'autant, les titres ne finissent plus sous la barre. */
+@media (min-width: 1024px) {
+  .theme-bai-ko .category-rail {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .theme-bai-ko nav [data-category] {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  html:has(.theme-bai-ko) {
+    --nav-band: 9rem;
+  }
+}
+
+/* ——— Sections : le nom coréen en néon rose, le titre en Bebas ——— */
+
+.theme-bai-ko .category-heading {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.theme-bai-ko .category-kicker {
+  color: var(--bk-pink);
+  /* Le hangeul du système : une police web coréenne pèserait sur la carte de
+     chaque établissement pour une dizaine de caractères. */
+  font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", sans-serif;
+  font-size: 0.62em;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 0 12px rgba(255, 60, 120, 0.6);
+  vertical-align: 0.12em;
+}
+
+.theme-bai-ko .category-rule {
+  background-image: none;
+  background-color: var(--bk-pink);
+  opacity: 0.28;
+}
+
+/* ——— Les fiches : nuit, liseré rose ; les plats à partager gardent le
+   filet rose → cyan du site ——— */
+
+.theme-bai-ko .dish-grid > article {
+  border-color: rgba(255, 60, 120, 0.14);
+  border-radius: 1rem;
+}
+
+.theme-bai-ko #a-partager .dish-grid > article {
+  border-top: 2px solid transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(90deg, var(--bk-pink), var(--bk-cyan)) border-box;
+}
+
+@media (hover: hover) {
+  .theme-bai-ko .dish-grid > article:hover {
+    border-color: rgba(255, 60, 120, 0.45);
+  }
+}
+
+/* Les noms des plats en DM Sans, comme sur le site (graisse 500) ; Bebas
+   reste aux titres et aux prix. Le h3 porte aussi font-display : sans la
+   classe dans le sélecteur, la règle Bebas plus haut gagnait. */
+.theme-bai-ko article h3.font-display,
+.theme-bai-ko [role="dialog"] h3:not(.cart-title, .cart-sent-title, .order-ticket-title) {
+  font-family: var(--brand-sans);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.theme-bai-ko .dish-price {
+  color: var(--bk-gold);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.theme-bai-ko .dish-detail {
+  color: var(--muted);
+}
+
+/* Piment, végétarien, fermenté : les pastilles colorées du site. */
+.theme-bai-ko .dish-tag[data-tag="epice"] {
+  border-color: rgba(255, 85, 51, 0.45);
+  background-color: rgba(255, 85, 51, 0.1);
+  color: #ff7a5c;
+}
+
+.theme-bai-ko .dish-tag[data-tag="vegetarien"] {
+  border-color: rgba(78, 203, 113, 0.45);
+  background-color: rgba(78, 203, 113, 0.08);
+  color: var(--bk-green);
+}
+
+.theme-bai-ko .dish-tag[data-tag="fermente"] {
+  border-color: rgba(240, 183, 84, 0.45);
+  background-color: rgba(240, 183, 84, 0.08);
+  color: var(--bk-gold);
+}
+
+/* Les formules, comme sur le site : un bandeau chaud en tête, le nom en Bebas or. */
+.theme-bai-ko #formules .dish-grid > article {
+  border-color: rgba(240, 183, 84, 0.3);
+}
+
+.theme-bai-ko #formules .dish-head {
+  margin: -1rem -1rem 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(240, 183, 84, 0.16), rgba(255, 60, 120, 0.08));
+  border-bottom: 1px solid rgba(240, 183, 84, 0.25);
+}
+
+@media (min-width: 1024px) {
+  .theme-bai-ko #formules .dish-head {
+    margin: -1.25rem -1.25rem 0.5rem;
+    padding: 1.25rem;
+  }
+}
+
+.theme-bai-ko #formules article h3 {
+  color: var(--bk-gold);
+  font-family: var(--brand-display);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Les mêmes dans le téléphone de la démo Collect (components/collect/demo) ;
+   sa feuille d'options aussi, qui doit passer devant la règle des titres de
+   dialogue plus haut. */
+.theme-bai-ko [data-section="formules"] .demo-dish {
+  border-color: rgba(240, 183, 84, 0.3);
+  background-image: linear-gradient(135deg, rgba(240, 183, 84, 0.16), rgba(255, 60, 120, 0.08));
+}
+
+.theme-bai-ko [data-section="formules"] .demo-dish-name,
+.theme-bai-ko [role="dialog"][data-section="formules"] .demo-dish-name {
+  color: var(--bk-gold);
+  font-weight: 400;
+  font-family: var(--brand-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Les « Infos » du pied de carte : le titre rose du site, les mots en italique. */
+.theme-bai-ko .footer-glossary h2 {
+  color: var(--bk-pink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.theme-bai-ko .footer-glossary dt {
+  font-style: italic;
+}
+
+/* Téléphone, rien sous le nom (le riz, un café, une boisson) : le bouton se
+   range sur la ligne du nom et du prix, la fiche ne fait plus deux étages
+   presque vides. Trop étroit pour les deux (un long nom à 320 px), il repasse
+   dessous plutôt que de mordre sur le prix. Dès 768 px, les fiches vont par
+   deux et gardent leur bouton en pied : à côté d'une fiche complète, celle-ci
+   avait le sien 30 à 110 px plus haut. */
+@media (max-width: 767px) {
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) {
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+  }
+
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) > .dish-head {
+    flex: 1 1 11rem;
+    min-width: 0;
+    /* Un nom sur deux lignes : le prix au milieu, face au bouton. */
+    align-items: center;
+  }
+
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) > .dish-action {
+    margin: 0 0 0 auto;
+  }
+}
+
+/* Tablette et bureau : une fiche à photo prend la rangée entière, la photo à
+   gauche de son texte, au format de la photo ; les fiches sans photo vont par
+   deux, à la hauteur de la plus haute, leur bouton en pied, dans l'ordre de
+   la carte. */
+@media (min-width: 768px) {
+  .theme-bai-ko .dish-grid > article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .theme-bai-ko .dish-grid > article > .dish-body {
+    flex: 1;
+  }
+
+  .theme-bai-ko .dish-body > .dish-action {
+    margin-top: auto;
+  }
+
+  .theme-bai-ko .dish-grid > article:has(.dish-photo) {
+    grid-column: 1 / -1;
+    display: grid;
+  }
+
+  /* Moitié-moitié à la tablette. Au bureau, une photo à moitié de la fiche la
+     faisait deux fois plus haute que son texte : à 40 %, le bouton remonte
+     près de la description. Plages disjointes : l'ordre des règles ne tient
+     pas toujours au build de production. */
+  @media (max-width: 1023px) {
+    .theme-bai-ko .dish-grid > article:has(.dish-photo) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .theme-bai-ko .dish-grid > article:has(.dish-photo) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+  }
+
+  /* Largeur fixée : le format ne fixe qu'une hauteur minimale, la photo se
+     recadre au lieu de s'élargir sur le texte quand celui-ci est plus haut. */
+  .theme-bai-ko .dish-grid > article .dish-photo {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 100%;
+  }
+
+  /* Une fiche sans photo qui resterait seule sur sa rangée la prend entière
+     (data-span, posé par MenuSection). */
+  .theme-bai-ko .dish-grid > article[data-span] {
+    grid-column: 1 / -1;
+  }
+
+  /* Sur toute la rangée, elle se lit comme une ligne de carte : prix et bouton
+     à droite, sur la ligne du nom, le reste du texte dessous. En pied, le
+     bouton ajoutait un étage vide sous un texte d'un tiers de la largeur. */
+  .theme-bai-ko .dish-grid > article[data-span] > .dish-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    column-gap: 1.5rem;
+  }
+
+  .theme-bai-ko .dish-grid > article[data-span] > .dish-body > * {
+    grid-column: 1;
+  }
+
+  .theme-bai-ko .dish-grid > article[data-span] .dish-head {
+    display: contents;
+  }
+
+  .theme-bai-ko .dish-grid > article[data-span] .dish-head > :last-child {
+    grid-area: 1 / 2;
+  }
+
+  .theme-bai-ko .dish-grid > article[data-span] > .dish-body > .dish-action {
+    grid-area: 1 / 3;
+    margin: 0;
+  }
+
+  .theme-bai-ko .dish-grid > article .dish-photo .dish-photo-fade {
+    background-image: linear-gradient(to left, var(--surface), transparent 30%);
+  }
+
+  /* Le compte au panier sur le coin du bouton : au coin de la fiche, c'est le
+     prix qu'il couvrait, la photo étant à gauche. */
+  .theme-bai-ko .dish-grid > article:has(.dish-photo) .dish-action > button {
+    position: relative;
+  }
+
+  .theme-bai-ko .dish-grid > article:has(.dish-photo) .cart-count {
+    top: -0.5rem;
+    right: -0.5rem;
+  }
+}
+
+.theme-bai-ko .choice-row.is-checked {
+  border-color: var(--bk-pink);
+  background-color: rgba(255, 60, 120, 0.08);
+}
+
+.theme-bai-ko .cart-bar {
+  box-shadow: 0 0 28px rgba(255, 60, 120, 0.35), 0 20px 40px -16px rgba(0, 0, 0, 0.8);
+}
+
+.theme-bai-ko :is(.cart-line-price, .cart-total) {
+  color: var(--bk-gold);
+}
+
+/* Dans le panier aussi, les noms en DM Sans : Bebas n'a que des capitales, « x4 » y devenait « X4 ». */
+.theme-bai-ko .cart-line-name {
+  font-family: var(--brand-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.theme-bai-ko footer:not([role="dialog"] footer) {
+  border-top: 1px solid rgba(255, 60, 120, 0.2);
+}
+
+/*
   Menu — règles communes à toutes les cartes, thème ou pas.
 */
+
+/* Le bandeau défilant des annonces (menu/menu-ticker.tsx) : deux copies, une largeur de défilement. */
+.menu-ticker-track {
+  animation: menu-ticker var(--ticker-duration) linear infinite;
+}
+
+/* Chaque copie couvre au moins l'écran : sur un écran plus large que la
+   liste, une bande vide passait en fin de boucle. */
+.menu-ticker-list {
+  min-width: 100vw;
+  justify-content: space-around;
+}
+
+.menu-ticker:hover .menu-ticker-track,
+.menu-ticker[data-paused] .menu-ticker-track {
+  animation-play-state: paused;
+}
+
+@keyframes menu-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Sur une carte sans photo, le compte au panier se pose sur le coin du
+   bouton : au coin de la carte, il cachait le prix. Pas sur une carte seule
+   dans sa section : son bouton reste sans position, le voile qui rend toute
+   la carte touchable (plus bas) s'étend à la carte. */
+:where([data-menu-root]) article:not(:has(.dish-photo), :only-child) .dish-action > button {
+  position: relative;
+}
+
+:where([data-menu-root]) article:not(:has(.dish-photo), :only-child) .cart-count {
+  top: -0.5rem;
+  right: -0.5rem;
+}
+
+/* Le bandeau coupe ce qui déborde : l'anneau du bouton se trace en dedans. */
+.menu-ticker-pause:focus-visible {
+  outline-offset: -3px;
+}
+
+/* Sans mouvement : les annonces à plat, une seule fois, une par ligne s'il le faut. */
+@media (prefers-reduced-motion: reduce) {
+  .menu-ticker-track {
+    width: 100%;
+    animation: none;
+  }
+
+  .menu-ticker-list {
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.25rem;
+  }
+
+  .menu-ticker-item {
+    padding-inline: 0.75rem;
+    white-space: normal;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .menu-ticker-item::after,
+  .menu-ticker-list[aria-hidden],
+  .menu-ticker-pause {
+    display: none;
+  }
+}
 
 /* Anneau de focus aux couleurs de la carte ; les thèmes posent le leur. */
 :where([data-menu-root]) :focus-visible {
@@ -1863,13 +2482,13 @@ html:has(.ticket-dock) {
 */
 @media (max-width: 639px) {
   /* Le héros au logo seulement : une photo de couverture garde sa hauteur. */
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street, .theme-bai-ko)
     > header:has(.hero-lockup) {
     min-height: 0;
     padding-bottom: 2.5rem;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street, .theme-bai-ko)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
@@ -1907,12 +2526,12 @@ html:has(.ticket-dock) {
     position: static;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street, .theme-bai-ko)
     > header:has(.hero-lockup) {
     min-height: 0;
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street, .theme-bai-ko)
     :is(.hero-contact, .hero-cue) {
     display: none;
   }
@@ -1949,7 +2568,7 @@ html:has(.ticket-dock) {
     --ocp-name: min(9vw, 15svh);
   }
 
-  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street)
+  :where([data-menu-root]:not([class*="theme-"]), .theme-o-crousti-poulet, .theme-chicken-street, .theme-bai-ko)
     > header:has(.hero-lockup) {
     padding-block: 1.5rem;
   }

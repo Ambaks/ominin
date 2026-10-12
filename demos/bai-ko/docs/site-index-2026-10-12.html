@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Baï-Ko · Thaï &amp; Korean Food · Montpellier</title>
+<link rel="icon" type="image/png" href="data:image/…(retiré)"/>
+<link rel="apple-touch-icon" href="data:image/…(retiré)"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0a0a0c;--surface:#111115;--surface2:#17171e;
+  --pink:#ff3c78;--blue:#3ce4ff;--gold:#f0b754;--orange:#ff6b35;
+  --violet:#7c6bc4;
+  --muted:#5a5a6a;--text:#eeeef5;--soft:#9090a8;
+  --border:rgba(255,60,120,.14);
+  --veggie:#4ecb71;--spicy:#ff5533;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;line-height:1.6}
+
+/* NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.45}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--pink);border-radius:2px}
+
+/* ── TICKER / BANDEROLE ── */
+#topticker{
+  position:fixed;top:0;left:0;right:0;z-index:600;
+  height:38px;
+  background:linear-gradient(90deg,var(--surface2),var(--surface));
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+  display:flex;align-items:center;
+}
+.ticker-track{
+  display:flex;align-items:center;
+  white-space:nowrap;
+  animation:ticker-scroll 32s linear infinite;
+  will-change:transform;
+}
+#topticker:hover .ticker-track{animation-play-state:paused}
+.ticker-item{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:0 28px;
+  font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--text);font-weight:500;
+  position:relative;
+}
+.ticker-item::after{
+  content:'✦';
+  position:absolute;right:-2px;
+  color:var(--pink);font-size:9px;opacity:.7;
+}
+.ticker-item.accent{color:var(--gold)}
+.ticker-item.brand{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:15px;letter-spacing:3px;color:var(--violet);
+  text-shadow:0 0 10px rgba(124,107,196,.5);
+}
+.ticker-uber{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#06C167;color:#000;
+  padding:3px 10px 3px 8px;border-radius:20px;
+  font-weight:700;font-size:11px;letter-spacing:.5px;
+  text-transform:none;
+}
+.ticker-uber svg{width:13px;height:13px;flex-shrink:0}
+@keyframes ticker-scroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+@media(max-width:640px){
+  .ticker-item{font-size:10.5px;padding:0 18px}
+  .ticker-item.brand{font-size:13px}
+}
+
+/* ── CATEGORY DROPDOWN (nav) ── */
+.nav-item-drop{position:relative}
+.nav-drop-toggle{
+  background:none;border:none;cursor:pointer;
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--soft);font-family:'DM Sans',sans-serif;font-weight:300;
+  display:flex;align-items:center;gap:4px;padding:0;
+  transition:color .2s;
+}
+.nav-drop-toggle:hover,.nav-drop-toggle.open{color:var(--pink)}
+.nav-drop-toggle svg{width:10px;height:10px;transition:transform .2s}
+.nav-drop-toggle.open svg{transform:rotate(180deg)}
+.nav-dropdown{
+  position:absolute;top:calc(100% + 16px);left:50%;transform:translateX(-50%) translateY(-8px);
+  background:rgba(15,15,19,.98);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:10px;
+  min-width:220px;padding:8px;
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 12px 32px rgba(0,0,0,.5);
+  z-index:50;
+}
+.nav-dropdown.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.nav-dropdown a{
+  display:block;padding:9px 12px;border-radius:6px;
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--soft);text-decoration:none;white-space:nowrap;
+  transition:all .15s;
+}
+.nav-dropdown a:hover{background:rgba(255,60,120,.1);color:var(--pink)}
+.nav-dropdown a .kr-mini{font-family:'Noto Sans KR',sans-serif;color:var(--muted);font-size:9px;margin-left:4px}
+
+/* mobile category list */
+.mobile-cat-list{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+  max-height:40vh;overflow-y:auto;padding:4px 0;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  width:80%;
+}
+.mobile-cat-list a{
+  padding:10px 0;font-size:12px !important;letter-spacing:2px !important;
+}
+
+/* ── QUICK CATEGORY PILLS (menu section) ── */
+#quicknav{
+  position:sticky;top:102px;z-index:80;
+  background:rgba(10,10,12,.94);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:12px 0;
+  margin-bottom:10px;
+}
+.quicknav-track{
+  display:flex;gap:10px;overflow-x:auto;
+  padding:0 24px;max-width:1000px;margin:0 auto;
+  scrollbar-width:none;
+}
+.quicknav-track::-webkit-scrollbar{display:none}
+.quicknav-track a{
+  flex-shrink:0;
+  padding:8px 16px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:10.5px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--soft);text-decoration:none;
+  transition:all .2s;white-space:nowrap;
+}
+.quicknav-track a:hover,.quicknav-track a.active{
+  border-color:var(--pink);color:var(--pink);
+  background:rgba(255,60,120,.08);
+}
+
+/* ── NOUS TROUVER ── */
+#nous-trouver{padding:80px 0 40px}
+.find-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:stretch}
+@media(max-width:768px){.find-grid{grid-template-columns:1fr}}
+.find-info{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:32px;display:flex;flex-direction:column;gap:20px;justify-content:center;
+}
+.find-info .info-block{align-items:center}
+.find-map{
+  border-radius:14px;overflow:hidden;border:1px solid var(--border);
+  min-height:340px;position:relative;
+}
+.find-map iframe{width:100%;height:100%;min-height:340px;border:0;display:block;filter:grayscale(.25) invert(.92) contrast(.9);}
+.find-map-label{
+  position:absolute;top:12px;left:12px;
+  background:rgba(10,10,12,.85);backdrop-filter:blur(6px);
+  padding:6px 14px;border-radius:20px;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pink);
+  border:1px solid var(--border);
+}
+.find-btn{
+  display:inline-block;margin-top:6px;padding:12px 26px;border-radius:4px;
+  background:var(--pink);color:#fff;font-size:11px;letter-spacing:2px;
+  text-transform:uppercase;text-decoration:none;text-align:center;
+  box-shadow:0 0 18px rgba(255,60,120,.35);transition:all .2s;
+}
+.find-btn:hover{box-shadow:0 0 28px rgba(255,60,120,.55);transform:translateY(-2px)}
+
+/* ── DISH GALLERY (avant le menu) ── */
+#dish-gallery{padding:70px 0 10px}
+.gallery-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px;
+}
+.gallery-item{
+  aspect-ratio:1/1;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);position:relative;
+  background:var(--surface);
+}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.gallery-item:hover img{transform:scale(1.06)}
+.gallery-item .gallery-cap{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:14px 12px 10px;
+  background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);
+  font-size:12px;letter-spacing:1px;color:var(--text);
+}
+#topnav{
+  position:fixed;top:38px;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:64px;
+  background:rgba(10,10,12,.88);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--text);text-decoration:none;display:flex;align-items:center}
+.nav-logo img{height:42px;width:auto;display:block}
+.nav-logo span{color:var(--pink)}
+.nav-links{display:flex;gap:24px;list-style:none}
+.nav-links a{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--pink)}
+.nav-cta{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  padding:8px 20px;border:1px solid var(--pink);border-radius:20px;
+  color:var(--pink);text-decoration:none;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-cta:hover{background:var(--pink);color:#000}
+#hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+#hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s}
+@media(max-width:768px){
+  .nav-links,.nav-cta{display:none}
+  #hamburger{display:flex}
+  #mobile-menu{display:none;position:fixed;top:102px;left:0;right:0;bottom:0;background:rgba(10,10,12,.97);z-index:499;flex-direction:column;align-items:center;justify-content:center;gap:28px}
+  #mobile-menu.open{display:flex}
+  #mobile-menu a{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--soft);text-decoration:none}
+  #mobile-menu a:hover{color:var(--pink)}
+}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  padding:118px 24px 60px;
+  text-align:center;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 85%, rgba(255,60,120,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 20%, rgba(60,228,255,.05) 0%, transparent 60%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,60,120,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,120,.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);
+}
+.hero-logo-wrap{
+  position:relative;z-index:1;
+  animation:fadeUp .9s ease both;
+}
+.hero-logo-wrap img{
+  max-width:min(500px,82vw);
+  display:block;
+  filter:brightness(1.1) saturate(1.15);
+  drop-shadow:0 0 20px rgba(255,60,120,.3);
+}
+.hero-tagline{
+  position:relative;z-index:1;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:12px;font-weight:300;letter-spacing:6px;
+  text-transform:uppercase;color:var(--soft);
+  margin-top:-6px;
+  animation:fadeUp 1s .15s ease both;
+}
+.hero-desc{
+  position:relative;z-index:1;
+  font-size:15px;color:var(--soft);
+  max-width:400px;margin:20px auto 0;
+  line-height:1.7;
+  animation:fadeUp 1s .25s ease both;
+}
+.hero-badges{
+  position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-top:28px;
+  animation:fadeUp 1s .35s ease both;
+}
+.hero-badge{
+  padding:6px 18px;border-radius:20px;
+  font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.12);color:var(--soft);
+}
+.hero-badge.accent{border-color:var(--blue);color:var(--blue);box-shadow:0 0 12px rgba(60,228,255,.2)}
+.hero-ctas{
+  position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;gap:14px;justify-content:center;
+  margin-top:36px;
+  animation:fadeUp 1s .45s ease both;
+}
+.btn-primary{
+  padding:14px 32px;border-radius:4px;
+  background:var(--pink);color:#fff;font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;text-decoration:none;font-weight:500;
+  box-shadow:0 0 24px rgba(255,60,120,.4);
+  transition:all .25s;
+}
+.btn-primary:hover{box-shadow:0 0 36px rgba(255,60,120,.6);transform:translateY(-2px)}
+.btn-outline{
+  padding:14px 32px;border-radius:4px;
+  border:1px solid var(--soft);color:var(--soft);font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;text-decoration:none;
+  transition:all .25s;
+}
+.btn-outline:hover{border-color:var(--text);color:var(--text)}
+.hero-subtitle{
+  position:relative;z-index:1;
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:13px;font-weight:300;letter-spacing:4px;
+  text-transform:uppercase;color:var(--pink);
+  margin-top:8px;
+  text-shadow:0 0 10px rgba(255,60,120,.4);
+  animation:fadeUp 1s .2s ease both;
+}
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:var(--muted);font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  animation:fadeUp 1s .6s ease both;
+  z-index:1;
+}
+
+/* ── SOCIAL ICONS (hero) ── */
+.hero-social{
+  position:relative;z-index:1;
+  display:flex;gap:20px;justify-content:center;
+  margin-top:26px;
+  animation:fadeUp 1s .5s ease both;
+}
+.social-btn{
+  width:60px;height:60px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;
+  transition:all .25s;
+  position:relative;
+  overflow:hidden;
+}
+.social-btn svg{width:29px;height:29px;position:relative;z-index:1}
+.social-btn:hover{transform:translateY(-4px) scale(1.05)}
+.social-btn.ig{
+  background:radial-gradient(circle at 30% 110%,#fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285AEB 90%);
+  color:#fff;
+  box-shadow:0 4px 18px rgba(214,36,159,.4);
+}
+.social-btn.ig:hover{box-shadow:0 8px 26px rgba(214,36,159,.6)}
+.social-btn.tt{
+  background:#010101;
+  color:#fff;
+  box-shadow:0 4px 18px rgba(0,0,0,.5);
+}
+.social-btn.tt::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#25F4EE 0%,transparent 35%,transparent 65%,#FE2C55 100%);
+  opacity:.35;
+}
+.social-btn.tt:hover{box-shadow:0 8px 26px rgba(37,244,238,.35),0 8px 26px rgba(254,44,85,.35)}
+
+
+/* ── INFO BAR ── */
+#infobar{
+  background:var(--surface);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:28px 40px;
+}
+.infobar-inner{
+  max-width:1000px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:24px;align-items:center;
+}
+.info-block{display:flex;align-items:flex-start;gap:12px}
+.info-icon{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+  color:var(--pink);
+}
+.info-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.info-value{font-size:13px;color:var(--text);line-height:1.5}
+.info-value a{color:var(--text);text-decoration:none}
+.info-value a:hover{color:var(--pink)}
+
+/* ── SECTION GENERIC ── */
+.section-wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+section.menu-block{padding-top:80px}
+.sec-head{
+  display:flex;align-items:baseline;gap:14px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:28px;
+}
+.kr{
+  font-family:'Noto Sans KR',sans-serif;
+  font-size:18px;font-weight:700;
+  color:var(--pink);
+  text-shadow:0 0 12px rgba(255,60,120,.45);
+}
+.sec-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;letter-spacing:3px;color:var(--text);
+}
+.sec-note{font-size:12px;font-style:italic;color:var(--muted);margin-bottom:26px;margin-top:-18px}
+
+/* ── DISH LIST ── */
+.dish-list{display:flex;flex-direction:column}
+.dish{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;gap:14px;
+  border-bottom:1px solid rgba(255,255,255,.035);
+  transition:background .2s;
+}
+.dish:hover{background:rgba(255,60,120,.025);padding-left:6px;padding-right:6px;border-radius:4px}
+.dish-l{flex:1;min-width:0}
+.dish-name{font-size:14.5px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dish-desc{font-size:12px;color:var(--soft);font-style:italic;margin-top:2px;line-height:1.4}
+.price{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;color:var(--gold);flex-shrink:0}
+
+/* badges */
+.b{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:10px;text-transform:uppercase}
+.b-sp{background:rgba(255,85,51,.13);color:var(--spicy);border:1px solid rgba(255,85,51,.3)}
+.b-vg{background:rgba(78,203,113,.1);color:var(--veggie);border:1px solid rgba(78,203,113,.28)}
+.b-sh{background:rgba(240,183,84,.1);color:var(--gold);border:1px solid rgba(240,183,84,.28)}
+
+/* ── SHARE CARDS ── */
+.share-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.share-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px 18px;position:relative;overflow:hidden;
+  transition:transform .2s,border-color .2s;
+}
+.share-card:hover{transform:translateY(-3px);border-color:rgba(255,60,120,.38)}
+.share-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue))}
+.share-card .dish-name{font-size:13.5px}
+.share-card .dish-desc{font-size:11.5px;margin-top:8px}
+.share-card .price{font-size:24px;display:block;margin-top:14px}
+
+/* ── FORMULE CARDS ── */
+.formule-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-top:10px}
+.fc{background:var(--surface);border:1px solid rgba(240,183,84,.22);border-radius:14px;overflow:hidden}
+.fc-head{
+  background:linear-gradient(135deg,rgba(240,183,84,.16),rgba(255,60,120,.10));
+  padding:22px 24px 16px;border-bottom:1px solid rgba(240,183,84,.14);
+}
+.fc-head h3{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--gold)}
+.fc-head .fc-price{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--soft)}
+.fc-body{padding:18px 24px 24px;font-size:13px;color:var(--soft);line-height:1.8}
+.fc-body strong{color:var(--text);font-weight:500;display:block;margin-top:12px;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.fc-body ul{list-style:none;padding-left:0}
+.fc-body ul li::before{content:'↳ ';color:var(--pink);font-size:10px}
+
+/* ── 2-COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+@media(max-width:640px){.two-col{grid-template-columns:1fr}.share-grid{grid-template-columns:1fr}.formule-grid{grid-template-columns:1fr}}
+
+/* ── ALLERGENS ── */
+#allergenes{
+  padding:80px 0;
+}
+.allerg-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;
+}
+.allerg-box h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--pink);margin-bottom:18px}
+.ap-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.ap{padding:5px 14px 5px 10px;border-radius:20px;font-size:11px;letter-spacing:1px;border:1px solid rgba(255,255,255,.1);color:var(--soft);display:inline-flex;align-items:center;gap:7px}
+.dot{width:11px;height:11px;min-width:11px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.25)}
+.dot-gluten{background:#7e6bc4}
+.dot-oeuf{background:#3ec9f0}
+.dot-crustaces{background:#ef5fa7}
+.dot-lupin{background:#e0432f}
+.dot-moutarde{background:#f0c419}
+.dot-arachides{background:#8a6d3a}
+.dot-soja{background:#e0362b}
+.dot-lactose{background:#1f6b52}
+.dot-fruitscoque{background:#8a7d2f}
+.dot-celeri{background:#5fc93d}
+.dot-sesame{background:#f2efe6}
+.dot-poisson{background:#2a4fb0}
+.dot-mollusques{background:#4a4a58}
+.dot-sulfites{background:#9090a8}
+.dot-sm{width:9px;height:9px;min-width:9px}
+.dish-dots{display:inline-flex;gap:4px;vertical-align:middle;margin-left:8px}
+.sec-dots{display:inline-flex;gap:5px;vertical-align:middle;margin-left:10px}
+.allerg-box p{font-size:12.5px;color:var(--muted);line-height:2}
+.allerg-box p span{color:var(--soft);font-style:italic}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:56px 24px 40px;
+  text-align:center;
+}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:8px;color:var(--text)}
+.footer-logo span{color:var(--pink)}
+.footer-kr{font-family:'Noto Sans KR',sans-serif;font-size:18px;color:var(--pink);margin-top:4px;text-shadow:0 0 10px rgba(255,60,120,.4)}
+.footer-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--pink),transparent);margin:20px auto}
+.footer-info{font-size:12px;color:var(--muted);line-height:2.2}
+.footer-info a{color:var(--soft);text-decoration:none}
+.footer-info a:hover{color:var(--pink)}
+.footer-copy{margin-top:32px;font-size:11px;color:var(--muted);letter-spacing:1px}
+.footer-socials{display:flex;justify-content:center;gap:16px;margin-top:20px}
+.footer-socials a{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--soft);text-decoration:none;font-size:14px;
+  transition:all .2s;
+}
+.footer-socials a:hover{border-color:var(--pink);color:var(--pink);box-shadow:0 0 10px rgba(255,60,120,.3)}
+
+/* ── SECTION DIVIDER ── */
+.divider-line{
+  max-width:1000px;margin:0 auto;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border),transparent);
+}
+
+/* ── ANIMS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MAIN WRAPPER ── */
+#content{padding-top:64px}
+
+/* ── HALAL BANNER ── */
+.halal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(78,203,113,.12), rgba(78,203,113,.06));
+  border: 1px solid rgba(78,203,113,.35);
+  border-radius: 8px;
+  padding: 10px 24px;
+  margin: 0 auto 28px;
+  max-width: 500px;
+}
+.halal-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.halal-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4ecb71;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.halal-text span {
+  font-weight: 300;
+  color: #9090a8;
+  font-size: 11px;
+  display: block;
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+
+/* ── HALAL STICKY TAG ── */
+.halal-sticky {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  background: rgba(14,14,18,.92);
+  border: 1px solid rgba(78,203,113,.45);
+  border-radius: 50px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(78,203,113,.2);
+  animation: fadeUp .8s ease both;
+}
+.halal-sticky span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4ecb71;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ BANDEROLE DÉROULANTE ═══ -->
+<div id="topticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-uber"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11h16v2H4zM6 6h12l2 4H4l2-4zM6 14h12l-2 4H8l-2-4z"/></svg>UBER EATS</span> Livraison disponible</span>
+    <span class="ticker-item accent">📅 Réservation possible à partir de 6 personnes</span>
+    <span class="ticker-item brand">BAÏ·KŌ — Thaï &amp; Korean Food</span>
+    <span class="ticker-item accent">🎓 Menu étudiant Bento Box 10,90€ — à partir du 1er septembre 2026</span>
+    <!-- doublon pour boucle infinie -->
+    <span class="ticker-item"><span class="ticker-uber"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 11h16v2H4zM6 6h12l2 4H4l2-4zM6 14h12l-2 4H8l-2-4z"/></svg>UBER EATS</span> Livraison disponible</span>
+    <span class="ticker-item accent">📅 Réservation possible à partir de 6 personnes</span>
+    <span class="ticker-item brand">BAÏ·KŌ — Thaï &amp; Korean Food</span>
+    <span class="ticker-item accent">🎓 Menu étudiant Bento Box 10,90€ — à partir du 1er septembre 2026</span>
+  </div>
+</div>
+
+<!-- ═══ TOP NAV ═══ -->
+<nav id="topnav">
+  <a href="#hero" class="nav-logo"><img src="data:image/…(retiré)" alt="Baï-kō"></a>
+  <ul class="nav-links">
+    <li class="nav-item-drop">
+      <button class="nav-drop-toggle" id="menuDropToggle" onclick="toggleMenuDrop()">Menu <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l5 5 5-5"/></svg></button>
+      <div class="nav-dropdown" id="menuDropdown">
+        <a href="#anju">Anju <span class="kr-mini">안주</span></a>
+        <a href="#bibimbap">Bibimbap</a>
+        <a href="#padthai">Pad Thaï</a>
+        <a href="#partager">À Partager</a>
+        <a href="#ramyeon">Ramyeon</a>
+        <a href="#salades">Salades</a>
+        <a href="#sides">Sides</a>
+        <a href="#desserts">Desserts</a>
+        <a href="#boissons">Boissons</a>
+        <a href="#menus">Formules</a>
+      </div>
+    </li>
+    <li><a href='/galerie'>Galerie</a></li>
+    <li><a href="#nous-trouver">Nous trouver</a></li>
+    <li><a href="#infobar">Contact</a></li>
+  </ul>
+  <a href="tel:0614055971" class="nav-cta">📞 Réserver</a>
+  <div id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- mobile menu -->
+<div id="mobile-menu">
+  <button class="nav-drop-toggle" onclick="toggleMobileCat()" id="mobileCatToggle" style="font-size:14px;letter-spacing:3px">Menu <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px"><path d="M1 1l5 5 5-5"/></svg></button>
+  <div class="mobile-cat-list" id="mobileCatList" style="display:none">
+    <a href="#anju" onclick="toggleMenu()">Anju — Tapas</a>
+    <a href="#bibimbap" onclick="toggleMenu()">Bibimbap</a>
+    <a href="#padthai" onclick="toggleMenu()">Pad Thaï</a>
+    <a href="#partager" onclick="toggleMenu()">À Partager</a>
+    <a href="#ramyeon" onclick="toggleMenu()">Ramyeon</a>
+    <a href="#salades" onclick="toggleMenu()">Salades</a>
+    <a href="#sides" onclick="toggleMenu()">Sides</a>
+    <a href="#desserts" onclick="toggleMenu()">Desserts</a>
+    <a href="#boissons" onclick="toggleMenu()">Boissons</a>
+    <a href="#menus" onclick="toggleMenu()">Formules</a>
+  </div>
+  <a href='/galerie'>Galerie</a>
+  <a href="#nous-trouver" onclick="toggleMenu()">Nous trouver</a>
+  <a href="#infobar" onclick="toggleMenu()">Contact</a>
+  <a href="tel:0614055971" style="color:var(--pink)">📞 06 14 05 59 71</a>
+</div>
+
+<div id="content">
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-logo-wrap">
+    <img src="data:image/…(retiré)" alt="Baï-Ko — Thaï &amp; Korean Food"/>
+  </div>
+
+  <p class="hero-tagline">Korean Street Food &amp; Asian Spirit</p>
+  <p class="hero-subtitle">From Seoul to Montpellier</p>
+
+  <p class="hero-desc">
+    Découvrez une cuisine de rue coréenne et thaïlandaise authentique,
+    dans une ambiance néon pojangmacha au cœur de Montpellier.
+  </p>
+
+  <div class="hero-badges">
+    <span class="hero-badge">Dine-in</span>
+    <span class="hero-badge">Takeaway</span>
+    <span class="hero-badge">Livraison</span>
+    <span class="hero-badge accent">Ouvert 7j/7 · 12h–14h30 · 18h30–23h30</span>
+  </div>
+
+  <div class="hero-ctas">
+    <a href="#menu-section" class="btn-primary">Voir le menu</a>
+    <a class='btn-outline' href='/galerie'>📸 Voir les plats</a>
+    <a href="tel:0614055971" class="btn-outline">Nous appeler</a>
+  </div>
+
+  <div class="hero-social">
+    <a href="https://www.instagram.com/baiko.montpellier/" target="_blank" rel="noopener" class="social-btn ig" aria-label="Instagram Baï-kō">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="https://www.tiktok.com/@baiko.montpellier" target="_blank" rel="noopener" class="social-btn tt" aria-label="TikTok Baï-kō">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.4 2.2 2 3.9 4.5 4.1v3.1c-1.6 0-3-.5-4.2-1.4v6.6c0 3.4-2.6 5.9-5.9 5.9-3.3 0-5.9-2.6-5.9-5.9 0-3.4 2.9-5.9 6-5.9.3 0 .7 0 1 .1V13c-.3-.1-.7-.1-1-.1-1.6 0-2.9 1.3-2.9 2.9 0 1.6 1.3 2.9 2.9 2.9 1.6 0 3-1.3 3-3V3h2.5z"/></svg>
+    </a>
+  </div>
+
+  
+</section>
+
+<!-- ═══ INFO BAR ═══ -->
+<div id="infobar">
+  <div class="infobar-inner">
+    <div class="info-block">
+      <div class="info-icon">📍</div>
+      <div>
+        <div class="info-label">Adresse</div>
+        <div class="info-value">2 Avenue de Lodève<br/>34070 Montpellier · Arceaux</div>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-icon">🕐</div>
+      <div>
+        <div class="info-label">Horaires</div>
+        <div class="info-value">Tous les jours<br/>12h00–14h30 · 18h30–23h30<br/><small style="color:var(--muted);font-size:10.5px">(fermeture cuisine 30 min avant)</small></div>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-icon">📞</div>
+      <div>
+        <div class="info-label">Téléphone</div>
+        <div class="info-value"><a href="tel:0614055971">06 14 05 59 71</a></div>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-icon">✉️</div>
+      <div>
+        <div class="info-label">Email</div>
+        <div class="info-value"><a href="mailto:contact@bai-ko.com">contact@bai-ko.com</a></div>
+      </div>
+    </div>
+  </div>
+
+<!-- ═══ HALAL BANNER ═══ -->
+<div style="background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;">
+  <div class="halal-banner">
+    <span class="halal-icon">☪️</span>
+    <div class="halal-text">
+      100% Halal
+      <span>Tous nos produits sont certifiés Halal</span>
+    </div>
+    <span class="halal-icon">☪️</span>
+  </div>
+</div>
+
+
+<!-- ═══ QUICK CATEGORY NAV ═══ -->
+<div id="quicknav">
+  <div class="quicknav-track">
+    <a href="#anju">Anju — Tapas</a>
+    <a href="#bibimbap">Bibimbap</a>
+    <a href="#padthai">Pad Thaï</a>
+    <a href="#partager">À Partager</a>
+    <a href="#ramyeon">Ramyeon</a>
+    <a href="#salades">Salades</a>
+    <a href="#sides">Sides</a>
+    <a href="#desserts">Desserts</a>
+    <a href="#boissons">Boissons</a>
+    <a href="#menus">Formules</a>
+  </div>
+</div>
+
+<!-- ═══ MENU ═══ -->
+<div id="menu-section" style="padding-top:20px">
+<div class="section-wrap">
+
+  <!-- ANJU -->
+  <section class="menu-block" id="anju">
+    <div class="sec-head">
+      <span class="kr">안주</span>
+      <h2 class="sec-title">ANJU — TAPAS</h2>
+    </div>
+    <p class="sec-note">Seul ou à partager</p>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Corn Dog<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-lactose"></span></span></div><div class="dish-desc">Saucisse &amp; mozzarella panées</div></div><span class="price">6,50€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Tteokbokki<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-lactose"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b" style="background:rgba(240,183,84,.1);color:var(--gold);border:1px solid rgba(240,183,84,.28)">🟠 Fermenté</span> <span class="b b-sp">🌶🌶</span></div><div class="dish-desc">Gâteaux de riz, œuf &amp; mozzarella marinés dans une sauce gochujang</div></div><span class="price">8,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Corn Cheese<span class="dish-dots"><span class="dot dot-sm dot-lactose"></span><span class="dot dot-sm dot-oeuf"></span></span></div><div class="dish-desc">Maïs et mozzarella fondante, dans une sauce mayonnaise sucrée</div></div><span class="price">6,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Sotteok-So-tteok<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b b-sp">🌶 Épicé</span></div><div class="dish-desc">Brochette de tteokbokki et de saucisses</div></div><span class="price">5,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Kimchi Bomb<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-lactose"></span></span> <span class="b" style="background:rgba(240,183,84,.1);color:var(--gold);border:1px solid rgba(240,183,84,.28)">🟠 Fermenté</span> <span class="b b-sp">🌶 Épicé</span></div><div class="dish-desc">Arancini de riz sauté au kimchi et mozzarella</div></div><span class="price">5,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Mandu <small style="color:var(--muted)">(x4)</small><span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-sesame"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-arachides"></span><span class="dot dot-sm dot-celeri"></span></span> <span class="b b-vg">🌿 Végétarien</span></div><div class="dish-desc">Raviolis grillés aux légumes</div></div><span class="price">6,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Nem <small style="color:var(--muted)">(x3)</small><span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-arachides"></span><span class="dot dot-sm dot-sesame"></span><span class="dot dot-sm dot-celeri"></span></span></div><div class="dish-desc">Au poulet</div></div><span class="price">6,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Korean Fried Chicken <small style="color:var(--muted)">(x4)</small><span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-lactose"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span></div><div class="dish-desc"><span class="b b-sp">🌶 Spicy</span> ou <span style="color:var(--gold)">Sweet</span> (Soja &amp; miel) · Servi avec quelques tteokbokki frits</div></div><span class="price">8,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Cheese Chicken Katsu <small style="color:var(--muted)">(x4)</small><span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-lactose"></span></span></div><div class="dish-desc">Poulet pané farci à la mozzarella</div></div><span class="price">10,00€</span></div>
+    </div>
+  </section>
+
+  <!-- BIBIMBAP -->
+  <section class="menu-block" id="bibimbap">
+    <div class="sec-head">
+      <span class="kr">돌솥비빔밥</span>
+      <h2 class="sec-title">BIBIMBAP<span class="sec-dots"><span class="dot dot-gluten"></span><span class="dot dot-oeuf"></span><span class="dot dot-soja"></span><span class="dot dot-sesame"></span></span></h2>
+    </div>
+    <p class="sec-note">Plat typique coréen composé de riz, légumes, garniture et œuf · Version Dolsot (bol en pierre chauffé) +1€</p>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Beef Bulgogi Bap</div><div class="dish-desc">Bœuf sauté, sauce bulgogi*</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Dak Bap Spicy <span class="b b-sp">🌶</span></div><div class="dish-desc">Poulet frit dans une sauce à base de Gochujang*</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Dak Bap Sweet</div><div class="dish-desc">Poulet frit dans une sauce coréenne ail, miel &amp; soja</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Tofu Bap <span class="b b-vg">🌿 Végétarien</span></div><div class="dish-desc">Tofu mariné dans une sauce coréenne soja</div></div><span class="price">14,90€</span></div>
+    </div>
+  </section>
+
+  <!-- PAD THAI -->
+  <section class="menu-block" id="padthai">
+    <div class="sec-head">
+      <h2 class="sec-title">PAD THAÏ<span class="sec-dots"><span class="dot dot-gluten"></span><span class="dot dot-oeuf"></span><span class="dot dot-soja"></span><span class="dot dot-arachides"></span><span class="dot dot-sesame"></span></span></h2>
+    </div>
+    <p class="sec-note">Plat typique thaïlandais composé de nouilles de riz, légumes, garniture et œuf</p>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Beef</div><div class="dish-desc">Bœuf sauté, sauce soja</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Chicken</div><div class="dish-desc">Poulet, sauce soja</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Shrimp <span class="dish-dots"><span class="dot dot-sm dot-crustaces"></span></span></div><div class="dish-desc">Crevettes sautées, sauce soja</div></div><span class="price">15,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Veggie <span class="b b-vg">🌿</span></div><div class="dish-desc">Tofu &amp; légumes sautés, sauce soja</div></div><span class="price">14,90€</span></div>
+    </div>
+  </section>
+
+  <!-- PARTAGER -->
+  <section class="menu-block" id="partager">
+    <div class="sec-head">
+      <span class="kr">공유할 요리</span>
+      <h2 class="sec-title">À PARTAGER !</h2>
+    </div>
+    <p class="sec-note">Supplément viande ou rabokki 5€ · Tous nos plats sont accompagnés de 2 bols de riz · Servi sur plaque chauffante (pour 2 pers.)</p>
+    <div class="share-grid">
+      <div class="share-card"><div class="dish-name">Volcano Cheese Dakgalbi <span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b b-sp">🌶🌶🌶</span></div><div class="dish-desc">Poulet sauté avec mix de fromage fondu</div><span class="price">34,00€</span></div>
+      <div class="share-card"><div class="dish-name">Volcano Cheese Beef Bulgogi <span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b b-sp">🌶</span></div><div class="dish-desc">Bœuf sauté avec mix de fromage fondu</div><span class="price">34,00€</span></div>
+      <div class="share-card"><div class="dish-name">Volcano Cheese Mandu <span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-arachides"></span><span class="dot dot-sm dot-sesame"></span><span class="dot dot-sm dot-celeri"></span></span> <span class="b b-vg">🌿 Végétarien</span></div><div class="dish-desc">Ravioli avec mix de fromage fondu</div><span class="price">32,00€</span></div>
+      <div class="share-card"><div class="dish-name">Volcano Cheese Rabokki <span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b b-sp">🌶🌶</span></div><div class="dish-desc">Tteokbokki &amp; Ramen sautés avec mix de fromage fondu</div><span class="price">34,00€</span></div>
+    </div>
+  </section>
+
+  <!-- RAMYEON -->
+  <section class="menu-block" id="ramyeon">
+    <div class="sec-head">
+      <span class="kr">라면</span>
+      <h2 class="sec-title">RAMYEON — RAMEN CORÉEN<span class="sec-dots"><span class="dot dot-gluten"></span><span class="dot dot-oeuf"></span><span class="dot dot-soja"></span><span class="dot dot-sesame"></span></span></h2>
+    </div>
+    <p class="sec-note">Bouillon coréen épicé, servi avec légumes, nouilles Udon</p>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Bulgogi Ramyeon <span class="b b-sp">🌶🌶</span></div><div class="dish-desc">Bœuf façon bulgogi</div></div><span class="price">16,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Dak Ramyeon <span class="b b-sp">🌶🌶🌶</span></div><div class="dish-desc">Chicken spicy</div></div><span class="price">16,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Dubu Ramyeon <span class="b b-sp">🌶🌶</span> <span class="b b-vg">🌿</span></div><div class="dish-desc">Tofu</div></div><span class="price">16,00€</span></div>
+    </div>
+  </section>
+
+  <!-- SALADES -->
+  <section class="menu-block" id="salades">
+    <div class="sec-head">
+      <span class="kr">샐러드</span>
+      <h2 class="sec-title">SALADES</h2>
+    </div>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Beef Salad<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span></div><div class="dish-desc">Salade au bœuf mariné, sauce bulgogi yuzu-citron*</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Chicken Salad<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-oeuf"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-sesame"></span></span> <span class="b b-sp">🌶🌶</span></div><div class="dish-desc">Salade au poulet mariné, sauce bulgogi yuzu-citron*</div></div><span class="price">14,90€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Tofu Salad<span class="dish-dots"><span class="dot dot-sm dot-gluten"></span><span class="dot dot-sm dot-sesame"></span><span class="dot dot-sm dot-soja"></span><span class="dot dot-sm dot-moutarde"></span><span class="dot dot-sm dot-arachides"></span></span> <span class="b b-vg">🌿</span></div><div class="dish-desc">Salade au tofu caramélisé, sauce bulgogi yuzu-citron*</div></div><span class="price">14,90€</span></div>
+    </div>
+  </section>
+
+  <!-- SIDES -->
+  <section class="menu-block" id="sides">
+    <div class="sec-head">
+      <span class="kr">사이드</span>
+      <h2 class="sec-title">SIDES</h2>
+    </div>
+    <div class="dish-list">
+      <div class="dish"><div class="dish-l"><div class="dish-name">Riz blanc</div></div><span class="price">3,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Kimchi<span class="dish-dots"><span class="dot dot-sm dot-crustaces"></span><span class="dot dot-sm dot-poisson"></span></span> <span class="b" style="background:rgba(240,183,84,.1);color:var(--gold);border:1px solid rgba(240,183,84,.28)">🟠 Fermenté</span> <span class="b b-sp">🌶🌶</span></div><div class="dish-desc">Chou pimenté et fermenté, assaisonné d'épices coréennes</div></div><span class="price">3,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Frites Classiques</div></div><span class="price">3,00€</span></div>
+      <div class="dish"><div class="dish-l"><div class="dish-name">Gamja Crispy</div><div class="dish-desc">Frites parmesan et herbes</div></div><span class="price">4,50€</span></div>
+    </div>
+  </section>
+
+  <!-- DESSERTS + BOISSONS -->
+  <div class="two-col" style="margin-top:80px">
+
+    <section id="desserts">
+      <div class="sec-head">
+        <span class="kr">디저트</span>
+        <h2 class="sec-title">DESSERTS</h2>
+      </div>
+      <div class="dish-list">
+        <div class="dish"><div class="dish-l"><div class="dish-name">Mochi</div><div class="dish-desc">Mangue Passion · Choco-coco · Litchi · Vanille · Yuzu-citron · Thé Vert · Fleur de Cerisier</div></div><span class="price">3,50€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Mango Rice</div><div class="dish-desc">Riz gluant à la mangue et au lait de coco</div></div><span class="price">8,00€</span></div>
+      </div>
+    </section>
+
+    <section id="boissons">
+      <div class="sec-head">
+        <span class="kr">음료수</span>
+        <h2 class="sec-title">BOISSONS</h2>
+      </div>
+      <div class="dish-list">
+        <div class="dish"><div class="dish-l"><div class="dish-name">Evian, San Pellegrino</div><div class="dish-desc">50cl</div></div><span class="price">3,50€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Coca / Coca Zéro / Coca Cherry</div><div class="dish-desc">33cl</div></div><span class="price">3,00€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Ice Tea</div><div class="dish-desc">33cl</div></div><span class="price">3,50€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Sprit Coréen Chilsung</div><div class="dish-desc">25cl</div></div><span class="price">4,00€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Soda (Pastèque / Yuzu-citron / Raisin)</div><div class="dish-desc">25cl</div></div><span class="price">4,00€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Aloe Vera</div><div class="dish-desc">25cl</div></div><span class="price">3,50€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Bongbong (raisin)</div><div class="dish-desc">25cl</div></div><span class="price">4,00€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Milkis (Fraise / Melon / Nature)</div><div class="dish-desc">25cl</div></div><span class="price">4,00€</span></div>
+        <div class="dish"><div class="dish-l"><div class="dish-name">Café</div></div><span class="price">2,50€</span></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FORMULES -->
+  <section class="menu-block" id="menus">
+    <div class="sec-head">
+      <h2 class="sec-title">FORMULES</h2>
+    </div>
+    <div class="formule-grid">
+
+      <div class="fc">
+        <div class="fc-head">
+          <h3>MENU MIDI</h3>
+          <div class="fc-price">16,90€</div>
+        </div>
+        <div class="fc-body">
+          <strong>Plat + Boisson</strong>
+          <strong>Plat au choix :</strong>
+          <ul>
+            <li>Bibimbap / Dolsot +1€ (Beef / Chicken sweet ou spicy 🌶 / Tofu)</li>
+            <li>Pad Thaï (Beef / Chicken / Veggie)</li>
+            <li>Salade (Bœuf bulgogi / Chicken 🌶🌶 / Tofu)</li>
+          </ul>
+          <strong>Boisson au choix :</strong>
+          <ul>
+            <li>Coca / Zero / Evian / San Pellegrino / Ice Tea</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="fc">
+        <div class="fc-head">
+          <h3>MENU</h3>
+          <div class="fc-price">20,90€</div>
+        </div>
+        <div class="fc-body">
+          <strong>Entrée + Plat + Boisson</strong>
+          <strong>Entrée au choix :</strong>
+          <ul><li>Mandu (x3)</li><li>Nems (x2)</li></ul>
+          <strong>Plat au choix :</strong>
+          <ul>
+            <li>Bibimbap / Dolsot +1€ — Beef / Chicken sweet ou spicy 🌶 / Tofu</li>
+            <li>Pad Thaï — Beef / Chicken / Veggie</li>
+            <li>Salade — Bœuf bulgogi / Chicken 🌶🌶 / Tofu</li>
+          </ul>
+          <strong>Boisson au choix :</strong>
+          <ul><li>Coca / Zero / Evian / San Pellegrino / Ice Tea</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ALLERGÈNES -->
+  <section id="allergenes">
+    <div class="allerg-box">
+      <h2>INFOS &amp; ALLERGÈNES</h2>
+      <p>
+        <span>*Tteokbokki</span> : Gâteaux de riz coréen<br/>
+        <span>*Kimchi</span> : Chou pimenté et fermenté, assaisonné d'épices coréennes<br/>
+        <span>*Gochujang</span> : Pâte de piment coréenne fermentée<br/>
+        <span>*Bulgogi yuzu-citron</span> : Marinade de fruits et légumes à base de sauce soja &amp; miel yuzu-citron
+      </p>
+      <h2 style="margin-top:22px">LÉGENDE DES ALLERGÈNES :</h2>
+      <div class="ap-row">
+        <span class="ap"><span class="dot dot-gluten"></span> Gluten</span>
+        <span class="ap"><span class="dot dot-oeuf"></span> Œuf</span>
+        <span class="ap"><span class="dot dot-crustaces"></span> Crustacés</span>
+        <span class="ap"><span class="dot dot-lupin"></span> Lupin</span>
+        <span class="ap"><span class="dot dot-moutarde"></span> Moutarde</span>
+        <span class="ap"><span class="dot dot-arachides"></span> Arachides</span>
+        <span class="ap"><span class="dot dot-soja"></span> Soja</span>
+        <span class="ap"><span class="dot dot-lactose"></span> Lactose</span>
+        <span class="ap"><span class="dot dot-fruitscoque"></span> Fruits à coque</span>
+        <span class="ap"><span class="dot dot-celeri"></span> Céleri</span>
+        <span class="ap"><span class="dot dot-sesame"></span> Sésame</span>
+        <span class="ap"><span class="dot dot-poisson"></span> Poisson</span>
+        <span class="ap"><span class="dot dot-mollusques"></span> Mollusques</span>
+        <span class="ap"><span class="dot dot-sulfites"></span> Sulfites &amp; vinaigres</span>
+      </div>
+      <h2 style="margin-top:22px">INDICATEURS PLATS :</h2>
+      <div class="ap-row">
+        <span class="ap">🫕 Servi sur plaque chauffante (pour 2 pers.)</span>
+        <span class="ap">🌶 Épicé</span>
+        <span class="ap">🟠 Fermenté</span>
+        <span class="ap">🌿 Végétarien</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /section-wrap -->
+</div><!-- /menu-section -->
+
+</div><!-- /content -->
+
+<!-- ═══ NOUS TROUVER ═══ -->
+<section id="nous-trouver">
+  <div class="section-wrap">
+    <div class="sec-head">
+      <span class="kr">위치</span>
+      <h2 class="sec-title">NOUS TROUVER</h2>
+    </div>
+    <div class="find-grid">
+      <div class="find-info">
+        <div class="info-block">
+          <div class="info-icon">📍</div>
+          <div>
+            <div class="info-label">Adresse</div>
+            <div class="info-value">2 Avenue de Lodève<br/>34070 Montpellier · Arceaux</div>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="info-icon">🕐</div>
+          <div>
+            <div class="info-label">Horaires</div>
+            <div class="info-value">Tous les jours<br/>12h00–14h30 · 18h30–23h30<br/><small style="color:var(--muted);font-size:10.5px">(fermeture cuisine 30 min avant)</small></div>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="info-icon">📞</div>
+          <div>
+            <div class="info-label">Téléphone</div>
+            <div class="info-value"><a href="tel:0614055971">06 14 05 59 71</a></div>
+          </div>
+        </div>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=Ba%C3%AF-K%C5%8D+restaurant+coreen+2+Avenue+de+Lod%C3%A8ve+34070+Montpellier" target="_blank" rel="noopener" class="find-btn">📍 Itinéraire</a>
+      </div>
+      <div class="find-map">
+        <span class="find-map-label">Baï-kō · Arceaux</span>
+        <iframe src="https://www.google.com/maps?q=Ba%C3%AF-K%C5%8D+restaurant+coreen+Montpellier,+2+Avenue+de+Lod%C3%A8ve,+34070+Montpellier&z=17&output=embed" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Localisation Baï-kō Montpellier"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-logo">BAÏ<span>·</span>KO</div>
+  <div class="footer-kr">바이코</div>
+  <div class="footer-line"></div>
+  <div class="footer-info">
+    2 Avenue de Lodève · 34070 Montpellier · Arceaux<br/>
+    Ouvert 7j/7 · 12h00–14h30 · 18h30–23h30 · Fermeture cuisine 30 min avant<br/>
+    <a href="tel:0614055971">06 14 05 59 71</a> · <a href="mailto:contact@bai-ko.com">contact@bai-ko.com</a><br/>
+    Dine-in · Takeaway · Uber Eats · Deliveroo
+  </div>
+  <div class="footer-copy">© 2025 Baï-Ko · Thaï &amp; Korean Food · Montpellier · BMZ Group SAS</div>
+</footer>
+
+<script>
+function toggleMenu(){
+  document.getElementById('mobile-menu').classList.toggle('open');
+  document.getElementById('mobileCatList').style.display='none';
+  document.getElementById('mobileCatToggle').classList.remove('open');
+}
+function toggleMenuDrop(){
+  document.getElementById('menuDropdown').classList.toggle('open');
+  document.getElementById('menuDropToggle').classList.toggle('open');
+}
+function toggleMobileCat(){
+  const list=document.getElementById('mobileCatList');
+  const isOpen=list.style.display==='flex';
+  list.style.display=isOpen?'none':'flex';
+  document.getElementById('mobileCatToggle').classList.toggle('open',!isOpen);
+}
+// close on outside click
+document.addEventListener('click',function(e){
+  const m=document.getElementById('mobile-menu');
+  const h=document.getElementById('hamburger');
+  if(m.classList.contains('open')&&!m.contains(e.target)&&!h.contains(e.target)){
+    m.classList.remove('open');
+  }
+  const dd=document.getElementById('menuDropdown');
+  const dt=document.getElementById('menuDropToggle');
+  if(dd.classList.contains('open')&&!dd.contains(e.target)&&!dt.contains(e.target)){
+    dd.classList.remove('open');
+    dt.classList.remove('open');
+  }
+});
+// close dropdown after clicking a category
+document.querySelectorAll('#menuDropdown a').forEach(a=>{
+  a.addEventListener('click',()=>{
+    document.getElementById('menuDropdown').classList.remove('open');
+    document.getElementById('menuDropToggle').classList.remove('open');
+  });
+});
+// smooth scroll offset for fixed nav
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',function(e){
+    const target=document.querySelector(this.getAttribute('href'));
+    if(target){e.preventDefault();window.scrollTo({top:target.offsetTop-108,behavior:'smooth'});}
+  });
+});
+// highlight active category in quicknav on scroll
+const quickLinks=document.querySelectorAll('.quicknav-track a');
+const catSections=Array.from(quickLinks).map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+if('IntersectionObserver' in window && catSections.length){
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const id='#'+entry.target.id;
+        quickLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===id));
+      }
+    });
+  },{rootMargin:'-140px 0px -60% 0px',threshold:0});
+  catSections.forEach(s=>obs.observe(s));
+}
+</script>
+
+<!-- ═══ HALAL STICKY ═══ -->
+<div class="halal-sticky">
+  <span>☪️</span>
+  <span>100% Halal</span>
+</div>
+
+</body>
+</html>

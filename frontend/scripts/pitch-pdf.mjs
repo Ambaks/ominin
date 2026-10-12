@@ -46,10 +46,62 @@ async function main() {
     );
   });
   const slides = await page.locator(".deck-frame").count();
+  // Garde-fou : un texte ou une image qui déborde sur le pied de page (sources, numéro) l'imprimerait
+  // par-dessus. Le PDF n'est pas écrit tant qu'une diapositive déborde.
+  await page.emulateMedia({ media: "print" });
+  const overprints = await page.evaluate(overlapsFooter);
+  if (overprints.length) {
+    console.error(`✗ Texte sur le pied de page :\n${overprints.join("\n")}`);
+    process.exit(1);
+  }
   await page.pdf({ path: output, preferCSSPageSize: true, printBackground: true });
   await browser.close();
   const megabytes = (statSync(output).size / 1_048_576).toFixed(1);
   console.log(`✓ ${slides} diapositives · ${megabytes} Mo · ${output}`);
+}
+
+/**
+ * Dans la page : pour chaque diapositive, ce qui, dans son contenu, chevauche
+ * le texte de son pied de page (sources, numéro) — les lignes de texte, une
+ * par rectangle de leur Range, et la partie visible des images.
+ * « 07 : Une serveuse seule… » par diapositive fautive.
+ */
+function overlapsFooter() {
+  const meets = (a, b) => a.bottom > b.top && a.top < b.bottom && a.right > b.left && a.left < b.right && a.width > 0 && a.height > 0;
+  const textRects = (root) => {
+    const rects = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.textContent.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      rects.push(...[...range.getClientRects()].map((rect) => ({ rect, text: node.textContent.trim().slice(0, 48) })));
+    }
+    return rects;
+  };
+  // Une capture recadrée déborde de son cadre, qui la coupe : seule compte sa partie visible.
+  const visible = (element) => {
+    let { left, top, right, bottom } = element.getBoundingClientRect();
+    for (let parent = element.parentElement; parent && !parent.classList.contains("deck-slide"); parent = parent.parentElement) {
+      if (getComputedStyle(parent).overflow === "visible") continue;
+      const clip = parent.getBoundingClientRect();
+      left = Math.max(left, clip.left);
+      top = Math.max(top, clip.top);
+      right = Math.min(right, clip.right);
+      bottom = Math.min(bottom, clip.bottom);
+    }
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
+  };
+  return [...document.querySelectorAll(".deck-slide")].flatMap((slide, i) => {
+    const footer = slide.querySelector(":scope > div > footer");
+    const footerText = textRects(footer).map(({ rect }) => rect);
+    const content = footer.previousElementSibling;
+    const hits = [
+      ...textRects(content).filter(({ rect }) => footerText.some((box) => meets(rect, box))).map(({ text }) => text),
+      ...[...content.querySelectorAll("img, svg")].filter((image) => footerText.some((box) => meets(visible(image), box))).map((image) => `<${image.tagName.toLowerCase()}>`),
+    ];
+    return hits.length ? [`${String(i + 1).padStart(2, "0")} : ${hits[0]}`] : [];
+  });
 }
 
 main().catch((error) => {

@@ -1,5 +1,6 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
-import { OmininMark, PartnerMarks, TicketCard, type BrandKit } from "@/components/pitch/brand";
+import { Duration, OmininMark, PartnerMarks, ReviewStars, TicketCard, type BrandKit } from "@/components/pitch/brand";
 import { buttonPrimary, buttonSecondary } from "@/components/pitch/buttons";
 import { BrowserFrame, PhoneFrame, TabletFrame } from "@/components/pitch/devices";
 import { FilmOpener } from "@/components/pitch/film-opener";
@@ -15,15 +16,39 @@ import type { Pitch } from "@/lib/pitch/types";
  * Mêmes données, mêmes marques que les diapositives.
  */
 
-/** La présentation : son PDF quand il existe, sinon sa version web. */
-const deck = (p: Pitch) => ({
-  href: p.deckPdfHref ?? `${p.path}/presentation`,
-  label: p.deckPdfHref ? pitchUi.ctaDeck : pitchUi.ctaDeckWeb,
-});
+/**
+ * La présentation : son PDF quand il existe, téléchargé sous deckPdfName
+ * s'il est donné, sinon sa version web. label à part, le reste se pose tel
+ * quel sur le lien.
+ */
+const deck = (p: Pitch) =>
+  p.deckPdfHref
+    ? { label: pitchUi.ctaDeck, href: p.deckPdfHref, ...(p.deckPdfName && { download: p.deckPdfName }) }
+    : { label: pitchUi.ctaDeckWeb, href: `${p.path}/presentation` };
 
 type SectionProps = { p: Pitch; brand: BrandKit };
 
 const container = "mx-auto w-full max-w-6xl px-5 md:px-8";
+
+/**
+ * Les chiffres du héros : au téléphone, une colonne de largeur fixe ; serrés
+ * contre leur libellé quand le pitch le demande (page.compactHero).
+ */
+const heroFactLayouts = {
+  fixed: {
+    list: "mt-8 flex max-w-4xl flex-col gap-3 sm:grid sm:grid-cols-[1fr_1.6fr_1fr] sm:gap-8",
+    item: "flex items-center gap-4 sm:block",
+    value: "w-[7.5rem] shrink-0 whitespace-nowrap font-numeral text-4xl leading-none text-(--pitch-accent) sm:w-auto md:text-5xl",
+  },
+  compact: {
+    list: "mt-8 grid max-w-4xl grid-cols-[auto_1fr] gap-x-4 gap-y-3 sm:grid-cols-[1fr_1.6fr_1fr] sm:gap-8",
+    item: "col-span-2 grid grid-cols-subgrid items-center sm:col-span-1 sm:block",
+    value: "whitespace-nowrap font-numeral text-4xl leading-none text-(--pitch-accent) md:text-5xl",
+  },
+};
+/** Un lien « Ouvrir la démo » d'appoint : en texte, ou en bouton à contour quand le pitch le demande (page.linkButtons). */
+const minorLink = (p: Pitch, asText: string, asButton: string) => (p.page.linkButtons ? `${asButton} ${buttonSecondary} gap-2` : asText);
+
 const h2 = "text-balance text-[38px] font-extrabold leading-[1.06] tracking-[-0.04em] sm:text-[52px] lg:text-[68px]";
 const lead = "text-pretty text-[17px] leading-relaxed text-(--pitch-muted) md:text-xl";
 
@@ -74,6 +99,8 @@ function PointList({ points }: { points: readonly { title: string; text: string 
 }
 
 function Hero({ p, brand }: SectionProps) {
+  const facts = heroFactLayouts[p.page.compactHero ? "compact" : "fixed"];
+  const { label: deckLabel, ...deckLink } = deck(p);
   return (
     <section className="relative overflow-hidden">
       <brand.Backdrop cx={50} cy={4} className="opacity-70" />
@@ -92,26 +119,42 @@ function Hero({ p, brand }: SectionProps) {
           </span>
         </h1>
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto]">
-          <div>
-            <p className={`${lead} mt-6 max-w-2xl`}>{p.page.heroLead}</p>
-            <ul className="mt-8 flex max-w-4xl flex-col gap-3 sm:grid sm:grid-cols-[1fr_1.6fr_1fr] sm:gap-8">
+          {/* Héros compact, au téléphone : le texte, les boutons au premier écran, les chiffres, puis le ticket. */}
+          <div {...(p.page.compactHero && { className: "max-sm:flex max-sm:flex-col" })}>
+            {p.page.compactHero ? (
+              // Sous le bureau, le ticket reste près du texte : dessous au téléphone (à côté, il le resserrait
+              // en colonne étroite), sans ses lignes de 5 px ; dans le texte sur tablette.
+              <div className="mt-6 flex max-w-2xl flex-col max-sm:contents sm:flow-root">
+                <TicketCard
+                  brand={brand}
+                  name={p.brandName}
+                  number={p.ticketNumber}
+                  ticket={p.ticket}
+                  className="mt-8 self-center rotate-[5deg] text-[20px] max-sm:order-4 max-sm:[&_.pitch-ticket-foot_p]:hidden max-sm:[&_.pitch-ticket-label]:hidden sm:float-right sm:mb-3 sm:ml-5 sm:mt-1 lg:hidden"
+                />
+                <p className={`${lead} max-sm:order-1 max-sm:mt-6`}>{p.page.heroLead}</p>
+              </div>
+            ) : (
+              <p className={`${lead} mt-6 max-w-2xl`}>{p.page.heroLead}</p>
+            )}
+            <ul className={`${facts.list}${p.page.compactHero ? " max-sm:order-3" : ""}`}>
               {p.page.heroFacts.map((fact) => (
-                <li key={fact.label} className="flex items-center gap-4 sm:block">
-                  <p className="w-[7.5rem] shrink-0 whitespace-nowrap font-numeral text-4xl leading-none text-(--pitch-accent) sm:w-auto md:text-5xl">{fact.value}</p>
+                <li key={fact.label} className={facts.item}>
+                  <p className={facts.value}>{fact.value}</p>
                   <p className="text-sm font-medium leading-snug text-(--pitch-muted) sm:mt-2">{fact.label}</p>
                 </li>
               ))}
             </ul>
-            <div id="hero-actions" className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
+            <div id="hero-actions" className={`mt-8 grid gap-3 sm:flex sm:flex-wrap${p.page.compactHero ? " max-sm:order-2" : ""}`}>
               <a href="#demo" className={buttonPrimary}>
                 {pitchUi.tryDemo}
               </a>
-              <a href={deck(p).href} className={buttonSecondary}>
-                {deck(p).label}
+              <a {...deckLink} className={buttonSecondary}>
+                {deckLabel}
               </a>
             </div>
           </div>
-          <TicketCard brand={brand} name={p.brandName} number={p.ticketNumber} className="mr-6 mt-16 hidden rotate-[5deg] text-[36px] lg:block" />
+          <TicketCard brand={brand} name={p.brandName} number={p.ticketNumber} ticket={p.ticket} className="mr-6 mt-16 hidden rotate-[5deg] text-[36px] lg:block" />
         </div>
         <div className="mt-10 md:mt-14">
           <FilmPlayer src={p.filmSrc} poster={p.screens.poster.src} alt={p.screens.poster.alt} />
@@ -191,6 +234,15 @@ function Story({ p, brand }: SectionProps) {
               <span className="block text-(--pitch-accent)">{p.promise.slogan[1]}&nbsp;»</span>
             </p>
             <p className="mt-4 text-sm text-(--pitch-faint)">— {p.promise.sloganSource}</p>
+            {p.promise.photos && (
+              <div className="mt-8 grid grid-cols-2 gap-3 md:gap-5">
+                {p.promise.photos.map((photo) => (
+                  <div key={photo.src} className="relative aspect-[4/3] overflow-hidden rounded-2xl md:rounded-3xl">
+                    <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 340px, 50vw" className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
             <div>
@@ -201,6 +253,11 @@ function Story({ p, brand }: SectionProps) {
               <p className="mt-3 text-(--pitch-muted)">{p.promise.rating.label}</p>
             </div>
             <div className="border-t border-(--pitch-line) pt-8 sm:border-t-0 sm:pt-0 lg:border-t lg:pt-8">
+              {p.promise.speed.eyebrow && (
+                <div className="mb-4">
+                  <Eyebrow>{p.promise.speed.eyebrow}</Eyebrow>
+                </div>
+              )}
               <p className="font-numeral text-[72px] leading-[0.85] text-(--pitch-accent) md:text-[96px]">{p.promise.speed.value}</p>
               <p className="mt-3 text-(--pitch-muted)">{p.promise.speed.label}</p>
               <p className="mt-1 text-sm text-(--pitch-faint)">{p.promise.speed.detail}</p>
@@ -222,6 +279,16 @@ function Story({ p, brand }: SectionProps) {
             </p>
             <footer className="mt-4 text-sm text-(--pitch-muted)">— {p.walkAway.attribution}</footer>
           </blockquote>
+          {p.walkAway.voices && (
+            <ul className="mt-8 grid gap-3 md:grid-cols-3">
+              {p.walkAway.voices.map((voice) => (
+                <li key={voice.text} className="rounded-2xl bg-(--pitch-surface) px-5 py-4">
+                  <ReviewStars stars={voice.stars} className="text-sm tracking-[0.2em]" />
+                  <p className="mt-1 font-medium leading-snug">«&nbsp;{voice.text}&nbsp;»</p>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="mt-10 grid gap-4 md:grid-cols-2">
             {p.walkAway.facts.map((fact) => (
               <div key={fact.value} className="rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
@@ -239,6 +306,8 @@ function Story({ p, brand }: SectionProps) {
 }
 
 function Solution({ p }: SectionProps) {
+  const cropped = p.solution.steps.every((step) => step.crop);
+  const last = p.screens[p.solution.steps[p.solution.steps.length - 1].screen];
   return (
     <Section className="overflow-hidden">
       <div className={container}>
@@ -248,33 +317,63 @@ function Solution({ p }: SectionProps) {
         </h2>
         <p className="mt-6 max-w-2xl border-l-[3px] border-(--pitch-accent) pl-5 font-semibold leading-snug md:text-lg">{p.solution.note}</p>
       </div>
-      {/* En bureau, un écran par étape. Au téléphone, ces écrans seraient illisibles : les étapes en
-          texte, et le seul écran qui compte pour le client, « C'est prêt ! », à sa taille. */}
-      <div className={`${container} mt-10 grid items-center gap-10 sm:grid-cols-[1fr_220px] lg:mt-12 lg:block`}>
-        <ol className="flex flex-col gap-6 lg:grid lg:grid-cols-4 lg:gap-10">
-          {p.solution.steps.map((step, i) => (
-            <li key={step.title}>
-              <PhoneFrame
-                src={p.screens[step.screen].src}
-                alt={p.screens[step.screen].alt}
-                sizes="500px"
-                className="hidden w-full max-w-[240px] lg:block"
-              />
-              <p className="flex items-baseline gap-3 lg:mt-5">
-                <span className="font-numeral text-3xl leading-none text-(--pitch-accent)">{i + 1}</span>
-                <span className="text-xl font-bold">{step.title}</span>
-              </p>
-              <p className="mt-2 text-pretty leading-relaxed text-(--pitch-muted)">{step.text}</p>
-            </li>
-          ))}
+      {cropped ? (
+        // Recadrés sur leur feuille, les écrans se lisent aussi au téléphone : une rangée qui défile,
+        // la carte suivante visible au bord et chacune son rang (« 1/4 ») ; en bureau, les quatre côte à côte.
+        <ol className="mx-auto mt-10 flex w-full max-w-6xl snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-2 md:scroll-px-8 md:px-8 lg:mt-12 lg:grid lg:grid-cols-4 lg:gap-8 lg:overflow-visible">
+          {p.solution.steps.map((step, i) => {
+            const shot = p.screens[step.screen];
+            return (
+              <li key={step.title} className="w-[78%] shrink-0 snap-start sm:w-[44%] lg:w-auto">
+                {shot && <PhoneFrame src={shot.src} alt={shot.alt} sizes="(min-width: 1024px) 260px, 78vw" crop={step.crop} className="w-full" />}
+                <p className="mt-4 flex items-baseline gap-3">
+                  <span className="font-numeral text-3xl leading-none text-(--pitch-accent)">{i + 1}</span>
+                  <span className="text-xl font-bold">{step.title}</span>
+                  <span className="ml-auto text-sm tabular-nums text-(--pitch-faint) lg:hidden">
+                    {i + 1}/{p.solution.steps.length}
+                  </span>
+                </p>
+                <p className="mt-2 text-pretty leading-relaxed text-(--pitch-muted)">{step.text}</p>
+              </li>
+            );
+          })}
         </ol>
-        <PhoneFrame
-          src={p.screens.prete.src}
-          alt={p.screens.prete.alt}
-          sizes="(min-width: 640px) 220px, 240px"
-          className="mx-auto w-full max-w-[240px] lg:hidden"
-        />
-      </div>
+      ) : (
+        // En bureau, un écran par étape. Au téléphone, ces écrans seraient illisibles : les étapes en
+        // texte, et l'écran de la dernière étape (« C'est prêt ! » au fast food), à sa taille.
+        <div className={`${container} mt-10 grid items-center gap-10 sm:grid-cols-[1fr_220px] lg:mt-12 lg:block`}>
+          <ol className="flex flex-col gap-6 lg:grid lg:grid-cols-4 lg:gap-10">
+            {p.solution.steps.map((step, i) => {
+              const shot = p.screens[step.screen];
+              return (
+                <li key={step.title}>
+                  {shot && (
+                    <PhoneFrame
+                      src={shot.src}
+                      alt={shot.alt}
+                      sizes="500px"
+                      className="hidden w-full max-w-[240px] lg:block"
+                    />
+                  )}
+                  <p className="flex items-baseline gap-3 lg:mt-5">
+                    <span className="font-numeral text-3xl leading-none text-(--pitch-accent)">{i + 1}</span>
+                    <span className="text-xl font-bold">{step.title}</span>
+                  </p>
+                  <p className="mt-2 text-pretty leading-relaxed text-(--pitch-muted)">{step.text}</p>
+                </li>
+              );
+            })}
+          </ol>
+          {last && (
+            <PhoneFrame
+              src={last.src}
+              alt={last.alt}
+              sizes="(min-width: 640px) 220px, 240px"
+              className="mx-auto w-full max-w-[240px] lg:hidden"
+            />
+          )}
+        </div>
+      )}
     </Section>
   );
 }
@@ -333,7 +432,9 @@ function FieldProof({ p }: SectionProps) {
             <div key={lane.label}>
               <div className="flex items-baseline justify-between gap-4">
                 <p className="font-bold md:text-lg">{lane.label}</p>
-                <p className={`font-numeral text-[44px] leading-none tabular-nums md:text-[64px] ${i ? "" : "text-(--pitch-accent-text)"}`}>{lane.value}</p>
+                <p className={`font-numeral text-[44px] leading-none tabular-nums md:text-[64px] ${i ? "" : "text-(--pitch-accent-text)"}`}>
+                  {f.unitsInText ? <Duration value={lane.value} /> : lane.value}
+                </p>
               </div>
               <div className="mt-2 h-3 rounded-full bg-(--pitch-surface) md:h-4">
                 <div className={`h-full rounded-full ${i ? "bg-(--pitch-muted)" : "bg-(--pitch-accent)"}`} style={{ width: raceBarWidth(lane.seconds, longest) }} />
@@ -357,6 +458,7 @@ function FieldProof({ p }: SectionProps) {
 }
 
 function Benefits({ p }: SectionProps) {
+  const customerScreen = p.screens[p.forCustomers.screen ?? "composer"] ?? p.screens.composer;
   return (
     <>
       <Section>
@@ -364,12 +466,21 @@ function Benefits({ p }: SectionProps) {
           <div>
             <Eyebrow>{p.forCustomers.eyebrow}</Eyebrow>
             <h2 className={`${h2} mt-4`}>
-              <span className="lg:block">{p.forCustomers.title[0]}</span> <span className="lg:block">{p.forCustomers.title[1]}</span>
+              <span className="lg:block">{p.forCustomers.title[0]}</span>{" "}
+              <span className="lg:block">{p.titleMarks ? <span className="mark">{p.forCustomers.title[1]}</span> : p.forCustomers.title[1]}</span>
             </h2>
           </div>
-          <div className="mx-auto w-full max-w-[200px] lg:row-span-2 lg:max-w-[340px] lg:self-center">
-            <PhoneFrame src={p.screens.composer.src} alt={p.screens.composer.alt} sizes="(min-width: 1024px) 340px, 240px" className="w-full" />
-          </div>
+          {p.forCustomers.mobileCrop ? (
+            // Au téléphone, le téléphone entier se lisait à 5 px : un plat de la carte, à la largeur de la page.
+            <div className="w-full lg:row-span-2 lg:mx-auto lg:max-w-[340px] lg:self-center">
+              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="100vw" crop={p.forCustomers.mobileCrop} className="w-full lg:hidden" />
+              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="340px" className="hidden w-full lg:block" />
+            </div>
+          ) : (
+            <div className="mx-auto w-full max-w-[200px] lg:row-span-2 lg:max-w-[340px] lg:self-center">
+              <PhoneFrame src={customerScreen.src} alt={customerScreen.alt} sizes="(min-width: 1024px) 340px, 240px" className="w-full" />
+            </div>
+          )}
           <div>
             <ul className="flex flex-col gap-6 lg:mt-8 lg:gap-7">
               {p.forCustomers.points.map((point) => (
@@ -379,7 +490,7 @@ function Benefits({ p }: SectionProps) {
                     <p className="text-lg font-bold leading-snug md:text-xl">{point.title}</p>
                     {"text" in point && <p className="mt-1 text-pretty leading-relaxed text-(--pitch-muted)">{point.text}</p>}
                     <p className="mt-2 text-sm leading-relaxed text-(--pitch-faint)">{point.fact}</p>
-                    {point.eta && (
+                    {point.eta && p.etaNotice && (
                       <div className="mt-3 rounded-2xl border border-(--pitch-accent)/45 bg-(--pitch-accent)/[0.06] px-4 py-3">
                         <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--pitch-accent-light)">{p.etaNotice.tag}</p>
                         <p className="mt-1 text-sm leading-relaxed text-(--pitch-muted)">{p.etaNotice.text}</p>
@@ -404,18 +515,18 @@ function Benefits({ p }: SectionProps) {
             <div>
               <Eyebrow>{p.forTeams.eyebrow}</Eyebrow>
               <h2 className={`${h2} mt-4`}>
-                {p.forTeams.title.text} <span className="text-(--pitch-accent)">{p.forTeams.title.accent}</span>
+                {p.forTeams.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{p.forTeams.title.accent}</span>
               </h2>
             </div>
             <PointList points={p.forTeams.points} />
           </div>
           <div className="mt-10 lg:mt-14">
-            {/* L'écran du comptoir recadré pour rester lisible : la première rangée de commandes en
-                bureau, une commande prête au téléphone (« Remettre N° 37 »). */}
+            {/* L'écran du personnel recadré pour rester lisible : par défaut, la première rangée de
+                commandes en bureau, une commande prête au téléphone (« Remettre N° 37 »). */}
             {(
               [
-                ["hidden lg:block", { x: 28, y: 64, width: 1124, height: 350 }],
-                ["lg:hidden", { x: 404, y: 64, width: 372, height: 350 }],
+                ["hidden lg:block", p.forTeams.crops?.desktop ?? { x: 28, y: 64, width: 1124, height: 350 }],
+                ["lg:hidden", p.forTeams.crops?.mobile ?? { x: 404, y: 64, width: 372, height: 350 }],
               ] as const
             ).map(([visibility, crop]) => (
               <TabletFrame
@@ -429,7 +540,12 @@ function Benefits({ p }: SectionProps) {
             ))}
             <p className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-(--pitch-faint)">
               {p.forTeams.caption}
-              <a href={p.demos[1].href} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)">
+              <a
+                href={p.demos[1].href}
+                target="_blank"
+                rel="noopener"
+                className={minorLink(p, "inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)", "mt-2")}
+              >
                 {pitchUi.demoOpen}
                 <NewTab />
               </a>
@@ -440,56 +556,70 @@ function Benefits({ p }: SectionProps) {
         </div>
       </Section>
 
-      <Section>
-        <div className={container}>
-          <Eyebrow>{p.forHeadOffice.eyebrow}</Eyebrow>
-          <h2 className={`${h2} mt-4`}>{p.forHeadOffice.title}</h2>
-          <p className="mt-5 max-w-3xl text-lg font-semibold leading-relaxed text-(--pitch-accent-light) md:text-xl">{p.forHeadOffice.lead}</p>
-          <div className="mt-10">
-            {/* En bureau, les trois panneaux : la carte et les restaurants en rush, le fil des commandes, le classement ; au téléphone, la carte et ses pastilles de rush. */}
-            {(
-              [
-                ["hidden lg:block", { x: 0, y: p.forHeadOffice.panelsTop, width: 1600, height: 368 }],
-                ["lg:hidden", { x: p.forHeadOffice.areas[0].x + 340, y: p.forHeadOffice.panelsTop + 48, width: 416, height: 388 }],
-              ] as const
-            ).map(([visibility, crop]) => (
-              <BrowserFrame
-                key={visibility}
-                src={p.screens.reseau.src}
-                alt={p.screens.reseau.alt}
-                sizes="(min-width: 1024px) 1800px, 410vw"
-                url={p.demos[2].href.replace(/^https?:\/\//, "").replace(/\?.*$/, "")}
-                crop={crop}
-                badge={p.forHeadOffice.badge}
-                className={`w-full text-[11px] md:text-[13px] ${visibility}`}
-              />
-            ))}
-            <p className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-(--pitch-faint)">
-              <span>{[`${p.forHeadOffice.badge}.`, p.forHeadOffice.hypothesis, p.forHeadOffice.rushKey].filter(Boolean).join(" ")}</span>
-              <a href={p.demos[2].href} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)">
-                {pitchUi.demoOpen}
-                <NewTab />
-              </a>
-            </p>
-          </div>
-        </div>
-      </Section>
+      <HeadOffice p={p} />
     </>
   );
 }
 
-function Calculation({ p }: SectionProps) {
+/** La vue du siège, quand le pitch s'adresse à une enseigne. */
+function HeadOffice({ p }: { p: Pitch }) {
+  const office = p.forHeadOffice;
+  const shot = p.screens.reseau;
+  const demo = p.demos.find((candidate) => candidate.id === "reseau");
+  if (!office || !shot || !demo) return null;
   return (
     <Section>
       <div className={container}>
-        <Eyebrow>{p.forRevenue.eyebrow}</Eyebrow>
-        <h2 className={`${h2} mt-4`}>{p.forRevenue.title}</h2>
-        <p className={`${lead} mt-5 max-w-3xl`}>{p.forRevenue.mechanism}</p>
+        <Eyebrow>{office.eyebrow}</Eyebrow>
+        <h2 className={`${h2} mt-4`}>{office.title}</h2>
+        <p className="mt-5 max-w-3xl text-lg font-semibold leading-relaxed text-(--pitch-accent-light) md:text-xl">{office.lead}</p>
+        <div className="mt-10">
+          {/* En bureau, les trois panneaux : la carte et les restaurants en rush, le fil des commandes, le classement ; au téléphone, la carte et ses pastilles de rush. */}
+          {(
+            [
+              ["hidden lg:block", { x: 0, y: office.panelsTop, width: 1600, height: 368 }],
+              ["lg:hidden", { x: office.areas[0].x + 340, y: office.panelsTop + 48, width: 416, height: 388 }],
+            ] as const
+          ).map(([visibility, crop]) => (
+            <BrowserFrame
+              key={visibility}
+              src={shot.src}
+              alt={shot.alt}
+              sizes="(min-width: 1024px) 1800px, 410vw"
+              url={demo.href.replace(/^https?:\/\//, "").replace(/\?.*$/, "")}
+              crop={crop}
+              badge={office.badge}
+              className={`w-full text-[11px] md:text-[13px] ${visibility}`}
+            />
+          ))}
+          <p className="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-xs text-(--pitch-faint)">
+            <span>{[`${office.badge}.`, office.hypothesis, office.rushKey].filter(Boolean).join(" ")}</span>
+            <a href={demo.href} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)">
+              {pitchUi.demoOpen}
+              <NewTab />
+            </a>
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function Calculation({ p }: SectionProps) {
+  const revenue = p.forRevenue;
+  if (!revenue) return null;
+  const takeaway = p.demos.find((demo) => demo.id === "emporter");
+  return (
+    <Section>
+      <div className={container}>
+        <Eyebrow>{revenue.eyebrow}</Eyebrow>
+        <h2 className={`${h2} mt-4`}>{revenue.title}</h2>
+        <p className={`${lead} mt-5 max-w-3xl`}>{revenue.mechanism}</p>
         <div className="mt-10 rounded-3xl border-2 border-dashed border-(--pitch-accent)/45 p-6 md:p-10">
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{p.forRevenue.illustrationLabel}</p>
-          <p className="mt-2 text-sm text-(--pitch-muted)">{p.forRevenue.rateNote}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{revenue.illustrationLabel}</p>
+          <p className="mt-2 text-sm text-(--pitch-muted)">{revenue.rateNote}</p>
           <ol className="mt-6 grid gap-8 md:grid-cols-3 md:gap-10">
-            {p.forRevenue.sum.map((term) => (
+            {revenue.sum.map((term) => (
               <li key={term.value}>
                 <p className="font-numeral text-[56px] leading-none text-(--pitch-accent) md:text-[64px]">{term.value}</p>
                 <p className="mt-2 text-lg font-bold">{term.unit}</p>
@@ -497,9 +627,15 @@ function Calculation({ p }: SectionProps) {
               </li>
             ))}
           </ol>
-          <p className="mt-8 border-t border-(--pitch-line) pt-4 text-sm leading-relaxed text-(--pitch-muted)">{p.forRevenue.beyond}</p>
+          <p className="mt-8 border-t border-(--pitch-line) pt-4 text-sm leading-relaxed text-(--pitch-muted)">{revenue.beyond}</p>
+          {takeaway && (
+            <a href={takeaway.href} target="_blank" rel="noopener" className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-(--pitch-accent-text)">
+              {takeaway.label} · {pitchUi.demoOpen}
+              <NewTab />
+            </a>
+          )}
         </div>
-        <SourceNote p={p} ids={p.forRevenue.sources} className="mt-5" />
+        <SourceNote p={p} ids={revenue.sources} className="mt-5" />
       </div>
     </Section>
   );
@@ -511,7 +647,7 @@ function Deployment({ p }: SectionProps) {
       <div className={container}>
         <Eyebrow>{p.deployment.eyebrow}</Eyebrow>
         <h2 className={`${h2} mt-4`}>
-          {p.deployment.title.text} <span className="text-(--pitch-accent)">{p.deployment.title.accent}</span>
+          {p.deployment.title.text} <span className={p.titleMarks ? "mark" : "text-(--pitch-accent)"}>{p.deployment.title.accent}</span>
         </h2>
         <p className={`${lead} mt-5 max-w-3xl`}>{p.deployment.lead}</p>
         <ol className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -530,19 +666,21 @@ function Deployment({ p }: SectionProps) {
 }
 
 function Pricing({ p, brand }: SectionProps) {
-  const { example } = p.pricing;
+  const pricing = p.pricing;
+  if (!pricing) return null;
+  const { example } = pricing;
   return (
     <Section className="overflow-hidden">
       <brand.Backdrop cx={15} cy={20} className="opacity-70" />
       <div className={`${container} relative`}>
-        <Eyebrow>{p.pricing.eyebrow}</Eyebrow>
+        <Eyebrow>{pricing.eyebrow}</Eyebrow>
         <h2 className="mt-4 text-[31px] font-extrabold leading-[1.08] tracking-[-0.04em] sm:text-[48px] lg:text-[50px]">
-          <span className="block">{p.pricing.headline.subscription}</span>
+          <span className="block">{pricing.headline.subscription}</span>
           <span className="block xl:whitespace-nowrap">
-            <span className="mark mark-start [word-spacing:0.12em]">{p.pricing.headline.commission}</span> {p.pricing.headline.basis}
+            <span className="mark mark-start [word-spacing:0.12em]">{pricing.headline.commission}</span> {pricing.headline.basis}
           </span>
         </h2>
-        <p className={`${lead} mt-5 max-w-3xl`}>{p.pricing.lead}</p>
+        <p className={`${lead} mt-5 max-w-3xl`}>{pricing.lead}</p>
         <div className="mt-10 grid gap-4 lg:grid-cols-[0.9fr_1.3fr] lg:gap-8">
           <div className="self-start rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
             <p className="font-semibold">{example.label}</p>
@@ -573,23 +711,23 @@ function Pricing({ p, brand }: SectionProps) {
             <p className="mt-3 text-sm leading-relaxed text-(--pitch-faint)">{example.compare}</p>
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--pitch-faint)">{p.pricing.comparisonTitle}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--pitch-faint)">{pricing.comparisonTitle}</p>
             <dl className="mt-2">
-              {p.pricing.comparison.map((row) => (
+              {pricing.comparison.map((row) => (
                 <div key={row.name} className="flex flex-col gap-1 border-b border-(--pitch-line) py-4 sm:flex-row sm:gap-6">
                   <dt className="font-bold sm:w-52 sm:shrink-0">{row.name}</dt>
                   <dd className="text-(--pitch-muted)">{row.model}</dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-5 text-lg font-bold">{p.pricing.noOnline}</p>
-            {p.pricing.setup && <p className="mt-1 text-sm text-(--pitch-muted)">{p.pricing.setup}</p>}
+            <p className="mt-5 text-lg font-bold">{pricing.noOnline}</p>
+            {pricing.setup && <p className="mt-1 text-sm text-(--pitch-muted)">{pricing.setup}</p>}
             <p className="mt-3 text-sm leading-relaxed text-(--pitch-faint)">
-              {p.pricing.cardFees} {p.pricing.vat}
+              {pricing.cardFees} {pricing.vat}
             </p>
           </div>
         </div>
-        <SourceNote p={p} ids={p.pricing.sources} className="mt-5" />
+        <SourceNote p={p} ids={pricing.sources} className="mt-5" />
       </div>
     </Section>
   );
@@ -604,7 +742,15 @@ function Proposal({ p }: SectionProps) {
     <Section>
       <div className={container}>
         <Eyebrow>{p.proposal.eyebrow}</Eyebrow>
-        <h2 className={`${h2} mt-4`}>{p.proposal.title}</h2>
+        <h2 className={`${h2} mt-4`}>
+          {p.proposal.titleAccent ? (
+            <>
+              {p.proposal.title} <span className="mark">{p.proposal.titleAccent}</span>
+            </>
+          ) : (
+            p.proposal.title
+          )}
+        </h2>
         <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1fr_0.85fr]">
           {columns.map((column) => (
             <div key={column.title} className={`rounded-3xl p-6 md:p-8 ${column.tone}`}>
@@ -620,7 +766,7 @@ function Proposal({ p }: SectionProps) {
               </ul>
             </div>
           ))}
-          <div className="rounded-3xl border border-(--pitch-line) p-6 md:p-8">
+          <div className={p.page.measuresFilled ? "rounded-3xl bg-(--pitch-surface) p-6 md:p-8" : "rounded-3xl border border-(--pitch-line) p-6 md:p-8"}>
             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-(--pitch-muted)">{p.proposal.measures.title}</p>
             <p className="mt-3 text-2xl font-extrabold leading-tight tracking-[-0.02em]">{p.proposal.measures.lead}</p>
             <ul className="mt-5 flex flex-col gap-3">
@@ -636,19 +782,31 @@ function Proposal({ p }: SectionProps) {
             )}
           </div>
         </div>
+        {p.proposal.trial && (
+          <p className="mt-4 rounded-3xl border-2 border-(--pitch-accent)/45 p-6 text-lg font-bold leading-snug md:p-8 md:text-xl">{p.proposal.trial}</p>
+        )}
       </div>
     </Section>
   );
 }
 
 function FinalCta({ p, brand }: SectionProps) {
+  const { label: deckLabel, ...deckLink } = deck(p);
   return (
     <Section id="closing" className="overflow-hidden">
       <brand.Backdrop cx={50} cy={100} className="opacity-70" />
       <div className={`${container} relative grid items-center gap-12 lg:grid-cols-[1fr_300px] lg:gap-20`}>
         <div className="flex flex-col items-start">
           <Eyebrow>{p.closing.eyebrow}</Eyebrow>
-          <h2 className={`${h2} mt-4`}>{p.closing.title.join(" ")}</h2>
+          <h2 className={`${h2} mt-4`}>
+            {p.titleMarks ? (
+              <>
+                {p.closing.title[0]} <span className="mark">{p.closing.title[1]}</span>
+              </>
+            ) : (
+              p.closing.title.join(" ")
+            )}
+          </h2>
           <ol className="mt-8 flex flex-col gap-3">
             {p.closing.steps.map((step, i) => (
               <li key={step} className="flex items-center gap-3">
@@ -662,27 +820,51 @@ function FinalCta({ p, brand }: SectionProps) {
           <p className="mt-8 max-w-2xl font-medium leading-relaxed md:text-lg">{p.closing.reference}</p>
           <p className="mt-5 max-w-2xl font-semibold">{p.closing.interlocutor}</p>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-(--pitch-faint)">{p.closing.company}</p>
+          {/* L'adresse en texte : à côté du bouton « Écrire » quand les liens sont des boutons (comme sur la diapositive), dessous sinon. */}
           <div className="mt-6 grid w-full gap-3 sm:flex sm:w-auto sm:flex-wrap">
             <a href={p.contact.mailto} className={buttonPrimary}>
               {p.closing.mail}
             </a>
-            <a href={deck(p).href} className={buttonSecondary}>
-              {deck(p).label}
+            {p.page.linkButtons && <MailText p={p} className="justify-center sm:mr-3" />}
+            <a {...deckLink} className={buttonSecondary}>
+              {deckLabel}
             </a>
           </div>
-          <a href={p.contact.mailto} className="mt-1 inline-flex min-h-11 items-center text-sm text-(--pitch-muted) underline decoration-(--pitch-line) underline-offset-4">
-            {p.contact.email}
-          </a>
+          {!p.page.linkButtons && <MailText p={p} className="mt-1" />}
         </div>
-        <div className="hidden flex-col items-center text-center lg:flex">
+        {/* Sans QR, le bloc de la démo (un bouton) se montre à toutes les largeurs : le texte y renvoie. */}
+        <div className={p.page.closingDemoButton ? "flex flex-col items-center text-center" : "hidden flex-col items-center text-center lg:flex"}>
           <p className="text-sm font-semibold">{p.closing.scanPage}</p>
           <p className="flourish mt-1 text-5xl leading-tight">{p.closing.flourish}</p>
-          <div className="pitch-qr mt-4 rounded-[28px] bg-(--pitch-accent) p-6 text-(--pitch-on-accent)">
-            <QrCode value={p.demos[0].href} label={`QR code vers ${p.demoDisplayUrl}`} className="size-52" />
-          </div>
+          {p.page.closingDemoButton ? (
+            // Le QR de la présentation sur grand écran, le bouton dessous ; au téléphone, le bouton seul.
+            <>
+              <div className="pitch-qr mt-4 hidden rounded-[28px] bg-(--pitch-accent) p-6 text-(--pitch-on-accent) lg:block">
+                <QrCode value={p.demos[0].href} label={`QR code vers ${p.demoDisplayUrl}`} className="size-52" />
+              </div>
+              <a href={p.demos[0].href} target="_blank" rel="noopener" className={`${buttonPrimary} mt-5 gap-2`}>
+                {pitchUi.demoOpen}
+                <NewTab />
+              </a>
+              <p className="mt-3 text-xs text-(--pitch-faint)">{p.demoDisplayUrl}</p>
+            </>
+          ) : (
+            <div className="pitch-qr mt-4 rounded-[28px] bg-(--pitch-accent) p-6 text-(--pitch-on-accent)">
+              <QrCode value={p.demos[0].href} label={`QR code vers ${p.demoDisplayUrl}`} className="size-52" />
+            </div>
+          )}
         </div>
       </div>
     </Section>
+  );
+}
+
+/** L'adresse de contact, en lien texte. */
+function MailText({ p, className }: { p: Pitch; className: string }) {
+  return (
+    <a href={p.contact.mailto} className={`${className} inline-flex min-h-11 items-center text-sm text-(--pitch-muted) underline decoration-(--pitch-line) underline-offset-4`}>
+      {p.contact.email}
+    </a>
   );
 }
 

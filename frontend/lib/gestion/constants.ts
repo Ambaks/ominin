@@ -90,6 +90,8 @@ export const WAIT_TICK_MS = 30_000;
 export const COUNTER_WAIT_WARN_MINUTES = 8;
 /** … puis passe en retard. */
 export const COUNTER_WAIT_LATE_MINUTES = 15;
+/** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
+export const SERVICE_LATE_MINUTES = 20;
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";

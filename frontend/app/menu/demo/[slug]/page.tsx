@@ -6,10 +6,12 @@ import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
+import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { tableParam } from "@/lib/menu/table-param";
 
 /*
  * Aperçu de la carte d'un prospect, servi depuis le registre statique
@@ -44,8 +46,8 @@ export async function generateMetadata({
   // promesse commerciale et le logo d'Ominin.
   // « Carte » : sur une page dont le produit phare est un « Menu Solo »,
   // « menu » prêtait à confusion.
-  const title = `${restaurant.name} — Carte (aperçu)`;
-  const description = [restaurant.name, restaurant.address]
+  const title = `${brandName(restaurant)} — Carte (aperçu)`;
+  const description = [brandName(restaurant), restaurant.address]
     .filter(Boolean)
     .join(" · ");
   const shareImage = restaurant.coverImage ?? restaurant.poster;
@@ -81,8 +83,11 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme, service } = await searchParams;
+  const { theme, service, table } = await searchParams;
   const fastFood = service === "fast-food";
+  // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
+  // capture ; illisible, la table fictive.
+  const tableNumber = tableParam(table) ?? DEMO_TABLE;
   const restaurant = getRestaurant(slug);
   if (!restaurant) notFound();
 
@@ -97,13 +102,14 @@ export default async function MenuPreviewPage({
     <CartProvider
       config={{
         slug,
-        tableNumber: fastFood ? null : DEMO_TABLE,
+        tableNumber: fastFood ? null : tableNumber,
         orderingEnabled: true,
         serviceMode: fastFood ? "fast_food" : "restaurant",
         restaurantName: restaurant.name,
         estimatorLive: restaurant.estimatorLive,
-        // Fast food : le choix du règlement fait partie de ce qu'on montre.
-        onlinePayment: fastFood,
+        // Fast food : le choix du règlement fait partie de ce qu'on montre ;
+        // à table, quand l'établissement y règle en ligne.
+        onlinePayment: fastFood || Boolean(restaurant.onlinePayment),
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
@@ -115,6 +121,7 @@ export default async function MenuPreviewPage({
         data-service={fastFood ? "fast-food" : undefined}
         className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
       >
+        <MenuTicker items={restaurant.ticker} />
         <Hero restaurant={restaurant} />
         <MenuHighlights highlights={restaurant.highlights} />
         {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de

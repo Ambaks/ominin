@@ -3,14 +3,19 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CollectDemoStage } from "@/components/collect/demo/stage";
 import { CollectWordmark } from "@/components/collect/landing/wordmark";
-import { getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { demoSettings } from "@/lib/collect/demo/data";
+import { demoSection } from "@/lib/collect-landing-data";
+import { brandFontVariables } from "@/lib/menu/brand-fonts";
+import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 
 /*
  * Démo Collect personnalisée par prospect (visites commerciales) : la même
- * scène jouable que /collect/demo, habillée aux couleurs du restaurant
- * (classe demo-theme-<slug>, voir globals.css) et jouée sur sa carte.
- * Variante dual : la démo se montre sur un laptop face au client ; sous lg
- * les deux volets s'empilent. Données fictives : jamais indexée.
+ * scène jouable que /collect/demo, jouée sur sa carte et habillée aux
+ * couleurs du restaurant (le thème de sa carte) — sur toute la page, ou sur
+ * le seul téléphone pour une démo « vrai téléphone » (demoSettings), dont
+ * l'écran du restaurant reste celui d'Ominin, comme le vrai. Scène double sur
+ * un laptop face au client ; sous lg, un volet à la fois, comme
+ * /collect/demo. Données fictives : jamais indexée.
  */
 
 export async function generateMetadata({
@@ -20,7 +25,7 @@ export async function generateMetadata({
   const restaurant = getRestaurant(slug);
   if (!restaurant) notFound();
   return {
-    title: `Démo ${restaurant.name} — Ominin Collect`,
+    title: `Démo ${brandName(restaurant)} — Ominin Collect`,
     robots: { index: false, follow: false },
   };
 }
@@ -31,18 +36,30 @@ export default async function ClientDemoPage({
   const { slug } = await params;
   const restaurant = getRestaurant(slug);
   if (!restaurant) notFound();
+  const { realPhone } = demoSettings(slug);
 
   return (
     <div
-      className={`${restaurantThemeClass(slug) ?? ""} flex min-h-dvh flex-col bg-background text-foreground`}
+      // Les polices de l'établissement, comme sur son menu : sans elles, son thème retombait sur celles d'Ominin.
+      className={`${brandFontVariables} ${realPhone ? "" : (restaurantThemeClass(slug) ?? "")} flex min-h-dvh flex-col bg-background text-foreground`}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6">
+      {/* Vrai téléphone : resserrée sur un écran bas (laptop 768), la puce guide reste visible. */}
+      <div
+        className={`mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 ${
+          realPhone ? "[@media(max-height:50rem)]:gap-3 [@media(max-height:50rem)]:py-3" : ""
+        }`}
+      >
         <header className="flex items-center justify-between gap-3">
           <div>
+            {/* Vrai téléphone : la page dit ce qu'elle montre, l'accroche du
+                restaurant est sur son téléphone ; son nom de marque passe dessous,
+                dans la police du texte — celle des titres décroche le « ō ». */}
             <p className="font-display text-2xl font-medium leading-tight">
-              {restaurant.name}
+              {realPhone ? "Click & collect" : restaurant.name}
             </p>
-            <p className="text-xs text-muted">{restaurant.tagline}</p>
+            <p className="text-xs text-muted">
+              {realPhone ? brandName(restaurant) : restaurant.tagline}
+            </p>
           </div>
           <span className="rounded-full border border-hairline bg-surface px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
             Démo
@@ -50,10 +67,17 @@ export default async function ClientDemoPage({
         </header>
 
         <div className="my-auto">
-          <CollectDemoStage variant="dual" slug={slug} />
+          {/* Chaque appareil nommé, comme sur la landing (côte à côte seulement). */}
+          {realPhone && (
+            <p className="mb-4 hidden justify-between text-[11px] font-semibold uppercase tracking-[0.28em] text-muted lg:flex [@media(max-height:50rem)]:mb-2">
+              <span>{demoSection.customerLabel}</span>
+              <span>{demoSection.restaurantLabel}</span>
+            </p>
+          )}
+          <CollectDemoStage variant="responsive" slug={slug} />
         </div>
 
-        <footer className="flex items-center justify-center gap-2 text-xs text-faint">
+        <footer className="flex items-center justify-center gap-2 text-xs text-muted">
           Propulsé par
           <span className="flex items-center gap-1.5">
             <Image src="/logo.png" alt="" width={16} height={16} />

@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  loadStripe,
-  type Stripe,
-  type StripeElements,
-  type StripeExpressCheckoutElementConfirmEvent,
+import type {
+  Stripe,
+  StripeElements,
+  StripeExpressCheckoutElementConfirmEvent,
 } from "@stripe/stripe-js";
 import {
   CardPaymentFailed,
@@ -31,6 +30,13 @@ import type { CardPhase } from "@/lib/menu/online-payment";
  * enregistrée et part en cuisine dès l'encaissement, que /api/stripe/verify
  * constate aussitôt (le webhook connecté reste le filet).
  */
+
+/**
+ * Importé, le module injecte Stripe.js — un script lourd, suivi de ses
+ * requêtes de détection de fraude : pas au chargement de la carte, seulement
+ * à l'approche d'un règlement en ligne. Rappelé, il ne recharge rien.
+ */
+export const preloadStripe = () => import("@stripe/stripe-js");
 
 const EXPRESS_CONTAINER_ID = "stripe-express";
 const CARD_CONTAINER_ID = "stripe-card";
@@ -107,11 +113,15 @@ export function StripePayment({
     let teardown = () => {};
 
     (async () => {
-      const response = await fetch("/api/stripe/pay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tipAmount > 0 ? { orderId, tipAmount } : { orderId }),
-      });
+      // Le script se charge pendant que le serveur prépare l'intent.
+      const [response, { loadStripe }] = await Promise.all([
+        fetch("/api/stripe/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tipAmount > 0 ? { orderId, tipAmount } : { orderId }),
+        }),
+        preloadStripe(),
+      ]);
       const body = (await response.json()) as {
         clientSecret?: string;
         accountId?: string;

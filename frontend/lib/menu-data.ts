@@ -6,6 +6,55 @@ export const BADGE_LABELS: Record<Badge, string> = {
   nouveau: "Nouveauté",
 };
 
+export type Allergen =
+  | "gluten"
+  | "crustaces"
+  | "oeuf"
+  | "poisson"
+  | "arachides"
+  | "soja"
+  | "lait"
+  | "fruits-a-coque"
+  | "celeri"
+  | "moutarde"
+  | "sesame"
+  | "sulfites"
+  | "lupin"
+  | "mollusques";
+
+/** Les quatorze allergènes à déclarer (règlement INCO, annexe II), sous leur nom courant. */
+export const ALLERGEN_LABELS: Record<Allergen, string> = {
+  gluten: "Gluten",
+  crustaces: "Crustacés",
+  oeuf: "Œufs",
+  poisson: "Poissons",
+  arachides: "Arachides",
+  soja: "Soja",
+  lait: "Lait",
+  "fruits-a-coque": "Fruits à coque",
+  celeri: "Céleri",
+  moutarde: "Moutarde",
+  sesame: "Sésame",
+  sulfites: "Sulfites",
+  lupin: "Lupin",
+  mollusques: "Mollusques",
+};
+
+/** La ligne des allergènes d'un plat, dans l'ordre du règlement (celui de ALLERGEN_LABELS), quel que soit celui de la saisie. */
+export const allergenLine = (allergens: Allergen[]) =>
+  `Allergènes\u00a0: ${(Object.keys(ALLERGEN_LABELS) as Allergen[])
+    .filter((allergen) => allergens.includes(allergen))
+    .map((allergen) => ALLERGEN_LABELS[allergen])
+    .join(", ")}`;
+
+/** Mentions qu'une carte imprime à côté d'un plat, hors piment. */
+export type DishTag = "vegetarien" | "fermente";
+
+export const DISH_TAG_LABELS: Record<DishTag, string> = {
+  vegetarien: "Végétarien",
+  fermente: "Fermenté",
+};
+
 export interface OptionChoice {
   id: string;
   name: string;
@@ -44,6 +93,16 @@ export interface MenuItem {
   options?: OptionGroup[];
   /** Taux de TVA (%), pour l'envoi en caisse. undefined ⇒ 10 (défaut base). */
   vatRate?: number;
+  /*
+   * Piment, mentions et allergènes tels que la carte de l'établissement les
+   * imprime. La base ne les porte pas encore : ils viennent du registre
+   * statique, rattachés par nom sur /menu/m (lib/public-menu.ts).
+   * undefined ⇒ rien d'imprimé, pas « aucun ».
+   */
+  /** Force du piment, de 1 à 3 (🌶 à 🌶🌶🌶). */
+  spice?: 1 | 2 | 3;
+  tags?: DishTag[];
+  allergens?: Allergen[];
   /**
    * Un tarif planifié s'applique en ce moment : `price` porte déjà le prix
    * pratiqué, et ceci dit d'où il vient. undefined ⇒ prix de la carte.
@@ -62,8 +121,19 @@ export interface AppliedTarif {
 export interface MenuCategory {
   id: string;
   name: string;
+  /** Le nom dans la langue de la cuisine, posé avant le titre (안주 avant « Anju »). */
+  kicker?: { text: string; lang: string };
   tagline?: string;
   items: MenuItem[];
+}
+
+/**
+ * Une annonce du bandeau défilant en haut de la carte, reprise du site de
+ * l'établissement. accent : une offre ; brand : la signature de l'enseigne.
+ */
+export interface TickerItem {
+  text: string;
+  tone?: "accent" | "brand";
 }
 
 /**
@@ -84,7 +154,13 @@ export interface FormulesBanner {
 
 export interface Restaurant {
   slug: string;
+  /** Le nom des écrans du personnel et des tickets de cuisine. */
   name: string;
+  /**
+   * Le nom tel que l'enseigne l'écrit, pour la carte du client (titre de la
+   * page, logo), quand il diffère de `name` : « Baï-Kō » face à « Baï-Ko ».
+   */
+  brandName?: string;
   tagline: string;
   /** undefined ⇒ hero typographique, sur le logo s'il y en a un. */
   coverImage?: string;
@@ -125,14 +201,22 @@ export interface Restaurant {
   formulesBanner?: FormulesBanner;
   address: string;
   phone: string;
+  /** false ⇒ pas de « Commander sur WhatsApp » au pied de carte : le numéro ne prend pas de commandes par WhatsApp. */
+  whatsapp?: boolean;
   hours: string;
   /** Arguments courts affichés sous le hero (halal, livraison, promotion). */
   highlights?: string[];
+  /** Le bandeau défilant des annonces, en haut de la page. */
+  ticker?: TickerItem[];
+  /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
+  glossary?: { term: string; definition: string }[];
   categories: MenuCategory[];
   /** Lien « laisser un avis Google », proposé en bas du menu. */
   googleReviewUrl?: string;
   /** Aperçu d'un pitch qui présente l'estimateur IA comme livré : le ticket le nomme. */
   estimatorLive?: boolean;
+  /** /menu/demo à table : « Payer en ligne » et le pourboire, comme chez un client qui règle à table. */
+  onlinePayment?: boolean;
 }
 
 export const unsplash = (id: string, w = 1200) =>
@@ -2017,12 +2101,320 @@ const chickenStreet: Restaurant = {
   ],
 };
 
+/*
+ * Baï-Kō (Montpellier, Arceaux) — démo pour le pitch au restaurant : Korean
+ * street food et thaï, salle néon « pojangmacha », 100 % halal. La carte est
+ * celle de bai-ko.com relevée le 12/10/2026 (demos/bai-ko/docs/), noms,
+ * prix, piment, mentions et allergènes plat par plat ; les allergènes posés
+ * sur un titre de section valent pour toute la section, et le « lactose » de
+ * sa légende se lit « lait », le nom du règlement. Là où ses propres mots
+ * nomment un allergène que sa légende oublie (fromage, parmesan, kimchi,
+ * cacahuètes), la carte le déclare : trop vaut mieux que pas assez, en
+ * attendant la confirmation du gérant (profile.json). Les photos sont
+ * celles de la galerie du site, recadrées (public/bai-ko/) : les plats sans
+ * photo n'en ont pas, plutôt qu'une photo de banque d'un autre plat. Le
+ * bandeau reprend celui du site. Questions au gérant : demos/bai-ko/profile.json.
+ */
+
+/** Les allergènes que le site pose sur un titre de section (BK_VOLCANO : trois des quatre plats à partager, le Mandu a les siens). */
+const BK_BIBIMBAP: Allergen[] = ["gluten", "oeuf", "soja", "sesame"];
+const BK_PAD_THAI: Allergen[] = ["gluten", "oeuf", "soja", "arachides", "sesame"];
+const BK_RAMYEON: Allergen[] = ["gluten", "oeuf", "soja", "sesame"];
+// Le « mix de fromage fondu » des Volcano Cheese : lait, que la légende du site n'y pose pas.
+const BK_VOLCANO: Allergen[] = ["gluten", "oeuf", "soja", "sesame", "lait"];
+
+const bkPhoto = (file: string) => `/bai-ko/${file}.webp`;
+
+/**
+ * Le bibimbap se sert aussi en dolsot, le bol de pierre chauffé, pour 1 € de
+ * plus ; le titre de la section dit ce qu'est un dolsot, le choix garde le mot
+ * court que liront la salle et le ticket.
+ */
+const bkVersion = groupeChoix("version", "Version", ["Bol", ["Dolsot", 1]], { obligatoire: true });
+
+/** Les plats des formules, dans l'ordre du site ; le dolsot ajoute 1 €. Le site pose 🌶 sur le poulet spicy, 🌶🌶 sur la salade au poulet. */
+const bkPlatFormule = groupeChoix(
+  "plat",
+  "Plat",
+  [
+    "Bibimbap Beef",
+    "Bibimbap Chicken sweet",
+    "Bibimbap Chicken spicy (épicé)",
+    "Bibimbap Tofu",
+    ["Dolsot Beef", 1],
+    ["Dolsot Chicken sweet", 1],
+    ["Dolsot Chicken spicy (épicé)", 1],
+    ["Dolsot Tofu", 1],
+    "Pad Thaï Beef",
+    "Pad Thaï Chicken",
+    "Pad Thaï Veggie",
+    "Salade Bœuf bulgogi",
+    "Salade Chicken (épicée)",
+    "Salade Tofu",
+  ],
+  { obligatoire: true }
+);
+const bkBoissonFormule = groupeChoix("boisson", "Boisson", ["Coca", "Zero", "Evian", "San Pellegrino", "Ice Tea"], { obligatoire: true });
+
+/** « Supplément viande ou rabokki 5 € » des plats à partager. */
+const bkSupplementPartage = groupeChoix("supplement", "Supplément", ["Viande", "Rabokki"], { multiple: true, supplement: 5 });
+
+const baiKo: Restaurant = {
+  slug: "bai-ko",
+  // Sans le macron, comme le titre de leur site : dans Chromium, Fraunces (les
+  // écrans du personnel) pose le macron de « ō » à côté de la lettre, et les
+  // imprimantes de cuisine ne l'ont pas. La carte écrit le nom du logo.
+  name: "Baï-Ko",
+  brandName: "Baï-Kō",
+  tagline: "From Seoul to Montpellier",
+  logo: "/bai-ko/logo.webp",
+  logoIsName: true,
+  // Le même logo, à la taille d'un pied de page de marque : à 48 px de haut, « Thaï & Korean Food » ne se lisait plus.
+  footerLogo: "/bai-ko/logo.webp",
+  icons: { tab: "/bai-ko/favicon.png", homeScreen: "/bai-ko/icon.png" },
+  themeColor: "#0a0a0c",
+  address: "2 Avenue de Lodève, 34070 Montpellier",
+  phone: "+33 6 14 05 59 71",
+  // Le site donne ce numéro pour appeler et réserver, jamais pour commander par WhatsApp.
+  whatsapp: false,
+  onlinePayment: true,
+  hours: "Tous les jours\u00a012h–14h30 · 18h30–23h30 (fermeture\u00a0cuisine 30\u00a0min avant)",
+  // Les pastilles du site, sauf « Livraison » (le bandeau l'annonce déjà, par Uber Eats) ; en tête le
+  // halal de son bandeau « Tous nos produits sont certifiés Halal », qui vaut pour toute la carte.
+  highlights: ["100\u00a0% halal", "Dine-in", "Takeaway", "Ouvert 7j/7 · 12h–14h30 · 18h30–23h30"],
+  // Le bandeau du site, dans son ordre.
+  ticker: [
+    { text: "Uber Eats\u00a0— livraison disponible" },
+    { text: "Réservation possible à partir de 6 personnes", tone: "accent" },
+    { text: "Baï·Kō\u00a0— Thaï & Korean Food", tone: "brand" },
+    { text: "Menu étudiant Bento Box 10,90\u00a0€\u00a0— à partir du 1er septembre 2026", tone: "accent" },
+  ],
+  // Les « Infos » du site, sous sa carte : les mots marqués d'un astérisque.
+  glossary: [
+    { term: "Tteokbokki", definition: "Gâteaux de riz coréen" },
+    { term: "Kimchi", definition: "Chou pimenté et fermenté, assaisonné d’épices coréennes" },
+    { term: "Gochujang", definition: "Pâte de piment coréenne fermentée" },
+    { term: "Bulgogi yuzu-citron", definition: "Marinade de fruits et légumes à base de sauce soja & miel yuzu-citron" },
+  ],
+  categories: [
+    {
+      id: "anju",
+      name: "Anju — Tapas",
+      kicker: { text: "안주", lang: "ko" },
+      tagline: "Seul ou à partager",
+      items: [
+        { id: "corn-dog", name: "Corn Dog", description: "Saucisse & mozzarella panées", price: 6.5, image: bkPhoto("corn-dog"), allergens: ["gluten", "oeuf", "lait"] },
+        {
+          id: "tteokbokki",
+          name: "Tteokbokki",
+          description: "Gâteaux de riz, œuf & mozzarella marinés dans une sauce gochujang",
+          price: 8,
+          image: bkPhoto("tteokbokki"),
+          spice: 2,
+          tags: ["fermente"],
+          allergens: ["gluten", "oeuf", "lait", "soja", "sesame"],
+        },
+        { id: "corn-cheese", name: "Corn Cheese", description: "Maïs et mozzarella fondante, dans une sauce mayonnaise sucrée", price: 6, image: bkPhoto("corn-cheese"), allergens: ["lait", "oeuf"] },
+        { id: "sotteok-so-tteok", name: "Sotteok-So-tteok", description: "Brochette de tteokbokki et de saucisses", price: 5, spice: 1, allergens: ["gluten", "soja", "sesame"] },
+        // Son kimchi porte les crustacés et le poisson que le site déclare sur le Kimchi.
+        {
+          id: "kimchi-bomb",
+          name: "Kimchi Bomb",
+          description: "Arancini de riz sauté au kimchi et mozzarella",
+          price: 5,
+          spice: 1,
+          tags: ["fermente"],
+          allergens: ["gluten", "oeuf", "lait", "crustaces", "poisson"],
+        },
+        { id: "mandu", name: "Mandu", detail: "x4", description: "Raviolis grillés aux légumes", price: 6, tags: ["vegetarien"], allergens: ["gluten", "oeuf", "sesame", "soja", "arachides", "celeri"] },
+        { id: "nem", name: "Nem", detail: "x3", description: "Au poulet", price: 6, allergens: ["gluten", "oeuf", "soja", "arachides", "sesame", "celeri"] },
+        {
+          id: "korean-fried-chicken",
+          name: "Korean Fried Chicken",
+          detail: "x4",
+          description: "Spicy (épicé) ou Sweet (soja & miel) · Servi avec quelques tteokbokki frits",
+          price: 8,
+          image: bkPhoto("korean-fried-chicken"),
+          // Le site lui met son badge « Spicy » : la sauce douce reste au choix.
+          spice: 1,
+          options: [groupeChoix("sauce", "Sauce", ["Spicy (épicé)", "Sweet (soja & miel)"], { obligatoire: true })],
+          allergens: ["gluten", "oeuf", "lait", "soja", "sesame"],
+        },
+        { id: "cheese-chicken-katsu", name: "Cheese Chicken Katsu", detail: "x4", description: "Poulet pané farci à la mozzarella", price: 10, allergens: ["gluten", "oeuf", "lait"] },
+      ],
+    },
+    {
+      id: "bibimbap",
+      name: "Bibimbap",
+      kicker: { text: "돌솥비빔밥", lang: "ko" },
+      tagline: "Riz, légumes, garniture et œuf · Version Dolsot (bol en pierre chauffé) +1\u00a0€",
+      items: [
+        { id: "beef-bulgogi-bap", name: "Beef Bulgogi Bap", description: "Bœuf sauté, sauce bulgogi", price: 14.9, options: [bkVersion], allergens: BK_BIBIMBAP },
+        { id: "dak-bap-spicy", name: "Dak Bap Spicy", description: "Poulet frit dans une sauce à base de gochujang", price: 14.9, image: bkPhoto("dak-bap-spicy"), spice: 1, options: [bkVersion], allergens: BK_BIBIMBAP },
+        { id: "dak-bap-sweet", name: "Dak Bap Sweet", description: "Poulet frit dans une sauce coréenne ail, miel & soja", price: 14.9, options: [bkVersion], allergens: BK_BIBIMBAP },
+        { id: "tofu-bap", name: "Tofu Bap", description: "Tofu mariné dans une sauce coréenne soja", price: 14.9, tags: ["vegetarien"], options: [bkVersion], allergens: BK_BIBIMBAP },
+      ],
+    },
+    {
+      id: "pad-thai",
+      name: "Pad Thaï",
+      tagline: "Nouilles de riz, légumes, garniture et œuf",
+      items: [
+        { id: "pad-thai-beef", name: "Pad Thaï Beef", description: "Bœuf sauté, sauce soja", price: 14.9, image: bkPhoto("pad-thai-beef"), allergens: BK_PAD_THAI },
+        { id: "pad-thai-chicken", name: "Pad Thaï Chicken", description: "Poulet, sauce soja", price: 14.9, image: bkPhoto("pad-thai-chicken"), allergens: BK_PAD_THAI },
+        { id: "pad-thai-shrimp", name: "Pad Thaï Shrimp", description: "Crevettes sautées, sauce soja", price: 15.9, allergens: [...BK_PAD_THAI, "crustaces"] },
+        { id: "pad-thai-veggie", name: "Pad Thaï Veggie", description: "Tofu & légumes sautés, sauce soja", price: 14.9, tags: ["vegetarien"], allergens: BK_PAD_THAI },
+      ],
+    },
+    {
+      id: "a-partager",
+      name: "À partager\u00a0!",
+      kicker: { text: "공유할 요리", lang: "ko" },
+      tagline: "Servi sur plaque chauffante, pour 2, avec 2 bols de riz · Supplément viande ou rabokki 5\u00a0€",
+      items: [
+        { id: "volcano-cheese-dakgalbi", name: "Volcano Cheese Dakgalbi", detail: "pour 2", description: "Poulet sauté avec mix de fromage fondu", price: 34, spice: 3, options: [bkSupplementPartage], allergens: BK_VOLCANO },
+        {
+          id: "volcano-cheese-beef-bulgogi",
+          name: "Volcano Cheese Beef Bulgogi",
+          detail: "pour 2",
+          description: "Bœuf sauté avec mix de fromage fondu",
+          price: 34,
+          image: bkPhoto("volcano-cheese-beef-bulgogi"),
+          spice: 1,
+          options: [bkSupplementPartage],
+          allergens: BK_VOLCANO,
+        },
+        {
+          id: "volcano-cheese-mandu",
+          name: "Volcano Cheese Mandu",
+          detail: "pour 2",
+          description: "Ravioli avec mix de fromage fondu",
+          price: 32,
+          image: bkPhoto("volcano-cheese-mandu"),
+          tags: ["vegetarien"],
+          options: [bkSupplementPartage],
+          allergens: ["gluten", "oeuf", "soja", "arachides", "sesame", "celeri", "lait"],
+        },
+        { id: "volcano-cheese-rabokki", name: "Volcano Cheese Rabokki", detail: "pour 2", description: "Tteokbokki & ramen sautés avec mix de fromage fondu", price: 34, spice: 2, options: [bkSupplementPartage], allergens: BK_VOLCANO },
+      ],
+    },
+    {
+      id: "ramyeon",
+      name: "Ramyeon",
+      kicker: { text: "라면", lang: "ko" },
+      tagline: "Ramen coréen · Bouillon coréen épicé, servi avec légumes, nouilles udon",
+      items: [
+        { id: "bulgogi-ramyeon", name: "Bulgogi Ramyeon", description: "Bœuf façon bulgogi", price: 16, spice: 2, allergens: BK_RAMYEON },
+        { id: "dak-ramyeon", name: "Dak Ramyeon", description: "Chicken spicy", price: 16, spice: 3, allergens: BK_RAMYEON },
+        { id: "dubu-ramyeon", name: "Dubu Ramyeon", description: "Tofu", price: 16, spice: 2, tags: ["vegetarien"], allergens: BK_RAMYEON },
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades",
+      kicker: { text: "샐러드", lang: "ko" },
+      items: [
+        { id: "beef-salad", name: "Beef Salad", description: "Salade au bœuf mariné, sauce bulgogi yuzu-citron", price: 14.9, allergens: ["gluten", "oeuf", "soja", "sesame"] },
+        { id: "chicken-salad", name: "Chicken Salad", description: "Salade au poulet mariné, sauce bulgogi yuzu-citron", price: 14.9, spice: 2, allergens: ["gluten", "oeuf", "soja", "sesame"] },
+        { id: "tofu-salad", name: "Tofu Salad", description: "Salade au tofu caramélisé, sauce bulgogi yuzu-citron", price: 14.9, tags: ["vegetarien"], allergens: ["gluten", "sesame", "soja", "moutarde", "arachides"] },
+      ],
+    },
+    {
+      id: "sides",
+      name: "Sides",
+      kicker: { text: "사이드", lang: "ko" },
+      items: [
+        { id: "riz-blanc", name: "Riz blanc", price: 3 },
+        { id: "kimchi", name: "Kimchi", description: "Chou pimenté et fermenté, assaisonné d’épices coréennes", price: 3, image: bkPhoto("kimchi"), spice: 2, tags: ["fermente"], allergens: ["crustaces", "poisson"] },
+        { id: "frites-classiques", name: "Frites Classiques", price: 3 },
+        // Le parmesan : lait, que le site ne déclare pas.
+        { id: "gamja-crispy", name: "Gamja Crispy", description: "Frites parmesan et herbes", price: 4.5, allergens: ["lait"] },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      kicker: { text: "디저트", lang: "ko" },
+      items: [
+        {
+          id: "mochi",
+          name: "Mochi",
+          description: "Mangue\u00a0Passion\u00a0· Choco-coco\u00a0· Litchi\u00a0· Vanille\u00a0· Yuzu-citron\u00a0· Thé\u00a0Vert\u00a0· Fleur\u00a0de\u00a0Cerisier",
+          price: 3.5,
+          options: [groupeChoix("parfum", "Parfum", ["Mangue Passion", "Choco-coco", "Litchi", "Vanille", "Yuzu-citron", "Thé Vert", "Fleur de Cerisier"], { obligatoire: true })],
+        },
+        // « cacahuètes » : la légende de sa photo dans la galerie du site ; sa carte ne lui donne pas d'allergène.
+        { id: "mango-rice", name: "Mango Rice", description: "Riz gluant à la mangue et au lait de coco, cacahuètes", price: 8, image: bkPhoto("mango-rice"), allergens: ["arachides"] },
+      ],
+    },
+    {
+      id: "boissons",
+      name: "Boissons",
+      kicker: { text: "음료수", lang: "ko" },
+      items: [
+        { id: "eau", name: "Evian, San Pellegrino", detail: "50\u00a0cl", price: 3.5, options: [groupeChoix("eau", "Eau", ["Evian", "San Pellegrino"], { obligatoire: true })] },
+        {
+          id: "coca",
+          name: "Coca",
+          detail: "33\u00a0cl",
+          description: "Coca\u00a0· Coca\u00a0Zéro\u00a0· Coca\u00a0Cherry",
+          price: 3,
+          options: [groupeChoix("coca", "Version", ["Coca", "Coca Zéro", "Coca Cherry"], { obligatoire: true })],
+        },
+        { id: "ice-tea", name: "Ice Tea", detail: "33\u00a0cl", price: 3.5 },
+        { id: "chilsung", name: "Sprit Coréen Chilsung", detail: "25\u00a0cl", price: 4 },
+        {
+          id: "soda",
+          name: "Soda",
+          detail: "25\u00a0cl",
+          description: "Pastèque\u00a0· Yuzu-citron\u00a0· Raisin",
+          price: 4,
+          options: [groupeChoix("parfum", "Parfum", ["Pastèque", "Yuzu-citron", "Raisin"], { obligatoire: true })],
+        },
+        { id: "aloe-vera", name: "Aloe Vera", detail: "25\u00a0cl", price: 3.5 },
+        { id: "bongbong", name: "Bongbong", detail: "25\u00a0cl", description: "Raisin", price: 4 },
+        {
+          id: "milkis",
+          name: "Milkis",
+          detail: "25\u00a0cl",
+          description: "Fraise\u00a0· Melon\u00a0· Nature",
+          price: 4,
+          image: bkPhoto("milkis"),
+          options: [groupeChoix("parfum", "Parfum", ["Fraise", "Melon", "Nature"], { obligatoire: true })],
+        },
+        { id: "cafe", name: "Café", price: 2.5 },
+      ],
+    },
+    {
+      id: "formules",
+      name: "Formules",
+      items: [
+        {
+          id: "menu-midi",
+          name: "Menu Midi",
+          description: "Plat + boisson\nBibimbap (Dolsot +1\u00a0€), pad thaï ou salade\nCoca, Zero, Evian, San Pellegrino ou Ice Tea",
+          price: 16.9,
+          options: [bkPlatFormule, bkBoissonFormule],
+        },
+        {
+          id: "menu",
+          name: "Menu",
+          description: "Entrée + plat + boisson\nMandu (x3) ou nems (x2)\nBibimbap (Dolsot +1\u00a0€), pad thaï ou salade\nCoca, Zero, Evian, San Pellegrino ou Ice Tea",
+          price: 20.9,
+          options: [groupeChoix("entree", "Entrée", ["Mandu (x3)", "Nems (x2)"], { obligatoire: true }), bkPlatFormule, bkBoissonFormule],
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
   [chickenStreet.slug]: chickenStreet,
+  [baiKo.slug]: baiKo,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -2033,6 +2425,7 @@ const themeClasses: Record<string, string> = {
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
   [chickenStreet.slug]: "theme-chicken-street",
+  [baiKo.slug]: "theme-bai-ko",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
@@ -2052,6 +2445,19 @@ export const DEMO_SLUG = trattoriaLucia.slug;
  */
 export function mapsUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+/** Le nom que lit le client sur sa carte. */
+export const brandName = (restaurant: Restaurant) => restaurant.brandName ?? restaurant.name;
+
+/** Nom d'une ligne de commande : avec son format, « Mandu x4 », « Coca 33 cl ». */
+export const lineName = (item: MenuItem) =>
+  item.detail ? `${item.name} ${item.detail}` : item.name;
+
+/** Le verbe du bouton d'ajout : un menu à plusieurs choix se compose, un seul choix se choisit. */
+export function addVerb(item: MenuItem): "Composer" | "Choisir" | "Ajouter" {
+  const groups = item.options?.length ?? 0;
+  return groups > 1 ? "Composer" : groups > 0 ? "Choisir" : "Ajouter";
 }
 
 /** Espace insécable avant € : le prix ne se coupe jamais de sa devise. */

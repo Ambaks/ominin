@@ -39,6 +39,8 @@ export interface CartLine {
   key: string;
   itemId: string;
   name: string;
+  /** Format du plat (« x4 », « pour 2 »), en fin de name : le panier l'écrit en petit. */
+  detail?: string;
   /** Prix de base + suppléments, pour l'affichage ; la base refige le montant. */
   unitPrice: number;
   quantity: number;
@@ -70,7 +72,8 @@ function isCartLine(value: unknown): value is CartLine {
     Number.isInteger(line.quantity) &&
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
-    Array.isArray(line.choices)
+    Array.isArray(line.choices) &&
+    (line.detail === undefined || typeof line.detail === "string")
   );
 }
 
