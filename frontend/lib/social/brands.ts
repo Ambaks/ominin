@@ -26,10 +26,10 @@ export interface Brand {
 }
 
 /*
- * Teintes reprises de app/globals.css (palette candlelit sombre et sa
- * variante claire) : le moteur de rendu des images ne lit pas les variables
- * CSS. Chaque marque garde la famille ember, avec sa dominante — on
- * reconnaît Ominin, on distingue l'offre.
+ * Teintes des landings (components/landing-kit, palette candlelit sombre) :
+ * le moteur de rendu des images ne lit pas les variables CSS. Toutes les
+ * marques sur le même fond que les landings, chacune avec sa dominante dans
+ * la famille ember — on reconnaît Ominin, on distingue l'offre.
  */
 export const BRANDS: readonly Brand[] = [
   {
@@ -50,7 +50,7 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Menu",
     url: "menu.ominin.com",
     theme: {
-      background: "#15110d",
+      background: "#0c0a08",
       foreground: "#f3ece1",
       muted: "#a1937f",
       accentFrom: "#f0b35b",
@@ -63,12 +63,12 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Collect",
     url: "collect.ominin.com",
     theme: {
-      background: "#faf6f0",
-      foreground: "#221b13",
-      muted: "#7a6a58",
-      accentFrom: "#c08515",
-      accentTo: "#c05a32",
-      onAccent: "#ffffff",
+      background: "#0c0a08",
+      foreground: "#f3ece1",
+      muted: "#a1937f",
+      accentFrom: "#f5c26b",
+      accentTo: "#d9653f",
+      onAccent: "#0c0a08",
     },
   },
   {
@@ -76,7 +76,7 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Shop",
     url: "shop.ominin.com",
     theme: {
-      background: "#1c1712",
+      background: "#0c0a08",
       foreground: "#f3ece1",
       muted: "#a1937f",
       accentFrom: "#e2764b",
