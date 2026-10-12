@@ -110,54 +110,56 @@ function CoverSlide(props: SlideProps) {
 
 function PromiseSlide(props: SlideProps) {
   const { p } = props;
+  const promise = p.promise!;
   return (
-    <Slide {...props} eyebrow={p.promise.eyebrow} note={<Footnote p={p} ids={p.promise.sources} />} rays={{ cx: 26, cy: 55 }}>
+    <Slide {...props} eyebrow={promise.eyebrow} note={<Footnote p={p} ids={promise.sources} />} rays={{ cx: 26, cy: 55 }}>
       <div className="grid flex-1 grid-cols-[1060px_1fr] items-center gap-[64px]">
         <div>
           <h2 className="text-[140px] font-extrabold leading-[1.02] tracking-[-0.05em]">
-            <span className="block">«&nbsp;{p.promise.slogan[0]}</span>
-            <span className="block text-(--pitch-accent)">{p.promise.slogan[1]}&nbsp;»</span>
+            <span className="block">«&nbsp;{promise.slogan[0]}</span>
+            <span className="block text-(--pitch-accent)">{promise.slogan[1]}&nbsp;»</span>
           </h2>
-          <p className="mt-[28px] text-[24px] text-(--pitch-faint)">— {p.promise.sloganSource}</p>
+          <p className="mt-[28px] text-[24px] text-(--pitch-faint)">— {promise.sloganSource}</p>
         </div>
         <div className="flex flex-col gap-[48px]">
           <div>
             <p className="flex items-start gap-[18px]">
-              <span className="font-numeral text-[176px] leading-[0.85]">{p.promise.rating.value}</span>
+              <span className="font-numeral text-[176px] leading-[0.85]">{promise.rating.value}</span>
               <span aria-hidden className="mt-[8px] text-[68px] leading-none text-(--pitch-accent)">★</span>
             </p>
-            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{p.promise.rating.label}</p>
+            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{promise.rating.label}</p>
           </div>
           <div className="border-t border-(--pitch-line) pt-[44px]">
-            <p className="font-numeral text-[128px] leading-[0.85] text-(--pitch-accent)">{p.promise.speed.value}</p>
-            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{p.promise.speed.label}</p>
-            <p className="mt-[6px] text-[22px] text-(--pitch-faint)">{p.promise.speed.detail}</p>
+            <p className="font-numeral text-[128px] leading-[0.85] text-(--pitch-accent)">{promise.speed.value}</p>
+            <p className="mt-[20px] text-[28px] font-medium text-(--pitch-muted)">{promise.speed.label}</p>
+            <p className="mt-[6px] text-[22px] text-(--pitch-faint)">{promise.speed.detail}</p>
           </div>
         </div>
       </div>
-      <p className="mb-[8px] text-[34px] font-medium text-(--pitch-muted)">{p.promise.closing}</p>
+      <p className="mb-[8px] text-[34px] font-medium text-(--pitch-muted)">{promise.closing}</p>
     </Slide>
   );
 }
 
 function WalkAwaySlide(props: SlideProps) {
   const { p } = props;
+  const walkAway = p.walkAway!;
   return (
     <Slide
       {...props}
-      eyebrow={p.walkAway.eyebrow}
-      note={<Footnote p={p} ids={[...p.walkAway.facts.map((fact) => fact.source), ...(p.walkAway.followUpSources ?? [])]} />}
+      eyebrow={walkAway.eyebrow}
+      note={<Footnote p={p} ids={[...walkAway.facts.map((fact) => fact.source), ...(walkAway.followUpSources ?? [])]} />}
       rays={{ cx: 50, cy: -30 }}
     >
       <blockquote className="mt-[48px]">
         <p className="pitch-quote text-balance text-[72px] font-bold leading-[1.12] tracking-[-0.03em]">
-          <span className="block">«&nbsp;{p.walkAway.quote[0]}</span>
-          <span className="block text-(--pitch-accent)">{p.walkAway.quote[1]}&nbsp;»</span>
+          <span className="block">«&nbsp;{walkAway.quote[0]}</span>
+          <span className="block text-(--pitch-accent)">{walkAway.quote[1]}&nbsp;»</span>
         </p>
-        <footer className="mt-[28px] text-[28px] font-medium text-(--pitch-muted)">— {p.walkAway.attribution}</footer>
+        <footer className="mt-[28px] text-[28px] font-medium text-(--pitch-muted)">— {walkAway.attribution}</footer>
       </blockquote>
       <div className="mt-auto grid grid-cols-2 gap-[48px]">
-        {p.walkAway.facts.map((fact) => (
+        {walkAway.facts.map((fact) => (
           <div key={fact.value} className="flex items-center gap-[40px] rounded-[28px] bg-(--pitch-surface) px-[44px] py-[36px]">
             <p className="shrink-0 font-numeral text-[120px] leading-[0.85]">{fact.value}</p>
             <p className="text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{fact.text}</p>
@@ -165,7 +167,7 @@ function WalkAwaySlide(props: SlideProps) {
         ))}
       </div>
       {/* En blanc : en rouge, plus fort que le titre et d'un rouge à 3,6:1 au projecteur. */}
-      <p className="mb-[56px] mt-[36px] text-[34px] font-extrabold leading-[1.25] tracking-[-0.01em] text-(--pitch-ink)">{p.walkAway.followUp}</p>
+      <p className="mb-[56px] mt-[36px] text-[34px] font-extrabold leading-[1.25] tracking-[-0.01em] text-(--pitch-ink)">{walkAway.followUp}</p>
     </Slide>
   );
 }
@@ -200,7 +202,7 @@ function SolutionSlide(props: SlideProps) {
   );
 }
 
-function EtaBadge({ notice, className = "" }: { notice: Pitch["etaNotice"]; className?: string }) {
+function EtaBadge({ notice, className = "" }: { notice: NonNullable<Pitch["etaNotice"]>; className?: string }) {
   return (
     <div className={`rounded-[18px] border border-(--pitch-accent)/45 bg-(--pitch-accent)/[0.06] px-[22px] py-[14px] ${className}`}>
       <p className="text-[16px] font-bold uppercase tracking-[0.2em] text-(--pitch-accent-light)">{notice.tag}</p>
@@ -211,8 +213,9 @@ function EtaBadge({ notice, className = "" }: { notice: Pitch["etaNotice"]; clas
 
 function CustomersSlide(props: SlideProps) {
   const { p } = props;
+  const forCustomers = p.forCustomers!;
   return (
-    <Slide {...props} note={<Footnote p={p} ids={p.forCustomers.sources} />} rays={{ cx: 20, cy: 60 }}>
+    <Slide {...props} note={<Footnote p={p} ids={forCustomers.sources} />} rays={{ cx: 20, cy: 60 }}>
       <div className="grid flex-1 grid-cols-[500px_1fr] gap-[112px]">
         <div className="flex items-center justify-center">
           <a href={p.demos[0].href} className="block w-[380px]">
@@ -220,20 +223,20 @@ function CustomersSlide(props: SlideProps) {
           </a>
         </div>
         <div className="flex flex-col justify-center">
-          <p className="eyebrow mb-[32px] text-[20px] text-(--pitch-muted)">{p.forCustomers.eyebrow}</p>
+          <p className="eyebrow mb-[32px] text-[20px] text-(--pitch-muted)">{forCustomers.eyebrow}</p>
           <h2 className={titleSplit}>
-            <span className="block">{p.forCustomers.title[0]}</span>
-            <span className="block">{p.forCustomers.title[1]}</span>
+            <span className="block">{forCustomers.title[0]}</span>
+            <span className="block">{forCustomers.title[1]}</span>
           </h2>
           <ul className="mt-[40px] flex flex-col gap-[32px]">
-            {p.forCustomers.points.map((point) => (
+            {forCustomers.points.map((point) => (
               <li key={point.title} className="grid grid-cols-[36px_1fr] gap-[16px]">
                 <span aria-hidden className="mt-[12px] size-[14px] rounded-full bg-(--pitch-accent)" />
                 <div>
                   <p className="text-[30px] font-bold leading-[1.18]">{point.title}</p>
                   {"text" in point && <p className="mt-[6px] text-[23px] leading-[1.45] text-(--pitch-muted)">{point.text}</p>}
                   <p className="mt-[8px] text-[21px] leading-[1.4] text-(--pitch-faint)">{point.fact}</p>
-                  {point.eta && <EtaBadge notice={p.etaNotice} className="mt-[14px] max-w-[780px]" />}
+                  {point.eta && p.etaNotice && <EtaBadge notice={p.etaNotice} className="mt-[14px] max-w-[780px]" />}
                 </div>
               </li>
             ))}
@@ -275,20 +278,21 @@ function TeamsSlide(props: SlideProps) {
 
 function RevenueSlide(props: SlideProps) {
   const { p } = props;
+  const forRevenue = p.forRevenue!;
   return (
     <Slide
       {...props}
-      eyebrow={p.forRevenue.eyebrow}
-      note={<Footnote p={p} ids={p.forRevenue.sources} />}
+      eyebrow={forRevenue.eyebrow}
+      note={<Footnote p={p} ids={forRevenue.sources} />}
       rays={{ cx: 70, cy: 62 }}
     >
-      <h2 className="mt-[16px] text-balance text-[72px] font-extrabold leading-[1.06] tracking-[-0.04em]">{p.forRevenue.title}</h2>
-      <p className="pitch-mechanism mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{p.forRevenue.mechanism}</p>
+      <h2 className="mt-[16px] text-balance text-[72px] font-extrabold leading-[1.06] tracking-[-0.04em]">{forRevenue.title}</h2>
+      <p className="pitch-mechanism mt-[20px] max-w-[1560px] text-[26px] font-medium leading-[1.4] text-(--pitch-muted)">{forRevenue.mechanism}</p>
       <div className="my-auto rounded-[28px] border-[2px] border-dashed border-(--pitch-accent)/45 px-[48px] py-[40px]">
-        <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{p.forRevenue.illustrationLabel}</p>
-        <p className="mt-[8px] text-[21px] text-(--pitch-muted)">{p.forRevenue.rateNote}</p>
+        <p className="text-[18px] font-bold uppercase tracking-[0.22em] text-(--pitch-accent-light)">{forRevenue.illustrationLabel}</p>
+        <p className="mt-[8px] text-[21px] text-(--pitch-muted)">{forRevenue.rateNote}</p>
         <ol className="mt-[24px] grid grid-cols-3 gap-[56px]">
-          {p.forRevenue.sum.map((term) => (
+          {forRevenue.sum.map((term) => (
             <li key={term.value}>
               <p className="font-numeral text-[96px] leading-none text-(--pitch-accent)">{term.value}</p>
               <p className="mt-[10px] text-[24px] font-bold">{term.unit}</p>
@@ -296,7 +300,7 @@ function RevenueSlide(props: SlideProps) {
             </li>
           ))}
         </ol>
-        <p className="mt-[28px] border-t border-(--pitch-line) pt-[18px] text-[19px] leading-[1.45] text-(--pitch-faint)">{p.forRevenue.beyond}</p>
+        <p className="mt-[28px] border-t border-(--pitch-line) pt-[18px] text-[19px] leading-[1.45] text-(--pitch-faint)">{forRevenue.beyond}</p>
       </div>
     </Slide>
   );
@@ -343,19 +347,20 @@ function HeadOfficeSlide(props: SlideProps) {
 
 function DeploymentSlide(props: SlideProps) {
   const { p } = props;
+  const deployment = p.deployment!;
   return (
     <Slide
       {...props}
-      eyebrow={p.deployment.eyebrow}
-      note={p.deployment.sources && <Footnote p={p} ids={p.deployment.sources} />}
+      eyebrow={deployment.eyebrow}
+      note={deployment.sources && <Footnote p={p} ids={deployment.sources} />}
       rays={{ cx: 50, cy: 115 }}
     >
       <h2 className={`mt-[24px] ${titleFull}`}>
-        {p.deployment.title.text} <span className="text-(--pitch-accent)">{p.deployment.title.accent}</span>
+        {deployment.title.text} <span className="text-(--pitch-accent)">{deployment.title.accent}</span>
       </h2>
-      <p className="mt-[24px] max-w-[1500px] text-[30px] font-medium leading-[1.4] text-(--pitch-muted)">{p.deployment.lead}</p>
+      <p className="mt-[24px] max-w-[1500px] text-[30px] font-medium leading-[1.4] text-(--pitch-muted)">{deployment.lead}</p>
       <ol className="mb-auto mt-[40px] grid grid-cols-4 gap-[28px]">
-        {p.deployment.points.map((point) => (
+        {deployment.points.map((point) => (
           <li key={point.title} className="flex flex-col rounded-[28px] bg-(--pitch-surface) p-[40px]">
             <span className="eyebrow text-[19px] text-(--pitch-accent-text)">{point.label}</span>
             <p className="mt-[22px] text-[31px] font-bold leading-[1.16]">{point.title}</p>
@@ -369,16 +374,17 @@ function DeploymentSlide(props: SlideProps) {
 
 function PriceSlide(props: SlideProps) {
   const { p } = props;
-  const { example } = p.pricing;
+  const pricing = p.pricing!;
+  const { example } = pricing;
   return (
-    <Slide {...props} eyebrow={p.pricing.eyebrow} note={<Footnote p={p} ids={p.pricing.sources} />} rays={{ cx: 16, cy: 30 }}>
+    <Slide {...props} eyebrow={pricing.eyebrow} note={<Footnote p={p} ids={pricing.sources} />} rays={{ cx: 16, cy: 30 }}>
       <h2 className="mt-[12px] whitespace-nowrap text-[72px] font-extrabold leading-[1.04] tracking-[-0.04em]">
-        <span className="block">{p.pricing.headline.subscription}</span>
+        <span className="block">{pricing.headline.subscription}</span>
         <span className="block">
-          <span className="mark mark-start [word-spacing:0.12em]">{p.pricing.headline.commission}</span> {p.pricing.headline.basis}
+          <span className="mark mark-start [word-spacing:0.12em]">{pricing.headline.commission}</span> {pricing.headline.basis}
         </span>
       </h2>
-      <p className="mt-[24px] max-w-[1600px] text-[25px] font-medium leading-[1.4] text-(--pitch-muted)">{p.pricing.lead}</p>
+      <p className="mt-[24px] max-w-[1600px] text-[25px] font-medium leading-[1.4] text-(--pitch-muted)">{pricing.lead}</p>
       <div className="my-auto grid grid-cols-[560px_1fr] items-start gap-[64px]">
         <div className="rounded-[28px] bg-(--pitch-surface) px-[40px] py-[32px]">
           <p className="text-[24px] font-semibold">{example.label}</p>
@@ -409,10 +415,10 @@ function PriceSlide(props: SlideProps) {
           <p className="mt-[12px] text-[19px] leading-[1.45] text-(--pitch-faint)">{example.compare}</p>
         </div>
         <div>
-          <p className="text-[18px] font-bold uppercase tracking-[0.2em] text-(--pitch-faint)">{p.pricing.comparisonTitle}</p>
+          <p className="text-[18px] font-bold uppercase tracking-[0.2em] text-(--pitch-faint)">{pricing.comparisonTitle}</p>
           <table className="mt-[8px] w-full border-collapse text-left">
             <tbody>
-              {p.pricing.comparison.map((row) => (
+              {pricing.comparison.map((row) => (
                 <tr key={row.name} className="border-b border-(--pitch-line)">
                   <th scope="row" className="w-[330px] py-[14px] pr-[24px] align-top text-[25px] font-bold">
                     {row.name}
@@ -422,10 +428,10 @@ function PriceSlide(props: SlideProps) {
               ))}
             </tbody>
           </table>
-          <p className="mt-[24px] text-[26px] font-bold">{p.pricing.noOnline}</p>
-          {p.pricing.setup && <p className="mt-[6px] text-[20px] leading-[1.4] text-(--pitch-muted)">{p.pricing.setup}</p>}
+          <p className="mt-[24px] text-[26px] font-bold">{pricing.noOnline}</p>
+          {pricing.setup && <p className="mt-[6px] text-[20px] leading-[1.4] text-(--pitch-muted)">{pricing.setup}</p>}
           <p className="mt-[12px] text-[20px] leading-[1.45] text-(--pitch-faint)">
-            {p.pricing.cardFees} {p.pricing.vat}
+            {pricing.cardFees} {pricing.vat}
           </p>
         </div>
       </div>
@@ -435,13 +441,14 @@ function PriceSlide(props: SlideProps) {
 
 function ProposalSlide(props: SlideProps) {
   const { p } = props;
+  const proposal = p.proposal!;
   const columns = [
-    { ...p.proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
-    { ...p.proposal.network, tone: "bg-(--pitch-surface)" },
+    { ...proposal.pilot, tone: "bg-(--pitch-accent) text-(--pitch-on-accent)" },
+    { ...proposal.network, tone: "bg-(--pitch-surface)" },
   ];
   return (
-    <Slide {...props} eyebrow={p.proposal.eyebrow} note={<Footnote p={p} ids={[...p.proposal.measures.sources, ...(p.forCustomers.scan.sources ?? [])]} />} rays={{ cx: 20, cy: 110 }}>
-      <h2 className={`mt-[16px] ${titleSplit}`}>{p.proposal.title}</h2>
+    <Slide {...props} eyebrow={proposal.eyebrow} note={<Footnote p={p} ids={[...proposal.measures.sources, ...(p.forCustomers?.scan.sources ?? [])]} />} rays={{ cx: 20, cy: 110 }}>
+      <h2 className={`mt-[16px] ${titleSplit}`}>{proposal.title}</h2>
       <div className="mb-auto mt-[48px]">
         <div className="grid grid-cols-[1fr_1fr_0.95fr] gap-[28px]">
           {columns.map((column) => (
@@ -459,24 +466,26 @@ function ProposalSlide(props: SlideProps) {
             </div>
           ))}
           <div className="rounded-[28px] bg-(--pitch-surface) px-[36px] py-[34px]">
-            <p className="text-[18px] font-bold uppercase tracking-[0.22em] opacity-70">{p.proposal.measures.title}</p>
-            <p className="mt-[14px] text-[32px] font-extrabold leading-[1.12] tracking-[-0.01em]">{p.proposal.measures.lead}</p>
+            <p className="text-[18px] font-bold uppercase tracking-[0.22em] opacity-70">{proposal.measures.title}</p>
+            <p className="mt-[14px] text-[32px] font-extrabold leading-[1.12] tracking-[-0.01em]">{proposal.measures.lead}</p>
             <ul className="mt-[20px] flex flex-col gap-[10px]">
-              {p.proposal.measures.points.map((point) => (
+              {proposal.measures.points.map((point) => (
                 <li key={point} className="flex gap-[14px] text-[20px] leading-[1.4] opacity-90">
                   <span aria-hidden className="mt-[10px] size-[10px] shrink-0 rounded-full bg-(--pitch-accent)" />
                   {point}
                 </li>
               ))}
             </ul>
-            {p.proposal.measures.vendor && (
-              <p className="mt-[24px] border-t border-(--pitch-line) pt-[20px] text-[20px] font-semibold leading-[1.4]">{p.proposal.measures.vendor}</p>
+            {proposal.measures.vendor && (
+              <p className="mt-[24px] border-t border-(--pitch-line) pt-[20px] text-[20px] font-semibold leading-[1.4]">{proposal.measures.vendor}</p>
             )}
           </div>
         </div>
-        <p className="mt-[28px] text-[21px] leading-[1.45] text-(--pitch-muted)">
-          <span className="font-bold text-(--pitch-ink)">{p.forCustomers.scan.question}</span> {p.forCustomers.scan.answer}
-        </p>
+        {p.forCustomers && (
+          <p className="mt-[28px] text-[21px] leading-[1.45] text-(--pitch-muted)">
+            <span className="font-bold text-(--pitch-ink)">{p.forCustomers.scan.question}</span> {p.forCustomers.scan.answer}
+          </p>
+        )}
       </div>
     </Slide>
   );
@@ -569,7 +578,21 @@ function EstimatorSlide(props: SlideProps) {
   const { p } = props;
   const e = p.estimator!;
   return (
-    <Slide {...props} eyebrow={e.eyebrow} note={pitchUi.clickToOpen} rays={{ cx: 82, cy: 40 }}>
+    <Slide
+      {...props}
+      eyebrow={e.eyebrow}
+      note={
+        <>
+          {e.sources && (
+            <>
+              <Footnote p={p} ids={e.sources} /> ·{" "}
+            </>
+          )}
+          {pitchUi.clickToOpen}
+        </>
+      }
+      rays={{ cx: 82, cy: 40 }}
+    >
       <div className="grid flex-1 grid-cols-[1fr_420px] gap-[96px]">
         <div className="flex flex-col justify-center">
           <h2 className={titleSplit}>
@@ -650,20 +673,20 @@ function FieldProofSlide(props: SlideProps) {
 /** Les diapositives, dans l'ordre ; celles qui ont un `when` ne paraissent que si l'enseigne en a le contenu. */
 const SLIDES: { slide: (props: SlideProps) => ReactNode; when?: (p: Pitch) => boolean }[] = [
   { slide: CoverSlide },
-  { slide: PromiseSlide },
-  { slide: WalkAwaySlide },
+  { slide: PromiseSlide, when: (p) => Boolean(p.promise) },
+  { slide: WalkAwaySlide, when: (p) => Boolean(p.walkAway) },
   { slide: SolutionSlide },
   { slide: EstimatorSlide, when: (p) => Boolean(p.estimator) },
   { slide: FieldProofSlide, when: (p) => Boolean(p.fieldProof) },
-  { slide: CustomersSlide },
+  { slide: CustomersSlide, when: (p) => Boolean(p.forCustomers) },
   { slide: TeamsSlide },
   { slide: HeadOfficeSlide },
-  { slide: DeploymentSlide },
-  { slide: PriceSlide },
-  { slide: RevenueSlide },
-  { slide: ProposalSlide },
+  { slide: DeploymentSlide, when: (p) => Boolean(p.deployment) },
+  { slide: PriceSlide, when: (p) => Boolean(p.pricing) },
+  { slide: RevenueSlide, when: (p) => Boolean(p.forRevenue) },
+  { slide: ProposalSlide, when: (p) => Boolean(p.proposal) },
   { slide: ClosingSlide },
-  { slide: SourcesSlide },
+  { slide: SourcesSlide, when: (p) => p.sourcesNote !== undefined },
 ];
 
 /**

@@ -471,6 +471,7 @@ export const bigSmash: NetworkFixture = {
       "Volume de chaque restaurant : estimé (emplacement, ancienneté), en attendant vos chiffres ; le classement est donc illustratif.",
     ],
     estimateToleranceMinutes: 2,
+    estimatorLive: true,
     rush: { waitMinutes: 10 },
     recentMinutes: 30,
     newDays: 30,

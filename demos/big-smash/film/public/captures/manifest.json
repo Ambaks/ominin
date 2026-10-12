@@ -33,65 +33,59 @@
         "x": 24,
         "y": 134.5625,
         "width": 456,
-        "height": 181.5
+        "height": 201.5
       },
       "ready": {
         "x": 496,
         "y": 134.5625,
         "width": 456,
-        "height": 181.5
+        "height": 201.5
       },
       "sales": {
         "x": 968,
         "y": 134.5625,
         "width": 456,
-        "height": 181.5
+        "height": 201.5
       },
       "feed": {
         "x": 968,
-        "y": 332.0625,
+        "y": 352.0625,
         "width": 456,
-        "height": 723.9375
+        "height": 703.9375
       },
       "ranking": {
         "x": 1440,
-        "y": 332.0625,
+        "y": 352.0625,
         "width": 456,
-        "height": 723.9375
+        "height": 703.9375
       }
     },
     "compare": {
       "x": 517,
-      "y": 280.0625,
+      "y": 300.0625,
       "width": 329.6875,
       "height": 18
     },
     "home": {
       "before": {
         "x": 1441,
-        "y": 800.8125,
+        "y": 818.25,
         "width": 454,
-        "height": 63.53125
+        "height": 59.1875
       },
       "after": {
         "x": 1441,
-        "y": 737.28125,
+        "y": 759.0625,
         "width": 454,
-        "height": 63.53125
+        "height": 59.1875
       },
       "rank": 1481
     },
     "fresh": {
       "x": 969,
-      "y": 394.0625,
+      "y": 414.0625,
       "width": 454,
-      "height": 73.546875
-    },
-    "rush": {
-      "x": 1441,
-      "y": 419.625,
-      "width": 454,
-      "height": 63.53125
+      "height": 71.3125
     },
     "surface": "rgb(26, 27, 30)",
     "paidOnline": "525",
@@ -323,7 +317,7 @@
     },
     "cart": {
       "src": "captures/phone-cart.webp",
-      "sheetTop": 220.5,
+      "sheetTop": 204.5,
       "payTap": {
         "x": 21,
         "y": 681,

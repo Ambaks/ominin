@@ -1957,6 +1957,7 @@ const bigSmash: Restaurant = {
   // « toutes nos viandes sont certifiées AVS et Achahada » (FAQ) ; « fried chicken maison » (accueil).
   highlights: ["Viandes certifiées halal", "Fried chicken maison"],
   googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+  estimatorLive: true,
   categories: [
     {
       id: "menus",

@@ -242,8 +242,8 @@ export const NumberEta = ({ from }: { from: number }) => {
                 textAlign: portrait ? "center" : "left",
               }}
             >
-              {/* Comme le deck : l'heure estimée n'est pas encore livrée. */}
-              <b style={{ fontWeight: 700 }}>En développement&nbsp;:</b> l’estimation{portrait ? <br /> : " "}apprendra le rythme de chaque cuisine.
+              {/* Comme le deck : l'heure annoncée est celle de l'estimateur IA. */}
+              <b style={{ fontWeight: 700 }}>Estimateur IA&nbsp;:</b> il apprend{portrait ? <br /> : " "}le rythme de chaque cuisine.
             </div>
           </Reveal>
         </div>
