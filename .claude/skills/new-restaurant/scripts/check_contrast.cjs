@@ -25,6 +25,8 @@ const ratio = (a, b) => {
 (async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: +w, height: +h } });
+  // Un robot de recette ne doit jamais compter comme visite d'un client réel.
+  await page.route(/\/rpc\/menu_track/, (route) => route.abort());
   await page.goto(url, { waitUntil: "networkidle" });
   if (mode === "--light") {
     await page.evaluate(() => document.documentElement.classList.add("light"));

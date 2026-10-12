@@ -1,0 +1,143 @@
+{
+  "slug": "l-adresse",
+  "name": "L’Adresse",
+  "tagline": "Restaurant Lounge",
+  "cuisine": "Restaurant lounge : cuisine maison (viandes, pâtes, salades), cocktails sans alcool, chichas à l'étage. Soirées DJ et showcases le week-end.",
+  "address": "8 Chemin des Genêts, Lot n° 7, 31120 Portet-sur-Garonne",
+  "city": "Portet-sur-Garonne (agglomération de Toulouse)",
+  "phone": "+33 5 34 49 07 66",
+  "hours": "Mer, jeu, dim 19h30–2h · Ven, sam 19h30–3h · Fermé lun, mar (fiche Google ; cuisine jusqu'à minuit, 1h ven-sam). Cinq autres sources se contredisent — à confirmer.",
+  "website": "https://nfcforyou.com/LADRESSE (menu numérique) · https://adresse-2.vercel.app (site, carte plus ancienne)",
+  "socials": {
+    "instagram": "@ladresse.r — vérifié (téléphone dans la bio), 2 130 abonnés",
+    "tiktok": "@ladresse.restaura — vérifié (téléphone dans la bio), 2 247 abonnés",
+    "facebook": "facebook.com/Ladresselounge — vérifié, en sommeil depuis juillet 2022",
+    "snapchat": "icône sur les affiches, identifiant illisible — non trouvé",
+    "whatsapp": "non trouvé ; le bouton « Commander sur WhatsApp » a été retiré du pied de page de toutes les cartes (décision de l'utilisateur, 2026-10-12)",
+    "google_maps": "https://maps.google.com/?cid=4881547200020637670 — « L'ADRESSE Restaurant Lounge », 3,7★ / 320 avis"
+  },
+  "legal": {
+    "raison_sociale": "BBAH",
+    "forme": "SARL, capital 15 000 €",
+    "siren": "934 618 638",
+    "siret": "934 618 638 00019",
+    "naf": "56.10A",
+    "president": "Gérants : Hamid BEKHOUKHA et Achref BARHOUMI",
+    "creation": "RCS Toulouse 2024-10-31",
+    "debut_activite": "2024-09-16 — BODACC : « Restauration traditionnelle sans boissons alcoolisées », origine « Création »",
+    "source": "recherche-entreprises.api.gouv.fr + BODACC (pappers bloqué). Ancien exploitant : SIREN 850 182 072, SAS « RESTAURANT LOUNGE L'ADRESSE » (2019), devenue GROUPE NA en 2023, dissoute au 2024-09-15, liquidation judiciaire ouverte le 2026-02-02. Aucune enseigne « L'Adresse » déposée au nom de BBAH."
+  },
+  "design": {
+    "primary_color": "#24272f",
+    "secondary_color": "#f4efe6",
+    "accent_color": "#dfb06a",
+    "style_notes": "Identité tirée du logo actuel (demos/l-adresse/docs/logo.png : nom manuscrit doré, ruban « RESTAURANT LOUNGE »), de la carte imprimée de 2021 (mêmes codes : fond anthracite #272a33 mesuré, dorure à chaud de #fbc889 à #9c6717, bandeaux dorés sous les titres, rosace en soleil sur la couverture, cadre à coins rabattus, filigranes) et de la façade (anthracite, enseigne manuscrite). Typographie : Source Serif 4 partout, comme la carte imprimée (titres en taille optique de titrage) ; le nom et le ruban sont ceux du logo actuel, tracés en vectoriel depuis docs/logo.png (public/l-adresse/logo-nom.svg, logo-ruban.svg, logo.svg) et remplis de son or (#f4c549 → #f7e7b4) ; aucune police ne l'imitait assez (Corinthia, essayée d'abord, était une anglaise penchée, le logo une écriture droite). Le logo actuel s'écrit « LAdresse », sans apostrophe ; la carte de 2021 portait « L'Adresse ». Dispositifs gardés : les bandeaux dorés (titres de section et ruban d'arguments), le cadre à coins rabattus (public/l-adresse/coin-*.svg : l'équerre dorée épaisse aux bouts arrondis, le filet échancré en quart de cercle autour d'elle, mesurés sur la page « Menu » ; hero, formule ; coins des cartes au survol), la rosace (redessinée en SVG, public/l-adresse/mandala.svg, sous le ruban comme sur la couverture : rayons brisés, cercle à huit médaillons, couronne de volutes, anneau d'or percé de gouttes, fleur à six pétales au cœur — jamais d'étoile à six branches, pour ne porter aucun symbole), le filigrane (public/l-adresse/ornement.svg), les pointillés entre le plat et son prix. Mouvement (1,6 s au chargement) : le cadre se trace, le nom s'écrit de gauche à droite puis deux reflets passent sur son or, le ruban se déroule depuis son centre, le filigrane s'ouvre, la rosace tourne d'un tour en quatre minutes ; au défilement, les cartes montent, les photos se posent et la lumière glisse sur les bandeaux (animations CSS liées au défilement, sans jamais toucher à l'opacité). Les affiches de soirées 2026 (capitales serif « L'ADRESSE », monogramme A, « RESTAURANT • CHICHA LOUNGE ») sont une autre direction : non retenue, le logo et le menu numérique gardent la manuscrite. Icônes d'onglet et d'écran d'accueil : le A du logo, or sur anthracite (public/l-adresse/favicon.png, icon.png, tirés de logo-nom.svg) — proposition à faire valider avec le logo (note 15). La formule reprend la mise en page de la page « Menu » de la carte : titre d'étape souligné, un plat par ligne, « ou » estompé.",
+    "interior_vibe": "Salle double hauteur avec mezzanine (chichas à l'étage), suspensions dorées, bandeaux LED bleus, portraits pop-art, fauteuils gris et moutarde (photo eat-list, 2019).",
+    "reference_images": [
+      "demos/l-adresse/docs/logo.png",
+      "demos/l-adresse/docs/carte-2021-1-couverture.jpg",
+      "demos/l-adresse/docs/carte-2021-2-entrees.jpg",
+      "demos/l-adresse/docs/facade.jpg",
+      "demos/l-adresse/docs/salle.jpg",
+      "demos/l-adresse/docs/affiche-2026-04-24.jpg"
+    ]
+  },
+  "menu": {
+    "source": "Menu numérique de l'établissement sur NFC For You (nfcforyou.com/LADRESSE, menu « ladresse-restaurant »), dernière modification le 2026-10-02 : données brutes archivées dans demos/l-adresse/docs/carte-nfc-2026-10-02.json et formules-nfc-2026-10-02.json. Seuls les 43 articles marqués disponibles sont repris (27 indisponibles écartés : camembert, nems, samoussas, bruschettas, saumon gravlax, carpaccio de bœuf, pêche du jour, tiramisus, coupes glacées, cafés…). La carte imprimée de 2021 (eat-list, mise en ligne le 2021-08-17, docs/carte-2021-*) n'est plus d'actualité : elle ne sert qu'à l'identité. La carte vit dans frontend/lib/menu-data.ts (const lAdresse) — ne pas la dupliquer ici.",
+    "categories_summary": [
+      "Formules — Formule Classique 36 € (entrée, plat, dessert ; trois salades, trois tagliatelles ou le faux filet, fondant ou tiramisu du moment)",
+      "Entrées — 12 à 18 € (médaillon de foie gras, trois salades, hot wings, nuggets)",
+      "Plats — 7 à 29 € (entrecôte, faux filet, magret, souris d'agneau, suprême de volaille, pavé de saumon, cinq pâtes, deux burgers, supplément foie gras)",
+      "Desserts — 8 € (trois desserts maison)",
+      "Cocktails — 8 € (sans alcool)",
+      "Boissons — 2 à 6 € (softs, diabolo, Red Bull, eaux, thé à la menthe)",
+      "Chichas — 15 et 20 € (tabac sans nicotine)"
+    ],
+    "corrections_orthographe": [
+      "« Nugguets » → « Nuggets »",
+      "« Salade Césars » → « Salade César » (orthographe de leur propre formule)",
+      "« Fusilli à la truffes avec burratta » / « Pattes à la truffes » → « Fusilli à la truffe avec burrata » / « Pâtes à la truffe »",
+      "« sauce beurre blanc à l Annette » → « à l’aneth »",
+      "« Suprême de volaille sauce fois gras » → « sauce foie gras »",
+      "« Crème brûlé pistache » → « Crème brûlée pistache »",
+      "« Brioche Perdu, Glace Vanille et Caramel Beurre Salé » → « Brioche perdue, glace vanille et caramel beurre salé »",
+      "« Toast de chèvres (cabecou) » → « Toast de chèvre (cabécou) » ; « poêlé de légumes » → « Poêlée de légumes »",
+      "Diabolo : « violet » → « violette », virgule double supprimée",
+      "« Hot Wings 8 pièces » : « 8 pièces » passé en mention de format, comme pour les nuggets",
+      "Ponctuation : « Toasts grillés, confiture de figues », « Ananas, mangue, kiwi », « Schweppes Agrumes », espaces doubles supprimées",
+      "Mise en forme, sans changer le sens : « Entrecôte 350g » → « Entrecôte » avec la mention de format « 350 g » ; casse des noms (« Supplément foie gras », « Thé menthe fraîche », « Eau plate », « Eau pétillante », « Ananas, lait de coco ») ; « 0.5 L » / « 1L » → « 50 cl » / « 1 L » ; étapes de la formule « Plats » / « Desserts » → « Plat » / « Dessert » ; article « Faux filets » → « Faux filet » ; « poivrons rouge » → « poivrons rouges » dans la ligne des accompagnements.",
+      "Espaces et casse : « Mangue /Fraise » → « Mangue / Fraise », « Sirop au choix: » → « Sirop au choix : » ; les détails des salades de la formule (« poulet ou… », « mesclun… », « toast… ») commencent en minuscule, lus à la suite du nom ; ligne des accompagnements : « et brocolis » → « , brocolis », et « , poêlé » → « ou poêlée » — ce « ou » dit le choix d'un seul accompagnement (déduction, voir options_a_valider).",
+      "Salade César : « poulet pané , croûtons » → « poulet pané, croûtons » (espace avant la virgule).",
+      "Ligne d'en-tête des Plats : « poivrons rouge et verts courgettes » → « rouges et verts, courgettes » ; « SUPPLÉMENT ACCOMPAGNEMENT : 4 €  SUPPLÉMENT SAUCE : 3 € » → « supplément accompagnement 4 € · supplément sauce 3 € » (casse, deux-points retirés).",
+      "Chichas : « Plate », « Khaloud » → « Chicha Plate », « Chicha Khaloud » — hors de leur section (feuille d'options, panier, ticket), « Plate » seul se lisait comme l'eau plate.",
+      "Eaux : la contenance reste dans le nom (« Eau plate 50 cl », « Eau pétillante 1 L »), et non en mention de format à part : une ligne de commande ne garde que le nom, ticket et écran du personnel lisaient « Eau plate » pour les deux bouteilles.",
+      "Casse : « TOUS NOS DESSERTS SONT FAITS MAISON » → « Tous nos desserts sont faits maison » (accroche des Desserts).",
+      "Ligne des accompagnements : « Accompagnement » → « Accompagnements : » en tête des Plats (voir menu.accompagnements)."
+    ],
+    "descriptions_reprises_de_la_formule": "Salade César, Salade Burrata et Salade paysanne n'ont sur la carte qu'une description très courte (« Et ses condiments gourmands », « Cocktail de tomates », « Toast de chèvres (cabecou) et petits fumés ») ; leur propre formule les décrit en entier — ces descriptions-là sont reprises. « Poulet ou poulet pané » devient un choix obligatoire.",
+    "photos": "Photos de banque (Pexels, deux Unsplash : suprême, tagliatelles forestière) en attendant une séance photo : aucune photo des plats actuels n'existe en ligne. 25 plats illustrés, chacun vérifié sur planche contact (marques, plat, cadrage 16:9). Sans photo, faute d'une photo juste : salade paysanne (toutes les photos de chèvre chaud portent des fruits absents du plat), fusilli à la truffe avec burrata (la seule série exacte montre des bouteilles de bière), supplément foie gras (même photo que le médaillon, sinon) et les boissons (lignes de carte, comme sur la carte imprimée). Écarts connus, à corriger par la séance photo : la crème brûlée n'est pas à la pistache (aucune photo libre n'existe), le médaillon de foie gras n'a pas ses toasts, le suprême de volaille est photographié sans ses tagliatelles, le SunSet est garni d'orange (pas de kiwi), la salade burrata a des jeunes pousses plutôt qu'un mesclun. La photo de souris d'agneau de la galerie eat-list (2019, docs/photo-souris-agneau.jpg) n'est pas utilisée : provenance incertaine. Le pavé de saumon est photographié avec des pommes de terre en dés, pas une écrasée ; les trois tagliatelles photographiées viennent de trois séries différentes (lumières disparates côte à côte en bureau) : deux raisons de plus pour la séance photo. Les tagliatelles au saumon n'ont plus de photo (2026-10-12) : la seule libre montrait un saumon gris, pris pour du poulet ; les autres étaient un autre plat (garniture asiatique carotte-sésame, saumon piccata sur linguine) — à la séance photo.",
+    "options_a_valider": [
+      "Cuisson (à point / saignant / bleu / bien cuit), obligatoire, sur l'entrecôte, le faux filet (aussi dans la formule), le magret et le Beef Burger — demandée par Ominin, absente de leur carte.",
+      "Accompagnement au choix (purée / purée de patate douce / poêlée de légumes), obligatoire, sur l'entrecôte, le faux filet (aussi dans la formule), le magret et la souris d'agneau — déduit de la ligne « Accompagnement » sans prix de leur carte.",
+      "Accompagnement en supplément (+4 €, cumulable) sur ces quatre viandes, faux filet de la formule compris (en production, un article de formule lié à un plat reprend ses options : la démo fait de même) — l'en-tête des plats annonce 4 € ; la carte ne dit pas à quels plats il s'applique.",
+      "« Supplément sauce : 3 € » : affiché en tête des plats, mais non commandable — leur carte ne nomme aucune sauce.",
+      "Chichas : parfum obligatoire, liste reprise de la description de chaque chicha ; TVA 20 % comme au BOHO.",
+      "Mojito : parfum obligatoire (Classique, Mangue, Fraise, Fruits rouges) et Coca-Cola : variante obligatoire (Classique, Cherry, Zéro) — tirés de leur description, la carte ne dit pas « au choix ».",
+      "Salade César : « Préparation du poulet » obligatoire (Poulet, Poulet pané), tirée de la description de leur formule."
+    ],
+    "accompagnements": "La ligne « Accompagnement » de leur carte (sans prix) est reprise en tête des plats : « Accompagnements : purée, purée de patate douce ou poêlée de légumes (poivrons rouges et verts, courgettes, brocolis) ». Dans leur carte, cette ligne est rangée sous Entrées (article sans prix et note de la catégorie) ; ici, elle est en tête des Plats, là où l'accompagnement se choisit — et ne vaut que pour les viandes qui le proposent (déduction, voir options_a_valider ; le pavé de saumon a son écrasée, le suprême ses tagliatelles)."
+  },
+  "offers": [
+    "Formule Classique 36 € : entrée, plat, dessert (prix passé de 29 € en 2021-2022 à 33 € en 2024 puis 36 €).",
+    "Soirées à entrée payante : 36 € sur réservation, 40 € sur place (affiche du 16 octobre 2026), réservations par téléphone uniquement."
+  ],
+  "research": {
+    "date": "2026-10-11",
+    "adresse": "8 chemin des Genêts, Lot n° 7, 31120 Portet-sur-Garonne — confirmé (Google, Instagram, TikTok, Facebook, site). La Base Adresse Nationale ne certifie aucun n° 8 sur cette voie : c'est l'adresse commune d'un ensemble commercial (« Centre Secondo », probable). Zone commerciale derrière Carrefour Portet. Arrêts Tisséo Palanques (L5, ~120 m) et Ctre Cial Portet – Entrée 5 (50, L5, ~160 m). Variantes vues : « genets », « Gênets », « 31120 Toulouse ».",
+    "horaires": "Contradictoires : Google (mer, jeu, dim 19h30–2h ; ven, sam 19h30–3h ; fermé lun, mar) ; bio Instagram (dim–jeu 19h30–2h) ; restoulouse (jeu–dim 20h–2h) ; leur site (dont une section annonce un déjeuner lun–ven 11h30–15h) ; Tripadvisor ; eat-list. Retenu : Google, tenu par le gérant.",
+    "google": "3,7★ / 320 avis, 30–40 € par personne. Place ID ChIJVVswUVa5rhIR5meIm1C9vkM (pris sur leur menu NFC). Le bouton « Trouver une table » pointe vers un site eatbu en 404.",
+    "concurrent_en_place": "NFC For You, offre « digital » (29 €/mois sur leur grille) : cartes NFC sur les tables (au moins jusqu'à la table 12), bouton avis Google, menu sans commande. Leurs paliers suivants : commande à table 59 €/mois, paiement à table + caisse 99 €/mois. Leur modèle de données (formules / étapes / articles avec item_id, supplément, options ; articles avec hubrise_ref, stock, disponible) est presque champ pour champ celui d'Ominin : reprise de la carte quasi directe.",
+    "alcool": "Aucun alcool — confirmé (BODACC 2024 « sans boissons alcoolisées », affiches 2026 « Cocktails sans alcool », « 0 % alcool »). Les attributs Google « Alcools » / « Bar » sont probablement faux.",
+    "halal": "Jamais revendiqué sur leurs canaux. Huit avis Google parlent d'un restaurant halal, un avis reproche que ce ne soit écrit nulle part. La salade paysanne porte des « petits lardons fumés ». Aucune mention halal sur la page.",
+    "chicha": "Espace chicha à l'étage, salle de restaurant au rez-de-chaussée ; terrasse chauffée (fiche tourisme, Google).",
+    "avis": "Éloges : cadre et décor, salade César (le plat le plus cité), burrata, souris d'agneau, accueil, soirées DJ. Reproches : service lent et erreurs de commande, cuissons ratées, musique forte, fumée près des tables ; septembre 2026 : « décevant depuis le changement de propriétaire ». Tripadvisor 3,6 (18 avis), fiche non revendiquée.",
+    "livraison": "Aucune plateforme trouvée ; vente à emporter proposée.",
+    "sources": "Rapport complet et données brutes : scratchpad de la session du 2026-10-11 (research/)."
+  },
+  "notes": [
+    "1. Exploitant : SARL BBAH (Bekhoukha / Barhoumi) depuis septembre 2024 — toujours d'actualité ? Un avis de septembre 2026 évoque un changement de propriétaire.",
+    "2. Horaires réels de salle et de cuisine ? Y a-t-il un service du midi ? (cinq sources se contredisent ; la page affiche ceux de Google).",
+    "3. Carte : le menu NFC du 2 octobre 2026 est-il la carte en vigueur ? Le site adresse-2.vercel.app affiche d'autres prix (foie gras 20 €, souris d'agneau 27 €, softs 3,50 €).",
+    "4. « Suprême de volaille sauce foie gras » est décrit « Blanc de poulet, tagliatelles, sauce forestière » : quelle sauce ?",
+    "5. « Tagliatelles à la truffe et sabota crémeuse » : que désigne « sabota » ? (gardé tel quel sur la page).",
+    "6. Valider les corrections d'orthographe de la carte (menu.corrections_orthographe).",
+    "7. Valider les options ajoutées (menu.options_a_valider) : cuisson, accompagnement au choix et son supplément ; quelles sauces pour le « supplément sauce 3 € » ?",
+    "8. Le « Tiramisu du moment » est indisponible sur la carte mais proposé dans la formule : toujours servi dans la formule ?",
+    "9 bis. Formule : dans leur menu NFC, l'article « Salade paysanne » de la formule pointe sur l'article « Salade Chèvre chaud » (16 €, indisponible), pas sur la « Salade paysanne » de la carte (15 €). La page les traite comme le même plat — à confirmer.",
+    "9. Menu enfant : une catégorie de photos Google « Menu Enfant » existe, la carte NFC n'en a pas — en proposez-vous un ? Et le « Menu du Chef », les tajines ?",
+    "10 bis. « Cuisine maison » (bandeau d'arguments, tiré de vos affiches) : la mention « fait maison » est encadrée par plat ; la carte ne la revendique que pour les desserts, et liste nuggets et hot wings. Garder l'argument tel quel ?",
+    "10 ter. « Supplément foie gras » (7 €) se commande seul : à quels plats s'ajoute-t-il ? (en cuisine, il arrive sur une ligne à part)",
+    "10. Halal : souhaitez-vous l'afficher, avec le fournisseur ? De quelle viande sont les lardons de la salade paysanne ?",
+    "11. Cocktails : la page indique « Sans alcool » (comme vos affiches). À confirmer.",
+    "12. Contrat NFC For You : palier, engagement, nombre de tables équipées ?",
+    "13. Caisse et moyens de paiement (eat-list : espèces et titres-restaurant seulement ; Google : cartes aussi) ?",
+    "14. Adresse e-mail en vigueur : restaurant.ladresse31@gmail.com (fiche tourisme) ou contact.ladresse31@gmail.com (Tripadvisor) ?",
+    "15. Logo : la manuscrite au ruban (logo actuel, retenu) ou les capitales serif au monogramme A des affiches 2026 ?",
+    "16. Photos : séance photo sur place pour remplacer les photos de banque (priorité : salade César, souris d'agneau, burrata, les pâtes à la truffe).",
+    "17. Ordre des plats : la carte NFC n'en a pas (presque tout à « ordre 0 », classé par ordre alphabétique). Ordre retenu, par familles : salades, foie gras, fritures ; viandes, poisson, pâtes (fusilli compris), burgers, puis le supplément foie gras. « Cocktails » (sous-catégorie de leurs Boissons) est une catégorie à part, le thé menthe (« Boissons chaudes ») rejoint les Boissons. À valider, comme le reste de la mise en page.",
+    "18. Ticket de cuisine : « Brioche perdue, glace vanille et caramel beurre salé » y est raccourcie en « Brioche perdue » (printName). À valider.",
+    "19. Allergènes : où le client trouve-t-il l'information (affichage en salle, document à demander, lien) ? La page peut lier un tableau des allergènes en pied de carte, comme pour Chicken Street.",
+    "20. Origine des viandes : la réglementation demande de l'afficher (bœuf, et porc, agneau, volaille depuis le décret 2022-65) — quelles origines pour l'entrecôte, le faux filet, le magret, la souris d'agneau, le suprême, les burgers ?",
+    "21. Descriptions des salades : celles de la carte reprennent les détails de la formule (menu.descriptions_reprises_de_la_formule), qui remplacent « Et ses condiments gourmands » et « Cocktail de tomates » de la carte NFC. À valider.",
+    "22. Adresse : la page affiche « 8 Chemin des Genêts, 31120 Portet-sur-Garonne », comme leur affiche ; leur fiche porte aussi « Lot n° 7 » (la Base Adresse Nationale ne certifie pas de n° 8 sur ce chemin) — l'ajouter, si le lot aide à trouver l'entrée ?",
+    "23. Cuisson du magret : les choix ajoutés (à point, saignant, bleu, bien cuit) sont ceux des viandes rouges ; pour un magret, plutôt rosé / à point / bien cuit ?",
+    "24. Chichas : la décision « telle que la carte l'imprime » couvre-t-elle aussi les deux photos de banque des chichas et « Chichas premium » dans le bandeau (tirés de l'affiche, absents de la carte NFC) ? À confirmer au regard de la loi Évin.",
+    "25. Heures de cuisine : la fiche indique une cuisine fermant à minuit (1 h vendredi et samedi), la page n'affiche que l'ouverture — les commandes de plats par QR doivent-elles s'arrêter avant la fermeture de la salle ? (avec la note 2)."
+  ],
+  "decisions": [
+    "2026-10-11 — Chicha : la section est montrée telle que la carte de l'établissement l'imprime (décision de l'utilisateur, malgré le risque Loi Évin signalé ; la carte actuelle n'affiche ni marque de tabac ni photo de paquet).",
+    "2026-10-11 — Cuisson et accompagnement ajoutés aux viandes, signalés au gérant (décision de l'utilisateur).",
+    "2026-10-12 — Bouton « Commander sur WhatsApp » retiré du pied de page de toutes les cartes (décision de l'utilisateur).",
+    "2026-10-11 — Version aux couleurs d'Ominin non demandée : seule la version aux couleurs de L'Adresse est construite et notée."
+  ]
+}
