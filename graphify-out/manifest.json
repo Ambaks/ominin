@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791900776.6613274,
-    "seen": 1791901748.094383,
-    "ast_hash": "e594791a75e189e4d632dfed721824cc",
+    "mtime": 1791910863.5385828,
+    "seen": 1791910878.7233431,
+    "ast_hash": "11a9f54f015ea5000638254da447d15e",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -6888,21 +6888,15 @@
     "semantic_hash": ""
   },
   "flg/app/layout.tsx": {
-    "mtime": 1791902473.2338629,
-    "seen": 1791903610.9213068,
-    "ast_hash": "0d8d25a1eb7ab335460864de7a72cb1c",
+    "mtime": 1791910595.9997315,
+    "seen": 1791910878.722683,
+    "ast_hash": "b3dbaeab6d0cdf69d478266fe6dcf77f",
     "semantic_hash": ""
   },
   "flg/app/page.tsx": {
-    "mtime": 1791903579.8596416,
-    "seen": 1791903610.921309,
-    "ast_hash": "48e172c88c403e9bc923c73c76294e9d",
-    "semantic_hash": ""
-  },
-  "flg/app/systeme/page.tsx": {
-    "mtime": 1791902473.2363791,
-    "seen": 1791903610.921309,
-    "ast_hash": "dbe0e653101d3dc2be97fb3858b07270",
+    "mtime": 1791910740.1896574,
+    "seen": 1791910878.722684,
+    "ast_hash": "42d060e1e810568f6fa3d5d7bff7aa19",
     "semantic_hash": ""
   },
   "flg/components/before-after.tsx": {
@@ -6915,12 +6909,6 @@
     "mtime": 1791902933.5865614,
     "seen": 1791903610.921311,
     "ast_hash": "892a9afd8037f510e78ade2b0cc800e7",
-    "semantic_hash": ""
-  },
-  "flg/components/faq.tsx": {
-    "mtime": 1791902933.5888886,
-    "seen": 1791903610.921311,
-    "ast_hash": "5f8904a4f9cb5212d6d07aba2e33d98d",
     "semantic_hash": ""
   },
   "flg/components/form.tsx": {
@@ -6966,9 +6954,9 @@
     "semantic_hash": ""
   },
   "flg/lib/content.ts": {
-    "mtime": 1791903050.391713,
-    "seen": 1791903610.921319,
-    "ast_hash": "c768b624aedf3efc2ae5070c3fcd0eac",
+    "mtime": 1791910595.9979415,
+    "seen": 1791910878.722694,
+    "ast_hash": "6077d2c36f9a26469204e784904fa0fc",
     "semantic_hash": ""
   },
   "flg/lib/fonts.ts": {
@@ -6999,42 +6987,6 @@
     "mtime": 1791900809.9943507,
     "seen": 1791901748.0937011,
     "ast_hash": "02fc19ad21338c2ab820a70136310db4",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-cabine.jpg": {
-    "mtime": 1791900869.4566894,
-    "seen": 1791901748.09444,
-    "ast_hash": "6a00f2250951087481bbee81d7a061de",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-controle.jpg": {
-    "mtime": 1791900877.3081155,
-    "seen": 1791901748.094441,
-    "ast_hash": "84d644c738dae197533f1453ef2adb9d",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-detail.jpg": {
-    "mtime": 1791900879.325465,
-    "seen": 1791901748.094442,
-    "ast_hash": "59aee91b2f49b488fd9a2e13126529ab",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-equipe.jpg": {
-    "mtime": 1791900873.3016365,
-    "seen": 1791901748.094442,
-    "ast_hash": "7c30b3288cd1e2c17d83b8917a4a0ed6",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-finition.jpg": {
-    "mtime": 1791900871.1702428,
-    "seen": 1791901748.094443,
-    "ast_hash": "581ae0db3c1d0e68b70ca08d3ae48ac4",
-    "semantic_hash": ""
-  },
-  "flg/assets/chantiers/atelier-moule.jpg": {
-    "mtime": 1791900867.6622992,
-    "seen": 1791901748.094444,
-    "ast_hash": "2bb7ad32070a00e62088b35ada6965d1",
     "semantic_hash": ""
   },
   "flg/assets/chantiers/auvent-apres.jpg": {
@@ -7272,21 +7224,21 @@
     "semantic_hash": ""
   },
   "flg/app/api/devis/route.ts": {
-    "mtime": 1791902964.5746007,
-    "seen": 1791903610.9213061,
-    "ast_hash": "28be5813cd5f24de6f9e17c7236b9006",
+    "mtime": 1791910595.99947,
+    "seen": 1791910878.72268,
+    "ast_hash": "45f7d83a9cd5e0603ec5034dc48d6a42",
     "semantic_hash": ""
   },
   "flg/components/quote-form.tsx": {
-    "mtime": 1791902953.7469769,
-    "seen": 1791903610.9213161,
-    "ast_hash": "91f4cac2617f3e7d5bdd54bd1cc6f89a",
+    "mtime": 1791910595.9989336,
+    "seen": 1791910878.72269,
+    "ast_hash": "dc87e0aefce8f29d5da7cb1d0e67e62d",
     "semantic_hash": ""
   },
   "flg/lib/devis.ts": {
-    "mtime": 1791902953.6592143,
-    "seen": 1791903610.92132,
-    "ast_hash": "cf69047a0884f7f6fb45d42eff59efd7",
+    "mtime": 1791910574.6063643,
+    "seen": 1791910878.722694,
+    "ast_hash": "130bda3c60c00ac55120cdd51d993b19",
     "semantic_hash": ""
   },
   "flg/lib/gmail.ts": {
@@ -7305,6 +7257,30 @@
     "mtime": 1791902103.6492212,
     "seen": 1791903610.921977,
     "ast_hash": "4dea4c69b6d570ece6d185fdd43861c6",
+    "semantic_hash": ""
+  },
+  "flg/app/cgv/page.tsx": {
+    "mtime": 1791910608.6529863,
+    "seen": 1791910878.722682,
+    "ast_hash": "c5462c8b97f31b7e6e27c5716c80a692",
+    "semantic_hash": ""
+  },
+  "flg/app/robots.ts": {
+    "mtime": 1791904011.3794744,
+    "seen": 1791910878.7226849,
+    "ast_hash": "06f15e212703b4aa5017c675d4ab3146",
+    "semantic_hash": ""
+  },
+  "flg/lib/site.ts": {
+    "mtime": 1791904011.3764544,
+    "seen": 1791910878.722697,
+    "ast_hash": "42ce3fc63400f957dccef24c89a8810b",
+    "semantic_hash": ""
+  },
+  "flg/next.config.ts": {
+    "mtime": 1791904011.3814456,
+    "seen": 1791910878.722697,
+    "ast_hash": "e987a2e57dabeaa10fe7462f54c8616c",
     "semantic_hash": ""
   }
 }
