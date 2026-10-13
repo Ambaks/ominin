@@ -39,12 +39,26 @@ export function makeFmt(lang: Lang) {
 }
 
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-export const dowIndex = (n: Night) => DOW.indexOf(n.dow);
-export const isWeekend = (n: Night) => n.dow === "Fri" || n.dow === "Sat";
+/** Un soir réduit à sa date et son jour : celui du tableau, ou ceux des tentatives en ligne. */
+export type Day = Pick<Night, "day" | "dow">;
+export const dowIndex = (n: Pick<Night, "dow">) => DOW.indexOf(n.dow);
+export const isWeekend = (n: Pick<Night, "dow">) => n.dow === "Fri" || n.dow === "Sat";
 export const onlineShare = (n: Night) => (n.orders ? (n.online / n.orders) * 100 : 0);
 export const onlineRevShare = (n: Night) => (n.rev ? (n.rev_online / n.rev) * 100 : 0);
 
 const night = (r: Report, day: string) => r.nights.find((n) => n.day === day)!;
+const first = (r: Report) => r.nights[0];
+const last = (r: Report) => r.nights[r.nights.length - 1];
+const year = (r: Report) => last(r).day.slice(0, 4);
+const shiftDay = (day: string, by: number) => {
+  const d = new Date(`${day}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + by);
+  return d.toISOString().slice(0, 10);
+};
+const asDay = (day: string): Day => ({ day, dow: DOW[(new Date(`${day}T12:00:00Z`).getUTCDay() + 6) % 7] });
+/** Le dernier week-end complet de la période : son vendredi et son samedi. */
+const lastWeekend = (r: Report) => [night(r, r.last_weekend), night(r, shiftDay(r.last_weekend, 1))] as const;
+const funnelNights = (r: Report) => r.online_funnel.nights.length;
 const busiest = (r: Report) => r.nights.reduce((a, b) => (b.orders > a.orders ? b : a));
 const chichaShare = (r: Report) => (r.categories[0].rev / r.categories.reduce((s, c) => s + c.rev, 0)) * 100;
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -61,29 +75,38 @@ function peak(r: Report) {
   const [day, time] = r.heat.peak_slot.split(" ");
   const [h, m] = hm(time);
   // Avant la bascule de journée, l'heure appartient au soir de la veille.
-  const service = new Date(`${day}T12:00:00Z`);
-  if (h < r.day_end_hour) service.setUTCDate(service.getUTCDate() - 1);
   const end = (h * 60 + m + 15) % 1440;
-  return { night: night(r, service.toISOString().slice(0, 10)), start: [h, m] as const, end: [Math.floor(end / 60), end % 60] as const };
+  return { night: night(r, h < r.day_end_hour ? shiftDay(day, -1) : day), start: [h, m] as const, end: [Math.floor(end / 60), end % 60] as const };
 }
 
 const nightsSinceLaunch = (r: Report) => r.nights.filter((n) => n.day >= r.milestones.launch).length;
 
-const month = (n: Night, sept: string, oct: string) => (n.day.slice(5, 7) === "09" ? sept : oct);
+const month = (n: Day, sept: string, oct: string) => (n.day.slice(5, 7) === "09" ? sept : oct);
+const sameMonth = (a: Day, b: Day) => a.day.slice(5, 7) === b.day.slice(5, 7);
 
-const enNight = (n: Night) => `${n.dow} ${+n.day.slice(8)} ${month(n, "Sept", "Oct")}`;
-const enDate = (n: Night) => `${en.days.long[dowIndex(n)]} ${+n.day.slice(8)} ${month(n, "September", "October")}`;
+const enNight = (n: Day) => `${n.dow} ${+n.day.slice(8)} ${month(n, "Sept", "Oct")}`;
+const enDate = (n: Day) => `${en.days.long[dowIndex(n)]} ${+n.day.slice(8)} ${month(n, "September", "October")}`;
+const enDay = (n: Day) => `${+n.day.slice(8)} ${month(n, "Sept", "Oct")}`;
+/** « 9–10 Oct », ou « 9–10 October » en toutes lettres. */
+const enWeekend = (r: Report, long = false) => {
+  const [fri, sat] = lastWeekend(r);
+  const m = (n: Day) => (long ? month(n, "September", "October") : month(n, "Sept", "Oct"));
+  return sameMonth(fri, sat) ? `${+fri.day.slice(8)}–${+sat.day.slice(8)} ${m(sat)}` : `${+fri.day.slice(8)} ${m(fri)} – ${+sat.day.slice(8)} ${m(sat)}`;
+};
 const enClock = (h: number, m: number) =>
   h === 0 && m === 0 ? "midnight" : `${h % 12 || 12}${m ? `:${pad2(m)}` : ""}${h < 12 ? "am" : "pm"}`;
 
-const frNight = (n: Night) => {
-  const day = +n.day.slice(8);
-  return `${["Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."][dowIndex(n)]} ${day === 1 ? "1er" : day} ${month(n, "sept.", "oct.")}`;
+const frNum = (n: Day) => (+n.day.slice(8) === 1 ? "1er" : String(+n.day.slice(8)));
+const frNight = (n: Day) => `${["Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."][dowIndex(n)]} ${frNum(n)} ${month(n, "sept.", "oct.")}`;
+const frDate = (n: Day) => `${fr.days.long[dowIndex(n)].toLowerCase()} ${frNum(n)} ${month(n, "septembre", "octobre")}`;
+const frDay = (n: Day) => `${frNum(n)} ${month(n, "sept.", "oct.")}`;
+/** « 9 et 10 oct. », ou « 9 et 10 octobre » en toutes lettres. */
+const frWeekend = (r: Report, long = false) => {
+  const [fri, sat] = lastWeekend(r);
+  const m = (n: Day) => (long ? month(n, "septembre", "octobre") : month(n, "sept.", "oct."));
+  return sameMonth(fri, sat) ? `${frNum(fri)} et ${frNum(sat)} ${m(sat)}` : `${frNum(fri)} ${m(fri)} et ${frNum(sat)} ${m(sat)}`;
 };
-const frDate = (n: Night) => {
-  const day = +n.day.slice(8);
-  return `${fr.days.long[dowIndex(n)].toLowerCase()} ${day === 1 ? "1er" : day} ${month(n, "septembre", "octobre")}`;
-};
+const dowRange = (r: Report) => [Math.min(...r.heat.nights_dow), Math.max(...r.heat.nights_dow)] as const;
 const frClock = (h: number, m: number) => (h === 0 && m === 0 ? "minuit" : `${h}\u00a0h${m ? `\u00a0${pad2(m)}` : ""}`);
 
 /** Titre et description de la page pour les moteurs et les aperçus de lien : rendu serveur, donc en anglais. */
@@ -104,7 +127,7 @@ const en = {
     sections: "Sections",
     replay: "Replay",
   },
-  mast: { brand: "Analytics", note: "Real data from a venue running on Ominin, 18 Sept – 3 Oct 2026" },
+  mast: { brand: "Analytics", note: (r: Report) => `Real data from a venue running on Ominin, ${enDay(first(r))} – ${enDay(last(r))} ${year(r)}` },
   nav: {
     adoption: "Paying online",
     speed: "Order to kitchen",
@@ -118,11 +141,11 @@ const en = {
   nightName: enNight,
   oct1: "1 Oct",
   hero: {
-    eyebrow: (r: Report) => `A bar-restaurant in Toulouse · ${r.totals.nights} service nights, Fri 18 Sept to Sat 3 Oct 2026`,
+    eyebrow: (r: Report) => `A bar-restaurant in Toulouse · ${r.totals.nights} service nights, ${enNight(first(r))} to ${enNight(last(r))} ${year(r)}`,
     title: (r: Report, f: Fmt) =>
       `Paid online, an order reaches the kitchen in __${f.durWords(r.speed.online.p50)}__. Paid at the counter, it takes ${f.dur(r.speed.counter.p50)}.`,
     lede: (r: Report, f: Fmt) =>
-      `This venue prints a kitchen or bar ticket only once an order is paid. Guests who pay from their table skip the walk and the queue, so their ticket prints almost at once. Online payment launched on 24 September and guests took to it fast: **on the final weekend, 2–3 October, ${f.pct(r.totals.lw_online_share)} of orders were paid from the table.**`,
+      `This venue prints a kitchen or bar ticket only once an order is paid. Guests who pay from their table skip the walk and the queue, so their ticket prints almost at once. Online payment launched on 24 September and guests took to it fast: **on the last weekend, ${enWeekend(r, true)}, ${f.pct(r.totals.lw_online_share)} of orders were paid from the table.**`,
     raceLabel: (r: Report, f: Fmt) =>
       `Median time from order to kitchen ticket: ${f.durWords(r.speed.online.p50)} online, ${f.durWords(r.speed.counter.p50)} at the counter`,
     laneOnline: "Paid online from the table",
@@ -133,10 +156,10 @@ const en = {
   kpi: {
     revenue: "Revenue",
     revenueSub: (r: Report, f: Fmt) => `${f.int(r.totals.paid)} paid orders in ${r.totals.nights} nights`,
-    online: "Paid online, weekend of 2–3 Oct",
+    online: (r: Report) => `Paid online, weekend of ${enWeekend(r)}`,
     onlineSub: (r: Report, f: Fmt) => `${f.pct(r.totals.lw_online_rev_share)} of revenue`,
     success: "Online payment success",
-    successSub: (r: Report, f: Fmt) => `since 30 Sept, up from ${f.pct(r.online_funnel.pre_rate)}`,
+    successSub: (r: Report, f: Fmt) => `30 Sept – 3 Oct, up from ${f.pct(r.online_funnel.pre_rate)}`,
     basket: "Average order",
     basketSub: (r: Report, f: Fmt) => `${f.num(r.totals.units, 1)} items per order`,
     scans: "Menu visits that end in an order",
@@ -149,7 +172,7 @@ const en = {
     lede: (r: Report, f: Fmt) => {
       const [fri1, fri2] = weekApart(r, "Fri");
       const [sat1, sat2] = weekApart(r, "Sat");
-      return `Same nights, one week apart: on Friday the share of orders paid online went from **${f.pct(fri1)} to ${f.pct(fri2)}**; on Saturday, from **${f.pct(sat1)} to ${f.pct(sat2)}**. On the final weekend, online payments brought in ${f.pct(r.totals.lw_online_rev_share)} of revenue.`;
+      return `From the first Friday after launch to the last, the share of orders paid online went from **${f.pct(fri1)} to ${f.pct(fri2)}**; on Saturdays, from **${f.pct(sat1)} to ${f.pct(sat2)}**. On the last weekend, online payments brought in ${f.pct(r.totals.lw_online_rev_share)} of revenue.`;
     },
     shareTitle: "Share of orders paid online, per night",
     shareSub: "Shaded columns are Fridays and Saturdays. Numbered markers are product changes, listed below.",
@@ -166,7 +189,7 @@ const en = {
     stackSub: (mixed: number) => `‘Card at the counter’ includes ${mixed} bills split between card and cash.`,
     mixTitle: "Where the money came from",
     mixSub: "Share of takings by payment method",
-    mixRows: ["Before online payment · 18–23 Sept", "Since launch · 24 Sept – 3 Oct", "Final weekend · 2–3 Oct"],
+    mixRows: (r: Report) => ["Before online payment · 18–23 Sept", `Since launch · 24 Sept – ${enDay(last(r))}`, `Last weekend · ${enWeekend(r)}`],
     mixNote: (r: Report, f: Fmt) =>
       `Online payment is replacing card payments at the counter. **Cash has not shrunk:** ${f.pct(r.mix.before.especes)} of takings before launch, ${f.pct(r.mix.after.especes)} since. The guests still queueing at the counter are increasingly the ones paying cash.`,
     basketTitle: "Online orders are the quick follow-up rounds",
@@ -201,14 +224,14 @@ const en = {
   },
   reliability: {
     eyebrow: "Payment success",
-    title: (r: Report, f: Fmt) => `Online payment now succeeds __${f.pct(r.online_funnel.post_rate)}__ of the time`,
+    title: (r: Report, f: Fmt) => `After the 3-D Secure update, online payment succeeded __${f.pct(r.online_funnel.post_rate)}__ of the time`,
     lede: (r: Report, f: Fmt) =>
-      `An attempt starts when a guest chooses to pay online. In the first week, ${f.pct(r.online_funnel.pre_rate)} of attempts ended in a payment. On 29 September an update added 3-D Secure bank authentication, which many European cards require. Since the 30th, ${f.pct(r.online_funnel.post_rate)} of attempts have succeeded.`,
+      `An attempt starts when a guest chooses to pay online. In the first week, ${f.pct(r.online_funnel.pre_rate)} of attempts ended in a payment. On 29 September an update added 3-D Secure bank authentication, which many European cards require. From 30 September to 3 October, ${f.pct(r.online_funnel.post_rate)} of attempts succeeded. Attempts are counted up to 3 October only: since then, an abandoned attempt is cleared automatically and no longer recorded.`,
     successTitle: "Online attempts that ended in a payment, per night",
     successSub: "Lines show the average before and after the 29 September update.",
     before: (v: string) => `24–29 Sept · ${v} average`,
     after: (v: string) => `30 Sept – 3 Oct · ${v} average`,
-    outcomeTitle: (r: Report, f: Fmt) => `${f.int(r.online_funnel.intent)} online attempts since launch`,
+    outcomeTitle: (r: Report, f: Fmt) => `${f.int(r.online_funnel.intent)} online attempts in the first ${funnelNights(r)} nights of online payment`,
     outcomeSub: "What happened to each attempt, 24 Sept to 3 Oct",
     outcomes: ["Paid online", "Paid at the counter instead", "Abandoned"],
     ghostNote: (r: Report, f: Fmt) => {
@@ -226,7 +249,7 @@ const en = {
     heatTitle: "Average paid orders per hour",
     heatSub: "By night of the week. Hours after midnight count towards the previous evening.",
     dowTitle: "Average revenue per night",
-    dowSub: "Paid orders only. Two or three nights observed for each day of the week.",
+    dowSub: (r: Report) => `Paid orders only. ${dowRange(r).join(" or ")} nights observed for each day of the week.`,
   },
   menu: {
     eyebrow: "Menu",
@@ -237,7 +260,7 @@ const en = {
       return `Chichas lead by a wide margin: **${f.eur(ch.rev)}** from ${f.int(ch.units)} sold, ${f.pct(chichaShare(r))} of revenue. The Premium and Classique chichas alone bring in ${f.eur(r.top[0].rev + r.top[1].rev)}. Soft drinks sell the most units (Coca-Cola: ${f.int(coke.units)}) but earn little.`;
     },
     catsTitle: "Revenue by menu category",
-    catsSub: "Paid orders, 18 Sept to 3 Oct",
+    catsSub: (r: Report) => `Paid orders, ${enDay(first(r))} to ${enDay(last(r))}`,
     topTitle: "Top 10 items by revenue",
     topSub: "With units sold",
     sold: (v: string) => `${v} sold`,
@@ -264,13 +287,13 @@ const en = {
   nights: {
     eyebrow: "Night by night",
     title: "The numbers behind the charts",
-    cols: ["Night", "Paid orders", "Revenue", "Paid online", "Online share of revenue", "Counter wait (median)", "Online attempts", "Abandoned", "Cancelled"],
+    cols: ["Night", "Paid orders", "Revenue", "Paid online", "Online share of revenue", "Counter wait (median)", "Cancelled"],
     total: "Total",
     method: (r: Report, f: Fmt) => [
-      "**Source.** Read-only queries on Ominin’s production database, Sunday 4 October 2026. The venue is not named, and no customer or staff data was extracted.",
+      `**Source.** Read-only queries on Ominin’s production database, ${enDate(asDay(r.extracted))} ${r.extracted.slice(0, 4)}. The venue is not named, and no customer or staff data was extracted.`,
       "**Service night.** 5am to 5am, Paris time, the venue’s own day boundary. Three test orders from 16 September are excluded.",
       "**Order to kitchen.** From the moment the order is placed to the creation of its kitchen ticket, which happens once the order is fully paid. Printing then takes a few seconds.",
-      `**Online attempt.** An order where the guest chose to pay online. Abandoned means never paid and never cancelled. Revenue is money actually taken: ${f.eur(r.totals.rev)} across ${f.int(r.totals.paid)} paid orders.`,
+      `**Online attempt.** An order where the guest chose to pay online, counted from 24 September to 3 October. Abandoned means never paid and never cancelled. Revenue is money actually taken: ${f.eur(r.totals.rev)} across ${f.int(r.totals.paid)} paid orders.`,
     ],
   },
   charts: {
@@ -333,7 +356,7 @@ const fr: Copy = {
     sections: "Sections",
     replay: "Rejouer",
   },
-  mast: { brand: "Analyses", note: "Données réelles d’un établissement qui utilise Ominin, du 18 sept. au 3 oct. 2026" },
+  mast: { brand: "Analyses", note: (r) => `Données réelles d’un établissement qui utilise Ominin, du ${frDay(first(r))} au ${frDay(last(r))} ${year(r)}` },
   nav: {
     adoption: "Paiement en ligne",
     speed: "De la commande à la cuisine",
@@ -347,11 +370,11 @@ const fr: Copy = {
   nightName: frNight,
   oct1: "1er oct.",
   hero: {
-    eyebrow: (r) => `Un bar-restaurant toulousain · ${r.totals.nights} soirs de service, du ven. 18 sept. au sam. 3 oct. 2026`,
+    eyebrow: (r) => `Un bar-restaurant toulousain · ${r.totals.nights} soirs de service, du ${frNight(first(r)).toLowerCase()} au ${frNight(last(r)).toLowerCase()} ${year(r)}`,
     title: (r, f) =>
       `Payée en ligne, une commande arrive en cuisine en __${f.durWords(r.speed.online.p50)}__. Payée au comptoir, elle met ${f.dur(r.speed.counter.p50)}.`,
     lede: (r, f) =>
-      `Dans ce bar-restaurant, un ticket ne sort en cuisine ou au bar qu’une fois la commande payée. Les clients qui paient depuis leur table s’épargnent le déplacement et la file d’attente\u00a0: leur ticket sort presque aussitôt. Le paiement en ligne a été lancé le 24 septembre et les clients l’ont vite adopté\u00a0: **le dernier week-end, les 2 et 3 octobre, ${f.pct(r.totals.lw_online_share)} des commandes ont été payées depuis la table.**`,
+      `Dans ce bar-restaurant, un ticket ne sort en cuisine ou au bar qu’une fois la commande payée. Les clients qui paient depuis leur table s’épargnent le déplacement et la file d’attente\u00a0: leur ticket sort presque aussitôt. Le paiement en ligne a été lancé le 24 septembre et les clients l’ont vite adopté\u00a0: **le dernier week-end, les ${frWeekend(r, true)}, ${f.pct(r.totals.lw_online_share)} des commandes ont été payées depuis la table.**`,
     raceLabel: (r, f) =>
       `Temps médian entre la commande et le ticket cuisine\u00a0: ${f.durWords(r.speed.online.p50)} en ligne, ${f.durWords(r.speed.counter.p50)} au comptoir`,
     laneOnline: "Payée en ligne depuis la table",
@@ -362,10 +385,10 @@ const fr: Copy = {
   kpi: {
     revenue: "Chiffre d’affaires encaissé",
     revenueSub: (r, f) => `${f.int(r.totals.paid)} commandes payées en ${r.totals.nights} soirs`,
-    online: "Payées en ligne, week-end des 2 et 3 oct.",
+    online: (r) => `Payées en ligne, week-end des ${frWeekend(r)}`,
     onlineSub: (r, f) => `${f.pct(r.totals.lw_online_rev_share)} du chiffre d’affaires`,
     success: "Paiements en ligne réussis",
-    successSub: (r, f) => `depuis le 30 sept., contre ${f.pct(r.online_funnel.pre_rate)} avant`,
+    successSub: (r, f) => `du 30 sept. au 3 oct., contre ${f.pct(r.online_funnel.pre_rate)} avant`,
     basket: "Panier moyen",
     basketSub: (r, f) => `${f.num(r.totals.units, 1)} article par commande`,
     scans: "Visites de la carte avec commande",
@@ -378,7 +401,7 @@ const fr: Copy = {
     lede: (r, f) => {
       const [fri1, fri2] = weekApart(r, "Fri");
       const [sat1, sat2] = weekApart(r, "Sat");
-      return `Mêmes soirs, à une semaine d’écart\u00a0: le vendredi, la part des commandes payées en ligne est passée de **${f.pct(fri1)} à ${f.pct(fri2)}**\u202f; le samedi, de **${f.pct(sat1)} à ${f.pct(sat2)}**. Le week-end des 2 et 3 octobre, le paiement en ligne a représenté ${f.pct(r.totals.lw_online_rev_share)} du chiffre d’affaires.`;
+      return `Du premier vendredi après le lancement au dernier, la part des commandes payées en ligne est passée de **${f.pct(fri1)} à ${f.pct(fri2)}**\u202f; le samedi, de **${f.pct(sat1)} à ${f.pct(sat2)}**. Le week-end des ${frWeekend(r, true)}, le paiement en ligne a représenté ${f.pct(r.totals.lw_online_rev_share)} du chiffre d’affaires.`;
     },
     shareTitle: "Part des commandes payées en ligne, par soir",
     shareSub: "Colonnes grisées\u00a0: vendredis et samedis. Les repères numérotés signalent des évolutions du produit, détaillées ci-dessous.",
@@ -395,7 +418,7 @@ const fr: Copy = {
     stackSub: (mixed) => `La catégorie «\u00a0Carte au comptoir\u00a0» comprend ${mixed} additions réglées en partie par carte, en partie en espèces.`,
     mixTitle: "D’où vient l’argent",
     mixSub: "Part des encaissements par mode de paiement",
-    mixRows: ["Avant le paiement en ligne · 18–23 sept.", "Depuis le lancement · 24 sept. – 3 oct.", "Dernier week-end · 2–3 oct."],
+    mixRows: (r) => ["Avant le paiement en ligne · 18–23 sept.", `Depuis le lancement · 24 sept. – ${frDay(last(r))}`, `Dernier week-end · ${frWeekend(r)}`],
     mixNote: (r, f) =>
       `Le paiement en ligne remplace la carte au comptoir. **Les espèces, elles, n’ont pas reculé\u00a0:** ${f.pct(r.mix.before.especes)} des encaissements avant le lancement, ${f.pct(r.mix.after.especes)} depuis. Ceux qui font encore la queue au comptoir paient de plus en plus souvent en espèces.`,
     basketTitle: "En ligne, on règle surtout les tournées d’après",
@@ -430,14 +453,14 @@ const fr: Copy = {
   },
   reliability: {
     eyebrow: "Paiements réussis",
-    title: (r, f) => `Le paiement en ligne réussit désormais dans __${f.pct(r.online_funnel.post_rate)}__ des cas`,
+    title: (r, f) => `Après la mise à jour 3-D Secure, le paiement en ligne a réussi dans __${f.pct(r.online_funnel.post_rate)}__ des cas`,
     lede: (r, f) =>
-      `Une tentative commence quand le client choisit de payer en ligne. La première semaine, ${f.pct(r.online_funnel.pre_rate)} des tentatives ont abouti à un paiement. Le 29 septembre, une mise à jour a ajouté l’authentification bancaire 3-D Secure, exigée par de nombreuses cartes européennes. Depuis le 30, ${f.pct(r.online_funnel.post_rate)} des tentatives aboutissent.`,
+      `Une tentative commence quand le client choisit de payer en ligne. La première semaine, ${f.pct(r.online_funnel.pre_rate)} des tentatives ont abouti à un paiement. Le 29 septembre, une mise à jour a ajouté l’authentification bancaire 3-D Secure, exigée par de nombreuses cartes européennes. Du 30 septembre au 3 octobre, ${f.pct(r.online_funnel.post_rate)} des tentatives ont abouti. Les tentatives ne sont comptées que jusqu’au 3 octobre\u00a0: depuis, une tentative abandonnée est effacée automatiquement et n’est plus enregistrée.`,
     successTitle: "Tentatives en ligne abouties, par soir",
     successSub: "Les traits indiquent la moyenne avant et après la mise à jour du 29 septembre.",
     before: (v) => `24–29 sept. · ${v} en moyenne`,
     after: (v) => `30 sept. – 3 oct. · ${v} en moyenne`,
-    outcomeTitle: (r, f) => `${f.int(r.online_funnel.intent)} tentatives de paiement en ligne depuis le lancement`,
+    outcomeTitle: (r, f) => `${f.int(r.online_funnel.intent)} tentatives de paiement en ligne sur les ${funnelNights(r)} premiers soirs`,
     outcomeSub: "Ce qu’est devenue chaque tentative, du 24 sept. au 3 oct.",
     outcomes: ["Payées en ligne", "Finalement réglées au comptoir", "Abandonnées"],
     ghostNote: (r, f) => {
@@ -455,7 +478,7 @@ const fr: Copy = {
     heatTitle: "Commandes payées par heure, en moyenne",
     heatSub: "Par soir de la semaine. Les heures après minuit sont rattachées à la soirée commencée la veille.",
     dowTitle: "Chiffre d’affaires moyen par soir",
-    dowSub: "Commandes payées uniquement. Deux ou trois soirs observés pour chaque jour de la semaine.",
+    dowSub: (r) => `Commandes payées uniquement. ${dowRange(r).join(" ou ")} soirs observés pour chaque jour de la semaine.`,
   },
   menu: {
     eyebrow: "Carte",
@@ -466,7 +489,7 @@ const fr: Copy = {
       return `Les chichas dominent largement\u00a0: **${f.eur(ch.rev)}** pour ${f.int(ch.units)} vendues, soit ${f.pct(chichaShare(r))} du chiffre d’affaires. Les chichas Premium et Classique rapportent à elles seules ${f.eur(r.top[0].rev + r.top[1].rev)}. Les boissons sont les plus vendues en volume (Coca-Cola\u00a0: ${f.int(coke.units)}) mais rapportent peu.`;
     },
     catsTitle: "Chiffre d’affaires par catégorie",
-    catsSub: "Commandes payées, du 18 sept. au 3 oct.",
+    catsSub: (r) => `Commandes payées, du ${frDay(first(r))} au ${frDay(last(r))}`,
     topTitle: "Les 10 articles qui rapportent le plus",
     topSub: "Avec les quantités vendues",
     sold: (v) => `${v} ventes`,
@@ -493,13 +516,13 @@ const fr: Copy = {
   nights: {
     eyebrow: "Soir par soir",
     title: "Le détail des chiffres",
-    cols: ["Soir", "Commandes payées", "Chiffre d’affaires", "Payées en ligne", "Part du chiffre d’affaires en ligne", "Attente au comptoir (médiane)", "Tentatives en ligne", "Abandonnées", "Annulées"],
+    cols: ["Soir", "Commandes payées", "Chiffre d’affaires", "Payées en ligne", "Part du chiffre d’affaires en ligne", "Attente au comptoir (médiane)", "Annulées"],
     total: "Total",
     method: (r, f) => [
-      "**Source.** Requêtes en lecture seule sur la base de production d’Ominin, le dimanche 4 octobre 2026. L’établissement n’est pas nommé et aucune donnée sur les clients ou le personnel n’a été extraite.",
+      `**Source.** Requêtes en lecture seule sur la base de production d’Ominin, le ${frDate(asDay(r.extracted))} ${r.extracted.slice(0, 4)}. L’établissement n’est pas nommé et aucune donnée sur les clients ou le personnel n’a été extraite.`,
       "**Soir de service.** De 5\u00a0h à 5\u00a0h, heure de Paris\u00a0: c’est à 5\u00a0h que l’établissement change de journée. Trois commandes de test du 16 septembre sont exclues.",
       "**De la commande à la cuisine.** Du moment où la commande est passée à la création de son ticket cuisine, qui intervient une fois la commande entièrement payée. L’impression prend ensuite quelques secondes.",
-      `**Tentative en ligne.** Commande pour laquelle le client a choisi de payer en ligne. Abandonnée\u00a0: jamais payée ni annulée. Le chiffre d’affaires correspond à l’argent réellement encaissé\u00a0: ${f.eur(r.totals.rev)} sur ${f.int(r.totals.paid)} commandes payées.`,
+      `**Tentative en ligne.** Commande pour laquelle le client a choisi de payer en ligne, comptée du 24 septembre au 3 octobre. Abandonnée\u00a0: jamais payée ni annulée. Le chiffre d’affaires correspond à l’argent réellement encaissé\u00a0: ${f.eur(r.totals.rev)} sur ${f.int(r.totals.paid)} commandes payées.`,
     ],
   },
   charts: {
