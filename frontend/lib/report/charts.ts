@@ -1,5 +1,5 @@
-import { dowIndex, isWeekend, onlineRevShare, onlineShare, type Copy, type Fmt } from "./copy";
-import type { Night, Report } from "./data";
+import { dowIndex, isWeekend, onlineRevShare, onlineShare, type Copy, type Day, type Fmt } from "./copy";
+import type { FunnelNight, Report } from "./data";
 
 /*
  * Graphiques de la page de résultats : SVG dessiné à la largeur réelle de son
@@ -100,13 +100,13 @@ function nightScale(f: Frame, n: number) {
   return { band, x: (i: number) => f.x0 + band * (i + 0.5) };
 }
 
-function weekendBands(f: Frame, nights: Night[], X: ReturnType<typeof nightScale>) {
+function weekendBands(f: Frame, nights: Day[], X: ReturnType<typeof nightScale>) {
   nights.forEach((n, i) => {
     if (isWeekend(n)) el("rect", { x: X.x(i) - X.band / 2, y: f.y1, width: X.band, height: f.y0 - f.y1, class: "wknd" }, f.svg);
   });
 }
 
-function nightAxis(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<typeof nightScale>) {
+function nightAxis(ctx: ChartContext, f: Frame, nights: Day[], X: ReturnType<typeof nightScale>) {
   const g = el("g", {}, f.svg);
   const roomy = X.band >= 30;
   nights.forEach((n, i) => {
@@ -117,7 +117,7 @@ function nightAxis(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<t
   });
 }
 
-function nightHits(ctx: ChartContext, f: Frame, nights: Night[], X: ReturnType<typeof nightScale>, html: (n: Night) => string, cross: boolean) {
+function nightHits<D extends Day>(ctx: ChartContext, f: Frame, nights: D[], X: ReturnType<typeof nightScale>, html: (n: D) => string, cross: boolean) {
   const g = el("g", {}, f.svg);
   const line = cross ? el("line", { class: "cross", y1: f.y1, y2: f.y0, visibility: "hidden" }, g) : null;
   nights.forEach((n, i) => {
@@ -211,7 +211,7 @@ function mix(host: HTMLElement, ctx: ChartContext) {
   const rh = 58;
   const f = frame(host, rows.length * rh, { t: 0, r: 0, b: 0, l: 0 }, c.adoption.mixTitle);
   rows.forEach((m, ri) => {
-    const label = c.adoption.mixRows[ri];
+    const label = c.adoption.mixRows(r)[ri];
     const y0 = ri * rh;
     text(f.svg, 0, y0 + 10, label, "lab-2");
     const present = PAYMENT_SEGMENTS.filter(([k]) => m[k] > 0);
@@ -309,15 +309,15 @@ function nightWait(host: HTMLElement, ctx: ChartContext) {
 
 function success(host: HTMLElement, ctx: ChartContext) {
   const { r, c, f: fmt } = ctx;
-  const { launch, after_fix } = r.milestones;
-  const S = r.nights.filter((n) => n.day >= launch);
+  const { after_fix } = r.milestones;
+  const S = r.online_funnel.nights;
   const f = frame(host, 270, { t: 30, r: 12, b: 40, l: 40 }, c.reliability.successTitle);
   const y = (v: number) => f.y0 - (v / 100) * (f.y0 - f.y1);
   yGrid(f, [0, 25, 50, 75, 100], y, (v) => fmt.pct(v));
   const X = nightScale(f, S.length);
   const w = Math.min(24, X.band * 0.55);
   const firstAfter = S.findIndex((n) => n.day >= after_fix);
-  const color = (n: Night) => (n.day >= after_fix ? "var(--r-online)" : "var(--r-quiet)");
+  const color = (n: FunnelNight) => (n.day >= after_fix ? "var(--r-online)" : "var(--r-quiet)");
   nightAxis(ctx, f, S, X);
   S.forEach((n, i) => {
     const v = (n.online / n.intent) * 100;
