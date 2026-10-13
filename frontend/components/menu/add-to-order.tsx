@@ -262,7 +262,8 @@ function shared(names: string[]): string {
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
-  const { orderingEnabled, canOrder, addLine, track, lines } = useCart();
+  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
+    useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -283,10 +284,17 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   if (!orderingEnabled) return null;
 
-  if (isUnavailable(item)) {
+  // Épuisé, ou coupé par une fermeture (la cuisine ne sert plus) : le plat
+  // reste à la carte, sans bouton. En click & collect, la fermeture se juge à
+  // l'heure de retrait, que le panier connaît seul.
+  if (isUnavailable(item) || (!collect && closed.has(item.id))) {
     return (
-      <span className="shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-faint">
-        Indisponible
+      <span
+        className={`shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold ${
+          isUnavailable(item) ? "text-faint" : "text-muted"
+        }`}
+      >
+        {isUnavailable(item) ? "Indisponible" : "Plus servi"}
       </span>
     );
   }
@@ -333,6 +341,15 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   return (
     <>
+      {/* Click & collect : coupé à l'heure jugée, le plat reste ajoutable — un
+          retrait plus tard ou un autre jour le servira. */}
+      {collect && closed.has(item.id) && (
+        <span className="mr-3 self-center text-xs text-muted">
+          {closedAt
+            ? "Plus servi à l’heure choisie"
+            : "Plus servi maintenant · possible pour un retrait plus tard"}
+        </span>
+      )}
       <button
         ref={buttonRef}
         type="button"

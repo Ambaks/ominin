@@ -82,7 +82,8 @@ export type Action =
   | "menu.availability"
   | "formules.edit"
   | "categories.edit"
-  | "etablissement.edit";
+  | "etablissement.edit"
+  | "fermetures.basculer";
 
 export interface Etablissement {
   id: string;
@@ -104,6 +105,11 @@ export interface Etablissement {
   paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
+  /**
+   * Sous ce total, le client règle au comptoir (le click & collect refuse la
+   * commande) ; null ⇒ aucun minimum.
+   */
+  onlineMinOrder: number | null;
   /**
    * Un code d'accès est posé : l'espace démarre alors en vue salle sur chaque
    * appareil, et les écrans du gérant se déverrouillent au code. Sans code,
@@ -290,6 +296,8 @@ export interface GestionState {
   formules: Formule[];
   /** Tarifs planifiés du restaurant, du plus récent au plus ancien. */
   priceRules: PriceRule[];
+  /** Fermetures, de la plus ancienne à la plus récente. */
+  closures: Closure[];
   tables: Table[];
   orders: Order[];
 }
@@ -300,12 +308,12 @@ export type PriceRuleDirection = "majoration" | "remise";
 export type PriceRuleUnit = "montant" | "pourcentage";
 
 /**
- * Ce que la règle vise. Une catégorie entière, ou un article nommé — jamais
- * les deux à la fois. Viser la catégorie fait hériter les articles qu'on y
- * ajoutera plus tard ; viser l'article permet de l'excepter de la règle de sa
- * catégorie (le plus précis l'emporte).
+ * Ce qu'un tarif planifié ou une fermeture vise. Une catégorie entière, ou un
+ * article nommé — jamais les deux à la fois. Viser la catégorie fait hériter
+ * les articles qu'on y ajoutera plus tard ; viser l'article permet, pour un
+ * tarif, de l'excepter de la règle de sa catégorie (le plus précis l'emporte).
  */
-export type PriceRuleTarget =
+export type MenuTarget =
   | { kind: "category"; id: string }
   | { kind: "item"; id: string };
 
@@ -327,5 +335,29 @@ export interface PriceRule {
   /** Antérieur à startsAt ⇒ le créneau passe minuit et tient de la veille. */
   endsAt: string | null;
   actif: boolean;
-  targets: PriceRuleTarget[];
+  targets: MenuTarget[];
+}
+
+/**
+ * Une fermeture : une partie de la carte que le client ne commande plus, à
+ * heure fixe ou d'un geste pendant le service. Tout se lit en heure de
+ * service (lib/gestion/fermetures.ts) : la journée repart ouverte à la
+ * bascule, et le forçage à la main ne vaut que pour la journée où il a été
+ * posé.
+ */
+export interface Closure {
+  id: string;
+  /** « Cuisine », « Bar » : ce que l'équipe lit sur son bouton. */
+  name: string;
+  /** Jours ISO de l'horaire ; null ⇒ fermeture à la main seulement. */
+  days: number[] | null;
+  /** "22:00" — présent avec days. */
+  startsAt: string | null;
+  /** null ⇒ jusqu'à la fin de la journée de service. */
+  endsAt: string | null;
+  /** Fermée (true) ou rouverte (false) à la main pour overrideDay. */
+  overrideClosed: boolean | null;
+  /** Journée de service du forçage, "2026-10-13". */
+  overrideDay: string | null;
+  targets: MenuTarget[];
 }

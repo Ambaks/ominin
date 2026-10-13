@@ -12,7 +12,7 @@ import { formatOpeningHours, isOpenAt } from "@/lib/collect/hours";
 import { isCollectActive } from "@/lib/collect/server";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { FORMULES_LINK, restaurantThemeClass } from "@/lib/menu-data";
+import { FORMULES_LINK, formatPrice, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { collectSiteUrl } from "@/lib/site";
 
@@ -87,8 +87,11 @@ export default async function CollectPage({
   const data = await getPage(slug);
   if (!data) notFound();
   const {
+    id,
     restaurant,
     onlinePayment,
+    onlineMinOrder,
+    closedItems,
     paymentProvider,
     squareLocationId,
     loyalty,
@@ -132,6 +135,9 @@ export default async function CollectPage({
         paymentProvider,
         squareLocationId,
         loyalty,
+        onlineMinOrder,
+        etablissementId: id,
+        closedItems,
         collect: { hours: openingHours, slotMinutes: collectSlotMinutes },
       }}
     >
@@ -161,7 +167,10 @@ export default async function CollectPage({
               {openNow ? "Ouvert : retrait dès que possible" : "Fermé : commandez pour plus tard"}
             </span>
             <span className="w-full text-xs text-muted">
-              Payé en ligne, prêt à l&apos;heure choisie · {formatOpeningHours(openingHours)}
+              Payé en ligne, prêt à l&apos;heure choisie
+              {onlineMinOrder !== null && ` · commande minimum ${formatPrice(onlineMinOrder)}`}
+              {" · "}
+              {formatOpeningHours(openingHours)}
             </span>
           </div>
         </div>

@@ -2,10 +2,12 @@ import type { OpeningHours } from "@/lib/collect/hours";
 import type { MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
+  Closure,
   Etablissement,
   Etape,
   Formule,
   Member,
+  MenuTarget,
   Order,
   OrderPayment,
   PriceRule,
@@ -39,6 +41,8 @@ export function rowToEtablissement(
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,
     collectSlotCapacity: row.collect_slot_capacity,
+    onlineMinOrder:
+      row.online_min_order === null ? null : Number(row.online_min_order),
     googleReviewUrl: row.google_review_url ?? undefined,
     adminPinSet: row.admin_pin_set,
     paymentPinSet: row.payment_pin_set,
@@ -173,6 +177,14 @@ export function rowToOrder(row: OrderRow): Order {
   };
 }
 
+const rowToTarget = (target: {
+  category_id: string | null;
+  item_id: string | null;
+}): MenuTarget =>
+  target.item_id
+    ? { kind: "item", id: target.item_id }
+    : { kind: "category", id: target.category_id as string };
+
 /**
  * Une règle de tarif et ses cibles. Les cibles arrivent embarquées par
  * PostgREST : la règle n'a aucun sens sans elles.
@@ -190,10 +202,22 @@ export function rowToPriceRule(
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     actif: row.actif,
-    targets: row.price_rule_targets.map((target) =>
-      target.item_id
-        ? { kind: "item" as const, id: target.item_id }
-        : { kind: "category" as const, id: target.category_id as string }
-    ),
+    targets: row.price_rule_targets.map(rowToTarget),
+  };
+}
+
+/** Une fermeture et ses cibles, embarquées comme celles d'un tarif. */
+export function rowToClosure(
+  row: Tables<"closures"> & { closure_targets: Tables<"closure_targets">[] }
+): Closure {
+  return {
+    id: row.id,
+    name: row.name,
+    days: row.days,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    overrideClosed: row.override_closed,
+    overrideDay: row.override_day,
+    targets: row.closure_targets.map(rowToTarget),
   };
 }

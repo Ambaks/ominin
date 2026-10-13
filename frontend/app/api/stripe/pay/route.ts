@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   connectedAccount,
   getStripe,
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
     await Promise.all([
       admin
         .from("etablissements")
-        .select("name, online_payment, platform_fee_percent, collect_fee_percent")
+        .select("name, online_payment, online_min_order, platform_fee_percent, collect_fee_percent")
         .eq("id", order.etablissement_id)
         .single(),
       admin
@@ -100,6 +101,14 @@ export async function POST(request: Request) {
     (sum, line) => sum + line.unit_price * line.quantity,
     0
   );
+  const belowMinimum = onlineMinimumError(
+    lines,
+    etab.online_min_order,
+    order.type === "collect"
+  );
+  if (belowMinimum) {
+    return NextResponse.json({ error: belowMinimum }, { status: 409 });
+  }
   const tip =
     typeof tipAmount === "number" && Number.isFinite(tipAmount) && tipAmount > 0
       ? Math.min(Math.round(tipAmount * 100) / 100, orderTotal)

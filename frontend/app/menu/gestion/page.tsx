@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
 import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
+import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu-data";
@@ -249,6 +250,8 @@ export default function ApercuPage() {
           />
         </div>
       )}
+
+      {hasCommandes && <FermeturesEnCours state={state} />}
 
       {topVentesJour.length > 0 && (
         <section className="flex flex-col gap-3">

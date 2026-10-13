@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
 import { ProfileRow } from "@/components/gestion/profile-row";
-import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
+import { SERVICE_CLOCK_TICK_MS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { closureActive, serviceClock } from "@/lib/gestion/fermetures";
 import { unavailableItems } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
@@ -30,6 +32,11 @@ function ServiceClock() {
 
 export function CuisinierApercu({ state }: { state: GestionState }) {
   const indispo = unavailableItems(state);
+  const now = useNow(WAIT_TICK_MS);
+  // Une fermeture en cours : « toute la carte est en vente » la démentirait.
+  const closed = state.closures.some((closure) =>
+    closureActive(closure, serviceClock(now, state.dayEndHour), state.dayEndHour)
+  );
   const today = new Date().toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
@@ -63,6 +70,8 @@ export function CuisinierApercu({ state }: { state: GestionState }) {
           </div>
         </div>
       </section>
+
+      <FermeturesEnCours state={state} />
 
       {indispo.length > 0 ? (
         <section
@@ -99,7 +108,9 @@ export function CuisinierApercu({ state }: { state: GestionState }) {
           className="rise rounded-2xl border border-dashed border-hairline p-6 text-center"
           style={{ animationDelay: `${RISE_STEP_MS}ms` }}
         >
-          <p className="text-sm text-muted">Toute la carte est en vente.</p>
+          <p className="text-sm text-muted">
+            {closed ? "Aucun article épuisé." : "Toute la carte est en vente."}
+          </p>
           <p className="mt-1 text-xs text-faint">
             Un article épuisé se retire depuis l&rsquo;onglet Menu ; il
             réapparaît ici.
