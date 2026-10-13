@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 
   const choicesOk =
     oneOf(clientTypes, body.client) && oneOf(projectTypes, body.type) && oneOf(surfaceRanges, body.surface) && oneOf(timings, body.delai);
-  if (!body.nom || !body.ville || !body.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) || !choicesOk) {
+  if (!body.nom || !body.ville || !body.email || !body.telephone || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email) || !choicesOk) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });
   }
 

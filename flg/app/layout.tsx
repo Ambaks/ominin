@@ -4,7 +4,7 @@ import { indexable } from "@/lib/site";
 import "./globals.css";
 
 const description =
-  "Aérogommage de charpentes, plafonds, façades, escaliers et ouvrages métalliques à Toulouse, Montauban, Albi et dans toute l'Occitanie. Décapage à sec, basse pression, sans produit chimique. Devis gratuit.";
+  "Aérogommage de charpentes, plafonds, façades, escaliers, poutres et sols à Toulouse, Montauban, Albi, Carcassonne et Auch. Décapage à sec, basse pression, sans produit chimique. Devis gratuit.";
 
 export const metadata: Metadata = {
   metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,

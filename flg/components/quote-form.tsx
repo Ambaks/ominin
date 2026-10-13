@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Arrow, buttonClass } from "@/components/button";
 import { Choices, Field } from "@/components/form";
-import { clientTypes, projectTypes, responseTime, surfaceRanges, timings } from "@/lib/devis";
+import { clientTypes, projectTypes, surfaceRanges, timings } from "@/lib/devis";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
@@ -29,7 +29,7 @@ export function QuoteForm() {
           Demande <em>reçue.</em>
         </p>
         <p className="lead max-w-lg text-muted">
-          Nous revenons vers vous sous {responseTime}. Vous pourrez répondre à notre e-mail avec des photos du chantier.
+          Nous vous recontactons pour organiser la visite. Vous pourrez répondre à notre e-mail avec des photos du chantier.
         </p>
       </div>
     );
@@ -45,9 +45,9 @@ export function QuoteForm() {
         <Field label="Nom" name="nom" required autoComplete="name" />
         <Field label="Ville du chantier" name="ville" required autoComplete="address-level2" />
         <Field label="E-mail" name="email" type="email" required autoComplete="email" />
-        <Field label="Téléphone" name="telephone" type="tel" autoComplete="tel" />
+        <Field label="Téléphone" name="telephone" type="tel" required autoComplete="tel" />
       </div>
-      <Field label="Le chantier en quelques mots" name="message" multiline placeholder="Support, couche à retirer, accès, délai souhaité…" />
+      <Field label="Le chantier en quelques mots" name="message" multiline />
       <div aria-hidden className="absolute -left-[9999px]">
         <label>
           Site web
@@ -64,7 +64,6 @@ export function QuoteForm() {
           <span className="relative">{status === "sending" ? "Envoi…" : "Envoyer la demande"}</span>
           <Arrow className="relative transition-transform duration-500 ease-out group-hover/btn:translate-x-1" />
         </button>
-        <p className="text-[0.9rem] text-muted">Devis gratuit, sans engagement. Réponse sous {responseTime}.</p>
       </div>
       {status === "error" && (
         <p role="alert" className="text-accent-text">

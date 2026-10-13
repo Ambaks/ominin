@@ -1,7 +1,5 @@
 import { BeforeAfter } from "@/components/before-after";
 import { Button } from "@/components/button";
-import { responseTime } from "@/lib/devis";
-import { Faq } from "@/components/faq";
 import { Gommage } from "@/components/gommage";
 import { Marquee } from "@/components/marquee";
 import { CurtainImage, MotionProvider, ParallaxImage, Reveal, RiseText } from "@/components/motion";
@@ -14,7 +12,7 @@ import {
   audiences,
   cases,
   comparison,
-  faq,
+  contact,
   featured,
   navCta,
   navLinks,
@@ -27,7 +25,6 @@ import {
 
 import plafondApres from "@/assets/chantiers/plafond-apres.jpg";
 import plafondSalon from "@/assets/chantiers/plafond-salon.jpg";
-import atelierMoule from "@/assets/chantiers/atelier-moule.jpg";
 import protectionFilm from "@/assets/chantiers/protection-film.jpg";
 import protectionBaie from "@/assets/chantiers/protection-baie.jpg";
 import auventEchafaudage from "@/assets/chantiers/auvent-echafaudage.jpg";
@@ -84,11 +81,12 @@ export default function Home() {
               <p className="label mb-8 text-muted">
                 Aérogommage <span className="text-accent-text">·</span> {zone.join(" · ")}
               </p>
-              <RiseText as="h1" onView={false} delay={0.15} text="La matière, *révélée.*" className="display display-xl" />
+              <RiseText as="h1" onView={false} delay={0.15} text="La matière *révélée.*" className="display display-xl" />
               <Reveal delay={0.7}>
                 <p className="lead mt-10 max-w-xl text-fg/80">
-                  Le décapage des grandes surfaces — charpentes, plafonds, auvents, façades — pour architectes,
-                  entreprises, collectivités et propriétaires. À sec, à basse pression, sans produit chimique.
+                  Décapage de grandes surfaces — charpentes, plafonds, façades, escaliers, poutres, sols — en bois,
+                  métal, pierre et tomette. Nous travaillons pour des architectes, des entreprises de rénovation, des
+                  collectivités et des particuliers.
                 </p>
                 <div className="mt-12 flex flex-wrap items-center gap-4">
                   <Button href="#devis">Demander un devis</Button>
@@ -96,7 +94,7 @@ export default function Home() {
                     Voir les chantiers
                   </Button>
                 </div>
-                <p className="label mt-8 text-muted">Devis gratuit · Réponse sous {responseTime}</p>
+                <p className="label mt-8 text-muted">Devis gratuit</p>
               </Reveal>
             </div>
             <div className="lg:col-span-5">
@@ -108,10 +106,7 @@ export default function Home() {
                 hint={{ mouse: "Passez le curseur pour décaper", touch: "Glissez le doigt pour décaper" }}
                 className="aspect-[4/5] w-full lg:aspect-auto lg:h-[76svh]"
               />
-              <p className="label mt-4 flex justify-between gap-4 text-muted">
-                <span>Plafond à solives</span>
-                <span>Peinture retirée, bois d&apos;origine</span>
-              </p>
+              <p className="label mt-4 text-muted">La peinture est décapée, le bois retrouve son aspect d&apos;origine.</p>
             </div>
           </div>
         </section>
@@ -121,7 +116,7 @@ export default function Home() {
         </div>
 
         <section aria-label="Le procédé en bref" className="shell py-[var(--section)]">
-          <div className="grid gap-px bg-line md:grid-cols-3">
+          <div className="grid gap-px bg-line md:grid-cols-2">
             {proofs.map((p, i) => (
               <Reveal
                 key={p.label}
@@ -191,19 +186,6 @@ export default function Home() {
                   <Facts facts={c.facts} />
                 </Reveal>
               ))}
-              <Reveal>
-                <CurtainImage
-                  src={atelierMoule}
-                  alt="Aérogommage d'un moule industriel en atelier"
-                  sizes={half}
-                  className="aspect-[4/5]"
-                />
-                <p className="label mt-6 text-accent-text">Industrie · Atelier</p>
-                <h3 className="display display-s mt-3">Pièces industrielles</h3>
-                <p className="mt-3 max-w-md text-muted">
-                  Moules et pièces mécaniques : nettoyage et préparation de surface, sans altérer les cotes.
-                </p>
-              </Reveal>
             </div>
 
             <div className="mt-24 grid gap-6 md:mt-32 md:grid-cols-12">
@@ -315,7 +297,7 @@ export default function Home() {
 
         <section className="pb-[var(--section)]">
           <div className="shell">
-            <SectionHead n="04" title="Pour qui" intro="Ceux qui ont de grandes surfaces à rendre à leur matière d'origine." />
+            <SectionHead n="04" title="Pour qui" />
             <div className="grid gap-16 md:grid-cols-12">
               <ParallaxImage
                 src={plafondSalon}
@@ -385,42 +367,21 @@ export default function Home() {
                 </tbody>
               </table>
             </Reveal>
-            <CtaBand title="Visite et devis gratuits, partout en Occitanie." />
-          </div>
-        </section>
-
-        <section id="questions" className="scroll-mt-18 py-[var(--section)]">
-          <div className="shell grid gap-16 md:grid-cols-12">
-            <div className="md:col-span-4">
-              <p className="label tabular mb-6 text-accent-text">06</p>
-              <RiseText text="Questions *avant devis.*" className="display display-l" />
-            </div>
-            <div className="md:col-span-8">
-              <Faq items={faq} />
-            </div>
           </div>
         </section>
 
         <section id="devis" className="surface-chaux scroll-mt-18 py-[var(--section)]">
           <div className="shell grid gap-16 md:grid-cols-12">
             <div className="md:col-span-5">
-              <p className="label tabular mb-6 text-accent-text">07 · Devis</p>
+              <p className="label tabular mb-6 text-accent-text">06 · Contact</p>
               <RiseText text="Parlons de *votre chantier.*" className="display display-l" />
               <p className="lead mt-8 max-w-md text-muted">
-                Décrivez l&apos;ouvrage et sa surface : nous revenons vers vous sous {responseTime} pour organiser la visite.
+                Décrivez en quelques mots ce que vous attendez de nous, ou appelez au{" "}
+                <a href={contact.phoneHref} className="whitespace-nowrap text-fg underline decoration-accent underline-offset-4">
+                  {contact.phone}
+                </a>
+                .
               </p>
-              <dl className="mt-12 border-t border-line">
-                {[
-                  ["Zone", `${zone.join(", ")} et toute l'Occitanie`],
-                  ["Devis", "Gratuit, sans engagement"],
-                  ["Délai de réponse", responseTime],
-                ].map(([k, v]) => (
-                  <div key={k} className="grid grid-cols-[9rem_1fr] gap-4 border-b border-line py-4">
-                    <dt className="label pt-1 text-muted">{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
             </div>
             <div className="relative md:col-span-6 md:col-start-7">
               <QuoteForm />
@@ -431,29 +392,22 @@ export default function Home() {
 
       <footer className="overflow-hidden border-t border-line">
         <div className="shell flex flex-col gap-16 py-16">
-          <div className="grid gap-10 md:grid-cols-12">
-            <div className="md:col-span-5">
-              <Logo />
-              <p className="mt-6 max-w-sm text-muted">
-                Aérogommage de charpentes, plafonds, façades et ouvrages métalliques en Occitanie.
-              </p>
-            </div>
-            <nav aria-label="Pied de page" className="md:col-span-3 md:col-start-7">
-              <ul className="flex flex-col gap-3">
-                {[...navLinks, navCta].map((l) => (
-                  <li key={l.href}>
-                    <a href={l.href} className="text-muted transition-colors hover:text-fg">
-                      {l.label}
-                    </a>
-                  </li>
-                ))}
+          <div className="flex flex-wrap items-baseline justify-between gap-8">
+            <Logo />
+            <nav aria-label="Pied de page">
+              <ul className="flex flex-wrap gap-x-8 gap-y-3">
+                <li>
+                  <a href="/cgv" className="text-muted transition-colors hover:text-fg">
+                    Conditions générales de vente
+                  </a>
+                </li>
+                <li>
+                  <a href="#devis" className="text-muted transition-colors hover:text-fg">
+                    Contact
+                  </a>
+                </li>
               </ul>
             </nav>
-            <div className="md:col-span-3">
-              <p className="label mb-3 text-muted">Zone d&apos;intervention</p>
-              <p>{zone.join(" · ")}</p>
-              <p className="text-muted">et toute l&apos;Occitanie</p>
-            </div>
           </div>
           <p aria-hidden className="display select-none text-[clamp(7rem,30vw,26rem)] leading-[0.75] text-fg/[0.06]">
             FLG
