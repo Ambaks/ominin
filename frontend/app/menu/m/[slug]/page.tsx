@@ -9,10 +9,12 @@ import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
+import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { FORMULES_LINK, restaurantThemeClass } from "@/lib/menu-data";
+import { brandName, FORMULES_LINK, restaurantThemeClass } from "@/lib/menu-data";
+import { tableParam } from "@/lib/menu/table-param";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -35,7 +37,7 @@ export async function generateMetadata({
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
   const { restaurant } = data;
-  const title = `${restaurant.name} — Menu`;
+  const title = `${brandName(restaurant)} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
   const shareImage = restaurant.coverImage ?? restaurant.poster;
   const images = shareImage ? [shareImage] : undefined;
@@ -66,9 +68,12 @@ export default async function MenuPage({
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
   const {
+    id,
     restaurant,
     offre,
     onlinePayment,
+    onlineMinOrder,
+    closedItems,
     paymentProvider,
     squareLocationId,
     serviceMode,
@@ -85,9 +90,7 @@ export default async function MenuPage({
     banner != null &&
     formules.some((formule) => banner.formules.includes(formule.name));
 
-  const parsedTable = Number(Array.isArray(table) ? table[0] : table);
-  const tableNumber =
-    Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
+  const tableNumber = tableParam(table);
   const orderingEnabled = offre === "smart" || offre === "connect";
   // Fast food : un seul QR, au comptoir ; on commande sans table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
@@ -145,9 +148,13 @@ export default async function MenuPage({
         serviceMode,
         restaurantName: restaurant.name,
         onlinePayment: orderingEnabled && onlinePayment,
+        onlineMinOrder,
         paymentProvider,
         squareLocationId,
         loyalty,
+        // Sans commande, rien à fermer : pas de relecture.
+        etablissementId: orderingEnabled ? id : undefined,
+        closedItems: orderingEnabled ? closedItems : undefined,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
@@ -162,6 +169,7 @@ export default async function MenuPage({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <MenuTicker items={restaurant.ticker} />
         <Hero
           restaurant={restaurant}
           firstSectionId={categoryLinks[0]?.id}

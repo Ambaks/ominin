@@ -1,0 +1,2016 @@
+{
+ "generated": "2026-10-03",
+ "base_dir": "assets/big-smash",
+ "summary": {
+  "brand": 26,
+  "bigsmash_fr_products": 74,
+  "deliveroo_products": 78,
+  "storefronts": 9,
+  "gmaps": 6,
+  "instagram": 6
+ },
+ "brand_and_reference": [
+  {
+   "file": "logo-horizontal-blanc.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/67d168cd13519a6fd71ec6ce_BIG-SMASH-Horizontal-blanc.svg",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "vector (viewBox 0 0 624.425 177.102)",
+   "bytes": 3186,
+   "shows": "Official horizontal wordmark \"BIG SMASH\" (white fill #fff, Adobe Illustrator export) used in site header",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "logo-horizontal-rouge-DERIVED.svg",
+   "source_url": "derived from logo-horizontal-blanc.svg",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "vector (viewBox 0 0 624.425 177.102)",
+   "bytes": 3189,
+   "shows": "Same official wordmark recoloured to brand print red #D1000E",
+   "accessed": "2026-10-03",
+   "note": "DERIVED by Ominin (fill swap only), not published by Big Smash"
+  },
+  {
+   "file": "logo-horizontal-blanc-2400-DERIVED.png",
+   "source_url": "rendered from logo-horizontal-blanc.svg (rsvg-convert)",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "2400x681",
+   "bytes": 44969,
+   "shows": "White wordmark on transparent, 2400 px wide",
+   "accessed": "2026-10-03",
+   "note": "DERIVED render"
+  },
+  {
+   "file": "logo-horizontal-rouge-2400-DERIVED.png",
+   "source_url": "rendered from logo-horizontal-rouge-DERIVED.svg",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "2400x681",
+   "bytes": 52690,
+   "shows": "Red #D1000E wordmark on transparent, 2400 px wide",
+   "accessed": "2026-10-03",
+   "note": "DERIVED render"
+  },
+  {
+   "file": "badge-logo.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/68278ca01b8742d6e2a540fb_BS-Badge-logo.svg",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "vector (viewBox 0 0 600 600)",
+   "bytes": 957,
+   "shows": "Official \"BIG\" monogram (letters B-I-G rotated 90°, stacked) in white — vector of the app-icon mark",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "monogram-big-rouge-DERIVED.svg",
+   "source_url": "derived from badge-logo.svg",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "vector (viewBox 0 0 600 600)",
+   "bytes": 960,
+   "shows": "BIG monogram recoloured #D1000E",
+   "accessed": "2026-10-03",
+   "note": "DERIVED by Ominin (fill swap only)"
+  },
+  {
+   "file": "monogram-big-rouge-1024-DERIVED.png",
+   "source_url": "rendered from monogram-big-rouge-DERIVED.svg",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "1024x1024",
+   "bytes": 11188,
+   "shows": "Red BIG monogram 1024x1024 PNG (transparent)",
+   "accessed": "2026-10-03",
+   "note": "DERIVED render"
+  },
+  {
+   "file": "webclip-app-icon.png",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/67f58aa8b0fc2e2f81bb2ea0_BIGSMASH-Webclip.png",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "256x256",
+   "bytes": 5449,
+   "shows": "Apple touch icon: red (#D1000E) BIG monogram on transparent",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "favicon.png",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/67f58aa468d0b10969507f96_BIGSMASH-Favicon.png",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "32x32",
+   "bytes": 2177,
+   "shows": "Favicon 32x32: red BIG monogram",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "og-image-rouge.jpg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/683dba6aca71545545b816cb_BIG-SMASH-Opengraph-rouge.jpg",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "1200x630",
+   "bytes": 92559,
+   "shows": "OpenGraph image: red (#D2000E) wordmark inside white 3-D extruded block, on solid red; shows the ® and the extruded-block lockup",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "badge-text-franchise.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/68278ca0744e3cbd3212c733_BS-Badge-text.svg",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "vector (viewBox 0 0 600 600)",
+   "bytes": 15521,
+   "shows": "Circular rotating badge text \"BIG SMASH • DEVENIR FRANCHISÉ\" (black on white ring)",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "badge-text-equipe.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/686539ac2b7a2c4dc0a61e42_BS-Badge-text-equipe.svg",
+   "page": "https://www.bigsmash.fr/equipe",
+   "pixel_size": "vector (viewBox 0 0 600 600)",
+   "bytes": 17345,
+   "shows": "Circular badge text \"BIG SMASH • REJOINDRE L'ÉQUIPE\"",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "icon-click-and-collect.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/683f18a53ba19cf9d27c7475_PICTO-CLICK-AND-COLLECT.svg",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "vector (viewBox 0 0 412.24 196.53)",
+   "bytes": 5207,
+   "shows": "\"CLICK & COLLECT\" pictogram: red heavy italic caps on slanted white parallelogram with cursor",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "icon-burger.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6862a305083f2bffbed8f823_BS-Burger-icon.svg",
+   "page": "https://www.bigsmash.fr/equipe",
+   "pixel_size": "vector (viewBox 0 0 337.647 394.282)",
+   "bytes": 2444,
+   "shows": "Line icon of a burger (white outline) — house icon style (rounded line icons)",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "pattern-fond-bs.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6821b2d95033579cab31e1d4_Fond-BS.svg",
+   "page": "https://www.bigsmash.fr/ (CSS: big-smash-2.webflow.shared.3fbca3803.css)",
+   "pixel_size": "vector (viewBox 0 0 1987.5 1253.7)",
+   "bytes": 459595,
+   "shows": "Background texture: brush-stroke zig-zag \"smash\" pattern (.background-bs-2.blanc, 7% opacity); used tone-on-tone over the red background",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "pattern-fond-bs-2.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6822226c13b9b69894b01171_Fond-BS-2.svg",
+   "page": "https://www.bigsmash.fr/ (CSS: big-smash-2.webflow.shared.3fbca3803.css)",
+   "pixel_size": "vector (viewBox 0 0 1987.5 1253.7)",
+   "bytes": 459339,
+   "shows": "Background texture: brush-stroke zig-zag pattern variant (.background-bs-2, 7% opacity); used tone-on-tone over the red background",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "pattern-fond-bs-big.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6846df4435b5bec5a41a8e20_Fond-BS-BIG.svg",
+   "page": "https://www.bigsmash.fr/ (CSS: big-smash-2.webflow.shared.3fbca3803.css)",
+   "pixel_size": "vector (viewBox 0 0 1987.5 1253.7)",
+   "bytes": 74936,
+   "shows": "Background texture: large brush-stroke pattern (.background-bs, 15% opacity, repeat-x); used tone-on-tone over the red background",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "pattern-fond-bs-big-2.svg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6846df443a84bf7d9ced69bd_Fond-BS-BIG-2.svg",
+   "page": "https://www.bigsmash.fr/ (CSS: big-smash-2.webflow.shared.3fbca3803.css)",
+   "pixel_size": "vector (viewBox 0 0 1987.5 1253.7)",
+   "bytes": 74945,
+   "shows": "Background texture: large brush-stroke pattern grey variant (.background-bs.gris, 10% opacity); used tone-on-tone over the red background",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "photo-home-dsc07222.webp",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6826ebbdd69897fd19caf5c8_DSC07222.webp",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "1711x1982",
+   "bytes": 679642,
+   "shows": "Lifestyle photo: hands holding a triple-patty smash burger with melted cheddar and ketchup, pink nails, warm grain — \"Notre histoire\" section",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "photo-franchise-dsc07907.webp",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/68276500fcf4f6f6757475be_DSC07907.webp",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "1489x1813",
+   "bytes": 483788,
+   "shows": "Lifestyle photo: tender dipped in orange spicy sauce, red BIG fry box, backlit BIG sign in restaurant behind (interior reference)",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "photo-franchise-plan-de-travail-21.jpg",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/682764c2544130f1664fc225_Plan%20de%20travail%2021.jpg",
+   "page": "https://www.bigsmash.fr/franchise",
+   "pixel_size": "1080x1350",
+   "bytes": 431365,
+   "shows": "Campaign mock-up: Chicago street, red billboard \"SMASH\" with 3 burgers, person in red puffer jacket with \"BIG SMASH\" back print",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "photo-equipe-dsc06959.webp",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/6862bcc967aaa43667be45c2_DSC06959.webp",
+   "page": "https://www.bigsmash.fr/equipe",
+   "pixel_size": "1066x1331",
+   "bytes": 350346,
+   "shows": "Lifestyle photo: sauce squeezed on crinkle cheddar-bacon fries in red box printed \"SMASH BURGER / ORIGINAL HOT-DOG / MILK SHAKE\"; red interior blurred behind",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "slider-15-premiere-commande.webp",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/68470a8195a618d421834286_BIGSMASH_15_COMMANDE-SILDER-2.webp",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "2500x1357",
+   "bytes": 108236,
+   "shows": "Homepage hero slide \"-15% sur ta première commande\": white take-away bag with vertical red BIG SMASH, sticker \"Merci pour ta commande … 68 Rue de Bayard 31000 Toulouse\", red brush pattern background",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "slider-thes-limonades.webp",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/683ecc11c412ae2dedba1630_BIGSMASH_THES-LIMONADES-SLIDER.webp",
+   "page": "https://www.bigsmash.fr/",
+   "pixel_size": "2500x1357",
+   "bytes": 216288,
+   "shows": "Homepage hero slide \"THÉS & LIMONADES\": 4 iced drinks in clear BIG-branded cups (Red Berry, Fizz Yuzu, Thé Blanc Tropical, Red Cherry), comic-burst red background, huge heavy white type",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "origine-des-viandes.png",
+   "source_url": "https://cdn.prod.website-files.com/67d1526a4a9145ae97541f0d/681914af06bfe0372e88799d_ORIGNE%20DES%20VIANDES%20.png",
+   "page": "https://www.bigsmash.fr/ (FAQ link)",
+   "pixel_size": "2000x1414",
+   "bytes": 138711,
+   "shows": "\"ORIGINE DES VIANDES\" table (transcribed in research/06) — also shows the red extruded-block logo lockup",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "vendor-6xpos-logo.webp",
+   "source_url": "https://cdn.6xpos.shop/bigsmash/logo.png",
+   "page": "https://shop.bigsmash.fr/mode-de-vente/toulouse-matabiau",
+   "pixel_size": "312x312",
+   "bytes": 5234,
+   "shows": "NOT a Big Smash asset: logo of 6X POS, the POS/ordering vendor behind shop.bigsmash.fr (useful competitive context)",
+   "accessed": "2026-10-03"
+  },
+  {
+   "file": "gmaps-matabiau-storefront-terrace.jpg",
+   "source_url": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmJeAxkHcvZXC7Bc32Q8VtdqPsxM1l7E7Ikyu_NFMGfa7szMbaNTn9oxcSpG4y3cBcy_f8rqUoGkYKKUjiFLe0d8ffiwPc0rLQZPgmW-i2Zk0NgMsCHxqFwEjskw5WD44YcR2t88w=w1200-h1600-k-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1200x1600",
+   "bytes": 586491,
+   "shows": "Matabiau storefront (owner/profile photo): two Toulouse brick arches, black fascias — left \"SMASH BURGER  ORIGINAL HOT-DOG  MILKSHAKE\", right white \"BIG SMASH®\" — red metal chairs on terrace, red interior visible",
+   "accessed": "2026-10-03",
+   "note": "Google Maps listing photo — colour reference only, rights unclear"
+  },
+  {
+   "file": "gmaps-matabiau-owner-post-big-spicy-edition.jpg",
+   "source_url": "https://lh3.googleusercontent.com/geougc/AF1QipOB9KDYLV7wjPrB6COwIDMqpMsmhwKDmrfozkR5=w1200-h1600-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1080x1350",
+   "bytes": 1120786,
+   "shows": "Owner post \"BIG SPICY ÉDITION\" (14 Apr 2026): neon-outline red type, Popcorn Chicken Spicy, Sundae Mango Spicy, Limonade Mango Spicy, Taco Smash Spicy, Little Wrap Spicy, Chicken/Smash Spicy, Frites Spicy",
+   "accessed": "2026-10-03",
+   "note": "Google Maps owner update image — reference only"
+  },
+  {
+   "file": "gmaps-matabiau-owner-poster-big-chicken-chicken-spicy.jpg",
+   "source_url": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWnpW4hPsKBVKCkooHQ42kBWXeewHjwcgH79oDUc6xgQZGQcxCfahuDVGBv9W20l2deoT7IWbgX2jsEaVn9SJewlx5phHpcbwE5AgYGshZFK2o-5ZVBxf8_ScxlHSbKqSqOz8E80=w1200-h1600-k-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1080x1080",
+   "bytes": 1336161,
+   "shows": "Poster split white/red torn paper: \"LE BIG CHICKEN\" / \"LE CHICKEN SPICY\", heavy condensed italic caps, BIG monogram",
+   "accessed": "2026-10-03",
+   "note": "Google Maps listing photo — reference only"
+  },
+  {
+   "file": "gmaps-matabiau-storefront-street.jpg",
+   "source_url": "https://lh3.googleusercontent.com/grass-cs/ACvplmP38yCO-sCQgYexffR2Yum79iQFrZKThtJdeHpbPDR7hzbZBovXrRnko8LHjddKdbmzv6-lCTbZQZRlExNT_Hp-s8UgO3NpuSFznpudC2lG56dkKHcCxzX9reXhePL0FZYFxzpQfuvGh1iw=w1200-h900-p-k-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1200x900",
+   "bytes": 307780,
+   "shows": "Customer photo: Matabiau street view, brick arcades, black fascia, big white BIG monogram window decal, red terrace furniture",
+   "accessed": "2026-10-03",
+   "note": "Google Maps customer review photo — colour reference only, do not publish"
+  },
+  {
+   "file": "gmaps-matabiau-interior-counter.jpg",
+   "source_url": "https://lh3.googleusercontent.com/grass-cs/ACvplmPs0yetGMrB_7bj_xZtccrqNxKJKqu1inEw4qREUOJYIbk0q1g-jvjds7f8qUHanTrMzRzXax5mthlqD3rAi_YHyoOehzI73wWSo6MGJCslJowFHPZuMpat24om4egK6b9ly-KqJWdclwEw=w1200-h900-p-k-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1200x900",
+   "bytes": 152164,
+   "shows": "Customer photo: interior — red walls, white counter, black-on-white \"ORDER\" / \"PICK UP\" signage, LED strip, staff in red BIG t-shirt",
+   "accessed": "2026-10-03",
+   "note": "Google Maps customer review photo — colour reference only, do not publish"
+  },
+  {
+   "file": "gmaps-matabiau-tray-big-cheese.jpg",
+   "source_url": "https://lh3.googleusercontent.com/grass-cs/ACvplmMTAZIIyGvwZO9hCMUsmO_bQHlBrXNje7kYvS2J0QPHf0bs5zhNZso-BNe61pLSa-5dvUJqGMXRc8301sgqlxdHGqsGAStcuO2kkEripX6BmNvVlFyMbjydy-vf4TZ4dwDggwN1MLJbKwfQ=w1200-h900-p-k-no",
+   "page": "https://www.google.com/maps/place/?q=place_id:ChIJR1vj4XS9rhIR7_SQAWKbs6c",
+   "pixel_size": "1200x900",
+   "bytes": 177330,
+   "shows": "Customer photo: red plastic tray, wrapped Big Cheese with order ticket, crinkle fries in red BIG box, pink lemonade",
+   "accessed": "2026-10-03",
+   "note": "Google Maps customer review photo — colour reference only, do not publish"
+  },
+  {
+   "file": "storefronts/shop-center-toulouse-matabiau.jpeg",
+   "source_url": "https://bigsmash.6xpos.shop/resources/bigsmash/toulouse-matabiau-vrheuvh7di.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "199x265",
+   "bytes": 29140,
+   "shows": "Toulouse Matabiau storefront (tiny)",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-toulouse-croix-de-pierre.jpeg",
+   "source_url": "https://bigsmash.6xpos.shop/resources/bigsmash/toulouse-croix-de-pierre-opsxlrlmom.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "287x510",
+   "bytes": 30099,
+   "shows": "Toulouse Croix de Pierre storefront",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-montpellier.jpeg",
+   "source_url": "https://bigsmash.6xpos.shop/resources/bigsmash/montpellier-mhuzcxmazl.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "1536x2048",
+   "bytes": 720622,
+   "shows": "Montpellier storefront",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-echirolles.jpeg",
+   "source_url": "https://bigsmash.6xpos.shop/resources/bigsmash/echirolles-cfdnrafujd.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "2048x1536",
+   "bytes": 606196,
+   "shows": "Échirolles storefront",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-muret.jpeg",
+   "source_url": "https://bigsmash.6xpos.shop/resources/bigsmash/muret-tya4zyog0q.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "2268x4032",
+   "bytes": 1976298,
+   "shows": "Muret storefront (red awning, window slogan)",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-fenouillet-bs-ns.jpeg",
+   "source_url": "https://shop.bigsmash.fr/resources/bigsmash/toulouse-fenouillet-big-smash-x-new-school-kkwhjbic3z.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "1206x2102",
+   "bytes": 469861,
+   "shows": "Fenouillet \"BIG SMASH ⚡ NEW SCHOOL\" co-branded fascia",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-lyon-bs-ns.jpeg",
+   "source_url": "https://shop.bigsmash.fr/resources/bigsmash/lyon-big-smash-x-new-school-x4xgolvea3.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "1600x1200",
+   "bytes": 492060,
+   "shows": "Lyon (Big Smash x New School) storefront",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-blagnac.jpeg",
+   "source_url": "https://shop.bigsmash.fr/resources/bigsmash/toulouse-blagnac-sdayt1g5xm.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "3213x5712",
+   "bytes": 4206552,
+   "shows": "Blagnac storefront: red fascia, illuminated white wordmark, stacked BIG/SMASH window lockup, slogan \"THE BEST SMASH BURGERS ARE MADE IN AMERICA\" with red graffiti \"HERE\"",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "storefronts/shop-center-montaudran.jpeg",
+   "source_url": "https://shop.bigsmash.fr/resources/bigsmash/toulouse-montaudran-gexwod1nes.jpeg",
+   "page": "https://shop.bigsmash.fr/point-de-vente/choix (embedded center data)",
+   "pixel_size": "3213x5712",
+   "bytes": 4095379,
+   "shows": "Montaudran storefront: same window slogan, red graffiti \"HERE\", red chairs inside",
+   "accessed": "2026-10-03",
+   "note": "From Big Smash's own click & collect site (6X POS)"
+  },
+  {
+   "file": "instagram/ig-2025-08-25-pinned-beach-store-DNx5iUIwrkY.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post DNx5iUIwrkY",
+   "page": "https://www.instagram.com/bigsmashfrance/p/DNx5iUIwrkY/",
+   "pixel_size": "512x640",
+   "bytes": 57401,
+   "shows": "Pinned post (25 Aug 2025): CGI red Big Smash kiosk on a beach, balloon arch, smoke flare",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  },
+  {
+   "file": "instagram/ig-2026-09-15-inauguration-blagnac-DdTZmE6CV4E.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post DdTZmE6CV4E",
+   "page": "https://www.instagram.com/bigsmashfrance/p/DdTZmE6CV4E/",
+   "pixel_size": "512x640",
+   "bytes": 77061,
+   "shows": "Poster \"INAUGURATION BLAGNAC — samedi 19/09 à 12h — 100 premiers menus offerts — PS5+GTA6 à gagner\"",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  },
+  {
+   "file": "instagram/ig-2026-09-17-combo-sauce-DdYnuIsqw5B.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post DdYnuIsqw5B",
+   "page": "https://www.instagram.com/bigsmashfrance/p/DdYnuIsqw5B/",
+   "pixel_size": "360x640",
+   "bytes": 38809,
+   "shows": "Reel cover \"Compose ton menu combo — À ta propre sauce !\" filmed in restaurant (red walls, red dome pendants)",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  },
+  {
+   "file": "instagram/ig-2026-09-22-inauguration-paris18-DdlX-ipKSGJ.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post DdlX-ipKSGJ",
+   "page": "https://www.instagram.com/bigsmashfrance/p/DdlX-ipKSGJ/",
+   "pixel_size": "512x640",
+   "bytes": 81689,
+   "shows": "Poster \"INAUGURATION PARIS 18 — samedi 26/09 à 12h — 148 av. de Saint-Ouen — 100 premiers menus offerts — présence de Bebeta & Camelia83\"",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  },
+  {
+   "file": "instagram/ig-2026-09-27-mood-2026-poster-DdyXud3COce.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post DdyXud3COce",
+   "page": "https://www.instagram.com/bigsmashfrance/p/DdyXud3COce/",
+   "pixel_size": "518x640",
+   "bytes": 45624,
+   "shows": "Poster \"MOOD 2026\": burger, fries, pink drink and BIG SMASH bag in front of a retro TV with GTA-style game, controller in hand",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  },
+  {
+   "file": "instagram/ig-2026-09-30-grilled-smash-poster-Dd6BKNuKSkW.jpg",
+   "source_url": "scontent-*.cdninstagram.com signed thumbnail (640 px) for post Dd6BKNuKSkW",
+   "page": "https://www.instagram.com/bigsmashfrance/p/Dd6BKNuKSkW/",
+   "pixel_size": "512x640",
+   "bytes": 70702,
+   "shows": "Poster \"IL A MIS TOUT LE MONDE D'ACCORD — GRILLED SMASH\" on red, caption \"C'est carré dans le smash 👊🏽🤤\"",
+   "accessed": "2026-10-03",
+   "note": "Instagram thumbnail, reference only"
+  }
+ ],
+ "bigsmash_fr_products": [
+  {
+   "file": "milkshake.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed96a35eeb1d2bf1e83f11_MILKSHAKE.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/milkshake",
+   "pixel_size": "1080x1080",
+   "bytes": 67270,
+   "shows": "MILKSHAKE (Desserts glacés, 4.50 €) — Milkshake avec parfum au choix (caramel, fraise & vanille) et chantilly.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-sundae.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed97db3125b1871fc896ea_BIG-SUNDAE.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "1080x1080",
+   "bytes": 32826,
+   "shows": "BIG SUNDAE (Desserts glacés, 3.50 €) — Glace vanille avec coulis et topping au choix.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "coulis-speculoos.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9d579fd4cae7489e3770_COULIS%20SPECULOOS.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "800x800",
+   "bytes": 44118,
+   "shows": "Coulis option Speculoos (Big Sundae / Kool Dog)",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "topping-speculoos.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9da9929fe0e7945361ce_TOPPING_SPECULOOS.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "1080x1080",
+   "bytes": 67824,
+   "shows": "Topping option Speculoos",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "topping-oreo.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9dad9eb3cf3252b7c40d_TOPPING_OREO.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "1080x1080",
+   "bytes": 46064,
+   "shows": "Topping option Oreo",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "topping-daim.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9db2fcd47c046a852c2f_TOPPING_DAIM.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "1080x1080",
+   "bytes": 57238,
+   "shows": "Topping option Daim",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "coulis-caramel.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9f30ae1bc8c8d331aaa8_COULIS%20CARAMEL.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "800x800",
+   "bytes": 31658,
+   "shows": "Coulis option Caramel",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "coulis-nutella.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9f38202c89edd6af3f2e_COULIS%20NUTELLA.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "800x800",
+   "bytes": 36492,
+   "shows": "Coulis option Nutella",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "coulis-fraise.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ed9f3a1f2dbb40d2ff453e_COULIS%20FRAISE.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae",
+   "pixel_size": "800x800",
+   "bytes": 67940,
+   "shows": "Coulis option Fraise",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "frites-nature.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee51a08536ed5b52c0dbfc_FRITES_NATURES.webp",
+   "page": "https://www.bigsmash.fr/sides/frites-nature",
+   "pixel_size": "1080x1080",
+   "bytes": 31610,
+   "shows": "Frites nature (Sides, 3.00 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "frites-epicees.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee520d037cb0764475053a_FRITES_EPICEES.webp",
+   "page": "https://www.bigsmash.fr/sides/frites-epicees",
+   "pixel_size": "1080x1080",
+   "bytes": 44372,
+   "shows": "Frites épicées (Sides, 3.50 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "frites-cheddar.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee52536c4e9fa482410332_FRITES_CHEDDAR.webp",
+   "page": "https://www.bigsmash.fr/sides/frites-cheddar",
+   "pixel_size": "1080x1080",
+   "bytes": 36874,
+   "shows": "Frites cheddar (Sides, 4.00 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "frites-cheddar-bacon.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee52698536ed5b52c15f21_FRITES_CHEDDAR_BACON.webp",
+   "page": "https://www.bigsmash.fr/sides/frites-cheddar-bacon",
+   "pixel_size": "1080x1080",
+   "bytes": 39222,
+   "shows": "Frites cheddar bacon (Sides, 5.00 €) —  [same photo also used for: Pops cheddar bacon]",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "pops-nature.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee529d53bc4f54dfc79e37_POPS%20NATURE.webp",
+   "page": "https://www.bigsmash.fr/sides/pops-nature",
+   "pixel_size": "800x800",
+   "bytes": 34122,
+   "shows": "Pops nature (Sides, 3.50 €) — Pomme de terre rapées assaisonnées en forme de petite boule.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "pops-cheddar.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67ee530b144b893196610911_POPS%20CHEDDAR.webp",
+   "page": "https://www.bigsmash.fr/sides/pops-cheddar",
+   "pixel_size": "800x800",
+   "bytes": 27646,
+   "shows": "Pops cheddar (Sides, 4.50 €) — Pomme de terre rapées assaisonnées en forme de petite boule avec sauce cheddar.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-taco-smash.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea60bdbe05baad9c26344_MENU%20TACO%20SMASH.webp",
+   "page": "https://www.bigsmash.fr/la-carte",
+   "pixel_size": "800x800",
+   "bytes": 71732,
+   "shows": "MENU TACO SMASH (Nouveautés)",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-big-mountain.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea6f30b47e8307de89439_MENU-BIG-MOUNTAIN.webp",
+   "page": "https://www.bigsmash.fr/la-carte",
+   "pixel_size": "600x600",
+   "bytes": 37388,
+   "shows": "MENU BIG MOUNTAIN (Nouveautés)",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-surf-turf-nouveaute.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea719e5b934cf6cba4dd4_MENU-SURF-TURF.webp",
+   "page": "https://www.bigsmash.fr/la-carte",
+   "pixel_size": "600x600",
+   "bytes": 38792,
+   "shows": "MENU SURF & TURF (Nouveautés tile, older photo)",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "chicken-pop-corn-x15.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea88e13061d2e83f2457b_CHICKEN%20POP.webp",
+   "page": "https://www.bigsmash.fr/sides/chicken-pop-corn-x15",
+   "pixel_size": "1491x1187",
+   "bytes": 133880,
+   "shows": "CHICKEN POP CORN X15 (Sides, 5.90 €) — Morceaux de filet de poulet pané maison.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "little-smash.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea9317f9808148446adb2_LITTLE_SMASH.webp",
+   "page": "https://www.bigsmash.fr/sides/little-smash",
+   "pixel_size": "1080x1080",
+   "bytes": 39304,
+   "shows": "LITTLE SMASH (Sides, 4.00 €) — Potato bun, steak haché frais et smashé, cheddar, pickles et sauce Big Smash.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "nuggets.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea9655ccd3ca3e46dc532_NUGGETS.webp",
+   "page": "https://www.bigsmash.fr/sides/nuggets",
+   "pixel_size": "1080x1080",
+   "bytes": 43348,
+   "shows": "NUGGETS (Sides, 3.90 €) — Nuggets de poulet croustillant.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "tenders-x4.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eea99337bd61c6292e3bb2_TENDERS.webp",
+   "page": "https://www.bigsmash.fr/sides/tenders-x4",
+   "pixel_size": "1080x1080",
+   "bytes": 47224,
+   "shows": "TENDERS X4 (Sides, 5.90 €) — Filet de poulet pané maison.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "little-wrap.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eeab76ce64505e41d8e459_LITTLE-WRAP.webp",
+   "page": "https://www.bigsmash.fr/sides/little-wrap",
+   "pixel_size": "600x600",
+   "bytes": 24434,
+   "shows": "LITTLE WRAP (Sides, 2.95 €) — Galette garnie de tenders maison, salade, cheddar, oignons frits, avec la sauce de votre choix (Ranch ou Miel-Moutarde).",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "sauces.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67eead8ddb6550d48eccce67_SAUCES-4.webp",
+   "page": "https://www.bigsmash.fr/sides/sauces",
+   "pixel_size": "600x600",
+   "bytes": 19188,
+   "shows": "SAUCES (Sides, 0.40 €) — Découvrez nos sauces exclusives Big Smash : Big Smash, Spicy, Ranch et Miel-Moutarde !",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "kinder-country.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3e2c30247ca07770b37d9_KINDER%20COUNTRY.webp",
+   "page": "https://www.bigsmash.fr/desserts/kinder-country",
+   "pixel_size": "817x480",
+   "bytes": 32394,
+   "shows": "KINDER COUNTRY (Desserts, 1.00 €) — Chocolat Kinder au cœur au lait fondant et des céréales soufflées croustillantes.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "coca-cola.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3ef49918ceb0676d67978_gamme%20coca.webp",
+   "page": "https://www.bigsmash.fr/boissons/coca-cola",
+   "pixel_size": "800x800",
+   "bytes": 36928,
+   "shows": "COCA COLA (Boissons, 1.90 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "red-bull.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3efd79b362f4c6b7ce504_RED%20BULL.webp",
+   "page": "https://www.bigsmash.fr/boissons/red-bull",
+   "pixel_size": "800x800",
+   "bytes": 27164,
+   "shows": "RED BULL (Boissons, 2.90 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "evian.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3f03ca1801e081953390a_E%CC%81VIAN.webp",
+   "page": "https://www.bigsmash.fr/boissons/capri-sun",
+   "pixel_size": "800x800",
+   "bytes": 19232,
+   "shows": "EVIAN (Boissons, 1.50 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "badoit.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3f057c2d0a56a72bac542_BADOIT%2050CL.webp",
+   "page": "https://www.bigsmash.fr/boissons/badoit",
+   "pixel_size": "800x800",
+   "bytes": 17572,
+   "shows": "BADOIT (Boissons, 1.90 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "volvic.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f3f2afa1801e0819551096_VOLVIC-2.webp",
+   "page": "https://www.bigsmash.fr/boissons/volvic",
+   "pixel_size": "800x800",
+   "bytes": 42610,
+   "shows": "VOLVIC (Boissons, 2.50 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "capri-sun.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f4ec71cbe5e8359110b525_CAPRISUN_KID.webp",
+   "page": "https://www.bigsmash.fr/boissons/capri-sun-2",
+   "pixel_size": "1080x1080",
+   "bytes": 57424,
+   "shows": "CAPRI-SUN (Boissons, 2.00 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "taco-smash-x2-nouveaute.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f52de7b1fcc1a5777905a2_TACO-SMASH.webp",
+   "page": "https://www.bigsmash.fr/la-carte",
+   "pixel_size": "800x800",
+   "bytes": 48110,
+   "shows": "TACO SMASH x2 7.90 (Nouveautés tile)",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "crevettes-panees.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/67f59d2f5cb7d6eb87bfeb11_CREVETTES.webp",
+   "page": "https://www.bigsmash.fr/sides/crevettes-panees",
+   "pixel_size": "1549x1338",
+   "bytes": 120592,
+   "shows": "CREVETTES PANÉES (Sides, 5.90 - 9.90 €) — Beignets de crevettes décortiquées croustillants servi avec sauce Big Sweety.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "smash-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc58c267122603b6f06dd_SMASH%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/smash-spicy",
+   "pixel_size": "1000x666",
+   "bytes": 69798,
+   "shows": "SMASH SPICY (Burgers, 6.90 €) — Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, jalapenos et sauce Spicy.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "smash-bacon.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc65c26a42775a710feab_SMASH%20BACON_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/smash-bacon",
+   "pixel_size": "1000x666",
+   "bytes": 83358,
+   "shows": "SMASH BACON (Burgers, 7.90 €) — Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "original-cheese.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc66cd933c997921b97d8_ORIGINAL%20CHEESE_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/original-cheese",
+   "pixel_size": "1000x663",
+   "bytes": 88282,
+   "shows": "ORIGINAL CHEESE (Burgers, 6.90 €) — Potato bun, steak haché smashé , oignons frais, double cheddar, pickles, sauce ketchup et moutarde US.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "chicken-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6838bfef33a170ef81b_CHICKEN%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/chicken-spicy",
+   "pixel_size": "1000x666",
+   "bytes": 91328,
+   "shows": "CHICKEN SPICY (Burgers, 7.90 €) — Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-smash-burger.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc68edb246e87cad3b230_BIG%20SMASH%20BURGER_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/big-smash-burger",
+   "pixel_size": "1000x667",
+   "bytes": 99980,
+   "shows": "BIG SMASH BURGER (Burgers, 6.90 €) — Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-mountain.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc69866c62dfd2e5bac5c_BIG%20MOUNTAIN%20_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/big-mountain",
+   "pixel_size": "1000x671",
+   "bytes": 83836,
+   "shows": "BIG MOUNTAIN (Burgers, 8.90 €) — Potato Bun, filet de poulet pané maison, oignon confit, raclette, bacon et sauce Ranch.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-chicken.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6b1ff72bfd3cc0be474_BIG%20CHICKEN_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/big-chicken",
+   "pixel_size": "1000x666",
+   "bytes": 102270,
+   "shows": "BIG CHICKEN (Burgers, 7.90 €) — Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Smokey BBQ.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "surf-turf.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6bedefadab68720d3ce_SURF%20%26%20TURF_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/surf-turf",
+   "pixel_size": "1000x666",
+   "bytes": 76626,
+   "shows": "SURF TURF (Burgers, 8.90 €) — Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-fish.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6ce2256f653a3438019_BIG%20FISH_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/big-fish",
+   "pixel_size": "1000x667",
+   "bytes": 96640,
+   "shows": "BIG FISH (Burgers, 6.90 €) — Potato bun, filet de colin pané maison, cheddar, salade iceberg et sauce Tartare.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "original-chicken.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6df0abb78dab8a06ffc_ORIGINAL%20CHICKEN_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/original-chicken",
+   "pixel_size": "1000x666",
+   "bytes": 79392,
+   "shows": "ORIGINAL CHICKEN (Burgers, 6.90 €) — Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "smash-classic.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc6ec2f717777b30b1423_SMASH%20CLASSIC_web.webp",
+   "page": "https://www.bigsmash.fr/burgers/smash-classic",
+   "pixel_size": "1000x666",
+   "bytes": 76560,
+   "shows": "SMASH CLASSIC (Burgers, 6.90 €) — Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "cheesy-dog.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc82acd7fe64c703beb94_CHEESY%20DOG_web.webp",
+   "page": "https://www.bigsmash.fr/hot-dogs/cheesy-dog",
+   "pixel_size": "1000x665",
+   "bytes": 96008,
+   "shows": "CHEESY DOG (Hot-dogs, 4.90 €) — Potato bun long, saucisse 100% boeuf, sauce cheddar, pickles émincés et oignons frits.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "spicy-dog.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc833eb672419db03b119_SPICY%20DOG_web.webp",
+   "page": "https://www.bigsmash.fr/hot-dogs/spicy-dog",
+   "pixel_size": "1000x665",
+   "bytes": 90198,
+   "shows": "SPICY DOG (Hot-dogs, 3.90 €) — Potato bun long, saucisse 100% boeuf, jalapenos émincé et sauce Spicy.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "bacon-dog.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc83d2f717777b30c1b76_BACON%20DOG_web.webp",
+   "page": "https://www.bigsmash.fr/hot-dogs/bacon-dog",
+   "pixel_size": "1000x665",
+   "bytes": 112690,
+   "shows": "BACON DOG (Hot-dogs, 4.90 €) — Potato bun long, saucisse 100% boeuf bacon, sauce smokey BBQ et oignons frits.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "classic-dog.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bc846dbc7276bd9b60bff_CLASSIC%20DOG_web.webp",
+   "page": "https://www.bigsmash.fr/hot-dogs/classic-dog",
+   "pixel_size": "1000x665",
+   "bytes": 109066,
+   "shows": "CLASSIC DOG (Hot-dogs, 3.90 €) — Potato bun long, saucisse 100% boeuf, ketchup, moutarde US et oignons frits.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-surf-turf.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcaeacd7fe64c703ded04_MENU%20SURF%20%26%20TURF_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-surf-turf",
+   "pixel_size": "817x480",
+   "bytes": 46370,
+   "shows": "MENU SURF & TURF (Menus burger, 11.90 €) — Potato bun, steak haché smashé, crevettes panées, graine de sésame, cheddar et sauce Big Sweety servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-big-fish.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb20915d7fcd52ee45e8_MENU%20BIG%20FISH_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-big-fish",
+   "pixel_size": "817x480",
+   "bytes": 47160,
+   "shows": "MENU BIG FISH (Menus burger, 9.90 €) — Potato bun, filet de colin pané maison, cheddar et sauce Tartare servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-chicken-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb2726a42775a714a976_MENU%20CHICKEN%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-chicken-spicy",
+   "pixel_size": "817x480",
+   "bytes": 48648,
+   "shows": "MENU CHICKEN SPICY (Menus burger, 9.90 €) — Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy servi avec frites et boiss",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-big-chicken.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb31f13b239f743ef694_MENU%20BIG%20CHICKEN_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-big-chicken",
+   "pixel_size": "817x480",
+   "bytes": 48548,
+   "shows": "MENU BIG CHICKEN (Menus burger, 10.90 €) — Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, pickles, cheddar et sauce smokey BBQ servi avec frites et bo",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-original-chicken.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb3ba9c1fa9141f58c32_MENU%20ORIGINAL%20CHICKEN_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-original-chicken",
+   "pixel_size": "817x480",
+   "bytes": 46530,
+   "shows": "MENU ORIGINAL CHICKEN (Menus burger, 9.90 €) — Potato bun, filet de poulet pané maison, cheddar, salade et sauce Ranch servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-smash-bacon.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb45f13b239f743f14e7_MENU%20SMASH%20BACON_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-smash-bacon",
+   "pixel_size": "817x480",
+   "bytes": 48406,
+   "shows": "MENU SMASH BACON (Menus burger, 10.90 €) — Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, cheddar, bacon de boeuf et sauce Big Smash servi avec frites et boiss",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-smash-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb4eefddae7c3b7c1a7f_MENU%20SMASH%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-smash-spicy",
+   "pixel_size": "817x480",
+   "bytes": 45870,
+   "shows": "MENU SMASH SPICY (Menus burger, 9.90 €) — Potato bun, filet de poulet pané maison, feuille de salade, rondelle de tomate, jalapenos, cheddar et sauce Spicy servi avec frites et boiss",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-smash-classic.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb672256f653a346a89b_MENU%20SMASH%20CLASSIC_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-smash-classic",
+   "pixel_size": "817x480",
+   "bytes": 46294,
+   "shows": "MENU SMASH CLASSIC (Menus burger, 9.90 €) — Potato bun, steak haché smashé, feuille de salade, rondelle de tomate, pickles, cheddar et sauce Big Smash servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-original-cheese.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb700abb78dab8a3ce2a_MENU%20ORIGINAL%20CHEESE_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-original-cheese",
+   "pixel_size": "817x480",
+   "bytes": 45562,
+   "shows": "MENU ORIGINAL CHEESE (Menus burger, 9.90 €) — Potato bun, steak haché smashé , oignons frais, double cheddar, sauce ketchup et moutarde US servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-big-smash.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcb7d53829e18232c4921_MENU%20BIG%20SMASH_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-big-smash",
+   "pixel_size": "817x480",
+   "bytes": 49012,
+   "shows": "MENU BIG SMASH (Menus burger, 9.90 €) — Pain burger, 2 steaks smashés, 2 tranches de cheddar, pickles, salade iceberg et sauce Big Smash servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-grilled-smash.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcbf4f72e07e9d4cca995_MENU%20GRILLED%20SMASH_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-grilled-smash",
+   "pixel_size": "817x480",
+   "bytes": 47634,
+   "shows": "MENU GRILLED SMASH (Menus burger, 8.90 €) — Butter bread toasté, steak haché smashé, cheddar, oignons confit et sauce Big Smash servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "menu-big-cheese.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcc57a7170e91d25ebfd2_MENU%20BIG%20CHEESE_web.webp",
+   "page": "https://www.bigsmash.fr/menus-burger/menu-big-cheese",
+   "pixel_size": "817x480",
+   "bytes": 48040,
+   "shows": "MENU BIG CHEESE (Menus burger, 8.90 €) — Potato bun, double steak haché smashé , oignons frais, pickles, salade, double cheddar et sauce Big Smash servi avec frites et boisson.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-combo.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcd259eca813857df276c_MENU%20BIG%20COMBO_web.webp",
+   "page": "https://www.bigsmash.fr/combo/big-combo",
+   "pixel_size": "817x480",
+   "bytes": 58004,
+   "shows": "BIG COMBO (Combo, 14.90 €) — C'est l'occasion de te faire plaisir avec deux burgers dans ton menu !",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "grilled-cheese.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bce62539c06aeb2695f84_GRILLED%20CHEESE%20V2_web.webp",
+   "page": "https://www.bigsmash.fr/sides/grilled-cheese",
+   "pixel_size": "817x480",
+   "bytes": 54896,
+   "shows": "GRILLED CHEESE (Sides, 2.50 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "grilled-cheese-bacon.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bce73d933c99792210d34_GRILLED%20CHEESE%20BACON%20V2_web.webp",
+   "page": "https://www.bigsmash.fr/sides/grilled-cheese-bacon",
+   "pixel_size": "817x480",
+   "bytes": 56128,
+   "shows": "GRILLED CHEESE BACON (Sides, 3.50 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "little-wrap-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcebb915d7fcd52f16139_LITTLE%20NWRAP%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/sides/little-wrap-spicy",
+   "pixel_size": "817x480",
+   "bytes": 30028,
+   "shows": "LITTLE WRAP SPICY (Sides, 2.95 €) — Galette garnie de cheddar, tenders, salade, jalapenos et sauce Spicy.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-kids.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bcf9a915d7fcd52f227e1_MENU%20BIG%20KIDS_web.webp",
+   "page": "https://www.bigsmash.fr/menus-enfant/big-kids",
+   "pixel_size": "817x480",
+   "bytes": 32072,
+   "shows": "BIG KIDS (Menus enfant, 6.90 €) — Menu enfant 7-11 ans, cheeseburger ou nuggets x5 au choix, frites, dessert au choix, boisson au choix et jouet.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "taco-smash.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd027ff72bfd3cc132158_TACO%20SMASH%20CLASSIC_web.webp",
+   "page": "https://www.bigsmash.fr/sides/taco-smash",
+   "pixel_size": "817x480",
+   "bytes": 49602,
+   "shows": "TACO SMASH (Sides, 4.90 €) — Choisis ton Taco Smash (classique ou épicé).",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "chicken-pop-corn-spicy.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd09b539c06aeb26b0cf4_CHICKEN%20POP%20SPICY_web.webp",
+   "page": "https://www.bigsmash.fr/sides/chicken-pop-corn-spicy",
+   "pixel_size": "817x480",
+   "bytes": 37854,
+   "shows": "CHICKEN POP-CORN SPICY (Sides, 7.90 €) — Morceaux de filet de poulet pané maison servi avec sa sauce spicy.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "the-limonade.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd18e5b8197f4ea48094a_CATE%CC%81GORIE%20THE%CC%81%20LIMONADE%202_web.webp",
+   "page": "https://www.bigsmash.fr/boissons/the-limonade",
+   "pixel_size": "820x480",
+   "bytes": 89802,
+   "shows": "THÉ & LIMONADE (Boissons, 2.90 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-salade.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd441fa7bc10b0d93bfb0_PHOTO%20BIG%20CAESAR_web.webp",
+   "page": "https://www.bigsmash.fr/sides/big-salade",
+   "pixel_size": "1000x667",
+   "bytes": 124676,
+   "shows": "BIG SALADE (Sides, 9.90 €) — Salade fraîche, tenders croustillants ou crevettes panées, tomates cerises, copeaux de parmesan, oignons frits et sauce Ranch ou Big Sweety.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "fuze-tea-peche.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd53e1a2dab03c2895de0_FUZE%20TEA_2.webp",
+   "page": "https://www.bigsmash.fr/boissons/fuze-tea-peche",
+   "pixel_size": "800x800",
+   "bytes": 45444,
+   "shows": "FUZE TEA PÊCHE (Boissons, 2.20 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "grilled-nutella.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd6363461fdbf29fcfa70_GRILLED%20NUTELLA%20V2_web.webp",
+   "page": "https://www.bigsmash.fr/desserts/grilled-nutella",
+   "pixel_size": "817x480",
+   "bytes": 44526,
+   "shows": "GRILLED NUTELLA (Desserts, 2.50 €) — Butter bread toasté et garni de Nutella.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "kool-dog.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd683f3f5fdb683c03159_KOOL%20DOG_web.webp",
+   "page": "https://www.bigsmash.fr/desserts/kool-dog",
+   "pixel_size": "1000x665",
+   "bytes": 83960,
+   "shows": "KOOL DOG (Desserts, 3.90 €) — Pain hot-dog, glace vanille avec coulis et topping au choix.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "big-sundae-pistachio.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd9d7f074bc2d3bdbd927_6X%20SUNDAE_web.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/big-sundae-pistachio",
+   "pixel_size": "800x800",
+   "bytes": 31030,
+   "shows": "BIG SUNDAE PISTACHIO (Desserts glacés, 3.95 €) — Nappage pistache et éclats de pistache caramélisés.",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  },
+  {
+   "file": "milkshake-pistache-macadamia.webp",
+   "source_url": "https://cdn.prod.website-files.com/67ed6aed3348e6640e95b94e/6a4bd9f46b6891435e62123b_6X%20MILK_web.webp",
+   "page": "https://www.bigsmash.fr/desserts-glaces/milkshake-pistache-macadamia",
+   "pixel_size": "800x800",
+   "bytes": 43140,
+   "shows": "MILKSHAKE PISTACHE MACADAMIA (Desserts glacés, 4.95 €) — ",
+   "accessed": "2026-10-03",
+   "note": "Official bigsmash.fr carte product photo (transparent-background WebP cut-out)"
+  }
+ ],
+ "deliveroo_matabiau_products": [
+  {
+   "file": "deliveroo/chunky-cookies.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/ff4d8599-bff5-4034-916d-d379d13e1fc6/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 29546,
+   "shows": "Chunky Cookies® — Deliveroo Matabiau category \"NOUVEAUTÉS\", listed 4.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-italy-beef.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/792455ce-50c8-4498-83ce-8da8fd95bf34/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 27308,
+   "shows": "Menu Big Italy Beef — Deliveroo Matabiau category \"NOUVEAUTÉS\", listed 13.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-italy-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/364d0f3b-170f-4d2d-88b1-3ad5cfe80600/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 27028,
+   "shows": "Menu Big Italy Chicken — Deliveroo Matabiau category \"NOUVEAUTÉS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/limonade-della-mamma.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/07ea429c-86e0-43ee-bea3-9f4f42c80e7f/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 17145,
+   "shows": "Limonade DELLA MAMMA — Deliveroo Matabiau category \"NOUVEAUTÉS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-cheese-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/7506672e-67bb-4664-871e-7e034788c051/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 36212,
+   "shows": "Big Cheese + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 13.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-smash-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/bb047e58-d882-4f86-b1b5-5e9e02500883/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 37299,
+   "shows": "Big Smash + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 11.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/smash-classic-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/7cdcd3a8-d296-4e0c-853f-a12701b2cea8/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35779,
+   "shows": "Smash Classic + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/original-chicken-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/75fc4d86-0309-4e66-891c-2cf4b379694d/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35117,
+   "shows": "Original Chicken + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 11.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/smash-bacon-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/1f5c6a4b-0ab7-4eb6-8d36-40be09e76add/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 36310,
+   "shows": "Smash Bacon + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 11.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-chicken-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/759385a7-0171-4086-8d98-939d53fbf892/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 36760,
+   "shows": "Big Chicken + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 13.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/smash-spicy-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/8c18a3c3-3c9f-42e5-934a-33d2ed37faa1/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 33997,
+   "shows": "Smash Spicy + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-fish-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/bfc02b88-0778-498c-b0ba-61361ef455d3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 34586,
+   "shows": "Big Fish + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/grilled-smash-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/63e84bb0-27ab-4a42-8be8-d9ca462cea62/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 31654,
+   "shows": "Grilled Smash + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 13.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/original-cheeseburger-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/d7925714-d3c9-4a54-aad9-489aaf2faa06/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 31880,
+   "shows": "Original Cheeseburger + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/chicken-spicy-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/b0e009a3-9b7b-4f57-a007-97014cc75af3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 36922,
+   "shows": "Chicken Spicy + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 13.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/surf-and-turf-plus-frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/5139fd85-16d6-4600-b358-4da648040838/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 32352,
+   "shows": "Surf & Turf + Frites — Deliveroo Matabiau category \"BURGERS + FRITES\", listed 13.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/9fbf260b-1c0e-4c90-a62e-1926e302418a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 39588,
+   "shows": "Menu Big Smash — Deliveroo Matabiau category \"MENUS BURGERS\", listed 13.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-smash-bacon.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/370b3cb4-f9a2-4509-bf9f-3a8ca056ad0e/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 38830,
+   "shows": "Menu Smash Bacon — Deliveroo Matabiau category \"MENUS BURGERS\", listed 13.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-smash-classic.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/774fa55e-6c25-4d96-aa32-a9950c65594b/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 37885,
+   "shows": "Menu Smash Classic — Deliveroo Matabiau category \"MENUS BURGERS\", listed 12.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-original-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/3839e824-2bdd-4a65-b240-68b30aa2c477/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 37302,
+   "shows": "Menu Original Chicken — Deliveroo Matabiau category \"MENUS BURGERS\", listed 13.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-cheese.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/5d38b44f-920f-4eb3-b841-85ae77d62356/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 38226,
+   "shows": "Menu Big Cheese — Deliveroo Matabiau category \"MENUS BURGERS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-smash-spicy.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/742335b9-6bfe-4334-804c-399067b631bd/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 37312,
+   "shows": "Menu Smash Spicy — Deliveroo Matabiau category \"MENUS BURGERS\", listed 12.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-fish.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/191c1998-cd10-4408-a95b-11b8ab689fd3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 37210,
+   "shows": "Menu Big Fish — Deliveroo Matabiau category \"MENUS BURGERS\", listed 12.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/2073e13c-9fcf-4fc8-b933-d82c1abc273a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 38413,
+   "shows": "Menu Big Chicken — Deliveroo Matabiau category \"MENUS BURGERS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-surf-and-turf.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/6c44eb31-b780-4628-8731-c026b089ed48/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35751,
+   "shows": "Menu Surf & Turf — Deliveroo Matabiau category \"MENUS BURGERS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-grilled-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/e23db077-d7e6-4208-abb0-9463afd17647/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 36574,
+   "shows": "Menu Grilled Smash — Deliveroo Matabiau category \"MENUS BURGERS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-chicken-spicy.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/991afd89-702b-407a-8fd3-8ceef424e273/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 38880,
+   "shows": "Menu Chicken Spicy — Deliveroo Matabiau category \"MENUS BURGERS\", listed 14.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-original-cheeseburger.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/54ab0863-5bac-446b-85cd-4631d6b39089/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35799,
+   "shows": "Menu Original Cheeseburger — Deliveroo Matabiau category \"MENUS BURGERS\", listed 12.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/grilled-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/215d7280-37ad-4fd5-b8dd-1e3ee5a04155/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 47398,
+   "shows": "Grilled Smash — Deliveroo Matabiau category \"SMASH BURGERS\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/2f70459a-2bfd-402a-a977-4ea5670b312f/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 95715,
+   "shows": "Big Smash — Deliveroo Matabiau category \"SMASH BURGERS\", listed 9.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-cheese.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/97ec6450-2969-48c3-a48f-78c88c93671a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 96377,
+   "shows": "Big Cheese — Deliveroo Matabiau category \"SMASH BURGERS\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/smash-classic.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/d1a20fb1-d8fc-439f-b7d1-77a9ab9020f2/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 96630,
+   "shows": "Smash Classic — Deliveroo Matabiau category \"SMASH BURGERS\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/smash-bacon.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/b7887451-7cf1-4b1f-810c-614af0f14c63/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 97248,
+   "shows": "Smash Bacon — Deliveroo Matabiau category \"SMASH BURGERS\", listed 9.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-fish.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/5468e261-fd0c-42b2-914f-7014c4484b64/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 94788,
+   "shows": "Big Fish — Deliveroo Matabiau category \"SMASH BURGERS\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/original-cheese.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/4ad90b06-3293-4934-847f-8e590c650891/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 80408,
+   "shows": "Original Cheese — Deliveroo Matabiau category \"SMASH BURGERS\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-italy-beef.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/db13dfa1-5915-42dc-bc44-6ea58a54b1e3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 53631,
+   "shows": "Big Italy Beef — Deliveroo Matabiau category \"SMASH BURGERS\", listed 9.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/surf-and-turf.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/688d3bbc-375a-4076-9fc6-d095a62cfe70/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 81313,
+   "shows": "Surf & Turf — Deliveroo Matabiau category \"SMASH BURGERS\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/original-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/9e52b61b-754b-49f9-9da8-3301f50b544a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 87657,
+   "shows": "Original Chicken — Deliveroo Matabiau category \"CHICKEN BURGERS\", listed 9.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-italy-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/378e1234-97a5-45b8-851f-93cf92fa31ae/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 52366,
+   "shows": "Big Italy Chicken — Deliveroo Matabiau category \"CHICKEN BURGERS\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-chicken.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/8ac47bcf-b7bf-4b52-8d29-269d3d009d64/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 92888,
+   "shows": "Big Chicken — Deliveroo Matabiau category \"CHICKEN BURGERS\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/chicken-spicy.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/9b9d9de7-6ef7-4806-8f10-16803b6f0d78/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1199x705",
+   "bytes": 93987,
+   "shows": "Chicken Spicy — Deliveroo Matabiau category \"CHICKEN BURGERS\", listed 10.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-combo.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/16ab3622-79d3-4188-a8f8-17cb34e5ce79/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 45808,
+   "shows": "Menu Big Combo — Deliveroo Matabiau category \"COMBO\", listed 19.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/classic-dog.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/908142df-07eb-41bc-bc62-4b40aeca3115/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 27581,
+   "shows": "Classic dog — Deliveroo Matabiau category \"HOT DOG\", listed 4.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/spicy-dog.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/b6518c30-7d89-494a-b60c-7301acbf3286/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 24475,
+   "shows": "Spicy Dog — Deliveroo Matabiau category \"HOT DOG\", listed 4.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/cheesy-dog.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/678ca6cb-4abb-4b44-a781-994af9f1b88e/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 23987,
+   "shows": "Cheesy dog — Deliveroo Matabiau category \"HOT DOG\", listed 5.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/bacon-dog.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/d452e3d3-5c90-414c-88eb-0a4a6d487f09/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 27460,
+   "shows": "Bacon dog — Deliveroo Matabiau category \"HOT DOG\", listed 5.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/chicken-pop-corn-x9.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/9b35295f-8eda-4dcf-86dd-7169db72d5c4/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 22391,
+   "shows": "Chicken Pop-Corn x9 — Deliveroo Matabiau category \"SIDES\", listed 4.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/crevettes-panees.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/994f8926-e225-4407-b19d-a3ae1e893052/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1200x1036",
+   "bytes": 111362,
+   "shows": "Crevettes Panées — Deliveroo Matabiau category \"SIDES\", listed 7.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/little-wrap.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/ad613f64-5ee3-4879-a089-844b4eb23fec/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 64916,
+   "shows": "Little Wrap — Deliveroo Matabiau category \"SIDES\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/taco-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/744cc439-161b-4eba-b5a2-5476db993aea/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35538,
+   "shows": "Taco Smash — Deliveroo Matabiau category \"SIDES\", listed 5.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/frites.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/bbfd9916-8c1a-4d52-8081-4f7248e334c1/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 79926,
+   "shows": "Frites — Deliveroo Matabiau category \"SIDES\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/little-smash.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/2aaee49b-7058-4240-96ce-291fa9948e38/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1080x1080",
+   "bytes": 75373,
+   "shows": "Little Smash — Deliveroo Matabiau category \"SIDES\", listed 5.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/chicken-pop-corn-x9.jpg",
+   "also_for": "Chicken Pop-Corn x15",
+   "category": "SIDES",
+   "price_eur": 8.9
+  },
+  {
+   "file": "deliveroo/nuggets.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/745ee094-885c-48b8-b42c-ce340036b381/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1080x1080",
+   "bytes": 97966,
+   "shows": "Nuggets — Deliveroo Matabiau category \"SIDES\", listed 4.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/grilled-cheese.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/ed1388b3-6741-4513-ac91-71598ea60cd1/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 25948,
+   "shows": "Grilled Cheese — Deliveroo Matabiau category \"SIDES\", listed 3.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/chicken-pop-corn-spicy-x15.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/f9f9dc93-dfa7-456d-95ca-4992108900ea/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 31553,
+   "shows": "Chicken Pop-Corn Spicy x15 — Deliveroo Matabiau category \"SIDES\", listed 9.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/tenders-x4.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/80bffcc1-1a06-4079-a590-aafe15a972d4/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1080x1080",
+   "bytes": 102699,
+   "shows": "Tenders x4 — Deliveroo Matabiau category \"SIDES\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-salade.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/2bc40732-0451-46ce-ba1a-cfc0baba8462/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 51089,
+   "shows": "Big Salade — Deliveroo Matabiau category \"SIDES\", listed 12.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/menu-big-kids.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/cf46b0e9-e663-4579-b876-9065e2685c10/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "660x440",
+   "bytes": 28139,
+   "shows": "Menu Big Kids — Deliveroo Matabiau category \"MENU ENFANT\", listed 8.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/big-sundae.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/6bf43ff6-81da-43ae-99d0-3a6e96ab4d6c/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 21293,
+   "shows": "Big Sundae — Deliveroo Matabiau category \"DESSERTS\", listed 4.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/grilled-nutella.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/cedf4667-d2e6-4b3c-9d65-0c65b734dd99/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 35965,
+   "shows": "Grilled Nutella — Deliveroo Matabiau category \"DESSERTS\", listed 3.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/sundae-pistachio.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/561da25b-0252-4394-878d-d1ca45ab7808/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 33166,
+   "shows": "Sundae Pistachio — Deliveroo Matabiau category \"DESSERTS\", listed 4.95 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/milkshake-pistache-macadamia.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/748d4c39-9f28-4439-bb7a-ea76febd6df3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 42467,
+   "shows": "Milkshake Pistache-Macadamia — Deliveroo Matabiau category \"MILKSHAKE\", listed 5.95 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/milkshake.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/aeaddad6-3bd7-45d1-a468-dc169f4da6c8/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "500x500",
+   "bytes": 18645,
+   "shows": "Milkshake — Deliveroo Matabiau category \"MILKSHAKE\", listed 5.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/coca-cola.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/b34c7ad8-ecc5-4390-9ff1-405b575b785a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x481",
+   "bytes": 16927,
+   "shows": "Coca Cola — Deliveroo Matabiau category \"BOISSONS\", listed 2.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/limonade-red-cherry.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/1712388e-d7f0-4545-b0cf-b2940a54c39a/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 20159,
+   "shows": "Limonade RED CHERRY — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/limonade-lime-watermelon.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/7b2d373a-b5a8-4e5a-95dc-cff1ade86e4b/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 23788,
+   "shows": "Limonade LIME WATERMELON — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/limonade-blue-mango-passion.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/95b9d045-8996-439b-a6a9-aaa54746b52e/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "817x480",
+   "bytes": 24304,
+   "shows": "Limonade BLUE MANGO PASSION — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/limonade-fizz-yuzu.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/4ed8de89-85ff-477d-9e34-9aeb79302a74/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 17644,
+   "shows": "Limonade FIZZ YUZU — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/the-blanc-tropical.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/39bd0495-6e0d-41ba-a3b9-3143d85cc772/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x480",
+   "bytes": 30041,
+   "shows": "Thé blanc TROPICAL — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/evian-50cl.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/5aa4e4fa-c16f-4407-9570-4fe2c99552a3/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 27542,
+   "shows": "Evian 50cl — Deliveroo Matabiau category \"BOISSONS\", listed 2.00 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/coca-cola-zero.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/0cc535d9-7b9c-4270-b1a3-05d454cf2d04/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x481",
+   "bytes": 16187,
+   "shows": "Coca Cola Zéro — Deliveroo Matabiau category \"BOISSONS\", listed 2.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/fuze-tea-peche.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/2ad1fd27-6eb5-4f76-8602-7b8165ec58d7/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "820x481",
+   "bytes": 22753,
+   "shows": "Fuze Tea Pêche — Deliveroo Matabiau category \"BOISSONS\", listed 2.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/badoit-50cl.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/29a1544c-7304-42dd-8fab-2a74842ab405/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 27167,
+   "shows": "Badoit 50cl — Deliveroo Matabiau category \"BOISSONS\", listed 2.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/capri-sun-20cl.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/8a3ed75b-f123-4245-8959-c2429eb130da/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1080x1080",
+   "bytes": 104371,
+   "shows": "Capri-sun 20cl — Deliveroo Matabiau category \"BOISSONS\", listed 1.50 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/volvic-juicy-fraise-50cl.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/a24ebfac-c848-46df-999e-a6e47a6fb5ff/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 38875,
+   "shows": "Volvic Juicy Fraise 50cl — Deliveroo Matabiau category \"BOISSONS\", listed 3.20 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/volvic-fruits-exotique-50cl.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/1a505423-a27b-464a-ab41-b06685c8c838/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 50624,
+   "shows": "Volvic Fruits Exotique 50cl — Deliveroo Matabiau category \"BOISSONS\", listed 3.20 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/redbull-original.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/14824e82-108f-4f02-bff3-4309f3654666/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "800x800",
+   "bytes": 52367,
+   "shows": "Redbull Original — Deliveroo Matabiau category \"BOISSONS\", listed 3.90 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  },
+  {
+   "file": "deliveroo/store-header-banner-matabiau.jpg",
+   "source_url": "https://rs-menus-api.roocdn.com/images/31a7b909-b061-4d80-9c43-6382e54e5231/image.jpeg",
+   "page": "https://deliveroo.fr/fr/menu/toulouse/toulouse-centre/big-smash-matabiau",
+   "pixel_size": "1920x1279",
+   "bytes": 256581,
+   "shows": "Store header banner (Matabiau) — Deliveroo Matabiau category \"BANNER\", listed 0.00 € (delivery price)",
+   "accessed": "2026-10-03",
+   "note": "Deliveroo listing image (JPG on white) — same studio shots as bigsmash.fr, plus items absent from the site (Big Italy, Chunky Cookies, Della Mamma)"
+  }
+ ],
+ "docs": {
+  "note": "raw snapshots in assets/docs/",
+  "files": [
+   "blog-2026-10-03.html",
+   "carte-2026-10-03.html",
+   "commandes-delicity-montpellier-2026-10-03.html",
+   "deliveroo-matabiau-2026-10-03.html",
+   "equipe-2026-10-03.html",
+   "franchise-2026-10-03.html",
+   "home-2026-10-03.html",
+   "linkedin-company-2026-10-03.html",
+   "mentions-legales-2026-10-03.html",
+   "shop-matabiau-2026-10-03.html",
+   "shop-points-de-vente-2026-10-03.html",
+   "site-equipe-2026-10-03.html",
+   "site-franchise-2026-10-03.html",
+   "site-home-2026-10-03.html",
+   "site-la-carte-2026-10-03.html",
+   "tableau-allergenes.pdf",
+   "ubereats-matabiau-2026-10-03.html",
+   "webflow-shared.css"
+  ]
+ }
+}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
+import { FermeturesSettings } from "@/components/gestion/fermetures-settings";
 import { GiftIcon } from "@/components/gestion/icons";
 import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
@@ -178,8 +179,16 @@ export default function EtablissementPage() {
               resetHour={state.orderNumberResetHour}
             />
           )}
+          {hasFeature("commandes") && (
+            <FermeturesSettings
+              closures={state.closures}
+              categories={state.categories}
+              dayEndHour={state.dayEndHour}
+            />
+          )}
           <PaymentSettings
             initialEnabled={state.etablissement.onlinePayment}
+            initialMinOrder={state.etablissement.onlineMinOrder}
             initialProvider={
               state.etablissement.paymentProvider === "square"
                 ? "square"
@@ -208,6 +217,8 @@ export default function EtablissementPage() {
           {products.collect && (
             <CollectSettings
               initialSlotCapacity={state.etablissement.collectSlotCapacity}
+              onlineMinOrder={state.etablissement.onlineMinOrder}
+              onlinePayment={state.etablissement.onlinePayment}
             />
           )}
         </>

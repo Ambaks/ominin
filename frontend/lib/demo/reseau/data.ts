@@ -368,6 +368,131 @@ export const oCroustiPoulet: NetworkFixture = {
 };
 
 /*
+ * Big Smash : les dix restaurants listés sur bigsmash.fr et dans sa boutique en
+ * ligne (relevés le 2026-10-03), adresses géocodées par la BAN, horaires du
+ * site. Ouvertures : la date d'inauguration publiée par l'enseigne (Blagnac
+ * 19/09/2026 et Paris 18 26/09/2026 sur ses réseaux, Fenouillet et Lyon sur
+ * LinkedIn ; Muret d'après un avis, vers avril 2026), Échirolles estimée
+ * (research/02-queue-evidence.md §5). Carte et prix de bigsmash.fr/la-carte.
+ */
+const menuSmashClassic = { name: "Menu Smash Classic", price: 990 };
+const menuBigSmash = { name: "Menu Big Smash", price: 990 };
+const menuSmashBacon = { name: "Menu Smash Bacon", price: 1090 };
+const menuBigChicken = { name: "Menu Big Chicken", price: 1090 };
+const menuOriginalCheese = { name: "Menu Original Cheese", price: 990 };
+const menuSurfTurf = { name: "Menu Surf & Turf", price: 1190 };
+const bigCombo = { name: "Big Combo", price: 1490 };
+const bigKids = { name: "Big Kids", price: 690 };
+
+export const bigSmash: NetworkFixture = {
+  slug: "big-smash",
+  name: "Big Smash",
+  fullName: "Big Smash",
+  logo: { src: "/big-smash/logo-carre.webp", width: 480, height: 480 },
+  ember: ["#ff8a78", "#f0412c", "#d72215"],
+  announcedRevenue: "≈\u00a03\u00a0000\u00a0€ par restaurant et par jour",
+  restaurants: [
+    { id: "toulouse-matabiau", name: "Toulouse Matabiau", address: "68 rue de Bayard, 31000 Toulouse", country: "FR", lat: 43.61086, lng: 1.4516, hours: ["11:00", "23:00"], hoursByDay: { 0: ["12:00", "23:00"], 5: ["11:00", "00:30"], 6: ["11:00", "00:30"] }, openedOn: "2021-06-01", volume: 1.2 },
+    { id: "toulouse-croix-de-pierre", name: "Toulouse Croix de Pierre", address: "2 route d’Espagne, 31100 Toulouse", country: "FR", lat: 43.57906, lng: 1.42359, hours: ["11:00", "23:00"], hoursByDay: { 0: ["12:00", "23:00"] }, openedOn: "2024-03-01", volume: 0.85 },
+    { id: "montpellier", name: "Montpellier", address: "121 avenue de Palavas, 34070 Montpellier", country: "FR", lat: 43.59051, lng: 3.89084, hours: ["11:00", "23:00"], hoursByDay: { 0: ["12:00", "23:00"], 5: ["11:00", "00:00"], 6: ["11:00", "00:00"] }, openedOn: "2024-11-09", volume: 1.15 },
+    { id: "echirolles", name: "Échirolles", address: "9 avenue du 8 mai 1945, 38130 Échirolles", country: "FR", lat: 45.14729, lng: 5.71776, hours: ["11:00", "00:00"], hoursByDay: { 0: ["12:00", "00:00"], 5: ["14:00", "01:00"], 6: ["11:00", "01:00"] }, openedOn: "2024-09-01", volume: 1 },
+    { id: "muret", name: "Muret", address: "45 avenue d’Europe, 31600 Muret", country: "FR", lat: 43.47166, lng: 1.33191, hours: ["11:00", "23:00"], hoursByDay: { 5: ["11:00", "00:00"], 6: ["11:00", "00:00"] }, openedOn: "2026-04-15", volume: 0.8 },
+    { id: "fenouillet", name: "Fenouillet", address: "52 bis rue de Fenouillet, 31140 Saint-Alban", country: "FR", lat: 43.68972, lng: 1.40963, hours: ["11:00", "00:00"], hoursByDay: { 0: ["12:00", "00:00"], 4: ["11:00", "02:00"], 5: ["11:00", "02:00"], 6: ["11:00", "02:00"] }, openedOn: "2026-06-26", volume: 1.05 },
+    { id: "lyon", name: "Lyon", address: "11 rue de la Barre, 69002 Lyon", country: "FR", lat: 45.75756, lng: 4.83597, hours: ["11:00", "00:00"], hoursByDay: { 0: ["12:00", "00:00"], 5: ["11:00", "01:00"], 6: ["11:00", "01:00"] }, openedOn: "2026-08-14", volume: 1.1 },
+    { id: "toulouse-montaudran", name: "Toulouse Montaudran", address: "3 avenue de l’Aérodrome de Montaudran, 31400 Toulouse", country: "FR", lat: 43.57233, lng: 1.47871, hours: ["11:00", "23:00"], hoursByDay: { 0: ["12:00", "23:00"], 5: ["11:00", "00:00"], 6: ["11:00", "00:00"] }, openedOn: "2026-06-17", volume: 0.9 },
+    { id: "blagnac", name: "Blagnac", address: "1 boulevard de l’Europe, 31700 Blagnac", country: "FR", lat: 43.65124, lng: 1.37412, hours: ["11:00", "23:00"], hoursByDay: { 0: ["12:00", "23:00"], 5: ["11:00", "00:00"], 6: ["11:00", "00:00"] }, openedOn: "2026-09-19", volume: 0.9 },
+    { id: "paris-18", name: "Paris 18e", address: "148 avenue de Saint-Ouen, 75018 Paris", country: "FR", lat: 48.89697, lng: 2.32895, hours: ["11:30", "23:00"], hoursByDay: { 0: ["12:00", "23:00"], 4: ["11:30", "02:00"], 5: ["11:30", "02:00"], 6: ["11:30", "02:00"] }, openedOn: "2026-09-26", volume: 1.2 },
+  ],
+  basket: {
+    menus: [
+      { product: menuSmashClassic, weight: 18, quantities: [0.82, 0.14, 0.04] },
+      { product: menuBigSmash, weight: 16, quantities: [0.85, 0.15] },
+      { product: menuSmashBacon, weight: 12, quantities: [0.88, 0.12] },
+      { product: menuBigChicken, weight: 11, quantities: [0.88, 0.12] },
+      { product: menuOriginalCheese, weight: 8, quantities: [0.88, 0.12] },
+      { product: menuSurfTurf, weight: 6, quantities: [1] },
+      { product: bigCombo, weight: 9, quantities: [1] },
+      { product: bigKids, weight: 5, quantities: [0.7, 0.3] },
+    ],
+    alaCarteWeight: 15,
+    alaCarte: [
+      { product: { name: "Smash Classic", price: 690 }, weight: 4 },
+      { product: { name: "Big Smash Burger", price: 690 }, weight: 4 },
+      { product: { name: "Smash Bacon", price: 790 }, weight: 3 },
+      { product: { name: "Original Chicken", price: 690 }, weight: 2 },
+      { product: { name: "Tenders x4", price: 590 }, weight: 2 },
+      { product: { name: "Cheesy Dog", price: 490 }, weight: 1 },
+    ],
+    alaCarteMax: 3,
+    extras: [
+      { product: { name: "Frites cheddar bacon", price: 500 }, weight: 4 },
+      { product: { name: "Milkshake", price: 450 }, weight: 4 },
+      { product: { name: "Big Sundae", price: 350 }, weight: 3 },
+      { product: { name: "Chicken Pop-Corn x15", price: 590 }, weight: 3 },
+      { product: { name: "Pops cheddar", price: 450 }, weight: 2 },
+      { product: { name: "Limonade Red Cherry", price: 290 }, weight: 2 },
+      { product: { name: "Crevettes panées", price: 590 }, weight: 1 },
+    ],
+    extraChances: [0.4, 0.15],
+  },
+  simulation: {
+    dailyRevenue: 3000,
+    // Des bornes partout : le QR en prend une part modeste, la même dans chaque
+    // restaurant — tirée au hasard, elle faisait du classement un palmarès des
+    // franchisés sans fondement.
+    adoption: { choices: [0.1, 0.3, 0.5], initial: 0.3, spread: 0 },
+    // Des bornes dans chaque restaurant (FAQ du site) : la caisse encaisse.
+    withoutQr: "bornes",
+    tillMinutes: 1.8,
+    tills: 1,
+    onlineShare: [0.62, 0.8],
+    weekday: [1.05, 0.86, 0.9, 1, 0.95, 1.12, 1.22],
+    dailyNoise: 0.08,
+    // Soirée aussi forte que le midi, et plus longue : la carte est servie
+    // jusqu'à minuit ou 2 h le week-end. Répartition supposée, à caler sur leurs ventes.
+    peaks: [
+      { at: "12:40", sigmaMinutes: 40, weight: 0.38, name: "de midi" },
+      { at: "20:30", sigmaMinutes: 52, weight: 0.5, name: "du soir" },
+    ],
+    baseWeight: 0.14,
+    // La part QR des restaurants récents ne démarre pas plus bas : chaque
+    // restaurant à la part choisie, sans écart à expliquer.
+    opening: { buzz: 0.6, buzzDays: 10, adoptionStart: 1, adoptionDays: 60 },
+    // Les avis placent les attentes longues dans les restaurants les plus
+    // récents : à la pointe du samedi, une équipe qui ouvre passe sa capacité,
+    // une équipe rodée la tient.
+    kitchen: { peakLoad: [0.8, 1.1], maturityDays: 150, prepSpeed: [0.85, 1.2], passMaxMinutes: 1.6, prepMinutes: 3.4, prepPerItem: 0.6, prepNoise: 0.22 },
+    counterPayMinutes: [1, 4],
+    pickupMinutes: [0.5, 4],
+    notes: [
+      "Panier moyen : celui de paniers types sur votre carte, le réseau ne publiant pas le sien.",
+      "Ouvertures : la date d’inauguration publiée (Blagnac et Paris 18e en septembre, Fenouillet en juin, Lyon en août), celle de son centre commercial pour Montaudran (juin), estimée pour Muret et Échirolles.",
+      "Répartition des ventes entre le midi et le soir : supposée, à caler sur vos ventes par heure ; hors des pointes, un fond léger.",
+      "Volume de chaque restaurant : estimé (emplacement, ancienneté), en attendant vos chiffres ; le classement est donc illustratif.",
+    ],
+    estimateToleranceMinutes: 2,
+    estimatorLive: true,
+    rush: { waitMinutes: 10 },
+    recentMinutes: 30,
+    newDays: 30,
+    newVerb: "Inauguré",
+    dayStartHour: 4,
+    referenceDay: "2026-10-03",
+  },
+  // Six restaurants autour de Toulouse : un médaillon les montre à leur place.
+  display: {
+    ...oCroustiPoulet.display,
+    map: {
+      ...oCroustiPoulet.display.map,
+      clusterUnder: 25,
+      clusterRadius: 30,
+      inset: { minRestaurants: 4, name: "Toulouse" },
+      labels: true,
+    },
+  },
+};
+
+/*
  * Chicken Street : les 107 restaurants en France du localisateur
  * restaurants.chickenstreet.fr (relevé du 06/10/2026, adresses géocodées par la
  * Base Adresse Nationale ; Corbeil-Essonnes, qui ouvre le 10 octobre, n'y est
@@ -591,6 +716,7 @@ export const chickenStreet: NetworkFixture = {
 
 const NETWORKS: Record<string, NetworkFixture> = {
   [oCroustiPoulet.slug]: oCroustiPoulet,
+  [bigSmash.slug]: bigSmash,
   [chickenStreet.slug]: chickenStreet,
 };
 

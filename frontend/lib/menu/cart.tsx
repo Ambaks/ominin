@@ -12,6 +12,8 @@ import {
 } from "react";
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
+import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { createClient } from "@/lib/supabase/client";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
 import { TicketsProvider } from "./tickets";
@@ -39,6 +41,8 @@ export interface CartLine {
   key: string;
   itemId: string;
   name: string;
+  /** Format du plat (« x4 », « pour 2 »), en fin de name : le panier l'écrit en petit. */
+  detail?: string;
   /** Prix de base + suppléments, pour l'affichage ; la base refige le montant. */
   unitPrice: number;
   quantity: number;
@@ -52,8 +56,14 @@ export interface CartLine {
    * (par unité), ses suppléments restent en euros dans unitPrice.
    */
   reward?: { id: string; points: number };
-  /** Ligne formule : itemId porte alors l'identifiant de la formule. */
-  formule?: { selections: FormuleSelection[] };
+  /**
+   * Ligne formule : itemId porte alors l'identifiant de la formule. `items`,
+   * les plats de la carte derrière les choix : une fermeture les vise.
+   */
+  formule?: {
+    selections: FormuleSelection[];
+    items?: { id: string; name: string }[];
+  };
 }
 
 const noSubscription = () => () => {};
@@ -70,7 +80,8 @@ function isCartLine(value: unknown): value is CartLine {
     Number.isInteger(line.quantity) &&
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
-    Array.isArray(line.choices)
+    Array.isArray(line.choices) &&
+    (line.detail === undefined || typeof line.detail === "string")
   );
 }
 
@@ -115,6 +126,15 @@ export interface CartConfig {
   squareLocationId: string | null;
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
   loyalty?: LoyaltyProgram | null;
+  /** Sous ce total, le règlement par carte n'est pas proposé ; absent ⇒ aucun minimum. */
+  onlineMinOrder?: number | null;
+  /**
+   * Établissement dont les fermetures se relisent (articles_fermes) ; absent
+   * (aperçu), rien n'est jamais fermé.
+   */
+  etablissementId?: string;
+  /** Articles coupés au rendu de la page. */
+  closedItems?: string[];
   /**
    * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
    * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
@@ -150,6 +170,20 @@ interface CartContextValue extends CartConfig {
   track: (stage: MenuStage, options?: TrackOptions) => void;
   /** Le panier gardé a été relu : les changements suivants sont du client. */
   ready: boolean;
+  /**
+   * Articles coupés : maintenant, ou à l'heure de retrait choisie en click &
+   * collect (une cuisine fermée ce soir sert demain midi).
+   */
+  closed: ReadonlySet<string>;
+  /**
+   * Relit les fermetures en base. `at` : l'heure de retrait à juger, null
+   * pour maintenant ; absent, l'instant retenu au dernier appel.
+   */
+  refreshClosed: (at?: string | null) => void;
+  /** L'instant que `closed` juge : l'heure de retrait choisie, null pour maintenant. */
+  closedAt: string | null;
+  /** Le plat d'une ligne du panier qu'une fermeture coupe, s'il y en a un. */
+  closedDish: (line: CartLine) => string | undefined;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -248,6 +282,48 @@ export function CartProvider({
     []
   );
 
+  /*
+   * Fermetures en cours : la page en cache peut dater d'avant la fermeture de
+   * la cuisine, et un client garde la carte ouverte tout le repas. Relues à
+   * l'arrivée, au retour sur l'onglet et à l'ouverture du panier.
+   */
+  const [closed, setClosed] = useState<ReadonlySet<string>>(
+    () => new Set(config.closedItems)
+  );
+  const etablissementId = config.etablissementId;
+  const [closedAt, setClosedAt] = useState<string | null>(null);
+  const closedAtRef = useRef<string | null>(null);
+  // Seule la dernière lecture compte : une heure de retrait changée deux fois
+  // de suite ne doit pas voir la première réponse arriver après la seconde.
+  const closedRequest = useRef(0);
+  const refreshClosed = useCallback(
+    (at?: string | null) => {
+      if (at !== undefined) closedAtRef.current = at;
+      if (!etablissementId) return;
+      const request = ++closedRequest.current;
+      const judged = closedAtRef.current;
+      fetchClosedItems(createClient(), etablissementId, judged ?? undefined).then(
+        (items) => {
+          if (request !== closedRequest.current) return;
+          setClosed(new Set(items));
+          setClosedAt(judged);
+        },
+        // Réseau perdu : l'état connu reste, place_order a le dernier mot.
+        () => {}
+      );
+    },
+    [etablissementId]
+  );
+  useEffect(() => {
+    if (!etablissementId) return;
+    refreshClosed();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshClosed();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [etablissementId, refreshClosed]);
+
   const tracker = useRef<MenuTracker | null>(null);
   const tracking = !config.preview;
   useEffect(() => {
@@ -292,6 +368,15 @@ export function CartProvider({
       clearRewards,
       track,
       ready: restoredKey === storageKey,
+      closed,
+      refreshClosed,
+      closedAt,
+      closedDish: (line) =>
+        line.formule
+          ? line.formule.items?.find((item) => closed.has(item.id))?.name
+          : closed.has(line.itemId)
+            ? line.name
+            : undefined,
     };
   }, [
     config,
@@ -303,6 +388,9 @@ export function CartProvider({
     track,
     restoredKey,
     storageKey,
+    closed,
+    refreshClosed,
+    closedAt,
   ]);
 
   return (

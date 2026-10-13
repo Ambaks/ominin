@@ -12,7 +12,7 @@ import {
   type SetStateAction,
 } from "react";
 import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
-import { formatPrice, type MenuItem, type OptionGroup } from "@/lib/menu-data";
+import { addVerb, formatPrice, lineName, type MenuItem, type OptionGroup } from "@/lib/menu-data";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
@@ -37,6 +37,7 @@ export function ChoiceRow({
   onChange,
   supplement = 0,
   describedBy,
+  invalid,
   children,
 }: {
   type: "radio" | "checkbox";
@@ -45,6 +46,8 @@ export function ChoiceRow({
   onChange: () => void;
   supplement?: number;
   describedBy?: string;
+  /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
+  invalid?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -56,6 +59,7 @@ export function ChoiceRow({
           checked={checked}
           onChange={onChange}
           aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
           className="accent-ember-2"
         />
         {children}
@@ -77,12 +81,14 @@ export function GroupChoices({
   chosen,
   onToggle,
   onClear,
+  invalid,
 }: {
   group: OptionGroup;
   name: string;
   chosen: string[];
   onToggle: (choiceId: string) => void;
   onClear: () => void;
+  invalid?: boolean;
 }) {
   return (
     <>
@@ -99,6 +105,7 @@ export function GroupChoices({
           checked={chosen.includes(choice.id)}
           onChange={() => onToggle(choice.id)}
           supplement={choice.supplement}
+          invalid={invalid}
         >
           {choice.name}
         </ChoiceRow>
@@ -131,10 +138,11 @@ export function ChoiceTag({
           <span aria-hidden>✓</span>
           <span className="sr-only">(choix fait)</span>
         </>
-      ) : multiple ? (
-        "au choix"
       ) : (
-        "1 au choix"
+        <>
+          {multiple ? "au choix" : "1 au choix"}
+          <span className="sr-only">, obligatoire</span>
+        </>
       )}
     </span>
   );
@@ -243,10 +251,6 @@ export function revealAboveCartBar(button: HTMLElement | null) {
   });
 }
 
-/** Nom de la ligne du panier : avec son format, « Pilons x3 », « Boisson 33 cl ». */
-const lineName = (item: MenuItem) =>
-  item.detail ? `${item.name} ${item.detail}` : item.name;
-
 /** « Sans salade, tomate » plutôt que « Sans salade, Sans tomate » : un premier mot commun ne se répète pas. */
 function shared(names: string[]): string {
   const first = names[0].split(" ")[0];
@@ -258,7 +262,8 @@ function shared(names: string[]): string {
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
-  const { orderingEnabled, canOrder, addLine, track, lines } = useCart();
+  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
+    useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -279,10 +284,17 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   if (!orderingEnabled) return null;
 
-  if (isUnavailable(item)) {
+  // Épuisé, ou coupé par une fermeture (la cuisine ne sert plus) : le plat
+  // reste à la carte, sans bouton. En click & collect, la fermeture se juge à
+  // l'heure de retrait, que le panier connaît seul.
+  if (isUnavailable(item) || (!collect && closed.has(item.id))) {
     return (
-      <span className="shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-faint">
-        Indisponible
+      <span
+        className={`shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold ${
+          isUnavailable(item) ? "text-faint" : "text-muted"
+        }`}
+      >
+        {isUnavailable(item) ? "Indisponible" : "Plus servi"}
       </span>
     );
   }
@@ -300,11 +312,10 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     );
   }
 
-  const hasOptions = (item.options?.length ?? 0) > 0;
-  // Un menu à plusieurs choix se compose ; un seul choix se choisit.
-  const verb =
-    (item.options?.length ?? 0) > 1 ? "Composer" : hasOptions ? "Choisir" : "Ajouter";
-  const label = hasOptions ? verb : "+ Ajouter";
+  const groups = item.options ?? [];
+  const hasOptions = groups.length > 0;
+  const verb = addVerb(item);
+  const label = verb === "Ajouter" ? "+ Ajouter" : verb;
   // Combien de ce plat sont déjà au panier, toutes options confondues : le
   // « Ajouté ✓ » s'efface, le compte reste sur la carte.
   const inCart = lines
@@ -316,6 +327,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       key: cartLineKey(item.id, []),
       itemId: item.id,
       name: lineName(item),
+      detail: item.detail,
       unitPrice: item.price,
       optionSummary: [],
       choices: [],
@@ -329,6 +341,15 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   return (
     <>
+      {/* Click & collect : coupé à l'heure jugée, le plat reste ajoutable — un
+          retrait plus tard ou un autre jour le servira. */}
+      {collect && closed.has(item.id) && (
+        <span className="mr-3 self-center text-xs text-muted">
+          {closedAt
+            ? "Plus servi à l’heure choisie"
+            : "Plus servi maintenant · possible pour un retrait plus tard"}
+        </span>
+      )}
       <button
         ref={buttonRef}
         type="button"
@@ -342,6 +363,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
           event.currentTarget.focus({ preventScroll: true });
           setModalOpen(true);
         }}
+        aria-haspopup={hasOptions ? "dialog" : undefined}
         // Onze « + Ajouter » identiques ne disent rien à un lecteur d'écran.
         aria-label={`${added ? "Ajouté" : verb}\u00a0: ${lineName(item)}${
           inCart > 0 ? `, ${inCart} au panier` : ""
@@ -529,9 +551,15 @@ export function OptionsModal({
       for (const choice of group.choices) {
         if (!chosen(group.id).includes(choice.id)) continue;
         choices.push({ group_id: group.id, choice_id: choice.id });
+        // Un nom déjà entre parenthèses (« … (épicé) ») y range son supplément,
+        // « (épicé, +1,00 €) » : deux parenthèses de suite se lisaient mal, et
+        // un point médian se confondait avec celui qui sépare les choix.
+        const supplement = `+${formatPrice(choice.supplement)}`;
         optionSummary.push(
           choice.supplement > 0
-            ? `${choice.name} (+${formatPrice(choice.supplement)})`
+            ? choice.name.endsWith(")")
+              ? `${choice.name.slice(0, -1)},\u00a0${supplement})`
+              : `${choice.name} (${supplement})`
             : choice.name
         );
       }
@@ -540,6 +568,7 @@ export function OptionsModal({
       key: cartLineKey(item.id, choices, reward?.id),
       itemId: item.id,
       name: lineName(item),
+      detail: item.detail,
       unitPrice,
       optionSummary,
       choices,
@@ -564,14 +593,13 @@ export function OptionsModal({
                 data-compose={groups.length > 1 || undefined}
                 className="font-display text-xl font-medium"
               >
-                {item.name}
+                {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 » ; l'espace
+                    insécable le garde avec le dernier mot. */}
+                {item.detail ? `${item.name}\u00a0` : item.name}
                 {item.detail && (
-                  <>
-                    {" "}
-                    <span className="sheet-detail text-sm font-normal text-muted">
-                      {item.detail}
-                    </span>
-                  </>
+                  <span className="sheet-detail whitespace-nowrap align-middle text-sm font-normal text-muted">
+                    {item.detail}
+                  </span>
                 )}
               </h3>
               <span className="dish-price shrink-0 font-display text-lg text-ember-1">
@@ -629,6 +657,7 @@ export function OptionsModal({
                         name={group.id}
                         chosen={chosen(group.id)}
                         onToggle={(choiceId) => toggle(group, choiceId)}
+                        invalid={flash?.key === group.id && chosen(group.id).length === 0}
                         onClear={() =>
                           setSelected((current) => ({ ...current, [group.id]: [] }))
                         }

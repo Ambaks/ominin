@@ -4,17 +4,14 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import {
-  COLLECT_ETA_CHOICES_MIN,
-  ORDER_ACTION_LABELS,
-  PAYMENT_MODE_LABELS,
-} from "@/lib/gestion/constants";
+import { COLLECT_ETA_CHOICES_MIN, ORDER_ACTION_LABELS } from "@/lib/gestion/constants";
 import { formatPickup, formatTime } from "@/lib/gestion/format";
 import { nextStatuses } from "@/lib/gestion/permissions";
-import { lineTotal, orderTotal } from "@/lib/gestion/selectors";
+import { lastServedAt, lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
+import { LineOptions, PaymentChip } from "./order-line";
 import { StatusBadge } from "./status-badge";
 
 /**
@@ -53,10 +50,15 @@ export function OrderCard({
   };
 
   const heading = isCollect ? order.customerName ?? "Client" : place;
+  // Servie, une commande dit quand — l'heure de sa dernière ligne apportée,
+  // à côté de celle où elle a été passée. « Remise » au comptoir fast food.
+  const servedAt = order.status === "servie" ? lastServedAt(order) : undefined;
+  const servedWord = order.orderNumber !== undefined ? "Remise" : "Servie";
   const cancelMessage = `${place} : la commande sera annulée définitivement.`;
 
   return (
-    <article className="rounded-2xl border border-hairline bg-surface p-5">
+    // En colonne, le total au pied : il s'aligne d'une carte à l'autre d'un rang.
+    <article className="flex flex-col rounded-2xl border border-hairline bg-surface p-5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2.5">
           {isCollect && (
@@ -65,14 +67,18 @@ export function OrderCard({
             </span>
           )}
           <h3 className="font-display text-lg font-medium">{heading}</h3>
-          <span className="text-xs tabular-nums text-faint">
+          <span className="text-[13px] tabular-nums text-muted">
             {formatTime(order.createdAt)}
           </span>
         </div>
         <StatusBadge
           status={order.status}
           label={
-            order.orderNumber !== undefined && order.status === "servie" ? "Remise" : undefined
+            servedAt
+              ? `${servedWord} à ${formatTime(servedAt)}`
+              : order.status === "servie"
+                ? servedWord
+                : undefined
           }
         />
       </div>
@@ -88,7 +94,7 @@ export function OrderCard({
         </p>
       )}
 
-      <ul className="mt-3 flex flex-col gap-1.5">
+      <ul className="mb-4 mt-3 flex flex-col gap-1.5">
         {order.items.map((line) => (
           <li key={line.id} className="flex flex-col gap-0.5">
             <div className="flex items-baseline justify-between gap-4 text-sm">
@@ -100,32 +106,19 @@ export function OrderCard({
                 {formatPrice(lineTotal(line))}
               </span>
             </div>
-            {line.options?.map((option, index) => (
-              <p key={index} className="pl-5 text-xs text-faint">
-                {option.groupName} : {option.choiceName}
-                {option.supplement > 0 && ` (+${formatPrice(option.supplement)})`}
-              </p>
-            ))}
+            {/* Le supplément reste : il explique le prix de la ligne. */}
+            <LineOptions line={line} />
           </li>
         ))}
       </ul>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3">
         <div className="flex items-center gap-2.5">
           <span className="font-display text-lg text-ember-1">
             {formatPrice(orderTotal(order))}
           </span>
-          {order.paidOnline ? (
-            <span className="rounded-full border border-ember-2/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
-              Payée en ligne
-            </span>
-          ) : (
-            order.paymentMode && (
-              <span className="rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
-                {PAYMENT_MODE_LABELS[order.paymentMode]}
-              </span>
-            )
-          )}
+          {/* Le mode n'est posé qu'au règlement : sans lui, rien n'est encore payé. */}
+          {(order.paidOnline || order.paymentMode) && <PaymentChip orders={[order]} />}
           {order.cashGiven != null && (
             <span className="text-xs tabular-nums text-faint">
               Reçu {formatPrice(order.cashGiven)}

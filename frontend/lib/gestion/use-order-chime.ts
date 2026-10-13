@@ -66,7 +66,11 @@ export function useChimeEnabled(): boolean {
   );
 }
 
-/** Contexte audio démarré : le carillon peut sonner (rendu serveur : oui). */
+/**
+ * Contexte audio démarré : le carillon peut sonner. Rendu serveur : non — il
+ * ne l'est jamais avant un geste ; supposé prêt, ce qui l'annonce changeait
+ * d'aspect à l'hydratation.
+ */
 export function useChimeArmed(): boolean {
   return useSyncExternalStore(
     (listener) => {
@@ -74,7 +78,7 @@ export function useChimeArmed(): boolean {
       return () => armedListeners.delete(listener);
     },
     () => armed,
-    () => true
+    () => false
   );
 }
 
@@ -109,7 +113,8 @@ export function useOrderChime(enabled?: boolean): void {
   const known = useRef<Set<string> | null>(null);
 
   // Le contexte audio ne démarre qu'après un geste : on le débloque au
-  // premier toucher venu, et l'on retient s'il l'est (bandeau sinon).
+  // premier toucher ou à la première touche venus, et l'on retient s'il
+  // l'est (bandeau sinon).
   useEffect(() => {
     context();
     const unlock = () => {
@@ -117,7 +122,11 @@ export function useOrderChime(enabled?: boolean): void {
       if (ctx.state === "suspended") void ctx.resume();
     };
     window.addEventListener("pointerdown", unlock);
-    return () => window.removeEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
   }, []);
 
   useEffect(() => {

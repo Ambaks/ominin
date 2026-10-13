@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CounterCard } from "@/components/gestion/commandes/counter-card";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
+import {
+  FermeturesBar,
+  FermeturesStatut,
+} from "@/components/gestion/commandes/fermetures-bar";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
 import { ServirCard } from "@/components/gestion/commandes/servir-card";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
@@ -66,7 +70,7 @@ function dedupeById(orders: Order[]): Order[] {
 
 export default function CommandesPage() {
   const state = useGestion();
-  const { hasFeature } = useGestionAccess();
+  const { can, hasFeature } = useGestionAccess();
   const live = useRealtimeLive();
   const now = useNow(WAIT_TICK_MS);
   const printerOffline = usePrinterOffline(state?.etablissement.id ?? "");
@@ -209,6 +213,21 @@ export default function CommandesPage() {
         )}
       </div>
 
+      {state.closures.length > 0 &&
+        (can("fermetures.basculer") ? (
+          <FermeturesBar
+            closures={state.closures}
+            categories={state.categories}
+            dayEndHour={state.dayEndHour}
+          />
+        ) : (
+          <FermeturesStatut
+            closures={state.closures}
+            categories={state.categories}
+            dayEndHour={state.dayEndHour}
+          />
+        ))}
+
       {printerOffline && (
         <p
           role="alert"
@@ -331,6 +350,7 @@ export default function CommandesPage() {
                 key={tableId}
                 orders={orders}
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
+                now={now}
                 readOnly={isCuisinier}
               />
             )

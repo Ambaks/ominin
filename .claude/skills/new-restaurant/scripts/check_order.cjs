@@ -4,9 +4,15 @@
 //
 //   pw.sh check_order.cjs <url>
 //
-// Ne valide JAMAIS la commande : en production elle entrerait dans
-// l'historique réel du restaurant. Code de sortie 1 si un contrôle échoue.
+// Ne valide JAMAIS une vraie commande : en production elle entrerait dans
+// l'historique réel du restaurant. Sur /menu/demo/ seulement, le bouton de
+// l'aperçu est pressé : toute requête de commande ou de paiement y est
+// bloquée et compte comme un échec. Code de sortie 1 si un contrôle échoue.
 const { chromium } = require("playwright");
+
+// Ce qu'une commande envoie : une RPC Supabase (place_order…), une route de
+// paiement, de click & collect ou de notification de la salle.
+const ORDER_REQUEST = /\/rest\/v1\/rpc\/|\/api\/(stripe|square|sumup|collect|push)\//;
 
 const url = process.argv[2];
 if (!url) {
@@ -38,10 +44,15 @@ const inspectDialog = (page) =>
           d.parentElement?.parentElement === document.body),
       // …et elle doit rester habillée comme la page (thème + polices) : rendue
       // dans document.body, elle retombait en palette et polices Ominin.
+      // Un thème peut redéfinir ses jetons sur les fiches et les feuilles
+      // (Big Smash : page rouge, panneaux blancs) : la feuille ressemble alors
+      // aux fiches de la carte plutôt qu'à la page.
       themed: (() => {
         const root = document.querySelector("[data-menu-root]") || document.body;
-        const same = (v) =>
-          getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(root).getPropertyValue(v).trim();
+        const card = document.querySelector("main article");
+        const sameAs = (other, v) =>
+          !!other && getComputedStyle(d).getPropertyValue(v).trim() === getComputedStyle(other).getPropertyValue(v).trim();
+        const same = (v) => sameAs(root, v) || sameAs(card, v);
         // Le titre de la modale est un nom de plat : il se compare aux noms
         // des cartes, pas aux titres de section (manuscrits chez O’Crousti).
         const title = d.querySelector("h3");
@@ -62,12 +73,18 @@ const inspectDialog = (page) =>
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
+  const orderRequests = [];
+  page.on("request", (r) => {
+    if (ORDER_REQUEST.test(r.url())) orderRequests.push(`${r.method()} ${new URL(r.url()).pathname}`);
+  });
   // Un robot de recette ne doit jamais compter comme visite d'un client réel.
   // place_order aussi : le script ne presse jamais l'envoi, mais une
   // régression du verrou de l'aperçu ne doit rien faire partir.
   await page.route(/\/rpc\/(menu_track|place_order)/, (route) => route.abort());
   await page.goto(url, { waitUntil: "networkidle", timeout: 120000 });
-  await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
+  // Les outils de développement de Next ont leur propre dialogue : hors de la page, ils
+  // ne doivent pas répondre aux sélecteurs [role="dialog"] des feuilles de la carte.
+  await page.evaluate(() => document.querySelector("nextjs-portal")?.remove());
   await page.waitForTimeout(1500);
   console.log(`\n${url}\n`);
 
@@ -181,21 +198,40 @@ const inspectDialog = (page) =>
   if (bar) ok("barre de panier", bar);
   else fail("aucune barre de panier après ajout", "CartBar est-elle rendue sur cette route ?");
 
-  if (bar && url.includes("/demo/")) {
-    // La route d'aperçu est publique et la plupart des slugs existent en base :
-    // une commande envoyée d'ici partirait en cuisine chez le vrai client.
+  // La route d'aperçu est publique et la plupart des slugs existent en base :
+  // une commande envoyée d'ici partirait en cuisine chez le vrai client. Son
+  // bouton (CartConfig.preview) montre la suite sans rien envoyer : il est
+  // pressé, sur la page réellement servie, et seulement si c'est un aperçu.
+  // /menu/demo/<slug> sur le domaine principal, /demo/<slug> sur menu.ominin.com.
+  const preview = /^\/(menu\/)?demo\//.test(new URL(page.url()).pathname);
+  if (bar && !preview) console.log("· envoi non vérifié : cette page n'est pas un aperçu, rien n'est pressé");
+  if (bar && preview) {
     await page.locator("button", { hasText: "Voir la commande" }).first().click();
     await page.waitForTimeout(600);
-    const send = await page.evaluate(() => {
-      const b = [...document.querySelectorAll("button")].find((x) => /envoy|aperçu/i.test(x.textContent));
-      return b ? { disabled: b.disabled, label: b.textContent.trim() } : null;
-    });
-    // En fast food, l'aperçu montre le ticket sans rien envoyer : le bouton
-    // reste actif (« Aperçu : voir le ticket »), place_order est bloqué ici.
-    const fastFood = url.includes("service=fast-food");
-    if (send && /aperçu/i.test(send.label) && (send.disabled || fastFood))
-      ok("envoi verrouillé sur l'aperçu", `« ${send.label} »`);
-    else fail("l'aperçu peut ENVOYER une commande réelle", JSON.stringify(send));
+    const send = page.locator('[role="dialog"] button', { hasText: /^\s*Aperçu/ });
+    if (!(await send.count())) {
+      const label = await page.locator('[role="dialog"] button', { hasText: /envoy|commander/i }).allTextContents();
+      fail("l'aperçu peut ENVOYER une commande réelle", JSON.stringify(label));
+    } else {
+      const label = (await send.textContent()).trim();
+      // Filet : un aperçu qui enverrait quand même n'atteint pas la base.
+      await page.route(ORDER_REQUEST, (route) => route.abort());
+      await send.click();
+      await page.waitForTimeout(1200);
+      const shown = await page.evaluate(() => {
+        const d = document.querySelector('[role="dialog"]');
+        return {
+          table: !!d && /Commande envoyée/.test(d.textContent) && /rien n.a été envoyé ni payé/.test(d.textContent),
+          ticket: !!document.querySelector(".order-ticket"),
+          focusInside: !!d && d.contains(document.activeElement),
+        };
+      });
+      if (!shown.table && !shown.ticket) fail("l'aperçu ne montre pas la confirmation", `après « ${label} »`);
+      else if (!shown.focusInside) fail("confirmation affichée mais le focus est hors de la feuille");
+      else ok("aperçu de l'envoi", `« ${label} » → ${shown.ticket ? "ticket" : "confirmation"}, focus dedans`);
+      if (orderRequests.length) fail("l'aperçu a tenté d'ENVOYER", [...new Set(orderRequests)].join(", "));
+      else ok("rien n'est parti", "ni RPC Supabase, ni route de commande ou de paiement");
+    }
   }
 
   if (errors.length) fail(`${errors.length} erreur(s) JS`, [...new Set(errors)].slice(0, 3).join(" | "));

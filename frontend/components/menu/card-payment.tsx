@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { formatPrice } from "@/lib/menu-data";
 
 /*
@@ -174,15 +174,22 @@ export function CardPaymentForm({
   operator: string;
 }) {
   const due = formatPrice(total + tipAmount);
+  // Le formulaire remplace le panier : le focus le suit, sinon il retombait sur la page.
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => titleRef.current?.focus(), []);
   return (
     <div className="relative overflow-hidden">
       <div aria-hidden className="ember-glow pointer-events-none absolute inset-x-0 top-0 h-56" />
       <div className="relative flex flex-col px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <header className="rise flex flex-col items-center gap-2 text-center">
-          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-ember-1">
+          <h2
+            ref={titleRef}
+            tabIndex={-1}
+            className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-ember-1 outline-none"
+          >
             <LockIcon className="size-3.5" />
             Paiement sécurisé
-          </p>
+          </h2>
           <p className="ember-text font-display text-5xl font-medium tabular-nums">
             {due}
           </p>

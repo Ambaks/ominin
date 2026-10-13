@@ -90,6 +90,8 @@ export const WAIT_TICK_MS = 30_000;
 export const COUNTER_WAIT_WARN_MINUTES = 8;
 /** … puis passe en retard. */
 export const COUNTER_WAIT_LATE_MINUTES = 15;
+/** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
+export const SERVICE_LATE_MINUTES = 20;
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
@@ -414,6 +416,7 @@ export const ACTION_LABELS: Record<Action, string> = {
   "formules.edit": "Modifier les formules",
   "categories.edit": "Modifier les catégories",
   "etablissement.edit": "Modifier l'établissement",
+  "fermetures.basculer": "Fermer ou rouvrir la cuisine",
 };
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
@@ -424,11 +427,12 @@ export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
       "commandes",
     ])
   ) as Record<Extract<Action, `orders.${string}`>, Feature>),
+  "fermetures.basculer": "commandes",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
   gerant: "all",
-  cuisinier: ["menu.availability"],
+  cuisinier: ["menu.availability", "fermetures.basculer"],
   serveur: [
     "orders.setStatus:payee",
     "orders.setStatus:servie",

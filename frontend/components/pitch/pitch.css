@@ -36,6 +36,13 @@
   font-weight: 400;
 }
 
+/* Les unités d'une durée (Duration) : bas de casse, police du texte, à la moitié des chiffres. */
+.pitch-unit {
+  font-family: var(--font-pitch-text), sans-serif;
+  font-size: 0.45em;
+  font-weight: 700;
+}
+
 /* La touche manuscrite de l'enseigne, allumée comme un néon. */
 .flourish {
   font-family: var(--font-pitch-flourish), cursive;
@@ -215,6 +222,16 @@
   border-radius: 999px;
   background: #050505;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Une zone de l'écran seulement : plus large que haute, des coins réguliers. */
+.device-phone-crop {
+  padding: 1.6%;
+  border-radius: 7% / 8%;
+}
+
+.device-phone-crop .device-phone-screen {
+  border-radius: 5.5% / 6.5%;
 }
 
 .device-tablet {

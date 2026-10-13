@@ -4,27 +4,27 @@ import { useEffect, useRef, useState } from "react";
 import { CounterCard } from "@/components/gestion/commandes/counter-card";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PillTabs } from "@/components/ui/pill-tabs";
 import { ToastProvider } from "@/components/ui/toast";
 import {
   COUNTER_WAIT_LATE_MINUTES,
-  OFFRE_LABELS,
   ORDER_STATUS_FLOW,
   ORDER_STATUS_LABELS,
-  ORDER_TAB_LABELS,
-  WAIT_TICK_MS,
 } from "@/lib/gestion/constants";
-import {
-  awaitsService,
-  cardCount,
-  isHistoryStatus,
-  placeLabel,
-} from "@/lib/gestion/selectors";
+import { awaitsService, isHistoryStatus, placeLabel } from "@/lib/gestion/selectors";
 import { commit, getState, useGestion } from "@/lib/gestion/store";
 import type { OrderStatus, OrderTab } from "@/lib/gestion/types";
-import { minutesSince, useNow } from "@/lib/gestion/use-now";
+import { minutesSince } from "@/lib/gestion/use-now";
 import { useOrderChime } from "@/lib/gestion/use-order-chime";
-import { counterDemo, type Scenario } from "./fixtures";
+import type { Scenario } from "../_service/fixtures";
+import {
+  ChimeButton,
+  DemoBrand,
+  LiveLabel,
+  OrderTabs,
+  plural,
+  useServiceDemo,
+} from "../_service/screen";
+import { counterDemo } from "./fixtures";
 
 /*
  * L'onglet Commandes d'un restaurant fast food, sans connexion ni base : le
@@ -59,40 +59,6 @@ const EMPTY_HISTORY =
 
 /** Les cartes gardent la largeur qu'elles ont dans l'espace, quel que soit l'écran. */
 const GRID = "grid grid-cols-[repeat(auto-fill,minmax(min(21rem,100%),1fr))] gap-4";
-
-/**
- * Ouvre le service : le store est amorcé avant que quiconque s'y abonne —
- * cet effet précède useGestion, et les cartes n'existent pas encore. Sans
- * cela, le store partirait charger l'établissement du visiteur.
- */
-function useService(slug: string, scenario: Scenario) {
-  // L'heure d'ouverture prise au premier rendu, avant l'horloge de la page :
-  // amorcées plus tard (dans l'effet), les commandes paraissaient d'une minute
-  // plus jeunes jusqu'au premier battement.
-  const [openedAt] = useState(() => Date.now());
-  useEffect(() => {
-    const demo = counterDemo(slug, openedAt, scenario);
-    if (!demo) return;
-    commit(demo.state);
-    if (scenario === "fige") return;
-
-    let arrived = 0;
-    let timer: number;
-    const schedule = () => {
-      timer = window.setTimeout(() => {
-        const state = getState();
-        if (state.orders.filter(awaitsService).length < demo.maxOpen) {
-          const order = demo.arrival(arrived, new Date().toISOString());
-          arrived += 1;
-          if (order) commit({ ...state, orders: [...state.orders, order] });
-        }
-        schedule();
-      }, demo.delayMs(arrived));
-    };
-    schedule();
-    return () => window.clearTimeout(timer);
-  }, [slug, scenario, openedAt]);
-}
 
 /**
  * Cartes de la file dont le titre — état et numéro — est hors de vue, au
@@ -154,9 +120,6 @@ interface Tally {
   ready: number;
   numbers: number[];
 }
-
-const plural = (count: number, word: string) =>
-  `${count} ${count > 1 ? `${word}s` : word}`;
 
 /** « N° 36 », « N° 41 · 42 », « N° 42–45 » : les numéros qu'un client appelle. */
 function numbersLabel(numbers: number[]): string {
@@ -244,7 +207,7 @@ export function ComptoirDemo({
   name: string;
   scenario: Scenario;
 }) {
-  useService(slug, scenario);
+  const { now } = useServiceDemo(counterDemo, slug, scenario);
   const state = useGestion();
   // Le son de la démo, à elle : le réglage du vrai comptoir reste intact.
   const [chimeOn, setChimeOn] = useState(true);
@@ -259,11 +222,10 @@ export function ComptoirDemo({
     .filter((order) => isHistoryStatus(order.status))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const shown = tab === "a_servir" ? queue : history;
-  // Même règle que la carte : une commande en préparation depuis trop longtemps.
-  const now = useNow(WAIT_TICK_MS);
   const readyNumbers = new Set(
     queue.filter((order) => order.status === "prete").map((order) => order.orderNumber)
   );
+  // Même règle que la carte : une commande en préparation depuis trop longtemps.
   const lateNumbers = new Set(
     queue
       .filter(
@@ -328,28 +290,8 @@ export function ComptoirDemo({
   // Figée, la file n'attend plus rien : elle ne se dit pas « en direct ».
   const live = (
     <span className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-wider text-muted">
-      {scenario === "fige" ? (
-        "File figée"
-      ) : (
-        <span className="flex items-center gap-1.5">
-          <span className="size-1.5 animate-pulse rounded-full bg-ember-2" aria-hidden />
-          En direct
-        </span>
-      )}
-      {/* Le carillon de chaque nouvelle commande, comme à l'espace de gestion : coupable d'un appui. */}
-      <button
-        type="button"
-        aria-pressed={chimeOn}
-        aria-label="Son des nouvelles commandes"
-        onClick={() => setChimeOn((on) => !on)}
-        className="flex min-h-9 items-center gap-1.5 rounded-full border border-hairline px-2.5 uppercase transition-colors hover:text-foreground"
-      >
-        <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M11 5 6 9H3v6h3l5 4V5z" />
-          {chimeOn ? <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /> : <path d="m16 9 6 6M22 9l-6 6" />}
-        </svg>
-        {chimeOn ? "Son" : "Muet"}
-      </button>
+      <LiveLabel frozen={scenario === "fige" ? "File figée" : null} />
+      <ChimeButton state={chimeOn ? "on" : "off"} onPress={() => setChimeOn((on) => !on)} />
     </span>
   );
 
@@ -367,34 +309,8 @@ export function ComptoirDemo({
                 faisait passer la barre sur deux lignes, ce qui changeait sa mesure
                 et le faisait disparaître, sans fin (1024 px). */}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-2 lg:flex-nowrap lg:px-10">
-              <div className="min-w-0">
-                <p className="truncate text-[10px] font-semibold">
-                  <span className="ember-text uppercase tracking-[0.28em]">
-                    Ominin {OFFRE_LABELS.connect}
-                  </span>
-                  <span className="ml-2 text-xs font-medium text-muted">Démonstration</span>
-                </p>
-                <p className="truncate font-display text-lg font-medium">{name}</p>
-              </div>
-              {/* Les onglets de la page Commandes, remontés dans la barre : la
-                  file commence tout de suite sous elle. Leur marge laisse
-                  respirer le halo de l'onglet actif. */}
-              {state && (
-                <nav
-                  aria-label="Commandes"
-                  className="min-w-0 lg:shrink-0 [&>div]:-m-4 [&>div]:p-4"
-                >
-                  <PillTabs
-                    tabs={state.orderTabs.map((id) => ({
-                      id,
-                      label: ORDER_TAB_LABELS[id],
-                      count: id === "a_servir" ? cardCount(queue) : undefined,
-                    }))}
-                    activeId={tab}
-                    onSelect={(id) => setTab(id as OrderTab)}
-                  />
-                </nav>
-              )}
+              <DemoBrand name={name} />
+              {state && <OrderTabs state={state} active={tab} onSelect={setTab} />}
               <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex">
                 {cues}
                 {/* Le résumé de la file dès 1120 px : en dessous, avec les renvois, il ne laissait rien au nom. */}

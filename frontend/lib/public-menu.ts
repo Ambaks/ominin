@@ -1,8 +1,9 @@
 import type { OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
+import { fetchClosedItems } from "@/lib/menu/fermetures";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
-import { getRestaurant, type MenuItem, type Restaurant } from "@/lib/menu-data";
+import { getRestaurant, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -27,6 +28,25 @@ function serviceIsoDay(dayEndHour: number): number {
     weekday: "short",
   }).format(new Date(Date.now() - dayEndHour * 3_600_000));
   return ISO_DAYS[weekday];
+}
+
+/**
+ * Piment, mentions, allergènes et nom dans la langue de la cuisine : la base
+ * ne les porte pas encore, le registre statique si. Rattachés par nom, la
+ * carte en ligne imprime ce que montre /menu/demo ; sans registre, rien.
+ */
+function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | undefined): MenuCategory[] {
+  if (!registry) return categories;
+  const kickers = new Map(registry.categories.map((category) => [category.name, category.kicker]));
+  const printed = new Map(registry.categories.flatMap((category) => category.items.map((item) => [item.name, item])));
+  return categories.map((category) => ({
+    ...category,
+    kicker: kickers.get(category.name),
+    items: category.items.map((item) => {
+      const source = printed.get(item.name);
+      return source ? { ...item, spice: source.spice, tags: source.tags, allergens: source.allergens } : item;
+    }),
+  }));
 }
 
 /*
@@ -55,6 +75,14 @@ export async function fetchRestaurant(slug: string): Promise<{
   loyalty: LoyaltyProgram | null;
   /** Formules disponibles, sans les choix dont l'article est épuisé. */
   formules: Formule[];
+  /** Sous ce total, le règlement par carte n'est pas proposé ; null ⇒ aucun minimum. */
+  onlineMinOrder: number | null;
+  /**
+   * Articles coupés au rendu (cuisine fermée…). Les formules ne s'en
+   * délestent pas ici : la page en cache survivrait à la réouverture ; le
+   * menu les filtre d'après l'état relu (components/menu/formules.tsx).
+   */
+  closedItems: string[];
   /** Horaires structurés : les créneaux de retrait du click & collect. */
   openingHours: OpeningHours | null;
   collectSlotMinutes: number;
@@ -78,7 +106,10 @@ export async function fetchRestaurant(slug: string): Promise<{
   // Tarifs planifiés en cours. Un second aller-retour, mais la page est mise
   // en cache : c'est la revalidation qui le paie, pas le scan du client. Le
   // prix affiché est ainsi celui que place_order figera sur la commande.
-  const tarifs = await fetchActiveTarifs(supabase, etablissement.id);
+  const [tarifs, closedItems] = await Promise.all([
+    fetchActiveTarifs(supabase, etablissement.id),
+    fetchClosedItems(supabase, etablissement.id),
+  ]);
 
   // Actifs de marque gérés côté code pour les démos (comme le thème).
   const staticData = getRestaurant(etablissement.slug);
@@ -90,11 +121,14 @@ export async function fetchRestaurant(slug: string): Promise<{
     fidelite?: boolean;
   } | null;
 
-  const categories = applyTarifs(
-    assembleCategories(etablissement.categories, etablissement.items).filter(
-      (category) => category.items.length > 0
+  const categories = withPrintedDetails(
+    applyTarifs(
+      assembleCategories(etablissement.categories, etablissement.items).filter(
+        (category) => category.items.length > 0
+      ),
+      tarifs
     ),
-    tarifs
+    staticData
   );
 
   // Fidélité : fermée tant qu'Ominin n'a pas ouvert la capacité — aucune
@@ -169,6 +203,11 @@ export async function fetchRestaurant(slug: string): Promise<{
     id: etablissement.id,
     offre: etablissement.offre,
     onlinePayment: etablissement.online_payment,
+    onlineMinOrder:
+      etablissement.online_min_order === null
+        ? null
+        : Number(etablissement.online_min_order),
+    closedItems,
     paymentProvider: etablissement.payment_provider ?? "stripe",
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,
@@ -183,6 +222,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     restaurant: {
       slug: etablissement.slug,
       name: etablissement.name,
+      brandName: staticData?.brandName,
       tagline: etablissement.tagline,
       coverImage: staticData
         ? staticData.coverImage
@@ -191,6 +231,8 @@ export async function fetchRestaurant(slug: string): Promise<{
       poster: staticData?.poster,
       formulesBanner: staticData?.formulesBanner,
       highlights: staticData?.highlights,
+      ticker: staticData?.ticker,
+      glossary: staticData?.glossary,
       address: etablissement.address,
       phone: etablissement.phone,
       hours: etablissement.hours,

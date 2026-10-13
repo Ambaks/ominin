@@ -1,5 +1,12 @@
-import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
+import {
+  allergenLine,
+  BADGE_LABELS,
+  formatPrice,
+  type Badge,
+  type MenuItem,
+} from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
+import { DishIndicators } from "./dish-indicators";
 import { keepHyphenated } from "./keep-hyphenated";
 
 function Badges({ badges }: { badges?: Badge[] }) {
@@ -27,13 +34,23 @@ function Description({ text }: { text?: string }) {
   if (!text) return null;
   const className = "text-sm leading-relaxed text-muted lg:text-[15px]";
   const lines = text.split("\n");
-  if (lines.length === 1) return <p className={className}>{text}</p>;
+  if (lines.length === 1) return <p className={className}>{keepHyphenated(text)}</p>;
   return (
     <ul className={`dish-lines ${className}`}>
       {lines.map((line) => (
-        <li key={line}>{line}</li>
+        <li key={line}>{keepHyphenated(line)}</li>
       ))}
     </ul>
+  );
+}
+
+/** Les allergènes que l'établissement déclare pour ce plat. */
+function Allergens({ item }: { item: MenuItem }) {
+  if (!item.allergens?.length) return null;
+  return (
+    <p className="dish-allergens text-xs leading-relaxed text-faint">
+      {allergenLine(item.allergens)}
+    </p>
   );
 }
 
@@ -45,9 +62,13 @@ function Pairing({ pairing }: { pairing?: string }) {
 }
 
 /** Large photo card for featured items. */
-function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
+function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl">
+    <article
+      // Une fiche que la mise en page d'un thème peut étendre à la rangée (globals.css).
+      data-span={span || undefined}
+      className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl"
+    >
       {item.image && (
         <div className="dish-photo relative aspect-video overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
@@ -103,7 +124,9 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
             )}
           </div>
         </div>
+        <DishIndicators item={item} />
         <Description text={item.description} />
+        <Allergens item={item} />
         <Pairing pairing={item.pairing} />
         <div className="dish-action mt-1 flex justify-end">
           <AddToOrder item={item} />
@@ -113,6 +136,6 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
   );
 }
 
-export function DishCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
-  return <FeaturedCard item={item} priority={priority} />;
+export function DishCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
+  return <FeaturedCard item={item} priority={priority} span={span} />;
 }

@@ -3,6 +3,8 @@ import {
   Archivo,
   Archivo_Black,
   Barlow_Semi_Condensed,
+  Bebas_Neue,
+  DM_Sans,
   Didact_Gothic,
   Playball,
   Poppins,
@@ -32,7 +34,9 @@ const archivoBlack = Archivo_Black({
 /**
  * Chicken Street — le texte de la carte : Archivo, une grotesque à chasse
  * variable ; les titres passent en Anton, condensée comme les capitales de
- * l'enseigne.
+ * l'enseigne. Big Smash — bigsmash.fr est en Obviously (commerciale) : Archivo
+ * en est la plus proche des Google Fonts, que le thème élargit pour les noms
+ * et les titres ; les titres les plus gras reprennent Archivo Black.
  */
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -91,6 +95,26 @@ const playball = Playball({
 });
 
 /**
+ * Baï-Kō — les polices de son site : Bebas Neue, capitales condensées, pour
+ * les titres de section et les prix ; DM Sans pour le texte. Les noms
+ * coréens des sections (안주, 라면…) prennent le hangeul du système
+ * (globals.css, .category-kicker).
+ */
+const bebasNeue = Bebas_Neue({
+  variable: "--font-bebas-neue",
+  // latin-ext : le « Ō » de « Baï·Kō » dans le bandeau.
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  preload: false,
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  preload: false,
+});
+
+/**
  * L'Adresse — la carte imprimée est tout entière en Source Serif (titres,
  * plats, descriptions). Variable avec l'axe de taille optique : les titres
  * prennent le dessin de titrage, les descriptions celui du texte.
@@ -113,6 +137,8 @@ export const brandFontVariables = [
   anton,
   didactGothic,
   playball,
+  bebasNeue,
+  dmSans,
   sourceSerif4,
 ]
   .map((font) => font.variable)

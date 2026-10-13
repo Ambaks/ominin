@@ -5,8 +5,12 @@ import {
   commissionRange,
   commonSources,
   counterCardPercent,
+  decimal,
   euros,
+  fieldHoursSaved,
+  fieldReport as field,
   maxRate,
+  minutesSeconds,
   offerMath,
   percent,
   setupFeeLabel,
@@ -60,20 +64,8 @@ const illustration: Illustration = {
 
 const { exampleOrder, monthlyExample, revenueIllustration } = offerMath(illustration);
 
-/**
- * Relevé terrain d'un client Ominin (ominin.com/r7k2) : soirs de service,
- * commandes payées (dont en ligne et au comptoir), médianes commande → ticket
- * cuisine en secondes.
- */
-const field = { nights: 16, orders: 2_002, online: 435, counter: 1_545, onlineSeconds: 18, counterSeconds: 279 };
-
-/** « 4 min 39 » : une durée en secondes, telle que la course l'affiche. */
-const minutesSeconds = (seconds: number) => `${Math.floor(seconds / 60)}\u00a0min\u00a0${String(seconds % 60).padStart(2, "0")}`;
-
 /** Les notes Google des cinq fiches relevées : la moyenne pondérée, Gare de l'Est et Ivry. */
 const ratings = { average: 4.3, best: 4.6, worst: 3.9 };
-
-const decimal = (value: number) => value.toLocaleString("fr-FR", { maximumFractionDigits: 1 });
 
 /** Le relevé Ominin des avis Google : avis des cinq fiches, avis lus, dont à une ou deux étoiles. */
 const reviewSample = { ratings: 4_016, read: 750, negative: 168 };
@@ -169,11 +161,7 @@ const sources = {
     full: "Application «\u00a0Chicken Street France\u00a0» (éditeur DISHOP)\u00a0— click & collect et livraison, consultée le 06/10/2026",
     url: "https://apps.apple.com/fr/app/id1635374624",
   },
-  report: {
-    short: "Ominin, relevé terrain (ominin.com/r7k2)",
-    full: `Ominin\u00a0— relevé terrain d’un bar-restaurant toulousain équipé d’Ominin, ${field.nights} soirs de service du 18/09 au 03/10/2026, ${thousands(field.orders)} commandes payées\u00a0: médianes commande → ticket cuisine sur ${field.online} commandes en ligne et ${thousands(field.counter)} au comptoir`,
-    url: "https://www.ominin.com/r7k2?lang=fr",
-  },
+  report: commonSources.report,
   burgerKing: {
     short: "Snacking, 17/04/2024 (Burger King)",
     full: "Snacking\u00a0— Burger King généralise la commande à table, 17/04/2024",
@@ -289,7 +277,7 @@ const fieldProof: Section<"fieldProof"> = {
   facts: [
     { value: "47\u00a0%", label: "des commandes payées depuis la table le dernier week-end relevé, neuf jours après le lancement" },
     { value: "×2", label: "la part payée en ligne, le soir où «\u00a0Payer en ligne\u00a0» est devenu le choix par défaut\u00a0: de 15 à 32\u00a0%" },
-    { value: `${((field.online * (field.counterSeconds - field.onlineSeconds)) / 3600).toLocaleString("fr-FR", { maximumFractionDigits: 1 })}\u00a0h`, label: `de délai en moins avant le ticket cuisine, en ${field.nights} soirs\u00a0: ${field.online} commandes payées en ligne × l’écart médian` },
+    { value: `${fieldHoursSaved}\u00a0h`, label: `de délai en moins avant le ticket cuisine, en ${field.nights} soirs\u00a0: ${field.online} commandes payées en ligne × l’écart médian` },
   ],
   takeaway: "Un bar n’est pas un fast-food\u00a0: chez vous, le pilote mesurera ce délai canal par canal, QR, bornes et comptoir.",
   sources: ["report"],

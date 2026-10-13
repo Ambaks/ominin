@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   createOrder,
   createPayment,
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
+      .select("name, online_payment, online_min_order, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -147,6 +148,14 @@ export async function POST(request: Request) {
   }
   if (!lines?.length) {
     return NextResponse.json({ error: "Commande vide." }, { status: 409 });
+  }
+  const belowMinimum = onlineMinimumError(
+    lines,
+    etab.online_min_order,
+    order.type === "collect"
+  );
+  if (belowMinimum) {
+    return NextResponse.json({ error: belowMinimum }, { status: 409 });
   }
 
   const merchant = await getMerchantToken(admin, order.etablissement_id);
