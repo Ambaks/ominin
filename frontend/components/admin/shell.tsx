@@ -32,12 +32,10 @@ import {
   ChartIcon,
   FlagIcon,
   MapPinIcon,
-  PullRequestIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
   StoreIcon,
-  TaskIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
 
@@ -50,8 +48,6 @@ interface NavItem {
   products?: readonly Product[];
   /** Écrans rattachés, sans entrée propre. */
   subPaths?: readonly string[];
-  /** Actif sur son seul chemin : ses sous-chemins sont d'autres entrées. */
-  exact?: boolean;
 }
 
 interface Section {
@@ -62,8 +58,8 @@ interface Section {
 
 /*
  * Trois questions, trois onglets. Marketing va chercher des restaurants ;
- * Clients regarde ceux qui ont signé ; Projet dit ce qu'on construit, lu
- * depuis GitHub. L'écran des fiches de prospection (crm_restaurants) prend le
+ * Clients regarde ceux qui ont signé ; Projet suit les clients à interfacer
+ * et ce qui reste pour finir les offres. L'écran des fiches de prospection (crm_restaurants) prend le
  * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
  * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
@@ -131,20 +127,12 @@ const SECTIONS: Section[] = [
   {
     id: "projet",
     label: "Projet",
-    items: [
-      { href: "/projet", label: "Planning", icon: FlagIcon, exact: true },
-      { href: "/projet/taches", label: "Tâches", icon: TaskIcon },
-      {
-        href: "/projet/pull-requests",
-        label: "Pull requests",
-        icon: PullRequestIcon,
-      },
-    ],
+    items: [{ href: "/projet", label: "Suivi", icon: FlagIcon }],
   },
 ];
 
 function isActive(localPath: string, item: NavItem): boolean {
-  if (item.href === "/" || item.exact) return localPath === item.href;
+  if (item.href === "/") return localPath === item.href;
   return [item.href, ...(item.subPaths ?? [])].some(
     (path) => localPath === path || localPath.startsWith(`${path}/`),
   );

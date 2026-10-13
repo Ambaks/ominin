@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Section Projet refaite : clients à interfacer et chantiers, GitHub débranché (2026-10-14, migration `20261014000001`) :** la section Projet ne lit plus GitHub (route `/api/admin/github`, pages Tâches et Pull requests, gates et loops de l'Agenda retirées). Elle montre **les clients à interfacer**, un rectangle chacun — l'étape en cours, l'avancement, et pour un client relié à son établissement ou à sa boutique le CA total, la part reversée à Ominin et les tickets (`admin_menu_overview` / `admin_shop_overview` depuis toujours et sur 30 jours). Un clic ouvre sa **pipeline** façon workflow GitHub : Prospection (recherche, démo prête, contact, rendez-vous, accord), Intégration (CGV acceptées, encaissement et paiement test, carte validée, thème, tables et Cachets, imprimantes et Omilink, formation), Suivi (premier service, bilan à 2 semaines, avis client) — variante Shop pour une boutique —, ses notes, et la liste des autres clients à gauche. Au-dessus, **les chantiers** qui restent pour finir les offres : kit matériel (3 imprimantes, Raspberry Pi, fournisseurs, image Omilink, montage, emballage, prix, kit de démo), réseaux sociaux (Meta en Live, reconnexion, post de test, alerte Render, LinkedIn, Reels), paiement et caisses (paiement Stripe dans la page, Apple/Google Pay, fast food Big Smash, HubRise), juridique et facturation, offre Shop. Point de départ posé par la migration : BOHO, LZ.FOOD, L'Adresse, MyBox, Big Smash, Chicken Street, O'Crousti Poulet, Cyprien, Nash Burger, Jefe Burger, avec les statuts connus au 14 oct. Tables `projet_clients`, `projet_chantiers`, `projet_steps` (policies `is_admin()`), pipeline type dans `projet_add_client`. **Vérifié :** toutes les migrations rejouées sur un Postgres 16 avec PostGIS (la migration `ola` est désormais dans le dépôt) ; `tsc`, `eslint` ; écrans pilotés dans Chrome contre un faux Supabase nourri des données de départ, bureau et 390 px, sans erreur ni débordement. Graphe rafraîchi.
+
 > **Résultats terrain rafraîchis (2026-10-13, branche `rapport-mois`, sans migration, ominin.com/r7k2) :** la page publique couvre désormais 25 soirs (18 sept. – 12 oct.) au lieu de 16 : 60 425 € sur 2 874 commandes payées, 18 s de la commande au ticket cuisine en ligne contre 4 min 28 s au comptoir, 51 % des commandes payées depuis la table le week-end des 9 et 10 oct. Les dates du texte (période, dernier week-end, date d'extraction, plage des catégories) sont calculées depuis `data.json` (`extracted`, `last_weekend`), plus rien n'est écrit en dur. **Paiements réussis figés au 24 sept. – 3 oct.** : depuis le 4 oct., les tentatives abandonnées sont supprimées de la base (workflow `square-expire`), le taux ne peut donc plus être recalculé ; la section le dit, ses soirs vivent dans `online_funnel.nights` et le tableau soir par soir perd ses colonnes « Tentatives » et « Abandonnées ». Nouveau plat du top 10 anonymisé (« Pizza au poulet »). Les autres chiffres sont recalculés avec les définitions du 4 oct., vérifiées en reproduisant à l'identique l'ancien `data.json` (seul le graphique de charge bouge un peu, les tentatives supprimées n'y comptant plus). Un second rafraîchissement suivra le dimanche 18 oct. pour le premier mois complet (30 soirs).
 
 > **Commande minimum en ligne et fermetures de la cuisine (2026-10-13, branche `fermetures-minimum`, migration `20261013000001_fermetures_minimum.sql`) :** deux demandes du BOHO. **(1) Commande minimum en ligne** : `etablissements.online_min_order` (null = aucun minimum ; la migration règle le BOHO à 5 €), dans Établissement → Paiement à table, sous l’interrupteur « Paiement en ligne ». Sous ce total, le menu QR ne propose plus « Payer en ligne » (« Paiement en ligne dès 5,00 € : ajoutez 3,00 €… ») et le client règle au comptoir ; le click & collect l’annonce dans son en-tête et refuse le panier. Vérifié par `place_order` et par les routes de paiement Stripe, Square et SumUp (`lib/menu/online-minimum.ts`, en centimes). **(2) Fermetures** : tables `closures` + `closure_targets` (catégories ou articles, comme les tarifs planifiés), écrites ensemble par `enregistrer_fermeture`. Horaire facultatif (jours, début, fin ; sans fin, jusqu’à la bascule `day_end_hour`), tout en heure de service. Forçage à la main pour la seule journée de service (`basculer_fermeture`, gérant et cuisinier) : rouvrir pendant l’horaire suspend celui-ci jusqu’au lendemain. Le client voit « Plus servi » (`articles_fermes`, identifiants seuls, relu au chargement, au retour sur l’onglet et à l’ouverture du panier) ; une formule perd ses choix fermés, ou reste estompée « Plus servie » ; une ligne fermée depuis l’ajout bloque l’envoi. `place_order` refuse un plat fermé au client, jamais à l’équipe ; en click & collect, la fermeture se juge à l’heure de retrait. Ne touche jamais à `items.disponible`. Gestion : réglage dans Établissement → « Fermeture de la cuisine » ; barre Fermer/Rouvrir en tête de Commandes et liste « À l’arrêt » dans l’Aperçu (gérant, cuisinier) ; ligne « À l’arrêt » en lecture seule pour la salle ; mention « Fermé » à la prise de commande et sur les fiches du Menu. Realtime : `closures` seule est publiée, en `replica identity full` (les suppressions passent le filtre par établissement). Sélecteurs de jours et d’articles partagés avec les tarifs planifiés (`day-picker.tsx`, `menu-target-picker.tsx`, `PriceRuleTarget` → `MenuTarget`). Visites guidées : étapes « Fermer la cuisine » et « Une commande minimum » (Établissement), « Fermer d’un geste » (Commandes), réglages de l’accueil. **Déploiement :** `npm run db:push` puis `supabase migration list --linked` avant le merge, le front lit la nouvelle colonne et les nouvelles tables. **Relectures (sur Supabase local) :** UX 8,5 et 8,3, ingénierie 9,1. **Suites connues :** pas de plafond au minimum (constante à décider) ; avis du recouvrement de fermetures affiché 3 s (`TOAST_DURATION_MS`) ; connecté comme membre, son propre menu laisse commander un plat fermé (voulu).
@@ -839,36 +841,25 @@ committed — do not gitignore either folder.
 
 ---
 
-## Gestion du projet (GitHub)
+## Gestion du projet
 
-Le travail à faire vit dans les issues du dépôt, pas dans ce README ni dans
-TACHES-AMBAKA.md. La section Projet de l'admin les lit.
+Le suivi vit dans la section **Projet** de l'admin (admin.ominin.com/projet),
+plus dans GitHub : les milestones et issues du plan d'octobre ont été retirées
+le 2026-10-14.
 
-- **Gates = milestones**, nommées `<Produit> · <objectif>` (« Shop · MyBox
-  publiée et conforme »), avec une date cible ; la description porte
-  l'indicateur, la condition d'entrée éventuelle et les critères de sortie.
-  La milestone « Plus tard », sans date, garde ce qui est hors du plan en
-  cours.
-- **Une issue = une tâche concrète**, rattachée à une gate. Le titre est un
-  verbe à l'infinitif ; le corps dit pourquoi, et d'où ça vient, et se
-  termine par le bloc « Plan du … » (gate, responsable, semaine, effort).
-- **Loops** : un gros chantier confié à Claude en autonomie, avec son critère
-  d'arrêt. Une issue par loop, label `loop`, titre
-  `Loop · AAAA-MM-JJ · <livrable>` : l'Agenda de l'admin lit la date dans le
-  titre.
-- **Labels** : un produit (`produit:menu`, `produit:collect`, `produit:shop`,
-  `produit:clip`, `produit:agents`, `produit:sur-mesure`, ou `transverse`),
-  un type (`type:code`, `type:config` pour un dashboard ou une étape
-  manuelle, `type:décision`, `type:test`, `type:commercial` pour le temps
-  passé face au client, `type:doc` pour un document rédigé avec Claude et
-  relu), et au besoin `statut:en-cours`, `statut:bloqué` (dire quoi en
-  commentaire), `priorité:haute` (bloque une vente ou touche la sécurité).
-- **Assignation** : chaque tâche a un seul responsable, Marwan ou Ambaka ;
-  Claude n'est jamais responsable. Marwan : restauration, deals, offres et
-  commercial ; Ambaka : technique, matériel, juridique, Clip et Agents.
-- **Tout changement passe par une branche et une pull request** qui cite son
-  issue (`Closes #12`) : la fusion ferme l'issue, la gate avance. Un agent
-  fait de même — il ouvre la PR, un humain la relit.
+- **Clients** : un rectangle par client à interfacer (en service ou deal en
+  cours), avec l'étape où il en est et, une fois relié à son établissement ou
+  à sa boutique, son CA total, ce qui est reversé à Ominin et ses tickets. Un
+  clic ouvre sa pipeline (Prospection → Intégration → Suivi, 15 étapes
+  créées par `projet_add_client`), ses chiffres sur 30 jours et ses notes.
+- **Chantiers** : au-dessus, ce qui reste pour finir chaque offre (kit
+  matériel, réseaux sociaux, paiement et caisses, juridique…), étape par
+  étape, avec un responsable (Marwan ou Ambaka).
+- Données : tables `projet_clients`, `projet_chantiers`, `projet_steps`
+  (admins seuls). Une étape avance d'un clic sur sa pastille ; le reste
+  (responsable, blocage, ajout, suppression) se règle sur la ligne.
+- **Tout changement de code passe par une branche et une pull request**,
+  relue avant fusion.
 - **Numéros de migration** : avant d'en créer une, vérifier les migrations
   des branches ouvertes et de la production (`migration list --linked`) ;
   deux migrations du même numéro font échouer `db push`.

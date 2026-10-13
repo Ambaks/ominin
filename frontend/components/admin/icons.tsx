@@ -251,24 +251,3 @@ export function FlagIcon(props: IconProps) {
     </Svg>
   );
 }
-
-export function TaskIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="m8.5 12.5 2.5 2.5 4.5-5" />
-    </Svg>
-  );
-}
-
-export function PullRequestIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="6.5" cy="5.5" r="2.5" />
-      <circle cx="6.5" cy="18.5" r="2.5" />
-      <circle cx="17.5" cy="18.5" r="2.5" />
-      <path d="M6.5 8v8M17.5 16v-6.5a3 3 0 0 0-3-3H11" />
-      <path d="m13 4.5-2 2 2 2" />
-    </Svg>
-  );
-}

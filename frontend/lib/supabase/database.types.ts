@@ -2801,6 +2801,129 @@ export type Database = {
           },
         ]
       }
+      projet_chantiers: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          product: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_clients: {
+        Row: {
+          created_at: string
+          etablissement_id: string | null
+          id: string
+          name: string
+          notes: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name: string
+          notes?: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          product?: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_clients_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projet_steps: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          detail: string
+          id: string
+          owner: string | null
+          phase: string
+          position: number
+          status: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position?: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_steps_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "projet_chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_steps_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "projet_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_notified: {
         Row: {
           event: string
@@ -4875,6 +4998,15 @@ export type Database = {
         }
         Returns: number
       }
+      projet_add_client: {
+        Args: {
+          p_etablissement?: string
+          p_name: string
+          p_product: Database["public"]["Enums"]["ominin_product"]
+          p_shop?: string
+        }
+        Returns: string
+      }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
       reprint_order_tickets: {
@@ -5080,6 +5212,7 @@ export type Database = {
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
+      projet_step_status: "todo" | "doing" | "done" | "blocked"
       service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
@@ -5336,6 +5469,7 @@ export const Constants = {
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
+      projet_step_status: ["todo", "doing", "done", "blocked"],
       service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],
