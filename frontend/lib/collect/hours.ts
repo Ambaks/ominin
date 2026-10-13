@@ -20,13 +20,13 @@ export const DAY_NAMES = [
 
 const TIME_ZONE = "Europe/Paris";
 
-const toMinutes = (time: string) => {
+export const toMinutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
 };
 
 /** Date (AAAA-MM-JJ), jour ISO et minutes écoulées à Paris pour un instant. */
-function parisParts(at: Date) {
+export function parisParts(at: Date) {
   const parts = Object.fromEntries(
     new Intl.DateTimeFormat("en-GB", {
       timeZone: TIME_ZONE,

@@ -12,6 +12,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
   loadItemRoutingMap,
@@ -20,6 +22,7 @@ import {
   type Printer,
 } from "@/lib/gestion/terminaux";
 import type { Formule } from "@/lib/gestion/types";
+import { useNow } from "@/lib/gestion/use-now";
 import { fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import type { MenuItem } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
@@ -46,6 +49,8 @@ export default function MenuPage() {
   // Les prix que les tarifs planifiés donnent à cet instant, relus en base :
   // c'est la fonction SQL qui facture qui répond, pas un calcul refait ici.
   const [tarifs, setTarifs] = useState<TarifMap>(new Map());
+  // La fermeture de 22 h se lit sur les fiches sans recharger la page.
+  const now = useNow(WAIT_TICK_MS);
 
   const etablissementId = state?.etablissement.id;
   const priceRules = state?.priceRules;
@@ -121,6 +126,12 @@ export default function MenuPage() {
     state.priceRules.filter((rule) =>
       rule.targets.some((target) => target.kind === kind && target.id === id)
     );
+  const closed = closedItems(
+    state.closures,
+    categories,
+    serviceClock(now, state.dayEndHour),
+    state.dayEndHour
+  );
 
   const moveItem = (index: number, delta: -1 | 1) => {
     if (!category) return;
@@ -286,6 +297,7 @@ export default function MenuPage() {
                           effective={tarifs.get(item.id) ?? null}
                         />
                       }
+                      closedBy={closed.get(item.id)}
                       onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}

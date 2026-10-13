@@ -19,6 +19,7 @@ import {
 } from "./constants";
 import {
   assembleCategories,
+  rowToClosure,
   rowToEtablissement,
   rowToFormule,
   rowToMember,
@@ -151,35 +152,44 @@ export async function fetchPaidOrders(
 }
 
 /*
- * Refetch des commandes sur événement realtime, coalescé : un refetch en
- * vol absorbe les événements suivants au lieu d'empiler les requêtes.
+ * Refetch sur événement realtime, coalescé : un refetch en vol absorbe les
+ * événements suivants au lieu d'empiler les requêtes, et une réponse
+ * ancienne ne repasse jamais après une récente.
  */
-let refreshing = false;
-let refreshQueued = false;
-
-async function refreshOrders(supabase: Client, etablissementId: string) {
-  // Tant que l'état n'est pas prêt, le fetch initial fait foi.
-  if (!state) return;
-  if (refreshing) {
-    refreshQueued = true;
-    return;
-  }
-  refreshing = true;
-  try {
-    do {
-      refreshQueued = false;
-      const orders = await fetchOrders(supabase, etablissementId);
-      if (state) {
-        state = { ...state, orders };
-        notify();
-      }
-    } while (refreshQueued);
-  } catch (error) {
-    console.error("Rafraîchissement des commandes impossible :", error);
-  } finally {
-    refreshing = false;
-  }
+function coalesced(
+  what: string,
+  refetch: (supabase: Client, etablissementId: string) => Promise<void>
+) {
+  let running = false;
+  let queued = false;
+  return async (supabase: Client, etablissementId: string) => {
+    // Tant que l'état n'est pas prêt, le fetch initial fait foi.
+    if (!state) return;
+    if (running) {
+      queued = true;
+      return;
+    }
+    running = true;
+    try {
+      do {
+        queued = false;
+        await refetch(supabase, etablissementId);
+      } while (queued);
+    } catch (error) {
+      console.error(`Rafraîchissement ${what} impossible :`, error);
+    } finally {
+      running = false;
+    }
+  };
 }
+
+const refreshOrders = coalesced("des commandes", async (supabase, etablissementId) => {
+  const orders = await fetchOrders(supabase, etablissementId);
+  if (state) {
+    state = { ...state, orders };
+    notify();
+  }
+});
 
 /*
  * Abonnement realtime, plus deux filets pour le Wi-Fi de salle : au retour
@@ -191,6 +201,7 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
   const refreshAll = () => {
     void refreshOrders(supabase, etablissementId);
     void refreshTables(supabase, etablissementId);
+    void refreshClosures(supabase, etablissementId);
   };
   const onChange = () => void refreshOrders(supabase, etablissementId);
 
@@ -232,6 +243,19 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       },
       () => void refreshTables(supabase, etablissementId)
     )
+    // Une fermeture basculée depuis la cuisine se voit au comptoir. Ses
+    // cibles s'écrivent avec elle (enregistrer_fermeture) : son événement
+    // suffit à les relire.
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "closures",
+        filter: `etablissement_id=eq.${etablissementId}`,
+      },
+      () => void refreshClosures(supabase, etablissementId)
+    )
     .subscribe((status) => {
       const live = status === "SUBSCRIBED";
       if (live && joined) refreshAll();
@@ -242,6 +266,21 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       }
     });
 }
+
+const closuresQuery = (supabase: Client, etablissementId: string) =>
+  supabase
+    .from("closures")
+    .select("*, closure_targets(*)")
+    .eq("etablissement_id", etablissementId)
+    .order("created_at", { ascending: true });
+
+const refreshClosures = coalesced("des fermetures", async (supabase, etablissementId) => {
+  const rows = must(await closuresQuery(supabase, etablissementId));
+  if (state) {
+    state = { ...state, closures: rows.map(rowToClosure) };
+    notify();
+  }
+});
 
 async function refreshTables(supabase: Client, etablissementId: string) {
   if (!state) return;
@@ -303,6 +342,7 @@ async function load(): Promise<void> {
     items,
     formules,
     priceRules,
+    closures,
     tables,
     orders,
     members,
@@ -342,6 +382,7 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: false })
         .then(must),
+      closuresQuery(supabase, etablissementId).then(must),
       supabase
         .from("tables")
         .select("*")
@@ -389,6 +430,7 @@ async function load(): Promise<void> {
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
     priceRules: priceRules.map(rowToPriceRule),
+    closures: closures.map(rowToClosure),
     tables: tables.map(rowToTable),
     orders,
   };

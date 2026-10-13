@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
+import { useNow } from "@/lib/gestion/use-now";
 import { applyTarifs, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import { formatPrice, type MenuItem } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
@@ -171,6 +174,7 @@ function CreateOrderDialog({
   onClose: () => void;
 }) {
   const toast = useToast();
+  const now = useNow(WAIT_TICK_MS);
   const [pickedNumber, setPickedNumber] = useState<number | null>(null);
   const [newNumberRaw, setNewNumberRaw] = useState("");
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -199,6 +203,15 @@ function CreateOrderDialog({
       live = false;
     };
   }, [etablissementId]);
+
+  // Ce que le menu refuse en ce moment au client : la salle le voit, et
+  // l'ajoute quand même si la cuisine accepte encore.
+  const closed = closedItems(
+    state.closures,
+    state.categories,
+    serviceClock(now, state.dayEndHour),
+    state.dayEndHour
+  );
 
   const tables = [...state.tables].sort((a, b) => a.number - b.number);
   // Fast food : pas de table à choisir, la commande prend son numéro du jour.
@@ -451,6 +464,11 @@ function CreateOrderDialog({
                       <p className="truncate text-sm">{item.name}</p>
                       {item.options && item.options.length > 0 && (
                         <p className="text-xs text-faint">Avec options</p>
+                      )}
+                      {closed.has(item.id) && (
+                        <p className="text-xs text-ember-3">
+                          Fermé · {closed.get(item.id)}
+                        </p>
                       )}
                     </div>
                     <span className="shrink-0 text-sm tabular-nums text-muted">
