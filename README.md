@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Section Projet refaite : clients à interfacer et chantiers, GitHub débranché (2026-10-14, migration `20261014000001`) :** la section Projet ne lit plus GitHub (route `/api/admin/github`, pages Tâches et Pull requests, gates et loops de l'Agenda retirées). Elle montre **les clients à interfacer**, un rectangle chacun — l'étape en cours, l'avancement, et pour un client relié à son établissement ou à sa boutique le CA total, la part reversée à Ominin et les tickets (`admin_menu_overview` / `admin_shop_overview` depuis toujours et sur 30 jours). Un clic ouvre sa **pipeline** façon workflow GitHub : Prospection (recherche, démo prête, contact, rendez-vous, accord), Intégration (CGV acceptées, encaissement et paiement test, carte validée, thème, tables et Cachets, imprimantes et Omilink, formation), Suivi (premier service, bilan à 2 semaines, avis client) — variante Shop pour une boutique —, ses notes, et la liste des autres clients à gauche. Au-dessus, **les chantiers** qui restent pour finir les offres : kit matériel (3 imprimantes, Raspberry Pi, fournisseurs, image Omilink, montage, emballage, prix, kit de démo), réseaux sociaux (Meta en Live, reconnexion, post de test, alerte Render, LinkedIn, Reels), paiement et caisses (paiement Stripe dans la page, Apple/Google Pay, fast food Big Smash, HubRise), juridique et facturation, offre Shop. Point de départ posé par la migration : BOHO, LZ.FOOD, L'Adresse, MyBox, Big Smash, Chicken Street, O'Crousti Poulet, Cyprien, Nash Burger, Jefe Burger, avec les statuts connus au 14 oct. Tables `projet_clients`, `projet_chantiers`, `projet_steps` (policies `is_admin()`), pipeline type dans `projet_add_client`. **Vérifié :** toutes les migrations rejouées sur un Postgres 16 avec PostGIS (la migration `ola` est désormais dans le dépôt) ; `tsc`, `eslint` ; écrans pilotés dans Chrome contre un faux Supabase nourri des données de départ, bureau et 390 px, sans erreur ni débordement. Graphe rafraîchi.
+
 > **Agent social : en pause, prix lus sur le site, visuels au style des landings, échec visible (2026-10-12, branche `feat/social-refonte`) :** état des lieux du 2026-10-11. **(1) Plus rien n'est publié depuis le 5 oct.** : 30 publications en échec sur les 8 comptes (« Cannot call API for app 4408042652660760 on behalf of user », code 200). Les jetons sont présents et la lecture des statistiques a marché jusqu'au 7 oct. : c'est le droit de publier que Meta refuse (app en mode Développement, rôle de l'utilisateur ou permission `pages_manage_posts` / `instagram_content_publish` à revoir dans le tableau de bord Meta, puis reconnecter dans Réseaux → Comptes). Le run était marqué « réussi » et le workflow restait vert (l'endpoint répond 202 et travaille en tâche de fond). **(2) Audience nulle** : sur Instagram ≈ 1 vue par post (11 posts mesurés, 11 de portée), 0 vue sur Facebook. **(3) Prix faux** : 21 posts annonçaient « 100 € par mois et 10 % par commande », d'autres 59 / 79 / 99 / 150 € — copiés en dur dans le prompt. **Ce qui change :** les workflows `agent-social-post` et `agent-social-research` sont **désactivés** sur GitHub (2026-10-11) jusqu'à la refonte ; les boutons « Publier / Analyser maintenant » de l'admin restent actifs, à ne pas utiliser d'ici là. Les prix ne sont plus dans le prompt : `/api/social/tarifs` les sert depuis `lib/landing-data.ts` (offres Menu, Click & collect et bundle, Cachets, Omilink) et l'agent les lit au moment d'écrire ; tarifs illisibles → aucun montant cité, et une alerte. Un run où rien n'a pu être publié passe **en échec** (visible dans l'admin) au lieu de « réussi ». Les images reprennent le kit des landings : Geist 800 serré (police en `assets/fonts`, OFL), fond `#0c0a08` pour les quatre marques avec un halo à leur couleur, étiquette à pastille, logo à chevrons, et les mots du titre que le rédacteur encadre de `[[ ]]` posés sur le dégradé (consigne ajoutée au prompt). **Vérifié :** rendu des images en local (Menu, Collect, Shop, Ominin), route des tarifs, prompt sans anciens prix, `ruff`, `tsc`, `eslint`. **Reste :** réparer la publication côté Meta ; renseigner `OPERATOR_ALERT_EMAIL` (ou `NTFY_TOPIC`) sur Render, sans quoi les alertes `notify.send` ne partent nulle part ; Reels (vidéo) et LinkedIn ; nouvelle ligne éditoriale (visages et réel, quatre marques). Graphe rafraîchi.
 
 > **L'Adresse, carte aux couleurs de l'établissement (2026-10-12, branche `l-adresse-restaurant`, sans migration) :** nouveau prospect, restaurant lounge de Portet-sur-Garonne (cuisine maison, cocktails sans alcool, chichas). Démo `menu.ominin.com/demo/l-adresse` servie par le registre statique (`const lAdresse`), dans le seul thème `.theme-l-adresse` (pas de version Ominin, à la demande) : logo tracé depuis le leur, cadre à coins rabattus, rosace et filigrane de la carte imprimée, bandeaux dorés derrière les titres, pointillés entre plat et prix, Source Serif 4, mouvement CSS au chargement et au défilement (rien en mouvement réduit). Carte du 2 octobre 2026 : 42 plats et la Formule Classique à 36 €, présentée comme la page « Menu » de leur carte. Options ajoutées (cuisson, accompagnement, supplément +4 €), corrections et questions au gérant dans `demos/l-adresse/profile.json` (notes 1 à 25). **Partagé (toutes les cartes, BOHO compris) :** saut de catégorie sans ancre dans l'historique (`SectionLink` ; dans Chrome, fermer la feuille d'un plat ramenait la page en haut de la catégorie), focus au titre de la section, sans anneau après un toucher ; bouton « Commander sur WhatsApp » retiré du pied de page (décision) ; feuilles d'options : lignes communes (`ChoiceRow`, `GroupChoices`, « Aucun » aussi dans les formules), récapitulatif limité aux choix obligatoires, groupes obligatoires annoncés comme tels (radiogroup, plus de `required` qui les disait invalides), bouton de validation de 56 px sous 400 px ; formules : description entière et récapitulatif par étape, questions d'un plat sous son nom, une étape par ligne au panier et sur le ticket d'aperçu, étapes facultatives vidées par les disponibilités retirées (`public-menu.ts`), feuille posée en haut en tablette ; pastille active sans décalage ; lien d'adresse vers la fiche Google (`placeId`). Relu jusqu'à 8/10 au moins pour chaque relecteur (cible du propriétaire) : audit complet à 9,5 (exactitude), 9 et 8 (correcteurs), 8,5 (commande), 8 (ingénierie), puis 8 en confirmation sur les derniers correctifs. **Reste :** décisions du propriétaire sur les constantes signalées et sur un plafond de la liste des plats d'une formule (cartes en production), séance photo sur place, mise en base et accès gérant.
@@ -831,36 +833,25 @@ committed — do not gitignore either folder.
 
 ---
 
-## Gestion du projet (GitHub)
+## Gestion du projet
 
-Le travail à faire vit dans les issues du dépôt, pas dans ce README ni dans
-TACHES-AMBAKA.md. La section Projet de l'admin les lit.
+Le suivi vit dans la section **Projet** de l'admin (admin.ominin.com/projet),
+plus dans GitHub : les milestones et issues du plan d'octobre ont été retirées
+le 2026-10-14.
 
-- **Gates = milestones**, nommées `<Produit> · <objectif>` (« Shop · MyBox
-  publiée et conforme »), avec une date cible ; la description porte
-  l'indicateur, la condition d'entrée éventuelle et les critères de sortie.
-  La milestone « Plus tard », sans date, garde ce qui est hors du plan en
-  cours.
-- **Une issue = une tâche concrète**, rattachée à une gate. Le titre est un
-  verbe à l'infinitif ; le corps dit pourquoi, et d'où ça vient, et se
-  termine par le bloc « Plan du … » (gate, responsable, semaine, effort).
-- **Loops** : un gros chantier confié à Claude en autonomie, avec son critère
-  d'arrêt. Une issue par loop, label `loop`, titre
-  `Loop · AAAA-MM-JJ · <livrable>` : l'Agenda de l'admin lit la date dans le
-  titre.
-- **Labels** : un produit (`produit:menu`, `produit:collect`, `produit:shop`,
-  `produit:clip`, `produit:agents`, `produit:sur-mesure`, ou `transverse`),
-  un type (`type:code`, `type:config` pour un dashboard ou une étape
-  manuelle, `type:décision`, `type:test`, `type:commercial` pour le temps
-  passé face au client, `type:doc` pour un document rédigé avec Claude et
-  relu), et au besoin `statut:en-cours`, `statut:bloqué` (dire quoi en
-  commentaire), `priorité:haute` (bloque une vente ou touche la sécurité).
-- **Assignation** : chaque tâche a un seul responsable, Marwan ou Ambaka ;
-  Claude n'est jamais responsable. Marwan : restauration, deals, offres et
-  commercial ; Ambaka : technique, matériel, juridique, Clip et Agents.
-- **Tout changement passe par une branche et une pull request** qui cite son
-  issue (`Closes #12`) : la fusion ferme l'issue, la gate avance. Un agent
-  fait de même — il ouvre la PR, un humain la relit.
+- **Clients** : un rectangle par client à interfacer (en service ou deal en
+  cours), avec l'étape où il en est et, une fois relié à son établissement ou
+  à sa boutique, son CA total, ce qui est reversé à Ominin et ses tickets. Un
+  clic ouvre sa pipeline (Prospection → Intégration → Suivi, 15 étapes
+  créées par `projet_add_client`), ses chiffres sur 30 jours et ses notes.
+- **Chantiers** : au-dessus, ce qui reste pour finir chaque offre (kit
+  matériel, réseaux sociaux, paiement et caisses, juridique…), étape par
+  étape, avec un responsable (Marwan ou Ambaka).
+- Données : tables `projet_clients`, `projet_chantiers`, `projet_steps`
+  (admins seuls). Une étape avance d'un clic sur sa pastille ; le reste
+  (responsable, blocage, ajout, suppression) se règle sur la ligne.
+- **Tout changement de code passe par une branche et une pull request**,
+  relue avant fusion.
 - **Numéros de migration** : avant d'en créer une, vérifier les migrations
   des branches ouvertes et de la production (`migration list --linked`) ;
   deux migrations du même numéro font échouer `db push`.
