@@ -23,6 +23,7 @@ export function MenuItemCard({
   first = false,
   last = false,
   tarifs,
+  closedBy,
   onMove,
   onEdit,
   onDelete,
@@ -37,6 +38,8 @@ export function MenuItemCard({
   last?: boolean;
   /** Pastilles des tarifs planifiés de cet article (TarifsInline). */
   tarifs?: React.ReactNode;
+  /** Fermeture qui le coupe en ce moment : le client le voit « Plus servi ». */
+  closedBy?: string;
   /** Absent, l'ordre ne se change pas d'ici. */
   onMove?: (delta: -1 | 1) => void;
   onEdit: () => void;
@@ -121,6 +124,13 @@ export function MenuItemCard({
         )}
 
         {tarifs}
+
+        {closedBy && (
+          <p className="text-xs text-ember-3">
+            Fermé en ce moment ({closedBy})&nbsp;: vos clients le voient
+            «&nbsp;Plus servi&nbsp;».
+          </p>
+        )}
 
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
           <label className="flex items-center gap-2 text-xs text-muted">

@@ -38,6 +38,37 @@ import {
 
 type Picks = Record<string, { articleId: string; options: Record<string, string[]> }>;
 
+/**
+ * La formule telle qu'elle se commande en ce moment : sans les choix dont le
+ * plat est fermé (cuisine fermée) ; une étape obligatoire vidée l'emporte,
+ * comme un plat épuisé au rendu de la page.
+ */
+function openFormule(
+  formule: Formule,
+  closed: ReadonlySet<string>
+): Formule | null {
+  const etapes = formule.etapes.map((etape) => ({
+    ...etape,
+    articles: etape.articles.filter(
+      (article) => !article.itemId || !closed.has(article.itemId)
+    ),
+  }));
+  const kept = etapes.filter((etape) => etape.articles.length > 0);
+  return kept.length > 0 &&
+    etapes.every((etape) => !etape.obligatoire || etape.articles.length > 0)
+    ? { ...formule, etapes: kept }
+    : null;
+}
+
+/**
+ * La formule telle qu'elle se commande, ou null. En click & collect, la
+ * fermeture se juge à l'heure de retrait : au panier.
+ */
+function useServable(): (formule: Formule) => Formule | null {
+  const { closed, collect } = useCart();
+  return (formule) => (collect ? formule : openFormule(formule, closed));
+}
+
 function optionsSupplement(article: Article, chosen: Record<string, string[]>) {
   return (article.options ?? []).reduce(
     (sum, group) =>
@@ -198,6 +229,7 @@ function FormuleModal({
       return;
     }
     const selections: FormuleSelection[] = [];
+    const items: { id: string; name: string }[] = [];
     const optionSummary: string[] = [];
     // Une entrée par étape, ses choix après un tiret, leurs suppléments notés
     // comme ceux d'un plat : « Plat : Faux filet — Bleu, Purée en plus
@@ -225,6 +257,7 @@ function FormuleModal({
           (extras.length > 0 ? ` — ${extras.join(", ")}` : "")
       );
       selections.push({ etape_id: etape.id, article_id: article.id, choices });
+      if (article.itemId) items.push({ id: article.itemId, name: article.name });
     }
     const signature = selections
       .map((s) =>
@@ -238,7 +271,7 @@ function FormuleModal({
       unitPrice,
       optionSummary,
       choices: [],
-      formule: { selections },
+      formule: { selections, items },
     });
     track("panier");
     onAdded?.();
@@ -440,9 +473,15 @@ export function FormulesBanner({
   formules: Formule[];
 }) {
   const [open, setOpen] = useState<Formule | null>(null);
+  const servable = useServable();
+  const shown = formules.flatMap((formule) => servable(formule) ?? []);
   const zones = banner.formules.map((name) =>
-    formules.find((formule) => formule.name === name)
+    shown.find((formule) => formule.name === name)
   );
+  // Proposée aujourd'hui mais fermée en ce moment : sa zone le dit, au lieu
+  // de rester muette sous le doigt.
+  const closedZone = (index: number) =>
+    formules.some((formule) => formule.name === banner.formules[index]);
   const duration = banner.secondsPerFormule * zones.length;
 
   return (
@@ -484,7 +523,13 @@ export function FormulesBanner({
                       className="flex-1 transition-colors hover:bg-white/5 active:bg-white/10"
                     />
                   ) : (
-                    <span key={index} className="flex-1" />
+                    <span key={index} className="flex flex-1 items-end justify-center pb-3">
+                      {closedZone(index) && (
+                        <span className="rounded-full bg-background/85 px-3 py-1 text-xs font-semibold text-muted">
+                          Plus servie
+                        </span>
+                      )}
+                    </span>
                   )
                 )}
               </div>
@@ -505,6 +550,13 @@ export function FormulesBanner({
             >
               {formule.name} · {formatPrice(formule.price)}
             </button>
+          ) : closedZone(index) ? (
+            <span
+              key={index}
+              className="flex-1 rounded-full border border-hairline px-3 py-2.5 text-center text-xs font-semibold text-faint"
+            >
+              {banner.formules[index]} · Plus servie
+            </span>
           ) : (
             <span key={index} className="flex-1" />
           )
@@ -529,11 +581,17 @@ export function FormuleTile({
   formule,
   index,
   onOpen,
+  closed = false,
+  note,
   className = "",
 }: {
   formule: Formule;
   index: number;
   onOpen: (tile: HTMLButtonElement) => void;
+  /** Une étape obligatoire n'a plus rien de servi : l'offre reste, estompée. */
+  closed?: boolean;
+  /** Click & collect : ce qui la rend imprenable à l'heure jugée, sans la fermer. */
+  note?: string;
   className?: string;
 }) {
   const { lines } = useCart();
@@ -549,17 +607,18 @@ export function FormuleTile({
     // lisait chaque plat de chaque étape comme nom du bouton.
     <button
       type="button"
+      disabled={closed}
       onClick={(event) => {
         // Safari ne donne pas le focus au bouton touché : la feuille le
         // retrouve en se refermant (voir AddToOrder).
         event.currentTarget.focus({ preventScroll: true });
         onOpen(event.currentTarget);
       }}
-      aria-label={`Composer : ${formule.name}, ${formatPrice(formule.price)}${
+      aria-label={`${closed ? "Plus servie" : "Composer"} : ${formule.name}, ${formatPrice(formule.price)}${
         inCart > 0 ? `, ${inCart} au panier` : ""
       }`}
       aria-describedby={formule.description ? `${descriptionId} ${etapesId}` : etapesId}
-      className={`formule-tile relative flex flex-col justify-between gap-3 overflow-hidden rounded-2xl border border-ember-2/30 bg-linear-to-br ${tint} to-surface p-5 text-left transition-transform active:scale-[0.98] ${className}`}
+      className={`formule-tile relative flex flex-col justify-between gap-3 overflow-hidden rounded-2xl border border-ember-2/30 bg-linear-to-br ${tint} to-surface p-5 text-left transition-transform active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100 ${className}`}
     >
       <span
         aria-hidden
@@ -606,12 +665,13 @@ export function FormuleTile({
           </span>
         ))}
       </span>
+      {note && <span className="text-xs font-medium text-muted">{note}</span>}
       <span className="formule-foot flex items-center justify-between gap-3">
         <span className="ember-gradient rounded-full px-3 py-1 font-display text-lg font-semibold text-background">
           {formatPrice(formule.price)}
         </span>
         <span className="formule-action inline-flex items-center gap-1 text-xs font-semibold text-muted">
-          Composer <span aria-hidden>→</span>
+          {closed ? "Plus servie" : <>Composer <span aria-hidden>→</span></>}
           {inCart > 0 && (
             <span
               aria-hidden
@@ -628,6 +688,8 @@ export function FormuleTile({
 
 /** Les formules en tête de carte, pour un restaurant sans visuel dédié. */
 export function FormulesSection({ formules }: { formules: Formule[] }) {
+  const servable = useServable();
+  const { closed, closedAt, collect } = useCart();
   const [open, setOpen] = useState<Formule | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const added = useRef(false);
@@ -644,19 +706,33 @@ export function FormulesSection({ formules }: { formules: Formule[] }) {
         <span aria-hidden className="category-rule ember-gradient h-px flex-1 opacity-40" />
       </div>
       <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5">
-        {formules.map((formule, index) => (
-          <FormuleTile
-            key={formule.id}
-            formule={formule}
-            index={index}
-            onOpen={(tile) => {
-              opener.current = tile;
-              added.current = false;
-              setOpen(formule);
-            }}
-            className="min-h-44"
-          />
-        ))}
+        {formules.map((formule, index) => {
+          const served = servable(formule);
+          return (
+            <FormuleTile
+              key={formule.id}
+              formule={served ?? formule}
+              index={index}
+              closed={served === null}
+              // Click & collect : le plat se juge à l'heure de retrait ; la
+              // formule reste composable, mais le client le sait d'avance.
+              note={
+                collect && openFormule(formule, closed) === null
+                  ? closedAt
+                    ? "Plus servie à l’heure choisie"
+                    : "Plus servie maintenant · possible pour un retrait plus tard"
+                  : undefined
+              }
+              onOpen={(tile) => {
+                if (!served) return;
+                opener.current = tile;
+                added.current = false;
+                setOpen(served);
+              }}
+              className="min-h-44"
+            />
+          );
+        })}
       </div>
       {open && (
         <FormuleModal

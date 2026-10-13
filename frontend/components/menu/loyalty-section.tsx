@@ -166,7 +166,7 @@ export function LoyaltySection({
                   {reachable ? (
                     <div className="flex flex-wrap gap-1.5">
                       {reward.items
-                        .filter((item) => !isUnavailable(item))
+                        .filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)))
                         .map((item) => (
                           <button
                             key={item.id}

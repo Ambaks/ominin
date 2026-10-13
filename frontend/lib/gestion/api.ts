@@ -5,6 +5,7 @@ import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import {
+  rowToClosure,
   rowToFormule,
   rowToMenuItem,
   rowToOrder,
@@ -15,15 +16,16 @@ import {
 import { commit, getState, refreshOrdersNow } from "./store";
 import type {
   CashDetails,
+  Closure,
   EncaissementMode,
   Etablissement,
   Formule,
   GestionState,
+  MenuTarget,
   Order,
   OrderStatus,
   PriceRule,
   PriceRuleDirection,
-  PriceRuleTarget,
   PriceRuleUnit,
   Role,
   ServiceMode,
@@ -820,6 +822,7 @@ export type EtablissementInput = Omit<
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"
+  | "onlineMinOrder"
 >;
 
 export async function updateEtablissement(
@@ -899,6 +902,20 @@ export async function setServiceMode(mode: ServiceMode): Promise<void> {
   });
 }
 
+/** Sous ce total, le paiement en ligne n'est pas proposé ; null ⇒ aucun minimum. */
+export async function setOnlineMinOrder(amount: number | null): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("etablissements")
+      .update({ online_min_order: amount })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.onlineMinOrder = amount;
+  });
+}
+
 export async function setCollectSlotCapacity(capacity: number): Promise<void> {
   const supabase = createClient();
   check(
@@ -923,7 +940,7 @@ export interface PriceRuleInput {
   days: number[];
   startsAt: string | null;
   endsAt: string | null;
-  targets: PriceRuleTarget[];
+  targets: MenuTarget[];
 }
 
 function priceRuleColumns(input: PriceRuleInput) {
@@ -941,7 +958,7 @@ function priceRuleColumns(input: PriceRuleInput) {
 /** Les cibles se réécrivent en bloc : à quatre lignes, un diff coûte plus cher. */
 async function replaceTargets(
   ruleId: string,
-  targets: PriceRuleTarget[]
+  targets: MenuTarget[]
 ): Promise<void> {
   const supabase = createClient();
   check(await supabase.from("price_rule_targets").delete().eq("rule_id", ruleId));
@@ -1024,6 +1041,93 @@ export async function deletePriceRule(ruleId: string): Promise<void> {
   check(await supabase.from("price_rules").delete().eq("id", ruleId));
   apply((draft) => {
     draft.priceRules = draft.priceRules.filter((r) => r.id !== ruleId);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fermetures
+
+export interface ClosureInput {
+  name: string;
+  /** null ⇒ fermeture à la main seulement. */
+  days: number[] | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  targets: MenuTarget[];
+}
+
+/**
+ * Fermeture et cibles en une transaction (enregistrer_fermeture) : les autres
+ * appareils, prévenus par l'événement de la fermeture, la relisent entière.
+ * closureId null ⇒ nouvelle fermeture.
+ */
+async function saveClosure(
+  closureId: string | null,
+  input: ClosureInput
+): Promise<void> {
+  const supabase = createClient();
+  const row = must(
+    await supabase.rpc("enregistrer_fermeture", {
+      p_etablissement: etablissementId(),
+      p_closure: closureId,
+      p_name: input.name,
+      p_days: input.days,
+      p_starts_at: input.startsAt,
+      p_ends_at: input.endsAt,
+      p_targets: input.targets.map((target) =>
+        target.kind === "category"
+          ? { category_id: target.id }
+          : { item_id: target.id }
+      ),
+    })
+  );
+  const closure = {
+    ...rowToClosure({ ...row, closure_targets: [] }),
+    targets: input.targets,
+  };
+  apply((draft) => {
+    // La relecture realtime a pu la poser avant cette réponse.
+    const index = draft.closures.findIndex((c) => c.id === closure.id);
+    if (index === -1) draft.closures.push(closure);
+    else draft.closures[index] = closure;
+  });
+}
+
+export const createClosure = (input: ClosureInput) => saveClosure(null, input);
+
+export const updateClosure = (closureId: string, input: ClosureInput) =>
+  saveClosure(closureId, input);
+
+export async function deleteClosure(closureId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("closures").delete().eq("id", closureId));
+  apply((draft) => {
+    draft.closures = draft.closures.filter((c) => c.id !== closureId);
+  });
+}
+
+/**
+ * Fermer ou rouvrir pour le reste de la journée de service (gérant ou
+ * cuisinier). La base décide du forçage : si l'horaire donne déjà l'état
+ * demandé, elle l'efface.
+ */
+export async function toggleClosure(
+  closureId: string,
+  closed: boolean
+): Promise<Closure> {
+  const supabase = createClient();
+  const row = must(
+    await supabase.rpc("basculer_fermeture", {
+      p_closure: closureId,
+      p_fermee: closed,
+    })
+  );
+  return apply((draft) => {
+    const closure = draft.closures.find((c) => c.id === closureId);
+    if (!closure) throw new Error("Fermeture introuvable.");
+    closure.overrideClosed = row.override_closed;
+    closure.overrideDay = row.override_day;
+    return closure;
   });
 }
 

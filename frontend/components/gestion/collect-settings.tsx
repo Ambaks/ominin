@@ -4,11 +4,17 @@ import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { setCollectSlotCapacity } from "@/lib/gestion/api";
+import { formatPrice } from "@/lib/menu-data";
 
 export function CollectSettings({
   initialSlotCapacity,
+  onlineMinOrder,
+  onlinePayment,
 }: {
   initialSlotCapacity: number;
+  onlineMinOrder: number | null;
+  /** Le minimum se règle sous l'interrupteur « Paiement en ligne », allumé. */
+  onlinePayment: boolean;
 }) {
   const toast = useToast();
   const [capacity, setCapacity] = useState(initialSlotCapacity);
@@ -49,6 +55,13 @@ export function CollectSettings({
           className={`${inputClass} w-24`}
         />
       </Field>
+      <p className="text-xs leading-relaxed text-faint">
+        {!onlinePayment
+          ? "Pour fixer une commande minimum, activez «\u00a0Paiement en ligne\u00a0» dans «\u00a0Paiement à table\u00a0»."
+          : onlineMinOrder === null
+            ? "Aucune commande minimum. Elle se règle dans «\u00a0Paiement à table\u00a0»."
+            : `Commande minimum\u00a0: ${formatPrice(onlineMinOrder)}, réglée dans «\u00a0Paiement à table\u00a0».`}
+      </p>
       <div className="flex justify-end">
         <button
           type="submit"

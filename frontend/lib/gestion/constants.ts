@@ -416,6 +416,7 @@ export const ACTION_LABELS: Record<Action, string> = {
   "formules.edit": "Modifier les formules",
   "categories.edit": "Modifier les catégories",
   "etablissement.edit": "Modifier l'établissement",
+  "fermetures.basculer": "Fermer ou rouvrir la cuisine",
 };
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
@@ -426,11 +427,12 @@ export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
       "commandes",
     ])
   ) as Record<Extract<Action, `orders.${string}`>, Feature>),
+  "fermetures.basculer": "commandes",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
   gerant: "all",
-  cuisinier: ["menu.availability"],
+  cuisinier: ["menu.availability", "fermetures.basculer"],
   serveur: [
     "orders.setStatus:payee",
     "orders.setStatus:servie",

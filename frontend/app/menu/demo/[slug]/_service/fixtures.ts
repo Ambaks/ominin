@@ -148,6 +148,7 @@ export function demoState(
       onlinePayment: true,
       paymentProvider: "stripe",
       collectSlotCapacity: 0,
+      onlineMinOrder: null,
       adminPinSet: false,
       paymentPinSet: false,
     },
@@ -167,6 +168,7 @@ export function demoState(
     categories: restaurant.categories,
     formules: [],
     priceRules: [],
+    closures: [],
     tables,
     orders,
   };

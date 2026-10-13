@@ -588,6 +588,90 @@ export type Database = {
         }
         Relationships: []
       }
+      closure_targets: {
+        Row: {
+          category_id: string | null
+          closure_id: string
+          item_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          closure_id: string
+          item_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          closure_id?: string
+          item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closure_targets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_closure_id_fkey"
+            columns: ["closure_id"]
+            isOneToOne: false
+            referencedRelation: "closures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closures: {
+        Row: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          days?: number[] | null
+          ends_at?: string | null
+          etablissement_id: string
+          id?: string
+          name: string
+          override_closed?: boolean | null
+          override_day?: string | null
+          starts_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          days?: number[] | null
+          ends_at?: string | null
+          etablissement_id?: string
+          id?: string
+          name?: string
+          override_closed?: boolean | null
+          override_day?: string | null
+          starts_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closures_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_requests: {
         Row: {
           company: string | null
@@ -1119,6 +1203,7 @@ export type Database = {
           loyalty_points_per_euro: number
           name: string
           offre: Database["public"]["Enums"]["offre"] | null
+          online_min_order: number | null
           online_payment: boolean
           opening_hours: Json | null
           payment_provider:
@@ -1148,6 +1233,7 @@ export type Database = {
           loyalty_points_per_euro?: number
           name: string
           offre?: Database["public"]["Enums"]["offre"] | null
+          online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
           payment_provider?:
@@ -1177,6 +1263,7 @@ export type Database = {
           loyalty_points_per_euro?: number
           name?: string
           offre?: Database["public"]["Enums"]["offre"] | null
+          online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
           payment_provider?:
@@ -4626,6 +4713,34 @@ export type Database = {
         Args: { p_order_id: string; p_started_before: string }
         Returns: boolean
       }
+      enregistrer_fermeture: {
+        Args: {
+          p_closure: string | null
+          p_days: number[] | null
+          p_ends_at: string | null
+          p_etablissement: string
+          p_name: string
+          p_starts_at: string | null
+          p_targets: Json
+        }
+        Returns: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
       is_admin: { Args: never; Returns: boolean }
@@ -4765,6 +4880,30 @@ export type Database = {
       reprint_order_tickets: {
         Args: { p_order_ids: string[] }
         Returns: number
+      }
+      articles_fermes: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: string[]
+      }
+      basculer_fermeture: {
+        Args: { p_closure: string; p_fermee: boolean }
+        Returns: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       begin_square_payment: {
         Args: { p_idempotency_key: string; p_order_id: string }

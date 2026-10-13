@@ -1,9 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Field } from "@/components/ui/field";
+import { PriceInput } from "@/components/ui/price-input";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
-import { setOnlinePayment, setPaymentProvider } from "@/lib/gestion/api";
+import {
+  setOnlineMinOrder,
+  setOnlinePayment,
+  setPaymentProvider,
+} from "@/lib/gestion/api";
+import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 
 /*
  * Réglage « paiement à table en ligne » (gérant). Deux encaisseurs possibles,
@@ -103,11 +110,86 @@ async function readStatus<T>(path: string, fallback: T): Promise<T> {
   }
 }
 
+/**
+ * Sous ce total, les frais d'un paiement par carte coûtent plus qu'ils ne
+ * rapportent : le client règle au comptoir, et le click & collect refuse la
+ * commande. Vide, aucun minimum.
+ */
+function MinOrderField({ initial }: { initial: number | null }) {
+  const toast = useToast();
+  const [raw, setRaw] = useState(initial === null ? "" : priceToInput(initial));
+  const [saved, setSaved] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  // « 5 € » se lit 5 ; 0 ne fixe aucun minimum, comme un champ vide.
+  const cleaned = raw.replace(/[€\s]/g, "");
+  const parsed = cleaned === "" ? null : parsePriceInput(cleaned);
+  const invalid = cleaned !== "" && parsed === null;
+  const amount = parsed === 0 ? null : parsed;
+
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (invalid) return;
+    setSaving(true);
+    try {
+      await setOnlineMinOrder(amount);
+      setSaved(amount);
+      setRaw(amount === null ? "" : priceToInput(amount));
+      toast.success(
+        amount === null ? "Aucun minimum en ligne." : "Minimum enregistré."
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={onSubmit}
+      data-visite="etablissement-minimum"
+      className="visite-encart flex flex-col gap-1.5"
+    >
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label="Commande minimum en ligne">
+          <PriceInput
+            value={raw}
+            onChange={setRaw}
+            placeholder="Aucun"
+            invalid={invalid}
+            describedBy="minimum-en-ligne-aide"
+            className="w-32"
+          />
+        </Field>
+        <button
+          type="submit"
+          disabled={invalid || saving || amount === saved}
+          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
+        >
+          {saving ? "Enregistrement…" : "Enregistrer"}
+        </button>
+      </div>
+      <p
+        id="minimum-en-ligne-aide"
+        className={`text-xs leading-relaxed ${invalid ? "text-ember-3" : "text-faint"}`}
+      >
+        {invalid
+          ? "Montant invalide\u00a0: écrivez par exemple 5 ou 7,50."
+          : "Sous ce montant, le client règle au comptoir\u00a0; en click & collect, il doit compléter son panier. Laissez vide pour ne fixer aucun minimum."}
+      </p>
+    </form>
+  );
+}
+
 export function PaymentSettings({
   initialEnabled,
+  initialMinOrder,
   initialProvider,
 }: {
   initialEnabled: boolean;
+  initialMinOrder: number | null;
   /** Fournisseur enregistré ; non décidé ⇒ Stripe (historique). */
   initialProvider: Provider;
 }) {
@@ -455,6 +537,7 @@ export function PaymentSettings({
           )}
         </div>
       )}
+      {enabled && <MinOrderField initial={initialMinOrder} />}
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import { createCheckout, getMerchantToken } from "@/lib/sumup/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, table_id, order_number, status, paid_online")
+    .select("id, etablissement_id, table_id, order_number, type, status, paid_online")
     .eq("id", orderId)
     .maybeSingle();
   if (!order) {
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, payment_provider")
+      .select("name, online_payment, online_min_order, payment_provider")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
   }
   if (!lines?.length) {
     return NextResponse.json({ error: "Commande vide." }, { status: 409 });
+  }
+  const belowMinimum = onlineMinimumError(
+    lines,
+    etab.online_min_order,
+    order.type === "collect"
+  );
+  if (belowMinimum) {
+    return NextResponse.json({ error: belowMinimum }, { status: 409 });
   }
 
   const merchant = await getMerchantToken(admin, order.etablissement_id);
