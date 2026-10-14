@@ -139,10 +139,12 @@ const sourceSerif4 = Source_Serif_4({
  * leurs cartes reprend DM Sans, déjà chargée pour Baï-Kō.
  */
 
-/** Le Novelty — bar à cocktails : une grotesque moderne, serrée aux grands corps. */
+/** Le Novelty — bar à cocktails : une grotesque moderne, resserrée pour les sections. */
 const bricolageGrotesque = Bricolage_Grotesque({
   variable: "--font-bricolage-grotesque",
   subsets: ["latin"],
+  // La chasse variable : les titres de section se resserrent (.theme-le-novelty).
+  axes: ["wdth"],
   preload: false,
 });
 

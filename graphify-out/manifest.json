@@ -918,9 +918,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
-    "mtime": 1791987401.6623764,
-    "seen": 1791988344.2302442,
-    "ast_hash": "7e0983118dec5f3814a1f363574ccf02",
+    "mtime": 1791990833.8183882,
+    "seen": 1791990887.3499944,
+    "ast_hash": "46da0061ede5e33056c68e4f5bf2a638",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/provider.tsx": {
@@ -1014,9 +1014,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1791988098.6492386,
-    "seen": 1791988344.2303085,
-    "ast_hash": "e2e087f4e77e8fd54e449b098f99afe2",
+    "mtime": 1791990833.8193138,
+    "seen": 1791990887.3502986,
+    "ast_hash": "9f31b460a6351adab9bab4559946d913",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791988311.6713972,
-    "seen": 1791988344.2306678,
-    "ast_hash": "8bcd12dbea8f145da42559266047294c",
+    "mtime": 1791990852.5225437,
+    "seen": 1791990887.3507602,
+    "ast_hash": "36ad0585a953939a5f53a651b0817547",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -4320,9 +4320,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/brand-fonts.ts": {
-    "mtime": 1791986784.5238311,
-    "seen": 1791988344.230313,
-    "ast_hash": "0af5b11a0c0a1e65402aa88054976bc9",
+    "mtime": 1791990833.8193138,
+    "seen": 1791990887.3503058,
+    "ast_hash": "8de324898eaec8f5e5a7e3d7b1be479d",
     "semantic_hash": ""
   },
   "frontend/lib/offre/settle.ts": {
@@ -8940,27 +8940,27 @@
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/profile.json": {
-    "mtime": 1791987590.2202566,
-    "seen": 1791988344.229252,
-    "ast_hash": "6c5c09e72c9a9b19321def47f7847104",
+    "mtime": 1791990852.517098,
+    "seen": 1791990887.3487136,
+    "ast_hash": "6017f1a3a4a0259e9d8682ab800f349f",
     "semantic_hash": ""
   },
   "demos/caffe-panis/profile.json": {
-    "mtime": 1791987590.2205338,
-    "seen": 1791988344.2292535,
-    "ast_hash": "9d9cdbd3e4d24faf72b73ecdca103c84",
+    "mtime": 1791990852.5178647,
+    "seen": 1791990887.3487167,
+    "ast_hash": "62ee89ac5c0ed47b8eca713af4ee8bfc",
     "semantic_hash": ""
   },
   "demos/le-novelty/profile.json": {
-    "mtime": 1791987590.2194688,
-    "seen": 1791988344.2292793,
-    "ast_hash": "e39656735a43b294842482a3d3cb29db",
+    "mtime": 1791990852.5156565,
+    "seen": 1791990887.3487446,
+    "ast_hash": "f173909dfeba51a86a73a0cda7273be5",
     "semantic_hash": ""
   },
   "demos/le-victoria/profile.json": {
-    "mtime": 1791987590.2199667,
-    "seen": 1791988344.2292802,
-    "ast_hash": "bc4e03a384e478d2c3a2254d2a3a1710",
+    "mtime": 1791990852.516414,
+    "seen": 1791990887.348747,
+    "ast_hash": "ad64b3f86a763166cef4be9b4fb91548",
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/docs/recherche-carte.md": {

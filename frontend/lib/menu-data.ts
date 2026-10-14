@@ -3279,7 +3279,7 @@ const lAdresse: Restaurant = {
  * valider avec eux ; les questions ouvertes vivent dans demos/<slug>/profile.json.
  */
 
-/** Volume d'une bière pression : le prix de l'article est celui du plus petit. */
+/** Volume d'une boisson servie au verre : le prix de l'article est celui du plus petit. */
 const volumes = (supplements: readonly (readonly [string, number])[]) =>
   groupeChoix("volume", "Volume", supplements, { obligatoire: true });
 
@@ -3289,7 +3289,8 @@ const volumes = (supplements: readonly (readonly [string, number])[]) =>
  * encore publiée (« La suite arrive bientôt »).
  */
 const NOVELTY_PARFUMS = groupeChoix("parfum", "Parfum", ["Mangue", "Fraise", "Framboise", "Passion", "Pêche"]);
-const NOVELTY_XXL = groupeChoix("format", "Format", ["Classique", ["XXL", 3]], { obligatoire: true });
+// Une case à cocher plutôt qu'un choix obligatoire : le cocktail classique s'ajoute sans détour.
+const NOVELTY_XXL = groupeChoix("format", "Format", [["XXL", 3]], { multiple: true });
 const NOVELTY_PRESSION = volumes([["25 cl", 0], ["50 cl", 3.5], ["1 L", 10.5]]);
 const NOVELTY_PRESSION_KRO = volumes([["25 cl", 0], ["50 cl", 2.4], ["1 L", 7.4]]);
 
@@ -3308,12 +3309,12 @@ const noveltyCocktail = (
   options: parfum ? [NOVELTY_PARFUMS, NOVELTY_XXL] : [NOVELTY_XXL],
 });
 
-const noveltyPression = (id: string, name: string, description: string): MenuItem => ({
+/** Une pression à 4,50 / 8 / 15 € : les trois prix lisibles sur la ligne, pas seulement le premier. */
+const noveltyPression = (id: string, name: string, degre: string): MenuItem => ({
   id,
   name,
-  description,
+  description: `${degre} · 25 cl 4,50 € · 50 cl 8 € · 1 L 15 €`,
   price: 4.5,
-  detail: "25 cl",
   vatRate: 20,
   options: [NOVELTY_PRESSION],
 });
@@ -3324,33 +3325,33 @@ const leNovelty: Restaurant = {
   tagline: "Café · Bar à cocktails",
   address: "10 Rue Saint-Guilhem, 34000 Montpellier",
   phone: "+33 4 34 35 36 28",
-  hours: "Tous les jours 8h30–⁠1h",
+  hours: "Tous\u00a0les\u00a0jours 8h30–\u20601h",
   highlights: ["Ouvert 7j/7", "Happy hours 17h–23h", "Cocktails en XXL"],
   ticker: [
     { text: "Happy Hours tous les jours de 17h à 23h", tone: "accent" },
     { text: "Bières, cocktails et shots à prix réduits" },
     { text: "Café du matin à 1 € de 9h à 12h", tone: "brand" },
-    { text: "Tous les cocktails en XXL : +3 €" },
+    { text: "Cocktails en XXL : +3 €" },
   ],
   categories: [
     {
       id: "cocktails",
       name: "Cocktails",
-      tagline: "Tous nos cocktails existent en XXL : +3 €",
+      tagline: "En XXL : +3\u00a0€ · prix hors happy hours",
       items: [
         noveltyCocktail(
           "mojito",
           "Mojito",
-          "Rhum Bacardi Carta Oro, citron vert, cassonade, menthe fraîche, limonade",
+          "Mangue, fraise, framboise, passion ou pêche · rhum Bacardi Carta Oro, citron vert, cassonade, menthe fraîche, limonade",
           9,
           true
         ),
         noveltyCocktail("cuba-libre", "Cuba Libre", "Rhum Bacardi Carta Oro, citron vert, Coca Cola", 9),
         { id: "ti-punch", name: "Ti-Punch", description: "Rhum Bacardi Carta Oro, cassonade, citron vert", price: 9, vatRate: 20 },
-        noveltyCocktail("caipirinha", "Caïpirinha", "Cachaça Aguacana, cassonade, citron vert", 9, true),
-        noveltyCocktail("caipiroska", "Caïpiroska", "Vodka Eristoff, cassonade, citron vert", 9, true),
+        noveltyCocktail("caipirinha", "Caïpirinha", "Mangue, fraise, framboise, passion ou pêche, Cachaça Aguacana, cassonade, citron vert", 9, true),
+        noveltyCocktail("caipiroska", "Caïpiroska", "Mangue, fraise, framboise, passion ou pêche, vodka Eristoff, cassonade, citron vert", 9, true),
         noveltyCocktail("cosmopolitan", "Cosmopolitan", "Vodka Eristoff, liqueur d'orange, citron vert, cranberry", 9),
-        noveltyCocktail("daiquiri", "Daïquiri", "Rhum Bacardi Carta Oro, sucre de canne, citron vert", 9, true),
+        noveltyCocktail("daiquiri", "Daïquiri", "Mangue, fraise, framboise, passion ou pêche · rhum Bacardi Carta Oro, sucre de canne, citron vert", 9, true),
         noveltyCocktail("gin-tonic", "Gin Tonic", "Gin, Schweppes tonic, citron vert", 9),
         noveltyCocktail("planteur", "Planteur", "Rhum, ananas, orange, grenadine", 9),
         noveltyCocktail("coco-bull", "Coco Bull", "Vodka, sirop de cerise, citron vert, Redbull", 9),
@@ -3415,7 +3416,7 @@ const leNovelty: Restaurant = {
         {
           id: "virgin-mojito",
           name: "Virgin Mojito",
-          description: "Menthe fraîche, citron vert, cassonade, limonade",
+          description: "Mangue, fraise, framboise, passion ou pêche · menthe fraîche, citron vert, cassonade, limonade",
           price: 7,
           options: [NOVELTY_PARFUMS],
         },
@@ -3425,14 +3426,13 @@ const leNovelty: Restaurant = {
     {
       id: "pression",
       name: "Bières pression",
-      tagline: "25 cl, 50 cl ou 1 L",
+      tagline: "Prix hors happy hours",
       items: [
         {
           id: "kronenbourg",
           name: "Kronenbourg",
-          description: "Blonde · 4,5°",
+          description: "Blonde · 4,5° · 25 cl 3,60 € · 50 cl 6 € · 1 L 11 €",
           price: 3.6,
-          detail: "25 cl",
           vatRate: 20,
           options: [NOVELTY_PRESSION_KRO],
         },
@@ -3447,25 +3447,24 @@ const leNovelty: Restaurant = {
         {
           id: "biere-du-moment",
           name: "Bière du Moment",
+          description: "25 cl 4,50 € · 50 cl 8 €",
           price: 4.5,
-          detail: "25 cl",
           vatRate: 20,
           options: [volumes([["25 cl", 0], ["50 cl", 3.5]])],
         },
         {
           id: "monaco",
           name: "Monaco",
-          description: "Bière, grenadine, limonade",
+          description: "Bière, grenadine, limonade · 25 cl 3,70 € · 50 cl 6,20 €",
           price: 3.7,
-          detail: "25 cl",
           vatRate: 20,
           options: [volumes([["25 cl", 0], ["50 cl", 2.5]])],
         },
         {
           id: "picon-biere",
           name: "Picon Bière",
+          description: "25 cl 4,20 € · 50 cl 7 €",
           price: 4.2,
-          detail: "25 cl",
           vatRate: 20,
           options: [volumes([["25 cl", 0], ["50 cl", 2.8]])],
         },
@@ -3492,6 +3491,7 @@ const leNovelty: Restaurant = {
         {
           id: "coca-cola",
           name: "Coca-Cola",
+          description: "Classique, Cherry ou Zéro",
           price: 4,
           detail: "33 cl",
           options: [groupeChoix("version", "Version", ["Classique", "Cherry", "Zéro"], { obligatoire: true })],
@@ -3522,6 +3522,7 @@ const leNovelty: Restaurant = {
         {
           id: "jus-de-fruits",
           name: "Jus de fruits",
+          description: "Orange, ananas, pomme, abricot, tomate ou fraise",
           price: 4,
           detail: "25 cl",
           options: [
@@ -3539,15 +3540,15 @@ const leNovelty: Restaurant = {
         {
           id: "limonade-pression",
           name: "Limonade pression",
+          description: "33 cl 3,40 € · 50 cl 5 €",
           price: 3.4,
-          detail: "33 cl",
           options: [volumes([["33 cl", 0], ["50 cl", 1.6]])],
         },
         {
           id: "diabolo",
           name: "Diabolo",
+          description: "33 cl 3,60 € · 50 cl 5,20 €",
           price: 3.6,
-          detail: "33 cl",
           options: [volumes([["33 cl", 0], ["50 cl", 1.6]])],
         },
       ],
@@ -3579,12 +3580,14 @@ const leNovelty: Restaurant = {
         {
           id: "the-glace",
           name: "Thé glacé maison",
+          description: "Citron, passion, framboise ou pêche",
           price: 5,
           options: [groupeChoix("parfum", "Parfum", ["Citron", "Passion", "Framboise", "Pêche"], { obligatoire: true })],
         },
         {
           id: "smoothie",
           name: "Smoothie",
+          description: "Mangue, pêche, fruits rouges ou fruits exotiques",
           price: 6,
           options: [
             groupeChoix("parfum", "Parfum", ["Mangue", "Pêche", "Fruits rouges", "Fruits exotiques"], {
@@ -3595,6 +3598,7 @@ const leNovelty: Restaurant = {
         {
           id: "milk-shake",
           name: "Milk-shake",
+          description: "Vanille, fraise, chocolat ou banane",
           price: 6.5,
           options: [
             groupeChoix("parfum", "Parfum", ["Vanille", "Fraise", "Chocolat", "Banane"], { obligatoire: true }),
@@ -3684,8 +3688,8 @@ const leVictoria: Restaurant = {
   tagline: "Bistrot · Place Castellane",
   address: "3 Place Castellane, 34000 Montpellier",
   phone: "+33 4 48 78 60 29",
-  hours: "Tous les jours 10h30–⁠1h",
-  highlights: ["Ouvert 7j/7", "Terrasse sur la place", "Happy hour dès 16h"],
+  hours: "Tous\u00a0les\u00a0jours 10h30–\u20601h",
+  highlights: ["Ouvert 7j/7", "Terrasse chauffée et couverte", "Écrans pour les matchs"],
   ticker: [
     { text: "Happy hour de 16h à 1h", tone: "accent" },
     { text: "Plat du jour 12,90 €", tone: "brand" },
@@ -3701,7 +3705,7 @@ const leVictoria: Restaurant = {
         {
           id: "le-classique",
           name: "Le Classique",
-          description: "Steak haché du boucher frais, double cheddar, bacon (au choix), tomates et salade",
+          description: "Steak haché du boucher frais, double cheddar, bacon (au choix), tomates et salades",
           price: 11.9,
           image: pexels("4080534/pexels-photo-4080534.jpeg", 800),
           options: [groupeChoix("bacon", "Bacon", ["Avec bacon", "Sans bacon"], { obligatoire: true })],
@@ -3750,7 +3754,7 @@ const leVictoria: Restaurant = {
         {
           id: "chevre-miel",
           name: "Chèvre miel",
-          description: "Sauce tomate, fromage de chèvre, miel et herbes",
+          description: "Sauce tomate, fromage de chèvre, miel et herbe",
           price: 12.9,
           image: pexels("33592983/pexels-photo-33592983.jpeg", 800),
         },
@@ -3806,15 +3810,14 @@ const leVictoria: Restaurant = {
     {
       id: "tapas",
       name: "Tapas",
-      tagline: "À partager à la terrasse",
       items: [
         { id: "wings", name: "Wings poulet", price: 7, image: pexels("7230625/pexels-photo-7230625.jpeg", 800) },
         { id: "fish-and-chips", name: "Fish and chips", price: 9 },
-        { id: "frites-maison", name: "Frites maison", price: 5 },
-        { id: "frites-patate-douce", name: "Frites de patate douce", price: 7 },
+        { id: "frite-maison", name: "Frite maison", price: 5 },
+        { id: "frites-patate-douce", name: "Frites patate douce", price: 7 },
         { id: "croquetas-chorizo", name: "Croquetas chorizo", price: 7 },
         { id: "patatas-bravas", name: "Patatas bravas", price: 7 },
-        { id: "sticks-mozzarella", name: "Sticks mozzarella", price: 7 },
+        { id: "stick-mozzarella", name: "Stick mozzarella", price: 7 },
         { id: "mini-nems", name: "Mini nems", price: 7 },
         { id: "mini-samossas", name: "Mini samossas", price: 6 },
         { id: "mini-saucissons", name: "Mini saucissons", price: 5.5 },
@@ -3833,6 +3836,7 @@ const leVictoria: Restaurant = {
         {
           id: "cheesecake",
           name: "Cheesecake",
+          description: "Fruits rouges ou caramel beurre salé",
           price: 5,
           options: [
             groupeChoix("nappage", "Nappage", ["Fruits rouges", "Caramel beurre salé"], { obligatoire: true }),
@@ -3843,6 +3847,7 @@ const leVictoria: Restaurant = {
         {
           id: "crepe",
           name: "Crêpe",
+          description: "Nature, sucre, sucre citron, Nutella, caramel beurre salé, Nutella banane ou Nutella coco",
           price: 3.2,
           image: unsplash("photo-1572542873907-204263f6a869", 800),
           options: [VICTORIA_CREPE],
@@ -3850,6 +3855,7 @@ const leVictoria: Restaurant = {
         {
           id: "gaufre",
           name: "Gaufre maison",
+          description: "Sucre, sucre citron, Nutella, caramel beurre salé, Nutella banane ou Nutella coco",
           price: 3.6,
           image: unsplash("photo-1701694472041-fc7faca1bdb6", 800),
           options: [VICTORIA_GAUFRE],
@@ -3859,6 +3865,7 @@ const leVictoria: Restaurant = {
     {
       id: "cocktails",
       name: "Cocktails",
+      tagline: "Happy hour de 16h à 1h : Mojito et Sex on the beach à 5,50\u00a0€",
       items: [
         { id: "mojito", name: "Mojito", price: 8, vatRate: 20 },
         { id: "sex-on-the-beach", name: "Sex on the beach maison", price: 8, vatRate: 20 },
@@ -3870,6 +3877,7 @@ const leVictoria: Restaurant = {
     {
       id: "bieres",
       name: "Bières",
+      tagline: "Happy hour de 16h à 1h : Kronenbourg et Monaco 50\u00a0cl à 3,50\u00a0€",
       items: [
         { id: "kronenbourg", name: "Kronenbourg pression", detail: "50 cl", price: 5.8, vatRate: 20 },
         { id: "monaco", name: "Monaco", detail: "50 cl", price: 5.8, vatRate: 20 },
@@ -3920,7 +3928,7 @@ const cafeDesArts: Restaurant = {
   address: "3 Rue Saint-Guilhem, 34000 Montpellier",
   phone: "+33 4 67 60 81 87",
   hours: "",
-  highlights: ["Terrasse ombragée", "Deux salles climatisées", "Girafes de 3 à 5 litres"],
+  highlights: ["Titres-restaurant acceptés le midi", "Terrasse ombragée", "Girafes de 3 à 5 litres"],
   ticker: [
     { text: "Deux plats du jour chaque midi à partir de 9,90 €", tone: "accent" },
     { text: "Le café à 1 € de 9h à 12h" },
@@ -3931,25 +3939,39 @@ const cafeDesArts: Restaurant = {
     {
       id: "formules",
       name: "Formules du midi",
-      tagline: "Le midi, sauf le dimanche et les jours fériés",
       items: [
-        { id: "formule-du-midi", name: "Formule du midi", price: 10 },
-        { id: "formule-express", name: "Formule Express", price: 12.9 },
-        { id: "formule-douceur", name: "Formule Douceur", description: "Avec le dessert du jour", price: 15.5 },
+        {
+          id: "formule-du-midi",
+          name: "Formule du midi",
+          description: "Le midi, sauf le dimanche et les jours fériés",
+          price: 10,
+        },
+        {
+          id: "formule-express",
+          name: "Formule Express",
+          description: "Le midi, sauf le dimanche et les jours fériés",
+          price: 12.9,
+        },
+        {
+          id: "formule-douceur",
+          name: "Formule Douceur",
+          description: "Avec le dessert du jour · le midi, sauf le dimanche et les jours fériés",
+          price: 15.5,
+        },
         {
           id: "formule-brasserie",
           name: "Formule Brasserie",
-          description: "Uno, Duo ou Trio, au choix",
+          description: "Uno 12 € · Duo 14,90 € · Trio 16,90 €",
           price: 12,
           options: [
             groupeChoix(
               "composition",
               "Composition",
               [
-                ["Uno : plat", 0],
-                ["Duo : entrée + plat", 2.9],
-                ["Duo : plat + dessert", 2.9],
-                ["Trio : entrée + plat + dessert", 4.9],
+                ["Uno (plat)", 0],
+                ["Duo (entrée + plat)", 2.9],
+                ["Duo (plat + dessert)", 2.9],
+                ["Trio (entrée + plat + dessert)", 4.9],
               ],
               { obligatoire: true }
             ),
@@ -3987,32 +4009,29 @@ const cafeDesArts: Restaurant = {
           name: "Salade «\u00a0Des Arts\u00a0»",
           description: "Salade, tomates, gésiers, lardons, foie gras, magret fumé",
           price: 16.5,
-          detail: "XXL",
-          badges: ["top"],
         },
         {
           id: "salade-caesar",
           name: "Salade Caesar",
           description: "Au poulet et fromage granna padano",
           price: 14.5,
-          detail: "XXL",
           image: pexels("28618639/pexels-photo-28618639.jpeg", 800),
         },
-        { id: "salade-chevre-chaud", name: "Salade de chèvre chaud et lard grillé", price: 14.5, detail: "XXL" },
-        { id: "salade-italienne", name: "Salade italienne", price: 16, detail: "XXL" },
-        { id: "salade-vegetarienne", name: "Salade végétarienne", price: 14.5, detail: "XXL" },
+        { id: "salade-chevre-chaud", name: "Salade de chèvre chaud et lard grillé", price: 14.5 },
+        { id: "salade-italienne", name: "Salade italienne", price: 16 },
+        { id: "salade-vegetarienne", name: "Salade végétarienne", price: 14.5 },
       ],
     },
     {
       id: "burgers",
       name: "Burgers",
-      tagline: "180 g de bœuf Charolais, servis avec frites et salade verte",
+      tagline: "180 g de bœuf «\u00a0Charollais\u00a0», servis avec frites et salade verte",
       items: [
         {
           id: "cheese-burger",
           name: "Cheese burger «\u00a0Café des Arts\u00a0»",
           price: 16.5,
-          image: pexels("10922928/pexels-photo-10922928.jpeg", 800),
+          image: pexels("4080534/pexels-photo-4080534.jpeg", 800),
         },
         { id: "burger-savoyard", name: "Burger savoyard", description: "Au reblochon et bacon", price: 17 },
       ],
@@ -4074,7 +4093,7 @@ const cafeDesArts: Restaurant = {
       items: [
         {
           id: "tiramisu",
-          name: "Verrine de tiramisu Nutella spéculos «\u00a0maison\u00a0»",
+          name: "Verrine de Tiramisu Nutella spéculos «\u00a0maison\u00a0»",
           price: 7.5,
         },
         { id: "crumble", name: "Crumble aux fruits rouges", description: "Et sa boule de glace vanille", price: 7.5 },
@@ -4107,8 +4126,8 @@ const caffePanis: Restaurant = {
   tagline: "Ristorante · Pizzeria · Caffè",
   address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
   phone: "+33 4 99 67 65 38",
-  hours: "Tous les jours 9h–⁠1h",
-  highlights: ["Terrasse place du Marché aux Fleurs", "Cuisine italienne", "Ouvert 7j/7"],
+  hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
+  highlights: ["Cuisine italienne", "Ouvert 7j/7", "Terrasse place du Marché aux Fleurs"],
   categories: [
     {
       id: "pizze",
@@ -4175,7 +4194,8 @@ const caffePanis: Restaurant = {
     },
     {
       id: "pranzo",
-      name: "Menu du midi",
+      name: "Le midi",
+      tagline: "En semaine",
       items: [
         {
           id: "menu-du-midi",
@@ -4201,6 +4221,7 @@ const caffePanis: Restaurant = {
           image: unsplash("photo-1571877227200-a0d98ea607e9", 800),
         },
         { id: "tiramisu-praline", name: "Tiramisu praliné", price: 7 },
+        { id: "mousse-chocolat", name: "Mousse au chocolat", price: 9 },
       ],
     },
   ],

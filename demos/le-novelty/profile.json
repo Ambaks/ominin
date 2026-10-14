@@ -5,7 +5,6 @@
   "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
   "demo": {
     "menu": "/menu/demo/le-novelty",
-    "menu_ominin": "/menu/demo/le-novelty?theme=ominin",
     "click_and_collect": "/collect/demo/le-novelty"
   },
   "cuisine": "Café-bar à cocktails : cocktails (classiques, signature, sans alcool), bières pression et bouteille, softs, cafés, fraîcheurs maison ; restauration annoncée mais pas encore publiée.",
@@ -58,7 +57,9 @@
       "Bière du Moment, Monaco, Picon Bière : deux lectures des prix (25/50 cl) ; retenue la plus logique, à vérifier.",
       "Limonade et Diabolo : 33/50 cl à 3,40/5 € et 3,60/5,20 € ; l'attribution des deux paires est incertaine.",
       "Guinness : le site imprime « 8° » (sans doute une coquille) — degré non affiché.",
-      "Descriptions de plusieurs cocktails (Mojito, Daïquiri, Gin Tonic, Planteur, Piña Colada, Sex on the Beach, Tête à l'Envers, Moscow Mule, Pornstar, Expresso Martini, Spritz, N'Fire, sans alcool) : libellé approximatif de l'extrait."
+      "Descriptions de plusieurs cocktails (Mojito, Daïquiri, Gin Tonic, Planteur, Piña Colada, Sex on the Beach, Tête à l'Envers, Moscow Mule, Pornstar, Expresso Martini, Spritz, N'Fire, sans alcool) : libellé approximatif de l'extrait.",
+      "Cocktails : « prix hors happy hours » en accroche — déduit (le site annonce des prix réduits 17h–23h sans les publier), à confirmer.",
+      "XXL en case à cocher (+3 €) ; parfums repris en tête de description, comme sur le site."
     ]
   },
   "offers": [

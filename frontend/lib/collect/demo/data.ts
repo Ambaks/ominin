@@ -67,8 +67,8 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "desserts" },
     { id: "boissons" },
   ],
-  // Les quatre adresses de l'Écusson : la carte qui part à emporter, sans
-  // l'alcool (bières, cocktails, vins restent au bar).
+  // Trois bars de l'Écusson : la carte qui part à emporter, sans l'alcool
+  // (bières, cocktails, vins restent au bar).
   "le-novelty": [
     { id: "formules" },
     { id: "cafes" },
@@ -85,8 +85,10 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "desserts" },
     { id: "softs" },
   ],
+  // Sans les formules : leur composition n'est pas publiée, le ticket de
+  // cuisine n'en dirait rien.
   "cafe-des-arts": [
-    { id: "formules" },
+    { id: "a-partager" },
     { id: "salades" },
     { id: "burgers" },
     { id: "viandes-poissons" },
@@ -94,7 +96,6 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "pizzas" },
     { id: "desserts" },
   ],
-  "caffe-panis": [{ id: "pizze" }, { id: "dwich" }, { id: "pranzo" }, { id: "dolci" }],
 };
 
 /** Réglages propres à une démo client : sans entrée, la démo telle qu'elle a été livrée. */
@@ -157,10 +158,16 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
     },
   },
   // Le café du matin à emporter ; l'Irish et le French Coffee restent au bar.
-  "le-novelty": { startsAt: "09:10", realPhone: true, hiddenItems: ["irish-coffee", "french-coffee"] },
-  "le-victoria": { startsAt: "12:20", realPhone: true },
-  "cafe-des-arts": { startsAt: "12:15", realPhone: true },
-  "caffe-panis": { startsAt: "12:20", realPhone: true },
+  // Aucun créneau complet, comme pour Baï-Kō.
+  "le-novelty": {
+    startsAt: "09:10",
+    realPhone: true,
+    hiddenItems: ["irish-coffee", "french-coffee"],
+    takenBySlot: [2, 4, 3, 1],
+  },
+  "le-victoria": { startsAt: "12:20", realPhone: true, takenBySlot: [2, 4, 3, 1] },
+  "cafe-des-arts": { startsAt: "12:15", realPhone: true, takenBySlot: [2, 4, 3, 1] },
+  "caffe-panis": { startsAt: "12:20", realPhone: true, takenBySlot: [2, 4, 3, 1] },
 };
 
 /** Les allergènes du plat de la carte derrière chaque choix de formule (choiceDishes). */

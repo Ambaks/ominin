@@ -5,7 +5,6 @@
   "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
   "demo": {
     "menu": "/menu/demo/cafe-des-arts",
-    "menu_ominin": "/menu/demo/cafe-des-arts?theme=ominin",
     "click_and_collect": "/collect/demo/cafe-des-arts"
   },
   "cuisine": "Bar-brasserie : formules du midi, salades XXL, burgers Charolais, viandes, poissons, bruschettas, pizzas, desserts ; girafes de bière et de cocktail.",
@@ -55,7 +54,9 @@
       "Contenu des formules (du midi, Express, Douceur, Menu Café des Arts) : non publié, lignes sans détail.",
       "Garnitures des bruschettas : paraphrasées par l'extrait.",
       "Prix de l'ancien site, sans date et sans doute anciens : formules à 10–19,90 € alors que le site actuel annonce des plats du jour dès 9,90 €.",
-      "Orthographes de la source gardées : « grannapadano », « granna padano », « chiken wings », « AAAAA »."
+      "Orthographes de la source gardées : « grannapadano », « granna padano », « chiken wings », « AAAAA ».",
+      "« Titres-restaurant acceptés le midi » : Eat-List, pour les formules du midi.",
+      "Démo click & collect sans les formules (composition non publiée), avec les entrées."
     ]
   },
   "offers": [

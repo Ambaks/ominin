@@ -183,7 +183,7 @@
       "file_type": "code",
       "norm_label": "demosettings",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L182"
+      "source_location": "L189"
     },
     {
       "id": "frontend_lib_menu_data_tickeritem",
@@ -8139,7 +8139,7 @@
       "file_type": "code",
       "norm_label": "demomenusection",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L186"
+      "source_location": "L193"
     },
     {
       "id": "frontend_lib_collect_demo_data_demorestaurantinfo",
@@ -8152,7 +8152,7 @@
       "file_type": "code",
       "norm_label": "demorestaurantinfo",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L270"
+      "source_location": "L277"
     },
     {
       "id": "frontend_lib_collect_demo_data_demostep",
@@ -9667,7 +9667,7 @@
       "file_type": "code",
       "norm_label": "brandname()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4264"
+      "source_location": "L4285"
     },
     {
       "id": "frontend_lib_menu_data_restaurantthemeclass",
@@ -9679,7 +9679,7 @@
       "file_type": "code",
       "norm_label": "restaurantthemeclass()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4241"
+      "source_location": "L4262"
     },
     {
       "id": "frontend_lib_menu_table_param_tableparam",
@@ -13339,7 +13339,7 @@
       "file_type": "code",
       "norm_label": "formatprice()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4277"
+      "source_location": "L4298"
     },
     {
       "id": "frontend_lib_report_charts_barpath",
@@ -30475,7 +30475,7 @@
       "file_type": "code",
       "norm_label": "displayaddress()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4290"
+      "source_location": "L4311"
     },
     {
       "id": "frontend_lib_menu_data_displayphone",
@@ -30487,7 +30487,7 @@
       "file_type": "code",
       "norm_label": "displayphone()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4285"
+      "source_location": "L4306"
     },
     {
       "id": "frontend_lib_menu_data_mapsurl",
@@ -30499,7 +30499,7 @@
       "file_type": "code",
       "norm_label": "mapsurl()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4258"
+      "source_location": "L4279"
     },
     {
       "id": "frontend_app_api_clip_upload_url_route_post",
@@ -32563,7 +32563,7 @@
       "file_type": "code",
       "norm_label": "demoshowcaseorder()",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L257"
+      "source_location": "L264"
     },
     {
       "id": "frontend_app_menu_demo_slug_comptoir_comptoir_demo_setstatuslocally",
@@ -34603,7 +34603,7 @@
       "file_type": "code",
       "norm_label": "getrestaurant()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4245"
+      "source_location": "L4266"
     },
     {
       "id": "frontend_scripts_seed_demo_main",
@@ -40903,7 +40903,7 @@
       "file_type": "code",
       "norm_label": "noveltycocktail()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3296"
+      "source_location": "L3297"
     },
     {
       "id": "frontend_lib_menu_data_noveltypression",
@@ -40915,7 +40915,7 @@
       "file_type": "code",
       "norm_label": "noveltypression()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3311"
+      "source_location": "L3313"
     },
     {
       "id": "frontend_lib_menu_data_ocpaccompagnement",
@@ -43951,7 +43951,7 @@
       "file_type": "code",
       "norm_label": "builddemomenu()",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L209"
+      "source_location": "L216"
     },
     {
       "id": "frontend_lib_collect_demo_data_choiceallergens",
@@ -43963,7 +43963,7 @@
       "file_type": "code",
       "norm_label": "choiceallergens()",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L167"
+      "source_location": "L174"
     },
     {
       "id": "frontend_lib_collect_demo_data_withoutchoices",
@@ -43975,7 +43975,7 @@
       "file_type": "code",
       "norm_label": "withoutchoices()",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L196"
+      "source_location": "L203"
     },
     {
       "id": "frontend_lib_collect_demo_provider_attime",
@@ -44335,7 +44335,7 @@
       "file_type": "code",
       "norm_label": "addverb()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4271"
+      "source_location": "L4292"
     },
     {
       "id": "frontend_lib_menu_data_allergenline",
@@ -44359,7 +44359,7 @@
       "file_type": "code",
       "norm_label": "linename()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4267"
+      "source_location": "L4288"
     },
     {
       "id": "demos_big_smash_film_src_scenes_slams_approx",
@@ -45353,7 +45353,7 @@
       "file_type": "code",
       "norm_label": "brandfontvariables",
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L174"
+      "source_location": "L176"
     },
     {
       "id": "frontend_lib_menu_brand_fonts_bricolagegrotesque",
@@ -45397,7 +45397,7 @@
       "file_type": "code",
       "norm_label": "dmserifdisplay",
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L158"
+      "source_location": "L160"
     },
     {
       "id": "frontend_lib_menu_brand_fonts_playball",
@@ -45419,7 +45419,7 @@
       "file_type": "code",
       "norm_label": "playfairdisplay",
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L150"
+      "source_location": "L152"
     },
     {
       "id": "frontend_lib_menu_brand_fonts_poppins",
@@ -45452,7 +45452,7 @@
       "file_type": "code",
       "norm_label": "youngserif",
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L166"
+      "source_location": "L168"
     },
     {
       "id": "frontend_lib_menu_data_formules_link",
@@ -93909,7 +93909,7 @@
       "file_type": "code",
       "norm_label": "cafedesarts",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3916"
+      "source_location": "L3924"
     },
     {
       "id": "frontend_lib_menu_data_caffepanis",
@@ -93920,7 +93920,7 @@
       "file_type": "code",
       "norm_label": "caffepanis",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4104"
+      "source_location": "L4123"
     },
     {
       "id": "frontend_lib_menu_data_chickenstreet",
@@ -94052,7 +94052,7 @@
       "file_type": "code",
       "norm_label": "demo_slug",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4249"
+      "source_location": "L4270"
     },
     {
       "id": "frontend_lib_menu_data_dish_tag_labels",
@@ -94085,7 +94085,7 @@
       "file_type": "code",
       "norm_label": "lenovelty",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3321"
+      "source_location": "L3322"
     },
     {
       "id": "frontend_lib_menu_data_levictoria",
@@ -94096,7 +94096,7 @@
       "file_type": "code",
       "norm_label": "levictoria",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3681"
+      "source_location": "L3685"
     },
     {
       "id": "frontend_lib_menu_data_lz_boissons",
@@ -94228,7 +94228,7 @@
       "file_type": "code",
       "norm_label": "novelty_pression",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3293"
+      "source_location": "L3294"
     },
     {
       "id": "frontend_lib_menu_data_novelty_pression_kro",
@@ -94239,7 +94239,7 @@
       "file_type": "code",
       "norm_label": "novelty_pression_kro",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3294"
+      "source_location": "L3295"
     },
     {
       "id": "frontend_lib_menu_data_novelty_xxl",
@@ -94250,7 +94250,7 @@
       "file_type": "code",
       "norm_label": "novelty_xxl",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3292"
+      "source_location": "L3293"
     },
     {
       "id": "frontend_lib_menu_data_ocp_accompagnements",
@@ -94316,7 +94316,7 @@
       "file_type": "code",
       "norm_label": "restaurants",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4209"
+      "source_location": "L4230"
     },
     {
       "id": "frontend_lib_menu_data_themeclasses",
@@ -94327,7 +94327,7 @@
       "file_type": "code",
       "norm_label": "themeclasses",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4227"
+      "source_location": "L4248"
     },
     {
       "id": "frontend_lib_menu_data_trattorialucia",
@@ -94349,7 +94349,7 @@
       "file_type": "code",
       "norm_label": "victoria_crepe",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3652"
+      "source_location": "L3656"
     },
     {
       "id": "frontend_lib_menu_data_victoria_gaufre",
@@ -94360,7 +94360,7 @@
       "file_type": "code",
       "norm_label": "victoria_gaufre",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3667"
+      "source_location": "L3671"
     },
     {
       "id": "claude_skills_new_restaurant_references_build_2_the_carte_menu_data_ts",
@@ -97718,7 +97718,7 @@
       "file_type": "code",
       "norm_label": "collect_demo",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L287"
+      "source_location": "L294"
     },
     {
       "id": "frontend_lib_collect_demo_data_demo_menu_spec",
@@ -97740,7 +97740,7 @@
       "file_type": "code",
       "norm_label": "demo_settings",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L127"
+      "source_location": "L128"
     },
     {
       "id": "frontend_lib_collect_demo_provider",
@@ -133498,7 +133498,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L210",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -133510,7 +133510,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L227",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -133522,7 +133522,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L170",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -133534,7 +133534,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L271",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -133546,7 +133546,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L274",
+      "source_location": "L281",
       "weight": 1.0
     },
     {
@@ -133558,7 +133558,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L282",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -133570,7 +133570,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L283",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -133582,7 +133582,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L258",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -133594,7 +133594,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L264",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -148606,7 +148606,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L190",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -148618,7 +148618,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L192",
+      "source_location": "L199",
       "weight": 1.0
     },
     {
@@ -317001,7 +317001,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L127",
+      "source_location": "L128",
       "weight": 1.0
     },
     {
@@ -317012,7 +317012,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L167",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -317023,7 +317023,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L182",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -317034,7 +317034,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L186",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -317045,7 +317045,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L196",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -317056,7 +317056,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L209",
+      "source_location": "L216",
       "weight": 1.0
     },
     {
@@ -317067,7 +317067,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L257",
+      "source_location": "L264",
       "weight": 1.0
     },
     {
@@ -317089,7 +317089,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L270",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -317100,7 +317100,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/collect/demo/data.ts",
-      "source_location": "L287",
+      "source_location": "L294",
       "weight": 1.0
     },
     {
@@ -325020,7 +325020,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L150",
+      "source_location": "L152",
       "weight": 1.0
     },
     {
@@ -325031,7 +325031,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L158",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -325042,7 +325042,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L166",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -325053,7 +325053,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu/brand-fonts.ts",
-      "source_location": "L174",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -326175,7 +326175,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3292",
+      "source_location": "L3293",
       "weight": 1.0
     },
     {
@@ -326186,7 +326186,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3293",
+      "source_location": "L3294",
       "weight": 1.0
     },
     {
@@ -326197,7 +326197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3294",
+      "source_location": "L3295",
       "weight": 1.0
     },
     {
@@ -326208,7 +326208,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3296",
+      "source_location": "L3297",
       "weight": 1.0
     },
     {
@@ -326219,7 +326219,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3311",
+      "source_location": "L3313",
       "weight": 1.0
     },
     {
@@ -326230,7 +326230,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3321",
+      "source_location": "L3322",
       "weight": 1.0
     },
     {
@@ -326241,7 +326241,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3652",
+      "source_location": "L3656",
       "weight": 1.0
     },
     {
@@ -326252,7 +326252,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3667",
+      "source_location": "L3671",
       "weight": 1.0
     },
     {
@@ -326263,7 +326263,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3681",
+      "source_location": "L3685",
       "weight": 1.0
     },
     {
@@ -326274,7 +326274,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3916",
+      "source_location": "L3924",
       "weight": 1.0
     },
     {
@@ -326285,7 +326285,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4104",
+      "source_location": "L4123",
       "weight": 1.0
     },
     {
@@ -326296,7 +326296,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4209",
+      "source_location": "L4230",
       "weight": 1.0
     },
     {
@@ -326307,7 +326307,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4227",
+      "source_location": "L4248",
       "weight": 1.0
     },
     {
@@ -326318,7 +326318,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4241",
+      "source_location": "L4262",
       "weight": 1.0
     },
     {
@@ -326329,7 +326329,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4245",
+      "source_location": "L4266",
       "weight": 1.0
     },
     {
@@ -326340,7 +326340,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4249",
+      "source_location": "L4270",
       "weight": 1.0
     },
     {
@@ -326351,7 +326351,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4258",
+      "source_location": "L4279",
       "weight": 1.0
     },
     {
@@ -326362,7 +326362,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4264",
+      "source_location": "L4285",
       "weight": 1.0
     },
     {
@@ -326373,7 +326373,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4267",
+      "source_location": "L4288",
       "weight": 1.0
     },
     {
@@ -326384,7 +326384,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4271",
+      "source_location": "L4292",
       "weight": 1.0
     },
     {
@@ -326395,7 +326395,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4277",
+      "source_location": "L4298",
       "weight": 1.0
     },
     {
@@ -326406,7 +326406,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4285",
+      "source_location": "L4306",
       "weight": 1.0
     },
     {
@@ -326417,7 +326417,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4290",
+      "source_location": "L4311",
       "weight": 1.0
     },
     {
@@ -357308,5 +357308,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c54a6d0bf69ecd4e4442722dd6d16465fec91260"
+  "built_at_commit": "37be471558ded0804a7b0b4bef6cf44669e5845d"
 }

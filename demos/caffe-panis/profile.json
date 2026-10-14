@@ -5,7 +5,6 @@
   "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
   "demo": {
     "menu": "/menu/demo/caffe-panis",
-    "menu_ominin": "/menu/demo/caffe-panis?theme=ominin",
     "click_and_collect": "/collect/demo/caffe-panis"
   },
   "cuisine": "Café-restaurant italien : pizzas, focaccias, pâtes, salades, tiramisu, glaces ; café, cocktails (spritz). Marque de livraison « Ciccio Gang by Caffè Panis ».",
@@ -51,7 +50,9 @@
       "Pizzas Ciccio Gang : prix de livraison Deliveroo, sans doute supérieurs à la salle.",
       "« Maman est sortie (hot) » : affichée avec un piment.",
       "Menu du midi : le choix des pâtes (penne ou spaghetti) en option obligatoire ; prix 2022.",
-      "Dwich : descriptions non reprises (paraphrases)."
+      "Dwich : descriptions non reprises (paraphrases).",
+      "Mousse au chocolat 9 € : TheFork 2022, libellé paraphrasé (« dessert mousse au chocolat »).",
+      "« Le midi — en semaine » : le blog titre « Formules du midi (semaine) »."
     ]
   },
   "offers": [

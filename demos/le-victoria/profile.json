@@ -5,7 +5,6 @@
   "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
   "demo": {
     "menu": "/menu/demo/le-victoria",
-    "menu_ominin": "/menu/demo/le-victoria?theme=ominin",
     "click_and_collect": "/collect/demo/le-victoria"
   },
   "cuisine": "Bistrot-bar : burgers, pizzas, salades, tapas, plats, desserts, crêpes et gaufres ; cocktails, bières, vins.",
@@ -59,7 +58,9 @@
       "Kronenbourg et Monaco 50 cl à 5,80 €, Mojito 8 € : Schlouk Map (participatif).",
       "Descriptions de la Margherita, de la Vegetariana, des salades : paraphrasées par l'extrait (non mot pour mot).",
       "Pizza « regina tomate » nommée Regina ; « Hamburger LE CHIKEN » nommé Le Chiken (orthographe gardée).",
-      "Vins : liste partielle (le blanc « Hotus bergerie » 25 € écarté, orthographe incertaine) ; alcools forts en bouteille non repris."
+      "Vins : liste partielle (le blanc « Hotus bergerie » 25 € écarté, orthographe incertaine) ; alcools forts en bouteille non repris.",
+      "Prix happy hour en accroche (Kronenbourg et Monaco 50 cl 3,50 €, Mojito et Sex on the beach 5,50 €) : Schlouk Map, participatif.",
+      "Bandeau : « Terrasse chauffée et couverte », « Écrans pour les matchs » d'après les annuaires (profil)."
     ]
   },
   "offers": [
