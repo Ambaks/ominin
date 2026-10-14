@@ -4,11 +4,15 @@ import {
   Archivo_Black,
   Barlow_Semi_Condensed,
   Bebas_Neue,
+  Bricolage_Grotesque,
   DM_Sans,
+  DM_Serif_Display,
   Didact_Gothic,
   Playball,
+  Playfair_Display,
   Poppins,
   Source_Serif_4,
+  Young_Serif,
 } from "next/font/google";
 
 /*
@@ -128,6 +132,44 @@ const sourceSerif4 = Source_Serif_4({
   preload: false,
 });
 
+/*
+ * Les quatre adresses de l'Écusson (Montpellier, octobre 2026) n'ont livré ni
+ * logo ni enseigne en ligne : leurs polices sont une proposition, notée dans
+ * demos/<slug>/profile.json, à remplacer par celles de l'enseigne. Le texte de
+ * leurs cartes reprend DM Sans, déjà chargée pour Baï-Kō.
+ */
+
+/** Le Novelty — bar à cocktails : une grotesque moderne, serrée aux grands corps. */
+const bricolageGrotesque = Bricolage_Grotesque({
+  variable: "--font-bricolage-grotesque",
+  subsets: ["latin"],
+  preload: false,
+});
+
+/** Café des Arts — brasserie de la place Castellane : une didone de titrage. */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
+/** Le Victoria — bistrot assumé : une didone d'une seule graisse, plus noire. */
+const dmSerifDisplay = DM_Serif_Display({
+  variable: "--font-dm-serif-display",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+/** Caffè Panis — café italien : une serif ronde, d'une seule graisse. */
+const youngSerif = Young_Serif({
+  variable: "--font-young-serif",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -140,6 +182,10 @@ export const brandFontVariables = [
   bebasNeue,
   dmSans,
   sourceSerif4,
+  bricolageGrotesque,
+  playfairDisplay,
+  dmSerifDisplay,
+  youngSerif,
 ]
   .map((font) => font.variable)
   .join(" ");

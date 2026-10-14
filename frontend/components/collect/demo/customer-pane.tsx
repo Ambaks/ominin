@@ -603,7 +603,7 @@ function MenuView({ framed }: { framed: boolean }) {
   const real = demo.settings.realPhone;
   const { coverImage, logo, logoIsName, mark, highlight, brandName: name } = demo.restaurant;
   // Vrai téléphone sans photo de couverture : le logo en tient lieu ; sans
-  // l'un ni l'autre, pas de bandeau, la barre dégage alors l'île d'emblée.
+  // l'un ni l'autre, pas de bandeau, l'encart « À emporter » dégage l'île.
   const logoCover = real && !coverImage;
   const cover = !logoCover || Boolean(logo);
   const nameInLogo = logoCover && logo && logoIsName;
@@ -676,9 +676,10 @@ function MenuView({ framed }: { framed: boolean }) {
           )
         )}
 
-        {/* Vrai téléphone : ce que dit la vraie page collect sous son en-tête. */}
+        {/* Vrai téléphone : ce que dit la vraie page collect sous son en-tête ;
+            sans couverture ni logo, c'est lui qui dégage l'île. */}
         {real && (
-          <div className="mx-4 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-hairline bg-surface px-3 py-2 text-xs">
+          <div className={`mx-4 ${framed && !cover ? "mt-12" : "mt-1"} flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-hairline bg-surface px-3 py-2 text-xs`}>
             <span className="font-semibold">
               À emporter{highlight && <span className="font-normal text-muted"> · {highlight}</span>}
             </span>
@@ -699,7 +700,7 @@ function MenuView({ framed }: { framed: boolean }) {
           // Vrai téléphone : opaque, comme la barre de la carte.
           className={`sticky top-0 z-10 flex flex-col gap-2 px-4 pb-2.5 transition-[padding] duration-300 motion-reduce:transition-none ${
             real ? "bg-background" : "bg-background/90 backdrop-blur-md"
-          } ${framed && (scrolled || !cover) ? "pt-12" : "pt-3"}`}
+          } ${framed && scrolled ? "pt-12" : "pt-3"}`}
         >
           <div className="px-1">
             {/* Le logo écrit déjà le nom : il ne se retape pas. */}

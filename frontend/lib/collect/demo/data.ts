@@ -67,6 +67,34 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "desserts" },
     { id: "boissons" },
   ],
+  // Les quatre adresses de l'Écusson : la carte qui part à emporter, sans
+  // l'alcool (bières, cocktails, vins restent au bar).
+  "le-novelty": [
+    { id: "formules" },
+    { id: "cafes" },
+    { id: "fraicheurs" },
+    { id: "sans-alcool" },
+    { id: "softs" },
+  ],
+  "le-victoria": [
+    { id: "burgers" },
+    { id: "pizzas" },
+    { id: "salades" },
+    { id: "plats" },
+    { id: "tapas" },
+    { id: "desserts" },
+    { id: "softs" },
+  ],
+  "cafe-des-arts": [
+    { id: "formules" },
+    { id: "salades" },
+    { id: "burgers" },
+    { id: "viandes-poissons" },
+    { id: "bruschettas" },
+    { id: "pizzas" },
+    { id: "desserts" },
+  ],
+  "caffe-panis": [{ id: "pizze" }, { id: "dwich" }, { id: "pranzo" }, { id: "dolci" }],
 };
 
 /** Réglages propres à une démo client : sans entrée, la démo telle qu'elle a été livrée. */
@@ -128,6 +156,11 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
       "Salade Tofu": "tofu-salad",
     },
   },
+  // Le café du matin à emporter ; l'Irish et le French Coffee restent au bar.
+  "le-novelty": { startsAt: "09:10", realPhone: true, hiddenItems: ["irish-coffee", "french-coffee"] },
+  "le-victoria": { startsAt: "12:20", realPhone: true },
+  "cafe-des-arts": { startsAt: "12:15", realPhone: true },
+  "caffe-panis": { startsAt: "12:20", realPhone: true },
 };
 
 /** Les allergènes du plat de la carte derrière chaque choix de formule (choiceDishes). */

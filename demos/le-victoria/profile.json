@@ -1,0 +1,88 @@
+{
+  "slug": "le-victoria",
+  "name": "Le Victoria",
+  "tagline": "Bistrot · Place Castellane",
+  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/le-victoria",
+    "menu_ominin": "/menu/demo/le-victoria?theme=ominin",
+    "click_and_collect": "/collect/demo/le-victoria"
+  },
+  "cuisine": "Bistrot-bar : burgers, pizzas, salades, tapas, plats, desserts, crêpes et gaufres ; cocktails, bières, vins.",
+  "address": "3 Place Castellane, 34000 Montpellier",
+  "city": "Montpellier (Écusson, à côté des Halles Castellane)",
+  "phone": "04 48 78 60 29 (site officiel ; d'autres annuaires donnent 04 67 66 03 03 et 06 68 65 09 09)",
+  "hours": "7j/7 10h30–1h (site officiel) ; happy hour 16h–1h (Schlouk Map)",
+  "website": "levictoriamontpellier.com (pas de page carte)",
+  "socials": {
+    "instagram": "@levictoria34 (≈ 8,7 k abonnés, bio concordante)",
+    "facebook": "facebook.com/levictoria34",
+    "tiktok": "non trouvé",
+    "google_maps": "3,9/5 sur 2 125 avis (via Rankeat, 08/2026, non vérifié) ; Tripadvisor 3,1 (≈ 465) ; Uber Eats ≈ 4,1"
+  },
+  "legal": {
+    "raison_sociale": "TGT (enseigne LE VICTORIA)",
+    "forme": "SASU",
+    "siren": "878 398 387",
+    "naf": "56.30Z",
+    "president": "JSK HOLDING (Med Belkhir) depuis le 03/12/2024",
+    "creation": "octobre 2019 (avant : « Au Bistrot Victoria »)",
+    "notes": "Extraits Pappers / Societe.com, pages non ouvertes directement."
+  },
+  "design": {
+    "primary_color": "#0f1b16",
+    "secondary_color": "#f3eee2",
+    "accent_color": "#e8c37a → #d99a5b → #c9714a",
+    "style_notes": "PROPOSITION — aucun logo ni enseigne trouvés. Vert bouteille de bistrot, laiton du zinc, terre cuite ; DM Serif Display pour les titres, DM Sans pour le texte ; double filet sous chaque section. À recaler sur l'enseigne et l'avatar Instagram.",
+    "interior_vibe": "« ambiance bistrot assumée », grande terrasse sur la place (ombragée, chauffée, couverte), salle climatisée, écrans, jusqu'à 150 personnes",
+    "reference_images": []
+  },
+  "menu": {
+    "source": "Carte Deliveroo (le-victoria, Montpellier centre), la plus complète en ligne — prix de livraison, souvent majorés — et prix du bar relevés par Schlouk Map (participatif). Relevés le 2026-10-14 par extraits de moteur de recherche : docs/recherche-carte.md. La carte de salle de 2022 (tartare, pièce du boucher, poulpe à la sétoise) n'est pas reprise. La carte vit dans frontend/lib/menu-data.ts (const leVictoria).",
+    "categories_summary": [
+      "Burgers — 2, 11,90 €",
+      "Pizzas — 8, 11,90 à 15,90 €",
+      "Salades — 2, 10,90 €",
+      "Plats — 3, 10,99 à 20,99 €",
+      "Tapas — 10, 5 à 9 €",
+      "Desserts — 6 dont crêpe et gaufre à garnir, 3,20 à 6 €",
+      "Cocktails — 5, 8 €",
+      "Bières — 6, 5 à 6 €",
+      "Vins (bouteille) — 8, 13 à 22,99 €",
+      "Softs — 4, 3 à 5,50 €"
+    ],
+    "photos": "Aucune photo des plats en ligne exploitable (hôtes d'images bloqués pendant la recherche) : les photos sont des photos libres déjà auditées sur d'autres cartes Ominin, posées seulement quand le plat correspond. Le reste est sans photo, en attente d'une séance photo sur place.",
+    "options_a_valider": [
+      "Le Classique : « bacon (au choix) » modélisé en choix obligatoire Avec / Sans bacon.",
+      "Crêpe et gaufre : une ligne chacune, la garniture en choix avec la différence de prix de Deliveroo en supplément.",
+      "Cheesecake : nappage fruits rouges ou caramel beurre salé, en choix obligatoire.",
+      "Kronenbourg et Monaco 50 cl à 5,80 €, Mojito 8 € : Schlouk Map (participatif).",
+      "Descriptions de la Margherita, de la Vegetariana, des salades : paraphrasées par l'extrait (non mot pour mot).",
+      "Pizza « regina tomate » nommée Regina ; « Hamburger LE CHIKEN » nommé Le Chiken (orthographe gardée).",
+      "Vins : liste partielle (le blanc « Hotus bergerie » 25 € écarté, orthographe incertaine) ; alcools forts en bouteille non repris."
+    ]
+  },
+  "offers": [
+    "Happy hour 16h–1h (Kronenbourg/Monaco 50 cl 3,50 €, Mojito 5,50 € selon Schlouk)",
+    "Plat du jour 12,90 € (Petit Futé, Privateaser)",
+    "Deliveroo : burger Chiken et Margherita « 1 acheté = 1 offert »"
+  ],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md",
+    "limites": "Aucune page ouverte directement : extraits de moteur de recherche.",
+    "groupe": "Même groupe que Le Novelty et le Café des Arts (JSK HOLDING / Med Belkhir).",
+    "annuaires": "Beaucoup d'annuaires gardent « Au Bistrot Victoria », non revendiqués (Yelp, Restaurant Guru, TheFork).",
+    "avis": "Éloges : terrasse, ambiance, cocktails, happy hour généreux, souris d'agneau. Reproches : service lent en affluence, cuisine inégale, portions."
+  },
+  "notes": [
+    "La carte de salle est-elle celle de Deliveroo ? La carte brasserie (tartare, pièce du boucher, entrées) existe-t-elle encore ?",
+    "Bières pression, cocktails et vins au verre, avec prix normaux et happy hour.",
+    "Cocktails grand format : 8 € (50 cl) ou 18–25 € (Planteur 22 €, Mojito Classic 25 €) ?",
+    "Prix en salle des burgers (11,90 € Deliveroo, 12,90 € ailleurs) et des pizzas (jusqu'à 17,90 € sur Uber Eats : pizzas manquantes ?).",
+    "Plat du jour, petit-déjeuner, cafés dès 10h30, plats végétariens.",
+    "Le bon numéro de téléphone.",
+    "Logo et couleurs : photographier l'enseigne en visite.",
+    "Les autres adresses de JSK Holding : une carte par établissement ?"
+  ]
+}

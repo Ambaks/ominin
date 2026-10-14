@@ -1,0 +1,76 @@
+{
+  "slug": "caffe-panis",
+  "name": "Caffè Panis",
+  "tagline": "Ristorante · Pizzeria · Caffè",
+  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/caffe-panis",
+    "menu_ominin": "/menu/demo/caffe-panis?theme=ominin",
+    "click_and_collect": "/collect/demo/caffe-panis"
+  },
+  "cuisine": "Café-restaurant italien : pizzas, focaccias, pâtes, salades, tiramisu, glaces ; café, cocktails (spritz). Marque de livraison « Ciccio Gang by Caffè Panis ».",
+  "address": "3 Place du Marché aux Fleurs, 34000 Montpellier",
+  "city": "Montpellier (Écusson, près de la Préfecture ; tram Comédie)",
+  "phone": "04 99 67 65 38",
+  "hours": "Tous les jours 9h–1h (PagesJaunes, Tripadvisor, Petit Futé) ; LaCarte.Menu dit 8h–1h",
+  "website": "aucun site propre (Linktree linktr.ee/caffepanis) ; cafepanis.com est le Café Panis de Paris, sans lien",
+  "socials": {
+    "instagram": "@caffepanis",
+    "facebook": "facebook.com/caffepanis34 (≈ 900 abonnés)",
+    "tiktok": "lié depuis Linktree, compte non vu",
+    "google_maps": "4,4/5 sur ≈ 1 100–1 200 avis (non vérifié) ; Tripadvisor 3,6–3,7"
+  },
+  "legal": {
+    "raison_sociale": "MONTECRISTO (exploitant probable)",
+    "forme": "SAS",
+    "siren": "889 512 760",
+    "naf": "56.10A / 56.10C",
+    "president": "Léo Artaud depuis 2021",
+    "creation": "07/2020",
+    "notes": "Une seconde société, « M A N » (SIREN 987 451 150, place Castellane), apparaît sous le nom caffe-panis : reprise ou nouvelle entité, à demander. Extraits Pappers / annuaire-entreprises."
+  },
+  "design": {
+    "primary_color": "#f7f2e8",
+    "secondary_color": "#1f2a22",
+    "accent_color": "#2f6646 (vert), #9a4a2c (terre cuite)",
+    "style_notes": "PROPOSITION — aucun logo ni enseigne trouvés ; la presse décrit une devanture « univers nature, touche verte ». Thème clair : crème de comptoir de café, vert de la devanture pour les boutons et les prix, terre cuite pour les filets. Young Serif pour les titres, DM Sans pour le texte. À recaler sur l'enseigne en visite.",
+    "interior_vibe": "terrasse sur la place, décor soigné (MY HÉRAULT 08/2026)",
+    "reference_images": []
+  },
+  "menu": {
+    "source": "Aucune carte complète publiée (menu par QR en salle). Pizzas : TheFork « Menu 2022 » (Marinara, Luna rossa, Mama King, textes mot pour mot) et Deliveroo « Ciccio Gang by Caffè Panis », leur marque de livraison à la même adresse (7 pizzas) ; Dwich : Uber Eats Ciccio Gang (début 2025) ; menu du midi : blog Une Pintade (2022, texte mot pour mot) ; tiramisus : TheFork 2022. Relevé le 2026-10-14 : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const caffePanis).",
+    "categories_summary": [
+      "Pizze — 10, 11 à 19 €",
+      "Dwich — 3, 6,90 à 8,90 €",
+      "Menu du midi — 13 €",
+      "Dolci — 2 tiramisus, 7 €"
+    ],
+    "photos": "Aucune photo des plats en ligne exploitable (hôtes d'images bloqués pendant la recherche) : les photos sont des photos libres déjà auditées sur d'autres cartes Ominin, posées seulement quand le plat correspond. Le reste est sans photo, en attente d'une séance photo sur place.",
+    "options_a_valider": [
+      "Toute la carte est partielle et datée (2022–2025) : cafés, brunch, pâtes, salades, boissons, glaces manquent faute de prix publiés.",
+      "Pizzas Ciccio Gang : prix de livraison Deliveroo, sans doute supérieurs à la salle.",
+      "« Maman est sortie (hot) » : affichée avec un piment.",
+      "Menu du midi : le choix des pâtes (penne ou spaghetti) en option obligatoire ; prix 2022.",
+      "Dwich : descriptions non reprises (paraphrases)."
+    ]
+  },
+  "offers": [
+    "Menu du midi 13 € (2022) ; menu à 17 € avec verre de vin et café (paraphrase, non repris)"
+  ],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md",
+    "limites": "Aucune page ouverte directement : extraits de moteur de recherche.",
+    "livraison": "Deux fiches Uber Eats fermées (Lost - Caffe Panis, Lost - Ciccio Gang) ; Ciccio Gang sur Deliveroo.",
+    "avis": "Éloges : terrasse, pizzas, burrata, focaccia, tiramisu, cocktails. Reproches : service très lent aux heures de pointe, commandes oubliées, plats échangés sans prévenir.",
+    "groupe": "Famille Artaud (gin Maison Artaud), restaurant Panis & Fils à Palavas, peut-être un Caffè Panis à Nîmes : à confirmer."
+  },
+  "notes": [
+    "Qui décide (Léo Artaud ?) et quelle société exploite aujourd'hui : MONTECRISTO ou « M A N » ?",
+    "La carte actuelle complète : cafés, brunch, pâtes, focaccias, salades, glaces, boissons et cocktails, avec prix.",
+    "Combien coûte leur outil de menu QR actuel ?",
+    "Ciccio Gang est-il toujours actif ? Les prix en salle diffèrent-ils de Deliveroo ?",
+    "Logo, couleurs et polices : photographier l'enseigne en visite.",
+    "Horaires 9h–1h toujours d'actualité ?"
+  ]
+}

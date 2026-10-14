@@ -1,0 +1,85 @@
+{
+  "slug": "cafe-des-arts",
+  "name": "Café des Arts",
+  "tagline": "Bar · Brasserie · Place Castellane",
+  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/cafe-des-arts",
+    "menu_ominin": "/menu/demo/cafe-des-arts?theme=ominin",
+    "click_and_collect": "/collect/demo/cafe-des-arts"
+  },
+  "cuisine": "Bar-brasserie : formules du midi, salades XXL, burgers Charolais, viandes, poissons, bruschettas, pizzas, desserts ; girafes de bière et de cocktail.",
+  "address": "3 Rue Saint-Guilhem, 34000 Montpellier",
+  "city": "Montpellier (Écusson, place Castellane)",
+  "phone": "04 67 60 81 87 (Facebook, ancien site) ; le site du groupe donne 04 12 16 09 40",
+  "hours": "Contradictoires : 7j/7 10h–1h (site du groupe), 11h30–1h et petit-déjeuner dès 8h (ancien site) — non affichés",
+  "website": "https://www.cafedesarts34.fr/ (groupe) ; lecafedesartsmontpellier.com (ancien, toujours lié depuis Facebook)",
+  "socials": {
+    "instagram": "@lecafedesartsmontpellier (≈ 6,3 k abonnés)",
+    "facebook": "facebook.com/lecafedesartsmontpellier",
+    "tiktok": "non trouvé",
+    "google_maps": "non trouvée directement ; Tripadvisor 3,0 (≈ 600)"
+  },
+  "legal": {
+    "raison_sociale": "C.K.L (enseigne LE CAFÉ DES ARTS)",
+    "forme": "SASU",
+    "siren": "523 954 857",
+    "naf": "56.10A",
+    "president": "Med Belkhir depuis le 18/05/2023",
+    "creation": "01/07/2010",
+    "notes": "Extraits Pappers / Societe.com, pages non ouvertes directement. Ne pas aborder la fermeture administrative de l'été 2024 (presse locale)."
+  },
+  "design": {
+    "primary_color": "#1b0f12",
+    "secondary_color": "#f6ece0",
+    "accent_color": "#e6c27d → #d98f62 → #d0616a",
+    "style_notes": "PROPOSITION — aucun logo ni enseigne trouvés. Bordeaux sombre de brasserie, laiton, rouge vin ; Playfair Display en italique pour les sections, DM Sans pour le texte. À recaler sur l'enseigne photographiée en visite.",
+    "interior_vibe": "terrasse ombragée, deux salles climatisées, DJ le week-end",
+    "reference_images": []
+  },
+  "menu": {
+    "source": "Ancien site officiel (lecafedesartsmontpellier.com, pages d'articles, sans date) — le seul à publier des prix ; le site actuel du groupe ne donne que « deux plats du jour chaque midi à partir de 9,90 € » et le café à 1 € de 9h à 12h. Relevé le 2026-10-14 par extraits de moteur de recherche : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const cafeDesArts).",
+    "categories_summary": [
+      "Formules du midi — 5, 10 à 19,90 €",
+      "Entrées & à partager — 4, 7,50 à 13,50 €",
+      "Salades XXL — 5, 14,50 à 16,50 €",
+      "Burgers — 2, 16,50 et 17 €",
+      "Viandes & poissons — 5, 14,50 à 17,50 €",
+      "Bruschettas — 3, 13,50 à 14,50 €",
+      "Pizzas maison — 2, 8,50 et 10 €",
+      "Desserts & glaces — 7, 3,60 à 7,50 €"
+    ],
+    "photos": "Aucune photo des plats en ligne exploitable (hôtes d'images bloqués pendant la recherche) : les photos sont des photos libres déjà auditées sur d'autres cartes Ominin, posées seulement quand le plat correspond. Le reste est sans photo, en attente d'une séance photo sur place.",
+    "options_a_valider": [
+      "Formule Brasserie : Uno 12 €, Duo 14,90 €, Trio 16,90 € modélisés en une ligne avec la composition au choix.",
+      "Contenu des formules (du midi, Express, Douceur, Menu Café des Arts) : non publié, lignes sans détail.",
+      "Garnitures des bruschettas : paraphrasées par l'extrait.",
+      "Prix de l'ancien site, sans date et sans doute anciens : formules à 10–19,90 € alors que le site actuel annonce des plats du jour dès 9,90 €.",
+      "Orthographes de la source gardées : « grannapadano », « granna padano », « chiken wings », « AAAAA »."
+    ]
+  },
+  "offers": [
+    "Deux plats du jour chaque midi à partir de 9,90 € (site du groupe)",
+    "Le café à 1 € de 9h à 12h",
+    "Happy hour : mojitos et bières pression à tarifs préférentiels (horaires contradictoires : 16h, 17h ou 18h – 21h ou 23h)",
+    "Girafes de bière et de cocktail de 3 à 5 L",
+    "Titres-restaurant acceptés le midi (Eat-List)"
+  ],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md",
+    "limites": "Aucune page ouverte directement : extraits de moteur de recherche.",
+    "groupe": "Groupe de quatre adresses (Café des Arts, Le Novelty, Le Victoria, Brasserie Laissac) sous la même direction (Med Belkhir), contact commun ckl.cafedesarts@gmail.com.",
+    "avis": "Éloges : bavette, burgers, tapas, salade Des Arts, girafes, happy hour. Reproche : expérience inégale d'un soir à l'autre."
+  },
+  "notes": [
+    "La carte papier actuelle et la carte des boissons, avec prix : les prix de l'ancien site (burgers 16,50/17 €, bavette 17,50 €) sont-ils à jour ?",
+    "Contenu et prix actuels des formules du midi ; les plats du jour dès 9,90 € remplacent-ils les formules ?",
+    "Moules, magret, tartare, entrecôte sont-ils à la carte ?",
+    "Happy hour : horaires et prix ; prix de chaque taille de girafe.",
+    "Le bon numéro (04 67 60 81 87 ou 04 12 16 09 40) et les horaires.",
+    "Logo et couleurs : photographier l'enseigne, la façade et les salles en visite.",
+    "Une carte pour les quatre adresses du groupe, une carte par adresse ?",
+    "Le domaine lecafedesartsmontpellier.com est-il toujours le leur ? Il remonte sur Google avec d'anciens prix."
+  ]
+}

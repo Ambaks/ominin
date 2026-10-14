@@ -3269,6 +3269,943 @@ const lAdresse: Restaurant = {
   ],
 };
 
+/*
+ * Quatre adresses de l'Écusson (Montpellier), démos de prospection du
+ * 14 octobre 2026 : Le Novelty, Le Victoria, Café des Arts — trois bars du
+ * même groupe, autour de la place Castellane — et Caffè Panis, place du
+ * Marché aux Fleurs. Aucun document remis par les gérants : chaque carte est
+ * relevée sur le web (leur site, Deliveroo, TheFork, l'ancien site), source
+ * par source dans demos/<slug>/docs/recherche-carte.md. Les prix sont à
+ * valider avec eux ; les questions ouvertes vivent dans demos/<slug>/profile.json.
+ */
+
+/** Volume d'une bière pression : le prix de l'article est celui du plus petit. */
+const volumes = (supplements: readonly (readonly [string, number])[]) =>
+  groupeChoix("volume", "Volume", supplements, { obligatoire: true });
+
+/*
+ * Le Novelty — 10 rue Saint-Guilhem. La carte des boissons de leur site
+ * (lenovelty-montpellier.fr, « Notre Carte ») ; la restauration n'y est pas
+ * encore publiée (« La suite arrive bientôt »).
+ */
+const NOVELTY_PARFUMS = groupeChoix("parfum", "Parfum", ["Mangue", "Fraise", "Framboise", "Passion", "Pêche"]);
+const NOVELTY_XXL = groupeChoix("format", "Format", ["Classique", ["XXL", 3]], { obligatoire: true });
+const NOVELTY_PRESSION = volumes([["25 cl", 0], ["50 cl", 3.5], ["1 L", 10.5]]);
+const NOVELTY_PRESSION_KRO = volumes([["25 cl", 0], ["50 cl", 2.4], ["1 L", 7.4]]);
+
+const noveltyCocktail = (
+  id: string,
+  name: string,
+  description: string,
+  price: number,
+  parfum = false
+): MenuItem => ({
+  id,
+  name,
+  description,
+  price,
+  vatRate: 20,
+  options: parfum ? [NOVELTY_PARFUMS, NOVELTY_XXL] : [NOVELTY_XXL],
+});
+
+const noveltyPression = (id: string, name: string, description: string): MenuItem => ({
+  id,
+  name,
+  description,
+  price: 4.5,
+  detail: "25 cl",
+  vatRate: 20,
+  options: [NOVELTY_PRESSION],
+});
+
+const leNovelty: Restaurant = {
+  slug: "le-novelty",
+  name: "Le Novelty",
+  tagline: "Café · Bar à cocktails",
+  address: "10 Rue Saint-Guilhem, 34000 Montpellier",
+  phone: "+33 4 34 35 36 28",
+  hours: "Tous les jours 8h30–⁠1h",
+  highlights: ["Ouvert 7j/7", "Happy hours 17h–23h", "Cocktails en XXL"],
+  ticker: [
+    { text: "Happy Hours tous les jours de 17h à 23h", tone: "accent" },
+    { text: "Bières, cocktails et shots à prix réduits" },
+    { text: "Café du matin à 1 € de 9h à 12h", tone: "brand" },
+    { text: "Tous les cocktails en XXL : +3 €" },
+  ],
+  categories: [
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      tagline: "Tous nos cocktails existent en XXL : +3 €",
+      items: [
+        noveltyCocktail(
+          "mojito",
+          "Mojito",
+          "Rhum Bacardi Carta Oro, citron vert, cassonade, menthe fraîche, limonade",
+          9,
+          true
+        ),
+        noveltyCocktail("cuba-libre", "Cuba Libre", "Rhum Bacardi Carta Oro, citron vert, Coca Cola", 9),
+        { id: "ti-punch", name: "Ti-Punch", description: "Rhum Bacardi Carta Oro, cassonade, citron vert", price: 9, vatRate: 20 },
+        noveltyCocktail("caipirinha", "Caïpirinha", "Cachaça Aguacana, cassonade, citron vert", 9, true),
+        noveltyCocktail("caipiroska", "Caïpiroska", "Vodka Eristoff, cassonade, citron vert", 9, true),
+        noveltyCocktail("cosmopolitan", "Cosmopolitan", "Vodka Eristoff, liqueur d'orange, citron vert, cranberry", 9),
+        noveltyCocktail("daiquiri", "Daïquiri", "Rhum Bacardi Carta Oro, sucre de canne, citron vert", 9, true),
+        noveltyCocktail("gin-tonic", "Gin Tonic", "Gin, Schweppes tonic, citron vert", 9),
+        noveltyCocktail("planteur", "Planteur", "Rhum, ananas, orange, grenadine", 9),
+        noveltyCocktail("coco-bull", "Coco Bull", "Vodka, sirop de cerise, citron vert, Redbull", 9),
+        noveltyCocktail("gin-fizz", "Gin Fizz", "Gin Bombay Sapphire, sucre en poudre, jus de citron, limonade", 9),
+        noveltyCocktail("margarita", "Margarita", "Tequila, triple sec, jus de citron", 9),
+        noveltyCocktail("pina-colada", "Piña Colada", "Rhum Bacardi Carta Oro, crème de coco, ananas, vanille", 9),
+        noveltyCocktail("tequila-sunrise", "Tequila Sunrise", "Tequila, jus d'orange, sirop de grenadine", 9),
+        noveltyCocktail(
+          "sex-on-the-beach",
+          "Sex on the Beach",
+          "Vodka Eristoff, liqueurs de pêche, cerise et melon, cranberry, jus d'ananas",
+          9
+        ),
+        noveltyCocktail("tete-a-l-envers", "Tête à l'Envers", "Vodka Eristoff, Orangina, liqueur de curaçao bleu", 9),
+        noveltyCocktail("spritz", "Spritz", "Aperol, Prosecco, Perrier", 9.5),
+        noveltyCocktail(
+          "long-island",
+          "Long Island",
+          "Rhum Bacardi, gin, tequila, vodka Eristoff, sucre de canne, citron vert, Coca Cola",
+          11
+        ),
+        noveltyCocktail("moscow-mule", "Moscow Mule", "Vodka Eristoff, citron vert, ginger beer", 11),
+        noveltyCocktail(
+          "pornstar",
+          "Pornstar",
+          "Champagne, liqueur de passion, vodka Eristoff, jus de citron, sirop de vanille",
+          11
+        ),
+        noveltyCocktail(
+          "expresso-martini",
+          "Expresso Martini",
+          "Vodka, liqueur de café, sirop de sucre de canne, expresso",
+          11
+        ),
+        noveltyCocktail("jager-bomb", "Jager Bomb", "Jägermeister, Red Bull", 7),
+      ],
+    },
+    {
+      id: "signatures",
+      name: "Cocktails signature",
+      items: [
+        noveltyCocktail(
+          "n-fire",
+          "Le N'Fire",
+          "Jack Daniel's Fire, triple sec, jus de citron, jus de cranberry",
+          13
+        ),
+        noveltyCocktail(
+          "el-marez",
+          "El Marez",
+          "Gin Premium Belle Rive, jus de citron, sirop de grenadine, menthe fraîche",
+          13
+        ),
+      ],
+    },
+    {
+      id: "sans-alcool",
+      name: "Sans alcool",
+      items: [
+        { id: "red-berry", name: "Red Berry", description: "Purée de fruits rouges, cranberry, jus d'ananas", price: 7 },
+        { id: "exotique", name: "Exotique", description: "Fruits exotiques, jus de citron, sirop de vanille, jus de passion", price: 7 },
+        {
+          id: "virgin-mojito",
+          name: "Virgin Mojito",
+          description: "Menthe fraîche, citron vert, cassonade, limonade",
+          price: 7,
+          options: [NOVELTY_PARFUMS],
+        },
+        { id: "virgin-colada", name: "Virgin Colada", description: "Crème de coco, ananas, vanille", price: 7 },
+      ],
+    },
+    {
+      id: "pression",
+      name: "Bières pression",
+      tagline: "25 cl, 50 cl ou 1 L",
+      items: [
+        {
+          id: "kronenbourg",
+          name: "Kronenbourg",
+          description: "Blonde · 4,5°",
+          price: 3.6,
+          detail: "25 cl",
+          vatRate: 20,
+          options: [NOVELTY_PRESSION_KRO],
+        },
+        noveltyPression("chouffe", "Chouffe", "Blonde · 8°"),
+        noveltyPression("cherry-chouffe", "Cherry Chouffe", "8°"),
+        noveltyPression("bete-blanche", "La Bête Blanche", "5,2°"),
+        noveltyPression("bete-blonde", "La Bête Blonde", "8°"),
+        noveltyPression("bete-rouge", "La Bête Rouge", "8°"),
+        noveltyPression("ducasse-triple", "Ducasse Triple", "9°"),
+        noveltyPression("grimbergen", "Grimbergen", "Blonde · 6,7°"),
+        noveltyPression("fada-ipa", "Fada IPA", "5°"),
+        {
+          id: "biere-du-moment",
+          name: "Bière du Moment",
+          price: 4.5,
+          detail: "25 cl",
+          vatRate: 20,
+          options: [volumes([["25 cl", 0], ["50 cl", 3.5]])],
+        },
+        {
+          id: "monaco",
+          name: "Monaco",
+          description: "Bière, grenadine, limonade",
+          price: 3.7,
+          detail: "25 cl",
+          vatRate: 20,
+          options: [volumes([["25 cl", 0], ["50 cl", 2.5]])],
+        },
+        {
+          id: "picon-biere",
+          name: "Picon Bière",
+          price: 4.2,
+          detail: "25 cl",
+          vatRate: 20,
+          options: [volumes([["25 cl", 0], ["50 cl", 2.8]])],
+        },
+      ],
+    },
+    {
+      id: "bouteilles",
+      name: "Bières bouteille",
+      items: [
+        { id: "1664-sans-alcool", name: "1664 0° Sans Alcool", price: 5, detail: "33 cl" },
+        { id: "heineken", name: "Heineken", description: "5°", price: 6, detail: "33 cl", vatRate: 20 },
+        { id: "desperados", name: "Desperados", description: "5,9°", price: 6, detail: "33 cl", vatRate: 20 },
+        { id: "corona", name: "Corona", description: "4,5°", price: 6, detail: "33 cl", vatRate: 20 },
+        { id: "kastel-rouge", name: "Kastel Rouge", description: "8°", price: 7, detail: "33 cl", vatRate: 20 },
+        { id: "triple-karmeliet", name: "Triple Karmeliet", description: "8,4°", price: 7, detail: "33 cl", vatRate: 20 },
+        { id: "guinness", name: "Guinness", price: 7, detail: "33 cl", vatRate: 20 },
+        { id: "cidre", name: "Cidre", description: "4,5°", price: 7, detail: "25 cl", vatRate: 20 },
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      items: [
+        {
+          id: "coca-cola",
+          name: "Coca-Cola",
+          price: 4,
+          detail: "33 cl",
+          options: [groupeChoix("version", "Version", ["Classique", "Cherry", "Zéro"], { obligatoire: true })],
+        },
+        {
+          id: "fanta-sprite",
+          name: "Fanta Orange ou Sprite",
+          price: 4,
+          detail: "25 cl",
+          options: [groupeChoix("boisson", "Boisson", ["Fanta Orange", "Sprite"], { obligatoire: true })],
+        },
+        { id: "fuzetea", name: "Fuzetea pêche", price: 4, detail: "25 cl" },
+        {
+          id: "tropico-orangina",
+          name: "Tropico ou Orangina",
+          price: 4,
+          detail: "25 cl",
+          options: [groupeChoix("boisson", "Boisson", ["Tropico", "Orangina"], { obligatoire: true })],
+        },
+        {
+          id: "eau-gazeuse",
+          name: "Badoit Rouge ou Perrier",
+          price: 4,
+          detail: "33 cl",
+          options: [groupeChoix("boisson", "Boisson", ["Badoit Rouge", "Perrier"], { obligatoire: true })],
+        },
+        { id: "red-bull", name: "Red Bull", price: 5.5, detail: "25 cl" },
+        {
+          id: "jus-de-fruits",
+          name: "Jus de fruits",
+          price: 4,
+          detail: "25 cl",
+          options: [
+            groupeChoix("jus", "Jus", ["Orange", "Ananas", "Pomme", "Abricot", "Tomate", "Fraise"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        {
+          id: "jus-presse",
+          name: "Jus de fruits pressé",
+          price: 5,
+          options: [groupeChoix("fruit", "Fruit", ["Orange", "Citron"], { obligatoire: true })],
+        },
+        {
+          id: "limonade-pression",
+          name: "Limonade pression",
+          price: 3.4,
+          detail: "33 cl",
+          options: [volumes([["33 cl", 0], ["50 cl", 1.6]])],
+        },
+        {
+          id: "diabolo",
+          name: "Diabolo",
+          price: 3.6,
+          detail: "33 cl",
+          options: [volumes([["33 cl", 0], ["50 cl", 1.6]])],
+        },
+      ],
+    },
+    {
+      id: "cafes",
+      name: "Cafés & boissons chaudes",
+      tagline: "Café, noisette, décaféiné et allongé : fin de service 20h",
+      items: [
+        { id: "cafe", name: "Café", price: 1.9 },
+        { id: "noisette", name: "Noisette", price: 2 },
+        { id: "decafeine", name: "Décaféiné", price: 2 },
+        { id: "cafe-allonge", name: "Café allongé", price: 2.2 },
+        { id: "double-cafe", name: "Double café", price: 3.6 },
+        { id: "cafe-creme", name: "Café crème", price: 3.6 },
+        { id: "cappuccino", name: "Cappuccino", price: 3.6 },
+        { id: "chocolat-chaud", name: "Chocolat chaud", price: 3.6 },
+        { id: "cafe-viennois", name: "Café viennois", price: 4 },
+        { id: "chocolat-viennois", name: "Chocolat viennois", price: 4 },
+        { id: "the-infusion", name: "Thé ou infusion", price: 3.2 },
+        { id: "irish-coffee", name: "Irish Coffee", price: 9, vatRate: 20 },
+        { id: "french-coffee", name: "French Coffee", price: 9, vatRate: 20 },
+      ],
+    },
+    {
+      id: "fraicheurs",
+      name: "Fraîcheurs maison",
+      items: [
+        {
+          id: "the-glace",
+          name: "Thé glacé maison",
+          price: 5,
+          options: [groupeChoix("parfum", "Parfum", ["Citron", "Passion", "Framboise", "Pêche"], { obligatoire: true })],
+        },
+        {
+          id: "smoothie",
+          name: "Smoothie",
+          price: 6,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Mangue", "Pêche", "Fruits rouges", "Fruits exotiques"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        {
+          id: "milk-shake",
+          name: "Milk-shake",
+          price: 6.5,
+          options: [
+            groupeChoix("parfum", "Parfum", ["Vanille", "Fraise", "Chocolat", "Banane"], { obligatoire: true }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "formules",
+      name: "Formules",
+      items: [
+        {
+          id: "cafe-du-matin",
+          name: "Café du matin",
+          description: "De 9h à 12h, du lundi au dimanche",
+          price: 1,
+          options: [
+            groupeChoix("cafe", "Café", ["Expresso", "Café allongé", "Noisette"], { obligatoire: true }),
+          ],
+        },
+        {
+          id: "formule-etudiante",
+          name: "Formule Étudiante",
+          description: "Un plat et une boisson, sur présentation de la carte étudiante",
+          price: 8.5,
+          options: [
+            groupeChoix(
+              "plat",
+              "Plat",
+              [
+                "Burger frites bœuf",
+                "Burger frites poulet",
+                "Pizza Margherita",
+                "Tagliatelles poulet curry",
+                "Tagliatelles bolognaise",
+              ],
+              { obligatoire: true }
+            ),
+            groupeChoix("boisson", "Boisson", ["Coca", "Fuzetea", "Limonade", "Sirop", "Diabolo"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+/*
+ * Le Victoria — 3 place Castellane (ex-Au Bistrot Victoria). La carte de
+ * Deliveroo, la plus complète en ligne (prix de livraison), et les prix du
+ * bar relevés par Schlouk Map. La carte de salle de 2022 (tartare, pièce du
+ * boucher) n'est pas reprise : rien ne dit qu'elle existe encore.
+ */
+const VICTORIA_CREPE = groupeChoix(
+  "garniture",
+  "Garniture",
+  [
+    ["Nature", 0],
+    ["Sucre", 0.4],
+    ["Sucre citron", 0.6],
+    ["Nutella", 0.8],
+    ["Caramel beurre salé", 0.8],
+    ["Nutella banane", 1.8],
+    ["Nutella noix de coco râpée", 1.8],
+  ],
+  { obligatoire: true }
+);
+
+const VICTORIA_GAUFRE = groupeChoix(
+  "garniture",
+  "Garniture",
+  [
+    ["Sucre", 0],
+    ["Sucre citron", 0.2],
+    ["Nutella", 0.4],
+    ["Caramel beurre salé", 0.4],
+    ["Nutella banane", 1.4],
+    ["Nutella noix de coco râpée", 1.4],
+  ],
+  { obligatoire: true }
+);
+
+const leVictoria: Restaurant = {
+  slug: "le-victoria",
+  name: "Le Victoria",
+  tagline: "Bistrot · Place Castellane",
+  address: "3 Place Castellane, 34000 Montpellier",
+  phone: "+33 4 48 78 60 29",
+  hours: "Tous les jours 10h30–⁠1h",
+  highlights: ["Ouvert 7j/7", "Terrasse sur la place", "Happy hour dès 16h"],
+  ticker: [
+    { text: "Happy hour de 16h à 1h", tone: "accent" },
+    { text: "Plat du jour 12,90 €", tone: "brand" },
+    { text: "Terrasse sur la place Castellane" },
+    { text: "Ouvert 7j/7 de 10h30 à 1h" },
+  ],
+  categories: [
+    {
+      id: "burgers",
+      name: "Burgers",
+      tagline: "Servis avec leurs frites maison",
+      items: [
+        {
+          id: "le-classique",
+          name: "Le Classique",
+          description: "Steak haché du boucher frais, double cheddar, bacon (au choix), tomates et salade",
+          price: 11.9,
+          image: pexels("4080534/pexels-photo-4080534.jpeg", 800),
+          options: [groupeChoix("bacon", "Bacon", ["Avec bacon", "Sans bacon"], { obligatoire: true })],
+        },
+        {
+          id: "le-chiken",
+          name: "Le Chiken",
+          description: "Steak de poulet pané frit, cheddar, salade, tomate",
+          price: 11.9,
+          image: pexels("7963144/pexels-photo-7963144.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "pizzas",
+      name: "Pizzas",
+      items: [
+        {
+          id: "margherita",
+          name: "Margherita",
+          description: "Base tomate, mozzarella di buffala, tomates cerises, basilic frais",
+          price: 11.9,
+          image: unsplash("photo-1574071318508-1cdbab80d002", 800),
+        },
+        {
+          id: "vegetariana",
+          name: "Vegetariana",
+          description: "Sauce tomate, fromage, tomates fraîches, aubergines, courgettes, oignons, poivrons",
+          price: 12.9,
+          image: pexels("33593000/pexels-photo-33593000.jpeg", 800),
+        },
+        {
+          id: "4-fromaggio",
+          name: "4 Fromaggio",
+          description: "Crème, gruyère, mozzarella, roquefort et chèvre",
+          price: 12.9,
+          image: unsplash("photo-1513104890138-7c749659a591", 800),
+        },
+        {
+          id: "regina",
+          name: "Regina",
+          description: "Sauce tomate, fromage, mozzarella, jambon, champignons frais et basilic",
+          price: 12.9,
+          image: pexels("34413634/pexels-photo-34413634.jpeg", 800),
+        },
+        {
+          id: "chevre-miel",
+          name: "Chèvre miel",
+          description: "Sauce tomate, fromage de chèvre, miel et herbes",
+          price: 12.9,
+          image: pexels("33592983/pexels-photo-33592983.jpeg", 800),
+        },
+        { id: "pizza-poulet", name: "Au poulet", description: "Poulet, fromage, crème fraîche, poivrons et oignon", price: 12.9 },
+        {
+          id: "spezzial",
+          name: "Spezzial",
+          description:
+            "Sauce tomate, fromage, mozzarella ; à la sortie du four, mozzarella di buffala, jambon cru, roquette, copeaux de parmesan",
+          price: 14.9,
+        },
+        { id: "salmone", name: "Salmone", description: "Crème, saumon, fromage, roquette et saumon fumé", price: 15.9 },
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades",
+      items: [
+        {
+          id: "salade-cesar",
+          name: "Salade César",
+          description: "Poulet, œuf dur, copeaux de parmesan, croûtons",
+          price: 10.9,
+          image: pexels("28618639/pexels-photo-28618639.jpeg", 800),
+        },
+        {
+          id: "salade-chevre-chaud",
+          name: "Salade de chèvre chaud",
+          description: "Tomate, toasts de chèvre, jambon serrano, croûtons",
+          price: 10.9,
+        },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      items: [
+        {
+          id: "souris-agneau",
+          name: "Souris d'agneau confite au romarin",
+          price: 20.99,
+          image: pexels("16588046/pexels-photo-16588046.jpeg", 800),
+        },
+        { id: "tagliatelles-curry", name: "Tagliatelles poulet curry", description: "Poulet, crème fraîche, curry", price: 10.99 },
+        {
+          id: "tagliatelles-bolognaise",
+          name: "Tagliatelles bolognaise",
+          description: "Sauce tomate, parmesan, viande hachée de bœuf",
+          price: 10.99,
+        },
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Tapas",
+      tagline: "À partager à la terrasse",
+      items: [
+        { id: "wings", name: "Wings poulet", price: 7, image: pexels("7230625/pexels-photo-7230625.jpeg", 800) },
+        { id: "fish-and-chips", name: "Fish and chips", price: 9 },
+        { id: "frites-maison", name: "Frites maison", price: 5 },
+        { id: "frites-patate-douce", name: "Frites de patate douce", price: 7 },
+        { id: "croquetas-chorizo", name: "Croquetas chorizo", price: 7 },
+        { id: "patatas-bravas", name: "Patatas bravas", price: 7 },
+        { id: "sticks-mozzarella", name: "Sticks mozzarella", price: 7 },
+        { id: "mini-nems", name: "Mini nems", price: 7 },
+        { id: "mini-samossas", name: "Mini samossas", price: 6 },
+        { id: "mini-saucissons", name: "Mini saucissons", price: 5.5 },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "moelleux-chocolat",
+          name: "Moelleux chocolat",
+          price: 5,
+          image: pexels("20377567/pexels-photo-20377567.jpeg", 800),
+        },
+        {
+          id: "cheesecake",
+          name: "Cheesecake",
+          price: 5,
+          options: [
+            groupeChoix("nappage", "Nappage", ["Fruits rouges", "Caramel beurre salé"], { obligatoire: true }),
+          ],
+        },
+        { id: "tarte-citron", name: "Tarte citron meringuée", price: 6 },
+        { id: "tarte-tatin", name: "Tarte tatin", price: 5 },
+        {
+          id: "crepe",
+          name: "Crêpe",
+          price: 3.2,
+          image: unsplash("photo-1572542873907-204263f6a869", 800),
+          options: [VICTORIA_CREPE],
+        },
+        {
+          id: "gaufre",
+          name: "Gaufre maison",
+          price: 3.6,
+          image: unsplash("photo-1701694472041-fc7faca1bdb6", 800),
+          options: [VICTORIA_GAUFRE],
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      items: [
+        { id: "mojito", name: "Mojito", price: 8, vatRate: 20 },
+        { id: "sex-on-the-beach", name: "Sex on the beach maison", price: 8, vatRate: 20 },
+        { id: "punch", name: "Punch maison", detail: "50 cl", price: 8, vatRate: 20 },
+        { id: "sangria", name: "Sangria maison", detail: "50 cl", price: 8, vatRate: 20 },
+        { id: "planteur", name: "Planteur", detail: "50 cl", price: 8, vatRate: 20 },
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      items: [
+        { id: "kronenbourg", name: "Kronenbourg pression", detail: "50 cl", price: 5.8, vatRate: 20 },
+        { id: "monaco", name: "Monaco", detail: "50 cl", price: 5.8, vatRate: 20 },
+        { id: "heineken", name: "Heineken", detail: "33 cl", price: 5, vatRate: 20 },
+        { id: "desperados", name: "Desperados", detail: "33 cl", price: 6, vatRate: 20 },
+        { id: "corona", name: "Corona", detail: "33 cl", price: 6, vatRate: 20 },
+        { id: "1664-sans-alcool", name: "1664 sans alcool", detail: "33 cl", price: 5 },
+      ],
+    },
+    {
+      id: "vins",
+      name: "Vins",
+      tagline: "À la bouteille",
+      items: [
+        { id: "merlot", name: "Merlot", description: "Rouge · vin de la maison", detail: "75 cl", price: 14, vatRate: 20 },
+        { id: "faugeres-rouge", name: "Faugères, Château Haut Lignières", description: "Rouge", detail: "75 cl", price: 16, vatRate: 20 },
+        { id: "pic-saint-loup", name: "Pic Saint Loup, Château Lansyre", description: "Rouge", detail: "75 cl", price: 22, vatRate: 20 },
+        { id: "chardonnay", name: "Chardonnay", description: "Blanc", detail: "75 cl", price: 13, vatRate: 20 },
+        { id: "joy", name: "Joy", description: "Blanc moelleux · vin de la maison", detail: "75 cl", price: 16, vatRate: 20 },
+        { id: "faugeres-rose", name: "Faugères, Château Haut Lignières", description: "Rosé", detail: "75 cl", price: 16, vatRate: 20 },
+        { id: "amour-de-gris", name: "Amour de Gris, Domaine Grand-Chemin", description: "Rosé", detail: "75 cl", price: 17, vatRate: 20 },
+        { id: "argali", name: "Puech-Haut «\u00a0Argali\u00a0»", description: "Rosé", detail: "75 cl", price: 22.99, vatRate: 20 },
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      items: [
+        { id: "coca-cola", name: "Coca-Cola", detail: "33 cl", price: 3 },
+        { id: "fuze-tea", name: "Fuze Tea", detail: "33 cl", price: 3 },
+        { id: "coca-cola-1l", name: "Coca-Cola", detail: "1 L", price: 5.5 },
+        { id: "red-bull", name: "Red Bull", price: 5 },
+      ],
+    },
+  ],
+};
+
+/*
+ * Café des Arts — 3 rue Saint-Guilhem, sur la place Castellane. La carte de
+ * leur ancien site (lecafedesartsmontpellier.com, toujours lié depuis leur
+ * page Facebook) : le seul à publier des prix, sans date ; le site actuel du
+ * groupe (cafedesarts34.fr) ne donne que les plats du jour et le café à 1 €.
+ */
+const cafeDesArts: Restaurant = {
+  slug: "cafe-des-arts",
+  name: "Café des Arts",
+  tagline: "Bar · Brasserie · Place Castellane",
+  address: "3 Rue Saint-Guilhem, 34000 Montpellier",
+  phone: "+33 4 67 60 81 87",
+  hours: "",
+  highlights: ["Terrasse ombragée", "Deux salles climatisées", "Girafes de 3 à 5 litres"],
+  ticker: [
+    { text: "Deux plats du jour chaque midi à partir de 9,90 €", tone: "accent" },
+    { text: "Le café à 1 € de 9h à 12h" },
+    { text: "Happy hour : mojitos et bières pression à tarifs préférentiels" },
+    { text: "Girafes de bière et de cocktail, de 3 à 5 litres", tone: "brand" },
+  ],
+  categories: [
+    {
+      id: "formules",
+      name: "Formules du midi",
+      tagline: "Le midi, sauf le dimanche et les jours fériés",
+      items: [
+        { id: "formule-du-midi", name: "Formule du midi", price: 10 },
+        { id: "formule-express", name: "Formule Express", price: 12.9 },
+        { id: "formule-douceur", name: "Formule Douceur", description: "Avec le dessert du jour", price: 15.5 },
+        {
+          id: "formule-brasserie",
+          name: "Formule Brasserie",
+          description: "Uno, Duo ou Trio, au choix",
+          price: 12,
+          options: [
+            groupeChoix(
+              "composition",
+              "Composition",
+              [
+                ["Uno : plat", 0],
+                ["Duo : entrée + plat", 2.9],
+                ["Duo : plat + dessert", 2.9],
+                ["Trio : entrée + plat + dessert", 4.9],
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        },
+        { id: "menu-cafe-des-arts", name: "Menu Café des Arts", price: 19.9 },
+      ],
+    },
+    {
+      id: "a-partager",
+      name: "Entrées & à partager",
+      items: [
+        {
+          id: "trilogie-tapas",
+          name: "Trilogie de tapas chaudes",
+          description: "Calamari, mozzarella sticks, chiken wings barbecue sauce · seul ou à partager",
+          price: 13.5,
+        },
+        {
+          id: "carpaccio",
+          name: "Carpaccio de bœuf au pesto et grannapadano",
+          price: 11.5,
+          image: unsplash("photo-1546549032-9571cd6b27df", 800),
+        },
+        { id: "terrine", name: "Terrine du chef et ses toasts", price: 10.5 },
+        { id: "assiette-fromages", name: "Assiette de fromages", price: 7.5 },
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades XXL",
+      items: [
+        {
+          id: "salade-des-arts",
+          name: "Salade «\u00a0Des Arts\u00a0»",
+          description: "Salade, tomates, gésiers, lardons, foie gras, magret fumé",
+          price: 16.5,
+          detail: "XXL",
+          badges: ["top"],
+        },
+        {
+          id: "salade-caesar",
+          name: "Salade Caesar",
+          description: "Au poulet et fromage granna padano",
+          price: 14.5,
+          detail: "XXL",
+          image: pexels("28618639/pexels-photo-28618639.jpeg", 800),
+        },
+        { id: "salade-chevre-chaud", name: "Salade de chèvre chaud et lard grillé", price: 14.5, detail: "XXL" },
+        { id: "salade-italienne", name: "Salade italienne", price: 16, detail: "XXL" },
+        { id: "salade-vegetarienne", name: "Salade végétarienne", price: 14.5, detail: "XXL" },
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers",
+      tagline: "180 g de bœuf Charolais, servis avec frites et salade verte",
+      items: [
+        {
+          id: "cheese-burger",
+          name: "Cheese burger «\u00a0Café des Arts\u00a0»",
+          price: 16.5,
+          image: pexels("10922928/pexels-photo-10922928.jpeg", 800),
+        },
+        { id: "burger-savoyard", name: "Burger savoyard", description: "Au reblochon et bacon", price: 17 },
+      ],
+    },
+    {
+      id: "viandes-poissons",
+      name: "Viandes & poissons",
+      items: [
+        { id: "bavette", name: "Bavette à l'échalote", description: "Et ses pommes de terre grenailles", price: 17.5 },
+        { id: "andouillette", name: "Andouillette «\u00a0AAAAA\u00a0»", description: "À la moutarde à l'ancienne, frites", price: 16.5 },
+        { id: "filet-de-bar", name: "Filet de bar", description: "Sauce vierge, purée maison", price: 17 },
+        { id: "dorade", name: "Filet de dorade grillé", description: "Sauce vierge, riz et légumes", price: 15 },
+        { id: "pave-saumon", name: "Pavé de saumon", description: "Risotto crémeux", price: 14.5 },
+      ],
+    },
+    {
+      id: "bruschettas",
+      name: "Bruschettas",
+      tagline: "Servies avec leur salade composée",
+      items: [
+        {
+          id: "bruschetta-savoyarde",
+          name: "Bruschetta Savoyarde",
+          description: "Crème fraîche, pommes de terre, Comté, lardons",
+          price: 13.5,
+        },
+        {
+          id: "bruschetta-catalane",
+          name: "Bruschetta Catalane",
+          description: "Tomates, jambon cru, pepperoni, mozzarella",
+          price: 14.5,
+        },
+        {
+          id: "bruschetta-texane",
+          name: "Bruschetta Texane",
+          description: "Sauce BBQ, tomate, fromage, bœuf haché, pepperoni, oignons, poivrons",
+          price: 14.5,
+        },
+      ],
+    },
+    {
+      id: "pizzas",
+      name: "Pizzas maison",
+      tagline: "Sauce tomate",
+      items: [
+        { id: "margarita", name: "Margarita", price: 8.5, image: pexels("18437684/pexels-photo-18437684.jpeg", 800) },
+        {
+          id: "reine",
+          name: "Reine",
+          description: "Sauce tomate, fromage, jambon, champignons",
+          price: 10,
+          image: pexels("34413634/pexels-photo-34413634.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts & glaces",
+      items: [
+        {
+          id: "tiramisu",
+          name: "Verrine de tiramisu Nutella spéculos «\u00a0maison\u00a0»",
+          price: 7.5,
+        },
+        { id: "crumble", name: "Crumble aux fruits rouges", description: "Et sa boule de glace vanille", price: 7.5 },
+        { id: "creme-brulee", name: "Crème brûlée", price: 7, image: unsplash("photo-1575301543995-26dd932c3016", 800) },
+        { id: "charlottine", name: "Charlottine aux fruits rouges", price: 7 },
+        { id: "cafe-liegeois", name: "Café liégeois", price: 7.5 },
+        { id: "dessert-du-jour", name: "Dessert du jour", price: 6.5 },
+        {
+          id: "coupe-degustation",
+          name: "Coupe dégustation",
+          detail: "2 boules",
+          price: 3.6,
+          image: unsplash("photo-1447195047884-0f014b0d9288", 800),
+        },
+      ],
+    },
+  ],
+};
+
+/*
+ * Caffè Panis — 3 place du Marché aux Fleurs. Ni site ni carte publiée : les
+ * pizzas de leur carte TheFork (2022) et de Ciccio Gang, leur marque de
+ * livraison à la même adresse (Deliveroo, Uber Eats), le menu du midi relevé
+ * par la presse locale, les desserts de TheFork. Cafés, brunch et boissons
+ * ne sont publiés nulle part : à relever sur place.
+ */
+const caffePanis: Restaurant = {
+  slug: "caffe-panis",
+  name: "Caffè Panis",
+  tagline: "Ristorante · Pizzeria · Caffè",
+  address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
+  phone: "+33 4 99 67 65 38",
+  hours: "Tous les jours 9h–⁠1h",
+  highlights: ["Terrasse place du Marché aux Fleurs", "Cuisine italienne", "Ouvert 7j/7"],
+  categories: [
+    {
+      id: "pizze",
+      name: "Pizze",
+      items: [
+        {
+          id: "margherita-du-seigneur",
+          name: "Margherita du seigneur",
+          price: 13,
+          image: pexels("18437684/pexels-photo-18437684.jpeg", 800),
+        },
+        {
+          id: "marinara",
+          name: "Marinara",
+          description: "Sauce tomate, olive taggiasche, origan, ail, huile d'olive, basilic",
+          price: 11,
+        },
+        {
+          id: "luna-rossa",
+          name: "Luna rossa",
+          description:
+            "Sauce tomate, mozzarella fior di latte, anchois, olives, câpres, origan, ail, basilic, huile d'olive",
+          price: 14,
+        },
+        {
+          id: "rasta-rocket",
+          name: "Rasta rocket",
+          description: "Tomate, mozza, frarielli, câpres et oignons",
+          price: 14,
+        },
+        { id: "puissance-4", name: "Puissance 4", price: 15 },
+        { id: "maman-est-sortie", name: "Maman est sortie", price: 16, spice: 1 },
+        {
+          id: "mama-king",
+          name: "Mama King",
+          description: "Sauce tomate, mozzarella fior di latte, jambon blanc, champignons, basilic",
+          price: 17,
+          image: pexels("34413634/pexels-photo-34413634.jpeg", 800),
+        },
+        { id: "parma-de-la-night", name: "Parma de la night", price: 17 },
+        {
+          id: "burrata-addiction",
+          name: "Burrata addiction",
+          description: "Tomate, basilic, burrata et roquette",
+          price: 18,
+        },
+        {
+          id: "truffe-moi-si-tu-peux",
+          name: "Truffe moi si tu peux",
+          description: "Crème de truffe, jambon de parme, mozza et roquette",
+          price: 19,
+        },
+      ],
+    },
+    {
+      id: "dwich",
+      name: "Dwich",
+      tagline: "Le sandwich en pâte à pizza",
+      items: [
+        { id: "dwich-jambon", name: "Dwich Jambon", price: 6.9 },
+        { id: "dwich-regina", name: "Dwich Regina", price: 7.9 },
+        { id: "dwich-truffe", name: "Dwich Truffe", price: 8.9 },
+      ],
+    },
+    {
+      id: "pranzo",
+      name: "Menu du midi",
+      items: [
+        {
+          id: "menu-du-midi",
+          name: "Menu du midi",
+          description: "Salade composée · penne sauce tomate basilic ou spaghetti pesto maison · café",
+          price: 13,
+          options: [
+            groupeChoix("pates", "Pâtes", ["Penne sauce tomate basilic", "Spaghetti pesto maison"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "dolci",
+      name: "Dolci",
+      items: [
+        {
+          id: "tiramisu-cafe",
+          name: "Tiramisu café",
+          price: 7,
+          image: unsplash("photo-1571877227200-a0d98ea607e9", 800),
+        },
+        { id: "tiramisu-praline", name: "Tiramisu praliné", price: 7 },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -3278,6 +4215,10 @@ const restaurants: Record<string, Restaurant> = {
   [chickenStreet.slug]: chickenStreet,
   [baiKo.slug]: baiKo,
   [lAdresse.slug]: lAdresse,
+  [leNovelty.slug]: leNovelty,
+  [leVictoria.slug]: leVictoria,
+  [cafeDesArts.slug]: cafeDesArts,
+  [caffePanis.slug]: caffePanis,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -3291,6 +4232,10 @@ const themeClasses: Record<string, string> = {
   [chickenStreet.slug]: "theme-chicken-street",
   [baiKo.slug]: "theme-bai-ko",
   [lAdresse.slug]: "theme-l-adresse",
+  [leNovelty.slug]: "theme-le-novelty",
+  [leVictoria.slug]: "theme-le-victoria",
+  [cafeDesArts.slug]: "theme-cafe-des-arts",
+  [caffePanis.slug]: "theme-caffe-panis",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

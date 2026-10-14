@@ -1,0 +1,89 @@
+{
+  "slug": "le-novelty",
+  "name": "Le Novelty",
+  "tagline": "Café · Bar à cocktails",
+  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/le-novelty",
+    "menu_ominin": "/menu/demo/le-novelty?theme=ominin",
+    "click_and_collect": "/collect/demo/le-novelty"
+  },
+  "cuisine": "Café-bar à cocktails : cocktails (classiques, signature, sans alcool), bières pression et bouteille, softs, cafés, fraîcheurs maison ; restauration annoncée mais pas encore publiée.",
+  "address": "10 Rue Saint-Guilhem, 34000 Montpellier",
+  "city": "Montpellier (Écusson, face à la place Castellane)",
+  "phone": "04 34 35 36 28",
+  "hours": "7j/7 8h30–1h (site officiel) ; happy hours 17h–23h",
+  "website": "https://lenovelty-montpellier.fr/",
+  "socials": {
+    "instagram": "@le_novelty_bar_montpellier (lié depuis le site officiel)",
+    "facebook": "candidat : « Le Novelty café Montpellier » (non vérifié)",
+    "tiktok": "non trouvé",
+    "google_maps": "≈ 3,9/5 sur ≈ 1 200 avis (via Wanderlog, non vérifié) ; Tripadvisor 2,3/5 (53)"
+  },
+  "legal": {
+    "raison_sociale": "NEWVELTY (enseigne LE NOVELTY)",
+    "forme": "SAS",
+    "siren": "898 370 200",
+    "naf": "56.30Z",
+    "president": "JSK HOLDING (SIREN 894 402 320, gérant Med Oul Hocine Belkhir) depuis le 15/09/2025",
+    "creation": "16/04/2021",
+    "notes": "Fonds racheté en 03/2024 (1 130 000 €) ; mis en location-gérance par acte du 30/06/2025 (BODACC 08/2025) : l'exploitant actuel est à confirmer. Source : extraits Pappers / annuaire-entreprises (pages non ouvertes directement)."
+  },
+  "design": {
+    "primary_color": "#0d0e16",
+    "secondary_color": "#f5f1ea",
+    "accent_color": "#ffcf6e → #ff8d5c → #f0507c",
+    "style_notes": "PROPOSITION — aucun logo, enseigne ni photo de la devanture trouvés en ligne. Nuit d'encre de bar ; rampe d'accent tirée des parfums de leurs mojitos (mangue, passion, framboise). Bricolage Grotesque (sections en capitales resserrées), DM Sans pour le texte. Carte entièrement typographique : une ligne par boisson. À recaler sur l'enseigne photographiée en visite.",
+    "interior_vibe": "« café bar moderne et cosy », grande terrasse au soleil (annuaires)",
+    "reference_images": []
+  },
+  "menu": {
+    "source": "Carte des boissons de leur site officiel (lenovelty-montpellier.fr, onglets Cocktails · Bières · Softs & Cafés), relevée le 2026-10-14 par extraits de moteur de recherche (le site n'a pas pu être ouvert directement) : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const leNovelty).",
+    "categories_summary": [
+      "Cocktails — 22, 7 à 11,50 € (XXL +3 €)",
+      "Cocktails signature — Le N'Fire, El Marez, 13 €",
+      "Sans alcool — 4, 7 €",
+      "Bières pression — 12, de 3,60 € (25 cl) à 15 € (1 L)",
+      "Bières bouteille — 8, 5 à 7 €",
+      "Softs — 10, 3,40 à 5,50 €",
+      "Cafés & boissons chaudes — 13, 1,90 à 9 €",
+      "Fraîcheurs maison — thé glacé, smoothie, milk-shake, 5 à 6,50 €",
+      "Formules — café du matin 1 €, formule étudiante 8,50 €"
+    ],
+    "photos": "Carte sans photo, volontairement : une carte de bar se lit en lignes. Photos de cocktails à prendre sur place si le gérant en veut.",
+    "options_a_valider": [
+      "Mojito, Caïpirinha, Caïpiroska, Daïquiri, Virgin Mojito : le parfum est facultatif (« nature » par défaut) — le site liste mangue, fraise, framboise, passion, pêche sans dire si la version nature existe.",
+      "Cocktails sans alcool : « 7 € / 9 € » imprimé sans dire à quoi correspond chaque prix ; la carte n'affiche que 7 €.",
+      "Ti-Punch : l'option XXL n'apparaît pas dans l'extrait, elle n'est pas proposée.",
+      "Bière du Moment, Monaco, Picon Bière : deux lectures des prix (25/50 cl) ; retenue la plus logique, à vérifier.",
+      "Limonade et Diabolo : 33/50 cl à 3,40/5 € et 3,60/5,20 € ; l'attribution des deux paires est incertaine.",
+      "Guinness : le site imprime « 8° » (sans doute une coquille) — degré non affiché.",
+      "Descriptions de plusieurs cocktails (Mojito, Daïquiri, Gin Tonic, Planteur, Piña Colada, Sex on the Beach, Tête à l'Envers, Moscow Mule, Pornstar, Expresso Martini, Spritz, N'Fire, sans alcool) : libellé approximatif de l'extrait."
+    ]
+  },
+  "offers": [
+    "Happy Hours tous les jours de 17h à 23h : bières, cocktails et shots à prix réduits (prix non publiés)",
+    "Café du matin 1 € de 9h à 12h, du lundi au dimanche",
+    "Formule Étudiante 8,50 € sur présentation de la carte étudiante",
+    "Tous les cocktails en XXL : +3 €"
+  ],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md",
+    "limites": "Aucune page ouverte directement (proxy) : tout vient d'extraits de moteur de recherche, recoupés 2 à 4 fois.",
+    "groupe": "Même groupe que Le Victoria et le Café des Arts (et la Brasserie Laissac) : JSK HOLDING / Med Belkhir, contact commun ckl.cafedesarts@gmail.com sur cafedesarts34.fr.",
+    "tram": "L4 Saint-Guilhem–Courreau (≈ 400 m) selon Privateaser, non vérifié",
+    "privateaser": "Pinte 4 €, cocktail 6 € (probablement les prix happy hour)"
+  },
+  "notes": [
+    "Qui exploite le bar aujourd'hui (location-gérance depuis 06/2025) et qui décide ?",
+    "Prix happy hour (17h–23h) : bières, cocktails, shots ; existe-t-il des shots, vins, champagne (Schlouk cite une coupe à 5 €) ?",
+    "La carte tapas / restauration : quels plats et prix ? La paella « façon Victoria », le dos de merlu et le tiramisu mangue (Privateaser) sont-ils servis ?",
+    "Prix du sirop à l'eau ; prix exacts de Monaco, Picon Bière et Bière du Moment (et quelle bière en ce moment) ?",
+    "Guinness « 8° » sur le site : coquille ?",
+    "Cocktails sans alcool : 7 € normal et 9 € en XXL ?",
+    "Mojito et autres : version nature sans parfum possible ?",
+    "Logo, couleurs, polices de l'enseigne : photographier l'enseigne, la façade et les ardoises en visite.",
+    "Événements, concerts, privatisation (capacité 50 ou 100 ?)"
+  ]
+}
