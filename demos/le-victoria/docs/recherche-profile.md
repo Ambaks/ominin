@@ -1,63 +1,53 @@
-# Le Victoria, Montpellier: onboarding research profile
+# Le Victoria — recherche (2026-10-14, pages ouvertes directement)
 
-Collected 2026-10-14. Method limits: WebFetch and curl were blocked for every relevant host, so the
-facts below come from search-engine snapshots (WebSearch). The 200-search session budget then ran
-out before TikTok, Google Maps, "Le Vert Anglais", and recent reviews could be checked. "Likely"
-means the fact came from a search snapshot of the page cited, not from a direct fetch.
+Remplace la passe du même jour faite sur extraits de moteur de recherche. Visuels archivés ici :
+`devanture-2024-04.jpg` (photo Google d'avril 2024), `store-enseigne.jpg`, `tapis-logo.jpg`, `logo-tiktok-221px.jpg`,
+ardoises de 2024, `photos-maison/` (la séance photo du restaurant publiée sur Deliveroo).
 
-## 1. Address
-- 3 Place Castellane, 34000 Montpellier. **Likely.** It is consistent across the official site (contact.php), PagesJaunes, Privateaser, Schlouk Map, Yelp, TheFork, Societe.com and Rubypayeur.
-- The BAN check (api-adresse.data.gouv.fr) was **not possible**: the host was blocked.
-- Quartier: Écusson (historic centre). Tripadvisor files it under "Comédie". Next to the Halles Castellane.
-- Tram: Observatoire (lines 3 and 4), per Schlouk Map and Privateaser. **Likely.**
-- Yelp lists another business, "Le Vert Anglais" (Bars), at the same 3 Place Castellane. It may be a former name or a neighbour. Not checked.
+## Adresse — confirmée
+3 Place Castellane, 34000 Montpellier (BAN, score 0,968 ; Google « Situé dans : Place Castellane »).
+Tram Observatoire (T3, T4) selon Privateaser (non mesuré).
 
-## 2. Legal entity (via Pappers, Societe.com, Verif, Rubypayeur snapshots; recherche-entreprises API blocked). **Likely.**
-- Raison sociale: **TGT**. Enseigne: LE VICTORIA.
-- SIREN 878 398 387; head-office SIRET 878 398 387 00018 (3 place Castellane).
-- NAF 56.30Z, débits de boissons (registered as a bar, not as a restaurant, 56.10A).
-- SAS, transformed into SASU from 01/11/2024 (Pappers). Capital 10 000 €.
-- Created 21/10/2019 (INSEE) / 24/10/2019 (RCS).
-- President: JSK HOLDING (SIREN 894 402 320) since 03/12/2024 (BODACC B n°20240235, annonce 819, 05/12/2024). JSK HOLDING is run by **Med Belkhir**; Samir Belkhir also appears as gérant (2021–22 announcements). Former dirigeant of TGT: Med Belkhir (24/10/2019 – 19/05/2024). Manageo still lists "Med, Oul, Hocine BELKHIR" (out of date).
-- History: before 2019 the venue was listed as "Au Bistrot Victoria" (Tripadvisor d7599268, reviews from around 2016; TheFork r640665). Most directories still use that name and slug.
+## Entité juridique — confirmée (recherche-entreprises, BODACC)
+TGT (enseigne LE VICTORIA), SAS (code INSEE 5710), SIREN 878 398 387, SIRET 878 398 387 00018, NAF 56.30Z, 10–19 salariés.
+Créée le 21/10/2019, activité depuis le 13/11/2019. Présidente : JSK HOLDING (894 402 320, 3 place Castellane, gérant
+Med Oul Hocine Belkhir). BODACC 22/11/2019 : SARL à l'origine, nom commercial « EL DIEZ », fonds « Café restaurant »
+acheté 740 000 € à LE JARDIN ENCHANTE (388 025 041). Comptes 2025 déposés (BODACC 02/10/2026).
 
-## 3. Opening hours
-| Source | Hours |
-|---|---|
-| Official site levictoriamontpellier.com (equipe.php) | 7/7, 10h30 – 01h00. **Likely, best source** |
-| Schlouk Map | 10h30 – 1h; happy hour 16h – 1h |
-| Privateaser | opens 10h; HH 16h – 1h |
-| restaurantguru | 10h – 1h |
-| PagesJaunes ("Au Bistrot Victoria") | 10h – 1h, Saturday closed (probably stale) |
-| Uber Eats (delivery) | 11h – 23h30 |
-| Deliveroo snapshot | "opens 15:00" (delivery window that day) |
-| Instagram bio | open 7/7 until 1am |
+## Téléphone — confirmé
+04 48 78 60 29 (Google, site du groupe, ancien site, Schlouk). 04 67 66 03 03 = ancien « Au Bistrot Victoria ».
+06 68 65 09 09 : sur aucune page ouverte.
 
-## 4. Google Maps
-Not fetched directly. Rankeat (updated Aug 2026) reports **3.9/5 from 2 125 Google reviews**. **Likely.**
-Other ratings: restaurantguru 4.9/5 (3 073–3 079; its "Google" figure is 4/5), lacarte.menu and menuweb 3.2/5 (4 827, aggregated), Tripadvisor 3.1/5 (461–467, as Au Bistrot Victoria), Uber Eats about 4.1 (480+), TheFork 7.5/10 (12; listing no longer available), Yelp 3.0 (9, unclaimed), Petit Futé 4.3/5 (28), Schlouk 4.3 (3), MisterGoodBeer 4.8 (2).
+## Horaires — contradiction sur l'ouverture
+Fermeture 1h, 7j/7. Ouverture 10h (site du groupe 09/2026, Privateaser) ou 10h30 (Schlouk, ancien site, Petit Futé).
+Happy hour 16h–1h (site du groupe, Schlouk).
 
-## 5. Social media
-- Instagram **@levictoria34**, https://www.instagram.com/levictoria34/ , "Le Victoria Montpellier", about 8.7k followers. The bio matches: restaurant/brasserie, bar, cocktails, happy hour, shaded terrace, an air-conditioned room, open 7/7. **Likely verified.**
-- Facebook **facebook.com/levictoria34** (a video titled "3 place Castellane 34000 Montpellier"). **Likely.** Not to be confused with facebook.com/levictoria66 (Sainte-Marie-la-Mer) or LeVictoriaMatabiau (Toulouse).
-- TikTok: **not found** (search budget exhausted).
-- Not ours: @lecastellane34 (Le Castellane, the bar next door), Le Mustang (2 place Castellane).
+## Google — confirmé
+4,0/5 sur 2 540 avis ; thèmes : serveurs (298), happy hour (70), terrasse (60), tapas (45), girafe (19).
+Éloges récents : serveurs rapides et sympathiques, pizza chèvre miel, café gourmand, brumisateurs.
+Reproches : pas de carafe d'eau, 385 avis à 1 étoile, burgers inégaux, bruit en salle.
 
-## 6. Delivery platforms
-- Deliveroo: https://deliveroo.fr/fr/menu/montpellier/montpellier-centre/le-victoria , "Pizzas · Burgers · Salades", about 32 min delivery, 2-for-1 promos. **Confirmed listing.**
-- Uber Eats: https://www.ubereats.com/fr-en/store/le-victoria/8S1sghCISgCKWhsx09JgeA . Snapshot: 3 Place Castellane, Italian/pizza/comfort food, about 4.1 (480+), 11h–23h30, accepts Swile and Ticket Restaurant. **Likely.** A second search for the store ID did not return it.
-- Just Eat: not checked.
+## Sites
+- levictoriamontpellier.com : domaine suspendu (clientHold, LWS, 17/09/2026), ne résout plus. Site de 2023 sur gabarit
+  « Millennium », jamais de carte. Argument de vente : plus de site propre.
+- Site du groupe cafedesarts34.fr/le-victoria-w1 (Jalis, publié le 09/09/2026, éditeur C K L) : 150 places, service
+  continu, petit-déjeuner et brunch, « deux plats du jour… à partir de 9,90 euros », girafes de 3 à 5 L,
+  « meilleur Happy Hour de Montpellier ».
 
-## 7. Website
-- https://levictoriamontpellier.com. Pages found: equipe.php (team: Axel, Djugurta (barman), Yassine, Logine (serveuse), Aaron, Philippe; hours) and contact.php (phone 04 48 78 60 29, contact@levictoriamontpellier.com). **No carte page found.** A PHP site.
-- Phone conflict: 04 48 78 60 29 (official site, Schlouk Map) vs 04 67 66 03 03 (restaurantguru) vs 06 68 65 09 09 (PagesJaunes, old "Au Bistrot Victoria" listing). Use 04 48 78 60 29.
+## Réseaux
+TikTok @levictoriamontpellier (confirmé, 835 abonnés). Instagram @levictoria34 et Facebook /levictoria34 : bloqués.
 
-## 8. Visual identity
-**Not found.** No image could be fetched or downloaded, so there is no logo file and the sign colours, lettering and storefront remain unknown.
-Known from text: a large terrace on Place Castellane (shaded; heated and covered per Tripadvisor), an air-conditioned room, TVs (Schlouk Map tags it as a sports bar), Wi-Fi, capacity up to 150 (Privateaser). Mood is described as "ambiance bistrot assumée", festive.
-Leads to photograph or collect today: the sign above the terrace, the menu boards and slates, and the Instagram @levictoria34 profile picture (likely the logo). Old Tripadvisor photos exist: "brasserie restaurant bistrot" i264593338, "carte des salades" i281020871, "carte des tapas" i281020925 (Au Bistrot Victoria era).
+## Plateformes
+Deliveroo (fiche ouverte : carte désactivée ce jour-là, 2,9/5 sur 10 avis, « 1 acheté = 1 offert » sur Le Chiken et la
+Margherita). Uber Eats : contrôle anti-robot. TheFork : aucune fiche. Privateaser : « Pinte 4,5 € / verre de vin 3,5 € /
+cocktail 8 € », plats du jour 12,90 €. Petit Futé « Bistrot Victoria » 4,3 (28 avis).
 
-## 9. Reviews
-- Praise: the terrace on the square, conviviality and atmosphere, friendly or fast bar staff, cocktails, the generous happy hour (16h–1h), good value for drinks, the souris d'agneau (Petit Futé).
-- Complaints: long waits and service lapses at busy times, inconsistent food ("burgers parfois inégaux"; "ni frais ni goûteux"; "la cuisine ne suit pas"), small portions, noise and insulation indoors, billing disputes (Tripadvisor), terrace staff touting passers-by and tourists ("tourist trap"; Petit Futé).
-- Signature items as perceived: cocktails and happy hour, burgers, pizzas, tapas, souris d'agneau, tartare charolais (older carte).
+## Identité
+- Logo (avatar TikTok, 221 px seulement) : badge rond noir, anneau blanc, étoiles, monogramme « V » croisé d'une
+  fourchette et d'un couteau, « LE VICTORIA » en capitales larges et grasses, deux chopes, « CAFÉ · BAR · RESTAURANT ».
+  Noir et blanc ; tissé en noir sur le tapis rouge de l'entrée.
+- Store : noir (≈ #181820), lettrage blanc en serif grasse « BAR RESTAURANT · Le Victoria · TAPAS COCKTAIL ».
+  Façade de pierre crème, appliques laiton, tapis rouge, chaises de terrasse tressées noir et blanc. Pas de vert.
+- Salle (Privateaser) : murs rayés sombres, banquettes capitonnées fauves, chaises bordeaux, mezzanine ; brique rouge
+  et tables noires sur les photos Deliveroo.
+- Polices de l'ancien site et du site du groupe : celles des gabarits (Josefin Sans ; Jost, Marcellus…), pas de la marque.

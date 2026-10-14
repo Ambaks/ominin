@@ -62,11 +62,12 @@ function useNow(clock: () => number): number {
   return clock();
 }
 
-/** Les choix d'une ligne, comme le panier de la carte : « Dolsot Beef (+1,00 €) · Coca ». */
+/** Les choix d'une ligne, comme le panier de la carte : « Dolsot Beef (+1,00 €) · Coca ». Un format (« 50 cl ») est déjà dans le prix de la ligne. */
 const optionSummary = (line: DemoLine) =>
   line.options
     .map((option) =>
-      option.supplement > 0
+      option.supplement > 0 &&
+      !line.item.options?.find((group) => group.name === option.groupName)?.formats
         ? `${option.choiceName} (+${formatPrice(option.supplement)})`
         : option.choiceName
     )
@@ -484,10 +485,16 @@ function OptionSheet({
                               />
                               {choice.name}
                             </span>
-                            {choice.supplement > 0 && (
+                            {group.formats ? (
                               <span className="shrink-0 text-xs text-muted">
-                                +{formatPrice(choice.supplement)}
+                                {formatPrice(item.price + choice.supplement)}
                               </span>
+                            ) : (
+                              choice.supplement > 0 && (
+                                <span className="shrink-0 text-xs text-muted">
+                                  +{formatPrice(choice.supplement)}
+                                </span>
+                              )
                             )}
                           </label>
                         );
@@ -660,7 +667,7 @@ function MenuView({ framed }: { framed: boolean }) {
           logo && (
             // Le logo sous l'île, dans la lueur de la marque, comme le héros de sa carte.
             <div
-              className={`flex shrink-0 items-end justify-center pb-1 ${framed ? "h-28" : "h-20"}`}
+              className={`phone-logo-cover flex shrink-0 items-end justify-center pb-1 ${framed ? "h-28" : "h-20"}`}
               style={{
                 backgroundImage:
                   "radial-gradient(ellipse 60% 70% at 50% 50%, color-mix(in srgb, var(--hero-glow-1, var(--ember-1)) 18%, transparent), transparent 70%)",
@@ -670,7 +677,8 @@ function MenuView({ framed }: { framed: boolean }) {
               <img
                 src={logo}
                 alt={nameInLogo ? name : ""}
-                className="h-16 w-auto"
+                // Un mot-symbole très large (Caffè Panis) ne déborde pas du téléphone.
+                className="h-16 w-auto max-w-[85%] object-contain"
               />
             </div>
           )

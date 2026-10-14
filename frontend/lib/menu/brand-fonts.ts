@@ -3,16 +3,15 @@ import {
   Archivo,
   Archivo_Black,
   Barlow_Semi_Condensed,
+  Cormorant_Garamond,
   Bebas_Neue,
-  Bricolage_Grotesque,
   DM_Sans,
-  DM_Serif_Display,
   Didact_Gothic,
+  Gloock,
+  Josefin_Sans,
   Playball,
-  Playfair_Display,
   Poppins,
   Source_Serif_4,
-  Young_Serif,
 } from "next/font/google";
 
 /*
@@ -133,40 +132,40 @@ const sourceSerif4 = Source_Serif_4({
 });
 
 /*
- * Les quatre adresses de l'Écusson (Montpellier, octobre 2026) n'ont livré ni
- * logo ni enseigne en ligne : leurs polices sont une proposition, notée dans
- * demos/<slug>/profile.json, à remplacer par celles de l'enseigne. Le texte de
- * leurs cartes reprend DM Sans, déjà chargée pour Baï-Kō.
+ * Les quatre adresses de l'Écusson (Montpellier, octobre 2026) : chaque
+ * police est prise à leur identité (site, logo, enseigne), comparée en
+ * demos/<slug>/profile.json. Le Victoria reprend Source Serif 4 (L'Adresse),
+ * le Café des Arts Didact Gothic (O'Crousti), Caffè Panis DM Sans pour son
+ * texte (Baï-Kō).
  */
 
-/** Le Novelty — bar à cocktails : une grotesque moderne, resserrée pour les sections. */
-const bricolageGrotesque = Bricolage_Grotesque({
-  variable: "--font-bricolage-grotesque",
+/**
+ * Le Novelty — les polices de son site (lenovelty-montpellier.fr) : une
+ * Garamond de titrage, le nom en italique doré, et une géométrique fine en
+ * capitales espacées pour la navigation et les descriptions.
+ */
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant-garamond",
   subsets: ["latin"],
-  // La chasse variable : les titres de section se resserrent (.theme-le-novelty).
-  axes: ["wdth"],
-  preload: false,
-});
-
-/** Café des Arts — brasserie de la place Castellane : une didone de titrage. */
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   preload: false,
 });
 
-/** Le Victoria — bistrot assumé : une didone d'une seule graisse, plus noire. */
-const dmSerifDisplay = DM_Serif_Display({
-  variable: "--font-dm-serif-display",
+const josefinSans = Josefin_Sans({
+  variable: "--font-josefin-sans",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "600"],
   preload: false,
 });
 
-/** Caffè Panis — café italien : une serif ronde, d'une seule graisse. */
-const youngSerif = Young_Serif({
-  variable: "--font-young-serif",
+/**
+ * Caffè Panis — la plus proche de son mot-symbole (store, logo du Linktree) :
+ * une serif lourde aux empattements évasés, aux mêmes proportions (largeur
+ * sur hauteur 6,6 contre 6,7 pour « Caffè Panis »).
+ */
+const gloock = Gloock({
+  variable: "--font-gloock",
   subsets: ["latin"],
   weight: "400",
   preload: false,
@@ -184,10 +183,9 @@ export const brandFontVariables = [
   bebasNeue,
   dmSans,
   sourceSerif4,
-  bricolageGrotesque,
-  playfairDisplay,
-  dmSerifDisplay,
-  youngSerif,
+  cormorantGaramond,
+  josefinSans,
+  gloock,
 ]
   .map((font) => font.variable)
   .join(" ");

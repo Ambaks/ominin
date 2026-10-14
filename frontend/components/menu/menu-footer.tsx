@@ -70,6 +70,7 @@ export function MenuFooter({
   const printsAllergens = restaurant.categories.some((category) =>
     category.items.some((item) => item.allergens?.length)
   );
+  const hasPhotos = restaurant.categories.some((category) => category.items.some((item) => item.image));
   // La palette Ominin (themeToggle) garde le logo du héros, qu'elle sait éclaircir.
   const brandLogo = themeToggle ? undefined : restaurant.footerLogo;
 
@@ -170,7 +171,7 @@ export function MenuFooter({
             </p>
           )}
           <p>Prix nets en euros, service compris.</p>
-          <p>Photos non contractuelles.</p>
+          {hasPhotos && <p>Photos non contractuelles.</p>}
           <p className="mt-1 flex items-center justify-center gap-2">
             <span>
               Propulsé par <span className="ember-text font-semibold">Ominin</span>

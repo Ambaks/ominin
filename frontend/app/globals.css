@@ -5720,13 +5720,12 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 
 /*
   Les quatre adresses de l'Écusson (Montpellier) — Le Novelty, Le Victoria,
-  Café des Arts, Caffè Panis. Aucune n'a livré de logo ni d'enseigne en
-  ligne : palettes et polices sont des propositions (demos/<slug>/profile.json),
-  à recaler sur l'enseigne photographiée en visite.
+  Café des Arts, Caffè Panis. Chaque thème est tiré de leur identité (site,
+  logo, enseigne : demos/<slug>/profile.json).
 
   Leurs cartes sont surtout faites de lignes sans photo (boissons, plats en
   attente de photo) : une ligne par article, nom et prix à gauche, le bouton
-  à droite. En fiches pleines, les 75 boissons du Novelty tenaient trente
+  à droite. En fiches pleines, les boissons du Novelty tenaient trente
   écrans.
 */
 [data-menu-root]:is(
@@ -5880,34 +5879,50 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   }
 }
 
+/* Le téléphone de la démo Collect nomme les plats dans le titrage de la carte. */
+:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) .demo-dish-name {
+  font-family: var(--brand-display);
+}
+
 /*
-  Le Novelty (10 rue Saint-Guilhem) — café-bar à cocktails ouvert de 8h30 à
-  1h. Proposition : la nuit d'encre d'un bar, et les parfums de ses mojitos
-  (mangue, passion, framboise) pour la rampe d'accent. Bricolage Grotesque,
-  resserrée en capitales pour les sections, comme une ardoise de bar ;
-  DM Sans pour le texte.
+  Le Novelty (10 rue Saint-Guilhem) — bar à cocktails ouvert de 8h30 à 1h.
+  Le système de son site (lenovelty-montpellier.fr) : noir #080808, ivoire
+  #F5F0E8, or #C9A84C ; Cormorant Garamond pour le nom (« Novelty » en
+  italique doré) et les prix, Josefin Sans en capitales espacées pour les
+  accroches. Deux dispositifs repris de « Notre Carte » : les articles en
+  tuiles à angles droits séparées d'un filet, et le bouton cerné d'or comme
+  « Réserver ». Le badge rond du logo ouvre la page.
 */
 .theme-le-novelty {
-  --background: #0d0e16;
-  --foreground: #f5f1ea;
+  --nv-gold: #c9a84c;
+  --nv-gold-light: #e8c96a;
+  --nv-gold-dim: #8a6e2f;
 
-  --surface: #161722;
-  --surface-raised: #20212e;
-  --hairline: rgba(245, 241, 234, 0.1);
+  --background: #080808;
+  --foreground: #f5f0e8;
 
-  --muted: #b3adbd;
-  --faint: #8f8a99;
+  --surface: #111111;
+  --surface-raised: #1a1a1a;
+  --hairline: rgba(201, 168, 76, 0.2);
 
-  --ember-1: #ffcf6e;
-  --ember-2: #ff8d5c;
-  --ember-3: #f0507c;
+  --muted: #b0a898;
+  --faint: #978f80;
 
-  --shimmer-highlight: rgba(255, 207, 110, 0.14);
-  --glow-inner: rgba(255, 141, 92, 0.1);
-  --glow-outer: rgba(240, 80, 124, 0.07);
+  --ember-1: var(--nv-gold-light);
+  --ember-2: var(--nv-gold);
+  --ember-3: var(--nv-gold-dim);
 
-  --brand-display: var(--font-bricolage-grotesque), var(--font-fraunces), sans-serif;
-  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  --shimmer-highlight: rgba(201, 168, 76, 0.12);
+  --glow-inner: rgba(201, 168, 76, 0.08);
+  --glow-outer: rgba(138, 110, 47, 0.06);
+  --hero-glow-1: var(--nv-gold);
+  --hero-glow-2: var(--nv-gold-dim);
+  --hero-glow-3: var(--nv-gold-dim);
+  --hero-halo-1: rgba(201, 168, 76, 0.35);
+  --hero-halo-2: rgba(138, 110, 47, 0.15);
+
+  --brand-display: var(--font-cormorant-garamond), var(--font-fraunces), serif;
+  --brand-sans: var(--font-josefin-sans), var(--font-instrument-sans), sans-serif;
   /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
   font-family: var(--brand-sans);
 
@@ -5917,84 +5932,197 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* La carte seulement : sur la démo Collect, seul le téléphone porte le thème. */
 html:has([data-menu-root].theme-le-novelty),
 html:has([data-menu-root].theme-le-novelty) body {
-  background-color: #0d0e16;
+  background-color: #080808;
 }
 
 .theme-le-novelty :focus-visible {
-  outline: 2px solid var(--ember-1);
+  outline: 1px solid var(--nv-gold-light);
   outline-offset: 3px;
 }
 
-/* Le téléphone de la démo Collect nomme les plats dans le titrage de la carte. */
-:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) .demo-dish-name {
-  font-family: var(--brand-display);
+/* L'or à plat, encre noire dessus (9:1), comme le bouton plein du site. */
+.theme-le-novelty .ember-gradient {
+  background-image: none;
+  background-color: var(--nv-gold);
 }
 
-.theme-le-novelty .hero-name {
-  font-weight: 700;
-  letter-spacing: -0.035em;
+.theme-le-novelty .ember-text {
+  background-image: none;
+  color: var(--nv-gold);
+  -webkit-text-fill-color: currentColor;
 }
 
-.theme-le-novelty .category-heading {
-  font-weight: 800;
-  font-stretch: 78%;
-  letter-spacing: 0.01em;
+.theme-le-novelty .font-display {
+  font-weight: 500;
+}
+
+/* Les accroches en capitales espacées du site (« BAR — COCKTAILS — TERRASSE »). */
+.theme-le-novelty :is(.hero-tagline, .category-tagline, .menu-highlights li, .menu-ticker-item) {
+  font-family: var(--brand-sans);
+  font-style: normal;
+  font-weight: 400;
   text-transform: uppercase;
+  letter-spacing: 0.22em;
 }
 
-.theme-le-novelty .category-rule {
-  height: 2px;
-  opacity: 0.9;
+.theme-le-novelty .hero-logo img {
+  height: 6.5rem;
 }
 
-.theme-le-novelty article h3 {
-  font-weight: 600;
+/* « Le » droit, « Novelty » en italique doré dessous, comme le site. */
+.theme-le-novelty .hero-name {
+  font-weight: 400;
+  line-height: 0.95;
   letter-spacing: -0.01em;
 }
 
-.theme-le-novelty .dish-price {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.theme-le-novelty .hero-name span {
+  display: block;
 }
 
-/* Le bandeau d'arguments : blanc sur framboise ne donnait que 3,6:1. */
+.theme-le-novelty .hero-name span:last-child {
+  color: var(--nv-gold);
+  font-style: italic;
+}
+
+.theme-le-novelty .hero-rule {
+  opacity: 0.8;
+}
+
 .theme-le-novelty .menu-highlights {
-  border-color: var(--ember-3);
-  background: var(--surface-raised);
+  border-block: 1px solid var(--hairline);
+  background: var(--surface);
 }
 
 .theme-le-novelty .menu-highlights li {
-  color: var(--ember-1);
-  font-weight: 700;
+  color: var(--nv-gold);
+  font-size: 0.75rem;
+}
+
+.theme-le-novelty .category-heading {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.theme-le-novelty .category-rule {
+  height: 1px;
+  opacity: 0.45;
+}
+
+.theme-le-novelty .category-tagline {
+  color: var(--nv-gold);
+  font-size: 0.6875rem;
+}
+
+/* Les tuiles de « Notre Carte » : angles droits, un filet entre elles. */
+.theme-le-novelty .dish-grid {
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+}
+
+.theme-le-novelty .dish-grid > article {
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+}
+
+@media (hover: hover) {
+  .theme-le-novelty .dish-grid > article:hover {
+    background: var(--surface-raised);
+  }
+}
+
+.theme-le-novelty article h3 {
+  font-weight: 500;
+}
+
+.theme-le-novelty .dish-price {
+  color: var(--nv-gold);
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+}
+
+.theme-le-novelty article :is(p, li) {
+  letter-spacing: 0.02em;
+}
+
+/* Le « + » cerné d'or, comme « Réserver » ; plein une fois survolé. */
+.theme-le-novelty .dish-action > button.ember-gradient {
+  border: 1px solid var(--nv-gold);
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--nv-gold);
+}
+
+@media (hover: hover) {
+  .theme-le-novelty .dish-action > button.ember-gradient:hover {
+    background-color: var(--nv-gold);
+    color: var(--background);
+  }
+}
+
+/* La feuille d'options et le panier gardent les angles droits des tuiles. */
+.theme-le-novelty .cart-bar,
+.theme-le-novelty [role="dialog"] :is(.choice-row, button, a) {
+  border-radius: 0;
+}
+
+/* Les pilules de la navigation deviennent des onglets, soulignés d'or. */
+.theme-le-novelty nav [data-category] {
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Le nom au corps du site (20 px), au-dessus des règles communes des lignes. */
+[data-menu-root].theme-le-novelty .dish-grid > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
+  font-size: 1.25rem;
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-novelty .dish-grid > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
+    font-size: 1.375rem;
+  }
 }
 
 /*
-  Le Victoria (3 place Castellane) — bistrot assumé, grande terrasse sur la
-  place, côté bar à cocktails et écrans de match. Proposition : le vert
-  bouteille des bistrots, le laiton du zinc et une terre cuite pour la rampe.
-  DM Serif Display pour les titres, DM Sans pour le texte ; le double filet
-  sous chaque section, comme une ardoise encadrée.
+  Le Victoria (3 place Castellane) — bar restaurant, tapas, cocktails. Sa
+  devanture (photo Google d'avril 2024) : un store noir lettré de blanc en
+  serif grasse — « BAR RESTAURANT · Le Victoria · TAPAS COCKTAIL » —, une
+  façade de pierre crème, un tapis rouge au logo tissé. La page prend le
+  noir du store, la crème de la pierre pour le texte, le rouge du tapis pour
+  les boutons et le bandeau ; Source Serif 4 grasse, la plus proche du
+  lettrage du store ; DM Sans pour le texte.
 */
 .theme-le-victoria {
-  --background: #0f1b16;
-  --foreground: #f3eee2;
+  --vc-red: #b8323f;
+  --vc-red-light: #e0606f;
 
-  --surface: #16241e;
-  --surface-raised: #1e2f28;
-  --hairline: rgba(232, 195, 122, 0.16);
+  --background: #16171c;
+  --foreground: #f2ebdc;
 
-  --muted: #b9b3a2;
-  --faint: #948f80;
+  --surface: #1e2027;
+  --surface-raised: #262830;
+  --hairline: rgba(242, 235, 220, 0.12);
 
-  --ember-1: #e8c37a;
-  --ember-2: #d99a5b;
-  --ember-3: #c9714a;
+  --muted: #b8b1a2;
+  --faint: #a39c8e;
 
-  --shimmer-highlight: rgba(232, 195, 122, 0.14);
-  --glow-inner: rgba(232, 195, 122, 0.09);
-  --glow-outer: rgba(201, 113, 74, 0.06);
+  --ember-1: var(--vc-red-light);
+  --ember-2: var(--vc-red);
+  --ember-3: #8f2433;
 
-  --brand-display: var(--font-dm-serif-display), var(--font-fraunces), serif;
+  --shimmer-highlight: rgba(242, 235, 220, 0.08);
+  --glow-inner: rgba(184, 50, 63, 0.08);
+  --glow-outer: rgba(184, 50, 63, 0.05);
+  --hero-glow-1: #f2ebdc;
+  --hero-glow-2: var(--vc-red);
+  --hero-glow-3: var(--vc-red);
+
+  --brand-display: var(--font-source-serif-4), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
   font-family: var(--brand-sans);
 
@@ -6004,68 +6132,110 @@ html:has([data-menu-root].theme-le-novelty) body {
 /* La carte seulement : sur la démo Collect, seul le téléphone porte le thème. */
 html:has([data-menu-root].theme-le-victoria),
 html:has([data-menu-root].theme-le-victoria) body {
-  background-color: #0f1b16;
+  background-color: #16171c;
 }
 
 .theme-le-victoria :focus-visible {
-  outline: 2px solid var(--ember-1);
+  outline: 2px solid var(--foreground);
   outline-offset: 3px;
 }
 
-/* Une seule graisse : les font-medium des composants partagés la feraient
-   épaissir en faux gras. */
-.theme-le-victoria .font-display {
-  font-weight: 400;
-}
-
-.theme-le-victoria .category-rule {
-  height: 5px;
-  border-block: 1px solid var(--ember-1);
+/* Le rouge du tapis à plat, lettré de crème (4,9:1), comme le logo tissé. */
+.theme-le-victoria .ember-gradient {
   background-image: none;
-  opacity: 0.55;
+  background-color: var(--vc-red);
+  color: var(--foreground);
 }
 
-.theme-le-victoria .dish-price {
-  font-variant-numeric: tabular-nums;
+.theme-le-victoria .ember-text {
+  background-image: none;
+  color: var(--vc-red-light);
+  -webkit-text-fill-color: currentColor;
 }
 
-/* Blanc sur terre cuite ne donnait que 3,5:1 : le bandeau passe au vert,
-   lettré de laiton. */
+.theme-le-victoria .font-display {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Le lettrage du store : capitales serif grasses, espacées. */
+.theme-le-victoria .hero-tagline {
+  color: var(--foreground);
+  font-family: var(--brand-display);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.theme-le-victoria .hero-rule {
+  height: 2px;
+  opacity: 1;
+}
+
 .theme-le-victoria .menu-highlights {
-  background: var(--surface-raised);
+  border: 0;
+  background: var(--vc-red);
 }
 
 .theme-le-victoria .menu-highlights li {
-  color: var(--ember-1);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.theme-le-victoria .category-rule {
+  height: 2px;
+  background-image: none;
+  background-color: var(--vc-red);
+  opacity: 0.9;
+}
+
+.theme-le-victoria .category-tagline {
+  font-style: normal;
+}
+
+.theme-le-victoria .dish-price {
+  color: var(--foreground);
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 /*
-  Café des Arts (3 rue Saint-Guilhem) — bar-brasserie sur la place
-  Castellane, terrasse ombragée et deux salles. Proposition : le bordeaux
-  sombre d'une brasserie, le laiton des barres et un rouge vin pour la
-  rampe. Playfair Display, une didone, en italique pour les sections ; DM Sans
-  pour le texte.
+  Café des Arts (3 rue Saint-Guilhem) — bar restaurant sur la place
+  Castellane. Son logo : un anneau fendu, « c » gris clair et « a » magenta
+  qui coule comme de la peinture, sur noir, et « CAFÉ DES ARTS » en capitales
+  géométriques fines ; dans la salle, le même nom en néon rose. La page prend
+  le noir du logo, le gris pour le texte, le magenta (#E6007E, éclairci pour
+  l'encre noire des boutons) pour l'action et les prix ; Didact Gothic, la
+  géométrique du mot-symbole, en capitales espacées pour les sections ; un
+  halo magenta, le néon, derrière le logo.
 */
 .theme-cafe-des-arts {
-  --background: #1b0f12;
-  --foreground: #f6ece0;
+  --ca-magenta: #e6007e;
+  --ca-magenta-ink: #ec1a8a;
+  --ca-grey: #dadada;
 
-  --surface: #241519;
-  --surface-raised: #2f1c21;
-  --hairline: rgba(230, 194, 125, 0.15);
+  --background: #000000;
+  --foreground: #ededed;
 
-  --muted: #c7b4a6;
-  --faint: #a08a80;
+  --surface: #0f0f10;
+  --surface-raised: #18181a;
+  --hairline: rgba(218, 218, 218, 0.14);
 
-  --ember-1: #e6c27d;
-  --ember-2: #d98f62;
-  --ember-3: #d0616a;
+  --muted: #b4b4b8;
+  --faint: #9c9ca2;
 
-  --shimmer-highlight: rgba(230, 194, 125, 0.14);
-  --glow-inner: rgba(230, 194, 125, 0.09);
-  --glow-outer: rgba(208, 97, 106, 0.07);
+  --ember-1: var(--ca-magenta-ink);
+  --ember-2: var(--ca-magenta-ink);
+  --ember-3: var(--ca-magenta);
 
-  --brand-display: var(--font-playfair-display), var(--font-fraunces), serif;
+  --shimmer-highlight: rgba(230, 0, 126, 0.12);
+  --glow-inner: rgba(230, 0, 126, 0.08);
+  --glow-outer: rgba(230, 0, 126, 0.05);
+  --hero-glow-1: var(--ca-magenta);
+  --hero-glow-2: var(--ca-magenta);
+  --hero-glow-3: var(--ca-grey);
+  --hero-halo-1: rgba(230, 0, 126, 0.45);
+  --hero-halo-2: rgba(230, 0, 126, 0.15);
+
+  --brand-display: var(--font-didact-gothic), var(--font-instrument-sans), sans-serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
   font-family: var(--brand-sans);
 
@@ -6075,65 +6245,108 @@ html:has([data-menu-root].theme-le-victoria) body {
 /* La carte seulement : sur la démo Collect, seul le téléphone porte le thème. */
 html:has([data-menu-root].theme-cafe-des-arts),
 html:has([data-menu-root].theme-cafe-des-arts) body {
-  background-color: #1b0f12;
+  background-color: #000000;
 }
 
 .theme-cafe-des-arts :focus-visible {
-  outline: 2px solid var(--ember-1);
+  outline: 2px solid var(--ca-magenta-ink);
   outline-offset: 3px;
 }
 
+/* Le magenta à plat, encre noire (4,7:1). */
+.theme-cafe-des-arts .ember-gradient {
+  background-image: none;
+  background-color: var(--ca-magenta-ink);
+}
+
+.theme-cafe-des-arts .ember-text {
+  background-image: none;
+  color: var(--ca-magenta-ink);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Didact Gothic n'a qu'une graisse. */
+.theme-cafe-des-arts .font-display {
+  font-weight: 400;
+}
+
+.theme-cafe-des-arts .hero-logo img {
+  width: min(70vw, 22rem);
+  height: auto;
+}
+
+/* Les sections comme le mot-symbole : capitales géométriques espacées. */
 .theme-cafe-des-arts .category-heading {
-  font-style: italic;
-  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .theme-cafe-des-arts .category-rule {
-  height: 1px;
+  height: 2px;
   background-image: none;
-  background-color: var(--ember-1);
-  opacity: 0.6;
+  background-color: var(--ca-magenta);
+  opacity: 0.85;
+}
+
+.theme-cafe-des-arts .category-tagline {
+  font-style: normal;
+}
+
+.theme-cafe-des-arts .hero-tagline,
+.theme-cafe-des-arts .menu-highlights li {
+  font-family: var(--brand-display);
+  letter-spacing: 0.14em;
+}
+
+.theme-cafe-des-arts .menu-highlights {
+  border-block: 1px solid var(--ca-magenta);
+  background: var(--surface);
+}
+
+.theme-cafe-des-arts .menu-highlights li {
+  color: var(--ca-grey);
 }
 
 .theme-cafe-des-arts .dish-price {
-  font-weight: 600;
+  color: var(--ca-magenta-ink);
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Blanc sur le rouge vin ne donnait que 3,7:1 : le bandeau prend le bordeaux
-   profond de la salle. */
-.theme-cafe-des-arts .menu-highlights {
-  background: #6e2330;
-}
-
 /*
-  Caffè Panis (3 place du Marché aux Fleurs) — café-restaurant italien, de
-  l'espresso du matin aux pizzas du soir ; devanture « univers nature, touche
-  verte » selon la presse locale. Proposition : le crème d'un comptoir de
-  café, le vert de la devanture, une terre cuite pour les filets. Young
-  Serif pour les titres, DM Sans pour le texte. Thème clair : chaque arrêt de
-  la rampe tient 4,5:1 sous l'encre crème des boutons.
+  Caffè Panis (3 place du Marché aux Fleurs) — caffè, ristorante, gelateria.
+  Son identité : le mot-symbole ivoire sur vert bouteille (#0F4B25, logo du
+  site 2024, avatar Instagram), le store crème lettré de vert, les portes
+  vertes, le sol en mosaïque noir et blanc. La page prend le crème du store,
+  le haut et le pied le vert des portes ; Gloock pour les titres, la plus
+  proche du mot-symbole ; DM Sans pour le texte. Le damier du sol borde le
+  haut de la carte.
 */
 .theme-caffe-panis {
-  --background: #f7f2e8;
-  --foreground: #1f2a22;
+  --cp-green: #0f4b25;
+  --cp-green-deep: #0b3a1c;
+  --cp-ivory: #eeeac7;
+  --cp-mosaic: repeating-conic-gradient(#151515 0 25%, #f7f3e6 0 50%);
 
-  --surface: #efe8da;
-  --surface-raised: #fffdf8;
-  --hairline: rgba(31, 42, 34, 0.13);
+  --background: #f6f1e2;
+  --foreground: #15261b;
 
-  --muted: #56625a;
-  --faint: #666f63;
+  --surface: #fbf8ee;
+  --surface-raised: #ffffff;
+  --hairline: rgba(15, 75, 37, 0.16);
 
-  --ember-1: #2f6646;
-  --ember-2: #2a5a3e;
-  --ember-3: #9a4a2c;
+  --muted: #4c5a50;
+  --faint: #59665c;
 
-  --shimmer-highlight: rgba(47, 102, 70, 0.12);
-  --glow-inner: rgba(47, 102, 70, 0.08);
-  --glow-outer: rgba(154, 74, 44, 0.06);
+  /* L'encre des boutons est le crème du fond : chaque arrêt tient 4,5:1 dessus. */
+  --ember-1: var(--cp-green);
+  --ember-2: var(--cp-green);
+  --ember-3: var(--cp-green-deep);
 
-  --brand-display: var(--font-young-serif), var(--font-fraunces), serif;
+  --shimmer-highlight: rgba(15, 75, 37, 0.1);
+  --glow-inner: rgba(15, 75, 37, 0.06);
+  --glow-outer: rgba(15, 75, 37, 0.04);
+
+  --brand-display: var(--font-gloock), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
   font-family: var(--brand-sans);
 
@@ -6143,42 +6356,107 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
 /* La carte seulement : sur la démo Collect, seul le téléphone porte le thème. */
 html:has([data-menu-root].theme-caffe-panis),
 html:has([data-menu-root].theme-caffe-panis) body {
-  background-color: #f7f2e8;
+  background-color: #f6f1e2;
 }
 
 .theme-caffe-panis :focus-visible {
-  outline: 2px solid var(--ember-1);
+  outline: 2px solid var(--cp-green);
   outline-offset: 3px;
 }
 
+/* Le vert à plat, comme la peinture des portes. */
+.theme-caffe-panis .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-1);
+}
+
+.theme-caffe-panis .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Gloock n'a qu'une graisse. */
 .theme-caffe-panis .font-display {
   font-weight: 400;
 }
 
-/* Vert de la devanture : un dégradé vert-terre cuite virait au brun. */
-.theme-caffe-panis .ember-gradient {
-  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2));
+/* Le haut et le pied de page aux couleurs de l'enseigne : ivoire sur vert. */
+.theme-caffe-panis > header.logo-hero,
+.theme-caffe-panis footer {
+  --background: var(--cp-green);
+  --foreground: var(--cp-ivory);
+  --surface: var(--cp-green-deep);
+  --hairline: rgba(238, 234, 199, 0.3);
+  --muted: #d9d5b4;
+  --faint: #cfcaa6;
+  --ember-1: var(--cp-ivory);
+  --ember-2: var(--cp-ivory);
+  --ember-3: var(--cp-ivory);
+  color: var(--foreground);
+  background-color: var(--background);
 }
 
-.theme-caffe-panis .ember-text {
-  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-3));
+/* Le téléphone de la démo Collect : le mot-symbole ivoire sur le vert. */
+.theme-caffe-panis .phone-logo-cover {
+  background: var(--cp-mosaic) bottom / 0.75rem 0.75rem repeat-x, var(--cp-green);
+  padding-bottom: 1.25rem;
+}
+
+.theme-caffe-panis > header.logo-hero :is(.ember-particle, .logo-breathe) {
+  display: none;
+}
+
+.theme-caffe-panis .hero-logo img {
+  width: min(78vw, 30rem);
+  height: auto;
+}
+
+.theme-caffe-panis .hero-tagline {
+  letter-spacing: 0.3em;
+}
+
+/* Le damier du sol, sous le haut de page. */
+.theme-caffe-panis > header.logo-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 0.75rem;
+  background: var(--cp-mosaic) 0 0 / 0.75rem 0.75rem;
+}
+
+.theme-caffe-panis .menu-highlights {
+  border: 0;
+  background: var(--surface);
+}
+
+.theme-caffe-panis .menu-highlights li {
+  color: var(--cp-green);
+  font-weight: 600;
+}
+
+.theme-caffe-panis .category-heading {
+  color: var(--cp-green);
 }
 
 .theme-caffe-panis .category-rule {
   height: 2px;
-  background-image: none;
-  background-color: var(--ember-3);
-  opacity: 0.7;
+  opacity: 0.35;
 }
 
 .theme-caffe-panis .dish-grid > article {
-  background: var(--surface-raised);
-  box-shadow: 0 1px 2px rgba(31, 42, 34, 0.06);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(21, 38, 27, 0.05);
 }
 
-.theme-caffe-panis .menu-highlights {
-  border-color: var(--ember-3);
-  background: var(--ember-1);
+.theme-caffe-panis .dish-price {
+  color: var(--cp-green);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-caffe-panis footer {
+  border-top: 0;
+  background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--cp-green);
 }
 
 @theme inline {

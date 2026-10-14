@@ -71,10 +71,11 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
   // (bières, cocktails, vins restent au bar).
   "le-novelty": [
     { id: "formules" },
-    { id: "cafes" },
-    { id: "fraicheurs" },
+    { id: "incontournables" },
+    { id: "tapas" },
+    { id: "boissons-chaudes" },
     { id: "sans-alcool" },
-    { id: "softs" },
+    { id: "boissons-fraiches" },
   ],
   "le-victoria": [
     { id: "burgers" },
@@ -83,18 +84,22 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "plats" },
     { id: "tapas" },
     { id: "desserts" },
+    { id: "crepes" },
+    { id: "gaufres" },
     { id: "softs" },
   ],
-  // Sans les formules : leur composition n'est pas publiée, le ticket de
-  // cuisine n'en dirait rien.
+  // La cuisine à emporter, du menu du midi aux desserts, et les softs.
   "cafe-des-arts": [
-    { id: "a-partager" },
-    { id: "salades" },
-    { id: "burgers" },
-    { id: "viandes-poissons" },
+    { id: "menu-brasserie" },
+    { id: "entrees" },
+    { id: "salades-xxl" },
     { id: "bruschettas" },
-    { id: "pizzas" },
-    { id: "desserts" },
+    { id: "pizzas-tomate" },
+    { id: "pizzas-creme" },
+    { id: "pates" },
+    { id: "viandes-burgers" },
+    { id: "desserts-maison" },
+    { id: "boissons-fraiches" },
   ],
 };
 

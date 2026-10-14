@@ -1,86 +1,98 @@
 {
   "slug": "cafe-des-arts",
   "name": "Café des Arts",
-  "tagline": "Bar · Brasserie · Place Castellane",
-  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur le web, sans document du gérant",
+  "tagline": "Bar · Restaurant",
+  "status": "prospect — démo de visite du 2026-10-14, carte de leur ancien site (archives Wayback, 2021-22), sans document du gérant",
   "demo": {
     "menu": "/menu/demo/cafe-des-arts",
     "click_and_collect": "/collect/demo/cafe-des-arts"
   },
-  "cuisine": "Bar-brasserie : formules du midi, salades XXL, burgers Charolais, viandes, poissons, bruschettas, pizzas, desserts ; girafes de bière et de cocktail.",
+  "cuisine": "Bar-brasserie : menus du midi, entrées, salades XXL, bruschettas, pizzas maison, poissons, pâtes, viandes et burgers, coupes glacées de Gérard Cabiron (MOF), desserts maison ; petits-déjeuners ; carte de bar complète (cocktails, bières pression et girafes, vins, spiritueux).",
   "address": "3 Rue Saint-Guilhem, 34000 Montpellier",
   "city": "Montpellier (Écusson, place Castellane)",
-  "phone": "04 67 60 81 87 (Facebook, ancien site) ; le site du groupe donne 04 12 16 09 40",
-  "hours": "Contradictoires : 7j/7 10h–1h (site du groupe), 11h30–1h et petit-déjeuner dès 8h (ancien site) — non affichés",
-  "website": "https://www.cafedesarts34.fr/ (groupe) ; lecafedesartsmontpellier.com (ancien, toujours lié depuis Facebook)",
+  "phone": "04 12 16 09 40 (site du groupe, 09/2026) ; 04 67 60 81 87 (ancien site, Google) — à confirmer",
+  "hours": "7j/7 10h–1h, restauration 11h30–23h (site du groupe, 09/2026) ; autres sources : 8h, 9h ou 12h",
+  "website": "cafedesarts34.fr (site du groupe, sans carte) ; ancien lecafedesartsmontpellier.fr en vente",
   "socials": {
-    "instagram": "@lecafedesartsmontpellier (≈ 6,3 k abonnés)",
-    "facebook": "facebook.com/lecafedesartsmontpellier",
-    "tiktok": "non trouvé",
-    "google_maps": "non trouvée directement ; Tripadvisor 3,0 (≈ 600)"
+    "instagram": "@lecafedesartsmontpellier (lié depuis les sites, bloqué au relevé)",
+    "facebook": "facebook.com/lecafedesartsmontpellier (bloqué)",
+    "tiktok": "@lecafedesartsmontpellier (confirmé, 1 031 abonnés)",
+    "google_maps": "4,1/5 sur ≈ 3 767 avis (via Sluurpy, non ouvert)"
   },
   "legal": {
     "raison_sociale": "C.K.L (enseigne LE CAFÉ DES ARTS)",
-    "forme": "SASU",
+    "forme": "SAS",
     "siren": "523 954 857",
+    "siret": "523 954 857 00026",
     "naf": "56.10A",
-    "president": "Med Belkhir depuis le 18/05/2023",
+    "president": "Med Belkhir",
     "creation": "01/07/2010",
-    "notes": "Extraits Pappers / Societe.com, pages non ouvertes directement. Ne pas aborder la fermeture administrative de l'été 2024 (presse locale)."
+    "notes": "Effectif 20–49 ; CA 2024 2,6 M€. API recherche-entreprises ouverte le 2026-10-14. Ne pas aborder la fermeture administrative de l'été 2024."
   },
   "design": {
-    "primary_color": "#1b0f12",
-    "secondary_color": "#f6ece0",
-    "accent_color": "#e6c27d → #d98f62 → #d0616a",
-    "style_notes": "PROPOSITION — aucun logo ni enseigne trouvés. Bordeaux sombre de brasserie, laiton, rouge vin ; Playfair Display en italique pour les sections, DM Sans pour le texte. À recaler sur l'enseigne photographiée en visite.",
-    "interior_vibe": "terrasse ombragée, deux salles climatisées, DJ le week-end",
-    "reference_images": []
+    "primary_color": "#000000",
+    "secondary_color": "#DADADA",
+    "accent_color": "#E6007E (encre des boutons #EC1A8A)",
+    "style_notes": "Repris du logo actuel (fichier du site du groupe) : anneau fendu « c » gris clair / « a » magenta qui coule, « CAFÉ DES ARTS » en capitales géométriques fines, sur noir. La page prend le noir, le gris pour le texte, le magenta pour les boutons et les prix (#EC1A8A, à peine éclairci pour tenir 4,5:1 sous l'encre noire), un filet magenta sous chaque section, un halo magenta derrière le logo pour le néon rose de la salle. Didact Gothic, géométrique façon Century Gothic comme le mot-symbole, en capitales espacées pour les sections ; DM Sans pour le texte. Écartés : l'or et les polices du site du groupe (gabarit commun aux quatre adresses), le bordeaux de la première proposition.",
+    "logo": "frontend/public/cafe-des-arts/logo.webp (logo détouré du fond noir) ; icônes favicon.png / icon.png",
+    "interior_vibe": "terrasse ombragée sous les pins, salle à l'étage en brique et pierre, néon rose, bar en mosaïque turquoise",
+    "reference_images": [
+      "docs/logo.jpg",
+      "docs/devanture-privateaser.jpg",
+      "docs/neon-salle.jpg"
+    ]
   },
   "menu": {
-    "source": "Ancien site officiel (lecafedesartsmontpellier.com, pages d'articles, sans date) — le seul à publier des prix ; le site actuel du groupe ne donne que « deux plats du jour chaque midi à partir de 9,90 € » et le café à 1 € de 9h à 12h. Relevé le 2026-10-14 par extraits de moteur de recherche : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const cafeDesArts).",
+    "source": "Dernière carte publiée par la maison : pages « Le Restaurant » (carte « hiver », visible du 02/12/2021 au 01/12/2022 au moins) et « Côté Bar » (25/10/2021 et 17/01/2022) de son ancien site lecafedesartsmontpellier.fr, ouvertes dans les archives Wayback le 2026-10-14 et extraites mécaniquement (176 prix restaurant, 238 prix bar). Lignes françaises seulement. Aucune carte plus récente en ligne. Transcription : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const cafeDesArts).",
     "categories_summary": [
-      "Formules du midi — 5, 10 à 19,90 €",
-      "Entrées & à partager — 4, 7,50 à 13,50 €",
-      "Salades XXL — 5, 14,50 à 16,50 €",
-      "Burgers — 2, 16,50 et 17 €",
-      "Viandes & poissons — 5, 14,50 à 17,50 €",
-      "Bruschettas — 3, 13,50 à 14,50 €",
-      "Pizzas maison — 2, 8,50 et 10 €",
-      "Desserts & glaces — 7, 3,60 à 7,50 €"
+      "Menu Brasserie (midi) — Uno 12 €, Duo 15 €, Trio 18 €, plat du jour 10 €, formule express 13 €",
+      "Menu 25 — 25 € ; Menu Bambino — 9 €",
+      "Entrées — 7, 8 à 14,50 €",
+      "Salades XXL — 5, 14 à 16,50 €",
+      "Bruschettas — 3, 13 et 13,50 €",
+      "Pizzas à la tomate — 13, 9,50 à 14 € ; à la crème — 4, 13,50 à 16 €",
+      "Poissons — 3, 16,50 à 19,50 € ; Pâtes — 3, 15,50 à 18,50 €",
+      "Viandes & burgers — 8, 16 à 23,50 €",
+      "Desserts maison — 10 ; coupes glacées — 16, 4,50 à 9 €",
+      "Petits-déjeuners — 6,50 et 9,90 €",
+      "Bar : boissons chaudes, fraîches, milkshakes, 21 cocktails, 5 sans alcool, pressions et girafes 3 L, bouteilles, apéritifs, vins blancs, rosés, rouges, pétillant, champagnes, rhums, vodka, gin, whisky, téquila, digestifs"
     ],
-    "photos": "Aucune photo des plats en ligne exploitable (hôtes d'images bloqués pendant la recherche) : les photos sont des photos libres déjà auditées sur d'autres cartes Ominin, posées seulement quand le plat correspond. Le reste est sans photo, en attente d'une séance photo sur place.",
+    "photos": "Aucune photo des plats par la maison en ligne exploitable (photos clients filigranées) : photos libres auditées.",
     "options_a_valider": [
-      "Formule Brasserie : Uno 12 €, Duo 14,90 €, Trio 16,90 € modélisés en une ligne avec la composition au choix.",
-      "Contenu des formules (du midi, Express, Douceur, Menu Café des Arts) : non publié, lignes sans détail.",
-      "Garnitures des bruschettas : paraphrasées par l'extrait.",
-      "Prix de l'ancien site, sans date et sans doute anciens : formules à 10–19,90 € alors que le site actuel annonce des plats du jour dès 9,90 €.",
-      "Orthographes de la source gardées : « grannapadano », « granna padano », « chiken wings », « AAAAA ».",
-      "« Titres-restaurant acceptés le midi » : Eat-List, pour les formules du midi.",
-      "Démo click & collect sans les formules (composition non publiée), avec les entrées."
+      "Toute la carte date de 2021-22 (dernière publiée) : prix à mettre à jour ; le site du groupe annonce aujourd'hui « deux plats du jour à partir de 9,90 € ».",
+      "Duo du Menu Brasserie en deux lignes (Entrée + Plat, Plat + Dessert), même prix, comme le libellé « Entrée + Plat ou Plat + Dessert ».",
+      "« Menu » 25 € nommé « Menu 25 » ; la sauce de la bavette n'y est pas demandée (un choix de menu ne porte pas de sous-choix).",
+      "Escargots x6 / x12, vins au verre et à la bouteille, spiritueux 4 cl / 70 cl, pressions 25 cl → girafe 3 L : une ligne par article, chaque format à son prix.",
+      "Libellés de choix corrigés : « Fitres maison » → Frites maison, « Annanas » → Ananas (les descriptions gardent le texte imprimé).",
+      "« Bacardi Cuatro 4cl 12€ — Et sa canette de Redbull Tropical » nommé « Bacardi Cuatro + Red Bull Tropical ».",
+      "Lignes « Supléments tranche ou sirop 0,20 € » non reprises.",
+      "Coupes Colonel (vodka) et Martiniquaise (rhum) et baba au rhum : TVA des desserts (10 %), à confirmer.",
+      "Pas de prix des girafes 4 L et 5 L ni des girafes de cocktail : seulement « Girafe 3 L » des pressions."
     ]
   },
   "offers": [
-    "Deux plats du jour chaque midi à partir de 9,90 € (site du groupe)",
-    "Le café à 1 € de 9h à 12h",
-    "Happy hour : mojitos et bières pression à tarifs préférentiels (horaires contradictoires : 16h, 17h ou 18h – 21h ou 23h)",
-    "Girafes de bière et de cocktail de 3 à 5 L",
-    "Titres-restaurant acceptés le midi (Eat-List)"
+    "Deux plats du jour au choix à partir de 9,90 € (site du groupe, 09/2026)",
+    "Menu Brasserie servi le midi, sauf le dimanche et jours fériés (carte 2021-22)",
+    "Girafes de bières et de cocktails de 3 L à 5 L pour les groupes (site du groupe)"
   ],
   "research": {
     "date": "2026-10-14",
-    "fichiers": "docs/recherche-carte.md",
-    "limites": "Aucune page ouverte directement : extraits de moteur de recherche.",
-    "groupe": "Groupe de quatre adresses (Café des Arts, Le Novelty, Le Victoria, Brasserie Laissac) sous la même direction (Med Belkhir), contact commun ckl.cafedesarts@gmail.com.",
-    "avis": "Éloges : bavette, burgers, tapas, salade Des Arts, girafes, happy hour. Reproche : expérience inégale d'un soir à l'autre."
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md",
+    "methode": "Pages ouvertes directement, ancien site par les archives Wayback ; Instagram, Facebook et Google bloqués ; le site du groupe a cessé de répondre après le relevé.",
+    "groupe": "Groupe de quatre adresses (Café des Arts, Le Novelty, Le Victoria, Brasserie Laissac) sous la même direction (Med Belkhir).",
+    "correction": "Le café à 1 € (9h–12h) et le happy hour mojitos 17h–23h de la démo précédente sont ceux du Novelty sur le site du groupe : retirés.",
+    "site": "Le site du groupe n'a aucune carte (« La carte » mène au contact) ; l'ancien domaine est en vente : argument de vente.",
+    "qr": "Un chevalet de table avec QR code est visible sur une photo Privateaser : outil actuel à demander."
   },
   "notes": [
-    "La carte papier actuelle et la carte des boissons, avec prix : les prix de l'ancien site (burgers 16,50/17 €, bavette 17,50 €) sont-ils à jour ?",
-    "Contenu et prix actuels des formules du midi ; les plats du jour dès 9,90 € remplacent-ils les formules ?",
-    "Moules, magret, tartare, entrecôte sont-ils à la carte ?",
-    "Happy hour : horaires et prix ; prix de chaque taille de girafe.",
-    "Le bon numéro (04 67 60 81 87 ou 04 12 16 09 40) et les horaires.",
-    "Logo et couleurs : photographier l'enseigne, la façade et les salles en visite.",
-    "Une carte pour les quatre adresses du groupe, une carte par adresse ?",
-    "Le domaine lecafedesartsmontpellier.com est-il toujours le leur ? Il remonte sur Google avec d'anciens prix."
+    "Le bon numéro : 04 12 16 09 40 ou 04 67 60 81 87 ?",
+    "Horaires d'ouverture (8h, 9h, 10h ?) et du happy hour, prix happy hour.",
+    "La carte de 2021-22 est-elle toujours la base ? Prix actuels ; les plats du jour à 9,90 € remplacent-ils le Menu Brasserie (Uno 12 / Duo 15 / Trio 18) ?",
+    "Prix des girafes 3, 4 et 5 L, bière et cocktail.",
+    "Quel outil derrière le QR code des chevalets de table ?",
+    "Le café à 1 € existe-t-il aussi au Café des Arts ?",
+    "Formule Douceur, Menu 24/25 : toujours proposés ?",
+    "Logo en vectoriel ; photos des plats et des coupes glacées.",
+    "Une carte par adresse du groupe ou une carte commune ?"
   ]
 }

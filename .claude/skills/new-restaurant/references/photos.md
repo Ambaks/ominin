@@ -116,6 +116,9 @@ doesn't pay for it again.
 | `32641693`, `32645121`–`32645123` | Versace-pattern plates |
 | `41092xx` | McDonald's red fry box, hands (O’Crousti, fries) |
 | Unsplash `photo-1746635*` | "Sidral Mundet" soda bottles on yellow |
+| `3675xxxx`–`3678xxxx` (speckled gold-rimmed plates, e.g. `36782573`) | gold "PA…" wordmark on the plate rim |
+| Unsplash `photo-176658915*` | burned logo on the board, branded beer bottle |
+| `129916xx` | newspaper under the prosciutto |
 
 Single photos rejected for branding on LZ.FOOD: `14979836` (logo on
 wrapper), `18852568` and `33718644` (newsprint), `14866627` (Russian menu
@@ -129,7 +132,19 @@ burger" paper), `9932888` (printed fry cup), `11659577` (Mirinda), Unsplash
 `photo-1690988109029-aa2377d08b12` (Coke Studio promo with a QR code). On BOHO:
 Unsplash `photo-1778855400007-37cbd89592ef` (Gemini watermark, AI image),
 Unsplash `photo-1731703698022-2bcf47d3d09b` ("SANDYS" printed paper),
-`10115297` (labelled water bottle).
+`10115297` (labelled water bottle). On Caffè Panis: `12916029` (« Café de
+Nicole's Flower » on the tiramisu's chocolate plaque).
+On the Écusson bars (October 2026): `25068078` (Italian printed placemat),
+`4083582` (labelled wine bottle), `29819346` (FIX beer), `37279725` (« the
+frazzled cook » liner), `12758949` and `34528321`, `10970330`, `17366877`,
+`29189498`, `7961933` (printed liners), `38366578` (« SEÑOR BARRIO »),
+`12653308` (menu card), `10794112` (branded knife), `37044083` (wine label),
+`30557313` (shop sign), `9200544` (« Choco Nussa »), `11136513` (stamps),
+`12099847` (newspaper), `14141170` (book page), `18465600` (« …rest in queso »
+skillet), `19370451`, `13741662` (« PUBTIME »), `21235061` and `30776098`
+(newsprint), `25048973` (« CANDELAS » cup), `4871277`, `5863643` (menu card),
+`12824133`, `17313960` (« BURGERS & FRIES » bag), `17132991`, `27459857`,
+Unsplash `photo-1629386199824-700da7af2097` (maker's stamp on the plate).
 
 ## French dishes stock libraries don't have
 

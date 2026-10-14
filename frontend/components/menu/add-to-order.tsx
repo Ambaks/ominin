@@ -36,6 +36,7 @@ export function ChoiceRow({
   checked,
   onChange,
   supplement = 0,
+  price,
   describedBy,
   invalid,
   children,
@@ -45,6 +46,8 @@ export function ChoiceRow({
   checked: boolean;
   onChange: () => void;
   supplement?: number;
+  /** Prix entier du format choisi, affiché à la place du supplément. */
+  price?: number;
   describedBy?: string;
   /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
   invalid?: boolean;
@@ -64,7 +67,11 @@ export function ChoiceRow({
         />
         {children}
       </span>
-      {supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>}
+      {price !== undefined ? (
+        <span className="text-muted">{formatPrice(price)}</span>
+      ) : (
+        supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>
+      )}
     </label>
   );
 }
@@ -82,6 +89,7 @@ export function GroupChoices({
   onToggle,
   onClear,
   invalid,
+  basePrice,
 }: {
   group: OptionGroup;
   name: string;
@@ -89,7 +97,10 @@ export function GroupChoices({
   onToggle: (choiceId: string) => void;
   onClear: () => void;
   invalid?: boolean;
+  /** Prix de l'article : un groupe de formats l'ajoute à chaque choix. */
+  basePrice?: number;
 }) {
+  const formatPrices = group.formats && basePrice !== undefined;
   return (
     <>
       {!group.obligatoire && !group.multiple && (
@@ -105,6 +116,7 @@ export function GroupChoices({
           checked={chosen.includes(choice.id)}
           onChange={() => onToggle(choice.id)}
           supplement={choice.supplement}
+          price={formatPrices ? basePrice + choice.supplement : undefined}
           invalid={invalid}
         >
           {choice.name}
@@ -556,7 +568,7 @@ export function OptionsModal({
         // un point médian se confondait avec celui qui sépare les choix.
         const supplement = `+${formatPrice(choice.supplement)}`;
         optionSummary.push(
-          choice.supplement > 0
+          choice.supplement > 0 && !group.formats
             ? choice.name.endsWith(")")
               ? `${choice.name.slice(0, -1)},\u00a0${supplement})`
               : `${choice.name} (${supplement})`
@@ -656,6 +668,7 @@ export function OptionsModal({
                         group={group}
                         name={group.id}
                         chosen={chosen(group.id)}
+                        basePrice={reward ? undefined : item.price}
                         onToggle={(choiceId) => toggle(group, choiceId)}
                         invalid={flash?.key === group.id && chosen(group.id).length === 0}
                         onClear={() =>
