@@ -12,7 +12,8 @@ import {
   type SetStateAction,
 } from "react";
 import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
-import { addVerb, formatPrice, lineName, type MenuItem, type OptionGroup } from "@/lib/menu-data";
+import { addVerb, formatPrice, lineName } from "@/lib/menu/format";
+import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
@@ -568,7 +569,7 @@ export function OptionsModal({
         // un point médian se confondait avec celui qui sépare les choix.
         const supplement = `+${formatPrice(choice.supplement)}`;
         optionSummary.push(
-          choice.supplement > 0 && !group.formats
+          choice.supplement > 0 && !(group.formats && !reward)
             ? choice.name.endsWith(")")
               ? `${choice.name.slice(0, -1)},\u00a0${supplement})`
               : `${choice.name} (${supplement})`

@@ -15,7 +15,7 @@ import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { notifyOrderEvent } from "@/lib/push/events";

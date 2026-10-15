@@ -15,14 +15,8 @@ import {
   useCollectDemo,
 } from "@/lib/collect/demo/provider";
 import { formatTime } from "@/lib/gestion/format";
-import {
-  addVerb,
-  allergenLine,
-  formatPrice,
-  lineName,
-  type MenuItem,
-  type OptionGroup,
-} from "@/lib/menu-data";
+import { addVerb, allergenLine, formatPrice, lineName } from "@/lib/menu/format";
+import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
 
 /*
  * Volet téléphone de la démo Collect : le parcours de commande dans une
@@ -62,12 +56,11 @@ function useNow(clock: () => number): number {
   return clock();
 }
 
-/** Les choix d'une ligne, comme le panier de la carte : « Dolsot Beef (+1,00 €) · Coca ». Un format (« 50 cl ») est déjà dans le prix de la ligne. */
+/** Les choix d'une ligne, comme le panier de la carte : « Dolsot Beef (+1,00 €) · Coca ». */
 const optionSummary = (line: DemoLine) =>
   line.options
     .map((option) =>
-      option.supplement > 0 &&
-      !line.item.options?.find((group) => group.name === option.groupName)?.formats
+      option.supplement > 0
         ? `${option.choiceName} (+${formatPrice(option.supplement)})`
         : option.choiceName
     )
@@ -691,7 +684,7 @@ function MenuView({ framed }: { framed: boolean }) {
             <span className="font-semibold">
               À emporter{highlight && <span className="font-normal text-muted"> · {highlight}</span>}
             </span>
-            <span className="inline-flex items-center gap-1.5 font-semibold text-ember-1">
+            <span className="phone-open inline-flex items-center gap-1.5 font-semibold text-ember-1">
               <span aria-hidden className="ember-gradient size-2 rounded-full" />
               Ouvert : retrait dès que possible
             </span>
@@ -1364,7 +1357,8 @@ function TrackingView({ topPad }: { topPad: string }) {
           </ul>
         )}
 
-        {(demo.step === "en_preparation" || demo.step === "prete") && (
+        {/* Où retirer, dès la commande reçue : l'écran ne reste pas vide en attendant le restaurant. */}
+        {demo.step !== "retiree" && (
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">

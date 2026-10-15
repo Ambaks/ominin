@@ -64,7 +64,9 @@ export function demoLine(
     options: choices.map(({ group, choice }) => ({
       groupName: group.name,
       choiceName: choice.name,
-      supplement: choice.supplement,
+      // Un format est déjà dans le prix de la ligne : ni le téléphone ni
+      // l'écran du restaurant ne l'affichent en supplément.
+      supplement: group.formats ? 0 : choice.supplement,
     })),
     unitPrice: choices.reduce((sum, { choice }) => sum + choice.supplement, item.price),
   };

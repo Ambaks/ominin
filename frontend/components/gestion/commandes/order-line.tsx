@@ -1,6 +1,6 @@
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import type { Order, OrderItem } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Briques des listes d'articles (addition, service, historique) : une ligne,

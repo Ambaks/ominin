@@ -1,6 +1,6 @@
 import { demoShowcaseOrder } from "@/lib/collect/demo/data";
 import { clientsSection, demoCta, hero, heroRelay } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Hero du menu QR : titre en trois lignes qui montent, pavé braise sur

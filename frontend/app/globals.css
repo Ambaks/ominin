@@ -5737,7 +5737,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   /* Une ligne par article : le nom et son prix, la description dessous, le
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
      nom accessible reste celui du composant (« Ajouter : Mojito »). */
-  & .dish-grid > article:not(:has(.dish-photo)) {
+  /* Sans bouton (« Indisponible »), la fiche garde sa mise en page. */
+  & .dish-grid > article:not(:has(.dish-photo)):has(.dish-action > button) {
     & .dish-body {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 2.75rem;
@@ -5863,6 +5864,19 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       align-self: center;
     }
   }
+
+  /* Une ligne sans photo seule entre deux fiches à photo prend la rangée :
+     sinon une case vide à côté d'elle. */
+  [data-menu-root]:is(
+      [data-slug="le-novelty"],
+      [data-slug="le-victoria"],
+      [data-slug="cafe-des-arts"],
+      [data-slug="caffe-panis"]
+    )
+    .dish-grid
+    > article[data-span] {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -5936,8 +5950,14 @@ html:has([data-menu-root].theme-le-novelty) body {
 }
 
 .theme-le-novelty :focus-visible {
-  outline: 1px solid var(--nv-gold-light);
+  outline: 2px solid var(--nv-gold-light);
   outline-offset: 3px;
+}
+
+/* Les angles droits du site partout, téléphone de la démo Collect compris :
+   pastilles, fiches, panier, boutons. */
+.theme-le-novelty [class*="rounded"] {
+  border-radius: 0;
 }
 
 /* L'or à plat, encre noire dessus (9:1), comme le bouton plein du site. */
@@ -6060,12 +6080,6 @@ html:has([data-menu-root].theme-le-novelty) body {
     background-color: var(--nv-gold);
     color: var(--background);
   }
-}
-
-/* La feuille d'options et le panier gardent les angles droits des tuiles. */
-.theme-le-novelty .cart-bar,
-.theme-le-novelty [role="dialog"] :is(.choice-row, button, a) {
-  border-radius: 0;
 }
 
 /* Les pilules de la navigation deviennent des onglets, soulignés d'or. */
@@ -6195,6 +6209,25 @@ html:has([data-menu-root].theme-le-victoria) body {
 .theme-le-victoria .dish-price {
   color: var(--foreground);
   font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Le badge de l'enseigne ouvre la page : sans les braises du gabarit. */
+.theme-le-victoria .ember-particle {
+  display: none;
+}
+
+.theme-le-victoria .hero-logo img {
+  height: 6.5rem;
+}
+
+/* Le téléphone de la démo Collect : les noms en serif grasse, comme le store ;
+   « Ouvert » en crème, le rouge se lisant comme une alerte. */
+.theme-le-victoria .demo-dish-name {
+  font-weight: 700;
+}
+
+.theme-le-victoria .phone-open {
+  color: var(--foreground);
 }
 
 /*
@@ -6397,10 +6430,25 @@ html:has([data-menu-root].theme-caffe-panis) body {
   background-color: var(--background);
 }
 
-/* Le téléphone de la démo Collect : le mot-symbole ivoire sur le vert. */
+/* Le téléphone de la démo Collect : le mot-symbole ivoire sur le vert, le
+   damier dessous (en pseudo-élément : la lueur du composant occupe
+   background-image). Plus petit que sur la carte, il dégage l'encoche. */
 .theme-caffe-panis .phone-logo-cover {
-  background: var(--cp-mosaic) bottom / 0.75rem 0.75rem repeat-x, var(--cp-green);
+  position: relative;
   padding-bottom: 1.25rem;
+  background-color: var(--cp-green);
+}
+
+.theme-caffe-panis .phone-logo-cover::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 0.75rem;
+  background: var(--cp-mosaic) 0 0 / 0.75rem 0.75rem;
+}
+
+.theme-caffe-panis .phone-logo-cover img {
+  height: 2.75rem;
 }
 
 .theme-caffe-panis > header.logo-hero :is(.ember-particle, .logo-breathe) {
@@ -6432,7 +6480,15 @@ html:has([data-menu-root].theme-caffe-panis) body {
 
 .theme-caffe-panis .menu-highlights li {
   color: var(--cp-green);
+  font-family: var(--brand-sans);
+  font-size: 0.875rem;
   font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+/* Le Mama King : la photo garde la pizza, pas les mains du convive en haut. */
+.theme-caffe-panis img[src*="28996257"] {
+  object-position: 50% 85%;
 }
 
 .theme-caffe-panis .category-heading {

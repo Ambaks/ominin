@@ -1,4 +1,4 @@
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /**
  * Refus d'un règlement en ligne sous la commande minimum du restaurant,

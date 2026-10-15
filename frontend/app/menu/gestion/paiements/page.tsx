@@ -26,7 +26,7 @@ import {
 } from "@/lib/gestion/selectors";
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 const MODE_FILTERS = [
   { id: "tous", label: "Tous" },

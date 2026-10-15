@@ -18,7 +18,7 @@ import {
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Order } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /** Titre de l'addition : une table, ou les tables réunies sous elle. */
 function serviceTitle(service: TableService): string {

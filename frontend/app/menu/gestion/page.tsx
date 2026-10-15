@@ -9,7 +9,7 @@ import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import {
   openOrders,
   ordersByHour,

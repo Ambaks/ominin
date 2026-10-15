@@ -2,7 +2,7 @@ import type Stripe from "stripe";
 import { compose, describeAnswers, parseAnswers, type Answers } from "@/lib/composer";
 import { sendEmail } from "@/lib/gmail";
 import { contactEmail, starterKit } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { check, must } from "@/lib/supabase/result";
 

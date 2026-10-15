@@ -5,7 +5,7 @@ import { Modal } from "@/components/ui/modal";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
 import type { CashDetails, EncaissementMode } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 function CashIcon() {
   return (

@@ -70,12 +70,13 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
   // Trois bars de l'Écusson : la carte qui part à emporter, sans l'alcool
   // (bières, cocktails, vins restent au bar).
   "le-novelty": [
-    { id: "formules" },
     { id: "incontournables" },
     { id: "tapas" },
-    { id: "boissons-chaudes" },
+    { id: "planches" },
+    { id: "formules" },
     { id: "sans-alcool" },
     { id: "boissons-fraiches" },
+    { id: "boissons-chaudes" },
   ],
   "le-victoria": [
     { id: "burgers" },
@@ -88,14 +89,17 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "gaufres" },
     { id: "softs" },
   ],
-  // La cuisine à emporter, du menu du midi aux desserts, et les softs.
+  // Toute la cuisine à emporter, des menus aux desserts, et les softs.
   "cafe-des-arts": [
     { id: "menu-brasserie" },
+    { id: "menu-bambino" },
+    { id: "menu-25" },
     { id: "entrees" },
     { id: "salades-xxl" },
     { id: "bruschettas" },
     { id: "pizzas-tomate" },
     { id: "pizzas-creme" },
+    { id: "poissons" },
     { id: "pates" },
     { id: "viandes-burgers" },
     { id: "desserts-maison" },
@@ -130,6 +134,9 @@ export interface DemoSettings {
   choiceDishes?: Record<string, string>;
 }
 
+/** Des créneaux déjà pris, aucun complet : un trou dans les horaires se lirait comme un bug. */
+const AUCUN_CRENEAU_COMPLET = [2, 4, 3, 1];
+
 const DEMO_SETTINGS: Record<string, DemoSettings> = {
   "bai-ko": {
     // Un service du midi, quelle que soit l'heure de la visite.
@@ -145,7 +152,7 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
     // Celle de la carte annonce la version Dolsot.
     taglines: { bibimbap: "Riz, légumes, garniture et œuf" },
     // Aucun créneau complet aujourd'hui : un trou dans les horaires se lirait comme un bug.
-    takenBySlot: [2, 4, 3, 1],
+    takenBySlot: AUCUN_CRENEAU_COMPLET,
     // Les formules nomment leurs plats autrement que la carte.
     choiceDishes: {
       "Mandu (x3)": "mandu",
@@ -162,17 +169,17 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
       "Salade Tofu": "tofu-salad",
     },
   },
-  // Le café du matin à emporter ; l'Irish et le French Coffee restent au bar.
-  // Aucun créneau complet, comme pour Baï-Kō.
+  // Un service du midi ; l'Irish et le French Coffee restent au bar. Aucun
+  // créneau complet, comme pour Baï-Kō.
   "le-novelty": {
-    startsAt: "09:10",
+    startsAt: "12:20",
     realPhone: true,
     hiddenItems: ["irish-coffee", "french-coffee"],
-    takenBySlot: [2, 4, 3, 1],
+    takenBySlot: AUCUN_CRENEAU_COMPLET,
   },
-  "le-victoria": { startsAt: "12:20", realPhone: true, takenBySlot: [2, 4, 3, 1] },
-  "cafe-des-arts": { startsAt: "12:15", realPhone: true, takenBySlot: [2, 4, 3, 1] },
-  "caffe-panis": { startsAt: "12:20", realPhone: true, takenBySlot: [2, 4, 3, 1] },
+  "le-victoria": { startsAt: "12:20", realPhone: true, takenBySlot: AUCUN_CRENEAU_COMPLET },
+  "cafe-des-arts": { startsAt: "12:15", realPhone: true, takenBySlot: AUCUN_CRENEAU_COMPLET },
+  "caffe-panis": { startsAt: "12:20", realPhone: true, takenBySlot: AUCUN_CRENEAU_COMPLET },
 };
 
 /** Les allergènes du plat de la carte derrière chaque choix de formule (choiceDishes). */

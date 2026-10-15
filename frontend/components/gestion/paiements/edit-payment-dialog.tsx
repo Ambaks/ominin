@@ -7,7 +7,7 @@ import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
 import { orderTotal, paidInMode } from "@/lib/gestion/selectors";
 import type { EncaissementMode, Order } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Correction d'un encaissement par le gérant : le mode — espèces, carte, ou

@@ -23,12 +23,8 @@ import {
   type CartChoice,
   type FormuleSelection,
 } from "@/lib/menu/cart";
-import {
-  FORMULES_LINK,
-  formatPrice,
-  type FormulesBanner as Banner,
-  type OptionGroup,
-} from "@/lib/menu-data";
+import { FORMULES_LINK, formatPrice } from "@/lib/menu/format";
+import { type FormulesBanner as Banner, type OptionGroup } from "@/lib/menu-data";
 
 /*
  * Formules du menu QR : un choix par étape (« Soft », « Dessert »), puis les

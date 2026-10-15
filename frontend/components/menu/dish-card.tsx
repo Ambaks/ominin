@@ -1,10 +1,5 @@
-import {
-  allergenLine,
-  BADGE_LABELS,
-  formatPrice,
-  type Badge,
-  type MenuItem,
-} from "@/lib/menu-data";
+import { allergenLine, BADGE_LABELS, formatPrice } from "@/lib/menu/format";
+import { type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 import { DishIndicators } from "./dish-indicators";
 import { keepHyphenated } from "./keep-hyphenated";

@@ -6,7 +6,7 @@ import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
 import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { useCart } from "@/lib/menu/cart";
 import { fallBackToCounter } from "@/lib/menu/online-payment";
 import {

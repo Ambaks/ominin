@@ -21,7 +21,8 @@ import type {
   PriceRuleDirection,
   PriceRuleUnit,
 } from "@/lib/gestion/types";
-import { formatPrice, type MenuCategory } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
+import { type MenuCategory } from "@/lib/menu-data";
 
 /*
  * Tarifs planifiés : le prix de certains articles change les jours dits. Le

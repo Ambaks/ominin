@@ -1,4 +1,4 @@
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import {
   ANALYTICS_PERIOD_DAYS,
   ORDER_TAB_HINTS,

@@ -7,7 +7,7 @@ import { isNextDay, pickupStatus, useCollectDemo } from "@/lib/collect/demo/prov
 import { COLLECT_ETA_CHOICES_MIN } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Volet dashboard de la démo Collect : la grammaire visuelle du vrai écran

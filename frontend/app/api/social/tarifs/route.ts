@@ -6,7 +6,7 @@ import {
   type Plan,
   type PlanCommission,
 } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Tarifs en vigueur, lus par l'agent social (backend) au moment d'écrire :

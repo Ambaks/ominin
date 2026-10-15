@@ -15,7 +15,7 @@ import type {
   OrderItem,
   PaymentLeg,
 } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
 import { PaymentPinDialog } from "./payment-pin-dialog";

@@ -13,7 +13,8 @@ import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
-import { BADGE_LABELS, formatPrice, type MenuItem } from "@/lib/menu-data";
+import { BADGE_LABELS, formatPrice } from "@/lib/menu/format";
+import { type MenuItem } from "@/lib/menu-data";
 
 export function MenuItemCard({
   item,
