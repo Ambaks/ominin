@@ -1,0 +1,9 @@
+Score in whole or half points (e.g. 8, 8.5, 9).
+10  Portfolio piece. Nothing left to fix; you'd show it as reference work.
+ 9  Ship it. What remains is polish or genuinely blocked on the client; no
+    defect a customer would notice, nothing broken, nothing inaccurate.
+ 8  Good. A few things a customer would notice, none serious.
+ 7  Competent but generic, or with several visible defects.
+ 5-6 Works, but reads as a template, or has a functional bug in a main path.
+≤4  Broken, misleading, or inaccurate in ways that could cost the client.
+A single functional bug in a main path, or a claim contradicted on the page, caps the score at 6.
