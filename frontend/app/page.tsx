@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { kitFont } from "@/components/landing-kit/font";
+import "@/components/landing-kit/kit.css";
 import { PortalApproach } from "@/components/portal/approach";
 import { PortalFinalCta } from "@/components/portal/final-cta";
 import { PortalFooter } from "@/components/portal/footer";
 import { PortalHero } from "@/components/portal/hero";
+import { PortalMarquee } from "@/components/portal/marquee";
 import { PortalNav } from "@/components/portal/nav";
 import { PortalProducts } from "@/components/portal/products";
 import { LanguageProvider } from "@/lib/portal/language";
@@ -25,22 +28,25 @@ export const metadata: Metadata = {
 };
 
 /*
- * Portail ominin.com : ce que fait l'entreprise, puis un cube par produit vers
- * son sous-domaine. Le contenu est bilingue et la langue est un état client,
+ * Portail ominin.com, sur le kit des landings produit : ce que fait
+ * l'entreprise, puis un cube par produit vers son sous-domaine. Le contenu est bilingue et la langue est un état client,
  * d'où le provider ici — les sections sont donc des composants client, à la
  * différence des landings produits qui sont entièrement serveur.
  */
 export default function Portal() {
   return (
     <LanguageProvider>
-      <PortalNav />
-      <main>
-        <PortalHero />
-        <PortalProducts />
-        <PortalApproach />
-        <PortalFinalCta />
-      </main>
-      <PortalFooter />
+      <div className={`kit-landing ${kitFont.variable}`}>
+        <PortalNav />
+        <main className="overflow-x-clip">
+          <PortalHero />
+          <PortalMarquee />
+          <PortalProducts />
+          <PortalApproach />
+          <PortalFinalCta />
+        </main>
+        <PortalFooter />
+      </div>
     </LanguageProvider>
   );
 }

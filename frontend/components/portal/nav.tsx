@@ -16,7 +16,7 @@ export function PortalNav() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-hairline bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-5 py-3 lg:max-w-5xl lg:px-10">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-10">
         <Link
           href="/"
           className="ember-text flex items-center gap-2 font-display text-lg font-semibold"

@@ -1,53 +1,39 @@
 "use client";
 
-import { Reveal } from "@/components/portal/reveal";
+import { KitHeading } from "@/components/landing-kit/heading";
+import { Reveal } from "@/components/landing-kit/reveal";
 import { useLanguage } from "@/lib/portal/language";
 import { approach } from "@/lib/portal-data";
 
 /*
- * Trois engagements numérotés, en colonnes éditoriales : filet supérieur,
- * numéro Fraunces en braise, titre, corps. La seule section du portail qui
- * parle de la maison — sobre à dessein.
+ * Trois engagements numérotés, en cartes du kit : la seule section du
+ * portail qui parle de la maison — sobre à dessein.
  */
 export function PortalApproach() {
   const { t } = useLanguage();
 
   return (
-    <section className="mx-auto w-full max-w-2xl px-5 pb-20 lg:max-w-6xl lg:px-10 lg:pb-28">
-      <div className="mb-8 flex items-center gap-4 lg:mb-10">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-faint">
-          {t(approach.eyebrow)}
-        </h2>
-        <span className="h-px flex-1 bg-hairline" aria-hidden />
-      </div>
-
-      <p className="max-w-2xl font-display text-2xl leading-snug font-medium text-balance sm:text-3xl">
-        {t(approach.title)}
-      </p>
-
-      <ol className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-3 lg:mt-12">
-        {approach.points.map((point, index) => (
-          <li key={point.title.fr}>
+    <section className="mb-16 border-y border-hairline bg-surface/40 sm:mb-24">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
+        <KitHeading eyebrow={t(approach.eyebrow)} title={t(approach.title)} />
+        <ol className="mt-14 grid gap-4 sm:grid-cols-3">
+          {approach.points.map((point, index) => (
             <Reveal
+              key={point.title.fr}
+              as="li"
               delay={index * 110}
-              className="h-full border-t border-hairline pt-6 lg:pt-7"
+              className="kit-card relative overflow-hidden rounded-3xl border border-hairline bg-surface p-7"
             >
-              <span
-                className="ember-text font-display text-lg font-semibold"
-                aria-hidden
-              >
+              <div aria-hidden className="absolute -right-16 -top-16 size-48 rounded-full bg-ember-2/15 blur-3xl" />
+              <span className="kit-display ember-text relative text-5xl" aria-hidden>
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-3 font-display text-lg font-semibold lg:text-xl">
-                {t(point.title)}
-              </h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-muted">
-                {t(point.body)}
-              </p>
+              <h3 className="relative mt-6 text-lg font-bold">{t(point.title)}</h3>
+              <p className="relative mt-2 text-sm leading-relaxed text-muted">{t(point.body)}</p>
             </Reveal>
-          </li>
-        ))}
-      </ol>
+          ))}
+        </ol>
+      </div>
     </section>
   );
 }
