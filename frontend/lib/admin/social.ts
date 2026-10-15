@@ -155,6 +155,21 @@ export async function startMetaConnect(): Promise<string> {
   return body.url;
 }
 
+/** Verdict par compte Meta : null s'il répond et peut publier, sinon la raison. */
+export type MetaCheck = Record<string, string | null>;
+
+export async function checkMetaConnection(): Promise<MetaCheck> {
+  const response = await fetch("/api/social/meta/check", { method: "POST" });
+  const body = (await response.json()) as {
+    results?: MetaCheck;
+    error?: string;
+  };
+  if (!response.ok || !body.results) {
+    throw new Error(body.error ?? "Vérification Meta impossible.");
+  }
+  return body.results;
+}
+
 export async function assignAccountBrand(
   id: string,
   brand: SocialBrand | null
