@@ -123,7 +123,7 @@ export interface CartConfig {
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
-  paymentProvider: "stripe" | "sumup" | "square";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */

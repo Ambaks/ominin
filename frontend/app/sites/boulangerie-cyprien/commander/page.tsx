@@ -83,10 +83,12 @@ export default async function CommanderPage() {
     collectSlotMinutes,
   } = data;
 
-  // Payée à la commande : sans encaisseur en ligne ni horaires, rien ne se commande.
+  // Payée à la commande : sans encaisseur en ligne ni horaires, rien ne se
+  // commande. La démonstration tient lieu d'encaisseur (aucun débit).
   const payable =
     onlinePayment &&
     (paymentProvider === "stripe" ||
+      paymentProvider === "demo" ||
       (paymentProvider === "square" && squareLocationId !== null));
   if (!data.active || !payable || !openingHours) return <Unavailable />;
 
