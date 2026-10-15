@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { raiseAlert } from "@/lib/admin/alerts";
 import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   createOrder,
@@ -279,6 +280,13 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[square] paiement impossible", { orderId, message });
+    // Des refus en série (3 en 30 min) disent une carte, un TPE ou un
+    // réglage 3-D Secure en panne chez le client : l'équipe est prévenue.
+    await raiseAlert("paiement", order.etablissement_id, {
+      title: `Paiements refusés en série · ${etab.name}`,
+      body: `Plusieurs paiements Square refusés en peu de temps. Dernière erreur : ${message.slice(0, 160)}`,
+      url: "/clients",
+    }).catch(() => false);
     // La commande reste valable et visible en salle : le client règle au
     // comptoir. Le webhook rattrape le cas — rare — d'un débit passé dont
     // l'enregistrement a échoué.
