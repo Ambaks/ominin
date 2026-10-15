@@ -37,7 +37,23 @@ export function CyprienMotion() {
     }
     root.dataset.motion = "on";
 
-    return () => observer.disconnect();
+    // Le clavier peut atteindre un lien encore caché (au bas de l’écran, sous
+    // la marge de l’observateur) : il se révèle, avec tout ce qui le contient.
+    const hidden = "[data-reveal]:not(.is-in)";
+    const revealFocused = (event: FocusEvent) => {
+      let element = (event.target as Element).closest(hidden);
+      while (element) {
+        element.classList.add("is-in");
+        observer.unobserve(element);
+        element = element.parentElement?.closest(hidden) ?? null;
+      }
+    };
+    root.addEventListener("focusin", revealFocused);
+
+    return () => {
+      observer.disconnect();
+      root.removeEventListener("focusin", revealFocused);
+    };
   }, [pathname]);
 
   return null;

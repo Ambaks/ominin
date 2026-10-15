@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { Marquee } from "@/components/sites/cyprien/marquee";
 import { ShopCard } from "@/components/sites/cyprien/places";
+import { PressFront, type PressLead } from "@/components/sites/cyprien/press";
 import { Stamp } from "@/components/sites/cyprien/stamp";
 import { Story, type StoryChapter } from "@/components/sites/cyprien/story";
-import { Arrow, ButtonLink, Eyebrow, ExternalLink, Lines, Media, vars } from "@/components/sites/cyprien/ui";
-import { cyprienHref, formatPressDate, orderPath, PHOTO_SIZES, photos, press, shops, signatureNames, stampSrc } from "@/lib/sites/cyprien";
+import { ButtonLink, Eyebrow, Lines, Media, vars } from "@/components/sites/cyprien/ui";
+import { cyprienHref, orderPath, PHOTO_SIZES, photos, press, shops, signatureNames, stampSrc } from "@/lib/sites/cyprien";
 
 export const metadata: Metadata = {
   title: { absolute: "Boulangerie Cyprien · Boulangerie-pâtisserie artisanale à Toulouse" },
@@ -96,8 +97,8 @@ const chapters: StoryChapter[] = [
   },
 ];
 
-const featured = press.find((item) => item.highlight);
-const otherOutlets = [...new Set(press.map((item) => item.outlet))].filter((outlet) => outlet !== featured?.outlet);
+const pressLead = press.find((item): item is PressLead => item.front === "lead" && item.title !== undefined);
+const pressBriefs = press.filter((item) => item.front === "brief");
 
 export default function CyprienHome() {
   const order = cyprienHref(orderPath);
@@ -340,7 +341,7 @@ export default function CyprienHome() {
                   Chocolatine à trois barres
                 </h3>
                 <p>
-                  Une troisième barre de chocolat, pour plus de gourmandise. En 2025, Toulouse Secret la classe 5ᵉ
+                  Une troisième barre de chocolat, pour plus de gourmandise. En 2022, Toulouse Secret la classe 5ᵉ
                   des meilleures chocolatines de Toulouse.
                 </p>
               </div>
@@ -471,39 +472,22 @@ export default function CyprienHome() {
         </div>
       </section>
 
-      {/* Presse, en bref */}
-      {featured?.url && (
-        <section className="cy-press-teaser" aria-labelledby="titre-presse">
+      {/* Presse : la une */}
+      {pressLead && (
+        <section className="cy-section" aria-labelledby="titre-presse">
           <div className="cy-wrap">
-            <div className="cy-press-teaser-grid">
+            <div className="cy-press-head">
               <div>
                 <Eyebrow>Presse</Eyebrow>
-                <h2 id="titre-presse" className="cy-h3" data-reveal="up" data-delay="1">
-                  Ils parlent de Cyprien
-                </h2>
+                <Lines id="titre-presse" className="cy-h2" lines={["Ils parlent", <em key="e">de Cyprien</em>]} />
               </div>
-              <figure data-reveal="up">
-                <blockquote className="cy-press-quote">
-                  <span className="cy-guillemet">«</span>&#8239;{featured.title}&#8239;
-                  <span className="cy-guillemet">»</span>
-                </blockquote>
-                <figcaption className="cy-press-source">
-                  {featured.outlet}, {formatPressDate(featured.date)}
-                  <ExternalLink href={featured.url} className="cy-arrow-link">
-                    Lire
-                    <span className="sr-only"> l’article de {featured.outlet}</span>
-                    <Arrow />
-                  </ExternalLink>
-                </figcaption>
-              </figure>
+              <p className="cy-lead" data-reveal="up">
+                Quotidiens, hebdomadaires, télévision, radio : la presse locale comme nationale raconte Cyprien
+                depuis son ouverture.
+              </p>
             </div>
-            <div className="cy-press-teaser-foot" data-reveal="fade">
-              <dl className="cy-outlets">
-                <dt>Et aussi</dt>
-                {otherOutlets.map((outlet) => (
-                  <dd key={outlet}>{outlet}</dd>
-                ))}
-              </dl>
+            <PressFront lead={pressLead} briefs={pressBriefs} />
+            <div className="mt-10 lg:mt-14" data-reveal="fade">
               <ButtonLink href={cyprienHref("/presse")} variant="ghost">
                 Toute la presse
               </ButtonLink>

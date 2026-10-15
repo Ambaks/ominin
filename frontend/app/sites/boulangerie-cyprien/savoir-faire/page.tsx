@@ -172,7 +172,7 @@ export default function SavoirFairePage() {
               </p>
               <p>
                 <strong>Côté chocolatine</strong>, nous incorporons une troisième barre de chocolat, pour plus de
-                gourmandise : un produit réalisé dans les règles de l’art. En janvier 2025, Toulouse Secret l’a classée
+                gourmandise : un produit réalisé dans les règles de l’art. En 2022, Toulouse Secret l’a classée
                 5ᵉ de sa sélection des meilleures chocolatines de Toulouse.
               </p>
               <p>Et le chausson aux pommes, pour qui préfère le feuilletage aux fruits.</p>

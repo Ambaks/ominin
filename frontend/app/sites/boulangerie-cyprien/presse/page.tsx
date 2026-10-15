@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Arrow, ExternalLink, PageHero } from "@/components/sites/cyprien/ui";
+import { NewTabNote, PressRow } from "@/components/sites/cyprien/press";
+import { Eyebrow, Lines, PageHero } from "@/components/sites/cyprien/ui";
 import { contact, formatPressDate, ogImage, photos, press, type PressItem } from "@/lib/sites/cyprien";
 
 const description =
@@ -25,48 +26,93 @@ function byYear(items: readonly PressItem[]): [string, PressItem[]][] {
   return [...years];
 }
 
+/** Dans l’ordre du titre, qui est aussi celui des dates : noté, classé, recommandé. */
+const awards = press.flatMap((item) => (item.award ? [{ ...item, award: item.award }] : [])).reverse();
+
 export default function PressePage() {
   return (
     <>
       <PageHero
         eyebrow="Presse"
-        title={["Ils parlent", <em key="e">de Cyprien</em>]}
-        intro="Articles, émissions et guides : la presse raconte Cyprien depuis l’ouverture, en octobre 2017."
+        title={["Cyprien", <em key="e">dans la presse</em>]}
+        intro="Articles, émissions et guides : la presse raconte Cyprien depuis l’ouverture, en octobre 2017."
       />
 
-      <section className="cy-wrap mt-16 pb-(--cy-section) lg:mt-24" aria-label="Parutions">
-        {byYear(press).map(([year, items]) => (
-          <div key={year} className="cy-press-year">
-            <h2 data-reveal="up">{year}</h2>
-            <ol>
-              {items.map((item) => (
-                <li key={`${item.outlet}-${item.date}`} className="cy-press-row" data-reveal="up">
-                  <p className="cy-press-outlet">
-                    {item.outlet}
-                    <span className="cy-press-date mt-1 block font-normal tracking-normal normal-case">
-                      {formatPressDate(item.date)}
+      {/* Distinctions */}
+      <section className="cy-night cy-section mt-16 lg:mt-24" aria-labelledby="titre-distinctions">
+        <div className="cy-wrap">
+          <Eyebrow>Distinctions</Eyebrow>
+          <Lines id="titre-distinctions" className="cy-h2" lines={["Noté, classé,", <em key="e">recommandé</em>]} />
+          <ul className="cy-awards">
+            {awards.map((item, index) => {
+              const { figure, unit, sup, spoken, text } = item.award;
+              return (
+                <li key={item.outlet} className="cy-award" data-reveal="up" data-delay={index || undefined}>
+                  {/* Un mot (« Recommandé ») se compose en italique, sur la ligne de base des chiffres. */}
+                  <p className={`cy-award-figure ${/\d/.test(figure) ? "" : "cy-award-word"}`}>
+                    <span aria-hidden={spoken ? true : undefined}>
+                      {figure}
+                      {unit && <small>{unit}</small>}
+                      {sup && <sup>{sup}</sup>}
                     </span>
+                    {spoken && <span className="sr-only">{spoken}</span>}
                   </p>
-                  <h3>{item.title ? `« ${item.title} »` : item.summary}</h3>
-                  {item.url && (
-                    <ExternalLink href={item.url} className="cy-press-go">
-                      Lire
-                      <span className="sr-only"> l’article de {item.outlet}</span>
-                      <Arrow />
-                    </ExternalLink>
-                  )}
+                  <p className="cy-award-text">{text}</p>
+                  <p className="cy-award-source">
+                    {item.outlet} · {formatPressDate(item.date)}
+                  </p>
                 </li>
-              ))}
-            </ol>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {/* Revue de presse */}
+      <section className="cy-section" aria-labelledby="titre-parutions">
+        <div className="cy-wrap">
+          <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-7">
+              <Eyebrow>Revue de presse</Eyebrow>
+              <Lines id="titre-parutions" className="cy-h2" lines={["Année", <em key="e">après année</em>]} />
+            </div>
+            <p className="cy-lead lg:col-span-4 lg:col-start-9" data-reveal="up">
+              Du plus récent au tout premier, avec un lien vers chaque article encore en ligne.
+            </p>
           </div>
-        ))}
-        <p className="cy-caption border-t border-(--cy-line) pt-8">
-          Journalistes : écrivez-nous à{" "}
-          <a href={`mailto:${contact.email}`} className="cy-link text-(--cy-teal-deep)">
-            {contact.email}
-          </a>
-          .
-        </p>
+          <NewTabNote />
+          <div className="mt-12 lg:mt-16">
+            {byYear(press).map(([year, items]) => (
+              <div key={year} className="cy-press-year">
+                <h3 data-reveal="up">{year}</h3>
+                <ol>
+                  {items.map((item) => (
+                    <PressRow key={`${item.outlet}-${item.date}`} item={item} />
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact presse */}
+      <section className="cy-tealband cy-section" aria-labelledby="titre-contact-presse">
+        <div className="cy-wrap grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="lg:col-span-7">
+            <Eyebrow>Contact presse</Eyebrow>
+            <Lines id="titre-contact-presse" className="cy-h2" lines={["Vous écrivez", <em key="e">sur Cyprien ?</em>]} />
+          </div>
+          <div className="lg:col-span-4 lg:col-start-9" data-reveal="up">
+            <p className="cy-lead">
+              Un article, un reportage, une émission : <span className="whitespace-nowrap">écrivez-nous</span> à{" "}
+              <a href={`mailto:${contact.email}`} className="cy-link whitespace-nowrap">
+                {contact.email}
+              </a>
+              .
+            </p>
+          </div>
+        </div>
       </section>
     </>
   );
