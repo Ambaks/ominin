@@ -329,7 +329,8 @@ interface Deliverable {
  */
 export async function sendToSubscriptions(
   subscriptions: Deliverable[],
-  payload: PushPayload
+  payload: PushPayload,
+  table: "push_subscriptions" | "admin_push_subscriptions" = "push_subscriptions"
 ): Promise<void> {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
@@ -362,6 +363,6 @@ export async function sendToSubscriptions(
     .map((sub) => sub.id);
   if (dead.length) {
     const db = createAdminClient();
-    await db.from("push_subscriptions").delete().in("id", dead);
+    await db.from(table).delete().in("id", dead);
   }
 }
