@@ -186,15 +186,24 @@ export default function EtablissementPage() {
               dayEndHour={state.dayEndHour}
             />
           )}
-          <PaymentSettings
-            initialEnabled={state.etablissement.onlinePayment}
-            initialMinOrder={state.etablissement.onlineMinOrder}
-            initialProvider={
-              state.etablissement.paymentProvider === "square"
-                ? "square"
-                : "stripe"
-            }
-          />
+          {/* La démonstration se règle chez Ominin : aucun réglage ici. */}
+          {state.etablissement.paymentProvider === "demo" ? (
+            <p className="rounded-2xl border border-hairline bg-surface px-4 py-3 text-sm text-muted">
+              Paiement en ligne en démonstration : les commandes sont marquées
+              payées, sans aucun débit. Pour encaisser pour de vrai, demandez à
+              Ominin de relier votre compte.
+            </p>
+          ) : (
+            <PaymentSettings
+              initialEnabled={state.etablissement.onlinePayment}
+              initialMinOrder={state.etablissement.onlineMinOrder}
+              initialProvider={
+                state.etablissement.paymentProvider === "square"
+                  ? "square"
+                  : "stripe"
+              }
+            />
+          )}
           {/* Sur mobile, la barre du bas n'a pas la place d'un onglet de
               plus : la fidélité se rejoint d'ici. */}
           {hasFeature("fidelite") && (

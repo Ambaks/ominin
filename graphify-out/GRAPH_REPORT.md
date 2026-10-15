@@ -1,17 +1,17 @@
 # Graph Report - ominin-cyprien  (2026-10-15)
 
 ## Corpus Check
-- 1130 files · ~4,624,969 words
+- 1130 files · ~4,624,994 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 51 file(s) not represented in the graph (top: (none) 15, .css 14, .woff 5)
 
 ## Summary
-- 8842 nodes · 23022 edges · 482 communities (325 shown, 157 thin omitted)
+- 8842 nodes · 23022 edges · 481 communities (325 shown, 156 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 575 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c524da0e`
+- Built from commit: `e85790b2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -448,7 +448,6 @@
 - 20261015000003_precommandes.sql
 - conditions-de-vente/page.tsx
 - savoir-faire/page.tsx
-- CollectDemoValue
 - Ominin Clip — Phase 2 : Espace clipper (connexions, publication, analytics)
 - Boulangerie Cyprien (Toulouse) — recherche du 2026-10-13
 - onboarding/page.tsx
@@ -486,7 +485,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (482 total, 157 thin omitted)
+## Communities (481 total, 156 thin omitted)
 
 ### Community 0 - "o-crousti-poulet/film/src/scenes/phone/PhoneFlow.tsx"
 Cohesion: 0.07
@@ -942,7 +941,7 @@ Nodes (9): orders_sync_tickets, public.collect_full_slots(), public.place_order(
 
 ### Community 125 - "commander/page.tsx"
 Cohesion: 0.08
-Nodes (36): ConfirmationPage(), metadata, CategoryGlide(), frontend_app_sites_boulangerie_cyprien_commander_commander, ConfirmationPage(), metadata, CommanderPage(), hoursText() (+28 more)
+Nodes (36): ConfirmationPage(), metadata, CategoryGlide(), frontend_app_sites_boulangerie_cyprien_commander_commander, ConfirmationPage(), metadata, CommanderPage(), dynamic (+28 more)
 
 ### Community 126 - "20260904000007_launch_fixes.sql"
 Cohesion: 0.33
@@ -1237,8 +1236,8 @@ Cohesion: 0.11
 Nodes (23): chapters, featured, metadata, otherOutlets, QUOTE, Marquee(), Grain(), Story() (+15 more)
 
 ### Community 311 - "getRestaurant"
-Cohesion: 0.19
-Nodes (16): ClientDemoPage(), generateMetadata(), counterTitle(), hasCounterDemo(), ComptoirDemoPage(), generateMetadata(), generateMetadata(), generateViewport() (+8 more)
+Cohesion: 0.09
+Nodes (17): ClientDemoPage(), generateMetadata(), counterTitle(), hasCounterDemo(), ComptoirDemoPage(), generateMetadata(), generateMetadata(), generateViewport() (+9 more)
 
 ### Community 312 - "20260915000001_paiement_en_ligne_en_cours.sql"
 Cohesion: 0.33
@@ -1791,7 +1790,7 @@ Nodes (3): eslintConfig, eslint, eslint-config-next
 ## Knowledge Gaps
 - **2420 isolated node(s):** `{ chromium }`, `[url, w = "390", h = "844", mode]`, `{ chromium }`, `failures`, `{ chromium }` (+2415 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3421 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **157 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **156 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_

@@ -100,11 +100,12 @@ export default async function CollectPage({
     collectSlotMinutes,
   } = data;
 
-  // Payée à la commande : sans encaisseur en ligne (Stripe ou Square) ni
-  // horaires, rien ne peut se commander.
+  // Payée à la commande : sans encaisseur en ligne (Stripe, Square, ou la
+  // démonstration, sans débit) ni horaires, rien ne peut se commander.
   const payable =
     onlinePayment &&
     (paymentProvider === "stripe" ||
+      paymentProvider === "demo" ||
       (paymentProvider === "square" && squareLocationId !== null));
   if (!data.active || !payable || !openingHours) {
     return <Unavailable name={restaurant.name} phone={restaurant.phone ?? null} />;

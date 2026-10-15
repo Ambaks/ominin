@@ -3579,6 +3579,19 @@
       "source_location": "L149"
     },
     {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue",
+      "label": "CollectDemoValue",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": "collectdemovalue",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L153"
+    },
+    {
       "id": "frontend_components_menu_add_to_order_flash",
       "label": "Flash",
       "_callable": true,
@@ -6983,19 +6996,6 @@
       "norm_label": "chapter",
       "source_file": "frontend/components/sites/cyprien/chapter-nav.tsx",
       "source_location": "L5"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue",
-      "label": "CollectDemoValue",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": "collectdemovalue",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L153"
     },
     {
       "id": "frontend_lib_pitch_types_accented",
@@ -12117,7 +12117,7 @@
       "file_type": "code",
       "norm_label": "commanderpage()",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L68"
+      "source_location": "L70"
     },
     {
       "id": "frontend_app_sites_boulangerie_cyprien_commander_page_hourstext",
@@ -12129,7 +12129,7 @@
       "file_type": "code",
       "norm_label": "hourstext()",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L37"
+      "source_location": "L39"
     },
     {
       "id": "frontend_app_sites_boulangerie_cyprien_commander_page_unavailable",
@@ -12141,7 +12141,7 @@
       "file_type": "code",
       "norm_label": "unavailable()",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L49"
+      "source_location": "L51"
     },
     {
       "id": "frontend_components_collect_order_confirmation_isterminal",
@@ -24802,6 +24802,162 @@
       "norm_label": "collectdemostage()",
       "source_file": "frontend/components/collect/demo/stage.tsx",
       "source_location": "L281"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_accept",
+      "label": ".accept()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".accept()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L173"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_addline",
+      "label": ".addLine()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".addline()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L163"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_backtomenu",
+      "label": ".backToMenu()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".backtomenu()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L170"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_markpickedup",
+      "label": ".markPickedUp()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".markpickedup()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L175"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_markready",
+      "label": ".markReady()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".markready()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L174"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_now",
+      "label": ".now()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".now()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L162"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_opencheckout",
+      "label": ".openCheckout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".opencheckout()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L169"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_pay",
+      "label": ".pay()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".pay()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L171"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_removeitem",
+      "label": ".removeItem()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".removeitem()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L165"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_replay",
+      "label": ".replay()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".replay()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L176"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setcustomername",
+      "label": ".setCustomerName()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".setcustomername()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L166"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setpickupslot",
+      "label": ".setPickupSlot()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".setpickupslot()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L167"
+    },
+    {
+      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setpickuptomorrow",
+      "label": ".setPickupTomorrow()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 311,
+      "community_name": "getRestaurant",
+      "file_type": "code",
+      "norm_label": ".setpickuptomorrow()",
+      "source_file": "frontend/lib/collect/demo/provider.tsx",
+      "source_location": "L168"
     },
     {
       "id": "frontend_lib_menu_data_getrestaurant",
@@ -38796,162 +38952,6 @@
       "source_location": "L39"
     },
     {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_accept",
-      "label": ".accept()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".accept()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L173"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_addline",
-      "label": ".addLine()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".addline()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L163"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_backtomenu",
-      "label": ".backToMenu()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".backtomenu()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L170"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_markpickedup",
-      "label": ".markPickedUp()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".markpickedup()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L175"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_markready",
-      "label": ".markReady()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".markready()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L174"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_now",
-      "label": ".now()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".now()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L162"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_opencheckout",
-      "label": ".openCheckout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".opencheckout()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L169"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_pay",
-      "label": ".pay()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".pay()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L171"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_removeitem",
-      "label": ".removeItem()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".removeitem()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L165"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_replay",
-      "label": ".replay()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".replay()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L176"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setcustomername",
-      "label": ".setCustomerName()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".setcustomername()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L166"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setpickupslot",
-      "label": ".setPickupSlot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".setpickupslot()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L167"
-    },
-    {
-      "id": "frontend_lib_collect_demo_provider_collectdemovalue_setpickuptomorrow",
-      "label": ".setPickupTomorrow()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 472,
-      "community_name": "CollectDemoValue",
-      "file_type": "code",
-      "norm_label": ".setpickuptomorrow()",
-      "source_file": "frontend/lib/collect/demo/provider.tsx",
-      "source_location": "L168"
-    },
-    {
       "id": "frontend_lib_clip_api_requestlinkurl",
       "label": "requestLinkUrl()",
       "_callable": true,
@@ -50979,6 +50979,17 @@
       "source_location": "L1"
     },
     {
+      "id": "frontend_app_sites_boulangerie_cyprien_commander_page_dynamic",
+      "label": "dynamic",
+      "_origin": "ast",
+      "community": 125,
+      "community_name": "commander/page.tsx",
+      "file_type": "code",
+      "norm_label": "dynamic",
+      "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
+      "source_location": "L23"
+    },
+    {
       "id": "frontend_app_sites_boulangerie_cyprien_commander_page_metadata",
       "label": "metadata",
       "_origin": "ast",
@@ -50987,18 +50998,7 @@
       "file_type": "code",
       "norm_label": "metadata",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L23"
-    },
-    {
-      "id": "frontend_app_sites_boulangerie_cyprien_commander_page_revalidate",
-      "label": "revalidate",
-      "_origin": "ast",
-      "community": 125,
-      "community_name": "commander/page.tsx",
-      "file_type": "code",
-      "norm_label": "revalidate",
-      "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L21"
+      "source_location": "L25"
     },
     {
       "id": "frontend_app_sites_boulangerie_cyprien_commander_page_steps",
@@ -51009,7 +51009,7 @@
       "file_type": "code",
       "norm_label": "steps",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L30"
+      "source_location": "L32"
     },
     {
       "id": "frontend_app_sites_boulangerie_cyprien_commander_shop",
@@ -101341,6 +101341,18 @@
       "type": "external"
     },
     {
+      "id": "frontend_app_sites_boulangerie_cyprien_commander_commander",
+      "label": "frontend_app_sites_boulangerie_cyprien_commander_commander",
+      "_origin": "semantic",
+      "community": 125,
+      "community_name": "commander/page.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "frontend_app_sites_boulangerie_cyprien_commander_commander",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "demos_big_smash_film_src_captures_network",
       "label": "demos_big_smash_film_src_captures_network",
       "_origin": "semantic",
@@ -101409,6 +101421,18 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "re",
+      "source_file": "",
+      "type": "external"
+    },
+    {
+      "id": "textwrap",
+      "label": "textwrap",
+      "_origin": "semantic",
+      "community": 159,
+      "community_name": "services/discovery.py",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "textwrap",
       "source_file": "",
       "type": "external"
     },
@@ -102193,6 +102217,18 @@
       "type": "external"
     },
     {
+      "id": "frontend_app_sites_boulangerie_cyprien_cyprien",
+      "label": "frontend_app_sites_boulangerie_cyprien_cyprien",
+      "_origin": "semantic",
+      "community": 463,
+      "community_name": "le-midi/page.tsx",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "frontend_app_sites_boulangerie_cyprien_cyprien",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "ref_remotion_google_fonts",
       "label": "ref_remotion_google_fonts",
       "_origin": "semantic",
@@ -102429,39 +102465,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "demos_big_smash_film_src_captures_counter",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "frontend_app_sites_boulangerie_cyprien_commander_commander",
-      "label": "frontend_app_sites_boulangerie_cyprien_commander_commander",
-      "community": 125,
-      "community_name": "commander/page.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "frontend_app_sites_boulangerie_cyprien_commander_commander",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "textwrap",
-      "label": "textwrap",
-      "community": 159,
-      "community_name": "services/discovery.py",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "textwrap",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "frontend_app_sites_boulangerie_cyprien_cyprien",
-      "label": "frontend_app_sites_boulangerie_cyprien_cyprien",
-      "community": 463,
-      "community_name": "le-midi/page.tsx",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "frontend_app_sites_boulangerie_cyprien_cyprien",
       "source_file": "",
       "type": "external"
     }
@@ -121124,7 +121127,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L114",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -121136,7 +121139,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L120",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -121148,7 +121151,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L158",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -121160,7 +121163,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L171",
+      "source_location": "L173",
       "weight": 1.0
     },
     {
@@ -121172,7 +121175,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L69",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -121184,7 +121187,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L38",
+      "source_location": "L40",
       "weight": 1.0
     },
     {
@@ -121196,7 +121199,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L44",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -121208,7 +121211,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L59",
+      "source_location": "L61",
       "weight": 1.0
     },
     {
@@ -311659,18 +311662,7 @@
     },
     {
       "source": "frontend_app_sites_boulangerie_cyprien_commander_page",
-      "target": "frontend_app_sites_boulangerie_cyprien_commander_page_revalidate",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L21",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_sites_boulangerie_cyprien_commander_page",
-      "target": "frontend_app_sites_boulangerie_cyprien_commander_page_metadata",
+      "target": "frontend_app_sites_boulangerie_cyprien_commander_page_dynamic",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -311681,13 +311673,24 @@
     },
     {
       "source": "frontend_app_sites_boulangerie_cyprien_commander_page",
+      "target": "frontend_app_sites_boulangerie_cyprien_commander_page_metadata",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_sites_boulangerie_cyprien_commander_page",
       "target": "frontend_app_sites_boulangerie_cyprien_commander_page_steps",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0
     },
     {
@@ -311698,7 +311701,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L37",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -311709,7 +311712,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L49",
+      "source_location": "L51",
       "weight": 1.0
     },
     {
@@ -311720,7 +311723,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app/sites/boulangerie-cyprien/commander/page.tsx",
-      "source_location": "L68",
+      "source_location": "L70",
       "weight": 1.0
     },
     {
@@ -371512,5 +371515,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c524da0eb407715099048d2836a80132656af82a"
+  "built_at_commit": "e85790b2ba9eb5ce9ec6f8c5f6b779eb4c4063ce"
 }
