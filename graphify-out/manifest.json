@@ -594,14 +594,14 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/menu-item-card.tsx": {
-    "mtime": 1792102953.8722436,
-    "seen": 1792103398.4012463,
-    "ast_hash": "59874b18389d2fef0824d447ae82870e",
+    "mtime": 1792103628.3530974,
+    "seen": 1792103803.4041538,
+    "ast_hash": "9576e77b86e14dccbb658d7388c37e1f",
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/options-editor.tsx": {
-    "mtime": 1792102926.206192,
-    "seen": 1792103398.4012475,
+    "mtime": 1792103453.6027906,
+    "seen": 1792103523.234627,
     "ast_hash": "3f16f9fe1a0ca3a7239833faef07da95",
     "semantic_hash": ""
   },
@@ -726,8 +726,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/add-to-order.tsx": {
-    "mtime": 1792103262.4464936,
-    "seen": 1792103398.401339,
+    "mtime": 1792103453.6072893,
+    "seen": 1792103523.2347195,
     "ast_hash": "195990d087a8aade963de9d0cc19c7b3",
     "semantic_hash": ""
   },
@@ -948,8 +948,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/api.ts": {
-    "mtime": 1792102932.9658034,
-    "seen": 1792103398.4016027,
+    "mtime": 1792103453.6103396,
+    "seen": 1792103523.2349956,
     "ast_hash": "dfef5195a9989ab07d6f0a0e3ecbfa9b",
     "semantic_hash": ""
   },
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/selectors.ts": {
-    "mtime": 1792102976.0630617,
-    "seen": 1792103398.401618,
+    "mtime": 1792103453.613392,
+    "seen": 1792103523.2350125,
     "ast_hash": "2b8d1d012a4ef7e44121c53932222123",
     "semantic_hash": ""
   },
@@ -1014,8 +1014,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1792102897.0133245,
-    "seen": 1792103398.4016485,
+    "mtime": 1792103453.618452,
+    "seen": 1792103523.2350461,
     "ast_hash": "049ba962e3f5c731bc34fe732e640c9b",
     "semantic_hash": ""
   },
@@ -1056,8 +1056,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1792103144.5111203,
-    "seen": 1792103398.401751,
+    "mtime": 1792103453.6234884,
+    "seen": 1792103523.2351546,
     "ast_hash": "f76b21ffd490cd27a0e5737a21668723",
     "semantic_hash": ""
   },
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792103315.5610693,
-    "seen": 1792103398.4020452,
-    "ast_hash": "56535098d46eec3cc2872ac366ff4397",
+    "mtime": 1792103766.1845307,
+    "seen": 1792103803.4048557,
+    "ast_hash": "f08fd3e018c4be38af5fddc00b32bce7",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -2766,9 +2766,9 @@
     "semantic_hash": ""
   },
   "frontend/app/shop/[slug]/layout.tsx": {
-    "mtime": 1789561590.2321494,
-    "seen": 1792103398.4009576,
-    "ast_hash": "05debf2fecc4de71775512c46bb6d5da",
+    "mtime": 1792103669.3828306,
+    "seen": 1792103803.4038866,
+    "ast_hash": "50b1f534b1e51cf5b110b3ff28142d79",
     "semantic_hash": ""
   },
   "frontend/app/shop/[slug]/offrir/page.tsx": {
@@ -9162,8 +9162,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-picker.tsx": {
-    "mtime": 1792103030.5265145,
-    "seen": 1792103398.4012153,
+    "mtime": 1792103453.5993502,
+    "seen": 1792103523.2345955,
     "ast_hash": "eec68ec5feeaa72f33c8862ff1ec8195",
     "semantic_hash": ""
   },
@@ -10554,9 +10554,9 @@
     "semantic_hash": ""
   },
   "supabase/migrations/20261016000001_choix_epuises.sql": {
-    "mtime": 1792102883.1315086,
-    "seen": 1792103398.401977,
-    "ast_hash": "95d7e7cd73e0f430f4f49d0dc7ee24b3",
+    "mtime": 1792103454.021816,
+    "seen": 1792103523.235373,
+    "ast_hash": "7924fc1f7d25c8e9701f0bfaea4d656e",
     "semantic_hash": ""
   }
 }

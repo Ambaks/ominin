@@ -142,10 +142,23 @@ export function MenuItemCard({
         {tarifs}
 
         {item.options && item.options.length > 0 && (
-          <div className="flex flex-col gap-1.5" aria-label={`Disponibilité des options de ${item.name}`}>
+          <div className="mt-1 flex flex-col gap-2 rounded-xl border border-hairline bg-background/60 p-3">
+            {/* Au doigt, pas d'infobulle : le geste est dit en clair. */}
+            <p className="text-xs text-muted">
+              {canAvailability
+                ? "Options : touchez un choix pour le marquer épuisé, touchez-le à nouveau pour le remettre."
+                : "Options : ✓ disponible, ✕ épuisé."}
+            </p>
             {item.options.map((group) => (
-              <div key={group.id} className="flex flex-wrap items-center gap-1.5">
-                <span className="mr-0.5 text-[11px] text-faint">{group.name}</span>
+              <div
+                key={group.id}
+                role="group"
+                aria-label={`${group.name} : disponibilité`}
+                className="flex flex-wrap items-center gap-1.5"
+              >
+                <span className="mr-0.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
+                  {group.name}
+                </span>
                 {group.choices.map((choice) => {
                   const ok = isChoiceAvailable(choice);
                   return (
@@ -153,21 +166,23 @@ export function MenuItemCard({
                       key={choice.id}
                       type="button"
                       disabled={!canAvailability}
-                      aria-pressed={!ok}
-                      title={ok ? "Toucher pour le marquer épuisé" : "Toucher pour le remettre"}
+                      aria-pressed={ok}
+                      aria-label={`${choice.name} : ${ok ? "disponible" : "épuisé"}`}
                       onClick={() =>
                         void run(
                           () => api.setChoiceAvailability(item.id, group.id, choice.id, !ok),
                           ok ? `${choice.name} : épuisé.` : `${choice.name} : de nouveau disponible.`
                         )
                       }
-                      className={`rounded-full border px-2.5 py-1.5 text-xs transition-colors disabled:cursor-default ${
+                      className={`flex min-h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-colors disabled:cursor-default ${
                         ok
-                          ? "border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                          : "border-ember-3/40 bg-ember-3/10 text-ember-3 line-through"
+                          ? "border-status-signed/40 bg-status-signed/10 text-foreground hover:border-status-signed/70"
+                          : "border-ember-3/40 bg-ember-3/10 text-ember-3"
                       }`}
                     >
-                      {choice.name}
+                      <span aria-hidden>{ok ? "✓" : "✕"}</span>
+                      <span className={ok ? undefined : "line-through"}>{choice.name}</span>
+                      {!ok && <span className="font-normal no-underline">épuisé</span>}
                     </button>
                   );
                 })}
