@@ -1,3 +1,4 @@
+import type { OpeningHours } from "@/lib/collect/hours";
 import type { Formule } from "@/lib/gestion/types";
 
 export type Badge = "maison" | "top" | "nouveau";
@@ -95,6 +96,12 @@ export interface MenuItem {
   options?: OptionGroup[];
   /** Taux de TVA (%), pour l'envoi en caisse. undefined ⇒ 10 (défaut base). */
   vatRate?: number;
+  /**
+   * Délai de commande, en heures : en click & collect, le retrait se choisit
+   * au plus tôt ce délai après la commande (place_order le vérifie).
+   * undefined ⇒ commandable pour le prochain créneau.
+   */
+  noticeHours?: number;
   /*
    * Piment, mentions et allergènes tels que la carte de l'établissement les
    * imprime. La base ne les porte pas encore : ils viennent du registre
@@ -227,6 +234,11 @@ export interface Restaurant {
   estimatorLive?: boolean;
   /** /menu/demo à table : « Payer en ligne » et le pourboire, comme chez un client qui règle à table. */
   onlinePayment?: boolean;
+  /**
+   * Boutique en click & collect seul, sans service à table : le seed ouvre
+   * le produit collect avec ces horaires, sans offre menu ni tables.
+   */
+  collect?: { openingHours: OpeningHours };
 }
 
 /**
@@ -3269,6 +3281,252 @@ const lAdresse: Restaurant = {
   ],
 };
 
+/*
+ * Boulangerie Cyprien (Toulouse, Saint-Cyprien) — client Ominin d'octobre 2026 :
+ * son site refait (app/sites/boulangerie-cyprien) et son click & collect. Les
+ * noms et descriptions viennent de leur site et de la presse ; leur site ne
+ * publie aucun prix : tous ceux-ci, les tailles des gâteaux et leur délai de
+ * commande sont à valider par la boutique (demos/boulangerie-cyprien/profile.json).
+ */
+const CYPRIEN_PHOTOS = "/sites/boulangerie-cyprien/produits";
+const cyprienTaille = groupeChoix(
+  "taille",
+  "Taille",
+  [
+    ["4 parts", 0],
+    ["6 parts", 10],
+    ["8 parts", 20],
+  ],
+  { obligatoire: true }
+);
+const CYPRIEN_JOURS = [
+  ["07:30", "14:00"],
+  ["16:00", "20:00"],
+] as [string, string][];
+
+const boulangerieCyprien: Restaurant = {
+  slug: "boulangerie-cyprien",
+  name: "Boulangerie Cyprien",
+  tagline: "Boulangerie · Pâtisserie · 100 % artisanale",
+  address: "55 rue de la République, 31300 Toulouse",
+  phone: "05 34 51 06 60",
+  hours:
+    "Mar.\u00a0–\u00a0sam. 7h30–14h, 16h–20h · Dim. 7h45–14h · Fermé\u00a0le\u00a0lundi",
+  collect: {
+    openingHours: {
+      "2": CYPRIEN_JOURS,
+      "3": CYPRIEN_JOURS,
+      "4": CYPRIEN_JOURS,
+      "5": CYPRIEN_JOURS,
+      "6": CYPRIEN_JOURS,
+      "7": [["07:45", "14:00"]],
+    },
+  },
+  googleReviewUrl:
+    "https://search.google.com/local/writereview?placeid=ChIJq6oeQnC7rhIRqOhx38rvDn0",
+  placeId: "ChIJq6oeQnC7rhIRqOhx38rvDn0",
+  categories: [
+    {
+      id: "gateaux",
+      name: "Gâteaux à partager",
+      tagline: "Sur commande, 48 h à l'avance.",
+      items: [
+        {
+          id: "tarte-framboise-basilic-partager",
+          name: "Tarte framboise-basilic à partager",
+          price: 24,
+          vatRate: 5.5,
+          image: unsplash("photo-1710077801357-96fce895714a"),
+          noticeHours: 48,
+          options: [cyprienTaille],
+        },
+        {
+          id: "millefeuille-caramel-partager",
+          name: "Millefeuille caramel à partager",
+          price: 24,
+          vatRate: 5.5,
+          image: pexels("14996850/pexels-photo-14996850.jpeg"),
+          noticeHours: 48,
+          options: [cyprienTaille],
+        },
+        {
+          id: "baba-partager",
+          name: "Baba au rhum revisité à partager",
+          price: 24,
+          vatRate: 5.5,
+          image: pexels("38947733/pexels-photo-38947733.jpeg"),
+          noticeHours: 48,
+          options: [cyprienTaille],
+        },
+        {
+          id: "paris-brest-partager",
+          name: "Paris-Brest à partager",
+          price: 24,
+          vatRate: 5.5,
+          noticeHours: 48,
+          options: [cyprienTaille],
+        },
+      ],
+    },
+    {
+      id: "patisseries",
+      name: "Pâtisseries",
+      tagline: "La gamme évolue au fil des saisons.",
+      items: [
+        {
+          id: "paris-brest",
+          name: "Paris-Brest",
+          price: 5.2,
+          vatRate: 5.5,
+          image: unsplash("photo-1761637604739-790197a32073"),
+        },
+        {
+          id: "eclair-tout-chocolat",
+          name: "Éclair tout chocolat",
+          price: 4.6,
+          vatRate: 5.5,
+          image: `${CYPRIEN_PHOTOS}/eclair-tout-chocolat.jpg`,
+        },
+        {
+          id: "millefeuille-caramel",
+          name: "Millefeuille caramel",
+          price: 5.2,
+          vatRate: 5.5,
+          image: pexels("13177923/pexels-photo-13177923.jpeg"),
+        },
+        {
+          id: "tarte-framboise-basilic",
+          name: "Tarte framboise-basilic",
+          price: 5.4,
+          vatRate: 5.5,
+        },
+        {
+          id: "baba",
+          name: "Baba au rhum revisité",
+          price: 5.2,
+          vatRate: 5.5,
+          image: pexels("32134460/pexels-photo-32134460.jpeg"),
+        },
+        {
+          id: "chou-praline-pecan",
+          name: "Chou praliné-pécan",
+          price: 4.8,
+          vatRate: 5.5,
+          image: pexels("27067952/pexels-photo-27067952.jpeg"),
+        },
+        {
+          id: "flan",
+          name: "Flan",
+          detail: "la part",
+          price: 3.4,
+          vatRate: 5.5,
+          image: pexels("37389053/pexels-photo-37389053.jpeg"),
+        },
+      ],
+    },
+    {
+      id: "viennoiseries",
+      name: "Viennoiseries",
+      tagline: "Beurre AOP Charentes-Poitou, cuites en continu toute la journée.",
+      items: [
+        {
+          id: "croissant",
+          name: "Croissant",
+          description: "Au beurre AOP Charentes-Poitou.",
+          price: 1.4,
+          vatRate: 5.5,
+          image: `${CYPRIEN_PHOTOS}/croissant.jpg`,
+        },
+        {
+          id: "chocolatine",
+          name: "Chocolatine",
+          description: "Trois barres de chocolat au lieu de deux.",
+          price: 1.6,
+          vatRate: 5.5,
+          image: `${CYPRIEN_PHOTOS}/chocolatine.jpg`,
+        },
+        {
+          id: "chausson-pommes",
+          name: "Chausson aux pommes",
+          price: 2.6,
+          vatRate: 5.5,
+          image: pexels("19803511/pexels-photo-19803511.jpeg"),
+        },
+      ],
+    },
+    {
+      id: "pains",
+      name: "Pains",
+      tagline: "Farines du Moulin Calvet, en Aveyron ; levain naturel bio pour l'essentiel.",
+      items: [
+        {
+          id: "pain-des-copains",
+          name: "Pain des Copains",
+          description:
+            "Farine semi-complète de blé bio, levain 100 % naturel. Noté 9/10 par le jury de « La Meilleure Boulangerie de France » sur M6, en 2018.",
+          price: 5.2,
+          vatRate: 5.5,
+          image: `${CYPRIEN_PHOTOS}/pain-levain.jpg`,
+        },
+        {
+          id: "pain-cyprien",
+          name: "Pain Cyprien",
+          description: "Farine bio certifiée.",
+          price: 4.9,
+          vatRate: 5.5,
+          image: pexels("30890572/pexels-photo-30890572.jpeg"),
+        },
+        {
+          id: "tourte-grand-epeautre",
+          name: "Tourte aux blés anciens",
+          description: "Grand épeautre, farine bio certifiée.",
+          price: 6.2,
+          vatRate: 5.5,
+          image: unsplash("photo-1586444248902-2f64eddc13df"),
+        },
+        {
+          id: "pain-complet",
+          name: "Pain complet",
+          description: "Farine bio certifiée.",
+          price: 4.2,
+          vatRate: 5.5,
+          image: pexels("11513152/pexels-photo-11513152.jpeg"),
+        },
+        {
+          id: "baguette-tradition",
+          name: "Baguette de tradition",
+          price: 1.4,
+          vatRate: 5.5,
+          image: pexels("30846570/pexels-photo-30846570.jpeg"),
+        },
+        {
+          id: "baguette-graines",
+          name: "Baguette tradition aux graines",
+          description: "Graines torréfiées par nos soins.",
+          price: 1.7,
+          vatRate: 5.5,
+          image: pexels("4451380/pexels-photo-4451380.jpeg"),
+        },
+        {
+          id: "baguette-charbon",
+          name: "Baguette au charbon végétal",
+          description: "Au charbon végétal actif.",
+          price: 1.9,
+          vatRate: 5.5,
+        },
+        {
+          id: "pain-de-mie",
+          name: "Pain de mie boulanger",
+          price: 4.8,
+          vatRate: 5.5,
+          image: pexels("7568494/pexels-photo-7568494.jpeg"),
+        },
+        { id: "pain-viennois", name: "Pain viennois", price: 1.9, vatRate: 5.5 },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -3278,6 +3536,7 @@ const restaurants: Record<string, Restaurant> = {
   [chickenStreet.slug]: chickenStreet,
   [baiKo.slug]: baiKo,
   [lAdresse.slug]: lAdresse,
+  [boulangerieCyprien.slug]: boulangerieCyprien,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -3291,6 +3550,7 @@ const themeClasses: Record<string, string> = {
   [chickenStreet.slug]: "theme-chicken-street",
   [baiKo.slug]: "theme-bai-ko",
   [lAdresse.slug]: "theme-l-adresse",
+  [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

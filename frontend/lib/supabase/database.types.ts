@@ -1478,6 +1478,7 @@ export type Database = {
           id: string
           image: string | null
           name: string
+          notice_hours: number | null
           options: Json
           pairing: string | null
           position: number
@@ -1497,6 +1498,7 @@ export type Database = {
           id?: string
           image?: string | null
           name: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -1516,6 +1518,7 @@ export type Database = {
           id?: string
           image?: string | null
           name?: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -2240,6 +2243,7 @@ export type Database = {
           cash_given: number | null
           created_at: string
           customer_name: string | null
+          customer_note: string | null
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
@@ -2268,6 +2272,7 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
@@ -2296,6 +2301,7 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string

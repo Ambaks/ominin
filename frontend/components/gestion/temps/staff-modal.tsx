@@ -6,7 +6,9 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { ROLE_LABELS, STAFF_CODE_LENGTH } from "@/lib/gestion/constants";
+import { STAFF_CODE_LENGTH } from "@/lib/gestion/constants";
+import { roleLabels } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import { planningLink } from "@/lib/gestion/temps";
 import type { Role, Staff } from "@/lib/gestion/types";
 
@@ -34,6 +36,7 @@ export function StaffModal({
   onSaved: () => void;
 }) {
   const toast = useToast();
+  const roleLabel = roleLabels(useGestion());
   const [name, setName] = useState(staff?.name ?? "");
   const [role, setRole] = useState<Role>(staff?.role ?? "serveur");
   const [code, setCode] = useState("");
@@ -152,7 +155,7 @@ export function StaffModal({
             >
               {ROLES.map((candidate) => (
                 <option key={candidate} value={candidate}>
-                  {ROLE_LABELS[candidate]}
+                  {roleLabel[candidate]}
                 </option>
               ))}
             </select>

@@ -332,6 +332,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       optionSummary: [],
       choices: [],
       stock: item.stock,
+      noticeHours: item.noticeHours,
     });
     // « panier » implique « plat » : l'étape ne recule pas, un seul envoi suffit.
     track("panier", { items: [item.id] });
@@ -364,6 +365,9 @@ export function AddToOrder({ item }: { item: MenuItem }) {
           setModalOpen(true);
         }}
         aria-haspopup={hasOptions ? "dialog" : undefined}
+        // Repères inertes pour l'habillage d'un établissement (le « Ajouté ✓ »
+        // et le compte au panier, plus bas) : aucun style commun ne les lit.
+        data-added={added || undefined}
         // Onze « + Ajouter » identiques ne disent rien à un lecteur d'écran.
         aria-label={`${added ? "Ajouté" : verb}\u00a0: ${lineName(item)}${
           inCart > 0 ? `, ${inCart} au panier` : ""
@@ -374,7 +378,10 @@ export function AddToOrder({ item }: { item: MenuItem }) {
         {/* Le compte au panier, en pastille au coin de la carte (la carte
             est le repère) : dans le bouton, il le faisait passer à la ligne. */}
         {inCart > 0 && (
-          <span className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg">
+          <span
+            data-in-cart={inCart}
+            className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg"
+          >
             {inCart}
           </span>
         )}
@@ -573,6 +580,7 @@ export function OptionsModal({
       optionSummary,
       choices,
       stock: item.stock,
+      noticeHours: item.noticeHours,
       reward,
     });
     track("panier");
@@ -610,6 +618,11 @@ export function OptionsModal({
                 dessous (« Viande » sur « Viande ») : il ne sert qu'à
                 plusieurs choix. */}
             {recap.length > 1 && <ChoiceRecap parts={recap} className="mt-1.5" />}
+            {item.noticeHours && (
+              <p className="mt-1.5 text-xs font-semibold text-ember-2">
+                À commander {item.noticeHours}&nbsp;h à l&apos;avance
+              </p>
+            )}
           </div>
           <div
             ref={bodyRef}

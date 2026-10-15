@@ -14,12 +14,12 @@ import {
 import { startCheckout } from "@/lib/gestion/checkout";
 import {
   ACTION_LABELS,
-  ROLE_LABELS,
+  PICKUP_ROLE_TAGLINES,
   ROLE_TAGLINES,
   SUBSCRIPTION_POLL_MS,
 } from "@/lib/gestion/constants";
 import { allowedActions } from "@/lib/gestion/permissions";
-import { activeProducts } from "@/lib/gestion/selectors";
+import { activeProducts, isPickupShop, roleLabels } from "@/lib/gestion/selectors";
 import { refreshSubscription, useGestion } from "@/lib/gestion/store";
 import { collectOffer, contactEmail } from "@/lib/landing-data";
 import {
@@ -28,6 +28,7 @@ import {
   currentOffreProduct,
   offreProducts,
 } from "@/lib/products";
+import { collectSiteUrl } from "@/lib/site";
 
 export default function ProduitsPage() {
   const state = useGestion();
@@ -63,6 +64,8 @@ export default function ProduitsPage() {
   // l'équipe voient leur offre et leur rôle, pas les produits à vendre.
   const isGerant = state.role === "gerant";
   const products = activeProducts(state);
+  // Sans service à table : ni « Marquer servie », ni les offres menu & salle.
+  const pickupShop = isPickupShop(state);
   const offreProduct = offre ? currentOffreProduct(offre) : undefined;
   const otherOffres = offreProducts.filter((product) => product.id !== offre);
   const changeOffreHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
@@ -116,23 +119,27 @@ export default function ProduitsPage() {
           <div>
             <p className={eyebrowClass}>Votre rôle</p>
             <h2 className="font-display text-xl font-medium">
-              {ROLE_LABELS[state.role]}
+              {roleLabels(state)[state.role]}
             </h2>
           </div>
-          <p className="text-sm text-muted">{ROLE_TAGLINES[state.role]}</p>
+          <p className="text-sm text-muted">
+            {(pickupShop ? PICKUP_ROLE_TAGLINES : ROLE_TAGLINES)[state.role]}
+          </p>
           <div>
             <p className="mb-2 text-xs font-medium text-faint">
               Ce que vous pouvez faire
             </p>
             <ul className="flex flex-wrap gap-1.5">
-              {allowedActions(state.role, state.features).map((action) => (
-                <li
-                  key={action}
-                  className="rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs text-muted"
-                >
-                  {ACTION_LABELS[action]}
-                </li>
-              ))}
+              {allowedActions(state.role, state.features)
+                .filter((action) => !(pickupShop && action === "orders.setStatus:servie"))
+                .map((action) => (
+                  <li
+                    key={action}
+                    className="rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs text-muted"
+                  >
+                    {ACTION_LABELS[action]}
+                  </li>
+                ))}
             </ul>
           </div>
         </section>
@@ -140,7 +147,7 @@ export default function ProduitsPage() {
         {collectActive && (
           <ProductCard product={collectProduct} badge={<Pill>Actif</Pill>}>
             <a
-              href={`/collect/${slug}`}
+              href={`${collectSiteUrl}/${slug}`}
               target="_blank"
               rel="noopener"
               className={productLinkClass}
@@ -208,17 +215,18 @@ export default function ProduitsPage() {
               </ProductCard>
             )}
 
-            {otherOffres.map((product, index) => (
-              <ProductCard key={product.id} product={product}>
-                <a
-                  href={changeOffreHref}
-                  data-visite={index === 0 ? "produits-autres" : undefined}
-                  className={productLinkClass}
-                >
-                  Passer à {product.name}
-                </a>
-              </ProductCard>
-            ))}
+            {!pickupShop &&
+              otherOffres.map((product, index) => (
+                <ProductCard key={product.id} product={product}>
+                  <a
+                    href={changeOffreHref}
+                    data-visite={index === 0 ? "produits-autres" : undefined}
+                    className={productLinkClass}
+                  >
+                    Passer à {product.name}
+                  </a>
+                </ProductCard>
+              ))}
 
             <ProductCard product={clipProduct}>
               <DiscoverLink product={clipProduct} />

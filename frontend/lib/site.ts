@@ -44,11 +44,12 @@ export const clipSiteUrl = `https://${
 
 /**
  * Origine publique du sous-domaine click & collect, pour le canonical de la
- * landing /collect (accessible aussi via ominin.com/collect).
+ * landing /collect (accessible aussi via ominin.com/collect) et les liens
+ * vers la page d'un établissement, à la racine de ce sous-domaine. Un host
+ * localhost (dev) est servi en http.
  */
-export const collectSiteUrl = `https://${
-  process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com"
-}`;
+const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com";
+export const collectSiteUrl = `${collectHost.includes("localhost") ? "http" : "https"}://${collectHost}`;
 
 /**
  * Origine publique d'Ominin Shop (landing, boutiques /<slug>, espace de

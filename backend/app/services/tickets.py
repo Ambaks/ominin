@@ -2,6 +2,9 @@
 l'imprimante (port 9100) : la mise en page vit ici et se déploie avec le
 backend, sans toucher aux appareils installés."""
 
+import re
+import textwrap
+import unicodedata
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -26,14 +29,37 @@ SIZE_TRIPLE = GS + b"!\x22"   # 3×3
 SMOOTHING_ON = GS + b"b\x01"
 FEED_AND_CUT = GS + b"V\x42\x00"
 LF = b"\n"
+JOURS = ("LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM")
+
+
+# Caractères de commande : un texte saisi par un client (son nom, son mot)
+# n'envoie à l'imprimante que du texte, jamais un ordre (ouvrir le tiroir).
+CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
+
+
+def _text(text: str) -> str:
+    """Accents recomposés (é, pas e suivi d'un accent seul, que la page de
+    code ne connaît pas) et aucun caractère de commande."""
+    return CONTROL_CHARS.sub("", unicodedata.normalize("NFC", text))
 
 
 def _line(text: str) -> bytes:
-    return text.encode("cp1252", errors="replace") + LF
+    return _text(text).encode("cp1252", errors="replace") + LF
 
 
 def _local(iso: str) -> datetime:
     return datetime.fromisoformat(iso).astimezone(ZoneInfo(settings.omilink_timezone))
+
+
+def _pickup_label(pickup: str | None) -> str:
+    if not pickup:
+        return "Dès que possible"
+    at = _local(pickup)
+    # Une précommande pour un autre jour porte sa date : sans elle, la
+    # cuisine la préparerait le jour où le ticket sort.
+    if at.date() != datetime.now(at.tzinfo).date():
+        return f"Retrait {JOURS[at.weekday()]} {at:%d/%m %H:%M}"
+    return f"Retrait {at:%H:%M}"
 
 
 def _rule() -> bytes:
@@ -83,7 +109,17 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
         SIZE_NORMAL, BOLD_OFF, LF,
     ]
 
+    note: list[str] = []
     if order["type"] == "collect":
+        # Le mot du client (inscription sur le gâteau, allergie), à lire avant
+        # de dresser : ligne par ligne, une inscription sur deux lignes le
+        # reste ; une ligne vide ou faite de seuls caractères de commande tombe.
+        note = [
+            row
+            for paragraph in (order.get("customer_note") or "").splitlines()
+            # Une tabulation collée sépare encore deux mots.
+            for row in textwrap.wrap(_text(paragraph.expandtabs(1)), settings.omilink_ticket_columns)
+        ]
         pickup = order["pickup_at"]
         out += [
             BOLD_ON, SIZE_DOUBLE,
@@ -91,11 +127,7 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
             _line(order["customer_name"].upper()),
             SIZE_NORMAL, BOLD_OFF,
             SIZE_TALL,
-            _line(
-                f"Retrait {_local(pickup):%H:%M}"
-                if pickup
-                else "Dès que possible"
-            ),
+            _line(_pickup_label(pickup)),
             SIZE_NORMAL,
         ]
     elif order["tables"]:
@@ -114,6 +146,10 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
 
     out += [ALIGN_LEFT, _rule(), LF]
     out += _render_items(order["order_items"])
+    if note:
+        out += [_rule(), BOLD_ON, _line("MOT DU CLIENT :"), BOLD_OFF]
+        out += [_line(row) for row in note]
+        out.append(LF)
     out += [
         _rule(),
         ALIGN_CENTER,

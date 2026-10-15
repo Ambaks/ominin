@@ -9,7 +9,8 @@ import * as api from "@/lib/gestion/api";
 import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { uploadPhoto } from "@/lib/gestion/photo";
-import { useGestionAccess } from "@/lib/gestion/store";
+import { isPickupShop } from "@/lib/gestion/selectors";
+import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
   BADGE_LABELS,
   type Badge,
@@ -37,7 +38,10 @@ export function ItemFormModal({
   importCandidates: MenuItem[];
   onClose: () => void;
 }) {
-  const { hasFeature } = useGestionAccess();
+  const { hasFeature, products } = useGestionAccess();
+  const state = useGestion();
+  // Sans service à table, ni accord ni cuisine : des mots qui vont à toute boutique.
+  const pickupShop = isPickupShop(state);
   const toast = useToast();
 
   const [name, setName] = useState(item?.name ?? "");
@@ -46,6 +50,7 @@ export function ItemFormModal({
   const [price, setPrice] = useState(item ? priceToInput(item.price) : "");
   const [detail, setDetail] = useState(item?.detail ?? "");
   const [stock, setStock] = useState(item?.stock != null ? String(item.stock) : "");
+  const [notice, setNotice] = useState(item?.noticeHours != null ? String(item.noticeHours) : "");
   const [image, setImage] = useState(item?.image ?? "");
   const [badges, setBadges] = useState<Badge[]>(item?.badges ?? []);
   const [pairing, setPairing] = useState(item?.pairing ?? "");
@@ -83,11 +88,16 @@ export function ItemFormModal({
   const parsedStock = stockTrimmed === "" ? null : Number.parseInt(stockTrimmed, 10);
   const stockValid =
     parsedStock === null || (Number.isInteger(parsedStock) && parsedStock >= 0);
+  const noticeTrimmed = notice.trim();
+  const parsedNotice = noticeTrimmed === "" ? null : Number(noticeTrimmed);
+  const noticeValid =
+    parsedNotice === null || (Number.isInteger(parsedNotice) && parsedNotice > 0);
+  const noticeInvalid = submitted && !noticeValid;
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (!name.trim() || parsedPrice === null || !stockValid) return;
+    if (!name.trim() || parsedPrice === null || !stockValid || !noticeValid) return;
 
     const input: api.ItemInput = {
       name: name.trim(),
@@ -102,6 +112,7 @@ export function ItemFormModal({
       options: draftToOptions(options),
       categoryId,
       vatRate: Number(vatRate),
+      noticeHours: parsedNotice,
     };
     try {
       if (item) {
@@ -184,7 +195,10 @@ export function ItemFormModal({
               className={`${inputClass} ${submitted && !stockValid ? "border-ember-3/60" : ""}`}
             />
           </Field>
-          <Field label="TVA" hint="Taux envoyé en caisse">
+          <Field
+            label="TVA"
+            hint={pickupShop ? "Reprise sur les tickets et les paiements" : "Appliquée à cet article en caisse"}
+          >
             <select
               value={vatRate}
               onChange={(event) => setVatRate(event.target.value)}
@@ -199,15 +213,32 @@ export function ItemFormModal({
           </Field>
         </div>
 
+        {products.collect && (
+          <Field
+            label="Délai de commande (heures)"
+            hint="Click & collect : le client choisit un retrait au plus tôt ce délai après sa commande. Vide = pour le prochain créneau."
+            error={noticeInvalid ? "Indiquez un nombre entier d'heures, ou laissez vide." : undefined}
+          >
+            <input
+              value={notice}
+              onChange={(event) => setNotice(event.target.value)}
+              inputMode="numeric"
+              placeholder="48"
+              aria-invalid={noticeInvalid || undefined}
+              className={`${inputClass} ${noticeInvalid ? "border-ember-3/60" : ""}`}
+            />
+          </Field>
+        )}
+
         {hasFeature("terminaux") && (
           <Field
             label="Nom sur le ticket"
-            hint="Ce que la cuisine lit sur l'imprimante. Vide : le nom de la carte."
+            hint={`Ce que la ${pickupShop ? "préparation" : "cuisine"} lit sur l'imprimante. Vide : le nom de la carte.`}
           >
             <input
               value={printName}
               onChange={(event) => setPrintName(event.target.value)}
-              placeholder={name.trim() || "Entrecôte"}
+              placeholder={name.trim() || (pickupShop ? "Tarte 6 parts" : "Entrecôte")}
               maxLength={40}
               className={inputClass}
             />
@@ -225,21 +256,27 @@ export function ItemFormModal({
         </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Détail" hint="Format ou volume (ex. 33 cl)">
+          <Field
+            label="Détail"
+            hint={pickupShop ? "Format ou portions (ex. 6 parts)" : "Format ou volume (ex. 33 cl)"}
+          >
             <input
               value={detail}
               onChange={(event) => setDetail(event.target.value)}
               className={inputClass}
             />
           </Field>
-          <Field label="Accord suggéré">
-            <input
-              value={pairing}
-              onChange={(event) => setPairing(event.target.value)}
-              placeholder="Idéal avec un Chianti"
-              className={inputClass}
-            />
-          </Field>
+          {/* Masqué, l'accord déjà saisi reste enregistré tel quel. */}
+          {!pickupShop && (
+            <Field label="Accord suggéré">
+              <input
+                value={pairing}
+                onChange={(event) => setPairing(event.target.value)}
+                placeholder="Idéal avec un Chianti"
+                className={inputClass}
+              />
+            </Field>
+          )}
         </div>
 
         <Field

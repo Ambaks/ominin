@@ -4194,9 +4194,10 @@ html:has(.theme-l-adresse) body {
   }
 }
 
-/* Dans la feuille du panier, ce qui prend le focus dans la liste s'arrête
-   entre l'en-tête et le pied collés (hauteurs mesurées par CartBar). */
-.cart-content :is(button, input, a) {
+/* Dans la feuille du panier, ce qui prend le focus ou qu'on ramène à l'écran
+   (le message d'un jour sans créneau) s'arrête entre l'en-tête et le pied
+   collés (hauteurs mesurées par CartBar). */
+.cart-content :is(button, input, select, textarea, a, [role="status"], [data-collect-fields]) {
   scroll-margin-top: var(--cart-head, 0px);
   scroll-margin-bottom: var(--cart-foot, 0px);
 }
@@ -4420,7 +4421,7 @@ html:has(.ticket-dock) {
     border-left: 1px solid var(--hairline);
   }
 
-  [data-service="fast-food"] .cart-content :is(button, input, a) {
+  [data-service="fast-food"] .cart-content :is(button, input, select, textarea, a, [role="status"], [data-collect-fields]) {
     scroll-margin: 0;
   }
 }
@@ -5716,6 +5717,108 @@ html.light [data-menu-root]:not([class*="theme-"]) .ember-particle {
 /* Un logo blanc disparaît sur le crème : on l'inverse. */
 html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   filter: invert(1);
+}
+
+/* La feuille du laboratoire (Retraits) : encre noire sur papier blanc,
+   quel que soit le thème de l'écran — le navigateur n'imprime pas les fonds. */
+@media print {
+  html:has(.production-sheet),
+  html:has(.production-sheet) body {
+    background: #fff !important;
+  }
+
+  .production-sheet,
+  .production-sheet * {
+    color: #000 !important;
+    background: transparent !important;
+    border-color: #999 !important;
+  }
+}
+
+/*
+  Boulangerie Cyprien (Toulouse) — la commande en ligne de leur site
+  (app/sites/boulangerie-cyprien/commander), aux couleurs du site : papier
+  farine, encre chaude, sarcelle du cachet assombrie pour se lire en petit
+  (6,2:1 sur le papier) et brique toulousaine pour les alertes. Bodoni Moda
+  reprend la didone du logotype « CYPRIEN », Barlow le texte. Thème clair :
+  boutons à plat en sarcelle, encre papier dessus (6,2:1).
+*/
+.theme-boulangerie-cyprien {
+  --background: #f7f2ea;
+  --foreground: #1f1c18;
+
+  --surface: #fffdf9;
+  --surface-raised: #efe7da;
+  --hairline: rgba(31, 28, 24, 0.12);
+
+  --muted: #5c554c;
+  --faint: #6b6359;
+
+  --ember-1: #2e6267;
+  --ember-2: #3b6f74;
+  --ember-3: #a8432b;
+
+  --shimmer-highlight: rgba(106, 159, 166, 0.16);
+  --glow-inner: rgba(106, 159, 166, 0.1);
+  --glow-outer: rgba(46, 98, 103, 0.05);
+
+  --brand-display: var(--font-bodoni-moda), var(--font-fraunces), serif;
+  --brand-sans: var(--font-barlow), var(--font-instrument-sans), sans-serif;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-boulangerie-cyprien),
+html:has([data-menu-root].theme-boulangerie-cyprien) body {
+  background-color: #f7f2ea;
+}
+
+.theme-boulangerie-cyprien :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* Les boutons du site : sarcelle à plat, sans dégradé. */
+.theme-boulangerie-cyprien .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-1);
+}
+
+.theme-boulangerie-cyprien .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+  -webkit-text-fill-color: currentColor;
+}
+
+.theme-boulangerie-cyprien .dish-price {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Leurs photos sont claires : le voile vers le papier les délavait. */
+.theme-boulangerie-cyprien .dish-photo-fade {
+  display: none;
+}
+
+/* Une fiche sans photo garde sa hauteur au lieu de s'étirer à côté d'une
+   fiche à photo ; la dernière d'une rangée incomplète prend la rangée
+   entière, photo à gauche : pas de case vide en fin de section. */
+@media (min-width: 768px) {
+  .theme-boulangerie-cyprien .dish-grid {
+    align-items: start;
+  }
+
+  .theme-boulangerie-cyprien .dish-grid > article:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .theme-boulangerie-cyprien .dish-grid > article:last-child:nth-child(odd):has(> .dish-photo) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
 }
 
 @theme inline {

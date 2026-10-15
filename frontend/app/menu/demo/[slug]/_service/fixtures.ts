@@ -1,4 +1,8 @@
-import { DEFAULT_DAY_END_HOUR, FEATURES } from "@/lib/gestion/constants";
+import {
+  DEFAULT_COLLECT_SLOT_MINUTES,
+  DEFAULT_DAY_END_HOUR,
+  FEATURES,
+} from "@/lib/gestion/constants";
 import { orderTotal } from "@/lib/gestion/selectors";
 import type {
   GestionState,
@@ -148,6 +152,7 @@ export function demoState(
       onlinePayment: true,
       paymentProvider: "stripe",
       collectSlotCapacity: 0,
+      collectSlotMinutes: DEFAULT_COLLECT_SLOT_MINUTES,
       onlineMinOrder: null,
       adminPinSet: false,
       paymentPinSet: false,

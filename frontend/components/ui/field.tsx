@@ -10,11 +10,14 @@ export function Field({
   label,
   required,
   hint,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   hint?: string;
+  /** Erreur à corriger, affichée à la place de l'indication ; aria-invalid se pose sur le champ. */
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -24,7 +27,13 @@ export function Field({
         {required && <span className="text-ember-2"> *</span>}
       </span>
       {children}
-      {hint && <span className="text-xs text-faint">{hint}</span>}
+      {error ? (
+        <span role="alert" className="text-xs font-medium text-ember-3">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="text-xs text-faint">{hint}</span>
+      )}
     </label>
   );
 }

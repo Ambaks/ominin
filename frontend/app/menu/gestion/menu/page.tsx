@@ -14,6 +14,7 @@ import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
+import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
   loadItemRoutingMap,
@@ -122,6 +123,10 @@ export default function MenuPage() {
   // Les tarifs planifiés se règlent ici, devant l'article ou la catégorie
   // qu'ils touchent — c'est là que le gérant regarde ses prix.
   const canTarif = can("etablissement.edit");
+  // Boutique à emporter : le « + » des tarifs reste sur la catégorie, dont le
+  // formulaire vise aussi bien un seul article ; les articles n'affichent que
+  // leurs tarifs existants.
+  const pickupShop = isPickupShop(state);
   const rulesOn = (kind: "item" | "category", id: string) =>
     state.priceRules.filter((rule) =>
       rule.targets.some((target) => target.kind === kind && target.id === id)
@@ -294,6 +299,7 @@ export default function MenuPage() {
                           inherited={rulesOn("category", category.id)}
                           categories={categories}
                           canEdit={canTarif}
+                          offerNew={!pickupShop}
                           effective={tarifs.get(item.id) ?? null}
                         />
                       }

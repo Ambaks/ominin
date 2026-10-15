@@ -44,6 +44,7 @@ export type Feature =
   | "qr"
   | "apercu"
   | "commandes"
+  | "retraits"
   | "paiements"
   | "tables"
   | "badgeage"
@@ -105,6 +106,8 @@ export interface Etablissement {
   paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
+  /** Durée d'un créneau de retrait, en minutes (posée par Ominin). */
+  collectSlotMinutes: number;
   /**
    * Sous ce total, le client règle au comptoir (le click & collect refuse la
    * commande) ; null ⇒ aucun minimum.
@@ -185,6 +188,8 @@ export interface Order {
   onlinePaymentStartedAt?: string;
   customerName?: string;
   customerPhone?: string;
+  /** Le mot du client (inscription sur le gâteau, allergie…), click & collect. */
+  customerNote?: string;
   pickupAt?: string;
   /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
   estimatedReadyAt?: string;

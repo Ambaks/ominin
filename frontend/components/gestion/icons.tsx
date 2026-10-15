@@ -19,6 +19,16 @@ function Svg({ className, children }: IconProps & { children: React.ReactNode })
   );
 }
 
+/** Un sac à emporter : les retraits du click & collect. */
+export function BagIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 8h14l-1.2 12.5H6.2L5 8z" />
+      <path d="M9 10.5V6.5a3 3 0 0 1 6 0v4" />
+    </Svg>
+  );
+}
+
 export function ApercuIcon(props: IconProps) {
   return (
     <Svg {...props}>
