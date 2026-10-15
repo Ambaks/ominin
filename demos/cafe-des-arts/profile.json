@@ -57,19 +57,34 @@
       "Petits-déjeuners — 6,50 et 9,90 €",
       "Bar : boissons chaudes, fraîches, milkshakes, 21 cocktails, 5 sans alcool, pressions et girafes 3 L, bouteilles, apéritifs, vins blancs, rosés, rouges, pétillant, champagnes, rhums, vodka, gin, whisky, téquila, digestifs"
     ],
-    "photos": "Aucune photo des plats par la maison en ligne exploitable (photos clients filigranées) : photos libres auditées.",
+    "photos": "Aucune photo des plats par la maison en ligne exploitable (photos clients filigranées) : photos libres auditées, seulement quand elles montrent le plat écrit. Sans photo faute d'image juste : 8 pizzas à la tomate sur 13 (la Calabrese a désormais une photo nette, Pexels 5903102 ; profiteroles : Pexels 20545324) et les 4 à la crème, œuf parfait, bruschetta chèvre miel, linguinis aux Saint-Jacques, suprême de volaille (la photo montrait des gnocchis), épaule d'agneau, poire pochée, dessert du jour, baba, café gourmand, les coupes glacées de Gérard Cabiron (aucune coupe libre juste ni sombre), la girafe de 3 L (aucune photo libre sans marque), et les boissons hors cocktails sans alcool, milkshakes et quatre cocktails (Mojito, Piña Colada, Tequila Sunrise, Moscow Mule, placés en tête de leur section) — la liste du shooting, coupes et girafe en premier. La tartiflette a une photo libre.",
     "options_a_valider": [
       "Toute la carte date de 2021-22 (dernière publiée) : prix à mettre à jour ; le site du groupe annonce aujourd'hui « deux plats du jour à partir de 9,90 € ».",
-      "Duo du Menu Brasserie en deux lignes (Entrée + Plat, Plat + Dessert), même prix, comme le libellé « Entrée + Plat ou Plat + Dessert ».",
-      "« Menu » 25 € nommé « Menu 25 » ; la sauce de la bavette n'y est pas demandée (un choix de menu ne porte pas de sous-choix).",
-      "Escargots x6 / x12, vins au verre et à la bouteille, spiritueux 4 cl / 70 cl, pressions 25 cl → girafe 3 L : une ligne par article, chaque format à son prix.",
+      "Duo du Menu Brasserie en une ligne, comme sur la carte (« Entrée + Plat ou Plat + Dessert ») : la formule est le premier choix, l'entrée ou le dessert n'apparaît qu'ensuite ; au panier et sur le ticket, la formule choisie distingue les lignes. Sur les fiches, la composition seule (Uno « 1 plat au choix », Trio, Menu 25 « Entrée + Plat + Dessert », Bambino « Accompagnement + Dessert » / « Pizza + Dessert ») ; les plats, accompagnements et desserts au choix se lisent dans la feuille de commande.",
+      "« Menu » 25 € nommé « Menu 25 ». La cuisson du steak à cheval, la sauce et la cuisson de la bavette, les deux parfums de la « Glace 2 boules » ne se demandent, obligatoires, qu'une fois ce plat ou cette glace choisi. Sauces = celles de la bavette de la carte (Roquefort, échalote, poivre), parfums = ceux des coupes glacées.",
+      "Menu Bambino : « Glace 1 boule ou Pom'Pote », puis le parfum de la boule, pris dans ceux des coupes glacées.",
+      "« Paulaner — Sans alcool 0° » (bouteille) nommé « Paulaner sans alcool », pour ne pas se confondre au bar avec la Paulaner pression. Gin « Old Ladies » écrit « Old Lady's » comme dans les cocktails ; « VPD d'OC » → « VDP d'Oc », « IGP D'OC » → « IGP d'Oc », « Saint-germain » → « Saint-Germain » ; tirets des vins et des garnitures de pizza rendus par « · ».",
+      "« Supplément garniture : 1 € » des pizzas : la carte ne dit pas quelles garnitures ; gardé en accroche, sans choix à commander tant qu'elles ne sont pas nommées.",
+      "Bandeau défilant : « Restaurant au 1er étage » (imposte de la devanture) et « Pizzas maison » (titres de la carte) ajoutés.",
+      "Escargots ×6 / ×12, vins au verre et à la bouteille, spiritueux 4 cl / 70 cl, pressions 25 cl → girafe 3 L : une ligne par article, chaque format à son prix.",
       "« Bacardi Cuatro 4cl 12€ — Et sa canette de Redbull Tropical » nommé « Bacardi Cuatro + Red Bull Tropical ».",
       "Lignes « Supléments tranche ou sirop 0,20 € » non reprises.",
-      "Coupes Colonel (vodka) et Martiniquaise (rhum) et baba au rhum : TVA des desserts (10 %), à confirmer.",
-      "Pas de prix des girafes 4 L et 5 L ni des girafes de cocktail : seulement « Girafe 3 L » des pressions.",
+      "Coupes Colonel (vodka) et Martiniquaise (rhum) à la TVA de l'alcool (20 %) ; baba au rhum à celle des desserts (10 %), à confirmer. Les trois, comme l'Irish et le French Coffee, restent hors de la démo Collect.",
+      "Pas de prix des girafes 4 L et 5 L ni des girafes de cocktail : seulement « Girafe 3 L » des pressions. Le bandeau dit « Girafes de bière de 3 L » (le site du groupe : « de bières et de cocktails de 3 L à 5 L »).",
       "Coquilles de la carte imprimée corrigées à l'affichage : « Fitres » → Frites, « sésames » → sésame, « toast » → toasts, « a l'ail » → à l'ail, « composé » → composée, « parmesa » → parmesan, « truff » → truffe, « Bierre » → Bière, « Charollais » → Charolais (et guillemet fermé), « Annanas » → Ananas, « Prossecco » → Prosecco, « Téquilla » → Téquila, « Compté » → Comté, « a la truffe » → à la truffe ; titres de section en casse de phrase (« Boissons fraîches », « Vins blancs »…).",
       "Ordre des sections : celui de la carte imprimée, le Milkshake rapproché des boissons fraîches.",
-      "Bandeau : « deux plats du jour à partir de 9,90 € » (site du groupe) retiré, il contredit le « Plat du jour 10 € » de la carte 2021-22 — question au gérant."
+      "Bandeau : « deux plats du jour à partir de 9,90 € » (site du groupe) retiré, il contredit le « Plat du jour 10 € » de la carte 2021-22 — question au gérant.",
+      "Cuisson (bleu, saignant, à point, bien cuit) demandée sur la bavette, le filet façon Rossini, les burgers Café des Arts et Aveyronnais (bœuf Charolais) et le steak à cheval : question de cuisine courante, pas imprimée sur la carte.",
+      "Milkshakes : la carte ne nomme pas leurs parfums ; ceux des coupes glacées sont proposés (1 parfum, ou 1er et 2e parfum), à confirmer.",
+      "Petits-déjeuners « Boisson chaude au choix » : café, thé ou chocolat chaud, pris dans les boissons chaudes de la carte ; lesquelles sont comprises (café crème, cappuccino, infusion) ?",
+      "Diabolo : le sirop se choisit dans les « Parfums sirops » de la carte. Déclinaisons des mojitos et caïpis : « Classique » par défaut.",
+      "« Jack Daniel's, Honey, Fire, Apple » nommé « Jack Daniel's », la version (Original, Honey, Fire, Apple) se choisit ; « Bierre - Pichet 1L » et « Cocktail - Pichet 1L » nommés « Pichet de bière 1 L » et « Pichet de cocktail 1 L ».",
+      "Coquilles et typographie corrigées à l'affichage (suite) : compoté → compotée, servi → servie, Escargot → Escargots, choux rouge → chou rouge, Végétarien → végétarien, Crème brulée → brûlée, « Glace 2 Boules aux choix » → « 2 boules au choix », oeuf / boeuf → œuf / bœuf, fraiche → fraîche, Redbull → Red Bull, Jagermeister / JagerBomb → Jägermeister / Jägerbomb, Baby Guiness → Guinness, « 8ans 40% » → « 8 ans, 40 % » ; guillemets droits → « », tirets des pizzas (Savoyarde, Norvégienne, Calabrese) alignés sur les autres.",
+      "Plat du jour : la ligne imprimée « Plat » est retirée (redite du nom).",
+      "Démo Collect : toute la carte sans alcool (menus, cuisine, extra garniture, coupes glacées, desserts, petits-déjeuners, boissons chaudes et fraîches, cocktails sans alcool, milkshakes), sans le verre d'eau ; bandeau « À emporter · Restauration de 11h30 à 23h ».",
+      "Formule Express : la carte dit « Plat du jour + Dessert » sans liste ; les desserts proposés sont ceux du Menu Brasserie.",
+      "« Coca-Cola, Coca-Cola zéro, Coca-Cola cherry », « Schweppes agrumes, Schweppes tonic » et « Fuze Tea pêche intense ou thé vert camomille » nommés Coca-Cola, Schweppes, Fuze Tea, les versions en description et à choisir.",
+      "Repères entre les familles du bar, absents de la carte imprimée : « Côté bar » (le nom de la carte des boissons) avant les boissons chaudes, « Spiritueux » avant les rhums, « Les vins » avant les vins blancs."
     ]
   },
   "offers": [
@@ -95,6 +110,13 @@
     "Le café à 1 € existe-t-il aussi au Café des Arts ?",
     "Formule Douceur, Menu 24/25 : toujours proposés ?",
     "Logo en vectoriel ; photos des plats et des coupes glacées.",
-    "Une carte par adresse du groupe ou une carte commune ?"
+    "Une carte par adresse du groupe ou une carte commune ?",
+    "Plat du jour : lequel, chaque jour ? (un champ du jour dans la gestion).",
+    "Coupes glacées, cafés, petits-déjeuners et limonade pression : vendus à emporter ?",
+    "Le Menu Brasserie est servi le midi seulement : la carte en ligne ne sait pas encore le limiter à une plage horaire.",
+    "Doublons de la carte 2021-22, gardés tels quels : « Punch Maison » 4 € (Apéritifs, sans contenance) et « Punch « Maison » » 25 cl 3,50 € (Spécial) — même punch ? lequel des deux prix ? « Sangria blanche & rouge Maison » 4 € (Apéritifs) et « Sangria « Maison » » 25 cl 4 € (Spécial) : une seule sangria ? « Profiteroles » 9 € (coupes glacées : choux, vanille, chocolat chaud, chantilly) et « Profiteroles maison au chocolat » 9 € (desserts maison) : deux desserts ou un seul ?",
+    "« Supplément garniture : 1 € » des pizzas : quelles garnitures, à ajouter en choix à 1 € l'une ?",
+    "Guinness « 8° · 33 cl » sur la carte 2021-22 : la Guinness courante fait environ 4,2° — coquille de la carte, ou une autre Guinness (Foreign Extra) ?",
+    "Champagnes (60 à 130 €) : prix à la bouteille ? La carte ne dit pas le format ; rien n'est affiché tant que ce n'est pas confirmé."
   ]
 }

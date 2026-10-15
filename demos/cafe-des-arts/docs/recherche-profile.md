@@ -24,6 +24,10 @@ Le « café à 1 € de 9h à 12h » et le happy hour mojitos 17h–23h du site 
 Sluurpy : 3,7/5 sur 2 252 avis et « Avis Google 4,1/5, 3 767 avis » ; Tripadvisor 3,0 (544). Éloges : terrasse sous les pins,
 cocktails, burgers, côte de bœuf, formule du midi. Reproches : affluence, service lent, cuisine inégale.
 
+## Terrasse
+FAQ du site du groupe (cafedesarts34.fr, « Conseils et FAQ », 09/2026) : « Le Café des Arts propose une atmosphère de
+brasserie avec une grande terrasse ombragée. » Source du « Terrasse ombragée » du bandeau.
+
 ## Réseaux
 TikTok @lecafedesartsmontpellier (confirmé, 1 031 abonnés). Instagram et Facebook liés depuis les deux sites, bloqués.
 

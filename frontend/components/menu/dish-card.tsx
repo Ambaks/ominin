@@ -1,4 +1,4 @@
-import { allergenLine, BADGE_LABELS, formatPrice } from "@/lib/menu/format";
+import { allergenLine, BADGE_LABELS, formatPrice, hasFormats } from "@/lib/menu/format";
 import { type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 import { DishIndicators } from "./dish-indicators";
@@ -24,18 +24,41 @@ function Badges({ badges }: { badges?: Badge[] }) {
  * Une description sur plusieurs lignes est une liste — la composition d'un
  * menu (« 1 cuisse… / + 1 accompagnement… / + 1 boisson ») ; sur une seule,
  * un paragraphe.
+ *
+ * `detail` (« 33 cl ») suit aussi la description, caché : un thème qui le
+ * préfère là plutôt qu'à côté du nom l'y montre (.dish-detail-after,
+ * globals.css) — au bout du paragraphe, ou sur sa ligne.
+ *
+ * Les prix des formats (`tarifs`) ferment la description, sur leur ligne
+ * (.dish-tarifs).
  */
-function Description({ text }: { text?: string }) {
-  if (!text) return null;
+function Description({ text, tarifs, detail }: { text?: string; tarifs?: string; detail?: string }) {
   const className = "text-sm leading-relaxed text-muted lg:text-[15px]";
-  const lines = text.split("\n");
-  if (lines.length === 1) return <p className={className}>{keepHyphenated(text)}</p>;
+  const ownLine = detail ? <p className={`dish-detail-after hidden ${className}`}>{detail}</p> : null;
+  const lines = [
+    ...(text ? text.split("\n").map((line) => ({ line, hook: undefined })) : []),
+    ...(tarifs ? [{ line: tarifs, hook: "dish-tarifs" }] : []),
+  ];
+  if (lines.length === 0) return ownLine;
+  if (lines.length === 1) {
+    return (
+      <p className={lines[0].hook ? `${lines[0].hook} ${className}` : className}>
+        {keepHyphenated(lines[0].line)}
+        {detail && <span className="dish-detail-after hidden">{detail}</span>}
+      </p>
+    );
+  }
   return (
-    <ul className={`dish-lines ${className}`}>
-      {lines.map((line) => (
-        <li key={line}>{keepHyphenated(line)}</li>
-      ))}
-    </ul>
+    <>
+      <ul className={`dish-lines ${className}`}>
+        {lines.map(({ line, hook }) => (
+          <li key={line} className={hook}>
+            {keepHyphenated(line)}
+          </li>
+        ))}
+      </ul>
+      {ownLine}
+    </>
   );
 }
 
@@ -60,6 +83,8 @@ function Pairing({ pairing }: { pairing?: string }) {
 function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
   return (
     <article
+      // data-item : un thème peut marquer un plat précis (globals.css).
+      data-item={item.id}
       // Une fiche que la mise en page d'un thème peut étendre à la rangée (globals.css).
       data-span={span || undefined}
       className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl"
@@ -103,6 +128,9 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
           </h3>
           <div className="flex shrink-0 flex-col items-end">
             <span className="dish-price font-display text-xl text-ember-1 lg:text-2xl">
+              {/* En formats, le prix affiché est celui du plus petit : la girafe
+                  de Paulaner ne coûte pas 3 €. */}
+              {hasFormats(item) && "dès\u00a0"}
               {formatPrice(item.price)}
             </span>
             {item.tarif && (
@@ -120,7 +148,7 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
           </div>
         </div>
         <DishIndicators item={item} />
-        <Description text={item.description} />
+        <Description text={item.description} tarifs={item.tarifs} detail={item.detail} />
         <Allergens item={item} />
         <Pairing pairing={item.pairing} />
         <div className="dish-action mt-1 flex justify-end">

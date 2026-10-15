@@ -12,7 +12,6 @@ import {
   sheetConfirmClass,
   revealAboveCartBar,
   revealMissing,
-  scrollBehavior,
   type Flash,
 } from "@/components/menu/add-to-order";
 import { heroDelay } from "@/components/menu/hero-delay";
@@ -24,6 +23,7 @@ import {
   type FormuleSelection,
 } from "@/lib/menu/cart";
 import { FORMULES_LINK, formatPrice } from "@/lib/menu/format";
+import { scrollBehavior } from "@/lib/menu/scroll";
 import { type FormulesBanner as Banner, type OptionGroup } from "@/lib/menu-data";
 
 /*

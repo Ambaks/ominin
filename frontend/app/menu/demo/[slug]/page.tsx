@@ -32,6 +32,10 @@ import { tableParam } from "@/lib/menu/table-param";
  *
  * ?service=fast-food montre le parcours fast food : commande sans table, puis
  * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
+ *
+ * À table, un établissement en demoSuivi montre la suite : le paiement en
+ * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
+ * service — rien n'est appelé, ni paiement ni base.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
@@ -97,6 +101,7 @@ export default async function MenuPreviewPage({
   if (!restaurant) notFound();
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
+  const suivi = !fastFood && Boolean(restaurant.demoSuivi);
 
   // Comme la page en production (fetchRestaurant) : une formule désactivée
   // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
@@ -117,11 +122,24 @@ export default async function MenuPreviewPage({
         restaurantName: restaurant.name,
         estimatorLive: restaurant.estimatorLive,
         // Fast food : le choix du règlement fait partie de ce qu'on montre ;
-        // à table, quand l'établissement y règle en ligne.
-        onlinePayment: fastFood || Boolean(restaurant.onlinePayment),
+        // à table, quand l'établissement y règle en ligne, ou le simule.
+        onlinePayment: fastFood || suivi || Boolean(restaurant.onlinePayment),
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
+        ...(suivi && {
+          demoSuivi: {
+            drinks: restaurant.categories
+              .filter((category) => category.boissons)
+              .flatMap((category) => category.items.map((item) => item.id)),
+            hotDrinks: restaurant.categories
+              .filter((category) => category.boissons)
+              .flatMap((category) =>
+                category.items.filter((item) => category.boissons === "chaudes" || item.chaud)
+              )
+              .map((item) => item.id),
+          },
+        }),
       }}
     >
       <div

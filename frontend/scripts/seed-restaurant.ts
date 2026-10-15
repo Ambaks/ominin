@@ -98,6 +98,14 @@ async function main() {
   const itemSeeds = restaurant!.categories.flatMap((category, i) =>
     category.items.map((item) => ({ categoryId: categories[i].id, item }))
   );
+  // Les groupes conditionnels (`when`) ne vivent que côté client : place_order
+  // exigerait un groupe caché et la gestion perdrait la condition.
+  const conditionnel = itemSeeds.find(({ item }) => item.options?.some((group) => group.when));
+  if (conditionnel) {
+    throw new Error(
+      `${conditionnel.item.id} a un groupe conditionnel (when) : place_order et la gestion ne le gèrent pas encore.`
+    );
+  }
   const items = must(
     await db
       .from("items")

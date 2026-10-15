@@ -32,7 +32,7 @@ function EmptyState() {
           ) : step === "menu" ? (
             <>
               <span className="lg:hidden">Passez commande côté client : elle arrive ici, payée.</span>
-              <span className="hidden lg:inline">← Ajoutez un plat sur le téléphone : la commande arrive ici, payée.</span>
+              <span className="hidden lg:inline">← Ajoutez un article sur le téléphone : la commande arrive ici, payée.</span>
             </>
           ) : step === "checkout" ? (
             "Le client choisit son retrait : la commande arrive ici dès qu'il a payé."
@@ -157,13 +157,13 @@ function OrderCardDemo() {
         // « Payée en ligne » est la puce du pied de carte, comme sur le vrai
         // écran ; sous lg, la note cède sa place aux lignes.
         <p className="mt-1 text-[11px] text-muted max-lg:hidden">
-          {"Paiement versé sur votre compte\u00a0·\u00a0ticket imprimé en cuisine (avec imprimante)"}
+          {"Paiement versé sur votre compte\u00a0·\u00a0ticket imprimé en cuisine si une imprimante est reliée"}
         </p>
       ) : (
         <p className="mt-1 flex flex-wrap gap-x-2 text-[11px] font-semibold text-ember-1">
           <span>Payée en ligne · versée sur votre compte</span>
           <span aria-hidden className="text-faint">·</span>
-          <span>Ticket imprimé en cuisine (avec imprimante)</span>
+          <span>Ticket imprimé en cuisine si une imprimante est reliée</span>
         </p>
       )}
 

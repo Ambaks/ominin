@@ -450,21 +450,21 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/customer-pane.tsx": {
-    "mtime": 1792057554.1403043,
-    "seen": 1792058082.055805,
-    "ast_hash": "ca4c07b3c968ecabc86b2fc8574d9897",
+    "mtime": 1792064819.9247513,
+    "seen": 1792068037.6016278,
+    "ast_hash": "416a1a7165ae05eef397f2ace2c0da72",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
-    "mtime": 1792056843.28746,
-    "seen": 1792057005.6989288,
-    "ast_hash": "f9264153e975f98a781585bea997c5b8",
+    "mtime": 1792061542.4691894,
+    "seen": 1792062019.904949,
+    "ast_hash": "b8c0fc9a8a2ea4a7a82b705aedbe91ea",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/stage.tsx": {
-    "mtime": 1791991196.2359076,
-    "seen": 1791996541.5320299,
-    "ast_hash": "9fb091d9a65dc111654a62a5ea92b879",
+    "mtime": 1792061807.4893522,
+    "seen": 1792062019.904949,
+    "ast_hash": "e12e35d3576061c6362480c4c13d4da9",
     "semantic_hash": ""
   },
   "frontend/components/collect/landing/demo-showcase.tsx": {
@@ -726,45 +726,45 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/add-to-order.tsx": {
-    "mtime": 1792056890.411323,
-    "seen": 1792057005.699036,
-    "ast_hash": "8a9c11c78295e313cc34edcd51e2c453",
+    "mtime": 1792064996.6862018,
+    "seen": 1792068037.601707,
+    "ast_hash": "23d8e6d97ee67b01bae4f407802d444a",
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1792056843.29247,
-    "seen": 1792057005.699038,
-    "ast_hash": "a58e6c416f889efe8938873290e77bc7",
+    "mtime": 1792070197.7628245,
+    "seen": 1792070327.544451,
+    "ast_hash": "e989fcf9129ea6f54567ce56f95cb954",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
-    "mtime": 1791991196.1647334,
-    "seen": 1791996541.5321012,
-    "ast_hash": "9521990d37e97c5d86e11fe960e54d6a",
+    "mtime": 1792064919.8578038,
+    "seen": 1792068037.60171,
+    "ast_hash": "ba2eebb28ddd97bb32771cb1b66385ab",
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
-    "mtime": 1792056843.2915008,
-    "seen": 1792057005.69904,
-    "ast_hash": "14552ad4c4d8651d48130d5d46299d33",
+    "mtime": 1792064851.225969,
+    "seen": 1792068037.6017122,
+    "ast_hash": "a21f2f691b1342634933f832755c2b9c",
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1791991196.169618,
-    "seen": 1791996541.532104,
-    "ast_hash": "e68bacd045cce6348468471f5f324fa8",
+    "mtime": 1792065384.595885,
+    "seen": 1792068037.6017148,
+    "ast_hash": "a00b73b9cc1d90c8c19b070896dabc25",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
-    "mtime": 1792057554.1416063,
-    "seen": 1792058082.055893,
-    "ast_hash": "2e2b39e79b8d7da595c40262c8e63efd",
+    "mtime": 1792065623.6786857,
+    "seen": 1792068037.601717,
+    "ast_hash": "d41d91aec64fefebadf7a517c30ed06f",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-section.tsx": {
-    "mtime": 1791991196.173268,
-    "seen": 1791996541.532107,
-    "ast_hash": "4421b86b1f48f23930ffbbc644244349",
+    "mtime": 1792064836.3404152,
+    "seen": 1792068037.601718,
+    "ast_hash": "68120d12c8a0eb96afacef05d3472d57",
     "semantic_hash": ""
   },
   "frontend/components/ui/confirm-dialog.tsx": {
@@ -918,15 +918,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
-    "mtime": 1792057487.7569635,
-    "seen": 1792058082.055979,
-    "ast_hash": "46c5c84ced3e8eeeb251942a2a66c158",
+    "mtime": 1792064360.6701822,
+    "seen": 1792068037.601805,
+    "ast_hash": "9f8057cea8d7c165df0a28da0dd60383",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/provider.tsx": {
-    "mtime": 1792057487.7573743,
-    "seen": 1792058082.055979,
-    "ast_hash": "f4c3b8269c7b1fbe7ae0b18fe5d3fca1",
+    "mtime": 1792061516.2469802,
+    "seen": 1792062019.9051678,
+    "ast_hash": "739633870426be88aab8a4fc2660573f",
     "semantic_hash": ""
   },
   "frontend/lib/collect/server.ts": {
@@ -1014,15 +1014,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1792057580.537275,
-    "seen": 1792058082.0560079,
-    "ast_hash": "c9afbc05300b15f2e9eb2c80390a1839",
+    "mtime": 1792070170.4336293,
+    "seen": 1792070327.54458,
+    "ast_hash": "ca165d2654df180e4a7c85fe97c9d60b",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
-    "mtime": 1791991196.452838,
-    "seen": 1791996541.5322099,
-    "ast_hash": "b76e98279d131c3e8a7f9c09e4610fa2",
+    "mtime": 1792070170.4352338,
+    "seen": 1792070327.544582,
+    "ast_hash": "5638b95f7bc1cf9c16684f1d9c4fad96",
     "semantic_hash": ""
   },
   "frontend/lib/public-menu.ts": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792058067.4240794,
-    "seen": 1792058082.056181,
-    "ast_hash": "c4fcca8ed3175c91c5604a98a4504fb6",
+    "mtime": 1792071094.0449283,
+    "seen": 1792071102.767512,
+    "ast_hash": "a12097a123106f8037da67f86639cbf6",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1896,9 +1896,9 @@
     "semantic_hash": ""
   },
   "frontend/app/collect/demo/[slug]/page.tsx": {
-    "mtime": 1791991197.2048159,
-    "seen": 1791996541.531924,
-    "ast_hash": "bf6b2801254c845619f701e1a88f4dff",
+    "mtime": 1792061807.489872,
+    "seen": 1792062019.90481,
+    "ast_hash": "9f4ed255221709e673829186d27f1ef0",
     "semantic_hash": ""
   },
   "frontend/components/portal/approach.tsx": {
@@ -1920,9 +1920,9 @@
     "semantic_hash": ""
   },
   "frontend/scripts/seed-restaurant.ts": {
-    "mtime": 1792057513.4996827,
-    "seen": 1792058082.056065,
-    "ast_hash": "8b89fcbcab807f80729d2d624099e42c",
+    "mtime": 1792064370.4253867,
+    "seen": 1792068037.601891,
+    "ast_hash": "37d90f70d1d8021946c3e7d10ae7c071",
     "semantic_hash": ""
   },
   "Ominin_Playbook_Commercial_v3.pdf": {
@@ -4182,9 +4182,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/page.tsx": {
-    "mtime": 1792057487.7551363,
-    "seen": 1792058082.0556989,
-    "ast_hash": "1c3703918d7e24139ce8a4bfd00e11f8",
+    "mtime": 1792070170.4347262,
+    "seen": 1792070327.5442612,
+    "ast_hash": "9b538149834963ed76c8782c6aae866b",
     "semantic_hash": ""
   },
   "frontend/app/menu/devis/page.tsx": {
@@ -4320,9 +4320,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/brand-fonts.ts": {
-    "mtime": 1792056916.0038588,
-    "seen": 1792057005.699192,
-    "ast_hash": "a47ebe3b80b07a82ae187e6d52ebb139",
+    "mtime": 1792064524.9377549,
+    "seen": 1792068037.601838,
+    "ast_hash": "d72009d94019c88d968324877a95d686",
     "semantic_hash": ""
   },
   "frontend/lib/offre/settle.ts": {
@@ -4782,9 +4782,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/sheet.tsx": {
-    "mtime": 1791991196.1770241,
-    "seen": 1791996541.53211,
-    "ast_hash": "030719183ed45809e2c0b7e1f05ce692",
+    "mtime": 1792071084.1348846,
+    "seen": 1792071102.7672288,
+    "ast_hash": "7f3cad262fed91ea914bf3f7a60c4d7b",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/build.md": {
@@ -4794,9 +4794,9 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/photos.md": {
-    "mtime": 1791993916.506532,
-    "seen": 1791996541.532347,
-    "ast_hash": "76eef1b48376fe26afc7bf7d95c81824",
+    "mtime": 1792065416.4999225,
+    "seen": 1792068037.601999,
+    "ast_hash": "b59576b7e1400a330a1bad0be92e93cb",
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/research.md": {
@@ -4920,9 +4920,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/formules.tsx": {
-    "mtime": 1792056843.291959,
-    "seen": 1792057005.699042,
-    "ast_hash": "24d27414cb3627fc64f9ba5e4b8e4e88",
+    "mtime": 1792061215.5465379,
+    "seen": 1792062019.905059,
+    "ast_hash": "b5336dbde9d76a31c61bee00e578f879",
     "semantic_hash": ""
   },
   "supabase/migrations/20260926000001_formules_commande.sql": {
@@ -4986,15 +4986,15 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/order-ticket.tsx": {
-    "mtime": 1792056843.2912383,
-    "seen": 1792057005.699048,
-    "ast_hash": "4eca39c918c8efcc2c5d222c43e10b52",
+    "mtime": 1792071073.0391636,
+    "seen": 1792071102.7672262,
+    "ast_hash": "1d8dbac053c5c4feec20c2b53149aad4",
     "semantic_hash": ""
   },
   "frontend/lib/menu/tickets.tsx": {
-    "mtime": 1791991196.4565125,
-    "seen": 1791996541.532214,
-    "ast_hash": "52e56d795881d25550caccd699551fc2",
+    "mtime": 1792070197.7619102,
+    "seen": 1792070327.54459,
+    "ast_hash": "8dc027de4ec6854034ba5382115747f0",
     "semantic_hash": ""
   },
   "supabase/migrations/20260929000003_fast_food.sql": {
@@ -6888,9 +6888,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/section-link.tsx": {
-    "mtime": 1791991196.1750386,
-    "seen": 1791996541.532109,
-    "ast_hash": "d6d31f6bd7df26c463118d1099e065a4",
+    "mtime": 1792061204.4647732,
+    "seen": 1792062019.905069,
+    "ast_hash": "3ac254d8b46323ee21bc5a17da99e7ef",
     "semantic_hash": ""
   },
   "demos/l-adresse/docs/affiche-2026-04-24.jpg": {
@@ -8940,27 +8940,27 @@
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/profile.json": {
-    "mtime": 1792056043.0895226,
-    "seen": 1792057005.6985989,
-    "ast_hash": "c1ec2e8ff7dbf9755526ca73ca4716b5",
+    "mtime": 1792065416.499468,
+    "seen": 1792068037.6013792,
+    "ast_hash": "4f32b27fa39a15d6cd5847c3e44bb06f",
     "semantic_hash": ""
   },
   "demos/caffe-panis/profile.json": {
-    "mtime": 1792053484.5785036,
-    "seen": 1792053921.10599,
-    "ast_hash": "bfefc510eaeb95db968243608fb21ebe",
+    "mtime": 1792065106.6078665,
+    "seen": 1792068037.60138,
+    "ast_hash": "1e58ecda490870295b2a2f98737970ee",
     "semantic_hash": ""
   },
   "demos/le-novelty/profile.json": {
-    "mtime": 1792056043.0939317,
-    "seen": 1792057005.698612,
-    "ast_hash": "0e1b5fed7974934ef3e1d8142cfe9748",
+    "mtime": 1792064589.4975202,
+    "seen": 1792068037.601391,
+    "ast_hash": "e4aa2419d11b4a11b54cce106b940a65",
     "semantic_hash": ""
   },
   "demos/le-victoria/profile.json": {
-    "mtime": 1792053484.5774703,
-    "seen": 1792053921.1060019,
-    "ast_hash": "7203acf361b85231b8e885954bb4bdbf",
+    "mtime": 1792065289.2890341,
+    "seen": 1792068037.601392,
+    "ast_hash": "baab13a072dcf6fe28f882f92701aacf",
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/docs/recherche-carte.md": {
@@ -9000,9 +9000,9 @@
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/docs/recherche-profile.md": {
-    "mtime": 1791994385.6848722,
-    "seen": 1791996541.532368,
-    "ast_hash": "18d01d6f72fbd7b30fb48c3d8ca324e9",
+    "mtime": 1792060582.3118567,
+    "seen": 1792062019.905437,
+    "ast_hash": "7961ab6ebc4736eda1c4890c9cd3bac1",
     "semantic_hash": ""
   },
   "demos/caffe-panis/docs/recherche-profile.md": {
@@ -9330,8 +9330,8 @@
     "semantic_hash": ""
   },
   "frontend/public/caffe-panis/icon.png": {
-    "mtime": 1791993351.6617184,
-    "seen": 1791996541.532542,
+    "mtime": 1792062175.7000873,
+    "seen": 1792063547.875316,
     "ast_hash": "13f6e41b9d7169cf0f3cee12094b048e",
     "semantic_hash": ""
   },
@@ -9381,12 +9381,6 @@
     "mtime": 1791993616.6732821,
     "seen": 1791996541.532577,
     "ast_hash": "65824732e31188c26e5d931daaa0bfd4",
-    "semantic_hash": ""
-  },
-  "frontend/public/le-victoria/margherita.webp": {
-    "mtime": 1791993949.3261507,
-    "seen": 1791996541.532577,
-    "ast_hash": "47107fbdb83635f3db8a6369dc79c0e4",
     "semantic_hash": ""
   },
   "frontend/public/le-victoria/poulet.webp": {
@@ -9444,21 +9438,57 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/format.ts": {
-    "mtime": 1792057487.6184113,
-    "seen": 1792058082.056013,
-    "ast_hash": "9ace4187ceb2a95508db4e03453f6a1c",
+    "mtime": 1792064985.5823367,
+    "seen": 1792068037.60184,
+    "ast_hash": "c54f2cd94afdad3743cf71b3e18660a2",
     "semantic_hash": ""
   },
   "frontend/public/le-victoria/badge.webp": {
-    "mtime": 1792055902.7272358,
-    "seen": 1792057005.699711,
-    "ast_hash": "5d90344c3c4a369f33ad7f2963b74bc8",
+    "mtime": 1792059027.193365,
+    "seen": 1792059236.943137,
+    "ast_hash": "189fc938b0b7da36a3640c86f13560f3",
     "semantic_hash": ""
   },
   "frontend/lib/menu/images.ts": {
     "mtime": 1792057487.6176486,
     "seen": 1792058082.056014,
     "ast_hash": "04cb50a199c8dc1456fb95c876337956",
+    "semantic_hash": ""
+  },
+  "frontend/public/le-victoria/frite-maison.webp": {
+    "mtime": 1792064505.4738286,
+    "seen": 1792068037.602269,
+    "ast_hash": "f17d227c880d6a0efeac9c82b707114f",
+    "semantic_hash": ""
+  },
+  "frontend/public/le-victoria/salade-cesar.webp": {
+    "mtime": 1792064505.70168,
+    "seen": 1792068037.602272,
+    "ast_hash": "0d725eb3ebd5160544cea54636d58e13",
+    "semantic_hash": ""
+  },
+  "frontend/components/menu/name-words.tsx": {
+    "mtime": 1792062759.8348172,
+    "seen": 1792063547.874799,
+    "ast_hash": "e319961cfa956566cf39387ca411e3cd",
+    "semantic_hash": ""
+  },
+  "frontend/lib/menu/scroll.ts": {
+    "mtime": 1792061159.525295,
+    "seen": 1792062019.905216,
+    "ast_hash": "00c6ac5b297290bf80df837643174d89",
+    "semantic_hash": ""
+  },
+  "frontend/components/menu/contact-icons.tsx": {
+    "mtime": 1792064870.055156,
+    "seen": 1792068037.601711,
+    "ast_hash": "85f8bd40053bbe752db27bb1f282fe65",
+    "semantic_hash": ""
+  },
+  "frontend/components/menu/preview-payment.tsx": {
+    "mtime": 1792071110.6083117,
+    "seen": 1792071127.528406,
+    "ast_hash": "5fa9fb32a6774bc9e3e53b9663e4d3e2",
     "semantic_hash": ""
   }
 }

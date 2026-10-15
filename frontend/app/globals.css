@@ -2313,22 +2313,23 @@ html:has([data-menu-root].theme-bai-ko) body {
    presque vides. Trop étroit pour les deux (un long nom à 320 px), il repasse
    dessous plutôt que de mordre sur le prix. Dès 768 px, les fiches vont par
    deux et gardent leur bouton en pied : à côté d'une fiche complète, celle-ci
-   avait le sien 30 à 110 px plus haut. */
+   avait le sien 30 à 110 px plus haut. Le format caché qui suit le nom
+   (.dish-detail-after, dish-card.tsx) ne compte pas. */
 @media (max-width: 767px) {
-  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) {
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action, > .dish-head + .dish-detail-after + .dish-action) {
     flex-flow: row wrap;
     align-items: center;
     gap: 0.5rem 1rem;
   }
 
-  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) > .dish-head {
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action, > .dish-head + .dish-detail-after + .dish-action) > .dish-head {
     flex: 1 1 11rem;
     min-width: 0;
     /* Un nom sur deux lignes : le prix au milieu, face au bouton. */
     align-items: center;
   }
 
-  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action) > .dish-action {
+  .theme-bai-ko .dish-body:has(> .dish-head + .dish-action, > .dish-head + .dish-detail-after + .dish-action) > .dish-action {
     margin: 0 0 0 auto;
   }
 }
@@ -4940,6 +4941,17 @@ html:has(.ticket-dock) {
   animation: none;
 }
 
+/* Aperçu à table : servie, la pastille reste, en retrait, sa coche — une
+   commande déjà passée, plus rien à guetter. La rangée serrée, elle perd son
+   mot la première (data-dock-fit « served »). */
+[data-dock-fit~="served"] .ticket-chip[data-done] .ticket-chip-label {
+  display: none;
+}
+
+[data-dock-fit~="served"] .ticket-chip[data-done] {
+  padding-right: 0.625rem;
+}
+
 /* Palette Ominin : en grand, Fraunces prend sa coupe d'affiche aux déliés
    d'un pixel (« 47 » se lisait « 17 ») ; le numéro et les minutes gardent une
    coupe de texte, plus pleine. */
@@ -5725,8 +5737,9 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 
   Leurs cartes sont surtout faites de lignes sans photo (boissons, plats en
   attente de photo) : une ligne par article, nom et prix à gauche, le bouton
-  à droite. En fiches pleines, les boissons du Novelty tenaient trente
-  écrans.
+  à droite — fiche à photo comprise, pour une seule colonne de prix et un
+  seul bouton d'ajout. En fiches pleines, les boissons du Novelty tenaient
+  trente écrans.
 */
 [data-menu-root]:is(
     [data-slug="le-novelty"],
@@ -5738,14 +5751,17 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
      nom accessible reste celui du composant (« Ajouter : Mojito »). */
   /* Sans bouton (« Indisponible »), la fiche garde sa mise en page. */
-  & .dish-grid > article:not(:has(.dish-photo)):has(.dish-action > button) {
+  & .dish-grid > article:has(.dish-action > button) {
+    /* Le bouton se centre sur la ligne du nom, qu'il déborde : ses marges
+       négatives le rendent moins haut qu'elle, il ne l'étire pas — sans
+       quoi la description s'écartait du nom, et un nom seul flottait
+       au-dessus du milieu de la ligne. Le rembourrage loge ce débord. */
     & .dish-body {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 2.75rem;
       column-gap: 0.875rem;
       row-gap: 0;
-      align-items: center;
-      padding: 0.75rem 0.875rem 0.75rem 1rem;
+      padding: 1.125rem 0.875rem 1.125rem 1rem;
     }
 
     & .dish-body > :not(.dish-action) {
@@ -5763,24 +5779,33 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 
     & .dish-action {
       grid-column: 2;
-      grid-row: 1 / span 4;
-      margin-top: 0;
+      grid-row: 1;
+      align-self: center;
+      margin-block: -0.75rem;
     }
 
     & .dish-action > button {
       position: relative;
-      display: grid;
-      place-items: center;
       width: 2.75rem;
       height: 2.75rem;
       padding: 0;
       font-size: 0;
     }
 
+    /* Le « + » en deux traits, au centre exact du bouton. Glyphe de la
+       police dans une grille, il montait de 3 px : le libellé masqué y
+       prenait une seconde rangée. Un thème règle sa taille et son trait
+       par --plus-size et --plus-stroke. */
     & .dish-action > button::before {
-      content: "+";
-      font-size: 1.5rem;
-      line-height: 1;
+      content: "";
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: var(--plus-size, 1rem);
+      height: var(--plus-size, 1rem);
+      background:
+        linear-gradient(currentColor, currentColor) center / 100% var(--plus-stroke, 0.125rem) no-repeat,
+        linear-gradient(currentColor, currentColor) center / var(--plus-stroke, 0.125rem) 100% no-repeat;
     }
 
     /* Le compte au panier, sur le bouton : au coin de la ligne, il couvrait le prix. */
@@ -5789,56 +5814,191 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       right: -0.5rem;
     }
 
+    /* Le corps du nom et du prix : un thème le règle par --row-name-size
+       (--row-name-size-lg dès 64rem), sans surenchère de sélecteurs. */
     & h3,
     & .dish-price {
-      font-size: 1.0625rem;
+      font-size: var(--row-name-size, 1.0625rem);
       line-height: 1.3;
     }
   }
 
-  /* Le format sous le nom, discret : collé au nom, « Kronenbourg 25 cl » ne se
-     coupait pas et poussait le prix sous le bouton. */
-  & .dish-grid > article .dish-detail {
-    display: block;
-    margin: 0.125rem 0 0;
-    color: var(--muted);
-    font-family: var(--brand-sans, var(--font-sans));
-    font-size: 0.75rem;
-    font-weight: 400;
-    white-space: normal;
+  /* Le format après la description, à son corps et sa couleur, à la suite
+     d'un paragraphe (« 5° · 33 cl ») : collé au nom, « Kronenbourg 25 cl »
+     poussait le prix sous le bouton ; dessous, en petit, il se lisait mal et
+     changeait de place d'une ligne à l'autre. */
+  & .dish-head .dish-detail {
+    display: none;
   }
 
-  /* Le filet de section garde une longueur visible quand le titre est long. */
+  & .dish-detail-after {
+    display: block;
+  }
+
+  & p > .dish-detail-after {
+    display: inline;
+    white-space: nowrap;
+
+    &::before {
+      content: "\a0· ";
+    }
+  }
+
+  /* Le filet prolonge la dernière ligne du titre : à côté d'un titre sur deux
+     lignes, il flottait au bout de la première. Bloc en ligne de toute la
+     largeur que sa marge négative annule, rogné au bord. Il garde 3rem au
+     moins : plus court, il passe dessous, sur toute la ligne (un bout de
+     15 px suivait « COCKTAILS SANS ALCOOL »). L'écart est au titre et non au
+     filet, qui part ainsi du bord une fois seul ; sa marge haute ne compte
+     qu'alors, et l'écarte des jambages. */
+  & .category-head {
+    display: block;
+    overflow-x: clip;
+    line-height: 0;
+    /* Équilibré, un titre long emmène son dernier mot avec le filet :
+       « LES VIANDES & BURGERS » laissait sinon le filet seul dessous, à côté
+       des titres courts où il suit le nom. */
+    text-wrap: balance;
+  }
+
+  & .category-heading {
+    display: inline;
+    padding-inline-end: 1rem;
+  }
+
   & .category-rule {
-    min-width: 2.5rem;
+    display: inline-block;
+    width: 100%;
+    margin-block-start: 0.75rem;
+    margin-inline: 0 calc(3rem - 100%);
+  }
+
+  /* Les braises du gabarit : un point égaré au bas du haut de page. */
+  & .ember-particle {
+    display: none;
+  }
+
+  /* Le mot-symbole à sa proportion, assez grand pour se lire (« CAFÉ DES
+     ARTS » tenait en 7 px sous l'anneau). */
+  & .footer-name img {
+    width: auto;
+    height: auto;
+    max-width: min(100%, 20rem);
+    max-height: 7rem;
+    margin-inline: auto;
   }
 
   & .hero-tagline {
     padding-inline: 1.25rem;
+    font-size: 0.8125rem;
     text-align: center;
     text-wrap: balance;
+  }
+
+  /* Sur le libellé : il porte son propre corps (10 px), que celui du lien
+     n'atteignait pas. */
+  & .hero-cue > span {
+    font-size: 0.75rem;
   }
 
   & .menu-highlights li {
     text-wrap: balance;
   }
+
+  /* L'adresse sur deux lignes (320 px) se centre dans sa pastille centrée. */
+  & .hero-contact a {
+    text-align: center;
+  }
+
+  /* Une photo qui charge se lit comme une place de photo, pas comme un
+     cadre vide. */
+  & .dish-photo {
+    background-color: var(--surface-raised);
+  }
+
+  /* Le rail montre ce qu'il cache : un fondu large du seul côté où des
+     catégories attendent (« ntipasti » tombait net au bord). Au bureau, la
+     flèche couvre le début du fondu (--rail-clear-*). */
+  & .category-rail {
+    --rail-fade-start: 0rem;
+    --rail-fade-end: 0rem;
+    --rail-clear-start: 0rem;
+    --rail-clear-end: 0rem;
+    mask-image: linear-gradient(
+      to right,
+      transparent var(--rail-clear-start),
+      #000 calc(var(--rail-clear-start) + var(--rail-fade-start)),
+      #000 calc(100% - var(--rail-clear-end) - var(--rail-fade-end)),
+      transparent calc(100% - var(--rail-clear-end))
+    );
+
+    &[data-more-start] {
+      --rail-fade-start: 3rem;
+    }
+
+    &[data-more-end] {
+      --rail-fade-end: 3rem;
+    }
+  }
+
+  /* La jauge de lecture sous la barre court sur la colonne de la carte, pas
+     d'un bord à l'autre de l'écran (celle de la rangée : max-w-2xl, px-5). */
+  & .rail-progress {
+    width: calc(min(100%, 42rem) - 2.5rem);
+    margin-inline: auto;
+  }
+
+  /* La description dans la feuille d'options (AddToOrder la cache ailleurs),
+     sans les lignes qui ne font que nommer ses choix. */
+  & .sheet-description {
+    display: block;
+  }
+
+  /* L'épingle et le combiné du pied de page sur les pastilles du haut :
+     sans eux, elles se lisaient comme des étiquettes. */
+  & .hero-contact-icon {
+    display: block;
+  }
+
+  /* Au panier, le prix d'une ligne à la couleur du total. */
+  & .cart-line-price {
+    color: inherit;
+  }
 }
 
-/* Au téléphone, le premier écran montre déjà la carte. */
-@media (max-width: 63.99rem) {
+/* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
+   placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
+   soulignement d'or. */
+:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) .rail-progress {
+  display: none;
+}
+
+/* Le premier écran montre déjà la carte, au téléphone comme au bureau. */
+[data-menu-root]:is(
+    [data-slug="le-novelty"],
+    [data-slug="le-victoria"],
+    [data-slug="cafe-des-arts"],
+    [data-slug="caffe-panis"]
+  ) > header.logo-hero {
+  min-height: 50svh;
+}
+
+/* Sur tablette, une carte se lit en liste, une ligne par article, sur une
+   largeur de lecture : en grille de deux, une fiche de 22rem n'y laissait
+   pas lire un nom. La fiche à photo met sa photo à gauche. Au bureau, les
+   fiches vont par deux (64rem). */
+@media (min-width: 48rem) {
   [data-menu-root]:is(
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"]
-    ) > header.logo-hero {
-    min-height: 50svh;
+    )
+    .dish-grid {
+    display: flex;
+    flex-direction: column;
   }
-}
 
-/* En grille, la fiche à photo prend la rangée, photo à gauche : à côté d'une
-   ligne sans photo, elle laissait un trou de 300 px. */
-@media (min-width: 48rem) {
   [data-menu-root]:is(
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
@@ -5847,7 +6007,6 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     )
     .dish-grid
     > article:has(.dish-photo) {
-    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
 
@@ -5860,22 +6019,11 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       background-image: linear-gradient(to left, var(--surface), transparent 45%);
     }
 
+    /* Le nom et le prix en tête, la description dessous : au milieu de la
+       hauteur, ils flottaient dans une moitié vide. */
     & .dish-body {
-      align-self: center;
+      align-self: start;
     }
-  }
-
-  /* Une ligne sans photo seule entre deux fiches à photo prend la rangée :
-     sinon une case vide à côté d'elle. */
-  [data-menu-root]:is(
-      [data-slug="le-novelty"],
-      [data-slug="le-victoria"],
-      [data-slug="cafe-des-arts"],
-      [data-slug="caffe-panis"]
-    )
-    .dish-grid
-    > article[data-span] {
-    grid-column: 1 / -1;
   }
 }
 
@@ -5885,10 +6033,127 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"]
-    ) .dish-grid > article:not(:has(.dish-photo)) {
-    & h3,
-    & .dish-price {
-      font-size: 1.25rem;
+    ) {
+    /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
+       laissait 600 px de vide de chaque côté à 1 920, et un prix filait à
+       600 px de son nom. Titres et filets s'arrêtent avec les fiches. */
+    & > main {
+      box-sizing: content-box;
+      /* Moins ses marges (lg:px-10) : à 1 024, la pleine largeur débordait. */
+      max-width: min(68rem, 100% - 5rem);
+      padding-top: 2.5rem;
+    }
+
+    /* Un seul corps de nom et de prix, fiche à photo ou non. */
+    & .dish-grid > article:has(.dish-action > button) :is(h3, .dish-price) {
+      font-size: var(--row-name-size-lg, 1.25rem);
+    }
+
+    /* Les fiches par deux, dans l'ordre de la carte, à photo ou non : une
+       rangée prend la hauteur de sa plus haute. Une fiche à photo garde sa
+       photo à gauche et met le prix sous le nom, qui garde la largeur. */
+    & .dish-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    & .dish-grid > article:has(.dish-photo) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+
+      & .dish-head {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+
+    /* La barre des catégories sur la colonne de la carte, comme main : la
+       première pastille part du bord des fiches, la dernière flèche s'y
+       arrête. */
+    & .rail-row {
+      box-sizing: content-box;
+      max-width: min(68rem, 100% - 5rem);
+      column-gap: 0;
+    }
+
+    /* Des flèches pour la souris, qui ne fait pas défiler de côté. Posées
+       sur les bouts du rail plutôt qu'à côté (marge négative de leur
+       largeur) : le rail garde toute la colonne pour ses pastilles, et ce
+       qui passe sous une flèche est déjà effacé — plus de liseré de la
+       pastille précédente entre elle et la première visible. */
+    & .rail-arrow {
+      display: grid;
+      position: relative;
+      z-index: 1;
+      background-color: var(--background);
+
+      &[data-side="start"] {
+        margin-inline-end: -2.75rem;
+      }
+
+      &[data-side="end"] {
+        margin-inline-start: -2.75rem;
+      }
+
+      &[data-idle] {
+        visibility: hidden;
+      }
+    }
+
+    /* Sous la flèche, le débord du rail (-mx-3) plus la flèche (3.5rem) :
+       le fondu s'y loge, derrière son fond plein, et finit à son bord. Au
+       repos, une pastille entamée par la flèche s'efface (data-clipped,
+       CategoryNav) : plus de « Pl » à côté d'elle. */
+    & .category-rail {
+      &[data-more-start] {
+        --rail-clear-start: 2rem;
+        --rail-fade-start: 1.5rem;
+      }
+
+      &[data-more-end] {
+        --rail-clear-end: 2rem;
+        --rail-fade-end: 1.5rem;
+      }
+
+      & > [data-clipped] {
+        opacity: 0;
+      }
+    }
+
+    & .rail-progress {
+      width: min(68rem, 100% - 5rem);
+    }
+  }
+
+  /* Le premier écran montre la carte : à 1 440 × 900, le haut de page
+     (640 px) ne laissait voir aucun plat. Plus serré, et sans « Découvrir
+     la carte », qui désignait ce qu'on voit déjà. :where() : un thème garde
+     la main sur son haut de page. */
+  :where(
+      [data-menu-root]:is(
+          [data-slug="le-novelty"],
+          [data-slug="le-victoria"],
+          [data-slug="cafe-des-arts"],
+          [data-slug="caffe-panis"]
+        )
+    ) {
+    & > header.logo-hero {
+      padding-block: 2.5rem;
+    }
+
+    & .hero-cue {
+      display: none;
+    }
+
+    & .hero-logo {
+      margin-bottom: 1.5rem;
+    }
+
+    & .hero-name {
+      font-size: 6rem;
+    }
+
+    & :is(.hero-rule, .hero-contact) {
+      margin-top: 1.5rem;
     }
   }
 }
@@ -5939,6 +6204,12 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   --brand-sans: var(--font-josefin-sans), var(--font-instrument-sans), sans-serif;
   /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
   font-family: var(--brand-sans);
+
+  /* Le nom et le prix des lignes au corps du site (20 px) : Cormorant, petit
+     œil, se lisait plus petit que les autres cartes au même corps. */
+  --row-name-size: 1.25rem;
+  /* Le « + » et sa coche au filet du cadre. */
+  --plus-stroke: 1px;
 
   color-scheme: dark;
 }
@@ -6002,7 +6273,8 @@ html:has([data-menu-root].theme-le-novelty) body {
   display: block;
 }
 
-.theme-le-novelty .hero-name span:last-child {
+/* Le bas de page aussi, quand son nom vient mot à mot (NameWords). */
+.theme-le-novelty :is(.hero-name, .footer-name) span:last-child {
   color: var(--nv-gold);
   font-style: italic;
 }
@@ -6033,7 +6305,7 @@ html:has([data-menu-root].theme-le-novelty) body {
 
 .theme-le-novelty .category-tagline {
   color: var(--nv-gold);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
 }
 
 /* Les tuiles de « Notre Carte » : angles droits, un filet entre elles. */
@@ -6055,8 +6327,10 @@ html:has([data-menu-root].theme-le-novelty) body {
   }
 }
 
+/* Les degrés des bières (« 4,5° ») aux chiffres alignés des prix. */
 .theme-le-novelty article h3 {
   font-weight: 500;
+  font-variant-numeric: lining-nums;
 }
 
 .theme-le-novelty .dish-price {
@@ -6084,23 +6358,314 @@ html:has([data-menu-root].theme-le-novelty) body {
   }
 }
 
-/* Les pilules de la navigation deviennent des onglets, soulignés d'or. */
+/* Les pilules de la navigation deviennent les onglets de « Notre Carte » :
+   du texte en capitales espacées, l'onglet courant en or, souligné d'or ; ni
+   cadre ni aplat. La carte et le téléphone Collect. */
 .theme-le-novelty nav [data-category] {
+  border-color: transparent;
   border-radius: 0;
+  background: none;
   box-shadow: none;
+  color: var(--muted);
+  font-family: var(--brand-sans);
   font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-/* Le nom au corps du site (20 px), au-dessus des règles communes des lignes. */
-[data-menu-root].theme-le-novelty .dish-grid > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
-  font-size: 1.25rem;
+.theme-le-novelty nav [data-category][aria-current] {
+  color: var(--nv-gold);
+  box-shadow: inset 0 -2px 0 var(--nv-gold);
 }
 
+@media (hover: hover) {
+  .theme-le-novelty nav [data-category]:not([aria-current]):hover {
+    color: var(--foreground);
+  }
+}
+
+/* Le « + » du téléphone Collect, cerné d'or comme celui de la carte. */
+.theme-le-novelty .demo-dish button.ember-gradient {
+  border: 1px solid var(--nv-gold);
+  background-color: transparent;
+  color: var(--nv-gold);
+}
+
+@media (hover: hover) {
+  .theme-le-novelty .demo-dish button.ember-gradient:hover {
+    background-color: var(--nv-gold);
+    color: var(--background);
+  }
+}
+
+/* L'en-tête du téléphone : « Le » droit, « Novelty » en italique doré (un
+   <span> par mot), l'accroche en capitales espacées dorées. */
+.theme-le-novelty .phone-name {
+  font-weight: 400;
+}
+
+.theme-le-novelty .phone-name span:last-child {
+  color: var(--nv-gold);
+  font-style: italic;
+}
+
+.theme-le-novelty .phone-tagline {
+  color: var(--nv-gold);
+  font-family: var(--brand-sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Adresse et téléphone en ligne de capitales espacées, comme la ligne
+   « Montpellier · Place Castellane » du site : sans pastille. */
+.theme-le-novelty .hero-contact a {
+  border-color: transparent;
+  background: none;
+  backdrop-filter: none;
+  font-family: var(--brand-sans);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Le filet vertical d'or du site, au-dessus de l'accroche ; le second mène à
+   « Découvrir la carte », à la place du chevron. */
+.theme-le-novelty .hero-tagline::before,
+.theme-le-novelty .hero-cue::before {
+  content: "";
+  display: block;
+  height: 2rem;
+  background: linear-gradient(transparent, var(--nv-gold)) center / 1px 100% no-repeat;
+}
+
+.theme-le-novelty .hero-tagline::before {
+  margin-bottom: 1rem;
+}
+
+.theme-le-novelty .hero-cue::before {
+  width: 1px;
+}
+
+.theme-le-novelty .hero-cue svg {
+  display: none;
+}
+
+/* Le bandeau en or, comme toutes les accroches. */
+.theme-le-novelty .menu-ticker-item {
+  color: var(--nv-gold);
+  font-weight: 400;
+}
+
+/* Le prix happy hour, dernière ligne des cocktails et des pressions qui en
+   ont un : une étiquette d'or en capitales espacées, comme les accroches. */
+.theme-le-novelty :is(#cocktails, #sans-alcool, #pression) .dish-lines {
+  display: flex;
+  flex-direction: column;
+}
+
+/* La ligne happy hour est la dernière de la description, avant les prix des
+   formats (.dish-tarifs) qu'elle suit à l'écran. */
+.theme-le-novelty
+  :is(#cocktails, #sans-alcool, #pression)
+  .dish-lines
+  > li:not(.dish-tarifs):is(:last-child, :has(+ .dish-tarifs)) {
+  order: 1;
+  margin-top: 0.375rem;
+  color: var(--nv-gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* La couronne de leur carte Tapas devant la Planche Gourmande : dessinée en
+   or, elle reste hors du nom (panier, ticket). */
+.theme-le-novelty article[data-item="planche-gourmande"] h3::before,
+.theme-le-novelty .demo-dish[data-item="planche-gourmande"] .demo-dish-name::before {
+  content: "";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.6em;
+  margin-right: 0.3em;
+  background-color: var(--nv-gold);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M2 14 0 2l7 5 5-7 5 7 7-5-2 12zM2 16h20v2H2z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* Les photos claires (assiettes blanches) éblouissaient sur le noir. */
+.theme-le-novelty :is(.dish-photo, .demo-dish) img {
+  filter: brightness(0.88);
+}
+
+/* Dans une section à photos, un plat sans photo garde la place d'une photo,
+   marquée du badge de la maison, estompé : entre deux grandes fiches, une
+   courte ligne de texte (Sépions, Bruschetta) cassait le rythme, et au
+   bureau son nom partait du bord quand les autres partent de la colonne de
+   texte. */
+[data-menu-root].theme-le-novelty .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo))::before {
+  --nv-voile: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+  content: "";
+  display: block;
+  aspect-ratio: 16 / 9;
+  background:
+    linear-gradient(var(--nv-voile), var(--nv-voile)),
+    url("/le-novelty/logo.webp") center / 5.5rem no-repeat,
+    var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-novelty .dish-grid:has(.dish-photo) > article:not(:has(.dish-photo)) {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+
+    &::before {
+      aspect-ratio: auto;
+      min-height: 13rem;
+    }
+
+    & .dish-body {
+      align-self: start;
+    }
+  }
+}
+
+/* Les fiches à photo par deux (bloc commun) : la place de photo suit leur
+   proportion et leur nom sur le prix. Le fond de la grille, qui fait le
+   filet entre les fiches, ne remplit plus la case vide d'une rangée
+   impaire : le filet est le noir de la page, comme entre les tuiles. */
 @media (min-width: 64rem) {
-  [data-menu-root].theme-le-novelty .dish-grid > article:not(:has(.dish-photo)) :is(h3, .dish-price) {
-    font-size: 1.375rem;
+  [data-menu-root].theme-le-novelty .dish-grid:has(.dish-photo) {
+    border: 0;
+    background: none;
+
+    & > article:not(:has(.dish-photo)) {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+
+      & .dish-head {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  }
+}
+
+/* Au bureau, les sections sans photo (boissons, formules) en tuiles de
+   « Notre Carte », le fond entre elles : le nom, le prix et le « + » en
+   tête comme sur la ligne du téléphone, la description dessous. Posé en
+   bas de tuile, le « + » laissait 100 à 150 px vides dans les tuiles
+   courtes. Deux colonnes, trois quand la colonne de la carte (section,
+   conteneur) leur laisse un nom lisible. */
+[data-menu-root].theme-le-novelty main section {
+  container: nv-section / inline-size;
+}
+
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 0;
+    background: none;
+  }
+}
+
+@container nv-section (min-width: 56rem) {
+  [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Téléphone Collect : des tuiles sans cadre, le fond entre elles, comme sur
+   le site ; dans une section à photos, une ligne sans photo garde sa place
+   de vignette, pour que les noms s'alignent. L'anneau de « Prête » au carré. */
+.theme-le-novelty .demo-dish {
+  border-color: transparent;
+}
+
+.theme-le-novelty [data-section]:has(.demo-dish img) .demo-dish:not(:has(img))::before {
+  content: "";
+  flex-shrink: 0;
+  width: 4rem;
+  height: 4rem;
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.theme-le-novelty .phone-screen .pulse-ring {
+  border-radius: 0;
+}
+
+/* Les flèches du rail, au bureau : cernées d'or comme le « + ». */
+.theme-le-novelty .rail-arrow {
+  border: 1px solid var(--hairline);
+  color: var(--nv-gold);
+}
+
+@media (hover: hover) {
+  .theme-le-novelty .rail-arrow:hover {
+    border-color: var(--nv-gold);
+  }
+}
+
+/* Au téléphone, un troisième onglet entre dans l'écran, et un chevron d'or
+   dit qu'il en reste : à 390 px, « Cocktails » et « Cocktails signature »
+   remplissaient le rail, la carte semblait n'avoir que des cocktails. */
+@media (width < 64rem) {
+  [data-menu-root].theme-le-novelty {
+    & nav [data-category] {
+      padding-inline: 0.625rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* Le chevron se pose sur le bout effacé du rail. */
+    & .category-rail[data-more-end] {
+      --rail-fade-end: 2rem;
+      --rail-clear-end: 1.5rem;
+    }
+
+    & .rail-row {
+      position: relative;
+    }
+
+    & .rail-row:has(.category-rail[data-more-end])::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 0.875rem;
+      width: 0.4375rem;
+      height: 0.4375rem;
+      border: solid var(--nv-gold);
+      border-width: 1px 1px 0 0;
+      transform: translateY(-50%) rotate(45deg);
+      pointer-events: none;
+    }
+  }
+}
+
+/* Le numéro du bas de page aux chiffres alignés des prix : les chiffres
+   elzéviriens de Cormorant faisaient descendre « 34 35 ». */
+.theme-le-novelty .footer-phone {
+  font-variant-numeric: lining-nums;
+}
+
+/* Le panier nomme et chiffre ses lignes au corps de la carte. */
+[data-menu-root].theme-le-novelty :is(.cart-line-name, .cart-line-price) {
+  font-size: var(--row-name-size);
+  line-height: 1.3;
+}
+
+/* Les prix du panier en or, comme ceux de la carte. */
+[data-menu-root].theme-le-novelty :is(.cart-line-price, .cart-total) {
+  color: var(--nv-gold);
+  font-variant-numeric: lining-nums;
+}
+
+/* Sans mouvement, le bandeau se pose à plat : serré, il tient en moins de
+   lignes. */
+@media (prefers-reduced-motion: reduce) {
+  [data-menu-root].theme-le-novelty .menu-ticker-item {
+    letter-spacing: 0.1em;
+    line-height: 1.5;
   }
 }
 
@@ -6111,32 +6676,40 @@ html:has([data-menu-root].theme-le-novelty) body {
   façade de pierre crème, un tapis rouge au logo tissé. La page prend le
   noir du store, la crème de la pierre pour le texte, le rouge du tapis pour
   les boutons et le bandeau ; Source Serif 4 grasse, la plus proche du
-  lettrage du store ; DM Sans pour le texte.
+  lettrage du store ; DM Sans pour le texte. Les noirs tirent vers la
+  pierre, le laiton et les banquettes fauves de la salle : un noir froid se
+  lisait comme un mode sombre générique.
 */
 .theme-le-victoria {
   --vc-red: #b8323f;
   --vc-red-light: #e0606f;
+  /* La pierre de la façade et le laiton des appliques, au haut de page. */
+  --vc-stone: #e9dfc9;
+  --vc-brass: #a8834a;
 
-  --background: #16171c;
+  --background: #171513;
   --foreground: #f2ebdc;
 
-  --surface: #1e2027;
-  --surface-raised: #262830;
+  --surface: #201d1a;
+  --surface-raised: #2a2622;
   --hairline: rgba(242, 235, 220, 0.12);
 
   --muted: #b8b1a2;
   --faint: #a39c8e;
 
+  /* Texte, coche et bordure de choix sur la surface : le rouge éclairci
+     (4,85:1) ; le rouge du tapis (2,85:1) reste aux aplats (.ember-gradient). */
   --ember-1: var(--vc-red-light);
-  --ember-2: var(--vc-red);
+  --ember-2: var(--vc-red-light);
   --ember-3: #8f2433;
 
   --shimmer-highlight: rgba(242, 235, 220, 0.08);
   --glow-inner: rgba(184, 50, 63, 0.08);
   --glow-outer: rgba(184, 50, 63, 0.05);
-  --hero-glow-1: #f2ebdc;
-  --hero-glow-2: var(--vc-red);
-  --hero-glow-3: var(--vc-red);
+  /* Pas de lueur : le store est un noir à plat. */
+  --hero-glow-1: transparent;
+  --hero-glow-2: transparent;
+  --hero-glow-3: transparent;
 
   --brand-display: var(--font-source-serif-4), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
@@ -6148,7 +6721,7 @@ html:has([data-menu-root].theme-le-novelty) body {
 /* La carte seulement : sur la démo Collect, seul le téléphone porte le thème. */
 html:has([data-menu-root].theme-le-victoria),
 html:has([data-menu-root].theme-le-victoria) body {
-  background-color: #16171c;
+  background-color: #171513;
 }
 
 .theme-le-victoria :focus-visible {
@@ -6174,17 +6747,155 @@ html:has([data-menu-root].theme-le-victoria) body {
   letter-spacing: -0.01em;
 }
 
-/* Le lettrage du store : capitales serif grasses, espacées. */
-.theme-le-victoria .hero-tagline {
+/* Le lettrage du store : capitales serif grasses, espacées, sur la carte
+   comme sur le téléphone Collect. */
+.theme-le-victoria .phone-tagline,
+.theme-le-victoria .hero-tagline > span {
   color: var(--foreground);
   font-family: var(--brand-display);
   font-weight: 700;
+  text-transform: uppercase;
   letter-spacing: 0.18em;
 }
 
-.theme-le-victoria .hero-rule {
-  height: 2px;
-  opacity: 1;
+/*
+  Le haut de page est la devanture : la pierre crème de la façade porte le
+  badge, le store noir dessous, sous la barre de laiton qui le tient, lettré
+  « BAR RESTAURANT  Le Victoria  TAPAS COCKTAIL » sur une ligne comme dans la
+  rue ; plus étroit, les deux accroches encadrent le nom. Les mots du store
+  sont ceux de l'accroche, sortie de son paragraphe (display: contents) pour
+  encadrer le nom, sans son point médian. Sans hauteur minimale ni « Découvrir
+  la carte » : au téléphone, le premier plat est déjà au premier écran.
+*/
+.theme-le-victoria > header.logo-hero :is(.logo-breathe, .hero-gradient-drift, .hero-rule, .hero-cue) {
+  display: none;
+}
+
+[data-menu-root].theme-le-victoria > header.logo-hero {
+  min-height: 0;
+  justify-content: flex-start;
+  padding-top: 0;
+  padding-bottom: 1.5rem;
+}
+
+.theme-le-victoria .hero-logo {
+  display: flex;
+  align-self: stretch;
+  justify-content: center;
+  margin-bottom: 0;
+  padding-block: 0.875rem;
+  background-color: var(--vc-stone);
+}
+
+/* L'adresse et le téléphone sur une ligne dès qu'ils y tiennent (390 px). */
+.theme-le-victoria .hero-contact {
+  margin-top: 1rem;
+  column-gap: 0.375rem;
+  padding-inline: 1rem;
+}
+
+.theme-le-victoria .hero-contact a {
+  padding-inline: 0.75rem;
+}
+
+.theme-le-victoria .hero-lockup {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem 2.5rem;
+  width: 100%;
+  padding: 1rem 1.25rem 1.125rem;
+  border-top: 3px solid var(--vc-brass);
+  background-color: #0d0c0b;
+  box-shadow: 0 1rem 1.5rem -1rem rgb(0 0 0 / 0.7);
+}
+
+.theme-le-victoria .hero-tagline {
+  display: contents;
+}
+
+.theme-le-victoria .hero-tagline > span {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.theme-le-victoria .hero-tagline > span:first-child {
+  order: -1;
+}
+
+.theme-le-victoria .hero-tagline > span:last-child {
+  order: 1;
+}
+
+.theme-le-victoria .hero-tagline .tagline-sep {
+  display: none;
+}
+
+.theme-le-victoria .hero-name {
+  margin: 0;
+  padding-inline: 0;
+  font-size: min(3.25rem, 15vw);
+  line-height: 1;
+}
+
+@media (min-width: 40rem) {
+  [data-menu-root].theme-le-victoria > header.logo-hero {
+    padding-bottom: 2rem;
+  }
+
+  .theme-le-victoria .hero-logo {
+    padding-block: 1.25rem;
+  }
+
+  .theme-le-victoria .hero-contact {
+    margin-top: 1.5rem;
+  }
+
+  .theme-le-victoria .hero-lockup {
+    padding-block: 1.5rem;
+  }
+
+  .theme-le-victoria .hero-tagline > span {
+    font-size: 1rem;
+  }
+
+  .theme-le-victoria .hero-name {
+    font-size: 4rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-le-victoria .hero-logo {
+    padding-block: 1.5rem;
+  }
+
+  .theme-le-victoria .hero-lockup {
+    flex-direction: row;
+    align-items: baseline;
+  }
+
+  .theme-le-victoria .hero-name {
+    font-size: 4.5rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  .theme-le-victoria .hero-lockup {
+    column-gap: 4rem;
+    padding-block: 1.75rem;
+  }
+
+  .theme-le-victoria .hero-tagline > span {
+    font-size: 1.25rem;
+  }
+
+  .theme-le-victoria .hero-name {
+    font-size: 5.5rem;
+  }
 }
 
 .theme-le-victoria .menu-highlights {
@@ -6192,9 +6903,45 @@ html:has([data-menu-root].theme-le-victoria) body {
   background: var(--vc-red);
 }
 
+/* Espacé comme les capitales du store, qu'il suit de près. */
 .theme-le-victoria .menu-highlights li {
   color: var(--foreground);
   font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Au téléphone, un argument par ligne : côte à côte, sans séparateur, ils
+   se lisaient d'un seul tenant. Le point du store entre eux sur une ligne. */
+@media (max-width: 39.99rem) {
+  .theme-le-victoria .menu-highlights ul {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 40rem) {
+  .theme-le-victoria .menu-highlights li + li::before {
+    content: "·";
+    content: "·" / "";
+    margin-right: 2rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-le-victoria .menu-highlights li + li::before {
+    margin-right: 3.5rem;
+  }
+}
+
+.theme-le-victoria .menu-ticker-item {
+  position: relative;
+}
+
+.theme-le-victoria .menu-ticker-item::after {
+  content: "·";
+  content: "·" / "";
+  position: absolute;
+  right: -0.3em;
+  color: var(--vc-red-light);
 }
 
 .theme-le-victoria .category-rule {
@@ -6213,17 +6960,50 @@ html:has([data-menu-root].theme-le-victoria) body {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Le badge de l'enseigne ouvre la page : sans les braises du gabarit. */
-.theme-le-victoria .ember-particle {
-  display: none;
+/* Le rouge du tapis ne fait que 2,85:1 sur la fiche : un filet crème à
+   moitié (4,5:1) détache le bouton. */
+[data-menu-root].theme-le-victoria .dish-action > button.ember-gradient {
+  box-shadow: 0 0 0 1px rgb(242 235 220 / 0.5);
 }
 
+/* Les photos libres prennent la lumière de la séance du restaurant, sur
+   fond noir : plus sombres, plus chaudes, les bords assourdis. */
+[data-menu-root].theme-le-victoria .dish-photo {
+  &:has(> img:is([src*="images.pexels.com"], [src*="images.unsplash.com"])) {
+    & > img {
+      filter: brightness(0.8) contrast(1.1) saturate(0.85) sepia(0.15);
+    }
+
+    & > .dish-photo-fade {
+      box-shadow: inset 0 0 3rem 0.5rem rgb(13 12 11 / 0.6);
+    }
+  }
+}
+
+/* Le badge et son disque noir posés sur la pierre ; il touche le bord de
+   l'avatar d'origine, d'où sa taille un peu plus grande au bureau. */
 .theme-le-victoria .hero-logo img {
-  height: 6.5rem;
+  height: 5rem;
+}
+
+@media (min-width: 40rem) {
+  .theme-le-victoria .hero-logo img {
+    height: 6rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-le-victoria .hero-logo img {
+    height: 7rem;
+  }
+}
+
+.theme-le-victoria .phone-logo-cover img {
+  height: 4.5rem;
 }
 
 /* Le téléphone de la démo Collect : les noms en serif grasse, comme le store ;
-   « Ouvert » en crème, le rouge se lisant comme une alerte. */
+   « Ouvert » en crème, pastille comprise, le rouge se lisant comme une alerte. */
 .theme-le-victoria .demo-dish-name {
   font-weight: 700;
 }
@@ -6232,15 +7012,32 @@ html:has([data-menu-root].theme-le-victoria) body {
   color: var(--foreground);
 }
 
+.theme-le-victoria .phone-open .ember-gradient {
+  background-color: var(--foreground);
+}
+
+/* Le choix retenu cerné du rouge éclairci plein : à 60 %, la bordure du
+   composant tombait sous 3:1 sur la surface. */
+.theme-le-victoria .choice-row.is-checked {
+  border-color: var(--ember-2);
+}
+
+/* Le nom en couverture du téléphone, lettré comme le store. */
+.theme-le-victoria .phone-name {
+  color: var(--foreground);
+  font-family: var(--brand-display);
+  font-weight: 700;
+}
+
 /*
   Café des Arts (3 rue Saint-Guilhem) — bar restaurant sur la place
   Castellane. Son logo : un anneau fendu, « c » gris clair et « a » magenta
   qui coule comme de la peinture, sur noir, et « CAFÉ DES ARTS » en capitales
   géométriques fines ; dans la salle, le même nom en néon rose. La page prend
   le noir du logo, le gris pour le texte, le magenta (#E6007E, éclairci pour
-  l'encre noire des boutons) pour l'action et les prix ; Didact Gothic, la
-  géométrique du mot-symbole, en capitales espacées pour les sections ; un
-  halo magenta, le néon, derrière le logo.
+  l'encre noire des boutons) pour les prix ; Questrial, la géométrique du
+  mot-symbole, en capitales espacées pour les sections ; le néon en halo
+  magenta derrière le logo, les titres et leurs filets.
 */
 .theme-cafe-des-arts {
   --ca-magenta: #e6007e;
@@ -6270,7 +7067,11 @@ html:has([data-menu-root].theme-le-victoria) body {
   --hero-halo-1: rgba(230, 0, 126, 0.45);
   --hero-halo-2: rgba(230, 0, 126, 0.15);
 
-  --brand-display: var(--font-didact-gothic), var(--font-instrument-sans), sans-serif;
+  /* Questrial, la géométrique Century Gothic du mot-symbole, pour les titres,
+     les accroches, les noms et les prix. Didact Gothic, sa voisine, doublait
+     l'espace avant un D ou un M en capitales espacées : mesuré à l'encre,
+     0,36 à 0,66 em entre deux mots, contre 0,45 à 0,61 em ici. */
+  --brand-display: var(--font-questrial), var(--font-instrument-sans), sans-serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
   font-family: var(--brand-sans);
 
@@ -6288,10 +7089,30 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   outline-offset: 3px;
 }
 
-/* Le magenta à plat, encre noire (4,7:1). */
+/* Le magenta à plat, encre noire (5,1:1). */
 .theme-cafe-des-arts .ember-gradient {
   background-image: none;
   background-color: var(--ca-magenta-ink);
+}
+
+/* Le « + » des lignes : cerné de magenta (4,6:1 sur la fiche), plein au
+   survol et à l'appui ; le magenta plein reste aux prix. */
+.theme-cafe-des-arts .dish-action > button.ember-gradient {
+  border: 1.5px solid var(--ca-magenta-ink);
+  background-color: transparent;
+  color: var(--ca-magenta-ink);
+}
+
+.theme-cafe-des-arts .dish-action > button.ember-gradient:active {
+  background-color: var(--ca-magenta-ink);
+  color: var(--background);
+}
+
+@media (hover: hover) {
+  .theme-cafe-des-arts .dish-action > button.ember-gradient:hover {
+    background-color: var(--ca-magenta-ink);
+    color: var(--background);
+  }
 }
 
 .theme-cafe-des-arts .ember-text {
@@ -6300,7 +7121,7 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   -webkit-text-fill-color: currentColor;
 }
 
-/* Didact Gothic n'a qu'une graisse. */
+/* Questrial n'a qu'une graisse. */
 .theme-cafe-des-arts .font-display {
   font-weight: 400;
 }
@@ -6310,17 +7131,30 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   height: auto;
 }
 
-/* Les sections comme le mot-symbole : capitales géométriques espacées. */
+/* Les sections comme le mot-symbole, en capitales géométriques espacées, sous
+   le halo du néon rose de la salle. */
 .theme-cafe-des-arts .category-heading {
+  font-family: var(--brand-display);
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  text-shadow: 0 0 0.5em rgba(230, 0, 126, 0.45);
 }
 
+/* Un cran plus petit sur téléphone : les titres longs tiennent en deux lignes. */
+@media (max-width: 39.99rem) {
+  .theme-cafe-des-arts h2.category-heading {
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Le filet en tube de néon. */
 .theme-cafe-des-arts .category-rule {
   height: 2px;
   background-image: none;
   background-color: var(--ca-magenta);
   opacity: 0.85;
+  box-shadow: 0 0 0.5rem rgba(230, 0, 126, 0.7);
 }
 
 .theme-cafe-des-arts .category-tagline {
@@ -6328,9 +7162,19 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
 }
 
 .theme-cafe-des-arts .hero-tagline,
-.theme-cafe-des-arts .menu-highlights li {
+.theme-cafe-des-arts .menu-highlights li,
+.theme-cafe-des-arts .phone-tagline {
   font-family: var(--brand-display);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
+}
+
+.theme-cafe-des-arts .phone-tagline {
+  text-transform: uppercase;
+}
+
+/* Le logo dégagé de l'île du téléphone Collect. */
+.theme-cafe-des-arts .phone-logo-cover img {
+  margin-top: 0.75rem;
 }
 
 .theme-cafe-des-arts .menu-highlights {
@@ -6347,14 +7191,211 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* Le sujet de la photo n'est pas au centre du cliché : les pâtes sous un
+   grand noir, la crème brûlée sous le chalumeau. */
+.theme-cafe-des-arts article[data-item="mac-and-cheese"] .dish-photo img {
+  object-position: 50% 60%;
+}
+
+.theme-cafe-des-arts article[data-item="creme-brulee"] .dish-photo img {
+  object-position: 50% 70%;
+}
+
+/* La grenadine du Tequila Sunrise est au fond du verre. */
+.theme-cafe-des-arts article[data-item="tequila-sunrise"] .dish-photo img {
+  object-position: 50% 75%;
+}
+
+/* La signature de la maison : Gérard Cabiron, MOF, cerclé de néon. */
+.theme-cafe-des-arts #coupes-glacees .category-tagline {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.375rem 1rem;
+  border: 1.5px solid var(--ca-magenta);
+  border-radius: 9999px;
+  box-shadow:
+    0 0 0.5rem rgba(230, 0, 126, 0.6),
+    inset 0 0 0.375rem rgba(230, 0, 126, 0.35);
+  color: var(--foreground);
+  font-family: var(--brand-display);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 0.5em rgba(230, 0, 126, 0.6);
+}
+
+/* Le bar en liste, comme une carte de bar : boissons, bouteilles, apéritifs,
+   spiritueux et vins en lignes serrées sur un seul panneau, un filet entre
+   elles. Les cocktails, les pressions et les photos gardent leurs fiches :
+   la page change de pas entre deux familles. */
+.theme-cafe-des-arts
+  :is(
+    #boissons-chaudes,
+    #boissons-fraiches,
+    #bieres-bouteille,
+    #aperitifs,
+    #champagnes,
+    #rhums,
+    #vodka,
+    #gin,
+    #whisky,
+    #tequila,
+    #digestifs-liqueurs,
+    #vins-blanc,
+    #vins-rose,
+    #vins-rouge,
+    #vins-petillant
+  ) {
+  & .dish-grid {
+    gap: 0;
+    border: 1px solid var(--hairline);
+    border-radius: 1rem;
+    background: var(--surface);
+  }
+
+  & .dish-grid > article {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  & .dish-grid > article + article {
+    border-top: 1px solid var(--hairline);
+  }
+
+  /* Sur deux colonnes, un filet entre les rangées et un entre les colonnes. */
+  @media (min-width: 64rem) {
+    & .dish-grid > article + article {
+      border-top: 0;
+    }
+
+    & .dish-grid > article:nth-child(n + 3) {
+      border-top: 1px solid var(--hairline);
+    }
+
+    & .dish-grid > article:nth-child(odd) {
+      border-right: 1px solid var(--hairline);
+    }
+  }
+
+  /* Assez haute pour que deux « + » voisins ne se touchent pas. */
+  & .dish-grid > article:has(.dish-action > button) .dish-body {
+    padding-block: 0.875rem;
+  }
+}
+
+/* Les familles du bar, en enseigne de néon entre deux tubes : « Côté bar »
+   (le nom de la carte des boissons), puis les spiritueux et les vins. */
+.theme-cafe-des-arts :is(#boissons-chaudes, #rhums, #vins-blanc)::before {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 2.5rem;
+  padding-inline: 3.5rem;
+  background:
+    linear-gradient(var(--ca-magenta), var(--ca-magenta)) left center / 2.5rem 2px no-repeat,
+    linear-gradient(var(--ca-magenta), var(--ca-magenta)) right center / 2.5rem 2px no-repeat;
+  color: var(--ca-magenta-ink);
+  font-family: var(--brand-display);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  filter: drop-shadow(0 0 0.25rem rgba(230, 0, 126, 0.6));
+}
+
+.theme-cafe-des-arts #boissons-chaudes::before {
+  content: "Côté bar";
+  content: "Côté bar" / "";
+}
+
+.theme-cafe-des-arts #rhums::before {
+  content: "Spiritueux";
+  content: "Spiritueux" / "";
+}
+
+.theme-cafe-des-arts #vins-blanc::before {
+  content: "Les vins";
+  content: "Les vins" / "";
+}
+
+/* La feuille d'options aux couleurs de la salle : le titre souligné d'un
+   tube de néon, les groupes en capitales espacées comme les sections, le
+   choix coché cerclé de magenta. Sur la carte seulement. */
+[data-menu-root].theme-cafe-des-arts [role="dialog"] {
+  & > :first-child:has(> div > h3) {
+    border-bottom: 2px solid var(--ca-magenta);
+    box-shadow: 0 0.25rem 0.75rem -0.25rem rgba(230, 0, 126, 0.7);
+  }
+
+  & legend {
+    font-family: var(--brand-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  & legend > span {
+    font-family: var(--brand-sans);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  & .choice-row.is-checked {
+    border-color: var(--ca-magenta);
+    box-shadow: 0 0 0.5rem rgba(230, 0, 126, 0.35);
+  }
+
+  & input:is([type="radio"], [type="checkbox"]) {
+    appearance: none;
+    display: grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    border: 1.5px solid var(--faint);
+    border-radius: 50%;
+  }
+
+  & input[type="checkbox"] {
+    border-radius: 0.25rem;
+  }
+
+  & input:checked {
+    border-color: var(--ca-magenta-ink);
+    box-shadow: 0 0 0.375rem rgba(230, 0, 126, 0.7);
+  }
+
+  & input[type="radio"]:checked::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--ca-magenta-ink);
+  }
+
+  & input[type="checkbox"]:checked {
+    background-color: var(--ca-magenta-ink);
+  }
+
+  & input[type="checkbox"]:checked::before {
+    content: "";
+    width: 0.3rem;
+    height: 0.55rem;
+    translate: 0 -10%;
+    rotate: 45deg;
+    border: solid var(--background);
+    border-width: 0 2px 2px 0;
+  }
+}
+
 /*
   Caffè Panis (3 place du Marché aux Fleurs) — caffè, ristorante, gelateria.
   Son identité : le mot-symbole ivoire sur vert bouteille (#0F4B25, logo du
   site 2024, avatar Instagram), le store crème lettré de vert, les portes
   vertes, le sol en mosaïque noir et blanc. La page prend le crème du store,
-  le haut et le pied le vert des portes ; Gloock pour les titres, la plus
-  proche du mot-symbole ; DM Sans pour le texte. Le damier du sol borde le
-  haut de la carte.
+  le haut et le pied le vert des portes ; Fraunces douce pour les titres, la
+  plus proche du mot-symbole ; DM Sans pour le texte. Le damier du sol borde
+  le haut de la carte.
 */
 .theme-caffe-panis {
   --cp-green: #0f4b25;
@@ -6381,7 +7422,7 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   --glow-inner: rgba(15, 75, 37, 0.06);
   --glow-outer: rgba(15, 75, 37, 0.04);
 
-  --brand-display: var(--font-gloock), var(--font-fraunces), serif;
+  --brand-display: var(--font-fraunces-soft), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
   font-family: var(--brand-sans);
 
@@ -6399,6 +7440,11 @@ html:has([data-menu-root].theme-caffe-panis) body {
   outline-offset: 3px;
 }
 
+/* Sur le vert du haut et du pied de page, l'anneau vert disparaissait. */
+.theme-caffe-panis > :is(header.logo-hero, footer) :focus-visible {
+  outline-color: var(--cp-ivory);
+}
+
 /* Le vert à plat, comme la peinture des portes. */
 .theme-caffe-panis .ember-gradient {
   background-image: none;
@@ -6411,14 +7457,24 @@ html:has([data-menu-root].theme-caffe-panis) body {
   -webkit-text-fill-color: currentColor;
 }
 
-/* Gloock n'a qu'une graisse. */
+/* La Fraunces douce du logo : demi-grasse pour les noms et les prix,
+   extra-grasse pour les titres et le store (.menu-highlights li). */
 .theme-caffe-panis .font-display {
-  font-weight: 400;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100;
 }
 
-/* Le haut et le pied de page aux couleurs de l'enseigne : ivoire sur vert. */
+/* Le dessin de titrage, celui du mot-symbole. */
+.theme-caffe-panis .category-heading {
+  color: var(--cp-green);
+  font-weight: 800;
+  font-variation-settings: "SOFT" 100, "opsz" 144;
+}
+
+/* Le haut et le pied de page aux couleurs de l'enseigne : ivoire sur vert.
+   Le pied de la carte seul : ni celui du paiement ni celui du téléphone. */
 .theme-caffe-panis > header.logo-hero,
-.theme-caffe-panis footer {
+.theme-caffe-panis > footer {
   --background: var(--cp-green);
   --foreground: var(--cp-ivory);
   --surface: var(--cp-green-deep);
@@ -6453,8 +7509,37 @@ html:has([data-menu-root].theme-caffe-panis) body {
   height: 2.75rem;
 }
 
-.theme-caffe-panis > header.logo-hero :is(.ember-particle, .logo-breathe) {
+/* L'accroche lettrée comme le store : la serif du mot-symbole, en vert. */
+.theme-caffe-panis .phone-tagline {
+  color: var(--cp-green);
+  font-family: var(--brand-display);
+  font-size: 0.9375rem;
+}
+
+/* Le vert des portes à plat : sans lueur, le haut de page se lisait comme le
+   gabarit recoloré. */
+.theme-caffe-panis > header.logo-hero {
+  --hero-glow-1: var(--cp-green);
+  --hero-glow-2: var(--cp-green);
+  --hero-glow-3: var(--cp-green);
+}
+
+.theme-caffe-panis .footer-name img {
+  margin-bottom: 1.5rem;
+}
+
+/* La lueur mouvante du gabarit prenait l'ivoire du logo : un halo derrière
+   le mot-symbole. */
+.theme-caffe-panis > header.logo-hero :is(.ember-particle, .logo-breathe, .hero-gradient-drift) {
   display: none;
+}
+
+/* Au téléphone, une fiche à photo dès le premier écran. */
+@media (max-width: 47.99rem) {
+  [data-menu-root].theme-caffe-panis > header.logo-hero {
+    min-height: 0;
+    padding-top: 2rem;
+  }
 }
 
 .theme-caffe-panis .hero-logo img {
@@ -6466,6 +7551,37 @@ html:has([data-menu-root].theme-caffe-panis) body {
   letter-spacing: 0.3em;
 }
 
+/* Le mot-symbole et son accroche, seuls : l'adresse et le téléphone restent
+   au pied de la carte. */
+[data-menu-root].theme-caffe-panis .hero-contact {
+  display: none;
+}
+
+/* À 320 px, l'accroche tient sur une ligne : coupée, elle laissait un
+   « · » pendre au bout de la première. */
+@media (max-width: 22.49rem) {
+  .theme-caffe-panis .hero-tagline {
+    letter-spacing: 0.18em;
+  }
+}
+
+/* Au bureau, le haut de page à la mesure de son contenu, le mot-symbole en
+   grand : la moitié d'écran de vert à plat ne portait qu'un logo moyen. */
+@media (min-width: 64rem) {
+  [data-menu-root].theme-caffe-panis > header.logo-hero {
+    min-height: 0;
+    padding-block: 3.5rem 4.25rem;
+  }
+
+  .theme-caffe-panis .hero-logo img {
+    width: 40rem;
+  }
+
+  [data-menu-root].theme-caffe-panis .hero-tagline {
+    font-size: 0.875rem;
+  }
+}
+
 /* Le damier du sol, sous le haut de page. */
 .theme-caffe-panis > header.logo-hero::after {
   content: "";
@@ -6475,6 +7591,8 @@ html:has([data-menu-root].theme-caffe-panis) body {
   background: var(--cp-mosaic) 0 0 / 0.75rem 0.75rem;
 }
 
+/* Le store de la devanture : toile crème lettrée de vert dans la serif du
+   mot-symbole. */
 .theme-caffe-panis .menu-highlights {
   border: 0;
   background: var(--surface);
@@ -6482,19 +7600,34 @@ html:has([data-menu-root].theme-caffe-panis) body {
 
 .theme-caffe-panis .menu-highlights li {
   color: var(--cp-green);
-  font-family: var(--brand-sans);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: none;
 }
 
-/* Le Mama King : la photo garde la pizza, pas les mains du convive en haut. */
-.theme-caffe-panis img[src*="28996257"] {
-  object-position: 50% 85%;
+/* Une photo qui charge reste une place de photo, pas un trou. */
+[data-menu-root].theme-caffe-panis .dish-photo {
+  background-color: var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
 
-.theme-caffe-panis .category-heading {
+/* La photo nette jusqu'à son filet : le voile crème la délavait. */
+[data-menu-root].theme-caffe-panis .dish-photo-fade {
+  display: none;
+}
+
+/* Le compte au panier aux couleurs de l'enseigne, pas en pastille noire. */
+[data-menu-root].theme-caffe-panis .cart-count {
+  background-color: var(--cp-ivory);
   color: var(--cp-green);
+  box-shadow: 0 0 0 1px var(--cp-green);
+}
+
+@media (min-width: 48rem) {
+  .theme-caffe-panis .dish-grid > article .dish-photo {
+    border-bottom: 0;
+    border-right: 1px solid var(--hairline);
+  }
 }
 
 .theme-caffe-panis .category-rule {
@@ -6512,9 +7645,1099 @@ html:has([data-menu-root].theme-caffe-panis) body {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-.theme-caffe-panis footer {
+.theme-caffe-panis > footer {
   border-top: 0;
   background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--cp-green);
+}
+
+/*
+  Écusson — le mouvement. Chaque carte bouge comme l'enseigne qu'elle
+  reprend : au Novelty, le filet d'or qui se trace et un reflet sur
+  « Novelty » ; au Victoria, le badge qui se pose comme un tampon, le store
+  qui se déroule et le tapis rouge ; au Café des Arts, le néon qui s'allume
+  et la peinture qui coule ; chez Caffè Panis, la mosaïque posée carreau par
+  carreau et le store qui tombe. En commun : titres et lignes entrent au
+  défilement, le « + » devient une coche, la barre du panier monte du bas,
+  la feuille d'options glisse comme un tiroir.
+
+  Rien n'attend le JavaScript pour se montrer : les entrées sont des
+  animations CSS, au chargement ou liées au défilement, et sans prise en
+  charge tout est déjà en place. Mouvement réduit : rien ne bouge, la page
+  est d'emblée dans son état final ; seuls restent les états (la coche
+  d'ajout, le trait de l'onglet courant), sans transition.
+*/
+[data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) {
+  /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
+  --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
+  --ec-rebond: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Un trait qui se dessine : lent aux deux bouts. */
+  --ec-trace: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Ajouté : le « + » devient une coche, le temps du « Ajouté ✓ » du
+     composant (data-added). Un état, pas un mouvement : il reste en
+     mouvement réduit. */
+  & .dish-grid > article:has(.dish-action > button) .dish-action > button[data-added]::before {
+    width: calc(var(--plus-size, 1rem) * 0.45);
+    height: calc(var(--plus-size, 1rem) * 0.8);
+    translate: 0 -12%;
+    rotate: 45deg;
+    background: none;
+    border: solid currentColor;
+    border-width: 0 var(--plus-stroke, 0.125rem) var(--plus-stroke, 0.125rem) 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) {
+    /* Le filet du héros se trace depuis son milieu. */
+    & .hero-rule {
+      animation: ec-trait 0.9s var(--ec-trace) both;
+      animation-delay: var(--hero-delay);
+    }
+
+    /* L'appui : la coche se pose d'un petit rebond, le bouton bat une fois. */
+    & .dish-action > button[data-added] {
+      animation: ec-ajout 0.4s ease-out;
+    }
+
+    & .dish-grid > article:has(.dish-action > button) .dish-action > button[data-added]::before {
+      animation: ec-coche 0.32s var(--ec-rebond) backwards;
+    }
+
+    /* Le compte au panier du plat saute à chaque ajout (une pastille par
+       compte, voir AddToOrder). */
+    & .cart-count {
+      animation: ec-pastille 0.34s var(--ec-rebond) backwards;
+    }
+
+    /* La barre du panier monte du bas de l'écran à son arrivée, puis saute
+       à chaque ajout (cart-bump-*), son compte avec elle. */
+    & .cart-bar {
+      animation: ec-panier 0.45s var(--ec-tiroir) backwards;
+    }
+
+    & .cart-bar.cart-bump-a {
+      animation:
+        ec-panier 0.45s var(--ec-tiroir) backwards,
+        cart-bump-a 0.32s ease-out;
+    }
+
+    & .cart-bar.cart-bump-b {
+      animation:
+        ec-panier 0.45s var(--ec-tiroir) backwards,
+        cart-bump-b 0.32s ease-out;
+    }
+
+    & .cart-bump-a .cart-bar-count {
+      animation: ec-compte-a 0.4s var(--ec-rebond);
+    }
+
+    & .cart-bump-b .cart-bar-count {
+      animation: ec-compte-b 0.4s var(--ec-rebond);
+    }
+
+    /* La feuille d'options monte du bas comme un tiroir. Même garde contre
+       le double-tap (voir Sheet) : elle tient tant que dure la montée. */
+    & .sheet-rise {
+      animation: ec-feuille-monte 0.32s var(--ec-tiroir) both;
+    }
+
+    & .sheet-fall {
+      animation: ec-feuille-descend 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+    }
+
+    /* Un choix coché s'enfonce d'un cran et revient. */
+    & .choice-row.is-checked {
+      animation: ec-choix 0.22s ease-out;
+    }
+
+    /* Une pastille de catégorie touchée cède sous le doigt (transition-all
+       du composant). */
+    & nav [data-category]:active {
+      scale: 0.96;
+    }
+  }
+
+  /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
+  @media (min-width: 40rem) {
+    [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) {
+      & .sheet-rise {
+        animation-name: ec-feuille-pose;
+      }
+
+      & .sheet-fall {
+        animation-name: ec-feuille-part;
+      }
+    }
+  }
+}
+
+/*
+  Au défilement : le titre de section monte, son filet se trace, chaque ligne
+  monte et se dévoile en entrant par le bas. Tout est achevé avant que
+  l'élément soit entier à l'écran (entry), son filet avant le premier quart :
+  une ligne n'est jamais à demi effacée au milieu de l'écran. Sur l'écran
+  seulement : une impression voit la page sans la faire défiler.
+*/
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) {
+      & .category-head {
+        view-timeline-name: --ec-titre;
+        animation: ec-entree linear backwards;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+
+      & .category-rule {
+        transform-origin: left;
+        animation: ec-filet linear backwards;
+        animation-timeline: --ec-titre;
+        animation-range: entry 25% cover 12%;
+      }
+
+      & .category-tagline {
+        animation: ec-entree linear backwards;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+    }
+
+    /* Les fiches montent entières ; au Novelty, les tuiles sont serties dans
+       la grille (le filet est son fond) : leur contenu monte dans la tuile
+       immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
+       référence : la ligne de temps est donc nommée sur la tuile. */
+    :is(.theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis)[data-menu-root] .dish-grid > article {
+      animation: ec-entree linear backwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+
+    [data-menu-root].theme-le-novelty .dish-grid > article {
+      view-timeline-name: --ec-tuile;
+
+      & > * {
+        animation: ec-entree linear backwards;
+        animation-timeline: --ec-tuile;
+        animation-range: entry 0% entry 70%;
+      }
+    }
+  }
+}
+
+@keyframes ec-trait {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ec-ajout {
+  35% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes ec-coche {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+@keyframes ec-pastille {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+@keyframes ec-panier {
+  from {
+    translate: 0 calc(100% + 1rem);
+  }
+}
+
+/* Deux noms pour rejouer le saut, comme cart-bump-*. */
+@keyframes ec-compte-a {
+  40% {
+    scale: 1.3;
+  }
+}
+
+@keyframes ec-compte-b {
+  40% {
+    scale: 1.3;
+  }
+}
+
+@keyframes ec-feuille-monte {
+  from {
+    translate: 0 100%;
+  }
+}
+
+@keyframes ec-feuille-descend {
+  to {
+    translate: 0 100%;
+  }
+}
+
+@keyframes ec-feuille-pose {
+  from {
+    opacity: 0;
+    translate: 0 1.5rem;
+    scale: 0.97;
+  }
+}
+
+@keyframes ec-feuille-part {
+  to {
+    opacity: 0;
+    translate: 0 1rem;
+    scale: 0.98;
+  }
+}
+
+@keyframes ec-choix {
+  40% {
+    scale: 0.98;
+  }
+}
+
+@keyframes ec-entree {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+  }
+}
+
+@keyframes ec-filet {
+  from {
+    scale: 0 1;
+  }
+}
+
+/* ---- Le Novelty : l'or qui se trace, le reflet sur « Novelty » ---------- */
+
+/* Le trait de l'onglet courant, dessiné sous la pastille (CategoryNav pose
+   --rail-x, --rail-y, --rail-w) : il glisse d'un onglet à l'autre. Avant
+   d'être posé, ou sans JavaScript, le soulignement de la pastille reste. */
+.theme-le-novelty .category-rail {
+  position: relative;
+}
+
+.theme-le-novelty .category-rail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 2px;
+  background-color: var(--nv-gold);
+  transform-origin: 0 0;
+  transform: translate(var(--rail-x, 0px), calc(var(--rail-y, 0px) - 2px)) scaleX(var(--rail-w, 0));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-le-novelty .category-rail[data-placed]::after {
+  opacity: 1;
+}
+
+.theme-le-novelty .category-rail[data-placed] [data-category][aria-current] {
+  box-shadow: none;
+}
+
+/* Une tuile survolée, ou dont on presse le « + », se cerne d'or comme
+   « Réserver » ; au survol, elle se lève d'un cran. */
+.theme-le-novelty .dish-grid > article::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px var(--nv-gold);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-le-novelty .dish-grid > article:has(.dish-action > button:active)::after {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .theme-le-novelty .dish-grid > article:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Ajouté : le « + » cerné d'or se remplit, la coche au filet du « + ». */
+.theme-le-novelty .dish-action > button.ember-gradient[data-added] {
+  background-color: var(--nv-gold);
+  color: var(--background);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-le-novelty .category-rail[data-placed]::after {
+    transition: transform 0.38s var(--ec-trace);
+  }
+
+  .theme-le-novelty .dish-action > button.ember-gradient {
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      scale 0.15s;
+  }
+
+  .theme-le-novelty .dish-grid > article::after {
+    transition: opacity 0.3s;
+  }
+
+  /* Le badge se dévoile sans monter : il se pose. */
+  .theme-le-novelty .hero-logo {
+    animation-name: nv-badge;
+  }
+
+  /* Le filet vertical d'or se trace de haut en bas au-dessus de l'accroche,
+     puis celui qui mène à la carte. */
+  .theme-le-novelty :is(.hero-tagline, .hero-cue)::before {
+    transform-origin: top;
+    animation: nv-trait 0.7s var(--ec-trace) 0.15s both;
+  }
+
+  .theme-le-novelty .hero-cue::before {
+    animation-delay: 1.25s;
+  }
+
+  /* Un reflet passe une fois sur « Novelty », l'italique doré, une fois le
+     nom posé : une copie du mot (data-word) dont seul un éclat se peint. */
+  .theme-le-novelty .hero-name span:last-child {
+    position: relative;
+  }
+
+  .theme-le-novelty .hero-name span:last-child::after {
+    content: attr(data-word);
+    content: attr(data-word) / "";
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    background: linear-gradient(100deg, transparent 40%, rgba(255, 244, 214, 0.85) 50%, transparent 60%)
+      100% 0 / 300% 100% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: nv-reflet 1.2s cubic-bezier(0.45, 0, 0.55, 1) 1.05s both;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .theme-le-novelty .dish-grid > article {
+      transition:
+        background-color 0.3s,
+        transform 0.3s var(--ec-tiroir);
+    }
+
+    .theme-le-novelty .dish-grid > article:hover {
+      z-index: 1;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* Au bureau, les tuiles d'une rangée entrent l'une après l'autre. */
+@media screen and (prefers-reduced-motion: no-preference) and (min-width: 48rem) {
+  @supports (animation-timeline: view()) {
+    [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) > article:nth-child(2n) > * {
+      animation-range: entry 15% entry 85%;
+    }
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    @container nv-section (min-width: 56rem) {
+      [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) > article:nth-child(3n + 1) > * {
+        animation-range: entry 0% entry 70%;
+      }
+
+      [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) > article:nth-child(3n + 2) > * {
+        animation-range: entry 15% entry 85%;
+      }
+
+      [data-menu-root].theme-le-novelty .dish-grid:not(:has(.dish-photo)) > article:nth-child(3n) > * {
+        animation-range: entry 30% entry 100%;
+      }
+    }
+  }
+}
+
+@keyframes nv-badge {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nv-trait {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes nv-reflet {
+  to {
+    background-position: 0% 0;
+  }
+}
+
+/* ---- Le Victoria : le tampon, le store, le tapis ------------------------ */
+
+/* Ajouté : la coche crème sur le rouge du tapis, rien d'autre à changer. */
+
+/* Tout est en place en 0,85 s, la façade d'emblée : rien de noir ne reste
+   à remplir entre le store et la barre des catégories. */
+@media (prefers-reduced-motion: no-preference) {
+  /* La pierre est là dès l'arrivée ; le badge s'y pose comme un tampon : un
+     peu tourné, il s'appuie, s'écrase d'un rien et se relève. */
+  .theme-le-victoria .hero-logo {
+    opacity: 1;
+    animation: none;
+  }
+
+  .theme-le-victoria .hero-logo img {
+    animation: vc-tampon 0.5s cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+
+  /* Le store se déroule du haut ; dégagé, il rend son ombre portée. Son
+     lettrage monte pendant qu'il descend, les pastilles avec lui. */
+  .theme-le-victoria .hero-lockup {
+    animation: vc-store 0.5s var(--ec-trace) 0.1s backwards;
+  }
+
+  .theme-le-victoria :is(.hero-name, .hero-tagline > span) {
+    animation: hero-entrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+  }
+
+  .theme-le-victoria .hero-contact {
+    animation-duration: 0.5s;
+    animation-delay: 0.1s;
+  }
+
+  /* Le tapis rouge se déroule depuis son milieu ; ses mots n'apparaissent
+     qu'une fois le tapis presque ouvert, jamais coupés dans une fente. */
+  .theme-le-victoria .menu-highlights {
+    animation: vc-tapis 0.45s var(--ec-trace) 0.3s backwards;
+  }
+
+  .theme-le-victoria .menu-highlights li {
+    animation: vc-tapis-mots 0.2s ease-out 0.62s backwards;
+  }
+}
+
+@keyframes vc-tampon {
+  0% {
+    opacity: 0;
+    transform: scale(1.3) rotate(-10deg);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(0.95) rotate(1.5deg);
+  }
+  78% {
+    transform: scale(1.02) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes vc-store {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 -50% 0);
+  }
+}
+
+@keyframes vc-tapis {
+  from {
+    clip-path: inset(0 50%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes vc-tapis-mots {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- Café des Arts : le néon qui s'allume, la peinture qui coule -------- */
+
+/* Ajouté : le « + » cerné de magenta se remplit, comme à l'appui. */
+.theme-cafe-des-arts .dish-action > button.ember-gradient[data-added] {
+  background-color: var(--ca-magenta-ink);
+  color: var(--background);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-cafe-des-arts .dish-action > button.ember-gradient {
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      scale 0.15s;
+  }
+
+  /* Le logo est l'enseigne : il ne monte pas, il s'allume — deux
+     vacillements en 0,3 s, une seule fois (sous les trois éclats par
+     seconde), son halo avec lui, qui reprend ensuite sa respiration. */
+  .theme-cafe-des-arts .hero-logo {
+    opacity: 1;
+    animation: none;
+  }
+
+  /* Puis la peinture du « a » coule : la bande des coulures (70 à 82 % de la
+     hauteur du fichier logo.webp, sous le fût du « a ») se dévoile de haut
+     en bas, le mot-symbole dessous reste visible. */
+  .theme-cafe-des-arts .hero-logo img {
+    animation:
+      ca-neon 0.9s linear both,
+      ca-coulure 0.8s cubic-bezier(0.55, 0, 0.6, 1) 0.7s backwards;
+  }
+
+  .theme-cafe-des-arts .hero-logo .logo-breathe {
+    animation:
+      ca-halo 0.9s linear both,
+      logo-breathe 5s ease-in-out 0.9s infinite;
+  }
+
+  /* L'adresse et le téléphone arrivent avec le filet, pendant que coule la
+     peinture : à 0,65 s, le dessous du logo restait vide trop longtemps. */
+  .theme-cafe-des-arts .hero-contact {
+    animation-delay: 0.5s;
+  }
+
+  /* Le filet de section, un tube de néon : il se trace en s'allumant. */
+  @media screen {
+    @supports (animation-timeline: view()) {
+      [data-menu-root].theme-cafe-des-arts .category-rule {
+        animation-name: ca-tube;
+      }
+    }
+  }
+}
+
+@keyframes ca-neon {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  13% {
+    opacity: 0.15;
+  }
+  22% {
+    opacity: 0.9;
+  }
+  27% {
+    opacity: 0.4;
+  }
+  40%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes ca-halo {
+  0%,
+  8% {
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.35;
+  }
+  27% {
+    opacity: 0.1;
+  }
+  45%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes ca-coulure {
+  from {
+    mask:
+      linear-gradient(#000 0 0) 0 0 / 100% 70% no-repeat,
+      linear-gradient(#000 0 0) 0 100% / 100% 18% no-repeat;
+  }
+  to {
+    mask:
+      linear-gradient(#000 0 0) 0 0 / 100% 82% no-repeat,
+      linear-gradient(#000 0 0) 0 100% / 100% 18% no-repeat;
+  }
+}
+
+@keyframes ca-tube {
+  from {
+    opacity: 0;
+    scale: 0 1;
+  }
+}
+
+/* ---- Caffè Panis : la mosaïque, le store, le mot-symbole --------------- */
+
+/* Le nombre de carreaux posés de la mosaïque : entier, il avance carreau par
+   carreau. Au repos (hors animation), assez pour tout écran. */
+@property --cp-carreaux {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 9999;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Le mot-symbole s'écrit de gauche à droite, comme peint sur la vitrine ;
+     l'accroche et le filet attendent qu'il soit lisible. */
+  .theme-caffe-panis .hero-logo img {
+    animation: cp-ecriture 1s var(--ec-trace) 0.15s backwards;
+  }
+
+  [data-menu-root].theme-caffe-panis .hero-tagline {
+    animation-delay: 0.75s;
+  }
+
+  [data-menu-root].theme-caffe-panis .hero-rule {
+    animation-delay: 0.85s;
+  }
+
+  /* La mosaïque du sol se pose carreau par carreau, de gauche à droite, à
+     pas constant (un carreau de 0,75rem, la taille du damier du thème). */
+  .theme-caffe-panis > header.logo-hero::after {
+    clip-path: inset(0 max(0px, calc(100% - var(--cp-carreaux) * 0.75rem)) 0 0);
+    animation: cp-mosaique 1.92s linear 0.3s backwards;
+  }
+
+  /* Le bandeau tombe de sous la mosaïque comme le store de la devanture, et
+     se balance avant de se poser. En translation seule : son lettrage ne
+     s'écrase jamais. */
+  [data-menu-root].theme-caffe-panis > header.logo-hero {
+    z-index: 1;
+  }
+
+  .theme-caffe-panis .menu-highlights {
+    animation: cp-store 0.8s var(--ec-rebond) 0.55s backwards;
+  }
+
+  @media (hover: hover) {
+    .theme-caffe-panis .dish-grid > article {
+      transition:
+        border-color 0.3s,
+        transform 0.3s var(--ec-tiroir);
+    }
+
+    .theme-caffe-panis .dish-grid > article:hover {
+      transform: translateY(-2px);
+    }
+  }
+}
+
+@keyframes cp-ecriture {
+  from {
+    clip-path: inset(0 92% 0 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes cp-mosaique {
+  from {
+    --cp-carreaux: 0;
+  }
+  to {
+    --cp-carreaux: 256;
+  }
+}
+
+@keyframes cp-store {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/*
+  Écusson — le service. L'aperçu à table (demoSuivi) salue la commande servie
+  d'une feuille (menu/order-ticket.tsx, ServeBox) : « Bon appétit ! » ou
+  « Bonne dégustation ! », aux jetons de la maison, et chaque enseigne y met
+  sa signature — le double cadre d'or du Novelty, le store noir et laiton du
+  Victoria, le néon et sa coulure au Café des Arts, le vert et la mosaïque de
+  Caffè Panis. La feuille est la boîte : pas de carte dans la carte. Le titre
+  suit sa largeur : « dégustation » tient à 320 px.
+*/
+.serve-box {
+  container-type: inline-size;
+}
+
+.serve-box-title {
+  font-size: min(2.25rem, 13.5cqi);
+}
+
+/* La puce de la carte du paiement simulé (menu/preview-payment.tsx) : un
+   métal neutre tiré du texte et de la surface, ses contacts en filets. */
+.payment-chip {
+  fill: color-mix(in srgb, var(--foreground) 45%, var(--surface-raised));
+  stroke: color-mix(in srgb, var(--foreground) 20%, var(--surface-raised));
+  stroke-width: 1;
+}
+
+/* Les numéros des commandes aux chiffres alignés : en elzévirien, le « 1 »
+   de Cormorant se lisait « I ». */
+:is(.order-ticket-digits, .ticket-chip-number) {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Refermé au doigt, le ticket rend le focus à sa pastille sans anneau
+   (TicketTracker) : il revient au clavier. */
+[data-menu-root] [data-quiet-focus]:focus-visible {
+  outline: none;
+}
+
+/* La commande que l'on lit, dans « Vos commandes ». */
+.table-order[aria-current] {
+  color: var(--foreground);
+}
+
+/*
+  Téléphone à la verticale, à table : le ticket prend la hauteur de son
+  contenu. Le ticket fast food remplit l'écran pour que son numéro ne bouge
+  pas ; ici, la page restait à moitié vide sous trois lignes de commande.
+*/
+@media (max-width: 39.99rem) and (not ((orientation: landscape) and (max-height: 500px))) {
+  [data-menu-root] [role="dialog"]:has(.order-ticket-sheet[data-table]) {
+    height: auto;
+  }
+
+  .order-ticket-sheet[data-table] .order-ticket-foot {
+    justify-content: flex-start;
+  }
+
+  /* Deux commandes ou plus : la ligne « Vos commandes » prend place au bas
+     de la feuille, le numéro rend un peu de hauteur. */
+  .order-ticket-sheet[data-orders] .order-ticket-digits {
+    --digits-size: clamp(3.5rem, 12svh, 5.5rem);
+  }
+}
+
+/* Au bureau, « Vos commandes » à côté du ticket : la liste et le total de la
+   table se lisent sans défiler à 1 440 × 900. */
+@media (min-width: 64rem) {
+  [data-menu-root] [role="dialog"]:has(.order-ticket-sheet[data-orders]) {
+    max-width: 52rem;
+  }
+
+  .order-ticket-sheet[data-orders] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .order-ticket-sheet[data-orders] > .order-ticket-exit {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Au bureau, les pastilles et le panier sur la colonne de la carte. */
+@media (min-width: 64rem) {
+  [data-menu-root]:is(
+      [data-slug="le-novelty"],
+      [data-slug="le-victoria"],
+      [data-slug="cafe-des-arts"],
+      [data-slug="caffe-panis"]
+    ) {
+    --dock-width: min(68rem, 100% - 5rem);
+  }
+}
+
+/* ---- Le Novelty : cerné d'or comme « Réserver », un second filet en retrait */
+.theme-le-novelty .serve-box {
+  box-shadow:
+    inset 0 0 0 0.75rem var(--surface),
+    inset 0 0 0 calc(0.75rem + 1px) var(--nv-gold),
+    inset 0 0 0 1.125rem var(--surface),
+    inset 0 0 0 calc(1.125rem + 1px) var(--hairline);
+}
+
+.theme-le-novelty :is(.serve-box-title, .order-ticket-greeting) {
+  font-style: italic;
+  color: var(--nv-gold-light);
+}
+
+.theme-le-novelty :is(.serve-box-mark, .payment-card) {
+  border-color: var(--nv-gold);
+}
+
+/* Le compte au panier en or, encre noire : crème, il luisait à travers le
+   voile flouté des feuilles. */
+.theme-le-novelty .cart-count {
+  background-color: var(--nv-gold);
+  color: var(--background);
+}
+
+/* ---- Le Victoria : le store noir lettré, sa barre de laiton ------------- */
+.theme-le-victoria .serve-box {
+  padding-top: 5rem;
+}
+
+.theme-le-victoria .serve-box::before {
+  content: "Le Victoria" / "";
+  position: absolute;
+  inset: 0 0 auto;
+  padding-block: 0.875rem 0.75rem;
+  border-bottom: 3px solid var(--vc-brass);
+  background: color-mix(in srgb, var(--background) 45%, black);
+  color: var(--foreground);
+  font-family: var(--brand-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+/* Le × au milieu de la bande lettrée du store, pas sur sa barre de laiton. */
+.theme-le-victoria .serve-box-close {
+  top: 0.125rem;
+  color: var(--foreground);
+}
+
+.theme-le-victoria .serve-box-title {
+  font-weight: 700;
+}
+
+.theme-le-victoria .serve-box-mark {
+  border-color: var(--vc-brass);
+  color: var(--vc-stone);
+}
+
+/* ---- Café des Arts : le néon rose, la peinture qui coule ---------------- */
+.theme-cafe-des-arts .serve-box-title {
+  font-size: min(1.875rem, 9.5cqi);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.theme-cafe-des-arts :is(.serve-box-title, .order-ticket-greeting) {
+  text-shadow:
+    0 0 0.3rem var(--ca-magenta),
+    0 0 1.2rem color-mix(in srgb, var(--ca-magenta) 60%, transparent);
+}
+
+/* Le filet en tube, et vers son bout une coulure, comme le « a » du logo :
+   un filet qui s'amincit, une goutte ronde au bout. */
+.theme-cafe-des-arts .serve-box-rule {
+  position: relative;
+  height: 2px;
+  box-shadow: 0 0 0.5rem var(--ca-magenta);
+}
+
+.theme-cafe-des-arts .serve-box-rule::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(82% - 2px);
+  width: 4px;
+  height: 0.75rem;
+  background: var(--ca-magenta);
+  clip-path: polygon(0 0, 100% 0, 65% 100%, 35% 100%);
+  transform-origin: top;
+}
+
+.theme-cafe-des-arts .serve-box-rule::before {
+  content: "";
+  position: absolute;
+  top: calc(100% + 0.75rem - 3px);
+  left: calc(82% - 3.5px);
+  width: 7px;
+  height: 8px;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  background: var(--ca-magenta);
+}
+
+.theme-cafe-des-arts .serve-box-mark {
+  border-color: var(--ca-magenta-ink);
+  box-shadow: 0 0 1rem color-mix(in srgb, var(--ca-magenta) 35%, transparent);
+}
+
+/* Les états du ticket en capitales espacées, sur un tube de néon. */
+.theme-cafe-des-arts .order-ticket-title {
+  font-size: 1.25rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.theme-cafe-des-arts .order-ticket-title::after {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  margin: 0.625rem auto 0;
+  background: var(--ca-magenta-ink);
+  box-shadow: 0 0 0.5rem var(--ca-magenta);
+}
+
+/* ---- Caffè Panis : le vert des portes, la mosaïque du sol --------------- */
+.theme-caffe-panis .serve-box {
+  padding-top: 3.25rem;
+  background: var(--cp-green);
+  color: var(--cp-ivory);
+}
+
+.theme-caffe-panis .serve-box::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.75rem;
+  background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x;
+}
+
+.theme-caffe-panis .serve-box :is(.serve-box-kicker, .serve-box-items, .serve-box-close) {
+  color: color-mix(in srgb, var(--cp-ivory) 80%, var(--cp-green));
+}
+
+/* Le dessin de titrage, celui du mot-symbole (.category-heading) : au salut
+   comme au ticket servi rouvert. */
+.theme-caffe-panis :is(.serve-box-title, .order-ticket-greeting) {
+  font-weight: 800;
+  font-variation-settings: "SOFT" 100, "opsz" 144;
+}
+
+.theme-caffe-panis .order-ticket-greeting {
+  color: var(--cp-green);
+}
+
+/* Le haut du ticket bordé de la mosaïque du sol, comme le haut de page. */
+.theme-caffe-panis .order-ticket-head::after {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 0.5rem;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  background: var(--cp-mosaic) top / 0.5rem 0.5rem repeat-x;
+}
+
+.theme-caffe-panis .serve-box-rule {
+  background: var(--cp-ivory);
+}
+
+.theme-caffe-panis .serve-box-mark {
+  border-color: var(--cp-ivory);
+  color: var(--cp-ivory);
+}
+
+.theme-caffe-panis .serve-box :focus-visible {
+  outline-color: var(--cp-ivory);
+}
+
+/* La salutation se pose après la feuille : la marque d'un rebond, le titre,
+   le filet qui se trace, la commande ; puis la signature de la maison. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis) {
+    & .serve-box-mark {
+      animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
+    }
+
+    & :is(.serve-box-kicker, .serve-box-title) {
+      animation: ec-entree 0.5s var(--ec-tiroir) 0.3s backwards;
+    }
+
+    & .serve-box-rule {
+      animation: ec-trait 0.7s var(--ec-trace) 0.5s backwards;
+    }
+
+    & .serve-box-items {
+      animation: ec-entree 0.5s var(--ec-tiroir) 0.6s backwards;
+    }
+  }
+
+  /* Un reflet passe une fois sur le titre doré, comme sur « Novelty ». */
+  [data-menu-root].theme-le-novelty .serve-box-title {
+    color: transparent;
+    background: linear-gradient(
+        100deg,
+        var(--nv-gold-light) 40%,
+        rgba(255, 244, 214, 0.95) 50%,
+        var(--nv-gold-light) 60%
+      )
+      100% 0 / 300% 100% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation:
+      ec-entree 0.5s var(--ec-tiroir) 0.3s backwards,
+      nv-reflet 1.2s cubic-bezier(0.45, 0, 0.55, 1) 0.8s both;
+  }
+
+  /* Le store se déroule du haut, comme celui du héros ; la marque se pose
+     comme le badge, un tampon. */
+  [data-menu-root].theme-le-victoria .serve-box::before {
+    animation: vc-store 0.5s var(--ec-trace) 0.1s backwards;
+  }
+
+  [data-menu-root].theme-le-victoria .serve-box-mark {
+    animation: vc-tampon 0.55s ease-out 0.3s backwards;
+  }
+
+  /* Le néon s'allume, deux vacillements, une seule fois ; puis la peinture
+     coule sous le filet. */
+  [data-menu-root].theme-cafe-des-arts .serve-box-title {
+    animation: ca-neon 0.9s linear 0.3s both;
+  }
+
+  [data-menu-root].theme-cafe-des-arts .serve-box-rule::after {
+    animation: ca-goutte 0.8s cubic-bezier(0.55, 0, 0.6, 1) 1.1s backwards;
+  }
+
+  [data-menu-root].theme-cafe-des-arts .serve-box-rule::before {
+    animation: ca-perle 0.8s cubic-bezier(0.55, 0, 0.6, 1) 1.1s backwards;
+  }
+
+  /* La mosaïque se pose carreau par carreau, au pas de celle du héros. */
+  [data-menu-root].theme-caffe-panis .serve-box::before {
+    clip-path: inset(0 max(0px, calc(100% - var(--cp-carreaux) * 0.75rem)) 0 0);
+    animation: cp-mosaique 1.92s linear 0.2s backwards;
+  }
+}
+
+@keyframes ca-goutte {
+  from {
+    scale: 1 0;
+  }
+}
+
+@keyframes ca-perle {
+  from {
+    opacity: 0;
+    translate: 0 -0.75rem;
+    scale: 0.4;
+  }
 }
 
 @theme inline {

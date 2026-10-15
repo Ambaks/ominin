@@ -17,7 +17,7 @@ export function MenuSection({
   const tiles =
     category.items.length > 1 &&
     category.items.every(
-      (item) => item.image && !item.description && !item.pairing
+      (item) => item.image && !item.description && !item.tarifs && !item.pairing
     );
 
   /* Les fiches sans photo qui resteraient seules sur leur rangée quand les
@@ -30,6 +30,10 @@ export function MenuSection({
     const next = category.items[i + 1];
     if (!item.image && (!next || next.image) && run % 2 === 1) lone.add(i);
   });
+
+  // La première photo de la section, pas son premier article : sans photo,
+  // il laissait la vraie première image en différé.
+  const firstPhoto = first ? category.items.findIndex((item) => item.image) : -1;
 
   /* Pas de révélation au défilement : masquées jusqu'au chargement du
      JavaScript, les sections restaient blanches plusieurs secondes sur le
@@ -67,7 +71,7 @@ export function MenuSection({
         className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
       >
         {category.items.map((item, i) => (
-          <DishCard key={item.id} item={item} priority={first && i === 0} span={lone.has(i)} />
+          <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
         ))}
       </div>
     </section>

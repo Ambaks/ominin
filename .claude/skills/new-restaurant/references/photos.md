@@ -106,6 +106,7 @@ doesn't pay for it again.
 | Range | Brand visible |
 |---|---|
 | `334575xx`, `334576xx`, `334580xx` | "Dubai Gastro" wordmark on the parchment liner |
+| `334579xx` | printed « …bar » liner (same series) |
 | `373244xx`, `376241xx` | "THE BIG BREAKFAST" roundel on the paper |
 | `16007xx`, `16038xx`, `16335xx` | "SAUDI BROASTED" crate in the background |
 | `29306xxx` | "ÖMER KEBAB" printed wrapper |
@@ -119,6 +120,8 @@ doesn't pay for it again.
 | `3675xxxx`–`3678xxxx` (speckled gold-rimmed plates, e.g. `36782573`) | gold "PA…" wordmark on the plate rim |
 | Unsplash `photo-176658915*` | burned logo on the board, branded beer bottle |
 | `129916xx` | newspaper under the prosciutto |
+| `303502xx` | printed « …dough » liner (same shoot as `30350296`) |
+| `165331xx` (`16533148`, `16533156`) | « Street Food News » newsprint |
 
 Single photos rejected for branding on LZ.FOOD: `14979836` (logo on
 wrapper), `18852568` and `33718644` (newsprint), `14866627` (Russian menu
@@ -144,7 +147,27 @@ frazzled cook » liner), `12758949` and `34528321`, `10970330`, `17366877`,
 skillet), `19370451`, `13741662` (« PUBTIME »), `21235061` and `30776098`
 (newsprint), `25048973` (« CANDELAS » cup), `4871277`, `5863643` (menu card),
 `12824133`, `17313960` (« BURGERS & FRIES » bag), `17132991`, `27459857`,
-Unsplash `photo-1629386199824-700da7af2097` (maker's stamp on the plate).
+Unsplash `photo-1629386199824-700da7af2097` (maker's stamp on the plate),
+`40036735` (« SCALA » napkin), `16677728` (newspaper), `38774775` (« THE
+VEN… » liner), `3682837` (printed lettering), `19260942`, `37347960`,
+`4748485` (labelled bottles), `16446218` (« ITALIA » print), `38712743`
+(menu card), `9546272` (printed placemat), Unsplash
+`photo-1671794313460-d8a0294f75bb` (menu card under the bowl), Unsplash
+`photo-1724116382212-b0af49d9eb5f` (« GINA'S » on the peel), `36799467`,
+`34554515`, `19674142` (printed liners), Unsplash
+`photo-1550942356-fcfc6eba2acb` (signage), `15387326` (« YENI RAKI »),
+`9524171` (burned mark on the board), `33312298` (printed coaster),
+`1126728` (beer label), `11164379` (printed paper), `32767085` (tin label),
+`3861132` (monogram on the rim), `15279743` (jar and cheese-box labels),
+`253900xx` (script card behind the board), `29732924` (name on the plate
+rim), `33017545`, `1397514`, `39413021` (spread jars), `37964137`,
+`33469313`, `33709319` (menu text), `37964139` (glasses), `25856532`
+(printed liner), Unsplash `photo-1565599837634-134bc3aadce8` (newspaper
+liner), `photo-1586185158460-950e01e6982a`,
+`photo-1586185158675-17a2b0dc1cb0` (wine glass),
+`photo-1767974963436-2208b3553561` (glasses), `14924014`, `1123249`,
+`33307827`, `10560080` (printed liners), `19250682` (Estrella Galicia),
+`13526267`, `8250377`, `8250426`, `8250693` (stall signs, chalk boards), `31596394` (printed board), `7463364`, `7463311` (menu card and napkin), `192607xx`–`192609xx` (« Acqua & Farina » box), `17692688`, `36430335` (jar labels), `29516111` (« WE ARE OPEN »), `38103950` (« Bon Appetit » plate), `29807155` (leaflet), Unsplash `photo-1621523439264`, `photo-1677175202003`, `photo-1660297730980` (labels, packet, emblem), `268386xx` (« SAL DE RISO »), `13991927`, `13991929` (jug logo, neon), `16119657` (Russian menu card), `11100906` (« Prego »), `11675721`–`22` (« S » plaques), `14467432` (newspaper), `7013982`, `7013983`, `7013989` (« EXCEPTIONAL QUALITY » pick), `31906030` (« AUPA »), `37284048` (« SINGLE ORIGIN »), `23996337` (Coca-Cola), `4958950` (printed bag), `28760157` (« MOON » flag), `34985106` (sign), `29200682` (« CHOCOLABS »), `8161427` (embossed jar), `25469620` (menu card), `25003390` (wine label), Unsplash `photo-1541950747932-b59b50dcc0d5` (book spines), `photo-1667390034698-c2369cd1668b` (shirt logo), `photo-1597564684442-b603ab8dcdcf` (printed wrapper), `photo-1628412277659-b4bb70d40b7c` (labelled bottle), `photo-1630334337820-84afb05acf3a` (« BULL'S EYE »), `29121112` (printed URL on the placemat), `33002473` (« NAPOLI » liner), `37604434` (newspaper), `166777xx` (newspaper), `34425xxx` (printed menus on the table), `20793365` (bottle label), Unsplash `photo-17715085582*` (« CUCINA ITALIANA » apron), `photo-1724116382291-02878f4a13e5` (« GINA'S » peel), `830926`, `6427775`, `4762721`, Unsplash `photo-1503726800290-d5f1a00e05b0` (engraved mugs), `5433781` (mixer label), `10779226` (bar sign), `20094378`, `10085714`, `18070096`, `18070094` (« APEROL SPRITZ » glasses), `11912753` (bar mat), `6895932` (printed coaster), Unsplash `photo-1664451314616-6c93f17b9da3` (gelato box), `37110022`, `9501344` (printed logos), Unsplash `photo-1635491231222-8e524584da52` (a candle, not a sundae), `8029207` (« ÉLAN »), `34291660` (plate emblem), `10289311` (Corona), `13741669` (Coca-Cola, napkin), `33414289` (printed placemat), Unsplash `photo-1550424557-39930b383cd5` (Coca-Cola can), `photo-1615830783066-26a99bc9d959` (newspaper liner), `12436857` (NESCAFÉ can), Unsplash `photo-1624781740834-fbfbf5fd221a` (OREO), `30102165` (book text), `30335686` (newspaper, signs), `30500766` (« Burger » cup), `34487807` (« SOY FRESA » cup), `34926740` (Ferrero Rocher), `8774282` (stencilled crate).
 
 ## French dishes stock libraries don't have
 

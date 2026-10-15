@@ -7,10 +7,11 @@ import {
   Cormorant_Garamond,
   DM_Sans,
   Didact_Gothic,
-  Gloock,
+  Fraunces,
   Josefin_Sans,
   Playball,
   Poppins,
+  Questrial,
   Source_Serif_4,
 } from "next/font/google";
 
@@ -135,8 +136,7 @@ const sourceSerif4 = Source_Serif_4({
  * Les quatre adresses de l'Écusson (Montpellier, octobre 2026) : chaque
  * police est prise à leur identité (site, logo, enseigne), comparée en
  * demos/<slug>/profile.json. Le Victoria reprend Source Serif 4 (L'Adresse),
- * le Café des Arts Didact Gothic (O'Crousti), Caffè Panis DM Sans pour son
- * texte (Baï-Kō).
+ * le Café des Arts Questrial, Caffè Panis DM Sans pour son texte (Baï-Kō).
  */
 
 /**
@@ -160,14 +160,26 @@ const josefinSans = Josefin_Sans({
 });
 
 /**
- * Caffè Panis — la plus proche de son mot-symbole (store, logo du Linktree) :
- * une serif lourde aux empattements évasés, aux mêmes proportions (largeur
- * sur hauteur 6,6 contre 6,7 pour « Caffè Panis »).
+ * Café des Arts — titres, noms et prix : la géométrique Century Gothic de son
+ * mot-symbole, sans les approches larges de Didact Gothic, qui doublaient
+ * l'espace avant une capitale.
  */
-const gloock = Gloock({
-  variable: "--font-gloock",
+const questrial = Questrial({
+  variable: "--font-questrial",
   subsets: ["latin"],
   weight: "400",
+  preload: false,
+});
+
+/**
+ * Caffè Panis — la plus proche de son mot-symbole (store, logo du Linktree) :
+ * Fraunces avec l'axe SOFT, que la Fraunces du site ne charge pas — en
+ * extra-gras, les terminaisons en boule et les fûts évasés du logo.
+ */
+const frauncesSoft = Fraunces({
+  variable: "--font-fraunces-soft",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
   preload: false,
 });
 
@@ -185,7 +197,8 @@ export const brandFontVariables = [
   sourceSerif4,
   cormorantGaramond,
   josefinSans,
-  gloock,
+  questrial,
+  frauncesSoft,
 ]
   .map((font) => font.variable)
   .join(" ");

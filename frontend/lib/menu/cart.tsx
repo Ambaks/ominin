@@ -144,6 +144,15 @@ export interface CartConfig {
    */
   preview?: boolean;
   /**
+   * Aperçu à table (Restaurant.demoSuivi) : « Payer en ligne » se simule, sans
+   * rien appeler, puis la commande se suit au bas de l'écran jusqu'au service.
+   * drinks : les articles des catégories de boissons ; une commande faite de
+   * ces seuls articles, sans formule, se salue « Bonne dégustation ! ».
+   * hotDrinks : celles qui sont chaudes ; rien que d'elles, la salutation
+   * porte une tasse. Ignoré hors aperçu.
+   */
+  demoSuivi?: { drinks: string[]; hotDrinks: string[] };
+  /**
    * Click & collect (collect.ominin.com/<slug>) : sans table, payé en ligne à
    * la commande, retiré à l'heure choisie dans les horaires d'ouverture.
    */
@@ -397,6 +406,10 @@ export function CartProvider({
     <CartContext.Provider value={value}>
       {config.serviceMode === "fast_food" ? (
         <TicketsProvider slug={config.slug} preview={config.preview}>
+          {children}
+        </TicketsProvider>
+      ) : config.preview && config.demoSuivi ? (
+        <TicketsProvider slug={config.slug} preview table={config.tableNumber}>
           {children}
         </TicketsProvider>
       ) : (

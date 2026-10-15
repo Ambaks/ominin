@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -17,6 +24,36 @@ let pageScrollRestoration: ScrollRestoration | null = null;
  * ce retour dépilait, et elle se refermait aussitôt ouverte.
  */
 let pendingBack: Promise<void> | null = null;
+
+/**
+ * Les feuilles montées, celles qui descendent comprises. Une feuille
+ * empilée sur une autre qui part la verrait rendre en partant le défilement
+ * et la page, elle encore ouverte : une feuille qui s'ouvre d'elle-même (le
+ * salut du service, aperçu à table) attend qu'il n'y en ait plus.
+ */
+let mountedSheets = 0;
+const sheetListeners = new Set<() => void>();
+
+function countSheet(delta: 1 | -1) {
+  mountedSheets += delta;
+  for (const listener of sheetListeners) listener();
+}
+
+const subscribeSheets = (listener: () => void) => {
+  sheetListeners.add(listener);
+  return () => {
+    sheetListeners.delete(listener);
+  };
+};
+
+/** Vrai quand aucune feuille n'est montée, ni ne descend. */
+export function useNoSheet(): boolean {
+  return useSyncExternalStore(
+    subscribeSheets,
+    () => mountedSheets === 0,
+    () => true
+  );
+}
 
 /**
  * Une page rechargée alors qu'une feuille était ouverte garde l'entrée
@@ -78,8 +115,11 @@ export function Sheet({
   backdropCloses: boolean;
   labelledBy?: string;
   label?: string;
-  /** Reçoit la fermeture animée, à brancher sur Annuler, ×, la validation. */
-  children: (close: () => void) => ReactNode;
+  /**
+   * Reçoit la fermeture animée, à brancher sur Annuler, ×, la validation ;
+   * et closing, vrai dès qu'elle descend : ce qu'elle jouait s'arrête là.
+   */
+  children: (close: () => void, closing: boolean) => ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const sheetId = useId();
@@ -101,6 +141,7 @@ export function Sheet({
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
+    countSheet(1);
     settled.current = getComputedStyle(panel).animationName === "none";
     const opener = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
@@ -155,7 +196,13 @@ export function Sheet({
       }
       if (event.key !== "Tab") return;
       const stops = tabbables();
-      if (stops.length === 0) return;
+      // Rien à atteindre (un paiement en cours) : le focus reste dans la
+      // feuille. Jamais repris du dehors : la vérification 3DS de Stripe
+      // s'ouvre dans un cadre ajouté au body, que le clavier doit atteindre.
+      if (stops.length === 0) {
+        if (panel.contains(document.activeElement)) event.preventDefault();
+        return;
+      }
       const first = stops[0];
       const last = stops[stops.length - 1];
       // Le focus peut être sur la feuille elle-même (à l'ouverture), ou
@@ -217,6 +264,7 @@ export function Sheet({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       unmounted = true;
+      countSheet(-1);
       clearTimeout(push);
       window.removeEventListener("popstate", onPopState);
       if (pushed && !popped && history.state?.ominninSheet === sheetId) {
@@ -330,7 +378,7 @@ export function Sheet({
           else settled.current = true;
         }}
       >
-        {children(close)}
+        {children(close, closing)}
       </div>
     </div>,
     // Pas une copie encore masquée de la page (rendu en flux), que React

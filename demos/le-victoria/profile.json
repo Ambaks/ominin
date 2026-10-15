@@ -30,10 +30,10 @@
     "notes": "Fonds « Café restaurant » acheté 740 000 € à LE JARDIN ENCHANTE (BODACC 22/11/2019). API recherche-entreprises et BODACC ouvertes le 2026-10-14."
   },
   "design": {
-    "primary_color": "#16171C",
+    "primary_color": "#171513",
     "secondary_color": "#F2EBDC",
     "accent_color": "#B8323F (bouton) / #E0606F (texte)",
-    "style_notes": "Repris de la devanture (photo Google d'avril 2024) : store noir lettré de blanc en serif grasse « BAR RESTAURANT · Le Victoria · TAPAS COCKTAIL », pierre crème, tapis rouge au logo tissé. Fond noir du store, texte crème de la pierre, rouge du tapis (#B8323F, encre crème 4,9:1) pour les boutons et le bandeau d'arguments, rouge éclairci #E0606F pour les accents fins. Source Serif 4 grasse, la plus proche du lettrage du store (comparée à Libre Baskerville, DM Serif Display, Noto Serif, Libre Caslon, Crimson Pro) ; l'accroche en capitales serif espacées comme le store. Le badge rond (avatar TikTok, 221 px) sert d'icône seulement : trop petit pour le haut de page. Photos des plats : la séance du restaurant publiée sur Deliveroo, recadrée en 16:9 autour de l'assiette. Le vert de la première proposition est écarté : rien de vert sur la devanture.",
+    "style_notes": "Repris de la devanture (photo Google d'avril 2024) : store noir lettré de blanc en serif grasse « BAR RESTAURANT · Le Victoria · TAPAS COCKTAIL », pierre crème, tapis rouge au logo tissé. Fond noir du store tiré vers le chaud (#171513, surfaces #201D1A et #2A2622) : le premier noir (#16171C, l'échantillon du store ≈ #181820) bleuissait, et deux notateurs le lisaient comme un mode sombre générique ; la pierre crème, les appliques laiton et les banquettes fauves de la salle (recherche-profile.md) justifient un noir chaud, l'identité reste le noir du store. Contrastes : crème 15,3:1 sur le fond, gris #A39C8E 5,5:1 sur la surface la plus claire. Texte crème de la pierre, rouge du tapis (#B8323F, encre crème 4,9:1) pour les boutons et le bandeau d'arguments, rouge éclairci #E0606F pour les accents fins. Source Serif 4 grasse, la plus proche du lettrage du store (comparée à Libre Baskerville, DM Serif Display, Noto Serif, Libre Caslon, Crimson Pro) ; l'accroche en capitales serif espacées comme le store. Le badge rond (avatar TikTok, 221 px) ouvre la carte et le téléphone Collect, redécoupé dans un disque un peu plus grand que l'avatar : « LE VICTORIA » touchait le bord du cercle. Séparateurs : le point médian du store, entre les arguments du bandeau rouge et entre les annonces du bandeau défilant. Couverture photo (hero.jpg) écartée : elle remplacerait le badge et l'accroche du store par le gabarit à photo, sur la carte comme sur le téléphone. Photos des plats : la séance du restaurant publiée sur Deliveroo, recadrée en 16:9 autour de l'assiette. Le vert de la première proposition est écarté : rien de vert sur la devanture. Haut de page : la devanture. Le badge sur la pierre crème de la façade (#E9DFC9, disque noir 15,9:1), puis le store lui-même, une bande noire (#0D0C0B) sous une barre laiton (#A8834A, les appliques), lettrée « BAR RESTAURANT  Le Victoria  TAPAS COCKTAIL » sur une ligne au bureau, le nom encadré des deux accroches au téléphone ; la lueur rouge du gabarit retirée, pas de hauteur minimale ni de « Découvrir la carte » : à 390 × 844 la photo de la frite maison commence à 616 px. Le bandeau rouge espacé à 0,1 em comme le store ; le bouton « + » cerné d'un filet crème à 50 % (4,5:1 sur la fiche, le rouge seul 2,85:1). Les photos libres assombries et réchauffées en CSS (filtre et vignettage) pour rejoindre la séance du restaurant. Le rouge éclairci #E0606F sert aussi aux libellés, coches et bordures des choix (le rouge du tapis n'y faisait que 2,85:1).",
     "logo": "aucun fichier exploitable (avatar TikTok 221 px) — icônes frontend/public/le-victoria/icon.png, favicon.png",
     "interior_vibe": "brique rouge, tables noires, banquettes fauves, chaises bordeaux, mezzanine ; terrasse fermée de bâches transparentes ; 150 places",
     "reference_images": [
@@ -55,23 +55,34 @@
       "Desserts — 4, 5 à 6 €",
       "Crêpes — 7, 3,20 à 5 € ; Gaufres maison — 6, 3,60 à 5 € (supplément 2 €)",
       "Cocktails — 7, 8 €",
-      "Bières — 7, 5 à 6,50 €",
+      "Bières — 6, 5 à 6,50 €",
       "Vins rouges 4, blancs 5, rosés 3 — 13 à 25 € la bouteille",
-      "Boissons fraîches — 4, 3 à 5,50 €"
+      "Boissons fraîches — 5, 3 à 5,50 € (avec la 1664 sans alcool)"
     ],
-    "photos": "8 photos du restaurant (séance publiée sur Deliveroo : 2 burgers, 6 pizzas), recadrées en 16:9 dans frontend/public/le-victoria/. Stock audité pour la 4 fromaggio, la salade César, la souris d'agneau, les wings, le moelleux et la crêpe nutella. La photo « Margherita » du restaurant montre des olives, pas de tomates cerises ni de basilic : à refaire à la séance. Les photos du restaurant de la vegetariana, de la regina, de la pizza au poulet et de la salmone montrent des olives que les descriptions ne citent pas.",
+    "photos": "9 photos du restaurant (séance publiée sur Deliveroo, originaux de 3 700 à 5 500 px récupérés sur le CDN de Deliveroo) recadrées dans frontend/public/le-victoria/ : 2 burgers et 5 pizzas (1 200 × 675), la frite maison (1 180 × 770, recadrée sous le mur de briques dans l'original du burger Le Chicken) et la salade César (1 200 × 675, dans l'original de hero.jpg ; l'œuf dur y est visible). La Margherita reste sans photo : celle du restaurant montre des olives, ni tomates cerises ni basilic. Les photos du restaurant de la vegetariana, de la regina, de la pizza au poulet et de la salmone montrent des olives que les descriptions ne citent pas ; la César, des olives, tomates et concombre. Photos libres auditées (Pexels/Unsplash), assombries et réchauffées en CSS pour rejoindre la séance du restaurant : fish and chips (Pexels 15580734, petite portion panée sur fond sombre), croquetas (Pexels 11485207), stick mozzarella, patatas bravas (Pexels 20522413, seules dans leur bol noir), samoussas (Pexels 14883757), frites de patate douce, tagliatelle bolognaise, souris d'agneau (Pexels 6089651, recadrée serveur ; servie sur riz), cheesecake, tarte citron meringuée (Pexels 28869115, à l'assiette), moelleux (Pexels 20522414, avec glace vanille), crêpe Nutella (Pexels 31856262), gaufre Nutella. Round 6 : souris d'agneau (16588046) et moelleux (20377567) remplacés, ils servaient aussi à L'Adresse. Sans photo : wings, mini nems, mini saucissons, Margherita, 4 formaggi, chèvre miel, bruschetta chèvre miel, salade de chèvre chaud, tagliatelle au poulet curry, tarte tatin (la seule tatin libre est aux poires), les autres crêpes et gaufres (aucune crêpe Nutella libre sans fruit ni pot, sur fond sombre), les boissons et les vins.",
     "options_a_valider": [
-      "Noms de Deliveroo remis en casse de phrase ; coquilles corrigées : « cheesecacke » → Cheesecake, « Desparados » → Desperados, « motarde » → Moutarde, « banae » → Banane, « crepe »/« gaufre » → Crêpe/Gaufre ; « 4 fromaggio », « spezzial », « Lansyre », « Hotus » gardés.",
+      "Noms de Deliveroo remis en casse de phrase ; coquilles corrigées : « cheesecacke » → Cheesecake, « Desparados » → Desperados, « motarde » → Moutarde, « banae » → Banane, « crepe »/« gaufre » → Crêpe/Gaufre, « LE CHIKEN » → Le Chicken (la carte du gérant de 2021 écrit « Le chicken bacon »), « 4 fromaggio » → 4 formaggi ; noms de domaines rétablis : « Château lansyre » → Château de Lancyre (Pic Saint-Loup), « Hotus bergerie » → Bergerie de l’Hortus. « Spezzial » gardé : un nom maison possible.",
       "Bruschetta chèvre miel rangée avec les pizzas, comme sur Deliveroo ; le doublon « roquette ,roquette » ramené à un seul.",
       "Kronenbourg, Monaco, Pietra 50 cl (5,80 / 5,80 / 6,50 €), Mojito, Cuba Libre, Jagerbomb 8 € : Schlouk Map (participatif), pression supposée.",
       "Vins : couleur lue dans le nom Deliveroo ; prix à la bouteille seulement (« verre de vin 3,5 € » selon Privateaser, sans liste).",
       "Alcools forts en bouteille (Deliveroo, 26–30 € les 70 cl) non repris : prix de vente à emporter, pas de salle.",
       "Ardoise tapas d'avril 2024 (planches 13–30 €, sépions, beignets…) non reprise : prix illisibles ou différents de Deliveroo.",
       "Suppléments pizza « Jambon anchois » et « Roquefort brie » gardés tels quels (un supplément chacun, comme sur Deliveroo) : deux produits ou un seul ?",
-      "Prix happy hour (Schlouk : Kronenbourg et Monaco 50 cl 3,50 €, Pietra 5,50 €, cocktails 5,50 €) non appliqués : accroche « Prix hors happy hour (16h–1h) » sur Cocktails et Bières.",
+      "Prix happy hour (Schlouk : Kronenbourg et Monaco 50 cl 3,50 €, Pietra 5,50 €, cocktails 5,50 €) non appliqués au panier : chacun en description de l'article avec ses horaires (« Happy hour 16h–1h : 5,50 € »). Seuls Mojito, Cuba Libre et Jagerbomb le portent : Schlouk donne aussi Sex on the Beach et Planteur à 5,50 € sans volume, mais ceux de la carte sont les « Cocktails XXL maison » 50 cl de Deliveroo ; leur prix happy hour n'est pas affiché.",
+      "Ordre de la carte : Tapas, Cocktails, Bières, puis Hamburgers, Pizzas, Salades, Plats chauds, Desserts, Crêpes, Gaufres, les vins et les boissons fraîches (Deliveroo ouvre sur les plats) : le store annonce « TAPAS COCKTAIL », les avis citent surtout le happy hour. La démo Collect, sans alcool, garde les plats en tête (service du midi).",
+      "Plats du jour annoncés « le midi » : le site du groupe (09/2026) ne dit pas l'heure, l'ardoise d'avril 2024 les range sous « Formule du midi » (Plat ① 9,90 €, Plat ② 12,90 €).",
+      "« Service continu 7j/7 » écrit « 7 jours sur 7 », comme le site du groupe : le bandeau en capitales affichait « 7J/7 ».",
+      "Supplément crêpe/gaufre (Deliveroo : sur toutes, 2 €) retiré quand la garniture le contient déjà, et quand un article de la même famille sert la combinaison pour moins cher : plus de Nutella ni de caramel sur les crêpes/gaufres nature, sucre, sucre citron (crêpe nature + Nutella = 5,20 € contre 4 € pour la Crêpe Nutella), plus de banane ni de coco sur la Nutella (Nutella banane et Nutella coco à 5 €). Reste : coco et banane sur nature/sucre/sucre citron, caramel sur la Nutella, Nutella/coco/banane sur la caramel, les deux restants sur les Nutella banane/coco.",
+      "Pizza spezzial : les guillemets de Deliveroo (« après cuisson \"mozzarella di buffala…\" ») remplacés par deux-points.",
+      "Frite maison et Salade César : recadrées dans les originaux pleine définition de la séance du restaurant (Deliveroo), sans le burger ni la pizza voisins ni le mur de briques.",
       "Ouverture affichée 10h (site du groupe, 09/2026) ; Schlouk et l'ancien site disent 10h30.",
       "Autres coquilles de Deliveroo corrigées : « Domain » → Domaine, « alcools » → alcool, « caramel beurre salée » → salé, « Rapée » → râpée, « châteaux » → Château ; « nutella » → Nutella partout.",
-      "Merlot et Joy : aucun volume imprimé sur Deliveroo, aucun affiché."
+      "Merlot et Joy : aucun volume imprimé sur Deliveroo, aucun affiché.",
+      "La 1664 sans alcool rangée dans Boissons fraîches (Deliveroo : Bières) : sans alcool, elle reste à la carte à emporter de la démo Collect.",
+      "Degrés des vins écrits « 13 % vol. » (Deliveroo : « 13 vol »).",
+      "Sauce des burgers facultative : la ligne vide s'appelle « Sans sauce ».",
+      "Plats du jour et girafes : pas d'article ni de prix sur la carte, annoncés « à demander au serveur » / « sur demande » dans le bandeau défilant ; le petit-déjeuner et le brunch (site du groupe) ne sont plus annoncés, rien ne se commande sur la carte.",
+      "Happy hour : « Prix happy hour sous les cocktails concernés » et « Happy hour sur les pressions : prix réduit sous chaque pression » ; la source le limite aux cocktails et aux bières pression (site du groupe) : punch, sangria, cocktails XXL et bouteilles n'en ont pas. Kronenbourg, Monaco et Pietra 50 cl affichées « pression 50 cl » : le happy hour du groupe vise les « bières pression » et Schlouk n'en donne le prix que pour ces trois."
     ]
   },
   "offers": [
@@ -94,12 +105,18 @@
     "Plats du jour : 9,90 € et 12,90 €, avec ou sans dessert ? Petit-déjeuner et brunch : quelles formules ?",
     "Ouverture à 10h ou à 10h30 ?",
     "Pressions (Kronenbourg, Monaco, Pietra, Grimbergen ?), demi et pinte, prix normaux et happy hour ; prix des girafes 3 L et 5 L.",
-    "Vins au verre, par couleur ; orthographes « Lansyre » (Lancyre ?) et « Hotus bergerie » (L'Hortus ?).",
+    "Vins au verre, par couleur ; orthographes rétablies « Château de Lancyre » et « Bergerie de l’Hortus » (Deliveroo : « lansyre », « Hotus bergerie ») : bien ces domaines ?",
     "Les burgers El Diez, Le Végétarien, Chicken Bacon existent-ils encore (un burger végétarien) ? La souris d'agneau est-elle à la carte de salle ?",
     "Logo en haute définition ou vectoriel (seul l'avatar TikTok de 221 px existe en ligne).",
     "Photos : la Margherita (la photo actuelle montre des olives), les tapas, desserts, crêpes ; la salle et la terrasse.",
     "Le site levictoriamontpellier.com est suspendu : le récupérer ou rediriger vers la page du groupe ?",
     "Une carte par établissement du groupe ou une carte commune ?",
-    "Le Chiken : Deliveroo propose « bacon / sans bacon » sur un burger au poulet sans bacon dans sa description : à confirmer."
+    "Le Chicken (Deliveroo : « LE CHIKEN ») : Deliveroo propose « bacon / sans bacon » sur un burger au poulet sans bacon dans sa description : à confirmer. Et « 4 formaggi » (Deliveroo : « 4 fromaggio ») ?",
+    "Happy hour 16h–1h : la carte affiche les prix normaux et le prix happy hour en description ; le panier compte le prix normal. Appliquer le tarif selon l'heure, ou l'annoncer dans le panier, relève de la plateforme (fonction à décider), pas de cette démo.",
+    "Happy hour des cocktails XXL : le Planteur 50 cl et le Sex on the beach maison ont-ils un prix happy hour (Schlouk : Planteur et Sex on the Beach 5,50 €, sans volume) ? Mojito, Cuba Libre, Jagerbomb : servis en quel volume ? Kronenbourg, Monaco, Pietra sont-elles bien les pressions ?",
+    "Photos à refaire : les wings (seule photo, trop petite dans hero.jpg), le fish and chips en portion tapas (la photo libre est panée), la tarte tatin (sans photo), les patatas bravas maison, les crêpes et gaufres.",
+    "Une photo de la salle ou de la devanture pour une couverture (hero.jpg montre surtout les plats) ?",
+    "Crêpes et gaufres : une crêpe nature (3,20 €) + supplément Nutella (2 €) revient à 5,20 €, plus cher que la « Crêpe Nutella » à 4 € (prix de Deliveroo). Le supplément s'applique-t-il aux crêpes et gaufres nature, sucre, sucre citron, et à quel prix ?",
+    "Les plats du jour sont-ils servis le midi seulement, ou aussi le soir ?"
   ]
 }

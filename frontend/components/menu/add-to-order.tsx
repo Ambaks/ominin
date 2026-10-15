@@ -12,7 +12,15 @@ import {
   type SetStateAction,
 } from "react";
 import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
-import { addVerb, formatPrice, lineName } from "@/lib/menu/format";
+import {
+  addVerb,
+  formatPrice,
+  keepVisible,
+  lineName,
+  sheetDescription,
+  visibleGroups,
+} from "@/lib/menu/format";
+import { scrollBehavior } from "@/lib/menu/scroll";
 import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
@@ -98,7 +106,7 @@ export function GroupChoices({
   onToggle: (choiceId: string) => void;
   onClear: () => void;
   invalid?: boolean;
-  /** Prix de l'article : un groupe de formats l'ajoute à chaque choix. */
+  /** Prix de l'article hors ce groupe : un groupe de formats l'ajoute à chaque choix. */
   basePrice?: number;
 }) {
   const formatPrices = group.formats && basePrice !== undefined;
@@ -106,7 +114,7 @@ export function GroupChoices({
     <>
       {!group.obligatoire && !group.multiple && (
         <ChoiceRow type="radio" name={name} checked={chosen.length === 0} onChange={onClear}>
-          Aucun
+          {group.aucun ?? "Aucun"}
         </ChoiceRow>
       )}
       {group.choices.map((choice) => (
@@ -128,9 +136,11 @@ export function GroupChoices({
 }
 
 /**
- * L'étiquette d'un groupe à côté de son nom : « facultatif », « 1 au choix »
- * (« au choix » s'il en prend plusieurs), puis une coche une fois choisi —
- * comme le dit le panneau d'un comptoir. Feuille d'un plat et formules.
+ * L'étiquette d'un groupe à côté de son nom : « · Facultatif », « · 1 au
+ * choix » (« · Au choix » s'il en prend plusieurs), puis une coche une fois
+ * choisi — comme le dit le panneau d'un comptoir. Une étiquette et non un
+ * adjectif : « Sauce facultatif » ne s'accordait pas. Feuille d'un plat et
+ * formules.
  */
 export function ChoiceTag({
   required,
@@ -141,8 +151,18 @@ export function ChoiceTag({
   multiple?: boolean;
   done: boolean;
 }) {
+  // Le point à égale distance du nom (gap-2 de la légende) et de l'étiquette.
+  const dot = (
+    <span aria-hidden className="mr-2">
+      ·
+    </span>
+  );
   if (!required) {
-    return <span className="text-xs font-medium text-muted">facultatif</span>;
+    return (
+      <span className="text-xs font-medium text-muted">
+        {dot}Facultatif
+      </span>
+    );
   }
   return (
     <span className="text-xs font-medium text-ember-2">
@@ -153,7 +173,8 @@ export function ChoiceTag({
         </>
       ) : (
         <>
-          {multiple ? "au choix" : "1 au choix"}
+          {dot}
+          {multiple ? "Au choix" : "1 au choix"}
           <span className="sr-only">, obligatoire</span>
         </>
       )}
@@ -213,10 +234,6 @@ export const sheetConfirmClass = (ready: boolean) =>
     ready ? "ember-gradient text-background" : "border border-hairline bg-surface-raised text-foreground"
   }`;
 
-/** Défilement doux, sauf si le client a demandé moins de mouvement. */
-export const scrollBehavior = (): ScrollBehavior =>
-  matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-
 /** Choix manquant signalé ; n alterne deux animations identiques pour la rejouer à chaque toucher. */
 export type Flash = { key: string; n: number } | null;
 
@@ -258,8 +275,10 @@ export function revealAboveCartBar(button: HTMLElement | null) {
     const bar = document.querySelector<HTMLElement>(".cart-bar");
     if (!button?.isConnected || !bar?.parentElement) return;
     const gap = parseFloat(getComputedStyle(bar.parentElement).paddingTop);
-    const overlap =
-      button.getBoundingClientRect().bottom + gap - bar.getBoundingClientRect().top;
+    // La place de la barre dans sa mise en page (offsetTop), pas celle de son
+    // entrée animée : un thème la fait monter du bas de l'écran.
+    const barTop = bar.parentElement.getBoundingClientRect().top + bar.offsetTop;
+    const overlap = button.getBoundingClientRect().bottom + gap - barTop;
     if (overlap > 0) window.scrollBy({ top: overlap, behavior: scrollBehavior() });
   });
 }
@@ -377,6 +396,9 @@ export function AddToOrder({ item }: { item: MenuItem }) {
           setModalOpen(true);
         }}
         aria-haspopup={hasOptions ? "dialog" : undefined}
+        // Le temps du « Ajouté ✓ » : un thème dont le bouton n'est qu'un « + »
+        // y montre sa coche (globals.css).
+        data-added={added || undefined}
         // Onze « + Ajouter » identiques ne disent rien à un lecteur d'écran.
         aria-label={`${added ? "Ajouté" : verb}\u00a0: ${lineName(item)}${
           inCart > 0 ? `, ${inCart} au panier` : ""
@@ -385,9 +407,10 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       >
         {added ? "Ajouté ✓" : label}
         {/* Le compte au panier, en pastille au coin de la carte (la carte
-            est le repère) : dans le bouton, il le faisait passer à la ligne. */}
+            est le repère) : dans le bouton, il le faisait passer à la ligne.
+            Une pastille neuve à chaque compte : un thème la fait sauter. */}
         {inCart > 0 && (
-          <span className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg">
+          <span key={inCart} className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg">
             {inCart}
           </span>
         )}
@@ -434,32 +457,48 @@ export function OptionsModal({
   const autoScrolling = useRef(false);
   const titleId = useId();
 
+  // Les groupes à condition (la cuisson, quand le menu prend le steak)
+  // n'existent qu'une fois leur choix fait : `selected` ne garde que les
+  // choix des groupes montrés (keepVisible).
+  const shown = visibleGroups(groups, selected);
   const chosen = (groupId: string) => selected[groupId] ?? [];
-  const missingGroups = groups.filter(
+  const missingGroups = shown.filter(
     (group) => group.obligatoire && chosen(group.id).length === 0
   );
   /* Un choix posé, même optionnel : fermer par le fond le perdrait sans
      prévenir, sur une feuille qui ne couvre parfois que la moitié de l'écran. */
   const touched = Object.values(selected).some((ids) => ids.length > 0);
+  const description = sheetDescription(item);
 
   const toggle = (group: OptionGroup, choiceId: string) => {
     // Choisi : le groupe n'a plus à être signalé (surlignage fixe en
     // mouvement réduit).
     setFlash((current) => (current?.key === group.id ? null : current));
-    // Premier choix d'un groupe obligatoire à choix unique : la feuille
-    // descend d'elle-même au prochain groupe qui attend.
+    const previous = chosen(group.id);
+    const nextSelected = keepVisible(groups, {
+      ...selected,
+      [group.id]: !group.multiple
+        ? [choiceId]
+        : previous.includes(choiceId)
+          ? previous.filter((id) => id !== choiceId)
+          : [...previous, choiceId],
+    });
+    const nextShown = visibleGroups(groups, nextSelected);
+    // Premier choix d'un groupe obligatoire à choix unique, ou choix qui
+    // fait paraître un groupe : la feuille descend d'elle-même au groupe qui
+    // vient de paraître, sinon au prochain qui attend — jamais à un groupe
+    // laissé plus haut (choisir le steak menait à l'entrée oubliée, pas à
+    // sa cuisson).
+    const revealed = nextShown.filter((other) => !shown.includes(other));
     if (
       pointer.current &&
-      group.obligatoire &&
-      !group.multiple &&
-      chosen(group.id).length === 0
+      ((group.obligatoire && !group.multiple && previous.length === 0) || revealed.length > 0)
     ) {
-      const next = groups.find(
-        (other) =>
-          other.id !== group.id &&
-          other.obligatoire &&
-          chosen(other.id).length === 0
-      );
+      const waiting = (other: OptionGroup) =>
+        other.obligatoire && !nextSelected[other.id]?.length;
+      const next =
+        revealed.find(waiting) ??
+        nextShown.slice(nextShown.indexOf(group) + 1).find(waiting);
       // Seulement là où la fin du glissement se signale (scrollend) : sans
       // elle, pas moyen de savoir quand les touchers redeviennent sûrs.
       const body = bodyRef.current;
@@ -502,31 +541,21 @@ export function OptionsModal({
         });
       }
     }
-    setSelected((current) => {
-      const previous = current[group.id] ?? [];
-      if (!group.multiple) return { ...current, [group.id]: [choiceId] };
-      return {
-        ...current,
-        [group.id]: previous.includes(choiceId)
-          ? previous.filter((id) => id !== choiceId)
-          : [...previous, choiceId],
-      };
-    });
+    setSelected(nextSelected);
   };
 
-  const supplement = groups.reduce(
-    (sum, group) =>
-      sum +
-      group.choices
-        .filter((choice) => chosen(group.id).includes(choice.id))
-        .reduce((groupSum, choice) => groupSum + choice.supplement, 0),
-    0
-  );
+  const groupSupplement = (group: OptionGroup) =>
+    group.choices
+      .filter((choice) => chosen(group.id).includes(choice.id))
+      .reduce((sum, choice) => sum + choice.supplement, 0);
+  const supplement = shown.reduce((sum, group) => sum + groupSupplement(group), 0);
   const unitPrice = reward ? supplement : item.price + supplement;
-  // Offert : le prix se dit en points, plus les suppléments éventuels.
+  // Offert : le prix se dit en points, plus les suppléments éventuels. Format
+  // pas encore choisi : le prix est celui du plus petit, comme sur la fiche.
+  const fromPrice = shown.some((group) => group.formats && chosen(group.id).length === 0);
   const priceLabel = reward
     ? `${reward.points}\u00a0pts${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
-    : formatPrice(unitPrice);
+    : `${fromPrice ? "dès\u00a0" : ""}${formatPrice(unitPrice)}`;
 
   /* Un menu à composer : ce qui est choisi, et le nom des groupes qui
      attendent encore — au moment de valider, le premier choix est loin
@@ -534,8 +563,8 @@ export function OptionsModal({
      et le prix dit déjà leurs suppléments — chaque case cochée allongeait
      la ligne et faisait descendre les options sous le doigt. */
   const recap =
-    groups.length > 1
-      ? groups.flatMap((group) => {
+    shown.length > 1
+      ? shown.flatMap((group) => {
           if (!group.obligatoire) return [];
           const names = group.choices
             .filter((choice) => chosen(group.id).includes(choice.id))
@@ -560,7 +589,7 @@ export function OptionsModal({
     }
     const choices: CartChoice[] = [];
     const optionSummary: string[] = [];
-    for (const group of groups) {
+    for (const group of shown) {
       for (const choice of group.choices) {
         if (!chosen(group.id).includes(choice.id)) continue;
         choices.push({ group_id: group.id, choice_id: choice.id });
@@ -603,7 +632,7 @@ export function OptionsModal({
             <div className="flex items-baseline justify-between gap-4">
               <h3
                 id={titleId}
-                data-compose={groups.length > 1 || undefined}
+                data-compose={shown.length > 1 || undefined}
                 className="font-display text-xl font-medium"
               >
                 {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 » ; l'espace
@@ -645,8 +674,17 @@ export function OptionsModal({
               event.stopPropagation();
             }}
           >
+            {/* Ce que contient le plat, relu au moment de le composer ; il
+                défile avec les choix pour laisser le titre seul épinglé.
+                Caché sauf là où un thème le montre (.sheet-description,
+                globals.css) : ailleurs, un long menu repoussait ses choix. */}
+            {description && (
+              <p className="sheet-description mb-5 hidden whitespace-pre-line text-sm leading-relaxed text-muted">
+                {keepHyphenated(description)}
+              </p>
+            )}
             <div className="flex flex-col gap-6">
-              {groups.map((group) => (
+              {shown.map((group) => (
                 <div
                   key={group.id}
                   data-group={group.id}
@@ -669,11 +707,15 @@ export function OptionsModal({
                         group={group}
                         name={group.id}
                         chosen={chosen(group.id)}
-                        basePrice={reward ? undefined : item.price}
+                        // Le prix de la commande hors ce groupe : un format se lit
+                        // avec les autres suppléments déjà choisis.
+                        basePrice={reward ? undefined : unitPrice - groupSupplement(group)}
                         onToggle={(choiceId) => toggle(group, choiceId)}
                         invalid={flash?.key === group.id && chosen(group.id).length === 0}
                         onClear={() =>
-                          setSelected((current) => ({ ...current, [group.id]: [] }))
+                          setSelected((current) =>
+                            keepVisible(groups, { ...current, [group.id]: [] })
+                          )
                         }
                       />
                     </div>

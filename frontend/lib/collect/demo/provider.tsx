@@ -11,8 +11,8 @@ import {
 } from "react";
 import { formatTime } from "@/lib/gestion/format";
 import type { OrderItemOption } from "@/lib/gestion/types";
-import { DEMO_SLUG, lineName } from "@/lib/menu/format";
-import { type Allergen, type MenuItem, type OptionChoice, type OptionGroup } from "@/lib/menu-data";
+import { DEMO_SLUG, lineName, visibleGroups } from "@/lib/menu/format";
+import { type Allergen, type MenuItem } from "@/lib/menu-data";
 import {
   buildDemoMenu,
   choiceAllergens,
@@ -46,11 +46,18 @@ export interface DemoLine {
   unitPrice: number;
 }
 
-/** La ligne d'un article et des choix faits dans sa feuille d'options. */
+/** La ligne d'un article et des choix faits dans sa feuille d'options (id
+ * du groupe → id des choix) : ceux des seuls groupes montrés, un groupe à
+ * condition caché ne compte ni au prix, ni sur la ligne, ni sur le ticket. */
 export function demoLine(
   item: MenuItem,
-  choices: { group: OptionGroup; choice: OptionChoice }[] = []
+  selected: Record<string, string[]> = {}
 ): Omit<DemoLine, "quantity"> {
+  const choices = visibleGroups(item.options ?? [], selected).flatMap((group) =>
+    group.choices
+      .filter((choice) => selected[group.id]?.includes(choice.id))
+      .map((choice) => ({ group, choice }))
+  );
   return {
     key: [item.id, ...choices.map(({ group, choice }) => `${group.id}:${choice.id}`)].join("+"),
     item,
@@ -455,7 +462,9 @@ export function CollectDemoProvider({
    * l'heure de la commande — pour demain, au lendemain, assez tôt pour être
    * prête un peu avant le créneau, jamais avant l'ouverture ; prête au plus
    * tôt après la préparation, à l'estimation donnée ou un peu avant le
-   * créneau (readyLeadMinutes) ; retirée au créneau, sinon dès qu'elle est prête.
+   * créneau (readyLeadMinutes) ; retirée au créneau, sinon le temps que le
+   * client arrive (collectLagMinutes) : la même heure que « prête » se lisait
+   * comme une horloge figée.
    */
   const accept = useCallback(
     (etaMinutes: number | null) => {
@@ -522,8 +531,8 @@ export function CollectDemoProvider({
     setState((current) => {
       if (current.step !== "prete" || !current.order) return current;
       const { pickupAt, preparedAt } = current.order;
-      const ready = Date.parse(preparedAt!);
-      const collectedAt = pickupAt ? Math.max(Date.parse(pickupAt), ready) : ready;
+      const arrived = Date.parse(preparedAt!) + COLLECT_DEMO.slots.collectLagMinutes * 60_000;
+      const collectedAt = pickupAt ? Math.max(Date.parse(pickupAt), arrived) : arrived;
       return {
         ...current,
         step: "retiree",

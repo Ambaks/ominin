@@ -1,4 +1,4 @@
-import type { Allergen, Badge, DishTag, MenuItem } from "@/lib/menu-data";
+import type { Allergen, Badge, DishTag, MenuItem, OptionGroup } from "@/lib/menu-data";
 
 /*
  * Libellés et mise en forme de la carte. Séparés du registre des
@@ -56,9 +56,75 @@ export const FORMULES_LINK = { id: "formules", name: "Formules" };
 export const lineName = (item: MenuItem) =>
   item.detail ? `${item.name} ${item.detail}` : item.name;
 
+/** La description et, sur sa ligne, les prix des formats : tout ce que la fiche dit d'un article. */
+export const descriptionWithTarifs = (item: MenuItem) =>
+  [item.description, item.tarifs].filter(Boolean).join("\n");
+
+const plainTerm = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[….\s]+$/u, "")
+    .trim();
+
+/**
+ * La description relue dans la feuille d'options, sans les lignes qui ne
+ * font que nommer ses choix ou ses groupes (« Orange, ananas, pomme » au-dessus
+ * des mêmes jus, « Entrée + Plat » au-dessus des mêmes groupes) : la
+ * composition d'un cocktail reste. Tous les groupes, montrés ou non : le
+ * texte ne bouge pas quand une cuisson paraît.
+ */
+export function sheetDescription(item: MenuItem): string {
+  const names = new Set(
+    (item.options ?? []).flatMap((group) => [group.name, ...group.choices.map((choice) => choice.name)]).map(plainTerm)
+  );
+  return (item.description ?? "")
+    .split("\n")
+    .filter((line) => !line.split(/\s*(?:,|·|\+|\bou\b)\s*/).every((term) => names.has(plainTerm(term))))
+    .join("\n");
+}
+
+/** En formats, le prix affiché est celui du plus petit : il se lit « dès ». */
+export const hasFormats = (item: MenuItem) =>
+  item.options?.some((group) => group.formats) ?? false;
+
+/**
+ * Les groupes qui se montrent pour ces choix : un groupe à condition (`when`)
+ * attend l'un de ses choix dans un groupe lui-même montré, placé avant lui.
+ * Caché, il ne compte ni dans la validation, ni dans le prix, ni sur le ticket.
+ */
+export function visibleGroups(
+  groups: OptionGroup[],
+  selected: Record<string, string[]>
+): OptionGroup[] {
+  const shown = new Set<string>();
+  return groups.filter((group) => {
+    const { when } = group;
+    const visible =
+      !when ||
+      (shown.has(when.group) &&
+        (selected[when.group] ?? []).some((id) => when.choices.includes(id)));
+    if (visible) shown.add(group.id);
+    return visible;
+  });
+}
+
+/** Les choix des seuls groupes montrés : un groupe qui se cache perd les siens. */
+export const keepVisible = (
+  groups: OptionGroup[],
+  selected: Record<string, string[]>
+): Record<string, string[]> =>
+  Object.fromEntries(
+    visibleGroups(groups, selected).flatMap((group) =>
+      selected[group.id] ? [[group.id, selected[group.id]]] : []
+    )
+  );
+
 /** Le verbe du bouton d'ajout : un menu à plusieurs choix se compose, un seul choix se choisit. */
 export function addVerb(item: MenuItem): "Composer" | "Choisir" | "Ajouter" {
-  const groups = item.options?.length ?? 0;
+  // Un groupe à condition (la cuisson du steak) suit un choix, il n'en ajoute pas.
+  const groups = item.options?.filter((group) => !group.when).length ?? 0;
   return groups > 1 ? "Composer" : groups > 0 ? "Choisir" : "Ajouter";
 }
 

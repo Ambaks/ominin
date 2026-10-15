@@ -1,5 +1,7 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
+import { NameWords } from "@/components/menu/name-words";
 import {
   brandName,
   displayAddress,
@@ -17,32 +19,6 @@ function StarIcon() {
       aria-hidden
     >
       <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.3l-5.9 3.2 1.3-6.5L2.5 9.4l6.6-.8z" />
-    </svg>
-  );
-}
-
-function PhoneIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-5 shrink-0"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M6.6 10.8a15.1 15.1 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.58 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.6a1 1 0 01-.25 1z" />
-    </svg>
-  );
-}
-
-function PinIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="mr-1.5 inline size-4 align-[-0.2em]"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M12 2a7 7 0 00-7 7c0 5.1 6.3 12.4 6.6 12.7a.6.6 0 00.9 0C12.7 21.4 19 14.1 19 9a7 7 0 00-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z" />
     </svg>
   );
 }
@@ -105,7 +81,7 @@ export function MenuFooter({
                 className={brandLogo ? "h-auto w-72 max-w-full lg:w-96" : `h-12 w-auto lg:h-14 ${restaurant.whiteLogo ? "logo-white" : ""}`}
               />
             ) : (
-              brandName(restaurant)
+              <NameWords name={brandName(restaurant)} />
             )}
           </p>
 
@@ -114,7 +90,7 @@ export function MenuFooter({
               href={`tel:${phone.replace(/\s/g, "")}`}
               className="footer-phone ember-gradient flex items-center gap-3 rounded-full px-6 py-3 font-display text-lg text-background transition-transform active:scale-95 lg:text-xl"
             >
-              <PhoneIcon />
+              <PhoneIcon className="size-5 shrink-0" />
               {displayPhone(phone)}
             </a>
           )}
@@ -128,7 +104,7 @@ export function MenuFooter({
               // la laissait flotter loin à gauche.
               className="footer-address block max-w-xs px-2 py-3 text-sm text-muted transition-colors hover:text-foreground"
             >
-              <PinIcon />
+              <PinIcon className="mr-1.5 inline size-4 align-[-0.2em]" />
               {keepHyphenated(displayAddress(address))}
             </a>
           )}
