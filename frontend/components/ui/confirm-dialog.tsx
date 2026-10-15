@@ -6,6 +6,7 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel,
+  cancelLabel = "Annuler",
   destructive,
   onConfirm,
   onClose,
@@ -13,6 +14,8 @@ export function ConfirmDialog({
   title: string;
   message: string;
   confirmLabel: string;
+  /** Le bouton qui renonce, quand « Annuler » se confondrait avec l'action. */
+  cancelLabel?: string;
   destructive?: boolean;
   onConfirm: () => void;
   onClose: () => void;
@@ -28,7 +31,7 @@ export function ConfirmDialog({
             onClick={onClose}
             className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
           >
-            Annuler
+            {cancelLabel}
           </button>
           <button
             type="button"

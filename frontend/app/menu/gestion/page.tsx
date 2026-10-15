@@ -11,6 +11,7 @@ import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
+  isPickupShop,
   openOrders,
   ordersByHour,
   periodStats,
@@ -190,15 +191,21 @@ export default function ApercuPage() {
   const [period, setPeriod] = useState<Period>(ANALYTICS_PERIOD_DAYS[0]);
 
   if (!state) return null;
+  const pickupShop = isPickupShop(state);
   // Écran d'accueil quand l'aperçu ne s'affiche pas : le service s'il est
   // ouvert, le menu sinon — lui ne se retire jamais.
-  const home = hasFeature("commandes")
-    ? "/gestion/commandes"
-    : "/gestion/menu";
+  const home = pickupShop
+    ? "/gestion/retraits"
+    : hasFeature("commandes")
+      ? "/gestion/commandes"
+      : "/gestion/menu";
   // La salle n'a pas d'aperçu par défaut : son écran d'accueil est le service
-  // lui-même. Ouvert, elle a le sien. La cuisine garde toujours le sien —
-  // c'est là qu'elle tient les disponibilités.
-  if (!hasFeature("apercu")) return <GoTo href={home} />;
+  // lui-même. Ouvert, elle a le sien. La cuisine garde le sien — c'est là
+  // qu'elle tient les disponibilités. En boutique à emporter seule, l'équipe
+  // vit sur Retraits : seul le gérant a un aperçu.
+  if (!hasFeature("apercu") || (pickupShop && state.role !== "gerant")) {
+    return <GoTo href={home} />;
+  }
   if (state.role === "serveur") {
     return hasFeature("apercu_serveur") ? (
       <ServeurApercu state={state} />

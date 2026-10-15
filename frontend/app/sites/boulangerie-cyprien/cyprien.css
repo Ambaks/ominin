@@ -1,0 +1,3604 @@
+/*
+  Boulangerie Cyprien — site public. Tout est rangé sous .cy-site : rien ne
+  sort vers le reste de l’app. Clair uniquement, quel que soit le thème
+  d’Ominin posé sur <html>.
+
+  Couleurs : le sarcelle de la marque (#6a9fa6) ne porte jamais de texte sur
+  fond clair (2,65:1) — cachet, filets, ornements seulement. Textes, liens et
+  boutons passent en sarcelle profond (#2e6267, 6,2:1).
+
+  Mouvement : uniquement transform, opacity et clip-path. Tout ce qui se
+  révèle au défilement n’est caché que si motion.tsx a posé
+  [data-motion] sur la racine ; prefers-reduced-motion coupe tout. Les
+  survols nouveaux ne valent qu’avec un vrai pointeur (hover: hover), et le
+  clavier a toujours le même effet via :focus-visible.
+*/
+
+/* Hauteur du bandeau fixe : posée sur <html> pour que tout la lise, la page
+   de commande (barre collante sous le bandeau) comme scroll-padding. */
+html:has(.cy-site) {
+  --cy-header-h: 4.25rem;
+  --cy-header-condense: 0.75rem;
+  color-scheme: light;
+  background: #f7f2ea;
+  scroll-padding-top: calc(var(--cy-header-h) + 1rem);
+}
+
+html.cy-locked {
+  overflow: hidden;
+}
+
+.cy-site {
+  --cy-paper: #f7f2ea;
+  --cy-paper-deep: #eee5d6;
+  --cy-card: #fbf8f3;
+  --cy-ink: #1f1c18;
+  --cy-ink-soft: #5c554c;
+  --cy-teal: #6a9fa6;
+  --cy-teal-deep: #2e6267;
+  --cy-teal-light: #8dc1c7;
+  --cy-crust: #b5772f;
+  --cy-crust-text: #8f5a1e;
+  --cy-night: #13282a;
+  --cy-line: rgba(31, 28, 24, 0.14);
+  --cy-line-night: rgba(247, 242, 234, 0.16);
+
+  --cy-display: var(--font-bodoni-moda), "Bodoni 72", Didot, Georgia, serif;
+  --cy-label: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --cy-sans: var(--font-barlow), "Helvetica Neue", Arial, sans-serif;
+
+  --cy-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --cy-gutter: clamp(1rem, 3.2vw + 0.3rem, 3.5rem);
+  --cy-section: clamp(4.5rem, 3.5rem + 3.5vw, 7.5rem);
+
+  /* Grain de farine : un bruit très léger, peint une fois (pas de calque fixe). */
+  --cy-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .1 0 0 0 0 .08 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --cy-grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  background: var(--cy-paper) var(--cy-grain);
+  color: var(--cy-ink);
+  font-family: var(--cy-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 1024px) {
+  html:has(.cy-site) {
+    --cy-header-h: 5.5rem;
+    --cy-header-condense: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.cy-site) {
+    scroll-behavior: auto;
+  }
+}
+
+.cy-site main {
+  flex: 1 0 auto;
+  outline: none;
+}
+
+.cy-site ::selection {
+  background: var(--cy-teal);
+  color: var(--cy-ink);
+}
+
+.cy-site :focus-visible {
+  outline: 2px solid var(--cy-teal-deep);
+  outline-offset: 3px;
+}
+
+.cy-site .cy-night :focus-visible,
+.cy-menu :focus-visible {
+  outline-color: var(--cy-teal-light);
+}
+
+.cy-wrap {
+  width: 100%;
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: var(--cy-gutter);
+}
+
+.cy-skip {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  padding: 0.85rem 1.25rem;
+  background: var(--cy-ink);
+  color: var(--cy-paper);
+  font-family: var(--cy-label);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transform: translateY(-200%);
+}
+
+.cy-skip:focus {
+  transform: none;
+}
+
+/* ───────────── Fonds ───────────── */
+
+.cy-deep {
+  background: var(--cy-paper-deep) var(--cy-grain);
+}
+
+.cy-night {
+  background: var(--cy-night) var(--cy-grain-light);
+  color: var(--cy-paper);
+}
+
+/* Sarcelle profond : un appel avant le pied de page, qui lui est sombre. */
+.cy-tealband {
+  background: var(--cy-teal-deep) var(--cy-grain-light);
+  color: #fff;
+}
+
+.cy-tealband .cy-eyebrow,
+.cy-tealband .cy-lead {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.cy-tealband .cy-eyebrow-grain {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.cy-tealband .cy-h2 em {
+  color: #fff;
+}
+
+.cy-tealband :focus-visible {
+  outline-color: #fff;
+}
+
+.cy-section {
+  padding-block: var(--cy-section);
+}
+
+/* ───────────── Typographie ───────────── */
+
+.cy-h1,
+.cy-h2,
+.cy-h3 {
+  font-family: var(--cy-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.cy-h1 {
+  font-size: clamp(2.9rem, 1.6rem + 5.6vw, 7rem);
+  line-height: 0.98;
+}
+
+.cy-h2 {
+  font-size: clamp(2.4rem, 1.5rem + 3.9vw, 5rem);
+  line-height: 1;
+}
+
+.cy-h3 {
+  font-size: clamp(1.65rem, 1.25rem + 1.3vw, 2.4rem);
+  line-height: 1.08;
+}
+
+/* Didone : à taille optique élevée, le trait d’union n’est plus qu’un cheveu,
+   invisible sous ~40 px (« Saint-Cyprien », « Savoir-faire »). Les tailles
+   moyennes prennent donc le dessin de texte (opsz bas), plus lisible à
+   l’écran ; les grands titres gardent leur contraste, sauf sur mobile. */
+.cy-h3,
+.cy-place-name,
+.cy-footer-name,
+.cy-footer-nav a,
+.cy-footer-tagline,
+.cy-range strong,
+.cy-timeline h3,
+.cy-menu-links a,
+.cy-story-title,
+.cy-midi-place h3,
+.cy-press-row h3,
+.cy-legal h2 {
+  font-variation-settings: "opsz" 14;
+}
+
+/* Au-delà d’opsz 28, la virgule n’est plus qu’un point et le trait d’union
+   un fil : les grands titres plafonnent là. Seul le logotype, sans
+   ponctuation, garde le contraste maximal. */
+.cy-h1,
+.cy-h2,
+.cy-tagline,
+.cy-quote,
+.cy-motto,
+.cy-pull,
+.cy-marquee-group li,
+.cy-figure-num,
+.cy-score-num,
+.cy-tile-charbon,
+.cy-press-year > h2 {
+  font-variation-settings: "opsz" 28;
+}
+
+.cy-h2-xl {
+  font-size: clamp(2.6rem, 1.2rem + 5.4vw, 7.25rem);
+  line-height: 0.95;
+}
+
+.cy-h1 em,
+.cy-h2 em,
+.cy-h3 em {
+  color: var(--cy-teal-deep);
+}
+
+.cy-night .cy-h1 em,
+.cy-night .cy-h2 em,
+.cy-night .cy-h3 em {
+  color: var(--cy-teal-light);
+}
+
+.cy-lead {
+  font-size: clamp(1.125rem, 1.02rem + 0.35vw, 1.3rem);
+  line-height: 1.6;
+  color: var(--cy-ink-soft);
+  text-wrap: pretty;
+}
+
+.cy-night .cy-lead,
+.cy-night .cy-prose {
+  color: rgba(247, 242, 234, 0.82);
+}
+
+.cy-prose {
+  max-width: 62ch;
+  color: var(--cy-ink-soft);
+  text-wrap: pretty;
+}
+
+.cy-prose > * + * {
+  margin-top: 1.1em;
+}
+
+.cy-prose strong {
+  font-weight: 600;
+  color: var(--cy-ink);
+}
+
+.cy-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-eyebrow-grain {
+  width: 0.55rem;
+  height: 0.8rem;
+  flex: none;
+  color: var(--cy-teal);
+}
+
+.cy-night .cy-eyebrow {
+  color: var(--cy-teal-light);
+}
+
+.cy-label {
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cy-line {
+  display: block;
+  overflow: hidden;
+  /* Place pour l’italique qui déborde et les descendantes. */
+  padding: 0 0.14em 0.1em 0;
+  margin-bottom: -0.1em;
+}
+
+.cy-line > span {
+  display: inline-block;
+}
+
+/* ───────────── Boutons et liens ───────────── */
+
+.cy-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  min-height: 3.25rem;
+  padding: 0 1.6rem 0 1.75rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--cy-label);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    color 0.45s var(--cy-ease),
+    border-color 0.45s var(--cy-ease),
+    scale 0.3s var(--cy-ease);
+}
+
+/* Le fond monte par le bas et repart par le haut, comme le filet des liens
+   du bandeau : il traverse le bouton au lieu de redescendre. */
+.cy-btn::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--cy-fill);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.55s var(--cy-ease);
+}
+
+.cy-btn:hover::before,
+.cy-btn:focus-visible::before {
+  transform: none;
+  transform-origin: bottom;
+}
+
+.cy-arrow {
+  width: 1.15rem;
+  height: 0.7rem;
+  flex: none;
+  transition: transform 0.5s var(--cy-ease);
+}
+
+.cy-btn:hover .cy-arrow,
+.cy-arrow-link:hover .cy-arrow,
+.cy-chip:hover .cy-arrow,
+.cy-btn:focus-visible .cy-arrow,
+.cy-arrow-link:focus-visible .cy-arrow,
+.cy-chip:focus-visible .cy-arrow {
+  transform: translate3d(0.25rem, 0, 0);
+}
+
+/* Au doigt, pas de survol : le bouton s’enfonce un instant sous la pression. */
+@media (prefers-reduced-motion: no-preference) {
+  .cy-btn:active,
+  .cy-chip:active {
+    scale: 0.97;
+  }
+}
+
+.cy-btn-primary {
+  background: var(--cy-teal-deep);
+  color: #fff;
+  --cy-fill: var(--cy-ink);
+}
+
+.cy-btn-ghost {
+  border-color: var(--cy-ink);
+  color: var(--cy-ink);
+  --cy-fill: var(--cy-ink);
+}
+
+.cy-btn-ghost:hover,
+.cy-btn-ghost:focus-visible {
+  color: var(--cy-paper);
+}
+
+.cy-btn-paper {
+  background: var(--cy-paper);
+  color: var(--cy-night);
+  --cy-fill: var(--cy-teal-light);
+}
+
+.cy-btn-ghost-night {
+  border-color: rgba(247, 242, 234, 0.5);
+  color: var(--cy-paper);
+  --cy-fill: var(--cy-paper);
+}
+
+.cy-btn-ghost-night:hover,
+.cy-btn-ghost-night:focus-visible {
+  color: var(--cy-night);
+  border-color: var(--cy-paper);
+}
+
+.cy-btn-sm {
+  min-height: 2.75rem;
+  padding: 0 1.05rem 0 1.2rem;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.cy-link {
+  position: relative;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  padding-bottom: 0.1em;
+  transition: background-size 0.5s var(--cy-ease);
+}
+
+/* Une cible au doigt plus haute que la ligne, sans rien déplacer. */
+.cy-link::before {
+  content: "";
+  position: absolute;
+  inset: -0.5rem -0.25rem;
+}
+
+.cy-link:hover,
+.cy-link:focus-visible {
+  background-position: 100% 100%;
+  background-size: 0 1px;
+}
+
+/* Un lien seul sur sa ligne (un numéro, une adresse) : une vraie boîte de
+   44 px, le trait gardé sous le texte, comme au pied de page. */
+.cy-link-tall {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  background-position: 0 calc(50% + 0.75em);
+}
+
+.cy-link-tall:hover,
+.cy-link-tall:focus-visible {
+  background-position: 100% calc(50% + 0.75em);
+}
+
+.cy-arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-night .cy-arrow-link {
+  color: var(--cy-teal-light);
+}
+
+.cy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 1px solid var(--cy-line);
+  border-radius: 999px;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cy-ink);
+  transition:
+    border-color 0.3s,
+    background-color 0.3s,
+    scale 0.3s var(--cy-ease);
+}
+
+.cy-chip:hover,
+.cy-chip:focus-visible {
+  border-color: var(--cy-ink);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ───────────── Bandeau ───────────── */
+
+.cy-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: var(--cy-header-h);
+  color: var(--cy-ink);
+  transition:
+    transform 0.6s var(--cy-ease),
+    color 0.45s;
+}
+
+.cy-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(247, 242, 234, 0.9);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid var(--cy-line);
+  opacity: 0;
+  transition:
+    opacity 0.45s,
+    background-color 0.45s,
+    border-color 0.45s;
+}
+
+.cy-header[data-condensed="true"] {
+  transform: translate3d(0, calc(var(--cy-header-condense) * -1), 0);
+}
+
+.cy-header[data-condensed="true"]::before {
+  opacity: 1;
+}
+
+.cy-header[data-tone="night"] {
+  color: var(--cy-paper);
+}
+
+.cy-header[data-tone="night"]::before {
+  background: rgba(19, 40, 42, 0.86);
+  border-color: var(--cy-line-night);
+}
+
+.cy-header[data-tone="night"] :focus-visible {
+  outline-color: var(--cy-teal-light);
+}
+
+.cy-header-bar {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  transition: transform 0.6s var(--cy-ease);
+}
+
+.cy-header[data-condensed="true"] .cy-header-bar {
+  transform: translate3d(0, calc(var(--cy-header-condense) / 2), 0);
+}
+
+.cy-header-spacer {
+  height: var(--cy-header-h);
+  flex: none;
+}
+
+.cy-header-mark {
+  display: inline-grid;
+  align-items: center;
+  padding-block: 0.75rem;
+  font-family: var(--cy-display);
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cy-header-mark > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.5s,
+    transform 0.7s var(--cy-ease);
+}
+
+.cy-header-c {
+  width: auto;
+  height: 2.1rem;
+  color: var(--cy-teal);
+  opacity: 0;
+  transform: translate3d(0, 0.5rem, 0) rotate(-20deg);
+}
+
+.cy-header[data-mark-hidden="true"] .cy-header-c {
+  opacity: 1;
+  transform: none;
+}
+
+.cy-header[data-mark-hidden="true"] .cy-header-word {
+  opacity: 0;
+  transform: translate3d(0, 0.6rem, 0);
+}
+
+/* Quand le grand logotype de l'accueil quitte l'écran (défilement ou
+   navigation), le « C » s'efface avant que le nom n'arrive : les deux ne se
+   superposent pas. */
+.cy-header:not([data-mark-hidden="true"]) .cy-header-c {
+  transition-duration: 0.2s;
+}
+
+.cy-header:not([data-mark-hidden="true"]) .cy-header-word {
+  transition-delay: 0.15s;
+}
+
+.cy-header-nav {
+  display: none;
+}
+
+.cy-nav-link {
+  position: relative;
+  display: inline-block;
+  padding-block: 0.8rem;
+  font-family: var(--cy-label);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.cy-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0.16em;
+  bottom: 0.45rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--cy-ease);
+}
+
+.cy-nav-link:hover::after,
+.cy-nav-link:focus-visible::after,
+.cy-nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.cy-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Le bandeau reste monté d’une page à l’autre : son entrée ne joue qu’au
+   premier chargement. Sur grand écran elle court de gauche à droite, liens
+   puis « Commander » ; au téléphone, les boutons arrivent seuls, sans attendre. */
+.cy-header-nav li,
+.cy-header-actions {
+  --cy-rise: 0.5rem;
+  animation: cy-rise 0.9s var(--cy-ease) backwards;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.07s);
+}
+
+@media (max-width: 1023px) {
+  .cy-header-actions {
+    animation-delay: 0.35s;
+  }
+}
+
+.cy-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cy-menu-btn-lines {
+  position: relative;
+  width: 1.4rem;
+  height: 0.55rem;
+  border-block: 1.5px solid currentColor;
+}
+
+/* Petit écran : l’icône seule pour le menu (son nom reste lu), un logotype
+   plus serré ; sous 340 px, « Commander » ne tient plus et vit dans le menu. */
+@media (max-width: 479px) {
+  .cy-menu-btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .cy-header-mark {
+    font-size: 1.05rem;
+    letter-spacing: 0.28em;
+  }
+
+  .cy-header-order {
+    padding-inline: 0.95rem 0.85rem;
+    letter-spacing: 0.12em;
+  }
+}
+
+/* À 320 px, le petit logotype cède sa place : « Commander » reste dans le
+   bandeau, à côté du menu. */
+@media (max-width: 339px) {
+  .cy-header-word {
+    display: none;
+  }
+
+  .cy-header-c {
+    opacity: 1;
+    transform: none;
+  }
+
+  .cy-header-order {
+    padding-inline: 0.8rem 0.7rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cy-header-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .cy-header-mark {
+    justify-self: start;
+    font-size: 1.35rem;
+  }
+
+  .cy-header-nav {
+    display: block;
+  }
+
+  .cy-header-nav ul {
+    display: flex;
+    gap: clamp(1.4rem, 2.4vw, 2.6rem);
+  }
+
+  .cy-header-actions {
+    justify-self: end;
+  }
+
+  .cy-menu-btn {
+    display: none;
+  }
+}
+
+/* ───────────── Menu mobile ───────────── */
+
+.cy-menu {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--cy-night) var(--cy-grain-light);
+  color: var(--cy-paper);
+}
+
+.cy-menu::backdrop {
+  background: transparent;
+}
+
+.cy-menu[open] {
+  animation: cy-curtain 0.6s var(--cy-ease) both;
+}
+
+.cy-menu-inner {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cy-menu-top {
+  height: var(--cy-header-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cy-menu-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0 0.6rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.cy-menu-close svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.cy-menu-links {
+  margin-top: 1rem;
+  border-top: 1px solid var(--cy-line-night);
+}
+
+.cy-menu-links li {
+  animation: cy-rise 0.8s var(--cy-ease) both;
+}
+
+.cy-menu-links a {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-block: 0.55rem;
+  border-bottom: 1px solid var(--cy-line-night);
+  font-family: var(--cy-display);
+  font-size: clamp(2rem, 8.5vw, 3.2rem);
+  line-height: 1.15;
+}
+
+.cy-menu-links a[aria-current="page"] {
+  font-style: italic;
+  color: var(--cy-teal-light);
+}
+
+.cy-menu-num {
+  min-width: 1.6rem;
+  font-family: var(--cy-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--cy-teal-light);
+}
+
+.cy-menu-foot {
+  margin-top: auto;
+  display: grid;
+  gap: 1.75rem;
+  padding-block: 2.25rem 2.5rem;
+}
+
+.cy-menu-shops {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1.25rem;
+  font-size: 0.95rem;
+  color: rgba(247, 242, 234, 0.82);
+}
+
+.cy-menu-shops li {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.cy-menu-shops a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--cy-paper);
+}
+
+.cy-menu-shop-name {
+  font-family: var(--cy-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
+}
+
+.cy-menu-social {
+  display: flex;
+  gap: 1.5rem;
+  font-family: var(--cy-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cy-menu-social a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+/* ───────────── Cachet ───────────── */
+
+.cy-stamp-text {
+  font-family: var(--cy-label);
+  font-size: 25px;
+  font-weight: 500;
+  fill: currentColor;
+}
+
+/* view-box : l’origine de la boîte est le (0, 0) du viewBox, centre du cachet. */
+.cy-stamp-ring {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+/* ───────────── Accueil : vitrine ───────────── */
+
+.cy-hero {
+  padding-top: clamp(0.75rem, 2vw, 1.75rem);
+}
+
+.cy-hero-head {
+  container-type: inline-size;
+}
+
+/* Le filet du bas n’est plus une bordure mais un trait qui se trace au
+   chargement : la hauteur garde son pixel. */
+.cy-hero-top {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1.5rem;
+  padding-bottom: calc(0.9rem + 1px);
+  color: var(--cy-ink-soft);
+}
+
+.cy-hero-top::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--cy-line);
+  transform-origin: left;
+  animation: cy-draw 1.4s var(--cy-ease) 0.15s backwards;
+}
+
+.cy-hero-mark {
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  margin-top: 0.06em;
+  font-family: var(--cy-display);
+  font-size: 13.4vw;
+  font-size: 15.4cqi;
+  font-weight: 400;
+  line-height: 1.02;
+}
+
+@media (max-width: 639px) {
+  .cy-hero-mark {
+    font-size: 17.4cqi;
+  }
+}
+
+/* Sur un écran bas (portable en 1280 × 800), le logotype se règle aussi sur
+   la hauteur : les croissants entrent dans le premier écran. */
+@media (min-width: 1024px) and (max-height: 960px) {
+  .cy-hero-mark {
+    font-size: min(15.4cqi, 19svh);
+  }
+}
+
+/* Sur téléphone, la ligne du haut tient sur une ligne : le cachet dit déjà
+   « 100 % artisanale ». */
+@media (max-width: 479px) {
+  .cy-hero-top-extra {
+    display: none;
+  }
+}
+
+/* À 320 px, le logotype prend un peu d’air sous le filet. */
+@media (max-width: 359px) {
+  .cy-hero-mark {
+    margin-top: 0.5rem;
+    padding-inline: 0.04em;
+  }
+}
+
+.cy-hero-mark > span {
+  display: block;
+  animation: cy-letter 1.3s var(--cy-ease) both;
+  animation-delay: calc(0.15s + var(--i) * 0.07s);
+}
+
+.cy-hero-body {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.cy-tagline {
+  font-family: var(--cy-display);
+  font-size: clamp(1.8rem, 1.1rem + 3.7vw, 4.4rem);
+  font-style: italic;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.cy-hero-aside {
+  display: grid;
+  gap: 1.5rem;
+  align-content: end;
+}
+
+.cy-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Deux boutons qui ne tiennent pas sur une ligne prennent chacun toute la largeur. */
+@media (max-width: 1023px) {
+  .cy-hero-ctas .cy-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Entre 1024 et 1279 px, les colonnes du haut sont étroites : un peu moins
+   de marge intérieure garde les boutons sur une ligne, et la devise se règle
+   sur la largeur du bloc pour tenir en deux lignes. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .cy-hero-ctas .cy-btn {
+    padding-inline: 1.15rem 1.05rem;
+  }
+
+  .cy-tagline {
+    font-size: 4.4cqi;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cy-hero-body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: start;
+  }
+
+  .cy-hero-body > :first-child {
+    grid-column: 1 / span 7;
+  }
+
+  .cy-hero-aside {
+    grid-column: 8 / span 5;
+  }
+}
+
+.cy-hero-figure {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+@media (min-width: 1024px) and (max-height: 960px) {
+  .cy-hero-figure {
+    margin-top: 2.5rem;
+  }
+}
+
+/* Les croissants en grand, la boutique en vis-à-vis : sur mobile elle
+   chevauche le bas de la grande photo, sur grand écran elle descend
+   à côté d’elle. */
+.cy-hero-pair {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(0.75rem, 2vw, 2rem);
+}
+
+.cy-hero-main {
+  position: relative;
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.cy-hero-side {
+  position: relative;
+  z-index: 1;
+  grid-column: 6 / -1;
+  grid-row: 2;
+  margin-top: -24%;
+  border: clamp(0.35rem, 1vw, 0.65rem) solid var(--cy-paper);
+}
+
+.cy-hero-media {
+  position: relative;
+  overflow: hidden;
+  background: #2b2520;
+  /* Après le logotype : les photos ne devancent pas les lettres. */
+  animation: cy-window-in 1.8s var(--cy-ease) 0.6s both;
+}
+
+.cy-hero-main .cy-hero-media {
+  aspect-ratio: 4 / 3;
+}
+
+.cy-hero-side .cy-hero-media {
+  aspect-ratio: 4 / 5;
+  animation-delay: 1s;
+}
+
+@media (min-width: 1024px) {
+  .cy-hero-main {
+    grid-column: 1 / span 8;
+  }
+
+  .cy-hero-main .cy-hero-media {
+    aspect-ratio: 16 / 10;
+  }
+
+  .cy-hero-side {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+    align-self: start;
+    margin-top: 12%;
+  }
+}
+
+.cy-par-hero {
+  position: absolute;
+  inset: 0;
+}
+
+/* Le haut de la photo des croissants, c’est le fond du four, flou : le cadre
+   s’ouvre sur la rangée de devant, nette, et le recul part d’elle. */
+.cy-hero-main .cy-par-hero {
+  top: -40%;
+}
+
+.cy-hero-main .cy-kenburns {
+  transform-origin: 50% 100%;
+}
+
+/* Un seul lent recul, moins de cinq secondes : rien ne boucle (critère 2.2.2). */
+.cy-kenburns {
+  animation: cy-kenburns 4.8s cubic-bezier(0.25, 0.1, 0.25, 1) 0.2s both;
+}
+
+.cy-hero-stamp {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  left: clamp(0.75rem, 5%, 4rem);
+  width: clamp(6.75rem, 5rem + 6vw, 10.5rem);
+  aspect-ratio: 1;
+  padding: 0.35rem;
+  border-radius: 50%;
+  background: var(--cy-paper);
+  color: var(--cy-teal);
+  translate: 0 50%;
+  animation: cy-stamp-in 1.3s var(--cy-ease) 1.1s both;
+}
+
+.cy-hero-stamp svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cy-hero-caption {
+  max-width: 60ch;
+  margin-top: 1.25rem;
+  color: var(--cy-ink-soft);
+}
+
+/* Le cachet déborde sous la grande photo, à gauche : la légende se range à droite. */
+@media (min-width: 1024px) {
+  .cy-hero-caption {
+    max-width: 44ch;
+    margin-left: auto;
+    text-align: right;
+  }
+}
+
+/* Chargement des pages : animations CSS seules, jamais conditionnées au JS. */
+
+.cy-load {
+  animation: cy-rise 1.1s var(--cy-ease) both;
+  animation-delay: var(--d, 0.1s);
+}
+
+.cy-load-lines .cy-line > span {
+  animation: cy-line-up 1.2s var(--cy-ease) both;
+  animation-delay: calc(0.2s + var(--i, 0) * 0.1s);
+}
+
+/* En tête de page, le grain du surtitre se pose pendant que le mot monte. */
+.cy-eyebrow.cy-load .cy-eyebrow-grain {
+  animation: cy-seed 0.9s var(--cy-ease) var(--d, 0.1s) backwards;
+}
+
+/* Navigation : la page qui arrive entre en fondu (voir template.tsx). Le
+   premier chargement n’en a pas, la vitrine s’en charge. */
+.cy-page[data-enter] {
+  animation: cy-fade 0.6s var(--cy-ease) backwards;
+}
+
+/* ───────────── Bandeau défilant ───────────── */
+
+.cy-marquee {
+  position: relative;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  border-block: 1px solid var(--cy-line);
+}
+
+.cy-marquee-viewport {
+  overflow: hidden;
+  padding-block: clamp(1.1rem, 2.4vw, 1.9rem);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 92%, transparent);
+}
+
+.cy-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: cy-marquee 80s linear infinite;
+}
+
+.cy-marquee:hover .cy-marquee-track,
+.cy-marquee[data-paused] .cy-marquee-track {
+  animation-play-state: paused;
+}
+
+.cy-marquee-group {
+  display: flex;
+  flex: none;
+}
+
+.cy-marquee-group li {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.4rem, 3vw, 3rem);
+  padding-right: clamp(1.4rem, 3vw, 3rem);
+  font-family: var(--cy-display);
+  font-size: clamp(1.9rem, 1.1rem + 3.2vw, 4.2rem);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.cy-marquee-italic {
+  font-style: italic;
+  color: var(--cy-teal-deep);
+}
+
+.cy-marquee-grain {
+  width: 0.3em;
+  height: 0.42em;
+  color: var(--cy-crust);
+}
+
+.cy-marquee-toggle {
+  position: absolute;
+  right: var(--cy-gutter);
+  bottom: -1.375rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--cy-line);
+  border-radius: 50%;
+  background: var(--cy-paper);
+  color: var(--cy-ink);
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.cy-marquee-toggle:hover {
+  border-color: var(--cy-ink);
+}
+
+.cy-marquee-toggle svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+/* ───────────── Manifeste ───────────── */
+
+.cy-quote {
+  font-family: var(--cy-display);
+  font-size: clamp(2.3rem, 1.3rem + 4.4vw, 5.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.cy-quote em {
+  color: var(--cy-teal-deep);
+}
+
+/* Les guillemets du Bodoni, très noirs à cette taille : plus petits et plus
+   clairs, ils restent une ponctuation. */
+.cy-guillemet {
+  font-size: 0.6em;
+  vertical-align: 0.18em;
+  color: var(--cy-ink-soft);
+}
+
+.cy-motto {
+  font-family: var(--cy-display);
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--cy-ink);
+  text-wrap: balance;
+}
+
+.cy-cite {
+  display: block;
+  margin-top: 2rem;
+  font-style: normal;
+  color: var(--cy-ink-soft);
+}
+
+.cy-figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: clamp(4rem, 8vw, 7rem);
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-figure {
+  padding: 1.75rem 1.25rem 0 0;
+}
+
+.cy-figure:nth-child(n + 3) {
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cy-figures {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .cy-figure {
+    padding: 2.25rem 2rem 0 0;
+  }
+
+  .cy-figure + .cy-figure {
+    padding-left: 2rem;
+    border-left: 1px solid var(--cy-line);
+  }
+
+  .cy-figure:nth-child(n + 3) {
+    margin-top: 0;
+  }
+}
+
+.cy-figure-num {
+  display: block;
+  font-family: var(--cy-display);
+  font-size: clamp(3rem, 2rem + 4vw, 5.75rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.cy-figure-text {
+  display: block;
+  max-width: 24ch;
+  margin-top: 0.85rem;
+  font-size: 0.975rem;
+  line-height: 1.5;
+  color: var(--cy-ink-soft);
+}
+
+/* ───────────── Photos ───────────── */
+
+.cy-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--cy-paper-deep);
+}
+
+.cy-par,
+.cy-par-off {
+  position: absolute;
+  inset: 0;
+}
+
+.cy-caption {
+  margin-top: 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--cy-ink-soft);
+}
+
+/* ───────────── Signatures ───────────── */
+
+.cy-num {
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-sig-feature {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .cy-sig-feature {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: center;
+  }
+
+  .cy-sig-feature > :first-child {
+    grid-column: 1 / span 5;
+  }
+
+  .cy-sig-feature > :last-child {
+    grid-column: 7 / span 6;
+  }
+}
+
+.cy-score {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.25rem;
+  margin-top: 2.25rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-note .cy-score {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.cy-score-num {
+  font-family: var(--cy-display);
+  font-size: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: var(--cy-teal-deep);
+}
+
+.cy-score-num small {
+  font-size: 0.42em;
+  letter-spacing: 0;
+  color: var(--cy-ink-soft);
+}
+
+.cy-score-text {
+  max-width: 28ch;
+  padding-bottom: 0.35rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--cy-ink-soft);
+}
+
+.cy-sig-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+
+/* Tablette : deux tuiles, la troisième en bandeau sous les deux. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .cy-sig-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cy-sig-grid > :last-child {
+    grid-column: span 2;
+  }
+
+  .cy-sig-grid > :last-child .cy-tile-art {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cy-sig-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cy-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--cy-card);
+  border: 1px solid var(--cy-line);
+}
+
+.cy-tile-body {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.6rem 1.5rem 1.75rem;
+}
+
+.cy-tile-body p:last-child {
+  color: var(--cy-ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.cy-tile-art {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+.cy-tile-word {
+  font-family: var(--cy-display);
+  font-size: clamp(4.5rem, 3rem + 4.5vw, 7rem);
+  font-variation-settings: "opsz" 28;
+  letter-spacing: 0.08em;
+  line-height: 0.9;
+  text-align: center;
+  color: var(--cy-ink);
+}
+
+.cy-tile-word span {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--cy-label);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-tile-three {
+  font-family: var(--cy-display);
+  font-size: clamp(9rem, 6rem + 9vw, 14rem);
+  font-style: italic;
+  line-height: 1;
+  color: var(--cy-teal-deep);
+}
+
+.cy-tile-bars {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  display: flex;
+  gap: 0.55rem;
+  translate: -50% 0;
+}
+
+.cy-tile-bars span {
+  width: 2.25rem;
+  height: 0.55rem;
+  border-radius: 2px;
+  background: #4a3426;
+  transform-origin: left;
+}
+
+.cy-site[data-motion] .cy-tile:not(.is-in) .cy-tile-bars span {
+  transform: scaleX(0);
+}
+
+.cy-tile-bars span {
+  transition: transform 0.9s var(--cy-ease);
+}
+
+.cy-tile-bars span:nth-child(2) {
+  transition-delay: 0.15s;
+}
+
+.cy-tile-bars span:nth-child(3) {
+  transition-delay: 0.3s;
+}
+
+.cy-tile-ink {
+  background: var(--cy-ink) var(--cy-grain-light);
+  color: var(--cy-paper);
+  border-color: var(--cy-ink);
+}
+
+.cy-tile-ink .cy-num {
+  color: var(--cy-teal-light);
+}
+
+.cy-tile-ink .cy-tile-body p:last-child {
+  color: rgba(247, 242, 234, 0.8);
+}
+
+.cy-tile-ink .cy-tile-art {
+  border-color: rgba(247, 242, 234, 0.12);
+}
+
+.cy-tile-charbon {
+  font-family: var(--cy-display);
+  font-size: clamp(2.6rem, 1.8rem + 2.6vw, 3.8rem);
+  font-style: italic;
+  line-height: 0.95;
+  text-align: center;
+}
+
+.cy-tile-charbon span {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--cy-label);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
+}
+
+/* ───────────── Récit « derrière la vitre » ───────────── */
+
+.cy-story {
+  display: grid;
+  gap: 4.5rem;
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+
+.cy-story-media {
+  display: none;
+}
+
+.cy-story-chapters {
+  display: grid;
+  gap: 4.5rem;
+}
+
+.cy-story-after {
+  margin-top: 4rem;
+}
+
+.cy-story-inline {
+  margin-bottom: 1.75rem;
+  background: rgba(247, 242, 234, 0.06);
+}
+
+.cy-story-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
+}
+
+.cy-story-kicker span {
+  font-family: var(--cy-display);
+  font-size: 1.2rem;
+  letter-spacing: 0;
+  color: var(--cy-teal);
+}
+
+.cy-story-title {
+  margin-top: 1rem;
+  font-family: var(--cy-display);
+  font-size: clamp(2rem, 1.4rem + 2.2vw, 3.3rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.cy-story-title em {
+  color: var(--cy-teal-light);
+}
+
+.cy-story-body {
+  margin-top: 1.25rem;
+  color: rgba(247, 242, 234, 0.82);
+}
+
+.cy-story-body > * + * {
+  margin-top: 1em;
+}
+
+.cy-story-body ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cy-story-body li {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--cy-line-night);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--cy-paper);
+}
+
+@media (min-width: 1024px) {
+  .cy-story {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    gap: 0 2rem;
+  }
+
+  .cy-story-media {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1 / span 5;
+    max-width: 35rem;
+    position: sticky;
+    top: calc(var(--cy-header-h) - var(--cy-header-condense) + 1.5rem);
+    height: calc(100svh - var(--cy-header-h) - 3rem);
+    align-self: start;
+  }
+
+  .cy-story-text {
+    grid-column: 7 / span 5;
+  }
+
+  .cy-story-chapters {
+    gap: 0;
+  }
+
+  .cy-story-after {
+    margin-top: 0;
+    padding-bottom: 2rem;
+  }
+
+  .cy-story-chapter {
+    min-height: 70svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 2rem;
+    transition: opacity 0.7s var(--cy-ease);
+  }
+
+  .cy-site[data-motion] .cy-story-chapter[data-active="false"] {
+    opacity: 0.5;
+  }
+
+  .cy-story-inline {
+    display: none;
+  }
+}
+
+.cy-story-frame {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: rgba(247, 242, 234, 0.06);
+}
+
+.cy-story-img {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.15s var(--cy-ease);
+}
+
+.cy-story-img img {
+  transform: scale(1.14);
+  transition: transform 1.7s var(--cy-ease);
+}
+
+.cy-story-img[data-shown="true"] {
+  clip-path: inset(0);
+}
+
+.cy-story-img[data-shown="true"] img {
+  transform: none;
+}
+
+.cy-story-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.5rem;
+  flex: none;
+}
+
+.cy-story-count {
+  display: inline-flex;
+  align-items: baseline;
+  overflow: hidden;
+  font-family: var(--cy-display);
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+
+.cy-story-count-now {
+  display: inline-block;
+  animation: cy-line-up 0.7s var(--cy-ease) both;
+}
+
+.cy-story-count-total {
+  margin-left: 0.2rem;
+  font-size: 0.55em;
+  color: rgba(247, 242, 234, 0.6);
+}
+
+.cy-story-rail {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cy-story-rail span {
+  position: relative;
+  width: 3rem;
+  height: 2px;
+  overflow: hidden;
+  background: var(--cy-line-night);
+}
+
+.cy-story-rail span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cy-teal-light);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s var(--cy-ease);
+}
+
+.cy-story-rail span[data-on="true"]::after {
+  transform: none;
+}
+
+/* ───────────── Bon de commande ───────────── */
+
+.cy-order-grid {
+  display: grid;
+  gap: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .cy-order-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: center;
+  }
+
+  .cy-order-grid > :first-child {
+    grid-column: 1 / span 5;
+  }
+
+  .cy-order-grid > :last-child {
+    grid-column: 6 / span 7;
+    margin-left: -4rem;
+  }
+}
+
+.cy-slip-wrap {
+  position: relative;
+  filter: drop-shadow(0 1.5rem 2.5rem rgba(31, 28, 24, 0.12));
+}
+
+.cy-slip {
+  --r: 7px;
+  position: relative;
+  padding: clamp(2.25rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem);
+  background: var(--cy-card);
+  -webkit-mask:
+    radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 50% 0 / calc(var(--r) * 3) 51% repeat-x,
+    radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 50% 100% / calc(var(--r) * 3) 51% repeat-x;
+  mask:
+    radial-gradient(var(--r) at 50% 0, #0000 98%, #000) 50% 0 / calc(var(--r) * 3) 51% repeat-x,
+    radial-gradient(var(--r) at 50% 100%, #0000 98%, #000) 50% 100% / calc(var(--r) * 3) 51% repeat-x;
+}
+
+.cy-slip-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px dashed rgba(31, 28, 24, 0.3);
+  color: var(--cy-ink-soft);
+}
+
+.cy-slip-stamp {
+  position: absolute;
+  top: clamp(1.25rem, 3vw, 2.25rem);
+  right: clamp(1rem, 3vw, 2.25rem);
+  width: clamp(5.5rem, 4rem + 4vw, 8rem);
+  height: auto;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  rotate: -14deg;
+  pointer-events: none;
+}
+
+.cy-site[data-motion] .is-in .cy-slip-stamp {
+  animation: cy-thump 0.8s var(--cy-ease) 0.6s both;
+}
+
+.cy-slip-steps {
+  display: grid;
+  margin-top: 2rem;
+  border-top: 1px dashed rgba(31, 28, 24, 0.3);
+}
+
+.cy-slip-steps li {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.25rem 1rem;
+  padding-block: 1.1rem;
+  border-bottom: 1px dashed rgba(31, 28, 24, 0.3);
+}
+
+.cy-slip-steps b {
+  grid-row: span 2;
+  font-family: var(--cy-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--cy-teal-deep);
+}
+
+.cy-slip-steps strong {
+  font-family: var(--cy-label);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cy-slip-steps span {
+  font-size: 0.98rem;
+  color: var(--cy-ink-soft);
+}
+
+.cy-slip-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-top: 2rem;
+}
+
+.cy-slip-foot p {
+  max-width: 32ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--cy-ink-soft);
+}
+
+/* ───────────── Le midi : la règle des heures ───────────── */
+
+.cy-midi-hours {
+  margin-top: clamp(1rem, 3vw, 2rem);
+}
+
+.cy-midi-grid {
+  display: grid;
+  gap: 1.25rem 2rem;
+}
+
+@media (min-width: 900px) {
+  .cy-midi-grid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    align-items: center;
+  }
+}
+
+.cy-midi-grid > span:first-child {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .cy-midi-grid > span:first-child {
+    display: block;
+  }
+}
+
+.cy-midi-axis {
+  position: relative;
+  height: 1.75rem;
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(247, 242, 234, 0.72);
+}
+
+.cy-midi-axis span {
+  position: absolute;
+  top: 0;
+  translate: -50% 0;
+  white-space: nowrap;
+}
+
+/* Les heures des deux bords restent dans la règle. */
+.cy-midi-axis span:first-child {
+  translate: 0 0;
+}
+
+.cy-midi-axis span:last-child {
+  translate: -100% 0;
+}
+
+/* Sur téléphone, une heure sur deux : la règle respire. */
+@media (max-width: 639px) {
+  .cy-midi-axis span:nth-child(even):not(:last-child) {
+    display: none;
+  }
+}
+
+.cy-midi-row {
+  padding-block: clamp(1.75rem, 3vw, 2.5rem);
+  border-bottom: 1px solid var(--cy-line-night);
+}
+
+.cy-midi-row:first-child {
+  border-top: 1px solid var(--cy-line-night);
+}
+
+.cy-midi-place h3 {
+  font-family: var(--cy-display);
+  font-size: clamp(2rem, 1.5rem + 1.6vw, 3rem);
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cy-midi-place > p {
+  margin-top: 0.5rem;
+  color: rgba(247, 242, 234, 0.82);
+}
+
+.cy-midi-place > .cy-midi-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* La piste : un filet par heure, et la plage d’ouverture qui se dessine. */
+.cy-midi-track {
+  position: relative;
+  height: 3.5rem;
+  background: linear-gradient(90deg, var(--cy-line-night) 1px, transparent 1px) 0 0 / calc(100% / var(--hours)) 100%;
+  border-right: 1px solid var(--cy-line-night);
+}
+
+.cy-midi-bar {
+  position: absolute;
+  top: 0.45rem;
+  bottom: 0.45rem;
+  display: flex;
+  align-items: center;
+  padding-inline: 1rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cy-teal-light);
+  color: var(--cy-night);
+  font-family: var(--cy-label);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  clip-path: inset(0 0 0 0 round 999px);
+  transition: clip-path 1.4s var(--cy-ease) calc(var(--d, 0s) + 0.25s);
+}
+
+.cy-site[data-motion] .cy-midi-row:not(.is-in) .cy-midi-bar {
+  clip-path: inset(0 100% 0 0 round 999px);
+}
+
+.cy-night .cy-chip {
+  border-color: var(--cy-line-night);
+  color: var(--cy-paper);
+}
+
+.cy-night .cy-chip:hover,
+.cy-night .cy-chip:focus-visible {
+  border-color: var(--cy-paper);
+  background: rgba(247, 242, 234, 0.06);
+}
+
+/* ───────────── Deux colonnes ───────────── */
+
+.cy-split {
+  display: grid;
+  gap: 3rem;
+}
+
+@media (min-width: 1024px) {
+  .cy-split {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: center;
+  }
+
+  .cy-split > :first-child {
+    grid-column: 1 / span 6;
+  }
+
+  .cy-split > :last-child {
+    grid-column: 8 / span 5;
+  }
+
+  .cy-split-rev > :first-child {
+    grid-column: 7 / span 6;
+    grid-row: 1;
+  }
+
+  .cy-split-rev > :last-child {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+}
+
+/* ───────────── Presse ───────────── */
+
+.cy-press-outlet {
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.cy-press-date {
+  font-size: 0.9rem;
+  color: var(--cy-ink-soft);
+}
+
+.cy-press-teaser {
+  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+}
+
+.cy-press-teaser-grid {
+  display: grid;
+  gap: 1.5rem 3rem;
+}
+
+@media (min-width: 1024px) {
+  .cy-press-teaser-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: last baseline;
+  }
+
+  .cy-press-teaser-grid > :first-child {
+    grid-column: 1 / span 4;
+  }
+
+  .cy-press-teaser-grid > :last-child {
+    grid-column: 5 / span 8;
+  }
+}
+
+.cy-press-quote {
+  font-family: var(--cy-display);
+  font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.6rem);
+  font-style: italic;
+  font-variation-settings: "opsz" 28;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.cy-press-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+  margin-top: 1rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cy-ink-soft);
+}
+
+.cy-press-teaser-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-press-teaser-foot .cy-outlets {
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+/* Les autres titres, en une ligne courante. */
+.cy-outlets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.1rem;
+  margin-top: clamp(2.25rem, 4vw, 3rem);
+  font-family: var(--cy-label);
+  font-size: clamp(0.9rem, 0.82rem + 0.35vw, 1.1rem);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--cy-ink-soft);
+}
+
+.cy-outlets dt {
+  color: var(--cy-teal-deep);
+  font-weight: 600;
+}
+
+.cy-outlets dd:not(:last-child)::after {
+  content: "\00a0·";
+  margin-left: 0.2em;
+  color: var(--cy-crust);
+}
+
+/* ───────────── Lieux (boutiques, le midi) ───────────── */
+
+.cy-place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  padding: clamp(1.6rem, 3vw, 2.5rem);
+  background: var(--cy-card);
+  border: 1px solid var(--cy-line);
+}
+
+/* La fiche qu’on survole, ou dont un lien a le focus clavier, prend un filet
+   sarcelle en tête : il se trace de gauche à droite et repart par la droite. */
+.cy-place::before {
+  content: "";
+  position: absolute;
+  inset: -1px -1px auto;
+  height: 2px;
+  background: var(--cy-teal-deep);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.6s var(--cy-ease);
+}
+
+.cy-place:has(:focus-visible)::before {
+  transform: none;
+  transform-origin: left;
+}
+
+@media (hover: hover) {
+  .cy-place:hover::before {
+    transform: none;
+    transform-origin: left;
+  }
+}
+
+.cy-place-kicker {
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-place-name {
+  font-family: var(--cy-display);
+  font-size: clamp(2rem, 1.5rem + 1.6vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+
+.cy-place-address {
+  font-style: normal;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.cy-hours {
+  display: grid;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-hours > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.15rem 1rem;
+  padding-block: 0.65rem;
+  border-bottom: 1px solid var(--cy-line);
+  font-size: 0.98rem;
+}
+
+.cy-hours dt {
+  color: var(--cy-ink-soft);
+}
+
+.cy-hours dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.cy-place-call {
+  padding-block: 0.65rem;
+  border-block: 1px solid var(--cy-line);
+}
+
+.cy-place-note {
+  font-size: 0.95rem;
+  color: var(--cy-ink-soft);
+}
+
+.cy-place-pickup {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(46, 98, 103, 0.1);
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+}
+
+.cy-place-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.cy-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 1.6rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cy-ink-soft);
+}
+
+/* L’état n’existe que chez le visiteur : il arrive en douceur au lieu de surgir. */
+.cy-open[data-open] {
+  --cy-rise: 0.4rem;
+  animation: cy-rise 0.8s var(--cy-ease) backwards;
+}
+
+.cy-open-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--cy-line);
+}
+
+.cy-open[data-open="true"] {
+  color: var(--cy-teal-deep);
+}
+
+.cy-open[data-open="true"] .cy-open-dot {
+  position: relative;
+  background: var(--cy-teal-deep);
+}
+
+.cy-open[data-open="true"] .cy-open-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  /* Deux battements : moins de cinq secondes, rien ne dure. */
+  animation: cy-ping 2.4s ease-out 2;
+}
+
+.cy-open[data-open="false"] .cy-open-dot {
+  background: var(--cy-crust);
+}
+
+.cy-places {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .cy-places {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ───────────── Pied de page ───────────── */
+
+.cy-footer {
+  position: relative;
+  overflow: hidden;
+  padding-top: clamp(4.5rem, 8vw, 7rem);
+}
+
+.cy-footer-grid {
+  display: grid;
+  gap: 3rem 2rem;
+}
+
+@media (min-width: 768px) {
+  .cy-footer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cy-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1200px) {
+  .cy-footer-grid {
+    grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  }
+
+  .cy-footer-brand {
+    grid-column: auto;
+  }
+}
+
+.cy-footer-brand {
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 1.5rem;
+}
+
+.cy-footer-stamp {
+  width: 8.5rem;
+  height: 8.5rem;
+  color: var(--cy-teal);
+}
+
+.cy-footer-tagline {
+  font-family: var(--cy-display);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  font-style: italic;
+  line-height: 1.15;
+}
+
+.cy-footer-title {
+  margin-bottom: 1.25rem;
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
+}
+
+.cy-footer-list {
+  display: grid;
+  gap: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(247, 242, 234, 0.8);
+}
+
+.cy-footer-contact {
+  gap: 0;
+}
+
+.cy-footer-hours p + p {
+  margin-top: 0.35rem;
+}
+
+.cy-footer-hours span {
+  display: block;
+  color: var(--cy-paper);
+}
+
+/* Sur mobile, le pied reste court : les horaires détaillés sont sur la page Boutiques. */
+@media (max-width: 767px) {
+  .cy-footer-hours {
+    display: none;
+  }
+}
+
+.cy-footer-name {
+  margin-bottom: 0.2rem;
+  font-family: var(--cy-display);
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: var(--cy-paper);
+}
+
+.cy-footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--cy-paper);
+  background: linear-gradient(currentColor, currentColor) 0 calc(50% + 0.75em) / 0 1px no-repeat;
+  transition: background-size 0.5s var(--cy-ease);
+}
+
+.cy-footer-link:hover {
+  background-size: 100% 1px;
+}
+
+.cy-footer-nav {
+  margin-top: clamp(3.5rem, 6vw, 5rem);
+  padding-block: 1.5rem;
+  border-block: 1px solid var(--cy-line-night);
+}
+
+.cy-footer-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.cy-footer-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-family: var(--cy-display);
+  font-size: clamp(1.25rem, 1.05rem + 0.6vw, 1.6rem);
+  transition: color 0.3s;
+}
+
+.cy-footer-nav a:hover,
+.cy-footer-nav a:focus-visible {
+  color: var(--cy-teal-light);
+}
+
+/* Le filet des liens du bandeau, repris au plan du site. */
+.cy-footer-nav a::after {
+  content: "";
+  position: absolute;
+  inset: calc(50% + 0.55em) 0 auto;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--cy-ease);
+}
+
+.cy-footer-nav a:focus-visible::after {
+  transform: none;
+  transform-origin: left;
+}
+
+/* Au doigt, un survol resterait collé au lien touché. */
+@media (hover: hover) {
+  .cy-footer-nav a:hover::after {
+    transform: none;
+    transform-origin: left;
+  }
+}
+
+.cy-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding-block: 1.25rem 2rem;
+  font-size: 0.875rem;
+  color: rgba(247, 242, 234, 0.72);
+}
+
+.cy-footer-bottom ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+
+.cy-footer-bottom a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--cy-paper);
+  text-decoration: underline;
+  text-decoration-color: rgba(247, 242, 234, 0.35);
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 0.3s;
+}
+
+.cy-footer-bottom a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Le logotype géant en SVG : textLength l’ajuste exactement à la largeur,
+   rien ne déborde, quelle que soit la largeur d’écran. */
+.cy-footer-giant {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-block: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 2vw, 1.5rem);
+  fill: rgba(247, 242, 234, 0.11);
+}
+
+.cy-footer-giant text {
+  font-family: var(--cy-display);
+  font-size: 200px;
+  font-variation-settings: "opsz" 28;
+}
+
+/* ───────────── Pages intérieures ───────────── */
+
+.cy-page-hero {
+  padding-top: clamp(2rem, 5vw, 4.5rem);
+}
+
+.cy-page-hero .cy-lead {
+  max-width: 34ch;
+}
+
+.cy-page-hero-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--cy-paper-deep);
+  animation: cy-window 1.8s var(--cy-ease) 0.25s both;
+}
+
+@media (min-width: 768px) {
+  .cy-page-hero-media {
+    aspect-ratio: 21 / 9;
+  }
+}
+
+.cy-page-hero-media.cy-page-hero-media-side {
+  aspect-ratio: 1;
+}
+
+.cy-subnav {
+  margin-top: clamp(3.5rem, 6vw, 6rem);
+  position: sticky;
+  top: calc(var(--cy-header-h) - var(--cy-header-condense));
+  z-index: 10;
+  background: rgba(247, 242, 234, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--cy-line);
+}
+
+.cy-subnav ul {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .cy-subnav ul {
+    justify-content: flex-start;
+    gap: 1.75rem;
+  }
+}
+
+.cy-subnav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.25rem;
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cy-subnav a span {
+  font-family: var(--cy-display);
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  color: var(--cy-teal-deep);
+}
+
+.cy-subnav a {
+  box-shadow: inset 0 -2px 0 transparent;
+  transition:
+    color 0.3s,
+    box-shadow 0.3s;
+}
+
+.cy-subnav a[aria-current="true"] {
+  color: var(--cy-teal-deep);
+  box-shadow: inset 0 -2px 0 currentColor;
+}
+
+@media (max-width: 639px) {
+  .cy-subnav a {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+
+  .cy-subnav a span {
+    display: none;
+  }
+}
+
+/* Têtes de section. Trois dispositions, pour ne pas répéter la même :
+   - en ligne : le chapô suit le titre sur sa dernière ligne de base ;
+   - empilée : le chapô sous le titre ;
+   - en colonnes (pages intérieures) : chapô à droite, sur la ligne de base. */
+.cy-head-inline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: last baseline;
+  gap: 1.5rem clamp(2rem, 5vw, 5rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.cy-head-inline > .cy-lead {
+  flex: 1 1 18rem;
+  max-width: 30rem;
+}
+
+.cy-head-stack {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.cy-head-stack > .cy-lead {
+  max-width: 40ch;
+  margin-top: 1.5rem;
+}
+
+.cy-chapter-head {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+@media (min-width: 1024px) {
+  .cy-chapter-head {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: last baseline;
+  }
+
+  .cy-chapter-head > :first-child {
+    grid-column: 1 / span 6;
+  }
+
+  .cy-chapter-head > :last-child {
+    grid-column: 7 / span 5;
+  }
+}
+
+.cy-big-num {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--cy-display);
+  font-size: clamp(4rem, 3rem + 4vw, 7rem);
+  font-style: italic;
+  line-height: 0.9;
+  color: var(--cy-teal-deep);
+}
+
+.cy-range {
+  display: grid;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-range li {
+  display: grid;
+  gap: 0.2rem 1.5rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+@media (min-width: 640px) {
+  .cy-range li {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    align-items: baseline;
+  }
+}
+
+.cy-range strong {
+  font-family: var(--cy-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.cy-range span {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--cy-ink-soft);
+}
+
+.cy-pull {
+  padding-left: clamp(1.25rem, 3vw, 2.5rem);
+  border-left: 2px solid var(--cy-teal);
+  font-family: var(--cy-display);
+  font-size: clamp(1.6rem, 1.15rem + 1.7vw, 2.6rem);
+  font-style: italic;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.cy-pull-long {
+  font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.8rem);
+  line-height: 1.3;
+}
+
+.cy-pull footer {
+  margin-top: 1.25rem;
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cy-ink-soft);
+}
+
+.cy-night .cy-pull footer {
+  color: rgba(247, 242, 234, 0.7);
+}
+
+.cy-note {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  background: var(--cy-card);
+  border: 1px solid var(--cy-line);
+}
+
+.cy-values {
+  display: grid;
+  border-top: 1px solid var(--cy-line);
+}
+
+@media (min-width: 768px) {
+  .cy-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .cy-values {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cy-values li {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 2rem 1.5rem 2.25rem 0;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+@media (min-width: 768px) {
+  .cy-values li:nth-child(even) {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--cy-line);
+  }
+}
+
+@media (min-width: 1200px) {
+  .cy-values li + li {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--cy-line);
+  }
+}
+
+.cy-values strong {
+  font-family: var(--cy-display);
+  font-size: clamp(2rem, 1.6rem + 1.2vw, 2.75rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--cy-teal-deep);
+}
+
+.cy-values p {
+  color: var(--cy-ink-soft);
+}
+
+.cy-timeline {
+  position: relative;
+  display: grid;
+}
+
+.cy-timeline li {
+  position: relative;
+  display: grid;
+  gap: 0.4rem 2rem;
+  padding: 0 0 2.5rem 2rem;
+  border-left: 1px solid var(--cy-line-night);
+}
+
+.cy-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -0.4rem;
+  top: 0.45rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--cy-night);
+  border: 1px solid var(--cy-teal-light);
+}
+
+.cy-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .cy-timeline li {
+    grid-template-columns: 11rem 1fr;
+    padding-bottom: 3rem;
+  }
+}
+
+.cy-timeline time,
+.cy-timeline .cy-when {
+  font-family: var(--cy-label);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
+  padding-top: 0.25rem;
+}
+
+.cy-timeline h3 {
+  font-family: var(--cy-display);
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.cy-timeline p {
+  margin-top: 0.5rem;
+  max-width: 52ch;
+  color: rgba(247, 242, 234, 0.8);
+}
+
+/* Liste de presse */
+
+.cy-press-year {
+  display: grid;
+  gap: 1rem;
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--cy-line);
+}
+
+@media (min-width: 1024px) {
+  .cy-press-year {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+
+  .cy-press-year > h2 {
+    grid-column: 1 / span 3;
+    position: sticky;
+    top: calc(var(--cy-header-h) + 1rem);
+    align-self: start;
+  }
+
+  .cy-press-year > ol {
+    grid-column: 4 / span 9;
+  }
+}
+
+.cy-press-year > h2 {
+  font-family: var(--cy-display);
+  font-size: clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--cy-teal-deep);
+}
+
+.cy-press-row {
+  position: relative;
+  display: grid;
+  gap: 0.4rem 2rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+.cy-press-row:first-child {
+  padding-top: 0.5rem;
+}
+
+.cy-press-row:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .cy-press-row {
+    grid-template-columns: 12rem minmax(0, 1fr) auto;
+    align-items: baseline;
+  }
+}
+
+.cy-press-row h3 {
+  font-family: var(--cy-display);
+  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.85rem);
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
+  transition:
+    color 0.45s var(--cy-ease),
+    transform 0.5s var(--cy-ease);
+}
+
+.cy-press-row .cy-press-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  font-family: var(--cy-label);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+  white-space: nowrap;
+}
+
+.cy-press-row .cy-press-go::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cy-press-row:has(.cy-press-go):hover h3 {
+  color: var(--cy-teal-deep);
+}
+
+.cy-press-row:has(.cy-press-go):hover .cy-arrow,
+.cy-press-row:has(.cy-press-go:focus-visible) .cy-arrow {
+  transform: translate3d(0.25rem, 0, 0);
+}
+
+/* La parution qu’on va ouvrir : un filet sarcelle court sous la ligne et le
+   titre s’avance d’un pas, au survol comme au clavier. */
+.cy-press-row:has(.cy-press-go)::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: var(--cy-teal-deep);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.6s var(--cy-ease);
+}
+
+.cy-press-row:has(.cy-press-go:focus-visible)::before {
+  transform: none;
+  transform-origin: left;
+}
+
+.cy-press-row:has(.cy-press-go:focus-visible) h3 {
+  color: var(--cy-teal-deep);
+  transform: translate3d(0.35rem, 0, 0);
+}
+
+@media (hover: hover) {
+  .cy-press-row:has(.cy-press-go):hover::before {
+    transform: none;
+    transform-origin: left;
+  }
+
+  .cy-press-row:has(.cy-press-go):hover h3 {
+    transform: translate3d(0.35rem, 0, 0);
+  }
+}
+
+
+/* Textes légaux */
+
+.cy-legal {
+  display: grid;
+  gap: 2.5rem;
+  padding-block: clamp(3rem, 6vw, 5rem) var(--cy-section);
+}
+
+@media (min-width: 1024px) {
+  .cy-legal {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+
+  .cy-legal > nav {
+    grid-column: 1 / span 3;
+    position: sticky;
+    top: calc(var(--cy-header-h) + 1rem);
+    align-self: start;
+  }
+
+  .cy-legal > div {
+    grid-column: 5 / span 7;
+  }
+}
+
+.cy-legal nav ol {
+  display: grid;
+  gap: 0.15rem;
+  counter-reset: toc;
+}
+
+.cy-legal nav a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--cy-ink-soft);
+  transition: color 0.3s;
+}
+
+.cy-legal nav a:hover {
+  color: var(--cy-ink);
+}
+
+.cy-legal section + section {
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-legal h2 {
+  margin-bottom: 1.25rem;
+  font-family: var(--cy-display);
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.cy-legal dl {
+  display: grid;
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-legal dl > div {
+  display: grid;
+  gap: 0.15rem 1.5rem;
+  padding-block: 0.8rem;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+@media (min-width: 640px) {
+  .cy-legal dl > div {
+    grid-template-columns: 13rem 1fr;
+  }
+}
+
+.cy-legal dt {
+  color: var(--cy-ink-soft);
+}
+
+.cy-legal a {
+  color: var(--cy-teal-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* 404 */
+
+.cy-lost {
+  display: grid;
+  justify-items: center;
+  gap: 1.75rem;
+  padding-block: clamp(3rem, 8vw, 7rem) var(--cy-section);
+  text-align: center;
+}
+
+.cy-lost-stamp {
+  width: clamp(8rem, 6rem + 6vw, 11rem);
+  height: auto;
+  color: var(--cy-teal);
+  animation: cy-stamp-in 1.3s var(--cy-ease) 0.1s backwards;
+}
+
+/* ───────────── Révélations au défilement ───────────── */
+
+.cy-site[data-motion] [data-reveal] {
+  transition:
+    opacity 1s var(--cy-ease) var(--d, 0s),
+    transform 1.15s var(--cy-ease) var(--d, 0s),
+    clip-path 1.4s var(--cy-ease) var(--d, 0s);
+}
+
+.cy-site[data-motion] [data-reveal="up"]:not(.is-in) {
+  opacity: 0;
+  transform: translate3d(0, 2.25rem, 0);
+}
+
+.cy-site[data-motion] [data-reveal="fade"]:not(.is-in) {
+  opacity: 0;
+}
+
+.cy-site[data-motion] [data-reveal="clip"]:not(.is-in) {
+  clip-path: inset(100% 0 0 0);
+}
+
+.cy-site[data-motion] [data-reveal="clip"] img {
+  transition: transform 1.9s var(--cy-ease) var(--d, 0s);
+}
+
+.cy-site[data-motion] [data-reveal="clip"]:not(.is-in) img {
+  transform: scale(1.18);
+}
+
+.cy-site[data-motion] [data-reveal="lines"] .cy-line > span {
+  transition: transform 1.15s var(--cy-ease);
+  transition-delay: calc(var(--d, 0s) + var(--i, 0) * 0.09s);
+}
+
+.cy-site[data-motion] [data-reveal="lines"]:not(.is-in) .cy-line > span {
+  transform: translate3d(0, 110%, 0);
+}
+
+/* Surtitre : le grain du cachet se pose en tournant, le mot glisse à sa suite. */
+.cy-site[data-motion] [data-reveal="eyebrow"] > * {
+  transition:
+    opacity 0.9s var(--cy-ease) var(--d, 0s),
+    transform 0.9s var(--cy-ease) var(--d, 0s);
+}
+
+.cy-site[data-motion] [data-reveal="eyebrow"] > span {
+  transition-delay: calc(var(--d, 0s) + 0.1s);
+}
+
+.cy-site[data-motion] [data-reveal="eyebrow"]:not(.is-in) > .cy-eyebrow-grain {
+  opacity: 0;
+  transform: rotate(-60deg) scale(0.3);
+}
+
+.cy-site[data-motion] [data-reveal="eyebrow"]:not(.is-in) > span {
+  opacity: 0;
+  transform: translate3d(-0.75rem, 0, 0);
+}
+
+/* Liste (horaires, gamme, étapes, heures de la règle) : le cadre reste, les
+   lignes se posent l’une après l’autre, dans l’ordre de lecture (--i). */
+.cy-site[data-motion] [data-reveal="list"] > * {
+  transition:
+    opacity 0.8s var(--cy-ease),
+    transform 1s var(--cy-ease);
+  transition-delay: calc(var(--d, 0s) + var(--i, 0) * 0.07s);
+}
+
+.cy-site[data-motion] [data-reveal="list"]:not(.is-in) > * {
+  opacity: 0;
+  transform: translate3d(0, 0.75rem, 0);
+}
+
+/* Signatures : le motif monte dans le cadre de sa tuile, juste après elle. */
+.cy-site[data-motion] :is(.cy-tile-word, .cy-tile-three, .cy-tile-charbon) {
+  transition:
+    opacity 1s var(--cy-ease) calc(var(--d, 0s) + 0.2s),
+    transform 1.15s var(--cy-ease) calc(var(--d, 0s) + 0.2s);
+}
+
+.cy-site[data-motion] .cy-tile:not(.is-in) :is(.cy-tile-word, .cy-tile-three, .cy-tile-charbon) {
+  opacity: 0;
+  transform: translate3d(0, 40%, 0);
+}
+
+.cy-site [data-delay="1"] {
+  --d: 0.1s;
+}
+
+.cy-site [data-delay="2"] {
+  --d: 0.2s;
+}
+
+.cy-site [data-delay="3"] {
+  --d: 0.3s;
+}
+
+.cy-site [data-delay="4"] {
+  --d: 0.4s;
+}
+
+/* Défilement lié au scroll : là où le navigateur le sait (Chrome, Safari 26). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cy-par {
+      inset: -9% 0;
+      animation: cy-parallax linear both;
+      animation-timeline: view();
+    }
+
+    /* Plus haute que son cadre : la dérive ne découvre rien. La grande photo
+       garde son propre débord (plus haut), plus large que ces 14 %. */
+    .cy-par-hero {
+      top: -14%;
+      animation: cy-hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+
+    .cy-hero-side .cy-par-hero {
+      bottom: -14%;
+      animation-name: cy-hero-rise;
+    }
+
+    /* L’anneau du cachet tourne avec la page, jamais tout seul. */
+    .cy-hero-stamp .cy-stamp-ring,
+    .cy-footer-stamp .cy-stamp-ring {
+      animation: cy-spin linear both;
+      animation-timeline: scroll(root);
+    }
+
+    .cy-words > span {
+      animation: cy-word linear both;
+      animation-timeline: view();
+      animation-range: cover calc(8% + var(--i) * 1.6%) cover calc(24% + var(--i) * 1.6%);
+    }
+
+    /* Les dates de l’histoire : un fil sarcelle suit la lecture, sa pointe
+       toujours à mi-écran, et chaque date se remplit quand il l’atteint. Sans
+       cette prise en charge, la frise reste telle quelle. */
+    .cy-timeline {
+      view-timeline: --cy-dates block;
+    }
+
+    .cy-timeline::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 1px;
+      background: var(--cy-teal-light);
+      transform-origin: top;
+      animation: cy-grow linear both;
+      animation-timeline: --cy-dates;
+      animation-range: cover 50vh cover calc(100% - 50vh);
+    }
+
+    .cy-timeline li {
+      view-timeline: --cy-date block;
+    }
+
+    .cy-timeline li::after {
+      content: "";
+      position: absolute;
+      left: -0.4rem;
+      top: 0.45rem;
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      background: var(--cy-teal-light);
+      animation: cy-pop linear both;
+      animation-timeline: --cy-date;
+      animation-range: cover calc(50vh + 0.45rem) cover calc(50vh + 1.25rem);
+    }
+
+    /* Fin de page : le grand logotype du pied monte de derrière le bord de son
+       cadre en entrant à l’écran, comme celui de la vitrine au chargement. */
+    .cy-footer-giant {
+      view-timeline: --cy-sign block;
+    }
+
+    .cy-footer-giant text {
+      transform-box: fill-box;
+      animation: cy-sign linear both;
+      animation-timeline: --cy-sign;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+
+/* ───────────── Images clés ───────────── */
+
+@keyframes cy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --cy-rise : la course, plus courte pour les petits éléments (bandeau, pastille). */
+@keyframes cy-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--cy-rise, 1.25rem), 0);
+  }
+}
+
+@keyframes cy-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes cy-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes cy-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes cy-pop {
+  from {
+    transform: scale(0);
+  }
+}
+
+@keyframes cy-seed {
+  from {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.3);
+  }
+}
+
+/* SVG : pas de translate3d ; le pourcentage se rapporte à la boîte du texte (transform-box). */
+@keyframes cy-sign {
+  from {
+    opacity: 0;
+    transform: translateY(35%);
+  }
+}
+
+@keyframes cy-line-up {
+  from {
+    transform: translate3d(0, 110%, 0);
+  }
+}
+
+@keyframes cy-letter {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+}
+
+@keyframes cy-window {
+  from {
+    clip-path: inset(12% 14% 0 14%);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* La vitrine de l'accueil : la fenêtre s'ouvre en apparaissant, après les
+   lettres du logotype. */
+@keyframes cy-window-in {
+  from {
+    clip-path: inset(12% 14% 0 14%);
+    opacity: 0;
+  }
+
+  to {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+}
+
+@keyframes cy-kenburns {
+  from {
+    transform: scale(1.1) translate3d(1%, 1%, 0);
+  }
+}
+
+@keyframes cy-stamp-in {
+  from {
+    opacity: 0;
+    scale: 0.55;
+  }
+}
+
+@keyframes cy-hero-drift {
+  to {
+    transform: translate3d(0, 12%, 0);
+  }
+}
+
+@keyframes cy-hero-rise {
+  from {
+    transform: translate3d(0, 8%, 0);
+  }
+
+  to {
+    transform: translate3d(0, -8%, 0);
+  }
+}
+
+@keyframes cy-parallax {
+  from {
+    transform: translate3d(0, -7%, 0);
+  }
+
+  to {
+    transform: translate3d(0, 7%, 0);
+  }
+}
+
+@keyframes cy-word {
+  from {
+    opacity: 0.4;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cy-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes cy-curtain {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes cy-thump {
+  0% {
+    opacity: 0;
+    scale: 1.7;
+  }
+
+  55% {
+    opacity: 0.85;
+    scale: 0.95;
+  }
+
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes cy-ping {
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+/* ───────────── Mouvement réduit : tout est là, rien ne bouge ───────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .cy-site *,
+  .cy-site *::before,
+  .cy-site *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .cy-marquee-track {
+    width: auto;
+  }
+
+  .cy-marquee-viewport {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .cy-marquee-group {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-inline: var(--cy-gutter);
+  }
+
+  .cy-marquee-group[aria-hidden],
+  .cy-marquee-toggle {
+    display: none;
+  }
+}

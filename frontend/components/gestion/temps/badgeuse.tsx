@@ -5,7 +5,8 @@ import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { SERVICE_CLOCK_TICK_MS, STAFF_CODE_LENGTH } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
-import { visibleStaff } from "@/lib/gestion/selectors";
+import { isPickupShop, visibleStaff } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import {
   clockIn,
   clockOut,
@@ -50,6 +51,7 @@ export function Badgeuse({
   onChange: () => void;
 }) {
   const toast = useToast();
+  const state = useGestion();
   const now = useNow(SERVICE_CLOCK_TICK_MS);
   const [action, setAction] = useState<Action | null>(null);
   const [chosen, setChosen] = useState<Staff | null>(null);
@@ -149,8 +151,9 @@ export function Badgeuse({
 
       {team.length === 0 && (
         <p className="text-sm text-muted">
-          Aucun serveur dans l&rsquo;équipe. Le gérant les ajoute depuis
-          Équipe, onglet Planning.
+          Aucun {isPickupShop(state) ? "employé" : "serveur"}{" "}
+          dans l&rsquo;équipe. Le gérant les ajoute depuis Équipe, onglet
+          Planning.
         </p>
       )}
 

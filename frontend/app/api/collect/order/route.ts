@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { CollectOrderView } from "@/lib/collect/shared";
+import { isOrderId, type CollectOrderView } from "@/lib/collect/shared";
 import type { OrderItemOption } from "@/lib/gestion/types";
 import {
   connectedAccount,
@@ -20,13 +20,15 @@ export async function GET(request: Request) {
   if (!orderId) {
     return NextResponse.json({ error: "Commande manquante." }, { status: 400 });
   }
+  // Un lien abîmé n'est pas une panne : la commande n'existe simplement pas.
+  if (!isOrderId(orderId)) return NextResponse.json({ found: false });
 
   const admin = createAdminClient();
   const read = () =>
     admin
       .from("orders")
       .select(
-        "status, paid_online, stripe_payment_intent_id, etablissement_id, created_at, pickup_at, estimated_ready_at, customer_name, order_items(name, quantity, unit_price, options)"
+        "status, paid_online, online_payment_started_at, payment_mode, stripe_payment_intent_id, etablissement_id, created_at, pickup_at, estimated_ready_at, customer_name, customer_note, order_items(name, quantity, unit_price, options)"
       )
       .eq("id", orderId)
       .eq("type", "collect")
@@ -62,11 +64,20 @@ export async function GET(request: Request) {
   }));
   const view: CollectOrderView = {
     status: order.status,
-    paid: order.paid_online,
+    // Prise au comptoir, elle n'attend aucun paiement en ligne : elle se suit
+    // dès son enregistrement.
+    paid: order.paid_online || order.online_payment_started_at === null,
+    settlement:
+      order.paid_online || order.payment_mode !== null
+        ? "payee"
+        : order.status === "annulee"
+          ? "aucun"
+          : "au_retrait",
     createdAt: order.created_at,
     pickupAt: order.pickup_at,
     estimatedReadyAt: order.estimated_ready_at,
     customerName: order.customer_name ?? "",
+    note: order.customer_note,
     items,
     total: items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0),
   };

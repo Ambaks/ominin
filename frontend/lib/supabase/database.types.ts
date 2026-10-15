@@ -39,6 +39,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alert_counters: {
+        Row: {
+          hits: number
+          key: string
+          notified_at: string | null
+          window_start: string
+        }
+        Insert: {
+          hits: number
+          key: string
+          notified_at?: string | null
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          notified_at?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       admin_pins: {
         Row: {
           etablissement_id: string
@@ -64,6 +85,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          owner?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       admin_users: {
         Row: {
@@ -1424,6 +1478,7 @@ export type Database = {
           id: string
           image: string | null
           name: string
+          notice_hours: number | null
           options: Json
           pairing: string | null
           position: number
@@ -1443,6 +1498,7 @@ export type Database = {
           id?: string
           image?: string | null
           name: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -1462,6 +1518,7 @@ export type Database = {
           id?: string
           image?: string | null
           name?: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -2186,6 +2243,7 @@ export type Database = {
           cash_given: number | null
           created_at: string
           customer_name: string | null
+          customer_note: string | null
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
@@ -2214,6 +2272,7 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
@@ -2242,6 +2301,7 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
@@ -2869,6 +2929,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      projet_step_templates: {
+        Row: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Insert: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Update: {
+          detail?: string
+          phase?: string
+          position?: number
+          shop?: boolean
+          title?: string
+        }
+        Relationships: []
       }
       projet_steps: {
         Row: {
@@ -4638,6 +4722,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_alert_hit: {
+        Args: {
+          p_cooldown: string
+          p_key: string
+          p_threshold: number
+          p_window: string
+        }
+        Returns: boolean
+      }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -4723,6 +4816,18 @@ export type Database = {
           converted: number
           day: string
           orders_count: number
+          revenue: number
+          sessions: number
+        }[]
+      }
+      admin_service_figures: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          commission: number
+          id: string
+          kind: string
+          name: string
+          orders: number
           revenue: number
           sessions: number
         }[]

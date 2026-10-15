@@ -4,6 +4,7 @@ import { Fragment, useEffect, useId, useRef, useState } from "react";
 import {
   collectProblem,
   PickupFields,
+  pickupNotice,
   type CollectDetails,
 } from "@/components/collect/pickup-fields";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
@@ -14,7 +15,7 @@ import { SquarePayment } from "@/components/menu/square-payment";
 import { preloadStripe, StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
-import { collectHref } from "@/lib/collect/shared";
+import { collectHref, normalizePhone } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
@@ -117,6 +118,7 @@ export function CartBar() {
     name: "",
     phone: "",
     pickupAt: cart.collect && !isOpenAt(cart.collect.hours, new Date()) ? "" : null,
+    note: "",
   }));
   // Paiement carte choisi mais impossible à démarrer : la commande reste
   // valable, il faut le dire au client (il paiera au comptoir).
@@ -423,10 +425,14 @@ export function CartBar() {
       handOff(id);
       return;
     }
-    const pickupProblem = cart.collect ? collectProblem(details, cart.collect.hours) : null;
+    const pickupProblem = cart.collect
+      ? collectProblem(details, cart.collect.hours, pickupNotice(cart.lines))
+      : null;
     if (pickupProblem) {
       setState("error");
       setError(pickupProblem);
+      // Sur téléphone, le formulaire de retrait est souvent sous le pli.
+      document.querySelector("[data-collect-fields]")?.scrollIntoView({ block: "start" });
       return;
     }
     setState("sending");
@@ -463,8 +469,10 @@ export function CartBar() {
         ...(cart.collect && {
           p_collect: {
             name: details.name.trim(),
-            phone: details.phone.trim(),
+            // Validé par collectProblem juste avant : le numéro est lisible.
+            phone: normalizePhone(details.phone)!,
             pickup_at: details.pickupAt ?? "",
+            note: details.note.trim(),
           },
         }),
       }
@@ -604,7 +612,7 @@ export function CartBar() {
       if (paid) {
         cart.clear();
         window.location.assign(
-          `${collectHref(cart.slug)}/confirmation?commande=${orderId}`
+          `${cart.collect.confirmationPath ?? `${collectHref(cart.slug)}/confirmation`}?commande=${orderId}`
         );
       } else {
         setState("error");
@@ -1004,6 +1012,7 @@ export function CartBar() {
                         slug={cart.slug}
                         hours={cart.collect.hours}
                         slotMinutes={cart.collect.slotMinutes}
+                        notice={pickupNotice(cart.lines)}
                         value={details}
                         onChange={(next) => {
                           setDetails(next);

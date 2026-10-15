@@ -22,11 +22,15 @@ export async function POST(request: Request) {
     );
   }
 
+  // Le même service worker sert la gestion et l'admin : l'ancien endpoint est
+  // dans l'une des deux tables.
   const admin = createAdminClient();
-  const { error } = await admin
-    .from("push_subscriptions")
-    .update({ endpoint: body.endpoint, p256dh: body.p256dh, auth: body.auth })
-    .eq("endpoint", body.oldEndpoint);
+  const keys = { endpoint: body.endpoint, p256dh: body.p256dh, auth: body.auth };
+  const results = await Promise.all([
+    admin.from("push_subscriptions").update(keys).eq("endpoint", body.oldEndpoint),
+    admin.from("admin_push_subscriptions").update(keys).eq("endpoint", body.oldEndpoint),
+  ]);
+  const error = results.find((result) => result.error)?.error;
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -1,7 +1,10 @@
 /*
  * Insère un restaurant du registre statique (lib/menu-data) dans Supabase —
  * démo client sur le vrai produit menu (/m/<slug>), commandes à table
- * comprises (offre connect, paiement au comptoir).
+ * comprises (offre connect, paiement au comptoir). Une boutique en click &
+ * collect seul (`collect` au registre) reçoit ses horaires et le produit
+ * collect, sans offre ni tables ; son paiement en ligne et sa commission
+ * restent à ouvrir par Ominin.
  *
  * Usage, depuis frontend/ :
  *   npm run seed:restaurant -- <slug> [email mot-de-passe]
@@ -66,7 +69,8 @@ async function main() {
         address: restaurant!.address,
         phone: restaurant!.phone,
         hours: restaurant!.hours,
-        offre: "connect",
+        offre: restaurant!.collect ? null : "connect",
+        opening_hours: toJson(restaurant!.collect?.openingHours ?? null),
         cover_image: restaurant!.coverImage ?? null,
         google_review_url: restaurant!.googleReviewUrl ?? null,
       })
@@ -77,6 +81,7 @@ async function main() {
   // La démo reste utilisable sans passer par Stripe.
   const { error: subscriptionError } = await db.from("subscriptions").insert({
     etablissement_id: etab.id,
+    product: restaurant!.collect ? "collect" : "offre",
     status: "active",
   });
   if (subscriptionError) throw new Error(subscriptionError.message);
@@ -128,6 +133,7 @@ async function main() {
           // caisse : le seed perdait ce taux.
           vat_rate: item.vatRate,
           print_name: item.printName ?? null,
+          notice_hours: item.noticeHours ?? null,
         })),
         // La liste des colonnes vient des clés, undefined compris : sans
         // missing=default, un taux absent partait en NULL et violait le
@@ -137,17 +143,20 @@ async function main() {
       .select("id")
   );
 
-  const tables = must(
-    await db
-      .from("tables")
-      .insert(
-        Array.from({ length: SEED_TABLE_COUNT }, (_, i) => ({
-          etablissement_id: etab.id,
-          number: i + 1,
-        }))
-      )
-      .select("id")
-  );
+  // Une boutique de click & collect n'a pas de salle.
+  const tables = restaurant!.collect
+    ? []
+    : must(
+        await db
+          .from("tables")
+          .insert(
+            Array.from({ length: SEED_TABLE_COUNT }, (_, i) => ({
+              etablissement_id: etab.id,
+              number: i + 1,
+            }))
+          )
+          .select("id")
+      );
 
   let accountNote = "sans compte de gestion";
   if (email && password) {
@@ -179,7 +188,7 @@ async function main() {
   }
 
   console.log(
-    `« ${restaurant!.name} » inséré (offre connect) : ${categories.length} catégories, ` +
+    `« ${restaurant!.name} » inséré (${restaurant!.collect ? "click & collect" : "offre connect"}) : ${categories.length} catégories, ` +
       `${items.length} plats, ${tables.length} tables — ${accountNote}.`
   );
   // Les formules du registre ne servent qu'à l'aperçu : leurs articles

@@ -304,6 +304,8 @@ export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 export const MAP_CLUSTER_RADIUS = 40;
 export const MAP_CLUSTER_MAX_ZOOM = 14;
 export const MAP_VIEWPORT_STORAGE_KEY = "ominin-admin-map-viewport";
+/** Qui tient cet appareil (Marwan ou Ambaka), pour ses notifications. */
+export const PUSH_OWNER_STORAGE_KEY = "ominin-admin-push-owner";
 
 // ---------------------------------------------------------------------------
 // Terrain

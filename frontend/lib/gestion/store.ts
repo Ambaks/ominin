@@ -84,8 +84,10 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
       .from("orders")
       .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
+      // Une précommande prise il y a plus longtemps que la fenêtre, retirée
+      // dedans, y reste : son règlement compte dans la période.
       .or(
-        `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
+        `created_at.gte.${since},pickup_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
       )
       .order("created_at", { ascending: true });
     if (after) query = query.gt("created_at", after);

@@ -94,12 +94,24 @@ function vapidKey(): Uint8Array {
   return Uint8Array.from(raw, (char) => char.charCodeAt(0));
 }
 
-async function syncSubscription(subscription: PushSubscription): Promise<void> {
+/** Où l'appareil s'enregistre : la gestion par défaut, l'admin à part. */
+export interface PushTarget {
+  api: string;
+  /** Champs propres à la cible, envoyés avec l'abonnement. */
+  extra?: Record<string, string>;
+}
+
+const GESTION: PushTarget = { api: "/api/push/subscriptions" };
+
+async function syncSubscription(
+  subscription: PushSubscription,
+  target: PushTarget
+): Promise<void> {
   const json = subscription.toJSON();
   if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) {
     throw new Error("Abonnement incomplet renvoyé par le navigateur.");
   }
-  const response = await fetch("/api/push/subscriptions", {
+  const response = await fetch(target.api, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -107,6 +119,7 @@ async function syncSubscription(subscription: PushSubscription): Promise<void> {
       p256dh: json.keys.p256dh,
       auth: json.keys.auth,
       deviceLabel: deviceLabel(),
+      ...target.extra,
     }),
   });
   if (!response.ok) {
@@ -122,7 +135,7 @@ async function syncSubscription(subscription: PushSubscription): Promise<void> {
  * utilisateur (la demande de permission l'exige). Lève une erreur en
  * français destinée au toast.
  */
-export async function enablePush(): Promise<void> {
+export async function enablePush(target: PushTarget = GESTION): Promise<void> {
   if (!pushSupported()) {
     throw new Error("Ce navigateur ne permet pas les notifications.");
   }
@@ -154,7 +167,7 @@ export async function enablePush(): Promise<void> {
     applicationServerKey: expected as BufferSource,
   });
   try {
-    await syncSubscription(subscription);
+    await syncSubscription(subscription, target);
   } catch (error) {
     // Sans ligne en base, l'abonnement navigateur ne recevra jamais rien :
     // on le retire pour laisser l'appareil dans un état propre.
@@ -164,11 +177,11 @@ export async function enablePush(): Promise<void> {
 }
 
 /** Désactive les notifications sur cet appareil. */
-export async function disablePush(): Promise<void> {
+export async function disablePush(target: PushTarget = GESTION): Promise<void> {
   const registration = await navigator.serviceWorker.getRegistration();
   const subscription = await registration?.pushManager.getSubscription();
   if (!subscription) return;
-  const response = await fetch("/api/push/subscriptions", {
+  const response = await fetch(target.api, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ endpoint: subscription.endpoint }),

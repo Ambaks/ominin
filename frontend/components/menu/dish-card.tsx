@@ -72,6 +72,16 @@ function Allergens({ item }: { item: MenuItem }) {
   );
 }
 
+/** Click & collect : le délai que le plat demande avant son retrait. */
+function Notice({ hours }: { hours?: number }) {
+  if (!hours) return null;
+  return (
+    <p className="dish-notice text-xs font-semibold text-ember-2">
+      À commander {hours}&nbsp;h à l&apos;avance
+    </p>
+  );
+}
+
 function Pairing({ pairing }: { pairing?: string }) {
   if (!pairing) return null;
   return (
@@ -149,6 +159,7 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
         </div>
         <DishIndicators item={item} />
         <Description text={item.description} tarifs={item.tarifs} detail={item.detail} />
+        <Notice hours={item.noticeHours} />
         <Allergens item={item} />
         <Pairing pairing={item.pairing} />
         <div className="dish-action mt-1 flex justify-end">

@@ -372,6 +372,7 @@ export function TarifsInline({
   inherited = [],
   categories,
   canEdit,
+  offerNew = true,
   effective,
 }: {
   /** Ce que vise le bouton « + » : cet article, ou cette catégorie. */
@@ -382,13 +383,16 @@ export function TarifsInline({
   inherited?: PriceRule[];
   categories: MenuCategory[];
   canEdit: boolean;
+  /** Le bouton « + Tarif planifié » : une boutique à emporter le trouve une
+   *  fois, sur la catégorie, plutôt que sur chaque article. */
+  offerNew?: boolean;
   /** Prix en vigueur à l'instant, relu en base (articles seulement). */
   effective?: { price: number; ruleName: string } | null;
 }) {
   const [editing, setEditing] = useState<PriceRule | null>(null);
   const [creating, setCreating] = useState(false);
 
-  if (!canEdit && owned.length === 0 && inherited.length === 0 && !effective) {
+  if (!(canEdit && offerNew) && owned.length === 0 && inherited.length === 0 && !effective) {
     return null;
   }
 
@@ -430,7 +434,7 @@ export function TarifsInline({
           {rule.name} {formatAdjustment(rule)} · catégorie
         </span>
       ))}
-      {canEdit && (
+      {canEdit && offerNew && (
         <button
           type="button"
           onClick={() => setCreating(true)}

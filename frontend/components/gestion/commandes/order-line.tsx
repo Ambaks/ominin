@@ -1,4 +1,5 @@
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
+import { paidThroughSite } from "@/lib/gestion/selectors";
 import type { Order, OrderItem } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 
@@ -73,9 +74,7 @@ export function LineOptions({ line, prices = true }: { line: OrderItem; prices?:
  * quand les deux se mêlent.
  */
 export function PaymentChip({ orders }: { orders: Order[] }) {
-  // Les commandes click & collect d'avant le 7 octobre 2026 n'ont que leur
-  // mode « en_ligne » : paid_online n'existait pas encore pour elles.
-  const online = orders.filter((order) => order.paidOnline || order.paymentMode === "en_ligne").length;
+  const online = orders.filter(paidThroughSite).length;
   const modes = [...new Set(orders.map((order) => order.paymentMode))];
   const label =
     online === orders.length

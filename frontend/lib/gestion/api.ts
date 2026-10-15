@@ -82,6 +82,8 @@ export interface ItemInput {
   options: OptionGroup[];
   categoryId: string;
   vatRate: number;
+  /** Délai de commande en heures ; null ⇒ sans délai. */
+  noticeHours: number | null;
 }
 
 function itemColumns(
@@ -100,6 +102,7 @@ function itemColumns(
     stock: input.stock,
     options: toJson(input.options),
     vat_rate: input.vatRate,
+    notice_hours: input.noticeHours,
   };
 }
 
@@ -423,6 +426,49 @@ export async function createStaffOrder(
     refreshOrdersNow(),
   ]);
   return order?.order_number ?? undefined;
+}
+
+/** Le client d'une commande à emporter prise par l'équipe, et son retrait. */
+export interface PickupCustomer {
+  name: string;
+  phone: string;
+  /** ISO de l'heure convenue avec le client. */
+  pickupAt: string;
+  /** Inscription sur le gâteau, allergie… ; vide ⇒ rien. */
+  note: string;
+}
+
+/**
+ * Commande à emporter prise au comptoir ou au téléphone, pour un jour donné.
+ * Même RPC que le site : place_order valide articles, prix et horaires ; la
+ * commande part en préparation et se règle quand le client vient la
+ * chercher.
+ */
+export async function createPickupOrder(
+  customer: PickupCustomer,
+  lines: StaffOrderLine[]
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.rpc("place_order", {
+      p_slug: getState().etablissement.slug,
+      // Pas de table : les types générés ne connaissent pas d'argument nul.
+      p_table_number: null as unknown as number,
+      p_items: lines.map((line) => ({
+        item_id: line.itemId,
+        quantity: line.quantity,
+        choices: line.choices,
+      })),
+      p_collect: {
+        name: customer.name,
+        phone: customer.phone,
+        pickup_at: customer.pickupAt,
+        note: customer.note,
+        pay_at_pickup: true,
+      },
+    })
+  );
+  await refreshOrdersNow();
 }
 
 export async function updateOrderStatus(
@@ -819,6 +865,7 @@ export type EtablissementInput = Omit<
   | "onlinePayment"
   | "paymentProvider"
   | "collectSlotCapacity"
+  | "collectSlotMinutes"
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"

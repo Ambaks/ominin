@@ -2,8 +2,11 @@ import {
   Anton,
   Archivo,
   Archivo_Black,
+  Barlow,
+  Barlow_Condensed,
   Barlow_Semi_Condensed,
   Bebas_Neue,
+  Bodoni_Moda,
   Cormorant_Garamond,
   DM_Sans,
   Didact_Gothic,
@@ -183,6 +186,40 @@ const frauncesSoft = Fraunces({
   preload: false,
 });
 
+/**
+ * Cyprien — le logotype « CYPRIEN » est une didone aux capitales espacées :
+ * Bodoni Moda (taille optique) pour les titres. Les capitales espacées de son
+ * site (Miso, sans équivalent libre) passent en Barlow Condensed, le texte en
+ * Barlow, de la même famille.
+ */
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-bodoni-moda",
+  subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  preload: false,
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  preload: false,
+});
+
+const barlow = Barlow({
+  variable: "--font-barlow",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  preload: false,
+});
+
+/** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
+export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
+  .map((font) => font.variable)
+  .join(" ");
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -199,6 +236,9 @@ export const brandFontVariables = [
   josefinSans,
   questrial,
   frauncesSoft,
+  bodoniModa,
+  barlowCondensed,
+  barlow,
 ]
   .map((font) => font.variable)
   .join(" ");

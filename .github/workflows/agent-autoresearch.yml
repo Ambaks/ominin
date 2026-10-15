@@ -17,3 +17,12 @@ jobs:
           curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
             -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
             "${{ secrets.BACKEND_URL }}/agent/autoresearch"
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

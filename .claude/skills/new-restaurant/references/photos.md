@@ -122,6 +122,12 @@ doesn't pay for it again.
 | `129916xx` | newspaper under the prosciutto |
 | `303502xx` | printed « …dough » liner (same shoot as `30350296`) |
 | `165331xx` (`16533148`, `16533156`) | « Street Food News » newsprint |
+| `32268814`, `32268825` | "Café K…" script printed on the plate |
+| `40156938`–`40156941` | "LOOPS" printed napkin |
+| `26838691`–`26838693` | "SAL DE RISO" label on the baba |
+| `16119657`, `16119660` | "ЗАВТРА…" menu card |
+| `13865275`, `13865277` | QR-code stand on the table |
+| `37676233`, `37676237` | Cyrillic newspaper wrap under the bread |
 
 Single photos rejected for branding on LZ.FOOD: `14979836` (logo on
 wrapper), `18852568` and `33718644` (newsprint), `14866627` (Russian menu
@@ -168,6 +174,19 @@ liner), `photo-1586185158460-950e01e6982a`,
 `photo-1767974963436-2208b3553561` (glasses), `14924014`, `1123249`,
 `33307827`, `10560080` (printed liners), `19250682` (Estrella Galicia),
 `13526267`, `8250377`, `8250426`, `8250693` (stall signs, chalk boards), `31596394` (printed board), `7463364`, `7463311` (menu card and napkin), `192607xx`–`192609xx` (« Acqua & Farina » box), `17692688`, `36430335` (jar labels), `29516111` (« WE ARE OPEN »), `38103950` (« Bon Appetit » plate), `29807155` (leaflet), Unsplash `photo-1621523439264`, `photo-1677175202003`, `photo-1660297730980` (labels, packet, emblem), `268386xx` (« SAL DE RISO »), `13991927`, `13991929` (jug logo, neon), `16119657` (Russian menu card), `11100906` (« Prego »), `11675721`–`22` (« S » plaques), `14467432` (newspaper), `7013982`, `7013983`, `7013989` (« EXCEPTIONAL QUALITY » pick), `31906030` (« AUPA »), `37284048` (« SINGLE ORIGIN »), `23996337` (Coca-Cola), `4958950` (printed bag), `28760157` (« MOON » flag), `34985106` (sign), `29200682` (« CHOCOLABS »), `8161427` (embossed jar), `25469620` (menu card), `25003390` (wine label), Unsplash `photo-1541950747932-b59b50dcc0d5` (book spines), `photo-1667390034698-c2369cd1668b` (shirt logo), `photo-1597564684442-b603ab8dcdcf` (printed wrapper), `photo-1628412277659-b4bb70d40b7c` (labelled bottle), `photo-1630334337820-84afb05acf3a` (« BULL'S EYE »), `29121112` (printed URL on the placemat), `33002473` (« NAPOLI » liner), `37604434` (newspaper), `166777xx` (newspaper), `34425xxx` (printed menus on the table), `20793365` (bottle label), Unsplash `photo-17715085582*` (« CUCINA ITALIANA » apron), `photo-1724116382291-02878f4a13e5` (« GINA'S » peel), `830926`, `6427775`, `4762721`, Unsplash `photo-1503726800290-d5f1a00e05b0` (engraved mugs), `5433781` (mixer label), `10779226` (bar sign), `20094378`, `10085714`, `18070096`, `18070094` (« APEROL SPRITZ » glasses), `11912753` (bar mat), `6895932` (printed coaster), Unsplash `photo-1664451314616-6c93f17b9da3` (gelato box), `37110022`, `9501344` (printed logos), Unsplash `photo-1635491231222-8e524584da52` (a candle, not a sundae), `8029207` (« ÉLAN »), `34291660` (plate emblem), `10289311` (Corona), `13741669` (Coca-Cola, napkin), `33414289` (printed placemat), Unsplash `photo-1550424557-39930b383cd5` (Coca-Cola can), `photo-1615830783066-26a99bc9d959` (newspaper liner), `12436857` (NESCAFÉ can), Unsplash `photo-1624781740834-fbfbf5fd221a` (OREO), `30102165` (book text), `30335686` (newspaper, signs), `30500766` (« Burger » cup), `34487807` (« SOY FRESA » cup), `34926740` (Ferrero Rocher), `8774282` (stencilled crate).
+On Boulangerie Cyprien (bakery): `13706837`
+("CAFFET" board), `32707881` ("DU BONHEUR" chocolate plaque), `20914252`
+("HOMEMADE STYLE … BAKERY" paper), `3514539` ("TASTY & GOOD FOOD" board),
+`13991927` (logo jug), `19859280` and `38972491` (chalkboard price tags),
+`7474197` ("MAKE A WISH COME TRUE" plate), `30826793` (bakery chalkboard
+sign), `7807489` (printed paper), `10315700` (printed coffee sack),
+`30811295` (printed paper cones), `29380150` (printed poster), Unsplash
+`photo-1707578365452-56abc4c38873` ("PARIS BAGUETTE" tag),
+`photo-1721489619993-ec80a253b77e` and `photo-1721489620017-aedd0cffb93e`
+(printed shop liner), `photo-1768203629861-33e47ea111a6` (printed paper
+bags), `photo-1753011767259-c6d57777fce2` and `photo-1752850744064-65e198039be0`
+(Korean price signs), `photo-1554475659-9fd915c8f156` (newsprint wraps),
+`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving).
 
 ## French dishes stock libraries don't have
 
@@ -183,5 +202,10 @@ wrong thing:
 - **Sandwich "américain"** (baguette, steak, fries inside): none; steak-and-
   cheese subs are the closest.
 - **Pizza kebab on a red base with white sauce**: rare; `12261064` is close.
+
+- **Baguette au charbon végétal** (black baguette): none on either site —
+  only round charcoal loaves. **Pain viennois** (plain, long): none — the
+  closest are chocolate-chip rolls. **Paris-Brest à partager** (whole ring
+  for 6–8): only individual ones. **Chou praliné-pécan**: no visible pecans.
 
 These are the first dishes to put on the owner's photo-shoot list.

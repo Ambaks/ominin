@@ -70,7 +70,8 @@ export function MenuItemCard({
     <article
       // La première fiche de la catégorie sert d'exemple à la visite du Menu.
       data-visite={first ? "menu-article" : undefined}
-      className={`flex gap-4 rounded-2xl border border-hairline bg-surface p-4 ${
+      // min-w-0 : un nom long tient sur deux lignes au lieu d'élargir la grille.
+      className={`flex min-w-0 gap-4 rounded-2xl border border-hairline bg-surface p-4 ${
         available ? "" : "opacity-60"
       }`}
     >
@@ -90,7 +91,17 @@ export function MenuItemCard({
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-medium">{item.name}</h3>
+            {/* Le nom ouvre la fiche, comme le crayon : la cible naturelle au doigt. */}
+            <h3 className="text-sm font-medium">
+              {canEdit ? (
+                // Le crayon reste l'arrêt du clavier : le nom ne double pas la tabulation.
+                <button type="button" tabIndex={-1} onClick={onEdit} className="cursor-pointer text-left hover:underline">
+                  <span className="line-clamp-2">{item.name}</span>
+                </button>
+              ) : (
+                <span className="line-clamp-2">{item.name}</span>
+              )}
+            </h3>
             {item.detail && (
               <p className="font-display text-xs italic text-ember-1/85">
                 {item.detail}

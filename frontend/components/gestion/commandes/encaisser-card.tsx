@@ -112,7 +112,9 @@ export function EncaisserPanel({
   const requestPayment = (units: Unit[], total: number) => {
     if (!state?.etablissement.paymentPinSet) {
       toast.error(
-        "Configurez le code d'encaissement dans les réglages Admin."
+        state?.role === "gerant"
+          ? "Définissez d'abord le code d'encaissement, dans Établissement."
+          : "Le code d'encaissement n'est pas encore défini : demandez au gérant."
       );
       return;
     }

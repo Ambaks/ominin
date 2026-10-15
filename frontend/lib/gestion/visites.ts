@@ -1,11 +1,7 @@
 import { formatPrice } from "@/lib/menu/format";
-import {
-  ANALYTICS_PERIOD_DAYS,
-  ORDER_TAB_HINTS,
-  ORDER_TAB_LABELS,
-} from "./constants";
+import { ANALYTICS_PERIOD_DAYS, ORDER_TAB_HINTS } from "./constants";
 import { dayEndLabel } from "./fermetures";
-import { orderTabsShown } from "./selectors";
+import { isPickupShop, orderTabLabel, orderTabsShown } from "./selectors";
 import type { GestionState, OrderTab } from "./types";
 import { VISITES_METADATA_KEY } from "./visites-inscription";
 
@@ -90,6 +86,16 @@ const COMPTOIR: Record<OrderTab, string> = {
   historique: "les commandes remises, retirées ou annulées.",
 };
 
+/**
+ * Les onglets de Commandes d'une boutique à emporter seule : les commandes
+ * du site arrivent payées, celles du comptoir s'encaissent depuis Retraits.
+ */
+const EMPORTER: Record<OrderTab, string> = {
+  ...ORDER_TAB_HINTS,
+  a_servir: "les commandes du jour payées en ligne, de la préparation au retrait.",
+  historique: "les commandes retirées ou annulées.",
+};
+
 const VISITES: Record<string, Visite> = {
   "/gestion": {
     id: "bienvenue",
@@ -117,8 +123,12 @@ const VISITES: Record<string, Visite> = {
       },
       {
         target: "voir-menu",
-        title: "Votre menu, côté client",
-        body: "C’est la page qu’ouvrent vos QR codes. Ouvrez‑la pour voir votre carte comme vos clients la voient : un changement y apparaît dans la minute.",
+        title: (state) =>
+          isPickupShop(state) ? "Votre boutique, côté client" : "Votre menu, côté client",
+        body: (state) =>
+          isPickupShop(state)
+            ? "C’est la page où vos clients commandent à emporter. Ouvrez‑la pour la voir comme eux : un changement y apparaît dans la minute."
+            : "C’est la page qu’ouvrent vos QR codes. Ouvrez‑la pour voir votre carte comme vos clients la voient : un changement y apparaît dans la minute.",
       },
       {
         target: "etablissement",
@@ -190,11 +200,13 @@ const VISITES: Record<string, Visite> = {
           const hints =
             state.etablissement.serviceMode === "fast_food"
               ? COMPTOIR
-              : ORDER_TAB_HINTS;
+              : isPickupShop(state)
+                ? EMPORTER
+                : ORDER_TAB_HINTS;
           return orderTabsShown(state, false)
             .map(
               (tab) =>
-                `« ${ORDER_TAB_LABELS[tab]} » : ${hints[tab].charAt(0).toLowerCase()}${hints[tab].slice(1)}`
+                `« ${orderTabLabel(state, tab)} » : ${hints[tab].charAt(0).toLowerCase()}${hints[tab].slice(1)}`
             )
             .join("\n");
         },
@@ -267,8 +279,14 @@ const VISITES: Record<string, Visite> = {
       },
       {
         target: "equipe-inviter",
-        title: "Inviter un serveur ou un cuisinier",
-        body: "Son email et son rôle suffisent. Un serveur ou un cuisinier ne voit ensuite que ce dont il a besoin ; un gérant voit tout.",
+        title: (state) =>
+          isPickupShop(state)
+            ? "Inviter un employé"
+            : "Inviter un serveur ou un cuisinier",
+        body: (state) =>
+          isPickupShop(state)
+            ? "Son email et son rôle suffisent. Au comptoir comme en préparation, chacun ne voit ensuite que ce dont il a besoin ; un gérant voit tout."
+            : "Son email et son rôle suffisent. Un serveur ou un cuisinier ne voit ensuite que ce dont il a besoin ; un gérant voit tout.",
       },
     ],
   },

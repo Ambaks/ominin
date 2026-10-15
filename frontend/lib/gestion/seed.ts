@@ -1,6 +1,7 @@
 import { DEMO_SLUG } from "@/lib/menu/format";
 import { getRestaurant } from "@/lib/menu-data";
 import {
+  DEFAULT_COLLECT_SLOT_MINUTES,
   DEFAULT_DAY_END_HOUR,
   FEATURES,
   ORDER_TABS,
@@ -280,6 +281,7 @@ export function seed(): GestionState {
       onlinePayment: false,
       paymentProvider: null,
       collectSlotCapacity: 5,
+      collectSlotMinutes: DEFAULT_COLLECT_SLOT_MINUTES,
       onlineMinOrder: null,
       adminPinSet: false,
       paymentPinSet: false,

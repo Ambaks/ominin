@@ -27,13 +27,8 @@ export type ProjetClient = Tables["projet_clients"]["Row"];
 export type Chantier = Tables["projet_chantiers"]["Row"];
 export type Step = Tables["projet_steps"]["Row"];
 export type StepStatus = Database["public"]["Enums"]["projet_step_status"];
-export type Owner = "marwan" | "ambaka";
+export { OWNER_LABELS, OWNERS, type Owner } from "./owners";
 
-export const OWNERS: readonly Owner[] = ["marwan", "ambaka"];
-export const OWNER_LABELS: Record<Owner, string> = {
-  marwan: "Marwan",
-  ambaka: "Ambaka",
-};
 export const STATUS_LABELS: Record<StepStatus, string> = {
   todo: "À faire",
   doing: "En cours",
@@ -244,11 +239,20 @@ async function optimistic(
 // ---------------------------------------------------------------------------
 // Écritures
 
-export function updateStep(
+/** Fait sonner ce que le changement mérite (best effort : jamais bloquant). */
+function notify(stepId: string, event: "assigned" | "blocked" | "done") {
+  void fetch("/api/admin/push/projet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ stepId, event }),
+  }).catch(() => {});
+}
+
+export async function updateStep(
   id: string,
-  patch: Partial<Pick<Step, "status" | "owner" | "title">>,
+  patch: Partial<Pick<Step, "status" | "owner" | "title" | "detail">>,
 ): Promise<void> {
-  return optimistic(
+  await optimistic(
     (data) => ({
       ...data,
       steps: data.steps.map((step) => (step.id === id ? { ...step, ...patch } : step)),
@@ -256,6 +260,9 @@ export function updateStep(
     async () =>
       check(await createClient().from("projet_steps").update(patch).eq("id", id)),
   );
+  if (patch.owner) notify(id, "assigned");
+  if (patch.status === "blocked") notify(id, "blocked");
+  if (patch.status === "done") notify(id, "done");
 }
 
 export async function addStep(

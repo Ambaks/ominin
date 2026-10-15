@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OrderConfirmation } from "@/components/collect/order-confirmation";
+import { isOrderId } from "@/lib/collect/shared";
 import { fetchRestaurant } from "@/lib/public-menu";
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export default async function ConfirmationPage({
 }: PageProps<"/collect/[slug]/confirmation">) {
   const { slug } = await params;
   const { commande } = await searchParams;
-  if (typeof commande !== "string" || !commande) notFound();
+  if (typeof commande !== "string" || !isOrderId(commande)) notFound();
 
   const data = await fetchRestaurant(slug);
   if (!data) notFound();

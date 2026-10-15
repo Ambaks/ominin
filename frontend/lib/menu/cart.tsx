@@ -51,6 +51,8 @@ export interface CartLine {
   choices: CartChoice[];
   /** Stock affiché à l'ouverture du menu : borne la quantité (la base refait le test). */
   stock?: number | null;
+  /** Délai de commande du plat (heures) : repousse le premier retrait possible. */
+  noticeHours?: number;
   /**
    * Ligne offerte par un palier de fidélité : l'article se paie en points
    * (par unité), ses suppléments restent en euros dans unitPrice.
@@ -156,7 +158,15 @@ export interface CartConfig {
    * Click & collect (collect.ominin.com/<slug>) : sans table, payé en ligne à
    * la commande, retiré à l'heure choisie dans les horaires d'ouverture.
    */
-  collect?: { hours: OpeningHours | null; slotMinutes: number };
+  collect?: {
+    hours: OpeningHours | null;
+    slotMinutes: number;
+    /**
+     * Page de suivi où mène le paiement abouti (le site de l'établissement) ;
+     * absent ⇒ celle de collect.ominin.com.
+     */
+    confirmationPath?: string;
+  };
 }
 
 interface CartContextValue extends CartConfig {

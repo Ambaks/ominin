@@ -4,6 +4,7 @@ import type { Json, TablesInsert, TablesUpdate } from "@/lib/supabase/database.t
 import { check, must } from "@/lib/supabase/result";
 import type { ShopTheme } from "./theme";
 import type { ShopOrderStatus } from "./types";
+import { announceSignup } from "@/lib/signup-notify";
 
 /*
  * Surface de mutation de l'espace de gestion. Les écritures simples passent
@@ -38,9 +39,11 @@ export async function updateTheme(shopId: string, theme: ShopTheme) {
 }
 
 export async function createShop(input: { name: string; slug: string; orderPrefix: string }): Promise<string> {
-  return must(
+  const id = must(
     await createClient().rpc("create_shop", { p_name: input.name, p_slug: input.slug, p_order_prefix: input.orderPrefix })
   );
+  announceSignup();
+  return id;
 }
 
 // ---------------------------------------------------------------------------
