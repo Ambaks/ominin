@@ -6137,7 +6137,7 @@ const LAISSAC_SUPPLEMENTS_PIZZA = groupeChoix(
 );
 
 /** L'accroche des deux sections de pizzas : les suppléments ci-dessus. */
-const LAISSAC_ACCROCHE_PIZZAS = "Suppléments\u00a0: 2\u00a0€, burrata 4\u00a0€";
+const LAISSAC_ACCROCHE_PIZZAS = "Suppléments\u00a0: 2\u00a0€, burrata\u00a04\u00a0€";
 /** Le visuel happy hour : « 17H - 23H ». */
 const LAISSAC_HAPPY_HOUR = "de 17h à 23h";
 
@@ -6255,13 +6255,13 @@ const brasserieLaissac: Restaurant = {
           "steak haché de Bœuf, cheddar, salade, tomate, oignons confits",
           9.5
         ),
-        // « Chèvre miel » aussi chez les pizzas : le ticket dit lequel.
+        // « Chèvre miel » sur le panneau, comme la pizza : le ticket regroupe
+        // les lignes par nom et en faisait « 2 × Chèvre miel ».
         laissacBurger(
           "burger-chevre-miel",
-          "Chèvre miel",
+          "Burger Chèvre miel",
           "steak haché de Bœuf, cheddar, salade, tomate, oignons confits, fromage de chèvre, miel",
-          11.5,
-          { printName: "Burger chèvre miel" }
+          11.5
         ),
         laissacBurger(
           "rosti-burger",
