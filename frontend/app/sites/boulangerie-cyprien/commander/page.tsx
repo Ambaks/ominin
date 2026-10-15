@@ -18,7 +18,9 @@ import "./commander.css";
  * République à l'heure choisie. Le moteur est celui du click & collect
  * d'Ominin : place_order fait foi pour les prix, les créneaux et les délais.
  */
-export const revalidate = 60;
+// Rendue à la demande, comme la page collect de chaque restaurant (route
+// dynamique) : rien ne lit la base au moment du build.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Commander en ligne",
