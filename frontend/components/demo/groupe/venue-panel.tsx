@@ -115,7 +115,7 @@ export function VenuePanel({
   previousRevenue: number;
   /** « vendredi dernier ». */
   lastWeekday: string;
-  /** La fin de journée au rythme de la semaine dernière (centimes) ; null trop tôt pour le dire. */
+  /** La fin de journée au rythme de la semaine dernière, en euros arrondis ; null trop tôt pour le dire. */
   projected: number | null;
   trend: number[];
   ghost: number[];
@@ -166,7 +166,7 @@ export function VenuePanel({
       <p className="mt-1.5 min-h-5 text-[0.8125rem] text-muted">
         {projected != null && snap.open && (
           <>
-            ≈&nbsp;<span className="font-medium text-foreground tabular-nums">{formatEuroAmount(projected)}&nbsp;€</span> à la fermeture
+            ≈&nbsp;<span className="font-medium text-foreground tabular-nums">{formatInteger(projected)}&nbsp;€</span> à la fermeture
           </>
         )}
       </p>

@@ -77657,7 +77657,7 @@
       "node_kind": "heading",
       "norm_label": "1. prerequisites",
       "source_file": "README.md",
-      "source_location": "L887"
+      "source_location": "L886"
     },
     {
       "id": "readme_2_frontend",
@@ -77669,7 +77669,7 @@
       "node_kind": "heading",
       "norm_label": "2. frontend",
       "source_file": "README.md",
-      "source_location": "L897"
+      "source_location": "L896"
     },
     {
       "id": "readme_3_backend",
@@ -77681,7 +77681,7 @@
       "node_kind": "heading",
       "norm_label": "3. backend",
       "source_file": "README.md",
-      "source_location": "L907"
+      "source_location": "L906"
     },
     {
       "id": "readme_4_supabase_database_auth",
@@ -77693,7 +77693,7 @@
       "node_kind": "heading",
       "norm_label": "4. supabase (database & auth)",
       "source_file": "README.md",
-      "source_location": "L930"
+      "source_location": "L929"
     },
     {
       "id": "readme_5_graphify_knowledge_graph_cli",
@@ -77705,7 +77705,7 @@
       "node_kind": "heading",
       "norm_label": "5. graphify (knowledge-graph cli)",
       "source_file": "README.md",
-      "source_location": "L970"
+      "source_location": "L969"
     },
     {
       "id": "readme_6_project_skills_nothing_to_install",
@@ -77717,7 +77717,7 @@
       "node_kind": "heading",
       "norm_label": "6. project skills (nothing to install)",
       "source_file": "README.md",
-      "source_location": "L985"
+      "source_location": "L984"
     },
     {
       "id": "readme_7_outreach_agent_l\u00e9a_one_time_setup_human_only",
@@ -77729,7 +77729,7 @@
       "node_kind": "heading",
       "norm_label": "7. outreach agent \u00ab lea \u00bb (one-time setup, human-only)",
       "source_file": "README.md",
-      "source_location": "L996"
+      "source_location": "L995"
     },
     {
       "id": "readme_8_final_checklist",
@@ -77741,7 +77741,7 @@
       "node_kind": "heading",
       "norm_label": "8. final checklist",
       "source_file": "README.md",
-      "source_location": "L1048"
+      "source_location": "L1047"
     },
     {
       "id": "readme_gestion_du_projet",
@@ -77753,7 +77753,7 @@
       "node_kind": "heading",
       "norm_label": "gestion du projet",
       "source_file": "README.md",
-      "source_location": "L857"
+      "source_location": "L856"
     },
     {
       "id": "readme_ominin",
@@ -77777,7 +77777,7 @@
       "node_kind": "heading",
       "norm_label": "setup guide (written for an llm agent)",
       "source_file": "README.md",
-      "source_location": "L880"
+      "source_location": "L879"
     },
     {
       "id": "readme_what_this_is",
@@ -109252,6 +109252,18 @@
       "type": "external"
     },
     {
+      "id": "frontend_public_pitch_groupe_ckl_captures",
+      "label": "frontend_public_pitch_groupe_ckl_captures",
+      "_origin": "semantic",
+      "community": 11,
+      "community_name": "groupe-ckl.ts",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "frontend_public_pitch_groupe_ckl_captures",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "demos_o_crousti_poulet_film_src_captures_counter",
       "label": "demos_o_crousti_poulet_film_src_captures_counter",
       "_origin": "semantic",
@@ -109984,6 +109996,18 @@
       "type": "external"
     },
     {
+      "id": "ref_fs",
+      "label": "ref_fs",
+      "_origin": "semantic",
+      "community": 395,
+      "community_name": "ref_playwright",
+      "external": true,
+      "file_type": "concept",
+      "norm_label": "ref_fs",
+      "source_file": "",
+      "type": "external"
+    },
+    {
       "id": "ref_playwright",
       "label": "ref_playwright",
       "_origin": "semantic",
@@ -110400,28 +110424,6 @@
       "external": true,
       "file_type": "concept",
       "norm_label": "demos_big_smash_film_src_captures_counter",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "frontend_public_pitch_groupe_ckl_captures",
-      "label": "frontend_public_pitch_groupe_ckl_captures",
-      "community": 11,
-      "community_name": "groupe-ckl.ts",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "frontend_public_pitch_groupe_ckl_captures",
-      "source_file": "",
-      "type": "external"
-    },
-    {
-      "id": "ref_fs",
-      "label": "ref_fs",
-      "community": 395,
-      "community_name": "ref_playwright",
-      "external": true,
-      "file_type": "concept",
-      "norm_label": "ref_fs",
       "source_file": "",
       "type": "external"
     }
@@ -133116,7 +133118,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L164",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -133128,7 +133130,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L175",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -133140,7 +133142,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L178",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -133152,7 +133154,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L200",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -133164,7 +133166,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L201",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -133176,7 +133178,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L247",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -133188,7 +133190,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L253",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -133200,7 +133202,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L284",
+      "source_location": "L286",
       "weight": 1.0
     },
     {
@@ -133212,7 +133214,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L294",
+      "source_location": "L296",
       "weight": 1.0
     },
     {
@@ -133224,7 +133226,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L316",
+      "source_location": "L318",
       "weight": 1.0
     },
     {
@@ -133236,7 +133238,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L345",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -133248,7 +133250,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L373",
+      "source_location": "L375",
       "weight": 1.0
     },
     {
@@ -133260,7 +133262,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L463",
+      "source_location": "L465",
       "weight": 1.0
     },
     {
@@ -133272,7 +133274,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/components/demo/groupe/dashboard.tsx",
-      "source_location": "L493",
+      "source_location": "L495",
       "weight": 1.0
     },
     {
@@ -133469,7 +133471,7 @@
     },
     {
       "source": "frontend_components_demo_groupe_venue_panel_venuepanel",
-      "target": "frontend_lib_demo_reseau_format_formateuroamount",
+      "target": "frontend_lib_demo_reseau_format_formatinteger",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -133489,6 +133491,18 @@
       "context": "call",
       "source_file": "frontend/components/demo/groupe/venue-panel.tsx",
       "source_location": "L216",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_components_demo_groupe_venue_panel_venuepanel",
+      "target": "frontend_lib_demo_reseau_format_formateuroamount",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/components/demo/groupe/venue-panel.tsx",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -374476,7 +374490,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L857",
+      "source_location": "L856",
       "weight": 1.0
     },
     {
@@ -374487,7 +374501,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L880",
+      "source_location": "L879",
       "weight": 1.0
     },
     {
@@ -374498,7 +374512,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L1048",
+      "source_location": "L1047",
       "weight": 1.0
     },
     {
@@ -374509,7 +374523,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L887",
+      "source_location": "L886",
       "weight": 1.0
     },
     {
@@ -374520,7 +374534,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L897",
+      "source_location": "L896",
       "weight": 1.0
     },
     {
@@ -374531,7 +374545,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L907",
+      "source_location": "L906",
       "weight": 1.0
     },
     {
@@ -374542,7 +374556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L930",
+      "source_location": "L929",
       "weight": 1.0
     },
     {
@@ -374553,7 +374567,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L970",
+      "source_location": "L969",
       "weight": 1.0
     },
     {
@@ -374564,7 +374578,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L985",
+      "source_location": "L984",
       "weight": 1.0
     },
     {
@@ -374575,7 +374589,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "README.md",
-      "source_location": "L996",
+      "source_location": "L995",
       "weight": 1.0
     },
     {
@@ -391692,7 +391706,7 @@
       "confidence_score": 0.95,
       "context": "ActiveProducts",
       "source_file": "README.md",
-      "source_location": "L428",
+      "source_location": "L427",
       "weight": 1.0
     },
     {
@@ -391728,7 +391742,7 @@
       "confidence_score": 0.95,
       "context": "AuthForm",
       "source_file": "README.md",
-      "source_location": "L422",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -391740,7 +391754,7 @@
       "confidence_score": 0.95,
       "context": "Bridge",
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -391752,7 +391766,7 @@
       "confidence_score": 0.95,
       "context": "CallServerButton",
       "source_file": "README.md",
-      "source_location": "L233",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -391776,7 +391790,7 @@
       "confidence_score": 0.95,
       "context": "CartConfig",
       "source_file": "README.md",
-      "source_location": "L128",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -391788,7 +391802,7 @@
       "confidence_score": 0.95,
       "context": "CashDetails",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -391800,7 +391814,7 @@
       "confidence_score": 0.95,
       "context": "CategoryNav",
       "source_file": "README.md",
-      "source_location": "L351",
+      "source_location": "L350",
       "weight": 1.0
     },
     {
@@ -391812,7 +391826,7 @@
       "confidence_score": 0.95,
       "context": "ChoiceRow",
       "source_file": "README.md",
-      "source_location": "L38",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -391824,7 +391838,7 @@
       "confidence_score": 0.95,
       "context": "ClipLoader",
       "source_file": "README.md",
-      "source_location": "L811",
+      "source_location": "L810",
       "weight": 1.0
     },
     {
@@ -391860,7 +391874,7 @@
       "confidence_score": 0.95,
       "context": "ComptesTabs",
       "source_file": "README.md",
-      "source_location": "L813",
+      "source_location": "L812",
       "weight": 1.0
     },
     {
@@ -391884,7 +391898,7 @@
       "confidence_score": 0.95,
       "context": "ContactPills",
       "source_file": "README.md",
-      "source_location": "L215",
+      "source_location": "L214",
       "weight": 1.0
     },
     {
@@ -391896,7 +391910,7 @@
       "confidence_score": 0.95,
       "context": "CounterCard",
       "source_file": "README.md",
-      "source_location": "L82",
+      "source_location": "L81",
       "weight": 1.0
     },
     {
@@ -391908,7 +391922,7 @@
       "confidence_score": 0.95,
       "context": "CuisinierApercu",
       "source_file": "README.md",
-      "source_location": "L205",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -391920,7 +391934,7 @@
       "confidence_score": 0.95,
       "context": "Deck",
       "source_file": "README.md",
-      "source_location": "L66",
+      "source_location": "L65",
       "weight": 1.0
     },
     {
@@ -391932,7 +391946,7 @@
       "confidence_score": 0.95,
       "context": "DeviceAddModal",
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -391944,7 +391958,7 @@
       "confidence_score": 0.95,
       "context": "EncaissementMode",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -391956,7 +391970,7 @@
       "confidence_score": 0.95,
       "context": "EncaisserPanel",
       "source_file": "README.md",
-      "source_location": "L221",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -391968,7 +391982,7 @@
       "confidence_score": 0.95,
       "context": "FormuleTile",
       "source_file": "README.md",
-      "source_location": "L100",
+      "source_location": "L99",
       "weight": 1.0
     },
     {
@@ -391980,7 +391994,7 @@
       "confidence_score": 0.95,
       "context": "FormulesIcon",
       "source_file": "README.md",
-      "source_location": "L239",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -391992,7 +392006,7 @@
       "confidence_score": 0.95,
       "context": "GroupChoices",
       "source_file": "README.md",
-      "source_location": "L38",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -392004,7 +392018,7 @@
       "confidence_score": 0.95,
       "context": "InscriptionTabs",
       "source_file": "README.md",
-      "source_location": "L245",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -392016,7 +392030,7 @@
       "confidence_score": 0.95,
       "context": "IphoneFrame",
       "source_file": "README.md",
-      "source_location": "L532",
+      "source_location": "L531",
       "weight": 1.0
     },
     {
@@ -392028,7 +392042,7 @@
       "confidence_score": 0.95,
       "context": "LeadForm",
       "source_file": "README.md",
-      "source_location": "L169",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -392040,7 +392054,7 @@
       "confidence_score": 0.95,
       "context": "LogoHero",
       "source_file": "README.md",
-      "source_location": "L825",
+      "source_location": "L824",
       "weight": 1.0
     },
     {
@@ -392088,7 +392102,7 @@
       "confidence_score": 0.95,
       "context": "MenuItemCard",
       "source_file": "README.md",
-      "source_location": "L156",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -392100,7 +392114,7 @@
       "confidence_score": 0.95,
       "context": "MenuTarget",
       "source_file": "README.md",
-      "source_location": "L30",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -392148,7 +392162,7 @@
       "confidence_score": 0.95,
       "context": "OptionGroup",
       "source_file": "README.md",
-      "source_location": "L128",
+      "source_location": "L127",
       "weight": 1.0
     },
     {
@@ -392160,7 +392174,7 @@
       "confidence_score": 0.95,
       "context": "Order",
       "source_file": "README.md",
-      "source_location": "L233",
+      "source_location": "L232",
       "weight": 1.0
     },
     {
@@ -392172,7 +392186,7 @@
       "confidence_score": 0.95,
       "context": "OrderPayment",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -392196,7 +392210,7 @@
       "confidence_score": 0.95,
       "context": "PaymentDialog",
       "source_file": "README.md",
-      "source_location": "L353",
+      "source_location": "L352",
       "weight": 1.0
     },
     {
@@ -392208,7 +392222,7 @@
       "confidence_score": 0.95,
       "context": "PaymentLeg",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -392220,7 +392234,7 @@
       "confidence_score": 0.95,
       "context": "PaymentProvider",
       "source_file": "README.md",
-      "source_location": "L418",
+      "source_location": "L417",
       "weight": 1.0
     },
     {
@@ -392232,7 +392246,7 @@
       "confidence_score": 0.95,
       "context": "PillTabs",
       "source_file": "README.md",
-      "source_location": "L32",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -392280,7 +392294,7 @@
       "confidence_score": 0.95,
       "context": "PosterHero",
       "source_file": "README.md",
-      "source_location": "L148",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -392292,7 +392306,7 @@
       "confidence_score": 0.95,
       "context": "PriceRule",
       "source_file": "README.md",
-      "source_location": "L175",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -392304,7 +392318,7 @@
       "confidence_score": 0.95,
       "context": "ProfileRow",
       "source_file": "README.md",
-      "source_location": "L205",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -392316,7 +392330,7 @@
       "confidence_score": 0.95,
       "context": "Providers",
       "source_file": "README.md",
-      "source_location": "L571",
+      "source_location": "L570",
       "weight": 1.0
     },
     {
@@ -392328,7 +392342,7 @@
       "confidence_score": 0.95,
       "context": "PublierTabs",
       "source_file": "README.md",
-      "source_location": "L813",
+      "source_location": "L812",
       "weight": 1.0
     },
     {
@@ -392340,7 +392354,7 @@
       "confidence_score": 0.95,
       "context": "QrIcon",
       "source_file": "README.md",
-      "source_location": "L239",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -392352,7 +392366,7 @@
       "confidence_score": 0.95,
       "context": "RuleForm",
       "source_file": "README.md",
-      "source_location": "L156",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -392364,7 +392378,7 @@
       "confidence_score": 0.95,
       "context": "ScrollStory",
       "source_file": "README.md",
-      "source_location": "L58",
+      "source_location": "L57",
       "weight": 1.0
     },
     {
@@ -392376,7 +392390,7 @@
       "confidence_score": 0.95,
       "context": "SectionLink",
       "source_file": "README.md",
-      "source_location": "L38",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -392388,7 +392402,7 @@
       "confidence_score": 0.95,
       "context": "ServeurApercu",
       "source_file": "README.md",
-      "source_location": "L235",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -392400,7 +392414,7 @@
       "confidence_score": 0.95,
       "context": "ServirPanel",
       "source_file": "README.md",
-      "source_location": "L221",
+      "source_location": "L220",
       "weight": 1.0
     },
     {
@@ -392412,7 +392426,7 @@
       "confidence_score": 0.95,
       "context": "Sheet",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -392424,7 +392438,7 @@
       "confidence_score": 0.95,
       "context": "StaffList",
       "source_file": "README.md",
-      "source_location": "L154",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -392436,7 +392450,7 @@
       "confidence_score": 0.95,
       "context": "StripePrompt",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -392448,7 +392462,7 @@
       "confidence_score": 0.95,
       "context": "SubTabs",
       "source_file": "README.md",
-      "source_location": "L813",
+      "source_location": "L812",
       "weight": 1.0
     },
     {
@@ -392460,7 +392474,7 @@
       "confidence_score": 0.95,
       "context": "TarifsInline",
       "source_file": "README.md",
-      "source_location": "L156",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -392472,7 +392486,7 @@
       "confidence_score": 0.95,
       "context": "ThemeToggle",
       "source_file": "README.md",
-      "source_location": "L140",
+      "source_location": "L139",
       "weight": 1.0
     },
     {
@@ -392484,7 +392498,7 @@
       "confidence_score": 0.95,
       "context": "_component_items",
       "source_file": "README.md",
-      "source_location": "L96",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -392496,7 +392510,7 @@
       "confidence_score": 0.95,
       "context": "_expand_formules",
       "source_file": "README.md",
-      "source_location": "L96",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -392508,7 +392522,7 @@
       "confidence_score": 0.95,
       "context": "activeProducts",
       "source_file": "README.md",
-      "source_location": "L138",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -392520,7 +392534,7 @@
       "confidence_score": 0.95,
       "context": "activeTables",
       "source_file": "README.md",
-      "source_location": "L193",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -392532,7 +392546,7 @@
       "confidence_score": 0.95,
       "context": "addVerb",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -392544,7 +392558,7 @@
       "confidence_score": 0.95,
       "context": "applyTarifs()",
       "source_file": "README.md",
-      "source_location": "L175",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -392556,7 +392570,7 @@
       "confidence_score": 0.95,
       "context": "awaitsPayment",
       "source_file": "README.md",
-      "source_location": "L163",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -392580,7 +392594,7 @@
       "confidence_score": 0.95,
       "context": "cartLineKey",
       "source_file": "README.md",
-      "source_location": "L130",
+      "source_location": "L129",
       "weight": 1.0
     },
     {
@@ -392628,7 +392642,7 @@
       "confidence_score": 0.95,
       "context": "connect",
       "source_file": "README.md",
-      "source_location": "L126",
+      "source_location": "L125",
       "weight": 1.0
     },
     {
@@ -392652,7 +392666,7 @@
       "confidence_score": 0.95,
       "context": "createStaffOrder()",
       "source_file": "README.md",
-      "source_location": "L235",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -392664,7 +392678,7 @@
       "confidence_score": 0.95,
       "context": "deleteDevice()",
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -392676,7 +392690,7 @@
       "confidence_score": 0.95,
       "context": "dispatchOrderEvent",
       "source_file": "README.md",
-      "source_location": "L163",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -392712,7 +392726,7 @@
       "confidence_score": 0.95,
       "context": "fallBackToCounter",
       "source_file": "README.md",
-      "source_location": "L163",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -392724,7 +392738,7 @@
       "confidence_score": 0.95,
       "context": "fetchActiveTarifs",
       "source_file": "README.md",
-      "source_location": "L156",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -392736,7 +392750,7 @@
       "confidence_score": 0.95,
       "context": "fetchOrderHistory",
       "source_file": "README.md",
-      "source_location": "L70",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -392748,7 +392762,7 @@
       "confidence_score": 0.95,
       "context": "fetchOrders",
       "source_file": "README.md",
-      "source_location": "L102",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -392760,7 +392774,7 @@
       "confidence_score": 0.95,
       "context": "formatPickup",
       "source_file": "README.md",
-      "source_location": "L169",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -392784,7 +392798,7 @@
       "confidence_score": 0.95,
       "context": "getOptionGroups",
       "source_file": "README.md",
-      "source_location": "L161",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -392808,7 +392822,7 @@
       "confidence_score": 0.95,
       "context": "gmail.send",
       "source_file": "README.md",
-      "source_location": "L134",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -392820,7 +392834,7 @@
       "confidence_score": 0.95,
       "context": "hasFormats",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -392832,7 +392846,7 @@
       "confidence_score": 0.95,
       "context": "isPickupShop",
       "source_file": "README.md",
-      "source_location": "L20",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -392844,7 +392858,7 @@
       "confidence_score": 0.95,
       "context": "isServiceToday",
       "source_file": "README.md",
-      "source_location": "L122",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -392928,7 +392942,7 @@
       "confidence_score": 0.95,
       "context": "moved",
       "source_file": "README.md",
-      "source_location": "L161",
+      "source_location": "L160",
       "weight": 1.0
     },
     {
@@ -392940,7 +392954,7 @@
       "confidence_score": 0.95,
       "context": "nextStatuses",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -392952,7 +392966,7 @@
       "confidence_score": 0.95,
       "context": "notify.send",
       "source_file": "README.md",
-      "source_location": "L22",
+      "source_location": "L21",
       "weight": 1.0
     },
     {
@@ -392964,7 +392978,7 @@
       "confidence_score": 0.95,
       "context": "paidInMode",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -393300,7 +393314,7 @@
       "confidence_score": 0.95,
       "context": "parisEffectiveDate",
       "source_file": "README.md",
-      "source_location": "L136",
+      "source_location": "L135",
       "weight": 1.0
     },
     {
@@ -393312,7 +393326,7 @@
       "confidence_score": 0.95,
       "context": "pexels",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393348,7 +393362,7 @@
       "confidence_score": 0.95,
       "context": "planQuoteHref",
       "source_file": "README.md",
-      "source_location": "L44",
+      "source_location": "L43",
       "weight": 1.0
     },
     {
@@ -393372,7 +393386,7 @@
       "confidence_score": 0.95,
       "context": "print_jobs",
       "source_file": "README.md",
-      "source_location": "L227",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -393384,7 +393398,7 @@
       "confidence_score": 0.95,
       "context": "prospectsLabel",
       "source_file": "README.md",
-      "source_location": "L68",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -393396,7 +393410,7 @@
       "confidence_score": 0.95,
       "context": "refreshOrdersNow()",
       "source_file": "README.md",
-      "source_location": "L235",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
@@ -393408,19 +393422,7 @@
       "confidence_score": 0.95,
       "context": "refreshPendingDrafts()",
       "source_file": "README.md",
-      "source_location": "L344",
-      "weight": 1.0
-    },
-    {
-      "source": "readme_project_status",
-      "target": "frontend_lib_demo_sim_remember",
-      "relation": "references",
-      "_origin": "ast",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "context": "remember",
-      "source_file": "README.md",
-      "source_location": "L13",
+      "source_location": "L343",
       "weight": 1.0
     },
     {
@@ -393432,7 +393434,7 @@
       "confidence_score": 0.95,
       "context": "report()",
       "source_file": "README.md",
-      "source_location": "L225",
+      "source_location": "L224",
       "weight": 1.0
     },
     {
@@ -393456,7 +393458,7 @@
       "confidence_score": 0.95,
       "context": "requireAdmin",
       "source_file": "README.md",
-      "source_location": "L72",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -393468,7 +393470,7 @@
       "confidence_score": 0.95,
       "context": "require_device",
       "source_file": "README.md",
-      "source_location": "L227",
+      "source_location": "L226",
       "weight": 1.0
     },
     {
@@ -393480,7 +393482,7 @@
       "confidence_score": 0.95,
       "context": "resolveFeatures",
       "source_file": "README.md",
-      "source_location": "L195",
+      "source_location": "L194",
       "weight": 1.0
     },
     {
@@ -393528,7 +393530,7 @@
       "confidence_score": 0.95,
       "context": "rgb()",
       "source_file": "README.md",
-      "source_location": "L116",
+      "source_location": "L115",
       "weight": 1.0
     },
     {
@@ -393540,7 +393542,7 @@
       "confidence_score": 0.95,
       "context": "rowToPriceRule",
       "source_file": "README.md",
-      "source_location": "L175",
+      "source_location": "L174",
       "weight": 1.0
     },
     {
@@ -393552,7 +393554,7 @@
       "confidence_score": 0.95,
       "context": "runs.execute()",
       "source_file": "README.md",
-      "source_location": "L247",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -393564,7 +393566,7 @@
       "confidence_score": 0.95,
       "context": "sameDay",
       "source_file": "README.md",
-      "source_location": "L70",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -393576,7 +393578,7 @@
       "confidence_score": 0.95,
       "context": "seed()",
       "source_file": "README.md",
-      "source_location": "L679",
+      "source_location": "L678",
       "weight": 1.0
     },
     {
@@ -393588,7 +393590,7 @@
       "confidence_score": 0.95,
       "context": "sendEmail",
       "source_file": "README.md",
-      "source_location": "L245",
+      "source_location": "L244",
       "weight": 1.0
     },
     {
@@ -393600,7 +393602,7 @@
       "confidence_score": 0.95,
       "context": "sendToSubscriptions",
       "source_file": "README.md",
-      "source_location": "L24",
+      "source_location": "L23",
       "weight": 1.0
     },
     {
@@ -393612,7 +393614,7 @@
       "confidence_score": 0.95,
       "context": "serviceDate",
       "source_file": "README.md",
-      "source_location": "L122",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -393624,7 +393626,7 @@
       "confidence_score": 0.95,
       "context": "serviceDayKey",
       "source_file": "README.md",
-      "source_location": "L122",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -393636,7 +393638,7 @@
       "confidence_score": 0.95,
       "context": "setPaymentProvider",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -393648,7 +393650,7 @@
       "confidence_score": 0.95,
       "context": "settleCheckoutSession",
       "source_file": "README.md",
-      "source_location": "L163",
+      "source_location": "L162",
       "weight": 1.0
     },
     {
@@ -393660,7 +393662,7 @@
       "confidence_score": 0.95,
       "context": "settleFromOrder",
       "source_file": "README.md",
-      "source_location": "L94",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -393672,7 +393674,7 @@
       "confidence_score": 0.95,
       "context": "sheetDescription",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393684,7 +393686,7 @@
       "confidence_score": 0.95,
       "context": "slugLibelle",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393720,7 +393722,7 @@
       "confidence_score": 0.95,
       "context": "success",
       "source_file": "README.md",
-      "source_location": "L209",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -393732,7 +393734,7 @@
       "confidence_score": 0.95,
       "context": "sweep_bounces()",
       "source_file": "README.md",
-      "source_location": "L229",
+      "source_location": "L228",
       "weight": 1.0
     },
     {
@@ -393744,7 +393746,7 @@
       "confidence_score": 0.95,
       "context": "tables",
       "source_file": "README.md",
-      "source_location": "L193",
+      "source_location": "L192",
       "weight": 1.0
     },
     {
@@ -393756,7 +393758,7 @@
       "confidence_score": 0.95,
       "context": "totalsByMode",
       "source_file": "README.md",
-      "source_location": "L177",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -393768,7 +393770,7 @@
       "confidence_score": 0.95,
       "context": "trialPricing()",
       "source_file": "README.md",
-      "source_location": "L138",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -393780,7 +393782,7 @@
       "confidence_score": 0.95,
       "context": "unsplash",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393792,7 +393794,7 @@
       "confidence_score": 0.95,
       "context": "useAdminBasePath",
       "source_file": "README.md",
-      "source_location": "L86",
+      "source_location": "L85",
       "weight": 1.0
     },
     {
@@ -393804,7 +393806,7 @@
       "confidence_score": 0.95,
       "context": "useChimeArmed()",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -393816,7 +393818,7 @@
       "confidence_score": 0.95,
       "context": "useClipData",
       "source_file": "README.md",
-      "source_location": "L811",
+      "source_location": "L810",
       "weight": 1.0
     },
     {
@@ -393828,7 +393830,7 @@
       "confidence_score": 0.95,
       "context": "useGestion()",
       "source_file": "README.md",
-      "source_location": "L199",
+      "source_location": "L198",
       "weight": 1.0
     },
     {
@@ -393840,7 +393842,7 @@
       "confidence_score": 0.95,
       "context": "useNoSheet",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393852,7 +393854,7 @@
       "confidence_score": 0.95,
       "context": "usePeriodPair",
       "source_file": "README.md",
-      "source_location": "L68",
+      "source_location": "L67",
       "weight": 1.0
     },
     {
@@ -393864,7 +393866,7 @@
       "confidence_score": 0.95,
       "context": "useRealtimeLive()",
       "source_file": "README.md",
-      "source_location": "L219",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -393888,7 +393890,7 @@
       "confidence_score": 0.95,
       "context": "visibleGroups",
       "source_file": "README.md",
-      "source_location": "L16",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -393900,7 +393902,7 @@
       "confidence_score": 0.95,
       "context": "weekStart",
       "source_file": "README.md",
-      "source_location": "L70",
+      "source_location": "L69",
       "weight": 1.0
     },
     {
@@ -393971,5 +393973,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7d14d54d951f9fdc0d1bdb2f6dcf4b271c23917f"
+  "built_at_commit": "4f2a2f36ba9dc434244d89f9c4af131ae9c96f87"
 }

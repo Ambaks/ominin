@@ -1,17 +1,17 @@
 # Graph Report - ominin-groupe  (2026-10-15)
 
 ## Corpus Check
-- 1186 files · ~5,259,877 words
+- 1186 files · ~5,259,826 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 52 file(s) not represented in the graph (top: (none) 15, .css 15, .woff 5)
 
 ## Summary
 - 9517 nodes · 24279 edges · 496 communities (337 shown, 159 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 604 edges (avg confidence: 0.88)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 603 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7d14d54d`
+- Built from commit: `4f2a2f36`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -479,7 +479,7 @@
 4. `useToast()` - 157 edges
 5. `formatPrice()` - 129 edges
 6. `check()` - 120 edges
-7. `Project status` - 118 edges
+7. `Project status` - 117 edges
 8. `must()` - 108 edges
 9. `createClient()` - 87 edges
 10. `useGestion()` - 65 edges
@@ -1858,8 +1858,8 @@ Nodes (4): Groupe CKL — vue groupe + présentation : journal des tours, Prése
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `next` to `admin.ts`, `landing-data.ts`, `gestion/constants.ts`, `collect-landing-data.ts`, `composer.ts`, `createAdminClient`, `square/server.ts`, `groupe-ckl.ts`, `shop-landing-data.ts`, `page-sections.tsx`, `admin/api.ts`, `clip/demo/data.ts`, `metrics.ts`, `shop/server.ts`, `requireAdmin`, `api/contact/route.ts`, `add-to-cart-form.tsx`, `getShopBySlug`, `reseau/dashboard.tsx`, `brand-fonts.ts`, `stripe/webhook/route.ts`, `social.ts`, `components/gestion/shell.tsx`, `clip/espace/shell.tsx`, `store/ui.tsx`, `pitch/slides.tsx`, `espace/comptes/creation/page.tsx`, `o-crousti-poulet.tsx`, `Project status`, `agents/api.ts`, `projet.ts`, `app/layout.tsx`, `shop/icons.tsx`, `site.ts`, `boulangerie-cyprien/page.tsx`, `cyprien/footer.tsx`, `admin/format.ts`, `retraits/page.tsx`, `salle-demo.tsx`, `frontend/package.json`, `admin/constants.ts`, `fermetures-settings.tsx`, `sumup/server.ts`, `big-smash.ts`, `ref_react`, `equipe/page.tsx`, `field-report.tsx`, `admin/shell.tsx`, `espace/analytique/page.tsx`, `r7k2/layout.tsx`, `route.tsx`, `api/desinscription/route.ts`, `shop/checkout.ts`, `cyprien.ts`, `menu/gestion/produits/page.tsx`, `captions/route.ts`, `gmail/callback/route.ts`, `settings.tsx`, `bai-ko/layout.tsx`, `le-midi/page.tsx`, `clip-landing-data.ts`, `commander/page.tsx`, `savoir-faire/page.tsx`, `next.config.ts`, `clip/constants.ts`, `groupe/dashboard.tsx`, `formatPrice`, `push/server.ts`, `m/[slug]/page.tsx`, `clip/server.ts`, `big-smash/layout.tsx`, `agents/desinscription/route.ts`, `legal-page.tsx`, `[...introuvable]/page.tsx`, `getStripe`, `sim.ts`?**
-  _High betweenness centrality (0.131) - this node is a cross-community bridge._
-- **Why does `Project status` connect `Project status` to `gmail.py`, `admin.ts`, `gestion/constants.ts`, `collect-landing-data.ts`, `gestion/store.ts`, `encaisser-card.tsx`, `services/inbox.py`, `square/server.ts`, `charts.ts`, `bai-ko/film/src/scenes/EndCard.tsx`, `admin/api.ts`, `metrics.ts`, `reseau/dashboard.tsx`, `api/contact/route.ts`, `requireAdmin`, `get_supabase`, `createClient`, `components/gestion/shell.tsx`, `omilink.py`, `clip/espace/shell.tsx`, `Setup guide (written for an LLM agent)`, `espace/comptes/creation/page.tsx`, `o-crousti-poulet.tsx`, `app/layout.tsx`, `terminaux/page.tsx`, `admin/format.ts`, `retraits/page.tsx`, `salle-demo.tsx`, `formules.tsx`, `fermetures-settings.tsx`, `ref_react`, `equipe/page.tsx`, `cart-bar.tsx`, `next`, `espace/analytique/page.tsx`, `r7k2/layout.tsx`, `__main__.py`, `menu-data.ts`, `menu/gestion/produits/page.tsx`, `clip-landing-data.ts`, `formatPrice`, `push/server.ts`, `m/[slug]/page.tsx`, `legal-page.tsx`, `gestion/menu/page.tsx`, `order-picker.tsx`?**
+  _High betweenness centrality (0.132) - this node is a cross-community bridge._
+- **Why does `Project status` connect `Project status` to `gmail.py`, `admin.ts`, `gestion/constants.ts`, `collect-landing-data.ts`, `gestion/store.ts`, `encaisser-card.tsx`, `services/inbox.py`, `square/server.ts`, `charts.ts`, `bai-ko/film/src/scenes/EndCard.tsx`, `admin/api.ts`, `metrics.ts`, `api/contact/route.ts`, `requireAdmin`, `get_supabase`, `createClient`, `components/gestion/shell.tsx`, `omilink.py`, `clip/espace/shell.tsx`, `Setup guide (written for an LLM agent)`, `espace/comptes/creation/page.tsx`, `o-crousti-poulet.tsx`, `app/layout.tsx`, `terminaux/page.tsx`, `admin/format.ts`, `retraits/page.tsx`, `salle-demo.tsx`, `formules.tsx`, `fermetures-settings.tsx`, `ref_react`, `equipe/page.tsx`, `cart-bar.tsx`, `next`, `espace/analytique/page.tsx`, `r7k2/layout.tsx`, `__main__.py`, `menu-data.ts`, `menu/gestion/produits/page.tsx`, `clip-landing-data.ts`, `formatPrice`, `push/server.ts`, `m/[slug]/page.tsx`, `legal-page.tsx`, `gestion/menu/page.tsx`, `order-picker.tsx`?**
   _High betweenness centrality (0.071) - this node is a cross-community bridge._
 - **Why does `network` connect `network` to `after`, `tiles`, `phone`?**
   _High betweenness centrality (0.029) - this node is a cross-community bridge._

@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792096119.035172,
-    "seen": 1792096138.048985,
-    "ast_hash": "e56f01555b5104c59c23083796ab367c",
+    "mtime": 1792096675.632578,
+    "seen": 1792096692.114762,
+    "ast_hash": "9e55c9677c9615c0bf2e45101d747eb3",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -10320,9 +10320,9 @@
     "semantic_hash": ""
   },
   "frontend/components/demo/groupe/dashboard.tsx": {
-    "mtime": 1792095445.2569792,
-    "seen": 1792096138.0486069,
-    "ast_hash": "bf1f2b3321705bd1ebda64785785405d",
+    "mtime": 1792096183.0744712,
+    "seen": 1792096692.113954,
+    "ast_hash": "e32f4f4a0e2bac6c75ba206ada585d8e",
     "semantic_hash": ""
   },
   "frontend/components/demo/groupe/day-chart.tsx": {
@@ -10350,9 +10350,9 @@
     "semantic_hash": ""
   },
   "frontend/components/demo/groupe/venue-panel.tsx": {
-    "mtime": 1792095445.2574625,
-    "seen": 1792096138.04861,
-    "ast_hash": "a13da4a7986b806d4cba7763b793faa7",
+    "mtime": 1792096183.074009,
+    "seen": 1792096692.11396,
+    "ast_hash": "0a4f65e56d93820426c9176c5ce9c9ba",
     "semantic_hash": ""
   },
   "frontend/components/demo/groupe/week.tsx": {

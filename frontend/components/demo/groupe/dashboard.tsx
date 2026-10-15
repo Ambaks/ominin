@@ -161,7 +161,9 @@ export function GroupDashboard({
   const awaiting = snaps.reduce((s, v) => s + v.awaitingPayment, 0);
   const oldestToCollect = Math.min(...snaps.map((v) => v.oldestToCollect ?? Infinity));
   const service = serviceAverages(today.orders, t, display.serviceWindowMinutes * 60);
-  const projected = projection(fixture, today.orders, lastWeek.orders, t);
+  // La somme des estimations des adresses, telles qu'affichées.
+  const venueProjections = fixture.venues.map((_, v) => projection(fixture, today.venues[v].orders, lastWeek.venues[v].orders, t));
+  const projected = venueProjections.every((p) => p != null) ? venueProjections.reduce((s: number, p) => s + p!, 0) : null;
   const late = snaps.reduce((s, v) => s + v.late.length, 0);
   const stuck = snaps.reduce((s, v) => s + v.stuck.length, 0);
 
@@ -281,7 +283,7 @@ export function GroupDashboard({
               <Trend ratio={revenueBefore ? (revenue * 100) / revenueBefore - 1 : null} suffix={`vs ${lastWeekday} à la même heure`} />
               {projected != null && anyOpen && (
                 <span className="block">
-                  ≈&nbsp;<span className="font-medium text-foreground tabular-nums">{formatInteger(Math.round(projected / 100))}&nbsp;€</span> à la
+                  ≈&nbsp;<span className="font-medium text-foreground tabular-nums">{formatInteger(projected)}&nbsp;€</span> à la
                   fermeture, à ce rythme
                 </span>
               )}
@@ -415,7 +417,7 @@ export function GroupDashboard({
                 snap={snaps[v]}
                 previousRevenue={before[v]}
                 lastWeekday={lastWeekday}
-                projected={projection(fixture, today.venues[v].orders, lastWeek.venues[v].orders, t)}
+                projected={venueProjections[v]}
                 trend={cumulative(today.venues[v].orders, axis.start, now, bucket)}
                 ghost={axis.ghosts[v]}
                 span={axis.slots + 1}
