@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Boutiques : connexion par nom d'utilisateur (2026-10-16, sans migration) :** l'écran de connexion de l'espace gestion accepte, en plus du téléphone et de l'e-mail, un nom d'utilisateur (lettres, chiffres, `._-`, commence par une lettre). Il est converti en adresse technique sur le même domaine que les numéros (`lib/shop/phone.ts`), donc protégé de la même façon contre les liens magiques. Le compte propriétaire de MyBox se connecte désormais avec « mybox » au lieu du 06 00 00 00 00. `tsc` et `eslint` propres.
+
 > **Boutiques : fond et barre du navigateur à la couleur de la boutique (2026-10-16) :** sur une boutique claire, le rebond du téléphone au bord de la page laissait voir le fond sombre d'Ominin en barre noire, et la barre du navigateur restait noire. `app/shop/[slug]/layout.tsx` pose désormais `themeColor` (et `colorScheme: light`) depuis la palette de la boutique, et la couleur de fond de `html`/`body`. `tsc` et `eslint` propres ; non vérifié sur téléphone.
 
 > **Landings : parcours au défilement sur téléphone (2026-10-16, sans migration) :** sur menu.ominin.com (section « Le parcours ») et la landing click & collect, le téléphone qui reste collé pendant le défilement existe désormais aussi sous lg : il se fixe en haut de l'écran et les étapes passent par-dessus en cartes givrées, au lieu d'un téléphone par étape. Sous lg, l'étape active se mesure au milieu de la zone libre sous le téléphone, pour que l'écran change avant que la carte ne le recouvre ; le bureau est inchangé (`components/landing-kit/scroll-story.tsx`). **Vérifié :** captures à 390 × 760 et 375 × 600, `eslint`, `tsc`.

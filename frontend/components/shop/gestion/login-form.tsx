@@ -10,9 +10,9 @@ import { createClient } from "@/lib/supabase/client";
 
 /*
  * Connexion à l'espace de gestion d'une boutique. Une gérante se connecte
- * avec son numéro de téléphone ou son e-mail, et son mot de passe : le
- * numéro est converti en adresse technique (lib/shop/phone.ts) — Supabase
- * n'a pas de fournisseur SMS à configurer.
+ * avec son identifiant, son numéro de téléphone ou son e-mail, et son mot de
+ * passe : identifiant et numéro sont convertis en adresse technique
+ * (lib/shop/phone.ts) — Supabase n'a pas de fournisseur SMS à configurer.
  */
 export function ShopLoginForm({ authError }: { authError: boolean }) {
   const [identifier, setIdentifier] = useState("");
@@ -24,7 +24,7 @@ export function ShopLoginForm({ authError }: { authError: boolean }) {
     event.preventDefault();
     const email = loginEmailFor(identifier);
     if (!email) {
-      setError("Indiquez un numéro de téléphone ou une adresse e-mail valide.");
+      setError("Indiquez un identifiant, un numéro de téléphone ou une adresse e-mail valide.");
       return;
     }
     setBusy(true);
@@ -47,7 +47,7 @@ export function ShopLoginForm({ authError }: { authError: boolean }) {
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">Espace boutiques</p>
       </div>
       <form onSubmit={onSubmit} className="flex w-full max-w-sm flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6">
-        <Field label="Téléphone ou e-mail" required>
+        <Field label="Identifiant, téléphone ou e-mail" required>
           <input className={inputClass} value={identifier} onChange={(e) => setIdentifier(e.target.value)} autoComplete="username" placeholder="06 00 00 00 00" required />
         </Field>
         <Field label="Mot de passe" required>
