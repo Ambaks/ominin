@@ -108,8 +108,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/stripe/pay/route.ts": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855473,
+    "mtime": 1791935269.9856126,
+    "seen": 1792026436.0992565,
     "ast_hash": "1ac1303105ea9fe7ca192a6a7c824c51",
     "semantic_hash": ""
   },
@@ -246,8 +246,8 @@
     "semantic_hash": ""
   },
   "frontend/app/collect/[slug]/page.tsx": {
-    "mtime": 1791935161.2906601,
-    "seen": 1791935231.285623,
+    "mtime": 1791935269.9972742,
+    "seen": 1792026436.0993488,
     "ast_hash": "40da0adc9fe95b9fec8cd43c8d75a36b",
     "semantic_hash": ""
   },
@@ -264,9 +264,9 @@
     "semantic_hash": ""
   },
   "frontend/app/layout.tsx": {
-    "mtime": 1790458498.5576289,
-    "seen": 1791935231.2856383,
-    "ast_hash": "af0e7fa7489faf5fe99250b8487bc874",
+    "mtime": 1792025579.7346096,
+    "seen": 1792026436.0993676,
+    "ast_hash": "9c6e720cf2cdc1d3ab4566d5665446f5",
     "semantic_hash": ""
   },
   "frontend/app/not-found.tsx": {
@@ -450,20 +450,20 @@
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/customer-pane.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.2859473,
+    "mtime": 1791935270.033113,
+    "seen": 1792026436.0997207,
     "ast_hash": "e7bacfa5e7055a7cce717f08bfbe80c7",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/restaurant-pane.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.285949,
+    "mtime": 1791935270.035126,
+    "seen": 1792026436.0997224,
     "ast_hash": "348d471d8ada61b876b7ec217d0b59f4",
     "semantic_hash": ""
   },
   "frontend/components/collect/demo/stage.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.2859507,
+    "mtime": 1791935270.0371082,
+    "seen": 1792026436.0997243,
     "ast_hash": "868db289ef3c19ba2f02351afbd34f98",
     "semantic_hash": ""
   },
@@ -534,8 +534,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-card.tsx": {
-    "mtime": 1791935161.3125129,
-    "seen": 1791935231.286024,
+    "mtime": 1791935270.044113,
+    "seen": 1792026436.0998073,
     "ast_hash": "3924153ea3d39c6eb3caa40e51c85be2",
     "semantic_hash": ""
   },
@@ -594,8 +594,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu/menu-item-card.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.286061,
+    "mtime": 1791935270.0526683,
+    "seen": 1792026436.0998485,
     "ast_hash": "3ecde9ac567feaa802ee22de7da50af3",
     "semantic_hash": ""
   },
@@ -606,8 +606,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/payment-settings.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.2860718,
+    "mtime": 1791935270.0546637,
+    "seen": 1792026436.099861,
     "ast_hash": "f7d58eb764aba853b8a4dddf74f8c649",
     "semantic_hash": ""
   },
@@ -726,44 +726,44 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/add-to-order.tsx": {
-    "mtime": 1791935161.3218305,
-    "seen": 1791935231.2861745,
+    "mtime": 1791935270.0586636,
+    "seen": 1792026436.099974,
     "ast_hash": "c339e11fe464dbc67c615bbce5ba672a",
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1791935161.3298545,
-    "seen": 1791935231.2861803,
+    "mtime": 1791935270.0616646,
+    "seen": 1792026436.0999799,
     "ast_hash": "994da1a940fd84a01fc7306d89764906",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
-    "mtime": 1791935161.3308525,
-    "seen": 1791935231.2861824,
+    "mtime": 1791935270.0640395,
+    "seen": 1792026436.0999815,
     "ast_hash": "0e0b2a2ba023e170153cb85662485dab",
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-card.tsx": {
-    "mtime": 1791935161.3318515,
-    "seen": 1791935231.2861848,
+    "mtime": 1791935270.065681,
+    "seen": 1792026436.0999835,
     "ast_hash": "8b392108d8a2a4f2803ce68e7ead2edd",
     "semantic_hash": ""
   },
   "frontend/components/menu/hero.tsx": {
-    "mtime": 1791935161.3348584,
-    "seen": 1791935231.286193,
+    "mtime": 1791935270.0701754,
+    "seen": 1792026436.0999913,
     "ast_hash": "b0a635f2144c138aafff5b9a084741f0",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-footer.tsx": {
-    "mtime": 1791935161.3358586,
-    "seen": 1791935231.2861977,
+    "mtime": 1791935270.073152,
+    "seen": 1792026436.0999978,
     "ast_hash": "6917dcfab2e667bee7eb9d91f2bc7a29",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-section.tsx": {
-    "mtime": 1791935161.3368595,
-    "seen": 1791935231.2862017,
+    "mtime": 1791935270.0751674,
+    "seen": 1792026436.1000018,
     "ast_hash": "5022d3a71b2d994436add5c2efef7b22",
     "semantic_hash": ""
   },
@@ -792,14 +792,14 @@
     "semantic_hash": ""
   },
   "frontend/components/ui/pill-tabs.tsx": {
-    "mtime": 1791935161.3501122,
-    "seen": 1791935231.2863526,
+    "mtime": 1791935270.0936747,
+    "seen": 1792026436.1002448,
     "ast_hash": "c0cbcd844bb97d5efd325e63a6f62ddf",
     "semantic_hash": ""
   },
   "frontend/components/ui/price-input.tsx": {
-    "mtime": 1791935161.3511126,
-    "seen": 1791935231.2863548,
+    "mtime": 1791935270.0936747,
+    "seen": 1792026436.1002474,
     "ast_hash": "93cc1504d7d531e5d0d227feb571986c",
     "semantic_hash": ""
   },
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "frontend/components/ui/toast.tsx": {
-    "mtime": 1791935161.3531091,
-    "seen": 1791935231.2863586,
+    "mtime": 1791935270.095689,
+    "seen": 1792026436.1002514,
     "ast_hash": "98279f758dd0bac6a650b4087b79533b",
     "semantic_hash": ""
   },
@@ -918,14 +918,14 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/data.ts": {
-    "mtime": 1791935161.3541095,
-    "seen": 1791935231.2864525,
+    "mtime": 1791935270.0996926,
+    "seen": 1792026436.1003468,
     "ast_hash": "8b1e2d8cc524b5effbbc94d80df98a16",
     "semantic_hash": ""
   },
   "frontend/lib/collect/demo/provider.tsx": {
-    "mtime": 1791935161.35611,
-    "seen": 1791935231.2864542,
+    "mtime": 1791935270.0996926,
+    "seen": 1792026436.1003492,
     "ast_hash": "32ed46bc75976c382a0c503f729ed8ea",
     "semantic_hash": ""
   },
@@ -948,14 +948,14 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/api.ts": {
-    "mtime": 1791935161.3611207,
-    "seen": 1791935231.286475,
+    "mtime": 1791935270.104231,
+    "seen": 1792026436.1003685,
     "ast_hash": "faf19a323d7bde7894c78a1d16fa3991",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/constants.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.286478,
+    "mtime": 1791935270.1062484,
+    "seen": 1792026436.100372,
     "ast_hash": "acaf149f71a047748fafd6f9488380ca",
     "semantic_hash": ""
   },
@@ -966,8 +966,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/mappers.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.286487,
+    "mtime": 1791935270.1082623,
+    "seen": 1792026436.1003819,
     "ast_hash": "0cf93d9ea661e0d71d89319a16469e37",
     "semantic_hash": ""
   },
@@ -984,56 +984,56 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/seed.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.2864923,
+    "mtime": 1791935270.1082623,
+    "seen": 1792026436.1003883,
     "ast_hash": "e9a53b314ece3a476c8be6a7988d0483",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/selectors.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.286494,
+    "mtime": 1791935270.1129787,
+    "seen": 1792026436.1003902,
     "ast_hash": "c58ccf1b20174c054da4a33baffc0d8a",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/store.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.286496,
+    "mtime": 1791935270.1141467,
+    "seen": 1792026436.1003916,
     "ast_hash": "071ce684f216b673f83871cabcdfcc46",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.2865014,
+    "mtime": 1791935270.1155777,
+    "seen": 1792026436.1003978,
     "ast_hash": "96bfce7eb2579319c3676f27b479c5e7",
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.286516,
+    "mtime": 1791935270.1207345,
+    "seen": 1792026436.1004138,
     "ast_hash": "a79f217c494a90470023a3c98f7c2fc5",
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1791935161.3743472,
-    "seen": 1791935231.2865345,
+    "mtime": 1791935270.1227434,
+    "seen": 1792026436.1004355,
     "ast_hash": "b284b75a4609d239bc2c3fd0f636f4d7",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
-    "mtime": 1791935161.3777802,
-    "seen": 1791935231.286542,
+    "mtime": 1791935270.1247594,
+    "seen": 1792026436.1004431,
     "ast_hash": "a13a09760b9fb326c9fee295223b04d1",
     "semantic_hash": ""
   },
   "frontend/lib/public-menu.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865837,
+    "mtime": 1791935270.1404605,
+    "seen": 1792026436.1004927,
     "ast_hash": "c998037beec6a81291de62f3fb676b24",
     "semantic_hash": ""
   },
   "frontend/lib/site.ts": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.2866347,
+    "mtime": 1791935270.1495514,
+    "seen": 1792026436.1005483,
     "ast_hash": "ca4dd6a7c658f652ebdb280a1b909ec3",
     "semantic_hash": ""
   },
@@ -1056,9 +1056,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.286654,
-    "ast_hash": "b47b0d1cec260d696579846f212983c4",
+    "mtime": 1792025933.62483,
+    "seen": 1792026436.1005702,
+    "ast_hash": "ec12a254ed7c53889a5284473b26ab61",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791935174.8850732,
-    "seen": 1791935231.287007,
-    "ast_hash": "5c67705c4b42ce0ecf6bac0c86ebddca",
+    "mtime": 1792026372.4124813,
+    "seen": 1792026436.100822,
+    "ast_hash": "8370a490807eabf0fba85d24d9e9b501",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1476,8 +1476,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/commandes/page.tsx": {
-    "mtime": 1791935161.3009298,
-    "seen": 1791935231.2856681,
+    "mtime": 1791935270.0187926,
+    "seen": 1792026436.0994027,
     "ast_hash": "ff6ac0fa4331e55a91a3d388f8ef9df9",
     "semantic_hash": ""
   },
@@ -1488,8 +1488,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/etablissement/page.tsx": {
-    "mtime": 1791935161.3009298,
-    "seen": 1791935231.285672,
+    "mtime": 1791935270.020929,
+    "seen": 1792026436.0994072,
     "ast_hash": "5f5543a20796ba17f9f93ab07c51acd0",
     "semantic_hash": ""
   },
@@ -1500,14 +1500,14 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/menu/page.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.285678,
+    "mtime": 1791935270.022925,
+    "seen": 1792026436.099414,
     "ast_hash": "5a85dfa80154bfa91907316d1be64f2e",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/page.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.2856815,
+    "mtime": 1791935270.0235996,
+    "seen": 1792026436.0994182,
     "ast_hash": "12804a30a56b21f88f4dc2e6f2314a14",
     "semantic_hash": ""
   },
@@ -1542,8 +1542,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/m/[slug]/page.tsx": {
-    "mtime": 1791935161.302482,
-    "seen": 1791935231.2857008,
+    "mtime": 1791935270.0246935,
+    "seen": 1792026436.0994413,
     "ast_hash": "fb9175df4ce6cd41a2f2f671dad83ec0",
     "semantic_hash": ""
   },
@@ -1668,9 +1668,9 @@
     "semantic_hash": ""
   },
   "frontend/components/admin/icons.tsx": {
-    "mtime": 1791934641.7154944,
-    "seen": 1791935231.285831,
-    "ast_hash": "b7e5a1d7738f2d8426d135ff5565a6c6",
+    "mtime": 1791935270.0262065,
+    "seen": 1792026436.0995996,
+    "ast_hash": "f0a8807b46786164801c664af2871c59",
     "semantic_hash": ""
   },
   "frontend/components/admin/lead/activity-timeline.tsx": {
@@ -1740,9 +1740,9 @@
     "semantic_hash": ""
   },
   "frontend/components/admin/shell.tsx": {
-    "mtime": 1791934635.0393925,
-    "seen": 1791935231.2858562,
-    "ast_hash": "2addab185c77a0fb44c84e5c7762f315",
+    "mtime": 1792025812.8350842,
+    "seen": 1792026436.099628,
+    "ast_hash": "fbca34aadcaf2705a2d12108cd0aaf39",
     "semantic_hash": ""
   },
   "frontend/components/admin/stat-card.tsx": {
@@ -1770,8 +1770,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/collect-settings.tsx": {
-    "mtime": 1791935161.308771,
-    "seen": 1791935231.2860143,
+    "mtime": 1791935270.040112,
+    "seen": 1792026436.099795,
     "ast_hash": "594f8de1aeeea18a757f539abe1d27ee",
     "semantic_hash": ""
   },
@@ -1788,9 +1788,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/admin/constants.ts": {
-    "mtime": 1791934656.549409,
-    "seen": 1791935231.2863698,
-    "ast_hash": "61e7688d1747a54548e6935cc6322468",
+    "mtime": 1792025802.9253979,
+    "seen": 1792026436.1002638,
+    "ast_hash": "cbb2276f51278775dcacd76ef6ff69ac",
     "semantic_hash": ""
   },
   "frontend/lib/admin/csv.ts": {
@@ -1890,14 +1890,14 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/SKILL.md": {
-    "mtime": 1791935161.0252428,
-    "seen": 1791935231.2869754,
+    "mtime": 1791935269.733292,
+    "seen": 1792026436.1008,
     "ast_hash": "10c774043ebbfcf2b5f31b08d7d21005",
     "semantic_hash": ""
   },
   "frontend/app/collect/demo/[slug]/page.tsx": {
-    "mtime": 1791935161.2906601,
-    "seen": 1791935231.2856264,
+    "mtime": 1791935269.9983277,
+    "seen": 1792026436.0993528,
     "ast_hash": "a7852142b9b09a3a24d38fb43011616e",
     "semantic_hash": ""
   },
@@ -1998,8 +1998,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/sumup/pay/route.ts": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855575,
+    "mtime": 1791935269.9856126,
+    "seen": 1792026436.0992694,
     "ast_hash": "4b7c08fb91ee4b0479e2dbce56ce8eff",
     "semantic_hash": ""
   },
@@ -2244,9 +2244,9 @@
     "semantic_hash": ""
   },
   "frontend/app/api/push/resubscribe/route.ts": {
-    "mtime": 1788940223.814681,
-    "seen": 1791935231.2854948,
-    "ast_hash": "1b6abefe67d642b026a5a91cfc56d530",
+    "mtime": 1792025738.490382,
+    "seen": 1792026436.099193,
+    "ast_hash": "59571326f60fed8bc80ae2ddee7515cc",
     "semantic_hash": ""
   },
   "frontend/app/api/push/subscriptions/route.ts": {
@@ -2259,12 +2259,6 @@
     "mtime": 1788940223.814681,
     "seen": 1791935231.2854984,
     "ast_hash": "e86b24aa6f2d9e68a35f046e919a5f92",
-    "semantic_hash": ""
-  },
-  "frontend/app/manifest.ts": {
-    "mtime": 1788940223.8679342,
-    "seen": 1791935231.2856402,
-    "ast_hash": "50bde926c0a7f4c543b9e15f8b363c10",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/notifications/page.tsx": {
@@ -2280,21 +2274,21 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/use-order-chime.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.2865052,
+    "mtime": 1791935270.1167054,
+    "seen": 1792026436.1004014,
     "ast_hash": "78db8e67db712ba81cc953893e379623",
     "semantic_hash": ""
   },
   "frontend/lib/push/client.ts": {
-    "mtime": 1788940224.3432777,
-    "seen": 1791935231.286585,
-    "ast_hash": "2bf603617ecb53270339008f7c212865",
+    "mtime": 1792025617.3504753,
+    "seen": 1792026436.1004949,
+    "ast_hash": "31859469ca4cc6a6ce46dc65baca1c0f",
     "semantic_hash": ""
   },
   "frontend/lib/push/events.ts": {
-    "mtime": 1788940224.3456988,
-    "seen": 1791935231.2865868,
-    "ast_hash": "5f2dd3b5c9992c31e6ea3a5a53621c10",
+    "mtime": 1792025629.4339473,
+    "seen": 1792026436.1004963,
+    "ast_hash": "635a9121978976677053f721b867451b",
     "semantic_hash": ""
   },
   "frontend/lib/push/prefs.ts": {
@@ -2304,15 +2298,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/push/server.ts": {
-    "mtime": 1790874968.615924,
-    "seen": 1791935231.28659,
-    "ast_hash": "12d375f918ff03a79dd6dffbf6f23ab9",
+    "mtime": 1792025618.411646,
+    "seen": 1792026436.1005,
+    "ast_hash": "7d10b4f58e269d66770c7d833a6827f3",
     "semantic_hash": ""
   },
   "frontend/public/sw.js": {
-    "mtime": 1788940224.4920328,
-    "seen": 1791935231.2866676,
-    "ast_hash": "ecdf4719e21dfe38c560783901780438",
+    "mtime": 1792025725.6579773,
+    "seen": 1792026436.1005807,
+    "ast_hash": "b2082530fc882f7995bdeb3b6e2cff20",
     "semantic_hash": ""
   },
   "supabase/migrations/20260821000001_push_notifications.sql": {
@@ -2346,8 +2340,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/create-order-fab.tsx": {
-    "mtime": 1791935161.30978,
-    "seen": 1791935231.2860184,
+    "mtime": 1791935270.041112,
+    "seen": 1792026436.0997999,
     "ast_hash": "13920e3105eb57d780986126cb3b9d39",
     "semantic_hash": ""
   },
@@ -2520,14 +2514,14 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/order-line.tsx": {
-    "mtime": 1791935161.3145132,
-    "seen": 1791935231.2860258,
+    "mtime": 1791935270.0451145,
+    "seen": 1792026436.099809,
     "ast_hash": "b862ea3180f22cdd50ddc592f5690838",
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/servir-card.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.2860317,
+    "mtime": 1791935270.0473404,
+    "seen": 1792026436.0998154,
     "ast_hash": "742989e90b4b2c2a22111ae26064100e",
     "semantic_hash": ""
   },
@@ -2946,8 +2940,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/apercu/cuisinier-apercu.tsx": {
-    "mtime": 1791935161.3080778,
-    "seen": 1791935231.2860081,
+    "mtime": 1791935270.0391123,
+    "seen": 1792026436.0997891,
     "ast_hash": "a25c1965479f5e618288cc1caac53c0b",
     "semantic_hash": ""
   },
@@ -3534,8 +3528,8 @@
     "semantic_hash": ""
   },
   "frontend/app/api/square/pay/route.ts": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855346,
+    "mtime": 1791935269.9856126,
+    "seen": 1792026436.0992415,
     "ast_hash": "905328d6ca885b373f3050bcb0e592cf",
     "semantic_hash": ""
   },
@@ -3828,8 +3822,8 @@
     "semantic_hash": ""
   },
   "frontend/components/gestion/tarifs-planifies.tsx": {
-    "mtime": 1791935161.3218305,
-    "seen": 1791935231.2860887,
+    "mtime": 1791935270.0566647,
+    "seen": 1792026436.0998805,
     "ast_hash": "9b511c5a302f18a4c5e8c275926e650a",
     "semantic_hash": ""
   },
@@ -4182,8 +4176,8 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/page.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856562,
+    "mtime": 1791935270.010425,
+    "seen": 1792026436.0993888,
     "ast_hash": "9657b4ec1309b0f80b6234fd2cf91bb3",
     "semantic_hash": ""
   },
@@ -4320,8 +4314,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/brand-fonts.ts": {
-    "mtime": 1791935161.3760276,
-    "seen": 1791935231.28654,
+    "mtime": 1791935270.1227434,
+    "seen": 1792026436.1004415,
     "ast_hash": "c50989835ee5a3fa014e6ca86e887250",
     "semantic_hash": ""
   },
@@ -4692,8 +4686,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/loyalty-section.tsx": {
-    "mtime": 1791935161.3358586,
-    "seen": 1791935231.286196,
+    "mtime": 1791935270.0716228,
+    "seen": 1792026436.0999956,
     "ast_hash": "6133d6254f3fc3de40d90ba50954a2f3",
     "semantic_hash": ""
   },
@@ -4728,8 +4722,8 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/scripts/check_order.cjs": {
-    "mtime": 1791935161.02675,
-    "seen": 1791935231.285034,
+    "mtime": 1791935269.7347999,
+    "seen": 1792026436.0986392,
     "ast_hash": "2ca5b2aea2f62980ad252c7c4ef00b2d",
     "semantic_hash": ""
   },
@@ -4788,8 +4782,8 @@
     "semantic_hash": ""
   },
   ".claude/skills/new-restaurant/references/build.md": {
-    "mtime": 1791935161.02675,
-    "seen": 1791935231.2869773,
+    "mtime": 1791935269.7347999,
+    "seen": 1792026436.1008012,
     "ast_hash": "6c9002d59348ee15c57843a8a2e709d3",
     "semantic_hash": ""
   },
@@ -4920,8 +4914,8 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/formules.tsx": {
-    "mtime": 1791935161.3338587,
-    "seen": 1791935231.286189,
+    "mtime": 1791935270.0681465,
+    "seen": 1792026436.0999875,
     "ast_hash": "ac538a16086ec44c858759433468bdd8",
     "semantic_hash": ""
   },
@@ -5250,20 +5244,20 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/comptoir/comptoir-demo.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856512,
+    "mtime": 1791935270.0058389,
+    "seen": 1792026436.099383,
     "ast_hash": "f99050c54a0f7938367cb117bae9f0e4",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/comptoir/fixtures.ts": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856529,
+    "mtime": 1791935270.0058389,
+    "seen": 1792026436.099385,
     "ast_hash": "8bd675cfd1a3c61cbb2f9997b4d42960",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/comptoir/page.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856545,
+    "mtime": 1791935270.0082035,
+    "seen": 1792026436.099387,
     "ast_hash": "3c4ca5c885828c9eefc34e2e1a7e2c78",
     "semantic_hash": ""
   },
@@ -5352,8 +5346,8 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/brand.tsx": {
-    "mtime": 1791935161.3388584,
-    "seen": 1791935231.2862165,
+    "mtime": 1791935270.0781653,
+    "seen": 1792026436.1000195,
     "ast_hash": "3967bf6819958c6dc96aad1b7d1508c8",
     "semantic_hash": ""
   },
@@ -5364,8 +5358,8 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/devices.tsx": {
-    "mtime": 1791935161.3445334,
-    "seen": 1791935231.2862408,
+    "mtime": 1791935270.0849366,
+    "seen": 1792026436.1000452,
     "ast_hash": "e6e6abc36ea9a324fcfcf22367693361",
     "semantic_hash": ""
   },
@@ -5382,8 +5376,8 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/page-sections.tsx": {
-    "mtime": 1791935161.3455956,
-    "seen": 1791935231.2862477,
+    "mtime": 1791935270.0878332,
+    "seen": 1792026436.1000538,
     "ast_hash": "e55152ad27a8cba1e4927d88f921aef0",
     "semantic_hash": ""
   },
@@ -5394,8 +5388,8 @@
     "semantic_hash": ""
   },
   "frontend/components/pitch/slides.tsx": {
-    "mtime": 1791935161.3481119,
-    "seen": 1791935231.2862513,
+    "mtime": 1791935270.0901434,
+    "seen": 1792026436.1000576,
     "ast_hash": "a24555011fdb3e105662d9cec777af64",
     "semantic_hash": ""
   },
@@ -5406,8 +5400,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/demo/reseau/data.ts": {
-    "mtime": 1791935161.3591137,
-    "seen": 1791935231.286467,
+    "mtime": 1791935270.102214,
+    "seen": 1792026436.10036,
     "ast_hash": "f0bf3d0d2d6206509c67b21b134babf7",
     "semantic_hash": ""
   },
@@ -5430,8 +5424,8 @@
     "semantic_hash": ""
   },
   "frontend/scripts/pitch-pdf.mjs": {
-    "mtime": 1791935161.9934618,
-    "seen": 1791935231.2866728,
+    "mtime": 1791935270.8695147,
+    "seen": 1792026436.1005857,
     "ast_hash": "b931059bf31972b79e87620a89ae0300",
     "semantic_hash": ""
   },
@@ -5814,32 +5808,32 @@
     "semantic_hash": ""
   },
   "frontend/components/report/field-report.tsx": {
-    "mtime": 1791935161.34911,
-    "seen": 1791935231.2862773,
+    "mtime": 1791935270.0922525,
+    "seen": 1792026436.100089,
     "ast_hash": "1b15308ee56efc9a37ca6997712fe3cb",
     "semantic_hash": ""
   },
   "frontend/lib/report/charts.ts": {
-    "mtime": 1791935161.3897567,
-    "seen": 1791935231.2865934,
+    "mtime": 1791935270.1414566,
+    "seen": 1792026436.1005044,
     "ast_hash": "c4593c46e83f6108e585e99461c5db60",
     "semantic_hash": ""
   },
   "frontend/lib/report/copy.ts": {
-    "mtime": 1791935161.3897567,
-    "seen": 1791935231.2865953,
+    "mtime": 1791935270.143868,
+    "seen": 1792026436.100506,
     "ast_hash": "6c52ccbbd598184e54a0d7579f54d12e",
     "semantic_hash": ""
   },
   "frontend/lib/report/data.json": {
-    "mtime": 1791935161.3936121,
-    "seen": 1791935231.286597,
+    "mtime": 1791935270.1458786,
+    "seen": 1792026436.100508,
     "ast_hash": "4d9b50e9d89629fedbea5c8faad0ef77",
     "semantic_hash": ""
   },
   "frontend/lib/report/data.ts": {
-    "mtime": 1791935161.3936121,
-    "seen": 1791935231.2865992,
+    "mtime": 1791935270.1474562,
+    "seen": 1792026436.1005101,
     "ast_hash": "b3d29c4c5007b5d7e86260df675472a5",
     "semantic_hash": ""
   },
@@ -5868,8 +5862,8 @@
     "semantic_hash": ""
   },
   "frontend/app/admin/(shell)/agenda/page.tsx": {
-    "mtime": 1791934656.5369985,
-    "seen": 1791935231.285406,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.0990732,
     "ast_hash": "d36e69f5f2acbcc2d6530006fa7efffa",
     "semantic_hash": ""
   },
@@ -5886,15 +5880,15 @@
     "semantic_hash": ""
   },
   "frontend/app/admin/(shell)/projet/page.tsx": {
-    "mtime": 1791934890.3795297,
-    "seen": 1791935231.2854264,
-    "ast_hash": "279d1717ab8eca356bb3d6c64a89d2c4",
+    "mtime": 1791935269.9835796,
+    "seen": 1792026436.0990994,
+    "ast_hash": "790da6ee4bb3ba518456942538632f81",
     "semantic_hash": ""
   },
   "frontend/lib/admin/projet.ts": {
-    "mtime": 1791934491.2564938,
-    "seen": 1791935231.2863863,
-    "ast_hash": "383c8784f30c8e4bf78eda1684463ad2",
+    "mtime": 1792025719.304432,
+    "seen": 1792026436.1002858,
+    "ast_hash": "45620c16d3e36011d650586a5883c907",
     "semantic_hash": ""
   },
   "frontend/lib/admin/server.ts": {
@@ -6066,20 +6060,20 @@
     "semantic_hash": ""
   },
   "frontend/lib/pitch/chicken-street.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865684,
+    "mtime": 1791935270.135457,
+    "seen": 1792026436.100474,
     "ast_hash": "3458ee024ed9b2dddf270c531d29507e",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/kit.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865703,
+    "mtime": 1791935270.1364594,
+    "seen": 1792026436.1004765,
     "ast_hash": "ad58998dde484ece09fb4db5ba54717d",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/types.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865736,
+    "mtime": 1791935270.1384597,
+    "seen": 1792026436.100481,
     "ast_hash": "8a5a98b053391f740b0f5325fa66e034",
     "semantic_hash": ""
   },
@@ -6456,8 +6450,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/collect/hours.ts": {
-    "mtime": 1791935161.3571112,
-    "seen": 1791935231.2864563,
+    "mtime": 1791935270.102214,
+    "seen": 1792026436.1003506,
     "ast_hash": "40ddf7f6a454b91807206a5569db5a34",
     "semantic_hash": ""
   },
@@ -6600,14 +6594,14 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/card-payment.tsx": {
-    "mtime": 1791935161.3260279,
-    "seen": 1791935231.2861784,
+    "mtime": 1791935270.0606618,
+    "seen": 1792026436.0999777,
     "ast_hash": "b79ebf2df2d6afb5265419da946d1654",
     "semantic_hash": ""
   },
   "frontend/components/menu/stripe-payment.tsx": {
-    "mtime": 1791935161.3378584,
-    "seen": 1791935231.2862124,
+    "mtime": 1791935270.077166,
+    "seen": 1792026436.1000154,
     "ast_hash": "51a7ed1138b2602bf92bafe0546da994",
     "semantic_hash": ""
   },
@@ -6858,8 +6852,8 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/visites.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.2865124,
+    "mtime": 1791935270.1187198,
+    "seen": 1792026436.1004093,
     "ast_hash": "670bce53a2e7c9a509d47af331f34b48",
     "semantic_hash": ""
   },
@@ -7062,1881 +7056,1935 @@
     "semantic_hash": ""
   },
   "demos/big-smash/docs/deliveroo-matabiau-2026-10-03-extract.json": {
-    "mtime": 1791935161.1503246,
-    "seen": 1791935231.2852278,
+    "mtime": 1791935269.8634305,
+    "seen": 1792026436.0988555,
     "ast_hash": "6741ad794c11466c7cf707e83c1c110c",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/photos-sources.json": {
-    "mtime": 1791935161.1577475,
-    "seen": 1791935231.28523,
+    "mtime": 1791935269.872609,
+    "seen": 1792026436.0988579,
     "ast_hash": "a19c53764039fc3ed004c62b93d3fa16",
     "semantic_hash": ""
   },
   "demos/big-smash/film/package.json": {
-    "mtime": 1791935161.1831145,
-    "seen": 1791935231.285232,
+    "mtime": 1791935269.8970249,
+    "seen": 1792026436.0988603,
     "ast_hash": "5eac283662be53867e5febdc0d9a071a",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/audio/sources.json": {
-    "mtime": 1791935161.1890955,
-    "seen": 1791935231.2852347,
+    "mtime": 1791935269.8970249,
+    "seen": 1792026436.0988626,
     "ast_hash": "2293635769091317dfb52ed9c26f04d6",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/manifest.json": {
-    "mtime": 1791935161.2045982,
-    "seen": 1791935231.2852366,
+    "mtime": 1791935269.9041998,
+    "seen": 1792026436.0988648,
     "ast_hash": "1e5eee91c557ca3cbd63dd60ac89ee96",
     "semantic_hash": ""
   },
   "demos/big-smash/film/remotion.config.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852383,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988672,
     "ast_hash": "23b0403a3e8341a36e19fa830d7096f5",
     "semantic_hash": ""
   },
   "demos/big-smash/film/scripts/capture.mjs": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852407,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988696,
     "ast_hash": "ec81e835cee34701a08dfbb93fa97733",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/Film.tsx": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852426,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988715,
     "ast_hash": "1f4c0d8694e244586bd9a52cbcc20e2b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/Root.tsx": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852445,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988736,
     "ast_hash": "83d7e973baaa19f97edccf603054e55b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/brand/big-smash-marks.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852461,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988758,
     "ast_hash": "563511d5c35b7626123e22e2d0479a30",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/brand/fonts.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.285248,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988777,
     "ast_hash": "3d6d35cf32bc2f5c20cb39f588b42399",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/brand/marks.tsx": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852502,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988796,
     "ast_hash": "fb4ee3bd67c1b495b470c2d1fac66ae3",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/brand/tokens.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.285252,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988815,
     "ast_hash": "02a22f1a3ad6fd557b958a394578c58a",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/captures.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852542,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988839,
     "ast_hash": "2ad1b7451491f135465a811a09030ad8",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/index.ts": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2852561,
+    "mtime": 1791935269.950514,
+    "seen": 1792026436.0988863,
     "ast_hash": "d8efac67d46c00e964dea4e6282a5384",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/Camera.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285258,
+    "mtime": 1791935269.956712,
+    "seen": 1792026436.0988882,
     "ast_hash": "8c03acc3680a95333c5a5815fb563c77",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/Device.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852597,
+    "mtime": 1791935269.9579816,
+    "seen": 1792026436.09889,
     "ast_hash": "0842b071c9e29f6cdc8ec901a60cb7d5",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/Soundtrack.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852614,
+    "mtime": 1791935269.9579816,
+    "seen": 1792026436.0988917,
     "ast_hash": "05b0d4d22caf0fae8dcc8160f5baef71",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/Tap.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285263,
+    "mtime": 1791935269.9579816,
+    "seen": 1792026436.098894,
     "ast_hash": "d52484f08f1784d7ed41d42cb5178890",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/atmosphere.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285265,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0988955,
     "ast_hash": "4d4d6d712842005f4c3c3b7b42eb633b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/layout.ts": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852664,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0988975,
     "ast_hash": "911e689d2e474f6752bc94f5336eb7e8",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/motion.ts": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285268,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0988991,
     "ast_hash": "a611e93a360e318d075cad48be628379",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/transitions.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852697,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0989013,
     "ast_hash": "15708a5ce61f7bd421fd610e9d9ab0fb",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/kit/type.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852716,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0989032,
     "ast_hash": "72c7b923eb98b45ef776375e593da324",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Counter.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285273,
+    "mtime": 1791935269.9598825,
+    "seen": 1792026436.0989056,
     "ast_hash": "df9057974e5119960c15d0abfb792dfa",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/EndCard.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285275,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989077,
     "ast_hash": "03264002dba0a31fbfec292ffee5a29d",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Kitchen.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852767,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989096,
     "ast_hash": "5747cee92d9c4a0b78652406b34a99a7",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Network.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852786,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989115,
     "ast_hash": "33aaa6cabf32d4443b3ff644bfc3e29d",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/NumberEta.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852805,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098914,
     "ast_hash": "3635951ba2bce925ab27167515b2c4cf",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Ready.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.2852826,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098916,
     "ast_hash": "cb7e61e7b46b0e30486af8122a6f5548",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Slams.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285284,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098918,
     "ast_hash": "5cfdb7d57047dedee61b7cac9e067f4b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/Slogan.tsx": {
-    "mtime": 1791935161.261127,
-    "seen": 1791935231.285286,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989196,
     "ast_hash": "214f353a621cbc02f74df4ccd59732d5",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/TitleCard.tsx": {
-    "mtime": 1791935161.2703745,
-    "seen": 1791935231.2852879,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989218,
     "ast_hash": "f6492fc7ab41d5b2ce649bf375522e61",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/phone/PhoneFlow.tsx": {
-    "mtime": 1791935161.2703745,
-    "seen": 1791935231.2852895,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989237,
     "ast_hash": "52e0ddee03ee5547100225472489de62",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/phone/screens.tsx": {
-    "mtime": 1791935161.2703745,
-    "seen": 1791935231.2852914,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098926,
     "ast_hash": "3e4a0f8e0ff8ac0d22f5db749f014170",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/street/Street.tsx": {
-    "mtime": 1791935161.2703745,
-    "seen": 1791935231.2852933,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098928,
     "ast_hash": "8e3c386f671907ec6e90e086ff08e75c",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/street/Viewfinder.tsx": {
-    "mtime": 1791935161.2703745,
-    "seen": 1791935231.2852952,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989301,
     "ast_hash": "f9fa56017b3f518f0fa28cc94e83b657",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/street/world.tsx": {
-    "mtime": 1791935161.274409,
-    "seen": 1791935231.2852972,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989318,
     "ast_hash": "8946aa9bd20bb17e9ca11ce76dcf7298",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/scenes/styles.tsx": {
-    "mtime": 1791935161.274409,
-    "seen": 1791935231.285299,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.098934,
     "ast_hash": "095c972145b3560fe49e75ae041a2be5",
     "semantic_hash": ""
   },
   "demos/big-smash/film/src/timeline.ts": {
-    "mtime": 1791935161.274409,
-    "seen": 1791935231.2853005,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989363,
     "ast_hash": "cea413cd0f36743b4df7a647dd33a914",
     "semantic_hash": ""
   },
   "demos/big-smash/film/tsconfig.json": {
-    "mtime": 1791935161.274409,
-    "seen": 1791935231.2853026,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.0989385,
     "ast_hash": "4644864ea8773c25ccf361b750cf4280",
     "semantic_hash": ""
   },
   "demos/big-smash/profile.json": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2853045,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.0989406,
     "ast_hash": "9fa0fc93e4d98371f1e1018c72c9eb05",
     "semantic_hash": ""
   },
   "frontend/app/big-smash/layout.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855701,
+    "mtime": 1791935269.992008,
+    "seen": 1792026436.0992844,
     "ast_hash": "69b8beb407e5aa1b8516d76b426f831b",
     "semantic_hash": ""
   },
   "frontend/app/big-smash/page.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855716,
+    "mtime": 1791935269.9931529,
+    "seen": 1792026436.0992863,
     "ast_hash": "a4cbc19d4f519a8a892ebf3a1da78d79",
     "semantic_hash": ""
   },
   "frontend/app/big-smash/presentation/page.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.285573,
+    "mtime": 1791935269.9950864,
+    "seen": 1792026436.099288,
     "ast_hash": "598769cc3de1d440d1e6863d6328f54e",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/big-smash-fonts.ts": {
-    "mtime": 1791935161.341858,
-    "seen": 1791935231.2862227,
+    "mtime": 1791935270.0809135,
+    "seen": 1792026436.1000257,
     "ast_hash": "dff53d8735b48f58d99a7a43abed32f3",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/big-smash-marks.ts": {
-    "mtime": 1791935161.341858,
-    "seen": 1791935231.2862246,
+    "mtime": 1791935270.0829244,
+    "seen": 1792026436.1000276,
     "ast_hash": "41a97599864fd26bce97ef8cec2d9f29",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/big-smash.tsx": {
-    "mtime": 1791935161.3428583,
-    "seen": 1791935231.2862267,
+    "mtime": 1791935270.0829244,
+    "seen": 1792026436.10003,
     "ast_hash": "99e57b27694d60538768741c80459912",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/big-smash.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865665,
+    "mtime": 1791935270.1334567,
+    "seen": 1792026436.1004717,
     "ast_hash": "335c1476edc82e11b0a30047c25f0f7c",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/mentions-legales-2026-10-03.html": {
-    "mtime": 1791935161.1519408,
-    "seen": 1791935231.2870228,
+    "mtime": 1791935269.8667347,
+    "seen": 1792026436.1008322,
     "ast_hash": "3671124d7211f9c4764ba32cae94c41b",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-franchise-2026-10-03.html": {
-    "mtime": 1791935161.1577475,
-    "seen": 1791935231.2870247,
+    "mtime": 1791935269.8736093,
+    "seen": 1792026436.1008337,
     "ast_hash": "c39938b2c2a1d23591aad1349914edd9",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-home-2026-10-03.html": {
-    "mtime": 1791935161.1587477,
-    "seen": 1791935231.2870262,
+    "mtime": 1791935269.8746088,
+    "seen": 1792026436.1008346,
     "ast_hash": "58eecf477345ba49549c65ce0b0e255b",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-la-carte-2026-10-03.html": {
-    "mtime": 1791935161.1711216,
-    "seen": 1791935231.2870283,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.1008356,
     "ast_hash": "2259f2835c04f599cd5df1cbb3e1d547",
     "semantic_hash": ""
   },
   "demos/big-smash/pitch/research/01-network.md": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.28703,
+    "mtime": 1791935269.9647317,
+    "seen": 1792026436.1008365,
     "ast_hash": "cf7a72c4c722a2ea026b3b82ab980836",
     "semantic_hash": ""
   },
   "demos/big-smash/pitch/research/02-queue-evidence.md": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2870321,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.100838,
     "ast_hash": "7515cfe8f99dc8c6294e5b8e54602000",
     "semantic_hash": ""
   },
   "demos/big-smash/pitch/research/03-industry-stats.md": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.287034,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.1008391,
     "ast_hash": "d99c44e7b450201e3d8c42527ffd0a4f",
     "semantic_hash": ""
   },
   "demos/big-smash/pitch/research/04-competitors.md": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2870355,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.10084,
     "ast_hash": "aea02e0a766c6e0b833830c24bcc2df2",
     "semantic_hash": ""
   },
   "demos/big-smash/pitch/research/06-brand-and-menu.md": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2870374,
+    "mtime": 1791935269.975961,
+    "seen": 1792026436.1008413,
     "ast_hash": "8d2c5eefb73d53c5e82e367f10448f1e",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/tableau-allergenes.pdf": {
-    "mtime": 1791935161.179832,
-    "seen": 1791935231.287083,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.1008704,
     "ast_hash": "8b32114643d70206d85604561b147fc6",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/big-smash-ominin.pdf": {
-    "mtime": 1791935161.7054887,
-    "seen": 1791935231.2870896,
+    "mtime": 1791935270.6504643,
+    "seen": 1792026436.100874,
     "ast_hash": "e4277fdb41c78083c18b20e7b387df1a",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/badge-logo.svg": {
-    "mtime": 1791935161.1497934,
-    "seen": 1791935231.2871554,
+    "mtime": 1791935269.862219,
+    "seen": 1792026436.1009116,
     "ast_hash": "6729e83e3a8a85f71121e75051ae1628",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/favicon.png": {
-    "mtime": 1791935161.1508586,
-    "seen": 1791935231.2871575,
+    "mtime": 1791935269.8634305,
+    "seen": 1792026436.1009126,
     "ast_hash": "b48721e71e3367ecadfdcba7200b93bc",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/logo-horizontal-blanc.svg": {
-    "mtime": 1791935161.1514041,
-    "seen": 1791935231.2871592,
+    "mtime": 1791935269.8657348,
+    "seen": 1792026436.1009138,
     "ast_hash": "275f52f7ab8fba92747937e63b52fc7c",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/og-image-rouge.jpg": {
-    "mtime": 1791935161.1530058,
-    "seen": 1791935231.287161,
+    "mtime": 1791935269.8682399,
+    "seen": 1792026436.100915,
     "ast_hash": "9db12962f08f10a159f01d743d720801",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/pattern-fond-bs-big.svg": {
-    "mtime": 1791935161.1535308,
-    "seen": 1791935231.2871628,
+    "mtime": 1791935269.869599,
+    "seen": 1792026436.100916,
     "ast_hash": "c6fac9ee98eff86de5df35329855beb3",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/pattern-fond-bs.svg": {
-    "mtime": 1791935161.156741,
-    "seen": 1791935231.287165,
+    "mtime": 1791935269.872609,
+    "seen": 1792026436.100917,
     "ast_hash": "3833ed7f94a91cd8cac314fcee7ef43b",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-home-2026-10-03.png": {
-    "mtime": 1791935161.168874,
-    "seen": 1791935231.2871668,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.100918,
     "ast_hash": "9fc1d2c8415a369b14ca00c33d237267",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-la-carte-2026-10-03.png": {
-    "mtime": 1791935161.1748724,
-    "seen": 1791935231.2871685,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.1009192,
     "ast_hash": "e96a4bac3e7ce6cd808dedb4e1c41c0f",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/site-la-carte-mobile-2026-10-03.png": {
-    "mtime": 1791935161.1778228,
-    "seen": 1791935231.2871706,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.1009207,
     "ast_hash": "a3bcb1b9c974b1cc94486e06b9b584f5",
     "semantic_hash": ""
   },
   "demos/big-smash/docs/webclip-app-icon.png": {
-    "mtime": 1791935161.1831145,
-    "seen": 1791935231.2871723,
+    "mtime": 1791935269.880901,
+    "seen": 1792026436.1009216,
     "ast_hash": "a5dd72aedd6628d291c816224ccfa2e3",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/brand/motif-zigzag.webp": {
-    "mtime": 1791935161.191309,
-    "seen": 1791935231.2871742,
+    "mtime": 1791935269.9006693,
+    "seen": 1792026436.1009228,
     "ast_hash": "12fa3613e6c04c73b95d2c6225866b8c",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/desktop-network-1246-n39.webp": {
-    "mtime": 1791935161.1976576,
-    "seen": 1791935231.2871757,
+    "mtime": 1791935269.902182,
+    "seen": 1792026436.100924,
     "ast_hash": "536ff2244becb216ff57b0e5c061f036",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/desktop-network-1246.webp": {
-    "mtime": 1791935161.2013478,
-    "seen": 1791935231.2871778,
+    "mtime": 1791935269.9041998,
+    "seen": 1792026436.100925,
     "ast_hash": "e97a4c866edd6de6a70859699a761a3a",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-added-duo.webp": {
-    "mtime": 1791935161.2082956,
-    "seen": 1791935231.2871792,
+    "mtime": 1791935269.9041998,
+    "seen": 1792026436.1009264,
     "ast_hash": "104fccfeb1d8f6505e82c7471b5cb1cd",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-added.webp": {
-    "mtime": 1791935161.2141452,
-    "seen": 1791935231.287181,
+    "mtime": 1791935269.9041998,
+    "seen": 1792026436.1009276,
     "ast_hash": "cd042463e92a2160f339ea3ffec39d12",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-cart.webp": {
-    "mtime": 1791935161.2161467,
-    "seen": 1791935231.2871826,
+    "mtime": 1791935269.9041998,
+    "seen": 1792026436.1009285,
     "ast_hash": "72a736cca1ce40b595231fb61e028dc4",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-dessert.webp": {
-    "mtime": 1791935161.2191465,
-    "seen": 1791935231.2871845,
+    "mtime": 1791935269.9130216,
+    "seen": 1792026436.1009297,
     "ast_hash": "6882284c4c0bc45e040d088b5177b55d",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-0-body.webp": {
-    "mtime": 1791935161.2201452,
-    "seen": 1791935231.2871864,
+    "mtime": 1791935269.9130216,
+    "seen": 1792026436.1009312,
     "ast_hash": "e1c286cfa755c98cf9b86475ed79bf6b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-0.webp": {
-    "mtime": 1791935161.2216518,
-    "seen": 1791935231.2871883,
+    "mtime": 1791935269.9130216,
+    "seen": 1792026436.100933,
     "ast_hash": "fc09c768c68db6402c15c6b0319ac9da",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-1-body.webp": {
-    "mtime": 1791935161.2226617,
-    "seen": 1791935231.2871902,
+    "mtime": 1791935269.9130216,
+    "seen": 1792026436.1009352,
     "ast_hash": "2b2036fb89fc068bc28413840ae82617",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-1.webp": {
-    "mtime": 1791935161.2246604,
-    "seen": 1791935231.2871926,
+    "mtime": 1791935269.9130216,
+    "seen": 1792026436.1009371,
     "ast_hash": "958cb4b4bb6dabd190dc967cc5a890a5",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-2-body.webp": {
-    "mtime": 1791935161.2256613,
-    "seen": 1791935231.287195,
+    "mtime": 1791935269.9199235,
+    "seen": 1792026436.1009393,
     "ast_hash": "f7dd09149391b5c599e95b66ed032d20",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-2.webp": {
-    "mtime": 1791935161.2266612,
-    "seen": 1791935231.2871969,
+    "mtime": 1791935269.9199235,
+    "seen": 1792026436.100941,
     "ast_hash": "5db63de6f0f5e514415e946a78698e8e",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-3-body.webp": {
-    "mtime": 1791935161.2276587,
-    "seen": 1791935231.287199,
+    "mtime": 1791935269.9219427,
+    "seen": 1792026436.1009426,
     "ast_hash": "c4d366ea23a75ec493aa5a85e4cd83a8",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-3.webp": {
-    "mtime": 1791935161.228901,
-    "seen": 1791935231.2872007,
+    "mtime": 1791935269.9219427,
+    "seen": 1792026436.100945,
     "ast_hash": "73d5bc35a806181a739b931c1a04e9c9",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-4-body.webp": {
-    "mtime": 1791935161.230689,
-    "seen": 1791935231.2872026,
+    "mtime": 1791935269.9239626,
+    "seen": 1792026436.100947,
     "ast_hash": "6a65423b30fdb46c0b62ffa2ef6f5eeb",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-4.webp": {
-    "mtime": 1791935161.231696,
-    "seen": 1791935231.2872043,
+    "mtime": 1791935269.9239626,
+    "seen": 1792026436.1009486,
     "ast_hash": "c37d84a51c76f62257318e5497ebafb4",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-5-body.webp": {
-    "mtime": 1791935161.2336953,
-    "seen": 1791935231.2872062,
+    "mtime": 1791935269.9239626,
+    "seen": 1792026436.10095,
     "ast_hash": "79dd4e43787b1318fc76e3a279948a44",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-duo-5.webp": {
-    "mtime": 1791935161.2346966,
-    "seen": 1791935231.2872078,
+    "mtime": 1791935269.929036,
+    "seen": 1792026436.1009514,
     "ast_hash": "215a708e85e101bdf783af3a84b64e97",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-menu.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872097,
+    "mtime": 1791935269.939757,
+    "seen": 1792026436.1009536,
     "ast_hash": "1d38eb02e0989dbce8cde803295a7baf",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-ticket-3.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872114,
+    "mtime": 1791935269.9408524,
+    "seen": 1792026436.1009552,
     "ast_hash": "53ba43dea94cd60b34b66ab1bd5e28f7",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-ticket-4.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872136,
+    "mtime": 1791935269.9425166,
+    "seen": 1792026436.1009567,
     "ast_hash": "e6104a93cabe463d3b53a7d550a28ada",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-ticket-5.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872155,
+    "mtime": 1791935269.943686,
+    "seen": 1792026436.1009583,
     "ast_hash": "dc786481621e90edb26c634882aa37a1",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-ticket-6.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872174,
+    "mtime": 1791935269.9441926,
+    "seen": 1792026436.1009603,
     "ast_hash": "9a94c0fc340d27ba1bc982b05e44cf39",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/phone-ticket-ready.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872193,
+    "mtime": 1791935269.9441926,
+    "seen": 1792026436.1009772,
     "ast_hash": "bfa1b46ad645ff67c2bf0e54e7436ca6",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/tablet-counter-ready.webp": {
-    "mtime": 1791935161.2447011,
-    "seen": 1791935231.2872207,
+    "mtime": 1791935269.9441926,
+    "seen": 1792026436.1009843,
     "ast_hash": "368ca57163c43d8c7be699f1b7585a7b",
     "semantic_hash": ""
   },
   "demos/big-smash/film/public/captures/tablet-counter.webp": {
-    "mtime": 1791935161.2544284,
-    "seen": 1791935231.2872224,
+    "mtime": 1791935269.9441926,
+    "seen": 1792026436.1009865,
     "ast_hash": "47dcb973c988474161a2fbceffa77a59",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/bacon-dog.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.287363,
+    "mtime": 1791935270.180365,
+    "seen": 1792026436.1011071,
     "ast_hash": "9f8b7836704a1303fc67383d85526e9a",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/badoit.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.287365,
+    "mtime": 1791935270.181481,
+    "seen": 1792026436.101109,
     "ast_hash": "1176ef19d7bdfacc7daa3fb8e99205fb",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-chicken.webp": {
-    "mtime": 1791935161.4219472,
-    "seen": 1791935231.2873666,
+    "mtime": 1791935270.1849947,
+    "seen": 1792026436.1011102,
     "ast_hash": "7686afda3221391bff58bd9cbe4968a3",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-combo.webp": {
-    "mtime": 1791935161.4219472,
-    "seen": 1791935231.2873688,
+    "mtime": 1791935270.188013,
+    "seen": 1792026436.1011117,
     "ast_hash": "5a990f4fbb78ffa5b2fbb7e7fff8579d",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-fish.webp": {
-    "mtime": 1791935161.4219472,
-    "seen": 1791935231.2873707,
+    "mtime": 1791935270.1890118,
+    "seen": 1792026436.1011126,
     "ast_hash": "a853a3c8358553cf0a83d7de78a5404e",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-kids.webp": {
-    "mtime": 1791935161.4219472,
-    "seen": 1791935231.2873728,
+    "mtime": 1791935270.1915483,
+    "seen": 1792026436.101114,
     "ast_hash": "d1892af87b5f3a5a523a5f2bfe7df16c",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-mountain.webp": {
-    "mtime": 1791935161.4256897,
-    "seen": 1791935231.2873747,
+    "mtime": 1791935270.1925452,
+    "seen": 1792026436.1011155,
     "ast_hash": "b14baf0178db2817859c8ace618b0f77",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-salade.webp": {
-    "mtime": 1791935161.4263844,
-    "seen": 1791935231.2873769,
+    "mtime": 1791935270.1945455,
+    "seen": 1792026436.1011167,
     "ast_hash": "f4cf887976e226cb96c157b167718007",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-smash-burger.webp": {
-    "mtime": 1791935161.4276972,
-    "seen": 1791935231.287379,
+    "mtime": 1791935270.1956053,
+    "seen": 1792026436.1011183,
     "ast_hash": "203bf74bb04195264976bc2704a23ad3",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-sundae-pistachio.webp": {
-    "mtime": 1791935161.4286993,
-    "seen": 1791935231.287381,
+    "mtime": 1791935270.19675,
+    "seen": 1792026436.1011198,
     "ast_hash": "d1ec80fee40e20c3da45028d63884da8",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/big-sundae.webp": {
-    "mtime": 1791935161.4299178,
-    "seen": 1791935231.2873833,
+    "mtime": 1791935270.198408,
+    "seen": 1792026436.101121,
     "ast_hash": "44e732b7373de4c7000e6a4a89db6fe1",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/capri-sun.webp": {
-    "mtime": 1791935161.4299178,
-    "seen": 1791935231.2873852,
+    "mtime": 1791935270.1989188,
+    "seen": 1792026436.1011226,
     "ast_hash": "a52466787af9c0a4350a82aa410b3515",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/cheesy-dog.webp": {
-    "mtime": 1791935161.4309285,
-    "seen": 1791935231.287387,
+    "mtime": 1791935270.2009342,
+    "seen": 1792026436.1011236,
     "ast_hash": "875eb296674b4bac34d7e3c289e85923",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/chicken-pop-corn-spicy.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2873886,
+    "mtime": 1791935270.2024496,
+    "seen": 1792026436.1011245,
     "ast_hash": "f1d39736ae5903cbbea4f711b7a451a7",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/chicken-pop-corn.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2873907,
+    "mtime": 1791935270.2036507,
+    "seen": 1792026436.1011262,
     "ast_hash": "a2cfca1b0256ead7645963e70098bd73",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/chicken-spicy.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.287393,
+    "mtime": 1791935270.2056246,
+    "seen": 1792026436.1011274,
     "ast_hash": "24215970df5408ff99d095081efde505",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/classic-dog.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.287395,
+    "mtime": 1791935270.2056246,
+    "seen": 1792026436.1011288,
     "ast_hash": "820c7c6681b20d676d1c3707b4a15933",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/coca-cola.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2873974,
+    "mtime": 1791935270.2096565,
+    "seen": 1792026436.1011298,
     "ast_hash": "61e96c68c5625d89cb4f0b635ed1c62f",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/crevettes-panees.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2873995,
+    "mtime": 1791935270.2116666,
+    "seen": 1792026436.1011307,
     "ast_hash": "90ebaa789b621d9c12ca8c4e9850f7c9",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/evian.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2874014,
+    "mtime": 1791935270.2121804,
+    "seen": 1792026436.101133,
     "ast_hash": "dc994fea5a43712bf0d0bb7e4dcecc44",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/favicon.png": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2874036,
+    "mtime": 1791935270.2142017,
+    "seen": 1792026436.101135,
     "ast_hash": "b48721e71e3367ecadfdcba7200b93bc",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/frites-cheddar-bacon.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2874057,
+    "mtime": 1791935270.2142017,
+    "seen": 1792026436.1011374,
     "ast_hash": "4b848ac4a59c0384731ad039b3362317",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/frites-cheddar.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2874079,
+    "mtime": 1791935270.2142017,
+    "seen": 1792026436.1011386,
     "ast_hash": "6ae8e031a8c6c89bc5c88a9250bcd7a0",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/frites-epicees.webp": {
-    "mtime": 1791935161.4325747,
-    "seen": 1791935231.2874103,
+    "mtime": 1791935270.2181804,
+    "seen": 1792026436.101141,
     "ast_hash": "968ad5805b03bdfa48532192858b7b69",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/frites-nature.webp": {
-    "mtime": 1791935161.4442456,
-    "seen": 1791935231.2874122,
+    "mtime": 1791935270.2202015,
+    "seen": 1792026436.101142,
     "ast_hash": "2c20b1a36cdadc44ba9b14067058e185",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/fuze-tea-peche.webp": {
-    "mtime": 1791935161.4452534,
-    "seen": 1791935231.2874143,
+    "mtime": 1791935270.2202015,
+    "seen": 1792026436.1011434,
     "ast_hash": "1e2b8db8ea5a6ea8c01a7a2998cb789e",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/grilled-cheese-bacon.webp": {
-    "mtime": 1791935161.446254,
-    "seen": 1791935231.2874165,
+    "mtime": 1791935270.2202015,
+    "seen": 1792026436.1011443,
     "ast_hash": "495ef325f5339a1a6069dfc0e411b2aa",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/grilled-cheese.webp": {
-    "mtime": 1791935161.4472537,
-    "seen": 1791935231.2874186,
+    "mtime": 1791935270.2260654,
+    "seen": 1792026436.1011453,
     "ast_hash": "5b96b59582be6c226fce12d4cf649f0a",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/grilled-nutella.webp": {
-    "mtime": 1791935161.4482563,
-    "seen": 1791935231.2874205,
+    "mtime": 1791935270.2260654,
+    "seen": 1792026436.101147,
     "ast_hash": "4893d71c83d26c6337e98172e3934ff6",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/icon.png": {
-    "mtime": 1791935161.4492538,
-    "seen": 1791935231.2874222,
+    "mtime": 1791935270.2260654,
+    "seen": 1792026436.101148,
     "ast_hash": "a5dd72aedd6628d291c816224ccfa2e3",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/kinder-country.webp": {
-    "mtime": 1791935161.4502523,
-    "seen": 1791935231.287424,
+    "mtime": 1791935270.23027,
+    "seen": 1792026436.101149,
     "ast_hash": "de92eda8f4dbac62e291c195efaee0a0",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/kool-dog.webp": {
-    "mtime": 1791935161.4512515,
-    "seen": 1791935231.287426,
+    "mtime": 1791935270.23027,
+    "seen": 1792026436.1011505,
     "ast_hash": "4cf749243d66e4ede17dc128cadca558",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/little-smash.webp": {
-    "mtime": 1791935161.4522543,
-    "seen": 1791935231.287428,
+    "mtime": 1791935270.2328444,
+    "seen": 1792026436.1011515,
     "ast_hash": "354eaaff6fb806f007d65a8c17497cac",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/little-wrap-spicy.webp": {
-    "mtime": 1791935161.4527647,
-    "seen": 1791935231.2874296,
+    "mtime": 1791935270.2328444,
+    "seen": 1792026436.1011527,
     "ast_hash": "b0319c6076b85ee78cb377b9f5087bb1",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/little-wrap.webp": {
-    "mtime": 1791935161.4537723,
-    "seen": 1791935231.2874317,
+    "mtime": 1791935270.2349765,
+    "seen": 1792026436.1011539,
     "ast_hash": "d9d0c0b25ec05feb56e2264b632a92d5",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/logo-carre.webp": {
-    "mtime": 1791935161.4547763,
-    "seen": 1791935231.2874334,
+    "mtime": 1791935270.2349765,
+    "seen": 1792026436.1011548,
     "ast_hash": "f0c626e7eb9173db0f3a47a9490150bf",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/logo-relief.svg": {
-    "mtime": 1791935161.4547763,
-    "seen": 1791935231.287435,
+    "mtime": 1791935270.2369974,
+    "seen": 1792026436.1011558,
     "ast_hash": "e07ba2bd5185ff4d863e00ff3c630943",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/logo.svg": {
-    "mtime": 1791935161.455773,
-    "seen": 1791935231.2874372,
+    "mtime": 1791935270.2369974,
+    "seen": 1792026436.101157,
     "ast_hash": "275f52f7ab8fba92747937e63b52fc7c",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-big-cheese.webp": {
-    "mtime": 1791935161.4567788,
-    "seen": 1791935231.287439,
+    "mtime": 1791935270.2390127,
+    "seen": 1792026436.101158,
     "ast_hash": "de0f0bba7206b257f700ca126a395d58",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-big-chicken.webp": {
-    "mtime": 1791935161.4577794,
-    "seen": 1791935231.2874405,
+    "mtime": 1791935270.2410488,
+    "seen": 1792026436.101159,
     "ast_hash": "33d414f69e74017ad8688aff3d493741",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-big-fish.webp": {
-    "mtime": 1791935161.4587805,
-    "seen": 1791935231.2874424,
+    "mtime": 1791935270.2410488,
+    "seen": 1792026436.101161,
     "ast_hash": "253ce4eff2d603d0d1fb53076f44f6fe",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-big-smash.webp": {
-    "mtime": 1791935161.4597828,
-    "seen": 1791935231.287444,
+    "mtime": 1791935270.2430818,
+    "seen": 1792026436.101163,
     "ast_hash": "379f48ec1d93ba39f78e7e0e93ec3ca3",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-chicken-spicy.webp": {
-    "mtime": 1791935161.46078,
-    "seen": 1791935231.287446,
+    "mtime": 1791935270.2451239,
+    "seen": 1792026436.1011646,
     "ast_hash": "739fdf18bf4873ca047540dbac8080e8",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-grilled-smash.webp": {
-    "mtime": 1791935161.4612162,
-    "seen": 1791935231.2874482,
+    "mtime": 1791935270.2470982,
+    "seen": 1792026436.101166,
     "ast_hash": "0a852b523c1679be5511f1e87d703cce",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-original-cheese.webp": {
-    "mtime": 1791935161.462329,
-    "seen": 1791935231.2874498,
+    "mtime": 1791935270.2481103,
+    "seen": 1792026436.1011682,
     "ast_hash": "6e35cfafaa95dbe0f35602368f2c6a27",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-original-chicken.webp": {
-    "mtime": 1791935161.464326,
-    "seen": 1791935231.287452,
+    "mtime": 1791935270.2481103,
+    "seen": 1792026436.1011696,
     "ast_hash": "af50a779435f7e7fe2f9f2dda485bb0d",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-smash-bacon.webp": {
-    "mtime": 1791935161.464326,
-    "seen": 1791935231.287454,
+    "mtime": 1791935270.2532954,
+    "seen": 1792026436.1011715,
     "ast_hash": "3e701e9d3ad716dbbfd72af6fbe71666",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-smash-classic.webp": {
-    "mtime": 1791935161.4653273,
-    "seen": 1791935231.2874556,
+    "mtime": 1791935270.2553592,
+    "seen": 1792026436.1011727,
     "ast_hash": "441b0514f5e31e5d6f6193c8dcf2c944",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-smash-spicy.webp": {
-    "mtime": 1791935161.4663274,
-    "seen": 1791935231.2874572,
+    "mtime": 1791935270.2569711,
+    "seen": 1792026436.1011744,
     "ast_hash": "e1fb9f710dce0d3b3707b9a45d8c83e9",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/menu-surf-turf.webp": {
-    "mtime": 1791935161.4673252,
-    "seen": 1791935231.2874594,
+    "mtime": 1791935270.2569711,
+    "seen": 1792026436.1011758,
     "ast_hash": "738178c4fd473e75ab259ad539ba81a6",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/milkshake-pistache-macadamia.webp": {
-    "mtime": 1791935161.4683268,
-    "seen": 1791935231.2874615,
+    "mtime": 1791935270.2592318,
+    "seen": 1792026436.1011782,
     "ast_hash": "d3417e67cbe8bcebaf61eab4a7b44711",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/milkshake.webp": {
-    "mtime": 1791935161.4683268,
-    "seen": 1791935231.2874637,
+    "mtime": 1791935270.2592318,
+    "seen": 1792026436.10118,
     "ast_hash": "a1aa8d608d6322dea683029c327349aa",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/motif-zigzag-fond.webp": {
-    "mtime": 1791935161.4693258,
-    "seen": 1791935231.2874658,
+    "mtime": 1791935270.260992,
+    "seen": 1792026436.101182,
     "ast_hash": "816455ce5fefdd04c6c8318af975018e",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/motif-zigzag-imprime.jpg": {
-    "mtime": 1791935161.470833,
-    "seen": 1791935231.2874675,
+    "mtime": 1791935270.2630277,
+    "seen": 1792026436.1011837,
     "ast_hash": "eaefc29a3cfcc18ca414d9008058d13d",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/motif-zigzag.webp": {
-    "mtime": 1791935161.4718435,
-    "seen": 1791935231.2874694,
+    "mtime": 1791935270.2650862,
+    "seen": 1792026436.1011853,
     "ast_hash": "12fa3613e6c04c73b95d2c6225866b8c",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/nuggets.webp": {
-    "mtime": 1791935161.4728398,
-    "seen": 1791935231.2874708,
+    "mtime": 1791935270.2672045,
+    "seen": 1792026436.1011875,
     "ast_hash": "bc4ac353353d591baa343ba21ee2ed43",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/original-cheese.webp": {
-    "mtime": 1791935161.4738402,
-    "seen": 1791935231.2874727,
+    "mtime": 1791935270.2690327,
+    "seen": 1792026436.101189,
     "ast_hash": "14d59bdbd43df86eb910d05742c4416c",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/original-chicken.webp": {
-    "mtime": 1791935161.4748394,
-    "seen": 1791935231.2874744,
+    "mtime": 1791935270.270272,
+    "seen": 1792026436.1011899,
     "ast_hash": "8eee32cb623ce2fd071195e58acfb76b",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/pops-cheddar.webp": {
-    "mtime": 1791935161.4748394,
-    "seen": 1791935231.287477,
+    "mtime": 1791935270.270272,
+    "seen": 1792026436.1011908,
     "ast_hash": "6f4dd7817bfd98c42863e4e01991368a",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/pops-nature.webp": {
-    "mtime": 1791935161.4759102,
-    "seen": 1791935231.2874784,
+    "mtime": 1791935270.270272,
+    "seen": 1792026436.1011925,
     "ast_hash": "0a58d4dfc9e06541a6fe810c29b6e430",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/red-bull.webp": {
-    "mtime": 1791935161.477756,
-    "seen": 1791935231.2874806,
+    "mtime": 1791935270.270272,
+    "seen": 1792026436.1011937,
     "ast_hash": "ee00eedf7c7c2159b5d0e678a62157f4",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/ruban-monogramme.svg": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874827,
+    "mtime": 1791935270.2756858,
+    "seen": 1792026436.1011944,
     "ast_hash": "f53ea98982d298261dfa16651f752603",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/sauces.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874844,
+    "mtime": 1791935270.2756858,
+    "seen": 1792026436.1011958,
     "ast_hash": "c4155054a9ac9cfac9807f78f0fa4763",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/smash-bacon.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874866,
+    "mtime": 1791935270.280287,
+    "seen": 1792026436.1011968,
     "ast_hash": "c879d2843629296b419b59e33148073d",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/smash-classic.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874885,
+    "mtime": 1791935270.2825024,
+    "seen": 1792026436.1011977,
     "ast_hash": "00b646b1750638c25217a81d2557cbd9",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/smash-spicy.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874904,
+    "mtime": 1791935270.2844987,
+    "seen": 1792026436.1011992,
     "ast_hash": "a23ea1c2ec4da29a16206dad37fb8096",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/spicy-dog.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.287492,
+    "mtime": 1791935270.2865603,
+    "seen": 1792026436.1012003,
     "ast_hash": "e81e0c752e3869ea4645f271032cf809",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/surf-turf.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.287494,
+    "mtime": 1791935270.2888193,
+    "seen": 1792026436.1012013,
     "ast_hash": "e58d24f8afd2e883d0fe8da772d4d3c8",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/taco-smash.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874959,
+    "mtime": 1791935270.290821,
+    "seen": 1792026436.1012025,
     "ast_hash": "81063c1fe543abd9c30799d00b10e556",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/tenders.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.287498,
+    "mtime": 1791935270.2928255,
+    "seen": 1792026436.1012037,
     "ast_hash": "25ef1145d9d122c12b0bd0d8f3991ba6",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/the-limonade.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2874997,
+    "mtime": 1791935270.2950327,
+    "seen": 1792026436.1012046,
     "ast_hash": "434b3e77e26b19288467d0f33012de9f",
     "semantic_hash": ""
   },
   "frontend/public/big-smash/volvic.webp": {
-    "mtime": 1791935161.4787664,
-    "seen": 1791935231.2875018,
+    "mtime": 1791935270.2962587,
+    "seen": 1792026436.1012058,
     "ast_hash": "875226a4270d11bc95808bdbe206968b",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/comptoir-service.webp": {
-    "mtime": 1791935161.7084992,
-    "seen": 1791935231.287713,
+    "mtime": 1791935270.6544895,
+    "seen": 1792026436.1013842,
     "ast_hash": "149b8ba5b28ff5a43283596e8fb59eab",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/film-poster-vertical.webp": {
-    "mtime": 1791935161.7094958,
-    "seen": 1791935231.2877154,
+    "mtime": 1791935270.656504,
+    "seen": 1792026436.1013863,
     "ast_hash": "2dac06e88245e325a1938c3f114aa64f",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/film-poster.webp": {
-    "mtime": 1791935161.711178,
-    "seen": 1791935231.2877173,
+    "mtime": 1791935270.6575139,
+    "seen": 1792026436.1013882,
     "ast_hash": "a697ea99b00ba8bab96c5e9256b92986",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/og.jpg": {
-    "mtime": 1791935161.9793508,
-    "seen": 1791935231.2877195,
+    "mtime": 1791935270.8565412,
+    "seen": 1792026436.1013901,
     "ast_hash": "2da77f8a2151718dc0dd0109856e023a",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/phone-commande.webp": {
-    "mtime": 1791935161.9793508,
-    "seen": 1791935231.2877214,
+    "mtime": 1791935270.8565412,
+    "seen": 1792026436.1013923,
     "ast_hash": "4fc6f88df5f4241dcdef4fd9a8dfe5df",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/phone-composer.webp": {
-    "mtime": 1791935161.9857297,
-    "seen": 1791935231.2877238,
+    "mtime": 1791935270.8565412,
+    "seen": 1792026436.1013944,
     "ast_hash": "c52d70a480c145b53a560b6f0013bf66",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/phone-menu.webp": {
-    "mtime": 1791935161.9874856,
-    "seen": 1791935231.287726,
+    "mtime": 1791935270.8634956,
+    "seen": 1792026436.101396,
     "ast_hash": "054188116f5c60c0ced7be9fd2f0040a",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/phone-prete.webp": {
-    "mtime": 1791935161.9917688,
-    "seen": 1791935231.2877278,
+    "mtime": 1791935270.864507,
+    "seen": 1792026436.101398,
     "ast_hash": "8e33f18ca1fe0ef671738cc7e195d162",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/phone-suivi.webp": {
-    "mtime": 1791935161.9934618,
-    "seen": 1791935231.28773,
+    "mtime": 1791935270.8665156,
+    "seen": 1792026436.1014,
     "ast_hash": "1cae3704412ac70dcaf45c8ce6e36c17",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/reseau-siege.webp": {
-    "mtime": 1791935161.9934618,
-    "seen": 1791935231.2877314,
+    "mtime": 1791935270.868507,
+    "seen": 1792026436.1014016,
     "ast_hash": "320127191d55332a8c0e19264a37799c",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/film-vertical.mp4": {
-    "mtime": 1791935161.8071675,
-    "seen": 1791935231.2878232,
+    "mtime": 1791935270.7576306,
+    "seen": 1792026436.1014953,
     "ast_hash": "2f2457836e7cdd77420241e5ece0e678",
     "semantic_hash": ""
   },
   "frontend/public/pitch/big-smash/film.mp4": {
-    "mtime": 1791935161.975769,
-    "seen": 1791935231.287825,
+    "mtime": 1791935270.8531904,
+    "seen": 1792026436.1014977,
     "ast_hash": "3727508df7c01c2c0d99131626b9cf25",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/package.json": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.2851512,
+    "mtime": 1791935269.761197,
+    "seen": 1792026436.0987718,
     "ast_hash": "bbfdcbc592c51cdc65fa50b0b6ddc455",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/audio/sources.json": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.2851534,
+    "mtime": 1791935269.7634656,
+    "seen": 1792026436.098774,
     "ast_hash": "f7ce89b9815b1eaf2fcb70da6a61004c",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/manifest.json": {
-    "mtime": 1791935161.0598893,
-    "seen": 1791935231.2851553,
+    "mtime": 1791935269.7693496,
+    "seen": 1792026436.0987766,
     "ast_hash": "19631ab1b67e98965e099a6b315db980",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/remotion.config.ts": {
-    "mtime": 1791935161.1157794,
-    "seen": 1791935231.2851572,
+    "mtime": 1791935269.822569,
+    "seen": 1792026436.0987787,
     "ast_hash": "2d1cc10e1f3ed70d17e6e2546b4da28f",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/scripts/capture.mjs": {
-    "mtime": 1791935161.1173966,
-    "seen": 1791935231.2851589,
+    "mtime": 1791935269.823568,
+    "seen": 1792026436.0987804,
     "ast_hash": "dcc1a90fef0760d9738f32bc8a91205f",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/scripts/master.mjs": {
-    "mtime": 1791935161.1177523,
-    "seen": 1791935231.2851608,
+    "mtime": 1791935269.8250277,
+    "seen": 1792026436.0987825,
     "ast_hash": "110f676f298e4f70cfdc57a421f3a6c6",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/Film.tsx": {
-    "mtime": 1791935161.1187587,
-    "seen": 1791935231.2851624,
+    "mtime": 1791935269.826039,
+    "seen": 1792026436.0987847,
     "ast_hash": "85fa2e4642c6e4b76600cbf100953548",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/Root.tsx": {
-    "mtime": 1791935161.1187587,
-    "seen": 1791935231.2851646,
+    "mtime": 1791935269.826039,
+    "seen": 1792026436.0987873,
     "ast_hash": "83d7e973baaa19f97edccf603054e55b",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/brand/fonts.ts": {
-    "mtime": 1791935161.1214194,
-    "seen": 1791935231.2851665,
+    "mtime": 1791935269.826039,
+    "seen": 1792026436.0987897,
     "ast_hash": "0bd30627e3b36805bdad27b45e00e521",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/brand/marks.tsx": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.285169,
+    "mtime": 1791935269.8281457,
+    "seen": 1792026436.0987916,
     "ast_hash": "82047fb7e13f05faf8a8bd97d54448c6",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/brand/tokens.ts": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.285171,
+    "mtime": 1791935269.82867,
+    "seen": 1792026436.098794,
     "ast_hash": "5e12a89027b9a659f54cb9576462bc3e",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/captures.ts": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.2851725,
+    "mtime": 1791935269.82867,
+    "seen": 1792026436.0987961,
     "ast_hash": "e67556d28f9991eaf11b74b810d948d6",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/index.ts": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.2851744,
+    "mtime": 1791935269.8301742,
+    "seen": 1792026436.0987978,
     "ast_hash": "d8efac67d46c00e964dea4e6282a5384",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/Camera.tsx": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.2851763,
+    "mtime": 1791935269.8313944,
+    "seen": 1792026436.0988007,
     "ast_hash": "8c03acc3680a95333c5a5815fb563c77",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/Device.tsx": {
-    "mtime": 1791935161.1235006,
-    "seen": 1791935231.2851784,
+    "mtime": 1791935269.8324068,
+    "seen": 1792026436.0988033,
     "ast_hash": "232b19567c0adc0c501007ec137ce947",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/Soundtrack.tsx": {
-    "mtime": 1791935161.1275804,
-    "seen": 1791935231.2851803,
+    "mtime": 1791935269.8324068,
+    "seen": 1792026436.0988054,
     "ast_hash": "05b0d4d22caf0fae8dcc8160f5baef71",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/Tap.tsx": {
-    "mtime": 1791935161.1275804,
-    "seen": 1791935231.285182,
+    "mtime": 1791935269.8334067,
+    "seen": 1792026436.0988073,
     "ast_hash": "8c9dd6eb1f977f04ac06a784d9f8fc9a",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/atmosphere.tsx": {
-    "mtime": 1791935161.1285884,
-    "seen": 1791935231.2851834,
+    "mtime": 1791935269.8354688,
+    "seen": 1792026436.0988092,
     "ast_hash": "b9ff1526b7b90f429b2acdccb51687f5",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/layout.ts": {
-    "mtime": 1791935161.1295865,
-    "seen": 1791935231.2851853,
+    "mtime": 1791935269.8354688,
+    "seen": 1792026436.0988111,
     "ast_hash": "911e689d2e474f6752bc94f5336eb7e8",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/motion.ts": {
-    "mtime": 1791935161.1295865,
-    "seen": 1791935231.2851868,
+    "mtime": 1791935269.8364694,
+    "seen": 1792026436.0988128,
     "ast_hash": "7f57e8b88c806ebf4d8503a101dc2502",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/transitions.tsx": {
-    "mtime": 1791935161.1305864,
-    "seen": 1791935231.2851892,
+    "mtime": 1791935269.8374684,
+    "seen": 1792026436.098815,
     "ast_hash": "15708a5ce61f7bd421fd610e9d9ab0fb",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/kit/type.tsx": {
-    "mtime": 1791935161.1305864,
-    "seen": 1791935231.2851908,
+    "mtime": 1791935269.8374684,
+    "seen": 1792026436.098817,
     "ast_hash": "bbd47a9667118a7b88f4e9390e243746",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/EndCard.tsx": {
-    "mtime": 1791935161.131588,
-    "seen": 1791935231.2851927,
+    "mtime": 1791935269.8384702,
+    "seen": 1792026436.098819,
     "ast_hash": "10ef10da9c01e005dccac18bfef4669b",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Kitchen.tsx": {
-    "mtime": 1791935161.1325872,
-    "seen": 1791935231.2851944,
+    "mtime": 1791935269.8394685,
+    "seen": 1792026436.0988212,
     "ast_hash": "4de42c202a7ef41e47088d8c1865fa1e",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Proof.tsx": {
-    "mtime": 1791935161.1335874,
-    "seen": 1791935231.285196,
+    "mtime": 1791935269.840469,
+    "seen": 1792026436.098823,
     "ast_hash": "38f0bf6a9fbd6705b1ae9350a8396a11",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Salle.tsx": {
-    "mtime": 1791935161.1335874,
-    "seen": 1791935231.2851977,
+    "mtime": 1791935269.840469,
+    "seen": 1792026436.0988247,
     "ast_hash": "1d35f08cd5c101918ce1330a168eedf2",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Served.tsx": {
-    "mtime": 1791935161.1335874,
-    "seen": 1791935231.2851996,
+    "mtime": 1791935269.841478,
+    "seen": 1792026436.0988264,
     "ast_hash": "6c10a9af6ac0b7817977f25f3af11561",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Slams.tsx": {
-    "mtime": 1791935161.1345868,
-    "seen": 1791935231.2852013,
+    "mtime": 1791935269.841478,
+    "seen": 1792026436.0988283,
     "ast_hash": "6c58d21c4875d8c9e303977627fe2566",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Slogan.tsx": {
-    "mtime": 1791935161.1345868,
-    "seen": 1791935231.2852032,
+    "mtime": 1791935269.842478,
+    "seen": 1792026436.09883,
     "ast_hash": "4e2b75ba9458d920603723323dbe6c67",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/Takeaway.tsx": {
-    "mtime": 1791935161.1355875,
-    "seen": 1791935231.2852054,
+    "mtime": 1791935269.8439682,
+    "seen": 1792026436.098832,
     "ast_hash": "42bd819c0a6c89ac82b8a10e314c624a",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/TitleCard.tsx": {
-    "mtime": 1791935161.1355875,
-    "seen": 1791935231.2852073,
+    "mtime": 1791935269.8444772,
+    "seen": 1792026436.0988343,
     "ast_hash": "1aed9343c52f43b4144ef301d711a555",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/phone/PhoneFlow.tsx": {
-    "mtime": 1791935161.1365888,
-    "seen": 1791935231.2852092,
+    "mtime": 1791935269.8468785,
+    "seen": 1792026436.098836,
     "ast_hash": "abdd1117d422ca4c3201864ddef7d82c",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/phone/screens.tsx": {
-    "mtime": 1791935161.1375864,
-    "seen": 1791935231.285211,
+    "mtime": 1791935269.8468785,
+    "seen": 1792026436.0988379,
     "ast_hash": "94cf8cf2ecb87f32b120c8a32983b513",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/room/Cachet.tsx": {
-    "mtime": 1791935161.1385868,
-    "seen": 1791935231.285213,
+    "mtime": 1791935269.8481636,
+    "seen": 1792026436.0988395,
     "ast_hash": "f533c33f857533cf6cde65c6dbcd3d70",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/room/Room.tsx": {
-    "mtime": 1791935161.1385868,
-    "seen": 1791935231.2852147,
+    "mtime": 1791935269.8491864,
+    "seen": 1792026436.098842,
     "ast_hash": "c4a37f59f7a1a8c6b88f2d519a3fa07a",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/scenes/styles.tsx": {
-    "mtime": 1791935161.1395867,
-    "seen": 1791935231.2852168,
+    "mtime": 1791935269.8502126,
+    "seen": 1792026436.0988436,
     "ast_hash": "20d86c266fe12505d46d00aa2ee78e67",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/src/timeline.ts": {
-    "mtime": 1791935161.1405873,
-    "seen": 1791935231.2852182,
+    "mtime": 1791935269.8502126,
+    "seen": 1792026436.0988457,
     "ast_hash": "90e0020a9fe10bfe32005436fb8ce1e7",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/tsconfig.json": {
-    "mtime": 1791935161.1405873,
-    "seen": 1791935231.2852201,
+    "mtime": 1791935269.8516648,
+    "seen": 1792026436.0988474,
     "ast_hash": "4644864ea8773c25ccf361b750cf4280",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/captures.cjs": {
-    "mtime": 1791935161.1425865,
-    "seen": 1791935231.2852218,
+    "mtime": 1791935269.852679,
+    "seen": 1792026436.0988493,
     "ast_hash": "10323cf24087d25ff519200d0f0dcc0c",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/reviews/google-maps-stats.json": {
-    "mtime": 1791935161.1471267,
-    "seen": 1791935231.2852237,
+    "mtime": 1791935269.85921,
+    "seen": 1792026436.0988514,
     "ast_hash": "0277c0b211151248c06742cb1c800702",
     "semantic_hash": ""
   },
   "demos/bai-ko/profile.json": {
-    "mtime": 1791935161.147664,
-    "seen": 1791935231.2852254,
+    "mtime": 1791935269.860209,
+    "seen": 1792026436.0988533,
     "ast_hash": "361ef2816559ca0d77b34af57613cd2f",
     "semantic_hash": ""
   },
   "frontend/app/bai-ko/layout.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855644,
+    "mtime": 1791935269.9881234,
+    "seen": 1792026436.0992785,
     "ast_hash": "99d57460398bead618a35dc45c165bed",
     "semantic_hash": ""
   },
   "frontend/app/bai-ko/page.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.285566,
+    "mtime": 1791935269.9881234,
+    "seen": 1792026436.0992804,
     "ast_hash": "e2f699fe7aa98a596d610c9aa3de9d78",
     "semantic_hash": ""
   },
   "frontend/app/bai-ko/presentation/page.tsx": {
-    "mtime": 1791935161.2767236,
-    "seen": 1791935231.2855682,
+    "mtime": 1791935269.989922,
+    "seen": 1792026436.0992825,
     "ast_hash": "92f82f0517b55626c9c189f4ef3bd1c6",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/_service/fixtures.ts": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856472,
+    "mtime": 1791935270.002975,
+    "seen": 1792026436.0993793,
     "ast_hash": "b28c552779233eb0d4475269f1de2820",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/_service/screen.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.285649,
+    "mtime": 1791935270.0050752,
+    "seen": 1792026436.099381,
     "ast_hash": "29edd95cc405f6b872adb30416ead853",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/salle/fixtures.ts": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856593,
+    "mtime": 1791935270.010425,
+    "seen": 1792026436.0993927,
     "ast_hash": "9e83336ded2dafa2c7d989a0b89f13e5",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/salle/page.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856612,
+    "mtime": 1791935270.0140724,
+    "seen": 1792026436.0993948,
     "ast_hash": "81ef519fc20699bd2359d5c18577c76e",
     "semantic_hash": ""
   },
   "frontend/app/menu/demo/[slug]/salle/salle-demo.tsx": {
-    "mtime": 1791935161.2924464,
-    "seen": 1791935231.2856627,
+    "mtime": 1791935270.016006,
+    "seen": 1792026436.0993965,
     "ast_hash": "9706d89753bab90495cb81785075f707",
     "semantic_hash": ""
   },
   "frontend/components/menu/dish-indicators.tsx": {
-    "mtime": 1791935161.3328583,
-    "seen": 1791935231.286187,
+    "mtime": 1791935270.0671945,
+    "seen": 1792026436.0999854,
     "ast_hash": "8c1c333c93ee798e8570b3d91390fa34",
     "semantic_hash": ""
   },
   "frontend/components/menu/menu-ticker.tsx": {
-    "mtime": 1791935161.3378584,
-    "seen": 1791935231.2862034,
+    "mtime": 1791935270.0761688,
+    "seen": 1792026436.1000035,
     "ast_hash": "0bdfe23a4caf25695840e3c0b2d22bbc",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/bai-ko-fonts.ts": {
-    "mtime": 1791935161.3398585,
-    "seen": 1791935231.2862184,
+    "mtime": 1791935270.0795224,
+    "seen": 1792026436.1000214,
     "ast_hash": "9bd0a55e7f3036bb68981d842a012d92",
     "semantic_hash": ""
   },
   "frontend/components/pitch/brands/bai-ko.tsx": {
-    "mtime": 1791935161.3408573,
-    "seen": 1791935231.2862206,
+    "mtime": 1791935270.0809135,
+    "seen": 1792026436.1000233,
     "ast_hash": "e120137961e0341e6f21eabd266c3a2d",
     "semantic_hash": ""
   },
   "frontend/lib/menu/table-param.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.286553,
+    "mtime": 1791935270.1291313,
+    "seen": 1792026436.1004555,
     "ast_hash": "8a5701a737df6b4ec8111090e2974980",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/bai-ko-captures.json": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.286563,
+    "mtime": 1791935270.1304593,
+    "seen": 1792026436.1004674,
     "ast_hash": "815f52a6d30c35d8ebb07604e79d2896",
     "semantic_hash": ""
   },
   "frontend/lib/pitch/bai-ko.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865646,
+    "mtime": 1791935270.1314604,
+    "seen": 1792026436.1004694,
     "ast_hash": "2e1075dddd22de897412156ce6af3488",
     "semantic_hash": ""
   },
   "demos/bai-ko/docs/site-galerie-2026-10-12.html": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.28701,
+    "mtime": 1791935269.75717,
+    "seen": 1792026436.1008246,
     "ast_hash": "45a50429846e46577485eb1180c2668d",
     "semantic_hash": ""
   },
   "demos/bai-ko/docs/site-index-2026-10-12.html": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.287012,
+    "mtime": 1791935269.758186,
+    "seen": 1792026436.1008258,
     "ast_hash": "4e3896326e7862158a3b8af4f073bdfa",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/01-research.md": {
-    "mtime": 1791935161.1435876,
-    "seen": 1791935231.2870138,
+    "mtime": 1791935269.85368,
+    "seen": 1792026436.100827,
     "ast_hash": "b9a56a64a9aff066a5734e0653b59a0b",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/02-sector-evidence.md": {
-    "mtime": 1791935161.1444225,
-    "seen": 1791935231.2870157,
+    "mtime": 1791935269.8551898,
+    "seen": 1792026436.1008282,
     "ast_hash": "7dbeb618f687b50341dbdd3f58a274b6",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/delivery-ubereats.md": {
-    "mtime": 1791935161.145533,
-    "seen": 1791935231.2870178,
+    "mtime": 1791935269.8551898,
+    "seen": 1792026436.1008291,
     "ast_hash": "721977adfa1711978c73f65782bb60ce",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/reviews/google-maps-1to4-stars.txt": {
-    "mtime": 1791935161.14659,
-    "seen": 1791935231.2870197,
+    "mtime": 1791935269.8582103,
+    "seen": 1792026436.1008303,
     "ast_hash": "2e5a00076093dcc9e004d03f8bc338dd",
     "semantic_hash": ""
   },
   "demos/bai-ko/pitch/research/social-captions.txt": {
-    "mtime": 1791935161.1471267,
-    "seen": 1791935231.2870212,
+    "mtime": 1791935269.85921,
+    "seen": 1792026436.1008313,
     "ast_hash": "9af06a8cc3484a9f436b157a9c042c5d",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/bai-ko-ominin.pdf": {
-    "mtime": 1791935161.5039423,
-    "seen": 1791935231.2870872,
+    "mtime": 1791935270.3227403,
+    "seen": 1792026436.1008728,
     "ast_hash": "2cffe81fe4c609c68090b55118ffa957",
     "semantic_hash": ""
   },
   "demos/bai-ko/docs/homepage-1440.jpg": {
-    "mtime": 1791935161.0338447,
-    "seen": 1791935231.287105,
+    "mtime": 1791935269.7410324,
+    "seen": 1792026436.1008825,
     "ast_hash": "31ca433e4f330be9875c73a68321b9cd",
     "semantic_hash": ""
   },
   "demos/bai-ko/docs/logo-nav.png": {
-    "mtime": 1791935161.0361855,
-    "seen": 1791935231.2871072,
+    "mtime": 1791935269.7440398,
+    "seen": 1792026436.1008837,
     "ast_hash": "39d8d9da7375d4884d585b4f08b19682",
     "semantic_hash": ""
   },
   "demos/bai-ko/docs/logo.png": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.2871094,
+    "mtime": 1791935269.7539296,
+    "seen": 1792026436.100885,
     "ast_hash": "3cd01b3cc11def4c8235d036594c2732",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/brand/logo.png": {
-    "mtime": 1791935161.0488408,
-    "seen": 1791935231.2871115,
+    "mtime": 1791935269.7663436,
+    "seen": 1792026436.100886,
     "ast_hash": "0a0995de4cc4ef835dc827840776d59e",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/collect-checkout.webp": {
-    "mtime": 1791935161.0582068,
-    "seen": 1791935231.2871132,
+    "mtime": 1791935269.768337,
+    "seen": 1792026436.1008873,
     "ast_hash": "1ec743c5949449591a0174e8fdec2dad",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/collect-paid.webp": {
-    "mtime": 1791935161.058882,
-    "seen": 1791935231.2871153,
+    "mtime": 1791935269.7693496,
+    "seen": 1792026436.1008883,
     "ast_hash": "0821c45985047838c2f814a8b8a42ced",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-added-main.webp": {
-    "mtime": 1791935161.0639768,
-    "seen": 1791935231.2871172,
+    "mtime": 1791935269.773343,
+    "seen": 1792026436.1008894,
     "ast_hash": "863f9f47369233b826c06f8381685ca4",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-added.webp": {
-    "mtime": 1791935161.066817,
-    "seen": 1791935231.2871192,
+    "mtime": 1791935269.7763376,
+    "seen": 1792026436.1008904,
     "ast_hash": "8120c2b712aec5661cc6c85cfe4bdedc",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-cart.webp": {
-    "mtime": 1791935161.066817,
-    "seen": 1791935231.287121,
+    "mtime": 1791935269.7763376,
+    "seen": 1792026436.1008914,
     "ast_hash": "76545c907b0c2909ec731c403cd4e66d",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-main-0-body.webp": {
-    "mtime": 1791935161.066817,
-    "seen": 1791935231.287123,
+    "mtime": 1791935269.7778149,
+    "seen": 1792026436.1008923,
     "ast_hash": "619b989bebac3d05d681d4cde0edc2da",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-main-0.webp": {
-    "mtime": 1791935161.069762,
-    "seen": 1791935231.2871246,
+    "mtime": 1791935269.778826,
+    "seen": 1792026436.1008935,
     "ast_hash": "6aee09e9db462338bc329b7adbd4f25d",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-main-1-body.webp": {
-    "mtime": 1791935161.069762,
-    "seen": 1791935231.2871268,
+    "mtime": 1791935269.7801964,
+    "seen": 1792026436.1008945,
     "ast_hash": "33f61c43919b97a247ad2436fe67ae53",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-main-1.webp": {
-    "mtime": 1791935161.069762,
-    "seen": 1791935231.2871282,
+    "mtime": 1791935269.7813883,
+    "seen": 1792026436.1008954,
     "ast_hash": "736255db7dc46d88a8fe94b8b627fff8",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-menu.webp": {
-    "mtime": 1791935161.0905187,
-    "seen": 1791935231.2871299,
+    "mtime": 1791935269.7979898,
+    "seen": 1792026436.1008966,
     "ast_hash": "a73bc10d8b8e41c9feb743d6ec2a032f",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/phone-side.webp": {
-    "mtime": 1791935161.094519,
-    "seen": 1791935231.2871315,
+    "mtime": 1791935269.7999823,
+    "seen": 1792026436.1008973,
     "ast_hash": "d611db83c4fab3ea5370973f348f2ab7",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-0.webp": {
-    "mtime": 1791935161.0965185,
-    "seen": 1791935231.2871332,
+    "mtime": 1791935269.8019907,
+    "seen": 1792026436.1008983,
     "ast_hash": "fd64c7aa644a980e41a9c8d6841bf5a4",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-100.webp": {
-    "mtime": 1791935161.098022,
-    "seen": 1791935231.2871351,
+    "mtime": 1791935269.803518,
+    "seen": 1792026436.1008992,
     "ast_hash": "4d98b4010fb730a5238b8c2730d34261",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-200.webp": {
-    "mtime": 1791935161.099528,
-    "seen": 1791935231.287137,
+    "mtime": 1791935269.804558,
+    "seen": 1792026436.1009007,
     "ast_hash": "6600aca4b4049dedba4f003eaa76470b",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-300.webp": {
-    "mtime": 1791935161.099528,
-    "seen": 1791935231.2871387,
+    "mtime": 1791935269.8065279,
+    "seen": 1792026436.1009018,
     "ast_hash": "87d4512903a8d5f022aa2937519133fe",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-400.webp": {
-    "mtime": 1791935161.102097,
-    "seen": 1791935231.2871406,
+    "mtime": 1791935269.8095596,
+    "seen": 1792026436.1009028,
     "ast_hash": "ae230d4bfb221c4276587bc9a367e991",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-500.webp": {
-    "mtime": 1791935161.1041024,
-    "seen": 1791935231.2871425,
+    "mtime": 1791935269.8116302,
+    "seen": 1792026436.1009037,
     "ast_hash": "3120ef928dcb84a177011d7b9fd665ba",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served-600.webp": {
-    "mtime": 1791935161.1051025,
-    "seen": 1791935231.2871442,
+    "mtime": 1791935269.813583,
+    "seen": 1792026436.1009047,
     "ast_hash": "6418e701b96876978a7bee5b51755703",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle-served.webp": {
-    "mtime": 1791935161.1071012,
-    "seen": 1791935231.2871463,
+    "mtime": 1791935269.8146222,
+    "seen": 1792026436.100906,
     "ast_hash": "d62323cd5ac3ed6b0a94f546f4477057",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/captures/tablet-salle.webp": {
-    "mtime": 1791935161.109102,
-    "seen": 1791935231.2871485,
+    "mtime": 1791935269.8165834,
+    "seen": 1792026436.100907,
     "ast_hash": "3db843b48d3cdc546957c57253c1d8f9",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/photos/dak-bap-dolsot.jpg": {
-    "mtime": 1791935161.1109667,
-    "seen": 1791935231.2871506,
+    "mtime": 1791935269.81758,
+    "seen": 1792026436.100908,
     "ast_hash": "4454369970a817139e07e40a98249e91",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/photos/room-corn-cheese.jpg": {
-    "mtime": 1791935161.1130414,
-    "seen": 1791935231.2871523,
+    "mtime": 1791935269.8195689,
+    "seen": 1792026436.100909,
     "ast_hash": "81bdcaa7c7769e0e50ad7799b142e05b",
     "semantic_hash": ""
   },
   "demos/bai-ko/film/public/photos/room-pad-thai.jpg": {
-    "mtime": 1791935161.11472,
-    "seen": 1791935231.287154,
+    "mtime": 1791935269.8215816,
+    "seen": 1792026436.1009102,
     "ast_hash": "5de5d0609e38ca3d561c039e9e5e3ebf",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/corn-cheese.webp": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.287332,
+    "mtime": 1791935270.1541262,
+    "seen": 1792026436.1010811,
     "ast_hash": "9da1c1fbca3431ffc4dfda378f547a45",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/corn-dog.webp": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.287334,
+    "mtime": 1791935270.1571727,
+    "seen": 1792026436.101083,
     "ast_hash": "6fa3d26c248e5ab8dfa5903ebf2135e2",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/dak-bap-spicy.webp": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.287336,
+    "mtime": 1791935270.1608431,
+    "seen": 1792026436.1010847,
     "ast_hash": "81d31eb6a69de26ba860433b790a21e2",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/favicon.png": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.2873385,
+    "mtime": 1791935270.1608431,
+    "seen": 1792026436.1010866,
     "ast_hash": "50e5a2c18ce48b67808e0b611cd685fc",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/icon.png": {
-    "mtime": 1791935161.3968654,
-    "seen": 1791935231.2873406,
+    "mtime": 1791935270.1634512,
+    "seen": 1792026436.101089,
     "ast_hash": "2f2b388e07712f7a4d5abae96180dcd5",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/kimchi.webp": {
-    "mtime": 1791935161.4080842,
-    "seen": 1791935231.2873428,
+    "mtime": 1791935270.164728,
+    "seen": 1792026436.101091,
     "ast_hash": "c2dbd2a92b26a72040f9e5ccf8a4bdc5",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/korean-fried-chicken.webp": {
-    "mtime": 1791935161.4095957,
-    "seen": 1791935231.287345,
+    "mtime": 1791935270.1663868,
+    "seen": 1792026436.1010926,
     "ast_hash": "0056ec63419bd8f8a18f8132ead34aa0",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/logo.webp": {
-    "mtime": 1791935161.4095957,
-    "seen": 1791935231.2873466,
+    "mtime": 1791935270.1684551,
+    "seen": 1792026436.1010947,
     "ast_hash": "99208960c64dfd6ac862c65a3b087230",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/mango-rice.webp": {
-    "mtime": 1791935161.4095957,
-    "seen": 1791935231.2873485,
+    "mtime": 1791935270.169808,
+    "seen": 1792026436.1010962,
     "ast_hash": "50e6243254d70426166f2e955fb95f3b",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/milkis.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873504,
+    "mtime": 1791935270.170828,
+    "seen": 1792026436.1010983,
     "ast_hash": "d1ca12da59da2dc3bb01b511750d83dc",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/pad-thai-beef.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873523,
+    "mtime": 1791935270.171831,
+    "seen": 1792026436.1010997,
     "ast_hash": "08a872e9493b20f6dd9b1733c4af016c",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/pad-thai-chicken.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873545,
+    "mtime": 1791935270.173829,
+    "seen": 1792026436.101102,
     "ast_hash": "e6ef03b426eeb024e7b615f209d16b82",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/tteokbokki.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873564,
+    "mtime": 1791935270.1758468,
+    "seen": 1792026436.1011033,
     "ast_hash": "0fd3a123fb5efb4ad9119415125f980d",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/volcano-cheese-beef-bulgogi.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873588,
+    "mtime": 1791935270.1769025,
+    "seen": 1792026436.101105,
     "ast_hash": "25f2802ea372822cf4f681c07977b1ba",
     "semantic_hash": ""
   },
   "frontend/public/bai-ko/volcano-cheese-mandu.webp": {
-    "mtime": 1791935161.4135342,
-    "seen": 1791935231.2873604,
+    "mtime": 1791935270.1778324,
+    "seen": 1792026436.101106,
     "ast_hash": "f0c7580dd4a5c617c706b14b2fbf4c35",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/dak-bap-dolsot.jpg": {
-    "mtime": 1791935161.5106878,
-    "seen": 1791935231.2876892,
+    "mtime": 1791935270.3227403,
+    "seen": 1792026436.1013575,
     "ast_hash": "36ecdcc938f70a00da07bf1fe84a74e1",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/film-poster-vertical.webp": {
-    "mtime": 1791935161.511404,
-    "seen": 1791935231.2876914,
+    "mtime": 1791935270.3303666,
+    "seen": 1792026436.10136,
     "ast_hash": "bcec6a0005e86caf98ab043eeb730fa8",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/film-poster.webp": {
-    "mtime": 1791935161.511404,
-    "seen": 1791935231.2876933,
+    "mtime": 1791935270.3331826,
+    "seen": 1792026436.1013627,
     "ast_hash": "3f1b339852775a4be525e1c65d9aada0",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/logo-neon.png": {
-    "mtime": 1791935161.6099272,
-    "seen": 1791935231.2876956,
+    "mtime": 1791935270.518231,
+    "seen": 1792026436.101365,
     "ast_hash": "3293e091b3336a1b26d39fd51139a694",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/og.jpg": {
-    "mtime": 1791935161.6099272,
-    "seen": 1791935231.287697,
+    "mtime": 1791935270.5200894,
+    "seen": 1792026436.1013668,
     "ast_hash": "ff2be4b424f8cf00e91b5a7b8d32b6ee",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/phone-commande.e3d1d57a87.jpg": {
-    "mtime": 1791935161.6099272,
-    "seen": 1791935231.2876992,
+    "mtime": 1791935270.5242763,
+    "seen": 1792026436.101369,
     "ast_hash": "1eb7c16e14496bd2e473f0c3f2dd447f",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/phone-composer.12ec73c803.jpg": {
-    "mtime": 1791935161.6099272,
-    "seen": 1791935231.287701,
+    "mtime": 1791935270.5242763,
+    "seen": 1792026436.1013708,
     "ast_hash": "8da11e3aac442b3f14b3b3f8d2b01f9a",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/phone-envoyee.3a031984c2.jpg": {
-    "mtime": 1791935161.6222234,
-    "seen": 1791935231.287703,
+    "mtime": 1791935270.5301285,
+    "seen": 1792026436.101373,
     "ast_hash": "d1a63d8b14defc1bda16f98ee43d1fcc",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/phone-menu.11cfb8679a.jpg": {
-    "mtime": 1791935161.624246,
-    "seen": 1791935231.2877052,
+    "mtime": 1791935270.5341403,
+    "seen": 1792026436.1013753,
     "ast_hash": "213331218f668b1552df7d9ffb132bcc",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/phone-partage.91a8fb6010.jpg": {
-    "mtime": 1791935161.6259942,
-    "seen": 1791935231.2877069,
+    "mtime": 1791935270.5365574,
+    "seen": 1792026436.101377,
     "ast_hash": "04065537531b37c4562121b97be99f6d",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/salle-service.8e819aeb50.jpg": {
-    "mtime": 1791935161.629288,
-    "seen": 1791935231.2877088,
+    "mtime": 1791935270.5395737,
+    "seen": 1792026436.101379,
     "ast_hash": "ebffe2e021e7cb17428a67af2fa7172f",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/volcano-cheese.jpg": {
-    "mtime": 1791935161.630368,
-    "seen": 1791935231.2877107,
+    "mtime": 1791935270.542085,
+    "seen": 1792026436.101381,
     "ast_hash": "a47f9bd20e42eaa8526a5017d4bfcd03",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/film-vertical.mp4": {
-    "mtime": 1791935161.5638304,
-    "seen": 1791935231.2878187,
+    "mtime": 1791935270.4030879,
+    "seen": 1792026436.1014917,
     "ast_hash": "e2fb0df3b0080265d45fe110fe64365a",
     "semantic_hash": ""
   },
   "frontend/public/pitch/bai-ko/film.mp4": {
-    "mtime": 1791935161.6099272,
-    "seen": 1791935231.287821,
+    "mtime": 1791935270.5089824,
+    "seen": 1792026436.1014936,
     "ast_hash": "36dbd806b5a6313796c64cf1430bacd7",
     "semantic_hash": ""
   },
   "frontend/components/gestion/commandes/fermetures-bar.tsx": {
-    "mtime": 1791935161.311378,
-    "seen": 1791935231.2860224,
+    "mtime": 1791935270.0421102,
+    "seen": 1792026436.0998049,
     "ast_hash": "9b03ffae9dc7d8542bcfdb9401e5c0f0",
     "semantic_hash": ""
   },
   "frontend/components/gestion/day-picker.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.2860374,
+    "mtime": 1791935270.0473404,
+    "seen": 1792026436.0998218,
     "ast_hash": "a982f7df92013e3e5b31b7dcc609661c",
     "semantic_hash": ""
   },
   "frontend/components/gestion/fermetures-en-cours.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.2860415,
+    "mtime": 1791935270.049651,
+    "seen": 1792026436.099826,
     "ast_hash": "274aa856b80593bfe83811836b4460b7",
     "semantic_hash": ""
   },
   "frontend/components/gestion/fermetures-settings.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.2860432,
+    "mtime": 1791935270.05065,
+    "seen": 1792026436.0998278,
     "ast_hash": "8af41ebf2093f2056c7f75aa2d3eea52",
     "semantic_hash": ""
   },
   "frontend/components/gestion/menu-target-picker.tsx": {
-    "mtime": 1791935161.3151288,
-    "seen": 1791935231.286056,
+    "mtime": 1791935270.0516522,
+    "seen": 1792026436.0998425,
     "ast_hash": "d47a7e5c4010216c902882c5d19e02d3",
     "semantic_hash": ""
   },
   "frontend/lib/gestion/fermetures.ts": {
-    "mtime": 1791935161.3621235,
-    "seen": 1791935231.2864802,
+    "mtime": 1791935270.1062484,
+    "seen": 1792026436.100374,
     "ast_hash": "3ab60d98b62a76ddb7411e72e02f354b",
     "semantic_hash": ""
   },
   "frontend/lib/menu/fermetures.ts": {
-    "mtime": 1791935161.3777802,
-    "seen": 1791935231.2865436,
+    "mtime": 1791935270.1267755,
+    "seen": 1792026436.100445,
     "ast_hash": "a5018b2d8a1b2aae75f6b8df2737c3cb",
     "semantic_hash": ""
   },
   "frontend/lib/menu/online-minimum.ts": {
-    "mtime": 1791935161.3797529,
-    "seen": 1791935231.2865477,
+    "mtime": 1791935270.127792,
+    "seen": 1792026436.1004493,
     "ast_hash": "221e476d6c10c60c1e29ad7a12732222",
     "semantic_hash": ""
   },
   "supabase/migrations/20261013000001_fermetures_minimum.sql": {
-    "mtime": 1791935162.0952854,
-    "seen": 1791935231.2869287,
+    "mtime": 1791935270.9403164,
+    "seen": 1792026436.100768,
     "ast_hash": "2400f7ba35606eab62a3f3846bce200b",
     "semantic_hash": ""
   },
   "frontend/app/admin/(shell)/projet/[id]/page.tsx": {
-    "mtime": 1791934936.4231899,
-    "seen": 1791935231.2854245,
-    "ast_hash": "c7c05a9904318b0c2a3db4623ca6a2d5",
+    "mtime": 1791935269.9835796,
+    "seen": 1792026436.099097,
+    "ast_hash": "d08c83f706631e9b12cfe8a92fbb9dab",
     "semantic_hash": ""
   },
   "frontend/components/admin/projet/step-row.tsx": {
-    "mtime": 1791934936.4231899,
-    "seen": 1791935231.2858477,
-    "ast_hash": "3a6089452bd4c38ee1de89dab3e91a90",
+    "mtime": 1792025774.2152195,
+    "seen": 1792026436.0996194,
+    "ast_hash": "4cc02721e4dde39d196556ab08c4ef56",
     "semantic_hash": ""
   },
   "supabase/migrations/20261014000001_projet_suivi.sql": {
-    "mtime": 1791934205.0785253,
-    "seen": 1791935231.2869303,
-    "ast_hash": "7753ddc2a29cfea7598611a5ac5f9ce8",
+    "mtime": 1791935270.941864,
+    "seen": 1792026436.1007693,
+    "ast_hash": "86035a93cf452cfcfc1b0cbd9997f18a",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/admin/push/digest/route.ts": {
+    "mtime": 1792025707.817818,
+    "seen": 1792026436.099132,
+    "ast_hash": "c299055b4f8c0ce45f6d9a6d5b322e7a",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/admin/push/projet/route.ts": {
+    "mtime": 1792025706.7359018,
+    "seen": 1792026436.0991342,
+    "ast_hash": "d429dd5d100c87b508e6f128b08eeaa9",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/admin/push/subscriptions/route.ts": {
+    "mtime": 1792025683.4428544,
+    "seen": 1792026436.099136,
+    "ast_hash": "0a7ac49cb6ba5b398c56e17e89a8ba2b",
+    "semantic_hash": ""
+  },
+  "frontend/app/manifest.webmanifest/route.ts": {
+    "mtime": 1792025578.6527977,
+    "seen": 1792026436.0993698,
+    "ast_hash": "0b17b4bf58b1f95dd795efb860ca1a3e",
+    "semantic_hash": ""
+  },
+  "frontend/components/admin/notifications.tsx": {
+    "mtime": 1792025804.000274,
+    "seen": 1792026436.099613,
+    "ast_hash": "563acdd07edd2b5a51e9fdb38e33120b",
+    "semantic_hash": ""
+  },
+  "frontend/lib/admin/owners.ts": {
+    "mtime": 1792025663.6527686,
+    "seen": 1792026436.1002808,
+    "ast_hash": "89a128f35f7793105bdcb75365d1093b",
+    "semantic_hash": ""
+  },
+  "frontend/lib/admin/push.ts": {
+    "mtime": 1792025674.7304988,
+    "seen": 1792026436.1002877,
+    "ast_hash": "3f95641a5ccbe4e10a6297af67387c4f",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261015000001_projet_descriptions_push.sql": {
+    "mtime": 1792025554.357416,
+    "seen": 1792026436.1007702,
+    "ast_hash": "2e94eb30607550ec253d02773c31496c",
+    "semantic_hash": ""
+  },
+  ".github/workflows/admin-digest.yml": {
+    "mtime": 1792025708.8643773,
+    "seen": 1792026436.100806,
+    "ast_hash": "2ebf16cbf148bb4cbbc0de337e427327",
     "semantic_hash": ""
   }
 }

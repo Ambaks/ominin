@@ -38,6 +38,7 @@ import {
   StoreIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
+import { NotificationsButton } from "./notifications";
 
 interface NavItem {
   /** Chemin local (sans racine ni produit). */
@@ -358,6 +359,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </nav>
               </div>
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <NotificationsButton />
                 <ThemeToggle />
                 <button
                   type="button"

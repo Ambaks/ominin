@@ -65,6 +65,39 @@ export type Database = {
           },
         ]
       }
+      admin_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          owner?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -2869,6 +2902,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      projet_step_templates: {
+        Row: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Insert: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Update: {
+          detail?: string
+          phase?: string
+          position?: number
+          shop?: boolean
+          title?: string
+        }
+        Relationships: []
       }
       projet_steps: {
         Row: {

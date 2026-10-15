@@ -50,7 +50,10 @@ self.addEventListener("notificationclick", (event) => {
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windows) => {
-        const open = windows.find((client) => client.url.includes("/gestion"));
+        // Une fenêtre déjà ouverte de ce site (gestion ou admin, chacun son host).
+        const open = windows.find(
+          (client) => new URL(client.url).origin === self.location.origin
+        );
         if (open) {
           open.navigate(url).catch(() => {});
           return open.focus();

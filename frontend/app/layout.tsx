@@ -43,6 +43,8 @@ export const metadata: Metadata = {
     images: ["/logo.png"],
   },
   robots: { index: true, follow: true },
+  // Servi par app/manifest.webmanifest/route.ts, différent selon le host.
+  manifest: "/manifest.webmanifest",
   // Installation sur l'écran d'accueil iOS (prérequis des notifications push
   // sur iPhone/iPad) : plein écran, barre de statut fondue dans le thème.
   appleWebApp: {
