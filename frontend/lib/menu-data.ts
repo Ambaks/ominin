@@ -31,7 +31,23 @@ export interface OptionChoice {
   id: string;
   name: string;
   supplement: number;
+  /** false : épuisé, grisé sur la carte et refusé à la commande. Absent : disponible. */
+  disponible?: boolean;
 }
+
+/** Un choix se commande tant qu'il n'est pas marqué épuisé. */
+export const isChoiceAvailable = (choice: OptionChoice) => choice.disponible !== false;
+
+/**
+ * Un groupe obligatoire toujours affiché dont tous les choix sont épuisés rend
+ * l'article impossible à commander, même en vente. Un groupe conditionnel
+ * (`when`) ne bloque que si on l'ouvre : la feuille d'options s'en charge.
+ */
+export const hasBlockedRequiredGroup = (options: OptionGroup[] | undefined) =>
+  (options ?? []).some(
+    (group) =>
+      group.obligatoire && !group.when && !group.choices.some(isChoiceAvailable)
+  );
 
 export interface OptionGroup {
   id: string;

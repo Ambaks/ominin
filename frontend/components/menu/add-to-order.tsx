@@ -21,12 +21,21 @@ import {
   visibleGroups,
 } from "@/lib/menu/format";
 import { scrollBehavior } from "@/lib/menu/scroll";
-import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
+import {
+  hasBlockedRequiredGroup,
+  isChoiceAvailable,
+  type MenuItem,
+  type OptionGroup,
+} from "@/lib/menu-data";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
 export function isUnavailable(item: MenuItem): boolean {
-  return item.disponible === false || item.stock === 0;
+  return (
+    item.disponible === false ||
+    item.stock === 0 ||
+    hasBlockedRequiredGroup(item.options)
+  );
 }
 
 /** Durée du « Ajouté ✓ » sur le bouton, avant retour au libellé normal. */
@@ -48,6 +57,7 @@ export function ChoiceRow({
   price,
   describedBy,
   invalid,
+  soldOut,
   children,
 }: {
   type: "radio" | "checkbox";
@@ -60,23 +70,32 @@ export function ChoiceRow({
   describedBy?: string;
   /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
   invalid?: boolean;
+  /** Épuisé : visible mais pas sélectionnable, le prix laisse place au mot. */
+  soldOut?: boolean;
   children: ReactNode;
 }) {
   return (
-    <label className={choiceRowClass(checked)}>
+    <label
+      className={`${choiceRowClass(checked)} ${
+        soldOut ? "cursor-not-allowed opacity-50" : ""
+      }`}
+    >
       <span className="flex items-center gap-2.5">
         <input
           type={type}
           name={name}
           checked={checked}
           onChange={onChange}
+          disabled={soldOut}
           aria-describedby={describedBy}
           aria-invalid={invalid || undefined}
           className="accent-ember-2"
         />
-        {children}
+        <span className={soldOut ? "line-through" : undefined}>{children}</span>
       </span>
-      {price !== undefined ? (
+      {soldOut ? (
+        <span className="text-muted">Épuisé</span>
+      ) : price !== undefined ? (
         <span className="text-muted">{formatPrice(price)}</span>
       ) : (
         supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>
@@ -127,6 +146,7 @@ export function GroupChoices({
           supplement={choice.supplement}
           price={formatPrices ? basePrice + choice.supplement : undefined}
           invalid={invalid}
+          soldOut={!isChoiceAvailable(choice)}
         >
           {choice.name}
         </ChoiceRow>

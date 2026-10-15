@@ -9,7 +9,7 @@ import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { applyTarifs, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import { formatPrice } from "@/lib/menu/format";
-import { type MenuItem } from "@/lib/menu-data";
+import { isChoiceAvailable, type MenuItem } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 
 /*
@@ -235,10 +235,13 @@ export function OptionConfigurator({
           <div className="flex flex-wrap gap-2">
             {group.choices.map((choice) => {
               const selected = selection[group.id] === choice.id;
+              const soldOut = !isChoiceAvailable(choice);
               return (
                 <button
                   key={choice.id}
                   type="button"
+                  disabled={soldOut}
+                  title={soldOut ? "Épuisé" : undefined}
                   onClick={() =>
                     setSelection((current) =>
                       selected && !group.obligatoire
@@ -250,7 +253,7 @@ export function OptionConfigurator({
                         : { ...current, [group.id]: choice.id }
                     )
                   }
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:line-through disabled:opacity-40 ${
                     selected
                       ? "ember-gradient text-background"
                       : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
