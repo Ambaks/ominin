@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { NetworkDashboard } from "@/components/demo/reseau/dashboard";
 import { getNetwork } from "@/lib/demo/reseau/data";
 import { contactEmail } from "@/lib/landing-data";
-import { resolveClock } from "@/lib/demo/reseau/simulation";
+import { clockParams, resolveClock } from "@/lib/demo/sim";
 
 /*
  * Vue réseau pour le siège d'une enseigne en franchise : commandes, attente
@@ -33,9 +33,6 @@ export async function generateMetadata({
   };
 }
 
-const single = (value: string | string[] | undefined) =>
-  typeof value === "string" ? value : undefined;
-
 export default async function NetworkPage({
   params,
   searchParams,
@@ -43,11 +40,6 @@ export default async function NetworkPage({
   const { slug } = await params;
   const network = getNetwork(slug);
   if (!network) notFound();
-  const { heure, jour, vitesse } = await searchParams;
-  const clock = resolveClock(
-    network,
-    { heure: single(heure), jour: single(jour), vitesse: single(vitesse) },
-    new Date()
-  );
+  const clock = resolveClock(network.simulation, clockParams(await searchParams), new Date());
   return <NetworkDashboard slug={slug} clock={clock} contact={contactEmail} />;
 }
