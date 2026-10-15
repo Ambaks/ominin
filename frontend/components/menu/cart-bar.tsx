@@ -10,6 +10,7 @@ import {
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
+import { DemoPayment } from "@/components/menu/demo-payment";
 import { SquarePayment } from "@/components/menu/square-payment";
 import { preloadStripe, StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
@@ -114,7 +115,8 @@ export function CartBar() {
     tipAmount: number;
   } | null>(null);
   // Règlement Stripe : même place, le Payment Intent se prépare au montage
-  // de la feuille de paiement.
+  // de la feuille de paiement. La démonstration (fournisseur « demo ») prend
+  // la même place, avec les mêmes données et la même fin.
   const [stripePayment, setStripePayment] = useState<{
     orderId: string;
     total: number;
@@ -477,7 +479,10 @@ export function CartBar() {
     // renvoie au comptoir, mais le client était bien allé jusque-là).
     cart.track(payment === "carte" ? "paiement" : "commande", { orderId });
 
-    if (payment === "carte" && cart.paymentProvider === "stripe") {
+    if (
+      payment === "carte" &&
+      (cart.paymentProvider === "stripe" || cart.paymentProvider === "demo")
+    ) {
       // Le Payment Intent se prépare au montage de la feuille de paiement,
       // qui fera partir la commande en cuisine.
       setStripePayment({ orderId, total: cart.total, tipAmount });
@@ -690,6 +695,14 @@ export function CartBar() {
                   tipAmount={squarePayment.tipAmount}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
+                />
+              ) : state === "sent" && stripePayment && cart.paymentProvider === "demo" ? (
+                <DemoPayment
+                  orderId={stripePayment.orderId}
+                  total={stripePayment.total}
+                  tipAmount={stripePayment.tipAmount}
+                  onPhase={onCardPhase}
+                  onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
               ) : state === "sent" && stripePayment ? (
                 <StripePayment

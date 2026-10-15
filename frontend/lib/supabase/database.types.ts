@@ -4995,6 +4995,10 @@ export type Database = {
           points: number
         }[]
       }
+      mark_demo_order_paid: {
+        Args: { p_order_id: string; p_tip?: number | null }
+        Returns: boolean
+      }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: boolean
@@ -5311,7 +5315,7 @@ export type Database = {
         | "failed"
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
-      payment_provider: "stripe" | "sumup" | "square"
+      payment_provider: "stripe" | "sumup" | "square" | "demo"
       price_rule_direction: "majoration" | "remise"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
@@ -5568,7 +5572,7 @@ export const Constants = {
         "cancelled",
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte"],
-      payment_provider: ["stripe", "sumup", "square"],
+      payment_provider: ["stripe", "sumup", "square", "demo"],
       price_rule_direction: ["majoration", "remise"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
