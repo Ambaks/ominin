@@ -5954,9 +5954,11 @@ html:has([data-menu-root].theme-le-novelty) body {
   outline-offset: 3px;
 }
 
-/* Les angles droits du site partout, téléphone de la démo Collect compris :
-   pastilles, fiches, panier, boutons. */
-.theme-le-novelty [class*="rounded"] {
+/* Les angles droits du site sur la carte et l'écran du téléphone Collect
+   (pas son cadre) : pastilles, fiches, panier, boutons ; ni les toupies de
+   chargement ni les formes décoratives. */
+:is([data-menu-root].theme-le-novelty, .theme-le-novelty .phone-screen)
+  [class*="rounded"]:not(.animate-spin, [aria-hidden="true"]) {
   border-radius: 0;
 }
 

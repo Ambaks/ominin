@@ -12,7 +12,8 @@ import { formatOpeningHours, isOpenAt } from "@/lib/collect/hours";
 import { isCollectActive } from "@/lib/collect/server";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { FORMULES_LINK, formatPrice, restaurantThemeClass } from "@/lib/menu-data";
+import { FORMULES_LINK, formatPrice } from "@/lib/menu/format";
+import { restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { collectSiteUrl } from "@/lib/site";
 

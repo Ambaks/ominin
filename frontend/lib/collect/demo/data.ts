@@ -1,13 +1,6 @@
 import { mapsDirectionsHref } from "@/lib/collect/shared";
-import {
-  type Allergen,
-  brandName,
-  DEMO_SLUG,
-  getRestaurant,
-  type MenuCategory,
-  type MenuItem,
-  restaurantThemeClass,
-} from "@/lib/menu-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
+import { type Allergen, brandName, getRestaurant, type MenuCategory, type MenuItem, restaurantThemeClass } from "@/lib/menu-data";
 
 /*
  * Fixtures et réglages de la démo interactive Collect. L'unique endroit

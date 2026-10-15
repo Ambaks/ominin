@@ -6,6 +6,9 @@ import type { Allergen, Badge, DishTag, MenuItem } from "@/lib/menu-data";
  * d'un prix formaté ne télécharge pas toutes les cartes de démonstration.
  */
 
+/** La carte de démonstration d'Ominin (landing, démo Collect, espace de test). */
+export const DEMO_SLUG = "trattoria-lucia";
+
 export const BADGE_LABELS: Record<Badge, string> = {
   maison: "Recette maison",
   top: "Top vente",

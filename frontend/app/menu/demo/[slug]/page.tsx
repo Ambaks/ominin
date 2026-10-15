@@ -11,7 +11,8 @@ import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { brandName, FORMULES_LINK, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { FORMULES_LINK } from "@/lib/menu/format";
+import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 
 /*

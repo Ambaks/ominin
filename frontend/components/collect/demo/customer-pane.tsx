@@ -1415,7 +1415,8 @@ export function CustomerPane({ framed = true }: { framed?: boolean }) {
   return (
     <div
       ref={rootRef}
-      className="relative flex h-[var(--demo-pane-h,35rem)] w-full flex-col bg-background text-left"
+      // phone-screen : l'écran seul, sans le cadre du téléphone, pour les thèmes (globals.css).
+      className="phone-screen relative flex h-[var(--demo-pane-h,35rem)] w-full flex-col bg-background text-left"
     >
       {demo.step === "menu" && <MenuView framed={framed} />}
       {demo.step === "checkout" && <CheckoutView topPad={topPad} />}

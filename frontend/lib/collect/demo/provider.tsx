@@ -11,14 +11,8 @@ import {
 } from "react";
 import { formatTime } from "@/lib/gestion/format";
 import type { OrderItemOption } from "@/lib/gestion/types";
-import {
-  type Allergen,
-  DEMO_SLUG,
-  lineName,
-  type MenuItem,
-  type OptionChoice,
-  type OptionGroup,
-} from "@/lib/menu-data";
+import { DEMO_SLUG, lineName } from "@/lib/menu/format";
+import { type Allergen, type MenuItem, type OptionChoice, type OptionGroup } from "@/lib/menu-data";
 import {
   buildDemoMenu,
   choiceAllergens,

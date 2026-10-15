@@ -1,4 +1,4 @@
-import { unsplash } from "@/lib/menu-data";
+import { unsplash } from "@/lib/menu/images";
 import {
   agentsSiteUrl,
   clipSiteUrl,

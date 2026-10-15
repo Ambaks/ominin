@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DEMO_SLUG } from "@/lib/menu-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
 
 export default function NotFound() {
   return (

@@ -17,7 +17,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { SEED_TABLE_COUNT } from "../lib/gestion/constants";
-import { formatPrice, getRestaurant } from "../lib/menu-data";
+import { getRestaurant } from "../lib/menu-data";
+import { formatPrice } from "../lib/menu/format";
 import type { Database, Json, TablesInsert } from "../lib/supabase/database.types";
 import { must } from "../lib/supabase/result";
 

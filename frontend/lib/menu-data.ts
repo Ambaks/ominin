@@ -1,9 +1,9 @@
 import type { Formule } from "@/lib/gestion/types";
+// Libellés, mise en forme et adresses de photos vivent dans lib/menu/format
+// et lib/menu/images : un module client les importe de là, sans tirer ce
+// registre dans son paquet.
 import { formatPrice } from "@/lib/menu/format";
-
-// Les libellés et l'affichage vivent dans lib/menu/format : les composants
-// clients les importent de là, sans tirer ce registre dans leur paquet.
-export { ALLERGEN_LABELS, BADGE_LABELS, DISH_TAG_LABELS, FORMULES_LINK, addVerb, allergenLine, formatPrice, lineName } from "@/lib/menu/format";
+import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -202,21 +202,6 @@ export interface Restaurant {
   /** /menu/demo à table : « Payer en ligne » et le pourboire, comme chez un client qui règle à table. */
   onlinePayment?: boolean;
 }
-
-export const unsplash = (id: string, w = 1200) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
-
-export const pexels = (path: string, w = 1200) =>
-  `https://images.pexels.com/photos/${path}?auto=compress&cs=tinysrgb&w=${w}`;
-
-/**
- * Même photo, recadrée par le serveur d'images plutôt que par le navigateur.
- * Utile quand le sujet n'est pas au centre du cliché : `object-fit: cover`
- * rogne alors la pizza et garde le décor. `crop=entropy` recentre sur la zone
- * la plus dense de l'image. h vaut les 9/16 de w, le format des vignettes.
- */
-export const pexelsRecadre = (path: string, w = 1200) =>
-  `${pexels(path, w)}&h=${Math.round((w * 9) / 16)}&fit=crop&crop=entropy`;
 
 /** Identifiant stable tiré d'un libellé accentué : « Viande hachée » → viande-hachee. */
 const slugLibelle = (label: string) =>
@@ -3262,14 +3247,15 @@ const groupeFormats = (prix: Formats, id = "volume", name = "Volume"): OptionGro
 /**
  * Un article en plusieurs formats : sa description annonce tous les prix, sur
  * une ligne à part. Pas dans `detail`, qui nomme la ligne de commande (« Coca
- * 33 cl ») : le format choisi y figure déjà comme option.
+ * 33 cl ») : le format choisi y figure déjà comme option. Les autres groupes
+ * d'`options` suivent celui des formats.
  */
 const articleFormats = (
   id: string,
   name: string,
   prix: Formats,
-  { description, ...extra }: Partial<MenuItem> = {},
-  [groupeId, groupeNom] = ["volume", "Volume"]
+  { description, options = [], ...extra }: Partial<MenuItem> = {},
+  groupe: readonly [id: string, name: string] | [] = []
 ): MenuItem => {
   // Insécables : un format ne se sépare ni de son unité ni de son prix.
   const tarifs = prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join(" · ");
@@ -3278,7 +3264,7 @@ const articleFormats = (
     name,
     description: description ? `${description}\n${tarifs}` : tarifs,
     price: prix[0][1],
-    options: [groupeFormats(prix, groupeId, groupeNom)],
+    options: [groupeFormats(prix, ...groupe), ...options],
     ...extra,
   };
 };
@@ -5062,11 +5048,8 @@ const cafeDesArts: Restaurant = {
         cdaSpiritueux("william-lawson", "William Lawson", 9, 90),
         articleFormats("jack-daniels", "Jack Daniel's, Honey, Fire, Apple", CDA_JACK_DANIELS, {
           ...ALCOOL,
-          options: [
-            groupeFormats(CDA_JACK_DANIELS, "format", "Format"),
-            groupeChoix("version", "Version", ["Jack Daniel's", "Honey", "Fire", "Apple"], { obligatoire: true }),
-          ],
-        }),
+          options: [groupeChoix("version", "Version", ["Jack Daniel's", "Honey", "Fire", "Apple"], { obligatoire: true })],
+        }, ["format", "Format"]),
         cdaSpiritueux("cardhu-amber-rock", 'Cardhu "Amber Rock"', 10),
         cdaSpiritueux("crabbie", "Crabbie", 10, undefined, { description: "12 ans" }),
         cdaSpiritueux("chivas", "Chivas", 12, undefined, { description: "12 ans" }),
@@ -5472,8 +5455,6 @@ export function restaurantThemeClass(slug: string): string | undefined {
 export function getRestaurant(slug: string): Restaurant | undefined {
   return restaurants[slug];
 }
-
-export const DEMO_SLUG = trattoriaLucia.slug;
 
 /**
  * Lien « itinéraire » vers l'adresse de l'établissement. Recherche Google Maps

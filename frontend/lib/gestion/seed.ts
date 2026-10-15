@@ -1,4 +1,5 @@
-import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
+import { getRestaurant } from "@/lib/menu-data";
 import {
   DEFAULT_DAY_END_HOUR,
   FEATURES,
