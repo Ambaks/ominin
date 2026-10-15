@@ -7,6 +7,7 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Cinzel,
   Cormorant_Garamond,
   DM_Sans,
   Didact_Gothic,
@@ -215,6 +216,20 @@ const barlow = Barlow({
   preload: false,
 });
 
+/**
+ * Brasserie Laissac — « LAISSAC » de son écusson et « HAPPY » de son visuel
+ * happy hour sont des capitales romaines à la Trajan : Cinzel, le même dessin
+ * en Google Fonts, pour le nom et les titres. Les plats et les prix reprennent
+ * Barlow et Barlow Condensed (Cyprien), les plus proches de la linéale fine et
+ * des prix étroits du visuel.
+ */
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
 /** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
 export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .map((font) => font.variable)
@@ -239,6 +254,7 @@ export const brandFontVariables = [
   bodoniModa,
   barlowCondensed,
   barlow,
+  cinzel,
 ]
   .map((font) => font.variable)
   .join(" ");

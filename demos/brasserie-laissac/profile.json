@@ -1,0 +1,111 @@
+{
+  "slug": "brasserie-laissac",
+  "name": "Brasserie Laissac",
+  "tagline": "Restaurant · Bar · Cocktail",
+  "status": "prospect — démo du 2026-10-15, quatrième adresse du groupe du Café des Arts ; carte lue sur le panneau extérieur filmé dans le reel de réouverture (Facebook, 2026-09-04), sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/brasserie-laissac"
+  },
+  "cuisine": "Brasserie : tapas et planches, burgers servis avec frites maison, salades repas, pizzas base tomate et base crème, desserts, coupes glacées ; formule midi (plats du jour), petit déjeuner, goûter ; happy hour 17h–23h.",
+  "address": "9 Place Alexandre Laissac, 34000 Montpellier",
+  "city": "Montpellier (place Alexandre Laissac, devant les Halles Laissac, à la lisière de l'Écusson ; tram Observatoire, lignes 3 et 4, à ~85 m)",
+  "phone": "04 67 57 72 10 (confirmé : site du groupe, chevalets de table, Google ; le même numéro que l'exploitant précédent)",
+  "hours": "Tous les jours 9h–1h (Google et bio Instagram, mis à jour après la reprise) ; « Service NON STOP 11h30-00h00 » (ardoise du comptoir) ; happy hour 17h–23h (visuel)",
+  "website": "Aucun site propre ; page du groupe cafedesarts34.fr/la-brasserie-laissac-w1 (sans carte, sans horaires, illustrée de photos de banque d'images)",
+  "socials": {
+    "instagram": "@brasserie.laissac (confirmé : compte hérité, repris par la nouvelle équipe — nouveau logo, reels quotidiens des plats du jour depuis le 2026-10-02 ; 125 abonnés)",
+    "tiktok": "aucun compte trouvé",
+    "facebook": "Brasserie Laissac (id 61557652253148) — page créée sous l'exploitant précédent, logo et bio de 2024, toujours utilisée",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "BRASSERIE LAISSAC, 4,4/5 sur 279 avis (fiche héritée, site et horaires mis à jour ; aucun avis lisible postérieur à la reprise)"
+  },
+  "legal": {
+    "raison_sociale": "LAISSAC (enseigne BRASSERIE LAISSAC)",
+    "forme": "SAS, capital 10 000 €",
+    "siren": "104 083 670",
+    "siret": "",
+    "naf": "56.10A",
+    "president": "Nathalie Rabaglia (cogérante avec Med Oul Hocine Belkhir de la holding ANNA ; M. Belkhir dirige le groupe par JSK HOLDING 894 402 320)",
+    "creation": "2026-04-20 (société sans activité jusqu'au rachat)",
+    "debut_activite": "fonds « brasserie licence IV » acheté 400 000 € à BARMAX (832 258 370) par acte du 2026-07-22 ; mise en activité 2026-08-12 au BODACC, 2026-08-28 à l'INSEE ; réouverture annoncée le 2026-09-04",
+    "source": "recherche-entreprises.api.gouv.fr et BODACC (annonce du 2026-08-04), ouverts le 2026-10-15 ; détail dans docs/recherche-profile.md. Le lien capitalistique LAISSAC ↔ groupe n'est pas publié : probable (même dirigeants, page du groupe), non prouvé."
+  },
+  "design": {
+    "primary_color": "#0B0A09",
+    "secondary_color": "#F5EFE4",
+    "accent_color": "#D6A556 (or) / #ECC77F (or clair, prix) / or brossé en dégradé pour les boutons et le bandeau",
+    "style_notes": "Identité de la nouvelle équipe, celle de l'écusson noir et or (photo de profil Instagram, chevalets de table filmés en octobre 2026, visuel happy hour du 2026-09-09) : l'ancien logo bleu canard (site du groupe, Facebook) date de l'exploitant précédent et n'est pas repris. Palette mesurée sur le visuel happy hour (1 760 × 2 347 px) : noir 75 %, or des prix #D29E53, lumière du bandeau « 17H - 23H » #F2C87E, ombre des cadres #9E8430, pastille framboise #AE0643 (non reprise : une seule pastille sur le visuel). Fond #0B0A09 (noir du visuel, réchauffé d'un rien), texte crème #F5EFE4 comme « LAISSAC », or #D6A556 pour les filets et le fleuron, or clair #ECC77F pour les prix (10:1 sur la fiche). Typographie : « LAISSAC » de l'écusson et « HAPPY » du visuel sont des capitales romaines à la Trajan, d'où Cinzel pour le nom et les titres ; les noms des plats du panneau sont une linéale étroite et grasse, et les prix du visuel une linéale étroite : Barlow Condensed (déjà chargée pour Cyprien) pour les plats et les prix, Barlow pour le texte, la plus proche de la linéale fine des lignes du visuel. Dispositifs repris : (1) le fleuron des titres du panneau-carte, un losange entre deux filets sous « LES TAPAS », sous chaque titre et sous le nom ; (2) l'accroche des burgers entre deux puces (« • SERVIS AVEC FRITES MAISON • ») pour toutes les accroches ; (3) les points de conduite du visuel happy hour entre le nom et le prix, alignés sur la dernière ligne du nom ; (4) le bandeau « 17H - 23H », or brossé lettré de noir, pour les boutons et le bandeau d'arguments. Haut de page : l'écusson recomposé — sa gravure (la brasserie, sa cheminée, le cyprès), puis « BRASSERIE » petit et espacé entre deux filets, « LAISSAC » en Cinzel, le fleuron ; le seul écusson complet en ligne fait 150 px (Instagram) et celui du visuel est coupé en haut par le cadre : la gravure est détourée du visuel (anneaux et houblon du sommet retirés), le nom est composé. Mouvement : la gravure se trace de gauche à droite comme sous le burin, les filets de « BRASSERIE » partent du mot, le fleuron s'ouvre depuis son losange ; le reste suit les autres adresses du groupe (titres et lignes au défilement, coche d'ajout, panier qui monte). Photos libres légèrement assombries et réchauffées en CSS, comme les photos sur fond noir du panneau.",
+    "logo": "Écusson noir et or en 150 px seulement (Instagram) : icônes frontend/public/brasserie-laissac/icon.png (180 px) et favicon.png ; gravure détourée du visuel happy hour : frontend/public/brasserie-laissac/gravure.webp",
+    "interior_vibe": "Salle refaite après la reprise (reels d'octobre 2026) : boiseries et portes en pin clair, chaises en cuir cognac matelassé en losanges, tables effet bois, serviettes rouges, chevalets noir et or avec QR code. Façade d'angle haussmannienne, devanture bordeaux, parasols rouges (reel de réouverture). Avant la reprise : pub anglais (comptoir de chêne sculpté, tabourets framboise).",
+    "reference_images": [
+      "docs/identite/visuel-happy-hour-2026-09-09.jpg",
+      "docs/identite/logo-ecusson-instagram-150px.jpg",
+      "docs/identite/salle-2026_chevalet-noir-logo-or_qr-code_reel_540px.jpg",
+      "docs/panneau-carte/panneau-2026-09-04-a.jpg"
+    ]
+  },
+  "menu": {
+    "source": "Panneau-carte extérieur « 1 — BRASSERIE LAISSAC », filmé environ 3 s dans le reel « C'est officiel, la Brasserie Laissac est de retour ! » (Facebook, reel 1419745520007228, 2026-09-04, 720p) : lu image par image, zones fines agrandies et recoupées sur plusieurs images (docs/panneau-carte/). Formules : ardoises du comptoir (reel 1652424862905700, 2026-09-21, docs/ardoises/). Boissons : visuel happy hour (photo Facebook du 2026-09-09). Tout ce qui est daté d'avant août 2026 est l'ancienne carte, non reprise. Aucune plateforme de livraison ni carte en ligne. Transcription et sources : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const brasserieLaissac).",
+    "categories_summary": [
+      "Formule midi — Plat ① + dessert 15,90 €, Plat ② + dessert 17,90 €",
+      "Les tapas — 12, 5 à 18 €",
+      "Les burgers — 11, servis avec frites maison, 7 à 13,90 € (suppléments 2 € et 5 €)",
+      "Les salades repas — 3, 11,90 à 12,90 €",
+      "Les pizzas base tomate — 5, 8,50 à 13,90 € ; base crème — 3, 10,90 à 12,90 € (suppléments 2 €, burrata 4 €)",
+      "Les desserts — 7, 6 à 8 €",
+      "Les glaces — 4 coupes à 8,50 €, Colonel 9,50 €, glace à composer 1 / 2 / 3 boules 2,50 / 4,50 / 6,50 € (chantilly 1,50 €)",
+      "Petit déjeuner & goûter — formules à 6,50 €, 9,90 €, 6 €",
+      "Happy hour 17h–23h — 10 boissons et 2 cocktails sans alcool, 3 à 6 €"
+    ],
+    "photos": "Photos libres seulement (Pexels, Unsplash), auditées sur planches : aucune photo des plats de la carte n'existe en ligne (les reels montrent les plats du jour). 47 articles illustrés, sur fond sombre et chaud comme les photos du panneau ; recadrées par le serveur quand le sujet n'est pas au centre (cheese burger, fish burger, chicken beef, pizza poulet, dame blanche, spritz, planteur, virgin colada). Approximations connues : Savoyard (fromage fondu en nappe, sans salade ni tomate), Chicken et Chicken Avocado (sans tomate, fromage blanc), California Beef (relish de poivron au lieu de tomate), Speziale (basilic au lieu de roquette, sans copeaux), Pizza poulet (champignons en plus), Salade de chèvre chaud (fromage gratiné qui ne se lit pas comme du chèvre), Salade Italienne (sans jambon Serrano), Bruschetta (version chèvre-miel aux figues), Tarte tatin (part rectangulaire sans pâte visible), Dame blanche (sans chantilly, pépites en plus). Sans photo : Camembert rôti (aucun aux figues et noix), Fish & Chips (seule portion tapas trouvée en plein jour, mal cadrée), Rösti Burger, burger et pizza Chèvre miel, Le Végétarien, Végétarienne, pizza Saumon (aucune sans ingrédient contraire), Café liégeois, Virgin Mojito, Pinte Monaco, Jager bomb (étiquettes partout), les formules et les glaces 1 et 2 boules.",
+    "options_a_valider": [
+      "Lectures probables du panneau (vidéo 720p) gardées : description de la 4 Fromaggi (« crème, emmental, mozzarella, roquefort, chèvre ») et du Chocolat liégeois (« 2 boules chocolat, 1 boule vanille, nappage chocolat, chantilly »).",
+      "Illisibles, non repris : la description du Banana split et du Colonel (« … citron, Vodka » probable) ; le nom et la composition de deux des trois coupes alcoolisées (la première finit par « …ANDAISE », la seconde ressemble à « …LIENNE ») ; la fin de la liste du « Supplément pizza » (au-delà de jambon, champignons, œuf, poulet, oignons, fromage de chèvre, mozzarella) ; le détail du « Supplément burrata ».",
+      "Les prix des suppléments burgers (2.00 et 5.00) ont leur « € » hors du cadre de la vidéo ; repris en euros.",
+      "Casse : noms des pizzas, desserts et glaces imprimés en capitales sur le panneau, remis en casse de phrase (« 4 FROMAGGI » → « 4 Fromaggi », orthographe du panneau gardée). Descriptions gardées en minuscules comme sur le panneau, « Bœuf », « Poulet », « Poisson » avec leur majuscule.",
+      "Ardoises : « formule petit déjeuner », « formule breakfast », « Formule Gouter » → « Formule petit déjeuner », « Formule breakfast », « Formule goûter » (accent rétabli). « Formule midi à ne pas rater » : « Formule midi » en titre, « À ne pas rater » en accroche, « Plat ① + dessert » et « Plat ② + dessert » en articles.",
+      "Bruschetta au choix (poulet, chèvre-miel, norvégienne), Cheesecake (fruits rouges ou caramel beurre salé), Café ou thé gourmand : le choix imprimé dans le nom devient un choix obligatoire dans la feuille d'options.",
+      "Glace à composer : le panneau imprime « 1 BOULE 2.50 € · 2 BOULES 4.50 € · 3 BOULES 6.50 € », les parfums « CAFÉ, CHOCOLAT, VANILLE, FRAISE, CITRON » et « SUPPLÉMENT CHANTILLY 1.50 € » ; trois articles « Glace 1 boule / 2 boules / 3 boules », un parfum par boule, la chantilly en supplément.",
+      "Pizzas en deux sections, « Les pizzas base tomate » et « Les pizzas base crème » (sous-titres du panneau) ; accroche « Suppléments : 2 €, burrata 4 € » sur les deux, reprise des deux lignes de suppléments du panneau.",
+      "« Chèvre miel » existe en burger et en pizza : même nom sur la carte, « Burger chèvre miel » / « Pizza chèvre miel » sur le ticket de cuisine ; « Pizza poulet », « Pizza saumon » de même.",
+      "Happy hour : les prix du visuel du 2026-09-09 sont les seuls publiés pour ces boissons ; la section les affiche sous « Tous les jours de 17h à 23h » et le panier les compte tels quels, à toute heure.",
+      "« Verre Punch / Sangria maison » : un choix obligatoire Punch / Sangria.",
+      "Bandeau défilant : « Découvrez le burger du moment ! » (encart du panneau), « Girafes de bière et de cocktails de 3 à 5 L pour les groupes » (page du groupe), « Salle climatisée » (bio Instagram). Arguments : « Service non stop de 11h30 à minuit » (ardoise), « Happy hour de 17h à 23h » (visuel).",
+      "Glaces à composer : « 1 BOULE 2.50 € · 2 BOULES 4.50 € · 3 BOULES 6.50 € » et « SUPPLÉMENT CHANTILLY 1.50 € » sont la dernière ligne du panneau, chiffres d'environ 6 px sur la vidéo : lecture probable, cohérente avec le Café des Arts (4,50 / 6,50 € pour 2 / 3 boules) ; la chantilly pourrait se lire 1,90 €."
+    ],
+    "photos_risque_marque": "Chicken Beef (Pexels 15476362) : une bouteille de soda floue au fond, hors du recadrage serveur — ne pas repasser en recadrage navigateur. Assiette de fromages (14658378) : une étiquette floue illisible au bord, hors de la fiche."
+  },
+  "offers": [
+    "Formule midi « à ne pas rater » : Plat ① + dessert 15,9 €, Plat ② + dessert 17,9 € (ardoise du 2026-09-21)",
+    "Formule petit déjeuner 6,50 · formule breakfast 9,90 · formule goûter 6,00 € (ardoises)",
+    "Happy hour 17h–23h : verre punch/sangria 3 €, chardonnay 3 €, vin moelleux 3,5 €, Apérol Spritz 6 €, pinte blonde 4 €, pinte Monaco 4,20 €, cocktails 5,5 €, cocktails sans alcool 5 € (visuel du 2026-09-09)",
+    "« Découvrez le burger du moment ! » (panneau-carte, sans nom ni prix)",
+    "Girafes de bière et de cocktails de 3 à 5 L pour les groupes (page du groupe, sans prix)"
+  ],
+  "research": {
+    "date": "2026-10-15",
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md ; les fichiers bruts (HTML, vidéos, images) sont restés hors du dépôt",
+    "reprise": "Fonds acheté 400 000 € à BARMAX le 2026-07-22 ; travaux annoncés le 2026-08-17, réouverture le 2026-09-04. Exploitants précédents : Charles Wells (pub, 2010–2017), BARMAX (cuisine asiatique 2017–2023, puis tapas maison 2023–2026).",
+    "groupe": "Quatrième adresse du site du groupe (cafedesarts34.fr, édité par C K L, président Med Belkhir), à ~7 min à pied du Café des Arts, du Novelty et du Victoria.",
+    "presence_en_ligne": "Presque tout ce qui est en ligne décrit l'exploitant précédent : logo bleu canard et bio Facebook de 2024, photos Google de 2018, fiches Schlouk et Privateaser « cuisine asiatique », galerie du site du groupe en photos de banque, arrêt de tram faux sur la page du groupe (« Saint-Denis » au lieu d'Observatoire). Argument de vente.",
+    "plats_du_jour": "Publiés chaque jour en reel Instagram (deux plats et un dessert, sans prix) : une carte QR avec plat du jour modifiable en gestion remplacerait ce travail.",
+    "avis": "Google 4,4/5 sur 279 avis, tous lisibles antérieurs à la reprise (cuisine généreuse, terrasse ; décor de vieux pub).",
+    "livraison": "Aucune fiche Uber Eats, Deliveroo, Just Eat ni TheFork trouvée."
+  },
+  "notes": [
+    "1. Qui signe : Mme Rabaglia (présidente de LAISSAC SAS) ou M. Belkhir (groupe) ? Une démo par adresse ou une offre de groupe ?",
+    "2. Carte complète en salle (le dossier noir « LAISSAC ») : y a-t-il une page 2 au panneau « 1 », et la carte des boissons à prix normal (cafés, softs, pressions 25 cl / 50 cl / 1 L, vins, apéritifs, cocktails, spiritueux) ?",
+    "3. Lignes illisibles du panneau : les deux coupes alcoolisées après le Colonel (lecture probable des noms sur images empilées : « IRLANDAISE » et « ITALIENNE » ; compositions illisibles), la composition du Colonel (« 2 boules citron, Vodka » probable) et du Banana split, la fin de la liste « Supplément pizza », le détail du « Supplément burrata » (une liste qui finit par « mozzarella « burrata » ») ; confirmer la 4 Fromaggi (roquefort, chèvre), le Chocolat liégeois et les prix des glaces à composer et de la chantilly (1,50 ou 1,90 €).",
+    "4. Formule midi : que sont le Plat ① et le Plat ② (les deux plats du jour, viande et poisson ?), et une entrée est-elle possible (le reel du 2026-09-07 cite un carpaccio) ? Le site du groupe annonce des plats du jour « à partir de 9,90 € » : est-ce vrai à Laissac ?",
+    "5. Que comprennent la formule petit déjeuner (6,50 €), la formule breakfast (9,90 €) et la formule goûter (6 €) ? À quelles heures ?",
+    "6. Le « burger du moment » : son nom et son prix, changent-ils souvent ?",
+    "7. Prix normaux des boissons du happy hour (hors 17h–23h) ; le happy hour est-il bien tous les jours ? Prix des girafes de 3 à 5 L.",
+    "8. Horaires : 9h–1h tous les jours (Google, Instagram) ; la cuisine en continu de 11h30 à minuit (ardoise) ? Les bio Facebook (9h–22h) et les annuaires sont anciens.",
+    "9. Logo officiel : l'écusson noir et or en haute définition (fichier source) ; l'ancien logo bleu canard du site du groupe et de Facebook est-il abandonné ?",
+    "10. Photos : la carte n'a que des photos libres ; une séance photo des burgers, pizzas, tapas et desserts, et de la salle refaite ?",
+    "11. Où mène le QR code des chevalets de table ? Quelle caisse et quel terminal de paiement ?",
+    "12. Accès propriétaire à la fiche Google et à la page Facebook héritées (photos de 2018, bio de 2024) ; l'arrêt de tram de la page du groupe est faux (Observatoire, pas Saint-Denis).",
+    "13. Terrasse « ombragée » (bio Instagram) ou « ensoleillée » (site du groupe, Facebook) ? Nombre de places en salle et en terrasse ?"
+  ]
+}
