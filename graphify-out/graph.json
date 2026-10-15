@@ -7684,7 +7684,7 @@
       "file_type": "code",
       "norm_label": "formats",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3287"
+      "source_location": "L3288"
     },
     {
       "id": "frontend_lib_menu_data_optionchoice",
@@ -9896,7 +9896,7 @@
       "file_type": "code",
       "norm_label": "brandname()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5522"
+      "source_location": "L5524"
     },
     {
       "id": "frontend_lib_menu_data_displayaddress",
@@ -9908,7 +9908,7 @@
       "file_type": "code",
       "norm_label": "displayaddress()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5548"
+      "source_location": "L5550"
     },
     {
       "id": "frontend_lib_menu_data_displayphone",
@@ -9920,7 +9920,7 @@
       "file_type": "code",
       "norm_label": "displayphone()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5543"
+      "source_location": "L5545"
     },
     {
       "id": "frontend_lib_menu_data_getrestaurant",
@@ -9932,7 +9932,7 @@
       "file_type": "code",
       "norm_label": "getrestaurant()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5503"
+      "source_location": "L5505"
     },
     {
       "id": "frontend_lib_menu_data_mapsurl",
@@ -9944,7 +9944,7 @@
       "file_type": "code",
       "norm_label": "mapsurl()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5516"
+      "source_location": "L5518"
     },
     {
       "id": "frontend_lib_menu_data_restaurantthemeclass",
@@ -9956,7 +9956,7 @@
       "file_type": "code",
       "norm_label": "restaurantthemeclass()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5499"
+      "source_location": "L5501"
     },
     {
       "id": "frontend_lib_menu_table_param_tableparam",
@@ -14300,7 +14300,7 @@
       "file_type": "code",
       "norm_label": "formatprice()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5535"
+      "source_location": "L5537"
     },
     {
       "id": "frontend_lib_report_charts_barpath",
@@ -41300,7 +41300,7 @@
       "file_type": "code",
       "norm_label": "articleformats()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3301"
+      "source_location": "L3302"
     },
     {
       "id": "frontend_lib_menu_data_bkphoto",
@@ -41312,7 +41312,7 @@
       "file_type": "code",
       "norm_label": "bkphoto()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2628"
+      "source_location": "L2629"
     },
     {
       "id": "frontend_lib_menu_data_bsburger",
@@ -41324,7 +41324,7 @@
       "file_type": "code",
       "norm_label": "bsburger()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1982"
+      "source_location": "L1983"
     },
     {
       "id": "frontend_lib_menu_data_bsmenu",
@@ -41336,7 +41336,7 @@
       "file_type": "code",
       "norm_label": "bsmenu()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1976"
+      "source_location": "L1977"
     },
     {
       "id": "frontend_lib_menu_data_bsretirer",
@@ -41348,7 +41348,7 @@
       "file_type": "code",
       "norm_label": "bsretirer()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1972"
+      "source_location": "L1973"
     },
     {
       "id": "frontend_lib_menu_data_cdaboule",
@@ -41360,7 +41360,7 @@
       "file_type": "code",
       "norm_label": "cdaboule()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4175"
+      "source_location": "L4179"
     },
     {
       "id": "frontend_lib_menu_data_cdabouteille",
@@ -41372,7 +41372,7 @@
       "file_type": "code",
       "norm_label": "cdabouteille()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4233"
+      "source_location": "L4237"
     },
     {
       "id": "frontend_lib_menu_data_cdacocktail",
@@ -41384,7 +41384,7 @@
       "file_type": "code",
       "norm_label": "cdacocktail()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4205"
+      "source_location": "L4209"
     },
     {
       "id": "frontend_lib_menu_data_cdacoupe",
@@ -41396,7 +41396,7 @@
       "file_type": "code",
       "norm_label": "cdacoupe()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4178"
+      "source_location": "L4182"
     },
     {
       "id": "frontend_lib_menu_data_cdadigestif",
@@ -41408,7 +41408,7 @@
       "file_type": "code",
       "norm_label": "cdadigestif()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4261"
+      "source_location": "L4265"
     },
     {
       "id": "frontend_lib_menu_data_cdaplat",
@@ -41420,7 +41420,7 @@
       "file_type": "code",
       "norm_label": "cdaplat()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4118"
+      "source_location": "L4122"
     },
     {
       "id": "frontend_lib_menu_data_cdapression",
@@ -41432,7 +41432,7 @@
       "file_type": "code",
       "norm_label": "cdapression()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4220"
+      "source_location": "L4224"
     },
     {
       "id": "frontend_lib_menu_data_cdaspiritueux",
@@ -41444,7 +41444,7 @@
       "file_type": "code",
       "norm_label": "cdaspiritueux()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4249"
+      "source_location": "L4253"
     },
     {
       "id": "frontend_lib_menu_data_cdavin",
@@ -41456,7 +41456,7 @@
       "file_type": "code",
       "norm_label": "cdavin()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4243"
+      "source_location": "L4247"
     },
     {
       "id": "frontend_lib_menu_data_csitem",
@@ -41468,7 +41468,7 @@
       "file_type": "code",
       "norm_label": "csitem()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2483"
+      "source_location": "L2484"
     },
     {
       "id": "frontend_lib_menu_data_csmenu",
@@ -41480,7 +41480,7 @@
       "file_type": "code",
       "norm_label": "csmenu()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2473"
+      "source_location": "L2474"
     },
     {
       "id": "frontend_lib_menu_data_groupechoix",
@@ -41504,7 +41504,7 @@
       "file_type": "code",
       "norm_label": "groupeformats()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3290"
+      "source_location": "L3291"
     },
     {
       "id": "frontend_lib_menu_data_lzpizza",
@@ -41516,7 +41516,7 @@
       "file_type": "code",
       "norm_label": "lzpizza()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1234"
+      "source_location": "L1235"
     },
     {
       "id": "frontend_lib_menu_data_lzsupplements",
@@ -41528,7 +41528,7 @@
       "file_type": "code",
       "norm_label": "lzsupplements()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1205"
+      "source_location": "L1206"
     },
     {
       "id": "frontend_lib_menu_data_lzviande",
@@ -41540,7 +41540,7 @@
       "file_type": "code",
       "norm_label": "lzviande()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1156"
+      "source_location": "L1157"
     },
     {
       "id": "frontend_lib_menu_data_noveltycocktail",
@@ -41552,7 +41552,7 @@
       "file_type": "code",
       "norm_label": "noveltycocktail()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3325"
+      "source_location": "L3326"
     },
     {
       "id": "frontend_lib_menu_data_noveltypression",
@@ -41564,7 +41564,7 @@
       "file_type": "code",
       "norm_label": "noveltypression()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3349"
+      "source_location": "L3350"
     },
     {
       "id": "frontend_lib_menu_data_noveltysansalcool",
@@ -41576,7 +41576,7 @@
       "file_type": "code",
       "norm_label": "noveltysansalcool()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3340"
+      "source_location": "L3341"
     },
     {
       "id": "frontend_lib_menu_data_ocpaccompagnement",
@@ -41588,7 +41588,7 @@
       "file_type": "code",
       "norm_label": "ocpaccompagnement()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1634"
+      "source_location": "L1635"
     },
     {
       "id": "frontend_lib_menu_data_ocpboisson",
@@ -41600,7 +41600,7 @@
       "file_type": "code",
       "norm_label": "ocpboisson()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1637"
+      "source_location": "L1638"
     },
     {
       "id": "frontend_lib_menu_data_pexels",
@@ -41648,7 +41648,7 @@
       "file_type": "code",
       "norm_label": "victoriapizza()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3760"
+      "source_location": "L3761"
     },
     {
       "id": "frontend_lib_menu_data_victoriasucre",
@@ -41660,7 +41660,7 @@
       "file_type": "code",
       "norm_label": "victoriasucre()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3768"
+      "source_location": "L3769"
     },
     {
       "id": "frontend_lib_menu_data_victoriavin",
@@ -41672,7 +41672,7 @@
       "file_type": "code",
       "norm_label": "victoriavin()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3776"
+      "source_location": "L3778"
     },
     {
       "id": "frontend_components_admin_clients_demarrage_clientdemarrage",
@@ -44552,7 +44552,7 @@
       "file_type": "code",
       "norm_label": "addverb()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5529"
+      "source_location": "L5531"
     },
     {
       "id": "frontend_lib_menu_data_allergenline",
@@ -44576,7 +44576,7 @@
       "file_type": "code",
       "norm_label": "linename()",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5525"
+      "source_location": "L5527"
     },
     {
       "id": "demos_big_smash_film_src_scenes_slams_approx",
@@ -68456,14 +68456,14 @@
       "source_location": "L55"
     },
     {
-      "id": "demos_le_novelty_docs_recherche_carte_diff_vs_current_demo_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
-      "label": "DIFF vs current demo (`const leNovelty`, frontend/lib/menu-data.ts L3322\u20133648)",
+      "id": "demos_le_novelty_docs_recherche_carte_diff_vs_the_demo_as_it_stood_before_this_pass_all_resolved_on_2026_10_14_kept_for_the_record_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
+      "label": "DIFF vs the demo as it stood before this pass \u2014 all resolved on 2026-10-14 (kept for the record) (`const leNovelty`, frontend/lib/menu-data.ts L3322\u20133648)",
       "_origin": "ast",
       "community": 320,
       "community_name": "Le Novelty \u2014 carte transcribed from the pages themselves (2026-10-14)",
       "file_type": "document",
       "node_kind": "heading",
-      "norm_label": "diff vs current demo (`const lenovelty`, frontend/lib/menu-data.ts l3322\u20133648)",
+      "norm_label": "diff vs the demo as it stood before this pass \u2014 all resolved on 2026-10-14 (kept for the record) (`const lenovelty`, frontend/lib/menu-data.ts l3322\u20133648)",
       "source_file": "demos/le-novelty/docs/recherche-carte.md",
       "source_location": "L265"
     },
@@ -95058,7 +95058,7 @@
       "file_type": "code",
       "norm_label": "adresse_accompagnements",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2925"
+      "source_location": "L2926"
     },
     {
       "id": "frontend_lib_menu_data_adresseaccompagnement",
@@ -95069,7 +95069,7 @@
       "file_type": "code",
       "norm_label": "adresseaccompagnement",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2931"
+      "source_location": "L2932"
     },
     {
       "id": "frontend_lib_menu_data_adressesaladecesar",
@@ -95080,7 +95080,7 @@
       "file_type": "code",
       "norm_label": "adressesaladecesar",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2949"
+      "source_location": "L2950"
     },
     {
       "id": "frontend_lib_menu_data_adressesupplement",
@@ -95091,7 +95091,7 @@
       "file_type": "code",
       "norm_label": "adressesupplement",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2940"
+      "source_location": "L2941"
     },
     {
       "id": "frontend_lib_menu_data_adresseviande",
@@ -95102,7 +95102,7 @@
       "file_type": "code",
       "norm_label": "adresseviande",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2947"
+      "source_location": "L2948"
     },
     {
       "id": "frontend_lib_menu_data_alcool",
@@ -95113,7 +95113,7 @@
       "file_type": "code",
       "norm_label": "alcool",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3311"
+      "source_location": "L3312"
     },
     {
       "id": "frontend_lib_menu_data_allergen_labels",
@@ -95135,7 +95135,7 @@
       "file_type": "code",
       "norm_label": "baiko",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2664"
+      "source_location": "L2665"
     },
     {
       "id": "frontend_lib_menu_data_bigsmash",
@@ -95146,7 +95146,7 @@
       "file_type": "code",
       "norm_label": "bigsmash",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1991"
+      "source_location": "L1992"
     },
     {
       "id": "frontend_lib_menu_data_bk_bibimbap",
@@ -95157,7 +95157,7 @@
       "file_type": "code",
       "norm_label": "bk_bibimbap",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2622"
+      "source_location": "L2623"
     },
     {
       "id": "frontend_lib_menu_data_bk_pad_thai",
@@ -95168,7 +95168,7 @@
       "file_type": "code",
       "norm_label": "bk_pad_thai",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2623"
+      "source_location": "L2624"
     },
     {
       "id": "frontend_lib_menu_data_bk_ramyeon",
@@ -95179,7 +95179,7 @@
       "file_type": "code",
       "norm_label": "bk_ramyeon",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2624"
+      "source_location": "L2625"
     },
     {
       "id": "frontend_lib_menu_data_bk_volcano",
@@ -95190,7 +95190,7 @@
       "file_type": "code",
       "norm_label": "bk_volcano",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2626"
+      "source_location": "L2627"
     },
     {
       "id": "frontend_lib_menu_data_bkboissonformule",
@@ -95201,7 +95201,7 @@
       "file_type": "code",
       "norm_label": "bkboissonformule",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2659"
+      "source_location": "L2660"
     },
     {
       "id": "frontend_lib_menu_data_bkplatformule",
@@ -95212,7 +95212,7 @@
       "file_type": "code",
       "norm_label": "bkplatformule",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2638"
+      "source_location": "L2639"
     },
     {
       "id": "frontend_lib_menu_data_bksupplementpartage",
@@ -95223,7 +95223,7 @@
       "file_type": "code",
       "norm_label": "bksupplementpartage",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2662"
+      "source_location": "L2663"
     },
     {
       "id": "frontend_lib_menu_data_bkversion",
@@ -95234,7 +95234,7 @@
       "file_type": "code",
       "norm_label": "bkversion",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2635"
+      "source_location": "L2636"
     },
     {
       "id": "frontend_lib_menu_data_boho",
@@ -95245,7 +95245,7 @@
       "file_type": "code",
       "norm_label": "boho",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L667"
+      "source_location": "L668"
     },
     {
       "id": "frontend_lib_menu_data_bs_accompagnements",
@@ -95256,7 +95256,7 @@
       "file_type": "code",
       "norm_label": "bs_accompagnements",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1916"
+      "source_location": "L1917"
     },
     {
       "id": "frontend_lib_menu_data_bs_boissons",
@@ -95267,7 +95267,7 @@
       "file_type": "code",
       "norm_label": "bs_boissons",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1943"
+      "source_location": "L1944"
     },
     {
       "id": "frontend_lib_menu_data_bs_combo_burgers",
@@ -95278,7 +95278,7 @@
       "file_type": "code",
       "norm_label": "bs_combo_burgers",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1959"
+      "source_location": "L1960"
     },
     {
       "id": "frontend_lib_menu_data_bs_sauces",
@@ -95289,7 +95289,7 @@
       "file_type": "code",
       "norm_label": "bs_sauces",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1956"
+      "source_location": "L1957"
     },
     {
       "id": "frontend_lib_menu_data_bs_thes_limonades",
@@ -95300,7 +95300,7 @@
       "file_type": "code",
       "norm_label": "bs_thes_limonades",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1928"
+      "source_location": "L1929"
     },
     {
       "id": "frontend_lib_menu_data_bsaccompagnement",
@@ -95311,7 +95311,7 @@
       "file_type": "code",
       "norm_label": "bsaccompagnement",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1961"
+      "source_location": "L1962"
     },
     {
       "id": "frontend_lib_menu_data_bsboisson",
@@ -95322,7 +95322,7 @@
       "file_type": "code",
       "norm_label": "bsboisson",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1962"
+      "source_location": "L1963"
     },
     {
       "id": "frontend_lib_menu_data_bscoulis",
@@ -95333,7 +95333,7 @@
       "file_type": "code",
       "norm_label": "bscoulis",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1988"
+      "source_location": "L1989"
     },
     {
       "id": "frontend_lib_menu_data_bssauceenplus",
@@ -95344,7 +95344,7 @@
       "file_type": "code",
       "norm_label": "bssauceenplus",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1966"
+      "source_location": "L1967"
     },
     {
       "id": "frontend_lib_menu_data_bstopping",
@@ -95355,7 +95355,7 @@
       "file_type": "code",
       "norm_label": "bstopping",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1989"
+      "source_location": "L1990"
     },
     {
       "id": "frontend_lib_menu_data_cafedesarts",
@@ -95366,7 +95366,7 @@
       "file_type": "code",
       "norm_label": "cafedesarts",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4263"
+      "source_location": "L4267"
     },
     {
       "id": "frontend_lib_menu_data_caffepanis",
@@ -95377,7 +95377,7 @@
       "file_type": "code",
       "norm_label": "caffepanis",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5219"
+      "source_location": "L5223"
     },
     {
       "id": "frontend_lib_menu_data_cda_bambino_accompagnement",
@@ -95388,7 +95388,7 @@
       "file_type": "code",
       "norm_label": "cda_bambino_accompagnement",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4151"
+      "source_location": "L4155"
     },
     {
       "id": "frontend_lib_menu_data_cda_bambino_dessert",
@@ -95399,7 +95399,7 @@
       "file_type": "code",
       "norm_label": "cda_bambino_dessert",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4154"
+      "source_location": "L4158"
     },
     {
       "id": "frontend_lib_menu_data_cda_brasserie_dessert",
@@ -95410,7 +95410,7 @@
       "file_type": "code",
       "norm_label": "cda_brasserie_dessert",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4144"
+      "source_location": "L4148"
     },
     {
       "id": "frontend_lib_menu_data_cda_brasserie_entree",
@@ -95421,7 +95421,7 @@
       "file_type": "code",
       "norm_label": "cda_brasserie_entree",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4126"
+      "source_location": "L4130"
     },
     {
       "id": "frontend_lib_menu_data_cda_brasserie_plat",
@@ -95432,7 +95432,7 @@
       "file_type": "code",
       "norm_label": "cda_brasserie_plat",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4132"
+      "source_location": "L4136"
     },
     {
       "id": "frontend_lib_menu_data_cda_chantilly",
@@ -95443,7 +95443,7 @@
       "file_type": "code",
       "norm_label": "cda_chantilly",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4194"
+      "source_location": "L4198"
     },
     {
       "id": "frontend_lib_menu_data_cda_declinaisons",
@@ -95454,7 +95454,7 @@
       "file_type": "code",
       "norm_label": "cda_declinaisons",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4196"
+      "source_location": "L4200"
     },
     {
       "id": "frontend_lib_menu_data_cda_escargots",
@@ -95465,7 +95465,7 @@
       "file_type": "code",
       "norm_label": "cda_escargots",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4156"
+      "source_location": "L4160"
     },
     {
       "id": "frontend_lib_menu_data_cda_jack_daniels",
@@ -95476,7 +95476,7 @@
       "file_type": "code",
       "norm_label": "cda_jack_daniels",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4202"
+      "source_location": "L4206"
     },
     {
       "id": "frontend_lib_menu_data_cda_jagerbomb",
@@ -95487,7 +95487,7 @@
       "file_type": "code",
       "norm_label": "cda_jagerbomb",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4200"
+      "source_location": "L4204"
     },
     {
       "id": "frontend_lib_menu_data_cda_martini",
@@ -95498,7 +95498,7 @@
       "file_type": "code",
       "norm_label": "cda_martini",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4198"
+      "source_location": "L4202"
     },
     {
       "id": "frontend_lib_menu_data_cda_parfums_glace",
@@ -95509,7 +95509,7 @@
       "file_type": "code",
       "norm_label": "cda_parfums_glace",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4158"
+      "source_location": "L4162"
     },
     {
       "id": "frontend_lib_menu_data_cda_petit_dejeuner_supplements",
@@ -95520,7 +95520,7 @@
       "file_type": "code",
       "norm_label": "cda_petit_dejeuner_supplements",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4187"
+      "source_location": "L4191"
     },
     {
       "id": "frontend_lib_menu_data_cda_photos",
@@ -95531,7 +95531,7 @@
       "file_type": "code",
       "norm_label": "cda_photos",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4077"
+      "source_location": "L4080"
     },
     {
       "id": "frontend_lib_menu_data_cda_pichet_biere",
@@ -95542,7 +95542,7 @@
       "file_type": "code",
       "norm_label": "cda_pichet_biere",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4201"
+      "source_location": "L4205"
     },
     {
       "id": "frontend_lib_menu_data_chickenstreet",
@@ -95553,7 +95553,7 @@
       "file_type": "code",
       "norm_label": "chickenstreet",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2492"
+      "source_location": "L2493"
     },
     {
       "id": "frontend_lib_menu_data_cs_boissons",
@@ -95564,7 +95564,7 @@
       "file_type": "code",
       "norm_label": "cs_boissons",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2452"
+      "source_location": "L2453"
     },
     {
       "id": "frontend_lib_menu_data_cs_sauces",
@@ -95575,7 +95575,7 @@
       "file_type": "code",
       "norm_label": "cs_sauces",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2450"
+      "source_location": "L2451"
     },
     {
       "id": "frontend_lib_menu_data_csaccompagnement",
@@ -95586,7 +95586,7 @@
       "file_type": "code",
       "norm_label": "csaccompagnement",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2464"
+      "source_location": "L2465"
     },
     {
       "id": "frontend_lib_menu_data_csboisson",
@@ -95597,7 +95597,7 @@
       "file_type": "code",
       "norm_label": "csboisson",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2463"
+      "source_location": "L2464"
     },
     {
       "id": "frontend_lib_menu_data_csbrisures",
@@ -95608,7 +95608,7 @@
       "file_type": "code",
       "norm_label": "csbrisures",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2467"
+      "source_location": "L2468"
     },
     {
       "id": "frontend_lib_menu_data_csnappage",
@@ -95619,7 +95619,7 @@
       "file_type": "code",
       "norm_label": "csnappage",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2466"
+      "source_location": "L2467"
     },
     {
       "id": "frontend_lib_menu_data_cssauce",
@@ -95630,7 +95630,7 @@
       "file_type": "code",
       "norm_label": "cssauce",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2454"
+      "source_location": "L2455"
     },
     {
       "id": "frontend_lib_menu_data_cssauceenplus",
@@ -95641,7 +95641,7 @@
       "file_type": "code",
       "norm_label": "cssauceenplus",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2455"
+      "source_location": "L2456"
     },
     {
       "id": "frontend_lib_menu_data_cssupplements",
@@ -95652,7 +95652,7 @@
       "file_type": "code",
       "norm_label": "cssupplements",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2457"
+      "source_location": "L2458"
     },
     {
       "id": "frontend_lib_menu_data_cuisson",
@@ -95674,7 +95674,7 @@
       "file_type": "code",
       "norm_label": "ladresse",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2959"
+      "source_location": "L2960"
     },
     {
       "id": "frontend_lib_menu_data_lenovelty",
@@ -95685,7 +95685,7 @@
       "file_type": "code",
       "norm_label": "lenovelty",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3352"
+      "source_location": "L3353"
     },
     {
       "id": "frontend_lib_menu_data_levictoria",
@@ -95696,7 +95696,7 @@
       "file_type": "code",
       "norm_label": "levictoria",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3785"
+      "source_location": "L3787"
     },
     {
       "id": "frontend_lib_menu_data_lz_boissons",
@@ -95707,7 +95707,7 @@
       "file_type": "code",
       "norm_label": "lz_boissons",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1164"
+      "source_location": "L1165"
     },
     {
       "id": "frontend_lib_menu_data_lz_sauces",
@@ -95718,7 +95718,7 @@
       "file_type": "code",
       "norm_label": "lz_sauces",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1171"
+      "source_location": "L1172"
     },
     {
       "id": "frontend_lib_menu_data_lz_viandes",
@@ -95729,7 +95729,7 @@
       "file_type": "code",
       "norm_label": "lz_viandes",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1145"
+      "source_location": "L1146"
     },
     {
       "id": "frontend_lib_menu_data_lzboissonincluse",
@@ -95740,7 +95740,7 @@
       "file_type": "code",
       "norm_label": "lzboissonincluse",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1196"
+      "source_location": "L1197"
     },
     {
       "id": "frontend_lib_menu_data_lzfood",
@@ -95751,7 +95751,7 @@
       "file_type": "code",
       "norm_label": "lzfood",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1238"
+      "source_location": "L1239"
     },
     {
       "id": "frontend_lib_menu_data_lzformule",
@@ -95762,7 +95762,7 @@
       "file_type": "code",
       "norm_label": "lzformule",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1187"
+      "source_location": "L1188"
     },
     {
       "id": "frontend_lib_menu_data_lzparfumcanette",
@@ -95773,7 +95773,7 @@
       "file_type": "code",
       "norm_label": "lzparfumcanette",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1201"
+      "source_location": "L1202"
     },
     {
       "id": "frontend_lib_menu_data_lzsauce",
@@ -95784,7 +95784,7 @@
       "file_type": "code",
       "norm_label": "lzsauce",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1193"
+      "source_location": "L1194"
     },
     {
       "id": "frontend_lib_menu_data_lzsupplementspizza",
@@ -95795,7 +95795,7 @@
       "file_type": "code",
       "norm_label": "lzsupplementspizza",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1219"
+      "source_location": "L1220"
     },
     {
       "id": "frontend_lib_menu_data_lzsupplementssnack",
@@ -95806,7 +95806,7 @@
       "file_type": "code",
       "norm_label": "lzsupplementssnack",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1208"
+      "source_location": "L1209"
     },
     {
       "id": "frontend_lib_menu_data_novelty_parfums",
@@ -95817,7 +95817,7 @@
       "file_type": "code",
       "norm_label": "novelty_parfums",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3319"
+      "source_location": "L3320"
     },
     {
       "id": "frontend_lib_menu_data_novelty_xxl",
@@ -95828,7 +95828,7 @@
       "file_type": "code",
       "norm_label": "novelty_xxl",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3321"
+      "source_location": "L3322"
     },
     {
       "id": "frontend_lib_menu_data_novelty_xxl_sans_alcool",
@@ -95839,7 +95839,7 @@
       "file_type": "code",
       "norm_label": "novelty_xxl_sans_alcool",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3323"
+      "source_location": "L3324"
     },
     {
       "id": "frontend_lib_menu_data_ocp_accompagnements",
@@ -95850,7 +95850,7 @@
       "file_type": "code",
       "norm_label": "ocp_accompagnements",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1610"
+      "source_location": "L1611"
     },
     {
       "id": "frontend_lib_menu_data_ocp_boissons",
@@ -95861,7 +95861,7 @@
       "file_type": "code",
       "norm_label": "ocp_boissons",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1625"
+      "source_location": "L1626"
     },
     {
       "id": "frontend_lib_menu_data_ocp_sauces",
@@ -95872,7 +95872,7 @@
       "file_type": "code",
       "norm_label": "ocp_sauces",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1632"
+      "source_location": "L1633"
     },
     {
       "id": "frontend_lib_menu_data_ocpsauce",
@@ -95883,7 +95883,7 @@
       "file_type": "code",
       "norm_label": "ocpsauce",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1640"
+      "source_location": "L1641"
     },
     {
       "id": "frontend_lib_menu_data_ocroustipoulet",
@@ -95894,7 +95894,7 @@
       "file_type": "code",
       "norm_label": "ocroustipoulet",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1642"
+      "source_location": "L1643"
     },
     {
       "id": "frontend_lib_menu_data_restaurants",
@@ -95905,7 +95905,7 @@
       "file_type": "code",
       "norm_label": "restaurants",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5467"
+      "source_location": "L5469"
     },
     {
       "id": "frontend_lib_menu_data_themeclasses",
@@ -95916,7 +95916,7 @@
       "file_type": "code",
       "norm_label": "themeclasses",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5485"
+      "source_location": "L5487"
     },
     {
       "id": "frontend_lib_menu_data_trattorialucia",
@@ -95938,7 +95938,7 @@
       "file_type": "code",
       "norm_label": "victoria_burger",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3748"
+      "source_location": "L3749"
     },
     {
       "id": "frontend_lib_menu_data_victoria_supplement_sucre",
@@ -95949,7 +95949,7 @@
       "file_type": "code",
       "norm_label": "victoria_supplement_sucre",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3753"
+      "source_location": "L3754"
     },
     {
       "id": "frontend_lib_menu_data_victoria_supplements_pizza",
@@ -95960,7 +95960,7 @@
       "file_type": "code",
       "norm_label": "victoria_supplements_pizza",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3724"
+      "source_location": "L3725"
     },
     {
       "id": "claude_skills_new_restaurant_references_build_2_the_carte_menu_data_ts",
@@ -99482,7 +99482,7 @@
       "file_type": "code",
       "norm_label": "demo_slug",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5507"
+      "source_location": "L5509"
     },
     {
       "id": "demos_big_smash_film_src_scenes_slams",
@@ -141800,7 +141800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3306",
+      "source_location": "L3307",
       "weight": 1.0
     },
     {
@@ -141812,7 +141812,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3307",
+      "source_location": "L3308",
       "weight": 1.0
     },
     {
@@ -141824,7 +141824,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1984",
+      "source_location": "L1985",
       "weight": 1.0
     },
     {
@@ -141836,7 +141836,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1978",
+      "source_location": "L1979",
       "weight": 1.0
     },
     {
@@ -141848,7 +141848,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1973",
+      "source_location": "L1974",
       "weight": 1.0
     },
     {
@@ -141860,7 +141860,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4176",
+      "source_location": "L4180",
       "weight": 1.0
     },
     {
@@ -141872,7 +141872,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4216",
+      "source_location": "L4220",
       "weight": 1.0
     },
     {
@@ -141884,7 +141884,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4226",
+      "source_location": "L4230",
       "weight": 1.0
     },
     {
@@ -141896,7 +141896,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4258",
+      "source_location": "L4262",
       "weight": 1.0
     },
     {
@@ -141908,7 +141908,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4258",
+      "source_location": "L4262",
       "weight": 1.0
     },
     {
@@ -141920,7 +141920,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4246",
+      "source_location": "L4250",
       "weight": 1.0
     },
     {
@@ -141944,7 +141944,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3291",
+      "source_location": "L3292",
       "weight": 1.0
     },
     {
@@ -141956,7 +141956,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1206",
+      "source_location": "L1207",
       "weight": 1.0
     },
     {
@@ -141968,7 +141968,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1157",
+      "source_location": "L1158",
       "weight": 1.0
     },
     {
@@ -141980,7 +141980,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3350",
+      "source_location": "L3351",
       "weight": 1.0
     },
     {
@@ -141992,7 +141992,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1635",
+      "source_location": "L1636",
       "weight": 1.0
     },
     {
@@ -142004,7 +142004,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1638",
+      "source_location": "L1639",
       "weight": 1.0
     },
     {
@@ -287989,7 +287989,7 @@
       "weight": 1.0
     },
     {
-      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_current_demo_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
+      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_the_demo_as_it_stood_before_this_pass_all_resolved_on_2026_10_14_kept_for_the_record_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
       "target": "demos_le_novelty_docs_recherche_carte_wrong_lines",
       "relation": "contains",
       "_origin": "ast",
@@ -288000,7 +288000,7 @@
       "weight": 1.0
     },
     {
-      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_current_demo_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
+      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_the_demo_as_it_stood_before_this_pass_all_resolved_on_2026_10_14_kept_for_the_record_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
       "target": "demos_le_novelty_docs_recherche_carte_missing_lines_on_the_site_not_in_the_demo",
       "relation": "contains",
       "_origin": "ast",
@@ -288011,7 +288011,7 @@
       "weight": 1.0
     },
     {
-      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_current_demo_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
+      "source": "demos_le_novelty_docs_recherche_carte_diff_vs_the_demo_as_it_stood_before_this_pass_all_resolved_on_2026_10_14_kept_for_the_record_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
       "target": "demos_le_novelty_docs_recherche_carte_lines_on_the_demo_that_are_on_no_source",
       "relation": "contains",
       "_origin": "ast",
@@ -288122,7 +288122,7 @@
     },
     {
       "source": "demos_le_novelty_docs_recherche_carte_le_novelty_carte_transcribed_from_the_pages_themselves_2026_10_14",
-      "target": "demos_le_novelty_docs_recherche_carte_diff_vs_current_demo_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
+      "target": "demos_le_novelty_docs_recherche_carte_diff_vs_the_demo_as_it_stood_before_this_pass_all_resolved_on_2026_10_14_kept_for_the_record_const_lenovelty_frontend_lib_menu_data_ts_l3322_3648",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -328234,7 +328234,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1145",
+      "source_location": "L1146",
       "weight": 1.0
     },
     {
@@ -328245,7 +328245,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1156",
+      "source_location": "L1157",
       "weight": 1.0
     },
     {
@@ -328256,7 +328256,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1164",
+      "source_location": "L1165",
       "weight": 1.0
     },
     {
@@ -328267,7 +328267,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1171",
+      "source_location": "L1172",
       "weight": 1.0
     },
     {
@@ -328278,7 +328278,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1187",
+      "source_location": "L1188",
       "weight": 1.0
     },
     {
@@ -328289,7 +328289,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1193",
+      "source_location": "L1194",
       "weight": 1.0
     },
     {
@@ -328300,7 +328300,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1196",
+      "source_location": "L1197",
       "weight": 1.0
     },
     {
@@ -328311,7 +328311,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1201",
+      "source_location": "L1202",
       "weight": 1.0
     },
     {
@@ -328322,7 +328322,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1205",
+      "source_location": "L1206",
       "weight": 1.0
     },
     {
@@ -328333,7 +328333,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1208",
+      "source_location": "L1209",
       "weight": 1.0
     },
     {
@@ -328355,7 +328355,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1219",
+      "source_location": "L1220",
       "weight": 1.0
     },
     {
@@ -328366,7 +328366,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1234",
+      "source_location": "L1235",
       "weight": 1.0
     },
     {
@@ -328377,7 +328377,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1238",
+      "source_location": "L1239",
       "weight": 1.0
     },
     {
@@ -328421,7 +328421,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1610",
+      "source_location": "L1611",
       "weight": 1.0
     },
     {
@@ -328443,7 +328443,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1625",
+      "source_location": "L1626",
       "weight": 1.0
     },
     {
@@ -328454,7 +328454,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1632",
+      "source_location": "L1633",
       "weight": 1.0
     },
     {
@@ -328465,7 +328465,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1634",
+      "source_location": "L1635",
       "weight": 1.0
     },
     {
@@ -328476,7 +328476,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1637",
+      "source_location": "L1638",
       "weight": 1.0
     },
     {
@@ -328487,7 +328487,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1640",
+      "source_location": "L1641",
       "weight": 1.0
     },
     {
@@ -328498,7 +328498,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1642",
+      "source_location": "L1643",
       "weight": 1.0
     },
     {
@@ -328509,7 +328509,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1916",
+      "source_location": "L1917",
       "weight": 1.0
     },
     {
@@ -328520,7 +328520,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1928",
+      "source_location": "L1929",
       "weight": 1.0
     },
     {
@@ -328531,7 +328531,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1943",
+      "source_location": "L1944",
       "weight": 1.0
     },
     {
@@ -328542,7 +328542,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1956",
+      "source_location": "L1957",
       "weight": 1.0
     },
     {
@@ -328553,7 +328553,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1959",
+      "source_location": "L1960",
       "weight": 1.0
     },
     {
@@ -328564,7 +328564,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1961",
+      "source_location": "L1962",
       "weight": 1.0
     },
     {
@@ -328575,7 +328575,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1962",
+      "source_location": "L1963",
       "weight": 1.0
     },
     {
@@ -328586,7 +328586,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1966",
+      "source_location": "L1967",
       "weight": 1.0
     },
     {
@@ -328597,7 +328597,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1972",
+      "source_location": "L1973",
       "weight": 1.0
     },
     {
@@ -328608,7 +328608,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1976",
+      "source_location": "L1977",
       "weight": 1.0
     },
     {
@@ -328619,7 +328619,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1982",
+      "source_location": "L1983",
       "weight": 1.0
     },
     {
@@ -328630,7 +328630,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1988",
+      "source_location": "L1989",
       "weight": 1.0
     },
     {
@@ -328641,7 +328641,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1989",
+      "source_location": "L1990",
       "weight": 1.0
     },
     {
@@ -328652,7 +328652,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L1991",
+      "source_location": "L1992",
       "weight": 1.0
     },
     {
@@ -328685,7 +328685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2450",
+      "source_location": "L2451",
       "weight": 1.0
     },
     {
@@ -328696,7 +328696,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2452",
+      "source_location": "L2453",
       "weight": 1.0
     },
     {
@@ -328707,7 +328707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2454",
+      "source_location": "L2455",
       "weight": 1.0
     },
     {
@@ -328718,7 +328718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2455",
+      "source_location": "L2456",
       "weight": 1.0
     },
     {
@@ -328729,7 +328729,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2457",
+      "source_location": "L2458",
       "weight": 1.0
     },
     {
@@ -328740,7 +328740,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2463",
+      "source_location": "L2464",
       "weight": 1.0
     },
     {
@@ -328751,7 +328751,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2464",
+      "source_location": "L2465",
       "weight": 1.0
     },
     {
@@ -328762,7 +328762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2466",
+      "source_location": "L2467",
       "weight": 1.0
     },
     {
@@ -328773,7 +328773,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2467",
+      "source_location": "L2468",
       "weight": 1.0
     },
     {
@@ -328795,7 +328795,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2473",
+      "source_location": "L2474",
       "weight": 1.0
     },
     {
@@ -328806,7 +328806,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2483",
+      "source_location": "L2484",
       "weight": 1.0
     },
     {
@@ -328817,7 +328817,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2492",
+      "source_location": "L2493",
       "weight": 1.0
     },
     {
@@ -328850,7 +328850,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2622",
+      "source_location": "L2623",
       "weight": 1.0
     },
     {
@@ -328861,7 +328861,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2623",
+      "source_location": "L2624",
       "weight": 1.0
     },
     {
@@ -328872,7 +328872,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2624",
+      "source_location": "L2625",
       "weight": 1.0
     },
     {
@@ -328883,7 +328883,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2626",
+      "source_location": "L2627",
       "weight": 1.0
     },
     {
@@ -328894,7 +328894,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2628",
+      "source_location": "L2629",
       "weight": 1.0
     },
     {
@@ -328905,7 +328905,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2635",
+      "source_location": "L2636",
       "weight": 1.0
     },
     {
@@ -328916,7 +328916,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2638",
+      "source_location": "L2639",
       "weight": 1.0
     },
     {
@@ -328927,7 +328927,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2659",
+      "source_location": "L2660",
       "weight": 1.0
     },
     {
@@ -328938,7 +328938,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2662",
+      "source_location": "L2663",
       "weight": 1.0
     },
     {
@@ -328949,7 +328949,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2664",
+      "source_location": "L2665",
       "weight": 1.0
     },
     {
@@ -328993,7 +328993,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2925",
+      "source_location": "L2926",
       "weight": 1.0
     },
     {
@@ -329004,7 +329004,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2931",
+      "source_location": "L2932",
       "weight": 1.0
     },
     {
@@ -329015,7 +329015,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2940",
+      "source_location": "L2941",
       "weight": 1.0
     },
     {
@@ -329026,7 +329026,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2947",
+      "source_location": "L2948",
       "weight": 1.0
     },
     {
@@ -329037,7 +329037,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2949",
+      "source_location": "L2950",
       "weight": 1.0
     },
     {
@@ -329048,7 +329048,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L2959",
+      "source_location": "L2960",
       "weight": 1.0
     },
     {
@@ -329081,7 +329081,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3287",
+      "source_location": "L3288",
       "weight": 1.0
     },
     {
@@ -329092,7 +329092,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3290",
+      "source_location": "L3291",
       "weight": 1.0
     },
     {
@@ -329103,7 +329103,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3301",
+      "source_location": "L3302",
       "weight": 1.0
     },
     {
@@ -329114,7 +329114,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3311",
+      "source_location": "L3312",
       "weight": 1.0
     },
     {
@@ -329125,7 +329125,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3319",
+      "source_location": "L3320",
       "weight": 1.0
     },
     {
@@ -329136,7 +329136,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3321",
+      "source_location": "L3322",
       "weight": 1.0
     },
     {
@@ -329147,7 +329147,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3323",
+      "source_location": "L3324",
       "weight": 1.0
     },
     {
@@ -329158,7 +329158,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3325",
+      "source_location": "L3326",
       "weight": 1.0
     },
     {
@@ -329169,7 +329169,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3340",
+      "source_location": "L3341",
       "weight": 1.0
     },
     {
@@ -329180,7 +329180,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3349",
+      "source_location": "L3350",
       "weight": 1.0
     },
     {
@@ -329191,7 +329191,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3352",
+      "source_location": "L3353",
       "weight": 1.0
     },
     {
@@ -329202,7 +329202,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3724",
+      "source_location": "L3725",
       "weight": 1.0
     },
     {
@@ -329213,7 +329213,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3748",
+      "source_location": "L3749",
       "weight": 1.0
     },
     {
@@ -329224,7 +329224,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3753",
+      "source_location": "L3754",
       "weight": 1.0
     },
     {
@@ -329235,7 +329235,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3760",
+      "source_location": "L3761",
       "weight": 1.0
     },
     {
@@ -329246,7 +329246,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3768",
+      "source_location": "L3769",
       "weight": 1.0
     },
     {
@@ -329257,7 +329257,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3776",
+      "source_location": "L3778",
       "weight": 1.0
     },
     {
@@ -329268,7 +329268,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L3785",
+      "source_location": "L3787",
       "weight": 1.0
     },
     {
@@ -329279,7 +329279,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4077",
+      "source_location": "L4080",
       "weight": 1.0
     },
     {
@@ -329290,7 +329290,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4118",
+      "source_location": "L4122",
       "weight": 1.0
     },
     {
@@ -329301,7 +329301,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4126",
+      "source_location": "L4130",
       "weight": 1.0
     },
     {
@@ -329312,7 +329312,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4132",
+      "source_location": "L4136",
       "weight": 1.0
     },
     {
@@ -329323,7 +329323,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4144",
+      "source_location": "L4148",
       "weight": 1.0
     },
     {
@@ -329334,7 +329334,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4151",
+      "source_location": "L4155",
       "weight": 1.0
     },
     {
@@ -329345,7 +329345,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4154",
+      "source_location": "L4158",
       "weight": 1.0
     },
     {
@@ -329356,7 +329356,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4156",
+      "source_location": "L4160",
       "weight": 1.0
     },
     {
@@ -329367,7 +329367,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4158",
+      "source_location": "L4162",
       "weight": 1.0
     },
     {
@@ -329378,7 +329378,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4175",
+      "source_location": "L4179",
       "weight": 1.0
     },
     {
@@ -329389,7 +329389,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4178",
+      "source_location": "L4182",
       "weight": 1.0
     },
     {
@@ -329400,7 +329400,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4187",
+      "source_location": "L4191",
       "weight": 1.0
     },
     {
@@ -329411,7 +329411,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4194",
+      "source_location": "L4198",
       "weight": 1.0
     },
     {
@@ -329422,7 +329422,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4196",
+      "source_location": "L4200",
       "weight": 1.0
     },
     {
@@ -329433,7 +329433,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4198",
+      "source_location": "L4202",
       "weight": 1.0
     },
     {
@@ -329444,7 +329444,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4200",
+      "source_location": "L4204",
       "weight": 1.0
     },
     {
@@ -329455,7 +329455,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4201",
+      "source_location": "L4205",
       "weight": 1.0
     },
     {
@@ -329466,7 +329466,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4202",
+      "source_location": "L4206",
       "weight": 1.0
     },
     {
@@ -329477,7 +329477,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4205",
+      "source_location": "L4209",
       "weight": 1.0
     },
     {
@@ -329488,7 +329488,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4220",
+      "source_location": "L4224",
       "weight": 1.0
     },
     {
@@ -329499,7 +329499,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4233",
+      "source_location": "L4237",
       "weight": 1.0
     },
     {
@@ -329510,7 +329510,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4243",
+      "source_location": "L4247",
       "weight": 1.0
     },
     {
@@ -329521,7 +329521,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4249",
+      "source_location": "L4253",
       "weight": 1.0
     },
     {
@@ -329532,7 +329532,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4261",
+      "source_location": "L4265",
       "weight": 1.0
     },
     {
@@ -329543,7 +329543,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L4263",
+      "source_location": "L4267",
       "weight": 1.0
     },
     {
@@ -329576,7 +329576,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5219",
+      "source_location": "L5223",
       "weight": 1.0
     },
     {
@@ -329598,7 +329598,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5467",
+      "source_location": "L5469",
       "weight": 1.0
     },
     {
@@ -329609,18 +329609,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5485",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_lib_menu_data",
-      "target": "frontend_lib_menu_data_restaurantthemeclass",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5499",
+      "source_location": "L5487",
       "weight": 1.0
     },
     {
@@ -329636,13 +329625,24 @@
     },
     {
       "source": "frontend_lib_menu_data",
+      "target": "frontend_lib_menu_data_restaurantthemeclass",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/lib/menu-data.ts",
+      "source_location": "L5501",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_lib_menu_data",
       "target": "frontend_lib_menu_data_getrestaurant",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5503",
+      "source_location": "L5505",
       "weight": 1.0
     },
     {
@@ -329653,7 +329653,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5507",
+      "source_location": "L5509",
       "weight": 1.0
     },
     {
@@ -329664,7 +329664,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5516",
+      "source_location": "L5518",
       "weight": 1.0
     },
     {
@@ -329675,7 +329675,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5522",
+      "source_location": "L5524",
       "weight": 1.0
     },
     {
@@ -329686,7 +329686,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5525",
+      "source_location": "L5527",
       "weight": 1.0
     },
     {
@@ -329697,7 +329697,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5529",
+      "source_location": "L5531",
       "weight": 1.0
     },
     {
@@ -329708,7 +329708,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5535",
+      "source_location": "L5537",
       "weight": 1.0
     },
     {
@@ -329719,7 +329719,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5543",
+      "source_location": "L5545",
       "weight": 1.0
     },
     {
@@ -329730,7 +329730,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L5548",
+      "source_location": "L5550",
       "weight": 1.0
     },
     {
@@ -329763,7 +329763,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/lib/menu-data.ts",
-      "source_location": "L667",
+      "source_location": "L668",
       "weight": 1.0
     },
     {
@@ -360577,5 +360577,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "784ff631e69d70931b1d6b228950d772e2e203ee"
+  "built_at_commit": "d699125f1d4e2a6794236a9494cf8cc1cb24e443"
 }

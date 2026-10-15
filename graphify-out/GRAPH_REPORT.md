@@ -1,7 +1,7 @@
-# Graph Report - hopeful-euclid-442ef7  (2026-10-14)
+# Graph Report - hopeful-euclid-442ef7  (2026-10-15)
 
 ## Corpus Check
-- 1087 files · ~4,691,687 words
+- 1087 files · ~4,728,078 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 48 file(s) not represented in the graph (top: (none) 15, .css 11, .woff 5)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `784ff631`
+- Built from commit: `d699125f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1810,7 +1810,7 @@ Nodes (4): Desserts, Entrées, Menu 24, Plats
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `next` connect `next` to `landing-data.ts`, `gestion/constants.ts`, `collect-landing-data.ts`, `composer.ts`, `square/server.ts`, `createAdminClient`, `admin/store.ts`, `metrics.ts`, `admin/constants.ts`, `shop/icons.tsx`, `useRunMutation`, `onboarding/page.tsx`, `gestion/selectors.ts`, `agents/api.ts`, `projet.ts`, `frontend/package.json`, `site.ts`, `badgeages-log.tsx`, `shop/server.ts`, `admin/shell.tsx`, `shop/checkout.ts`, `settings.tsx`, `getShopBySlug`, `clip-landing-data.ts`, `carte/page.tsx`, `captions/route.ts`, `collect/demo/provider.tsx`, `shop/constants.ts`, `m/[slug]/page.tsx`, `clip/server.ts`, `legal-page.tsx`, `useToast`, `orders.ts`, `page-sections.tsx`, `formatPrice`, `slides.tsx`, `formatPrice`, `api/contact/route.ts`, `shop/types.ts`, `espace/comptes/creation/page.tsx`, `big-smash.ts`, `ref_react`, `subscription-gate.tsx`, `shop-landing-data.ts`, `proxy.ts`, `menu/cart.tsx`, `sumup/server.ts`, `dashboard.tsx`, `fermetures-settings.tsx`, `espace/analytique/page.tsx`, `gmail/callback/route.ts`, `bai-ko/layout.tsx`, `install.tsx`, `menu/gestion/produits/page.tsx`, `stripe/checkout/route.ts`, `agents/desinscription/route.ts`, `heading.tsx`, `clip/espace/page.tsx`, `admin/format.ts`, `gestion/store.ts`, `push/server.ts`, `notifications/page.tsx`, `captures.cjs`, `app/layout.tsx`, `agents/espace/shell.tsx`, `restaurants/page.tsx`, `field-report.tsx`, `clip/espace/shell.tsx`, `o-crousti-poulet.tsx`, `r7k2/layout.tsx`, `route.tsx`, `clip/demo-showcase.tsx`, `bai-ko.tsx`, `chicken-street/presentation/page.tsx`, `api/desinscription/route.ts`, `planTrial`, `next.config.ts`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
+  _High betweenness centrality (0.141) - this node is a cross-community bridge._
 - **Why does `Project status` connect `formatPrice` to `must`, `gmail.py`, `landing-data.ts`, `gestion/constants.ts`, `admin/format.ts`, `get_supabase`, `square/server.ts`, `createAdminClient`, `admin/store.ts`, `charts.ts`, `bai-ko/film/src/scenes/EndCard.tsx`, `gestion/store.ts`, `supabase/client.ts`, `metrics.ts`, `api/contact/route.ts`, `agent.py`, `push/server.ts`, `social_post.py`, `gestion/api.ts`, `gestion/mappers.ts`, `omilink.py`, `next`, `Setup guide (written for an LLM agent)`, `espace/comptes/creation/page.tsx`, `big-smash.ts`, `gestion/selectors.ts`, `app/layout.tsx`, `ref_react`, `cart-bar.tsx`, `formules.tsx`, `restaurants/page.tsx`, `fermetures-settings.tsx`, `espace/analytique/page.tsx`, `badgeages-log.tsx`, `shop/server.ts`, `clip/espace/shell.tsx`, `r7k2/layout.tsx`, `__main__.py`, `clip/demo-showcase.tsx`, `gmail/callback/route.ts`, `collect/demo/provider.tsx`, `m/[slug]/page.tsx`, `heading.tsx`, `legal-page.tsx`, `createClient`, `useToast`?**
   _High betweenness centrality (0.088) - this node is a cross-community bridge._
 - **Why does `phone` connect `phone` to `menu`, `cartTap`, `ticket`, `addTap`, `payTap`?**

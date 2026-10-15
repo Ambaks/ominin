@@ -1014,9 +1014,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu-data.ts": {
-    "mtime": 1791995904.213375,
-    "seen": 1791996541.532207,
-    "ast_hash": "641f61f866f7ade7737e4f53ef5d358b",
+    "mtime": 1792053464.7833717,
+    "seen": 1792053921.106428,
+    "ast_hash": "d209659c6a60f4cc3f4111c0505ba1dd",
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
@@ -8940,27 +8940,27 @@
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/profile.json": {
-    "mtime": 1791994415.9641607,
-    "seen": 1791996541.531809,
-    "ast_hash": "36a4bd1e04e4a8b314708702009b57f9",
+    "mtime": 1792053484.5781739,
+    "seen": 1792053921.1059892,
+    "ast_hash": "00f73eff44f70e0d1c6ab363e2075be2",
     "semantic_hash": ""
   },
   "demos/caffe-panis/profile.json": {
-    "mtime": 1791994052.9127731,
-    "seen": 1791996541.53181,
-    "ast_hash": "9c2469df1c0d3c7f143eb14089c769f3",
+    "mtime": 1792053484.5785036,
+    "seen": 1792053921.10599,
+    "ast_hash": "bfefc510eaeb95db968243608fb21ebe",
     "semantic_hash": ""
   },
   "demos/le-novelty/profile.json": {
-    "mtime": 1791992873.9957044,
-    "seen": 1791996541.53182,
-    "ast_hash": "a98bd8d4d44571e22594dab7d046d6f7",
+    "mtime": 1792053484.576565,
+    "seen": 1792053921.106001,
+    "ast_hash": "9a8cff2d365c53520add825cee6430b3",
     "semantic_hash": ""
   },
   "demos/le-victoria/profile.json": {
-    "mtime": 1791994063.296415,
-    "seen": 1791996541.531821,
-    "ast_hash": "75f769390c1a2230a6cb8e8eafbf2d00",
+    "mtime": 1792053484.5774703,
+    "seen": 1792053921.1060019,
+    "ast_hash": "7203acf361b85231b8e885954bb4bdbf",
     "semantic_hash": ""
   },
   "demos/cafe-des-arts/docs/recherche-carte.md": {
@@ -8976,9 +8976,9 @@
     "semantic_hash": ""
   },
   "demos/le-novelty/docs/recherche-carte.md": {
-    "mtime": 1791992821.3186195,
-    "seen": 1791996541.532373,
-    "ast_hash": "75073862b24d8c72f9e85dfe4bb4dc93",
+    "mtime": 1792053484.5977526,
+    "seen": 1792053921.1066098,
+    "ast_hash": "ca0749db3582e777ae852e69c46bf5c2",
     "semantic_hash": ""
   },
   "demos/le-novelty/docs/recherche-profile.md": {
@@ -9417,6 +9417,30 @@
     "mtime": 1791993937.140317,
     "seen": 1791996541.5325801,
     "ast_hash": "751dc333fb25bf4892baaf815f9a5e70",
+    "semantic_hash": ""
+  },
+  "demos/_apercu-ecusson/cafe-des-arts.jpg": {
+    "mtime": 1791997385.2659776,
+    "seen": 1792053921.106637,
+    "ast_hash": "a9ed67bc744b34fda9771d65f413351e",
+    "semantic_hash": ""
+  },
+  "demos/_apercu-ecusson/caffe-panis.jpg": {
+    "mtime": 1791997385.3014379,
+    "seen": 1792053921.1066382,
+    "ast_hash": "1b77616e6a5357a4286b095db1dcb5cb",
+    "semantic_hash": ""
+  },
+  "demos/_apercu-ecusson/le-novelty.jpg": {
+    "mtime": 1791997385.1923685,
+    "seen": 1792053921.1066391,
+    "ast_hash": "dba3fd54a9488c069cb44f505948a877",
+    "semantic_hash": ""
+  },
+  "demos/_apercu-ecusson/le-victoria.jpg": {
+    "mtime": 1791997385.230383,
+    "seen": 1792053921.1066391,
+    "ast_hash": "151b8bf841af74414966831f1b6fb005",
     "semantic_hash": ""
   }
 }

@@ -59,7 +59,7 @@
       "Vins rouges 4, blancs 5, rosés 3 — 13 à 25 € la bouteille",
       "Boissons fraîches — 4, 3 à 5,50 €"
     ],
-    "photos": "8 photos du restaurant (séance publiée sur Deliveroo : 2 burgers, 6 pizzas), recadrées en 16:9 dans frontend/public/le-victoria/. Stock audité pour la 4 fromaggio, la salade César, la souris d'agneau, les wings, le moelleux et la crêpe nutella. La photo « Margherita » du restaurant montre des olives, pas de tomates cerises ni de basilic : à refaire à la séance.",
+    "photos": "8 photos du restaurant (séance publiée sur Deliveroo : 2 burgers, 6 pizzas), recadrées en 16:9 dans frontend/public/le-victoria/. Stock audité pour la 4 fromaggio, la salade César, la souris d'agneau, les wings, le moelleux et la crêpe nutella. La photo « Margherita » du restaurant montre des olives, pas de tomates cerises ni de basilic : à refaire à la séance. Les photos du restaurant de la vegetariana, de la regina, de la pizza au poulet et de la salmone montrent des olives que les descriptions ne citent pas.",
     "options_a_valider": [
       "Noms de Deliveroo remis en casse de phrase ; coquilles corrigées : « cheesecacke » → Cheesecake, « Desparados » → Desperados, « motarde » → Moutarde, « banae » → Banane, « crepe »/« gaufre » → Crêpe/Gaufre ; « 4 fromaggio », « spezzial », « Lansyre », « Hotus » gardés.",
       "Bruschetta chèvre miel rangée avec les pizzas, comme sur Deliveroo ; le doublon « roquette ,roquette » ramené à un seul.",
@@ -67,7 +67,11 @@
       "Vins : couleur lue dans le nom Deliveroo ; prix à la bouteille seulement (« verre de vin 3,5 € » selon Privateaser, sans liste).",
       "Alcools forts en bouteille (Deliveroo, 26–30 € les 70 cl) non repris : prix de vente à emporter, pas de salle.",
       "Ardoise tapas d'avril 2024 (planches 13–30 €, sépions, beignets…) non reprise : prix illisibles ou différents de Deliveroo.",
-      "Suppléments pizza « Jambon anchois » et « Roquefort brie » gardés tels quels (un supplément chacun, comme sur Deliveroo) : deux produits ou un seul ?"
+      "Suppléments pizza « Jambon anchois » et « Roquefort brie » gardés tels quels (un supplément chacun, comme sur Deliveroo) : deux produits ou un seul ?",
+      "Prix happy hour (Schlouk : Kronenbourg et Monaco 50 cl 3,50 €, Pietra 5,50 €, cocktails 5,50 €) non appliqués : accroche « Prix hors happy hour (16h–1h) » sur Cocktails et Bières.",
+      "Ouverture affichée 10h (site du groupe, 09/2026) ; Schlouk et l'ancien site disent 10h30.",
+      "Autres coquilles de Deliveroo corrigées : « Domain » → Domaine, « alcools » → alcool, « caramel beurre salée » → salé, « Rapée » → râpée, « châteaux » → Château ; « nutella » → Nutella partout.",
+      "Merlot et Joy : aucun volume imprimé sur Deliveroo, aucun affiché."
     ]
   },
   "offers": [
@@ -95,6 +99,7 @@
     "Logo en haute définition ou vectoriel (seul l'avatar TikTok de 221 px existe en ligne).",
     "Photos : la Margherita (la photo actuelle montre des olives), les tapas, desserts, crêpes ; la salle et la terrasse.",
     "Le site levictoriamontpellier.com est suspendu : le récupérer ou rediriger vers la page du groupe ?",
-    "Une carte par établissement du groupe ou une carte commune ?"
+    "Une carte par établissement du groupe ou une carte commune ?",
+    "Le Chiken : Deliveroo propose « bacon / sans bacon » sur un burger au poulet sans bacon dans sa description : à confirmer."
   ]
 }

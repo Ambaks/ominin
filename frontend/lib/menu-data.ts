@@ -603,6 +603,7 @@ const trattoriaLucia: Restaurant = {
     {
       id: "bieres",
       name: "Bières",
+      tagline: "Prix hors happy hour (16h–1h)",
       items: [
         {
           id: "moretti",
@@ -3363,7 +3364,7 @@ const leNovelty: Restaurant = {
   highlights: ["Ouvert 7j/7", "Happy hours 17h–23h", "Cocktails en XXL"],
   ticker: [
     { text: "Happy Hours tous les jours de 17h à 23h", tone: "accent" },
-    { text: "Pinte de Kro 4 € · cocktails 6 € pendant les happy hours" },
+    { text: "Happy hours : pinte de Kro 4 €, Mojito, Spritz, Coco Bull, Planteur, Caipirinha, Tête à l'envers 6 €" },
     { text: "Café du matin à 1 € de 9h à 12h", tone: "brand" },
     { text: "Formule Goûter 5 € tous les jours" },
   ],
@@ -3371,7 +3372,7 @@ const leNovelty: Restaurant = {
     {
       id: "cocktails",
       name: "Cocktails",
-      tagline: "En XXL : +3 €",
+      tagline: "En XXL : +3\u00a0€, sauf Ti-Punch · prix hors happy hours",
       items: [
         noveltyCocktail(
           "mojito",
@@ -3773,12 +3774,13 @@ const victoriaSucre = (id: string, name: string, price: number, image?: string):
   options: [VICTORIA_SUPPLEMENT_SUCRE],
 });
 
-const victoriaVin = (id: string, name: string, price: number, description?: string): MenuItem => ({
+/** Un vin à la bouteille ; Deliveroo n'imprime pas le volume de chacun. */
+const victoriaVin = (id: string, name: string, price: number, description?: string, detail?: string): MenuItem => ({
   id,
   name,
   description,
   price,
-  detail: "75 cl",
+  detail,
   vatRate: 20,
 });
 
@@ -3971,33 +3973,34 @@ const leVictoria: Restaurant = {
     {
       id: "crepes",
       name: "Crêpes",
-      tagline: "Supplément nutella, coco, caramel beurre salé ou banane : 2 €",
+      tagline: "Supplément Nutella, coco, caramel beurre salé ou banane : 2 €",
       items: [
         victoriaSucre("crepe-nature", "Crêpe nature", 3.2),
         victoriaSucre("crepe-sucre", "Crêpe sucre", 3.6),
         victoriaSucre("crepe-sucre-citron", "Crêpe sucre citron", 3.8),
-        victoriaSucre("crepe-nutella", "Crêpe nutella", 4, unsplash("photo-1572542873907-204263f6a869", 800)),
+        victoriaSucre("crepe-nutella", "Crêpe Nutella", 4, unsplash("photo-1572542873907-204263f6a869", 800)),
         victoriaSucre("crepe-caramel", "Crêpe caramel beurre salé", 4),
-        victoriaSucre("crepe-nutella-banane", "Crêpe nutella banane", 5),
-        victoriaSucre("crepe-nutella-coco", "Crêpe nutella coco râpée", 5),
+        victoriaSucre("crepe-nutella-banane", "Crêpe Nutella banane", 5),
+        victoriaSucre("crepe-nutella-coco", "Crêpe Nutella coco râpée", 5),
       ],
     },
     {
       id: "gaufres",
       name: "Gaufres maison",
-      tagline: "Supplément nutella, coco, caramel beurre salé ou banane : 2 €",
+      tagline: "Supplément Nutella, coco, caramel beurre salé ou banane : 2 €",
       items: [
         victoriaSucre("gaufre-sucre", "Gaufre sucre", 3.6),
         victoriaSucre("gaufre-sucre-citron", "Gaufre sucre citron", 3.8),
         victoriaSucre("gaufre-nutella", "Gaufre Nutella", 4, unsplash("photo-1739907283389-2a2c05deb680", 800)),
         victoriaSucre("gaufre-caramel", "Gaufre caramel beurre salé", 4),
-        victoriaSucre("gaufre-nutella-banane", "Gaufre Nutella Banane", 5),
+        victoriaSucre("gaufre-nutella-banane", "Gaufre Nutella banane", 5),
         victoriaSucre("gaufre-nutella-coco", "Gaufre Nutella coco râpée", 5),
       ],
     },
     {
       id: "cocktails",
       name: "Cocktails",
+      tagline: "Prix hors happy hour (16h–1h)",
       items: [
         { id: "punch", name: "Punch maison", price: 8, detail: "50 cl", vatRate: 20 },
         { id: "sangria", name: "Sangria maison", price: 8, detail: "50 cl", vatRate: 20 },
@@ -4027,9 +4030,9 @@ const leVictoria: Restaurant = {
       tagline: "À la bouteille",
       items: [
         victoriaVin("merlot", "Merlot", 14),
-        victoriaVin("faugeres-rouge", "Faugères", 16, "Château Haut Lignières · 13 vol"),
-        victoriaVin("pic-saint-loup-bio", "Pic Saint Loup Bio", 18, "Château Lansyre · 13 vol"),
-        victoriaVin("pic-saint-loup", "Pic Saint Loup", 22, "Château Lansyre · 14 vol"),
+        victoriaVin("faugeres-rouge", "Faugères", 16, "Château Haut Lignières · 13 vol", "75 cl"),
+        victoriaVin("pic-saint-loup-bio", "Pic Saint Loup Bio", 18, "Château Lansyre · 13 vol", "75 cl"),
+        victoriaVin("pic-saint-loup", "Pic Saint Loup", 22, "Château Lansyre · 14 vol", "75 cl"),
       ],
     },
     {
@@ -4037,11 +4040,11 @@ const leVictoria: Restaurant = {
       name: "Vins blancs",
       tagline: "À la bouteille",
       items: [
-        victoriaVin("chardonnay", "Chardonnay", 13, "13 vol"),
-        victoriaVin("viognier", "Viognier", 14, "14 vol"),
-        victoriaVin("picpoul", "Picpoul de Pinet", 15, "Domaine Morin-Langaran · 13 vol"),
+        victoriaVin("chardonnay", "Chardonnay", 13, "13 vol", "75 cl"),
+        victoriaVin("viognier", "Viognier", 14, "14 vol", "75 cl"),
+        victoriaVin("picpoul", "Picpoul de Pinet", 15, "Domaine Morin-Langaran · 13 vol", "75 cl"),
         victoriaVin("joy", "Joy", 16, "Blanc doux"),
-        victoriaVin("hotus-bergerie", "Hotus Bergerie", 25, "13 vol"),
+        victoriaVin("hotus-bergerie", "Hotus Bergerie", 25, "13 vol", "75 cl"),
       ],
     },
     {
@@ -4049,9 +4052,9 @@ const leVictoria: Restaurant = {
       name: "Vins rosés",
       tagline: "À la bouteille",
       items: [
-        victoriaVin("faugeres-rose", "Faugères", 16, "Château Haut Lignières · 13 vol"),
-        victoriaVin("amour-de-gris", "Amour de Gris", 17, "Domaine Grand-Chemin · 12 vol"),
-        victoriaVin("argali", "Puech-Haut Argali", 22.99, "13 vol"),
+        victoriaVin("faugeres-rose", "Faugères", 16, "Château Haut Lignières · 13 vol", "75 cl"),
+        victoriaVin("amour-de-gris", "Amour de Gris", 17, "Domaine Grand-Chemin · 12 vol", "75 cl"),
+        victoriaVin("argali", "Puech-Haut Argali", 22.99, "13 vol", "75 cl"),
       ],
     },
     {
@@ -4092,6 +4095,7 @@ const CDA_PHOTOS: Partial<Record<string, string>> = {
   "risotto-saint-jacques": pexels("22711495/pexels-photo-22711495.jpeg", 800),
   "mac-and-cheese": pexels("10993148/pexels-photo-10993148.jpeg", 800),
   "lasagne-boeuf": pexels("31119078/pexels-photo-31119078.jpeg", 800),
+  bavette: pexels("36523156/pexels-photo-36523156.jpeg", 800),
   "pizza-margarita": pexels("36602166/pexels-photo-36602166.jpeg", 800),
   "pizza-reine": pexels("12288354/pexels-photo-12288354.jpeg", 800),
   "pizza-napolitaine": pexels("27608959/pexels-photo-27608959.jpeg", 800),
@@ -4273,9 +4277,9 @@ const cafeDesArts: Restaurant = {
   hours: "Tous les jours 10h–⁠1h",
   highlights: ["Ouvert 7j/7", "Restauration de 11h30 à 23h", "Girafes de 3 L à 5 L"],
   ticker: [
-    { text: "Deux plats du jour au choix à partir de 9,90 €", tone: "brand" },
-    { text: "Restauration en continu de 11h30 à 23h" },
-    { text: "Girafes de bières et de cocktails pour les groupes", tone: "accent" },
+    { text: "Le midi : deux plats du jour au choix à partir de 9,90 €", tone: "brand" },
+    { text: "Restauration de 11h30 à 23h" },
+    { text: "Girafes de bières et de cocktails de 3 L à 5 L", tone: "accent" },
   ],
   categories: [
     {
@@ -4313,6 +4317,33 @@ const cafeDesArts: Restaurant = {
           description: "Plat du jour + Dessert",
           price: 13,
           options: [CDA_BRASSERIE_DESSERT],
+        },
+      ],
+    },
+    {
+      id: "menu-bambino",
+      name: "Menu Bambino",
+      items: [
+        {
+          id: "bambino-fish-and-chips",
+          name: "Fish & Chips",
+          description: "Accompagnement : Fitres maison ou Purée, Dessert : Glace 1 boule ou Pom'Pote",
+          price: 9,
+          options: [CDA_BAMBINO_ACCOMPAGNEMENT, CDA_BAMBINO_DESSERT],
+        },
+        {
+          id: "bambino-nuggets",
+          name: "Nuggets de poulets",
+          description: "Accompagnement : Fitres maison ou Purée, Dessert : Glace 1 boule ou Pom'Pote",
+          price: 9,
+          options: [CDA_BAMBINO_ACCOMPAGNEMENT, CDA_BAMBINO_DESSERT],
+        },
+        {
+          id: "pizza-bambino",
+          name: "Pizza Bambino",
+          description: "Dessert : Glace 1 boule ou Pom'Pote",
+          price: 9,
+          options: [CDA_BAMBINO_DESSERT],
         },
       ],
     },
@@ -4355,33 +4386,6 @@ const cafeDesArts: Restaurant = {
               { obligatoire: true }
             ),
           ],
-        },
-      ],
-    },
-    {
-      id: "menu-bambino",
-      name: "Menu Bambino",
-      items: [
-        {
-          id: "bambino-fish-and-chips",
-          name: "Fish & Chips",
-          description: "Accompagnement : Fitres maison ou Purée, Dessert : Glace 1 boule ou Pom'Pote",
-          price: 9,
-          options: [CDA_BAMBINO_ACCOMPAGNEMENT, CDA_BAMBINO_DESSERT],
-        },
-        {
-          id: "bambino-nuggets",
-          name: "Nuggets de poulets",
-          description: "Accompagnement : Fitres maison ou Purée, Dessert : Glace 1 boule ou Pom'Pote",
-          price: 9,
-          options: [CDA_BAMBINO_ACCOMPAGNEMENT, CDA_BAMBINO_DESSERT],
-        },
-        {
-          id: "pizza-bambino",
-          name: "Pizza Bambino",
-          description: "Dessert : Glace 1 boule ou Pom'Pote",
-          price: 9,
-          options: [CDA_BAMBINO_DESSERT],
         },
       ],
     },
@@ -4553,7 +4557,7 @@ const cafeDesArts: Restaurant = {
           id: "bavette",
           name: "Bavette de bœuf sauce au choix, pommes grenailles et légumes de saison",
           price: 16.5,
-          image: pexels("36523156/pexels-photo-36523156.jpeg", 800),
+          image: CDA_PHOTOS.bavette,
           options: [groupeChoix("sauce", "Sauce", ["Roquefort", "Échalote", "Poivre"], { obligatoire: true })],
         },
         cdaPlat("filet-rossini", "Filet de bœuf façon Rossini, carottes vichy et pommes grenailles", 23.5),
@@ -4589,22 +4593,6 @@ const cafeDesArts: Restaurant = {
         cdaPlat("garniture-legumes", "Légumes", 5),
         cdaPlat("garniture-frites", "Frites maison", 5),
         cdaPlat("garniture-grenailles", "Pommes de terre grenailles", 5),
-      ],
-    },
-    {
-      id: "desserts-maison",
-      name: "Les Desserts Maison",
-      items: [
-        cdaPlat("pannacotta", "Pannacotta et son coulis de fruits rouges", 6.5),
-        cdaPlat("poire-pochee", "Poire pochée au chocolat", 7),
-        cdaPlat("moelleux-chocolat", "Moelleux au chocolat, cœur caramel et sa crème anglaise", 8.5),
-        cdaPlat("tiramisu", "Tiramisu Original", 7.5),
-        cdaPlat("dessert-du-jour", "Dessert du jour", 7),
-        cdaPlat("profiteroles-maison", "Profiteroles maison au chocolat", 9),
-        cdaPlat("creme-brulee", "Crème brûlée", 7),
-        cdaPlat("baba-au-rhum", "Baba au rhum", 7.5),
-        cdaPlat("assiette-fromages", "Assiette de fromages", 8.5),
-        cdaPlat("cafe-gourmand", "Café gourmand", 9),
       ],
     },
     {
@@ -4657,27 +4645,19 @@ const cafeDesArts: Restaurant = {
       ],
     },
     {
-      id: "petit-dejeuners",
-      name: "Petit déjeuners",
+      id: "desserts-maison",
+      name: "Les Desserts Maison",
       items: [
-        {
-          id: "petit-dejeuner-continental",
-          name: "Continental",
-          description: "Tartines, Viennoiseries, Confiture, Nutella, Beurre, Jus d'orange bio, Boisson chaude au choix",
-          price: 6.5,
-          options: [CDA_PETIT_DEJEUNER_SUPPLEMENTS],
-        },
-        {
-          id: "petit-dejeuner-americain",
-          name: "Américain",
-          description:
-            "2 oeufs (au plat ou brouillés), Bacon, Compté, Pain, Jus d'orange bio, Boisson chaude au choix",
-          price: 9.9,
-          options: [
-            groupeChoix("oeufs", "Œufs", ["Au plat", "Brouillés"], { obligatoire: true }),
-            CDA_PETIT_DEJEUNER_SUPPLEMENTS,
-          ],
-        },
+        cdaPlat("pannacotta", "Pannacotta et son coulis de fruits rouges", 6.5),
+        cdaPlat("poire-pochee", "Poire pochée au chocolat", 7),
+        cdaPlat("moelleux-chocolat", "Moelleux au chocolat, cœur caramel et sa crème anglaise", 8.5),
+        cdaPlat("tiramisu", "Tiramisu Original", 7.5),
+        cdaPlat("dessert-du-jour", "Dessert du jour", 7),
+        cdaPlat("profiteroles-maison", "Profiteroles maison au chocolat", 9),
+        cdaPlat("creme-brulee", "Crème brûlée", 7),
+        cdaPlat("baba-au-rhum", "Baba au rhum", 7.5),
+        cdaPlat("assiette-fromages", "Assiette de fromages", 8.5),
+        cdaPlat("cafe-gourmand", "Café gourmand", 9),
       ],
     },
     {
@@ -4736,6 +4716,30 @@ const cafeDesArts: Restaurant = {
           description: "Double café, cognac, sucre de canne, chantilly",
           price: 7.5,
           ...ALCOOL,
+        },
+      ],
+    },
+    {
+      id: "petit-dejeuners",
+      name: "Petit déjeuners",
+      items: [
+        {
+          id: "petit-dejeuner-continental",
+          name: "Continental",
+          description: "Tartines, Viennoiseries, Confiture, Nutella, Beurre, Jus d'orange bio, Boisson chaude au choix",
+          price: 6.5,
+          options: [CDA_PETIT_DEJEUNER_SUPPLEMENTS],
+        },
+        {
+          id: "petit-dejeuner-americain",
+          name: "Américain",
+          description:
+            "2 oeufs (au plat ou brouillés), Bacon, Compté, Pain, Jus d'orange bio, Boisson chaude au choix",
+          price: 9.9,
+          options: [
+            groupeChoix("oeufs", "Œufs", ["Au plat", "Brouillés"], { obligatoire: true }),
+            CDA_PETIT_DEJEUNER_SUPPLEMENTS,
+          ],
         },
       ],
     },
@@ -4842,96 +4846,6 @@ const cafeDesArts: Restaurant = {
       ],
     },
     {
-      id: "milkshake",
-      name: "Milkshake",
-      items: [
-        { id: "milkshake-1-parfum", name: "Milkshake 1 Parfum", price: 5, options: [CDA_CHANTILLY] },
-        { id: "milkshake-2-parfums", name: "Milkshake 2 Parfums", price: 7, options: [CDA_CHANTILLY] },
-      ],
-    },
-    {
-      id: "cocktails",
-      name: "Cocktails",
-      items: [
-        cdaCocktail("mojito", "Mojito", "Rhum Bacardi Cuatro, Citron vert, Cassonade, Feuilles de menthe, Limonade", {
-          declinaisons: [...CDA_DECLINAISONS, "Piment/Gingembre"],
-        }),
-        cdaCocktail("mojito-royal", "Mojito Royal", "Au champagne", { price: 10.5 }),
-        cdaCocktail("cuba-libre", "Cuba Libre", "Rhum Bacardi Cuatro, Citron vert, Coca-Cola"),
-        {
-          ...cdaCocktail("ti-punch", "Ti Punch", "Rhum Bacardi Cuatro, Cassonade, Citron vert"),
-          options: [groupeChoix("supplement", "Supplément", [["Rhum Bologne Black cane", 3]], { multiple: true })],
-        },
-        cdaCocktail("caipirinha", "Caipirinha", "Cachaça Aguacana, Cassonade, Citron vert", {
-          declinaisons: CDA_DECLINAISONS,
-        }),
-        cdaCocktail("caipiroska", "Caipiroska", "Vodka Sobieski, Cassonade, Citron vert", {
-          declinaisons: CDA_DECLINAISONS,
-        }),
-        cdaCocktail("bloody-mary", "Bloody Mary", "Vodka Sobieski, Jus de citron, Jus de Tomate, Assaisonnements"),
-        cdaCocktail("cosmopolitain", "Cosmopolitain", "Vodka Sobieski, Triple sec, Jus de citron, Jus de Cranberry"),
-        cdaCocktail("frozen-daiquiri", "Frozen Daiquiri", "Rhum Bacardi Cuatro, Sucre de Canne, Jus de citron vert", {
-          declinaisons: CDA_DECLINAISONS,
-        }),
-        cdaCocktail("gin-fizz", "Gin Fizz", "Gin Old Lady's, Sucre en poudre, Jus de citron, Eau gazeuse"),
-        cdaCocktail("planteur", "Planteur", "Rhum Bacardi Cuatro, Jus d'ananas, Jus d'orange, Sirop de grenadine"),
-        cdaCocktail("mai-tai", "Mai Tai", "Rhum Bacardi Cuatro, Triple sec, Jus de citron vert, Sirop D'orgeat"),
-        cdaCocktail(
-          "pina-colada",
-          "Piña Colada",
-          "Rhum Bacardi Cuatro, Crème de coco, Jus d'ananas, Sirop de Vanille"
-        ),
-        cdaCocktail("tequila-sunrise", "Tequila Sunrise", "Téquila San José, Jus d'orange, Sirop de grenadine"),
-        cdaCocktail("margarita", "Margarita", "Téquila San José, Triple sec, Jus de citron vert"),
-        cdaCocktail(
-          "sex-on-the-beach",
-          "Sex on the beach",
-          "Vodka Sobieski, Crème de pêche, Jus d'orange, Jus de Pomme, Jus de Cranberry"
-        ),
-        cdaCocktail(
-          "long-island",
-          "Long Island",
-          "Rhum Bacardi Cuatro, Gin Old Lady's, Téquilla San José, Vodka Sobieski, Triple sec, Sucre de canne, Jus de citron vert, Coca-Cola",
-          { price: 10 }
-        ),
-        cdaCocktail("moscow-mule", "Moscow Mule", "Vodka Sobieski, Jus de citron vert, Ginger Beer", { price: 10 }),
-        cdaCocktail(
-          "lynchburg-lemonade",
-          "Lynchburg Lemonade",
-          "Jack Daniel's, Triple sec, Jus de citron, Sucre de canne, Limonade",
-          { price: 10 }
-        ),
-        cdaCocktail(
-          "dead-n-stormy",
-          "Dead'n'Stormy",
-          "Dead Man's Fingers spiced, Citron vert, Sirop de falernum, Ginger Ale",
-          { price: 10 }
-        ),
-        cdaCocktail(
-          "cold-and-dark-martini",
-          "Cold and Dark Martini",
-          "Dead Man's Fingers Coffee Rum, Café, Sirop de vanille",
-          { price: 10 }
-        ),
-      ],
-    },
-    {
-      id: "cocktails-sans-alcool",
-      name: "Cocktails sans alcool",
-      items: [
-        cdaPlat("exotique", "Exotique", 6.5, "Jus de litchi, Jus d'ananas, Purée de fruits exotiques"),
-        cdaPlat("peachy", "Peachy", 6.5, "Purée de pêche, Jus de citron, Jus d'abricot, Jus de Cranberry"),
-        cdaPlat("virgin-mojito", "Virgin Mojito", 6.5, "Menthe fraiche, Citron vert, Cassonade, Limonade"),
-        cdaPlat("virgin-colada", "Virgin Colada", 6.5, "Crème de coco, Jus d'ananas, Sirop de vanille"),
-        cdaPlat(
-          "detox",
-          "Detox",
-          6.5,
-          "Jus d'aloé, Jus de citron, Purée de concombre, Purée de pomme verte, Purée de Cédrat"
-        ),
-      ],
-    },
-    {
       id: "bieres-pression",
       name: "Bières Pression",
       items: [
@@ -5035,82 +4949,6 @@ const cafeDesArts: Restaurant = {
       ],
     },
     {
-      id: "special",
-      name: "Spécial",
-      items: [
-        articleFormats("special-sangria", 'Sangria "Maison"', [["25 cl", 4], ["1 L", 14], ["2 L", 25]], ALCOOL),
-        articleFormats("special-punch", 'Punch "Maison"', [["25 cl", 3.5], ["1 L", 14], ["2 L", 25]], ALCOOL),
-        articleFormats("jagerbomb", "JagerBomb", CDA_JAGERBOMB, {
-          ...ALCOOL,
-          options: [groupeFormats(CDA_JAGERBOMB, "quantite", "Quantité")],
-        }),
-        {
-          id: "planche-shooters",
-          name: "Planche shooters x10",
-          description: "Vodka Arrangées, Kiss Cool, Orgasme, Vodka Get, Baby Guiness",
-          price: 25,
-          ...ALCOOL,
-        },
-        articleFormats("pichet-biere", "Bierre - Pichet 1L", CDA_PICHET_BIERE, {
-          ...ALCOOL,
-          options: [groupeFormats(CDA_PICHET_BIERE, "biere", "Bière")],
-        }),
-        {
-          id: "pichet-cocktail",
-          name: "Cocktail - Pichet 1L",
-          description: "Mojito, Sex on the Beach ou Piña Colada",
-          price: 21,
-          ...ALCOOL,
-          options: [
-            groupeChoix("cocktail", "Cocktail", ["Mojito", "Sex on the Beach", "Piña Colada"], { obligatoire: true }),
-          ],
-        },
-      ],
-    },
-    {
-      id: "vins-blanc",
-      name: "Vins Blanc",
-      items: [
-        cdaVin("blanc-garrigues-chardonnay", "Domaine des Garrigues - Chardonnay VPD d'OC", 17.5, 3.5),
-        cdaVin("blanc-duc-de-morny-picpoul", "Duc de Morny - Picpoul De Pinet AOP", 23, 4),
-        cdaVin("blanc-baume-sauvignon", "Domaine de la Baume - Sauvignon IGP", 23, 4),
-        cdaVin("blanc-baume-viognier", "Domaine de la Baume - Viognier IGP D'OC", 23, 4),
-        cdaVin("blanc-tarriquet", "Tarriquet Premières grives - IGP côtes de Gascogne", 25, 4.5),
-        cdaVin("blanc-grezan-chardonnay", "Château Grezan - Chardonnay AOP", 26),
-        cdaVin("blanc-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
-      ],
-    },
-    {
-      id: "vins-rose",
-      name: "Vins Rosé",
-      items: [
-        cdaVin("rose-garrigues-cinsault", "Domaine des Garrigues - Cinsault VPD d'OC", 17.5, 3.5),
-        cdaVin("rose-le-pive", 'Le Pive "vin bio" - Gris de gris IGP', 23, 4),
-        cdaVin("rose-rouviere", "Domaine de la Rouvière - Côtes de Provence AOP", 25, 4),
-        cdaVin("rose-grezan-faugeres", "Château Grezan - Faugères AOP", 26),
-        cdaVin("rose-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
-      ],
-    },
-    {
-      id: "vins-rouge",
-      name: "Vins Rouge",
-      items: [
-        cdaVin("rouge-garrigues-merlot", "Domaine des Garrigues - Merlot VPD d'OC", 17.5, 3.5),
-        cdaVin("rouge-boissezon-guiraud", "Domaine Boissezon Guiraud - Saint Chinian AOP", 23, 4),
-        cdaVin("rouge-deesses-muettes", "Les Déesses Muettes - Pic Saint Loup", 23, 4),
-        cdaVin("rouge-terre-des-galets", "Terre des Galets - Côtes du Rhône AOP", 23, 4),
-        cdaVin("rouge-grezan-faugeres", "Château Grezan - Faugères AOP", 26),
-        cdaVin("rouge-crozes-hermitage", "Saint Pierre Crozes Hermitage AOP", 27),
-        cdaVin("rouge-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
-        cdaVin("rouge-mas-de-quernes", "Mas de Quernes Le Ruches Terrasse du Larzac AOP", 38),
-      ],
-    },
-    {
-      id: "vins-petillant",
-      name: "Vins Pétillant",
-      items: [cdaVin("prossecco-ponte-villoni", "Prossecco Ponte Villoni Extra Dry", 30, 5)],
-    },
-    {
       id: "champagnes",
       name: "Champagnes",
       items: [
@@ -5118,6 +4956,88 @@ const cafeDesArts: Restaurant = {
         { id: "champagne-ar-lenoble", name: "AR Lenoble intense", price: 80, ...ALCOOL },
         { id: "champagne-veuve-clicquot", name: "Veuve Clicquot brut", price: 100, ...ALCOOL },
         { id: "champagne-ruinart", name: "Ruinart Blanc de Blanc", price: 130, ...ALCOOL },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      items: [
+        cdaCocktail("mojito", "Mojito", "Rhum Bacardi Cuatro, Citron vert, Cassonade, Feuilles de menthe, Limonade", {
+          declinaisons: [...CDA_DECLINAISONS, "Piment/Gingembre"],
+        }),
+        cdaCocktail("mojito-royal", "Mojito Royal", "Au champagne", { price: 10.5 }),
+        cdaCocktail("cuba-libre", "Cuba Libre", "Rhum Bacardi Cuatro, Citron vert, Coca-Cola"),
+        {
+          ...cdaCocktail("ti-punch", "Ti Punch", "Rhum Bacardi Cuatro, Cassonade, Citron vert"),
+          options: [groupeChoix("supplement", "Supplément", [["Rhum Bologne Black cane", 3]], { multiple: true })],
+        },
+        cdaCocktail("caipirinha", "Caipirinha", "Cachaça Aguacana, Cassonade, Citron vert", {
+          declinaisons: CDA_DECLINAISONS,
+        }),
+        cdaCocktail("caipiroska", "Caipiroska", "Vodka Sobieski, Cassonade, Citron vert", {
+          declinaisons: CDA_DECLINAISONS,
+        }),
+        cdaCocktail("bloody-mary", "Bloody Mary", "Vodka Sobieski, Jus de citron, Jus de Tomate, Assaisonnements"),
+        cdaCocktail("cosmopolitain", "Cosmopolitain", "Vodka Sobieski, Triple sec, Jus de citron, Jus de Cranberry"),
+        cdaCocktail("frozen-daiquiri", "Frozen Daiquiri", "Rhum Bacardi Cuatro, Sucre de Canne, Jus de citron vert", {
+          declinaisons: CDA_DECLINAISONS,
+        }),
+        cdaCocktail("gin-fizz", "Gin Fizz", "Gin Old Lady's, Sucre en poudre, Jus de citron, Eau gazeuse"),
+        cdaCocktail("planteur", "Planteur", "Rhum Bacardi Cuatro, Jus d'ananas, Jus d'orange, Sirop de grenadine"),
+        cdaCocktail("mai-tai", "Mai Tai", "Rhum Bacardi Cuatro, Triple sec, Jus de citron vert, Sirop D'orgeat"),
+        cdaCocktail(
+          "pina-colada",
+          "Piña Colada",
+          "Rhum Bacardi Cuatro, Crème de coco, Jus d'ananas, Sirop de Vanille"
+        ),
+        cdaCocktail("tequila-sunrise", "Tequila Sunrise", "Téquila San José, Jus d'orange, Sirop de grenadine"),
+        cdaCocktail("margarita", "Margarita", "Téquila San José, Triple sec, Jus de citron vert"),
+        cdaCocktail(
+          "sex-on-the-beach",
+          "Sex on the beach",
+          "Vodka Sobieski, Crème de pêche, Jus d'orange, Jus de Pomme, Jus de Cranberry"
+        ),
+        cdaCocktail(
+          "long-island",
+          "Long Island",
+          "Rhum Bacardi Cuatro, Gin Old Lady's, Téquilla San José, Vodka Sobieski, Triple sec, Sucre de canne, Jus de citron vert, Coca-Cola",
+          { price: 10 }
+        ),
+        cdaCocktail("moscow-mule", "Moscow Mule", "Vodka Sobieski, Jus de citron vert, Ginger Beer", { price: 10 }),
+        cdaCocktail(
+          "lynchburg-lemonade",
+          "Lynchburg Lemonade",
+          "Jack Daniel's, Triple sec, Jus de citron, Sucre de canne, Limonade",
+          { price: 10 }
+        ),
+        cdaCocktail(
+          "dead-n-stormy",
+          "Dead'n'Stormy",
+          "Dead Man's Fingers spiced, Citron vert, Sirop de falernum, Ginger Ale",
+          { price: 10 }
+        ),
+        cdaCocktail(
+          "cold-and-dark-martini",
+          "Cold and Dark Martini",
+          "Dead Man's Fingers Coffee Rum, Café, Sirop de vanille",
+          { price: 10 }
+        ),
+      ],
+    },
+    {
+      id: "cocktails-sans-alcool",
+      name: "Cocktails sans alcool",
+      items: [
+        cdaPlat("exotique", "Exotique", 6.5, "Jus de litchi, Jus d'ananas, Purée de fruits exotiques"),
+        cdaPlat("peachy", "Peachy", 6.5, "Purée de pêche, Jus de citron, Jus d'abricot, Jus de Cranberry"),
+        cdaPlat("virgin-mojito", "Virgin Mojito", 6.5, "Menthe fraiche, Citron vert, Cassonade, Limonade"),
+        cdaPlat("virgin-colada", "Virgin Colada", 6.5, "Crème de coco, Jus d'ananas, Sirop de vanille"),
+        cdaPlat(
+          "detox",
+          "Detox",
+          6.5,
+          "Jus d'aloé, Jus de citron, Purée de concombre, Purée de pomme verte, Purée de Cédrat"
+        ),
       ],
     },
     {
@@ -5206,6 +5126,90 @@ const cafeDesArts: Restaurant = {
         cdaDigestif("hennessy", "Hennessy Hine Rare VSOP", 12),
       ],
     },
+    {
+      id: "vins-blanc",
+      name: "Vins Blanc",
+      items: [
+        cdaVin("blanc-garrigues-chardonnay", "Domaine des Garrigues - Chardonnay VPD d'OC", 17.5, 3.5),
+        cdaVin("blanc-duc-de-morny-picpoul", "Duc de Morny - Picpoul De Pinet AOP", 23, 4),
+        cdaVin("blanc-baume-sauvignon", "Domaine de la Baume - Sauvignon IGP", 23, 4),
+        cdaVin("blanc-baume-viognier", "Domaine de la Baume - Viognier IGP D'OC", 23, 4),
+        cdaVin("blanc-tarriquet", "Tarriquet Premières grives - IGP côtes de Gascogne", 25, 4.5),
+        cdaVin("blanc-grezan-chardonnay", "Château Grezan - Chardonnay AOP", 26),
+        cdaVin("blanc-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
+      ],
+    },
+    {
+      id: "vins-rose",
+      name: "Vins Rosé",
+      items: [
+        cdaVin("rose-garrigues-cinsault", "Domaine des Garrigues - Cinsault VPD d'OC", 17.5, 3.5),
+        cdaVin("rose-le-pive", 'Le Pive "vin bio" - Gris de gris IGP', 23, 4),
+        cdaVin("rose-rouviere", "Domaine de la Rouvière - Côtes de Provence AOP", 25, 4),
+        cdaVin("rose-grezan-faugeres", "Château Grezan - Faugères AOP", 26),
+        cdaVin("rose-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
+      ],
+    },
+    {
+      id: "vins-rouge",
+      name: "Vins Rouge",
+      items: [
+        cdaVin("rouge-garrigues-merlot", "Domaine des Garrigues - Merlot VPD d'OC", 17.5, 3.5),
+        cdaVin("rouge-boissezon-guiraud", "Domaine Boissezon Guiraud - Saint Chinian AOP", 23, 4),
+        cdaVin("rouge-deesses-muettes", "Les Déesses Muettes - Pic Saint Loup", 23, 4),
+        cdaVin("rouge-terre-des-galets", "Terre des Galets - Côtes du Rhône AOP", 23, 4),
+        cdaVin("rouge-grezan-faugeres", "Château Grezan - Faugères AOP", 26),
+        cdaVin("rouge-crozes-hermitage", "Saint Pierre Crozes Hermitage AOP", 27),
+        cdaVin("rouge-hortus", "Bergerie de l'Hortus - Pic Saint Loup AOP", 29),
+        cdaVin("rouge-mas-de-quernes", "Mas de Quernes Le Ruches Terrasse du Larzac AOP", 38),
+      ],
+    },
+    {
+      id: "vins-petillant",
+      name: "Vins Pétillant",
+      items: [cdaVin("prossecco-ponte-villoni", "Prossecco Ponte Villoni Extra Dry", 30, 5)],
+    },
+    {
+      id: "special",
+      name: "Spécial",
+      items: [
+        articleFormats("special-sangria", 'Sangria "Maison"', [["25 cl", 4], ["1 L", 14], ["2 L", 25]], ALCOOL),
+        articleFormats("special-punch", 'Punch "Maison"', [["25 cl", 3.5], ["1 L", 14], ["2 L", 25]], ALCOOL),
+        articleFormats("jagerbomb", "JagerBomb", CDA_JAGERBOMB, {
+          ...ALCOOL,
+          options: [groupeFormats(CDA_JAGERBOMB, "quantite", "Quantité")],
+        }),
+        {
+          id: "planche-shooters",
+          name: "Planche shooters x10",
+          description: "Vodka Arrangées, Kiss Cool, Orgasme, Vodka Get, Baby Guiness",
+          price: 25,
+          ...ALCOOL,
+        },
+        articleFormats("pichet-biere", "Bierre - Pichet 1L", CDA_PICHET_BIERE, {
+          ...ALCOOL,
+          options: [groupeFormats(CDA_PICHET_BIERE, "biere", "Bière")],
+        }),
+        {
+          id: "pichet-cocktail",
+          name: "Cocktail - Pichet 1L",
+          description: "Mojito, Sex on the Beach ou Piña Colada",
+          price: 21,
+          ...ALCOOL,
+          options: [
+            groupeChoix("cocktail", "Cocktail", ["Mojito", "Sex on the Beach", "Piña Colada"], { obligatoire: true }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "milkshake",
+      name: "Milkshake",
+      items: [
+        { id: "milkshake-1-parfum", name: "Milkshake 1 Parfum", price: 5, options: [CDA_CHANTILLY] },
+        { id: "milkshake-2-parfums", name: "Milkshake 2 Parfums", price: 7, options: [CDA_CHANTILLY] },
+      ],
+    },
   ],
 };
 
@@ -5227,55 +5231,32 @@ const caffePanis: Restaurant = {
   address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
   phone: "+33 4 99 67 65 38",
   hours: "Tous les jours 9h–⁠1h",
-  highlights: ["Ouvert 7/7", "9h – 1h", "Caffè · Ristorante · Gelateria"],
+  highlights: ["Ouvert 7/7", "De 9h à 1h"],
   categories: [
     {
-      id: "antipasti",
-      name: "Antipasti",
+      id: "dwich",
+      name: "Les Dwich du Panis",
       items: [
         {
-          id: "stracciatella-fumee",
-          name: "Stracciatella Fumee 125 G",
+          id: "dwich-du-gang",
+          name: "Les Dwich du Gang",
+          description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
+          price: 6.9,
+          image: unsplash("photo-1709998699380-e1ca18e8aaf4", 800),
+        },
+        {
+          id: "dwich-regina",
+          name: "Le Dwich Regina",
           description:
-            "Stracciatella de 125 g fumée et crémeuse à souhait straight from puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
-          price: 6.9,
-        },
-        {
-          id: "trio-arancini",
-          name: "Trio d'arancini",
-          description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
-          price: 6.9,
-          image: pexels("5639804/pexels-photo-5639804.jpeg", 800),
-        },
-        {
-          id: "prosciutto",
-          name: "Prosciutto",
-          description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
+            "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
           price: 7.9,
-          image: pexels("20095427/pexels-photo-20095427.jpeg", 800),
         },
         {
-          id: "burrata-pesto-forever",
-          name: "Burrata Pesto Forever",
+          id: "dwich-truffe",
+          name: "Le Dwich Truffe",
           description:
-            "Belle burrata straight from puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
+            "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
           price: 8.9,
-          image: pexels("28059315/pexels-photo-28059315.jpeg", 800),
-        },
-        {
-          id: "burrata-truffe-mortadelle",
-          name: "Burrata Truffe & Mortadelle",
-          description: "Dodue burrata bien fraîche en direct des pouilles et crème de truffe d'été.",
-          price: 10.9,
-          image: pexels("18675006/pexels-photo-18675006.jpeg", 800),
-        },
-        {
-          id: "classic-burrata",
-          name: "Classic Burrata",
-          description:
-            "Burrata de 125 g crémeuse à souhait straight from puglia, basilic frais, un filet d'huile d'olive e basta.",
-          price: 6.9,
-          image: pexels("14840767/pexels-photo-14840767.jpeg", 800),
         },
       ],
     },
@@ -5335,7 +5316,6 @@ const caffePanis: Restaurant = {
           description:
             "Pancetta \"Poitrine de porc\" et sauce de tomates italiennes pour une extra dose de saveurs, mozza fior di latte, pecorino et basilic frais.",
           price: 15.9,
-          image: unsplash("photo-1655562379262-8d498cbf9096", 800),
         },
         {
           id: "green-circle",
@@ -5396,29 +5376,51 @@ const caffePanis: Restaurant = {
       ],
     },
     {
-      id: "dwich",
-      name: "Les Dwich du Panis",
+      id: "antipasti",
+      name: "Antipasti",
       items: [
         {
-          id: "dwich-du-gang",
-          name: "Les Dwich du Gang",
-          description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
+          id: "stracciatella-fumee",
+          name: "Stracciatella Fumee 125 G",
+          description:
+            "Stracciatella de 125 g fumée et crémeuse à souhait straight from puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
           price: 6.9,
-          image: unsplash("photo-1709998699380-e1ca18e8aaf4", 800),
         },
         {
-          id: "dwich-regina",
-          name: "Le Dwich Regina",
-          description:
-            "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
+          id: "trio-arancini",
+          name: "Trio d'arancini",
+          description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
+          price: 6.9,
+          image: pexels("5639804/pexels-photo-5639804.jpeg", 800),
+        },
+        {
+          id: "prosciutto",
+          name: "Prosciutto",
+          description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
           price: 7.9,
+          image: pexels("20095427/pexels-photo-20095427.jpeg", 800),
         },
         {
-          id: "dwich-truffe",
-          name: "Le Dwich Truffe",
+          id: "burrata-pesto-forever",
+          name: "Burrata Pesto Forever",
           description:
-            "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
+            "Belle burrata straight from puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
           price: 8.9,
+          image: pexels("28059315/pexels-photo-28059315.jpeg", 800),
+        },
+        {
+          id: "burrata-truffe-mortadelle",
+          name: "Burrata Truffe & Mortadelle",
+          description: "Dodue burrata bien fraîche en direct des pouilles et crème de truffe d'été.",
+          price: 10.9,
+        },
+        {
+          id: "classic-burrata",
+          name: "Classic Burrata",
+          description:
+            "Burrata de 125 g crémeuse à souhait straight from puglia, basilic frais, un filet d'huile d'olive e basta.",
+          price: 6.9,
+          image: pexels("14840767/pexels-photo-14840767.jpeg", 800),
         },
       ],
     },

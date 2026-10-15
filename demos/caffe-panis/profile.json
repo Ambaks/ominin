@@ -54,12 +54,15 @@
       "Desserts — 3, 5,90 et 6,90 €",
       "Boissons — café Illy 2 €, 3 softs 2,90 €"
     ],
-    "photos": "Aucune photo des plats par la maison en ligne : photos libres auditées.",
+    "photos": "Photos libres auditées ; sans photo plutôt qu'une photo fausse : Stracciatella Fumee, Burrata Truffe & Mortadelle, Stracciatella Versace, Truffle Suprême, Amor Amatriciana, Vivi E Vechio, Al Tartufo, Dwich Regina et Truffe (aucune photo juste en banque d'images).",
     "options_a_valider": [
       "Toute la carte est celle de la livraison (Ciccio Gang, novembre 2025) : la carte papier de la salle (cafés, brunch, salades, glaces, cocktails, vins) n'est publiée nulle part.",
       "Deliveroo (en ligne le 2026-10-14) porte d'autres pizzas et d'autres recettes (Margherita du seigneur, Puissance 4 à la tomate, Rasta rocket…) : non reprises, une seule source par carte.",
       "Café Illy 2 € : prix TheFork de 2022.",
-      "Menus du midi 2022 (13 € et 17 €, blog Une Pintade) non repris : quatre ans."
+      "Menus du midi 2022 (13 € et 17 €, blog Une Pintade) non repris : quatre ans.",
+      "Prix Uber Eats : ceux de la livraison, d'ordinaire majorés par rapport à la salle.",
+      "Uber Eats propose des options sur les pizzas et les pâtes ; l'archive ne les contient pas : aucune option ici.",
+      "Ordre des sections : celui d'Uber Eats (les Dwich d'abord)."
     ]
   },
   "offers": [],

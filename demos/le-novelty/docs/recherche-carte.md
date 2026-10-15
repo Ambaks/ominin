@@ -262,7 +262,7 @@ Implications: the S1 carte prices are the **normal (outside HH) prices** — con
 
 ---
 
-## DIFF vs current demo (`const leNovelty`, frontend/lib/menu-data.ts L3322–3648)
+## DIFF vs the demo as it stood before this pass — all resolved on 2026-10-14 (kept for the record) (`const leNovelty`, frontend/lib/menu-data.ts L3322–3648)
 
 ### Wrong lines
 1. **Planteur** description: demo « Rhum, ananas, orange, grenadine » → site « Rhum Bacardi Carta Oro, ananas, orange, grenadine ».
