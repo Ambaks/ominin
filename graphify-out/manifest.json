@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "frontend/app/collect/[slug]/page.tsx": {
-    "mtime": 1791916099.1504333,
-    "seen": 1792067820.797994,
-    "ast_hash": "4deb9e9f2bb13dc0d47cce9058130877",
+    "mtime": 1792068744.8594348,
+    "seen": 1792078147.9259672,
+    "ast_hash": "dbcd2036884144cb4a0dc54a05c0c280",
     "semantic_hash": ""
   },
   "frontend/app/collect/demo/page.tsx": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "frontend/components/menu/cart-bar.tsx": {
-    "mtime": 1792059209.1873696,
-    "seen": 1792067820.798197,
-    "ast_hash": "179b5c699fca9468d9e697261e4607e0",
+    "mtime": 1792068604.897665,
+    "seen": 1792078147.926233,
+    "ast_hash": "703bcf04da6488921482d59900a43e9c",
     "semantic_hash": ""
   },
   "frontend/components/menu/category-nav.tsx": {
@@ -1002,9 +1002,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/gestion/types.ts": {
-    "mtime": 1791917567.6822562,
-    "seen": 1792067820.798312,
-    "ast_hash": "6e6297b72f3d51aa6dacdea173b27e9d",
+    "mtime": 1792068558.061562,
+    "seen": 1792078147.9263859,
+    "ast_hash": "d79806d1660918b001c280b008a40f21",
     "semantic_hash": ""
   },
   "frontend/lib/landing-data.ts": {
@@ -1020,15 +1020,15 @@
     "semantic_hash": ""
   },
   "frontend/lib/menu/cart.tsx": {
-    "mtime": 1791917239.2337658,
-    "seen": 1792067820.798326,
-    "ast_hash": "cabde234d5bc850439bacdabfb6ba467",
+    "mtime": 1792068558.06107,
+    "seen": 1792078147.926404,
+    "ast_hash": "31cf3aa556ff8ed563b57f6cd2aa09c9",
     "semantic_hash": ""
   },
   "frontend/lib/public-menu.ts": {
-    "mtime": 1791916099.3506927,
-    "seen": 1792067820.79834,
-    "ast_hash": "e7890cdb8dc03697426bd65d56295117",
+    "mtime": 1792068558.0604491,
+    "seen": 1792078147.926423,
+    "ast_hash": "60eaa300c9cdf31efd28234d583552f6",
     "semantic_hash": ""
   },
   "frontend/lib/site.ts": {
@@ -1056,9 +1056,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/supabase/database.types.ts": {
-    "mtime": 1792067662.0735352,
-    "seen": 1792067820.7983649,
-    "ast_hash": "1f28c25afaefc3e6dd89ec6c4952fc01",
+    "mtime": 1792069329.4702115,
+    "seen": 1792078147.9264572,
+    "ast_hash": "c9eb8b49cb6205e581f79685a98525bf",
     "semantic_hash": ""
   },
   "frontend/lib/supabase/public.ts": {
@@ -1284,9 +1284,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1792067717.7848074,
-    "seen": 1792067820.798485,
-    "ast_hash": "17c502468723b7e902008ccb185e04e3",
+    "mtime": 1792078132.786767,
+    "seen": 1792078147.926615,
+    "ast_hash": "46f5c4de9457c4c7616d3a362a26fc80",
     "semantic_hash": ""
   },
   "frontend/.claude/skills/verify/SKILL.md": {
@@ -1488,9 +1488,9 @@
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/etablissement/page.tsx": {
-    "mtime": 1791916099.1623495,
-    "seen": 1792067820.798013,
-    "ast_hash": "eeb166f27de09a1604a6ec83c46bc8bb",
+    "mtime": 1792068604.8983276,
+    "seen": 1792078147.925992,
+    "ast_hash": "c95bbc572f4a5c1d36e59f718284093e",
     "semantic_hash": ""
   },
   "frontend/app/menu/gestion/layout.tsx": {
@@ -9084,9 +9084,9 @@
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/commander/page.tsx": {
-    "mtime": 1792068089.198836,
-    "seen": 1792068144.050336,
-    "ast_hash": "a147fe912da0513ab90f07fd3312b6c5",
+    "mtime": 1792068739.6769233,
+    "seen": 1792078147.9260569,
+    "ast_hash": "2ffb9084058969de812b6331e4a4ed21",
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/commander/shop.ts": {
@@ -9132,21 +9132,21 @@
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/page.tsx": {
-    "mtime": 1792066525.0845108,
-    "seen": 1792067820.798068,
-    "ast_hash": "33d5dc50a3b3fcdcf5dd444199fc24f3",
+    "mtime": 1792077590.009144,
+    "seen": 1792078147.926065,
+    "ast_hash": "97d4c38a0a925db69982b50b9e3c1eb6",
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/presse/page.tsx": {
-    "mtime": 1792063006.6363935,
-    "seen": 1792067820.798068,
-    "ast_hash": "426c91cf497255b9bbbe9dfd083b2ec6",
+    "mtime": 1792077869.1287806,
+    "seen": 1792078147.926066,
+    "ast_hash": "ef4ff2f2bca3ab388bc0f219d296a2e5",
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/savoir-faire/page.tsx": {
-    "mtime": 1792063006.6352603,
-    "seen": 1792067820.798069,
-    "ast_hash": "9d51321196b15ff3eb5d6e4b2e524dcc",
+    "mtime": 1792077524.4634645,
+    "seen": 1792078147.9260669,
+    "ast_hash": "939991b90e58585c15dfb88140cc06c4",
     "semantic_hash": ""
   },
   "frontend/app/sites/boulangerie-cyprien/template.tsx": {
@@ -9222,9 +9222,9 @@
     "semantic_hash": ""
   },
   "frontend/components/sites/cyprien/motion.tsx": {
-    "mtime": 1791917878.5944457,
-    "seen": 1792067820.7982562,
-    "ast_hash": "529240c213bbbcf3ebfb66edd5371fe9",
+    "mtime": 1792077672.8461723,
+    "seen": 1792078147.926309,
+    "ast_hash": "2482cb7d5683e128354c176ee4ca5150",
     "semantic_hash": ""
   },
   "frontend/components/sites/cyprien/open-now.tsx": {
@@ -9264,9 +9264,9 @@
     "semantic_hash": ""
   },
   "frontend/lib/sites/cyprien.ts": {
-    "mtime": 1792055419.9677794,
-    "seen": 1792067820.7983592,
-    "ast_hash": "ee695ab62a81778d1aee89f18e50c4a6",
+    "mtime": 1792077546.052364,
+    "seen": 1792078147.926448,
+    "ast_hash": "0af8c4b22238d8697caae03ec39da259",
     "semantic_hash": ""
   },
   "supabase/migrations/20261015000003_precommandes.sql": {
@@ -9597,6 +9597,36 @@
     "mtime": 1791916733.5554752,
     "seen": 1792067820.798778,
     "ast_hash": "9c0d9e151d37074fa7cbf823b5dd406a",
+    "semantic_hash": ""
+  },
+  "frontend/app/api/demo/pay/route.ts": {
+    "mtime": 1792069329.4509294,
+    "seen": 1792078147.925898,
+    "ast_hash": "c265b9455c238ab6b825294b2b33b6e1",
+    "semantic_hash": ""
+  },
+  "frontend/components/menu/demo-payment.tsx": {
+    "mtime": 1792069329.4706721,
+    "seen": 1792078147.926234,
+    "ast_hash": "646f3f643b2eb73594d5277d3f7ebbc3",
+    "semantic_hash": ""
+  },
+  "frontend/components/sites/cyprien/press.tsx": {
+    "mtime": 1792077874.5047612,
+    "seen": 1792078147.926311,
+    "ast_hash": "31cef785a7e7c08c7fd7ac093b131b1e",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261015000004_paiement_demo_type.sql": {
+    "mtime": 1792068545.7789195,
+    "seen": 1792078147.926579,
+    "ast_hash": "07654f17fb298670200c1bfd5144649e",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261015000005_paiement_demo.sql": {
+    "mtime": 1792069317.6454911,
+    "seen": 1792078147.92658,
+    "ast_hash": "4734579e12ca8df586fd90257a1b26ab",
     "semantic_hash": ""
   }
 }
