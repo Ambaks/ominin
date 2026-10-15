@@ -7802,9 +7802,13 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
   }
 }
 
+/* L'espacement suit aussi la dernière lettre : la marge négative le reprend,
+   l'accroche se centre et tient sur une ligne à 320 px (« RESTAURANT · »
+   y restait seul). */
 .theme-brasserie-laissac .hero-tagline {
   order: 2;
   margin-top: 1rem;
+  margin-inline-end: -0.3em;
   color: var(--muted);
   font-weight: 500;
   letter-spacing: 0.3em;
@@ -8034,8 +8038,9 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
   text-transform: uppercase;
   letter-spacing: 0.12em;
 
+  /* L'étiquette (« 1 au choix », « Facultatif ») garde sa couleur, qui
+     distingue l'obligatoire du facultatif. */
   & > span {
-    color: var(--muted);
     text-transform: none;
     letter-spacing: normal;
   }
@@ -8858,6 +8863,12 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
   font-size: min(2.25rem, 13.5cqi);
 }
 
+/* En capitales espacées, « DÉGUSTATION » débordait de la feuille à 320 px :
+   un corps plus petit pour les saluts en capitales. */
+:is(.theme-cafe-des-arts, .theme-brasserie-laissac) .serve-box-title {
+  font-size: min(1.875rem, 9.5cqi);
+}
+
 /* La puce de la carte du paiement simulé (menu/preview-payment.tsx) : un
    métal neutre tiré du texte et de la surface, ses contacts en filets. */
 .payment-chip {
@@ -8997,7 +9008,6 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
 
 /* ---- Café des Arts : le néon rose, la peinture qui coule ---------------- */
 .theme-cafe-des-arts .serve-box-title {
-  font-size: min(1.875rem, 9.5cqi);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -9126,12 +9136,6 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
 
 .theme-brasserie-laissac .serve-box-mark {
   border-color: var(--lc-or);
-}
-
-/* En capitales romaines espacées, « DÉGUSTATION » débordait de la feuille à
-   320 px : le corps du Café des Arts, autre titre en capitales. */
-.theme-brasserie-laissac .serve-box-title {
-  font-size: min(1.875rem, 9.5cqi);
 }
 
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,

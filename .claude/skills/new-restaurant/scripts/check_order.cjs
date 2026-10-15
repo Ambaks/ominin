@@ -114,6 +114,12 @@ const inspectDialog = (page) =>
     await choose.scrollIntoViewIfNeeded();
     await choose.click();
     await page.waitForTimeout(200); // volontairement court : c'est là que la feuille partait hors écran
+    // Un thème qui fait monter la feuille (l'Écusson, 0,32 s) la mesurerait en
+    // pleine montée : on attend la fin de son entrée, pas plus.
+    await page
+      .locator('[role="dialog"]')
+      .evaluate((d) => Promise.all(d.getAnimations({ subtree: true }).map((a) => a.finished)))
+      .catch(() => {});
     const d = await inspectDialog(page);
     opened++;
     if (!d) {
