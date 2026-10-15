@@ -14,7 +14,11 @@ import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
 import { BADGE_LABELS, formatPrice } from "@/lib/menu/format";
-import { type MenuItem } from "@/lib/menu-data";
+import {
+  hasBlockedRequiredGroup,
+  isChoiceAvailable,
+  type MenuItem,
+} from "@/lib/menu-data";
 
 export function MenuItemCard({
   item,
@@ -136,6 +140,47 @@ export function MenuItemCard({
         )}
 
         {tarifs}
+
+        {item.options && item.options.length > 0 && (
+          <div className="flex flex-col gap-1.5" aria-label={`Disponibilité des options de ${item.name}`}>
+            {item.options.map((group) => (
+              <div key={group.id} className="flex flex-wrap items-center gap-1.5">
+                <span className="mr-0.5 text-[11px] text-faint">{group.name}</span>
+                {group.choices.map((choice) => {
+                  const ok = isChoiceAvailable(choice);
+                  return (
+                    <button
+                      key={choice.id}
+                      type="button"
+                      disabled={!canAvailability}
+                      aria-pressed={!ok}
+                      title={ok ? "Toucher pour le marquer épuisé" : "Toucher pour le remettre"}
+                      onClick={() =>
+                        void run(
+                          () => api.setChoiceAvailability(item.id, group.id, choice.id, !ok),
+                          ok ? `${choice.name} : épuisé.` : `${choice.name} : de nouveau disponible.`
+                        )
+                      }
+                      className={`rounded-full border px-2.5 py-1.5 text-xs transition-colors disabled:cursor-default ${
+                        ok
+                          ? "border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                          : "border-ember-3/40 bg-ember-3/10 text-ember-3 line-through"
+                      }`}
+                    >
+                      {choice.name}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+            {hasBlockedRequiredGroup(item.options) && (
+              <p className="text-xs text-ember-3">
+                Tous les choix d&apos;un groupe obligatoire sont épuisés&nbsp;: vos
+                clients ne peuvent plus commander cet article.
+              </p>
+            )}
+          </div>
+        )}
 
         {closedBy && (
           <p className="text-xs text-ember-3">

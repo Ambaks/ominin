@@ -5163,6 +5163,15 @@ export type Database = {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined
       }
+      set_option_choice_disponible: {
+        Args: {
+          p_choice: string
+          p_disponible: boolean
+          p_group: string
+          p_item: string
+        }
+        Returns: undefined
+      }
       set_payment_pin: {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined

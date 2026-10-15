@@ -1,5 +1,5 @@
 import { parisDate } from "@/lib/collect/hours";
-import type { MenuItem } from "@/lib/menu-data";
+import { hasBlockedRequiredGroup, type MenuItem } from "@/lib/menu-data";
 import {
   ORDER_TAB_LABELS,
   PICKUP_ROLE_LABELS,
@@ -535,7 +535,11 @@ export function ordersByHour(
 }
 
 export function isItemAvailable(item: MenuItem): boolean {
-  return item.disponible !== false && item.stock !== 0;
+  return (
+    item.disponible !== false &&
+    item.stock !== 0 &&
+    !hasBlockedRequiredGroup(item.options)
+  );
 }
 
 export function unavailableItems(state: GestionState): MenuItem[] {

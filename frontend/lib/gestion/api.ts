@@ -190,6 +190,31 @@ export async function setItemAvailability(
   });
 }
 
+/** Un choix d'option (variante, sauce, supplément) épuisé ou remis. */
+export async function setChoiceAvailability(
+  itemId: string,
+  groupId: string,
+  choiceId: string,
+  disponible: boolean
+): Promise<void> {
+  check(
+    await createClient().rpc("set_option_choice_disponible", {
+      p_item: itemId,
+      p_group: groupId,
+      p_choice: choiceId,
+      p_disponible: disponible,
+    })
+  );
+  apply((draft) => {
+    const choice = findItem(draft, itemId)
+      .item.options?.find((group) => group.id === groupId)
+      ?.choices.find((candidate) => candidate.id === choiceId);
+    if (!choice) return;
+    if (disponible) delete choice.disponible;
+    else choice.disponible = false;
+  });
+}
+
 export async function setItemStock(
   itemId: string,
   stock: number | null
