@@ -28,12 +28,22 @@ export function isPhoneLoginEmail(email: string): boolean {
   return email.toLowerCase().endsWith(`@${PHONE_LOGIN_DOMAIN}`);
 }
 
-/** Identifiant saisi (téléphone ou e-mail) → e-mail de connexion Supabase. */
+/*
+ * Un compte peut aussi porter un nom d'utilisateur (« mybox ») : il vit sur le
+ * même domaine technique que les numéros, donc avec la même protection contre
+ * les liens magiques.
+ */
+function looksLikeUsername(input: string): boolean {
+  return /^[a-z][a-z0-9._-]*$/i.test(input);
+}
+
+/** Identifiant saisi (téléphone, e-mail ou nom d'utilisateur) → e-mail de connexion Supabase. */
 export function loginEmailFor(identifier: string): string | null {
   const value = identifier.trim();
   if (looksLikePhone(value)) {
     const phone = normalizePhone(value);
     return phone ? phoneToLoginEmail(phone) : null;
   }
+  if (looksLikeUsername(value)) return `${value.toLowerCase()}@${PHONE_LOGIN_DOMAIN}`;
   return value.includes("@") ? value.toLowerCase() : null;
 }
