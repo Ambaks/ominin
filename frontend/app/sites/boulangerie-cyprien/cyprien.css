@@ -205,7 +205,8 @@ html.cy-locked {
 .cy-menu-links a,
 .cy-story-title,
 .cy-midi-place h3,
-.cy-press-row h3,
+.cy-press-brief-title,
+.cy-press-row-title,
 .cy-legal h2 {
   font-variation-settings: "opsz" 14;
 }
@@ -223,7 +224,9 @@ html.cy-locked {
 .cy-figure-num,
 .cy-score-num,
 .cy-tile-charbon,
-.cy-press-year > h2 {
+.cy-press-year > h3,
+.cy-press-lead-title,
+.cy-award-figure {
   font-variation-settings: "opsz" 28;
 }
 
@@ -252,7 +255,8 @@ html.cy-locked {
 }
 
 .cy-night .cy-lead,
-.cy-night .cy-prose {
+.cy-night .cy-prose,
+.cy-award-text {
   color: rgba(247, 242, 234, 0.82);
 }
 
@@ -2135,107 +2139,426 @@ html.cy-locked {
 
 /* ───────────── Presse ───────────── */
 
-.cy-press-outlet {
+.cy-press-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
   font-family: var(--cy-label);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
   text-transform: uppercase;
-}
-
-.cy-press-date {
-  font-size: 0.9rem;
   color: var(--cy-ink-soft);
 }
 
-.cy-press-teaser {
-  padding-block: clamp(3.5rem, 6vw, 5.5rem);
+.cy-press-outlet {
+  font-weight: 600;
+  color: var(--cy-ink);
 }
 
-.cy-press-teaser-grid {
+.cy-press-meta time,
+.cy-award-source time {
+  white-space: nowrap;
+}
+
+/* Une parution : son titre est le lien, étendu à toute la fiche. Le titre
+   vient d’abord dans le document, le journal et la date passent au-dessus à
+   l’écran. Au survol comme au clavier, le titre passe au sarcelle et la
+   flèche avance ; sous une brève ou une ligne de la revue, un filet se trace. */
+.cy-press-item {
+  position: relative;
   display: grid;
-  gap: 1.5rem 3rem;
+  align-content: start;
+  justify-items: start;
 }
 
-@media (min-width: 1024px) {
-  .cy-press-teaser-grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    align-items: last baseline;
+.cy-press-item > .cy-press-meta {
+  order: -1;
+}
+
+.cy-press-link {
+  transition: color 0.4s var(--cy-ease);
+}
+
+.cy-press-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cy-press-link:focus-visible {
+  color: var(--cy-teal-deep);
+}
+
+.cy-press-item:has(.cy-press-link:focus-visible) .cy-arrow {
+  transform: translate3d(0.25rem, 0, 0);
+}
+
+:is(.cy-press-briefs > li, .cy-press-row):has(.cy-press-link)::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: var(--cy-teal-deep);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.6s var(--cy-ease);
+}
+
+:is(.cy-press-briefs > li, .cy-press-row):has(.cy-press-link:focus-visible)::before {
+  transform: none;
+  transform-origin: left;
+}
+
+@media (hover: hover) {
+  .cy-press-item:has(.cy-press-link):hover .cy-press-link {
+    color: var(--cy-teal-deep);
   }
 
-  .cy-press-teaser-grid > :first-child {
-    grid-column: 1 / span 4;
+  .cy-press-item:has(.cy-press-link):hover .cy-arrow {
+    transform: translate3d(0.25rem, 0, 0);
   }
 
-  .cy-press-teaser-grid > :last-child {
-    grid-column: 5 / span 8;
+  :is(.cy-press-briefs > li, .cy-press-row):has(.cy-press-link):hover::before {
+    transform: none;
+    transform-origin: left;
   }
 }
 
-.cy-press-quote {
-  font-family: var(--cy-display);
-  font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.6rem);
+/* Décorative : le clic passe au lien qui couvre la fiche, flèche comprise. */
+.cy-press-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--cy-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cy-teal-deep);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Notre résumé, quand la parution n’a pas de titre : en italique, pour que
+   les guillemets restent ceux des titres. */
+.cy-press-summary {
   font-style: italic;
-  font-variation-settings: "opsz" 28;
-  line-height: 1.08;
+}
+
+/* La une de l’accueil : double filet de journal en tête, filet de colonne
+   entre l’article et les brèves ; le chapô de la section s’aligne sur la
+   colonne des brèves. */
+.cy-press-head,
+.cy-press-sheet {
+  --cy-press-gutter: clamp(2rem, 3vw, 3rem);
+}
+
+.cy-press-head {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.cy-press-head > .cy-lead {
+  max-width: 30rem;
+}
+
+.cy-press-sheet {
+  position: relative;
+  display: grid;
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-bottom: 1px solid var(--cy-line);
+}
+
+.cy-press-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  border-block: 1px solid var(--cy-ink);
+  transform-origin: left;
+}
+
+.cy-press-lead {
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.cy-press-lead-title {
+  margin-top: 1.25rem;
+  font-family: var(--cy-display);
+  font-size: clamp(2.2rem, 1.3rem + 3.4vw, 4.6rem);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
-.cy-press-source {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 1.5rem;
-  margin-top: 1rem;
-  font-family: var(--cy-label);
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.cy-press-standfirst {
+  max-width: 44ch;
+  margin-top: 1.5rem;
+  font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  line-height: 1.6;
   color: var(--cy-ink-soft);
+  text-wrap: pretty;
 }
 
-.cy-press-teaser-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem 2rem;
-  margin-top: clamp(2rem, 4vw, 3rem);
-  padding-top: 1.5rem;
+.cy-press-lead .cy-press-cue {
+  margin-top: 1.75rem;
+}
+
+.cy-press-briefs {
+  position: relative;
   border-top: 1px solid var(--cy-line);
 }
 
-.cy-press-teaser-foot .cy-outlets {
-  justify-content: flex-start;
-  margin-top: 0;
+.cy-press-briefs > li {
+  gap: 0.6rem;
+  padding-block: 1.5rem;
 }
 
-/* Les autres titres, en une ligne courante. */
-.cy-outlets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.35rem 1.1rem;
-  margin-top: clamp(2.25rem, 4vw, 3rem);
+.cy-press-briefs > li + li {
+  border-top: 1px solid var(--cy-line);
+}
+
+.cy-press-brief-title {
+  font-family: var(--cy-display);
+  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+@media (min-width: 1024px) {
+  .cy-press-head,
+  .cy-press-sheet {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  .cy-press-head {
+    align-items: end;
+    gap: 0;
+  }
+
+  .cy-press-head > :first-child,
+  .cy-press-lead {
+    grid-column: 1 / span 7;
+  }
+
+  .cy-press-head > .cy-lead,
+  .cy-press-briefs {
+    grid-column: 8 / span 5;
+    padding-left: var(--cy-press-gutter);
+  }
+
+  .cy-press-lead {
+    padding-right: clamp(2rem, 4vw, 4.5rem);
+  }
+
+  .cy-press-briefs {
+    border-top: 0;
+  }
+
+  .cy-press-briefs::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 2rem 0;
+    width: 1px;
+    background: var(--cy-line);
+    transform-origin: top;
+  }
+
+  .cy-press-briefs > li:first-child {
+    padding-top: 0;
+  }
+}
+
+.cy-site[data-motion] .cy-press-sheet::before {
+  transition: transform 1.4s var(--cy-ease);
+}
+
+.cy-site[data-motion] .cy-press-sheet:not(.is-in)::before {
+  transform: scaleX(0);
+}
+
+.cy-site[data-motion] .cy-press-briefs::before {
+  transition: transform 1.2s var(--cy-ease) 0.35s;
+}
+
+.cy-site[data-motion] .cy-press-sheet:not(.is-in) .cy-press-briefs::before {
+  transform: scaleY(0);
+}
+
+/* Distinctions : trois chiffres en grand, sur la nuit. Côte à côte, les
+   trois fiches partagent leurs rangées : chiffres sur une même ligne de
+   base, textes et sources alignés. */
+.cy-awards {
+  display: grid;
+  margin-top: clamp(3rem, 6vw, 5rem);
+  border-top: 1px solid var(--cy-line-night);
+}
+
+.cy-award {
+  padding-block: 2rem;
+}
+
+.cy-award + .cy-award {
+  border-top: 1px solid var(--cy-line-night);
+}
+
+@media (min-width: 1024px) {
+  .cy-awards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cy-award {
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    padding: 2.5rem clamp(1.25rem, 3vw, 3rem) 0 0;
+  }
+
+  .cy-award + .cy-award {
+    padding-left: clamp(1.25rem, 3vw, 3rem);
+    border-top: 0;
+    border-left: 1px solid var(--cy-line-night);
+  }
+
+  .cy-award-figure {
+    align-self: last baseline;
+  }
+}
+
+.cy-award-figure {
+  font-family: var(--cy-display);
+  font-size: clamp(4.5rem, 3rem + 5vw, 8rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  font-variant-numeric: lining-nums;
+}
+
+/* Le mot tient dans sa colonne : environ 5,7 fois sa taille de police. */
+.cy-award-word {
+  font-size: min(3.5rem, 15vw);
+  font-style: italic;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 1024px) {
+  .cy-award-word {
+    font-size: min(4.2vw, 3.75rem);
+  }
+}
+
+.cy-award-figure small,
+.cy-award-figure sup {
+  font-size: 0.42em;
+  letter-spacing: 0;
+  color: var(--cy-teal-light);
+}
+
+.cy-award-figure sup {
+  vertical-align: 0.95em;
+  line-height: 0;
+}
+
+.cy-award-text {
+  max-width: 30ch;
+  margin-top: 1.5rem;
+  text-wrap: balance;
+}
+
+.cy-award-source {
+  margin-top: 1rem;
   font-family: var(--cy-label);
-  font-size: clamp(0.9rem, 0.82rem + 0.35vw, 1.1rem);
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  line-height: 1.6;
-  text-transform: uppercase;
-  color: var(--cy-ink-soft);
-}
-
-.cy-outlets dt {
-  color: var(--cy-teal-deep);
+  font-size: 0.8125rem;
   font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cy-teal-light);
 }
 
-.cy-outlets dd:not(:last-child)::after {
-  content: "\00a0·";
-  margin-left: 0.2em;
-  color: var(--cy-crust);
+/* Revue de presse : une année par bloc, son millésime collé en marge. */
+.cy-press-year {
+  display: grid;
+  gap: 1rem;
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--cy-line);
+}
+
+@media (min-width: 1024px) {
+  .cy-press-year {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+
+  .cy-press-year > h3 {
+    grid-column: 1 / span 3;
+    position: sticky;
+    top: calc(var(--cy-header-h) + 1rem);
+    align-self: start;
+  }
+
+  .cy-press-year > ol {
+    grid-column: 4 / span 9;
+  }
+}
+
+.cy-press-year > h3 {
+  font-family: var(--cy-display);
+  font-size: clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--cy-teal-deep);
+}
+
+.cy-press-row {
+  gap: 0.5rem 2rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--cy-line);
+}
+
+.cy-press-row:first-child {
+  padding-top: 0.5rem;
+}
+
+.cy-press-row:last-child {
+  border-bottom: 0;
+}
+
+/* Journal, titre et flèche sur une ligne : seulement quand le titre garde
+   assez de place pour tenir en deux lignes. */
+@media (min-width: 1280px) {
+  .cy-press-row {
+    grid-template-columns: 13rem minmax(0, 1fr) 4.5rem;
+    align-items: baseline;
+  }
+
+  .cy-press-row > * {
+    grid-row: 1;
+  }
+
+  .cy-press-row .cy-press-meta {
+    display: grid;
+    gap: 0.3rem;
+    grid-column: 1;
+  }
+
+  .cy-press-row .cy-press-cue {
+    justify-self: end;
+  }
+}
+
+.cy-press-row-title {
+  font-family: var(--cy-display);
+  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.85rem);
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
 /* ───────────── Lieux (boutiques, le midi) ───────────── */
@@ -2962,140 +3285,6 @@ html.cy-locked {
   max-width: 52ch;
   color: rgba(247, 242, 234, 0.8);
 }
-
-/* Liste de presse */
-
-.cy-press-year {
-  display: grid;
-  gap: 1rem;
-  padding-block: clamp(2.5rem, 5vw, 4rem);
-  border-top: 1px solid var(--cy-line);
-}
-
-@media (min-width: 1024px) {
-  .cy-press-year {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: 2rem;
-  }
-
-  .cy-press-year > h2 {
-    grid-column: 1 / span 3;
-    position: sticky;
-    top: calc(var(--cy-header-h) + 1rem);
-    align-self: start;
-  }
-
-  .cy-press-year > ol {
-    grid-column: 4 / span 9;
-  }
-}
-
-.cy-press-year > h2 {
-  font-family: var(--cy-display);
-  font-size: clamp(3.5rem, 2.5rem + 4vw, 6.5rem);
-  font-weight: 400;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  color: var(--cy-teal-deep);
-}
-
-.cy-press-row {
-  position: relative;
-  display: grid;
-  gap: 0.4rem 2rem;
-  padding: 1.5rem 0;
-  border-bottom: 1px solid var(--cy-line);
-}
-
-.cy-press-row:first-child {
-  padding-top: 0.5rem;
-}
-
-.cy-press-row:last-child {
-  border-bottom: 0;
-}
-
-@media (min-width: 768px) {
-  .cy-press-row {
-    grid-template-columns: 12rem minmax(0, 1fr) auto;
-    align-items: baseline;
-  }
-}
-
-.cy-press-row h3 {
-  font-family: var(--cy-display);
-  font-size: clamp(1.35rem, 1.15rem + 0.7vw, 1.85rem);
-  font-weight: 400;
-  line-height: 1.2;
-  text-wrap: balance;
-  transition:
-    color 0.45s var(--cy-ease),
-    transform 0.5s var(--cy-ease);
-}
-
-.cy-press-row .cy-press-go {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 2.75rem;
-  font-family: var(--cy-label);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--cy-teal-deep);
-  white-space: nowrap;
-}
-
-.cy-press-row .cy-press-go::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-.cy-press-row:has(.cy-press-go):hover h3 {
-  color: var(--cy-teal-deep);
-}
-
-.cy-press-row:has(.cy-press-go):hover .cy-arrow,
-.cy-press-row:has(.cy-press-go:focus-visible) .cy-arrow {
-  transform: translate3d(0.25rem, 0, 0);
-}
-
-/* La parution qu’on va ouvrir : un filet sarcelle court sous la ligne et le
-   titre s’avance d’un pas, au survol comme au clavier. */
-.cy-press-row:has(.cy-press-go)::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 -1px;
-  height: 1px;
-  background: var(--cy-teal-deep);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.6s var(--cy-ease);
-}
-
-.cy-press-row:has(.cy-press-go:focus-visible)::before {
-  transform: none;
-  transform-origin: left;
-}
-
-.cy-press-row:has(.cy-press-go:focus-visible) h3 {
-  color: var(--cy-teal-deep);
-  transform: translate3d(0.35rem, 0, 0);
-}
-
-@media (hover: hover) {
-  .cy-press-row:has(.cy-press-go):hover::before {
-    transform: none;
-    transform-origin: left;
-  }
-
-  .cy-press-row:has(.cy-press-go):hover h3 {
-    transform: translate3d(0.35rem, 0, 0);
-  }
-}
-
 
 /* Textes légaux */
 

@@ -776,7 +776,7 @@ const SLIDES: { slide: (props: SlideProps) => ReactNode; when?: (p: Pitch) => bo
  * composant client : il s'exécute pendant l'analyse du HTML, sans attendre
  * l'hydratation, donc sans diapositives géantes au chargement.
  */
-const deckScaleScript = `(() => {
+export const deckScaleScript = `(() => {
   const deck = document.currentScript.parentElement;
   const slideWidth = parseFloat(getComputedStyle(deck).getPropertyValue("--deck-slide-width"));
   new ResizeObserver(([entry]) => deck.style.setProperty("--deck-scale", String(entry.contentRect.width / slideWidth))).observe(deck);

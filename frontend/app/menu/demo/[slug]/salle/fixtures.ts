@@ -94,6 +94,41 @@ const SERVICES: Record<string, Service> = {
     cadenceS: [7, 22, 30, 26, 34, 28],
     maxOpen: 8,
   },
+  // Un samedi soir au Victoria, en plein happy hour (16h–1h), à l'heure de la
+  // vue groupe : la terrasse boit, la cuisine sort tapas, burgers et pizzas.
+  // Lignes de sa carte (lib/menu-data) ; 45 tables, l'hypothèse de la vue
+  // groupe (lib/demo/groupe).
+  "le-victoria": {
+    tables: 45,
+    clock: { hours: 19, minutes: 40 },
+    turnoverMin: 15,
+    orders: [
+      { table: 14, minutesAgo: 18, served: 2, lines: [["Mojito", 2], ["Patatas bravas", 1], ["Pizza regina tomate", 1]] },
+      { table: 3, minutesAgo: 16, served: 1, paidBy: "carte", lines: [["Kronenbourg", 3], ["Wings poulet", 1], ["Croquetas chorizo", 1]] },
+      { table: 31, minutesAgo: 15, served: 2, lines: [["Sangria maison", 2], ["Frite maison", 1], ["Hamburger Le Chicken avec frite maison", 2, "Sans bacon", "Algérienne"]] },
+      { table: 8, minutesAgo: 13, served: 1, paidBy: "especes", lines: [["Pietra", 2], ["Pizza 4 formaggi", 1], ["Salade César", 1]] },
+      { table: 19, minutesAgo: 11, served: 1, lines: [["Cuba Libre", 2], ["Stick mozzarella", 1], ["Mini nems", 1]] },
+      { table: 12, minutesAgo: 8, served: 1, lines: [["Punch maison", 4], ["Le classique avec frite maison", 2, "Bacon", "Mayonnaise"], ["Pizza spezzial", 1]] },
+      { table: 27, minutesAgo: 5, lines: [["Monaco", 2], ["Frites patate douce", 1]] },
+      { table: 6, minutesAgo: 3, paidBy: "carte", lines: [["Jagerbomb", 4]] },
+      { table: 22, minutesAgo: 2, lines: [["Mojito", 2], ["Planteur", 1], ["Pizza chèvre miel", 1]] },
+      { table: 40, minutesAgo: 1, lines: [["Desperados", 2], ["Fish and chips tapas", 1]] },
+    ],
+    arrivals: {
+      meals: [
+        [["Monaco", 2], ["Frite maison", 1]],
+        [["Le classique avec frite maison", 1, "Bacon", "Ketchup"], ["Corona", 1]],
+        [["Sex on the beach maison", 2], ["Mini samossas", 1]],
+        [["Pizza Margherita", 1], ["Pizza au poulet", 1], ["Kronenbourg", 2]],
+        [["Mojito", 3]],
+        [["Salade de chèvre chaud", 1], ["Heineken", 1]],
+        [["Cuba Libre", 2], ["Wings poulet", 1]],
+      ],
+      sides: [[], [["Patatas bravas", 1]], [["Tarte citron meringuée", 1]], [], [["Mini saucissons", 1]]],
+    },
+    cadenceS: [9, 24, 31, 27, 35, 29],
+    maxOpen: 12,
+  },
 };
 
 export function hasSalleDemo(slug: string): boolean {

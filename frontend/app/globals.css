@@ -10581,3 +10581,197 @@ html:has(.reseau-sheet) {
     background-color: transparent;
   }
 }
+
+/*
+  Vue groupe (démo pour le propriétaire de plusieurs établissements,
+  /menu/demo/groupe/<slug>) : le tableau de bord d'Ominin sur un noir neutre.
+  Chaque adresse garde sa couleur (--venue, posée par sa carte) ; le rouge
+  doux est réservé aux retards. Sombre quel que soit le thème enregistré.
+*/
+.groupe {
+  --background: #121315;
+  --foreground: #f4f3ef;
+
+  --surface: #1a1b1e;
+  --surface-raised: #222428;
+  --hairline: rgba(244, 243, 239, 0.09);
+
+  /* Deux gris de texte bien distincts (8,5:1 et 5,4:1 sur la surface). */
+  --muted: #b3b6bb;
+  --faint: #8d9198;
+
+  --ember-1: #f0b35b;
+  --ember-2: #e2764b;
+
+  /* Retard (rouge doux) et hausse (vert doux), lisibles sur la surface. */
+  --late: #f08a7e;
+  --up: #8fd19e;
+
+  color-scheme: dark;
+}
+
+html:has(.groupe),
+html:has(.groupe) body {
+  background-color: #121315;
+}
+
+.groupe .font-display {
+  font-variation-settings: "WONK" 0;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
+/* Les chiffres qui bougent gardent leur largeur : en chasse fixe, le € ne saute pas à chaque mise à jour. */
+.groupe .font-display.tabular-nums {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.groupe :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
+.groupe-dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(4px) saturate(0.5);
+}
+
+/* Une fenêtre ouverte rend la page inerte ; elle ne défile plus derrière. */
+html:has(.groupe-dialog:modal) {
+  overflow: hidden;
+}
+
+/* Sans mouvement : tout est en place d'emblée, l'anneau « maintenant » reste
+   affiché, immobile, et le liseré d'une nouvelle commande ne s'allume pas. */
+.groupe-pulse {
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* L'entrée : les cartes montent l'une après l'autre (--i), les tendances se tracent de gauche à droite. */
+  .groupe-rise {
+    animation: groupe-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  .groupe-wipe {
+    animation: groupe-wipe 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms + 250ms);
+  }
+
+  .groupe-dot {
+    animation: groupe-rise 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 70ms + 1.5s);
+  }
+
+  .groupe-pulse {
+    transform-origin: center;
+    animation: reseau-pulse 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  }
+
+  /* Le direct : une nouvelle commande allume d'un trait le bord de sa carte. */
+  .groupe-flash {
+    animation: groupe-flash 1.6s ease-out both;
+  }
+
+  /* Plus bas dans la page, un bloc apparaît une fois quand on l'atteint (useReveal). */
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  [data-reveal="shown"] {
+    animation: groupe-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  [data-reveal="shown"] .groupe-grow {
+    transform-origin: bottom;
+    animation: groupe-grow 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 50ms + 150ms);
+  }
+
+  .groupe-dialog[open] {
+    animation: groupe-dialog 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .groupe-dialog[open]::backdrop {
+    animation: groupe-fade 0.25s ease-out;
+  }
+
+  /* Au téléphone, la ligne qui sort de l'aperçu se replie pendant que la nouvelle grandit. */
+  .groupe-row {
+    transition:
+      grid-template-rows 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      visibility 0.35s;
+  }
+
+  /* Une nouvelle commande grandit depuis une hauteur nulle (les lignes dessous glissent), puis son reflet s'éteint. */
+  .groupe-enter {
+    animation: groupe-enter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@keyframes groupe-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes groupe-wipe {
+  from {
+    clip-path: inset(-20% 100% -20% 0);
+  }
+  to {
+    clip-path: inset(-20% 0 -20% 0);
+  }
+}
+
+@keyframes groupe-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes groupe-flash {
+  from {
+    box-shadow: inset 0 0 0 1px var(--venue);
+  }
+  to {
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+
+@keyframes groupe-enter {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    background-color: color-mix(in srgb, var(--venue) 14%, transparent);
+  }
+  50% {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes groupe-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes groupe-dialog {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
