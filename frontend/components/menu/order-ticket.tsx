@@ -1,17 +1,19 @@
 "use client";
 
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { Sheet } from "@/components/menu/sheet";
+import { CheckIcon } from "@/components/gestion/icons";
+import { Sheet, useNoSheet } from "@/components/menu/sheet";
 import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
 import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { useCart } from "@/lib/menu/cart";
 import { fallBackToCounter } from "@/lib/menu/online-payment";
 import {
   CARD_NOTICES,
   isActiveTicket,
+  servedGreeting,
   useTickets,
   type ReadyEstimate,
   type Ticket,
@@ -23,6 +25,11 @@ import {
  * l'envoi de la commande, se rouvre de lui-même quand elle est prête, et
  * depuis la pastille qui reste au bas de la carte tant qu'elle n'est pas
  * remise.
+ *
+ * Aperçu à table (demoSuivi) : le même ticket, pour la table — reçue, en
+ * préparation, servie. Servie, sa pastille reste, repliée : le client revoit
+ * ce qu'il a déjà commandé ; et la page la salue d'une feuille aux couleurs
+ * de la maison, « Bon appétit ! » ou « Bonne dégustation ! ».
  */
 
 const STEPS = ["Commandée", "En cuisine", "Prête"] as const;
@@ -86,12 +93,59 @@ const PAYING: Stage = {
   chip: "Paiement…",
 };
 
-const stageOf = (ticket: Ticket): Stage | null =>
-  ticket.status === "en_attente" && ticket.paying
+const TABLE_STEPS = ["Reçue", "En préparation", "Servie"] as const;
+
+// Le titre de « servie » est la salutation du service (servedGreeting).
+// À régler : un serveur passe avec le terminal (« Payer au comptoir » à table).
+const TABLE_STAGES: Partial<Record<OrderStatus, Stage>> = {
+  en_attente: {
+    title: "À régler",
+    body: "Réglez-la auprès d’un serveur ou au\u00a0comptoir\u00a0: elle part en\u00a0préparation dès l’encaissement.",
+    step: 1,
+    waiting: true,
+    chip: "À régler",
+  },
+  payee: {
+    title: "Commande reçue",
+    body: "Paiement accepté\u00a0: elle part en\u00a0préparation.",
+    step: 0,
+    chip: "Reçue",
+  },
+  en_preparation: {
+    title: "En préparation",
+    body: "Un serveur vous l’apporte à\u00a0table dès qu’elle est prête.",
+    step: 1,
+    chip: "En préparation",
+  },
+  servie: {
+    title: "",
+    body: "Servie à votre table.\nUne autre envie\u00a0? La carte reste ouverte.",
+    step: TABLE_STEPS.length,
+    chip: "Servie",
+  },
+};
+
+/** Réglée au comptoir, la commande le dit : on sait qui a encaissé. */
+const SETTLED_AT_COUNTER =
+  "Réglée au\u00a0comptoir\u00a0: elle est en\u00a0préparation.\nUn serveur vous l’apporte à\u00a0table.";
+
+/** table : aperçu à table, ses étapes et ses mots. */
+const stageOf = (ticket: Ticket, table: number | null): Stage | null => {
+  if (table !== null) {
+    const stage = ticket.status ? TABLE_STAGES[ticket.status] : undefined;
+    if (!stage) return null;
+    if (ticket.status === "servie") return { ...stage, title: servedGreeting(ticket) };
+    if (ticket.status === "en_preparation" && ticket.atCounter) {
+      return { ...stage, body: SETTLED_AT_COUNTER };
+    }
+    return stage;
+  }
+  return ticket.status === "en_attente" && ticket.paying
     ? PAYING
     : ticket.status
       ? (STAGES[ticket.status] ?? null)
       : null;
+};
 
 /**
  * En cuisine, quand ce sera prêt : les minutes qui restent, l'heure, et une
@@ -145,6 +199,100 @@ function ReadyCountdown({ estimate, ai }: { estimate: ReadyEstimate; ai?: boolea
   );
 }
 
+/** Ce que fait la table : le montant de ses commandes, et ce qui reste à régler. */
+const tableTotals = (orders: Ticket[]) => ({
+  total: orders.reduce((sum, order) => sum + (order.total ?? 0), 0),
+  due: orders.reduce((sum, order) => sum + (order.paid ? 0 : (order.due ?? order.total ?? 0)), 0),
+});
+
+/**
+ * Aperçu à table, deux commandes ou plus : toutes d'un coup d'œil, à côté du
+ * ticket au bureau, dessous au téléphone (la ligne « Vos commandes » du bas
+ * de la feuille y mène) — numéro, état, contenu, montant, et ce que fait la
+ * table. Chacune s'ouvre au toucher, à la place de celle qu'on lit.
+ */
+function TableOrders({
+  orders,
+  shownId,
+  onShow,
+  listRef,
+}: {
+  orders: Ticket[];
+  shownId: string;
+  onShow: (orderId: string) => void;
+  listRef: React.RefObject<HTMLElement | null>;
+}) {
+  const tickets = useTickets();
+  const headingId = useId();
+  const table = tickets?.table ?? null;
+  const { total, due } = tableTotals(orders);
+  return (
+    <section
+      ref={listRef}
+      tabIndex={-1}
+      aria-labelledby={headingId}
+      className="table-orders scroll-mb-40 rounded-2xl border border-hairline bg-background px-4 pb-3 pt-3.5 outline-none"
+    >
+      <p
+        id={headingId}
+        className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted"
+      >
+        Vos commandes
+      </p>
+      <ul className="mt-1.5 divide-y divide-hairline">
+        {orders.map((order) => {
+          const current = order.id === shownId;
+          return (
+            <li key={order.id}>
+              <button
+                type="button"
+                aria-current={current || undefined}
+                onClick={() => onShow(order.id)}
+                className="table-order flex min-h-11 w-full items-start gap-3 py-2.5 text-left"
+              >
+                <span
+                  className={`w-11 shrink-0 font-display text-base font-semibold lining-nums tabular-nums ${
+                    current ? "text-ember-1" : "text-muted"
+                  }`}
+                >
+                  N°&nbsp;{order.number}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-semibold">
+                    {stageOf(order, table)?.chip ?? "…"}
+                    {current && <span className="font-normal text-muted"> (celle-ci)</span>}
+                  </span>
+                  <span className="block truncate text-xs text-muted">
+                    {order.lines.map((line) => line.name).join(" · ")}
+                  </span>
+                </span>
+                {order.total !== null && (
+                  <span className="shrink-0 font-display text-sm font-semibold lining-nums tabular-nums text-ember-1">
+                    {formatPrice(order.total)}
+                  </span>
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-1 flex items-baseline justify-between gap-3 border-t border-hairline pt-2.5 text-sm font-semibold">
+        <span>
+          Total de la table
+          {due > 0 && (
+            <span className="block text-xs font-normal text-muted">
+              dont {formatPrice(due)} à régler
+            </span>
+          )}
+        </span>
+        <span className="font-display text-base lining-nums tabular-nums text-ember-1">
+          {formatPrice(total)}
+        </span>
+      </p>
+    </section>
+  );
+}
+
 function OrderTicket({
   ticket,
   titleId,
@@ -162,10 +310,17 @@ function OrderTicket({
   const rootRef = useRef<HTMLDivElement>(null);
   const footRef = useRef<HTMLDivElement>(null);
   const [footScrolls, setFootScrolls] = useState(false);
-  const stage = stageOf(ticket);
+  const table = tickets?.table ?? null;
+  const steps = table === null ? STEPS : TABLE_STEPS;
+  const stage = stageOf(ticket, table);
   const tracked = !!stage && stage.step >= 0;
   const ready = ticket.status === "prete";
   const active = isActiveTicket(ticket);
+  // À table, deux commandes ou plus : « Vos commandes » sous le ticket.
+  const orders =
+    table === null ? [] : (tickets?.tickets ?? []).filter((order) => order.number !== null);
+  const listed = orders.length >= 2;
+  const listRef = useRef<HTMLElement>(null);
   // Téléphone couché : le volet de l'état défile seul. Quand il déborde, le
   // clavier doit pouvoir y entrer — une zone nommée, dans l'ordre de tabulation.
   // Les étapes paraissent ou disparaissent avec le paiement : on réobserve.
@@ -211,6 +366,13 @@ function OrderTicket({
     footRef.current?.scrollTo({ top: 0 });
   }, [ready]);
 
+  // À table, « Vos commandes » change le ticket lu sous le doigt : son haut
+  // revient en vue, la liste est plus bas.
+  useEffect(() => {
+    rootRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
+    footRef.current?.scrollTo({ top: 0 });
+  }, [ticket.id]);
+
   // Le bouton qui vient de servir disparaît : le focus reste dans le ticket.
   const keepFocus = () =>
     requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
@@ -231,10 +393,18 @@ function OrderTicket({
   };
 
   return (
-    <div ref={rootRef} className="order-ticket-sheet flex flex-col gap-5 p-5 pt-6">
+    <div
+      ref={rootRef}
+      data-ticket-sheet={ticket.status ?? undefined}
+      data-table={table ?? undefined}
+      data-orders={listed || undefined}
+      className="order-ticket-sheet flex flex-col gap-5 p-5 pt-6"
+    >
       <div
         data-ready={ready || undefined}
-        data-done={!active || undefined}
+        // À table, la commande servie garde son numéro en couleur : c'est
+        // l'une de celles de la table, pas un ticket périmé.
+        data-done={(!active && table === null) || undefined}
         data-issued={tickets?.handedOff || undefined}
         className="order-ticket relative"
       >
@@ -251,13 +421,16 @@ function OrderTicket({
           {/* Le titre de la feuille : le lecteur d'écran l'annonce avec le numéro. */}
           <h2 id={titleId} className="mt-5 flex flex-col items-center">
             <span className="order-ticket-label text-[11px] font-semibold uppercase tracking-[0.3em] text-muted">
-              Votre numéro
+              {table === null ? "Votre numéro" : `Table ${table}`}
             </span>
             {ticket.number === null ? (
               <span aria-busy className="shimmer mt-3 block h-24 w-40 rounded-2xl" />
             ) : (
               <span className="order-ticket-number mt-1 flex items-start justify-center gap-1.5 font-display leading-none">
                 <span aria-hidden className="mt-3 text-2xl font-medium text-muted">N°</span>
+                {/* À table, le grand numéro est celui de la commande : la table
+                    est dite au-dessus. */}
+                {table !== null && <span className="sr-only">, commande n° </span>}
                 <span
                   // Taille : globals.css, selon la hauteur de l'écran, et la
                   // largeur du ticket passé 99.
@@ -284,13 +457,20 @@ function OrderTicket({
                 : `${formatPrice(ticket.due ?? ticket.total)} à régler`}
             </p>
           )}
+          {ticket.tip ? (
+            <p className="order-ticket-tip mt-1.5 text-xs text-muted lining-nums tabular-nums">
+              dont pourboire {formatPrice(ticket.tip)}
+            </p>
+          ) : null}
         </div>
 
         {/* La découpe du ticket : deux encoches et un pointillé. */}
         <div aria-hidden className="order-ticket-tear relative flex h-5 items-center overflow-hidden bg-background">
-          <span className="absolute -left-2.5 size-5 rounded-full border border-hairline bg-surface" />
+          {/* aria-hidden aussi sur les encoches : un thème à angles droits
+              (Le Novelty) épargne ce qui est décoratif, et les gardait rondes. */}
+          <span aria-hidden className="absolute -left-2.5 size-5 rounded-full border border-hairline bg-surface" />
           <span className="mx-4 flex-1 border-t-2 border-dashed border-hairline" />
-          <span className="absolute -right-2.5 size-5 rounded-full border border-hairline bg-surface" />
+          <span aria-hidden className="absolute -right-2.5 size-5 rounded-full border border-hairline bg-surface" />
         </div>
 
         <div
@@ -304,7 +484,7 @@ function OrderTicket({
         >
           {tracked && (
             <ol className="grid grid-cols-3" aria-label="Avancement de la commande">
-              {STEPS.map((label, index) => {
+              {steps.map((label, index) => {
                 const done = index < stage.step;
                 const current = index === stage.step;
                 const state = done
@@ -333,7 +513,7 @@ function OrderTicket({
                       {label}
                       {done && <span className="sr-only"> (fait)</span>}
                       {/* « Prête (en cours) » se lisait mal : la dernière étape se dit seule. */}
-                      {state === "current" && index < STEPS.length - 1 && (
+                      {state === "current" && index < steps.length - 1 && (
                         <span className="sr-only"> (en cours)</span>
                       )}
                       {state === "todo" && <span className="sr-only"> (à venir)</span>}
@@ -359,7 +539,7 @@ function OrderTicket({
                     ? "sr-only"
                     : `order-ticket-title text-balance font-display font-medium ${
                         ready ? "ember-text text-3xl" : "text-2xl"
-                      }`
+                      } ${table !== null && ticket.status === "servie" ? "order-ticket-greeting" : ""}`
                 }
               >
                 {stage.title}
@@ -421,8 +601,15 @@ function OrderTicket({
               ))}
             </ul>
           )}
+          {table !== null && (
+            <p className="mt-4 text-center text-[11px] text-muted">Démo&nbsp;: la salle est simulée.</p>
+          )}
         </div>
       </div>
+
+      {listed && tickets && (
+        <TableOrders orders={orders} shownId={ticket.id} onShow={tickets.show} listRef={listRef} />
+      )}
 
       {/* Collé au bas de la feuille : sur un petit écran, la sortie reste en
           vue — avec, tant que le paiement en ligne n'a pas abouti, de quoi
@@ -430,6 +617,25 @@ function OrderTicket({
           du panier, refermée), et, dans l'aperçu commercial, l'étape
           suivante. */}
       <div className="order-ticket-exit sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 bg-surface px-5 pb-5 pt-3">
+        {/* Au téléphone, la liste est sous le ticket : cette ligne, toujours
+            en vue, y mène. Au bureau, elle est à côté. */}
+        {listed && (
+          <button
+            type="button"
+            onClick={() => {
+              listRef.current?.scrollIntoView({ block: "end" });
+              listRef.current?.focus({ preventScroll: true });
+            }}
+            className="flex min-h-11 items-center justify-between gap-3 rounded-full border border-hairline bg-background px-4 text-sm lg:hidden"
+          >
+            <span className="font-semibold">
+              Vos commandes · <span className="lining-nums tabular-nums">{orders.length}</span>
+            </span>
+            <span className="font-display font-semibold lining-nums tabular-nums text-ember-1">
+              {formatPrice(tableTotals(orders).total)} <span aria-hidden>↓</span>
+            </span>
+          </button>
+        )}
         {stage === PAYING && (
           <div className="order-ticket-paying flex flex-col gap-2">
             <button
@@ -447,32 +653,42 @@ function OrderTicket({
             )}
           </div>
         )}
-        <div className="flex gap-2">
+        {/* À table, l'étape suivante se dit démo, sur sa propre ligne : son
+            libellé laisse « Retour à la carte » entier à 320 px. */}
+        <div className={`flex gap-2 ${table === null ? "" : "flex-col"}`}>
           {tickets?.advance && ticket.status && active && (
             <button
               type="button"
-              aria-label={"Suivant\u00a0: aperçu de l’étape suivante"}
+              aria-label={
+                table === null
+                  ? "Suivant\u00a0: aperçu de l’étape suivante"
+                  : "Démo\u00a0: étape suivante"
+              }
               onClick={() => {
                 tickets.advance?.(ticket.id);
                 // Remise, le bouton s'en va : le focus reste dans le ticket.
+                // Servie à table, la feuille du service prend la place du ticket.
                 if (ticket.status === "prete") keepFocus();
               }}
-              className="min-h-11 shrink-0 rounded-full border border-dashed border-hairline px-4 py-3 text-sm font-semibold text-foreground"
+              className={`min-h-11 shrink-0 rounded-full border border-dashed px-4 py-3 text-sm font-semibold text-foreground ${
+                table === null ? "border-hairline" : "border-muted bg-surface"
+              }`}
             >
-              Suivant →
+              {table === null ? "Suivant →" : "Démo · étape suivante →"}
             </button>
           )}
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
+            // À table, une seule sortie, la même à chaque état.
             className={`min-h-11 flex-1 rounded-full border px-4 py-3 text-sm font-semibold ${
-              active
+              active || table !== null
                 ? "border-hairline text-foreground"
                 : "ember-gradient border-transparent bg-origin-border text-background"
             }`}
           >
-            {active ? "Retour à la carte" : "Fermer"}
+            {active || table !== null ? "Retour à la carte" : "Fermer"}
           </button>
         </div>
       </div>
@@ -481,7 +697,88 @@ function OrderTicket({
 }
 
 /** Ce qui s'efface d'une rangée trop étroite, dans l'ordre (globals.css). */
-const DOCK_FIT_STEPS = ["pill", "tight", "cooking", "total", "due", "ready", "count"] as const;
+const DOCK_FIT_STEPS = ["served", "pill", "tight", "cooking", "total", "due", "ready", "count"] as const;
+
+/** Au bas de l'écran : les commandes en cours ; à table, les servies aussi. */
+const docked = (ticket: Ticket, table: number | null) =>
+  ticket.number !== null &&
+  (isActiveTicket(ticket) || (table !== null && ticket.status === "servie"));
+
+/**
+ * Le service salué, aux couleurs de la maison : la feuille elle-même porte
+ * la salutation — le titre, la table, la commande —, et se ferme par ×,
+ * Échap ou le fond.
+ */
+function ServeBox({
+  ticket,
+  table,
+  titleId,
+  onClose,
+}: {
+  ticket: Ticket;
+  table: number;
+  titleId: string;
+  onClose: () => void;
+}) {
+  const drinks = Boolean(ticket.drinksOnly);
+  return (
+    <div
+      data-serve-box={drinks ? "boire" : "manger"}
+      className="serve-box relative flex flex-col items-center px-6 pb-10 pt-10 text-center"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Fermer"
+        className="serve-box-close absolute right-3 top-3 z-10 flex size-11 items-center justify-center text-2xl leading-none text-muted"
+      >
+        ×
+      </button>
+      <span
+        aria-hidden
+        className="serve-box-mark flex size-14 items-center justify-center rounded-full border border-hairline text-ember-1"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="size-7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {ticket.hotDrinksOnly ? (
+            // Une tasse sur sa soucoupe.
+            <path d="M5 9h11v4a5 5 0 01-5 5h-1a5 5 0 01-5-5V9zM16 10.5h1.5a2.5 2.5 0 010 5H15.5M3.5 20.5h15M9 3.5c-.6.8-.6 1.7 0 2.5M12.5 3.5c-.6.8-.6 1.7 0 2.5" />
+          ) : drinks ? (
+            // Un verre à pied.
+            <path d="M7 3.5h10l-.5 5a4.5 4.5 0 01-9 0L7 3.5zM12 13v7M8.5 20.5h7M7.3 6.5h9.4" />
+          ) : (
+            // Une cloche de service.
+            <path d="M3 17h18M5 17a7 7 0 0114 0M12 10V8.5M10.5 8.5h3M4 20h16" />
+          )}
+        </svg>
+      </span>
+      <p className="serve-box-kicker mt-5 text-[11px] font-semibold uppercase tracking-[0.3em] text-muted lining-nums">
+        Commande n°&nbsp;{ticket.number} · Table {table}
+      </p>
+      <h2
+        id={titleId}
+        className="serve-box-title mt-3 text-balance font-display text-4xl font-medium leading-tight"
+      >
+        {servedGreeting(ticket)}
+      </h2>
+      <span aria-hidden className="serve-box-rule ember-gradient mt-5 block h-px w-16" />
+      {ticket.lines.length > 0 && (
+        <p className="serve-box-items mt-4 line-clamp-3 max-w-xs text-pretty text-sm leading-relaxed text-muted">
+          {ticket.lines
+            .map((line) => (line.quantity > 1 ? `${line.quantity}\u00a0× ${line.name}` : line.name))
+            .join(" · ")}
+        </p>
+      )}
+    </div>
+  );
+}
 
 /**
  * Les commandes en cours, en pastilles au-dessus de la barre du panier : le
@@ -493,8 +790,19 @@ export function TicketTracker() {
   // Relu à chaque changement du panier : sa pastille change de largeur.
   useCart();
   const titleId = useId();
+  const serveTitleId = useId();
   const shownId = tickets?.shownId ?? null;
+  const table = tickets?.table ?? null;
+  const servedId = tickets?.served?.id ?? null;
   const dockRef = useRef<HTMLDivElement>(null);
+
+  // Le salut du service s'ouvre de lui-même : seulement quand aucune feuille
+  // n'est ouverte ni ne descend (Sheet le compte) — empilé sur une feuille
+  // qui part, il se voyait rendre la page et le défilement. Fixé à son
+  // ouverture : sa propre feuille compte, elle aussi.
+  const noSheet = useNoSheet();
+  const [greetingId, setGreetingId] = useState<string | null>(null);
+  if (servedId && greetingId === null && noSheet) setGreetingId(servedId);
 
   // Une seule rangée, à gauche de la pastille du panier : si elle déborde, des
   // mots s'effacent — voir globals.css, data-dock-fit —, puis, en dernier
@@ -512,12 +820,22 @@ export function TicketTracker() {
       };
       dock.style.paddingRight = "";
       apply();
+      // La pastille du panier se lit à sa place au repos (offset*, dans son
+      // conteneur fixe) : son rectangle à l'écran suit son entrée animée
+      // (ec-panier, elle monte du bas) et ses sauts, et la donnait sous les
+      // tickets au premier rendu — rien ne se serrait, elle couvrait le dernier.
       const room = () => {
         const box = dock.getBoundingClientRect();
-        const bar = root.querySelector(".cart-bar")?.getBoundingClientRect();
-        const beside = bar && bar.top < box.bottom && bar.bottom > box.top;
+        const bar = root.querySelector<HTMLElement>(".cart-bar");
+        const holder = bar?.offsetParent?.getBoundingClientRect();
+        if (!bar || !holder) return box.right;
+        const top = holder.top + bar.offsetTop;
+        const beside = top < box.bottom && top + bar.offsetHeight > box.top;
         return beside
-          ? Math.min(box.right, bar.left - parseFloat(getComputedStyle(dock).columnGap))
+          ? Math.min(
+              box.right,
+              holder.left + bar.offsetLeft - parseFloat(getComputedStyle(dock).columnGap)
+            )
           : box.right;
       };
       const fits = () => (dock.lastElementChild?.getBoundingClientRect().right ?? 0) <= room();
@@ -541,9 +859,7 @@ export function TicketTracker() {
   // Le fondu sous les pastilles efface la carte qui passe derrière elles ; sur
   // le pied de page de l'établissement, il le salissait : il s'en va quand
   // sa bande ne couvre plus que le pied.
-  const docked = (tickets?.tickets ?? []).some(
-    (ticket) => isActiveTicket(ticket) && ticket.number !== null
-  );
+  const inDock = (tickets?.tickets ?? []).some((ticket) => docked(ticket, table));
   useEffect(() => {
     const dock = dockRef.current?.parentElement;
     const root = dock?.closest<HTMLElement>("[data-menu-root]");
@@ -572,7 +888,7 @@ export function TicketTracker() {
       observer?.disconnect();
       root.removeAttribute("data-footer-seen");
     };
-  }, [docked]);
+  }, [inDock]);
 
   useEffect(() => {
     const refit = () => fitDock.current();
@@ -589,32 +905,63 @@ export function TicketTracker() {
   // plus de déclencheur (le panier est vide). Après le nettoyage de la feuille,
   // qui rend la page à la navigation : plus tôt, la pastille était inerte.
   const lastShown = useRef<string | null>(null);
+  // Refermé au doigt, le ticket rend le focus à sa pastille sans l'anneau du
+  // clavier : au toucher, il passait pour une pastille « choisie ».
+  // L'anneau revient à la première touche.
+  const byPointer = useRef(false);
+  useEffect(() => {
+    const onPointer = () => {
+      byPointer.current = true;
+    };
+    const onKey = () => {
+      byPointer.current = false;
+      document.querySelector("[data-quiet-focus]")?.removeAttribute("data-quiet-focus");
+    };
+    document.addEventListener("pointerdown", onPointer, true);
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer, true);
+      document.removeEventListener("keydown", onKey, true);
+    };
+  }, []);
   useEffect(() => {
     if (shownId) {
       lastShown.current = shownId;
       return;
     }
+    // La feuille du service a pris la place du ticket : elle a le focus, et
+    // le rendra à la pastille en partant (cet effet, de nouveau).
+    if (servedId) return;
     const id = lastShown.current;
     lastShown.current = null;
     // Remise, sa pastille est partie : la première qui reste prend le focus,
     // ou, plus aucune, la barre du panier.
-    if (id) {
-      (
-        document.querySelector<HTMLElement>(`[data-ticket="${id}"]`) ??
+    const target = id
+      ? (document.querySelector<HTMLElement>(`[data-ticket="${id}"]`) ??
         document.querySelector<HTMLElement>("[data-ticket]") ??
-        document.querySelector<HTMLElement>(".cart-bar")
-      )?.focus({ preventScroll: true });
+        document.querySelector<HTMLElement>(".cart-bar"))
+      : null;
+    if (!target) return;
+    if (byPointer.current) {
+      target.setAttribute("data-quiet-focus", "");
+      target.addEventListener("blur", () => target.removeAttribute("data-quiet-focus"), {
+        once: true,
+      });
     }
-  }, [shownId]);
+    target.focus({ preventScroll: true });
+  }, [shownId, servedId]);
 
   if (!tickets) return null;
-  // Ce que le client doit faire d'abord : venir chercher, puis payer.
+  // Ce que le client doit faire d'abord : venir chercher, puis payer. À
+  // table, dans l'ordre des commandes : une pastille servie ne change pas de
+  // place.
   const urgency = (ticket: Ticket) =>
     ticket.status === "prete" ? 0 : ticket.status === "en_attente" ? 1 : 2;
-  const active = tickets.tickets
-    .filter((ticket) => isActiveTicket(ticket) && ticket.number !== null)
-    .sort((a, b) => urgency(a) - urgency(b));
+  const docks = tickets.tickets.filter((ticket) => docked(ticket, table));
+  const active = table === null ? docks.sort((a, b) => urgency(a) - urgency(b)) : docks;
   const shown = tickets.tickets.find((ticket) => ticket.id === shownId);
+  const served = tickets.served;
+  const greeting = tickets.tickets.find((ticket) => ticket.id === greetingId);
 
   return (
     <>
@@ -630,47 +977,69 @@ export function TicketTracker() {
             className="ticket-dock-column flex w-full max-w-md items-end gap-2"
           >
             {active.map((ticket) => {
-              const stage = stageOf(ticket);
+              const stage = stageOf(ticket, table);
               const ready = ticket.status === "prete";
               const due = ticket.status === "en_attente";
+              const done = !isActiveTicket(ticket);
               return (
                 <button
                   key={ticket.id}
                   type="button"
                   data-ticket={ticket.id}
+                  data-ticket-status={ticket.status ?? undefined}
                   data-ready={ready || undefined}
                   data-due={due || undefined}
+                  data-done={done || undefined}
                   onClick={(event) => {
                     event.currentTarget.focus({ preventScroll: true });
                     tickets.show(ticket.id);
                   }}
-                  aria-label={`Ouvrir le ticket de la commande n° ${ticket.number}${stage ? `, ${stage.chip}` : ""}`}
+                  aria-label={
+                    table === null
+                      ? `Ouvrir le ticket de la commande n° ${ticket.number}${stage ? `, ${stage.chip}` : ""}`
+                      : `Ouvrir le suivi de la commande n° ${ticket.number}${stage ? `, ${stage.chip}` : ""}`
+                  }
                   className={`ticket-chip pointer-events-auto flex h-12 items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-3.5 shadow-2xl shadow-black/40 ${
                     ready
                       ? "border-transparent bg-foreground text-background"
                       : due
                         ? "border-ember-2 bg-surface-raised text-foreground"
-                        : "border-ember-2/70 bg-surface text-foreground"
+                        : done
+                          ? "border-hairline bg-surface text-muted"
+                          : "border-ember-2/70 bg-surface text-foreground"
                   }`}
                 >
                   <span
-                    className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 font-display text-lg font-semibold tabular-nums ${
+                    className={`ticket-chip-number flex h-9 min-w-9 items-center justify-center rounded-full px-2 font-display text-lg font-semibold tabular-nums ${
                       ready ? "ember-gradient text-background" : "bg-background text-ember-1"
                     }`}
                   >
+                    {/* À table, « N° » : le chiffre seul passait pour la table. */}
+                    {table !== null && (
+                      <span aria-hidden className="mr-0.5 font-sans text-[10px] font-semibold">
+                        N°
+                      </span>
+                    )}
                     {ticket.number}
                   </span>
                   <span className="ticket-chip-label whitespace-nowrap text-[13px] font-semibold">
                     {stage?.chip ?? "…"}
                   </span>
-                  <span aria-hidden className="ticket-chip-dot size-2 rounded-full" />
+                  {/* Servie : plus rien à guetter ; une coche à la place du point d'état. */}
+                  {done ? (
+                    <CheckIcon className="size-3.5 shrink-0 stroke-[2.6] text-ember-1" />
+                  ) : (
+                    <span aria-hidden className="ticket-chip-dot size-2 rounded-full" />
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
       )}
-      {shown && (
+      {/* Une feuille à la fois : un ticket ouvert pendant le salut du service,
+          ou pendant qu'il attend son tour, attend qu'il se referme. */}
+      {shown && !served && (
         <Sheet
           onClosed={tickets.hide}
           backdropCloses
@@ -678,6 +1047,21 @@ export function TicketTracker() {
           enter={tickets.handedOff ? "swap" : "rise"}
         >
           {(dismiss) => <OrderTicket ticket={shown} titleId={titleId} onClose={dismiss} />}
+        </Sheet>
+      )}
+      {greeting && table !== null && (
+        <Sheet
+          key={greeting.id}
+          onClosed={() => {
+            setGreetingId(null);
+            tickets.dismissServed();
+          }}
+          backdropCloses
+          labelledBy={serveTitleId}
+        >
+          {(dismiss) => (
+            <ServeBox ticket={greeting} table={table} titleId={serveTitleId} onClose={dismiss} />
+          )}
         </Sheet>
       )}
     </>

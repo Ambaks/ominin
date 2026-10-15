@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { setCollectSlotCapacity } from "@/lib/gestion/api";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 export function CollectSettings({
   initialSlotCapacity,

@@ -14,7 +14,7 @@ import { amountDue, isPickupOpen, pickupDay } from "@/lib/gestion/retraits";
 import { isPaid, lineTotal, orderTotal, paidThroughSite } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /**
  * Un retrait : l'heure, le client, ce qu'il emporte, son mot, ce qu'il reste

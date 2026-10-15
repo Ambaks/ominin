@@ -10,7 +10,7 @@ import {
 } from "@/lib/collect/shared";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { savedCartKey } from "@/lib/menu/cart";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Suivi client d'une commande à emporter : interroge /api/collect/order

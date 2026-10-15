@@ -7,7 +7,7 @@ import * as api from "@/lib/gestion/api";
 import { formatDays } from "@/lib/gestion/format";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 export function FormuleCard({
   formule,

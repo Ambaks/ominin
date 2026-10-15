@@ -41,12 +41,14 @@ export default async function ClientDemoPage({
   return (
     <div
       // Les polices de l'établissement, comme sur son menu : sans elles, son thème retombait sur celles d'Ominin.
-      className={`${brandFontVariables} ${realPhone ? "" : (restaurantThemeClass(slug) ?? "")} flex min-h-dvh flex-col bg-background text-foreground`}
+      className={`${brandFontVariables} ${realPhone ? "lg:justify-center" : (restaurantThemeClass(slug) ?? "")} flex min-h-dvh flex-col bg-background text-foreground`}
     >
-      {/* Vrai téléphone : resserrée sur un écran bas (laptop 768), la puce guide reste visible. */}
+      {/* Vrai téléphone : resserrée, la scène prend la hauteur (le retrait des
+          volets, stage.tsx) ; sur un grand écran, la page se borne à la scène
+          et se centre, sans bandes vides entre l'en-tête et les volets. */}
       <div
-        className={`mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 ${
-          realPhone ? "[@media(max-height:50rem)]:gap-3 [@media(max-height:50rem)]:py-3" : ""
+        className={`mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 ${
+          realPhone ? "gap-3 py-3 lg:max-h-[60rem]" : "gap-6 py-6"
         }`}
       >
         <header className="flex items-center justify-between gap-3">
@@ -69,7 +71,7 @@ export default async function ClientDemoPage({
         <div className="my-auto">
           {/* Chaque appareil nommé, comme sur la landing (côte à côte seulement). */}
           {realPhone && (
-            <p className="mb-4 hidden justify-between text-[11px] font-semibold uppercase tracking-[0.28em] text-muted lg:flex [@media(max-height:50rem)]:mb-2">
+            <p className="mb-2 hidden justify-between text-[11px] font-semibold uppercase tracking-[0.28em] text-muted lg:flex">
               <span>{demoSection.customerLabel}</span>
               <span>{demoSection.restaurantLabel}</span>
             </p>

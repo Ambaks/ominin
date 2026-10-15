@@ -36,10 +36,13 @@ type Side = "client" | "restaurant";
  * défaut) se règle sur celle de la fenêtre, pour que la puce guide et le
  * bouton de bascule restent visibles sur un laptop bas ou un téléphone ; le
  * retrait est la hauteur de ce qui les entoure, le plancher garde l'écran
- * lisible.
+ * lisible. Côte à côte, l'écran grandit jusqu'à un téléphone de vraies
+ * proportions plutôt que de laisser des bandes vides sur un grand écran.
+ * Un volet à la fois, le retrait laisse le pied de page sous le pli : la
+ * carte gagne sa hauteur, la puce et le bouton de bascule restent visibles.
  */
-const DUAL_PANE_HEIGHT = "[--demo-pane-h:clamp(28rem,calc(100dvh_-_14.5rem),35rem)]";
-const SWITCH_PANE_HEIGHT = "[--demo-pane-h:clamp(26rem,calc(100dvh_-_22.75rem),35rem)]";
+const DUAL_PANE_HEIGHT = "[--demo-pane-h:clamp(28rem,calc(100dvh_-_14.5rem),44rem)]";
+const SWITCH_PANE_HEIGHT = "[--demo-pane-h:clamp(26rem,calc(100dvh_-_17rem),35rem)]";
 
 /** Point braise traversant le lien téléphone ↔ dashboard (décoratif). */
 function RelayConnector() {
@@ -83,12 +86,15 @@ function DemoHint({
   const needsSwitch = !replay && side && onSwitch && target && target !== side;
   // Vrai téléphone, un volet à la fois : la puce a la hauteur de deux lignes
   // et le bouton de bascule sa place dessous, rien ne saute quand ils changent.
+  // Côte à côte, la rangée a d'emblée la hauteur de « Rejouer la démo ».
   const fixed = side && demo.settings.realPhone;
 
   return (
     <div
       className={`flex items-center justify-center gap-2 ${
-        fixed ? "min-h-26 flex-col justify-start" : "flex-wrap"
+        fixed
+          ? "min-h-26 flex-col justify-start"
+          : `flex-wrap ${demo.settings.realPhone ? "min-h-11" : ""}`
       }`}
     >
       <span
@@ -290,12 +296,11 @@ export function CollectDemoStage({
   slug?: string;
 }) {
   const dual = (
-    // Vrai téléphone : sur un écran bas (laptop 768), la puce guide reste visible.
+    // Vrai téléphone : resserrée (le retrait de DUAL_PANE_HEIGHT), la puce
+    // guide reste visible sur un laptop bas.
     <div
       data-demo-stage
-      className={`flex flex-col gap-6 ${
-        demoSettings(slug).realPhone ? `${DUAL_PANE_HEIGHT} [@media(max-height:50rem)]:gap-3` : ""
-      }`}
+      className={`flex flex-col ${demoSettings(slug).realPhone ? `gap-3 ${DUAL_PANE_HEIGHT}` : "gap-6"}`}
     >
       <DualStage />
       <DemoHint />

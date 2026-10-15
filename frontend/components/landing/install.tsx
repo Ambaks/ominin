@@ -5,7 +5,7 @@ import {
   type BillLine,
   type InstallPath,
 } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import {
   OnPartnerChange,
   PartnerCycle,

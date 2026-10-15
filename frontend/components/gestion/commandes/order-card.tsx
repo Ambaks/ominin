@@ -14,7 +14,7 @@ import { nextStatuses } from "@/lib/gestion/permissions";
 import { lastServedAt, lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { EtaChooser } from "./eta-chooser";
 import { LineOptions, PaymentChip } from "./order-line";
 import { StatusBadge } from "./status-badge";

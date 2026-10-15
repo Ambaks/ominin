@@ -13,7 +13,7 @@ import {
   type Plan,
 } from "@/lib/landing-data";
 import type { SignableContract } from "@/lib/legal/client";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import {
   hasInstallOptions,
   quoteLines,

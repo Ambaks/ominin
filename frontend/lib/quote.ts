@@ -1,5 +1,5 @@
 import { pricingSection, starterKit, type Plan } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Devis de démarrage : ce qu'un restaurant règle pour ouvrir son offre. Pur

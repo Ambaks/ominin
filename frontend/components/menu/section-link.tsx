@@ -1,7 +1,7 @@
 "use client";
 
 import type { AnchorHTMLAttributes, MouseEvent } from "react";
-import { scrollBehavior } from "@/components/menu/add-to-order";
+import { scrollBehavior } from "@/lib/menu/scroll";
 
 /**
  * Lien vers une section de la carte, rejointe sans ancre dans l'historique :
