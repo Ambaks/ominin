@@ -304,6 +304,8 @@ export const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 export const MAP_CLUSTER_RADIUS = 40;
 export const MAP_CLUSTER_MAX_ZOOM = 14;
 export const MAP_VIEWPORT_STORAGE_KEY = "ominin-admin-map-viewport";
+/** Qui tient cet appareil (Marwan ou Ambaka), pour ses notifications. */
+export const PUSH_OWNER_STORAGE_KEY = "ominin-admin-push-owner";
 
 // ---------------------------------------------------------------------------
 // Terrain
@@ -324,7 +326,7 @@ export const FOLLOW_UP_QUICK_OPTIONS: readonly { label: string; days: number }[]
 
 export const APPOINTMENT_DURATIONS_MIN: readonly number[] = [30, 60, 90, 120];
 export const APPOINTMENT_DEFAULT_DURATION_MIN = 60;
-/** Fenêtre des RDV chargés au démarrage, et des RDV, gates et loops de l'Agenda (jours). */
+/** Fenêtre des RDV chargés au démarrage et dans l'Agenda (jours). */
 export const APPOINTMENTS_WINDOW_DAYS = 30;
 /** Fenêtre des tâches terminées chargées à la demande (jours). */
 export const COMPLETED_TASKS_WINDOW_DAYS = 30;

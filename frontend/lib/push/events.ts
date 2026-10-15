@@ -77,8 +77,8 @@ export interface PushPayload {
   tag: string;
   /** Ouverte au clic, relative au host de l'appareil (gestion partagée). */
   url: string;
-  /** « essai » : notification de test depuis la page Notifications. */
-  event: PushEvent | "essai";
+  /** « essai » : notification de test ; « projet » : suivi du projet (admin). */
+  event: PushEvent | "essai" | "projet";
 }
 
 /**

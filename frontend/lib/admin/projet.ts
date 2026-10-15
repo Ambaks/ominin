@@ -1,182 +1,179 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { addDays } from "./format";
-import { PRODUCT_LABELS, isProduct, type Product } from "./products";
+import { CLIENT_PERIOD_DAYS } from "@/lib/admin/constants";
+import {
+  fetchOverview,
+  fetchShopClients,
+  periodOf,
+  type Period,
+} from "@/lib/admin/metrics";
+import { createClient } from "@/lib/supabase/client";
+import type { Database } from "@/lib/supabase/database.types";
+import { check, must } from "@/lib/supabase/result";
+import type { Product } from "./products";
 
 /*
- * Section Projet : ce que GitHub dit du travail. Une gate est une milestone
- * (« <Produit> · <objectif> »), une tâche une issue, le produit un label
- * « produit:<id> » — conventions décrites dans le README (Gestion du projet).
- * Chargé une fois à l'ouverture de la section, rechargé à la demande.
+ * Section Projet : les clients à interfacer, un par un, et les chantiers qui
+ * restent pour finir chaque offre. Tables projet_* (admins seuls) ; la
+ * pipeline type d'un client est définie en base (projet_add_client).
+ * Chargé une fois à l'ouverture de la section ; chaque modification est
+ * appliquée tout de suite à l'écran puis écrite, et défaite si l'écriture
+ * échoue.
  */
 
-export interface Gate {
-  number: number;
-  title: string;
-  description: string | null;
-  dueOn: string | null;
-  closed: boolean;
-  url: string;
-  openCount: number;
-  closedCount: number;
-}
+type Tables = Database["public"]["Tables"];
+export type ProjetClient = Tables["projet_clients"]["Row"];
+export type Chantier = Tables["projet_chantiers"]["Row"];
+export type Step = Tables["projet_steps"]["Row"];
+export type StepStatus = Database["public"]["Enums"]["projet_step_status"];
+export { OWNER_LABELS, OWNERS, type Owner } from "./owners";
 
-export interface Person {
-  login: string;
-  name: string | null;
-}
+export const STATUS_LABELS: Record<StepStatus, string> = {
+  todo: "À faire",
+  doing: "En cours",
+  done: "Fait",
+  blocked: "Bloqué",
+};
+/** Un clic sur une étape la fait avancer ; « bloqué » se pose à part. */
+export const NEXT_STATUS: Record<StepStatus, StepStatus> = {
+  todo: "doing",
+  doing: "done",
+  done: "todo",
+  blocked: "doing",
+};
 
-export interface ProjetIssue {
-  number: number;
-  title: string;
-  url: string;
-  updatedAt: string;
-  gate: number | null;
-  labels: string[];
-  assignees: Person[];
-}
-
-export interface ProjetPull {
-  number: number;
-  title: string;
-  url: string;
-  draft: boolean;
-  updatedAt: string;
-  branch: string;
-  author: string | null;
-  review: "APPROVED" | "CHANGES_REQUESTED" | "REVIEW_REQUIRED" | null;
-  conflict: boolean;
-  checks: "SUCCESS" | "FAILURE" | "ERROR" | "PENDING" | "EXPECTED" | null;
-  /** Labels de la PR et des issues qu'elle ferme. */
-  labels: string[];
-  closes: number[];
+/** Ce qu'un client en service rapporte : depuis toujours, et sur 30 jours. */
+export interface ClientFigures {
+  revenue: number;
+  commission: number;
+  orders: number;
+  revenue30: number;
+  commission30: number;
+  orders30: number;
 }
 
 export interface ProjetData {
-  repo: string;
-  gates: Gate[];
-  issues: ProjetIssue[];
-  pulls: ProjetPull[];
+  clients: ProjetClient[];
+  chantiers: Chantier[];
+  steps: Step[];
+  /** Par client lié à un établissement ou une boutique. */
+  figures: Map<string, ClientFigures>;
+  places: Place[];
+}
+
+/** Ce qu'on relie à un client pour lire ses chiffres. */
+export interface Place {
+  kind: "etablissement" | "shop";
+  id: string;
+  name: string;
+}
+
+async function loadFigures(
+  clients: ProjetClient[],
+): Promise<Pick<ProjetData, "figures" | "places">> {
+  const allTime: Period = {
+    from: new Date(0).toISOString(),
+    to: new Date().toISOString(),
+  };
+  // La période par défaut des synthèses Clients.
+  const recent = periodOf(CLIENT_PERIOD_DAYS[1]);
+  const [menuAll, menu30, shopAll, shop30] = await Promise.all([
+    fetchOverview(allTime),
+    fetchOverview(recent),
+    fetchShopClients(allTime),
+    fetchShopClients(recent),
+  ]);
+  const figures = new Map<string, ClientFigures>();
+  for (const client of clients) {
+    if (client.etablissement_id) {
+      const all = menuAll.find((row) => row.etablissement_id === client.etablissement_id);
+      const last = menu30.find((row) => row.etablissement_id === client.etablissement_id);
+      if (all) {
+        figures.set(client.id, {
+          revenue: all.revenue,
+          commission: all.commission,
+          orders: all.orders_count,
+          revenue30: last?.revenue ?? 0,
+          commission30: last?.commission ?? 0,
+          orders30: last?.orders_count ?? 0,
+        });
+      }
+    } else if (client.shop_id) {
+      const all = shopAll.find((row) => row.shop_id === client.shop_id);
+      const last = shop30.find((row) => row.shop_id === client.shop_id);
+      if (all) {
+        figures.set(client.id, {
+          revenue: all.revenue_cents / 100,
+          commission: all.fee_cents / 100,
+          orders: all.paid_orders,
+          revenue30: (last?.revenue_cents ?? 0) / 100,
+          commission30: (last?.fee_cents ?? 0) / 100,
+          orders30: last?.paid_orders ?? 0,
+        });
+      }
+    }
+  }
+  const places: Place[] = [
+    ...menuAll.map((row) => ({
+      kind: "etablissement" as const,
+      id: row.etablissement_id,
+      name: row.name,
+    })),
+    ...shopAll.map((row) => ({ kind: "shop" as const, id: row.shop_id, name: row.name })),
+  ];
+  return { figures, places };
+}
+
+async function fetchProjet(): Promise<ProjetData> {
+  const sb = createClient();
+  const [clients, chantiers, steps] = await Promise.all([
+    sb.from("projet_clients").select("*").order("created_at").then(must),
+    sb.from("projet_chantiers").select("*").order("position").then(must),
+    sb.from("projet_steps").select("*").order("position").then(must),
+  ]);
+  return { clients, chantiers, steps, ...(await loadFigures(clients)) };
 }
 
 // ---------------------------------------------------------------------------
-// Conventions
+// Lectures
 
-const PRODUCT_LABEL_PREFIX = "produit:";
-const GATE_SEPARATOR = " · ";
-export const STATUS_IN_PROGRESS_LABEL = "statut:en-cours";
-export const STATUS_BLOCKED_LABEL = "statut:bloqué";
-export const PRIORITY_LABEL = "priorité:haute";
-const TYPE_LABEL_PREFIX = "type:";
-const LOOP_LABEL = "loop";
-/** « Loop · 2026-10-08 · Vidéo de vente Big Smash » */
-const LOOP_TITLE = /^Loop · (\d{4}-\d{2}-\d{2}) · (.+)$/;
-
-/** « Menu · LZ.FOOD autonome » → produit et objectif ; « Transverse · … » → null. */
-export function splitGateTitle(title: string): {
-  product: Product | null;
-  goal: string;
-} {
-  const at = title.indexOf(GATE_SEPARATOR);
-  if (at < 0) return { product: null, goal: title };
-  const prefix = title.slice(0, at);
-  const product =
-    (Object.entries(PRODUCT_LABELS).find(
-      ([, label]) => label === prefix,
-    )?.[0] as Product | undefined) ?? null;
-  return { product, goal: title.slice(at + GATE_SEPARATOR.length) };
+export function clientSteps(data: ProjetData, clientId: string): Step[] {
+  return data.steps.filter((step) => step.client_id === clientId);
 }
 
-function labelProducts(labels: string[]): Product[] {
-  return labels
-    .filter((label) => label.startsWith(PRODUCT_LABEL_PREFIX))
-    .map((label) => label.slice(PRODUCT_LABEL_PREFIX.length))
-    .filter(isProduct);
+export function chantierSteps(data: ProjetData, chantierId: string): Step[] {
+  return data.steps.filter((step) => step.chantier_id === chantierId);
 }
 
-/** Types d'une issue, sans leur préfixe (« code », « décision »…). */
-export function issueTypes(issue: ProjetIssue): string[] {
-  return issue.labels
-    .filter((label) => label.startsWith(TYPE_LABEL_PREFIX))
-    .map((label) => label.slice(TYPE_LABEL_PREFIX.length));
+/** L'étape où en est le client : la première qui n'est pas faite. */
+export function currentStep(steps: Step[]): Step | null {
+  return steps.find((step) => step.status !== "done") ?? null;
 }
 
-/** Une loop : son jour (local, midi) et son livrable ; null pour une autre issue. */
-export function loopOf(
-  issue: ProjetIssue,
-): { at: string; title: string } | null {
-  if (!issue.labels.includes(LOOP_LABEL)) return null;
-  const match = LOOP_TITLE.exec(issue.title);
-  return match
-    ? { at: new Date(`${match[1]}T12:00:00`).toISOString(), title: match[2] }
-    : null;
+export function progress(steps: Step[]): { done: number; total: number } {
+  return {
+    done: steps.filter((step) => step.status === "done").length,
+    total: steps.length,
+  };
 }
 
-export type IssueStatus ="todo" | "in_progress" | "blocked";
-
-/** Bloquée prime ; une PR ouverte qui la ferme vaut « en cours ». */
-export function issueStatus(
-  issue: ProjetIssue,
-  pulls: ProjetPull[],
-): IssueStatus {
-  if (issue.labels.includes(STATUS_BLOCKED_LABEL)) return "blocked";
-  if (
-    issue.labels.includes(STATUS_IN_PROGRESS_LABEL) ||
-    pulls.some((pull) => pull.closes.includes(issue.number))
-  ) {
-    return "in_progress";
-  }
-  return "todo";
-}
-
-export type GateState = "done" | "late" | "upcoming" | "undated";
-
-export function gateState(gate: Gate, now = new Date()): GateState {
-  if (gate.closed || (gate.openCount === 0 && gate.closedCount > 0))
-    return "done";
-  if (!gate.dueOn) return "undated";
-  // GitHub date l'échéance à minuit UTC : la gate a toute sa journée.
-  return addDays(new Date(gate.dueOn), 1) < now ? "late" : "upcoming";
-}
-
-/** Gates datées d'abord, par échéance ; les « plus tard » ensuite. */
-export function sortGates(gates: Gate[]): Gate[] {
-  return [...gates].sort(
-    (a, b) =>
-      (a.dueOn ?? "9999").localeCompare(b.dueOn ?? "9999") ||
-      a.number - b.number,
-  );
-}
-
-export const personLabel = (person: Person) => person.name ?? person.login;
-
-/** Ce que la vue d'un produit garde ; la vue d'ensemble garde tout. */
+/** Ce que montre la vue d'un produit ; les chantiers transverses partout. */
 export function selectProjetFor(
   data: ProjetData,
   product: Product | null,
-): ProjetData {
+): Pick<ProjetData, "clients" | "chantiers"> {
   if (!product) return data;
-  const gates = data.gates.filter(
-    (gate) => splitGateTitle(gate.title).product === product,
-  );
-  const gateNumbers = new Set(gates.map((gate) => gate.number));
   return {
-    ...data,
-    gates,
-    issues: data.issues.filter(
-      (issue) =>
-        labelProducts(issue.labels).includes(product) ||
-        (issue.gate !== null && gateNumbers.has(issue.gate)),
-    ),
-    pulls: data.pulls.filter((pull) =>
-      labelProducts(pull.labels).includes(product),
+    clients: data.clients.filter((client) => client.product === product),
+    chantiers: data.chantiers.filter(
+      (chantier) => chantier.product === null || chantier.product === product,
     ),
   };
 }
 
 // ---------------------------------------------------------------------------
-// Chargement
+// Store
 
 interface ProjetState {
   data: ProjetData | null;
@@ -192,27 +189,16 @@ function set(next: Partial<ProjetState>) {
   for (const listener of listeners) listener();
 }
 
+const message = (error: unknown) =>
+  error instanceof Error ? error.message : "Une erreur est survenue.";
+
 export async function reloadProjet(): Promise<void> {
   if (state.loading) return;
   set({ loading: true, error: null });
   try {
-    const response = await fetch("/api/admin/github", { cache: "no-store" });
-    const body = (await response.json().catch(() => ({}))) as
-      ProjetData | { error?: string };
-    if (!response.ok || !("gates" in body)) {
-      throw new Error(
-        ("error" in body && body.error) || "Lecture de GitHub impossible.",
-      );
-    }
-    set({ data: body, loading: false });
+    set({ data: await fetchProjet(), loading: false });
   } catch (error) {
-    set({
-      loading: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Lecture de GitHub impossible.",
-    });
+    set({ loading: false, error: message(error) });
   }
 }
 
@@ -232,4 +218,136 @@ export function useProjet(): ProjetState {
     () => state,
     () => serverState,
   );
+}
+
+/** Applique un changement à l'écran, l'écrit, et le défait s'il échoue. */
+async function optimistic(
+  apply: (data: ProjetData) => ProjetData,
+  write: () => Promise<void>,
+): Promise<void> {
+  const before = state.data;
+  if (!before) return;
+  set({ data: apply(before) });
+  try {
+    await write();
+  } catch (error) {
+    set({ data: before });
+    throw error;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Écritures
+
+/** Fait sonner ce que le changement mérite (best effort : jamais bloquant). */
+function notify(stepId: string, event: "assigned" | "blocked" | "done") {
+  void fetch("/api/admin/push/projet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ stepId, event }),
+  }).catch(() => {});
+}
+
+export async function updateStep(
+  id: string,
+  patch: Partial<Pick<Step, "status" | "owner" | "title" | "detail">>,
+): Promise<void> {
+  await optimistic(
+    (data) => ({
+      ...data,
+      steps: data.steps.map((step) => (step.id === id ? { ...step, ...patch } : step)),
+    }),
+    async () =>
+      check(await createClient().from("projet_steps").update(patch).eq("id", id)),
+  );
+  if (patch.owner) notify(id, "assigned");
+  if (patch.status === "blocked") notify(id, "blocked");
+  if (patch.status === "done") notify(id, "done");
+}
+
+export async function addStep(
+  owner: { client_id: string; phase: string } | { chantier_id: string },
+  title: string,
+): Promise<void> {
+  if (!state.data) return;
+  const siblings = state.data.steps.filter((step) =>
+    "client_id" in owner
+      ? step.client_id === owner.client_id
+      : step.chantier_id === owner.chantier_id,
+  );
+  const position = Math.max(0, ...siblings.map((step) => step.position)) + 1;
+  const step = await createClient()
+    .from("projet_steps")
+    .insert({ ...owner, title, position })
+    .select("*")
+    .single()
+    .then(must);
+  if (state.data) set({ data: { ...state.data, steps: [...state.data.steps, step] } });
+}
+
+export function deleteStep(id: string): Promise<void> {
+  return optimistic(
+    (data) => ({ ...data, steps: data.steps.filter((step) => step.id !== id) }),
+    async () => check(await createClient().from("projet_steps").delete().eq("id", id)),
+  );
+}
+
+export function updateClientNotes(id: string, notes: string): Promise<void> {
+  return optimistic(
+    (data) => ({
+      ...data,
+      clients: data.clients.map((client) =>
+        client.id === id ? { ...client, notes } : client,
+      ),
+    }),
+    async () =>
+      check(await createClient().from("projet_clients").update({ notes }).eq("id", id)),
+  );
+}
+
+export async function addClient(input: {
+  name: string;
+  product: Product;
+  etablissementId: string | null;
+  shopId: string | null;
+}): Promise<string> {
+  const id = await createClient()
+    .rpc("projet_add_client", {
+      p_name: input.name,
+      p_product: input.product,
+      p_etablissement: input.etablissementId ?? undefined,
+      p_shop: input.shopId ?? undefined,
+    })
+    .then(must);
+  await reloadProjet();
+  return id;
+}
+
+export async function deleteClient(id: string): Promise<void> {
+  await optimistic(
+    (data) => ({
+      ...data,
+      clients: data.clients.filter((client) => client.id !== id),
+      steps: data.steps.filter((step) => step.client_id !== id),
+    }),
+    async () => check(await createClient().from("projet_clients").delete().eq("id", id)),
+  );
+}
+
+export async function addChantier(
+  title: string,
+  product: Product | null,
+): Promise<void> {
+  if (!state.data) return;
+  const position =
+    Math.max(0, ...state.data.chantiers.map((chantier) => chantier.position)) + 1;
+  const chantier = await createClient()
+    .from("projet_chantiers")
+    .insert({ title, product, position })
+    .select("*")
+    .single()
+    .then(must);
+  if (state.data) {
+    set({ data: { ...state.data, chantiers: [...state.data.chantiers, chantier] } });
+  }
 }

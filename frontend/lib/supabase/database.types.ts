@@ -39,6 +39,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alert_counters: {
+        Row: {
+          hits: number
+          key: string
+          notified_at: string | null
+          window_start: string
+        }
+        Insert: {
+          hits: number
+          key: string
+          notified_at?: string | null
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          notified_at?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       admin_pins: {
         Row: {
           etablissement_id: string
@@ -64,6 +85,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          owner?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       admin_users: {
         Row: {
@@ -2807,6 +2861,153 @@ export type Database = {
           },
         ]
       }
+      projet_chantiers: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          product: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_clients: {
+        Row: {
+          created_at: string
+          etablissement_id: string | null
+          id: string
+          name: string
+          notes: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name: string
+          notes?: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          product?: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_clients_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projet_step_templates: {
+        Row: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Insert: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Update: {
+          detail?: string
+          phase?: string
+          position?: number
+          shop?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_steps: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          detail: string
+          id: string
+          owner: string | null
+          phase: string
+          position: number
+          status: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position?: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_steps_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "projet_chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_steps_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "projet_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_notified: {
         Row: {
           event: string
@@ -4521,6 +4722,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_alert_hit: {
+        Args: {
+          p_cooldown: string
+          p_key: string
+          p_threshold: number
+          p_window: string
+        }
+        Returns: boolean
+      }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -4606,6 +4816,18 @@ export type Database = {
           converted: number
           day: string
           orders_count: number
+          revenue: number
+          sessions: number
+        }[]
+      }
+      admin_service_figures: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          commission: number
+          id: string
+          kind: string
+          name: string
+          orders: number
           revenue: number
           sessions: number
         }[]
@@ -4881,6 +5103,15 @@ export type Database = {
         }
         Returns: number
       }
+      projet_add_client: {
+        Args: {
+          p_etablissement?: string
+          p_name: string
+          p_product: Database["public"]["Enums"]["ominin_product"]
+          p_shop?: string
+        }
+        Returns: string
+      }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
       reprint_order_tickets: {
@@ -5086,6 +5317,7 @@ export type Database = {
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
+      projet_step_status: "todo" | "doing" | "done" | "blocked"
       service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
@@ -5342,6 +5574,7 @@ export const Constants = {
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
+      projet_step_status: ["todo", "doing", "done", "blocked"],
       service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],
