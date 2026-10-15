@@ -209,7 +209,25 @@ const inspectDialog = (page) =>
     await page.locator("button", { hasText: "Voir la commande" }).first().click();
     await page.waitForTimeout(600);
     const send = page.locator('[role="dialog"] button', { hasText: /^\s*Aperçu/ });
-    if (!(await send.count())) {
+    // Aperçu à table (demoSuivi) : la feuille finit sur « Payer en ligne · X € »,
+    // puis la carte simulée (data-preview-pay) ; la commande se suit ensuite au
+    // bas de l'écran.
+    const simulated = page.locator('[role="dialog"] button', { hasText: /^\s*Payer\sen\sligne\s·/ });
+    if (!(await send.count()) && (await simulated.count())) {
+      await page.route(ORDER_REQUEST, (route) => route.abort());
+      await simulated.click();
+      await page.waitForTimeout(800);
+      const pay = page.locator("[data-preview-pay]");
+      if (!(await pay.count())) fail("paiement simulé absent", "« Payer en ligne » n'ouvre pas la carte simulée");
+      else {
+        await pay.click();
+        await page.locator(".order-ticket").first().waitFor({ timeout: 8000 }).catch(() => {});
+        if (await page.locator(".order-ticket").count()) ok("paiement simulé", "carte simulée → ticket suivi au bas de l'écran");
+        else fail("paiement simulé sans ticket de suivi");
+      }
+      if (orderRequests.length) fail("l'aperçu a tenté d'ENVOYER", [...new Set(orderRequests)].join(", "));
+      else ok("rien n'est parti", "ni RPC Supabase, ni route de commande ou de paiement");
+    } else if (!(await send.count())) {
       const label = await page.locator('[role="dialog"] button', { hasText: /envoy|commander/i }).allTextContents();
       fail("l'aperçu peut ENVOYER une commande réelle", JSON.stringify(label));
     } else {

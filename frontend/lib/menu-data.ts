@@ -6050,6 +6050,401 @@ const boulangerieCyprien: Restaurant = {
   ],
 };
 
+/*
+ * Brasserie Laissac — 9 place Alexandre Laissac, la quatrième adresse du
+ * groupe du Café des Arts, reprise à l'été 2026 et rouverte le 4 septembre.
+ * Aucune carte publiée : celle du panneau extérieur « 1 — BRASSERIE
+ * LAISSAC », lue image par image dans le reel de réouverture (Facebook,
+ * 4 septembre 2026), les formules des ardoises du comptoir (reel du
+ * 21 septembre) et les prix du visuel happy hour (9 septembre). Les lignes
+ * illisibles du panneau sont des questions au gérant, pas des lectures :
+ * demos/brasserie-laissac/profile.json, sources dans docs/.
+ */
+/**
+ * Photos libres (Pexels, Unsplash), auditées : aucune photo de leurs plats
+ * n'est en ligne. Recadrées par le serveur quand le sujet n'est pas au centre.
+ */
+const LAISSAC_PHOTOS: Partial<Record<string, string>> = {
+  "planche-mixte": unsplash("photo-1695606392727-d8b959879721", 800),
+  "planche-charcuterie": pexels("1927383/pexels-photo-1927383.jpeg", 800),
+  "planche-fromages": pexels("28575893/pexels-photo-28575893.jpeg", 800),
+  nuggets: pexels("39853099/pexels-photo-39853099.jpeg", 800),
+  "frites-maison": pexels("13187600/pexels-photo-13187600.jpeg", 800),
+  "frites-patate-douce": pexels("1893555/pexels-photo-1893555.jpeg", 800),
+  "sticks-mozzarella": unsplash("photo-1734774924912-dcbb467f8599", 800),
+  wings: pexels("7169620/pexels-photo-7169620.jpeg", 800),
+  burrata: unsplash("photo-1751451985575-c8c15d25694c", 800),
+  bruschetta: pexels("19029774/pexels-photo-19029774.jpeg", 800),
+  "cheese-burger": pexelsRecadre("19247557/pexels-photo-19247557.jpeg", 800),
+  "original-burger": pexels("30500761/pexels-photo-30500761.jpeg", 800),
+  savoyard: pexels("36554035/pexels-photo-36554035.jpeg", 800),
+  chicken: pexels("34407494/pexels-photo-34407494.jpeg", 800),
+  "chicken-avocado": pexels("20404825/pexels-photo-20404825.jpeg", 800),
+  "california-beef": pexels("35723478/pexels-photo-35723478.jpeg", 800),
+  "fish-burger": pexelsRecadre("39042551/pexels-photo-39042551.jpeg", 800),
+  // Recadrée : au bureau, la fiche presque carrée montrait la bouteille de soda du fond.
+  "chicken-beef": pexelsRecadre("15476362/pexels-photo-15476362.jpeg", 800),
+  "salade-caesar": pexels("7462816/pexels-photo-7462816.jpeg", 800),
+  "salade-chevre-chaud": unsplash("photo-1585516458230-d89b3bbc73d9", 800),
+  "salade-italienne": unsplash("photo-1724116380751-fbde57934e92", 800),
+  margherita: pexels("35017347/pexels-photo-35017347.jpeg", 800),
+  regina: pexels("28996257/pexels-photo-28996257.jpeg", 800),
+  speziale: pexels("15264020/pexels-photo-15264020.jpeg", 800),
+  "pizza-poulet": pexelsRecadre("11485225/pexels-photo-11485225.jpeg", 800),
+  "quatre-fromaggi": pexels("33194921/pexels-photo-33194921.jpeg", 800),
+  tiramisu: pexels("27126833/pexels-photo-27126833.jpeg", 800),
+  cheesecake: pexels("13344198/pexels-photo-13344198.jpeg", 800),
+  "tarte-tatin": pexels("10885311/pexels-photo-10885311.jpeg", 800),
+  "tarte-citron": pexels("34712614/pexels-photo-34712614.jpeg", 800),
+  moelleux: pexels("33674412/pexels-photo-33674412.jpeg", 800),
+  "assiette-fromages": pexels("14658378/pexels-photo-14658378.jpeg", 800),
+  gourmand: pexels("40156949/pexels-photo-40156949.jpeg", 800),
+  "dame-blanche": pexelsRecadre("8585804/pexels-photo-8585804.jpeg", 800),
+  "chocolat-liegeois": pexels("28162736/pexels-photo-28162736.jpeg", 800),
+  "banana-split": pexels("4875225/pexels-photo-4875225.jpeg", 800),
+  colonel: pexels("6164191/pexels-photo-6164191.jpeg", 800),
+  "glace-3-boules": pexels("11989434/pexels-photo-11989434.jpeg", 800),
+  "punch-sangria": pexels("29799870/pexels-photo-29799870.jpeg", 800),
+  chardonnay: pexels("10403547/pexels-photo-10403547.jpeg", 800),
+  "vin-moelleux": pexels("18363408/pexels-photo-18363408.jpeg", 800),
+  spritz: pexelsRecadre("9119755/pexels-photo-9119755.jpeg", 800),
+  "pinte-blonde": pexels("20769832/pexels-photo-20769832.jpeg", 800),
+  mojito: pexels("7491891/pexels-photo-7491891.jpeg", 800),
+  "sex-on-the-beach": pexels("28893433/pexels-photo-28893433.jpeg", 800),
+  planteur: pexelsRecadre("37662778/pexels-photo-37662778.jpeg", 800),
+  "virgin-colada": pexelsRecadre("33221989/pexels-photo-33221989.jpeg", 800),
+};
+
+const LAISSAC_SUPPLEMENTS_BURGER = [
+  groupeChoix("supplements", "Suppléments", ["Cheddar", "Bacon", "Miel", "Fromage de chèvre", "Avocat", "Œuf"], {
+    multiple: true,
+    supplement: 2,
+  }),
+  groupeChoix(
+    "supplements-extra",
+    "Suppléments extra",
+    ["Steak haché de Bœuf", "Filet de Poulet pané", "Reblochon", "Rösti de pomme de terre"],
+    { multiple: true, supplement: 5 }
+  ),
+];
+
+// La fin de la liste du « Supplément pizza » est illisible sur le panneau : seules ses lectures sûres.
+const LAISSAC_SUPPLEMENTS_PIZZA = groupeChoix(
+  "supplements",
+  "Suppléments",
+  ["Jambon", "Champignons", "Œuf", "Poulet", "Oignons", "Fromage de chèvre", "Mozzarella", ["Mozzarella «\u00a0burrata\u00a0»", 4]],
+  { multiple: true, supplement: 2 }
+);
+
+/** L'accroche des deux sections de pizzas : les suppléments ci-dessus. */
+const LAISSAC_ACCROCHE_PIZZAS = "Suppléments\u00a0: 2\u00a0€, burrata 4\u00a0€";
+/** Le visuel happy hour : « 17H - 23H ». */
+const LAISSAC_HAPPY_HOUR = "de 17h à 23h";
+
+const LAISSAC_PARFUMS_GLACE = ["Café", "Chocolat", "Vanille", "Fraise", "Citron"];
+const LAISSAC_CHANTILLY = groupeChoix("chantilly", "Supplément", ["Chantilly"], { multiple: true, supplement: 1.5 });
+const LAISSAC_RANGS_BOULE = ["1re boule", "2e boule", "3e boule"];
+
+/** Un article de la carte, avec sa photo s'il en a une. */
+const laissacArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: LAISSAC_PHOTOS[id],
+  ...extra,
+});
+
+/** Les burgers et les pizzas : chaque famille a ses suppléments. */
+const laissacPlat =
+  (options: OptionGroup[]) =>
+  (id: string, name: string, description: string, price: number, extra: Partial<MenuItem> = {}) =>
+    laissacArticle(id, name, price, { description, options, ...extra });
+const laissacBurger = laissacPlat(LAISSAC_SUPPLEMENTS_BURGER);
+const laissacPizza = laissacPlat([LAISSAC_SUPPLEMENTS_PIZZA]);
+
+/** Une boisson alcoolisée : TVA à 20 %. */
+const laissacAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  laissacArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Une glace à composer : un parfum par boule, la chantilly en supplément. */
+const laissacGlace = (boules: number, price: number) => {
+  const pluriel = boules > 1 ? "s" : "";
+  return laissacArticle(`glace-${boules}-boule${pluriel}`, `Glace ${boules} boule${pluriel}`, price, {
+    options: [
+      ...LAISSAC_RANGS_BOULE.slice(0, boules).map((rang, i) =>
+        groupeChoix(`boule-${i + 1}`, boules > 1 ? rang : "Parfum", LAISSAC_PARFUMS_GLACE, { obligatoire: true })
+      ),
+      LAISSAC_CHANTILLY,
+    ],
+  });
+};
+
+const brasserieLaissac: Restaurant = {
+  slug: "brasserie-laissac",
+  name: "Brasserie Laissac",
+  demoSuivi: true,
+  // La bio Instagram de la nouvelle équipe : « Restaurant, bar, cocktail, happy hour ».
+  tagline: "Restaurant · Bar · Cocktail",
+  // La gravure de l'écusson (la brasserie, sa cheminée, le cyprès), détourée du
+  // visuel happy hour : l'écusson entier n'existe en ligne qu'en 150 px.
+  logo: "/brasserie-laissac/gravure.webp",
+  icons: { tab: "/brasserie-laissac/favicon.png", homeScreen: "/brasserie-laissac/icon.png" },
+  themeColor: "#0b0a09",
+  address: "9 Place Alexandre Laissac, 34000 Montpellier",
+  phone: "+33 4 67 57 72 10",
+  hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
+  placeId: "ChIJVVXRGqavthIRizXRq7pQJtw",
+  // L'ardoise « Service NON STOP 11h30-00h00 » et le visuel « Happy Hour 17H - 23H ».
+  highlights: ["Service non stop de 11h30 à minuit", `Happy hour ${LAISSAC_HAPPY_HOUR}`],
+  ticker: [
+    // L'encart du panneau-carte ; le burger lui-même n'y est ni nommé ni chiffré.
+    { text: "Découvrez le burger du moment\u00a0!", tone: "brand" },
+    // La page de la brasserie sur le site du groupe.
+    { text: "Girafes de bière et de cocktails de 3 à 5\u00a0L pour les groupes" },
+    // La bio Instagram : « 1 salle, climatisé ».
+    { text: "Salle climatisée" },
+  ],
+  categories: [
+    {
+      // L'ardoise du comptoir : « Formule midi à ne pas rater ». Les plats du
+      // jour changent chaque jour (reels Instagram) ; le ① et le ② ne sont
+      // pas nommés.
+      id: "formule-midi",
+      name: "Formule midi",
+      tagline: "À ne pas rater",
+      items: [
+        // Le ticket de cuisine est en cp1252, sans ① ni ② : « 1 », « 2 » sous l'en-tête « FORMULE MIDI ».
+        laissacArticle("plat-1-dessert", "Plat ① + dessert", 15.9, { printName: "Plat 1 + dessert" }),
+        laissacArticle("plat-2-dessert", "Plat ② + dessert", 17.9, { printName: "Plat 2 + dessert" }),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Les tapas",
+      items: [
+        laissacArticle("planche-mixte", "Planche mixte", 18, { description: "fromage et charcuterie" }),
+        laissacArticle("planche-charcuterie", "Planche de charcuterie", 10),
+        laissacArticle("planche-fromages", "Planche de fromages", 10),
+        laissacArticle("fish-and-chips", "Fish & Chips", 8, { description: "sauce tartare" }),
+        laissacArticle("camembert-roti", "Camembert rôti", 11, { description: "figues et noix" }),
+        laissacArticle("nuggets", "Nuggets de poulet", 6),
+        laissacArticle("frites-maison", "Panier de frites maison", 5),
+        laissacArticle("frites-patate-douce", "Frites de patates douces", 6.5),
+        laissacArticle("sticks-mozzarella", "Sticks mozzarella", 6.5),
+        laissacArticle("wings", "Wings de poulet", 7.5),
+        laissacArticle("burrata", "Mozzarella «\u00a0Burrata\u00a0», tomates & jambon Serrano", 10, {
+          printName: "Burrata, tomates & Serrano",
+        }),
+        laissacArticle("bruschetta", "Bruschetta au choix", 8, {
+          description: "poulet, chèvre-miel, norvégienne",
+          options: [
+            groupeChoix("garniture", "Garniture", ["Poulet", "Chèvre-miel", "Norvégienne"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Les burgers",
+      tagline: "Servis avec frites maison",
+      items: [
+        laissacBurger("cheese-burger", "Cheese Burger", "steak haché de Bœuf, cheddar, oignons confits", 7),
+        laissacBurger(
+          "original-burger",
+          "Original Burger Laissac",
+          "steak haché de Bœuf, cheddar, salade, tomate, oignons confits",
+          9.5
+        ),
+        // « Chèvre miel » aussi chez les pizzas : le ticket dit lequel.
+        laissacBurger(
+          "burger-chevre-miel",
+          "Chèvre miel",
+          "steak haché de Bœuf, cheddar, salade, tomate, oignons confits, fromage de chèvre, miel",
+          11.5,
+          { printName: "Burger chèvre miel" }
+        ),
+        laissacBurger(
+          "rosti-burger",
+          "Rösti Burger",
+          "steak haché de Bœuf, cheddar, salade, tomate, oignons confits, rösti de pomme de terre",
+          11.9
+        ),
+        laissacBurger(
+          "savoyard",
+          "Le Savoyard",
+          "steak haché de Bœuf, cheddar, salade, tomate, oignons confits, reblochon",
+          13.9
+        ),
+        laissacBurger(
+          "vegetarien",
+          "Le Végétarien",
+          "rösti de pomme de terre, cheddar, salade, tomate, oignons confits, avocat",
+          9.9
+        ),
+        laissacBurger("chicken", "Le Chicken", "filet de Poulet pané, cheddar, salade, tomate, oignons confits", 9.5),
+        laissacBurger(
+          "chicken-avocado",
+          "Chicken Avocado",
+          "filet de Poulet pané, cheddar, salade, tomate, oignons confits, avocat",
+          10.9
+        ),
+        laissacBurger(
+          "california-beef",
+          "California Beef",
+          "steak haché de Bœuf, cheddar, salade, tomate, oignons confits, avocat",
+          11.5
+        ),
+        laissacBurger(
+          "fish-burger",
+          "Fish Burger",
+          "filet de Poisson pané, cheddar, salade, tomate, oignons confits, sauce tartare",
+          9.5
+        ),
+        laissacBurger(
+          "chicken-beef",
+          "Chicken Beef",
+          "steak haché de Bœuf, filet de Poulet pané, cheddar, salade, tomate, oignons confits",
+          13.9
+        ),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Les salades repas",
+      items: [
+        laissacArticle("salade-caesar", "Salade Caesar", 11.9, {
+          description: "salade, tomates, poulet, œuf dur, copeaux de parmesan, croûtons",
+        }),
+        laissacArticle("salade-chevre-chaud", "Salade de Chèvre chaud", 11.9, {
+          description: "salade, tomates, toasts de chèvre chaud, jambon Serrano, croûtons",
+        }),
+        laissacArticle("salade-italienne", "Salade Italienne", 12.9, {
+          description: "salade, tomates, mozzarella «\u00a0burrata\u00a0», jambon Serrano, croûtons",
+        }),
+      ],
+    },
+    {
+      id: "pizzas-tomate",
+      name: "Les pizzas base tomate",
+      tagline: LAISSAC_ACCROCHE_PIZZAS,
+      items: [
+        laissacPizza("margherita", "Margherita", "tomate, emmental, mozzarella, tomates cerises, basilic", 8.5),
+        laissacPizza("regina", "Regina", "tomate, emmental, mozzarella, jambon, champignons, basilic", 10.9),
+        laissacPizza(
+          "pizza-chevre-miel",
+          "Chèvre miel",
+          "tomate, emmental, mozzarella, fromage de chèvre, miel, herbes",
+          10.9,
+          { printName: "Pizza chèvre miel" }
+        ),
+        laissacPizza(
+          "speziale",
+          "Speziale",
+          "tomate, emmental, mozzarella, jambon cru, mozzarella «\u00a0burrata\u00a0», roquette, copeaux de parmesan",
+          13.9
+        ),
+        laissacPizza(
+          "vegetarienne",
+          "Végétarienne",
+          "tomate, emmental, mozzarella, champignons, courgettes, oignons, poivrons",
+          9.9
+        ),
+      ],
+    },
+    {
+      id: "pizzas-creme",
+      name: "Les pizzas base crème",
+      tagline: LAISSAC_ACCROCHE_PIZZAS,
+      items: [
+        laissacPizza("pizza-poulet", "Poulet", "crème, emmental, mozzarella, poulet, oignon, poivron rouge", 10.9, {
+          printName: "Pizza poulet",
+        }),
+        laissacPizza("pizza-saumon", "Saumon", "crème, emmental, mozzarella, saumon fumé, roquette", 12.9, {
+          printName: "Pizza saumon",
+        }),
+        laissacPizza("quatre-fromaggi", "4 Fromaggi", "crème, emmental, mozzarella, roquefort, chèvre", 11.9),
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Les desserts",
+      items: [
+        laissacArticle("tiramisu", "Tiramisu au café", 6),
+        laissacArticle("cheesecake", "Cheesecake fruits rouges ou caramel beurre salé", 6, {
+          printName: "Cheesecake",
+          options: [groupeChoix("nappage", "Nappage", ["Fruits rouges", "Caramel beurre salé"], { obligatoire: true })],
+        }),
+        laissacArticle("tarte-tatin", "Tarte tatin", 6),
+        laissacArticle("tarte-citron", "Tarte au citron meringuée", 6),
+        laissacArticle("moelleux", "Moelleux au chocolat & sa boule de glace vanille", 6, {
+          printName: "Moelleux au chocolat",
+        }),
+        laissacArticle("assiette-fromages", "Assiette de fromages", 8),
+        laissacArticle("gourmand", "Café ou thé gourmand et ses mignardises", 8, {
+          printName: "Gourmand",
+          options: [groupeChoix("boisson", "Boisson", ["Café", "Thé"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      // Deux des trois coupes alcoolisées et le détail du Banana split et du
+      // Colonel sont illisibles sur le panneau : questions au gérant.
+      id: "glaces",
+      name: "Les glaces",
+      items: [
+        laissacArticle("dame-blanche", "Dame blanche", 8.5, {
+          description: "3 boules vanille, nappage chocolat, chantilly",
+        }),
+        laissacArticle("cafe-liegeois", "Café liégeois", 8.5, {
+          description: "2 boules café, 1 boule vanille, chantilly",
+        }),
+        laissacArticle("chocolat-liegeois", "Chocolat liégeois", 8.5, {
+          description: "2 boules chocolat, 1 boule vanille, nappage chocolat, chantilly",
+        }),
+        laissacArticle("banana-split", "Banana split", 8.5),
+        laissacArticle("colonel", "Colonel", 9.5, { description: "coupe de glace alcoolisée", ...ALCOOL }),
+        laissacGlace(1, 2.5),
+        laissacGlace(2, 4.5),
+        laissacGlace(3, 6.5),
+      ],
+    },
+    {
+      // Les ardoises du comptoir ; ce que chaque formule comprend n'y est pas écrit.
+      id: "petit-dejeuner-gouter",
+      name: "Petit déjeuner & goûter",
+      items: [
+        laissacArticle("formule-petit-dejeuner", "Formule petit déjeuner", 6.5),
+        laissacArticle("formule-breakfast", "Formule breakfast", 9.9),
+        laissacArticle("formule-gouter", "Formule goûter", 6),
+      ],
+    },
+    {
+      // Le visuel happy hour, à la nouvelle identité : ses prix sont les seuls
+      // publiés pour ces boissons, la carte des boissons n'est pas en ligne.
+      id: "happy-hour",
+      name: "Happy hour",
+      tagline: `Tous les jours ${LAISSAC_HAPPY_HOUR}`,
+      boissons: true,
+      items: [
+        laissacAlcool("punch-sangria", "Verre Punch / Sangria maison", 3, {
+          options: [groupeChoix("boisson", "Boisson", ["Punch", "Sangria"], { obligatoire: true })],
+        }),
+        laissacAlcool("chardonnay", "Verre Chardonnay", 3),
+        laissacAlcool("vin-moelleux", "Verre Vin moelleux", 3.5),
+        laissacAlcool("spritz", "Apérol Spritz", 6),
+        laissacAlcool("pinte-blonde", "Pinte Blonde", 4),
+        laissacAlcool("pinte-monaco", "Pinte Monaco", 4.2),
+        laissacAlcool("mojito", "Mojito", 5.5),
+        laissacAlcool("sex-on-the-beach", "Sex on the Beach", 5.5),
+        laissacAlcool("planteur", "Planteur", 5.5),
+        laissacAlcool("jager-bomb", "Jager bomb", 5.5),
+        laissacArticle("virgin-mojito", "Virgin Mojito", 5),
+        laissacArticle("virgin-colada", "Virgin Colada", 5),
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -6064,6 +6459,7 @@ const restaurants: Record<string, Restaurant> = {
   [cafeDesArts.slug]: cafeDesArts,
   [caffePanis.slug]: caffePanis,
   [boulangerieCyprien.slug]: boulangerieCyprien,
+  [brasserieLaissac.slug]: brasserieLaissac,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -6082,6 +6478,7 @@ const themeClasses: Record<string, string> = {
   [cafeDesArts.slug]: "theme-cafe-des-arts",
   [caffePanis.slug]: "theme-caffe-panis",
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
+  [brasserieLaissac.slug]: "theme-brasserie-laissac",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
