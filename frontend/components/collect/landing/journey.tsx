@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { ScrollStory } from "@/components/landing-kit/scroll-story";
 import type { demoShowcaseOrder } from "@/lib/collect/demo/data";
 import { heroRelay, journey } from "@/lib/collect-landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 type ShowcaseOrder = ReturnType<typeof demoShowcaseOrder>;
 

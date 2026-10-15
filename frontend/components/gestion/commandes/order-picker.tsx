@@ -8,7 +8,8 @@ import { isItemAvailable } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { applyTarifs, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
-import { formatPrice, type MenuItem } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
+import { type MenuItem } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 
 /*

@@ -1,6 +1,6 @@
 import { composerPage, installSection, otherTills, starterKit } from "@/lib/landing-data";
 import type { ServiceMode } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { quoteQuery } from "@/lib/quote";
 
 /*

@@ -1,4 +1,5 @@
-import { DEMO_SLUG, formatPrice, unsplash } from "@/lib/menu-data";
+import { DEMO_SLUG, formatPrice } from "@/lib/menu/format";
+import { unsplash } from "@/lib/menu/images";
 import { siteUrl } from "@/lib/site";
 
 export interface Cta {

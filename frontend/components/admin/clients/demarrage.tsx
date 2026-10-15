@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/admin/format";
 import { compose, describeAnswers, parseAnswers, type Answers } from "@/lib/composer";
 import { starterKit } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { createClient } from "@/lib/supabase/client";
 
 /*

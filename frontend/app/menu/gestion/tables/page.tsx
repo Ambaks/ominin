@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { activeTables } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * La salle vue par ses tables : seules celles en service apparaissent, avec

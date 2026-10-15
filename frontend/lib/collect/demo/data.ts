@@ -1,13 +1,6 @@
 import { mapsDirectionsHref } from "@/lib/collect/shared";
-import {
-  type Allergen,
-  brandName,
-  DEMO_SLUG,
-  getRestaurant,
-  type MenuCategory,
-  type MenuItem,
-  restaurantThemeClass,
-} from "@/lib/menu-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
+import { type Allergen, brandName, displayAddress, displayPhone, getRestaurant, type MenuCategory, type MenuItem, restaurantThemeClass } from "@/lib/menu-data";
 
 /*
  * Fixtures et réglages de la démo interactive Collect. L'unique endroit
@@ -37,9 +30,9 @@ export type DemoStep =
 /** Sous-ensemble du menu par restaurant : la démo de la landing montre un
  * extrait de la Trattoria (assez pour que la navigation par catégories ait
  * du sens dans un écran de téléphone, sans noyer le visiteur). Un client
- * démo sans entrée ici joue sa carte complète ; sans `take`, une catégorie
- * vient entière. */
-const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
+ * démo sans entrée ici joue sa carte complète ; sans `take` ni `only`, une
+ * catégorie vient entière. */
+const DEMO_MENU_SPEC: Record<string, { id: string; take?: number; only?: string[] }[]> = {
   [DEMO_SLUG]: [
     { id: "antipasti", take: 3 },
     { id: "pizzas", take: 3 },
@@ -66,6 +59,53 @@ const DEMO_MENU_SPEC: Record<string, { id: string; take?: number }[]> = {
     { id: "sides" },
     { id: "desserts" },
     { id: "boissons" },
+  ],
+  // Trois bars de l'Écusson : la carte qui part à emporter, sans l'alcool
+  // (bières, cocktails, vins restent au bar). Le Novelty : les tapas dans
+  // l'ordre de leur carte, planches, à la carte, incontournables.
+  "le-novelty": [
+    { id: "planches" },
+    { id: "tapas" },
+    { id: "incontournables" },
+    { id: "formules" },
+    { id: "sans-alcool" },
+    { id: "boissons-fraiches" },
+    // La 1664 0°, seule bouteille sans alcool.
+    { id: "bouteilles", only: ["1664-sans-alcool"] },
+    { id: "boissons-chaudes" },
+  ],
+  "le-victoria": [
+    { id: "burgers" },
+    { id: "pizzas" },
+    { id: "salades" },
+    { id: "plats" },
+    { id: "tapas" },
+    { id: "desserts" },
+    { id: "crepes" },
+    { id: "gaufres" },
+    { id: "softs" },
+  ],
+  // Toute la carte sans alcool, des menus aux milkshakes (voir aussi DemoSettings.hiddenItems).
+  "cafe-des-arts": [
+    { id: "menu-brasserie" },
+    { id: "menu-bambino" },
+    { id: "menu-25" },
+    { id: "entrees" },
+    { id: "salades-xxl" },
+    { id: "bruschettas" },
+    { id: "pizzas-tomate" },
+    { id: "pizzas-creme" },
+    { id: "poissons" },
+    { id: "pates" },
+    { id: "viandes-burgers" },
+    { id: "extra-garniture" },
+    { id: "coupes-glacees" },
+    { id: "desserts-maison" },
+    { id: "petit-dejeuners" },
+    { id: "boissons-chaudes" },
+    { id: "boissons-fraiches" },
+    { id: "cocktails-sans-alcool" },
+    { id: "milkshake" },
   ],
 };
 
@@ -96,6 +136,9 @@ export interface DemoSettings {
   choiceDishes?: Record<string, string>;
 }
 
+/** Des créneaux déjà pris, aucun complet : un trou dans les horaires se lirait comme un bug. */
+const AUCUN_CRENEAU_COMPLET = [2, 4, 3, 1];
+
 const DEMO_SETTINGS: Record<string, DemoSettings> = {
   "bai-ko": {
     // Un service du midi, quelle que soit l'heure de la visite.
@@ -111,7 +154,7 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
     // Celle de la carte annonce la version Dolsot.
     taglines: { bibimbap: "Riz, légumes, garniture et œuf" },
     // Aucun créneau complet aujourd'hui : un trou dans les horaires se lirait comme un bug.
-    takenBySlot: [2, 4, 3, 1],
+    takenBySlot: AUCUN_CRENEAU_COMPLET,
     // Les formules nomment leurs plats autrement que la carte.
     choiceDishes: {
       "Mandu (x3)": "mandu",
@@ -128,6 +171,24 @@ const DEMO_SETTINGS: Record<string, DemoSettings> = {
       "Salade Tofu": "tofu-salad",
     },
   },
+  // Un service du midi ; l'Irish et le French Coffee restent au bar. Aucun
+  // créneau complet, comme pour Baï-Kō.
+  "le-novelty": {
+    startsAt: "12:20",
+    realPhone: true,
+    hiddenItems: ["irish-coffee", "french-coffee"],
+    takenBySlot: AUCUN_CRENEAU_COMPLET,
+  },
+  "le-victoria": { startsAt: "12:20", realPhone: true, takenBySlot: AUCUN_CRENEAU_COMPLET },
+  // Restent au bar : l'alcool (Irish et French Coffee, coupes Colonel et
+  // Martiniquaise, baba au rhum) et le verre d'eau.
+  "cafe-des-arts": {
+    startsAt: "12:15",
+    realPhone: true,
+    hiddenItems: ["irish-coffee", "french-coffee", "colonel", "martiniquaise", "baba-au-rhum", "verre-d-eau"],
+    takenBySlot: AUCUN_CRENEAU_COMPLET,
+  },
+  "caffe-panis": { startsAt: "12:20", realPhone: true, takenBySlot: AUCUN_CRENEAU_COMPLET },
 };
 
 /** Les allergènes du plat de la carte derrière chaque choix de formule (choiceDishes). */
@@ -179,9 +240,13 @@ export function buildDemoMenu(slug: string = DEMO_SLUG): DemoMenuSection[] {
   const spec = DEMO_MENU_SPEC[slug];
   const { hiddenChoices, hiddenItems, taglines } = demoSettings(slug);
   const categories = spec
-    ? spec.flatMap(({ id, take }) => {
+    ? spec.flatMap(({ id, take, only }) => {
         const category = restaurant.categories.find((entry) => entry.id === id);
-        return category ? [{ ...category, items: category.items.slice(0, take) }] : [];
+        if (!category) return [];
+        const items = only
+          ? category.items.filter((item) => only.includes(item.id))
+          : category.items.slice(0, take);
+        return [{ ...category, items }];
       })
     : restaurant.categories;
   return categories.map(({ id, name, kicker, tagline, items }) => ({
@@ -203,6 +268,8 @@ export interface DemoRestaurantInfo {
   brandName: string;
   tagline: string;
   address: string;
+  /** Son numéro, tel qu'on le lit (« 04 48 78 60 29 ») : le pied de la carte y renvoie pour les allergènes. */
+  phone?: string;
   coverImage?: string;
   logo?: string;
   /** Le logo écrit déjà le nom : le téléphone ne le retape pas. */
@@ -240,7 +307,8 @@ export function demoRestaurantInfo(slug: string = DEMO_SLUG): DemoRestaurantInfo
     name: restaurant.name,
     brandName: brandName(restaurant),
     tagline: restaurant.tagline,
-    address: restaurant.address,
+    address: displayAddress(restaurant.address),
+    phone: restaurant.phone.trim() ? displayPhone(restaurant.phone.trim()) : undefined,
     coverImage: restaurant.coverImage,
     logo: restaurant.logo,
     logoIsName: restaurant.logoIsName,
@@ -255,6 +323,8 @@ export const COLLECT_DEMO = {
   timings: {
     /** Faux paiement Stripe côté téléphone. */
     paymentMs: 1600,
+    /** Vrai téléphone : la fin de paymentMs, « Paiement accepté » avant que la commande arrive. */
+    paymentAcceptedMs: 600,
     /** « Webhook » : différé avant l'apparition côté restaurant. */
     orderArrivalMs: 900,
     /** Inactivité avant que la puce guide fasse respirer le prochain bouton. */
@@ -277,6 +347,8 @@ export const COLLECT_DEMO = {
     prepMinutes: 15,
     /** Une commande à créneau est prête ce temps avant lui (minutes). */
     readyLeadMinutes: 5,
+    /** Une commande sans créneau est retirée ce temps après être prête (minutes). */
+    collectLagMinutes: 3,
     /** Intervalle entre chaque créneau (minutes). */
     intervalMinutes: 15,
     /** Nombre de créneaux proposés après « Dès que possible ». */
@@ -312,16 +384,17 @@ export const COLLECT_DEMO = {
     prete: "Commande prête.",
     retiree: "Commande retirée. Démo terminée.",
   } satisfies Record<DemoStep, string>,
-  /** Copy du suivi côté téléphone — miroir du vrai order-confirmation. */
+  /** Copy du suivi côté téléphone — miroir du vrai order-confirmation ; un
+   * conseil qui nomme l'établissement le reçoit (un bar n'est pas « le restaurant »). */
   customerStatus: {
     en_attente: {
       title: "Commande reçue !",
-      hint: "Le restaurant va la prendre en charge.",
+      hint: (name: string) => `${name} va la prendre en charge.`,
     },
     // Comme order-confirmation : une commande pour demain est reçue comme les autres.
     programmee: {
       title: "Commande reçue !",
-      hint: "Le restaurant la préparera pour votre créneau.",
+      hint: (name: string) => `${name} la préparera pour votre créneau.`,
     },
     en_preparation: {
       title: "En préparation",
@@ -335,7 +408,7 @@ export const COLLECT_DEMO = {
       title: "Commande retirée",
       hint: "Merci et à bientôt !",
     },
-  } satisfies Partial<Record<DemoStep, { title: string; hint: string }>>,
+  } satisfies Partial<Record<DemoStep, { title: string; hint: string | ((name: string) => string) }>>,
   /** Micro-copy sous le bouton Payer — la démo assume qu'elle simule. */
   paymentNotice:
     "Démo — paiement simulé. Dans le vrai parcours : Stripe ou Square, versé sur le compte du restaurant.",

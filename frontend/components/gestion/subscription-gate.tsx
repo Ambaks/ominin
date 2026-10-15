@@ -9,7 +9,7 @@ import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
 import type { Offre, Role } from "@/lib/gestion/types";
 import { pricingSection, quotePage } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { collectProduct, offreProducts } from "@/lib/products";
 import { quotePlan } from "@/lib/quote";
 import { createClient } from "@/lib/supabase/client";

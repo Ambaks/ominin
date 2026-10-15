@@ -8,7 +8,7 @@ import {
   type CardPaymentState,
 } from "@/components/menu/card-payment";
 import type { CardPhase } from "@/lib/menu/online-payment";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Règlement de démonstration (fournisseur « demo ») : la même feuille que

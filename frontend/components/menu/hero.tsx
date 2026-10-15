@@ -1,6 +1,8 @@
 import { Fragment } from "react";
+import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { heroDelay } from "@/components/menu/hero-delay";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
+import { NameWords } from "@/components/menu/name-words";
 import { SectionLink } from "@/components/menu/section-link";
 import {
   brandName,
@@ -24,7 +26,12 @@ const PARTICLES = [
 ];
 
 const PILL_CLASS =
-  "inline-flex min-h-11 items-center rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
+  "inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
+
+/* L'icône d'une pastille, cachée sauf là où un thème la montre
+   (.hero-contact-icon, globals.css) : sans elle, la pastille se lisait comme
+   une étiquette, pas comme un lien. */
+const PILL_ICON_CLASS = "hero-contact-icon hidden size-4 shrink-0";
 
 /**
  * L'adresse en deux blocs, la rue puis le code postal et la ville : la ligne
@@ -70,6 +77,7 @@ function ContactPills({
           rel="noopener noreferrer"
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
+          <PinIcon className={PILL_ICON_CLASS} />
           <AddressLines address={text} />
         </a>
       ))}
@@ -78,6 +86,7 @@ function ContactPills({
           href={`tel:${phone.replace(/\s/g, "")}`}
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
+          <PhoneIcon className={PILL_ICON_CLASS} />
           {displayPhone(phone)}
         </a>
       )}
@@ -86,16 +95,34 @@ function ContactPills({
 }
 
 /**
- * Le nom, un mot par <span> : un thème peut le colorer mot à mot, comme une
- * enseigne bicolore (.theme-o-crousti-poulet). Sans thème, rien ne change.
+ * L'accroche en segments (« Bar Restaurant · Tapas Cocktail ») : chacun d'un
+ * tenant, son séparateur collé au segment qui le précède — une ligne ne
+ * commence jamais par « · ». Le séparateur a son <span> (.tagline-sep) : un
+ * thème peut le cacher et habiller les segments.
  */
-function NameWords({ name }: { name: string }) {
-  return name.split(" ").map((word, i) => (
-    <Fragment key={i}>
-      {i > 0 && " "}
-      <span>{word}</span>
-    </Fragment>
-  ));
+function Tagline({ text }: { text: string }) {
+  const segments = text.split(/(?<= [·—–]) /);
+  if (segments.length === 1) return text;
+  return segments.map((segment, i) => {
+    const sep = /^(.*) ([·—–])$/.exec(segment);
+    return (
+      <Fragment key={i}>
+        {i > 0 && " "}
+        <span className="whitespace-nowrap">
+          {sep ? (
+            <>
+              {`${sep[1]} `}
+              <span className="tagline-sep" aria-hidden>
+                {sep[2]}
+              </span>
+            </>
+          ) : (
+            segment
+          )}
+        </span>
+      </Fragment>
+    );
+  });
 }
 
 function LogoHero({
@@ -183,7 +210,7 @@ function LogoHero({
           className="hero-tagline hero-entrance ember-text relative z-10 text-[11px] font-semibold uppercase tracking-[0.35em] lg:text-xs lg:tracking-[0.4em]"
           style={heroDelay("200ms")}
         >
-          {restaurant.tagline}
+          <Tagline text={restaurant.tagline} />
         </p>
 
         {!nameInLogo && (
@@ -322,7 +349,7 @@ export function Hero({
           />
         )}
         <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em] lg:text-xs lg:tracking-[0.35em]">
-          {restaurant.tagline}
+          <Tagline text={restaurant.tagline} />
         </p>
         <h1 className="mt-2 font-display text-5xl font-medium leading-none tracking-tight sm:text-6xl lg:text-7xl">
           {brandName(restaurant)}

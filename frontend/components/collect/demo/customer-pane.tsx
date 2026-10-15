@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
+import { ChoiceTag } from "@/components/menu/add-to-order";
 import { DishIndicators } from "@/components/menu/dish-indicators";
+import { NameWords } from "@/components/menu/name-words";
 import { COLLECT_DEMO } from "@/lib/collect/demo/data";
 import {
   cartTotal,
@@ -18,11 +20,15 @@ import { formatTime } from "@/lib/gestion/format";
 import {
   addVerb,
   allergenLine,
+  descriptionWithTarifs,
   formatPrice,
+  hasFormats,
+  keepVisible,
   lineName,
-  type MenuItem,
-  type OptionGroup,
-} from "@/lib/menu-data";
+  visibleGroups,
+} from "@/lib/menu/format";
+import { scrollBehavior } from "@/lib/menu/scroll";
+import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
 
 /*
  * Volet téléphone de la démo Collect : le parcours de commande dans une
@@ -31,10 +37,6 @@ import {
  * suivi animé. Calqué sur la grammaire du vrai collect-experience, jouable
  * en 30 secondes.
  */
-
-/** Défilement doux, sauf si le visiteur a demandé moins de mouvement. */
-const scrollBehavior = (): ScrollBehavior =>
-  matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 
 /** Ramène une pastille au centre du rail si elle en sort (courante, ou atteinte au clavier). */
 function revealPill(rail: HTMLElement, pill: HTMLElement) {
@@ -62,15 +64,10 @@ function useNow(clock: () => number): number {
   return clock();
 }
 
-/** Les choix d'une ligne, comme le panier de la carte : « Dolsot Beef (+1,00 €) · Coca ». */
-const optionSummary = (line: DemoLine) =>
-  line.options
-    .map((option) =>
-      option.supplement > 0
-        ? `${option.choiceName} (+${formatPrice(option.supplement)})`
-        : option.choiceName
-    )
-    .join(" · ");
+/** Un choix d'une ligne, groupe nommé comme au suivi et sur le ticket du
+ * restaurant : « Garniture : Bacon (+1,00 €) ». */
+const optionLabel = ({ groupName, choiceName, supplement }: DemoLine["options"][number]) =>
+  `${groupName}\u00a0: ${choiceName}${supplement > 0 ? ` (+${formatPrice(supplement)})` : ""}`;
 
 /** Ligne de choix : celle de la carte (choice-row, que les thèmes habillent), resserrée au téléphone. */
 const choiceRowClass = (checked: boolean) =>
@@ -89,15 +86,41 @@ const ROW_CONTROLS = {
   },
 };
 
+/** La vignette d'une ligne sans photo dans une section qui en a : la marque
+ * en filigrane, pour que les noms s'alignent sans qu'on y lise une photo
+ * manquante. */
+function EmptyThumb() {
+  const { mark, logo } = useCollectDemo().restaurant;
+  const image = mark ?? logo;
+  return (
+    <div
+      aria-hidden
+      className="size-16 shrink-0 overflow-hidden rounded-xl border border-hairline bg-surface-raised"
+    >
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+        <img
+          src={image}
+          alt=""
+          className={`size-full opacity-30 ${mark ? "object-cover" : "object-contain p-2"}`}
+        />
+      )}
+    </div>
+  );
+}
+
 function DishRow({
   item,
   quantity,
   pulseAdd,
+  thumbSlot,
   onChoose,
 }: {
   item: MenuItem;
   quantity: number;
   pulseAdd: boolean;
+  /** Sa section a des photos : sans la sienne, il garde la place de la vignette. */
+  thumbSlot: boolean;
   /** Ouvre la feuille d'options de l'article. */
   onChoose: (item: MenuItem) => void;
 }) {
@@ -150,18 +173,34 @@ function DishRow({
   );
 
   return (
-    // demo-dish, demo-dish-name : accroches des formules d'un thème (globals.css).
+    // demo-dish, demo-dish-name, data-item : accroches d'un thème (globals.css).
     <div
+      data-item={item.id}
       className={`flex items-center gap-3 rounded-2xl border border-hairline bg-surface p-3 transition-colors hover:border-ember-2/40 ${
         real ? "demo-dish" : ""
       }`}
     >
-      {item.image && (
+      {item.image ? (
         // Des photos en 16:9 dans une vignette carrée : servies pour 114 px de
         // large, elles en couvrent la hauteur sans être agrandies (228 px en 2x).
-        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl">
-          <Image src={item.image} alt="" fill sizes="114px" className="object-cover" />
+        // Vrai téléphone : chargées d'emblée (une liste de vignettes, pas une
+        // page), sur un fond du thème en attendant, jamais un trou.
+        <div
+          className={`relative size-16 shrink-0 overflow-hidden rounded-xl ${
+            real ? "bg-surface-raised" : ""
+          }`}
+        >
+          <Image
+            src={item.image}
+            alt=""
+            fill
+            sizes="114px"
+            loading={real ? "eager" : undefined}
+            className="object-cover"
+          />
         </div>
+      ) : (
+        thumbSlot && <EmptyThumb />
       )}
       <div className="min-w-0 flex-1">
         {real ? (
@@ -184,17 +223,17 @@ function DishRow({
             {item.detail && <span className="text-faint"> {item.detail}</span>}
           </p>
         )}
-        {/* Vrai téléphone : la première ligne seule, sur deux lignes au plus ;
-            les suivantes détaillent un menu. */}
-        {item.description && (
+        {/* Vrai téléphone : la description entière, ligne à ligne — une
+            condition ou le détail d'un menu peut être sur la deuxième. */}
+        {descriptionWithTarifs(item) && (
           <p
             className={`mt-0.5 ${
               real
-                ? "line-clamp-2 text-xs leading-snug text-muted"
+                ? "whitespace-pre-line text-xs leading-snug text-muted"
                 : "line-clamp-1 text-[11px] leading-relaxed text-faint"
             }`}
           >
-            {real ? item.description.split("\n")[0] : item.description}
+            {descriptionWithTarifs(item)}
           </p>
         )}
         {real && <DishIndicators item={item} compact />}
@@ -209,6 +248,7 @@ function DishRow({
           // rétrécit pas la colonne du nom.
           <div className="mt-1 flex items-center justify-between gap-3">
             <span className="dish-price font-display text-lg text-ember-1">
+              {hasFormats(item) && "dès\u00a0"}
               {formatPrice(item.price)}
             </span>
             {controls}
@@ -292,23 +332,28 @@ function OptionSheet({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
+  // Les groupes à condition (la cuisson du steak choisi) n'apparaissent
+  // qu'avec leur choix ; cachés, ils ne bloquent ni ne comptent.
+  const shown = visibleGroups(groups, selected);
   const chosen = (group: OptionGroup) =>
     group.choices.filter((choice) => selected[group.id]?.includes(choice.id));
-  const missing = groups.filter(
-    (group) => group.obligatoire && chosen(group).length === 0
-  );
+  const missingIn = (choices: Record<string, string[]>) =>
+    visibleGroups(groups, choices).filter(
+      (group) => group.obligatoire && !choices[group.id]?.length
+    );
+  const missing = missingIn(selected);
   const touched = Object.values(selected).some((ids) => ids.length > 0);
   const formulaDishes =
     demo.settings.realPhone &&
     groups.some((group) => group.choices.some((choice) => demo.dishAllergens.has(choice.name)));
   const pickedAllergens = [
     ...new Set(
-      groups.flatMap((group) =>
+      shown.flatMap((group) =>
         chosen(group).flatMap((choice) => demo.dishAllergens.get(choice.name) ?? [])
       )
     ),
   ];
-  const unitPrice = groups.reduce(
+  const unitPrice = shown.reduce(
     (sum, group) =>
       sum + chosen(group).reduce((groupSum, choice) => groupSum + choice.supplement, 0),
     item.price
@@ -332,23 +377,31 @@ function OptionSheet({
     body.scrollTo({ top: target.offsetTop, behavior: scrollBehavior() });
   };
 
+  // Un groupe qui se cache perd ses choix (keepVisible).
+  const choose = (group: OptionGroup, ids: string[]) => {
+    const next = keepVisible(groups, { ...selected, [group.id]: ids });
+    setSelected(next);
+    return next;
+  };
+
   const pick = (group: OptionGroup, choiceId: string) => {
     setFlash((current) => (current?.id === group.id ? null : current));
     const previous = selected[group.id] ?? [];
-    setSelected({
-      ...selected,
-      [group.id]: !group.multiple
+    const next = choose(
+      group,
+      !group.multiple
         ? [choiceId]
         : previous.includes(choiceId)
           ? previous.filter((id) => id !== choiceId)
-          : [...previous, choiceId],
-    });
+          : [...previous, choiceId]
+    );
     // Premier choix d'un groupe obligatoire à choix unique, au doigt ou à la
-    // souris : la feuille descend au prochain groupe qui attend (le plat, puis
-    // la boisson). Au clavier, le focus resterait sur un groupe parti.
-    const next = missing.find((other) => other.id !== group.id);
-    if (pointer.current && group.obligatoire && !group.multiple && previous.length === 0 && next) {
-      requestAnimationFrame(() => reveal(next.id));
+    // souris : la feuille descend au prochain groupe qui attend (la cuisson
+    // du plat choisi, puis la boisson). Au clavier, le focus resterait sur
+    // un groupe parti.
+    const waiting = missingIn(next)[0];
+    if (pointer.current && group.obligatoire && !group.multiple && previous.length === 0 && waiting) {
+      requestAnimationFrame(() => reveal(waiting.id));
     }
   };
 
@@ -363,12 +416,7 @@ function OptionSheet({
       setFlash((current) => ({ id, n: (current?.n ?? 0) + 1 }));
       return;
     }
-    demo.addLine(
-      demoLine(
-        item,
-        groups.flatMap((group) => chosen(group).map((choice) => ({ group, choice })))
-      )
-    );
+    demo.addLine(demoLine(item, selected));
     onClose();
   };
 
@@ -391,14 +439,39 @@ function OptionSheet({
         className="sheet-rise flex min-h-0 flex-col rounded-t-3xl border-t border-hairline bg-surface outline-none"
       >
         <div className="border-b border-hairline px-5 pb-3 pt-4">
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 id={titleId} className="demo-dish-name font-display text-lg font-medium leading-tight">
-              {lineName(item)}
-            </h3>
-            <span className="dish-price shrink-0 font-display text-base tabular-nums text-ember-1">
-              {formatPrice(unitPrice)}
-            </span>
+          <div className="flex items-center gap-3">
+            {/* Vrai téléphone : la photo du plat, la vignette de sa ligne (même
+                taille servie, déjà chargée). */}
+            {demo.settings.realPhone && item.image && (
+              <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-surface-raised">
+                <Image
+                  src={item.image}
+                  alt=""
+                  fill
+                  sizes="114px"
+                  loading="eager"
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
+              <h3 id={titleId} className="demo-dish-name font-display text-lg font-medium leading-tight">
+                {lineName(item)}
+              </h3>
+              <span className="dish-price shrink-0 font-display text-base tabular-nums text-ember-1">
+                {/* En formats, « dès » tant qu'aucun n'est choisi. */}
+                {hasFormats(item) &&
+                  !shown.some((group) => group.formats && chosen(group).length > 0) &&
+                  "dès\u00a0"}
+                {formatPrice(unitPrice)}
+              </span>
+            </div>
           </div>
+          {demo.settings.realPhone && descriptionWithTarifs(item) && (
+            <p className="mt-1 whitespace-pre-line text-xs leading-snug text-muted">
+              {descriptionWithTarifs(item)}
+            </p>
+          )}
           {/* Une formule : les allergènes du plat choisi, pris sur la carte. */}
           {formulaDishes && (
             <p className="mt-1 text-[11px] leading-snug text-muted">
@@ -419,7 +492,7 @@ function OptionSheet({
           }}
         >
           <div className="flex flex-col gap-5">
-            {groups.map((group) => {
+            {shown.map((group) => {
               const done = chosen(group).length > 0;
               return (
                 <div
@@ -435,20 +508,15 @@ function OptionSheet({
                   }`}
                 >
                   <fieldset>
-                    <legend className="mb-2 flex items-baseline gap-2 text-xs font-semibold">
+                    {/* La marque du groupe de la carte (ChoiceTag) : « · Facultatif »
+                        n'a pas à s'accorder avec le nom du groupe. */}
+                    <legend className="mb-2 flex items-baseline gap-1.5 text-xs font-semibold">
                       {group.name}{" "}
-                      {!group.obligatoire ? (
-                        <span className="font-medium text-muted">facultatif</span>
-                      ) : done ? (
-                        <span className="font-medium text-ember-2">
-                          <span aria-hidden>✓</span>
-                          <span className="sr-only">, choix fait</span>
-                        </span>
-                      ) : (
-                        <span className="font-medium text-ember-2">
-                          {group.multiple ? "au choix" : "1 au choix"}
-                        </span>
-                      )}
+                      <ChoiceTag
+                        required={group.obligatoire}
+                        multiple={group.multiple}
+                        done={done}
+                      />
                     </legend>
                     <div className="flex flex-col gap-1.5">
                       {/* Groupe optionnel : « Aucun » est l'état par défaut et le
@@ -460,12 +528,10 @@ function OptionSheet({
                               type="radio"
                               name={`${titleId}-${group.id}`}
                               checked={!done}
-                              onChange={() =>
-                                setSelected({ ...selected, [group.id]: [] })
-                              }
+                              onChange={() => choose(group, [])}
                               className="accent-ember-2"
                             />
-                            Aucun
+                            {group.aucun ?? "Aucun"}
                           </span>
                         </label>
                       )}
@@ -484,10 +550,16 @@ function OptionSheet({
                               />
                               {choice.name}
                             </span>
-                            {choice.supplement > 0 && (
+                            {group.formats ? (
                               <span className="shrink-0 text-xs text-muted">
-                                +{formatPrice(choice.supplement)}
+                                {formatPrice(item.price + choice.supplement)}
                               </span>
+                            ) : (
+                              choice.supplement > 0 && (
+                                <span className="shrink-0 text-xs text-muted">
+                                  +{formatPrice(choice.supplement)}
+                                </span>
+                              )
                             )}
                           </label>
                         );
@@ -536,8 +608,12 @@ function MenuView({ framed }: { framed: boolean }) {
   // La barre collante ne dégage la Dynamic Island qu'une fois réellement
   // collée : une sentinelle en tête de défilement pilote l'état.
   const [scrolled, setScrolled] = useState(false);
+  // Vrai téléphone encadré : la couverture passée, une bande du fond masque
+  // sous l'île ce qui défile — avant, c'est la couverture qui y file.
+  const [coverGone, setCoverGone] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const coverEndRef = useRef<HTMLDivElement>(null);
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef(new Map<string, HTMLElement>());
@@ -598,21 +674,35 @@ function MenuView({ framed }: { framed: boolean }) {
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const coverEnd = coverEndRef.current;
+    if (!coverEnd) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setCoverGone(!entry.isIntersecting),
+      { root: scrollRef.current, threshold: 0 }
+    );
+    observer.observe(coverEnd);
+    return () => observer.disconnect();
+  }, []);
   const count = demo.cart.reduce((sum, line) => sum + line.quantity, 0);
   const total = cartTotal(demo.cart);
   const real = demo.settings.realPhone;
-  const { coverImage, logo, logoIsName, mark, highlight, brandName: name } = demo.restaurant;
+  const { coverImage, logo, logoIsName, highlight, brandName: name } = demo.restaurant;
   // Vrai téléphone sans photo de couverture : le logo en tient lieu ; sans
-  // l'un ni l'autre, pas de bandeau, la barre dégage alors l'île d'emblée.
+  // l'un ni l'autre, pas de bandeau, le nom dégage l'île.
   const logoCover = real && !coverImage;
   const cover = !logoCover || Boolean(logo);
   const nameInLogo = logoCover && logo && logoIsName;
+  // La mention des photos, comme au pied de la carte (menu-footer).
+  const hasPhotos =
+    Boolean(coverImage) || demo.sections.some((section) => section.items.some((item) => item.image));
 
   // Défilement borné au volet : scrollIntoView remonterait aussi la page
   // hôte (tous les ancêtres défilables), inacceptable au milieu de la landing.
-  // L'offset est mesuré sur la barre : si sa transition pt-3 → pt-12 se joue
-  // pendant le défilement, contenu et barre glissent du même delta — le
-  // calcul pré-transition reste juste.
+  // L'offset est mesuré sur la barre : si sa transition (pt-3 → pt-12 ou
+  // pt-14, la marque reprise en petit) se joue pendant le défilement, contenu
+  // et barre glissent du même delta — le calcul pré-transition reste juste.
   const scrollToCategory = (id: string) => {
     setActiveCategory(id);
     pinnedRef.current = true;
@@ -658,9 +748,10 @@ function MenuView({ framed }: { framed: boolean }) {
           </div>
         ) : (
           logo && (
-            // Le logo sous l'île, dans la lueur de la marque, comme le héros de sa carte.
+            // Le logo dans la lueur de la marque, comme le héros de sa carte ;
+            // encadré, il dégage l'île de la marge des autres vues.
             <div
-              className={`flex shrink-0 items-end justify-center pb-1 ${framed ? "h-28" : "h-20"}`}
+              className={`phone-logo-cover flex shrink-0 items-end justify-center pb-1 ${framed ? "pt-14" : "h-20"}`}
               style={{
                 backgroundImage:
                   "radial-gradient(ellipse 60% 70% at 50% 50%, color-mix(in srgb, var(--hero-glow-1, var(--ember-1)) 18%, transparent), transparent 70%)",
@@ -670,19 +761,42 @@ function MenuView({ framed }: { framed: boolean }) {
               <img
                 src={logo}
                 alt={nameInLogo ? name : ""}
-                className="h-16 w-auto"
+                // Un mot-symbole très large (Caffè Panis) ne déborde pas du téléphone.
+                className="h-16 w-auto max-w-[85%] object-contain"
               />
             </div>
           )
         )}
+        {/* Sentinelle de la bande, sa hauteur au-dessus de la fin de la
+            couverture : elle sort du cadre quand la couverture quitte la bande. */}
+        {framed && real && (
+          <div aria-hidden className="relative">
+            <div ref={coverEndRef} className="absolute inset-x-0 -top-14" />
+          </div>
+        )}
+
+        {/* Vrai téléphone : le nom et l'accroche sous le logo, en grand
+            comme une enseigne (la barre collée garde la marque en petit) ;
+            un logo qui écrit le nom ne le fait pas répéter. phone-name,
+            phone-tagline : accroches des thèmes (globals.css). */}
+        {real && (
+          <div className={`px-4 text-center ${framed && !cover ? "pt-12" : "pt-2"}`}>
+            {!nameInLogo && (
+              <p className="phone-name font-display text-3xl font-medium leading-tight">
+                <NameWords name={name} />
+              </p>
+            )}
+            <p className="phone-tagline mt-1 text-xs text-muted">{demo.restaurant.tagline}</p>
+          </div>
+        )}
 
         {/* Vrai téléphone : ce que dit la vraie page collect sous son en-tête. */}
         {real && (
-          <div className="mx-4 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-hairline bg-surface px-3 py-2 text-xs">
+          <div className="mx-4 mt-3 flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl border border-hairline bg-surface px-3 py-2 text-xs">
             <span className="font-semibold">
               À emporter{highlight && <span className="font-normal text-muted"> · {highlight}</span>}
             </span>
-            <span className="inline-flex items-center gap-1.5 font-semibold text-ember-1">
+            <span className="phone-open inline-flex items-center gap-1.5 font-semibold text-ember-1">
               <span aria-hidden className="ember-gradient size-2 rounded-full" />
               Ouvert : retrait dès que possible
             </span>
@@ -696,31 +810,38 @@ function MenuView({ framed }: { framed: boolean }) {
         {/* Barre collante : nom + rail de catégories sous la Dynamic Island */}
         <div
           ref={stickyBarRef}
-          // Vrai téléphone : opaque, comme la barre de la carte.
-          className={`sticky top-0 z-10 flex flex-col gap-2 px-4 pb-2.5 transition-[padding] duration-300 motion-reduce:transition-none ${
-            real ? "bg-background" : "bg-background/90 backdrop-blur-md"
-          } ${framed && (scrolled || !cover) ? "pt-12" : "pt-3"}`}
+          // Vrai téléphone : opaque, comme la barre de la carte ; collée, son
+          // texte commence sous la bande de l'île.
+          className={`sticky top-0 z-10 flex flex-col px-4 pb-2.5 transition-[padding] duration-300 motion-reduce:transition-none ${
+            real ? "bg-background" : "gap-2 bg-background/90 backdrop-blur-md"
+          } ${framed && scrolled ? (real ? "pt-14" : "pt-12") : "pt-3"}`}
         >
-          <div className="px-1">
-            {/* Le logo écrit déjà le nom : il ne se retape pas. */}
-            {!nameInLogo && (
-              <p className="font-display text-lg font-medium leading-tight">
-                {name}
+          {real ? (
+            // Le nom en grand part avec la couverture : collée, la barre
+            // reprend la marque en petit, comme le paiement et le suivi.
+            <div
+              className={`grid transition-[grid-template-rows] duration-300 motion-reduce:transition-none ${
+                scrolled ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div inert={!scrolled} className="min-h-0 overflow-hidden px-1">
+                <div className="pb-2">
+                  <PhoneBrand />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="px-1">
+              <p className="phone-name font-display text-lg font-medium leading-tight">
+                <NameWords name={name} />
               </p>
-            )}
-            <p className="flex items-center gap-2 text-[11px] text-muted">
-              {/* Le logo part avec la couverture : la barre collée reprend la
-                  marque en petit, son icône d'écran d'accueil s'il y en a une. */}
-              {nameInLogo && scrolled && (
-                // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
-                <img src={mark ?? logo} alt="" className={mark ? "size-8 rounded-lg" : "h-8 w-auto"} />
-              )}
-              {demo.restaurant.tagline}
-            </p>
-          </div>
+              <p className="phone-tagline flex items-center gap-2 text-[11px] text-muted">
+                {demo.restaurant.tagline}
+              </p>
+            </div>
+          )}
           {/* Le rail garde la marge que son défilement couperait sinon : le
-              cerne du focus, et sur un vrai téléphone les pastilles de 33 px
-              touchées sur 45. */}
+              cerne du focus. */}
           {/* nav et data-category : les accroches des pastilles de la carte,
               que les thèmes habillent. Le focus sorti du rail, la pastille
               courante y revient. */}
@@ -746,7 +867,7 @@ function MenuView({ framed }: { framed: boolean }) {
                   if (railRef.current) revealPill(railRef.current, event.currentTarget);
                 }}
                 className={`shrink-0 rounded-full px-3 text-[11px] font-semibold transition-colors ${
-                  real ? "relative py-2 before:absolute before:inset-x-0 before:-inset-y-1.5" : "py-1.5"
+                  real ? "min-h-11" : "py-1.5"
                 } ${
                   activeCategory === section.id
                     ? "ember-gradient text-background"
@@ -773,7 +894,11 @@ function MenuView({ framed }: { framed: boolean }) {
               {/* Vrai téléphone : le titre de la carte, son nom dans la langue de
                   la cuisine et son accroche (category-*, que les thèmes habillent). */}
               <div className={real && section.tagline ? "mb-2.5" : "mb-2"}>
-                <div className="flex items-center gap-2.5">
+                {/* Vrai téléphone : un titre sur deux lignes garde son filet,
+                    passé dessous sur toute la largeur. */}
+                <div
+                  className={`flex items-center gap-x-2.5 ${real ? "flex-wrap gap-y-1.5" : ""}`}
+                >
                   <h4 className={`${real ? "category-heading text-xl" : "text-base"} font-display font-medium`}>
                     {real && section.kicker && (
                       <span lang={section.kicker.lang} className="category-kicker mr-1.5">
@@ -784,7 +909,7 @@ function MenuView({ framed }: { framed: boolean }) {
                   </h4>
                   <span
                     aria-hidden
-                    className={`${real ? "category-rule" : ""} ember-gradient h-px flex-1 opacity-30`}
+                    className={`${real ? "category-rule min-w-8" : ""} ember-gradient h-px flex-1 opacity-30`}
                   />
                 </div>
                 {real && section.tagline && (
@@ -807,14 +932,42 @@ function MenuView({ framed }: { framed: boolean }) {
                       sectionIndex === 0 &&
                       itemIndex === 0
                     }
+                    thumbSlot={Boolean(real) && section.items.some((entry) => entry.image)}
                     onChoose={setChoosing}
                   />
                 ))}
               </div>
             </section>
           ))}
+          {/* Vrai téléphone : la carte se clôt comme la page de la carte —
+              l'adresse, les allergènes (à demander, rien d'inventé) et la
+              mention des photos. */}
+          {real && (
+            <footer className="mt-2 flex flex-col gap-1 border-t border-hairline pt-4 text-center text-[11px] leading-relaxed text-muted">
+              <p>{demo.restaurant.address}</p>
+              <p>
+                Allergènes&nbsp;: renseignez-vous auprès de l’établissement
+                {demo.restaurant.phone && (
+                  <>
+                    {" "}au <span className="whitespace-nowrap">{demo.restaurant.phone}</span>
+                  </>
+                )}
+                .
+              </p>
+              {hasPhotos && <p>Photos non contractuelles.</p>}
+            </footer>
+          )}
         </div>
       </div>
+      {/* La bande de l'île : la marge du haut des autres vues (pt-14). */}
+      {framed && real && (
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute inset-x-0 top-0 z-10 h-14 bg-background ${
+            coverGone ? "" : "invisible"
+          }`}
+        />
+      )}
 
       <div inert={choosing !== null} className="px-4 pb-6 pt-2">
         {count > 0 ? (
@@ -822,7 +975,7 @@ function MenuView({ framed }: { framed: boolean }) {
             type="button"
             data-action
             onClick={demo.openCheckout}
-            className={`ember-gradient flex w-full items-center justify-between rounded-full px-4 py-3 text-sm font-semibold text-background shadow-[0_8px_24px_rgba(226,118,75,0.25)] transition-transform active:scale-[0.98] ${
+            className={`ember-gradient flex w-full items-center justify-between rounded-full px-4 py-3 text-sm font-semibold text-background shadow-[0_8px_24px_color-mix(in_srgb,var(--ember-2)_25%,transparent)] transition-transform active:scale-[0.98] ${
               demo.hintActive ? "soft-pulse" : ""
             }`}
           >
@@ -839,7 +992,7 @@ function MenuView({ framed }: { framed: boolean }) {
           </button>
         ) : (
           <p className="text-center text-[11px] text-faint">
-            Ajoutez un plat pour commander
+            Ajoutez un article pour commander
           </p>
         )}
       </div>
@@ -854,6 +1007,32 @@ function MenuView({ framed }: { framed: boolean }) {
         />
       )}
     </>
+  );
+}
+
+/** Vrai téléphone : la marque en petit, dans la barre collée du menu, en
+ * tête du paiement et du suivi. Seul un logo qui écrit le nom se suffit :
+ * l'icône d'écran d'accueil ne le dit pas toujours (l'anneau du Café des Arts). */
+function PhoneBrand() {
+  const { brandName: name, logo, logoIsName, mark } = useCollectDemo().restaurant;
+  const image = mark ?? logo;
+  const nameInImage = !mark && logo && logoIsName;
+  return (
+    <div className="flex items-center gap-2">
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+        <img
+          src={image}
+          alt={nameInImage ? name : ""}
+          className={mark ? "size-8 rounded-lg" : "h-8 w-auto"}
+        />
+      )}
+      {!nameInImage && (
+        <p className="phone-name font-display text-lg font-medium leading-tight">
+          <NameWords name={name} />
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -880,7 +1059,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-3 text-sm">
-              <span className="min-w-0 truncate">
+              <span className="min-w-0">
                 <span className="tabular-nums text-muted">{line.quantity}×</span>{" "}
                 {line.name}
               </span>
@@ -888,11 +1067,11 @@ function CheckoutView({ topPad }: { topPad: string }) {
                 {formatPrice(line.quantity * line.unitPrice)}
               </span>
             </div>
-            {line.options.length > 0 && (
-              <p className="pl-5 text-[11px] leading-snug text-faint">
-                {optionSummary(line)}
+            {line.options.map((option, index) => (
+              <p key={index} className="pl-5 text-[11px] leading-snug text-faint">
+                {optionLabel(option)}
               </p>
-            )}
+            ))}
           </div>
         </li>
       ))}
@@ -930,7 +1109,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
         value={COLLECT_DEMO.customer.phone}
         readOnly
         size={COLLECT_DEMO.customer.phone.length}
-        className="min-h-11 rounded-xl border border-hairline bg-surface px-3 text-sm text-muted outline-none"
+        className="min-h-11 rounded-xl border border-hairline bg-surface px-3 text-sm text-foreground outline-none"
       />
     </div>
   ) : (
@@ -949,8 +1128,13 @@ function CheckoutView({ topPad }: { topPad: string }) {
     </>
   );
 
+  // Créneau et, sur un vrai téléphone, jour : un seul style de choix.
+  const chipClass = (selected: boolean) =>
+    selected
+      ? "ember-gradient text-background"
+      : "border border-hairline text-muted hover:border-ember-2/40";
   const pickup = (
-    <fieldset className="flex flex-col gap-1.5">
+    <fieldset className="flex min-w-0 flex-col gap-1.5">
       <legend className={`${real ? "mb-1.5" : ""} text-xs font-semibold text-muted`}>
         Retrait · {demo.pickupTomorrow ? "par créneau" : "dès que possible ou par créneau"} de{" "}
         {COLLECT_DEMO.slots.intervalMinutes} min
@@ -962,26 +1146,38 @@ function CheckoutView({ topPad }: { topPad: string }) {
             type="button"
             aria-pressed={demo.pickupTomorrow === tomorrow}
             onClick={() => demo.setPickupTomorrow(tomorrow)}
-            className={`${real ? "min-h-11 rounded-xl px-4" : "rounded-lg px-3 py-1"} text-xs font-semibold transition-colors ${
-              demo.pickupTomorrow === tomorrow
-                ? "bg-foreground text-background"
-                : "text-muted hover:text-foreground"
+            className={`text-xs font-semibold transition-colors ${
+              real
+                ? `min-h-11 rounded-xl px-4 ${chipClass(demo.pickupTomorrow === tomorrow)}`
+                : `rounded-lg px-3 py-1 ${
+                    demo.pickupTomorrow === tomorrow
+                      ? "bg-foreground text-background"
+                      : "text-muted hover:text-foreground"
+                  }`
             }`}
           >
             {tomorrow ? "Demain" : "Aujourd’hui"}
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      {/* Vrai téléphone : les créneaux sur une rangée qui défile, jamais un
+          seul renvoyé à la ligne ; la marge garde le cerne du focus. Fondue
+          sur cette marge, la rangée se lit comme défilante, et défilée au
+          bout, son dernier créneau s'arrête à la marge du formulaire. */}
+      <div
+        className={
+          real
+            ? "no-scrollbar -mx-5 -my-1.5 flex gap-1.5 overflow-x-auto px-5 py-1.5 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%_-_1.25rem),transparent)]"
+            : "flex flex-wrap gap-1.5"
+        }
+      >
         {!demo.pickupTomorrow && (
           <button
             type="button"
             onClick={() => demo.setPickupSlot(null)}
-            className={`${real ? "min-h-11" : "py-1.5"} rounded-full px-3 text-xs font-medium transition-colors ${
+            className={`${real ? "min-h-11" : "py-1.5"} shrink-0 rounded-full px-3 text-xs font-medium transition-colors ${chipClass(
               demo.pickupSlot === null
-                ? "ember-gradient text-background"
-                : "border border-hairline text-muted hover:border-ember-2/40"
-            }`}
+            )}`}
           >
             Dès que possible
           </button>
@@ -995,13 +1191,9 @@ function CheckoutView({ topPad }: { topPad: string }) {
               key={slot}
               type="button"
               onClick={() => demo.setPickupSlot(slot)}
-              className={`rounded-full px-3 text-xs font-medium transition-colors ${
-                real ? "min-h-11" : "py-1.5"
-              } ${
+              className={`${real ? "min-h-11" : "py-1.5"} shrink-0 rounded-full px-3 text-xs font-medium transition-colors ${chipClass(
                 demo.pickupSlot === slot
-                  ? "ember-gradient text-background"
-                  : "border border-hairline text-muted hover:border-ember-2/40"
-              }`}
+              )}`}
             >
               {formatSlotTime(slot, demo.pickupTomorrow, demo.checkoutAt)}
             </button>
@@ -1012,37 +1204,40 @@ function CheckoutView({ topPad }: { topPad: string }) {
 
   return (
     <>
-      <header className={`flex items-center gap-3 px-5 pb-3 ${topPad}`}>
-        <button
-          type="button"
-          onClick={demo.backToMenu}
-          aria-label="Retour au menu"
-          className="relative flex size-7 items-center justify-center rounded-full border border-hairline text-sm text-muted transition-colors before:absolute before:-inset-2 hover:border-ember-2/40"
-        >
-          ←
-        </button>
-        <p
-          ref={headingRef}
-          tabIndex={-1}
-          className="font-display text-lg font-medium outline-none"
-        >
-          Votre commande
-        </p>
+      <header className={`flex flex-col gap-2 px-5 pb-3 ${topPad}`}>
+        {real && <PhoneBrand />}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={demo.backToMenu}
+            aria-label="Retour au menu"
+            className="relative flex size-7 items-center justify-center rounded-full border border-hairline text-sm text-muted transition-colors before:absolute before:-inset-2 hover:border-ember-2/40"
+          >
+            ←
+          </button>
+          <p
+            ref={headingRef}
+            tabIndex={-1}
+            className="font-display text-lg font-medium outline-none"
+          >
+            Votre commande
+          </p>
+        </div>
       </header>
-      {/* Vrai téléphone : le récapitulatif s'efface sous la barre Payer (la
-          suite défile) et la marge le dégage, défilé jusqu'au bout. */}
+      {/* Vrai téléphone : la suite s'efface sous la barre Payer et la marge
+          la dégage, défilée jusqu'au bout. */}
       <div
         className={`flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 ${
           real ? "pb-10 [mask-image:linear-gradient(to_bottom,black_calc(100%_-_2rem),transparent)]" : "pb-6"
         }`}
       >
         {real ? (
-          // Le créneau d'abord, sous les yeux : c'est ce que le client vient
-          // choisir ; le récapitulatif suit, le total est sur le bouton.
+          // Le récapitulatif d'abord : son total se lit avant « Payer », pas
+          // sous la barre ; le créneau suit, puis le contact déjà rempli.
           <>
+            {recap}
             {pickup}
             {contact}
-            {recap}
           </>
         ) : (
           <>
@@ -1061,7 +1256,7 @@ function CheckoutView({ topPad }: { topPad: string }) {
           onClick={demo.pay}
           disabled={missingName}
           aria-describedby={missingName ? nameProblemId : undefined}
-          className={`ember-gradient w-full rounded-full py-3 text-sm font-semibold text-background shadow-[0_8px_24px_rgba(226,118,75,0.25)] transition-transform active:scale-[0.98] disabled:opacity-50 ${
+          className={`ember-gradient w-full rounded-full py-3 text-sm font-semibold text-background shadow-[0_8px_24px_color-mix(in_srgb,var(--ember-2)_25%,transparent)] transition-transform active:scale-[0.98] disabled:opacity-50 ${
             demo.hintActive && !missingName ? "soft-pulse" : ""
           }`}
         >
@@ -1110,6 +1305,90 @@ function PayingView() {
       <p ref={statusRef} role="status" tabIndex={-1} className="text-sm text-muted outline-none">
         Paiement en cours…
       </p>
+    </div>
+  );
+}
+
+/** Vrai téléphone : le paiement se joue dans une feuille du thème, par-dessus
+ * le récapitulatif — la carte, le temps du traitement, « Paiement accepté »
+ * (COLLECT_DEMO.timings.paymentAcceptedMs), puis la commande arrive. */
+function PaymentSheet({ framed }: { framed: boolean }) {
+  const demo = useCollectDemo();
+  const titleId = useId();
+  const [accepted, setAccepted] = useState(false);
+  // Le bouton Payer est sous la feuille : le focus passe à l'état du paiement.
+  const statusRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => statusRef.current?.focus({ preventScroll: true }), []);
+  useEffect(() => {
+    const { paymentMs, paymentAcceptedMs } = COLLECT_DEMO.timings;
+    const id = setTimeout(() => setAccepted(true), paymentMs - paymentAcceptedMs);
+    return () => clearTimeout(id);
+  }, []);
+
+  return (
+    <div
+      className={`absolute inset-0 z-15 flex flex-col justify-end bg-black/60 ${
+        framed ? "pt-14" : "pt-6"
+      }`}
+    >
+      <div
+        role="dialog"
+        aria-labelledby={titleId}
+        className="sheet-rise flex flex-col gap-4 rounded-t-3xl border-t border-hairline bg-surface px-5 pb-6 pt-4"
+      >
+        <div className="flex items-baseline justify-between gap-3">
+          <p id={titleId} className="font-display text-lg font-medium">
+            Paiement
+          </p>
+          <p className="font-display text-lg tabular-nums text-ember-1">
+            {formatPrice(cartTotal(demo.cart))}
+          </p>
+        </div>
+        {/* La carte du client, stylisée : rien d'un vrai moyen de paiement. */}
+        <div
+          aria-hidden
+          className="flex items-center gap-3 rounded-xl border border-hairline bg-background/60 px-3 py-3"
+        >
+          <span className="ember-gradient h-6 w-9 shrink-0 rounded-md" />
+          <span className="text-sm font-semibold">Carte bancaire</span>
+          <span className="ml-auto text-xs tracking-widest text-muted">•••• ••••</span>
+        </div>
+        <div className="flex min-h-11 items-center justify-center gap-2.5">
+          {accepted ? (
+            <span
+              aria-hidden
+              className="pop ember-gradient flex size-7 items-center justify-center rounded-full text-background"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="size-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m5 12.5 4.5 4.5L19 7.5" />
+              </svg>
+            </span>
+          ) : (
+            <span aria-hidden className="h-1.5 w-16 overflow-hidden rounded-full bg-background/70">
+              <span className="loader-bar ember-gradient block h-full w-1/3 rounded-full" />
+            </span>
+          )}
+          <p
+            ref={statusRef}
+            role="status"
+            tabIndex={-1}
+            className={`text-sm outline-none ${accepted ? "font-semibold" : "text-muted"}`}
+          >
+            {accepted ? "Paiement accepté" : "Paiement en cours…"}
+          </p>
+        </div>
+        <p className="text-center text-[11px] leading-relaxed text-faint">
+          {COLLECT_DEMO.paymentNotice}
+        </p>
+      </div>
     </div>
   );
 }
@@ -1213,6 +1492,11 @@ function TrackingView({ topPad }: { topPad: string }) {
           paiement : seul le suivi défile — en fondu en haut et en bas sur un
           vrai téléphone, la marge du bas le dégageant, défilé jusqu'au bout. */}
       <div className={`shrink-0 px-5 ${topPad} ${real ? "" : "pb-4"}`}>
+        {real && (
+          <div className="mb-3">
+            <PhoneBrand />
+          </div>
+        )}
         <ol className="flex items-start justify-between" aria-label="Avancement">
           {TIMELINE.map((entry, index) => {
             const done = currentIndex > index;
@@ -1237,8 +1521,10 @@ function TrackingView({ topPad }: { topPad: string }) {
                   } ${active && demo.step !== "retiree" ? "animate-pulse" : ""}`}
                 />
                 <span
-                  className={`text-center ${real ? "text-[10px]" : "text-[9px]"} leading-tight ${
-                    active ? "font-semibold text-foreground" : "text-faint"
+                  className={`text-center leading-tight ${
+                    real
+                      ? `text-xs ${active ? "font-semibold text-foreground" : "text-muted"}`
+                      : `text-[9px] ${active ? "font-semibold text-foreground" : "text-faint"}`
                   }`}
                 >
                   {entry.label}
@@ -1294,7 +1580,9 @@ function TrackingView({ topPad }: { topPad: string }) {
           <h3 ref={titleRef} tabIndex={-1} className="font-display text-xl font-medium outline-none">
             {copy.title}
           </h3>
-          <p className="text-xs leading-relaxed text-muted">{copy.hint}</p>
+          <p className="text-xs leading-relaxed text-muted">
+            {typeof copy.hint === "function" ? copy.hint(demo.restaurant.brandName) : copy.hint}
+          </p>
 
           {demo.step === "en_preparation" && order.readyAt ? (
             <div className="mt-2 flex w-full flex-col items-center gap-1.5">
@@ -1304,16 +1592,33 @@ function TrackingView({ topPad }: { topPad: string }) {
               <p className="text-xs tabular-nums text-muted">
                 {minutesLeft > 0 ? `dans ~${minutesLeft} min` : "Plus que quelques instants"}
               </p>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-background/70">
-                <div
-                  // Une nouvelle barre par préparation : elle ne recule jamais.
-                  key={order.startedAt}
-                  className="ember-gradient h-full origin-left rounded-full transition-transform ease-linear motion-reduce:transition-none"
-                  style={{
-                    transform: `scaleX(${progress})`,
-                    transitionDuration: `${COLLECT_DEMO.timings.countdownTickMs}ms`,
-                  }}
-                />
+              <div
+                className={`h-1 w-full overflow-hidden rounded-full ${
+                  real ? "bg-hairline" : "bg-background/70"
+                }`}
+              >
+                {real ? (
+                  // Vrai téléphone : la barre part d'un point, pas d'un filet
+                  // vide qui se lirait comme un trait égaré.
+                  <div
+                    key={order.startedAt}
+                    className="ember-gradient h-full min-w-1 rounded-full transition-[width] ease-linear motion-reduce:transition-none"
+                    style={{
+                      width: `${progress * 100}%`,
+                      transitionDuration: `${COLLECT_DEMO.timings.countdownTickMs}ms`,
+                    }}
+                  />
+                ) : (
+                  <div
+                    // Une nouvelle barre par préparation : elle ne recule jamais.
+                    key={order.startedAt}
+                    className="ember-gradient h-full origin-left rounded-full transition-transform ease-linear motion-reduce:transition-none"
+                    style={{
+                      transform: `scaleX(${progress})`,
+                      transitionDuration: `${COLLECT_DEMO.timings.countdownTickMs}ms`,
+                    }}
+                  />
+                )}
               </div>
             </div>
           ) : (
@@ -1355,7 +1660,8 @@ function TrackingView({ topPad }: { topPad: string }) {
           </ul>
         )}
 
-        {(demo.step === "en_preparation" || demo.step === "prete") && (
+        {/* Où retirer, dès la commande reçue : l'écran ne reste pas vide en attendant le restaurant. */}
+        {demo.step !== "retiree" && (
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4">
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">
@@ -1389,6 +1695,7 @@ function TrackingView({ topPad }: { topPad: string }) {
 
 export function CustomerPane({ framed = true }: { framed?: boolean }) {
   const demo = useCollectDemo();
+  const real = demo.settings.realPhone;
   const tracking =
     demo.step !== "menu" && demo.step !== "checkout" && demo.step !== "paiement";
   // Le menu laisse sa couverture filer sous la Dynamic Island ; les autres
@@ -1412,11 +1719,18 @@ export function CustomerPane({ framed = true }: { framed?: boolean }) {
   return (
     <div
       ref={rootRef}
-      className="relative flex h-[var(--demo-pane-h,35rem)] w-full flex-col bg-background text-left"
+      // phone-screen : l'écran seul, sans le cadre du téléphone, pour les thèmes (globals.css).
+      className="phone-screen relative flex h-[var(--demo-pane-h,35rem)] w-full flex-col bg-background text-left"
     >
       {demo.step === "menu" && <MenuView framed={framed} />}
-      {demo.step === "checkout" && <CheckoutView topPad={topPad} />}
-      {demo.step === "paiement" && <PayingView />}
+      {/* Vrai téléphone : le paiement se joue par-dessus le récapitulatif. */}
+      {(demo.step === "checkout" || (real && demo.step === "paiement")) && (
+        <div inert={demo.step !== "checkout"} className="contents">
+          <CheckoutView topPad={topPad} />
+        </div>
+      )}
+      {demo.step === "paiement" &&
+        (real ? <PaymentSheet framed={framed} /> : <PayingView />)}
       {tracking && demo.order && <TrackingView topPad={topPad} />}
     </div>
   );

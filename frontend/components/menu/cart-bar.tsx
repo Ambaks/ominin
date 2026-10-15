@@ -9,6 +9,7 @@ import {
 } from "@/components/collect/pickup-fields";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
+import { PreviewPayment } from "@/components/menu/preview-payment";
 import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { DemoPayment } from "@/components/menu/demo-payment";
 import { SquarePayment } from "@/components/menu/square-payment";
@@ -17,7 +18,7 @@ import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref, normalizePhone } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { notifyOrderEvent } from "@/lib/push/events";
@@ -50,6 +51,31 @@ const lineLabel = (line: Pick<CartLine, "name" | "optionSummary" | "formule">) =
   line.optionSummary.length > 0
     ? `${line.name} (${line.optionSummary.join(line.formule ? " ; " : ", ")})`
     : line.name;
+
+/**
+ * Le contenu d'un ticket d'aperçu, regroupé par nom et par choix comme
+ * order_ticket. Sans les suppléments, « (+0,50 €) » ou rangés dans les
+ * parenthèses du nom (« (épicé, +1,00 €) »), d'un plat comme des choix d'une
+ * formule : order_ticket ne rend que les noms. L'aperçu montre une formule
+ * étape par étape, comme le panier ; le vrai ticket en aligne les choix sur
+ * une ligne.
+ */
+function previewTicketLines(cartLines: CartLine[]): TicketLine[] {
+  const lines = new Map<string, TicketLine>();
+  for (const line of cartLines) {
+    const key = [line.name, ...line.optionSummary].join("\n");
+    const known = lines.get(key);
+    lines.set(key, {
+      name: line.name,
+      quantity: (known?.quantity ?? 0) + line.quantity,
+      choices: line.optionSummary.map((choice) =>
+        choice.replace(/ \(\+[^)]*\)/g, "").replace(/,\u00a0\+[^)]*\)/g, ")")
+      ),
+      formule: Boolean(line.formule) || undefined,
+    });
+  }
+  return [...lines.values()];
+}
 
 /** Retirer la ligne : à la quantité 1, « − » la supprime — l'icône le dit. */
 function BinIcon() {
@@ -122,6 +148,13 @@ export function CartBar() {
     total: number;
     tipAmount: number;
   } | null>(null);
+  // Aperçu à table (demoSuivi) : le paiement simulé, à la même place. Rien
+  // n'est appelé ; la commande ne part qu'une fois « acceptée ».
+  const [previewPayment, setPreviewPayment] = useState<{
+    orderId: string;
+    total: number;
+    tip: number;
+  } | null>(null);
   // Chaque ajout fait sauter la barre (.cart-bump-a/-b, alternées pour
   // rejouer l'animation) et s'annonce aux lecteurs d'écran, qui sinon
   // n'entendaient rien : la barre apparaît hors de leur focus.
@@ -145,7 +178,11 @@ export function CartBar() {
     setAnnouncement(
       cart.count === 0
         ? state === "sent"
-          ? cart.tableNumber === null || stripePayment || squarePayment || sumupPayment
+          ? cart.tableNumber === null ||
+            stripePayment ||
+            squarePayment ||
+            sumupPayment ||
+            previewPayment
             ? ""
             : `Commande envoyée, table ${cart.tableNumber}.${
                 cart.preview ? " Aperçu\u00a0: rien n’a été envoyé ni payé." : ""
@@ -190,14 +227,16 @@ export function CartBar() {
     return () => observer.disconnect();
   });
   useSheetHistoryReset();
-  // Fast food : la commande partie, la feuille du panier cède la place au
-  // ticket — même fond, le ticket la remplace. C'est lui qu'on suit désormais.
+  // Fast food, et aperçu à table (demoSuivi) : la commande partie, la feuille
+  // du panier cède la place au ticket — même fond, le ticket la remplace.
+  // C'est lui qu'on suit désormais.
   const handOff = (orderId: string, notices: string[] = []) => {
     setOpen(false);
     setState("idle");
     setSumupPayment(null);
     setSquarePayment(null);
     setStripePayment(null);
+    setPreviewPayment(null);
     tickets?.show(orderId, { notices });
   };
   // Où en est le règlement par carte dans la feuille.
@@ -321,6 +360,8 @@ export function CartBar() {
         ? (typedCents ?? 0)
         : Math.round((totalCents * tipChoice) / 100);
   const tipAmount = tipCents / 100;
+  // Aperçu à table : paiement simulé et suivi (demoSuivi).
+  const previewSuivi = cart.preview && cart.demoSuivi !== undefined;
 
   // Partie, une commande ne lègue ni son règlement ni son pourboire à la
   // suivante.
@@ -352,9 +393,21 @@ export function CartBar() {
 
   const submit = async () => {
     if (!cart.canOrder) return;
-    // Aperçu : rien ne part, mais la suite se montre — à table, la
-    // confirmation ; en fast food, le ticket, sur un numéro fictif.
+    // Aperçu : rien ne part, mais la suite se montre — à table, le paiement
+    // simulé puis le ticket (demoSuivi), ou la confirmation ; en fast food,
+    // le ticket, sur un numéro fictif.
     if (cart.preview) {
+      if (cart.demoSuivi && tickets) {
+        const orderId = crypto.randomUUID();
+        if (payment === "comptoir") {
+          placePreviewOrder(orderId, "en_attente", cart.total, 0);
+          handOff(orderId);
+          return;
+        }
+        setPreviewPayment({ orderId, total: (totalCents + tipCents) / 100, tip: tipAmount });
+        setState("sent");
+        return;
+      }
       if (!cart.fastFood) {
         setSentPayment(payment);
         cart.clear();
@@ -363,30 +416,11 @@ export function CartBar() {
         return;
       }
       if (!tickets) return;
-      // Par nom et par choix, comme order_ticket.
-      const lines = new Map<string, TicketLine>();
-      for (const line of cart.lines) {
-        const key = [line.name, ...line.optionSummary].join("\n");
-        const known = lines.get(key);
-        lines.set(key, {
-          name: line.name,
-          quantity: (known?.quantity ?? 0) + line.quantity,
-          // Sans les suppléments, « (+0,50 €) » ou rangés dans les parenthèses du
-          // nom (« (épicé, +1,00 €) »), d'un plat comme des choix d'une formule :
-          // order_ticket ne rend que les noms.
-          choices: line.optionSummary.map((choice) =>
-            choice.replace(/ \(\+[^)]*\)/g, "").replace(/,\u00a0\+[^)]*\)/g, ")")
-          ),
-          // L'aperçu montre une formule étape par étape, comme le panier ; le
-          // vrai ticket (order_ticket) en aligne les choix sur une ligne.
-          formule: Boolean(line.formule) || undefined,
-        });
-      }
       const id = crypto.randomUUID();
       tickets.add(id, {
         status: payment === "carte" ? "payee" : "en_attente",
         total: cart.total,
-        lines: [...lines.values()],
+        lines: previewTicketLines(cart.lines),
       });
       cart.clear();
       resetChoices();
@@ -547,6 +581,31 @@ export function CartBar() {
     }
   };
 
+  // Aperçu à table : la commande part — payée en ligne (« accepté »), total
+  // pourboire compris, ou à régler. Que des boissons, chaque article d'une
+  // catégorie de boissons (une formule n'y est jamais) : le service la
+  // saluera « Bonne dégustation ! », d'une tasse si toutes sont chaudes.
+  const placePreviewOrder = (
+    orderId: string,
+    status: "payee" | "en_attente",
+    total: number,
+    tip: number
+  ) => {
+    if (!tickets || !cart.demoSuivi) return;
+    const drinks = new Set(cart.demoSuivi.drinks);
+    const hot = new Set(cart.demoSuivi.hotDrinks);
+    tickets.add(orderId, {
+      status,
+      total,
+      tip,
+      lines: previewTicketLines(cart.lines),
+      drinksOnly: cart.lines.every((line) => drinks.has(line.itemId)),
+      hotDrinksOnly: cart.lines.every((line) => hot.has(line.itemId)),
+    });
+    cart.clear();
+    resetChoices();
+  };
+
   // Fin d'un règlement dans la feuille (Square, Stripe). Click & collect :
   // payé, la page de suivi ; sinon la commande n'est pas passée, le panier
   // reste. À table : non payé, l'addition passe au comptoir ; en fast food,
@@ -609,6 +668,7 @@ export function CartBar() {
       setSumupPayment(null);
       setSquarePayment(null);
       setStripePayment(null);
+      setPreviewPayment(null);
     }
   };
 
@@ -667,11 +727,40 @@ export function CartBar() {
           onClosed={close}
           backdropCloses
           labelledBy={state === "sent" ? undefined : titleId}
-          label={state === "sent" ? "Commande envoyée" : undefined}
+          label={
+            state !== "sent"
+              ? undefined
+              : previewPayment
+                ? "Paiement simulé"
+                : "Commande envoyée"
+          }
         >
-          {(dismiss) => (
+          {(dismiss, closing) => (
             <>
-              {state === "sent" && sumupPayment ? (
+              {state === "sent" && previewPayment ? (
+                <PreviewPayment
+                  total={previewPayment.total}
+                  onCancel={() => {
+                    // Retour au panier, tel quel : le paiement n'a pas commencé.
+                    setPreviewPayment(null);
+                    setState("idle");
+                    requestAnimationFrame(() =>
+                      document.querySelector<HTMLElement>("[data-cart-submit]")?.focus()
+                    );
+                  }}
+                  merchant={cart.restaurantName ?? ""}
+                  cancelled={closing}
+                  onAccepted={() =>
+                    placePreviewOrder(
+                      previewPayment.orderId,
+                      "payee",
+                      previewPayment.total,
+                      previewPayment.tip
+                    )
+                  }
+                  onDone={() => handOff(previewPayment.orderId)}
+                />
+              ) : state === "sent" && sumupPayment ? (
                 <SumUpPayment
                   orderId={sumupPayment.orderId}
                   initialCheckoutId={sumupPayment.checkoutId}
@@ -817,11 +906,6 @@ export function CartBar() {
                                     keepHyphenated(line.name)
                                   )}
                                 </p>
-                                {line.quantity > 1 && (
-                                  <p className="mt-0.5 text-xs text-muted">
-                                    {line.quantity} × {formatPrice(line.unitPrice)}
-                                  </p>
-                                )}
                                 {line.optionSummary.length > 0 && (
                                   // Chaque choix d'un bloc, comme sur le ticket : il passe entier à
                                   // la ligne, et ne se coupe entre ses mots que plus long qu'elle
@@ -841,6 +925,13 @@ export function CartBar() {
                                         </span>{" "}
                                       </Fragment>
                                     ))}
+                                  </p>
+                                )}
+                                {/* Après les choix : le format (« 50 cl ») reste avec le nom
+                                    qu'il distingue d'une autre ligne du même article. */}
+                                {line.quantity > 1 && (
+                                  <p className="mt-0.5 text-xs text-muted">
+                                    {line.quantity} × {formatPrice(line.unitPrice)}
                                   </p>
                                 )}
                               </div>
@@ -990,6 +1081,7 @@ export function CartBar() {
                             role="radio"
                             aria-checked={payment === value}
                             data-choice={value}
+                            data-payment-choice={value === "carte" ? "en-ligne" : "comptoir"}
                             // Un groupe de radios : un seul arrêt de tabulation,
                             // les flèches passent d'un choix à l'autre.
                             tabIndex={payment === value ? 0 : -1}
@@ -1004,19 +1096,25 @@ export function CartBar() {
                                 ?.querySelector<HTMLElement>(`[data-choice="${other}"]`)
                                 ?.focus();
                             }}
+                            // Aperçu à table (demoSuivi) : le choix fait se remplit
+                            // de la couleur de la maison, comme le bouton d'envoi.
                             className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
-                              payment === value
-                                ? "border-ember-2/60 bg-surface-raised text-foreground"
-                                : "border-hairline text-muted"
+                              payment !== value
+                                ? "border-hairline text-muted"
+                                : previewSuivi
+                                  ? "ember-gradient border-transparent bg-origin-border text-background"
+                                  : "border-ember-2/60 bg-surface-raised text-foreground"
                             }`}
                           >
                             {/* Le choix se lit aussi à sa pastille, pas qu'au filet. */}
                             <span
                               aria-hidden
                               className={`size-2.5 shrink-0 rounded-full ${
-                                payment === value
-                                  ? "ember-gradient"
-                                  : "border border-current opacity-50"
+                                payment !== value
+                                  ? "border border-current opacity-50"
+                                  : previewSuivi
+                                    ? "bg-current"
+                                    : "ember-gradient"
                               }`}
                             />
                             <span className="text-balance">{label}</span>
@@ -1139,6 +1237,7 @@ export function CartBar() {
                     )}
                     <button
                       type="button"
+                      data-cart-submit
                       onClick={(event) => {
                         if (event.detail <= 1) void submit();
                       }}
@@ -1160,9 +1259,13 @@ export function CartBar() {
                       className="ember-gradient w-full rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
                     >
                       {cart.preview
-                        ? cart.fastFood
-                          ? "Aperçu\u00a0: voir le ticket"
-                          : "Aperçu\u00a0: voir la confirmation"
+                        ? previewSuivi
+                          ? payment === "carte"
+                            ? `Payer en\u00a0ligne · ${formatPrice((totalCents + tipCents) / 100)}`
+                            : "Envoyer la commande"
+                          : cart.fastFood
+                            ? "Aperçu\u00a0: voir le ticket"
+                            : "Aperçu\u00a0: voir la confirmation"
                         : state === "sending"
                           ? "Envoi…"
                           : cart.collect
@@ -1173,6 +1276,11 @@ export function CartBar() {
                               ? `Commander et payer · ${formatPrice(cart.total)}`
                               : "Commander · payer au comptoir"}
                     </button>
+                    {previewSuivi && (
+                      <p className="mt-2 text-center text-[11px] text-muted">
+                        Démo — commande et paiement simulés.
+                      </p>
+                    )}
                     {/* Refermer à portée du pouce : la croix est tout en haut.
                         Écran court : « Retour » seul, sur la ligne du total. */}
                     <button

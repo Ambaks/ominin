@@ -11,12 +11,8 @@ import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { uploadPhoto } from "@/lib/gestion/photo";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
-import {
-  BADGE_LABELS,
-  type Badge,
-  type MenuCategory,
-  type MenuItem,
-} from "@/lib/menu-data";
+import { BADGE_LABELS } from "@/lib/menu/format";
+import { type Badge, type MenuCategory, type MenuItem } from "@/lib/menu-data";
 import {
   OptionsEditor,
   draftToOptions,

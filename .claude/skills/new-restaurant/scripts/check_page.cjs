@@ -95,6 +95,9 @@ async function open(browser, width, extra = {}) {
   // Un thème peut composer le nom dans la police de son enseigne
   // (--brand-wordmark) et garder --brand-display pour les titres des plats :
   // le h1 se mesure alors contre la première, les plats contre la seconde.
+  // Quand le h1 n'est qu'un logo, ce sont les sections qui portent le titrage :
+  // un thème peut composer les plats dans sa police de texte (Baï-Kō, comme
+  // son site).
   if (t.brandWordmark && !t.h1IsLogo) {
     const want = t.brandWordmark.replace(/ Fallback$/, "");
     if (t.h1 && t.h1.startsWith(want)) ok("police de l'enseigne appliquée au nom", want);
@@ -102,7 +105,7 @@ async function open(browser, width, extra = {}) {
   }
   if (t.brandDisplay) {
     const want = t.brandDisplay.replace(/ Fallback$/, "");
-    const [what, got] = t.brandWordmark || t.h1IsLogo ? ["plats", t.dish] : ["titrage", t.h1];
+    const [what, got] = t.h1IsLogo ? ["sections", t.h2] : t.brandWordmark ? ["plats", t.dish] : ["titrage", t.h1];
     if (got && got.startsWith(want)) ok(`police de titrage du thème appliquée (${what})`, want);
     else fail(`police de titrage du thème NON appliquée (${what})`, `attendu ${want}, obtenu ${got}`);
   }

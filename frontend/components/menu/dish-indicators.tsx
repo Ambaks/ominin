@@ -1,4 +1,5 @@
-import { DISH_TAG_LABELS, type MenuItem } from "@/lib/menu-data";
+import { DISH_TAG_LABELS } from "@/lib/menu/format";
+import { type MenuItem } from "@/lib/menu-data";
 
 /** Un piment dessiné, à la couleur du texte. */
 function Chili({ className }: { className: string }) {

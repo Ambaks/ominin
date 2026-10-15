@@ -1,0 +1,100 @@
+{
+  "slug": "caffe-panis",
+  "name": "Caffè Panis",
+  "tagline": "Caffè · Ristorante · Gelateria",
+  "status": "prospect — démo de visite du 2026-10-14, aucune carte de salle en ligne : carte de leur marque de livraison (Uber Eats, archive du 2025-11-26)",
+  "demo": {
+    "menu": "/menu/demo/caffe-panis",
+    "click_and_collect": "/collect/demo/caffe-panis"
+  },
+  "cuisine": "Café-restaurant italien et glacier : antipasti, pizzas, pâtes, « dwich » en pâte à pizza, desserts ; cafés Illy, cocktails, vins (carte papier en salle, non publiée).",
+  "address": "3 Place du Marché aux Fleurs, 34000 Montpellier",
+  "city": "Montpellier (Écusson, près de la Préfecture ; tram Comédie)",
+  "phone": "04 99 67 65 38",
+  "hours": "Tous les jours 9h–1h (Instagram, Facebook, Linktree, Google)",
+  "website": "aucun site (caffepanis.com mort) ; Linktree linktr.ee/caffepanis ; réservation FoodCollect",
+  "socials": {
+    "instagram": "@caffepanis (6 250 abonnés, « Caffè-Ristorante-Gelateria 🇮🇹 »)",
+    "facebook": "facebook.com/caffepanis34 (910)",
+    "tiktok": "@caffe_panis (317)",
+    "google_maps": "4,3/5 sur 1 244 avis (page ouverte)"
+  },
+  "legal": {
+    "raison_sociale": "MONTECRISTO (enseigne CAFFE PANIS)",
+    "forme": "SAS",
+    "siren": "889 512 760",
+    "siret": "889 512 760 00022 (n° 3) ; 889 512 760 00030 (n° 1, depuis le 01/08/2023)",
+    "naf": "56.10A (établissement 56.10C)",
+    "president": "Léo Alexis Louis Artaud",
+    "creation": "28/07/2020",
+    "notes": "« M A N » (987 451 150) est un Caffè Panis à Nîmes (JSK HOLDING), pas l'exploitant montpelliérain. Sources : recherche-entreprises, BODACC (docs/recherche-profile.md)."
+  },
+  "design": {
+    "primary_color": "#0F4B25",
+    "secondary_color": "#EEEAC7",
+    "accent_color": "#F6F1E2 (crème du store)",
+    "style_notes": "Repris de l'enseigne : mot-symbole ivoire #EEEAC7 sur vert bouteille #0F4B25 (fichier du site 2024), store crème lettré de vert, portes vertes, sol en mosaïque noir et blanc. Haut et pied de page vert bouteille avec le mot-symbole ivoire en titre ; la carte sur le crème du store, titres et boutons verts (encre crème) ; un damier noir et blanc, le sol de la salle, borde le haut de page et le pied. Titres : Fraunces avec l'axe SOFT à 100 (terminaisons en boule, fûts évasés), extra-grasse (800) au dessin de titrage (opsz 144) pour les titres de section et le bandeau d'horaires, demi-grasse (600) pour les noms et les prix. Comparée le 2026-10-15 côte à côte avec docs/logo-horizontal-ivoire.png (round5/panis/fonts.png) : Gloock, retenue au round 3 pour ses proportions, est une Didone fine et tranchante à une seule graisse, à contraste fort ; le mot-symbole est lourd, doux, à boules et à contraste modéré — Fraunces 800 SOFT 100 en a la masse et les terminaisons, et garde un peu du contraste des déliés du logo (la 900 l'écrase). DM Sans pour le texte. Police exacte du logo inconnue : à demander.",
+    "logo": "frontend/public/caffe-panis/logo.webp (mot-symbole du site 2024, ivoire) ; icônes « Panis » ivoire sur vert",
+    "interior_vibe": "terrasse sur la place, rotin tressé vert et blanc, lierre, néon vert, mosaïque noir et blanc",
+    "reference_images": [
+      "docs/logo-horizontal-ivoire.png",
+      "docs/logo-panis-linktree.png",
+      "docs/devanture-store-2022.jpg",
+      "docs/enseigne-neon-2022.jpg",
+      "docs/gelateria-enseigne.jpg"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte de salle publiée : leur menu Sunday (Linktree) affiche « Aucun menu disponible — Veuillez demander la carte papier ». La carte de la démo est celle de Ciccio Gang by Caffè Panis, leur marque de livraison à la même adresse, sur Uber Eats (archive du 2025-11-26, JSON-LD de la page), mot pour mot, prix de livraison ; plus « Café Illy 2 € » de leur fiche TheFork (2022). Transcription et autres sources (TheFork 2022, Deliveroo 2026, menus du midi 2022) : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const caffePanis).",
+    "categories_summary": [
+      "Antipasti — 6, 6,90 à 10,90 €",
+      "Pizze — 8, 11,90 à 20,90 €",
+      "Pastas — 6, 12,90 à 18,90 €",
+      "Les Dwich du Panis — 3, 6,90 à 8,90 €",
+      "Desserts — 3, 5,90 et 6,90 €",
+      "Boissons — café Illy 2 €, 3 softs 2,90 €"
+    ],
+    "photos": "Photos libres auditées ; sans photo plutôt qu'une photo fausse : Stracciatella fumée (toute stracciatella libre vient avec tomates, pain ou sauce), Burrata Truffe & Mortadelle (aucune burrata à la mortadelle ; l'ancienne photo n'en montrait pas), Truffle Suprême (aucune avec la truffe), Amor Amatriciana (seule pizza à la pancetta sur tomate : romarin et saucisse), Vivi E Vechio, Con Il Pesto (aucune casarecce au pesto ; l'ancienne montrait des rigatoni, les fusilli seraient aussi faux), Al Tartufo, les trois Dwich (aucun panuozzo juste et sans marque en banque d'images), Café Illy. Mama King → Pexels 29039064 (napolitaine au jambon cuit et champignons, lumière naturelle, comme les autres pizzas) ; Alla Bolognese → Pexels 34909192 (rigatoni au ragù de bœuf ; persil où la carte dit basilic) ; Stracciatella Versace → Pexels 8965714 recadrée 16:9 par le serveur (base tomate, jambon de Parme, stracciatella ; du basilic où la carte dit roquette — aucune photo libre n'a les quatre) ; Capo garde 34773770 (aucune photo libre ne montre la nduja).",
+    "options_a_valider": [
+      "Toute la carte est celle de la livraison (Ciccio Gang, novembre 2025) : la carte papier de la salle (cafés, brunch, salades, glaces, cocktails, vins) n'est publiée nulle part.",
+      "Deliveroo (en ligne le 2026-10-14) porte d'autres pizzas et d'autres recettes (Margherita du seigneur, Puissance 4 à la tomate, Rasta rocket…) : non reprises, une seule source par carte.",
+      "Café Illy 2 € : prix TheFork de 2022.",
+      "Menus du midi 2022 (13 € et 17 €, blog Une Pintade) non repris : quatre ans.",
+      "Prix Uber Eats : ceux de la livraison, d'ordinaire majorés par rapport à la salle.",
+      "Uber Eats propose des options sur les pizzas et les pâtes ; l'archive ne les contient pas : aucune option ici.",
+      "Ordre des sections : notre choix, celui d'une carte de salle (Antipasti, Pizze, Pastas, Dwich, Desserts, Boissons). La source, la carte Ciccio Gang d'Uber Eats, ouvre sur les Dwich : à remettre si le gérant y tient.",
+      "Café Illy : sans photo (aucune photo ne disait plus que le nom).",
+      "Orthographe et typographie de la source corrigées à l'affichage, noms des plats gardés : « Stracciatella Fumee 125 G » → « Stracciatella fumée 125 g » ; « rapé » → « râpé » (Margherita, Stracciatella Versace) ; « roquette fraiche » → « fraîche » ; « Jambon de parme » → « de Parme » ; « Champignons de paris cuit » → « de Paris cuits » (comme sur le Dwich Regina) et « olive taggiasche » → « , olives taggiasche » (Mama King) ; « champignons de paris » → « de Paris » (Truffle Suprême) ; « puglia » → « Puglia », « pouilles » → « Pouilles » ; « boeuf » → « bœuf » ; guillemets droits de \"Poitrine de porc\" → guillemets français ; « All'amatriciana » → « All'Amatriciana », comme les autres noms de pâtes ; « huiles truffée » → « huile truffée. » (point final, comme les autres descriptions). « Pasta Vivi E Vechio » gardé tel quel (jeu de mots possible).",
+      "Accroche « Caffè · Ristorante · Gelateria » : espaces insécables avant chaque point médian et autour du premier, pour que la ligne ne se coupe jamais avant un point ; sous 360 px, l'espacement des lettres se resserre pour qu'elle tienne sur une ligne.",
+      "Bandeau du store : « De 9h à 1h, 7j/7 » (Instagram « OUVERT 7/7 | 9H - 1H ») et « Burrata straight from Puglia », mot pour mot de la carte (Classic Burrata, Burrata Pesto Forever). Notre choix d'argument, à valider.",
+      "Ordre dans chaque section : les plats avec photo d'abord, puis ceux sans photo, chacun dans l'ordre de la source. Choix d'affichage, la transcription ne change pas ; ordre de la source dans docs/recherche-carte.md."
+    ]
+  },
+  "offers": [],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md",
+    "methode": "Pages ouvertes directement ; Instagram (fil), TheFork, Tripadvisor et Uber Eats en direct bloqués.",
+    "menu_qr": "Sunday sert au paiement à table ; aucun menu chargé dans Sunday (« demander la carte papier ») : argument de vente direct.",
+    "site": "caffepanis.com mort, boutique mallz.fr morte.",
+    "nimes": "Un Caffè Panis à Nîmes appartient au groupe JSK HOLDING (Belkhir), comme Le Novelty et Le Victoria : licence ou franchise ?",
+    "avis": "Google 4,3/5 sur 1 244 avis ; gnocchis dans un panier de pâte à pizza très cités ; attente aux heures de pointe."
+  },
+  "notes": [
+    "Pouvez-vous nous donner la carte papier actuelle (photos) ? Cafés, petit-déjeuner, brunch, salades, gnocchis, glaces, cocktails, vins, happy hour.",
+    "La Gelateria du n° 1 a-t-elle sa propre carte de prix ?",
+    "Ciccio Gang est-il toujours actif ? Deliveroo et Uber Eats n'ont ni les mêmes pizzas ni les mêmes recettes.",
+    "Qui décide (Léo Artaud ?) ; quel lien avec le Caffè Panis de Nîmes (JSK HOLDING / M A N / FFS) ?",
+    "Police et fichiers du logo (SVG) ?",
+    "Combien vous coûte Sunday aujourd'hui, et pourquoi la carte n'y est-elle pas chargée ?",
+    "Photos des plats : les Dwich, la stracciatella, les gnocchis en panier, les pizzas (Truffle Suprême, Amor Amatriciana), les pâtes, les burratas.",
+    "Prix de salle : la démo affiche ceux de la livraison (Uber Eats), sous la mention « Prix nets en euros, service compris ». Quels sont vos prix en salle et à emporter ?",
+    "Horaires de cuisine et du retrait à emporter : la maison ouvre de 9h à 1h, la livraison Ciccio Gang de 12h à 15h et de 19h à 22h. Pizzas et pâtes dès 9h ? La démo click & collect propose le retrait de toute la carte de 9h à 1h : à restreindre aux heures de cuisine si besoin.",
+    "Allergènes de chaque plat (dus avant paiement pour la vente à emporter).",
+    "« Les Dwich du Gang » porte le nom de la marque de livraison : le garder sur la carte de Caffè Panis ?",
+    "« Burrata Truffe & Mortadelle » : la description ne cite pas la mortadelle ; laquelle a raison ?",
+    "Orthographe corrigée à l'affichage (liste dans options_a_valider) : « Stracciatella Fumee 125 G » → « Stracciatella fumée 125 g », « rapé » → « râpé », « huiles truffée » → « huile truffée. »… Nous gardons-vous ces corrections, ou préférez-vous les noms tels qu'Uber Eats les affiche ?",
+    "« Pasta Vivi E Vechio » gardé tel quel : jeu de mots voulu, ou « Vecchio » ?",
+    "Options des pizzas et des pâtes (Uber Eats en propose, l'archive ne les contient pas) : lesquelles, à quel prix ?"
+  ]
+}

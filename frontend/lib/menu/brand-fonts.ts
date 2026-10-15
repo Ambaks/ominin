@@ -7,10 +7,14 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Cormorant_Garamond,
   DM_Sans,
   Didact_Gothic,
+  Fraunces,
+  Josefin_Sans,
   Playball,
   Poppins,
+  Questrial,
   Source_Serif_4,
 } from "next/font/google";
 
@@ -131,6 +135,57 @@ const sourceSerif4 = Source_Serif_4({
   preload: false,
 });
 
+/*
+ * Les quatre adresses de l'Écusson (Montpellier, octobre 2026) : chaque
+ * police est prise à leur identité (site, logo, enseigne), comparée en
+ * demos/<slug>/profile.json. Le Victoria reprend Source Serif 4 (L'Adresse),
+ * le Café des Arts Questrial, Caffè Panis DM Sans pour son texte (Baï-Kō).
+ */
+
+/**
+ * Le Novelty — les polices de son site (lenovelty-montpellier.fr) : une
+ * Garamond de titrage, le nom en italique doré, et une géométrique fine en
+ * capitales espacées pour la navigation et les descriptions.
+ */
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant-garamond",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
+const josefinSans = Josefin_Sans({
+  variable: "--font-josefin-sans",
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  preload: false,
+});
+
+/**
+ * Café des Arts — titres, noms et prix : la géométrique Century Gothic de son
+ * mot-symbole, sans les approches larges de Didact Gothic, qui doublaient
+ * l'espace avant une capitale.
+ */
+const questrial = Questrial({
+  variable: "--font-questrial",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+/**
+ * Caffè Panis — la plus proche de son mot-symbole (store, logo du Linktree) :
+ * Fraunces avec l'axe SOFT, que la Fraunces du site ne charge pas — en
+ * extra-gras, les terminaisons en boule et les fûts évasés du logo.
+ */
+const frauncesSoft = Fraunces({
+  variable: "--font-fraunces-soft",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
+  preload: false,
+});
+
 /**
  * Cyprien — le logotype « CYPRIEN » est une didone aux capitales espacées :
  * Bodoni Moda (taille optique) pour les titres. Les capitales espacées de son
@@ -177,6 +232,10 @@ export const brandFontVariables = [
   bebasNeue,
   dmSans,
   sourceSerif4,
+  cormorantGaramond,
+  josefinSans,
+  questrial,
+  frauncesSoft,
   bodoniModa,
   barlowCondensed,
   barlow,

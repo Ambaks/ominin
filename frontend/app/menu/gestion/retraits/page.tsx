@@ -29,7 +29,7 @@ import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { CashDetails, EncaissementMode, Order } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 type View = "commandes" | "production";
 

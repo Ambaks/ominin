@@ -23,7 +23,7 @@ import {
 import { CUSTOMER_NOTE_MAX_LENGTH, normalizePhone } from "@/lib/collect/shared";
 import * as api from "@/lib/gestion/api";
 import type { GestionState } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Commande à emporter prise au comptoir ou au téléphone : « un Paris-Brest
