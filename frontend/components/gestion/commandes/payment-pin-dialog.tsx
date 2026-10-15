@@ -66,13 +66,14 @@ export function PaymentPinDialog({
         className="flex flex-col gap-3"
       >
         <p className="text-sm leading-relaxed text-muted">
-          Saisissez le code à 4 chiffres défini dans les réglages Admin.
+          Saisissez le code à 4 chiffres que le gérant a défini dans
+          Établissement.
         </p>
         <input
           type="password"
           inputMode="numeric"
           autoComplete="off"
-          autoFocus
+          data-autofocus
           value={code}
           onChange={(event) => {
             setCode(event.target.value.replace(/\D/g, "").slice(0, 4));
@@ -80,7 +81,8 @@ export function PaymentPinDialog({
           }}
           aria-label="Code d'encaissement"
           aria-invalid={Boolean(error)}
-          className="rounded-xl border border-hairline bg-surface px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none transition-colors focus:border-ember-2/60"
+          placeholder="••••"
+          className="rounded-xl border border-hairline bg-surface px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none transition-colors placeholder:text-faint focus:border-ember-2/60"
         />
         {error && (
           <p role="alert" className="text-sm text-ember-3">

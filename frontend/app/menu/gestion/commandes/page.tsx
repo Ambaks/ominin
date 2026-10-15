@@ -15,14 +15,16 @@ import { PushPrompt } from "@/components/gestion/push-prompt";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import { ORDER_TAB_LABELS, ORDER_TABS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { ORDER_TABS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
   cardCount,
   earlierNumberingDay,
   isHistoryStatus,
+  isPickupShop,
   isServiceToday,
+  orderTabLabel,
   orderTabsShown,
   placeLabel,
 } from "@/lib/gestion/selectors";
@@ -50,7 +52,7 @@ import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
  */
 const EMPTY_BODIES: Record<OrderTab, string> = {
   a_encaisser:
-    "Les commandes passées depuis le menu QR ou prises en salle apparaîtront ici, article par article.",
+    "Les commandes à encaisser apparaîtront ici, article par article : celles du menu QR comme celles prises par l'équipe.",
   a_servir:
     "Les commandes encaissées, parties en cuisine, apparaîtront ici jusqu'à leur service.",
   historique: "Les commandes servies, retirées ou annulées apparaîtront ici.",
@@ -137,6 +139,9 @@ export default function CommandesPage() {
   if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
 
   const isServeur = state.role === "serveur";
+  // Boutique à emporter seule : ni salle ni tables, un comptoir et un laboratoire.
+  const pickupShop = isPickupShop(state);
+  const tabLabel = (tab: OrderTab) => orderTabLabel(state, tab);
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
@@ -187,11 +192,15 @@ export default function CommandesPage() {
             Commandes
           </h1>
           {isServeur && (
-            <p className="mt-1 text-sm text-muted">La salle, en direct.</p>
+            <p className="mt-1 text-sm text-muted">
+              {pickupShop ? "Le comptoir, en direct." : "La salle, en direct."}
+            </p>
           )}
           {isCuisinier && (
             <p className="mt-1 text-sm text-muted">
-              Ce qui est parti en cuisine, en direct.
+              {pickupShop
+                ? "Ce qui part en préparation, en direct."
+                : "Ce qui est parti en cuisine, en direct."}
             </p>
           )}
         </div>
@@ -233,8 +242,9 @@ export default function CommandesPage() {
           role="alert"
           className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm leading-relaxed"
         >
-          <strong>Boîtier Omilink hors ligne</strong> — les tickets cuisine ne
-          sortent pas. Suivez les commandes dans « À servir » en attendant.
+          <strong>Boîtier Omilink hors ligne</strong> — les tickets{" "}
+          {pickupShop ? "de préparation" : "cuisine"} ne sortent pas. Suivez les
+          commandes dans « {tabLabel("a_servir")} » en attendant.
         </p>
       )}
 
@@ -245,7 +255,7 @@ export default function CommandesPage() {
           visite="commandes-etapes"
           tabs={shown.map((id) => ({
             id,
-            label: ORDER_TAB_LABELS[id],
+            label: tabLabel(id),
             // L'historique est borné/paginé : pas de total fiable à afficher.
             count:
               id === "historique"
@@ -259,7 +269,7 @@ export default function CommandesPage() {
         />
       )}
 
-      {filter === "historique" && !fastFood && (
+      {filter === "historique" && !fastFood && !pickupShop && (
         <form
           className="flex max-w-md flex-wrap gap-2"
           onSubmit={(event) => {
@@ -332,7 +342,9 @@ export default function CommandesPage() {
                 ? `Aucune commande sur la table ${historyTable.number} depuis le début du service.`
                 : fastFood && filter === "a_servir"
                   ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
-                  : EMPTY_BODIES[filter]
+                  : pickupShop && filter === "a_servir"
+                    ? "Les commandes du jour payées en ligne apparaîtront ici, de la préparation au retrait."
+                    : EMPTY_BODIES[filter]
             }
           />
         )
@@ -384,13 +396,14 @@ export default function CommandesPage() {
           {singles.map((order) =>
             isServeur ? (
               <div key={order.id} className="order-pop">
-                <OrderCard order={order} place={placeLabel(order, state.tables)} />
+                <OrderCard order={order} place={placeLabel(order, state.tables)} pickupShop={pickupShop} />
               </div>
             ) : (
               <OrderCard
                 key={order.id}
                 order={order}
                 place={placeLabel(order, state.tables)}
+                pickupShop={pickupShop}
               />
             )
           )}

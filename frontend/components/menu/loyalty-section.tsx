@@ -87,6 +87,7 @@ export function LoyaltySection({
       optionSummary: [],
       choices: [],
       stock: item.stock,
+      noticeHours: item.noticeHours,
       reward: { id: reward.id, points: reward.points },
     });
     cart.track("panier", { items: [item.id] });

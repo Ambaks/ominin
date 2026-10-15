@@ -116,6 +116,12 @@ doesn't pay for it again.
 | `32641693`, `32645121`–`32645123` | Versace-pattern plates |
 | `41092xx` | McDonald's red fry box, hands (O’Crousti, fries) |
 | Unsplash `photo-1746635*` | "Sidral Mundet" soda bottles on yellow |
+| `32268814`, `32268825` | "Café K…" script printed on the plate |
+| `40156938`–`40156941` | "LOOPS" printed napkin |
+| `26838691`–`26838693` | "SAL DE RISO" label on the baba |
+| `16119657`, `16119660` | "ЗАВТРА…" menu card |
+| `13865275`, `13865277` | QR-code stand on the table |
+| `37676233`, `37676237` | Cyrillic newspaper wrap under the bread |
 
 Single photos rejected for branding on LZ.FOOD: `14979836` (logo on
 wrapper), `18852568` and `33718644` (newsprint), `14866627` (Russian menu
@@ -129,7 +135,19 @@ burger" paper), `9932888` (printed fry cup), `11659577` (Mirinda), Unsplash
 `photo-1690988109029-aa2377d08b12` (Coke Studio promo with a QR code). On BOHO:
 Unsplash `photo-1778855400007-37cbd89592ef` (Gemini watermark, AI image),
 Unsplash `photo-1731703698022-2bcf47d3d09b` ("SANDYS" printed paper),
-`10115297` (labelled water bottle).
+`10115297` (labelled water bottle). On Boulangerie Cyprien (bakery): `13706837`
+("CAFFET" board), `32707881` ("DU BONHEUR" chocolate plaque), `20914252`
+("HOMEMADE STYLE … BAKERY" paper), `3514539` ("TASTY & GOOD FOOD" board),
+`13991927` (logo jug), `19859280` and `38972491` (chalkboard price tags),
+`7474197` ("MAKE A WISH COME TRUE" plate), `30826793` (bakery chalkboard
+sign), `7807489` (printed paper), `10315700` (printed coffee sack),
+`30811295` (printed paper cones), `29380150` (printed poster), Unsplash
+`photo-1707578365452-56abc4c38873` ("PARIS BAGUETTE" tag),
+`photo-1721489619993-ec80a253b77e` and `photo-1721489620017-aedd0cffb93e`
+(printed shop liner), `photo-1768203629861-33e47ea111a6` (printed paper
+bags), `photo-1753011767259-c6d57777fce2` and `photo-1752850744064-65e198039be0`
+(Korean price signs), `photo-1554475659-9fd915c8f156` (newsprint wraps),
+`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving).
 
 ## French dishes stock libraries don't have
 
@@ -145,5 +163,10 @@ wrong thing:
 - **Sandwich "américain"** (baguette, steak, fries inside): none; steak-and-
   cheese subs are the closest.
 - **Pizza kebab on a red base with white sauce**: rare; `12261064` is close.
+
+- **Baguette au charbon végétal** (black baguette): none on either site —
+  only round charcoal loaves. **Pain viennois** (plain, long): none — the
+  closest are chocolate-chip rolls. **Paris-Brest à partager** (whole ring
+  for 6–8): only individual ones. **Chou praliné-pécan**: no visible pecans.
 
 These are the first dishes to put on the owner's photo-shoot list.

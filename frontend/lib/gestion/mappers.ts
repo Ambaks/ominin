@@ -41,6 +41,7 @@ export function rowToEtablissement(
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,
     collectSlotCapacity: row.collect_slot_capacity,
+    collectSlotMinutes: row.collect_slot_minutes,
     onlineMinOrder:
       row.online_min_order === null ? null : Number(row.online_min_order),
     googleReviewUrl: row.google_review_url ?? undefined,
@@ -64,6 +65,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
+    noticeHours: row.notice_hours ?? undefined,
     // Colonne de la migration 20260817000001 (types à régénérer).
     vatRate:
       (row as { vat_rate?: number | string }).vat_rate != null
@@ -147,6 +149,7 @@ export function rowToOrder(row: OrderRow): Order {
     onlinePaymentStartedAt: row.online_payment_started_at ?? undefined,
     customerName: row.customer_name ?? undefined,
     customerPhone: row.customer_phone ?? undefined,
+    customerNote: row.customer_note ?? undefined,
     pickupAt: row.pickup_at ?? undefined,
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,

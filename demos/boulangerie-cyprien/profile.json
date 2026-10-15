@@ -1,0 +1,116 @@
+{
+  "slug": "boulangerie-cyprien",
+  "name": "Boulangerie Cyprien",
+  "tagline": "Boulangerie · Pâtisserie · 100 % artisanale",
+  "cuisine": "Boulangerie-pâtisserie artisanale (pains au levain bio, viennoiserie au beurre AOP, pâtisserie fine)",
+  "address": "55 rue de la République, 31300 Toulouse (quartier Saint-Cyprien, rive gauche)",
+  "city": "Toulouse",
+  "phone": "05 34 51 06 60",
+  "email": "contact@boulangerie-cyprien.fr",
+  "hours": "Leur site : mar.–sam. 7h30–14h et 16h–20h, dim. 7h45–14h, fermé le lundi. Google affiche autre chose (lundi ouvert, samedi et dimanche dès 8h) : à confirmer.",
+  "website": "https://www.boulangerie-cyprien.fr (PHP/Bootstrap 3 chez OVH, à remplacer)",
+  "shops": [
+    {
+      "name": "Saint-Cyprien",
+      "address": "55 rue de la République, 31300 Toulouse",
+      "phone": "05 34 51 06 60",
+      "click_and_collect": true,
+      "source": "leur site, BAN (score 0,98)"
+    },
+    {
+      "name": "Place du Fer à Cheval",
+      "address": "7 place du Fer à Cheval, 31300 Toulouse (registre : 6)",
+      "phone": "05 34 57 20 09 (fiche Google seulement)",
+      "click_and_collect": false,
+      "source": "SIRET 83031216100029 créé le 22/01/2025 ; fiche Google non revendiquée ; absente de leur site"
+    }
+  ],
+  "le_midi": [
+    "Cyprien le midi Dupuy — 28 place Dupuy, 31000 Toulouse, 05 34 65 01 78, lun.–ven. 9h30–14h30 (société sœur CO'WICH)",
+    "Cyprien le midi Péri — 20 bis rue Gabriel Péri, 31000 Toulouse, 05 34 43 57 96, lun.–ven. 11h–15h (société sœur CYPERI)"
+  ],
+  "socials": {
+    "instagram": "@cyprienboulangerie_toulouse (vérifié, ≈ 3 790 abonnés) — le lien de leur site (@boulangeriecyprientoulouse) est mort",
+    "facebook": "/boulangeriecyprientoulouse (vérifié, 2 447 abonnés)",
+    "tiktok": null,
+    "google_maps": "4,6/5 sur 902 avis (13/10/2026), place_id ChIJq6oeQnC7rhIRqOhx38rvDn0"
+  },
+  "legal": {
+    "raison_sociale": "CO'PAINS",
+    "nom_commercial": "CYPRIEN",
+    "forme": "SARL au capital de 10 000 €",
+    "siren": "830 312 161",
+    "siret": "83031216100011 (siège, 55 rue de la République) ; 83031216100029 (Fer à Cheval)",
+    "tva": "FR66830312161",
+    "naf": "10.71C",
+    "gerants": [
+      "Lionel Fauré (directeur de la publication)",
+      "Gilles Guiraud",
+      "Pierre-Jean Souviron"
+    ],
+    "creation": "2017-05-24",
+    "source": "recherche-entreprises.api.gouv.fr, pappers.fr (opposition à la prospection notée)"
+  },
+  "design": {
+    "primary_color": "#6a9fa6 (sarcelle du cachet ; décoratif seulement, 2,65:1 sur le papier)",
+    "secondary_color": "#2e6267 (sarcelle assombrie pour le texte et les boutons, 6,2:1)",
+    "accent_color": "#b5772f (croûte dorée, décoratif) ; brique #a8432b pour les alertes",
+    "fonts": "Bodoni Moda (didone du logotype « CYPRIEN »), Barlow Condensed (capitales espacées, remplace Miso), Barlow (texte). Leur site actuel : Yeseva One + Miso.",
+    "style_notes": "Papier farine, encre chaude, sarcelle du cachet ; photos professionnelles de leur site (14).",
+    "reference_images": "docs/site/ (photos, cachet, logotype en PNG basse définition)"
+  },
+  "menu": {
+    "source": "Aucun prix publié nulle part. Noms et descriptions : leur page « Boulangerie » (docs/site-pages.json) et la presse / les avis (docs/research/report.md).",
+    "categories_summary": "Gâteaux à partager (4), Pâtisseries (7), Viennoiseries (3), Pains (9).",
+    "prix_a_valider": "TOUS les prix sont des estimations d'Ominin (ordre de grandeur d'une boulangerie artisanale toulousaine en 2026) : baguette 1,40 €, croissant 1,40 €, chocolatine 1,60 €, chausson 2,60 €, pâtisseries 3,40–5,40 €, pains 1,70–6,20 €, gâteaux à partager 24 € (4 parts) +10 € (6) +20 € (8).",
+    "options_a_valider": [
+      "Tailles des gâteaux à partager (4 / 6 / 8 parts) et leurs suppléments : inventés.",
+      "Délai de commande de 48 h sur les gâteaux à partager : inventé.",
+      "Existence d'une version « à partager » du Paris-Brest, de la tarte framboise-basilic, du millefeuille caramel et du baba : supposée (la presse et les avis ne citent que les individuels)."
+    ],
+    "produits_retenus": "Pains et viennoiseries : ceux que leur site nomme. Pâtisseries : celles que la presse et les avis Google nomment (Paris-Brest, éclair tout chocolat, millefeuille caramel, tarte framboise-basilic, baba au rhum revisité, chou praliné-pécan, flan). Non repris faute de source actuelle : pain aux abricots et noisettes caramélisées (2018), pavlova exotique, cheesecake mangue-passion, cake pistache-agrumes, chouquettes, cannelé, pain burger.",
+    "tva": "5,5 % sur tout (produits de boulangerie-pâtisserie à emporter) : à confirmer par leur comptable.",
+    "photos": {
+      "leurs_photos": "croissant, chocolatine (recadrées de leurs photos de site), éclair tout chocolat (recadré de leur photo de pâtisseries), Pain des Copains (leur pain au levain tranché — supposé être celui-là).",
+      "banque_d_images": "Pexels/Unsplash pour les 3 gâteaux à partager, 5 pâtisseries, 6 pains et le chausson ; auditées (marques, plat exact, cadrage). Écarts : tourte = pain rustique au levain (pas de l'épeautre), chou sans noix de pécan visibles.",
+      "sans_photo": "Paris-Brest à partager, tarte framboise-basilic individuelle (leur tartelette, floue en grand, a été retirée), baguette au charbon végétal, pain viennois : à photographier en boutique en priorité."
+    }
+  },
+  "research": {
+    "date": "2026-10-13",
+    "adresse": "55 rue de la République confirmée (BAN) ; Actu.fr et le Petit Futé écrivent « avenue » à tort. Métro A Saint-Cyprien – République à ≈ 80 m.",
+    "horaires": "Le site, Google, PagesJaunes, TripAdvisor et le Petit Futé divergent (voir docs/research/report.md §3).",
+    "google": "4,6/5 sur 902 avis ; Fer à Cheval 4,5/5 sur 84 avis, fiche non revendiquée ; aucun bouton « Commander » sur la boulangerie.",
+    "commande_en_ligne": "Aucune : commandes de gâteaux par téléphone, e-mail ou formulaire. Une fiche Uber Eats existe (non vérifiée). Le midi est sur Deliveroo et Uber Eats.",
+    "presse": "La Dépêche 2017 et 2018, Actu.fr, France Bleu, Le24heures, Le Journal Toulousain, LCI (2017-2018) ; Petit Futé « Recommandé 2026 » ; Toulouse Secret 2025 (5ᵉ chocolatine) ; L'Essentiel Toulouse 2025 (nouvelle boutique). Liens morts : Les5w, L'Opinion, CentPourCent, 6play.",
+    "avis": "Éloges : viennoiseries (78), chocolatines (77), chausson aux pommes (23), Paris-Brest (20), baba (13). Critiques : accueil inégal, prix, « trop sucré », files d'attente.",
+    "sources": "docs/research/report.md, docs/research/ (pages brutes), docs/site-pages.json"
+  },
+  "notes": [
+    "1. Interlocuteur : Lionel Fauré, Gilles Guiraud ou Pierre-Jean Souviron ?",
+    "2. Horaires de la boutique Saint-Cyprien : lundi fermé (leur site) ou ouvert (Google) ? Samedi et dimanche dès 7h30/7h45 ou 8h ?",
+    "3. Horaires de la boutique du Fer à Cheval (non affichés sur le nouveau site) ; prend-elle aussi les retraits ?",
+    "4. Les prix de chaque article (aucun n'est publié) — tous ceux de la carte en ligne sont des estimations.",
+    "5. Gâteaux à partager : lesquels existent vraiment, en quelles tailles (parts) et à quel prix ? Quel délai de commande (48 h proposé) ?",
+    "6. Carte saisonnière : bûches (décembre), galettes (janvier), Mont-Blanc — à ouvrir à la précommande le moment venu ?",
+    "7. Acompte ou paiement complet à la commande pour les gros gâteaux ? (aujourd'hui : payé en ligne en entier, ou réglé au retrait pour les commandes prises au téléphone)",
+    "8. Jusqu'à combien de jours à l'avance un client peut-il commander ? (aujourd'hui : pas de limite)",
+    "9. Fermetures exceptionnelles (congés, jours fériés) : à saisir pour bloquer les retraits ces jours-là.",
+    "10. Qui reçoit les nouvelles commandes, sur quel appareil (notifications du navigateur) ?",
+    "11. Comptes de l'équipe : qui au comptoir (rôle « serveur ») et au laboratoire (rôle « cuisinier », lecture seule) ?",
+    "12. Photos : séance photo des produits sans photo (Paris-Brest entier, baguette au charbon, pain viennois) et des gâteaux à partager.",
+    "13. Le « 3× Meilleur croissant au beurre AOP d'Île-de-France » : années, et le garde-t-on ?",
+    "14. Le stand du marché couvert Saint-Cyprien existe-t-il encore ?",
+    "15. Le midi (sociétés sœurs) : les garder sur le site ? Les passer aussi en commande en ligne (ils paient Deliveroo / Uber Eats) ?",
+    "16. Domaine boulangerie-cyprien.fr : accès au registrar pour le faire pointer vers Ominin ; boîte contact@ conservée.",
+    "17. Revendiquer la fiche Google du Fer à Cheval et la page TripAdvisor ; corriger les horaires Google.",
+    "18. TVA à 5,5 % sur toute la carte : confirmation du comptable.",
+    "19. Les marques « CYPRIEN » expirent le 04/09/2027 (pour information)."
+  ],
+  "decisions": [
+    "2026-10-13 — Construit sur le click & collect d'Ominin (Collect) plutôt que sur Shop : retraits datés, créneaux, paiement Stripe sur le compte de la boulangerie avec la commission d'Ominin, espace de gestion par rôles.",
+    "2026-10-13 — Retrait à la boutique Saint-Cyprien seulement (horaires confirmés par leur site, laboratoire sur place).",
+    "2026-10-13 — Commandes prises au téléphone : réglées au retrait au comptoir (pas de commission d'Ominin, aucun paiement en ligne) — à trancher avec l'utilisateur.",
+    "2026-10-13 — Site hébergé par Ominin sous /sites/boulangerie-cyprien en attendant que leur domaine pointe ici ; non indexé d'ici là."
+  ]
+}

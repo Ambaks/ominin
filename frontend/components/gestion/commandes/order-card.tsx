@@ -4,13 +4,18 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { COLLECT_ETA_CHOICES_MIN, ORDER_ACTION_LABELS } from "@/lib/gestion/constants";
+import {
+  ORDER_ACTION_LABELS,
+  PICKUP_ACTION_LABELS,
+  PICKUP_STATUS_LABELS,
+} from "@/lib/gestion/constants";
 import { formatPickup, formatTime } from "@/lib/gestion/format";
 import { nextStatuses } from "@/lib/gestion/permissions";
 import { lastServedAt, lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu-data";
+import { EtaChooser } from "./eta-chooser";
 import { LineOptions, PaymentChip } from "./order-line";
 import { StatusBadge } from "./status-badge";
 
@@ -22,13 +27,13 @@ import { StatusBadge } from "./status-badge";
 export function OrderCard({
   order,
   place,
-  pulse = false,
+  pickupShop = false,
 }: {
   order: Order;
   /** Sur place : la table ou le numéro du jour (placeLabel). */
   place: string;
-  /** L'action principale respire (soft-pulse) : la prochaine chose à faire. */
-  pulse?: boolean;
+  /** Boutique à emporter seule : boutons et statuts parlent comme Retraits. */
+  pickupShop?: boolean;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
@@ -50,47 +55,52 @@ export function OrderCard({
   };
 
   const heading = isCollect ? order.customerName ?? "Client" : place;
+  // L'estimation ne sert qu'en préparation : prête ou remise, elle est dépassée.
+  const readyAt = order.status === "en_preparation" ? order.estimatedReadyAt : undefined;
   // Servie, une commande dit quand — l'heure de sa dernière ligne apportée,
   // à côté de celle où elle a été passée. « Remise » au comptoir fast food.
   const servedAt = order.status === "servie" ? lastServedAt(order) : undefined;
   const servedWord = order.orderNumber !== undefined ? "Remise" : "Servie";
+  const statusLabel = servedAt
+    ? `${servedWord} à ${formatTime(servedAt)}`
+    : order.status === "servie"
+      ? servedWord
+      : pickupShop && isCollect
+        ? PICKUP_STATUS_LABELS[order.status]
+        : undefined;
   const cancelMessage = `${place} : la commande sera annulée définitivement.`;
 
   return (
     // En colonne, le total au pied : il s'aligne d'une carte à l'autre d'un rang.
     <article className="flex flex-col rounded-2xl border border-hairline bg-surface p-5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-baseline gap-2.5">
+      {/* Trop étroit pour le nom entier, le statut passe dessous. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <div className="flex min-w-0 items-baseline gap-2.5">
           {isCollect && (
-            <span className="rounded-full border border-ember-2/30 bg-ember-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
+            <span className="shrink-0 rounded-full border border-ember-2/30 bg-ember-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
               Emporter
             </span>
           )}
-          <h3 className="font-display text-lg font-medium">{heading}</h3>
-          <span className="text-[13px] tabular-nums text-muted">
+          <h3 className="min-w-0 break-words font-display text-lg font-medium">{heading}</h3>
+          <span className="shrink-0 text-[13px] tabular-nums text-muted">
             {formatTime(order.createdAt)}
           </span>
         </div>
-        <StatusBadge
-          status={order.status}
-          label={
-            servedAt
-              ? `${servedWord} à ${formatTime(servedAt)}`
-              : order.status === "servie"
-                ? servedWord
-                : undefined
-          }
-        />
+        <StatusBadge status={order.status} label={statusLabel} />
       </div>
 
-      {isCollect && order.pickupAt && (
+      {isCollect && (
         <p className="mt-1 text-xs text-muted">
-          Retrait : {formatPickup(order.pickupAt)}
+          Retrait&nbsp;: {order.pickupAt ? formatPickup(order.pickupAt) : "dès que possible"}
+          {readyAt && ` · prête vers ${formatTime(readyAt)}`}
         </p>
       )}
-      {isCollect && order.estimatedReadyAt && order.status === "en_preparation" && (
-        <p className="mt-1 text-xs text-muted">
-          Prête vers&nbsp;: {formatTime(order.estimatedReadyAt)}
+      {isCollect && order.customerNote && (
+        <p className="whitespace-pre-line mt-2 rounded-xl bg-ember-2/10 px-3 py-2 text-sm leading-relaxed">
+          <span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
+            Mot du client
+          </span>
+          « {order.customerNote} »
         </p>
       )}
 
@@ -127,48 +137,18 @@ export function OrderCard({
           )}
         </div>
         {choosingEta && order.status === "en_attente" ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted">Prête dans&nbsp;:</span>
-            {COLLECT_ETA_CHOICES_MIN.map((minutes) => (
-              <button
-                key={minutes}
-                type="button"
-                onClick={() => {
-                  setChoosingEta(false);
-                  void transition(
-                    "en_preparation",
-                    new Date(Date.now() + minutes * 60_000).toISOString()
-                  );
-                }}
-                className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold tabular-nums transition-colors hover:border-ember-2/40 hover:text-ember-1"
-              >
-                {minutes} min
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => {
-                setChoosingEta(false);
-                void transition("en_preparation");
-              }}
-              className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40"
-            >
-              Sans estimation
-            </button>
-            <button
-              type="button"
-              onClick={() => setChoosingEta(false)}
-              aria-label="Fermer le choix de délai"
-              className="flex size-11 items-center justify-center rounded-full text-base text-faint transition-colors hover:text-foreground lg:pointer-fine:size-9"
-            >
-              ✕
-            </button>
-          </div>
+          <EtaChooser
+            onChoose={(estimatedReadyAt) => {
+              setChoosingEta(false);
+              void transition("en_preparation", estimatedReadyAt);
+            }}
+            onClose={() => setChoosingEta(false)}
+          />
         ) : targets.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {targets
               .filter((target) => target !== "annulee")
-              .map((target) => (
+              .map((target, index) => (
                 <button
                   key={target}
                   type="button"
@@ -183,11 +163,16 @@ export function OrderCard({
                       void transition(target);
                     }
                   }}
-                  className={`ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background ${
-                    pulse ? "soft-pulse" : ""
-                  }`}
+                  // Une seule action principale : la suivante. La remise,
+                  // raccourci d'une commande à emporter, reste en retrait.
+                  className={
+                    index === 0
+                      ? "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+                      : "rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                  }
                 >
-                  {ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
+                  {(pickupShop && isCollect && PICKUP_ACTION_LABELS[target]) ||
+                    ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
                 </button>
               ))}
             {targets.includes("annulee") && (

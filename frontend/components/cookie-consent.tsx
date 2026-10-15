@@ -34,6 +34,9 @@ const UNMEASURED_PATHS = [
   // la bannière couvrirait la barre du panier et la feuille d'options.
   "/demo/",
   "/menu/demo/",
+  // Le site d'un client : il ne pose aucun traceur, ses mentions légales le
+  // disent — la mesure d'Ominin n'a rien à y faire.
+  "/sites/",
 ];
 
 declare global {

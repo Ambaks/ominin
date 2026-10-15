@@ -4,7 +4,8 @@ import { useState } from "react";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { formatTime } from "@/lib/gestion/format";
-import { visibleStaff } from "@/lib/gestion/selectors";
+import { isPickupShop, visibleStaff } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import {
   addDays,
   copyWeek,
@@ -92,6 +93,8 @@ export function PlanningGrid({
   onChange: () => void;
 }) {
   const toast = useToast();
+  const state = useGestion();
+  const pickupShop = isPickupShop(state);
   const [editing, setEditing] = useState<{
     day: Date;
     member?: Staff;
@@ -131,7 +134,7 @@ export function PlanningGrid({
       onClick={() => setEditingStaff(null)}
       className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
     >
-      + Ajouter un serveur
+      {pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur"}
     </button>
   );
 
@@ -150,9 +153,9 @@ export function PlanningGrid({
     return (
       <div className="flex flex-col items-start gap-3">
         <p className="text-sm text-muted">
-          Personne dans l&rsquo;équipe pour l&rsquo;instant. Ajoutez vos
-          serveurs : ils n&rsquo;ont pas besoin de compte pour figurer au
-          planning ni pour badger.
+          Personne dans l&rsquo;équipe pour l&rsquo;instant. Ajoutez vos{" "}
+          {pickupShop ? "employés" : "serveurs"} : ils n&rsquo;ont pas besoin
+          de compte pour figurer au planning ni pour badger.
         </p>
         {addStaff}
         {staffModal}

@@ -25,19 +25,22 @@ export const toMinutes = (time: string) => {
   return h * 60 + m;
 };
 
+/** Construit une fois : les listes de commandes l'appellent à chaque rendu. */
+const parisFormat = new Intl.DateTimeFormat("en-GB", {
+  timeZone: TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  weekday: "short",
+  hourCycle: "h23",
+});
+
 /** Date (AAAA-MM-JJ), jour ISO et minutes écoulées à Paris pour un instant. */
 export function parisParts(at: Date) {
   const parts = Object.fromEntries(
-    new Intl.DateTimeFormat("en-GB", {
-      timeZone: TIME_ZONE,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      weekday: "short",
-      hourCycle: "h23",
-    })
+    parisFormat
       .formatToParts(at)
       .map((part) => [part.type, part.value])
   );
@@ -71,24 +74,60 @@ export function isOpenAt(hours: OpeningHours | null, at: Date): boolean {
   );
 }
 
+/**
+ * Un jour AAAA-MM-JJ complet : un champ date vidé rend "", et Chrome laisse
+ * taper une année à cinq chiffres.
+ */
+export function isCalendarDay(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
 /** Jour de Paris (AAAA-MM-JJ) d'un instant : la valeur des champs date. */
 export function parisDate(at: Date): string {
   return parisParts(at).date;
 }
 
+const clockFormat = new Intl.DateTimeFormat("fr-FR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: TIME_ZONE,
+});
+
+/** « 09:30 » à l'heure de la boutique, quel que soit le fuseau du téléphone. */
+export function formatClock(iso: string): string {
+  return clockFormat.format(new Date(iso));
+}
+
+/** « vendredi 16 octobre » : un jour AAAA-MM-JJ, en toutes lettres. */
+export function formatDayLong(date: string): string {
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  });
+}
+
+/** Jour ISO (1 = lundi … 7 = dimanche) d'un jour AAAA-MM-JJ, celui des horaires. */
+export function isoDayOf(date: string): number {
+  return ((new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
+}
+
 /**
  * Créneaux de retrait d'un jour : alignés sur la grille, pendant les plages
- * d'ouverture, au plus tôt le créneau qui suit celui en cours.
+ * d'ouverture, au plus tôt le créneau qui suit celui en cours — ou, quand le
+ * panier contient un plat à commander à l'avance, son délai écoulé.
  */
 export function pickupSlots(
   hours: OpeningHours | null,
   date: string,
   slotMinutes: number,
-  now: Date
+  now: Date,
+  noticeMinutes = 0
 ): Date[] {
   if (!hours) return [];
-  const isoDay = ((new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
-  const earliest = now.getTime() + slotMinutes * 60_000;
+  const isoDay = isoDayOf(date);
+  const earliest = now.getTime() + Math.max(slotMinutes, noticeMinutes) * 60_000;
   const slots: Date[] = [];
   for (const [open, close] of hours[String(isoDay)] ?? []) {
     const first = Math.ceil(toMinutes(open) / slotMinutes) * slotMinutes;
@@ -100,6 +139,33 @@ export function pickupSlots(
   return slots;
 }
 
+/** Le jour (AAAA-MM-JJ) décalé de `days` jours. */
+export function shiftDay(day: string, days: number): string {
+  const date = new Date(`${day}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Premier jour (AAAA-MM-JJ), à partir de `from`, qui a encore un créneau de
+ * retrait : dans la semaine qui suit le délai de commande, au-delà la
+ * boutique n'ouvre jamais. `from` lui-même s'il n'y en a aucun.
+ */
+export function firstPickupDay(
+  hours: OpeningHours | null,
+  from: string,
+  slotMinutes: number,
+  now: Date,
+  noticeMinutes = 0
+): string {
+  const days = DAY_NAMES.length + Math.ceil(noticeMinutes / 1440);
+  for (let i = 0; i < days; i++) {
+    const day = shiftDay(from, i);
+    if (pickupSlots(hours, day, slotMinutes, now, noticeMinutes).length) return day;
+  }
+  return from;
+}
+
 /** « Lun. 11:30–14:30, 18:30–22:30 · … » : le texte affiché sur la carte. */
 export function formatOpeningHours(hours: OpeningHours): string {
   return DAY_NAMES.flatMap((name, i) => {
@@ -108,4 +174,26 @@ export function formatOpeningHours(hours: OpeningHours): string {
       ? [`${name.slice(0, 3)}. ${ranges.map(([open, close]) => `${open}–${close}`).join(", ")}`]
       : [];
   }).join(" · ");
+}
+
+/**
+ * Les jours qui se suivent aux mêmes plages, regroupés : « du mardi au
+ * samedi » plutôt que cinq fois la même ligne. Pour l'affichage ; le texte
+ * enregistré reste celui de formatOpeningHours.
+ */
+export function groupOpeningHours(
+  hours: OpeningHours
+): { first: number; last: number; ranges: DayRanges }[] {
+  const groups: { first: number; last: number; ranges: DayRanges }[] = [];
+  for (let day = 1; day <= DAY_NAMES.length; day++) {
+    const ranges = hours[String(day)] ?? [];
+    if (!ranges.length) continue;
+    const last = groups[groups.length - 1];
+    if (last && last.last === day - 1 && JSON.stringify(last.ranges) === JSON.stringify(ranges)) {
+      last.last = day;
+    } else {
+      groups.push({ first: day, last: day, ranges });
+    }
+  }
+  return groups;
 }

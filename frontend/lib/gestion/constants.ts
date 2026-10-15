@@ -66,8 +66,8 @@ export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "reti
 
 /**
  * Statuts relus par la page Paiements : payée sur place (servie ou non),
- * prête (une commande fast food réglée qui attend son client), ou retirée
- * (collect, payée en ligne). isPaid écarte ensuite les collect prêtes.
+ * prête (une commande fast food réglée, ou à emporter payée en ligne, qui
+ * attend son client), ou retirée. isPaid trie ensuite ce qui est réglé.
  */
 export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
@@ -84,7 +84,7 @@ export const OPEN_ORDER_STATUSES: OrderStatus[] = [
 
 /** Horloge de service des vues employés : cadence d'affichage (seconde). */
 export const SERVICE_CLOCK_TICK_MS = 1000;
-/** Temps d'attente affichés (en minutes) : cadence de recalcul. */
+/** Cadence de recalcul des écrans qui suivent l'heure (attentes, créneaux, ouvert/fermé, fermetures). */
 export const WAIT_TICK_MS = 30_000;
 /** Comptoir fast food : minutes de préparation au-delà desquelles une commande se signale… */
 export const COUNTER_WAIT_WARN_MINUTES = 8;
@@ -122,7 +122,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
  */
 export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   en_attente: ["payee", "en_preparation", "annulee"],
-  en_preparation: ["prete", "annulee"],
+  // Une commande à emporter se remet dès qu'elle est sur l'étagère.
+  en_preparation: ["prete", "retiree", "annulee"],
   prete: ["retiree", "servie", "payee", "annulee"],
   payee: ["servie", "prete"],
   servie: [],
@@ -153,6 +154,21 @@ export const ORDER_ACTION_LABELS: Record<
   retiree: "Marquer retirée",
 };
 
+/** Boutique à emporter seule : Commandes reprend les verbes de Retraits. */
+export const PICKUP_ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
+  en_preparation: "Prendre en charge",
+  prete: "Prête",
+  retiree: "Remettre",
+};
+
+/** Les mots de la boutique pour chaque étape d'un retrait, dans Retraits comme dans Commandes. */
+export const PICKUP_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
+  en_attente: "Nouvelle",
+  en_preparation: "À préparer",
+  prete: "Prête",
+  retiree: "Remise",
+};
+
 export const ROLE_LABELS: Record<Role, string> = {
   gerant: "Gérant",
   cuisinier: "Cuisinier",
@@ -163,6 +179,19 @@ export const ROLE_TAGLINES: Record<Role, string> = {
   gerant: "Accès complet : menu, équipe, abonnements et service.",
   cuisinier: "La cuisine : disponibilité des articles, commandes en cuisine — les tickets sortent sur l'imprimante.",
   serveur: "La salle : encaissement et service des tables.",
+};
+
+/** Boutique à emporter seule : ni salle ni cuisine, un comptoir et une préparation. */
+export const PICKUP_ROLE_LABELS: Record<Role, string> = {
+  gerant: "Gérant",
+  cuisinier: "Préparation",
+  serveur: "Comptoir",
+};
+
+export const PICKUP_ROLE_TAGLINES: Record<Role, string> = {
+  gerant: ROLE_TAGLINES.gerant,
+  cuisinier: "La préparation : disponibilité des articles et quantités à produire, jour par jour.",
+  serveur: "Le comptoir : commandes, encaissement et retraits.",
 };
 
 export const OFFRE_LABELS: Record<Offre, string> = {
@@ -185,6 +214,12 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
 export const VAT_RATES = [5.5, 10, 20] as const;
 /** Taux par défaut d'un article (miroir du défaut SQL de items.vat_rate). */
 export const DEFAULT_VAT_RATE = 10;
+
+/** Durée d'un créneau de retrait (miroir du défaut SQL de etablissements.collect_slot_minutes). */
+export const DEFAULT_COLLECT_SLOT_MINUTES = 15;
+
+/** Jours proposés d'un geste dans Retraits, aujourd'hui compris ; au-delà, le champ date. */
+export const RETRAITS_DAYS_SHOWN = 14;
 
 /**
  * L'arborescence qu'Ominin coche pour chaque restaurant : une vue de l'espace
@@ -252,6 +287,12 @@ export const VIEWS: ViewSpec[] = [
         hint: "Le bouton + : la salle saisit la commande pour le client.",
       },
     ],
+  },
+  {
+    id: "retraits",
+    label: "Retraits",
+    hint: "Le click & collect jour par jour : les retraits, les commandes prises au comptoir ou au téléphone, et ce qu'il reste à préparer.",
+    features: [],
   },
   {
     id: "tables",
@@ -397,6 +438,7 @@ export const TABLE_FEATURES: Feature[] = [
 export const COLLECT_FEATURES: Feature[] = [
   "apercu",
   "commandes",
+  "retraits",
   "paiements",
   "options",
   "terminaux",

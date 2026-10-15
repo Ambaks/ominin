@@ -7,13 +7,17 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
-import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
+import { OFFRE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
   activeProducts,
+  awaitsAcknowledgement,
   cardCount,
+  isPickupShop,
   needsAttention,
   offreFeeDue,
+  pickupLater,
+  roleLabels,
 } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
@@ -24,9 +28,11 @@ import {
   useOrderChime,
 } from "@/lib/gestion/use-order-chime";
 import { VISITE_IDS, visiteFor, type VisiteId } from "@/lib/gestion/visites";
+import { collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
+  BagIcon,
   BellIcon,
   ClockIcon,
   CommandesIcon,
@@ -69,6 +75,7 @@ const NAV_ITEMS: NavItem[] = [
   // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
   { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
+  { href: "/gestion/retraits", label: "Retraits", feature: "retraits", icon: BagIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   // Le gérant badge et planifie depuis l'onglet Équipe, qui porte aussi le
@@ -94,6 +101,17 @@ const PRODUITS_ITEM: NavItem = {
   label: "Produits",
   feature: "produits",
   icon: ProductsIcon,
+};
+
+/** Ce que compte la pastille d'un onglet, au survol. */
+const BADGE_HINTS: Record<string, string> = {
+  "/gestion/commandes": "Additions à encaisser et commandes à emporter du jour à prendre en charge",
+  "/gestion/retraits": "Commandes du site pour un jour à venir, à prendre en charge",
+};
+
+/** Boutique à emporter seule : tout se prend en charge depuis Retraits. */
+const PICKUP_BADGE_HINTS: Record<string, string> = {
+  "/gestion/retraits": "Commandes du site à prendre en charge, tous jours confondus",
 };
 
 /** Commandes de l'en-tête : une cible de 44 px au doigt, 36 px à la souris. */
@@ -162,6 +180,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
   // payés, plus sur le seul abonnement à l'offre.
   const subscribed = products.offre != null || products.collect;
+  const pickupShop = isPickupShop(state);
   const items = NAV_ITEMS.filter(
     (item) =>
       (!item.feature || (state?.features[item.feature] ?? false)) &&
@@ -169,11 +188,28 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
       (!item.serveurFeature ||
         state?.role !== "serveur" ||
         (state.features[item.serveurFeature] ?? false)) &&
-      (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
+      (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role)) &&
+      // En boutique à emporter seule, l'aperçu de l'équipe renvoie à Retraits.
+      (item.feature !== "apercu" || state?.role === "gerant" || !pickupShop)
   );
-  const pendingCount = state
-    ? cardCount(state.orders.filter(needsAttention))
-    : 0;
+  // La page que voient les clients : pour une boutique à emporter seule, sa
+  // page de commande en ligne — elle n'a pas de menu QR.
+  const voirClient = pickupShop ? "Voir ma boutique en ligne" : "Voir mon menu";
+  // Pastilles : ce qui attend un geste, là où il se fait — les commandes du
+  // site pour un jour à venir se prennent en charge depuis Retraits. En
+  // boutique à emporter seule, Retraits les compte toutes, aujourd'hui compris :
+  // Commandes n'en porte pas, pour ne pas les compter deux fois.
+  const badges: Record<string, number> = !state
+    ? {}
+    : pickupShop
+      ? { "/gestion/retraits": state.orders.filter(awaitsAcknowledgement).length }
+      : {
+          "/gestion/commandes": cardCount(state.orders.filter(needsAttention)),
+          "/gestion/retraits": state.orders.filter(
+            (order) => awaitsAcknowledgement(order) && pickupLater(order)
+          ).length,
+        };
+  const badgeHints = pickupShop ? PICKUP_BADGE_HINTS : BADGE_HINTS;
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
   // Visite de la page, pour le gérant (la vue salle d'une tablette
@@ -224,7 +260,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         state.etablissement.offre
           ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
           : collectBrand
-      } · ${ROLE_LABELS[state.role]}`
+      } · ${roleLabels(state)[state.role]}`
     : "Espace de gestion";
 
   return (
@@ -277,16 +313,20 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 <AdminLockButton />
                 <ThemeToggle />
                 <a
-                  href={`/m/${state.etablissement.slug}`}
+                  href={
+                    pickupShop
+                      ? `${collectSiteUrl}/${state.etablissement.slug}`
+                      : `${menuSiteUrl}/m/${state.etablissement.slug}`
+                  }
                   data-visite="voir-menu"
                   target="_blank"
                   rel="noopener"
-                  title="Voir mon menu"
-                  aria-label="Voir mon menu"
+                  title={voirClient}
+                  aria-label={voirClient}
                   className="flex min-h-11 items-center gap-1.5 rounded-full border border-hairline px-3 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:pointer-fine:min-h-9"
                 >
                   <ExternalLinkIcon className="size-4" />
-                  <span className="hidden lg:inline">Voir mon menu</span>
+                  <span className="hidden lg:inline">{voirClient}</span>
                 </a>
                 {(state?.features.commandes ?? false) && (
                   <Link
@@ -355,9 +395,12 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                       className={`size-4.5 ${active ? "text-ember-1" : ""}`}
                     />
                     {item.label}
-                    {item.href === "/gestion/commandes" && pendingCount > 0 && (
-                      <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
-                        {pendingCount}
+                    {(badges[item.href] ?? 0) > 0 && (
+                      <span
+                        title={badgeHints[item.href]}
+                        className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
+                      >
+                        {badges[item.href]}
                       </span>
                     )}
                   </Link>
@@ -430,10 +473,16 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   <item.icon className="size-5" />
-                  {item.label}
-                  {item.href === "/gestion/commandes" && pendingCount > 0 && (
-                    <span className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background">
-                      {pendingCount}
+                  {/* Sept onglets sur 320 px : le libellé se resserre plutôt que de toucher son voisin. */}
+                  <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
+                    {item.label}
+                  </span>
+                  {(badges[item.href] ?? 0) > 0 && (
+                    <span
+                      title={badgeHints[item.href]}
+                      className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
+                    >
+                      {badges[item.href]}
                     </span>
                   )}
                 </Link>
