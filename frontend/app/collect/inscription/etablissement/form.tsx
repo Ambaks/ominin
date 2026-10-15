@@ -8,6 +8,7 @@ import { collectOffer } from "@/lib/landing-data";
 import { signContract } from "@/lib/legal/client";
 import { collectProduct } from "@/lib/products";
 import { createClient } from "@/lib/supabase/client";
+import { announceSignup } from "@/lib/signup-notify";
 
 /*
  * Inscription click & collect : nom, adresse, SIRET facultatif. Pas d'offre
@@ -71,6 +72,7 @@ export function CollectSignupForm() {
         // L'établissement existe : la collision d'un essai précédent n'a plus
         // rien à signaler, et la suite quitte la boucle sans message.
         lastError = "";
+        announceSignup();
         // La signature référence l'établissement : elle ne peut venir
         // qu'après sa création, et doit précéder tout paiement.
         try {

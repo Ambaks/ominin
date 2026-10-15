@@ -39,6 +39,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alert_counters: {
+        Row: {
+          hits: number
+          key: string
+          notified_at: string | null
+          window_start: string
+        }
+        Insert: {
+          hits: number
+          key: string
+          notified_at?: string | null
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          notified_at?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       admin_pins: {
         Row: {
           etablissement_id: string
@@ -4695,6 +4716,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_alert_hit: {
+        Args: {
+          p_cooldown: string
+          p_key: string
+          p_threshold: number
+          p_window: string
+        }
+        Returns: boolean
+      }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -4780,6 +4810,18 @@ export type Database = {
           converted: number
           day: string
           orders_count: number
+          revenue: number
+          sessions: number
+        }[]
+      }
+      admin_service_figures: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          commission: number
+          id: string
+          kind: string
+          name: string
+          orders: number
           revenue: number
           sessions: number
         }[]
