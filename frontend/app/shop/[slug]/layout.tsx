@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { ShopProvider } from "@/components/shop/store/context";
 import { ShopFooter } from "@/components/shop/store/footer";
@@ -63,6 +63,17 @@ export async function generateMetadata({ params }: LayoutProps<"/shop/[slug]">):
   };
 }
 
+/*
+ * Le document derrière la boutique porte le fond sombre d'Ominin : sans ces
+ * deux réglages, le rebond du téléphone au bord de la page le laisse voir en
+ * barre noire, et la barre du navigateur reste noire au-dessus d'un site clair.
+ */
+export async function generateViewport({ params }: LayoutProps<"/shop/[slug]">): Promise<Viewport> {
+  const { slug } = await params;
+  const shop = await getShopBySlug(slug);
+  return shop ? { themeColor: resolveTheme(shop.theme).palette.bg, colorScheme: "light" } : {};
+}
+
 export default async function ShopLayout({ params, children }: LayoutProps<"/shop/[slug]">) {
   const { slug } = await params;
   const shop = await getShopBySlug(slug);
@@ -73,6 +84,7 @@ export default async function ShopLayout({ params, children }: LayoutProps<"/sho
 
   return (
     <div className={`shop-root flex min-h-dvh flex-col ${FONT_VARIABLES}`} style={style}>
+      <style href={`shop-bg-${shop.slug}`} precedence="default">{`html,body{background-color:${theme.palette.bg}}`}</style>
       <ShopProvider value={{ slug: shop.slug, name: shop.name, catalogLabel: shop.catalog_label }}>
         <CartProvider slug={shop.slug}>
           <ShopToastProvider>
