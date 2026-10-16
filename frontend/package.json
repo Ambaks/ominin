@@ -20,6 +20,7 @@
     "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts",
     "shop:owner": "tsx --env-file=../backend/.env scripts/shop-owner.ts",
     "menu:gerant": "tsx --env-file=../backend/.env scripts/lien-gerant.ts",
+    "journal": "tsx --env-file=../backend/.env scripts/journal.ts",
     "agents:activate": "tsx --env-file=../backend/.env scripts/agents-activate.ts",
     "db:login": "supabase --workdir .. login",
     "db:link": "supabase --workdir .. link",

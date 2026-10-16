@@ -2885,6 +2885,36 @@ export type Database = {
         }
         Relationships: []
       }
+      projet_journal: {
+        Row: {
+          branch: string
+          commit_sha: string
+          created_at: string
+          id: string
+          owner: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          branch: string
+          commit_sha: string
+          created_at?: string
+          id?: string
+          owner: string
+          summary?: string
+          title: string
+        }
+        Update: {
+          branch?: string
+          commit_sha?: string
+          created_at?: string
+          id?: string
+          owner?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: []
+      }
       projet_clients: {
         Row: {
           created_at: string

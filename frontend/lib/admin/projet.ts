@@ -351,3 +351,14 @@ export async function addChantier(
     set({ data: { ...state.data, chantiers: [...state.data.chantiers, chantier] } });
   }
 }
+
+export function deleteChantier(id: string): Promise<void> {
+  return optimistic(
+    (data) => ({
+      ...data,
+      chantiers: data.chantiers.filter((chantier) => chantier.id !== id),
+      steps: data.steps.filter((step) => step.chantier_id !== id),
+    }),
+    async () => check(await createClient().from("projet_chantiers").delete().eq("id", id)),
+  );
+}

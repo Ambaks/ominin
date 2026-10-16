@@ -75,14 +75,15 @@ Backend (run from `backend/`):
 
 ## Workflow
 
-- Every time changes are pushed, update the "Project status" section of
-  `README.md` so it reflects the current state of the project, and include
-  that update in what gets pushed. The README is the source of truth for
+- A work session starts with `/pull` and ends with `/push` (skills in
+  `.claude/skills/`). `/pull` pulls and refreshes the local graphify graph;
+  `/push` updates the "Project status" section of `README.md`, commits,
+  pushes, and posts a summary to the team journal (admin → Projet →
+  Journal, `npm run journal`). The README is the source of truth for
   collaborators (and their agents) about where the project stands.
-- Agent discipline: after modifying code, run `graphify update .` to keep the
-  knowledge graph current. It is incremental and AST-only (no API calls,
-  fast, free). This is an instruction being followed, not automation — no
-  hook runs it for you, so treat it as a required step of every code change.
+- `graphify-out/` is local and not versioned: each person keeps their own
+  graph, refreshed by `/pull` (`graphify update .`, incremental, AST-only,
+  free).
 
 ## graphify
 
@@ -92,4 +93,4 @@ Rules:
 - For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- The graph is refreshed by `/pull` at the start of a session (`graphify update .`, AST-only, no API cost); it is local, not committed.
