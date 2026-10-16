@@ -9706,15 +9706,251 @@ html:has([data-menu-root].theme-boulangerie-cyprien) body {
     align-items: start;
   }
 
-  .theme-boulangerie-cyprien .dish-grid > article:last-child:nth-child(odd) {
+  :is(.theme-boulangerie-cyprien, .theme-cafe-poulard) .dish-grid > article:last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
 
-  .theme-boulangerie-cyprien .dish-grid > article:last-child:nth-child(odd):has(> .dish-photo) {
+  :is(.theme-boulangerie-cyprien, .theme-cafe-poulard)
+    .dish-grid
+    > article:last-child:nth-child(odd):has(> .dish-photo) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
   }
+}
+
+/*
+  Café Poulard (Montpellier) — l'identité de leurs affiches Instagram :
+  papier blanc cassé, encre noire des titres en capitales encadrées de
+  points (« • SERVICE MIDI • »), l'or du mot-symbole « POULARD » (#f0d070
+  mesuré) et le bordeaux du disque de leur logo (#680018 mesuré). L'or ne
+  porte pas de texte sur le papier (1,4:1) : il trace les filets et les
+  cadres arrondis de leurs cartouches, et le nom sur la photo de la salle,
+  voilée de bordeaux comme leurs visuels posés sur photo. Le bordeaux porte
+  les boutons, les prix et les liens (9,7:1 sur le papier). Noto Serif
+  Display à sa chasse la plus étroite pour le nom et les titres, Source
+  Serif 4 pour le texte et l'italique des détails.
+*/
+.theme-cafe-poulard {
+  --background: #faf6ee;
+  --foreground: #1c1714;
+
+  --surface: #fffdf8;
+  --surface-raised: #f1e9da;
+  --hairline: rgba(28, 23, 20, 0.12);
+
+  --muted: #5d544b;
+  --faint: #6b6157;
+
+  --ember-1: #7d1424;
+  --ember-2: #6f1020;
+  --ember-3: #5c0a1a;
+
+  --shimmer-highlight: rgba(240, 208, 112, 0.18);
+  --glow-inner: rgba(240, 208, 112, 0.12);
+  --glow-outer: rgba(104, 0, 24, 0.05);
+
+  /* L'or des filets et des cadres, assombri pour se voir sur le papier. */
+  --poulard-or: #c9a24a;
+
+  --brand-display: var(--font-noto-serif-display), var(--font-fraunces), serif;
+  --brand-sans: var(--font-source-serif-4), var(--font-instrument-sans), serif;
+
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-cafe-poulard),
+html:has([data-menu-root].theme-cafe-poulard) body {
+  background-color: #faf6ee;
+}
+
+.theme-cafe-poulard :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* Boutons à plat, bordeaux du logo. */
+.theme-cafe-poulard .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-1);
+}
+
+.theme-cafe-poulard .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* La photo de la salle voilée de bordeaux, le nom en or dessus. */
+.theme-cafe-poulard .cover-hero > div:first-of-type {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(44, 6, 14, 0.35),
+    rgba(44, 6, 14, 0.55) 45%,
+    rgba(44, 6, 14, 0.88)
+  );
+}
+
+/* Le nom à la chasse étroite de « POULARD » ; les titres de leurs affiches
+   gardent la chasse normale. */
+.theme-cafe-poulard .cover-hero h1 {
+  font-stretch: 62.5%;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  background-image: linear-gradient(to bottom, #f8e7ad, #f0d070 45%, #c9a24a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 2px rgba(20, 3, 7, 0.55));
+}
+
+.theme-cafe-poulard .cover-hero .ember-text {
+  color: #f0d070;
+}
+
+.theme-cafe-poulard .cover-hero .text-muted {
+  color: #f6eee1;
+}
+
+.theme-cafe-poulard .cover-hero a {
+  border-color: rgba(240, 208, 112, 0.45);
+  background-color: rgba(28, 6, 10, 0.35);
+}
+
+/* « • TAPAS • » : les titres de section en capitales entre deux points ;
+   sur téléphone, assez petits pour « • SANDWICHS & BURGER • » sur une ligne. */
+.theme-cafe-poulard .category-heading {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+@media (max-width: 639px) {
+  .theme-cafe-poulard .category-heading {
+    font-size: 1.5rem;
+  }
+}
+
+.theme-cafe-poulard .category-heading::before,
+.theme-cafe-poulard .category-heading::after {
+  content: "•";
+  margin: 0 0.3em;
+  color: var(--poulard-or);
+}
+
+.theme-cafe-poulard .category-heading::before {
+  margin-left: 0;
+}
+
+/* Les points tiennent lieu de filet : sur téléphone, le titre prend la
+   largeur et le filet n'était plus qu'un tiret. */
+.theme-cafe-poulard .category-rule {
+  display: none;
+}
+
+/* Les cartouches à bord doré arrondi des affiches. */
+.theme-cafe-poulard article {
+  border-color: color-mix(in srgb, var(--poulard-or) 55%, transparent);
+}
+
+.theme-cafe-poulard .dish-price {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Leurs photos sont claires : le voile vers le papier les délavait. */
+.theme-cafe-poulard .dish-photo-fade {
+  display: none;
+}
+
+/* Rangées de même hauteur : le bouton au pied de chaque fiche, à la même
+   hauteur d'une fiche à l'autre. */
+@media (min-width: 768px) {
+  .theme-cafe-poulard .dish-grid > article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .theme-cafe-poulard .dish-body {
+    flex: 1;
+  }
+
+  .theme-cafe-poulard .dish-action {
+    margin-top: auto;
+  }
+}
+
+/* Le suivi après paiement : l'en-tête en disque du logo, bordeaux et nom en
+   or ; le statut dans une cartouche dorée, en capitales entre deux points. */
+.theme-cafe-poulard .tracking-head {
+  border-radius: 1.5rem;
+  background-color: #680018;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.theme-cafe-poulard .tracking-head .ember-text {
+  color: #f0d070;
+}
+
+.theme-cafe-poulard .tracking-head h1 {
+  /* Le nom sur une ligne dès 320 px. */
+  font-size: clamp(2rem, 11vw, 2.75rem);
+  font-stretch: 62.5%;
+  text-transform: uppercase;
+  line-height: 1;
+  background-image: linear-gradient(to bottom, #f8e7ad, #f0d070 45%, #c9a24a);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.theme-cafe-poulard .tracking-head .text-muted {
+  color: #f6eee1;
+}
+
+.theme-cafe-poulard [data-status] {
+  border-color: color-mix(in srgb, var(--poulard-or) 55%, transparent);
+}
+
+.theme-cafe-poulard [data-status] h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+/* « CAMILLE · COMMANDÉE AUJOURD'HUI À 11:00 » : deux lignes égales plutôt
+   que l'heure seule sur la seconde. */
+.theme-cafe-poulard [data-status] > p:first-child {
+  text-wrap: balance;
+}
+
+/* « • COMMANDE REÇUE ! • » tient sur une ligne dès 320 px. */
+@media (max-width: 639px) {
+  .theme-cafe-poulard [data-status] h2 {
+    font-size: 1.25rem;
+  }
+
+  /* Les trois mentions du bandeau l'une sous l'autre : à deux par ligne, la
+     première restait seule. */
+  .theme-cafe-poulard .menu-highlights ul {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 359px) {
+  .theme-cafe-poulard [data-status] h2 {
+    font-size: 1.0625rem;
+  }
+}
+
+.theme-cafe-poulard [data-status] h2::before,
+.theme-cafe-poulard [data-status] h2::after {
+  content: "•";
+  margin: 0 0.3em;
+  color: var(--poulard-or);
 }
 
 @theme inline {

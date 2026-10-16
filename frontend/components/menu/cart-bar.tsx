@@ -10,13 +10,13 @@ import {
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PreviewPayment } from "@/components/menu/preview-payment";
-import { Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
+import { leaveAfterSheet, Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
 import { DemoPayment } from "@/components/menu/demo-payment";
 import { SquarePayment } from "@/components/menu/square-payment";
 import { preloadStripe, StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
-import { collectHref, normalizePhone } from "@/lib/collect/shared";
+import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
@@ -393,9 +393,25 @@ export function CartBar() {
 
   const submit = async () => {
     if (!cart.canOrder) return;
+    const pickupProblem = cart.collect
+      ? collectProblem(details, cart.collect.hours, pickupNotice(cart.lines))
+      : null;
+    if (pickupProblem) {
+      setState("error");
+      setError(pickupProblem);
+      // Sur téléphone, le formulaire de retrait est souvent sous le pli : le
+      // premier champ vide prend le focus, sinon le formulaire remonte.
+      const empty = [
+        ...document.querySelectorAll<HTMLInputElement>("[data-collect-fields] input[required]"),
+      ].find((input) => !input.value.trim());
+      if (empty) empty.focus();
+      else document.querySelector("[data-collect-fields]")?.scrollIntoView({ block: "start" });
+      return;
+    }
     // Aperçu : rien ne part, mais la suite se montre — à table, le paiement
     // simulé puis le ticket (demoSuivi), ou la confirmation ; en fast food,
-    // le ticket, sur un numéro fictif.
+    // le ticket, sur un numéro fictif ; en click & collect, la page de suivi,
+    // rejouée sur la commande gardée dans l'onglet.
     if (cart.preview) {
       if (cart.demoSuivi && tickets) {
         const orderId = crypto.randomUUID();
@@ -406,6 +422,29 @@ export function CartBar() {
         }
         setPreviewPayment({ orderId, total: (totalCents + tipCents) / 100, tip: tipAmount });
         setState("sent");
+        return;
+      }
+      if (cart.collect) {
+        const order: PreviewCollectOrder = {
+          customerName: details.name.trim(),
+          createdAt: new Date().toISOString(),
+          pickupAt: details.pickupAt,
+          note: details.note.trim() || null,
+          lines: cart.lines.map((line) => ({
+            name: line.name,
+            quantity: line.quantity,
+            amount: line.quantity * line.unitPrice,
+            details: line.optionSummary,
+          })),
+          total: cart.total,
+        };
+        try {
+          sessionStorage.setItem(previewOrderKey(cart.slug), JSON.stringify(order));
+        } catch {
+          // Stockage indisponible : le suivi d'aperçu le dira.
+        }
+        cart.clear();
+        leaveAfterSheet(`${collectHref(`demo/${cart.slug}`)}/suivi`);
         return;
       }
       if (!cart.fastFood) {
@@ -425,16 +464,6 @@ export function CartBar() {
       cart.clear();
       resetChoices();
       handOff(id);
-      return;
-    }
-    const pickupProblem = cart.collect
-      ? collectProblem(details, cart.collect.hours, pickupNotice(cart.lines))
-      : null;
-    if (pickupProblem) {
-      setState("error");
-      setError(pickupProblem);
-      // Sur téléphone, le formulaire de retrait est souvent sous le pli.
-      document.querySelector("[data-collect-fields]")?.scrollIntoView({ block: "start" });
       return;
     }
     setState("sending");
@@ -1208,7 +1237,9 @@ export function CartBar() {
                     )}
                     {/* Refusée pour un plat fermé : l'avis des lignes coupées le dit mieux. */}
                     {state === "error" && closedLines.length === 0 && (
-                      <p className="mb-3 text-sm text-ember-3">{error}</p>
+                      <p role="alert" className="mb-3 text-sm text-ember-3">
+                        {error}
+                      </p>
                     )}
                     {rewardsOnly && (
                       <p className="mb-3 text-pretty text-xs leading-relaxed text-muted">
@@ -1265,7 +1296,9 @@ export function CartBar() {
                             : "Envoyer la commande"
                           : cart.fastFood
                             ? "Aperçu\u00a0: voir le ticket"
-                            : "Aperçu\u00a0: voir la confirmation"
+                            : cart.collect
+                              ? "Aperçu\u00a0: voir le suivi"
+                              : "Aperçu\u00a0: voir la confirmation"
                         : state === "sending"
                           ? "Envoi…"
                           : cart.collect
