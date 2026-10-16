@@ -6724,6 +6724,396 @@ const cafePoulard: Restaurant = {
 };
 
 /*
+ * Le Petit Nice — le café-bar de la grande terrasse, 1 place Jean-Jaurès
+ * (Écusson, Montpellier). Aucune carte en ligne de leur main : la cuisine
+ * vient de l'ardoise de la terrasse, les formules et les boissons des
+ * feuillets et des cartes posés sur les tables (photos de clients, 2025 et
+ * août 2026). Tous les prix sont à confirmer avec le gérant ; ceux des tapas
+ * sont attribués dans l'ordre de lecture. Sources et questions :
+ * demos/le-petit-nice/profile.json.
+ */
+const PETIT_NICE_PHOTOS: Partial<Record<string, string>> = {};
+
+const petitNiceArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: PETIT_NICE_PHOTOS[id],
+  ...extra,
+});
+
+const petitNiceAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  petitNiceArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** L'ardoise : « Frites maison +1 € » avec les clubs, les croques et le CBO. */
+const PETIT_NICE_FRITES = groupeChoix("frites", "Supplément", [["Frites maison", 1]], { multiple: true });
+
+/** Les sodas du feuillet des boissons fraîches. */
+const PETIT_NICE_SODAS = [
+  "Pepsi",
+  "Pepsi Max",
+  "Lipton Ice Tea",
+  "Oasis Tropical",
+  "Orangina",
+  "Schweppes Tonic",
+  "Schweppes Agrumes",
+  "Schweppes Ginger Ale",
+];
+
+/** La formule étudiante : le plat, puis la boisson qui fixe le prix. */
+const petitNiceFormuleEtudiante = (id: string, name: string, description: string, price: number, boisson: OptionGroup[] = []) =>
+  petitNiceArticle(id, name, price, {
+    description,
+    options: [
+      groupeChoix("plat", "Plat", ["Burger CBO", "Croque Monsieur", "Tenders de poulet frites"], { obligatoire: true }),
+      ...boisson,
+      groupeChoix("frites", "Supplément", [["Portion de frites (CBO, croque)", 3]], { multiple: true }),
+    ],
+  });
+
+const lePetitNice: Restaurant = {
+  slug: "le-petit-nice",
+  name: "Le Petit Nice",
+  demoSuivi: true,
+  // Le logo dit déjà « café ■ bar » : l'accroche nomme la terrasse et sa place.
+  tagline: "Terrasse · Place Jean-Jaurès",
+  // Le mot-symbole de l'enseigne, redessiné d'après photo (Questrial, Poppins) :
+  // le fichier d'origine est à demander.
+  logo: "/le-petit-nice/logo.svg",
+  logoIsName: true,
+  footerLogo: "/le-petit-nice/logo-sarcelle.svg",
+  icons: { tab: "/le-petit-nice/favicon.png", homeScreen: "/le-petit-nice/icon.png" },
+  themeColor: "#0e7470",
+  address: "1 Place Jean Jaurès, 34000 Montpellier",
+  phone: "+33 4 67 57 83 56",
+  hours: "Tous les jours 8h–⁠1h",
+  placeId: "ChIJp7PriaevthIRy1ghMMJXEDw",
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJp7PriaevthIRy1ghMMJXEDw",
+  // Google et leur reel Instagram : « Tous les jours de 8h à 01h » ; le
+  // feuillet des tapas : « Happy Hour 18h-20h ».
+  highlights: ["Tous les jours, 8h–⁠1h", "Happy hour 18h–⁠20h"],
+  ticker: [
+    { text: "Happy hour de 18h à 20h", tone: "accent" },
+    { text: "Formule étudiante sur présentation de la carte étudiante", tone: "brand" },
+    { text: "Frites maison, nachos et guacamole maison" },
+  ],
+  categories: [
+    {
+      // La carte « Formule étudiante » des tables (août 2026).
+      id: "formule-etudiante",
+      name: "Formule étudiante",
+      tagline: "Sur présentation d'une carte étudiante",
+      items: [
+        petitNiceFormuleEtudiante(
+          "formule-etudiante-pinte",
+          "Formule étudiante + pinte",
+          "Burger CBO, Croque Monsieur ou Tenders de poulet frites, avec une pinte de bière (+18 ans)",
+          10
+        ),
+        petitNiceFormuleEtudiante(
+          "formule-etudiante-soft",
+          "Formule étudiante + soft",
+          "Burger CBO, Croque Monsieur ou Tenders de poulet frites, avec un soft",
+          8,
+          [groupeChoix("soft", "Soft", PETIT_NICE_SODAS, { obligatoire: true })]
+        ),
+      ],
+    },
+    {
+      id: "petit-dejeuner",
+      name: "Petit-déjeuner",
+      items: [
+        petitNiceArticle("petit-dejeuner", "Le petit déjeuner", 6.5, {
+          description:
+            "Une boisson chaude, un verre d'orange ou citron pressé, un croissant ou un pain au chocolat, ou deux tartines beurrées confiture de fraise",
+          options: [
+            groupeChoix(
+              "boisson",
+              "Boisson chaude",
+              ["Expresso", "Café allongé", "Café noisette", "Grand crème", "Thé", "Chocolat chaud"],
+              { obligatoire: true }
+            ),
+            groupeChoix("presse", "Pressé", ["Orange pressée", "Citron pressé"], { obligatoire: true }),
+            groupeChoix(
+              "viennoiserie",
+              "Au choix",
+              ["Croissant", "Pain au chocolat", "Deux tartines beurrées, confiture de fraise"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("viennoiserie", "Croissant ou pain au chocolat", 1.9, {
+          options: [groupeChoix("viennoiserie", "Au choix", ["Croissant", "Pain au chocolat"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      // L'ardoise accrochée à l'arbre de la terrasse.
+      id: "ardoise",
+      name: "À l'ardoise",
+      items: [
+        petitNiceArticle("plat-du-jour", "Plat du jour", 16, { description: "Demandez le plat du jour au serveur" }),
+        petitNiceArticle("dessert-du-jour", "Dessert du jour", 8, {
+          description: "Moelleux au chocolat, boule de vanille et crème anglaise",
+        }),
+      ],
+    },
+    {
+      id: "clubs-croques",
+      name: "Clubs, croques & burger",
+      items: [
+        petitNiceArticle("club-sandwich", "Club sandwich", 17, {
+          description: "Accompagné de sa salade",
+          options: [
+            groupeChoix(
+              "garniture",
+              "Garniture",
+              ["Jambon blanc", "Jambon cru", "Poulet bacon", "Thon", "Chorizo", "Bœuf mariné façon asiatique"],
+              { obligatoire: true }
+            ),
+            PETIT_NICE_FRITES,
+          ],
+        }),
+        petitNiceArticle("croque", "Nos croques", 17, {
+          printName: "Croque",
+          options: [
+            groupeChoix(
+              "croque",
+              "Croque",
+              ["Monsieur", "Madame", "Chèvre-tomate", "Petit-Nice", "Italien", "Chorizo"],
+              { obligatoire: true, prefixe: "Croque " }
+            ),
+            PETIT_NICE_FRITES,
+          ],
+        }),
+        petitNiceArticle("burger-cbo", "Burger CBO", 19, {
+          description: "Pain artisanal, salade, gouda, poulet pané, bacon, oignon, tomate, mayonnaise épicée",
+          options: [PETIT_NICE_FRITES],
+        }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades",
+      items: [
+        petitNiceArticle("salade-italienne", "Salade Italienne", 18, {
+          description: "Jambon cru, tomates confites, mozzarella",
+        }),
+        petitNiceArticle("salade-chevre-chaud", "Salade Chèvre chaud", 18, {
+          description: "Croustillants de chèvre, herbes de Provence",
+        }),
+        petitNiceArticle("salade-cesar", "Salade César", 18, {
+          description: "Poulet pané, copeaux de parmesan, œufs, croûtons",
+        }),
+        petitNiceArticle("salade-caprese", "Salade Caprese", 18),
+        petitNiceArticle("salade-thai", "Salade Thaï", 18),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Nos tapas",
+      items: [
+        petitNiceArticle("brie-roti", "Brie rôti au miel", 10, { detail: "200 g" }),
+        petitNiceArticle("saucisson", "Saucisson nature à partager", 10, { detail: "200 g" }),
+        petitNiceArticle("burratina", "Burratina et son jambon cru", 10),
+        petitNiceArticle("tenders", "Tenders de poulet pané", 9.5),
+        petitNiceArticle("nachos", "Nachos et guacamole maison", 9.5, { badges: ["maison"] }),
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      boissons: "chaudes",
+      items: [
+        petitNiceArticle("expresso", "Expresso", 2, { description: "Arabica-robusta" }),
+        petitNiceArticle("decafeine", "Décaféiné", 2.1, { description: "100 % arabica" }),
+        petitNiceArticle("cafe-allonge", "Café allongé", 2.1),
+        petitNiceArticle("cafe-noisette", "Café noisette", 2.1),
+        petitNiceArticle("cafe-double", "Café double", 4),
+        petitNiceArticle("cappuccino", "Cappuccino", 4.2),
+        petitNiceArticle("grand-creme", "Grand crème", 4.2),
+        petitNiceArticle("cafe-viennois", "Café viennois", 4.4),
+        petitNiceArticle("the", "Thé « Jardin d'Asie »", 4.2, {
+          options: [
+            groupeChoix(
+              "the",
+              "Thé ou infusion",
+              [
+                "Thé noir Ceylan",
+                "Thé noir Darjeeling",
+                "Thé noir Yunnan",
+                "Thé noir Earl Grey",
+                "Thé noir Fruits rouges",
+                "Thé noir Caramel",
+                "Thé noir Miel pain d'épices",
+                "Thé noir Citron",
+                "Thé noir Vanille",
+                "Thé vert Gunpowder",
+                "Thé vert Menthe",
+                "Thé vert Jasmin",
+                "Thé vert Agrume",
+                "Thé vert Pêche",
+                "Infusion Verveine",
+                "Infusion Tilleul",
+                "Infusion Verveine menthe",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("chocolat-chaud", "Chocolat chaud", 4.7),
+        petitNiceArticle("chocolat-caramel", "Chocolat caramel", 4.7),
+        petitNiceArticle("chocolat-cannelle", "Chocolat cannelle", 4.7),
+        petitNiceArticle("chocolat-noisette", "Chocolat noisette", 4.7),
+        petitNiceArticle("chocolat-viennois", "Chocolat viennois", 4.9),
+      ],
+    },
+    {
+      id: "cafes-alcoolises",
+      name: "Cafés alcoolisés",
+      tagline: "Chauds",
+      boissons: "chaudes",
+      items: [
+        petitNiceAlcool("irish-coffee", "Irish coffee", 12, { description: "Irish whisky, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("jamaican-coffee", "Jamaican coffee", 12, { description: "Rhum ambré, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("italian-coffee", "Italian coffee", 12, { description: "Amaretto, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("french-coffee", "French coffee", 12, { description: "Cognac, café, sucre de canne, chantilly" }),
+      ],
+    },
+    {
+      id: "thes-glaces",
+      name: "Thés glacés",
+      boissons: true,
+      items: [
+        petitNiceArticle("ginger-rasberry", "Ginger Rasberry", 7.5, {
+          description: "Gingembre frais, framboise, thé au jasmin, sucre de canne",
+        }),
+        petitNiceArticle("lime-mandarine", "Lime and Mandarine", 7.5, {
+          description: "Citron vert, mandarine, menthe fraîche, thé au jasmin, sucre de canne",
+        }),
+        petitNiceArticle("peached-iced-tea", "Peached iced tea", 7.5, {
+          description: "Purée de pêche, oranges fraîches, thé au jasmin",
+        }),
+      ],
+    },
+    {
+      // L'orthographe du feuillet : « Coktails ».
+      id: "cocktails-sans-alcool",
+      name: "Coktails sans alcool",
+      boissons: true,
+      items: [
+        petitNiceArticle("crazy-banana", "Crazy Banana", 7.5, { description: "Purée de banane, sirop de kiwi, jus d'ananas" }),
+        petitNiceArticle("pie-apple", "Pie-Apple", 7.5),
+        petitNiceArticle("fresh-passion", "Fresh Passion", 7.5, { description: "Purée de mandarine, sirop de passion, limonade" }),
+        petitNiceArticle("apple-berries", "Apple Berries", 7.5, {
+          description: "Purée de framboise, sirop de pomme verte, limonade",
+        }),
+        petitNiceArticle("passionnement", "Passionnément", 7.5, { description: "Purée de passion, sirop de vanille, limonade" }),
+        petitNiceArticle("tropical-soda", "Tropical Soda", 7.5, { description: "Purée de mangue, sirop de Pac, limonade" }),
+        petitNiceArticle("red-berries", "Red Berries", 7.5, {
+          description: "Purée de framboise, purée de fraise, jus de cranberry, sucre de canne",
+        }),
+        petitNiceArticle("mango-drop", "Mango Drop", 7.5, {
+          description: "Purée de mangue, purée de fraise, jus d'orange, sucre de canne",
+        }),
+        petitNiceArticle("coco-spirit", "Coco Spirit", 7.5, {
+          description: "Purée de coco, purée de mandarine, jus d'orange, sucre de canne",
+        }),
+        petitNiceArticle("exotique", "Exotique", 7.5, {
+          description: "Jus d'ananas, purée de mangue, purée de passion, fruit de la passion frais",
+        }),
+        petitNiceArticle("virgin", "Virgin Mojito / Virgin Colada", 7.5, {
+          options: [groupeChoix("virgin", "Au choix", ["Virgin Mojito", "Virgin Colada"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "boissons-fraiches",
+      name: "Boissons fraîches",
+      boissons: true,
+      items: [
+        petitNiceArticle("soda", "Sodas", 4.1, {
+          options: [groupeChoix("soda", "Soda", PETIT_NICE_SODAS, { obligatoire: true })],
+        }),
+        petitNiceArticle("nectar", "Nectars & jus", 4.3, {
+          detail: "20 cl",
+          options: [
+            groupeChoix(
+              "jus",
+              "Parfum",
+              ["Orange", "Ananas", "Pamplemousse", "Tomate", "Pomme", "Abricot", "ACE", "Fraise & fruits", "Fruit du dragon"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("fruits-presses", "Fruits pressés", 4.7, {
+          options: [groupeChoix("fruit", "Fruit", ["Orange", "Citron", "Orange & citron"], { obligatoire: true })],
+        }),
+        petitNiceArticle("smoothie", "Smoothies", 7.5, {
+          options: [
+            groupeChoix(
+              "smoothie",
+              "Smoothie",
+              ["Pêche", "Mangue", "Banane & fraise", "Framboise & fraise", "Mandarine, pêche & menthe", "Mangue & banane"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        articleFormats(
+          "sirop",
+          "Sirop à l'eau",
+          [
+            ["25 cl", 3.7],
+            ["50 cl", 4],
+          ],
+          {
+            options: [
+              groupeChoix(
+                "sirop",
+                "Sirop",
+                [
+                  "Fraise",
+                  "Grenadine",
+                  "Menthe",
+                  "Cassis",
+                  "Orgeat",
+                  "Violette",
+                  "Caramel",
+                  "Pomme",
+                  "Gambetta",
+                  "Cerise",
+                  "Kiwi",
+                  "Passion",
+                  "Framboise",
+                  "Pêche",
+                  "Pac",
+                ],
+                { obligatoire: true }
+              ),
+            ],
+          }
+        ),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        petitNiceAlcool("pinte-paulaner", "Pinte Paulaner pression", 7),
+        petitNiceAlcool("la-bartavelle", "La Bartavelle", 5, {
+          description: "Bière artisanale, brassée localement",
+          detail: "33 cl",
+          options: [
+            groupeChoix("biere", "Bière", ["Blonde", "Triple", "IPA", "Blanche", "Brune", "Rousse"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+  ],
+};
+
+/*
  * Café Riche — brasserie historique, 8 place de la Comédie (Montpellier),
  * depuis 1893 ; « Le Grand Café Riche » sur son site. Aucun document remis :
  * la carte est celle de leur site (caferiche-montpellier.com, pages « La
@@ -7716,6 +8106,7 @@ const restaurants: Record<string, Restaurant> = {
   [brasserieLaissac.slug]: brasserieLaissac,
   [cafeRiche.slug]: cafeRiche,
   [cafePoulard.slug]: cafePoulard,
+  [lePetitNice.slug]: lePetitNice,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -7737,6 +8128,7 @@ const themeClasses: Record<string, string> = {
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
+  [lePetitNice.slug]: "theme-le-petit-nice",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

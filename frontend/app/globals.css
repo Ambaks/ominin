@@ -5733,8 +5733,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 
 /*
   Les adresses de l'Écusson (Montpellier) — Le Novelty, Le Victoria,
-  Café des Arts, Caffè Panis, et la Brasserie Laissac, à sa lisière. Chaque
-  thème est tiré de leur identité (site, logo, enseigne :
+  Café des Arts, Caffè Panis, Le Petit Nice, et la Brasserie Laissac, à sa
+  lisière. Chaque thème est tiré de leur identité (site, logo, enseigne :
   demos/<slug>/profile.json).
 
   Leurs cartes sont surtout faites de lignes sans photo (boissons, plats en
@@ -5749,7 +5749,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="le-victoria"],
     [data-slug="cafe-des-arts"],
     [data-slug="caffe-panis"],
-    [data-slug="brasserie-laissac"]
+    [data-slug="brasserie-laissac"],
+    [data-slug="le-petit-nice"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
@@ -5973,7 +5974,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) .rail-progress {
   display: none;
 }
 
@@ -5984,7 +5985,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="le-victoria"],
     [data-slug="cafe-des-arts"],
     [data-slug="caffe-panis"],
-    [data-slug="brasserie-laissac"]
+    [data-slug="brasserie-laissac"],
+    [data-slug="le-petit-nice"]
   ) > header.logo-hero {
   min-height: 50svh;
 }
@@ -6000,7 +6002,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"],
-      [data-slug="brasserie-laissac"]
+      [data-slug="brasserie-laissac"],
+      [data-slug="le-petit-nice"]
     )
     .dish-grid {
     display: flex;
@@ -6013,7 +6016,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"],
-      [data-slug="brasserie-laissac"]
+      [data-slug="brasserie-laissac"],
+      [data-slug="le-petit-nice"]
     )
     .dish-grid
     > article:has(.dish-photo) {
@@ -6044,7 +6048,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"],
-      [data-slug="brasserie-laissac"]
+      [data-slug="brasserie-laissac"],
+      [data-slug="le-petit-nice"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
        laissait 600 px de vide de chaque côté à 1 920, et un prix filait à
@@ -6147,7 +6152,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="le-victoria"],
           [data-slug="cafe-des-arts"],
           [data-slug="caffe-panis"],
-          [data-slug="brasserie-laissac"]
+          [data-slug="brasserie-laissac"],
+          [data-slug="le-petit-nice"]
         )
     ) {
     & > header.logo-hero {
@@ -8070,6 +8076,317 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
 }
 
 /*
+  Le Petit Nice (1 place Jean-Jaurès) — le café-bar de la grande terrasse de
+  l'Écusson. Son identité est celle de la terrasse : la toile crème des
+  parasols, la toile sarcelle des fauteuils de metteur en scène, le bois
+  verni de leurs montants ; et le mot-symbole en bas de casse, une
+  géométrique Century Gothic, « le petit » suivi de trois carrés rose, ocre
+  et lilas, puis dessous trois autres, l'étiquette « café ■ bar » et
+  « nice » (l'enseigne du store). Trois dispositifs
+  repris : le dossier sarcelle lettré de crème pour le haut de page, les
+  trois carrés après chaque titre de section, la toile sarcelle des
+  pastilles et du pied de page.
+*/
+.theme-le-petit-nice {
+  /* La toile des fauteuils, mesurée sur photo (#188d92 au soleil, #138683 à
+     l'ombre), assombrie pour que la crème y tienne 5:1 ; la sarcelle
+     profonde tient 6,6:1 sur la toile crème, pour les petits textes. */
+  --pn-sarcelle: #0e7470;
+  --pn-sarcelle-profonde: #0b5e5b;
+  --pn-creme: #f4efe3;
+  /* Les carrés de l'enseigne, ravivés : le soleil les a pâlis (#ccaeb1,
+     #cca389, #caa2d4). */
+  --pn-rose: #d77a87;
+  --pn-ocre: #d6913f;
+  --pn-lilas: #a479c9;
+  --pn-carres: linear-gradient(90deg, var(--pn-rose) 0 26%, transparent 26% 37%, var(--pn-ocre) 37% 63%, transparent 63% 74%, var(--pn-lilas) 74%);
+  --pn-bois: #7c5530;
+
+  --background: var(--pn-creme);
+  --foreground: #1d2b2a;
+
+  --surface: #faf7ef;
+  --surface-raised: #ffffff;
+  --hairline: rgba(14, 116, 112, 0.18);
+
+  --muted: #4a5654;
+  --faint: #56615f;
+
+  /* L'encre des boutons est la crème du fond : la sarcelle y tient 5:1. */
+  --ember-1: var(--pn-sarcelle);
+  --ember-2: var(--pn-sarcelle);
+  --ember-3: var(--pn-sarcelle-profonde);
+
+  --shimmer-highlight: rgba(14, 116, 112, 0.1);
+  --glow-inner: rgba(14, 116, 112, 0.06);
+  --glow-outer: rgba(14, 116, 112, 0.04);
+
+  /* Questrial, la géométrique du mot-symbole, pour les titres en bas de
+     casse ; DM Sans pour les plats et les prix, en gras. */
+  --brand-display: var(--font-questrial), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-le-petit-nice),
+html:has([data-menu-root].theme-le-petit-nice) body {
+  background-color: #f4efe3;
+}
+
+.theme-le-petit-nice :focus-visible {
+  outline: 2px solid var(--pn-sarcelle);
+  outline-offset: 3px;
+}
+
+/* La toile à plat, sans dégradé. */
+.theme-le-petit-nice .ember-gradient {
+  background-image: none;
+  background-color: var(--pn-sarcelle);
+}
+
+.theme-le-petit-nice .ember-text {
+  background-image: none;
+  color: var(--pn-sarcelle-profonde);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Questrial n'a qu'une graisse : le font-medium commun la grossirait. */
+.theme-le-petit-nice .font-display {
+  font-weight: 400;
+}
+
+/*
+  Le haut de page : le dossier d'un fauteuil de la terrasse, la toile
+  sarcelle lettrée de crème, tendue entre deux montants de bois.
+*/
+[data-menu-root].theme-le-petit-nice > header.logo-hero {
+  color: var(--pn-creme);
+  border-block: 0.5rem solid var(--pn-bois);
+
+  & > :first-child {
+    background-color: var(--pn-sarcelle);
+    /* Le grain de la toile, un tissage à peine visible. */
+    background-image:
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(0 0 0 / 0.035) 0 1px, transparent 1px 3px);
+  }
+
+  & > :nth-child(2),
+  & > :nth-child(3),
+  & :is(.hero-gradient-drift, .logo-breathe, .ember-particle) {
+    display: none;
+  }
+
+  & .hero-cue {
+    color: rgb(244 239 227 / 0.85);
+  }
+}
+
+.theme-le-petit-nice .hero-logo {
+  margin-bottom: 0;
+}
+
+.theme-le-petit-nice .hero-logo img {
+  width: min(78vw, 22rem);
+  height: auto;
+}
+
+.theme-le-petit-nice .hero-tagline {
+  margin-top: 1.75rem;
+  color: var(--pn-creme);
+  font-family: var(--brand-display);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-transform: lowercase;
+  letter-spacing: 0.2em;
+}
+
+.theme-le-petit-nice .hero-tagline .tagline-sep {
+  color: #c39be0;
+}
+
+[data-menu-root].theme-le-petit-nice .hero-rule {
+  display: none;
+}
+
+/* Les pastilles d'adresse, crème sur la toile. */
+[data-menu-root].theme-le-petit-nice .hero-contact a {
+  border-color: rgb(244 239 227 / 0.35);
+  /* Un ton plus profond que la toile : la crème y tient 5,5:1. */
+  background-color: color-mix(in srgb, var(--pn-sarcelle-profonde) 60%, transparent);
+  color: var(--pn-creme);
+  backdrop-filter: none;
+
+  &:hover {
+    border-color: var(--pn-creme);
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-le-petit-nice .hero-logo img {
+    width: 26rem;
+  }
+}
+
+/* Les arguments en bas de casse, séparés des trois carrés. */
+.theme-le-petit-nice .menu-highlights {
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  background-color: var(--surface);
+}
+
+.theme-le-petit-nice .menu-highlights li {
+  color: var(--pn-sarcelle-profonde);
+  font-size: 1.0625rem;
+  text-transform: lowercase;
+}
+
+@media (min-width: 40rem) {
+  .theme-le-petit-nice .menu-highlights li + li::before {
+    content: "";
+    display: inline-block;
+    width: 1.5rem;
+    height: 0.375rem;
+    margin-inline: -2.75rem 1.25rem;
+    vertical-align: 0.2em;
+    background: var(--pn-carres);
+  }
+}
+
+/* Les titres en bas de casse, comme le mot-symbole, suivis de ses trois
+   carrés. */
+[data-menu-root].theme-le-petit-nice .category-heading {
+  color: var(--pn-sarcelle-profonde);
+  text-transform: lowercase;
+  letter-spacing: -0.01em;
+
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 0.66em;
+    height: 0.18em;
+    margin-left: 0.3em;
+    vertical-align: 0.42em;
+    background: var(--pn-carres);
+  }
+}
+
+[data-menu-root].theme-le-petit-nice .category-rule {
+  height: 1px;
+  background: var(--pn-sarcelle);
+  opacity: 0.3;
+}
+
+/* Les pastilles de catégorie : la toile sarcelle, angles à peine adoucis. */
+[data-menu-root].theme-le-petit-nice nav [data-category] {
+  border-radius: 0.25rem;
+  border-color: color-mix(in srgb, var(--pn-sarcelle) 35%, transparent);
+  color: var(--pn-sarcelle-profonde);
+  font-family: var(--brand-display);
+  text-transform: lowercase;
+
+  &[aria-current] {
+    border-color: transparent;
+    color: var(--pn-creme);
+    box-shadow: none;
+  }
+}
+
+[data-menu-root].theme-le-petit-nice .dish-head > h3 {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+.theme-le-petit-nice .dish-price {
+  color: var(--pn-sarcelle-profonde);
+  font-family: var(--brand-sans);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-le-petit-nice .dish-detail {
+  border-color: color-mix(in srgb, var(--pn-sarcelle) 40%, transparent);
+  color: var(--pn-sarcelle-profonde);
+}
+
+.theme-le-petit-nice .dish-grid > article {
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(29 43 42 / 0.06);
+}
+
+[data-menu-root].theme-le-petit-nice .dish-photo-fade {
+  display: none;
+}
+
+.theme-le-petit-nice .choice-row.is-checked {
+  border-color: var(--pn-sarcelle);
+}
+
+[data-menu-root].theme-le-petit-nice [role="dialog"] h3 {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+[data-menu-root].theme-le-petit-nice [role="dialog"] legend {
+  color: var(--pn-sarcelle-profonde);
+}
+
+[data-menu-root].theme-le-petit-nice .cart-count {
+  background-color: var(--pn-creme);
+  color: var(--pn-sarcelle-profonde);
+  box-shadow: 0 0 0 1px var(--pn-sarcelle);
+}
+
+/* Le pied de page : un montant de bois, puis la toile crème. */
+.theme-le-petit-nice > footer {
+  border-top: 0.5rem solid var(--pn-bois);
+}
+
+.theme-le-petit-nice .footer-phone {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+.theme-le-petit-nice .serve-box-title {
+  color: var(--pn-sarcelle-profonde);
+}
+
+.theme-le-petit-nice .serve-box-mark {
+  border-color: var(--pn-ocre);
+}
+
+/* Le dossier se tend au chargement, puis le mot-symbole se pose. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root].theme-le-petit-nice > header.logo-hero > :first-child {
+    animation: pn-toile 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .theme-le-petit-nice .hero-logo {
+    animation: pn-mot 0.8s cubic-bezier(0.32, 0.72, 0, 1) 0.2s both;
+  }
+}
+
+@keyframes pn-toile {
+  from {
+    transform: scaleY(0.92);
+  }
+}
+
+@keyframes pn-mot {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
   Café Riche (8 place de la Comédie) — brasserie historique depuis 1893.
   L'identité de son auvent, de son logo et de son site : la toile crème de
   l'auvent, le bleu marine et le laiton du mot « RiCHE » (le laiton cerné de
@@ -8510,7 +8827,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -8533,7 +8850,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -8605,7 +8922,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -8626,7 +8943,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -8652,7 +8969,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -9371,7 +9688,8 @@ html:has([data-menu-root].theme-cafe-riche) body {
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
       [data-slug="caffe-panis"],
-      [data-slug="brasserie-laissac"]
+      [data-slug="brasserie-laissac"],
+      [data-slug="le-petit-nice"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
   }
@@ -9572,7 +9890,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
