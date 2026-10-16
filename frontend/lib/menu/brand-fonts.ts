@@ -15,6 +15,7 @@ import {
   Josefin_Sans,
   Noto_Serif_Display,
   Playball,
+  Playfair_Display,
   Poppins,
   Questrial,
   Source_Serif_4,
@@ -165,6 +166,18 @@ const josefinSans = Josefin_Sans({
 });
 
 /**
+ * Café Riche — les titres et les prix de son site (caferiche-montpellier.com)
+ * sont en Playfair Display ; le texte reprend DM Sans (Baï-Kō), les capitales
+ * espacées Josefin Sans, proches du « CAFÉ » de son logo.
+ */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
  * Café des Arts — titres, noms et prix : la géométrique Century Gothic de son
  * mot-symbole, sans les approches larges de Didact Gothic, qui doublaient
  * l'espace avant une capitale.
@@ -264,6 +277,7 @@ export const brandFontVariables = [
   sourceSerif4,
   cormorantGaramond,
   josefinSans,
+  playfairDisplay,
   questrial,
   frauncesSoft,
   bodoniModa,
