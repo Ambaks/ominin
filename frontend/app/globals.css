@@ -8391,8 +8391,9 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   L'identité de son auvent, de son logo et de son site : la toile crème de
   l'auvent, le bleu marine et le laiton du mot « RiCHE » (le laiton cerné de
   bleu), le velours bleu et les arceaux de laiton de la salle. Titres et prix
-  en Playfair Display, comme sur leur site ; le texte en DM Sans ; les
-  capitales espacées en Josefin Sans, proches du « CAFÉ » du logo. Trois
+  en Playfair Display, comme sur leur site ; le texte et les capitales
+  espacées en DM Sans, géométrique comme le « CAFÉ » du logo, aux chiffres
+  alignés. Trois
   dispositifs repris : le cadre Art déco de l'auvent, filet bleu et éventails
   aux quatre coins, autour du logo ; le bandeau sombre au-dessus de l'auvent
   (« le Café 1893 · BAR BRASSERIE ») pour les annonces ; le filet de laiton et
@@ -8431,7 +8432,6 @@ html:has([data-menu-root].theme-le-petit-nice) body {
 
   --brand-display: var(--font-playfair-display), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
-  --cr-capitales: var(--font-josefin-sans), var(--brand-sans);
   font-family: var(--brand-sans);
 
   color-scheme: light;
@@ -8475,7 +8475,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 .theme-cafe-riche .menu-ticker-item {
-  font-family: var(--cr-capitales);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -8488,7 +8487,8 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
 /*
   Le haut de page : l'auvent. L'aquarelle de leur façade (la couverture de
-  leur site) en bandeau, fondue dans la crème ; le logo dans le cadre de la
+  leur site) en bandeau, coupée sous les lettres de l'auvent — les parasols
+  et la terrasse seuls —, fondue dans la crème ; le logo dans le cadre de la
   toile — un filet bleu, un éventail à chaque coin — qui la chevauche.
 */
 [data-menu-root].theme-cafe-riche > header.logo-hero {
@@ -8502,7 +8502,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
     height: var(--cr-bandeau);
     background:
       linear-gradient(to bottom, transparent 55%, var(--cr-creme)),
-      url("/cafe-riche/auvent-aquarelle.jpg") center 35% / cover no-repeat;
+      url("/cafe-riche/auvent-aquarelle.jpg") center / cover no-repeat;
   }
 
   & > :nth-child(2),
@@ -8542,7 +8542,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
 .theme-cafe-riche .hero-tagline {
   margin-top: 1.75rem;
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
   font-weight: 600;
   letter-spacing: 0.28em;
 }
@@ -8578,13 +8577,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
   [data-menu-root].theme-cafe-riche > header.logo-hero {
     --cr-bandeau: 19rem;
     padding-block: calc(var(--cr-bandeau) - 4rem) 2rem;
-
-    /* Plus large que haute, l'aquarelle se rogne : calée sur la terrasse,
-       sans le mot « RiCHE » de l'auvent tranché sous le bandeau ; le logo
-       est juste dessous. */
-    & > :first-child {
-      background-position: center, center bottom;
-    }
   }
 
   .theme-cafe-riche .hero-logo {
@@ -8639,13 +8631,17 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
 .theme-cafe-riche .menu-highlights li {
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
+  /* En capitales de texte, comme le bandeau et les pastilles : le gabarit
+     les compose dans la police de titrage. */
+  font-family: var(--brand-sans);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.16em;
 }
 
-@media (min-width: 40rem) {
+/* Le losange entre deux arguments, au bureau seulement, où ils tiennent sur
+   une ligne : à la ligne, il ouvrait la seconde. */
+@media (min-width: 64rem) {
   .theme-cafe-riche .menu-highlights li + li::before {
     content: "◆";
     margin-inline: -2.25rem 1.5rem;
@@ -8674,8 +8670,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   border-radius: 0.125rem;
   border-color: color-mix(in srgb, var(--cr-bleu) 35%, transparent);
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -8717,7 +8712,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
 .theme-cafe-riche .category-tagline {
   color: var(--cr-laiton-sombre);
   font-style: normal;
-  font-family: var(--cr-capitales);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -8741,16 +8735,48 @@ html:has([data-menu-root].theme-cafe-riche) body {
   box-shadow: 0 1px 2px rgb(15 42 80 / 0.05);
 }
 
+/* Les prix des formats, un par ligne (richeFormats). */
+.theme-cafe-riche .dish-tarifs {
+  white-space: pre-line;
+}
+
+/* Une description sur plusieurs lignes (la boisson au choix, puis le reste ;
+   la description, puis les prix des formats) : un écart les sépare, sans
+   quoi la seconde se lisait comme la suite de la première. */
+.theme-cafe-riche .dish-lines li + li {
+  margin-top: 0.375rem;
+}
+
 /* La photo nette jusqu'à son bord : le voile crème la délavait. */
 [data-menu-root].theme-cafe-riche .dish-photo-fade {
   display: none;
 }
 
-/* Au bureau, une fiche sans photo à côté d'une fiche à photo garde sa
-   hauteur : étirée, elle n'était qu'un cadre vide. */
+/* Au bureau, deux colonnes de lecture, comme sur une carte de brasserie :
+   chaque fiche garde sa hauteur — plus de case vide à côté d'une fiche à
+   photo — et le prix se lit sous le nom, fiche à photo ou non. */
 @media (min-width: 64rem) {
-  [data-menu-root].theme-cafe-riche .dish-grid > article:not(:has(.dish-photo)) {
-    align-self: start;
+  [data-menu-root].theme-cafe-riche .dish-grid {
+    display: block;
+    columns: 2;
+    column-gap: 1.25rem;
+
+    & > article {
+      break-inside: avoid;
+      margin-bottom: 1.25rem;
+    }
+
+    & > article .dish-head {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    /* La photo à la hauteur d'une fiche courte : à 13rem, un nom et un prix
+       laissaient la fiche aux trois cinquièmes vide, et les colonnes
+       finissaient à 200 px l'une de l'autre. */
+    & > article:has(.dish-photo) .dish-photo {
+      min-height: 9rem;
+    }
   }
 }
 
@@ -8768,15 +8794,14 @@ html:has([data-menu-root].theme-cafe-riche) body {
 /* La feuille d'options : le plat en Playfair, les groupes en capitales. */
 [data-menu-root].theme-cafe-riche [role="dialog"] legend {
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 
   & > span {
-    font-family: var(--brand-sans);
     text-transform: none;
     letter-spacing: normal;
+    white-space: nowrap;
   }
 }
 
