@@ -327,7 +327,7 @@ export const products: Product[] = [
 /*
  * Le manifeste : notre histoire, telle qu'elle sera dite dans la vidéo. Il
  * remplace la section « approche » — le portail dit d'abord pourquoi Ominin
- * existe. Une ligne par entrée, allumée quand elle passe la ligne de
+ * existe. Une ligne par entrée, avec sa photo, allumée quand elle passe la ligne de
  * lecture ; « turn » marque le basculement, la signature referme le texte.
  */
 export const manifesto = {
@@ -338,11 +338,19 @@ export const manifesto = {
         fr: "Une machine peut calculer, répondre, prévoir, produire.",
         en: "A machine can calculate, answer, forecast, produce.",
       },
+      photo: {
+        src: unsplash("photo-1712238107639-46803a6c3886", 1200),
+        alt: { fr: "Bras robotisé industriel dans une salle d'essai sombre", en: "Industrial robot arm in a dark test chamber" },
+      },
     },
     {
       text: {
         fr: "Elle ne peut pas s'asseoir en face de quelqu'un et le comprendre sans un mot.",
         en: "It cannot sit across from someone and understand them without a word.",
+      },
+      photo: {
+        src: unsplash("photo-1693913177577-6ea5604551f7", 1200),
+        alt: { fr: "Deux personnes face à face à une terrasse de café, le soir", en: "Two people face to face at a café table at night" },
       },
     },
     {
@@ -350,18 +358,37 @@ export const manifesto = {
         fr: "Elle ne peut pas avoir peur, espérer, aimer.",
         en: "It cannot fear, hope, love.",
       },
+      photo: {
+        src: pexels("10638718/pexels-photo-10638718.jpeg", 1200),
+        alt: { fr: "Deux mains qui se tendent l'une vers l'autre", en: "Two hands reaching for each other" },
+      },
     },
     {
       text: {
         fr: "Elle ne peut pas laisser sa main sur une paroi pour dire j'ai existé.",
         en: "It cannot leave its hand on a cave wall to say: I existed.",
       },
+      photo: {
+        src: unsplash("photo-1791461787539-8faa9ba7fdfa", 1200),
+        alt: { fr: "Mains préhistoriques peintes sur la roche, Cueva de las Manos", en: "Prehistoric hand stencils on rock, Cueva de las Manos" },
+      },
     },
-    { text: { fr: "Ça, c'est à nous.", en: "That is ours." }, turn: true },
+    {
+      text: { fr: "Ça, c'est à nous.", en: "That is ours." },
+      turn: true,
+      photo: {
+        src: unsplash("photo-1596860899920-c3fe864485d9", 1200),
+        alt: { fr: "Feu de camp dans la nuit, gerbe d'étincelles", en: "Campfire at night, a burst of sparks" },
+      },
+    },
     {
       text: {
         fr: "Nous sommes Ominin. Le nom de notre lignée, avec une lettre en moins.",
         en: "We are Ominin. The name of our lineage, minus one letter.",
+      },
+      photo: {
+        src: unsplash("photo-1733768296211-17e2233b3630", 1200),
+        alt: { fr: "Crâne fossile d'un ancêtre de l'homme", en: "Fossil skull of a human ancestor" },
       },
     },
     {
@@ -369,11 +396,19 @@ export const manifesto = {
         fr: "Pour ne jamais oublier d'où l'on vient, ni ce qui nous rend humains.",
         en: "So we never forget where we come from, or what makes us human.",
       },
+      photo: {
+        src: unsplash("photo-1534768654272-e97681c3a2c7", 1200),
+        alt: { fr: "Main d'un bébé posée sur une main âgée", en: "A baby's hand resting on an old hand" },
+      },
     },
     {
       text: {
         fr: "Que l'intelligence artificielle prenne le poids. Que l'humain garde le sens.",
         en: "Let artificial intelligence carry the weight. Let humans keep the meaning.",
+      },
+      photo: {
+        src: unsplash("photo-1663530761401-15eefb544889", 1200),
+        alt: { fr: "Un chef nappe une assiette de sauce", en: "A chef spooning sauce over a plate" },
       },
     },
   ],
