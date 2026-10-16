@@ -377,8 +377,8 @@ export const manifesto = {
       text: { fr: "Ça, c'est à nous.", en: "That is ours." },
       turn: true,
       photo: {
-        src: unsplash("photo-1596860899920-c3fe864485d9", 1200),
-        alt: { fr: "Feu de camp dans la nuit, gerbe d'étincelles", en: "Campfire at night, a burst of sparks" },
+        src: "/portal/silex-etincelles.webp",
+        alt: { fr: "Deux mains frappent une pierre et font jaillir des étincelles", en: "Two hands striking a stone, sending out sparks" },
       },
     },
     {
@@ -407,8 +407,8 @@ export const manifesto = {
         en: "Let artificial intelligence carry the weight. Let humans keep the meaning.",
       },
       photo: {
-        src: unsplash("photo-1663530761401-15eefb544889", 1200),
-        alt: { fr: "Un chef nappe une assiette de sauce", en: "A chef spooning sauce over a plate" },
+        src: "/portal/grotte-ominin.webp",
+        alt: { fr: "Le logo d'Ominin peint à l'ocre sur une paroi", en: "The Ominin logo painted in ochre on a rock wall" },
       },
     },
   ],
