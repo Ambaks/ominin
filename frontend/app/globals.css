@@ -8184,7 +8184,7 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   }
 
   & .hero-cue {
-    color: rgb(244 239 227 / 0.85);
+    color: var(--pn-creme);
   }
 }
 
@@ -8228,7 +8228,13 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   }
 }
 
+/* Au bureau, la toile se tend juste autour du mot-symbole : la moitié de
+   l'écran (règle commune de l'Écusson) laissait 400 px de sarcelle vide. */
 @media (min-width: 64rem) {
+  [data-menu-root].theme-le-petit-nice > header.logo-hero {
+    min-height: 0;
+  }
+
   .theme-le-petit-nice .hero-logo img {
     width: 26rem;
   }
@@ -8349,17 +8355,66 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   display: none;
 }
 
-/* Dès la tablette, la photo en vignette à gauche plutôt qu'en demi-fiche :
-   la plupart des fiches n'ont qu'un nom et un prix, une photo haute de
-   13rem laissait un grand vide sous eux et étirait la fiche voisine sans
-   photo. */
-@media (min-width: 48rem) {
-  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-photo) {
-    grid-template-columns: 8.5rem minmax(0, 1fr);
+/* Au téléphone, les sections faites surtout de lignes sans photo gardent
+   leurs rares photos en vignette : pleine largeur, une photo de 330 px
+   coupait une liste de lignes de 60 px. */
+@media (max-width: 47.99rem) {
+  [data-menu-root].theme-le-petit-nice
+    :is(#salades, #boissons-chaudes, #cafes-alcoolises, #boissons-fraiches)
+    .dish-grid
+    > article:has(.dish-photo) {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
 
     & .dish-photo {
-      min-height: 7.5rem;
+      aspect-ratio: auto;
+      min-height: 4rem;
     }
+  }
+}
+
+/* Dès la tablette, la photo en vignette à gauche, haute comme le texte de
+   sa fiche : la plupart des fiches n'ont qu'un nom et un prix, une photo
+   haute de 13rem laissait un grand vide sous eux et étirait la fiche
+   voisine sans photo. Au bureau, le nom et le prix restent sur une ligne,
+   comme dans les fiches sans photo : les deux fiches d'une rangée ont la
+   même hauteur. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+
+    & .dish-photo {
+      min-height: 4rem;
+    }
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-photo) .dish-head {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* Sur grand écran, les noms ont la place : la vignette s'élargit pour que
+   le plat se lise. */
+@media (min-width: 80rem) {
+  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+  }
+}
+
+/* Le « + » face à la première ligne du nom, comme le prix : centré sur un
+   nom de deux lignes, il descendait sous lui. Le bouton (2,75rem) déborde
+   la ligne (1,3 fois le corps du nom) d'autant en haut qu'en bas. */
+[data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-action > button) .dish-action {
+  align-self: start;
+  margin-block: calc((var(--row-name-size, 1.0625rem) * 1.3 - 2.75rem) / 2);
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-action > button) .dish-action {
+    margin-block: calc((var(--row-name-size-lg, 1.25rem) * 1.3 - 2.75rem) / 2);
   }
 }
 
