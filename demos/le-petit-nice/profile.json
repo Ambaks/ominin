@@ -1,0 +1,118 @@
+{
+  "slug": "le-petit-nice",
+  "name": "Le Petit Nice",
+  "tagline": "Terrasse · Place Jean-Jaurès",
+  "status": "prospect",
+  "demo": {
+    "url_locale": "http://localhost:5500/menu/demo/le-petit-nice",
+    "url_production": "https://menu.ominin.com/demo/le-petit-nice",
+    "perimetre": "Carte QR seule, aux couleurs de l'enseigne, avec le paiement simulé et le suivi jusqu'au « Bon appétit ! » (demoSuivi). Ni version Ominin, ni click & collect (demande de l'utilisateur, 2026-10-16 : « only the customer-facing page », démo simple), cible 8/10."
+  },
+  "cuisine": "Café-bar à grande terrasse : petit-déjeuner, cafés, plat et dessert du jour, clubs, croques, burger, salades, tapas, cocktails sans alcool, thés glacés, bières ; formule étudiante et happy hour.",
+  "address": "1 Place Jean Jaurès, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 4 67 57 83 56",
+  "hours": "Tous les jours, 8h–1h (Google, Apple Plans, reel Instagram du 2026-06-30). reserverunbar.fr et TripAdvisor disent 10h–22h : sans doute périmé. Happy hour 18h–20h (feuillet des tapas, 2025).",
+  "website": "Aucun. La fiche Google n'a pas de site ; l'ancienne page Google (lepetitnice.business.site) renvoie 404.",
+  "socials": {
+    "instagram": "https://www.instagram.com/lepetitnicemontpellier/ (probable : cité par la page Facebook et check.fr, filigrane d'une photo de la terrasse ; bio derrière la connexion)",
+    "tiktok": "@lepetitnicemontpellier (candidat, 2 abonnés, non vérifié)",
+    "facebook": "https://www.facebook.com/lepetitnicemontpellier/ (vérifié : 1 539 abonnés, 12 677 visites)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "https://www.google.com/maps?cid=4328055733445810379 (place_id ChIJp7PriaevthIRy1ghMMJXEDw), « Bar », 4,2★ sur 1 851 avis, sans doute non revendiquée"
+  },
+  "legal": {
+    "raison_sociale": "VEYRAN (probable, non confirmé : aucun établissement n'a l'enseigne « Le Petit Nice » au répertoire aujourd'hui)",
+    "forme": "SAS",
+    "siren": "438 388 084",
+    "siret": "43838808400024 (siège, 1 place Jean Jaurès)",
+    "naf": "56.30Z (débit de boissons)",
+    "president": "C.G.HOLDING (412 028 789, Agde), représentée par Ariel Marie-Noëlle Cammarata (BODACC 2025-03-31) ; directeur général Thomas Cammarata",
+    "creation": "2001-07-02",
+    "debut_activite": "2011-08-03 à cette adresse",
+    "source": "recherche-entreprises.api.gouv.fr et BODACC (2026-10-16). DOUBLE V SARL (491 308 714) a exploité l'enseigne « LE PETIT NICE » au 1 place Jean Jaurès de 2006 à 2011. Aucune cession de fonds de bar à cette adresse au BODACC depuis 2008 : le matériel en ligne depuis 2011 est sans doute celui de l'exploitant actuel. CA 2024 : 1 669 129 €, 20 à 49 salariés."
+  },
+  "design": {
+    "primary_color": "#0e7470",
+    "secondary_color": "#f4efe3",
+    "accent_color": "#d6913f",
+    "style_notes": "Pas de logo fourni : le mot-symbole est redessiné d'après la photo de l'enseigne du store (docs/identite/enseigne-store.jpg) — « le petit » en bas de casse dans une géométrique Century Gothic (Questrial), trois carrés rose, ocre, lilas ; dessous trois carrés lilas, ocre, rose, l'étiquette « café ■ bar » (Poppins SemiBold) et « nice ». Script : design/mot-symbole.py ; fichiers frontend/public/le-petit-nice/logo.svg (crème, pour la toile sarcelle) et logo-sarcelle.svg (pour le pied de page crème). À remplacer par le fichier d'origine. Palette tirée de la terrasse, mesurée sur photo : la toile des fauteuils (#188d92 au soleil, #138683 à l'ombre) assombrie en #0e7470 pour que la crème y tienne 5:1, sarcelle profonde #0b5e5b pour les petits textes (6,6:1 sur la crème), toile crème des parasols #f4efe3, bois verni des montants #7c5530 ; les carrés de l'enseigne, pâlis par le soleil (#ccaeb1, #cca389, #caa2d4), ravivés en #d77a87, #d6913f, #a479c9. Dispositifs : le haut de page est le dossier d'un fauteuil (toile sarcelle lettrée de crème entre deux montants de bois), les trois carrés après chaque titre de section en bas de casse, les pastilles de catégorie en toile sarcelle. Écartés : le néon rose des parasols le soir (une carte se lit de jour aussi), le tee-shirt bleu roi de l'équipe (une seule photo), les variantes de couleur des carrés (rouge et bleu clair sur le tee-shirt).",
+    "interior_vibe": "La terrasse ombragée sous les arbres de la place Jean-Jaurès, réputée la plus grande de la ville : parasols de toile crème, fauteuils de metteur en scène sarcelle à montants de bois, tables bistrot rondes crème sur pied en fonte, mange-debout devant la façade aux panneaux lilas ; le soir, néons roses sous les parasols. Plats sur ardoise noire, serviettes rouges.",
+    "reference_images": [
+      "docs/identite/enseigne-store.jpg",
+      "docs/identite/terrasse-fauteuils-tee-shirt.jpg",
+      "docs/identite/fauteuil-logo.jpg",
+      "docs/identite/devanture-store.jpg",
+      "docs/identite/terrasse-soir.png"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte fournie ni publiée par l'établissement. Relevée sur des photos de clients (Google, Restaurant Guru, TripAdvisor), détail et dates dans docs/recherche-carte.md : l'ardoise de la terrasse (≈ 2025, docs/carte/ardoise-2025.jpg) pour le plat et le dessert du jour, les clubs, croques, CBO et salades ; la carte « Formule étudiante » (≈ août 2026) ; les feuillets des tapas et des boissons fraîches (≈ 2025) ; la carte plastifiée des boissons chaudes (≈ 2025) ; les thés glacés (≈ 2025). Plus ancien, faute de mieux et à confirmer : la composition des salades (carte de 2022), les descriptions des cocktails sans alcool (carte de 2020, mêmes noms et même prix), le prix du petit déjeuner (6,50 €, chevalet ancien) et des sodas (4,10 €, ticket d'avril 2023), la pinte Paulaner (7 €, Privateaser, non daté). La carte vit dans frontend/lib/menu-data.ts (const lePetitNice).",
+    "categories_summary": [
+      "Formule étudiante — CBO, croque monsieur ou tenders frites : avec une pinte 10 €, avec un soft 8 € (+3 € portion de frites pour CBO et croque)",
+      "Petit-déjeuner — Le petit déjeuner 6,50 € (ancien prix), croissant ou pain au chocolat 1,90 €",
+      "À l'ardoise — Plat du jour 16 €, Dessert du jour 8 €",
+      "Clubs, croques & burger — Club sandwich 17 €, Nos croques 17 €, Burger CBO 19 € (frites maison +1 €)",
+      "Salades — 5, à 18 €",
+      "Nos tapas — 5, 9,50 et 10 €",
+      "Boissons chaudes — cafés 2 à 4,40 €, thés « Jardin d'Asie » 4,20 €, chocolats 4,70 et 4,90 €",
+      "Cafés alcoolisés — 4, à 12 €",
+      "Thés glacés — 3, à 7,50 €",
+      "Coktails sans alcool — 11, à 7,50 €",
+      "Boissons fraîches — sodas 4,10 €, nectars 4,30 €, fruits pressés 4,70 €, smoothies 7,50 €, sirop à l'eau 3,70 / 4 €",
+      "Bières — Pinte Paulaner 7 €, La Bartavelle 33 cl 5 €"
+    ],
+    "absent_faute_de_prix": [
+      "Pan con tomate avec jambon cru, Frites maison (tapas) : 7 tapas pour 6 prix visibles, les deux derniers prix ne se rattachent pas.",
+      "Nos ardoises (fromage, charcuterie, formule ardoise mixte) : aucun prix lisible.",
+      "Happy hour : la liste est connue (pinte Paulaner, La Bartavelle, mojito, caïpiroska, pinte mojito, spritz Apérol, verre de vin, virgin mojito, pinte diabolo, pinte sirop), aucun prix récent.",
+      "Eaux (Vittel, San Pellegrino, Perrier), diabolo, verre de lait, energy drink, limonade pression : prix illisibles.",
+      "Les frappés : prix illisibles.",
+      "Cocktails alcoolisés, vins, alcools, digestifs, glaces : aucune carte récente (les anciennes datent de 2016 à 2020)."
+    ],
+    "photos": "Photos libres (Pexels, Unsplash) auditées sur planches. Les photos de clients de leurs vrais plats (burger, salade thaï, nachos, mojito framboise) ne sont pas reprises (droits des auteurs) ; un shooting sur place les remplacerait.",
+    "options_a_valider": [
+      "Petit déjeuner : la boisson chaude se choisit parmi expresso, café allongé, café noisette, grand crème, thé, chocolat chaud ; la carte dit seulement « une boisson chaude ».",
+      "Formule étudiante + soft : le soft se choisit dans la liste des sodas du feuillet ; la pinte de la formule n'est pas précisée (Paulaner ?).",
+      "Formule étudiante : « +3 € portion de frites pour CBO et Croque » (août 2026 ; le feuillet de 2025 disait +2 €) proposé en supplément quel que soit le plat, le libellé rappelle « (CBO, croque) ».",
+      "Club sandwich : « jambon blanc/cru » lu comme deux garnitures au choix.",
+      "Tapas : prix attribués dans l'ordre de lecture de la colonne (10, 10, 10, 9,50, 9,50).",
+      "Dessert du jour : 8 € lu sur l'ardoise (le chiffre est à demi effacé, 3 € possible) ; le moelleux est celui du jour de la photo.",
+      "Smoothies : le premier parfum du feuillet est illisible, il manque."
+    ]
+  },
+  "offers": [
+    "Happy hour 18h–20h (feuillet des tapas, 2025)",
+    "Formule étudiante sur présentation d'une carte étudiante (août 2026)",
+    "Mentions anciennes, non reprises : « Majoration chaud après 21h : 0,50 », « Fin service boissons chaudes Hiver 23H / Été 19H »"
+  ],
+  "research": {
+    "date": "2026-10-16",
+    "nom": "L'utilisateur a dit « Au Petit Nice » : à Montpellier l'enseigne est « le petit nice — café • bar » (1 place Jean-Jaurès). « Au Petit Nice » est un bar de Marseille (28 place Jean-Jaurès, 13001). Confirmé.",
+    "adresse": "1 Place Jean Jaurès, 34000 Montpellier — Base Adresse Nationale 34172_2980_00001 (score 0,97). Quartier Écusson ; tram Comédie (lignes 1 et 2) à ≈ 270 m. Confirmé.",
+    "google": "Fiche « Bar », 4,2★ / 1 851 avis, 375 photos, sans site web ; le lien « Vous êtes le propriétaire ? » s'affiche : sans doute non revendiquée.",
+    "tripadvisor": "Lieu de nuit d4662776, ≈ 3,3/5 sur ≈ 190 avis.",
+    "livraison": "Aucune page Uber Eats, Deliveroo ou Just Eat trouvée (recherche web seulement).",
+    "carte_qr_actuelle": "Une carte de table (photo Restaurant Guru, non datée) renvoie vers https://lepetitnice.alleatone.fr/dining : l'hôte et alleatone.fr refusent la connexion le 2026-10-16, aucune archive. Le menu numérique de leurs tables paraît mort.",
+    "avis": "Éloges : l'immense terrasse ombragée, l'emplacement, le happy hour, l'équipe. Reproches récurrents : l'attente quand c'est plein, cocktails jugés chers ou trop forts, tapas inégales, intérieur impersonnel.",
+    "sources": "Rapports complets des agents de recherche du 2026-10-16 (scratchpad) ; transcription et sources datées : docs/recherche-carte.md."
+  },
+  "notes": [
+    "1. Confirmer l'exploitant (VEYRAN SAS ?) et l'interlocuteur (Thomas Cammarata ?).",
+    "2. Nous envoyer la carte actuelle complète avec ses prix : aucune n'est publiée ; celle de la démo est reconstituée de photos de clients de 2025-2026.",
+    "3. Le dessert du jour est-il à 8 € ou à 3 € ?",
+    "4. Les prix des tapas : lequel va avec quel plat ? Et ceux du pan con tomate et des frites maison ?",
+    "5. Prix des ardoises (fromage, charcuterie, mixte), du happy hour, des eaux, des frappés, des cocktails, des vins et des glaces.",
+    "6. Le petit déjeuner est-il toujours à 6,50 € ? Quelles boissons chaudes comprend-il ?",
+    "7. Les sodas sont-ils tous à 4,10 € (ticket d'avril 2023) ? La pinte Paulaner à 7 € ?",
+    "8. Formule étudiante : quelle pinte ? Le supplément frites est-il de 3 € (août 2026) ou 2 € (2025) ?",
+    "9. Les compositions des salades de 2022 sont-elles toujours justes ? Celles de la Caprese et de la Thaï ?",
+    "10. Les descriptions des cocktails sans alcool (carte de 2020) sont-elles toujours justes ? Celle du Pie-Apple ?",
+    "11. Le fichier d'origine du logo (enseigne « le petit ■■■ café ■ bar nice »), pour remplacer le nôtre, redessiné d'après photo.",
+    "12. Des photos de leurs plats et boissons, ou l'accord pour un shooting sur la terrasse.",
+    "13. Que portent leurs tables aujourd'hui : le QR alleatone est-il encore en place ?",
+    "14. Caisse, terminal de paiement et tickets de cuisine en place ; nombre de tables et numérotation de la terrasse.",
+    "15. Formule étudiante + pinte : la TVA se partage entre le plat (10 %) et la bière (20 %) ; la ligne passe aujourd'hui à 10 %."
+  ]
+}
