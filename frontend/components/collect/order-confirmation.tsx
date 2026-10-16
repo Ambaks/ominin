@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { formatClock, formatDayLong, parisDate } from "@/lib/collect/hours";
 import {
   COLLECT_ORDER_POLL_MS,
   collectHref,
   mapsDirectionsHref,
   type CollectOrderView,
+  type TrackingLine,
 } from "@/lib/collect/shared";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { savedCartKey } from "@/lib/menu/cart";
@@ -47,7 +48,7 @@ const isTerminal = (status: OrderStatus) =>
   status === "retiree" || status === "annulee";
 
 /** Les étapes que le client voit passer, de la commande au retrait. */
-const STEPS: { status: OrderStatus; label: string }[] = [
+export const STEPS: { status: OrderStatus; label: string }[] = [
   { status: "en_attente", label: "Reçue" },
   { status: "en_preparation", label: "Préparation" },
   { status: "prete", label: "Prête" },
@@ -186,6 +187,52 @@ export function OrderConfirmation({
     );
   }
 
+  return (
+    <OrderTracking
+      order={order}
+      lines={order.items.map((line) => ({
+        name: line.name,
+        quantity: line.quantity,
+        amount: line.quantity * line.unitPrice,
+        details: line.options.map(
+          (option) => `${option.groupName} : ${option.choiceName}`
+        ),
+      }))}
+      now={now}
+      restaurantName={restaurantName}
+      address={address}
+      phone={phone}
+      back={back ?? { href: collectHref(slug) }}
+    />
+  );
+}
+
+/**
+ * Le suivi d'une commande payée, tel que le client le lit : partagé par la
+ * page réelle (relue en base) et l'aperçu commercial (étapes jouées à la main).
+ */
+export function OrderTracking({
+  order,
+  lines,
+  now,
+  restaurantName,
+  address,
+  phone,
+  back,
+  children,
+}: {
+  order: Omit<CollectOrderView, "items" | "paid">;
+  lines: TrackingLine[];
+  /** Horloge du compte à rebours « prête vers ». */
+  now: number;
+  restaurantName: string;
+  address: string;
+  phone?: string | null;
+  /** Le lien de retour, « Retour au menu » sans libellé. */
+  back: { href: string; label?: string };
+  /** Sous le statut : les commandes de l'aperçu. */
+  children?: ReactNode;
+}) {
   const copy = STATUS_COPY[order.status] ?? STATUS_COPY.en_attente!;
   const cancelled = order.status === "annulee";
   const currentStep = STEPS.findIndex((step) => step.status === order.status);
@@ -224,7 +271,9 @@ export function OrderConfirmation({
             </p>
           </>
         ) : (
-          !cancelled && (
+          // « Dès que possible » ne se dit plus une fois la commande prête.
+          !cancelled &&
+          (order.pickupAt || (order.status !== "prete" && order.status !== "retiree")) && (
             <p className="mt-3 text-sm font-semibold">
               Retrait {order.pickupAt ? formatDayTime(order.pickupAt) : "dès que possible"}
             </p>
@@ -242,7 +291,12 @@ export function OrderConfirmation({
                   className="flex flex-col gap-1.5"
                 >
                   <span aria-hidden className={`h-1 rounded-full ${reached ? "bg-ember-1" : "bg-hairline"}`} />
-                  <span className={`text-[11px] font-semibold ${reached ? "text-foreground" : "text-faint"}`}>
+                  {/* Quatre colonnes sur 320 px : « Préparation » se coupe au lieu de
+                      déborder sur « Prête ». */}
+                  <span
+                    lang="fr"
+                    className={`hyphens-auto break-words text-[11px] font-semibold ${reached ? "text-foreground" : "text-faint"}`}
+                  >
                     {step.label}
                   </span>
                 </li>
@@ -260,13 +314,17 @@ export function OrderConfirmation({
         )}
       </div>
 
+      {children}
+
       {!cancelled && order.status !== "retiree" && (
-        <div className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface p-4">
-          <div className="min-w-0">
+        // Sur téléphone, les boutons passent sous l'adresse au lieu de la
+        // serrer en colonne étroite.
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-2xl border border-hairline bg-surface p-4">
+          <div className="min-w-0 flex-1 basis-48">
             <p className="text-sm font-semibold">{restaurantName}</p>
             <p className="mt-0.5 text-xs text-muted">{address}</p>
           </div>
-          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+          <div className="ml-auto flex shrink-0 flex-wrap justify-end gap-2">
             {phone && (
               <a
                 href={`tel:${phone.replace(/\s/g, "")}`}
@@ -301,7 +359,7 @@ export function OrderConfirmation({
 
       <div className="rounded-2xl border border-hairline bg-surface p-5">
         <ul className="flex flex-col gap-1.5">
-          {order.items.map((line, index) => (
+          {lines.map((line, index) => (
             <li key={index} className="flex flex-col gap-0.5">
               <div className="flex items-baseline justify-between gap-4 text-sm">
                 <span>
@@ -311,12 +369,12 @@ export function OrderConfirmation({
                   {line.name}
                 </span>
                 <span className="tabular-nums text-muted">
-                  {formatPrice(line.quantity * line.unitPrice)}
+                  {formatPrice(line.amount)}
                 </span>
               </div>
-              {line.options.map((option, optionIndex) => (
-                <p key={optionIndex} className="pl-5 text-xs text-faint">
-                  {option.groupName} : {option.choiceName}
+              {line.details.map((detail, detailIndex) => (
+                <p key={detailIndex} className="pl-5 text-xs text-faint">
+                  {detail}
                 </p>
               ))}
             </li>
@@ -342,10 +400,10 @@ export function OrderConfirmation({
       </div>
 
       <a
-        href={back?.href ?? collectHref(slug)}
+        href={back.href}
         className="text-center text-sm font-semibold text-ember-1 transition-opacity hover:opacity-80"
       >
-        {back?.label ?? "Retour au menu"}
+        {back.label ?? "Retour au menu"}
       </a>
     </div>
   );

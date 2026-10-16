@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { MenuSection } from "@/components/menu/menu-section";
-import { DAY_NAMES, groupOpeningHours, type OpeningHours } from "@/lib/collect/hours";
+import { describeOpeningHours } from "@/lib/collect/hours";
 import { CartProvider } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { restaurantThemeClass } from "@/lib/menu-data";
@@ -35,19 +35,6 @@ const STEPS = [
   { title: "Choisissez votre heure", body: "Aujourd’hui, demain ou le jour de la fête." },
   { title: "Retirez en boutique", body: "Réglé en ligne : on vous le tend, c’est tout." },
 ] as const;
-
-/** « Du mardi au samedi : 7 h 30 – 14 h et 16 h – 20 h · Le dimanche : 7 h 45 – 14 h ». */
-function hoursText(hours: OpeningHours): string {
-  return groupOpeningHours(hours)
-    .map(({ first, last, ranges }) => {
-      const days =
-        first === last
-          ? `Le ${DAY_NAMES[first - 1].toLowerCase()}`
-          : `Du ${DAY_NAMES[first - 1].toLowerCase()} au ${DAY_NAMES[last - 1].toLowerCase()}`;
-      return `${days}\u00a0: ${formatSlots(ranges)}`;
-    })
-    .join(" · ");
-}
 
 function Unavailable() {
   return (
@@ -160,7 +147,7 @@ export default async function CommanderPage() {
             </div>
             <div>
               <dt className="sr-only">Horaires de retrait</dt>
-              <dd>{hoursText(openingHours)}</dd>
+              <dd>{describeOpeningHours(openingHours, formatSlots)}</dd>
             </div>
             {longest.hours > 0 && (
               <div>

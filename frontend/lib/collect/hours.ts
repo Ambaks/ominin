@@ -197,3 +197,33 @@ export function groupOpeningHours(
   }
   return groups;
 }
+
+/** « 08:00 » → « 8h », « 14:30 » → « 14h30 ». */
+const heure = (time: string) => {
+  const [h, m] = time.split(":");
+  return `${Number(h)}h${m === "00" ? "" : m}`;
+};
+
+/**
+ * Les horaires en une ligne, jours qui se suivent regroupés : « Le lundi :
+ * 8h–14h30 · Du mardi au dimanche : 8h–14h30 et 19h30–22h30 ». Les plages
+ * s'écrivent au format de la page qui les montre.
+ */
+export function describeOpeningHours(
+  hours: OpeningHours,
+  formatRanges: (ranges: DayRanges) => string = (ranges) =>
+    // Insécable : une plage ne se coupe pas à son tiret.
+    ranges.map(([open, close]) => `${heure(open)}\u2060–\u2060${heure(close)}`).join(" et ")
+): string {
+  return groupOpeningHours(hours)
+    .map(({ first, last, ranges }) => {
+      // Insécables, et collés à leur première plage : la ligne ne se coupe
+      // qu'entre deux plages ou entre deux groupes de jours.
+      const days =
+        first === last
+          ? `Le\u00a0${DAY_NAMES[first - 1].toLowerCase()}`
+          : `Du\u00a0${DAY_NAMES[first - 1].toLowerCase()}\u00a0au\u00a0${DAY_NAMES[last - 1].toLowerCase()}`;
+      return `${days}\u00a0:\u00a0${formatRanges(ranges)}`;
+    })
+    .join(" · ");
+}

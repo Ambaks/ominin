@@ -1,4 +1,4 @@
-import type { OpeningHours } from "@/lib/collect/hours";
+import { describeOpeningHours, type OpeningHours } from "@/lib/collect/hours";
 import type { Formule } from "@/lib/gestion/types";
 // Libellés, mise en forme et adresses de photos vivent dans lib/menu/format
 // et lib/menu/images : un module client les importe de là, sans tirer ce
@@ -6461,6 +6461,268 @@ const brasserieLaissac: Restaurant = {
   ],
 };
 
+/*
+ * Café Poulard — comptoir méditerranéen, 27 rue du Faubourg du Courreau
+ * (Montpellier), repris des Frères Poulards en février 2026 : click &
+ * collect seul, pas de carte QR. Aucune carte imprimée remise et aucun prix
+ * en ligne hors le café : les articles sont ceux qu'ils nomment sur leur
+ * Instagram (@cafe_poulard) et dans les avis récents, les prix des
+ * emplacements à valider avec eux (demos/cafe-poulard/profile.json). Photos :
+ * les leurs (Instagram, fiche Google), sinon de banque, marquées au profil.
+ */
+const POULARD_PHOTOS = "/cafe-poulard";
+const POULARD_JOURS = [
+  ["08:00", "14:30"],
+  ["19:30", "22:30"],
+] as [string, string][];
+const POULARD_HORAIRES: OpeningHours = {
+  "1": [["08:00", "14:30"]],
+  "2": POULARD_JOURS,
+  "3": POULARD_JOURS,
+  "4": POULARD_JOURS,
+  "5": POULARD_JOURS,
+  "6": POULARD_JOURS,
+  "7": POULARD_JOURS,
+};
+const poulardViennoiserie = groupeChoix("viennoiserie", "Viennoiserie", ["Croissant", "Pain au chocolat"], {
+  obligatoire: true,
+});
+
+const cafePoulard: Restaurant = {
+  slug: "cafe-poulard",
+  name: "Café Poulard",
+  tagline: "Comptoir méditerranéen",
+  coverImage: `${POULARD_PHOTOS}/salle.jpg`,
+  themeColor: "#f6efe2",
+  address: "27 Rue du Faubourg du Courreau, 34000 Montpellier",
+  phone: "04 67 58 55 74",
+  // Les horaires de retrait, ceux de la carte « À emporter » : une seule annonce.
+  hours: describeOpeningHours(POULARD_HORAIRES),
+  highlights: ["Cuisine traditionnelle", "Produits frais de saison", "Comme à la maison"],
+  placeId: "ChIJU_sWg6mvthIR1dtA2qr3Q5I",
+  collect: { openingHours: POULARD_HORAIRES },
+  formules: [
+    {
+      id: "formule-petit-dejeuner",
+      name: "Formule petit-déjeuner",
+      description: "Boisson chaude, jus de fruits pressé, viennoiserie",
+      price: 6,
+      disponible: true,
+      etapes: [
+        {
+          id: "boisson-chaude",
+          name: "Boisson chaude",
+          obligatoire: true,
+          articles: [
+            { id: "cafe", name: "Café", supplement: 0, itemId: "cafe" },
+            { id: "chocolat", name: "Chocolat", supplement: 0, itemId: "chocolat" },
+          ],
+        },
+        {
+          id: "viennoiserie",
+          name: "Viennoiserie",
+          obligatoire: true,
+          articles: [
+            { id: "croissant", name: "Croissant", supplement: 0 },
+            { id: "pain-au-chocolat", name: "Pain au chocolat", supplement: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  categories: [
+    {
+      id: "petit-dejeuner",
+      name: "Petit-déjeuner",
+      tagline: "Dès 8h, du lundi au dimanche",
+      items: [
+        { id: "cafe", name: "Café", price: 1.5, chaud: true, image: `${POULARD_PHOTOS}/cafe.jpg` },
+        {
+          id: "chocolat",
+          name: "Chocolat",
+          price: 2.5,
+          chaud: true,
+          image: pexels("239584/pexels-photo-239584.jpeg", 800),
+        },
+        articleFormats(
+          "jus-de-fruits",
+          "Jus de fruits",
+          [
+            ["En bouteille", 3],
+            ["Pressé", 4.5],
+          ],
+          { image: `${POULARD_PHOTOS}/jus-de-fruits.jpg` },
+          ["jus", "Jus"]
+        ),
+        {
+          id: "viennoiserie",
+          name: "Viennoiserie",
+          price: 1.5,
+          image: `${POULARD_PHOTOS}/viennoiseries.jpg`,
+          options: [poulardViennoiserie],
+        },
+        {
+          id: "tartines-chocolat",
+          name: "Tartines chocolat",
+          price: 3.5,
+          image: pexels("33526181/pexels-photo-33526181.jpeg", 800),
+        },
+        {
+          id: "gaufre",
+          name: "Gaufre",
+          price: 4,
+          image: pexels("32123671/pexels-photo-32123671.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "rotisserie",
+      name: "Rôtisserie",
+      tagline: "À emporter",
+      items: [
+        articleFormats(
+          "poulet-roti",
+          "Poulet rôti à la broche",
+          [
+            ["Quart", 7],
+            ["Demi", 12],
+            ["Entier", 20],
+          ],
+          { image: `${POULARD_PHOTOS}/poulet-roti.jpg` },
+          ["portion", "Portion"]
+        ),
+      ],
+    },
+    {
+      id: "sandwichs",
+      name: "Sandwichs & burger",
+      items: [
+        {
+          id: "burger",
+          name: "Burger",
+          description: "Frites et salade",
+          price: 14,
+          image: pexels("3248289/pexels-photo-3248289.jpeg", 800),
+        },
+        {
+          id: "sandwich",
+          name: "Sandwich",
+          price: 7.5,
+          image: pexels("25048970/pexels-photo-25048970.jpeg", 800),
+        },
+        {
+          id: "pita",
+          name: "Pita",
+          price: 8.5,
+          image: pexelsRecadre("6275121/pexels-photo-6275121.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Tapas",
+      tagline: "La carte du soir",
+      items: [
+        {
+          id: "poulpe",
+          name: "Tentacules de poulpe grillées",
+          price: 13,
+          image: pexels("37068830/pexels-photo-37068830.jpeg", 800),
+        },
+        {
+          id: "beignets-courgettes",
+          name: "Beignets de courgettes, sauce tartare",
+          price: 7,
+          image: pexels("32153515/pexels-photo-32153515.jpeg", 800),
+        },
+        {
+          id: "camembert-pane",
+          name: "Camembert pané",
+          description: "À partager",
+          price: 8,
+          image: pexels("29177201/pexels-photo-29177201.jpeg", 800),
+        },
+        {
+          id: "bouquet-crevettes",
+          name: "Bouquet de crevettes",
+          price: 11,
+          image: `${POULARD_PHOTOS}/bouquet-crevettes.jpg`,
+        },
+        {
+          id: "crudo-daurade",
+          name: "Crudo de daurade",
+          price: 11,
+          image: pexels("27890217/pexels-photo-27890217.jpeg", 800),
+        },
+        {
+          id: "tataki-magret",
+          name: "Tataki de magret",
+          price: 12,
+          image: `${POULARD_PHOTOS}/tataki-magret.jpg`,
+        },
+        {
+          id: "pan-con-tomate",
+          name: "Pan con tomate & jambon serrano",
+          price: 9,
+          image: `${POULARD_PHOTOS}/pan-con-tomate.jpg`,
+        },
+        {
+          id: "gaspacho",
+          name: "Gaspacho du moment",
+          price: 6,
+          image: pexels("37273396/pexels-photo-37273396.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      items: [
+        {
+          id: "filet-daurade",
+          name: "Filet de daurade sauce vierge",
+          price: 19,
+          image: `${POULARD_PHOTOS}/filet-daurade.jpg`,
+        },
+        {
+          id: "salade-mangue",
+          name: "Salade exotique mangue",
+          price: 14,
+          image: `${POULARD_PHOTOS}/salade-mangue.jpg`,
+        },
+        {
+          id: "souris-agneau",
+          name: "Souris d'agneau",
+          price: 21,
+          image: pexels("16588046/pexels-photo-16588046.jpeg", 800),
+        },
+        {
+          id: "brochettes",
+          name: "Brochettes",
+          description: "Le dimanche, avec frites",
+          price: 18,
+          image: `${POULARD_PHOTOS}/brochettes.jpg`,
+          options: [groupeChoix("brochette", "Brochette", ["Bœuf", "Canard", "Cœurs"], { obligatoire: true })],
+        },
+        // En dernier : seule fiche sans photo, elle prend la rangée entière.
+        { id: "plat-du-jour", name: "Plat du jour", description: "À découvrir chaque midi", price: 15 },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "clafoutis",
+          name: "Clafoutis",
+          price: 6,
+          image: `${POULARD_PHOTOS}/clafoutis.jpg`,
+        },
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -6476,6 +6738,7 @@ const restaurants: Record<string, Restaurant> = {
   [caffePanis.slug]: caffePanis,
   [boulangerieCyprien.slug]: boulangerieCyprien,
   [brasserieLaissac.slug]: brasserieLaissac,
+  [cafePoulard.slug]: cafePoulard,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -6495,6 +6758,7 @@ const themeClasses: Record<string, string> = {
   [caffePanis.slug]: "theme-caffe-panis",
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
+  [cafePoulard.slug]: "theme-cafe-poulard",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

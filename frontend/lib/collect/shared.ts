@@ -46,7 +46,7 @@ export function normalizePhone(raw: string): string | null {
   if (/^0[1-9]\d{8}$/.test(national)) return national.replace(/(\d{2})(?=\d)/g, "$1 ");
   // L'international hors France : un numéro français à qui il manque un
   // chiffre ne passe pas pour un numéro étranger.
-  if (/^\+\d{9,15}$/.test(compact) && !compact.startsWith("+33")) return compact;
+  if (/^\+[1-9]\d{8,14}$/.test(compact) && !compact.startsWith("+33")) return compact;
   return null;
 }
 
@@ -57,6 +57,29 @@ export function isOrderId(value: string): boolean {
 
 /** Longueur du mot du client (miroir de la contrainte SQL orders.customer_note). */
 export const CUSTOMER_NOTE_MAX_LENGTH = 280;
+
+/** Une ligne du suivi, prête à afficher : le montant de la ligne, ses choix écrits. */
+export interface TrackingLine {
+  name: string;
+  quantity: number;
+  amount: number;
+  details: string[];
+}
+
+/**
+ * Commande passée sur un aperçu (/collect/demo/<slug>/commande) : rien ne
+ * part en base, l'onglet la garde pour que le suivi d'aperçu la rejoue.
+ */
+export interface PreviewCollectOrder {
+  customerName: string;
+  createdAt: string;
+  pickupAt: string | null;
+  note: string | null;
+  lines: TrackingLine[];
+  total: number;
+}
+
+export const previewOrderKey = (slug: string) => `ominin-apercu-suivi:${slug}`;
 
 /** Relecture du statut de commande par la page de suivi. */
 export const COLLECT_ORDER_POLL_MS = 3000;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { OrderConfirmation } from "@/components/collect/order-confirmation";
+import { TrackingShell } from "@/components/collect/tracking-shell";
 import { isOrderId } from "@/lib/collect/shared";
 import { fetchRestaurant } from "@/lib/public-menu";
 
@@ -26,19 +27,12 @@ export default async function ConfirmationPage({
   if (!data) notFound();
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-10">
-      <header>
-        <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-          Click & collect
-        </p>
-        <h1 className="mt-1 font-display text-2xl font-medium tracking-tight">
-          {data.restaurant.name}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {data.restaurant.address}
-          {data.restaurant.phone && ` · ${data.restaurant.phone}`}
-        </p>
-      </header>
+    <TrackingShell
+      slug={slug}
+      name={data.restaurant.name}
+      address={data.restaurant.address}
+      phone={data.restaurant.phone}
+    >
       <OrderConfirmation
         orderId={commande}
         slug={slug}
@@ -46,6 +40,6 @@ export default async function ConfirmationPage({
         address={data.restaurant.address}
         phone={data.restaurant.phone}
       />
-    </div>
+    </TrackingShell>
   );
 }
