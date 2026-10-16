@@ -1,4 +1,4 @@
-import { unsplash } from "@/lib/menu/images";
+import { pexels, unsplash } from "@/lib/menu/images";
 import {
   agentsSiteUrl,
   clipSiteUrl,
@@ -55,9 +55,13 @@ export const hero = {
     fr: "Solutions informatiques et IA",
     en: "Software and AI solutions",
   },
-  /* Le titre est coupé en deux : la seconde moitié porte le dégradé braise. */
-  titleLead: { fr: "Facilitez vos opérations,", en: "Facilitate your operations," },
-  titleAccent: { fr: "propulsées par l'IA.", en: "powered by AI." },
+  /** Une ligne par entrée ; la marquée reçoit le pavé braise. */
+  lines: [
+    { text: { fr: "Facilitez", en: "Facilitate" } },
+    { text: { fr: "vos opérations,", en: "your operations," } },
+    { text: { fr: "propulsées", en: "powered" } },
+    { text: { fr: "par l'IA.", en: "by AI." }, mark: true },
+  ],
   body: {
     fr: "Nous construisons des outils qui enlèvent le travail répétitif du quotidien des commerces — la prise de commande, la vente en ligne, la paperasse, la publication. Chaque produit règle un problème précis et s'utilise seul.",
     en: "We build tools that take the repetitive work out of running a business — taking orders, selling online, paperwork, publishing. Each product solves one problem, and works on its own.",
@@ -70,11 +74,66 @@ export const hero = {
     label: { fr: "Parler de votre besoin", en: "Tell us what you need" },
     href: "/sur-mesure",
   },
-  meta: {
-    fr: "Cinq produits en production, un sixième sur mesure.",
-    en: "Five products in production, a sixth built to order.",
+  stats: [
+    { value: "5", label: { fr: "produits en production", en: "products in production" } },
+    { value: "1", label: { fr: "seul interlocuteur, qui construit", en: "person to call, who builds it" } },
+    { value: "48 h", label: { fr: "pour vous répondre, jours ouvrés", en: "to reply, business days" } },
+  ],
+};
+
+/*
+ * Fil du hero : ce qui se passe chez nos clients pendant qu'on lit la page,
+ * un événement par produit. Les cartes tombent une à une (relais du kit).
+ */
+export const heroFeed = {
+  label: { fr: "Chez nos clients, en ce moment", en: "At our clients', right now" },
+  items: [
+    {
+      product: "Menu",
+      text: { fr: "Table 12 a payé 40,00 € depuis son téléphone", en: "Table 12 paid €40.00 from their phone" },
+      time: { fr: "à l'instant", en: "just now" },
+    },
+    {
+      product: "Collect",
+      text: { fr: "Camille passe prendre sa commande à 12:30", en: "Camille picks up her order at 12:30" },
+      time: { fr: "1 min", en: "1 min" },
+    },
+    {
+      product: "Shop",
+      text: { fr: "Nouvelle commande MyBox : 135,00 €", en: "New MyBox order: €135.00" },
+      time: { fr: "3 min", en: "3 min" },
+    },
+    {
+      product: "Clip",
+      text: { fr: "Clip publié sur TikTok, Reels et Shorts", en: "Clip posted to TikTok, Reels and Shorts" },
+      time: { fr: "8 min", en: "8 min" },
+    },
+    {
+      product: "Agents",
+      text: { fr: "Un prospect a répondu : « Rappelez-moi demain »", en: "A prospect replied: “Call me tomorrow”" },
+      time: { fr: "12 min", en: "12 min" },
+    },
+  ],
+};
+
+export const marquee: Localized[] = [
+  { fr: "Restaurants", en: "Restaurants" },
+  { fr: "Boulangeries", en: "Bakeries" },
+  { fr: "Pizzerias", en: "Pizzerias" },
+  { fr: "Créatrices", en: "Makers" },
+  { fr: "Boutiques en ligne", en: "Online stores" },
+  { fr: "Streamers", en: "Streamers" },
+  { fr: "Artisans", en: "Tradespeople" },
+  { fr: "Traiteurs", en: "Caterers" },
+];
+
+export const productsSection = {
+  eyebrow: { fr: "Nos produits", en: "Our products" },
+  title: { fr: "Un produit par problème.", en: "One product per problem." },
+  subtitle: {
+    fr: "Chacun vit sur son propre site, avec sa démo, son tarif et ses réponses. Choisissez le vôtre.",
+    en: "Each one lives on its own site, with its demo, its pricing and its answers. Pick yours.",
   },
-  scrollHint: { fr: "Nos produits", en: "Our products" },
 };
 
 export type Product = {
@@ -169,11 +228,10 @@ export const products: Product[] = [
       en: "A turnkey online store for people already selling on Snapchat, Instagram or TikTok: handmade goods, boxes, dropshipping. Payments, shipping and orders run from a phone.",
     },
     photo: {
-      // Photo réelle de la première boutique (MyBox), pas une illustration.
-      src: "/shop/mybox/accueil.webp",
+      src: pexels("7679680/pexels-photo-7679680.jpeg", 1200),
       alt: {
-        fr: "Box beauté MyBox ouverte, parfum et roses",
-        en: "An open MyBox beauty box with perfume and roses",
+        fr: "Une créatrice prépare un coffret cadeau dans son atelier",
+        en: "A maker packing a gift box in her studio",
       },
     },
     chips: [
@@ -226,10 +284,10 @@ export const products: Product[] = [
       en: "An agent finds the businesses in your area, writes to them in your name from your Gmail and flags every reply.",
     },
     photo: {
-      src: unsplash("photo-1504307651254-35680f356dfd", 1200),
+      src: pexels("4491870/pexels-photo-4491870.jpeg", 1200),
       alt: {
-        fr: "Chantier de construction vu d'en haut",
-        en: "Construction site seen from above",
+        fr: "Un menuisier répond à ses e-mails dans son atelier",
+        en: "A carpenter answering emails in his workshop",
       },
     },
     chips: [
@@ -323,6 +381,15 @@ export const finalCta = {
     label: { fr: "Décrire mon besoin", en: "Describe my need" },
     href: "/sur-mesure",
   },
+  secondary: {
+    label: { fr: "Revoir nos produits", en: "Back to our products" },
+    href: "#produits",
+  },
+  microcopy: [
+    { fr: "Réponse sous deux jours ouvrés", en: "Reply within two business days" },
+    { fr: "Sans engagement", en: "No commitment" },
+    { fr: "Un seul interlocuteur", en: "One person to call" },
+  ],
 };
 
 /*

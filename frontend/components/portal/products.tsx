@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { KitHeading } from "@/components/landing-kit/heading";
 import { Reveal } from "@/components/portal/reveal";
 import { useLanguage } from "@/lib/portal/language";
-import { hero, products, type Product } from "@/lib/portal-data";
+import { products, productsSection, type Product } from "@/lib/portal-data";
 
 function ArrowIcon({ external }: { external: boolean }) {
   return (
@@ -90,7 +91,7 @@ function ProductCube({ product, index }: { product: Product; index: number }) {
           aria-hidden
         />
         <span
-          className="absolute top-4 left-4 rounded-full border border-hairline bg-background/55 px-2.5 py-1 font-display text-xs font-semibold backdrop-blur-sm"
+          className="kit-display absolute top-4 left-4 rounded-full border border-hairline bg-background/55 px-2.5 py-1 text-xs backdrop-blur-sm"
           aria-hidden
         >
           <span className="ember-text">
@@ -104,7 +105,7 @@ function ProductCube({ product, index }: { product: Product; index: number }) {
       </div>
 
       <div className="flex flex-1 flex-col p-6 pt-5 lg:p-8 lg:pt-6">
-        <h3 className="font-display text-2xl font-semibold lg:text-[1.75rem]">
+        <h3 className="kit-display text-3xl lg:text-[2.1rem]">
           {t(product.name)}
         </h3>
         <p className="mt-1.5 text-sm font-medium text-ember-2 lg:text-base">
@@ -133,7 +134,7 @@ function ProductCube({ product, index }: { product: Product; index: number }) {
     </>
   );
 
-  const className = `group relative flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-surface transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-ember-2/30 hover:shadow-[0_28px_60px_-30px_rgba(0,0,0,0.75)] focus-visible:-translate-y-1 focus-visible:border-ember-2/40 focus-visible:outline-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0 ${
+  const className = `group relative flex h-full flex-col overflow-hidden rounded-3xl border border-hairline bg-surface transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-ember-2/45 hover:shadow-[0_24px_60px_-30px_var(--ember-2)] focus-visible:-translate-y-1 focus-visible:border-ember-2/40 focus-visible:outline-none motion-reduce:hover:translate-y-0 motion-reduce:focus-visible:translate-y-0 ${
     wide ? "lg:flex-row" : ""
   }`;
   const label = `${t(product.action)} — ${t(product.name)}`;
@@ -159,16 +160,15 @@ export function PortalProducts() {
   return (
     <section
       id="produits"
-      className="mx-auto w-full max-w-2xl scroll-mt-20 px-5 pb-20 lg:max-w-6xl lg:px-10 lg:pb-28"
+      className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-28"
     >
-      <div className="mb-8 flex items-center gap-4 lg:mb-10">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-faint">
-          {t(hero.scrollHint)}
-        </h2>
-        <span className="h-px flex-1 bg-hairline" aria-hidden />
-      </div>
+      <KitHeading
+        eyebrow={t(productsSection.eyebrow)}
+        title={t(productsSection.title)}
+        subtitle={t(productsSection.subtitle)}
+      />
 
-      <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+      <div className="mt-14 grid gap-5 lg:grid-cols-12 lg:gap-6">
         {products.map((product, index) => (
           <ProductCube key={product.id} product={product} index={index} />
         ))}
