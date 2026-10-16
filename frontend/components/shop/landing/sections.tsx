@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { IphoneFrame } from "@/components/landing/iphone-frame";
 import { LeadForm } from "@/components/landing/lead-form";
 import { KitFaq } from "@/components/landing-kit/faq";
-import { KitFinalCta } from "@/components/landing-kit/final-cta";
 import { KitHeading } from "@/components/landing-kit/heading";
 import { Reveal } from "@/components/landing-kit/reveal";
 import { contactEmail } from "@/lib/landing-data";
@@ -11,8 +11,6 @@ import {
   audiencesSection,
   contactSection,
   faqSection,
-  featuresSection,
-  finalCta,
   footer,
   nav,
   pricingSection,
@@ -107,11 +105,20 @@ export function ShopShift() {
   );
 }
 
+/*
+ * La vraie boutique MyBox dans un téléphone, à essayer sans quitter la page.
+ * Sur ordinateur, le cadre iPhone, l'écran décalé sous la Dynamic Island.
+ * Sous lg, le cadre iPhone (24 rem) déborderait d'un écran de 360 px : la
+ * boutique y est rendue à la largeur d'un vrai téléphone (375 px) puis
+ * réduite à 80 %, sans quoi son hero se tasse et ses boutons sont rognés.
+ */
 export function ShopShowcase() {
-  const [main, ...side] = showcase.photos;
+  const iframe = (className: string) => (
+    <iframe src={showcase.href} title={showcase.iframeTitle} loading="lazy" className={className} />
+  );
   return (
     <section id={showcase.id} className="scroll-mt-20">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:px-10 lg:py-32">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_auto] lg:gap-16 lg:px-10 lg:py-28">
         <div>
           <KitHeading eyebrow={showcase.eyebrow} title={showcase.title} subtitle={showcase.subtitle} />
           <Reveal as="div" delay={120} className="mt-8 grid grid-cols-3 gap-4 border-t border-hairline pt-6">
@@ -122,7 +129,7 @@ export function ShopShowcase() {
               </div>
             ))}
           </Reveal>
-          <Reveal delay={200} className="mt-8">
+          <Reveal delay={200} className="mt-8 hidden lg:block">
             <a
               href={showcase.href}
               className="ember-gradient group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-background shadow-[0_12px_40px_-12px_var(--ember-2)] transition-transform hover:scale-[1.03] lg:text-base"
@@ -132,26 +139,25 @@ export function ShopShowcase() {
             </a>
           </Reveal>
         </div>
-        <Reveal delay={120} className="grid grid-cols-[1.3fr_1fr] gap-3 sm:gap-4">
-          <a href={showcase.href} className="group relative row-span-2 overflow-hidden rounded-[2rem] border border-hairline">
-            <Image
-              src={main.src}
-              alt={main.alt}
-              width={720}
-              height={900}
-              sizes="(max-width: 1024px) 60vw, 30vw"
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
-            />
-            <span className="absolute inset-x-3 bottom-3 rounded-2xl bg-background/85 px-3 py-2 text-xs font-semibold backdrop-blur-sm">
-              {showcase.host}
-            </span>
-          </a>
-          {side.map((photo) => (
-            <div key={photo.src} className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] border border-hairline">
-              <Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 1024px) 40vw, 20vw" className="object-cover" />
-            </div>
-          ))}
+
+        <Reveal delay={120} className="hidden flex-col items-center gap-4 lg:flex">
+          <IphoneFrame>
+            <div className="pt-12">{iframe("h-180 w-full")}</div>
+          </IphoneFrame>
+          <p className="text-sm text-muted">{showcase.hint}</p>
         </Reveal>
+
+        <div className="flex flex-col items-center gap-5 text-center lg:hidden">
+          <div className="rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
+            <div className="h-[520px] w-[300px] overflow-hidden rounded-[1.9rem] bg-background">
+              {iframe("h-[650px] w-[375px] origin-top-left scale-[0.8]")}
+            </div>
+          </div>
+          <span className="text-xs text-muted">{showcase.hint}</span>
+          <a href={showcase.href} className="ember-gradient rounded-full px-6 py-3 text-sm font-bold text-background">
+            {showcase.ctaLabel}
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -180,32 +186,6 @@ export function ShopSetup() {
   );
 }
 
-export function ShopFeatures() {
-  return (
-    <section id={featuresSection.id} className="scroll-mt-20">
-      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
-        <KitHeading eyebrow={featuresSection.eyebrow} title={featuresSection.title} subtitle={featuresSection.subtitle} />
-        <div className="mt-14 grid gap-4 lg:grid-cols-2">
-          {featuresSection.groups.map((group, i) => (
-            <Reveal key={group.title} as="article" delay={i * 120} className="kit-card relative overflow-hidden rounded-3xl border border-hairline bg-surface p-7 lg:p-9">
-              <div aria-hidden className="absolute -right-16 -top-16 size-48 rounded-full bg-ember-2/15 blur-3xl" />
-              <h3 className="kit-display relative text-3xl">{group.title}</h3>
-              <ul className="relative mt-6 flex flex-col gap-3">
-                {group.items.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm leading-relaxed">
-                    <span className="mt-0.5 text-ember-1" aria-hidden>✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export function ShopPricing() {
   const { offer } = pricingSection;
   return (
@@ -221,23 +201,15 @@ export function ShopPricing() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: pricingSection.setupLabel, price: offer.setupPrice, unit: pricingSection.onceLabel },
-                { label: pricingSection.monthlyLabel, price: offer.monthlyPrice, unit: pricingSection.perMonth },
+                { label: pricingSection.freeLabel, value: pricingSection.freeValue },
+                { label: pricingSection.commissionLabel, value: `${offer.commissionPercent} %` },
               ].map((line) => (
                 <div key={line.label} className="rounded-2xl border border-hairline bg-background/70 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{line.label}</p>
-                  {offer.published && line.price > 0 ? (
-                    <p className="mt-2 flex items-baseline gap-1.5">
-                      <span className="kit-display ember-text text-4xl">{line.price} €</span>
-                      <span className="text-sm text-faint">{line.unit}</span>
-                    </p>
-                  ) : (
-                    <p className="kit-display ember-text mt-2 text-3xl">{pricingSection.quoteLabel}</p>
-                  )}
+                  <p className="kit-display ember-text mt-2 text-3xl sm:text-4xl">{line.value}</p>
                 </div>
               ))}
             </div>
-            {!offer.published && <p className="text-sm leading-relaxed text-muted">{pricingSection.quoteHint}</p>}
             <a
               href={pricingSection.cta.href}
               className="ember-gradient w-fit rounded-full px-7 py-3.5 text-sm font-bold text-background transition-transform hover:scale-[1.03]"
@@ -267,19 +239,6 @@ export function ShopPricing() {
         </div>
       </div>
     </section>
-  );
-}
-
-export function ShopFinalCta() {
-  return (
-    <KitFinalCta
-      id={finalCta.id}
-      title={finalCta.title}
-      subtitle={finalCta.subtitle}
-      primary={finalCta.primary}
-      secondary={finalCta.secondary}
-      microcopy={finalCta.microcopy}
-    />
   );
 }
 
