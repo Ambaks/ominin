@@ -6723,6 +6723,861 @@ const cafePoulard: Restaurant = {
   ],
 };
 
+/*
+ * Toast' Tea — salon de thé et restaurant, 7 rue de Vallat, sa terrasse sur
+ * la place derrière Saint-Roch (Montpellier). Aucune carte en ligne de leur
+ * main : celle du livret vert et or (photos Google, vers 2022), la plus
+ * récente qui soit complète, mot pour mot, à ses prix ; sa page des plats
+ * n'a jamais été photographiée, les plats viennent donc des panneaux plus
+ * anciens d'eat-list.fr (Côté mer, Côté viandes, Côté burgers, assiettes).
+ * Tous les prix sont à confirmer avec le gérant : les ardoises de 2025-2026
+ * montrent des hausses. Sources et questions : demos/toast-tea/profile.json.
+ */
+/**
+ * Leurs photos (ZeLift, 2017) pour la tarte et le café gourmand ; le reste en
+ * photos libres (Pexels, Unsplash), auditées : aucune autre photo de leurs
+ * plats n'est publiée par eux.
+ */
+const TOAST_TEA_PHOTOS: Partial<Record<string, string>> = {
+  duo: pexels("7702451/pexels-photo-7702451.jpeg", 800),
+  trio: pexels("20204675/pexels-photo-20204675.jpeg", 800),
+  symphonique: pexels("20204672/pexels-photo-20204672.jpeg", 800),
+  brunch: pexels("11557151/pexels-photo-11557151.jpeg", 800),
+  "menu-enfant": pexels("4210862/pexels-photo-4210862.jpeg", 800),
+  "tarte-chevre-aubergines": unsplash("photo-1606502281004-f86cf1282af5", 800),
+  "tarte-legumes-du-soleil": "/toast-tea/tarte-legumes-du-soleil.jpg",
+  "salade-blues": pexels("29843069/pexels-photo-29843069.jpeg", 800),
+  "salade-opera": pexels("36375360/pexels-photo-36375360.jpeg", 800),
+  "salade-sicilienne": pexels("11292482/pexels-photo-11292482.jpeg", 800),
+  "salade-norvegienne": pexels("34777522/pexels-photo-34777522.jpeg", 800),
+  tartiflette: pexels("37448233/pexels-photo-37448233.jpeg", 800),
+  "assiette-composee": pexels("334985/pexels-photo-334985.jpeg", 800),
+  "carpaccio-thon": pexels("17942045/pexels-photo-17942045.jpeg", 800),
+  "saumon-fume": pexels("39378650/pexels-photo-39378650.jpeg", 800),
+  "filet-bar": pexels("19318466/pexels-photo-19318466.jpeg", 800),
+  "carpaccio-boeuf": pexels("27305239/pexels-photo-27305239.jpeg", 800),
+  "poire-boeuf": pexels("18284912/pexels-photo-18284912.jpeg", 800),
+  "emince-canard": pexels("17751633/pexels-photo-17751633.jpeg", 800),
+  "burger-italien": pexels("10746615/pexels-photo-10746615.jpeg", 800),
+  "burger-savoyard": pexels("6642499/pexels-photo-6642499.jpeg", 800),
+  "assiette-fromages": pexels("19993550/pexels-photo-19993550.jpeg", 800),
+  "brioche-pain-perdu": pexels("30458468/pexels-photo-30458468.jpeg", 800),
+  "tartelette-citron": pexels("8250696/pexels-photo-8250696.jpeg", 800),
+  "moelleux-chocolat": pexels("7934598/pexels-photo-7934598.jpeg", 800),
+  crumble: unsplash("photo-1706799419621-14d7f424de83", 800),
+  "degustation-cafe": pexels("37435669/pexels-photo-37435669.jpeg", 800),
+  "cafe-in": pexels("36579971/pexels-photo-36579971.png", 800),
+  "cafe-the-gourmand": "/toast-tea/cafe-gourmand.jpg",
+  "crepe-sucre": pexels("1439319/pexels-photo-1439319.jpeg", 800),
+  "crepe-beurre-sucre": unsplash("photo-1597524305544-cd821476715f", 800),
+  "crepe-sucre-citron": pexels("6758320/pexels-photo-6758320.jpeg", 800),
+  "crepe-confiture": pexels("12814862/pexels-photo-12814862.jpeg", 800),
+  "crepe-nutella": pexels("31856262/pexels-photo-31856262.jpeg", 800),
+  "crepe-nutella-banane": pexels("39037870/pexels-photo-39037870.jpeg", 800),
+  "crepe-grand-marnier": pexels("7111381/pexels-photo-7111381.jpeg", 800),
+  "banana-split": pexels("16560563/pexels-photo-16560563.jpeg", 800),
+  "chocolat-liegeois": unsplash("photo-1633881613747-e98695066141", 800),
+  "poire-belle-helene": pexels("29324225/pexels-photo-29324225.jpeg", 800),
+  // Recadrée : au centre, la coupe perdait son sommet.
+  "dame-blanche": pexelsRecadre("9510367/pexels-photo-9510367.jpeg", 800),
+  copacabana: pexels("11569101/pexels-photo-11569101.jpeg", 800),
+  "soleil-des-iles": pexels("37991815/pexels-photo-37991815.jpeg", 800),
+  "coupe-toast-tea": pexels("14608732/pexels-photo-14608732.jpeg", 800),
+  colonel: pexels("13777196/pexels-photo-13777196.jpeg", 800),
+  "baie-des-anges": pexels("19119872/pexels-photo-19119872.jpeg", 800),
+  iceberg: pexels("29851712/pexels-photo-29851712.jpeg", 800),
+  "glace-2-boules": unsplash("photo-1753304826356-0e850757edb3", 800),
+};
+
+/** La boisson chaude des petits-déjeuners et du brunch, telle que le livret la liste. */
+const TOAST_TEA_BOISSON_CHAUDE = groupeChoix(
+  "boisson",
+  "Boisson chaude",
+  ["Grand café", "Chocolat chaud Maison", "Café crème", "Thé noir du Bangladesh", "Thé vert Sencha"],
+  { obligatoire: true }
+);
+
+const TOAST_TEA_SIROPS = [
+  "Cassis",
+  "Citron",
+  "Cerise",
+  "Caramel",
+  "Fraise",
+  "Framboise",
+  "Gambetta",
+  "Pac",
+  "Vanille",
+  "Grenadine",
+  "Menthe",
+  "Orgeat",
+  "Cannelle",
+  "Pêche",
+  "Violette",
+];
+
+const TOAST_TEA_PARFUMS_GLACE = [
+  "Café",
+  "Chocolat",
+  "Vanille",
+  "Menthe-chocolat",
+  "Pistache",
+  "Fraise",
+  "Abricot",
+  "Ananas",
+  "Poire",
+  "Cassis",
+  "Noix de coco",
+  "Citron",
+  "Rhum-raisins",
+];
+
+const toastTeaSirop = (opts: Parameters<typeof groupeChoix>[3] = {}) =>
+  groupeChoix("sirop", "Sirop", TOAST_TEA_SIROPS, { obligatoire: true, ...opts });
+
+/** Le parfum d'une boule ajoutée en supplément, demandé une fois la boule cochée. */
+const toastTeaParfumSupplement = (group: string) =>
+  groupeChoix("parfum", "Parfum de la boule", TOAST_TEA_PARFUMS_GLACE, {
+    obligatoire: true,
+    when: { group, choices: [`${group}-boule-de-glace`] },
+  });
+
+/** « Supplément boule de glace 1,00 € » sous les desserts. */
+const TOAST_TEA_SUPPLEMENT_GLACE = [
+  groupeChoix("supplement", "Supplément", [["Boule de glace", 1]], { multiple: true }),
+  toastTeaParfumSupplement("supplement"),
+];
+
+/** Les suppléments chantilly et boule de glace des crêpes, 1,00 € chacun. */
+const TOAST_TEA_SUPPLEMENTS_CREPE = [
+  groupeChoix("supplements", "Suppléments", ["Chantilly", "Boule de glace"], { multiple: true, supplement: 1 }),
+  toastTeaParfumSupplement("supplements"),
+];
+
+/** Un article de la carte, avec sa photo s'il en a une. */
+const toastTeaArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: TOAST_TEA_PHOTOS[id],
+  ...extra,
+});
+
+const toastTeaAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  toastTeaArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Les petits-déjeuners : la boisson chaude au choix, la tartine en supplément. */
+const toastTeaPetitDejeuner = (id: string, name: string, description: string, price: number) =>
+  toastTeaArticle(id, name, price, {
+    description,
+    options: [TOAST_TEA_BOISSON_CHAUDE, groupeChoix("supplement", "Supplément", [["Tartine", 1]], { multiple: true })],
+  });
+
+/** Une crêpe et ses suppléments. */
+const toastTeaCrepe = (id: string, name: string, price: number, { options = [], ...extra }: Partial<MenuItem> = {}) =>
+  toastTeaArticle(id, name, price, { options: [...options, ...TOAST_TEA_SUPPLEMENTS_CREPE], ...extra });
+
+/** Une coupe : « Coupe Bounty » sur le ticket. */
+const toastTeaCoupe = (id: string, name: string, description: string, price: number, extra: Partial<MenuItem> = {}) =>
+  toastTeaArticle(id, name, price, { description, printName: `Coupe ${name}`, ...extra });
+
+/** Une glace à composer : un parfum par boule, la chantilly en supplément. */
+const toastTeaGlace = (boules: number, price: number) => {
+  const pluriel = boules > 1 ? "s" : "";
+  return toastTeaArticle(`glace-${boules}-boule${pluriel}`, `Glace ${boules} boule${pluriel}`, price, {
+    options: [
+      ...["1re boule", "2e boule", "3e boule"]
+        .slice(0, boules)
+        .map((rang, i) =>
+          groupeChoix(`boule-${i + 1}`, boules > 1 ? rang : "Parfum", TOAST_TEA_PARFUMS_GLACE, { obligatoire: true })
+        ),
+      groupeChoix("chantilly", "Supplément", [["Chantilly", 1]], { multiple: true }),
+    ],
+  });
+};
+
+/** Un vin : verre de 12 cl, quart, 50 cl et bouteille, chacun à son prix. */
+const toastTeaVin = (id: string, name: string, description: string, prix: Formats) =>
+  articleFormats(id, name, prix, { description, ...ALCOOL });
+
+const toastTeaFormatsVin = (verre: number, quart: number, cinquante: number, bouteille: number): Formats => [
+  ["Verre 12 cl", verre],
+  ["1/4", quart],
+  ["50 cl", cinquante],
+  ["Bouteille 75 cl", bouteille],
+];
+
+const toastTea: Restaurant = {
+  slug: "toast-tea",
+  name: "Toast' Tea",
+  demoSuivi: true,
+  // La couverture du livret : « Salon de thé - Restaurant ».
+  tagline: "Salon de thé · Restaurant",
+  // Le logo du livret (« Toast' », « Tea », la tasse fumante), vectorisé
+  // d'après une photo de la couverture : le fichier d'origine est à demander.
+  logo: "/toast-tea/logo.svg",
+  logoIsName: true,
+  icons: { tab: "/toast-tea/favicon.png", homeScreen: "/toast-tea/icon.png" },
+  themeColor: "#34432f",
+  address: "7 Rue de Vallat, 34000 Montpellier",
+  // Le dos du livret et le panneau de la porte (2025).
+  phone: "+33 4 67 60 87 87",
+  hours: "Du mardi au dimanche 8h–⁠20h",
+  placeId: "ChIJLWTR3KevthIRYWlu4M8a5eM",
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJLWTR3KevthIRYWlu4M8a5eM",
+  // Le dos du livret : « Place Saint Roch » ; la couverture : « Horaires d'été de 8h à minuit ».
+  highlights: ["En terrasse, place Saint-Roch", "L'été, de 8h à minuit"],
+  ticker: [
+    { text: "Plat du jour cuisiné Maison, sauf dimanches et jours fériés", tone: "brand" },
+    { text: "Formule du mardi au vendredi : plat du jour ou tarte salée, pâtisserie Maison ou café gourmand", tone: "accent" },
+    { text: "Desserts Maison, crêpes et glaces artisanales" },
+  ],
+  categories: [
+    {
+      id: "petits-dejeuners",
+      name: "Petits-déjeuners & brunch",
+      items: [
+        toastTeaPetitDejeuner(
+          "duo",
+          "Le DUO",
+          "Une tartine, beurre, confiture. Une boisson chaude au choix : grand café, chocolat chaud Maison, café crème, thé noir du Bangladesh ou thé vert Sencha.",
+          3.9
+        ),
+        toastTeaPetitDejeuner(
+          "trio",
+          "Le TRIO",
+          "Une tartine, beurre, confiture. Un jus d'orange pressée. Une boisson chaude au choix : grand café, chocolat chaud Maison, café crème, thé noir du Bangladesh ou thé vert Sencha.",
+          4.9
+        ),
+        toastTeaPetitDejeuner(
+          "symphonique",
+          "Le SYMPHONIQUE",
+          "Quatre tartines, beurre, confiture. Un jus d'orange pressée. Une boisson chaude au choix : grand café, chocolat chaud Maison, café crème, thé noir du Bangladesh ou thé vert Sencha.",
+          6.9
+        ),
+        toastTeaArticle("brunch", "Brunch", 15.9, {
+          description: [
+            "Une boisson chaude au choix",
+            "Deux tartines, beurre et confiture",
+            "Jus d'orange pressée",
+            "Une tarte salée au choix servie avec salade, ou Tartine Monsieur, ou une assiette composée",
+          ].join("\n"),
+          options: [
+            TOAST_TEA_BOISSON_CHAUDE,
+            groupeChoix(
+              "plat",
+              "Au choix",
+              [
+                "Tarte poulet aux 4 épices",
+                "Tarte chèvre et aubergines",
+                "Tarte légumes du soleil",
+                "Tartine Monsieur",
+                "Assiette composée",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+      ],
+    },
+    {
+      // Les trois encarts vert et or de la page des tartes et des salades.
+      id: "formules",
+      name: "Formules",
+      items: [
+        toastTeaArticle("plat-du-jour", "Plat du jour", 11.9, {
+          description: "Demandez au serveur le plat du jour cuisiné Maison. Sauf dimanches et jours fériés.",
+          badges: ["maison"],
+        }),
+        toastTeaArticle("formule", "Formule", 13.9, {
+          description: [
+            "Servie en semaine du mardi au vendredi hors jours fériés",
+            "Plat du jour ou Tarte salée au choix",
+            "Pâtisserie Maison ou Café gourmand",
+          ].join("\n"),
+          options: [
+            groupeChoix("plat", "Plat", ["Plat du jour", "Tarte salée"], { obligatoire: true }),
+            groupeChoix(
+              "tarte",
+              "Choix de la tarte",
+              ["Tarte chèvre et aubergines", "Tarte légumes du soleil", "Tarte poulet aux 4 épices"],
+              { obligatoire: true, when: { group: "plat", choices: ["plat-tarte-salee"] } }
+            ),
+            groupeChoix("dessert", "Dessert", ["Pâtisserie Maison", "Café gourmand"], { obligatoire: true }),
+          ],
+        }),
+        toastTeaArticle("menu-enfant", "Menu enfant", 8.9, {
+          description: ["Servi jusqu'à 12 ans", "Steak haché ou Poisson pané + Pommes de terre Maison + 1 boule de glace + 1 sirop"].join(
+            "\n"
+          ),
+          options: [
+            groupeChoix("plat", "Plat", ["Steak haché", "Poisson pané"], { obligatoire: true }),
+            groupeChoix("glace", "Boule de glace", TOAST_TEA_PARFUMS_GLACE, { obligatoire: true }),
+            toastTeaSirop(),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "tartes-salees",
+      name: "Nos tartes salées / Toasts",
+      tagline: "Accompagnés d'une salade composée",
+      items: [
+        toastTeaArticle("tarte-chevre-aubergines", "Tarte chèvre et aubergines", 11.9),
+        toastTeaArticle("tarte-legumes-du-soleil", "Tarte légumes du soleil", 11.9, {
+          description: "Poivrons, courgette, tomate",
+        }),
+        toastTeaArticle("tarte-poulet-4-epices", "Tarte poulet aux 4 épices", 11.9, {
+          description: "Poulet tomate aux 4 épices",
+        }),
+        toastTeaArticle("tartine-monsieur", "Tartine Monsieur", 10.9, {
+          description: "Tranche de pain de campagne, jambon blanc de pays, béchamel, emmental gratiné",
+        }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Nos salades repas",
+      items: [
+        toastTeaArticle("salade-blues", "Salade Blues", 12.9, {
+          description: "4 samoussas de chèvre chaud, menthe, 1 tranche de jambon cru, avocat, salade composée",
+        }),
+        toastTeaArticle("salade-opera", "Salade Opéra", 13.9, {
+          description: "Tomates, mozzarella boule de 125 g, pesto et petite salade composée",
+        }),
+        toastTeaArticle("salade-sicilienne", "Salade Sicilienne", 14, {
+          description: "Blanc de poulet, jambon cru sec de pays, fromage grana padano et salade composée",
+        }),
+        toastTeaArticle("salade-norvegienne", "Salade Norvégienne", 14.9, {
+          description: "Saumon fumé, crème fraîche, gambas, citron, salade composée, oignon rouge, avocat",
+        }),
+      ],
+    },
+    {
+      // Les panneaux d'eat-list.fr, plus anciens que le livret : prix à confirmer.
+      id: "assiettes",
+      name: "Nos assiettes",
+      tagline: "Accompagnées d'une salade composée",
+      items: [
+        toastTeaArticle("tartiflette", "Tartiflette", 12.9, {
+          description: "Gratin de pomme de terre, Reblochon, lardons et oignons",
+        }),
+        // La composition du brunch du livret, plus récente que celle du panneau (« Conté »).
+        toastTeaArticle("assiette-composee", "Assiette composée", 12, {
+          description: "Jambon cru sec de pays, saumon fumé, comté, petite salade",
+        }),
+      ],
+    },
+    {
+      id: "cote-mer",
+      name: "Côté mer",
+      items: [
+        toastTeaArticle("carpaccio-thon", "Carpaccio de thon", 16, {
+          description: "Pommes de terre Maisons, salade composée et pesto",
+        }),
+        toastTeaArticle("saumon-fume", "Saumon fumé", 13.9, {
+          description:
+            "Assiette de saumon fumé accompagné de crème fraîche, citron, pain à l'ancienne au pesto et salade composée",
+        }),
+        toastTeaArticle("filet-bar", "Filet de bar", 17, {
+          description: "Accompagné de sa sauce crème homardine, légumes au pesto et riz basmati",
+        }),
+      ],
+    },
+    {
+      id: "cote-viandes",
+      name: "Côté viandes",
+      items: [
+        toastTeaArticle("carpaccio-boeuf", "Carpaccio de bœuf", 13.5, {
+          description: "Pommes de terre Maisons, copeaux grana padano, salade composée, pesto",
+        }),
+        toastTeaArticle("tartare-boeuf", "Tartare de bœuf non préparé", 14, {
+          detail: "180 g",
+          description: "Pommes de terre Maisons et salade composée",
+        }),
+        toastTeaArticle("poire-boeuf", "Poire de bœuf grillée", 16, {
+          description: "À la fleur de sel de Camargue. Pommes de terre Maisons et salade composée",
+          options: [CUISSON],
+        }),
+        toastTeaArticle("emince-canard", "Émincé de canard au miel", 16, {
+          description: "Thym, pommes de terre Maisons, bouquet de salade",
+        }),
+      ],
+    },
+    {
+      id: "cote-burgers",
+      name: "Côté burgers",
+      tagline: "Servis avec pommes de terre Maisons et salade composée",
+      items: [
+        toastTeaArticle("burger-toast-tea", "Burger Toast'Tea", 14, {
+          detail: "180 g de bœuf",
+          description: "Cheddar, tomate, oignons frits, ketchup",
+          options: [CUISSON],
+        }),
+        toastTeaArticle("burger-italien", "Burger Italien", 16, {
+          detail: "180 g de bœuf",
+          description: "Tomate, mozzarella, jambon cru et légumes au pesto",
+          options: [CUISSON],
+        }),
+        toastTeaArticle("burger-savoyard", "Burger Savoyard", 16, {
+          detail: "180 g de bœuf",
+          description: "Reblochon, jambon cru, tomate, oignon",
+          options: [CUISSON],
+        }),
+      ],
+    },
+    {
+      id: "a-la-carte",
+      name: "À la carte",
+      items: [
+        toastTeaArticle("assiette-pommes-de-terre", "Assiette de pomme de terre", 6),
+        toastTeaArticle("assiette-fromages", "Assiette de fromages", 6.9, {
+          description: "Bleu d'Auvergne, comté, chèvre",
+        }),
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Nos desserts Maison",
+      items: [
+        toastTeaArticle("brioche-pain-perdu", "Brioche de pain perdu", 6.9, {
+          detail: "85 g",
+          description: "Servie avec coulis de caramel et sa boule de glace à la vanille Bourbon",
+          options: TOAST_TEA_SUPPLEMENT_GLACE,
+        }),
+        toastTeaArticle("tartelette-citron", "Tartelette citron meringuée", 6.9, {
+          description: "Et sa pâte croustillante au beurre",
+          options: TOAST_TEA_SUPPLEMENT_GLACE,
+        }),
+        toastTeaArticle("tarte-tatin", "Tarte Tatin", 6.9, {
+          description: "Tarte aux pommes servie tiède avec son petit pot de crème fraîche et un coulis de caramel",
+          options: TOAST_TEA_SUPPLEMENT_GLACE,
+        }),
+        toastTeaArticle("moelleux-chocolat", "Moelleux au chocolat", 6.9, {
+          description: "Servi avec sa chantilly et un coulis de chocolat",
+          options: TOAST_TEA_SUPPLEMENT_GLACE,
+        }),
+        toastTeaArticle("crumble", "Crumble aux pommes ou fruits rouges", 6.9, {
+          description: "Amandes et petit pot de crème fraîche",
+          printName: "Crumble",
+          options: [
+            groupeChoix("fruits", "Fruits", ["Pommes", "Fruits rouges"], { obligatoire: true }),
+            ...TOAST_TEA_SUPPLEMENT_GLACE,
+          ],
+        }),
+        toastTeaArticle("degustation-cafe", "Dégustation café", 4.9, {
+          description: "Café accompagné d'un mini moelleux au chocolat nappé de coulis au chocolat et chantilly",
+        }),
+        toastTeaArticle("temps-pause", "Le temps d'une pause", 7.9, {
+          description: "3 boules de glace ou un dessert au choix accompagné d'un café ou d'un thé (vert, noir ou thé glacé)",
+          options: [
+            groupeChoix("douceur", "Au choix", ["3 boules de glace", "Un dessert"], { obligatoire: true }),
+            ...["1re boule", "2e boule", "3e boule"].map((rang, i) =>
+              groupeChoix(`boule-${i + 1}`, rang, TOAST_TEA_PARFUMS_GLACE, {
+                obligatoire: true,
+                when: { group: "douceur", choices: ["douceur-3-boules-de-glace"] },
+              })
+            ),
+            groupeChoix(
+              "dessert",
+              "Dessert",
+              [
+                "Brioche de pain perdu",
+                "Tartelette citron meringuée",
+                "Tarte Tatin",
+                "Moelleux au chocolat",
+                "Crumble aux pommes",
+                "Crumble aux fruits rouges",
+              ],
+              { obligatoire: true, when: { group: "douceur", choices: ["douceur-un-dessert"] } }
+            ),
+            groupeChoix("boisson", "Boisson", ["Café", "Thé vert", "Thé noir", "Thé glacé"], { obligatoire: true }),
+          ],
+        }),
+        toastTeaArticle("cafe-in", "Café'In", 3.8, {
+          description: "Double café servi avec une boule de glace vanille flottante",
+        }),
+        toastTeaArticle("cafe-the-gourmand", "Café ou Thé Gourmand", 6.9, {
+          description: "Assortiment de 3 desserts Maison avec un café ou un thé",
+          printName: "Gourmand",
+          options: [groupeChoix("boisson", "Boisson", ["Café", "Thé"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "crepes",
+      name: "Nos crêpes sucrées",
+      items: [
+        toastTeaCrepe("crepe-sucre", "Crêpe sucre", 3.4),
+        toastTeaCrepe("crepe-beurre-sucre", "Crêpe beurre, sucre", 3.6),
+        toastTeaCrepe("crepe-sucre-citron", "Crêpe sucre, citron", 3.6),
+        toastTeaCrepe("crepe-confiture", "Crêpe confiture abricot ou fraise", 3.6, {
+          printName: "Crêpe confiture",
+          options: [groupeChoix("confiture", "Confiture", ["Abricot", "Fraise"], { obligatoire: true })],
+        }),
+        toastTeaCrepe("crepe-nutella", "Crêpe Nutella", 3.6),
+        toastTeaCrepe("crepe-nutella-coco", "Crêpe Nutella, coco", 3.6),
+        toastTeaCrepe("crepe-creme-marrons", "Crêpe crème de marrons", 3.6),
+        toastTeaCrepe("crepe-nutella-banane", "Crêpe Nutella, banane", 5.5),
+        toastTeaCrepe("crepe-nutella-poire", "Crêpe Nutella, poire sirop", 5.5),
+        toastTeaCrepe("crepe-grand-marnier", "Crêpe Grand-Marnier", 5.5, ALCOOL),
+      ],
+    },
+    {
+      id: "glaces",
+      name: "Nos glaces artisanales",
+      tagline:
+        "Nos parfums : café, chocolat, vanille, menthe-chocolat, pistache, fraise, abricot, ananas, poire, cassis, noix de coco, citron, rhum-raisins",
+      items: [
+        toastTeaCoupe(
+          "banana-split",
+          "Banana Split",
+          "Banane, glace fraise, chocolat et vanille, nappée d'un coulis de chocolat et chantilly",
+          8
+        ),
+        toastTeaCoupe("cafe-liegeois", "Café liégeois", "En coupe, glace café et vanille, coulis de café moka et chantilly", 8),
+        toastTeaCoupe(
+          "chocolat-liegeois",
+          "Chocolat liégeois",
+          "En coupe, glace chocolat et vanille, coulis de chocolat et chantilly",
+          8
+        ),
+        toastTeaCoupe(
+          "poire-belle-helene",
+          "Poire Belle-Hélène",
+          "Poire pochée au sirop, glace vanille, sorbet poire, nappée d'un coulis de chocolat et chantilly",
+          8
+        ),
+        toastTeaCoupe("dame-blanche", "Dame blanche", "3 boules de vanille nappées d'un coulis de chocolat et chantilly", 8),
+        toastTeaCoupe("dame-noire", "Dame noire", "3 boules de chocolat nappées d'un coulis de chocolat et chantilly", 8),
+        toastTeaCoupe("bounty", "Bounty", "Sorbet noix de coco, glace chocolat, nappés de chocolat et chantilly", 8),
+        toastTeaCoupe(
+          "ardechoise",
+          "Ardéchoise",
+          "Glace vanille, crème de marrons, nappée d'un coulis chocolat et chantilly",
+          8
+        ),
+        toastTeaCoupe("copacabana", "Copacabana", "Sorbet abricot, noix de coco et poire, fruits frais et chantilly", 8),
+        toastTeaCoupe("soleil-des-iles", "Soleil des îles", "Sorbet ananas et noix de coco, fruits frais et chantilly", 8),
+        toastTeaCoupe("coupe-toast-tea", "Toast'Tea", "Sorbet noix de coco, abricot et citron, fruits frais et chantilly", 8),
+        toastTeaCoupe("colonel", "Colonel", "Sorbet citron arrosé de vodka", 9, ALCOOL),
+        toastTeaCoupe(
+          "baie-des-anges",
+          "Baie des Anges",
+          "Glace vanille et son sorbet cassis, arrosés de crème de cassis et chantilly",
+          9,
+          ALCOOL
+        ),
+        toastTeaCoupe("iceberg", "Iceberg", "Glace au chocolat et menthe-chocolat, Get27 et chantilly", 9, ALCOOL),
+        toastTeaCoupe(
+          "irish-coffee",
+          "Irish coffee",
+          "En coupe, glace café et vanille, coulis de moka, whisky et chantilly",
+          9,
+          ALCOOL
+        ),
+        toastTeaGlace(1, 2.3),
+        toastTeaGlace(2, 4.3),
+        toastTeaGlace(3, 5.5),
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      boissons: "chaudes",
+      items: [
+        toastTeaArticle("cafe", "Café expresso, serré ou allongé", 1.8, {
+          printName: "Café",
+          options: [groupeChoix("service", "Service", ["Expresso", "Serré", "Allongé"], { obligatoire: true })],
+        }),
+        toastTeaArticle("double-cafe", "Double café", 3.6),
+        toastTeaArticle("grand-creme", "Grand crème", 3.4),
+        toastTeaArticle("decafeine-noisette", "Décaféiné ou noisette", 1.9, {
+          printName: "Déca / noisette",
+          options: [groupeChoix("cafe", "Café", ["Décaféiné", "Noisette"], { obligatoire: true })],
+        }),
+        toastTeaArticle("double-decafeine", "Double décaféiné", 3.8),
+        toastTeaArticle("cappuccino", "Cappuccino à la mousse de lait", 3.9),
+        toastTeaArticle("cafe-viennois", "Café viennois à la chantilly", 3.9),
+        toastTeaArticle("chocolat-ancienne", "Chocolat à l'ancienne, au lait", 3.4),
+        toastTeaArticle("chocolat-viennois", "Chocolat viennois à la chantilly", 3.9),
+        toastTeaArticle("nutella-viennois", "Nutella viennois à la chantilly", 4.2),
+      ],
+    },
+    {
+      // La seconde page des thés du livret ; la première (thés noirs et verts
+      // nature) n'est sur aucune photo : question au gérant.
+      id: "thes",
+      name: "Notre sélection de thés",
+      tagline: "Thés de grandes origines et thés parfumés",
+      boissons: "chaudes",
+      items: [
+        toastTeaArticle("formose-chung-pounchong", "Formose Chung Pounchong", 4.9, {
+          description: "Thé vert légèrement fermenté. Sensation de fraîcheur désaltérante, arôme fleuri. Thé bienfait.",
+        }),
+        toastTeaArticle("chine-vert-jasmin-yin-hao", "Chine vert jasmin Yin Hao", 4.9, {
+          description:
+            "Thé vert somptueux de la Province de Zhejiang. Mêlé au jasmin dès la récolte. Goût prolongé, parfum exceptionnel. Compagnon des repas.",
+        }),
+        toastTeaArticle("sencha-yamato", "Sencha Yamato", 4.9, {
+          description: "Grand thé de la région de Fuji. Moment de grand plaisir.",
+        }),
+        ...(
+          [
+            ["cite-interdite", "Cité interdite", "Mélange de thés Chine et Ceylan"],
+            ["morphee", "Morphée", "Agréable mélange de thés les moins théinés"],
+            ["perle-d-orient", "Perle d'Orient", "Lotus royal"],
+            ["rose-de-congou", "Rose de Congou", "Pétales de rose orientale"],
+            ["equinoxe", "Equinoxe", "Sencha, épices et jasmin"],
+            ["akiko", "Akiko", "Sencha et agrumes"],
+            ["fugi-yama", "Fugi Yama", "Sencha et épices"],
+            ["plume-d-ange", "Plume d'Ange", "Sencha et fruits exotiques"],
+            ["samourai", "Samouraï", "Sencha et cerise japonaise"],
+            ["baikal", "Baïkal", "Goût russe à la mandarine"],
+            ["comedia", "Comédia", "Châtaigne et violette"],
+            ["earl-grey", "Earl Grey", "Bergamote"],
+            ["foret-noire", "Forêt Noire", "Fruits de la forêt"],
+            ["katmandou", "Katmandou", "Vanille et agrumes"],
+            ["reve-d-epices", "Rêve d'épices", "Cannelle et gingembre"],
+            ["secret-tibetain", "Secret Tibétain", "Épices et jasmin"],
+            ["lanterne-de-venise", "Lanterne de Venise", "Épices, plantes et fruits rouges"],
+            ["manhattan", "Manhattan", "Caramel et pollen"],
+            ["mistigri", "Mistigri", "Miel et orange"],
+            ["mosaique", "Mosaïque", "Pêches, figues et coings"],
+            ["printemps-d-asie", "Printemps d'Asie", "Pamplemousse tourbillon de fruits"],
+            ["the-orange-sanguine", "Thé à l'orange sanguine"],
+            ["the-vanille", "Thé à la vanille"],
+            ["the-violette", "Thé à la violette"],
+            ["the-menthe", "Thé à la menthe"],
+          ] as const
+        ).map(([id, name, description]) => toastTeaArticle(id, name, 4, { description })),
+      ],
+    },
+    {
+      id: "tisanes",
+      name: "Les tisanes",
+      boissons: "chaudes",
+      items: [
+        toastTeaArticle("tisane", "Tisane", 4, {
+          description: "Verveine, Camomille, Lavande, Thym, Tilleul",
+          options: [
+            groupeChoix("tisane", "Tisane", ["Verveine", "Camomille", "Lavande", "Thym", "Tilleul"], { obligatoire: true }),
+          ],
+        }),
+        ...(
+          [
+            ["feu-de-bengale", "Feu de Bengale", "Épices, maté et églantier"],
+            ["nuit-d-oran", "Nuit d'Oran", "Agrumes, menthe, anis"],
+            ["soleil-de-siam", "Soleil de Siam", "Ananas, orange et églantier"],
+            ["bourbon", "Bourbon", "Rooïko et vanille"],
+          ] as const
+        ).map(([id, name, description]) => toastTeaArticle(id, name, 4, { description, detail: "sans théine" })),
+      ],
+    },
+    {
+      id: "boissons-fraiches",
+      name: "Boissons fraîches",
+      tagline: "Supplément sirop ou tranche : 0,20 €",
+      boissons: true,
+      items: [
+        toastTeaArticle("jus-pago", "Jus de fruits Pago", 3.6, {
+          detail: "20 cl",
+          options: [
+            groupeChoix(
+              "parfum",
+              "Parfum",
+              ["Abricot", "Ananas", "Mangue", "Fraise", "Orange", "ACE", "Pamplemousse", "Pêche", "Poire", "Pomme", "Tomate"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        toastTeaArticle("fruit-presse", "Un fruit pressé", 4.9, {
+          description: "Orange, pamplemousse ou citron",
+          printName: "Fruit pressé",
+          options: [groupeChoix("fruit", "Fruit", ["Orange", "Pamplemousse", "Citron"], { obligatoire: true })],
+        }),
+        toastTeaArticle("melange-2-fruits", "Mélange 2 fruits pressés", 5.2, {
+          options: ["1er fruit", "2e fruit"].map((rang, i) =>
+            groupeChoix(`fruit-${i + 1}`, rang, ["Orange", "Pamplemousse", "Citron"], { obligatoire: true })
+          ),
+        }),
+        toastTeaArticle("melange-3-fruits", "Mélange 3 fruits pressés", 5.4, {
+          description: "Orange, pamplemousse et citron",
+        }),
+        toastTeaArticle("sirop-eau", "Sirop à l'eau", 2.6, { options: [toastTeaSirop()] }),
+        toastTeaArticle("sirop-eau-enfant", "Sirop à l'eau petit verre enfant", 0.8, {
+          printName: "Sirop à l'eau enfant",
+          options: [toastTeaSirop()],
+        }),
+        toastTeaArticle("sirop-lait", "Sirop au lait", 2.8, { options: [toastTeaSirop()] }),
+        toastTeaArticle("pinte-sirop-eau", "Pinte de sirop à l'eau", 5.2, { detail: "50 cl", options: [toastTeaSirop()] }),
+        toastTeaArticle("sodas", "Sodas", 3.6, {
+          description: "Schweppes Tonic ou Agrumes, Orangina, Tropico tropical, Coca-Cola, Coca Zéro, Fanta orange, Sprite",
+          printName: "Soda",
+          options: [
+            groupeChoix(
+              "soda",
+              "Soda",
+              [
+                "Schweppes Tonic 25 cl",
+                "Schweppes Agrumes 25 cl",
+                "Orangina 25 cl",
+                "Tropico tropical 33 cl",
+                "Coca-Cola 33 cl",
+                "Coca Zéro 33 cl",
+                "Fanta orange 33 cl",
+                "Sprite 33 cl",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        toastTeaArticle("limonade", "Limonade, Diabolo ou Cacolac", 3.6, {
+          printName: "Limonade / Diabolo / Cacolac",
+          detail: "25 cl",
+          options: [
+            groupeChoix("boisson", "Boisson", ["Limonade", "Diabolo", "Cacolac"], { obligatoire: true }),
+            toastTeaSirop({ when: { group: "boisson", choices: ["boisson-diabolo"] } }),
+          ],
+        }),
+        toastTeaArticle("the-glace", "Thé glacé Maison", 4),
+        toastTeaArticle("cafe-glace", "Café glacé Maison", 4, { description: "Double café, orgeat, frappé au shaker" }),
+        toastTeaArticle("verre-lait", "Verre de lait", 2.8),
+        toastTeaArticle("perrier", "Perrier", 3.6, { detail: "33 cl" }),
+        articleFormats(
+          "eau-minerale",
+          "Eau de Perrier ou Vittel",
+          [
+            ["1/2 litre", 4.2],
+            ["1 litre", 5.1],
+          ],
+          { printName: "Perrier / Vittel", options: [groupeChoix("eau", "Eau", ["Perrier", "Vittel"], { obligatoire: true })] }
+        ),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      tagline: "À la pression Karlsbräu, ou en bouteille",
+      boissons: true,
+      items: [
+        toastTeaAlcool("bock", "Bock", 2.5, { detail: "12 cl" }),
+        toastTeaAlcool("demi", "Demi", 3.2, { detail: "25 cl" }),
+        toastTeaAlcool("monaco", "Monaco, demi + sirop, panaché", 3.4, {
+          detail: "25 cl",
+          printName: "Monaco / demi sirop / panaché",
+          options: [
+            groupeChoix("biere", "Bière", ["Monaco", "Demi + sirop", "Panaché"], { obligatoire: true }),
+            toastTeaSirop({ when: { group: "biere", choices: ["biere-demi-sirop"] } }),
+          ],
+        }),
+        toastTeaAlcool("pinte", "Pinte", 6.4, { detail: "50 cl" }),
+        toastTeaAlcool("pinte-et-sirop", "Pinte et sirop", 6.8, { detail: "50 cl", options: [toastTeaSirop()] }),
+        toastTeaAlcool("picon-biere", "Picon bière", 4.5, { detail: "25 cl" }),
+        toastTeaAlcool("picon-pinte", "Picon pinte", 9, { detail: "50 cl" }),
+        toastTeaAlcool("leffe", "Leffe blonde, brune ou Ruby", 5.5, {
+          detail: "33 cl",
+          printName: "Leffe",
+          options: [groupeChoix("leffe", "Leffe", ["Blonde", "Brune", "Ruby"], { obligatoire: true })],
+        }),
+        toastTeaAlcool("hoogarden", "Hoogarden blanche", 5.5, { detail: "33 cl" }),
+        toastTeaAlcool("desperados", "Desperados", 5.5, { detail: "33 cl" }),
+      ],
+    },
+    {
+      id: "cocktails-aperitifs",
+      name: "Cocktails & apéritifs",
+      tagline: "Les alcools de plus de 18° sont servis uniquement pendant un repas",
+      boissons: true,
+      items: [
+        toastTeaAlcool("martini-fiero-spritz", "Martini Fiero Spritz", 8),
+        toastTeaAlcool("cuba-libre", "Cuba Libré", 8),
+        toastTeaAlcool("saint-germain-spritz", "Saint-Germain Spritz", 9),
+        toastTeaAlcool("bombay-tonic", "Bombay Sapphire et tonic", 9),
+        toastTeaAlcool("martini", "Martini rouge, blanc ou rosé", 4.2, {
+          printName: "Martini",
+          options: [groupeChoix("martini", "Martini", ["Rouge", "Blanc", "Rosé"], { obligatoire: true })],
+        }),
+        toastTeaAlcool("campari", "Campari", 4.2),
+        toastTeaAlcool("porto-rouge", "Porto rouge", 3.9),
+        toastTeaAlcool("muscat", "Muscat", 3.9),
+        toastTeaAlcool("kir", "Kir", 3.9, {
+          description: "Cassis, framboise, mûre, châtaigne, pêche",
+          options: [
+            groupeChoix("creme", "Crème", ["Cassis", "Framboise", "Mûre", "Châtaigne", "Pêche"], { obligatoire: true }),
+          ],
+        }),
+        toastTeaAlcool("kir-bourguignon", "Kir bourguignon", 3.9, { description: "Vin rouge, crème de cassis" }),
+        toastTeaAlcool("pastis", "Pastis nature", 3.2),
+        toastTeaAlcool("mauresque", "Mauresque, Tomate, Perroquet", 3.4, {
+          printName: "Pastis sirop",
+          options: [groupeChoix("pastis", "Au choix", ["Mauresque", "Tomate", "Perroquet"], { obligatoire: true })],
+        }),
+        toastTeaAlcool("whisky-grants", "Whisky Grant's", 6),
+      ],
+    },
+    {
+      id: "digestifs",
+      name: "Digestifs",
+      tagline: "Servis uniquement lors d'un repas",
+      boissons: true,
+      items: [
+        toastTeaAlcool("manzana", "Manzana", 6),
+        toastTeaAlcool("poire-williams", "Poire William's", 8),
+        toastTeaAlcool("rhum", "Rhum", 8, {
+          description: "Blanc ou brun",
+          options: [groupeChoix("rhum", "Rhum", ["Blanc", "Brun"], { obligatoire: true })],
+        }),
+        toastTeaAlcool("cognac", "Cognac", 8),
+        toastTeaAlcool("get-27", "Get 27", 8),
+      ],
+    },
+    {
+      id: "vins",
+      name: "Carte des vins",
+      boissons: true,
+      items: [
+        toastTeaVin("grenache-grezan", "Grenache Château Grézan", "Vin rosé", toastTeaFormatsVin(3.2, 6, 9, 17)),
+        // Pas de quart au livret pour ce rosé.
+        toastTeaVin("rose-pamplemousse", "Rosé pamplemousse", "Vin rosé", [
+          ["Verre 12 cl", 3.5],
+          ["50 cl", 12],
+          ["Bouteille 75 cl", 18],
+        ]),
+        toastTeaVin(
+          "montcalm-prestige",
+          "Domaine de Montcalm Cuvée Prestige Vin des Sables Bio",
+          "Vin rosé",
+          toastTeaFormatsVin(4.2, 9, 12, 22)
+        ),
+        toastTeaVin("deesses-chardonnay", "Les Déesses Muettes Chardonnay", "Vin blanc", toastTeaFormatsVin(3.2, 6, 9, 17)),
+        toastTeaVin("deesses-viognier", "Les Déesses Muettes Viognier", "Vin blanc", toastTeaFormatsVin(4.2, 9, 12, 20)),
+        toastTeaVin("uby-4", "Uby N°4", "Vin blanc moelleux", toastTeaFormatsVin(4.2, 9, 12, 20)),
+        toastTeaVin("merlot-grezan", "Merlot Château de Grézan", "Vin rouge", toastTeaFormatsVin(3.2, 6, 9, 17)),
+        toastTeaVin("vicomte-aumelas", "Vicomte d'Aumelas, Murmure", "Vin rouge", toastTeaFormatsVin(4.2, 9, 12, 22)),
+        toastTeaAlcool("mas-de-jon", "Mas de Jon", 24, { description: "Vin rouge", detail: "Bouteille 75 cl" }),
+        articleFormats(
+          "champagne-feuillatte",
+          "Champagne Nicolas FEUILLATTE",
+          [
+            ["Bouteille 37,5 cl", 25],
+            ["Bouteille 75 cl", 50],
+          ],
+          ALCOOL
+        ),
+        articleFormats(
+          "prosecco",
+          "Prosecco",
+          [
+            ["Coupe", 5],
+            ["Bouteille 75 cl", 25],
+          ],
+          ALCOOL
+        ),
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -6739,6 +7594,7 @@ const restaurants: Record<string, Restaurant> = {
   [boulangerieCyprien.slug]: boulangerieCyprien,
   [brasserieLaissac.slug]: brasserieLaissac,
   [cafePoulard.slug]: cafePoulard,
+  [toastTea.slug]: toastTea,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -6759,6 +7615,7 @@ const themeClasses: Record<string, string> = {
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [cafePoulard.slug]: "theme-cafe-poulard",
+  [toastTea.slug]: "theme-toast-tea",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
