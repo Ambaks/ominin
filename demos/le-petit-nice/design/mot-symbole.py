@@ -85,13 +85,16 @@ boxes.append((tag_x, tag_y, tag_x + tag_w, tag_y + tag_h))
 minx, miny = min(b[0] for b in boxes), min(b[1] for b in boxes)
 maxx, maxy = max(b[2] for b in boxes), max(b[3] for b in boxes)
 pad = xh * 0.05
-vb = f"{minx - pad:.0f} {miny - pad:.0f} {maxx - minx + 2 * pad:.0f} {maxy - miny + 2 * pad:.0f}"
+vb_w, vb_h = maxx - minx + 2 * pad, maxy - miny + 2 * pad
+vb = f"{minx - pad:.0f} {miny - pad:.0f} {vb_w:.0f} {vb_h:.0f}"
 
 parts = [f'<path fill="{ink}" d="{"".join(d for d, _ in line1 + nice)}"/>']
 parts += [f'<rect x="{x:.0f}" y="{y:.0f}" width="{s}" height="{s}" fill="{c}"/>' for x, y, c in squares1 + squares2]
 parts.append(f'<rect x="{tag_x:.0f}" y="{tag_y:.0f}" width="{tag_w:.0f}" height="{tag_h:.0f}" rx="{s * 0.22:.0f}" fill="{ink}"/>')
 parts.append(f'<path fill="{tag_ink}" d="{"".join(d for d, _ in cafe + bar)}"/>')
 parts.append(f'<rect x="{dot_x:.0f}" y="{mid2 - dot / 2:.0f}" width="{dot:.0f}" height="{dot:.0f}" fill="{tag_ink}"/>')
-svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}">{"".join(parts)}</svg>\n'
+# Une taille propre (un dixième des unités) : sans elle, une image dans un
+# conteneur qui se règle sur son contenu s'effondre à 0 × 0.
+svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{vb_w / 10:.0f}" height="{vb_h / 10:.0f}" viewBox="{vb}">{"".join(parts)}</svg>\n'
 open(out, "w").write(svg)
 print(out, vb, len(svg), "octets")

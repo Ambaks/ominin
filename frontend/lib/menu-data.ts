@@ -6723,16 +6723,41 @@ const cafePoulard: Restaurant = {
   ],
 };
 
-/*
- * Le Petit Nice — le café-bar de la grande terrasse, 1 place Jean-Jaurès
- * (Écusson, Montpellier). Aucune carte en ligne de leur main : la cuisine
- * vient de l'ardoise de la terrasse, les formules et les boissons des
- * feuillets et des cartes posés sur les tables (photos de clients, 2025 et
- * août 2026). Tous les prix sont à confirmer avec le gérant ; ceux des tapas
- * sont attribués dans l'ordre de lecture. Sources et questions :
- * demos/le-petit-nice/profile.json.
- */
-const PETIT_NICE_PHOTOS: Partial<Record<string, string>> = {};
+/** Photos libres (Pexels, Unsplash), auditées sur planches : le bar n'en publie aucune de ses plats. */
+const PETIT_NICE_PHOTOS: Partial<Record<string, string>> = {
+  "petit-dejeuner": pexels("10069877/pexels-photo-10069877.jpeg", 800),
+  viennoiserie: pexels("8909319/pexels-photo-8909319.jpeg", 800),
+  "club-sandwich": unsplash("photo-1712746784291-e29d5d2694d4", 800),
+  croque: pexels("31768242/pexels-photo-31768242.jpeg", 800),
+  "burger-cbo": pexels("18713432/pexels-photo-18713432.jpeg", 800),
+  "salade-italienne": pexels("29882835/pexels-photo-29882835.jpeg", 800),
+  "salade-cesar": pexels("15813486/pexels-photo-15813486.jpeg", 800),
+  "brie-roti": unsplash("photo-1625428089695-3344815b4528", 800),
+  saucisson: pexels("4639328/pexels-photo-4639328.jpeg", 800),
+  burratina: pexels("29872991/pexels-photo-29872991.jpeg", 800),
+  tenders: pexels("29653191/pexels-photo-29653191.jpeg", 800),
+  nachos: pexels("4411802/pexels-photo-4411802.jpeg", 800),
+  "ginger-rasberry": pexels("37271933/pexels-photo-37271933.jpeg", 800),
+  "lime-mandarine": unsplash("photo-1619604395920-a16f33192a50", 800),
+  "peached-iced-tea": pexels("31664032/pexels-photo-31664032.jpeg", 800),
+  // Recadrée : au centre, le verre restait dans un coin du cadre.
+  "crazy-banana": pexelsRecadre("4051773/pexels-photo-4051773.jpeg", 800),
+  "fresh-passion": pexels("5156362/pexels-photo-5156362.jpeg", 800),
+  "apple-berries": pexels("38101015/pexels-photo-38101015.jpeg", 800),
+  passionnement: pexels("8375043/pexels-photo-8375043.jpeg", 800),
+  "tropical-soda": pexels("7377090/pexels-photo-7377090.jpeg", 800),
+  "red-berries": pexels("12419161/pexels-photo-12419161.jpeg", 800),
+  "mango-drop": pexels("38896800/pexels-photo-38896800.jpeg", 800),
+  "coco-spirit": pexels("18454778/pexels-photo-18454778.jpeg", 800),
+  exotique: pexels("4669243/pexels-photo-4669243.jpeg", 800),
+  virgin: pexels("15523637/pexels-photo-15523637.jpeg", 800),
+  cappuccino: pexels("1036443/pexels-photo-1036443.jpeg", 800),
+  "chocolat-viennois": pexels("17506136/pexels-photo-17506136.jpeg", 800),
+  "irish-coffee": pexels("14721872/pexels-photo-14721872.jpeg", 800),
+  smoothie: pexels("4753650/pexels-photo-4753650.jpeg", 800),
+  "fruits-presses": unsplash("photo-1689066117649-0ca9762fc92c", 800),
+  "pinte-paulaner": pexels("11188309/pexels-photo-11188309.jpeg", 800),
+};
 
 const petitNiceArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
   id,
@@ -6771,6 +6796,15 @@ const petitNiceFormuleEtudiante = (id: string, name: string, description: string
     ],
   });
 
+/*
+ * Le Petit Nice — le café-bar de la grande terrasse, 1 place Jean-Jaurès
+ * (Écusson, Montpellier). Aucune carte en ligne de leur main : la cuisine
+ * vient de l'ardoise de la terrasse, les formules et les boissons des
+ * feuillets et des cartes posés sur les tables (photos de clients, 2025 et
+ * août 2026). Tous les prix sont à confirmer avec le gérant ; ceux des tapas
+ * sont attribués dans l'ordre de lecture. Sources et questions :
+ * demos/le-petit-nice/profile.json.
+ */
 const lePetitNice: Restaurant = {
   slug: "le-petit-nice",
   name: "Le Petit Nice",
@@ -6836,14 +6870,14 @@ const lePetitNice: Restaurant = {
             groupeChoix("presse", "Pressé", ["Orange pressée", "Citron pressé"], { obligatoire: true }),
             groupeChoix(
               "viennoiserie",
-              "Au choix",
+              "Viennoiserie ou tartines",
               ["Croissant", "Pain au chocolat", "Deux tartines beurrées, confiture de fraise"],
               { obligatoire: true }
             ),
           ],
         }),
         petitNiceArticle("viennoiserie", "Croissant ou pain au chocolat", 1.9, {
-          options: [groupeChoix("viennoiserie", "Au choix", ["Croissant", "Pain au chocolat"], { obligatoire: true })],
+          options: [groupeChoix("viennoiserie", "Viennoiserie", ["Croissant", "Pain au chocolat"], { obligatoire: true })],
         }),
       ],
     },
@@ -6853,9 +6887,7 @@ const lePetitNice: Restaurant = {
       name: "À l'ardoise",
       items: [
         petitNiceArticle("plat-du-jour", "Plat du jour", 16, { description: "Demandez le plat du jour au serveur" }),
-        petitNiceArticle("dessert-du-jour", "Dessert du jour", 8, {
-          description: "Moelleux au chocolat, boule de vanille et crème anglaise",
-        }),
+        petitNiceArticle("dessert-du-jour", "Dessert du jour", 8, { description: "Demandez le dessert du jour au serveur" }),
       ],
     },
     {
@@ -6917,7 +6949,7 @@ const lePetitNice: Restaurant = {
         petitNiceArticle("saucisson", "Saucisson nature à partager", 10, { detail: "200 g" }),
         petitNiceArticle("burratina", "Burratina et son jambon cru", 10),
         petitNiceArticle("tenders", "Tenders de poulet pané", 9.5),
-        petitNiceArticle("nachos", "Nachos et guacamole maison", 9.5, { badges: ["maison"] }),
+        petitNiceArticle("nachos", "Nachos et guacamole maison", 9.5),
       ],
     },
     {
@@ -7003,12 +7035,16 @@ const lePetitNice: Restaurant = {
       boissons: true,
       items: [
         petitNiceArticle("crazy-banana", "Crazy Banana", 7.5, { description: "Purée de banane, sirop de kiwi, jus d'ananas" }),
-        petitNiceArticle("pie-apple", "Pie-Apple", 7.5),
+        petitNiceArticle("pie-apple", "Pie-Apple", 7.5, { description: "Jus d'ananas, cranberry, pomme, citron vert" }),
         petitNiceArticle("fresh-passion", "Fresh Passion", 7.5, { description: "Purée de mandarine, sirop de passion, limonade" }),
         petitNiceArticle("apple-berries", "Apple Berries", 7.5, {
           description: "Purée de framboise, sirop de pomme verte, limonade",
         }),
-        petitNiceArticle("passionnement", "Passionnément", 7.5, { description: "Purée de passion, sirop de vanille, limonade" }),
+        // La coupure française, si le nom doit se couper (320 px) ; le ticket garde le mot entier.
+        petitNiceArticle("passionnement", "Passion\u00adnément", 7.5, {
+          printName: "Passionnément",
+          description: "Purée de passion, sirop de vanille, limonade",
+        }),
         petitNiceArticle("tropical-soda", "Tropical Soda", 7.5, { description: "Purée de mangue, sirop de Pac, limonade" }),
         petitNiceArticle("red-berries", "Red Berries", 7.5, {
           description: "Purée de framboise, purée de fraise, jus de cranberry, sucre de canne",
@@ -7023,7 +7059,7 @@ const lePetitNice: Restaurant = {
           description: "Jus d'ananas, purée de mangue, purée de passion, fruit de la passion frais",
         }),
         petitNiceArticle("virgin", "Virgin Mojito / Virgin Colada", 7.5, {
-          options: [groupeChoix("virgin", "Au choix", ["Virgin Mojito", "Virgin Colada"], { obligatoire: true })],
+          options: [groupeChoix("virgin", "Cocktail", ["Virgin Mojito", "Virgin Colada"], { obligatoire: true })],
         }),
       ],
     },
@@ -7032,7 +7068,7 @@ const lePetitNice: Restaurant = {
       name: "Boissons fraîches",
       boissons: true,
       items: [
-        petitNiceArticle("soda", "Sodas", 4.1, {
+        petitNiceArticle("soda", "Sodas", 4.3, {
           options: [groupeChoix("soda", "Soda", PETIT_NICE_SODAS, { obligatoire: true })],
         }),
         petitNiceArticle("nectar", "Nectars & jus", 4.3, {

@@ -48,7 +48,7 @@
     ]
   },
   "menu": {
-    "source": "Aucune carte fournie ni publiée par l'établissement. Relevée sur des photos de clients (Google, Restaurant Guru, TripAdvisor), détail et dates dans docs/recherche-carte.md : l'ardoise de la terrasse (≈ 2025, docs/carte/ardoise-2025.jpg) pour le plat et le dessert du jour, les clubs, croques, CBO et salades ; la carte « Formule étudiante » (≈ août 2026) ; les feuillets des tapas et des boissons fraîches (≈ 2025) ; la carte plastifiée des boissons chaudes (≈ 2025) ; les thés glacés (≈ 2025). Plus ancien, faute de mieux et à confirmer : la composition des salades (carte de 2022), les descriptions des cocktails sans alcool (carte de 2020, mêmes noms et même prix), le prix du petit déjeuner (6,50 €, chevalet ancien) et des sodas (4,10 €, ticket d'avril 2023), la pinte Paulaner (7 €, Privateaser, non daté). La carte vit dans frontend/lib/menu-data.ts (const lePetitNice).",
+    "source": "Aucune carte fournie ni publiée par l'établissement. Relevée sur des photos de clients (Google, Restaurant Guru, TripAdvisor), détail et dates dans docs/recherche-carte.md : l'ardoise de la terrasse (≈ 2025, docs/carte/ardoise-2025.jpg) pour le plat et le dessert du jour, les clubs, croques, CBO et salades ; la carte « Formule étudiante » (≈ août 2026) ; les feuillets des tapas et des boissons fraîches (≈ 2025) ; la carte plastifiée des boissons chaudes (≈ 2025) ; les thés glacés (≈ 2025). Plus ancien, faute de mieux et à confirmer : la composition des salades (carte de 2022), les descriptions des cocktails sans alcool (carte de 2020, mêmes noms et même prix), le prix du petit déjeuner (6,50 €, chevalet ancien ; la carte de 2025 imprime un prix illisible, peut-être 7,50 €), la pinte Paulaner (7 €, Privateaser, non daté). La carte vit dans frontend/lib/menu-data.ts (const lePetitNice). Sodas à 4,30 € : la colonne du feuillet de 2025 se lit « 33cl > 4,30 » sur ses premières lignes (lecture floue, audit du 2026-10-16) ; le ticket d'avril 2023 disait 4,10 €.",
     "categories_summary": [
       "Formule étudiante — CBO, croque monsieur ou tenders frites : avec une pinte 10 €, avec un soft 8 € (+3 € portion de frites pour CBO et croque)",
       "Petit-déjeuner — Le petit déjeuner 6,50 € (ancien prix), croissant ou pain au chocolat 1,90 €",
@@ -60,18 +60,18 @@
       "Cafés alcoolisés — 4, à 12 €",
       "Thés glacés — 3, à 7,50 €",
       "Coktails sans alcool — 11, à 7,50 €",
-      "Boissons fraîches — sodas 4,10 €, nectars 4,30 €, fruits pressés 4,70 €, smoothies 7,50 €, sirop à l'eau 3,70 / 4 €",
+      "Boissons fraîches — sodas 4,30 €, nectars 4,30 €, fruits pressés 4,70 €, smoothies 7,50 €, sirop à l'eau 3,70 / 4 €",
       "Bières — Pinte Paulaner 7 €, La Bartavelle 33 cl 5 €"
     ],
     "absent_faute_de_prix": [
-      "Pan con tomate avec jambon cru, Frites maison (tapas) : 7 tapas pour 6 prix visibles, les deux derniers prix ne se rattachent pas.",
+      "Pan con tomate avec jambon cru, Frites maison (tapas) : 7 tapas pour 6 prix visibles ; le dernier (6,50 €) va sans doute au pan con tomate, non attribué.",
       "Nos ardoises (fromage, charcuterie, formule ardoise mixte) : aucun prix lisible.",
       "Happy hour : la liste est connue (pinte Paulaner, La Bartavelle, mojito, caïpiroska, pinte mojito, spritz Apérol, verre de vin, virgin mojito, pinte diabolo, pinte sirop), aucun prix récent.",
-      "Eaux (Vittel, San Pellegrino, Perrier), diabolo, verre de lait, energy drink, limonade pression : prix illisibles.",
-      "Les frappés : prix illisibles.",
+      "Eaux (Vittel, San Pellegrino, Perrier), diabolo, verre de lait, energy drink, limonade pression : prix en partie lisibles sur le feuillet de 2025, mais on ne sait pas à quelle ligne chacun va.",
+      "Les frappés : prix à peine lisibles (≈ 4,90 / 4,90 / 5,50 / 5,70 / 4,90 sur la carte de 2025), non repris.",
       "Cocktails alcoolisés, vins, alcools, digestifs, glaces : aucune carte récente (les anciennes datent de 2016 à 2020)."
     ],
-    "photos": "Photos libres (Pexels, Unsplash) auditées sur planches. Les photos de clients de leurs vrais plats (burger, salade thaï, nachos, mojito framboise) ne sont pas reprises (droits des auteurs) ; un shooting sur place les remplacerait.",
+    "photos": "Photos libres (Pexels, Unsplash) auditées sur planches. Les photos de clients de leurs vrais plats (burger, salade thaï, nachos, mojito framboise) ne sont pas reprises (droits des auteurs) ; un shooting sur place les remplacerait. Le badge « Recette maison » des nachos est retiré : le nom le dit déjà, et il couvrait la vignette. Sans photo, faute d'image fidèle : Salade Chèvre chaud (la seule trouvée ajoutait avocat et fraises), Salade Caprese (trop proche de la Burratina et de l'Italienne), Salade Thaï (la seule trouvée était désaturée).",
     "options_a_valider": [
       "Petit déjeuner : la boisson chaude se choisit parmi expresso, café allongé, café noisette, grand crème, thé, chocolat chaud ; la carte dit seulement « une boisson chaude ».",
       "Formule étudiante + soft : le soft se choisit dans la liste des sodas du feuillet ; la pinte de la formule n'est pas précisée (Paulaner ?).",
@@ -79,7 +79,11 @@
       "Club sandwich : « jambon blanc/cru » lu comme deux garnitures au choix.",
       "Tapas : prix attribués dans l'ordre de lecture de la colonne (10, 10, 10, 9,50, 9,50).",
       "Dessert du jour : 8 € lu sur l'ardoise (le chiffre est à demi effacé, 3 € possible) ; le moelleux est celui du jour de la photo.",
-      "Smoothies : le premier parfum du feuillet est illisible, il manque."
+      "Smoothies : le premier parfum du feuillet est illisible, il manque.",
+      "Sirops : un parfum du feuillet (début de la 2e ligne) est illisible, il manque.",
+      "Pie-Apple : « Jus d'ananas, cranberry, pomme, citron vert » se lit sur le feuillet de 2025, flou (identique au « Mémette » de 2020).",
+      "Nos croques : « monsieur - madame » de l'ardoise lu comme deux croques au choix.",
+      "Orthographes du feuillet gardées : « Coktails sans alcool », « Ginger Rasberry », « Peached iced tea » ; à corriger si le gérant le souhaite."
     ]
   },
   "offers": [
@@ -104,8 +108,8 @@
     "3. Le dessert du jour est-il à 8 € ou à 3 € ?",
     "4. Les prix des tapas : lequel va avec quel plat ? Et ceux du pan con tomate et des frites maison ?",
     "5. Prix des ardoises (fromage, charcuterie, mixte), du happy hour, des eaux, des frappés, des cocktails, des vins et des glaces.",
-    "6. Le petit déjeuner est-il toujours à 6,50 € ? Quelles boissons chaudes comprend-il ?",
-    "7. Les sodas sont-ils tous à 4,10 € (ticket d'avril 2023) ? La pinte Paulaner à 7 € ?",
+    "6. Le petit déjeuner : 6,50 € (ancien chevalet) ou le prix illisible de la carte de 2025 (7,50 € ?) ? Quelles boissons chaudes comprend-il ?",
+    "7. Les sodas sont-ils à 4,30 € (feuillet de 2025, lecture floue) ? Les eaux, le diabolo, la limonade ? La pinte Paulaner à 7 € (Privateaser, non daté) ?",
     "8. Formule étudiante : quelle pinte ? Le supplément frites est-il de 3 € (août 2026) ou 2 € (2025) ?",
     "9. Les compositions des salades de 2022 sont-elles toujours justes ? Celles de la Caprese et de la Thaï ?",
     "10. Les descriptions des cocktails sans alcool (carte de 2020) sont-elles toujours justes ? Celle du Pie-Apple ?",
