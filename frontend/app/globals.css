@@ -5745,6 +5745,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   trente écrans.
 */
 [data-menu-root]:is(
+    [data-slug="cafe-riche"],
     [data-slug="le-novelty"],
     [data-slug="le-victoria"],
     [data-slug="cafe-des-arts"],
@@ -5974,12 +5975,13 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) .rail-progress {
   display: none;
 }
 
 /* Le premier écran montre déjà la carte, au téléphone comme au bureau. */
 [data-menu-root]:is(
+    [data-slug="cafe-riche"],
     [data-slug="le-novelty"],
     [data-slug="le-victoria"],
     [data-slug="cafe-des-arts"],
@@ -5996,6 +5998,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
    fiches vont par deux (64rem). */
 @media (min-width: 48rem) {
   [data-menu-root]:is(
+      [data-slug="cafe-riche"],
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
@@ -6009,6 +6012,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
   }
 
   [data-menu-root]:is(
+      [data-slug="cafe-riche"],
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
@@ -6040,6 +6044,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 
 @media (min-width: 64rem) {
   [data-menu-root]:is(
+      [data-slug="cafe-riche"],
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
@@ -6143,6 +6148,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
      la main sur son haut de page. */
   :where(
       [data-menu-root]:is(
+          [data-slug="cafe-riche"],
           [data-slug="le-novelty"],
           [data-slug="le-victoria"],
           [data-slug="cafe-des-arts"],
@@ -8071,6 +8077,430 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
 }
 
 /*
+  Café Riche (8 place de la Comédie) — brasserie historique depuis 1893.
+  L'identité de son auvent, de son logo et de son site : la toile crème de
+  l'auvent, le bleu marine et le laiton du mot « RiCHE » (le laiton cerné de
+  bleu), le velours bleu et les arceaux de laiton de la salle. Titres et prix
+  en Playfair Display, comme sur leur site ; le texte en DM Sans ; les
+  capitales espacées en Josefin Sans, proches du « CAFÉ » du logo. Trois
+  dispositifs repris : le cadre Art déco de l'auvent, filet bleu et éventails
+  aux quatre coins, autour du logo ; le bandeau sombre au-dessus de l'auvent
+  (« le Café 1893 · BAR BRASSERIE ») pour les annonces ; le filet de laiton et
+  son losange sous les titres, comme sur leur carte en ligne.
+*/
+.theme-cafe-riche {
+  /* Le bleu et le laiton échantillonnés sur le logo (#103868, #a08858) ; le
+     bleu ravivé d'un cran. Le laiton ne porte aucun texte sur la crème
+     (2,9:1) : le laiton sombre tient 5,7:1 pour les petits textes, le laiton
+     clair 5,4:1 sur le bleu. */
+  --cr-bleu: #173a6b;
+  --cr-bleu-profond: #0f2a50;
+  --cr-laiton: #a08858;
+  --cr-laiton-sombre: #73592a;
+  --cr-laiton-clair: #c9b07a;
+  --cr-creme: #f4eee3;
+
+  --background: var(--cr-creme);
+  --foreground: #1b2434;
+
+  --surface: #fbf8f2;
+  --surface-raised: #ffffff;
+  --hairline: rgba(23, 58, 107, 0.16);
+
+  --muted: #4b5262;
+  --faint: #5a6070;
+
+  /* L'encre des boutons est la crème du fond : le bleu y tient 9,8:1. */
+  --ember-1: var(--cr-bleu);
+  --ember-2: var(--cr-bleu);
+  --ember-3: var(--cr-bleu-profond);
+
+  --shimmer-highlight: rgba(160, 136, 88, 0.14);
+  --glow-inner: rgba(23, 58, 107, 0.06);
+  --glow-outer: rgba(23, 58, 107, 0.04);
+
+  --brand-display: var(--font-playfair-display), var(--font-fraunces), serif;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  --cr-capitales: var(--font-josefin-sans), var(--brand-sans);
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-cafe-riche),
+html:has([data-menu-root].theme-cafe-riche) body {
+  background-color: #f4eee3;
+}
+
+.theme-cafe-riche :focus-visible {
+  outline: 2px solid var(--cr-bleu);
+  outline-offset: 3px;
+}
+
+/* Le bleu à plat du velours : pas de dégradé. */
+.theme-cafe-riche .ember-gradient {
+  background-image: none;
+  background-color: var(--cr-bleu);
+}
+
+.theme-cafe-riche .ember-text {
+  background-image: none;
+  color: var(--cr-laiton-sombre);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Chiffres alignés partout : en elzévirien, les « 9 » du total du panier
+   descendaient sous la ligne. */
+.theme-cafe-riche .font-display {
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+}
+
+/* Les annonces sur le bandeau sombre au-dessus de l'auvent, en capitales
+   crème ; la signature au laiton. */
+.theme-cafe-riche .menu-ticker {
+  border-bottom: 0;
+  background-color: var(--cr-bleu-profond);
+  color: var(--cr-creme);
+}
+
+.theme-cafe-riche .menu-ticker-item {
+  font-family: var(--cr-capitales);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.theme-cafe-riche .menu-ticker-pause {
+  --tw-gradient-from: var(--cr-bleu-profond);
+  color: var(--cr-laiton-clair);
+}
+
+/*
+  Le haut de page : l'auvent. L'aquarelle de leur façade (la couverture de
+  leur site) en bandeau, fondue dans la crème ; le logo dans le cadre de la
+  toile — un filet bleu, un éventail à chaque coin — qui la chevauche.
+*/
+[data-menu-root].theme-cafe-riche > header.logo-hero {
+  --cr-bandeau: 15rem;
+  justify-content: flex-start;
+  min-height: 0;
+  padding-block: calc(var(--cr-bandeau) - 3.5rem) 2rem;
+
+  & > :first-child {
+    inset: 0 0 auto;
+    height: var(--cr-bandeau);
+    background:
+      linear-gradient(to bottom, transparent 55%, var(--cr-creme)),
+      url("/cafe-riche/auvent-aquarelle.jpg") center 35% / cover no-repeat;
+  }
+
+  & > :nth-child(2),
+  & > :nth-child(3),
+  & :is(.hero-gradient-drift, .logo-breathe, .hero-cue) {
+    display: none;
+  }
+}
+
+.theme-cafe-riche .hero-logo {
+  --cr-eventail: 1.75rem;
+  margin-bottom: 0;
+  padding: 2rem 2.75rem 1.75rem;
+  border: 1.5px solid var(--cr-bleu);
+  /* Les éventails de l'auvent : cinq rayons partis du coin. */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none' stroke='%23173a6b' stroke-width='1.25' stroke-linecap='round'%3E%3Cpath d='M3 3 25 8M3 3 22 14M3 3 18 18M3 3 14 22M3 3 8 25'/%3E%3C/svg%3E")
+      top 0.375rem left 0.375rem / var(--cr-eventail) no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none' stroke='%23173a6b' stroke-width='1.25' stroke-linecap='round'%3E%3Cpath d='M25 3 3 8M25 3 6 14M25 3 10 18M25 3 14 22M25 3 20 25'/%3E%3C/svg%3E")
+      top 0.375rem right 0.375rem / var(--cr-eventail) no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none' stroke='%23173a6b' stroke-width='1.25' stroke-linecap='round'%3E%3Cpath d='M3 25 25 20M3 25 22 14M3 25 18 10M3 25 14 6M3 25 8 3'/%3E%3C/svg%3E")
+      bottom 0.375rem left 0.375rem / var(--cr-eventail) no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28' fill='none' stroke='%23173a6b' stroke-width='1.25' stroke-linecap='round'%3E%3Cpath d='M25 25 3 20M25 25 6 14M25 25 10 10M25 25 14 6M25 25 20 3'/%3E%3C/svg%3E")
+      bottom 0.375rem right 0.375rem / var(--cr-eventail) no-repeat,
+    var(--surface);
+  box-shadow:
+    inset 0 0 0 0.3125rem var(--surface),
+    inset 0 0 0 calc(0.3125rem + 1px) color-mix(in srgb, var(--cr-laiton) 70%, transparent),
+    0 0.75rem 2rem rgb(15 42 80 / 0.12);
+}
+
+.theme-cafe-riche .hero-logo img {
+  width: min(58vw, 15rem);
+  height: auto;
+}
+
+.theme-cafe-riche .hero-tagline {
+  margin-top: 1.75rem;
+  color: var(--cr-bleu);
+  font-family: var(--cr-capitales);
+  font-weight: 600;
+  letter-spacing: 0.28em;
+}
+
+.theme-cafe-riche .hero-tagline .tagline-sep {
+  color: var(--cr-laiton);
+}
+
+[data-menu-root].theme-cafe-riche .hero-rule {
+  height: 1px;
+  background: var(--cr-laiton);
+  opacity: 1;
+}
+
+@media (min-width: 40rem) {
+  [data-menu-root].theme-cafe-riche > header.logo-hero {
+    --cr-bandeau: 20rem;
+  }
+
+  .theme-cafe-riche .hero-logo {
+    --cr-eventail: 2.25rem;
+    padding: 2.5rem 3.75rem 2.25rem;
+  }
+
+  .theme-cafe-riche .hero-logo img {
+    width: 18rem;
+  }
+}
+
+/* Au bureau, l'aquarelle et le cadre moins hauts : à 1 440 × 900, la carte
+   commence au premier écran. */
+@media (min-width: 64rem) {
+  [data-menu-root].theme-cafe-riche > header.logo-hero {
+    --cr-bandeau: 19rem;
+    padding-block: calc(var(--cr-bandeau) - 4rem) 2rem;
+
+    /* Plus large que haute, l'aquarelle se rogne : calée sur la terrasse,
+       sans le mot « RiCHE » de l'auvent tranché sous le bandeau ; le logo
+       est juste dessous. */
+    & > :first-child {
+      background-position: center, center bottom;
+    }
+  }
+
+  .theme-cafe-riche .hero-logo {
+    padding: 2rem 3.5rem 1.75rem;
+  }
+
+  .theme-cafe-riche .hero-logo img {
+    width: 16rem;
+  }
+
+  .theme-cafe-riche .hero-tagline {
+    margin-top: 1.25rem;
+  }
+}
+
+/* Le cadre se trace, puis le logo s'y pose. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-cafe-riche .hero-logo {
+    animation: cr-auvent 0.9s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  .theme-cafe-riche .hero-logo img {
+    animation: cr-logo 0.7s cubic-bezier(0.32, 0.72, 0, 1) 0.35s both;
+  }
+}
+
+@keyframes cr-auvent {
+  from {
+    clip-path: inset(50% 0 50% 0);
+    opacity: 0;
+  }
+
+  to {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+}
+
+@keyframes cr-logo {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+/* Les arguments en capitales bleues entre deux filets de laiton. */
+.theme-cafe-riche .menu-highlights {
+  border-color: var(--cr-laiton);
+  border-width: 1px 0;
+  background-color: var(--surface);
+}
+
+.theme-cafe-riche .menu-highlights li {
+  color: var(--cr-bleu);
+  font-family: var(--cr-capitales);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+@media (min-width: 40rem) {
+  .theme-cafe-riche .menu-highlights li + li::before {
+    content: "◆";
+    margin-inline: -2.25rem 1.5rem;
+    color: var(--cr-laiton);
+    font-size: 0.5rem;
+    vertical-align: 0.2em;
+  }
+}
+
+/* Au bureau, les trois arguments sur une ligne : à la ligne, le losange
+   ouvrait la seconde. */
+@media (min-width: 64rem) {
+  .theme-cafe-riche .menu-highlights ul {
+    flex-wrap: nowrap;
+  }
+
+  .theme-cafe-riche .menu-highlights li {
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+}
+
+/* Les catégories en capitales espacées, cernées de bleu ; la courante en
+   bleu plein. Angles nets, Art déco. */
+[data-menu-root].theme-cafe-riche nav [data-category] {
+  border-radius: 0.125rem;
+  border-color: color-mix(in srgb, var(--cr-bleu) 35%, transparent);
+  color: var(--cr-bleu);
+  font-family: var(--cr-capitales);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+
+  &[aria-current] {
+    border-color: transparent;
+    color: var(--cr-creme);
+    box-shadow: none;
+  }
+}
+
+/* Les titres de leur carte : Playfair bleu, le filet de laiton qui part d'un
+   losange. */
+[data-menu-root].theme-cafe-riche .category-heading {
+  color: var(--cr-bleu);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+[data-menu-root].theme-cafe-riche .category-rule {
+  position: relative;
+  height: 1px;
+  background: var(--cr-laiton);
+  opacity: 1;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: var(--cr-laiton);
+    translate: 0 -50%;
+    rotate: 45deg;
+  }
+}
+
+.theme-cafe-riche .category-tagline {
+  color: var(--cr-laiton-sombre);
+  font-style: normal;
+  font-family: var(--cr-capitales);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* Les plats et leurs prix en Playfair, comme les titres. */
+[data-menu-root].theme-cafe-riche .dish-head > h3 {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.theme-cafe-riche .dish-price {
+  color: var(--cr-bleu);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-cafe-riche .dish-grid > article {
+  border-radius: 0.25rem;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 42 80 / 0.05);
+}
+
+/* La photo nette jusqu'à son bord : le voile crème la délavait. */
+[data-menu-root].theme-cafe-riche .dish-photo-fade {
+  display: none;
+}
+
+/* Au bureau, une fiche sans photo à côté d'une fiche à photo garde sa
+   hauteur : étirée, elle n'était qu'un cadre vide. */
+@media (min-width: 64rem) {
+  [data-menu-root].theme-cafe-riche .dish-grid > article:not(:has(.dish-photo)) {
+    align-self: start;
+  }
+}
+
+.theme-cafe-riche .choice-row.is-checked {
+  border-color: var(--cr-bleu);
+}
+
+/* « Choisir : … » mène au choix qui manque : cerné de bleu, c'est l'action
+   principale qui attend, pas un second bouton blanc à côté d'« Annuler ». */
+[data-menu-root].theme-cafe-riche [role="dialog"] button.min-w-0.flex-1.rounded-full:not(.ember-gradient) {
+  border-color: var(--cr-bleu);
+  color: var(--cr-bleu);
+}
+
+/* La feuille d'options : le plat en Playfair, les groupes en capitales. */
+[data-menu-root].theme-cafe-riche [role="dialog"] legend {
+  color: var(--cr-bleu);
+  font-family: var(--cr-capitales);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+
+  & > span {
+    font-family: var(--brand-sans);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+[data-menu-root].theme-cafe-riche .cart-count {
+  background-color: var(--cr-creme);
+  color: var(--cr-bleu);
+  box-shadow: 0 0 0 1px var(--cr-bleu);
+}
+
+/* Le pied de page sous le cadre de l'auvent : un filet bleu, un filet de
+   laiton en retrait. */
+.theme-cafe-riche > footer {
+  border-top: 0;
+  box-shadow:
+    inset 0 1.5px 0 var(--cr-bleu),
+    inset 0 calc(1.5px + 0.3125rem) 0 var(--cr-creme),
+    inset 0 calc(1.5px + 0.3125rem + 1px) 0 var(--cr-laiton);
+}
+
+.theme-cafe-riche .footer-phone {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+/* Le salut du service dans le cadre de l'auvent. */
+.theme-cafe-riche .serve-box-mark {
+  border-color: var(--cr-laiton);
+}
+
+.theme-cafe-riche .serve-box-title {
+  color: var(--cr-bleu);
+}
+
+/*
   Toast' Tea (7 rue de Vallat) — salon de thé et restaurant, sa terrasse sur
   la place derrière Saint-Roch. L'identité de son livret (vers 2022) : papier
   ivoire, vert sapin du cadre et des onglets, or antique de l'apostrophe et de
@@ -8473,7 +8903,7 @@ html:has([data-menu-root].theme-toast-tea) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -8496,7 +8926,7 @@ html:has([data-menu-root].theme-toast-tea) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -8568,7 +8998,7 @@ html:has([data-menu-root].theme-toast-tea) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -8589,7 +9019,7 @@ html:has([data-menu-root].theme-toast-tea) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -8615,7 +9045,7 @@ html:has([data-menu-root].theme-toast-tea) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -9329,6 +9759,7 @@ html:has([data-menu-root].theme-toast-tea) body {
 /* Au bureau, les pastilles et le panier sur la colonne de la carte. */
 @media (min-width: 64rem) {
   [data-menu-root]:is(
+      [data-slug="cafe-riche"],
       [data-slug="le-novelty"],
       [data-slug="le-victoria"],
       [data-slug="cafe-des-arts"],
@@ -9535,7 +9966,7 @@ html:has([data-menu-root].theme-toast-tea) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-toast-tea) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
