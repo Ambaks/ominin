@@ -10,8 +10,6 @@ import {
   ShopAudiences,
   ShopContact,
   ShopFaq,
-  ShopFeatures,
-  ShopFinalCta,
   ShopFooter,
   ShopPricing,
   ShopSetup,
@@ -31,10 +29,10 @@ export const metadata: Metadata = {
 };
 
 /*
- * Ordre pensé pour un trafic venu des réseaux : la promesse (hero animé), on
- * se reconnaît (pour qui), ce qui change, le parcours d'une commande raconté
- * au défilement, une vraie boutique et ses écrans, la mise en route, le tarif, l'appel, les
- * objections, et la page se referme sur le formulaire.
+ * Ordre pensé pour un trafic venu des réseaux : la promesse (hero animé), le
+ * parcours d'une commande raconté au défilement, on se reconnaît (pour qui),
+ * ce qui change, la vraie boutique à essayer, ses écrans, la mise en route,
+ * le tarif, les objections, et la page se referme sur le formulaire.
  */
 export default function ShopHome() {
   return (
@@ -43,15 +41,13 @@ export default function ShopHome() {
       <main className="overflow-x-clip">
         <ShopHero />
         <Marquee words={marquee} />
+        <ShopJourney />
         <ShopAudiences />
         <ShopShift />
-        <ShopJourney />
         <ShopShowcase />
         <ShopScreens />
         <ShopSetup />
-        <ShopFeatures />
         <ShopPricing />
-        <ShopFinalCta />
         <ShopFaq />
         <ShopContact />
       </main>
