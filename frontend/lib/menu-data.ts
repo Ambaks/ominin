@@ -7040,7 +7040,11 @@ const lePetitNice: Restaurant = {
         petitNiceArticle("apple-berries", "Apple Berries", 7.5, {
           description: "Purée de framboise, sirop de pomme verte, limonade",
         }),
-        petitNiceArticle("passionnement", "Passionnément", 7.5, { description: "Purée de passion, sirop de vanille, limonade" }),
+        // La coupure française, si le nom doit se couper (320 px) ; le ticket garde le mot entier.
+        petitNiceArticle("passionnement", "Passion\u00adnément", 7.5, {
+          printName: "Passionnément",
+          description: "Purée de passion, sirop de vanille, limonade",
+        }),
         petitNiceArticle("tropical-soda", "Tropical Soda", 7.5, { description: "Purée de mangue, sirop de Pac, limonade" }),
         petitNiceArticle("red-berries", "Red Berries", 7.5, {
           description: "Purée de framboise, purée de fraise, jus de cranberry, sucre de canne",
