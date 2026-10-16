@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
@@ -10,11 +9,11 @@ import { shopOffer } from "@/lib/shop-landing-data";
 import { centsToEurosInput, eurosToCents } from "@/lib/shop/format";
 import * as api from "@/lib/shop/gestion-api";
 import { DEFAULT_PALETTE, FONT_PRESET_LABELS, PALETTE_LABELS, paletteStyle, resolveTheme, type ShopFontPreset, type ShopPalette } from "@/lib/shop/theme";
-import type { Shop, ShopPaymentAccount, ShopSubscription } from "@/lib/shop/types";
+import type { Shop, ShopPaymentAccount } from "@/lib/shop/types";
 import { CheckCircleIcon, CircleDashedIcon, ExternalLinkIcon, RefreshIcon } from "../icons";
 import { Card, primaryButton, secondaryButton } from "./page-header";
 
-/* Réglages de la boutique : identité, contact, légal, textes, thème, paiement, abonnement. */
+/* Réglages de la boutique : identité, contact, légal, textes, thème, paiement, tarif. */
 
 type Section = "general" | "legal" | "texts";
 
@@ -284,55 +283,28 @@ export function StripePanel({ account, stripeConfigured }: { account: ShopPaymen
   );
 }
 
-export function SubscriptionPanel({ subscription, pricesConfigured }: { subscription: ShopSubscription | null; pricesConfigured: boolean }) {
-  const toast = useToast();
-  const [busy, setBusy] = useState(false);
-  const { contract, contractError } = useContract({ scope: "shop" });
-  const [accepted, setAccepted] = useState(false);
-  const active = subscription?.status === "active" || subscription?.status === "trialing";
-
+/*
+ * Tarif de la boutique : gratuite, rémunérée par la commission. Le taux
+ * affiché est celui de sa fiche, fixé par Ominin et prélevé à chaque paiement
+ * (lib/shop/checkout.ts) — pas celui de la landing, qui ne vaut que pour les
+ * boutiques ouvertes depuis.
+ */
+export function TariffPanel({ feePercent }: { feePercent: number }) {
   return (
-    <Card title="Abonnement Ominin Shop" action={<span className={`rounded-full px-3 py-1 text-xs font-semibold ${active ? "bg-status-signed/15 text-status-signed" : "bg-ember-2/15 text-ember-2"}`}>{active ? "Actif" : subscription?.status ?? "Aucun"}</span>}>
-      <div className="flex flex-col gap-4 text-sm text-muted">
-        <p>{active ? "Votre abonnement est en cours. La facturation est gérée par Stripe." : "Mise en place puis abonnement mensuel, sans engagement."}</p>
-        {!active && (
-          <>
-            <AcceptTerms
-              contract={contract}
-              checked={accepted}
-              onChange={setAccepted}
-              disabled={busy}
-              commitment={
-                <>
-                  Je m’abonne à{" "}
-                  <span className="font-semibold">{shopOffer.name}</span> et je
-                  m’engage à régler les montants de mon devis.
-                </>
-              }
-            />
-            {contractError && <p className="text-xs text-ember-3">{contractError}</p>}
-            <button
-              type="button"
-              disabled={busy || !pricesConfigured || !accepted || !contract}
-              onClick={async () => {
-                if (!contract) return;
-                setBusy(true);
-                try {
-                  window.location.assign(
-                    await api.subscriptionCheckoutUrl(contract.versions)
-                  );
-                } catch (error) {
-                  toast.error(error instanceof Error ? error.message : "Erreur.");
-                  setBusy(false);
-                }
-              }}
-              className={`${primaryButton} w-fit`}
-            >
-              Souscrire
-            </button>
-          </>
-        )}
-        {!pricesConfigured && <p className="text-xs text-faint">Tarifs en cours de définition : la souscription en ligne sera ouverte prochainement.</p>}
+    <Card title={`Tarif ${shopOffer.name}`}>
+      <div className="flex flex-col gap-2 text-sm text-muted">
+        <p>
+          <span className="font-semibold text-foreground">Gratuite</span> : ni mise en place ni abonnement.
+        </p>
+        <p>
+          {feePercent > 0 ? (
+            <>
+              <span className="font-semibold text-foreground">{feePercent.toLocaleString("fr-FR")} %</span> de chaque commande payée, prélevés par Stripe au paiement ; rien quand vous ne vendez pas.
+            </>
+          ) : (
+            "Aucune commission n'est prélevée sur vos commandes."
+          )}
+        </p>
       </div>
     </Card>
   );

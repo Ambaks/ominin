@@ -27,7 +27,6 @@ import type {
   ShopPaymentAccount,
   ShopSession,
   ShopShippingMethod,
-  ShopSubscription,
 } from "./types";
 
 /*
@@ -337,12 +336,6 @@ export async function getAllFaq(shopId: string): Promise<ShopFaqItem[]> {
 export async function getPaymentAccount(shopId: string): Promise<ShopPaymentAccount | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("shop_payment_accounts").select("*").eq("shop_id", shopId).maybeSingle();
-  return data;
-}
-
-export async function getSubscription(shopId: string): Promise<ShopSubscription | null> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("shop_subscriptions").select("*").eq("shop_id", shopId).maybeSingle();
   return data;
 }
 

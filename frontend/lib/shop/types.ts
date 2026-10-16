@@ -7,7 +7,6 @@ import type { Enums, Tables } from "@/lib/supabase/database.types";
 
 export type Shop = Tables<"shops">;
 export type ShopMember = Tables<"shop_members">;
-export type ShopSubscription = Tables<"shop_subscriptions">;
 export type ShopPaymentAccount = Tables<"shop_payment_accounts">;
 export type ShopCategory = Tables<"shop_categories">;
 export type ShopOptionGroup = Tables<"shop_option_groups">;
