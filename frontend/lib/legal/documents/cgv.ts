@@ -128,40 +128,47 @@ const planTariff = (plan: Plan) => {
   return `${parts.join(" ; ")}.`;
 };
 
-/*
- * Offre boutique. Tant qu'elle n'est pas publiée, ses deux prix valent zéro
- * dans shop-landing-data : les imprimer annoncerait une gratuité qu'Ominin
- * n'accorde pas. L'annexe renvoie alors au devis, et la ligne chiffrée paraît
- * le jour où les montants sont arrêtés — l'empreinte change, la procédure de
- * l'article 9 s'applique.
- *
- * Un montant non nul laissé sur une offre non publiée est chiffré lui aussi :
- * setup-stripe crée le prix dès qu'il sort de zéro, donc il est facturé, et
- * une somme facturée ne peut pas rester hors de l'annexe.
+/**
+ * L'offre boutique dans l'annexe, et sa commission à l'article 12 s'il y en
+ * a une. Chaque version des CGV fige la sienne, comme pour le click & collect.
  */
-const shopPriced =
-  shopOffer.published || shopOffer.monthlyPrice > 0 || shopOffer.setupPrice > 0;
+interface ShopTariff {
+  annex: string[];
+  commission?: string;
+}
 
-const shopTariffLines = [
-  ...(shopPriced
-    ? [
-        `Abonnement — ${euros(shopOffer.monthlyPrice)} par mois et par Boutique.`,
-        `Mise en place — ${euros(shopOffer.setupPrice)}, réglés une seule fois à l'ouverture de la Boutique.`,
-      ]
-    : [
-        "Abonnement mensuel et frais de mise en place — fixés individuellement, selon le nombre de références et le travail de construction de la Boutique. Aucun tarif public n'est arrêté pour cette offre à la date des présentes.",
-        "Les montants dus sont ceux du devis accepté par le Client avant la souscription ; ils lui sont rappelés au récapitulatif de commande et conservés avec son acceptation (article 5).",
-      ]),
-  "La mise en place n'est pas une Commande de démarrage au sens de l'article 10 : elle rémunère la construction de la Boutique et ne comprend aucune fourniture.",
-];
+/* Boutique des versions du 2026-09-22 au 2026-10-11 : sur devis, sans commission. */
+const shop20260922: ShopTariff = {
+  annex: [
+    "Abonnement mensuel et frais de mise en place — fixés individuellement, selon le nombre de références et le travail de construction de la Boutique. Aucun tarif public n'est arrêté pour cette offre à la date des présentes.",
+    "Les montants dus sont ceux du devis accepté par le Client avant la souscription ; ils lui sont rappelés au récapitulatif de commande et conservés avec son acceptation (article 5).",
+    "La mise en place n'est pas une Commande de démarrage au sens de l'article 10 : elle rémunère la construction de la Boutique et ne comprend aucune fourniture.",
+  ],
+};
 
-const commissionLines = (collect: CollectTariff, plans: Plan[]) => [
+/*
+ * Boutique gratuite, rémunérée par la seule commission. Les lignes ne lisent
+ * pas setupPrice ni monthlyPrice : le jour où un prix sort de zéro, il faut
+ * une nouvelle version et un nouveau ShopTariff, pas une ligne qui change sous
+ * une version publiée.
+ */
+const shopCommission = points(shopOffer.commissionPercent);
+const shopFree: ShopTariff = {
+  annex: [
+    "Mise en place et abonnement — gratuits : la Boutique est construite et hébergée sans frais d'ouverture ni mensualité.",
+    `Commission — ${shopCommission} des commandes payées en ligne sur la Boutique (article 12), prélevée par le prestataire de paiement à chaque paiement.`,
+  ],
+  commission: `${shopBrand} — ${shopCommission} des commandes payées en ligne sur la Boutique.`,
+};
+
+const commissionLines = (collect: CollectTariff, plans: Plan[], shop: ShopTariff) => [
   ...plans.flatMap((plan) =>
     plan.commission
       ? [`${plan.name} — ${points(plan.commission.percent)} ${plan.commission.basis}.`]
       : []
   ),
   `${collectOffer.name} — ${collect.commission} des commandes à emporter payées en ligne.`,
+  ...(shop.commission ? [shop.commission] : []),
 ];
 
 /*
@@ -190,7 +197,8 @@ const trialArticles = (plans: Plan[]): LegalArticle[] => {
 const buildArticles = (
   collect: CollectTariff,
   plans: Plan[],
-  starter: StarterTerms = starterTerms20260922
+  starter: StarterTerms = starterTerms20260922,
+  shop: ShopTariff = shop20260922
 ): LegalArticle[] => [
   {
     heading: "Article 1 — Objet et champ d'application",
@@ -316,7 +324,7 @@ const buildArticles = (
     heading: "Article 12 — Commission",
     body: [
       "Certaines offres comportent une commission, qui s'ajoute à l'abonnement :",
-      commissionLines(collect, plans),
+      commissionLines(collect, plans, shop),
       "La commission ne porte que sur les paiements encaissés en ligne par l'intermédiaire des Services. Les règlements en espèces, par carte au comptoir, sur un terminal de paiement du Client ou par tout autre moyen extérieur aux Services n'en supportent aucune.",
       "Elle est calculée sur le montant payé par le Convive, pourboires exclus, et prélevée ou facturée mensuellement selon le mode d'encaissement retenu. Les commandes annulées et les sommes remboursées au Convive donnent lieu à restitution de la commission correspondante.",
       "Elle est distincte des frais du prestataire de paiement, qui s'y ajoutent et sont dus par le Client à ce prestataire.",
@@ -429,7 +437,7 @@ const buildArticles = (
         ...collect.subscriptionLines,
       ],
       `${shopBrand} — ${shopOffer.name} :`,
-      shopTariffLines,
+      shop.annex,
       "Commande de démarrage, réglée une seule fois à la souscription (article 10) :",
       starter.annex,
       "S'y ajoutent, le cas échéant, les frais du prestataire de paiement retenu par le Client, qui ne sont pas perçus par Ominin.",
@@ -524,4 +532,18 @@ export const cgv20261011: LegalDocument = {
   summary:
     "Commande de démarrage : imprimantes tickets, câble Ethernet et affiches A3 au prix de l'Annexe 1, vitrophanie sur devis ; rien de ce qui est livré n'est repris, échangé ni remboursé.",
   articles: buildArticles(collectCurrent, plansCurrent, starterTermsMateriel),
+};
+
+/*
+ * Ominin Shop gratuite, rémunérée par sa commission. Sans réacceptation : rien
+ * ne change pour la restauration, et une boutique déjà ouverte garde le taux
+ * inscrit à sa fiche (shops.platform_fee_percent), fixé par Ominin.
+ */
+export const cgv20261016: LegalDocument = {
+  ...cgv,
+  version: "2026-10-16",
+  effectiveFrom: parisEffectiveDate("2026-10-16"),
+  reacceptance: false,
+  summary: `${shopBrand} gratuite : ni mise en place ni abonnement, ${shopCommission} des commandes payées en ligne sur la Boutique.`,
+  articles: buildArticles(collectCurrent, plansCurrent, starterTermsMateriel, shopFree),
 };
