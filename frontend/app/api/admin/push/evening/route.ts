@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       title: `Demain ${hour(rdv.start_at)} · ${name}`,
       body: [rdv.title, rdv.location].filter(Boolean).join(" — "),
       tag: `rdv-${rdv.start_at}`,
-      url: "/agenda",
+      url: "/",
     });
   }
   return NextResponse.json({ rdvs: rdvs.length });

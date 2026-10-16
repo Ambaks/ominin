@@ -1,6 +1,5 @@
 import type {
   ActivityType,
-  AppointmentStatus,
   AppointmentType,
   LeadStatus,
   OutreachClassification,
@@ -100,13 +99,6 @@ export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   open: "À faire",
   done: "Terminée",
   cancelled: "Annulée",
-};
-
-export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
-  scheduled: "Prévu",
-  completed: "Terminé",
-  cancelled: "Annulé",
-  no_show: "No-show",
 };
 
 export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
@@ -326,10 +318,8 @@ export const FOLLOW_UP_QUICK_OPTIONS: readonly { label: string; days: number }[]
 
 export const APPOINTMENT_DURATIONS_MIN: readonly number[] = [30, 60, 90, 120];
 export const APPOINTMENT_DEFAULT_DURATION_MIN = 60;
-/** Fenêtre des RDV chargés au démarrage et dans l'Agenda (jours). */
+/** Fenêtre des RDV chargés au démarrage (jours). */
 export const APPOINTMENTS_WINDOW_DAYS = 30;
-/** Fenêtre des tâches terminées chargées à la demande (jours). */
-export const COMPLETED_TASKS_WINDOW_DAYS = 30;
 
 // ---------------------------------------------------------------------------
 // Filtres & import

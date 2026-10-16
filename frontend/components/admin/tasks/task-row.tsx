@@ -9,7 +9,7 @@ import type { TaskRow } from "@/lib/admin/types";
 import { PriorityBadge } from "../status-badge";
 
 /*
- * Ligne de tâche partagée (Agenda, tableau de bord). Le rond termine,
+ * Ligne de tâche partagée (tableau de bord). Le rond termine,
  * le reste de la ligne édite, la puce restaurant ouvre la fiche.
  */
 export function TaskRowItem({

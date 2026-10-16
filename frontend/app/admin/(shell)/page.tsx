@@ -159,7 +159,7 @@ export default function ApercuPage() {
     .filter((task) => task.dueAt !== null && task.dueAt < endOfToday)
     .slice(0, 5);
 
-  const agenda = `${basePath}/agenda`;
+  const restaurants = `${basePath}/restaurants`;
   const todo: {
     label: string;
     count: number | null;
@@ -169,14 +169,14 @@ export default function ApercuPage() {
     {
       label: "Relances en retard",
       count: followUps.overdue.length,
-      href: agenda,
+      href: restaurants,
       urgent: true,
     },
-    { label: "Aujourd'hui", count: followUps.today.length, href: agenda },
+    { label: "Aujourd'hui", count: followUps.today.length, href: restaurants },
     {
       label: "7 prochains jours",
       count: followUps.upcoming7.length,
-      href: agenda,
+      href: restaurants,
     },
     ...(withProspection
       ? [
@@ -232,7 +232,7 @@ export default function ApercuPage() {
         <StatCard
           label="RDV à venir (7 j)"
           value={String(upcomingRdv.length)}
-          href={agenda}
+          href={restaurants}
         />
       </div>
 
@@ -370,8 +370,8 @@ export default function ApercuPage() {
         <section className="rounded-2xl border border-hairline bg-surface p-5">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className={SECTION_TITLE}>Prochains rendez-vous</h2>
-            <Link href={agenda} className={SECTION_LINK}>
-              Agenda
+            <Link href={restaurants} className={SECTION_LINK}>
+              Restaurants
             </Link>
           </div>
           {upcomingRdv.length === 0 ? (
@@ -402,8 +402,8 @@ export default function ApercuPage() {
         <section className="rounded-2xl border border-hairline bg-surface p-5">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className={SECTION_TITLE}>Relances du jour</h2>
-            <Link href={agenda} className={SECTION_LINK}>
-              Agenda
+            <Link href={restaurants} className={SECTION_LINK}>
+              Restaurants
             </Link>
           </div>
           {tasksToday.length === 0 ? (

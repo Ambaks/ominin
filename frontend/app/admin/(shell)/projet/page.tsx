@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusIcon } from "@/components/admin/icons";
 import {
   AddStep,
@@ -23,12 +23,15 @@ import {
   clientSteps,
   deleteChantier,
   currentStep,
+  OWNER_LABELS,
+  OWNERS,
   progress,
   reloadProjet,
   selectProjetFor,
   useProjet,
   type Chantier,
   type ClientFigures,
+  type Owner,
   type Place,
   type ProjetClient,
   type ProjetData,
@@ -53,10 +56,50 @@ function productLabel(product: Product | null): string {
 /** Étapes montrées d'un chantier replié : les prochaines à faire. */
 const FOLDED_STEPS = 3;
 
-function ChantierCard({ chantier, data }: { chantier: Chantier; data: ProjetData }) {
+/*
+ * Tâches de qui : toutes, ou celles d'une personne. Le choix est gardé par
+ * appareil — chacun ouvre l'admin sur les siennes.
+ */
+type Who = Owner | "all";
+const WHO_KEY = "ominin-projet-who";
+
+function readWho(): Who {
+  try {
+    const value = localStorage.getItem(WHO_KEY);
+    return value && OWNERS.includes(value as Owner) ? (value as Owner) : "all";
+  } catch {
+    return "all";
+  }
+}
+
+function WhoFilter({ who, onChange }: { who: Who; onChange: (who: Who) => void }) {
+  const options: { value: Who; label: string }[] = [
+    { value: "all", label: "Toutes" },
+    ...OWNERS.map((owner) => ({ value: owner, label: OWNER_LABELS[owner] })),
+  ];
+  return (
+    <div role="group" aria-label="Tâches de" className="flex gap-1 rounded-full border border-hairline p-1">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          aria-pressed={who === option.value}
+          onClick={() => onChange(option.value)}
+          className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+            who === option.value ? "bg-surface text-foreground" : "text-muted hover:text-foreground"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ChantierCard({ chantier, data, who }: { chantier: Chantier; data: ProjetData; who: Who }) {
   const run = useRunMutation();
   const [open, setOpen] = useState(false);
-  const steps = chantierSteps(data, chantier.id);
+  const steps = chantierSteps(data, chantier.id).filter((step) => who === "all" || step.owner === who);
   const { done, total } = progress(steps);
   const shown = open
     ? steps
@@ -299,7 +342,25 @@ export default function ProjetPage() {
   const { data, error, loading } = useProjet();
   const { basePath, product } = useAdminBasePath();
   const [modal, setModal] = useState<"client" | "chantier" | null>(null);
+  const [who, setWho] = useState<Who>("all");
   const view = data ? selectProjetFor(data, product) : null;
+  const chantiers =
+    view && data
+      ? view.chantiers.filter(
+          (chantier) => who === "all" || chantierSteps(data, chantier.id).some((step) => step.owner === who),
+        )
+      : [];
+
+  // localStorage n'existe pas au rendu serveur : lu une fois, au montage.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setWho(readWho()), []);
+
+  const chooseWho = (next: Who) => {
+    setWho(next);
+    try {
+      localStorage.setItem(WHO_KEY, next);
+    } catch {}
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -346,13 +407,18 @@ export default function ProjetPage() {
       ) : (
         <>
           <section className="flex flex-col gap-3">
-            <h2 className={SECTION_TITLE}>Ce qui reste pour finir</h2>
-            {view.chantiers.length === 0 ? (
-              <p className="text-sm text-muted">Aucune tâche pour cette offre.</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className={SECTION_TITLE}>Ce qui reste pour finir</h2>
+              <WhoFilter who={who} onChange={chooseWho} />
+            </div>
+            {chantiers.length === 0 ? (
+              <p className="text-sm text-muted">
+                {who === "all" ? "Aucune tâche pour cette offre." : `Aucune tâche confiée à ${OWNER_LABELS[who]}.`}
+              </p>
             ) : (
               <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {view.chantiers.map((chantier) => (
-                  <ChantierCard key={chantier.id} chantier={chantier} data={data} />
+                {chantiers.map((chantier) => (
+                  <ChantierCard key={chantier.id} chantier={chantier} data={data} who={who} />
                 ))}
               </div>
             )}
