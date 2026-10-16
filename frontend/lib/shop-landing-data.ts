@@ -17,10 +17,10 @@ import { shopSiteUrl } from "@/lib/site";
  * d'étude de cas : les box, prix et livraisons citées sont les siennes
  * (scripts/seed-shop.ts).
  *
- * Tarifs : une mise en place puis un abonnement mensuel. Les montants ne
- * sont pas encore arrêtés — `published: false` fait afficher « sur devis »
- * et scripts/setup-stripe.ts ignore l'offre tant que les prix valent 0.
- * La commission sur les ventes n'est pas annoncée (grille en réflexion).
+ * Tarif : la boutique est gratuite (ni mise en place ni abonnement), Ominin
+ * prend une commission sur chaque commande payée — `platform_fee_percent`
+ * de la boutique, prélevé par Stripe. `published: false` garde l'offre hors
+ * de scripts/setup-stripe.ts et des CGV, qui ne connaissent que l'abonnement.
  */
 
 export const shopBrand = "Ominin Shop";
@@ -32,6 +32,8 @@ export const shopOffer = {
   setupPrice: 0,
   /** Abonnement mensuel (lookup_key shop_monthly). */
   monthlyPrice: 0,
+  /** Commission annoncée sur chaque commande payée, en pourcentage du total. */
+  commissionPercent: 5,
   published: false,
   tagline: "Votre boutique, à votre nom, prête à vendre.",
   features: [
@@ -59,14 +61,14 @@ const myboxHost = "shop.ominin.com/mybox";
 export const seo = {
   title: "Ominin Shop — Votre boutique en ligne, quand vous vendez sur Snapchat, Instagram ou TikTok",
   description:
-    "Vous vendez du fait main, des box ou en dropshipping, en messages privés ? Ominin Shop construit votre boutique à votre nom en quelques jours : paiement par carte, livraison, commandes gérées depuis votre téléphone. Un lien en bio, et vos clientes commandent seules.",
+    `Vous vendez du fait main, des box ou en dropshipping, en messages privés ? Ominin Shop construit votre boutique à votre nom en quelques jours : paiement par carte, livraison, commandes gérées depuis votre téléphone. Gratuite : ${shopOffer.commissionPercent} % seulement sur les commandes.`,
 };
 
 export const nav = {
   links: [
-    { label: "Pour qui", href: "#pour-qui" },
     { label: "Le parcours", href: "#parcours" },
-    { label: "Les écrans", href: "#ecrans" },
+    { label: "Pour qui", href: "#pour-qui" },
+    { label: "Essayer", href: "#exemple" },
     { label: "Tarif", href: "#tarif" },
     { label: "FAQ", href: "#faq" },
   ] satisfies NavLink[],
@@ -78,19 +80,19 @@ export const hero = {
   eyebrow: "Boutique en ligne · Snapchat · Instagram · TikTok",
   /** Trois lignes ; la marquée reçoit le pavé braise. */
   lines: [
-    { text: "Vos clientes" },
-    { text: "commandent" },
-    { text: "seules.", mark: true },
+    { text: "Un lien en bio," },
+    { text: "des commandes" },
+    { text: "payées.", mark: true },
   ],
   subtitle:
-    "Vous vendez déjà, en messages privés ? Ominin Shop construit votre boutique à votre nom, en quelques jours. Un lien en bio : vos clientes choisissent, payent par carte ou Apple Pay, et la commande vous arrive prête à expédier.",
+    "Vous vendez déjà, en messages privés ? Ominin Shop construit votre boutique à votre nom, en quelques jours. Vos clientes choisissent, payent par carte ou Apple Pay, et la commande vous arrive prête à expédier.",
   stats: [
-    { value: "1 lien", label: "en bio, pour toutes vos ventes" },
+    { value: "0 €", label: "pour créer votre boutique" },
     { value: "0 DM", label: "pour encaisser une commande" },
     { value: "24 h/24", label: "la boutique vend pendant que vous dormez" },
   ],
   primaryCta: contactCta,
-  secondaryCta: { label: "Voir la boutique MyBox", href: "#exemple" } satisfies Cta,
+  secondaryCta: { label: "Essayer la boutique MyBox", href: "#exemple" } satisfies Cta,
   trustline: ["En ligne en quelques jours", "Paiement sécurisé par Stripe", "Réponse sous 24 h"],
 };
 
@@ -186,10 +188,6 @@ export const shiftSection = {
       after: "L'adresse saisie par la cliente, le bon de préparation prêt à imprimer",
     },
     {
-      before: "Le numéro de suivi envoyé à la main, quand on y pense",
-      after: "L'e-mail d'expédition part tout seul, avec le suivi",
-    },
-    {
       before: "Des ventes perdues quand vous ne répondez pas assez vite",
       after: "La boutique vend à 23 h, pendant que vous préparez les colis",
     },
@@ -266,22 +264,21 @@ export const journey = {
   },
 };
 
-/** Étude de cas : la première boutique en production. */
+/*
+ * Exemple : la vraie boutique MyBox, dans un téléphone, à essayer sur place.
+ * L'iframe vise un chemin relatif — même origine que la landing (servie sur
+ * le host shop), seule origine que la politique d'encadrement autorise.
+ */
 export const showcase = {
   id: "exemple",
-  eyebrow: "En production",
+  eyebrow: "Exemple",
   title: "MyBox, des box beauté livrées avec un mot doux.",
   subtitle:
-    "Treize box, un parfum choisi à la commande, une initiale sur la box, un message cadeau glissé dedans — et une gérante qui pilote tout depuis son téléphone.",
-  /** Chemin relatif au host shop : la landing est aussi servie sur ominin.com/shop. */
+    "Treize box, un parfum choisi à la commande, une initiale sur la box, un message cadeau glissé dedans. C'est la vraie boutique : parcourez-la dans le téléphone.",
   href: "/mybox",
-  host: myboxHost,
-  ctaLabel: "Ouvrir la boutique MyBox",
-  photos: [
-    { src: "/shop/mybox/signature.webp", alt: "La box Signature de MyBox : deux flacons, roses et surprises" },
-    { src: "/shop/mybox/l-evasion.webp", alt: "La box L'Évasion : trio de soins sur un lit de roses" },
-    { src: "/shop/mybox/chic-car-scent.webp", alt: "Les diffuseurs voiture Chic Car Scent, tenus en main" },
-  ],
+  iframeTitle: "La boutique MyBox, à essayer",
+  ctaLabel: "Ouvrir la boutique en plein écran",
+  hint: "Faites défiler et touchez une box, comme une cliente.",
   points: [
     { value: "13", label: "box, de 25 € à 125 €" },
     { value: "100 €", label: "et la livraison est offerte" },
@@ -364,63 +361,19 @@ export const setupSection = {
   ] satisfies Step[],
 };
 
-export const featuresSection = {
-  id: "fonctionnalites",
-  eyebrow: "Fonctionnalités",
-  title: "Tout ce qu'une boutique doit faire. Rien de plus.",
-  subtitle: "Ce que nous avons construit pour MyBox, chaque boutique l'a : le même socle, éprouvé en production.",
-  groups: [
-    {
-      title: "Pour vos clientes",
-      items: [
-        "Catalogue avec collections et options (taille, parfum, couleur)",
-        "Personnalisation sur les produits qui le permettent : une initiale, un prénom",
-        "Panier, code promo, livraison offerte à partir d'un montant",
-        "Paiement Stripe : carte, Apple Pay, Google Pay",
-        "Commande cadeau avec message glissé dans le colis",
-        "Suivi de commande, compte cliente par lien magique",
-        "Contact, FAQ, pages légales prêtes à compléter",
-      ],
-    },
-    {
-      title: "Pour vous",
-      items: [
-        "Commandes : préparation, expédition avec suivi, e-mails automatiques",
-        "Produits, photos, stock, mise en avant, référencement",
-        "Modes de livraison et tarifs modifiables à tout moment",
-        "Messagerie avec les clientes, réponses envoyées par e-mail",
-        "Codes promo, bandeau d'annonce, FAQ, textes du site",
-        "Remboursements et bon de préparation imprimable",
-      ],
-    },
-  ],
-};
-
 export const pricingSection = {
   id: "tarif",
   eyebrow: "Tarif",
-  title: "Une mise en place, puis un abonnement.",
+  title: "Gratuite. Vous payez quand vous vendez.",
   subtitle:
-    "Pas de pourcentage caché dans le prix de vos produits : une mise en place pour construire la boutique, un abonnement pour l'héberger et la faire évoluer. Le tarif dépend de la taille de votre catalogue.",
-  setupLabel: "Mise en place",
-  monthlyLabel: "Abonnement",
-  perMonth: "/mois",
-  onceLabel: "une fois",
-  quoteLabel: "Sur devis",
-  quoteHint: "Dites-nous ce que vous vendez et combien de références : vous avez un prix sous 24 h.",
+    "Pas de mise en place, pas d'abonnement : on construit et on héberge votre boutique sans rien vous facturer. On prend une commission sur chaque commande payée — rien quand vous ne vendez pas.",
+  freeLabel: "Création et abonnement",
+  freeValue: "Gratuit",
+  commissionLabel: "Par commande payée",
   featuresLabel: "Inclus",
-  cta: { label: "Demander un prix", href: "#contact" } satisfies Cta,
+  cta: { label: "Créer ma boutique", href: "#contact" } satisfies Cta,
   guarantees: ["Sans engagement", "Votre argent sur votre compte", "Réponse sous 24 h"],
   offer: shopOffer,
-};
-
-export const finalCta = {
-  id: "commencer",
-  title: "Votre prochaine vente passe par votre boutique.",
-  subtitle: "Dites-nous ce que vous vendez : on vous répond sous 24 h, avec un prix et un délai.",
-  primary: contactCta,
-  secondary: { label: "Voir la boutique MyBox", href: "/mybox" } satisfies Cta,
-  microcopy: ["Sans engagement", "En ligne en quelques jours", "Votre argent sur votre compte"],
 };
 
 export const faqSection = {
@@ -439,9 +392,9 @@ export const faqSection = {
         "Oui. Vous nous transmettez le catalogue de votre fournisseur (photos, descriptions, prix) et vos marges ; on construit la boutique. Vous recevez les commandes payées et vous passez commande chez votre fournisseur. Pas de Shopify ni d'applications à empiler.",
     },
     {
-      question: "Je n'ai que quelques produits, ça vaut le coup ?",
+      question: "Combien ça coûte ?",
       answer:
-        "Une boutique de cinq références se construit vite et coûte moins cher qu'un grand catalogue. Si vous vendez régulièrement, même peu, le temps gagné sur les messages se voit dès la première semaine.",
+        `Rien pour créer la boutique, rien chaque mois. On prend ${shopOffer.commissionPercent} % sur chaque commande payée, prélevés automatiquement par Stripe : si vous ne vendez pas, vous ne payez pas.`,
     },
     {
       question: "Faut-il un statut pour vendre ?",
@@ -458,28 +411,13 @@ export const faqSection = {
       answer: "Sur votre compte Stripe, relié à votre compte bancaire. Ominin ne touche jamais l'argent de vos clientes.",
     },
     {
-      question: "Puis-je utiliser mon propre nom de domaine ?",
-      answer:
-        "Oui. Votre boutique est d'abord accessible sur shop.ominin.com/votre-nom ; votre domaine (maboutique.fr) peut y être rattaché ensuite.",
-    },
-    {
       question: "Comment fonctionne la livraison ?",
       answer:
         "Vous choisissez les modes proposés (Colissimo, Mondial Relay, remise en main propre, Europe…), leurs tarifs et un seuil de livraison offerte. Vous expédiez avec le transporteur de votre choix et renseignez le numéro de suivi : la cliente est prévenue par e-mail.",
     },
     {
-      question: "Mes clientes doivent-elles créer un compte ?",
-      answer:
-        "Non. Elles commandent en tant qu'invitées. Un compte par lien magique, sans mot de passe, leur permet de retrouver leurs commandes et leurs échanges avec vous.",
-    },
-    {
-      question: "Puis-je modifier le site moi-même ?",
-      answer:
-        "Produits, photos, prix, stock, livraison, textes, FAQ, bandeau, pages légales : tout se modifie depuis votre espace, sans nous demander.",
-    },
-    {
       question: "Y a-t-il un engagement ?",
-      answer: "Non. L'abonnement est mensuel et résiliable à tout moment. Vos données vous appartiennent.",
+      answer: "Non. Il n'y a pas d'abonnement : vous arrêtez quand vous voulez. Vos données vous appartiennent.",
     },
   ] satisfies FaqItem[],
 };
