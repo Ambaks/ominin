@@ -13,6 +13,7 @@ import {
   Didact_Gothic,
   Fraunces,
   Josefin_Sans,
+  Noto_Serif_Display,
   Playball,
   Poppins,
   Questrial,
@@ -235,6 +236,20 @@ export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .map((font) => font.variable)
   .join(" ");
 
+/**
+ * Café Poulard — « POULARD » sur ses visuels : des capitales à empattements
+ * étroites et contrastées. Noto Serif Display à sa chasse la plus étroite
+ * (axe wdth) est la plus proche mesurée parmi les Google Fonts ; le texte
+ * reprend Source Serif 4, ci-dessus.
+ */
+const notoSerifDisplay = Noto_Serif_Display({
+  variable: "--font-noto-serif-display",
+  subsets: ["latin"],
+  weight: "variable",
+  axes: ["wdth"],
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -255,6 +270,7 @@ export const brandFontVariables = [
   barlowCondensed,
   barlow,
   cinzel,
+  notoSerifDisplay,
 ]
   .map((font) => font.variable)
   .join(" ");

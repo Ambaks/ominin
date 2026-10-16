@@ -56,6 +56,23 @@ export function useNoSheet(): boolean {
 }
 
 /**
+ * Quitter la page en refermant la feuille (le panier vidé par une commande
+ * d'aperçu) : le « Retour » qu'elle lance en se démontant annulait la
+ * navigation partie avant lui. On part une fois la dernière feuille
+ * démontée — son retour est alors lancé — et ce retour revenu.
+ */
+export function leaveAfterSheet(url: string) {
+  const leave = async () => {
+    if (mountedSheets > 0) return;
+    sheetListeners.delete(leave);
+    if (pendingBack) await pendingBack;
+    window.location.assign(url);
+  };
+  sheetListeners.add(leave);
+  void leave();
+}
+
+/**
  * Une page rechargée alors qu'une feuille était ouverte garde l'entrée
  * d'historique qu'elle avait empilée, en défilement manuel : on la rend
  * ordinaire, sans quoi le navigateur ne rend pas au lecteur sa place.
@@ -264,7 +281,6 @@ export function Sheet({
     document.addEventListener("keydown", onKeyDown);
     return () => {
       unmounted = true;
-      countSheet(-1);
       clearTimeout(push);
       window.removeEventListener("popstate", onPopState);
       if (pushed && !popped && history.state?.ominninSheet === sheetId) {
@@ -283,6 +299,9 @@ export function Sheet({
       } else if (pushed) {
         history.scrollRestoration = restoration;
       }
+      // Décomptée une fois son retour lancé : qui attend qu'il n'y ait plus de
+      // feuille (leaveAfterSheet) trouve pendingBack déjà posé.
+      countSheet(-1);
       document.removeEventListener("keydown", onKeyDown);
       for (const el of behind) el.inert = false;
       document.body.style.overflow = bodyOverflow;
