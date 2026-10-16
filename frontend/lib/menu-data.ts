@@ -7159,12 +7159,13 @@ const lePetitNice: Restaurant = {
  */
 /**
  * Leurs photos (le reportage de leur site) quand le plat y figure — soupe,
- * profiteroles, tiramisu, spritz, cafés ; le reste en photos libres (Pexels),
- * auditées. Les boissons sans photo restent en liste.
+ * profiteroles, spritz, cafés ; le reste en photos libres (Pexels),
+ * auditées, ou pas de photo quand aucune ne montre le plat de la carte. Les
+ * boissons sans photo restent en liste.
  */
 const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "menu-opera": pexels("33474053/pexels-photo-33474053.jpeg", 800),
-  "menu-enfant": pexels("28525152/pexels-photo-28525152.jpeg", 800),
+  "menu-enfant": pexels("33709287/pexels-photo-33709287.jpeg", 800),
   "rillettes-thon": pexels("38275222/pexels-photo-38275222.jpeg", 800),
   arancini: pexels("29653193/pexels-photo-29653193.jpeg", 800),
   "avocat-crevette": pexels("10875295/pexels-photo-10875295.jpeg", 800),
@@ -7173,7 +7174,7 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "terrine-foie-gras": pexels("37767594/pexels-photo-37767594.jpeg", 800),
   "bouquets-crevette": pexels("6426095/pexels-photo-6426095.jpeg", 800),
   "frites-cheddar-bacon": pexels("19264378/pexels-photo-19264378.jpeg", 800),
-  frites: pexels("8272621/pexels-photo-8272621.jpeg", 800),
+  frites: pexelsRecadre("8272621/pexels-photo-8272621.jpeg", 800),
   "ardoise-mixte": pexels("6343168/pexels-photo-6343168.jpeg", 800),
   "tataki-thon-teriyaki": pexels("17126515/pexels-photo-17126515.jpeg", 800),
   "chevre-pane-miel": pexels("29177201/pexels-photo-29177201.jpeg", 800),
@@ -7182,7 +7183,6 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "milanetas-poulet": pexels("34636425/pexels-photo-34636425.jpeg", 800),
   "patatas-bravas": pexels("28490819/pexels-photo-28490819.jpeg", 800),
   huitres: pexels("12955611/pexels-photo-12955611.jpeg", 800),
-  "huitres-gratinees": pexels("38934825/pexels-photo-38934825.jpeg", 800),
   "salade-nicoise": pexels("14693797/pexels-photo-14693797.jpeg", 800),
   "salade-italienne": pexels("5713743/pexels-photo-5713743.jpeg", 800),
   "camembert-roti": pexels("20702577/pexels-photo-20702577.jpeg", 800),
@@ -7194,20 +7194,18 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "carpaccio-boeuf": pexels("27305239/pexels-photo-27305239.jpeg", 800),
   "magret-canard": pexels("29296209/pexels-photo-29296209.jpeg", 800),
   "steak-a-cheval": pexels("15514358/pexels-photo-15514358.jpeg", 800),
-  "supreme-volaille": pexels("15532964/pexels-photo-15532964.jpeg", 800),
+  "supreme-volaille": pexelsRecadre("15532964/pexels-photo-15532964.jpeg", 800),
   "bavette-echalote": pexels("20234697/pexels-photo-20234697.jpeg", 800),
   "burger-aveyronnais": pexels("9469655/pexels-photo-9469655.jpeg", 800),
   "burger-vegi": pexels("20741663/pexels-photo-20741663.jpeg", 800),
   "burger-le-riche": pexels("31450808/pexels-photo-31450808.jpeg", 800),
   "burger-chic-chicken": pexels("12664796/pexels-photo-12664796.jpeg", 800),
-  "tataki-thon-riz": pexels("35773115/pexels-photo-35773115.jpeg", 800),
   "fish-and-chips": pexels("5894001/pexels-photo-5894001.jpeg", 800),
   "filet-bar": pexels("19318466/pexels-photo-19318466.jpeg", 800),
   "seiche-plancha": pexels("15254107/pexels-photo-15254107.jpeg", 800),
   "rouille-seiche": pexels("38756486/pexels-photo-38756486.jpeg", 800),
-  "moules-creme": pexels("31235469/pexels-photo-31235469.jpeg", 800),
+  "moules-creme": pexelsRecadre("31235469/pexels-photo-31235469.jpeg", 800),
   "moules-roquefort": pexels("12173349/pexels-photo-12173349.jpeg", 800),
-  "linguines-pesto": pexels("30651480/pexels-photo-30651480.jpeg", 800),
   "linguines-carbonara": pexels("29039082/pexels-photo-29039082.jpeg", 800),
   "linguines-vongole": pexels("17243892/pexels-photo-17243892.jpeg", 800),
   profiteroles: "/cafe-riche/profiteroles.jpg",
@@ -7218,22 +7216,14 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "cafe-gourmand": pexels("15891150/pexels-photo-15891150.jpeg", 800),
   "pain-perdu": pexels("30458468/pexels-photo-30458468.jpeg", 800),
   "panna-cotta": pexels("40037724/pexels-photo-40037724.jpeg", 800),
-  tiramisu: "/cafe-riche/tiramisu.jpg",
+  tiramisu: pexels("27305272/pexels-photo-27305272.jpeg", 800),
   "glace-1-boule": pexels("16630827/pexels-photo-16630827.jpeg", 800),
   "glace-2-boules": pexels("2586924/pexels-photo-2586924.jpeg", 800),
   "glace-3-boules": pexels("8349413/pexels-photo-8349413.jpeg", 800),
   "chocolat-liegeois": pexels("38371322/pexels-photo-38371322.jpeg", 800),
   "cafe-liegeois": pexels("33144564/pexels-photo-33144564.jpeg", 800),
-  "banana-split": pexels("16560511/pexels-photo-16560511.jpeg", 800),
   "nutella-cup": pexels("8605224/pexels-photo-8605224.jpeg", 800),
   "after-eight": pexels("29851705/pexels-photo-29851705.jpeg", 800),
-  "crepe-sucre": pexels("36327087/pexels-photo-36327087.jpeg", 800),
-  "crepe-beurre-sucre": pexels("12814856/pexels-photo-12814856.jpeg", 800),
-  "crepe-confiture-fraise": pexels("17633037/pexels-photo-17633037.jpeg", 800),
-  "crepe-chocolat": pexels("20582722/pexels-photo-20582722.jpeg", 800),
-  "crepe-nutella": pexels("36048400/pexels-photo-36048400.jpeg", 800),
-  "crepe-nutella-banane": pexels("39037870/pexels-photo-39037870.jpeg", 800),
-  "crepe-flambee": pexels("9444007/pexels-photo-9444007.jpeg", 800),
   "formule-classique": pexels("10069877/pexels-photo-10069877.jpeg", 800),
   brunch: pexels("4109532/pexels-photo-4109532.jpeg", 800),
   croissant: pexels("11675765/pexels-photo-11675765.jpeg", 800),
@@ -7252,17 +7242,16 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   frappe: pexels("32395584/pexels-photo-32395584.jpeg", 800),
   spritz: "/cafe-riche/spritz.jpg",
   hugo: pexels("7376785/pexels-photo-7376785.jpeg", 800),
-  caipirinha: pexels("13059626/pexels-photo-13059626.jpeg", 800),
   cosmopolitan: pexels("15813474/pexels-photo-15813474.jpeg", 800),
   negroni: pexels("29707900/pexels-photo-29707900.jpeg", 800),
   "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
   "london-mule": pexels("25951422/pexels-photo-25951422.jpeg", 800),
   "dark-n-stormy": pexels("27126842/pexels-photo-27126842.jpeg", 800),
   mojito: pexelsRecadre("37662776/pexels-photo-37662776.jpeg", 800),
-  "pina-colada": pexels("33776445/pexels-photo-33776445.jpeg", 800),
+  "pina-colada": pexels("10986589/pexels-photo-10986589.jpeg", 800),
   "sex-on-the-beach": pexels("22882570/pexels-photo-22882570.jpeg", 800),
   daiquiri: pexels("34140556/pexels-photo-34140556.jpeg", 800),
-  margarita: pexels("33776423/pexels-photo-33776423.jpeg", 800),
+  margarita: pexelsRecadre("32912253/pexels-photo-32912253.jpeg", 800),
   "espresso-martini": pexels("34429981/pexels-photo-34429981.jpeg", 800),
   "pornstar-martini": pexels("28843506/pexels-photo-28843506.jpeg", 800),
   "virgin-mojito": pexels("30591642/pexels-photo-30591642.jpeg", 800),
@@ -7359,6 +7348,8 @@ const richeAlcool = (id: string, name: string, price: number, extra: Partial<Men
 
 /** Le veau et le canard se servent rosés : pas de bleu ni de saignant. */
 const RICHE_CUISSON_ROSE = groupeChoix("cuisson", "Cuisson", ["Rosé", "À point", "Bien cuit"], { obligatoire: true });
+/** Le steak haché des burgers : pas de bleu. */
+const RICHE_CUISSON_HACHE = groupeChoix("cuisson", "Cuisson", ["Saignant", "À point", "Bien cuit"], { obligatoire: true });
 
 /** Une viande grillée : la cuisson se demande à la commande, du plus saignant au plus cuit (celle de Café des Arts). */
 const richeGrillade = (
@@ -7386,14 +7377,29 @@ const richeGlace = (boules: number, price: number, extra: Partial<MenuItem> = {}
 const richeCrepe = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
   richeArticle(id, name, price, { options: RICHE_OPTIONS_CREPE, ...extra });
 
-/** Un article à plusieurs formats, avec sa photo s'il en a une. */
+/**
+ * Un article à plusieurs formats, avec sa photo s'il en a une. Ses prix un
+ * par ligne (.dish-tarifs, globals.css) : sur une seule, le « · » entre deux
+ * formats finissait une ligne.
+ */
 const richeFormats = (
   id: string,
   name: string,
   prix: Formats,
   extra: Partial<MenuItem> = {},
   groupe: Parameters<typeof articleFormats>[4] = []
-) => articleFormats(id, name, prix, { image: RICHE_PHOTOS[id], ...extra }, groupe);
+) =>
+  articleFormats(
+    id,
+    name,
+    prix,
+    {
+      image: RICHE_PHOTOS[id],
+      tarifs: prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join("\n"),
+      ...extra,
+    },
+    groupe
+  );
 
 /** Un vin au verre de 12 cl et à la bouteille de 75 cl. */
 const richeVin = (id: string, name: string, description: string, verre: number, bouteille: number) =>
@@ -7617,18 +7623,30 @@ const cafeRiche: Restaurant = {
       id: "burgers",
       name: "Burgers",
       items: [
-        richeGrillade("burger-aveyronnais", "L'Aveyronnais", 19.9, {
-          description: "Salade, tomate, steak haché façon bouchère, lard grillé et sauce roquefort",
-          printName: "Burger L'Aveyronnais",
-        }),
+        richeGrillade(
+          "burger-aveyronnais",
+          "L'Aveyronnais",
+          19.9,
+          {
+            description: "Salade, tomate, steak haché façon bouchère, lard grillé et sauce roquefort",
+            printName: "Burger L'Aveyronnais",
+          },
+          RICHE_CUISSON_HACHE
+        ),
         richeArticle("burger-vegi", "Le Végi", 16.9, {
           description: "Salade, tomate, steak de légumes, pickles de cornichon",
           printName: "Burger Le Végi",
         }),
-        richeGrillade("burger-le-riche", "Le Riche", 18.9, {
-          description: "Sauce burger, salade, tomate, oignons confits, steak haché façon bouchère, sauce cheddar",
-          printName: "Burger Le Riche",
-        }),
+        richeGrillade(
+          "burger-le-riche",
+          "Le Riche",
+          18.9,
+          {
+            description: "Sauce burger, salade, tomate, oignons confits, steak haché façon bouchère, sauce cheddar",
+            printName: "Burger Le Riche",
+          },
+          RICHE_CUISSON_HACHE
+        ),
         richeArticle("burger-chic-chicken", "Le Chic Chicken", 18.9, {
           description: "Salade, tomate, poulet croustillant, pickles de choux blanc, mayonnaise truffée",
           printName: "Burger Le Chic Chicken",
@@ -7732,17 +7750,17 @@ const cafeRiche: Restaurant = {
       tagline: "Petit-déjeuner de 7\u00a0h à 12\u00a0h · brunch de 8\u00a0h\u00a030 à 11\u00a0h\u00a030",
       items: [
         richeArticle("formule-classique", "Formule classique", 7.5, {
-          description: "Au choix : grand café, chocolat chaud, crème ou thé · croissant, jus d'orange pressée",
+          description: "Au choix : grand café, chocolat chaud, crème ou thé\ncroissant, jus d'orange pressée",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("formule-complete", "Formule complète", 11.5, {
           description:
-            "Au choix : grand café, chocolat chaud, crème ou thé · orange pressée, pain à tartiner avec beurre, confiture, Nutella et croissant",
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, pain à tartiner avec beurre, confiture, Nutella et croissant",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("brunch", "Brunch", 16.9, {
           description:
-            "Au choix : grand café, chocolat chaud, crème ou thé · orange pressée, 2 tartines, avocado toast et fromage frais, croissant, lard grillé, 3 œufs au plat",
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, 2 tartines, avocado toast et fromage frais, croissant, lard grillé, 3 œufs au plat",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("croissant", "Croissant", 1.6),
@@ -7797,14 +7815,14 @@ const cafeRiche: Restaurant = {
         richeArticle("coca-cola", "Coca-Cola", 4.5, {
           detail: "33 cl",
           options: [
-            groupeChoix("version", "Au choix", ["Coca-Cola", "Coca-Cola sans sucres", "Coca-Cola cherry"], {
+            groupeChoix("version", "Version", ["Coca-Cola", "Coca-Cola sans sucres", "Coca-Cola cherry"], {
               obligatoire: true,
             }),
           ],
         }),
         richeArticle("sodas", "Fanta, Sprite, Fuzetea, Tropico", 4.5, {
           detail: "25 cl",
-          options: [groupeChoix("soda", "Au choix", ["Fanta", "Sprite", "Fuzetea", "Tropico"], { obligatoire: true })],
+          options: [groupeChoix("soda", "Boisson", ["Fanta", "Sprite", "Fuzetea", "Tropico"], { obligatoire: true })],
         }),
         richeArticle("pago", "Pago", 4.5, {
           detail: "20 cl",
@@ -7822,7 +7840,7 @@ const cafeRiche: Restaurant = {
         richeArticle("orangina", "Orangina", 4.5, { detail: "25 cl" }),
         richeArticle("schweppes", "Schweppes tonic ou agrumes", 4.5, {
           detail: "25 cl",
-          options: [groupeChoix("version", "Au choix", ["Tonic", "Agrumes"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Tonic", "Agrumes"], { obligatoire: true })],
         }),
         richeArticle("ginger-beer", "Ginger beer", 4.5, { detail: "25 cl" }),
         richeArticle("red-bull", "Red Bull", 5, { detail: "25 cl" }),
@@ -7859,7 +7877,7 @@ const cafeRiche: Restaurant = {
     },
     {
       id: "jus-boissons-glacees",
-      name: "Jus pressés & boissons glacées",
+      name: "Jus & boissons glacées",
       boissons: true,
       items: [
         richeArticle("jus-orange", "Jus pressé orange", 5, { detail: "33 cl" }),
@@ -7911,7 +7929,7 @@ const cafeRiche: Restaurant = {
       items: [
         richeAlcool("spritz", "Spritz", 9, {
           description: "Aperol, Campari ou Limoncello",
-          options: [groupeChoix("base", "Au choix", ["Aperol", "Campari", "Limoncello"], { obligatoire: true })],
+          options: [groupeChoix("base", "Base", ["Aperol", "Campari", "Limoncello"], { obligatoire: true })],
         }),
         richeAlcool("hugo", "Hugo", 11, { description: "St-Germain ou équivalent" }),
       ],
@@ -8053,12 +8071,12 @@ const cafeRiche: Restaurant = {
         richeAlcool("suze", "Suze", 6, { detail: "4 cl" }),
         richeAlcool("porto-muscat", "Porto, Muscat", 5, {
           detail: "8 cl",
-          options: [groupeChoix("vin", "Au choix", ["Porto", "Muscat"], { obligatoire: true })],
+          options: [groupeChoix("vin", "Apéritif", ["Porto", "Muscat"], { obligatoire: true })],
         }),
         richeAlcool("campari", "Campari", 6, { detail: "6 cl" }),
         richeAlcool("martini", "Martini blanc ou rouge", 6, {
           detail: "6 cl",
-          options: [groupeChoix("version", "Au choix", ["Blanc", "Rouge"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Blanc", "Rouge"], { obligatoire: true })],
         }),
         richeAlcool("kir", "Kir", 6, {
           description: "Cassis, pêche, framboise ou mûre",
@@ -8114,7 +8132,7 @@ const cafeRiche: Restaurant = {
         richeAlcool("poire-williams", "Poire Williams", 8.5, { detail: "4 cl" }),
         richeAlcool("get", "Get 27 / 31", 8.5, {
           detail: "6 cl",
-          options: [groupeChoix("version", "Au choix", ["Get 27", "Get 31"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Get 27", "Get 31"], { obligatoire: true })],
         }),
         richeAlcool("limoncello", "Limoncello", 8.5, { detail: "6 cl" }),
         richeAlcool("baileys", "Bailey's", 8.5, { detail: "6 cl" }),

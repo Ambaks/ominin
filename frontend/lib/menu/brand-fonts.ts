@@ -167,8 +167,8 @@ const josefinSans = Josefin_Sans({
 
 /**
  * Café Riche — les titres et les prix de son site (caferiche-montpellier.com)
- * sont en Playfair Display ; le texte reprend DM Sans (Baï-Kō), les capitales
- * espacées Josefin Sans, proches du « CAFÉ » de son logo.
+ * sont en Playfair Display ; le texte et les capitales espacées reprennent
+ * DM Sans (Baï-Kō).
  */
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
