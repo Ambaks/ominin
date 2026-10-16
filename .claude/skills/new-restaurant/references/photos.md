@@ -187,7 +187,17 @@ sign), `7807489` (printed paper), `10315700` (printed coffee sack),
 (printed shop liner), `photo-1768203629861-33e47ea111a6` (printed paper
 bags), `photo-1753011767259-c6d57777fce2` and `photo-1752850744064-65e198039be0`
 (Korean price signs), `photo-1554475659-9fd915c8f156` (newsprint wraps),
-`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving).
+`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving). On Toast' Tea
+(salon de thé): `11552272` (script name on the plate rim), `18426952` (logo
+card), `15110222`–`15110224` (newspaper under the plate), `26936289`,
+`26936290` and `39664557` (printed paper liner), `21424391` (Cyrillic menu
+card), `2560035` ("PIOLA" placemat), `15013889` (printed placemat with an
+email), `31846558` ("MARIA AL MONTE" bottles), `11089568` ("H" logo board),
+`28760178` ("MEAT…" burger paper), `9057015` (lettered shirt), `35469100`,
+`35469120` ("POPCO…" bucket and jars), `14623909` (magazine text),
+`12814857` ("Gerus" knife blade), `34097446` ("PREGO" espresso cup),
+Unsplash `photo-1598441764246-9badfc83e3a7` ("B612" watermark) and
+`photo-1660594406883-d8cac86e9cc8` (printed menu on the table).
 
 ## French dishes stock libraries don't have
 
@@ -203,6 +213,11 @@ wrong thing:
 - **Sandwich "américain"** (baguette, steak, fries inside): none; steak-and-
   cheese subs are the closest.
 - **Pizza kebab on a red base with white sauce**: rare; `12261064` is close.
+
+- **Crêpes Nutella-coco, crème de marrons, poire** and **coupe
+  Ardéchoise**: none on either site. **Tarte Tatin aux pommes**: only pear
+  tatins or dark studio shots. **Tartare non préparé** (served unmixed,
+  yolk on top): stock tartares are already mixed.
 
 - **Baguette au charbon végétal** (black baguette): none on either site —
   only round charcoal loaves. **Pain viennois** (plain, long): none — the

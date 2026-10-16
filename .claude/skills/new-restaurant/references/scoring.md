@@ -18,19 +18,18 @@
 
 Round 1 is a **full audit**. After a round with findings, the next rounds
 are **change-only**: they review what was fixed, not the whole page again,
-until every version holds 9. Then run a full audit again; if it finds
+until the page holds 9. Then run a full audit again; if it finds
 issues, go back to change-only rounds, then audit again.
 
 | Agent | Full audit | Change-only round | Runs |
 |---|---|---|---|
 | Holistic scorer | **two**, independent | — | 2 / 0 |
-| Change-only reviewer | — | **one**, covering the versions still below 9 or touched by a fix | 0 / 1 |
+| Change-only reviewer | — | **one**, while the page is below 9 or touched by a fix | 0 / 1 |
 | Ordering stress-tester | round 1 if the carte has options; later, if ordering code or option data changed since the last full audit | — | 0-1 / 0 |
 | Accuracy auditor | round 1; later, if carte text (names, prices, descriptions, claims) changed since the last full audit | — | 0-1 / 0 |
 | Engineering reviewer | the whole diff against `main` | the code changed since the last round | 1 / 1 |
 
-A version that holds 9 drops out of change-only rounds until a fix touches
-it. Spawn the round's agents **in one message** (`general-purpose`,
+Spawn the round's agents **in one message** (`general-purpose`,
 background). Each round gets **new** agents: one that remembers its last
 verdict anchors on it. Fill the templates below; pass nothing else — not
 the pass threshold, not earlier scores, not your view of the page. That
@@ -46,8 +45,8 @@ tree: use `HEAD`). Record the SHA in the round log, and from then on list
 every untracked file you create or edit — `git diff <SHA>` doesn't show
 them.
 
-In a full audit, the round's score for each version is the **lower** of
-the two holistic scores. Two scorers disagreeing by more than 2 points
+In a full audit, the round's score is the **lower** of the two holistic
+scores. Two scorers disagreeing by more than 2 points
 usually means one of them missed something — read both reports before
 fixing. In a change-only round, it is the reviewer's score.
 
@@ -57,7 +56,7 @@ Before launching a round, check it fits in what's left; if not, stop and
 report.
 
 Keep a round log in the scratchpad: round and its type (full audit or
-change-only), runs spent, the scores per version, the engineering score,
+change-only), runs spent, the page's scores, the engineering score,
 the code snapshot, the constraints block as sent, the change list sent,
 fixes, findings rejected (with evidence) and taste calls declined (with the
 reason). The hand-off quotes it.
@@ -126,13 +125,8 @@ eats there, the mood it should have — e.g. "a late-night snack, not a
 bistro">. Its identity comes from <SOURCE: flyer / menu photos / signage>:
 <PALETTE and TYPE in one line>.
 
-TWO VERSIONS OF THE SAME CARTE — score each separately:
-A. Restaurant version: http://localhost:3000/menu/demo/<slug>
+THE PAGE: http://localhost:3000/menu/demo/<slug>
    Judge it against the restaurant's own identity (the source below).
-B. Ominin version: http://localhost:3000/menu/demo/<slug>?theme=ominin
-   Judge it against Ominin's house style — warm near-black, gold ember
-   accents, Fraunces + Instrument Sans — NOT against the restaurant's
-   brand. It must stand on its own as a polished menu.
 
 THE SOURCE — the restaurant's own material: <ABSOLUTE PATHS of the rendered
 source PNGs>. Read it; crop into it for detail with
@@ -156,14 +150,12 @@ MANDATORY CHECKLIST — do all of it, and say in your report that you did:
 - at least 3 option modals, opened as a customer would, each compared to the
   page behind it: same palette, same fonts, legible at 390 px
 - add to the cart and open the cart sheet (never press the final send)
-- version B in both colour modes: use the sun/moon toggle in the category
-  bar (it exists only on B)
 - 320 px and 1440 px, not just 390
 - every photo on the full-* contact sheets, for branding and wrong dish
 
 <CONSTRAINTS BLOCK>
 
-JUDGE: fidelity to the source (A) or to the house style (B); typography;
+JUDGE: fidelity to the source; typography;
 layout rhythm across the whole page; colour and contrast (measure it);
 motion; photography (coherence, right dish, branding, claims); ordering
 flow; mobile ergonomics for a hungry customer at the counter; accessibility
@@ -174,13 +166,13 @@ RUBRIC — use it exactly:
 <RUBRIC>
 
 OUTPUT — be decisive:
-1. Score for A and score for B, one sentence each.
-2. Everything between each version and a 10, ranked. For each: the defect,
+1. Score, in one sentence.
+2. Everything between the page and a 10, ranked. For each: the defect,
    exactly where, the evidence you measured, the specific change.
    Measurements beat adjectives.
 3. Split into (a) fixable in code now and (b) needs an asset or a decision
    from the client.
-4. For each version, whether a 10 is reachable in code alone.
+4. Whether a 10 is reachable in code alone.
 Don't pad a score to be kind; don't withhold one it deserves.
 ```
 
@@ -198,16 +190,12 @@ exacting; generic praise is worthless.
 
 THE RESTAURANT: <same lines as the holistic brief>.
 
-VERSIONS TO REVIEW — score each separately:
-<A. Restaurant version: http://localhost:3000/menu/demo/<slug> — judged
-   against the restaurant's own identity (source: <ABSOLUTE PATHS>)>
-<B. Ominin version: http://localhost:3000/menu/demo/<slug>?theme=ominin —
-   judged against Ominin's house style: warm near-black, gold ember
-   accents, Fraunces + Instrument Sans>
+THE PAGE: http://localhost:3000/menu/demo/<slug> — judged against the
+restaurant's own identity (source: <ABSOLUTE PATHS>).
 
 CHANGES SINCE THE LAST ROUND:
-1. <what changed, in which version, where to see it (section, item,
-   width, state) and how to trigger it>
+1. <what changed, where to see it (section, item, width, state) and how
+   to trigger it>
 2. …
 
 ALREADY DECIDED — don't raise again: <declined findings, one line each with
@@ -229,8 +217,8 @@ RUBRIC — use it exactly:
 <RUBRIC>
 
 OUTPUT: 1. each change with its verdict and evidence; 2. regressions;
-3. a score for each version reviewed, one sentence each, and everything
-you saw between it and a 10, ranked, split into (a) fixable in code now
+3. a score, in one sentence, and everything you saw between the page and
+a 10, ranked, split into (a) fixable in code now
 and (b) needs an asset or a decision from the client.
 ```
 
@@ -408,20 +396,20 @@ Then re-run Phase 7 (all mechanical checks green) before the next round.
 
 ## Pass and stop
 
-**Pass** — only in a full audit: **both** holistic scorers give **≥ 9 to
-version A and ≥ 9 to version B**, the engineering reviewer gives **≥ 9**,
+**Pass** — only in a full audit: **both** holistic scorers give **≥ 9**,
+the engineering reviewer gives **≥ 9**,
 and no must-fix is open from the ordering tester, the accuracy auditor or
 the engineering reviewer. A change-only round can't pass the page: when
-every version scores 9 there, the next round is a full audit.
+it scores 9 there, the next round is a full audit.
 
 **Stop without passing** when either:
 - the 30-run budget is spent (or the next round wouldn't fit), or
-- two consecutive full audits raised neither version's round score (the
+- two consecutive full audits raised neither the page's round score (the
   lower of the two scorers) nor the engineering score while every
   remaining finding is client-blocked, verified wrong, or a declined taste
   call.
 
-On a stop, report honestly: the last scores, what separates each version
+On a stop, report honestly: the last scores, what separates the page
 from 9, and exactly which asset or decision from the owner would close each
 gap (e.g. "photos of the 3 tacos and the chèvre-miel; opening hours").
 Declined taste calls are listed so the user can overrule them. Never round
