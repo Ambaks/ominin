@@ -8099,8 +8099,12 @@ html:has([data-menu-root].theme-brasserie-laissac) body {
   --pn-rose: #d77a87;
   --pn-ocre: #d6913f;
   --pn-lilas: #a479c9;
+  --pn-lilas-profond: #7f55a6;
   --pn-carres: linear-gradient(90deg, var(--pn-rose) 0 26%, transparent 26% 37%, var(--pn-ocre) 37% 63%, transparent 63% 74%, var(--pn-lilas) 74%);
   --pn-bois: #7c5530;
+  /* Les panneaux lilas de la façade, éclaircis pour porter du texte (la
+     sarcelle profonde y tient 5,7:1). */
+  --pn-facade: #e7dcef;
 
   --background: var(--pn-creme);
   --foreground: #1d2b2a;
@@ -8230,11 +8234,11 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   }
 }
 
-/* Les arguments en bas de casse, séparés des trois carrés. */
+/* Les arguments sur le lilas des panneaux de la façade, en bas de casse,
+   séparés des trois carrés. */
 .theme-le-petit-nice .menu-highlights {
   border: 0;
-  border-bottom: 1px solid var(--hairline);
-  background-color: var(--surface);
+  background-color: var(--pn-facade);
 }
 
 .theme-le-petit-nice .menu-highlights li {
@@ -8243,15 +8247,27 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   text-transform: lowercase;
 }
 
+/* Les carrés au milieu de l'écart entre deux arguments (gap-x-8, puis
+   lg:gap-x-14 du bandeau) : la marge gauche recule de la moitié de l'écart
+   et de la moitié des carrés. Sur le lilas du bandeau, le carré lilas
+   prend le ton profond. */
 @media (min-width: 40rem) {
   .theme-le-petit-nice .menu-highlights li + li::before {
     content: "";
     display: inline-block;
+    width: 1.125rem;
+    height: 0.28rem;
+    margin-inline: -1.5625rem 0.4375rem;
+    vertical-align: 0.2em;
+    background: linear-gradient(90deg, var(--pn-rose) 0 26%, transparent 26% 37%, var(--pn-ocre) 37% 63%, transparent 63% 74%, var(--pn-lilas-profond) 74%);
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-le-petit-nice .menu-highlights li + li::before {
     width: 1.5rem;
     height: 0.375rem;
-    margin-inline: -2.75rem 1.25rem;
-    vertical-align: 0.2em;
-    background: var(--pn-carres);
+    margin-inline: -2.5rem 1rem;
   }
 }
 
@@ -8265,18 +8281,19 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   &::after {
     content: "";
     display: inline-block;
-    width: 0.66em;
-    height: 0.18em;
+    width: 0.78em;
+    height: 0.21em;
     margin-left: 0.3em;
-    vertical-align: 0.42em;
+    vertical-align: 0.4em;
     background: var(--pn-carres);
   }
 }
 
+/* Le filet en bois verni, comme les montants des fauteuils. */
 [data-menu-root].theme-le-petit-nice .category-rule {
-  height: 1px;
-  background: var(--pn-sarcelle);
-  opacity: 0.3;
+  height: 2px;
+  background: var(--pn-bois);
+  opacity: 0.7;
 }
 
 /* Les pastilles de catégorie : la toile sarcelle, angles à peine adoucis. */
@@ -8287,11 +8304,23 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   font-family: var(--brand-display);
   text-transform: lowercase;
 
+  @media (hover: hover) {
+    &:hover:not([aria-current]) {
+      border-color: var(--pn-lilas);
+      background-color: var(--pn-facade);
+    }
+  }
+
   &[aria-current] {
     border-color: transparent;
     color: var(--pn-creme);
     box-shadow: none;
   }
+}
+
+/* Le « + » dans un carré aux angles adoucis, comme ceux de l'enseigne. */
+[data-menu-root].theme-le-petit-nice .dish-action > button {
+  border-radius: 0.625rem;
 }
 
 [data-menu-root].theme-le-petit-nice .dish-head > h3 {
@@ -8320,6 +8349,20 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   display: none;
 }
 
+/* Dès la tablette, la photo en vignette à gauche plutôt qu'en demi-fiche :
+   la plupart des fiches n'ont qu'un nom et un prix, une photo haute de
+   13rem laissait un grand vide sous eux et étirait la fiche voisine sans
+   photo. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-petit-nice .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+
+    & .dish-photo {
+      min-height: 7.5rem;
+    }
+  }
+}
+
 .theme-le-petit-nice .choice-row.is-checked {
   border-color: var(--pn-sarcelle);
 }
@@ -8331,6 +8374,12 @@ html:has([data-menu-root].theme-le-petit-nice) body {
 
 [data-menu-root].theme-le-petit-nice [role="dialog"] legend {
   color: var(--pn-sarcelle-profonde);
+}
+
+/* Au panier, le plat et son prix dans la police de leur fiche. */
+.theme-le-petit-nice :is(.cart-line-name, .cart-line-price, .cart-total) {
+  font-family: var(--brand-sans);
+  font-weight: 600;
 }
 
 [data-menu-root].theme-le-petit-nice .cart-count {
