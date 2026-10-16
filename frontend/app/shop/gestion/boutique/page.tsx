@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/shop/gestion/page-header";
-import { SettingsForm, StripePanel, SubscriptionPanel, ThemeEditor } from "@/components/shop/gestion/settings";
-import { shopOffer } from "@/lib/shop-landing-data";
-import { getPaymentAccount, getSubscription, requireShopSession } from "@/lib/shop/server";
+import { SettingsForm, StripePanel, TariffPanel, ThemeEditor } from "@/components/shop/gestion/settings";
+import { getPaymentAccount, requireShopSession } from "@/lib/shop/server";
 import { getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -28,14 +27,14 @@ export default async function ShopSettingsPage({ searchParams }: PageProps<"/sho
       }
     }
   }
-  const [account, subscription] = await Promise.all([getPaymentAccount(shop.id), getSubscription(shop.id)]);
+  const account = await getPaymentAccount(shop.id);
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Boutique" description="Identité, contact, thème, paiements et abonnement." />
+      <PageHeader title="Boutique" description="Identité, contact, thème, paiements et tarif." />
       {stripe === "recommencer" && <p className="rounded-xl border border-ember-2/40 bg-ember-2/10 px-4 py-3 text-sm">Le lien Stripe a expiré : cliquez à nouveau sur « Reprendre la configuration ».</p>}
       <StripePanel account={account} stripeConfigured={stripeConfigured} />
-      <SubscriptionPanel subscription={subscription} pricesConfigured={shopOffer.published && shopOffer.monthlyPrice > 0} />
+      <TariffPanel feePercent={Number(shop.platform_fee_percent)} />
       <SettingsForm shop={shop} section="general" />
       <ThemeEditor shop={shop} />
       <SettingsForm shop={shop} section="legal" />
