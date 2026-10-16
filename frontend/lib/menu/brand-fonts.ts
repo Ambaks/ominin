@@ -17,7 +17,6 @@ import {
   Playball,
   Poppins,
   Questrial,
-  Source_Sans_3,
   Source_Serif_4,
 } from "next/font/google";
 
@@ -153,8 +152,7 @@ const sourceSerif4 = Source_Serif_4({
 const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-cormorant-garamond",
   subsets: ["latin"],
-  // 600 et 700 : les titres de Toast' Tea, en garalde grasse comme son livret.
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   preload: false,
 });
@@ -233,19 +231,6 @@ const cinzel = Cinzel({
   preload: false,
 });
 
-/**
- * Toast' Tea — son livret compose les plats dans une linéale humaniste
- * (« Tarte chèvre et aubergines ») : Source Sans 3, de la famille de la
- * Source Serif 4 déjà chargée (L'Adresse), qui en reprend les descriptions en
- * italique. Le nom et les titres sont en Cormorant Garamond (Le Novelty).
- */
-const sourceSans3 = Source_Sans_3({
-  variable: "--font-source-sans-3",
-  subsets: ["latin"],
-  weight: "variable",
-  preload: false,
-});
-
 /** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
 export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .map((font) => font.variable)
@@ -285,7 +270,6 @@ export const brandFontVariables = [
   barlowCondensed,
   barlow,
   cinzel,
-  sourceSans3,
   notoSerifDisplay,
 ]
   .map((font) => font.variable)
