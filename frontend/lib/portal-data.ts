@@ -130,10 +130,6 @@ export const marquee: Localized[] = [
 export const productsSection = {
   eyebrow: { fr: "Nos produits", en: "Our products" },
   title: { fr: "Un produit par problème.", en: "One product per problem." },
-  subtitle: {
-    fr: "Chacun vit sur son propre site, avec sa démo, son tarif et ses réponses. Choisissez le vôtre.",
-    en: "Each one lives on its own site, with its demo, its pricing and its answers. Pick yours.",
-  },
 };
 
 export type Product = {
@@ -329,39 +325,62 @@ export const products: Product[] = [
 ];
 
 /*
- * Section « approche » : trois engagements numérotés, la seule partie du
- * portail qui parle de la maison plutôt que des produits. Volontairement
- * courte — la crédibilité passe par la précision, pas par le volume.
+ * Le manifeste : notre histoire, telle qu'elle sera dite dans la vidéo. Il
+ * remplace la section « approche » — le portail dit d'abord pourquoi Ominin
+ * existe. Une ligne par entrée, allumée quand elle passe la ligne de
+ * lecture ; « turn » marque le basculement, la signature referme le texte.
  */
-export const approach = {
-  eyebrow: { fr: "Notre approche", en: "How we work" },
-  title: {
-    fr: "Des outils qu'on utilise dès le premier jour.",
-    en: "Tools you use from day one.",
-  },
-  points: [
+export const manifesto = {
+  eyebrow: { fr: "Notre histoire", en: "Our story" },
+  lines: [
     {
-      title: { fr: "Simples par principe", en: "Simple on principle" },
-      body: {
-        fr: "Pas de formation, pas de manuel. Si votre équipe ne s'en sert pas le premier soir, c'est raté — on conçoit à partir de là.",
-        en: "No training, no manual. If your team isn't using it by the first evening, we've failed — we design from that constraint.",
+      text: {
+        fr: "Une machine peut calculer, répondre, prévoir, produire.",
+        en: "A machine can calculate, answer, forecast, produce.",
       },
     },
     {
-      title: { fr: "L'IA là où elle sert", en: "AI where it earns its keep" },
-      body: {
-        fr: "Elle rédige, trie, prévoit, relit — jamais pour faire joli. Quand une règle simple suffit, on écrit une règle simple.",
-        en: "It writes, sorts, forecasts, reviews — never for show. When a simple rule is enough, we write a simple rule.",
+      text: {
+        fr: "Elle ne peut pas s'asseoir en face de quelqu'un et le comprendre sans un mot.",
+        en: "It cannot sit across from someone and understand them without a word.",
       },
     },
     {
-      title: { fr: "Un seul interlocuteur", en: "One person to call" },
-      body: {
-        fr: "Conçu, développé et maintenu par Ominin. Vous parlez à ceux qui construisent, pas à un support qui transmet.",
-        en: "Designed, built and maintained by Ominin. You talk to the people who build it, not a help desk relaying tickets.",
+      text: {
+        fr: "Elle ne peut pas avoir peur, espérer, aimer.",
+        en: "It cannot fear, hope, love.",
+      },
+    },
+    {
+      text: {
+        fr: "Elle ne peut pas laisser sa main sur une paroi pour dire j'ai existé.",
+        en: "It cannot leave its hand on a cave wall to say: I existed.",
+      },
+    },
+    { text: { fr: "Ça, c'est à nous.", en: "That is ours." }, turn: true },
+    {
+      text: {
+        fr: "Nous sommes Ominin. Le nom de notre lignée, avec une lettre en moins.",
+        en: "We are Ominin. The name of our lineage, minus one letter.",
+      },
+    },
+    {
+      text: {
+        fr: "Pour ne jamais oublier d'où l'on vient, ni ce qui nous rend humains.",
+        en: "So we never forget where we come from, or what makes us human.",
+      },
+    },
+    {
+      text: {
+        fr: "Que l'intelligence artificielle prenne le poids. Que l'humain garde le sens.",
+        en: "Let artificial intelligence carry the weight. Let humans keep the meaning.",
       },
     },
   ],
+  signature: {
+    name: "Ominin.",
+    motto: { fr: "Garder la main.", en: "Keep the upper hand." },
+  },
 };
 
 /*

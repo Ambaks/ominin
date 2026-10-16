@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { KitHeading } from "./heading";
+import { useActiveIndex } from "./use-active-index";
 
 /*
  * Parcours raconté au défilement : les étapes défilent à droite, un
@@ -60,45 +61,7 @@ export function ScrollStory({
   /** En-tête du téléphone, commun à tous les écrans. */
   header: ReactNode;
 }) {
-  const [active, setActive] = useState(0);
-  const items = useRef<(HTMLLIElement | null)[]>([]);
-  const mobilePhone = useRef<HTMLDivElement>(null);
-
-  // L'étape active est celle dont le centre est le plus près du milieu de
-  // l'écran — sous lg, du milieu de la zone libre sous le téléphone, pour que
-  // l'écran change avant que la carte ne le recouvre. Recalculée à chaque
-  // défilement (un saut d'ancre compris).
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const phone = mobilePhone.current?.getBoundingClientRect();
-      const middle = phone?.height ? (phone.bottom + window.innerHeight) / 2 : window.innerHeight / 2;
-      let best = 0;
-      let bestDistance = Infinity;
-      items.current.forEach((node, i) => {
-        if (!node) return;
-        const box = node.getBoundingClientRect();
-        const distance = Math.abs(box.top + box.height / 2 - middle);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = i;
-        }
-      });
-      setActive(best);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
+  const { active, itemRef, cover } = useActiveIndex<HTMLLIElement>();
 
   return (
     <section id={id} className="scroll-mt-20 border-y border-hairline bg-surface/40">
@@ -119,16 +82,14 @@ export function ScrollStory({
             </div>
           </div>
           <div className="grid">
-            <div ref={mobilePhone} className="sticky top-20 col-start-1 row-start-1 self-start lg:hidden" aria-hidden>
+            <div ref={cover} className="sticky top-20 col-start-1 row-start-1 self-start lg:hidden" aria-hidden>
               <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[15rem]" />
             </div>
             <ol className="relative col-start-1 row-start-1 flex flex-col gap-[45svh] pb-6 pt-[19rem] lg:gap-[28vh] lg:pb-[4vh] lg:pt-[12vh]">
               {steps.map((step, i) => (
                 <li
                   key={step.title}
-                  ref={(node) => {
-                    items.current[i] = node;
-                  }}
+                  ref={itemRef(i)}
                   className={`rounded-3xl border border-hairline bg-background/80 p-6 shadow-[0_20px_60px_-30px_var(--ember-2)] backdrop-blur-xl transition-opacity duration-500 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:opacity-45 lg:shadow-none lg:backdrop-blur-none ${i === active ? "lg:opacity-100" : ""}`}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">{step.kicker}</p>
