@@ -22,13 +22,11 @@ import {
   prospectsLabel,
   type Product,
 } from "@/lib/admin/products";
-import { selectTasksDueBadge } from "@/lib/admin/selectors";
 import { SOCIAL_PRODUCTS } from "@/lib/admin/social";
 import { retryLoad, useAdminLoadError } from "@/lib/admin/store";
 import { createClient } from "@/lib/supabase/client";
 import {
   BotIcon,
-  CalendarIcon,
   ChartIcon,
   FlagIcon,
   MapPinIcon,
@@ -98,7 +96,6 @@ const SECTIONS: Section[] = [
         icon: ShareIcon,
         products: SOCIAL_PRODUCTS,
       },
-      { href: "/agenda", label: "Agenda", icon: CalendarIcon },
     ],
   },
   {
@@ -252,7 +249,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const current = section.items.find((item) => isActive(localPath, item));
   const items = section.items.filter((item) => availableIn(item, product));
   const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
-  const tasksDue = state ? selectTasksDueBadge(state.tasks) : 0;
   const pendingDrafts = state?.pendingDrafts ?? 0;
 
   /** Changer de produit garde l'écran courant s'il le concerne. */
@@ -265,11 +261,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   };
 
   const badgeCount = (item: NavItem) =>
-    item.href === "/agenda"
-      ? tasksDue
-      : item.href === "/prospection"
-        ? pendingDrafts
-        : 0;
+    item.href === "/prospection" ? pendingDrafts : 0;
 
   const badge = (item: NavItem, compact: boolean) => {
     const count = badgeCount(item);

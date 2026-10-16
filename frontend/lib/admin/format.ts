@@ -24,12 +24,6 @@ export function isToday(iso: string, now = new Date()): boolean {
   return dayStart(new Date(iso)).getTime() === dayStart(now).getTime();
 }
 
-export function isTomorrow(iso: string, now = new Date()): boolean {
-  return (
-    dayStart(new Date(iso)).getTime() === dayStart(addDays(now, 1)).getTime()
-  );
-}
-
 /** Début des 7 derniers jours glissants, aujourd'hui compris : la « semaine »
  * de l'Aperçu. */
 export function rollingWeekStart(now = new Date()): Date {
