@@ -8329,9 +8329,12 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   border-radius: 0.625rem;
 }
 
+/* Un mot long (« Passionnément » à 320 px) se coupe plutôt que de
+   déborder sous le prix. */
 [data-menu-root].theme-le-petit-nice .dish-head > h3 {
   font-family: var(--brand-sans);
   font-weight: 600;
+  hyphens: auto;
 }
 
 .theme-le-petit-nice .dish-price {
@@ -8369,6 +8372,14 @@ html:has([data-menu-root].theme-le-petit-nice) body {
     & .dish-photo {
       aspect-ratio: auto;
       min-height: 4rem;
+    }
+
+    /* Le prix sous le nom : à côté de la vignette, à 320 px, il ne restait
+       au nom qu'une quarantaine de pixels et le prix s'imprimait dessus. */
+    & .dish-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.125rem;
     }
   }
 }
