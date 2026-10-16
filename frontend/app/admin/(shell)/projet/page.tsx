@@ -21,6 +21,7 @@ import {
   addStep,
   chantierSteps,
   clientSteps,
+  deleteChantier,
   currentStep,
   progress,
   reloadProjet,
@@ -53,6 +54,7 @@ function productLabel(product: Product | null): string {
 const FOLDED_STEPS = 3;
 
 function ChantierCard({ chantier, data }: { chantier: Chantier; data: ProjetData }) {
+  const run = useRunMutation();
   const [open, setOpen] = useState(false);
   const steps = chantierSteps(data, chantier.id);
   const { done, total } = progress(steps);
@@ -79,13 +81,27 @@ function ChantierCard({ chantier, data }: { chantier: Chantier; data: ProjetData
         ))}
       </ul>
       {open && <AddStep onAdd={(title) => addStep({ chantier_id: chantier.id }, title)} />}
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="self-start text-xs font-semibold text-muted transition-colors hover:text-foreground"
-      >
-        {open ? "Replier" : `Voir les ${total} étapes`}
-      </button>
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="text-xs font-semibold text-muted transition-colors hover:text-foreground"
+        >
+          {open ? "Replier" : `Voir les ${total} étapes`}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!window.confirm(`Supprimer la tâche « ${chantier.title} » et ses étapes ?`)) {
+              return;
+            }
+            void run(() => deleteChantier(chantier.id), "Tâche supprimée");
+          }}
+          className="text-xs text-faint transition-colors hover:text-status-lost"
+        >
+          Supprimer
+        </button>
+      </div>
     </section>
   );
 }
@@ -240,7 +256,7 @@ function NewChantierModal({
 
   return (
     <Modal
-      title="Nouveau chantier"
+      title="Nouvelle tâche"
       onClose={onClose}
       footer={
         <button
@@ -250,7 +266,7 @@ function NewChantierModal({
             void run(async () => {
               await addChantier(title.trim(), (scope || null) as Product | null);
               onClose();
-            }, "Chantier ajouté")
+            }, "Tâche ajoutée")
           }
           className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
         >
@@ -297,7 +313,7 @@ export default function ProjetPage() {
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setModal("chantier")} className={BUTTON}>
             <PlusIcon className="size-4" />
-            Chantier
+            Tâche
           </button>
           <button
             type="button"
@@ -332,7 +348,7 @@ export default function ProjetPage() {
           <section className="flex flex-col gap-3">
             <h2 className={SECTION_TITLE}>Ce qui reste pour finir</h2>
             {view.chantiers.length === 0 ? (
-              <p className="text-sm text-muted">Aucun chantier pour cette offre.</p>
+              <p className="text-sm text-muted">Aucune tâche pour cette offre.</p>
             ) : (
               <div className="grid items-start gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {view.chantiers.map((chantier) => (
