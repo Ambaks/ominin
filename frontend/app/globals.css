@@ -8358,6 +8358,12 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   display: none;
 }
 
+/* Le lilas de la façade sous chaque photo : une image encore en route
+   (saut de catégorie, réseau lent) ne laisse plus une case blanche. */
+.theme-le-petit-nice .dish-photo {
+  background-color: var(--pn-facade);
+}
+
 /* Au téléphone, les sections faites surtout de lignes sans photo gardent
    leurs rares photos en vignette : pleine largeur, une photo de 330 px
    coupait une liste de lignes de 60 px. */
