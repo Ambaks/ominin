@@ -1,4 +1,5 @@
 import {
+  Advent_Pro,
   Anton,
   Archivo,
   Archivo_Black,
@@ -273,6 +274,20 @@ const notoSerifDisplay = Noto_Serif_Display({
 });
 
 /**
+ * Café 3 Grâces — les titres de son site (cafe3graces.com) et de sa carte
+ * imprimée sont en Arcane Nine, des capitales Art déco étroites. Advent Pro
+ * a la même chasse et les mêmes R et M parmi les Google Fonts comparées ; le
+ * texte reprend Didact Gothic (O’Crousti), la plus proche de leur Champagne &
+ * Limousines.
+ */
+const adventPro = Advent_Pro({
+  variable: "--font-advent-pro",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
  * Le Club — « LE CLUB » sur son badge : des capitales très larges et très
  * grasses, aux angles arrondis. Unbounded en noir est la plus proche mesurée
  * parmi les Google Fonts (Michroma, Krona One : trop maigres). Le texte
@@ -350,6 +365,7 @@ export const brandFontVariables = [
   notoSerifDisplay,
   unbounded,
   chakraPetch,
+  adventPro,
   montserrat,
   sanchez,
   racingSansOne,
