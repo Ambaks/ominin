@@ -1,0 +1,134 @@
+{
+  "slug": "creperie-comedie",
+  "name": "Crêperie Comédie",
+  "tagline": "Place de la Comédie · Montpellier",
+  "status": "prospect",
+  "demo": {
+    "url_locale": "http://localhost:3000/menu/demo/creperie-comedie",
+    "url_publique": "https://menu.ominin.com/demo/creperie-comedie (une fois le code sur main)",
+    "perimetre": "Carte QR seulement, à la couleur de l'enseigne ; pas de version Ominin. Paiement en ligne simulé et suivi des commandes à table (demoSuivi), comme Café Riche et Le Petit Nice.",
+    "rendez_vous": "Présentation au gérant le dimanche 2026-10-18 au matin."
+  },
+  "cuisine": "Crêperie : galettes (la carte française ne dit pas « sarrasin » ; la carte anglaise dit « Buckwheat galettes »), galette à composer, gaufres salées, salades, tapas et planches, crêpes, gaufres ou pancakes sucrés, gourmandises, coupes glacées et glaces à composer ; formules midi, enfant et p'tit déj ; boissons maison, cocktails et mocktails, sodas, bières Meteor, cidres Kerisac, vins du Domaine de Valfeuille, apéritifs, digestifs, cafétéria.",
+  "address": "12 Place de la Comédie, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 4 67 92 30 94",
+  "hours": "Inconnu, les sources se contredisent : Google et TripAdvisor 10h–0h tous les jours ; bio Instagram 10h–1h ; bio TikTok 9h–1h ; l'enseigne au néon « 7 jours/7 de 11h30 à 24h00 » ; le feuillet du p'tit déj (mai 2026) « 8h – 11h30 ». Laissé vide sur la carte (pied de page masqué). Repères imprimés : formule midi « jours ouvrés, jusqu'à 15h » ; happy hour 18h–21h.",
+  "website": "Aucun site propre en service : creperiecomedie.my.canva.site est vide (seulement « ACCUEIL ») et sa page /menu montre une carte ancienne (Pepsi, Mutzig, foie gras). Leur carte vit en PDF sur GitHub Pages (compte creperiecomedie-svg), liée par TripAdvisor et par les QR de la carte imprimée ; le PDF français fait 17,5 Mo. Ancien site de l'exploitant précédent : creperiedelacomedie.eatbu.com.",
+  "socials": {
+    "instagram": "https://www.instagram.com/creperiecomedie/ (vérifié : adresse dans la bio, lié depuis leur carte ; 697 abonnés, dernier post vu le 2026-07-22)",
+    "tiktok": "https://www.tiktok.com/@creperiecomedie (12 abonnés ; le lien de leur Facebook mène à @creperie.comedie, qui n'existe pas)",
+    "facebook": "https://www.facebook.com/creperiecomedie (nouvelle page, 6 abonnés) ; ancienne page « La Crêperie de la Comédie » (317 abonnés, dernier post janvier 2026)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "« Crêperie de la Comédie », 3,5★ sur 1 221 avis, 429 photos, sans site ; place_id ChIJ1WQmMaevthIR_4Si5GR6g_U"
+  },
+  "legal": {
+    "raison_sociale": "BK COMEDIE",
+    "forme": "SAS, capital 7 500 €",
+    "siren": "822 814 885",
+    "siret": "822 814 885 00023 (établissement du 12 place de la Comédie, NAF 56.10A) ; siège 822 814 885 00015 (NAF 70.10Z)",
+    "naf": "56.10A Restauration traditionnelle",
+    "president": "Thibaut Barthélemy (depuis le 2021-12-08) ; Cédric Khalkhal président 2017–2021 puis directeur général ; DG modifié en février 2026",
+    "creation": "2016-09-29",
+    "debut_activite": "2017-02-17 (établissement ouvert le 2016-12-20) ; fonds acheté en 2017 à Jean-Michel Beaujard pour 1 300 000 €",
+    "procedure": "Redressement judiciaire ouvert le 2026-03-09 (BODACC A du 2026-03-17), cessation des paiements fixée au 2024-09-09, mandataire SARL Epilogue (Me Larcena). Aucun jugement postérieur trouvé (plan, cession, liquidation).",
+    "source": "recherche-entreprises.api.gouv.fr, pappers.fr/entreprise/bk-comedie-822814885, BODACC (2026-10-17)"
+  },
+  "design": {
+    "primary_color": "#f6d6e7",
+    "secondary_color": "#c00302",
+    "accent_color": "#9b2606",
+    "style_notes": "Identité de leur carte 2026 (PDF Canva), mesurée sur ses pixels et ses polices embarquées. Couverture et encadrés rose #f6d6e7, pages papier rosé #fff7fb, encre noire ; prix en Racing Sans One rouge brique #9b2606 ; la fraise en cœur du logo (#e60403), assombrie en #c00302 pour porter le texte clair des boutons (6,2:1). Polices de la carte : Barlow Semi Condensed Black (le motif « CRÊPERIE COMÉDIE » de la couverture), Gidole (les titres « LES GALETTES », absente de Google Fonts : Barlow Semi Condensed régulière à sa place), Sanchez (les intertitres en capitales espacées), Montserrat (plats et texte), Racing Sans One (prix). Le nom au pinceau fait partie du logo (fichier de leur carte, 457 px de large : affiché à 17rem au plus). Dispositifs repris : le motif évidé de la couverture en haut et en pied de page ; les plats détourés posés sur le rose, comme dans leurs pages ; le filet noir à pointes de leurs séparations sous les titres ; le cœur de leur feuillet du p'tit déj entre les annonces. Écartés : le tampon « Vraie cuisine maison » en pictogramme (repris en texte dans les arguments), la seconde identité Instagram (logo au trait bordeaux, spirale menthe).",
+    "interior_vibe": "Néon rouge en écriture liée « Crêperie de la Comédie » sous un balcon en fer forgé ; salle aux murs crème, plafond sombre, suspensions en papier froissé blanc, chaises bistrot, banquettes ; terrasse couverte sous parasols face à l'Opéra Comédie et au Gaumont (écran géant pour les matchs).",
+    "reference_images": [
+      "docs/carte-fr-2026-07-28/page-01.jpg (couverture : motif et logo)",
+      "docs/identite/logo-fraise.png (logo tiré du PDF de la carte)",
+      "docs/identite/neon-facade-nuit.jpg (photo Google de l'enseigne)",
+      "docs/identite/logo-trait-instagram.jpg (seconde identité, Instagram)"
+    ],
+    "motion": "Kit commun de l'Écusson (entrées au défilement, coche d'ajout, barre du panier qui monte, feuille en tiroir, salut du service) plus une signature : les rangées du motif glissent en place à l'ouverture puis s'écartent au défilement, la fraise tombe dans le rose et bat deux fois, chaque plat se pose sur sa case en se redressant, un cœur monte du bouton d'ajout, le trait du suivi se remplit vers l'étape atteinte. Transformations et opacité seulement, rien en mouvement réduit."
+  },
+  "menu": {
+    "source": "Leur carte en ligne, relevée le 2026-10-17 : cuisine de la carte française « BB CARTE FR » du 2026-07-28 (12 pages, couche texte lue mot à mot) ; boissons aux prix de la carte des boissons du 2026-10-06, publiée en anglais et en espagnol seulement — noms et descriptions repris de la carte française de juillet, ce qui est nouveau traduit de l'anglais ; p'tit déj du feuillet « Formules p'tit dej » du 2026-05-27 (retiré depuis, remplacé en ligne par « traduit très bientôt »). Pages rendues, couches texte et inventaire des sources dans docs/. La carte elle-même vit dans frontend/lib/menu-data.ts (const creperieComedie).",
+    "categories_summary": [
+      "Nos formules — formule midi 15,90 €, galette du jour 12,90 €, formule enfant 12,00 €",
+      "P'tit déj (8h–11h30) — formule gourmande 5,80 €, formule brunch 14,60 €",
+      "Les galettes — 5 classiques 11,90–12,90 € ; Compose ta galette ! 11,90 € (2 ingrédients) / 12,90 € (3)",
+      "Les gaufres — 5 gaufres salées à 14,90 €",
+      "Les salades — 4 à 16,90 €",
+      "Les tapas — 5,00–18,00 €",
+      "Les sucrées — 6 classiques 4,50–8,50 €, en crêpe, gaufre ou 3 pancakes ; Compose ton dessert 5,00 € (1 ingrédient) / 6,00 € (2)",
+      "Les gourmandises — 7,00–9,00 €",
+      "Les glaces — 7 coupes à 8,00 €, Colonel 10,00 € ; Compose ta glace ! 3,00 / 5,50 / 6,50 €",
+      "Les fraîcheurs (maison) — 5,50 € ; cocktails maison 10,00 € ; mocktails maison 8,00 €",
+      "Sodas & jus 3,50–4,50 €, eaux 3,90–7,00 € ; bières Meteor 4,00–9,00 € ; cidres Kerisac 4,20–16,50 € ; vins 4,50–22,00 €, champagnes 11,00–115,00 €",
+      "Apéritifs 3,50–11,00 € ; digestifs 8,00–11,00 € ; cafétéria 2,20–5,10 €"
+    ],
+    "traductions_de_la_carte_anglaise": [
+      "Prix d'octobre appliqués aux noms français de juillet ; correspondances déduites : « Espresso macchiato » 2,50 € (espagnol « Café con leche pequeño ») = Café noisette ; « Coffee with milk » = Café crème ; « Iced coffee » = Café frappé ; « White / Red Martini » = Martini blanc ou rouge.",
+      "Nouveautés d'octobre traduites : Virgin Mule « Sirop de rhum, jus de citron, ginger beer » ; Virgin Piña Colada « Jus d'ananas, purée de coco » ; Fraiseraie « au printemps et en été » (marquée indisponible en octobre) ; « Demandez notre cocktail du moment » ; supplément boissons chaudes « à partir de 20h, hors repas » (la carte française de juillet disait « à partir de 21h30 ») ; champagne « Paul Romain » 11 / 49 € (juillet : « Paul Guyot » 10 / 45 €) ; bières toutes Meteor avec leur degré (juillet : IPA et Blanche Affligem) ; « Picon / Panaché / Monaco » (juillet : « Panaché / Monaco ») ; « Extra syrup + 0,30 € » sous les bières.",
+      "Retirés en octobre : Hugo 0 % (Spritz 0 %), l'orange pressée des sodas (reste aux boissons maison)."
+    ],
+    "photos": "56 photos, toutes détourées (Vision, macOS) et posées sur le rose de la carte, ombre portée cuite dans le fichier (frontend/public/creperie-comedie/*.webp). Les leurs, tirées du PDF de la carte, de la carte « police » et d'Instagram : Pont l'Abbé, Brandivy, Séné, gaufre Italienne, salade Italienne, carpaccio, tomates cœur de bœuf et burrata (post Instagram « Salade édition »), Compose ton dessert (crêpe fraises-bananes-sorbet), formule gourmande (leurs pancakes aux fraises), La Comédie (leur coupe au pied bleu), thé glacé, citronnade, Fraiseraie, mojito, spritz. Les autres sont des photos libres Pexels / Unsplash détourées, en attente des leurs.",
+    "photos_ecarts_connus": [
+      "Compose ta galette : photo libre d'une galette au saumon (bords d'assiette résiduels du détourage) ; Galette du jour, Guémené, Loïc : sans photo (aucune galette de sarrasin libre de droits ne convient).",
+      "Gaufre Italienne : leur photo ne montre pas le jambon cru (dessous ?) — à confirmer.",
+      "Tatin : pommes cuites sur crêpe, sans le caramel ni la glace vanille.",
+      "Poire Belle-Hélène : poire pochée en sauce, sans les boules.",
+      "Café Liégeois : verre de café crème vu de dessus, sans boules visibles.",
+      "Salade César : olives noires visibles, pas d'œuf ni de croûtons ; Salade Veggie : bol en carton, tomates.",
+      "Griottines, Chocolat Liégeois, Douarnenez, Suzette, Tiramisu, Expresso Gourmand, gaufres Caprèse, Avocat-saumon, Tartiflette, Crispy, salade Chèvre, assiette de fromage, formule midi, formule enfant, formule brunch, cidres, vins : sans photo.",
+      "Leur photo du brunch en terrasse (feuillet du p'tit déj) n'a pas été reprise : l'assiette est coupée par le cadre."
+    ],
+    "options_a_valider": [
+      "Compose ta galette : « un ingrédient par catégorie » lu comme trois catégories (viande ou poisson, fromage, légume — les poissons sont imprimés dans l'encadré des viandes) ; 2 ingrédients = deux catégories au choix, 3 = une de chaque. Le supplément à 1,50 € est proposé comme « ingrédient en plus », pris dans toute la liste.",
+      "Compose ton dessert : le 1er ingrédient compris dans les 5,00 €, chaque ingrédient de plus à 1,00 € (2 ingrédients = 6,00 €, comme imprimé). « Confiture (fraise / abricot) » en deux choix.",
+      "Compose ta glace : une seule boule en plus (1,90 €) proposée ; les nappages, garnitures et fruits s'additionnent.",
+      "Les sucrées : « crêpe, gaufre ou 3 pancakes » proposé sur toutes, Suzette et Tatin comprises, comme l'imprime la carte en tête de section.",
+      "Formule midi : la couleur du vin (rosé, blanc, rouge — les trois vins de la carte) et le cidre (brut, doux) demandés ; la carte n'en dit rien.",
+      "Formule enfant : le parfum du sirop (liste des sirops à l'eau) et celui de la boule de glace (liste « Compose ta glace ») demandés.",
+      "P'tit déj : la boisson chaude des formules proposée parmi Expresso, Café allongé, Café noisette, Décaféiné, Thé, Chocolat chaud (le feuillet dit seulement « Boisson chaude ») ; les suppléments du feuillet rattachés à la formule gourmande seule.",
+      "Sodas et Perrier : « Supp tranche / sirop + 0,30 € » ; bière blonde : « Extra syrup + 0,30 € » (carte d'octobre) rattaché à la pression blonde seule.",
+      "Diabolos : le parfum pris dans la liste des sirops à l'eau.",
+      "Cidres : « Bolée 20 cl », « Pichet 50 cl », « Pichet 1 L » (la carte : « Bolées, Pichets 20cl 50cl 1L »)."
+    ]
+  },
+  "offers": [
+    "Formule midi 15,90 € — jours ouvrés, jusqu'à 15h : une boisson, une galette « Classique », une crêpe sucrée « Classique » (sauf Suzette et Tatin).",
+    "Happy hour 18h–21h (carte française de juillet et post Instagram du 2026-07-02) : toutes les bières pression 50 cl au prix de la 25 cl, cocktails maison 7 €, mocktails maison 5 €, planche charcuterie ou fromage 10 €. Absent de la carte des boissons d'octobre.",
+    "Carte « −11 % pour ceux qui nous protègent » (police), juillet 2026 : hors carte QR.",
+    "Carafe ou verre d'eau gratuit. Prix nets, taxes et service compris. Espèces, cartes, tickets restaurant, chèques cadeaux et vacances (dont connect) acceptés ; pas de chèques."
+  ],
+  "research": {
+    "date": "2026-10-17",
+    "nom": "Néon et fiche Google : « Crêperie de la Comédie » ; carte, logo et Instagram 2026 : « Crêperie Comédie » (repris sur la démo) ; TikTok « Creperie 🍓 Comedie ». Le Kreisker (3 passage Bruyas) est une autre crêperie.",
+    "adresse": "BAN 34172_1485_00012 (score 0,97), 43.608606, 3.880314 ; le registre donne « 12 place de la Comédie et 4 rue Boussairolles » : sans doute un local d'angle. Tram Comédie (T1, T2). Deux portes après Café Riche (8 place de la Comédie, démo Ominin).",
+    "telephone": "04 67 92 30 94 sur la couverture de leur carte 2026 (repris) ; 09 75 26 48 87 sur Google, TripAdvisor, Facebook et Instagram.",
+    "google": "3,5★, 1 221 avis, 429 photos, aucun site lié ; lien d'avis https://search.google.com/local/writereview?placeid=ChIJ1WQmMaevthIR_4Si5GR6g_U (non ouvert : demande une connexion).",
+    "tripadvisor": "d3843257 : 3,5/5 sur 411 avis, n° 423 sur 1 399 à Montpellier, page revendiquée ; « a récemment changé de propriétaire ».",
+    "livraison": "Ni Uber Eats, ni Deliveroo, ni Just Eat, ni TheFork.",
+    "carte_qr_actuelle": "Leurs QR mènent à un PDF de 17,5 Mo sur GitHub Pages, une version par langue (FR, EN, ES) ; la carte des boissons d'octobre n'existe qu'en anglais et en espagnol ; le p'tit déj anglais et espagnol dit « traduit très bientôt ».",
+    "proprietaire": "« Nouvelle équipe » (avis d'avril 2026), « nouvelle direction » (juin 2026), « a récemment changé de propriétaire » (TripAdvisor) — mais le registre garde la même SAS et le même président, et le BODACC ne publie ni cession ni location-gérance : peut-être une cession de parts (non publique).",
+    "avis": "Louent la terrasse et la vue, l'équipe, la rapidité, les portions, les salades, les pancakes, le thé glacé et la citronnade maison ; plusieurs avis de 2026 disent que tout s'est amélioré et trouvent la formule midi raisonnable. Reprochent le prix face à la qualité (« la seule vraie comédie, c'est l'addition », février 2026), des garnitures maigres, un service lent sur une terrasse presque vide (mai 2026), « piège à touristes ». Plats cités : Pont l'Abbé, Guémené, Brandivy (« l'incontournable de l'été » selon eux), gaufre avocat-saumon, crêpe caramel beurre salé.",
+    "sources": "Rapports des agents de recherche du 2026-10-17 (session de la démo) ; inventaire des fichiers et des adresses dans docs/SOURCES.tsv."
+  },
+  "notes": [
+    "1. Le nom à afficher : « Crêperie Comédie » (logo, carte, Instagram) ou « Crêperie de la Comédie » (néon, Google) ? Peut-on avoir le logo en haute définition (le fichier de la carte fait 457 px) ?",
+    "2. Le téléphone : 04 67 92 30 94 (carte) ou 09 75 26 48 87 (Google, Facebook) ?",
+    "3. Les horaires : ouverture à 8h, 9h, 10h ou 11h30 ? Fermeture à minuit ou 1h ? Le p'tit déj (8h–11h30) est-il toujours servi ?",
+    "4. Les prix : la cuisine est-elle toujours aux prix de la carte française de juillet ? Les boissons d'octobre (carte anglaise) ont-elles une version française, et nos traductions sont-elles justes (Café noisette, Virgin Mule, Paul Romain…) ?",
+    "5. L'happy hour (18h–21h) existe-t-il toujours ? La carte des boissons d'octobre n'en parle plus, et ses cocktails passent à 10 €.",
+    "6. Compose ta galette : « un ingrédient par catégorie » — le poisson est-il une catégorie à part ou avec les viandes ? Le supplément à 1,50 € : un ingrédient de plus, de n'importe quelle catégorie ?",
+    "7. Compose ton dessert et ta glace : comment comptez-vous le 3e ingrédient, la 2e boule en plus ? Les sucrées en gaufre ou en pancakes : aussi pour Suzette et Tatin ?",
+    "8. Formule midi : quels vins et quels cidres ? Le café est-il toujours offert (« Et le café est pour nous !! » en avril) ? La TVA de la boisson alcoolisée de la formule ?",
+    "9. Formule enfant et p'tit déj : quels sirops, quels parfums de glace, quelles boissons chaudes sont compris ?",
+    "10. La galette du jour : la nommer chaque jour sur la carte (le gérant peut la changer depuis son espace) ?",
+    "11. Photos : 15 plats et boissons montrent leurs photos (carte et Instagram), détourées ; les autres sont des photos libres. Peuvent-ils envoyer les originaux et des photos des autres plats (galettes Guémené et Loïc, gaufres, crêpes) ? La gaufre en photo est-elle l'Italienne ? La coupe au pied bleu est-elle La Comédie ? Les verres de la page « Les fraîcheurs » sont-ils les leurs ?",
+    "12. La Fraiseraie est-elle servie hors saison ? (marquée indisponible en octobre, « spring and summer only »)",
+    "13. Allergènes : leur liste est « disponible sur demande » — peut-on l'avoir pour l'afficher plat par plat ?",
+    "14. Qui dirige aujourd'hui (BK COMEDIE, en redressement judiciaire depuis mars 2026 ; TripAdvisor annonce un nouveau propriétaire) ? Qui signe le contrat et reçoit les paiements ?",
+    "15. Quelle caisse, combien de tables en salle et en terrasse ? Veulent-ils aussi la vente à emporter (aucune plateforme de livraison aujourd'hui) ?",
+    "16. La carte « −11 % police » doit-elle exister dans le menu ?"
+  ]
+}
