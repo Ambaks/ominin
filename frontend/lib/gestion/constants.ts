@@ -21,6 +21,8 @@ export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 export const DEFAULT_DAY_END_HOUR = 0;
 /** Nombre de commandes par page dans l'historique (chargement à la demande). */
 export const HISTORY_PAGE_SIZE = 50;
+/** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
+export const ORDER_HISTORY_PAGE_SIZE = 10;
 
 /** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
 export const TERMINAUX_REFRESH_MS = 5000;
