@@ -20,6 +20,7 @@ import {
   Poppins,
   Questrial,
   Source_Serif_4,
+  Unbounded,
 } from "next/font/google";
 
 /*
@@ -264,6 +265,19 @@ const notoSerifDisplay = Noto_Serif_Display({
   preload: false,
 });
 
+/**
+ * Le Club — « LE CLUB » sur son badge : des capitales très larges et très
+ * grasses, aux angles arrondis. Unbounded en noir est la plus proche mesurée
+ * parmi les Google Fonts (Michroma, Krona One : trop maigres). Le texte
+ * reprend DM Sans, ci-dessus.
+ */
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 /**
  * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
@@ -301,6 +315,7 @@ export const brandFontVariables = [
   barlow,
   cinzel,
   notoSerifDisplay,
+  unbounded,
   chakraPetch,
 ]
   .map((font) => font.variable)
