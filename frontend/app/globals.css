@@ -5751,6 +5751,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
+    [data-slug="le-club"],
     [data-slug="cafe-3-graces"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
@@ -5975,7 +5976,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) .rail-progress {
   display: none;
 }
 
@@ -5988,6 +5989,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
+    [data-slug="le-club"],
     [data-slug="cafe-3-graces"]
   ) > header.logo-hero {
   min-height: 50svh;
@@ -6006,6 +6008,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="cafe-3-graces"]
     )
     .dish-grid {
@@ -6021,6 +6024,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="cafe-3-graces"]
     )
     .dish-grid
@@ -6054,6 +6058,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="cafe-3-graces"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
@@ -6159,6 +6164,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="caffe-panis"],
           [data-slug="brasserie-laissac"],
           [data-slug="le-petit-nice"],
+          [data-slug="le-club"],
           [data-slug="cafe-3-graces"]
         )
     ) {
@@ -8518,8 +8524,9 @@ html:has([data-menu-root].theme-le-petit-nice) body {
   L'identité de son auvent, de son logo et de son site : la toile crème de
   l'auvent, le bleu marine et le laiton du mot « RiCHE » (le laiton cerné de
   bleu), le velours bleu et les arceaux de laiton de la salle. Titres et prix
-  en Playfair Display, comme sur leur site ; le texte en DM Sans ; les
-  capitales espacées en Josefin Sans, proches du « CAFÉ » du logo. Trois
+  en Playfair Display, comme sur leur site ; le texte et les capitales
+  espacées en DM Sans, géométrique comme le « CAFÉ » du logo, aux chiffres
+  alignés. Trois
   dispositifs repris : le cadre Art déco de l'auvent, filet bleu et éventails
   aux quatre coins, autour du logo ; le bandeau sombre au-dessus de l'auvent
   (« le Café 1893 · BAR BRASSERIE ») pour les annonces ; le filet de laiton et
@@ -8558,7 +8565,6 @@ html:has([data-menu-root].theme-le-petit-nice) body {
 
   --brand-display: var(--font-playfair-display), var(--font-fraunces), serif;
   --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
-  --cr-capitales: var(--font-josefin-sans), var(--brand-sans);
   font-family: var(--brand-sans);
 
   color-scheme: light;
@@ -8602,7 +8608,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 .theme-cafe-riche .menu-ticker-item {
-  font-family: var(--cr-capitales);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -8615,7 +8620,8 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
 /*
   Le haut de page : l'auvent. L'aquarelle de leur façade (la couverture de
-  leur site) en bandeau, fondue dans la crème ; le logo dans le cadre de la
+  leur site) en bandeau, coupée sous les lettres de l'auvent — les parasols
+  et la terrasse seuls —, fondue dans la crème ; le logo dans le cadre de la
   toile — un filet bleu, un éventail à chaque coin — qui la chevauche.
 */
 [data-menu-root].theme-cafe-riche > header.logo-hero {
@@ -8629,7 +8635,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
     height: var(--cr-bandeau);
     background:
       linear-gradient(to bottom, transparent 55%, var(--cr-creme)),
-      url("/cafe-riche/auvent-aquarelle.jpg") center 35% / cover no-repeat;
+      url("/cafe-riche/auvent-aquarelle.jpg") center / cover no-repeat;
   }
 
   & > :nth-child(2),
@@ -8669,13 +8675,18 @@ html:has([data-menu-root].theme-cafe-riche) body {
 .theme-cafe-riche .hero-tagline {
   margin-top: 1.75rem;
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
   font-weight: 600;
   letter-spacing: 0.28em;
 }
 
 .theme-cafe-riche .hero-tagline .tagline-sep {
   color: var(--cr-laiton);
+}
+
+@media (max-width: 63.99rem) {
+  .theme-cafe-riche .hero-contact {
+    font-size: 0.8125rem;
+  }
 }
 
 [data-menu-root].theme-cafe-riche .hero-rule {
@@ -8705,13 +8716,6 @@ html:has([data-menu-root].theme-cafe-riche) body {
   [data-menu-root].theme-cafe-riche > header.logo-hero {
     --cr-bandeau: 19rem;
     padding-block: calc(var(--cr-bandeau) - 4rem) 2rem;
-
-    /* Plus large que haute, l'aquarelle se rogne : calée sur la terrasse,
-       sans le mot « RiCHE » de l'auvent tranché sous le bandeau ; le logo
-       est juste dessous. */
-    & > :first-child {
-      background-position: center, center bottom;
-    }
   }
 
   .theme-cafe-riche .hero-logo {
@@ -8766,13 +8770,17 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
 .theme-cafe-riche .menu-highlights li {
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
+  /* En capitales de texte, comme le bandeau et les pastilles : le gabarit
+     les compose dans la police de titrage. */
+  font-family: var(--brand-sans);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.16em;
 }
 
-@media (min-width: 40rem) {
+/* Le losange entre deux arguments, au bureau seulement, où ils tiennent sur
+   une ligne : à la ligne, il ouvrait la seconde. */
+@media (min-width: 64rem) {
   .theme-cafe-riche .menu-highlights li + li::before {
     content: "◆";
     margin-inline: -2.25rem 1.5rem;
@@ -8801,8 +8809,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   border-radius: 0.125rem;
   border-color: color-mix(in srgb, var(--cr-bleu) 35%, transparent);
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -8810,12 +8817,12 @@ html:has([data-menu-root].theme-cafe-riche) body {
   &[aria-current] {
     border-color: transparent;
     color: var(--cr-creme);
-    box-shadow: none;
+    box-shadow: inset 0 -0.1875rem 0 var(--cr-laiton);
   }
 }
 
 /* Les titres de leur carte : Playfair bleu, le filet de laiton qui part d'un
-   losange. */
+   soleil levant de laiton, l'éventail des coins de l'auvent. */
 [data-menu-root].theme-cafe-riche .category-heading {
   color: var(--cr-bleu);
   font-weight: 600;
@@ -8831,20 +8838,18 @@ html:has([data-menu-root].theme-cafe-riche) body {
   &::before {
     content: "";
     position: absolute;
-    top: 50%;
+    bottom: 0;
     left: 0;
-    width: 0.4375rem;
-    height: 0.4375rem;
-    background: var(--cr-laiton);
-    translate: 0 -50%;
-    rotate: 45deg;
+    width: 1.5rem;
+    height: 0.75rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12' fill='none' stroke='%23a08858' stroke-width='1.25' stroke-linecap='round'%3E%3Cpath d='M12 12 2 12M12 12 3.3 7M12 12 7 3.3M12 12 12 2M12 12 17 3.3M12 12 20.7 7M12 12 22 12'/%3E%3C/svg%3E")
+      center bottom / contain no-repeat;
   }
 }
 
 .theme-cafe-riche .category-tagline {
   color: var(--cr-laiton-sombre);
   font-style: normal;
-  font-family: var(--cr-capitales);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -8868,16 +8873,55 @@ html:has([data-menu-root].theme-cafe-riche) body {
   box-shadow: 0 1px 2px rgb(15 42 80 / 0.05);
 }
 
+/* Les prix des formats, un par ligne (richeFormats). */
+.theme-cafe-riche .dish-tarifs {
+  white-space: pre-line;
+}
+
+/* Une description sur plusieurs lignes (la boisson au choix, puis le reste ;
+   la description, puis les prix des formats) : un écart les sépare, sans
+   quoi la seconde se lisait comme la suite de la première. */
+.theme-cafe-riche .dish-lines li + li {
+  margin-top: 0.375rem;
+}
+
 /* La photo nette jusqu'à son bord : le voile crème la délavait. */
 [data-menu-root].theme-cafe-riche .dish-photo-fade {
   display: none;
 }
 
-/* Au bureau, une fiche sans photo à côté d'une fiche à photo garde sa
-   hauteur : étirée, elle n'était qu'un cadre vide. */
+/* Au bureau, deux colonnes de lecture, comme sur une carte de brasserie :
+   chaque fiche garde sa hauteur — plus de case vide à côté d'une fiche à
+   photo — et le prix se lit sous le nom, fiche à photo ou non. */
 @media (min-width: 64rem) {
-  [data-menu-root].theme-cafe-riche .dish-grid > article:not(:has(.dish-photo)) {
-    align-self: start;
+  [data-menu-root].theme-cafe-riche .dish-grid {
+    display: block;
+    columns: 2;
+    column-gap: 1.25rem;
+
+    & > article {
+      break-inside: avoid;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Dans une section à photos, une même hauteur minimale, celle d'une
+       photo : les fiches s'alignent et les colonnes finissent plus près ;
+       une section sans photo garde des lignes serrées. */
+    &:has(.dish-photo) > article {
+      min-height: 9rem;
+    }
+
+    & > article .dish-head {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    /* La photo à la hauteur d'une fiche courte : à 13rem, un nom et un prix
+       laissaient la fiche aux trois cinquièmes vide, et les colonnes
+       finissaient à 200 px l'une de l'autre. */
+    & > article:has(.dish-photo) .dish-photo {
+      min-height: 9rem;
+    }
   }
 }
 
@@ -8895,15 +8939,14 @@ html:has([data-menu-root].theme-cafe-riche) body {
 /* La feuille d'options : le plat en Playfair, les groupes en capitales. */
 [data-menu-root].theme-cafe-riche [role="dialog"] legend {
   color: var(--cr-bleu);
-  font-family: var(--cr-capitales);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 
   & > span {
-    font-family: var(--brand-sans);
     text-transform: none;
     letter-spacing: normal;
+    white-space: nowrap;
   }
 }
 
@@ -8954,7 +8997,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -8977,7 +9020,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -9049,7 +9092,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -9070,7 +9113,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -9096,7 +9139,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -10571,6 +10614,7 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="cafe-3-graces"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
@@ -10772,7 +10816,7 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
@@ -11188,6 +11232,1100 @@ html:has([data-menu-root].theme-cafe-poulard) body {
   content: "•";
   margin: 0 0.3em;
   color: var(--poulard-or);
+}
+
+/*
+  Le Club (5 rue du Grand Saint-Jean) — discothèque près de la gare
+  Saint-Roch. Son identité est celle de son badge, relevé en filigrane sur
+  leurs photos (demos/le-club/docs/) : un disque noir tramé de points rouges,
+  cerclé d'un néon ambre qui rougeoie, « LE CLUB » en capitales très larges
+  et très grasses, blanches ; et la salle, baignée de rouge. Trois
+  dispositifs repris : le badge cerclé de néon en haut de page, sa trame de
+  points, le filet de néon sous les titres. La bouche rouge du badge n'est pas
+  redessinée : le fichier du logo est à demander.
+*/
+.theme-le-club {
+  /* Le néon du badge, mesuré sur photo : ambre au bord, rouge-orangé dans
+     la lueur ; le rouge de la bouche (#c81810 sur photo), ravivé. */
+  --lc-ambre: #ffc078;
+  --lc-neon: #ff5a26;
+  --lc-rouge: #e3191b;
+  --lc-trame: radial-gradient(circle, rgb(255 74 28 / 0.6) 0.9px, transparent 1.4px) 0 0 / 6px 6px;
+  --lc-lueur:
+    0 0 0 1px rgb(255 90 38 / 0.55),
+    0 0 1.25rem 0.125rem rgb(255 74 28 / 0.7),
+    0 0 4rem 0.5rem rgb(227 25 27 / 0.35),
+    inset 0 0 1.5rem rgb(255 74 28 / 0.4);
+
+  --background: #070304;
+  --foreground: #f4efec;
+
+  --surface: #140909;
+  --surface-raised: #1e0e0d;
+  --hairline: rgba(255, 90, 38, 0.18);
+
+  --muted: #c4b2ad;
+  --faint: #a08b86;
+
+  --ember-1: var(--lc-ambre);
+  --ember-2: var(--lc-neon);
+  --ember-3: var(--lc-rouge);
+
+  --shimmer-highlight: rgba(255, 90, 38, 0.16);
+  --glow-inner: rgba(255, 90, 38, 0.1);
+  --glow-outer: rgba(227, 25, 27, 0.08);
+
+  /* Unbounded, au plus près des capitales du badge, pour le nom et les
+     titres ; DM Sans pour les boissons et les prix. */
+  --brand-display: var(--font-unbounded), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has([data-menu-root].theme-le-club),
+html:has([data-menu-root].theme-le-club) body {
+  background-color: #070304;
+}
+
+.theme-le-club :focus-visible {
+  outline: 2px solid var(--lc-ambre);
+  outline-offset: 3px;
+}
+
+/* Boutons et pastilles : l'ambre qui vire au néon, sans le rouge, où
+   l'encre noire ne tenait que 3,4:1. */
+.theme-le-club .ember-gradient {
+  background-image: linear-gradient(100deg, var(--lc-ambre), var(--lc-neon));
+}
+
+.theme-le-club .ember-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--lc-ambre),
+    var(--lc-neon) 55%,
+    color-mix(in srgb, var(--lc-rouge) 62%, white)
+  );
+}
+
+.theme-le-club .font-display {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Les capitales du badge pour les titres ; les boissons restent en bas de
+   casse, plus lisibles. */
+.theme-le-club :is(.category-heading, .footer-name, .serve-box-title) {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/*
+  Le badge : le disque noir, sa trame de points plus dense vers le bas, le
+  cercle de néon. La trame et le néon sont deux calques (::before, ::after) :
+  le titre garde son entrée (.hero-entrance), le néon s'allume par-dessus.
+*/
+.theme-le-club .hero-name {
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(72vw, 17rem);
+  aspect-ratio: 1;
+  margin-top: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #1c0806, #090303 62%, #2b0905);
+  color: #f4f1ee;
+  font-size: min(12.5vw, 3.25rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.08;
+  text-transform: uppercase;
+  text-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 0.7);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  &::before {
+    z-index: -1;
+    background: var(--lc-trame);
+    mask-image: radial-gradient(circle at 50% 88%, black, transparent 70%);
+  }
+
+  &::after {
+    border: 2px solid var(--lc-ambre);
+    box-shadow: var(--lc-lueur);
+    pointer-events: none;
+  }
+}
+
+[data-menu-root].theme-le-club .hero-tagline {
+  order: 1;
+  margin-top: 2rem;
+  background: none;
+  color: #ffd9b8;
+  -webkit-text-fill-color: currentColor;
+  font-family: var(--brand-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 0.5rem rgb(255 90 38 / 0.8);
+}
+
+.theme-le-club .hero-tagline .tagline-sep {
+  color: var(--lc-neon);
+}
+
+[data-menu-root].theme-le-club .hero-rule {
+  display: none;
+}
+
+[data-menu-root].theme-le-club .hero-contact {
+  order: 2;
+}
+
+@media (min-width: 64rem) {
+  .theme-le-club .hero-name {
+    width: 22rem;
+    font-size: 4.25rem;
+  }
+
+  [data-menu-root].theme-le-club .hero-tagline {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Les arguments sur le rouge de la salle. */
+.theme-le-club .menu-highlights {
+  border: 0;
+  background-color: var(--lc-rouge);
+}
+
+.theme-le-club .menu-highlights li {
+  color: #ffffff;
+}
+
+/* Le titre en capitales larges, son filet en tube de néon. */
+[data-menu-root].theme-le-club .category-heading {
+  font-size: 1.625rem;
+}
+
+@media (min-width: 40rem) {
+  [data-menu-root].theme-le-club .category-heading {
+    font-size: 2.25rem;
+  }
+}
+
+[data-menu-root].theme-le-club .category-rule {
+  height: 2px;
+  background: var(--lc-neon);
+  opacity: 1;
+  box-shadow:
+    0 0 0.375rem var(--lc-neon),
+    0 0 1rem rgb(227 25 27 / 0.6);
+}
+
+/* Les pastilles de catégorie : un tube éteint, puis allumé. */
+[data-menu-root].theme-le-club nav [data-category] {
+  border-color: rgb(255 90 38 / 0.35);
+  font-family: var(--brand-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &:not([aria-current]) {
+    color: var(--foreground);
+  }
+
+  @media (hover: hover) {
+    &:hover:not([aria-current]) {
+      border-color: var(--lc-ambre);
+    }
+  }
+
+  &[aria-current] {
+    border-color: transparent;
+    box-shadow: 0 0 0.875rem rgb(255 90 38 / 0.55);
+  }
+}
+
+[data-menu-root].theme-le-club :is(.dish-head > h3, [role="dialog"] h3) {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.theme-le-club .dish-price {
+  color: var(--lc-ambre);
+  font-family: var(--brand-sans);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-le-club .dish-detail {
+  border-color: rgb(255 192 120 / 0.45);
+  color: var(--lc-ambre);
+}
+
+.theme-le-club .dish-grid > article {
+  border-color: rgb(255 90 38 / 0.22);
+  background: var(--surface);
+}
+
+/* La salle sous chaque photo : une image en route ne laisse pas de case
+   vide. */
+.theme-le-club .dish-photo {
+  background-color: #2b0905;
+}
+
+/* Au bureau, la photo en vignette à gauche, haute comme le texte de sa
+   fiche : la plupart des fiches n'ont qu'un nom et un prix. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 7rem minmax(0, 1fr);
+
+    & .dish-photo {
+      min-height: 5rem;
+    }
+  }
+}
+
+/* Au bureau, le nom et le prix sur une ligne, comme dans les fiches sans
+   photo : une seule colonne de prix. */
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-photo) .dish-head {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* Le « + » face à la première ligne du nom, comme le prix. */
+[data-menu-root].theme-le-club .dish-grid > article:has(.dish-action > button) .dish-action {
+  align-self: start;
+  margin-block: calc((var(--row-name-size, 1.0625rem) * 1.3 - 2.75rem) / 2);
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-action > button) .dish-action {
+    margin-block: calc((var(--row-name-size-lg, 1.25rem) * 1.3 - 2.75rem) / 2);
+  }
+}
+
+.theme-le-club .choice-row.is-checked {
+  border-color: var(--lc-neon);
+}
+
+[data-menu-root].theme-le-club [role="dialog"] legend {
+  color: var(--lc-ambre);
+}
+
+.theme-le-club :is(.cart-line-name, .cart-line-price, .cart-total) {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+/* Le pied de page sous un tube de néon. */
+.theme-le-club > footer {
+  border-top: 2px solid var(--lc-neon);
+  box-shadow: 0 -0.25rem 1.5rem -0.5rem rgb(255 74 28 / 0.6);
+}
+
+.theme-le-club .footer-phone {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+.theme-le-club .serve-box-title {
+  color: var(--lc-ambre);
+}
+
+.theme-le-club .serve-box-mark {
+  border-color: var(--lc-neon);
+}
+
+/* Le néon du badge s'allume en grésillant, puis respire. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-le-club .hero-name::after {
+    animation:
+      lc-allumage 1.4s linear 0.4s both,
+      lc-respire 4s ease-in-out 1.8s infinite;
+  }
+}
+
+@keyframes lc-allumage {
+  0%,
+  9%,
+  15%,
+  31% {
+    border-color: rgb(255 192 120 / 0.25);
+    box-shadow: none;
+  }
+
+  6%,
+  12%,
+  24%,
+  100% {
+    border-color: var(--lc-ambre);
+    box-shadow: var(--lc-lueur);
+  }
+}
+
+@keyframes lc-respire {
+  50% {
+    opacity: 0.82;
+  }
+}
+
+/*
+  L'Entrepôt Complexe (Lattes) — club de musique urbaine. Identité relevée sur
+  le mot-symbole de leur site (demos/l-entrepot/docs/logo-site.png) : le rouge
+  corail des lettres (#EE385D) et le rose du palmier (#F1779C), mesurés sur le
+  fichier, posés sur le noir de la salle et de ses écrans LED. Les capitales
+  larges et grasses du logo : Archivo poussée en chasse large ; le texte en
+  Archivo courante. La barre peinte à la bombe sous le nom, découpée dans le
+  logo, souligne chaque titre de section.
+*/
+.theme-l-entrepot {
+  --background: #0b0b12;
+  --foreground: #f6f3f7;
+
+  --surface: #15151f;
+  --surface-raised: #1d1d2a;
+  --hairline: rgba(246, 243, 247, 0.1);
+
+  --muted: #b8b4c4;
+  --faint: #9894a6;
+
+  /* Palmier → corail : l'encre sombre des boutons tient 4,9:1 jusqu'au bout. */
+  --ember-1: #f1779c;
+  --ember-2: #f0577c;
+  --ember-3: #ee385d;
+
+  --shimmer-highlight: rgba(241, 119, 156, 0.16);
+  --glow-inner: rgba(238, 56, 93, 0.1);
+  --glow-outer: rgba(238, 56, 93, 0.06);
+  /* Un halo corail serré derrière le logo, pas un brouillard rose. */
+  --hero-halo-1: rgba(238, 56, 93, 0.3);
+  --hero-halo-2: rgba(11, 11, 18, 0);
+  --hero-glow-2: #7c3aed;
+
+  --brand-display: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has(.theme-l-entrepot),
+html:has(.theme-l-entrepot) body {
+  background-color: #0b0b12;
+}
+
+.theme-l-entrepot :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* Les capitales du logo, élargies ; posées ici et non dans les données, qui
+   partent aussi sur les tickets du bar. */
+.theme-l-entrepot .font-display {
+  font-stretch: 112%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.08;
+}
+
+/* ---- Hero : la scène, deux lyres qui balaient le logo ----------------- */
+
+.theme-l-entrepot .hero-logo img {
+  width: min(88vw, 44rem);
+  height: auto;
+}
+
+.theme-l-entrepot .hero-tagline {
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.2em;
+}
+
+@media (min-width: 640px) {
+  .theme-l-entrepot .hero-tagline {
+    font-stretch: 125%;
+    letter-spacing: 0.3em;
+  }
+}
+
+.theme-l-entrepot .hero-rule {
+  display: none;
+}
+
+/* Le cône d'une lyre, accroché en haut de la scène, qui s'éteint en
+   descendant ; son sommet à 18 % du bord. */
+.theme-l-entrepot .logo-hero::before,
+.theme-l-entrepot .logo-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1rem;
+  width: min(72vw, 36rem);
+  height: 112%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform-origin: 50% 0;
+  clip-path: polygon(48% 0, 52% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to bottom, var(--entrepot-faisceau), transparent 78%);
+}
+
+.theme-l-entrepot .logo-hero::before {
+  --entrepot-faisceau: rgba(238, 56, 93, 0.42);
+  left: calc(18% - min(36vw, 18rem));
+  transform: rotate(-16deg);
+}
+
+.theme-l-entrepot .logo-hero::after {
+  --entrepot-faisceau: rgba(241, 119, 156, 0.3);
+  right: calc(18% - min(36vw, 18rem));
+  transform: rotate(16deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-l-entrepot .logo-hero::before {
+    animation: entrepot-lyre-gauche 7s ease-in-out infinite alternate;
+  }
+
+  .theme-l-entrepot .logo-hero::after {
+    animation: entrepot-lyre-droite 9s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes entrepot-lyre-gauche {
+  from {
+    transform: rotate(-26deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes entrepot-lyre-droite {
+  from {
+    transform: rotate(24deg);
+  }
+  to {
+    transform: rotate(-12deg);
+  }
+}
+
+/* ---- Bandeaux ---------------------------------------------------------- */
+
+/* Le défilant des écrans LED : noir, capitales larges, le corail en accent. */
+.theme-l-entrepot .menu-ticker {
+  background-color: #000000;
+  border-color: rgba(238, 56, 93, 0.35);
+}
+
+.theme-l-entrepot .menu-ticker-item {
+  font-stretch: 125%;
+  font-weight: 700;
+}
+
+.theme-l-entrepot .menu-ticker-pause {
+  background-image: linear-gradient(to left, #000000 60%, transparent);
+}
+
+/* Le corail plein de la barre du logo, l'encre de la salle dessus. */
+.theme-l-entrepot .menu-highlights {
+  border-color: var(--ember-3);
+  background-color: var(--ember-3);
+}
+
+.theme-l-entrepot .menu-highlights li {
+  color: var(--background);
+  font-size: 0.75rem;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+@media (min-width: 640px) {
+  .theme-l-entrepot .menu-highlights li {
+    font-size: 0.9375rem;
+    font-stretch: 125%;
+  }
+}
+
+/* ---- Sections ---------------------------------------------------------- */
+
+.theme-l-entrepot .category-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.theme-l-entrepot .category-heading {
+  font-stretch: 125%;
+  font-weight: 900;
+  letter-spacing: -0.005em;
+}
+
+/* La barre du logo, à ses proportions, sous le titre. */
+.theme-l-entrepot .category-rule {
+  flex: none;
+  width: min(62%, 15rem);
+  height: auto;
+  aspect-ratio: 15 / 1;
+  opacity: 1;
+  background: url("/l-entrepot/barre.webp") left center / 100% 100% no-repeat;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-l-entrepot .category-rule {
+      animation: entrepot-barre linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+
+@keyframes entrepot-barre {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.theme-l-entrepot .category-tagline {
+  font-style: normal;
+}
+
+/* ---- Fiches ------------------------------------------------------------ */
+
+.theme-l-entrepot article {
+  border-radius: 0.875rem;
+  border-color: rgba(238, 56, 93, 0.22);
+}
+
+.theme-l-entrepot article:hover {
+  box-shadow: 0 0 0 1px rgba(238, 56, 93, 0.35), 0 10px 40px -12px rgba(238, 56, 93, 0.45);
+}
+
+/* Les noms à chasse normale : en large, « Moët & Chandon Brut Impérial »
+   prenait quatre lignes au téléphone. */
+.theme-l-entrepot article h3 {
+  font-stretch: 100%;
+}
+
+/* « 70 cl », « 75 cl » : une pastille au rose du palmier, en bas de casse. */
+.theme-l-entrepot .dish-detail {
+  border: 1px solid rgba(241, 119, 156, 0.55);
+  border-radius: 9999px;
+  padding: 0.1rem 0.45rem;
+  color: var(--ember-1);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Les bouteilles, sans photo : nom et prix en tête, le type et le bouton sur
+   une même ligne — la fiche ne s'étire plus autour d'un mot. */
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  row-gap: 0.35rem;
+  align-items: center;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-body > * {
+  grid-column: 1;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-head {
+  grid-column: 1 / -1;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-action {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0;
+}
+
+/* Bières et softs : une photo et un nom, deux de front au téléphone. */
+.theme-l-entrepot .dish-grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .theme-l-entrepot .dish-grid-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.theme-l-entrepot .dish-grid-tiles > article {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-body {
+  flex: 1;
+  gap: 0.5rem;
+  padding: 0.75rem 0.8rem 0.85rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-head > div {
+  align-items: flex-start;
+}
+
+.theme-l-entrepot .dish-grid-tiles :is(h3, .dish-price) {
+  font-size: 1rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-action {
+  margin-top: auto;
+  justify-content: flex-start;
+}
+
+.theme-l-entrepot .dish-price {
+  color: var(--ember-1);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.theme-l-entrepot .dish-tarifs {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Pied de page ------------------------------------------------------ */
+
+.theme-l-entrepot footer {
+  border-top: 0;
+  background:
+    url("/l-entrepot/barre.webp") left top / min(70%, 30rem) auto no-repeat,
+    #000000;
+  padding-top: 0.5rem;
+}
+
+
+/*
+  Le Pulp (Pulp Garden) — discothèque à ciel ouvert, Lattes. Identité relevée
+  sur leur logo (logo_pulp_low.png) et leur carte « Tarifs bouteilles »
+  (demos/le-pulp/docs/) : fond noir, l'orange du trait « pulp » (#f89818,
+  mesuré) qui porte les titres et les filets, le vert de « Garden » réservé
+  à ce que le logo lui confie — l'accroche, espacée comme le mot. Deux
+  dispositifs de la carte : l'intertitre en italique grasse entre deux filets
+  orange (« —— WHISKY —— ») et la ligne de points qui mène au prix. Chakra
+  Petch pour les titres (les angles droits du logo), Archivo pour le texte.
+  Le mouvement vient du club : le logo s'allume comme un néon, les faisceaux
+  de leur piste balaient le héros, les filets se tracent à l'arrivée.
+*/
+.theme-le-pulp {
+  --background: #050505;
+  --foreground: #f7f6f3;
+
+  --surface: #101010;
+  --surface-raised: #191919;
+  --hairline: rgba(247, 246, 243, 0.11);
+
+  --muted: #b8b3ad;
+  --faint: #8f8a84;
+
+  --ember-1: #ffb23e;
+  --ember-2: #f89818;
+  --ember-3: #e98000;
+
+  --pulp-orange: #f89818;
+  --pulp-green: #23b531;
+
+  --shimmer-highlight: rgba(248, 152, 24, 0.16);
+  --glow-inner: rgba(248, 152, 24, 0.1);
+  --glow-outer: rgba(35, 181, 49, 0.06);
+
+  --hero-halo-1: var(--pulp-orange);
+  --hero-halo-2: var(--ember-3);
+
+  --brand-display: var(--font-chakra-petch), var(--font-archivo), sans-serif;
+  --brand-sans: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has([data-menu-root].theme-le-pulp),
+html:has([data-menu-root].theme-le-pulp) body {
+  background-color: #050505;
+}
+
+.theme-le-pulp :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* Les capitales de la carte imprimée : posées ici, pas dans les données qui
+   partent aussi sur les tickets. */
+.theme-le-pulp .font-display {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+}
+
+/* ——— Le bandeau : les horaires en orange, la signature en vert ——— */
+
+.theme-le-pulp .menu-ticker {
+  background: #000;
+}
+
+.theme-le-pulp .menu-ticker-pause {
+  background-image: linear-gradient(to left, #000 60%, transparent);
+}
+
+.theme-le-pulp .menu-ticker-item {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.theme-le-pulp .menu-ticker-item[data-tone="accent"] {
+  color: var(--pulp-orange);
+}
+
+.theme-le-pulp .menu-ticker-item[data-tone="brand"] {
+  color: var(--pulp-green);
+}
+
+/* ——— Le héros : le néon s'allume sous les faisceaux de la piste ——— */
+
+.theme-le-pulp .hero-logo img {
+  width: min(64vw, 19rem);
+  height: auto;
+  filter: drop-shadow(0 0 3px rgba(248, 152, 24, 0.55)) drop-shadow(0 0 22px rgba(248, 152, 24, 0.3));
+}
+
+/* L'accroche espacée comme « G a r d e n », dans son vert. */
+.theme-le-pulp .hero-tagline {
+  background: none;
+  color: var(--pulp-green);
+  -webkit-text-fill-color: var(--pulp-green);
+  font-family: var(--brand-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  text-shadow: 0 0 12px rgba(35, 181, 49, 0.45);
+}
+
+.theme-le-pulp .hero-rule {
+  height: 2px;
+  background: var(--pulp-orange);
+  box-shadow: 0 0 10px rgba(248, 152, 24, 0.6);
+}
+
+/* Deux faisceaux de lyre, l'orange et le vert du logo, tombant du haut de
+   la scène comme sur leurs photos de piste. */
+.theme-le-pulp > header.logo-hero::after {
+  content: "";
+  position: absolute;
+  inset: -10% -30% 0;
+  z-index: 1;
+  background:
+    conic-gradient(
+      from 180deg at 50% 0%,
+      transparent 0deg 152deg,
+      rgba(248, 152, 24, 0.13) 160deg,
+      transparent 168deg 190deg,
+      rgba(35, 181, 49, 0.11) 197deg,
+      transparent 205deg 360deg
+    );
+  mask-image: linear-gradient(to bottom, black 20%, transparent 85%);
+  transform-origin: 50% 0;
+  pointer-events: none;
+}
+
+@keyframes pulp-neon-on {
+  0% { opacity: 0; }
+  10% { opacity: 0.85; }
+  13% { opacity: 0.08; }
+  22% { opacity: 0.95; }
+  25% { opacity: 0.25; }
+  34%, 100% { opacity: 1; }
+}
+
+@keyframes pulp-neon-hum {
+  0%, 90%, 100% { opacity: 1; }
+  91% { opacity: 0.72; }
+  92% { opacity: 1; }
+  94% { opacity: 0.85; }
+}
+
+@keyframes pulp-beams {
+  from { transform: rotate(-9deg); }
+  to { transform: rotate(9deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-le-pulp .hero-logo img {
+    animation:
+      pulp-neon-on 1.5s linear 0.25s backwards,
+      pulp-neon-hum 9s linear 3s infinite;
+  }
+
+  .theme-le-pulp > header.logo-hero::after {
+    animation: pulp-beams 11s ease-in-out infinite alternate;
+  }
+}
+
+/* ——— Les arguments du site : orange sur noir, entre deux filets ——— */
+
+.theme-le-pulp .menu-highlights {
+  background: #0b0b0b;
+  border-color: var(--pulp-orange);
+  border-width: 1px 0;
+}
+
+.theme-le-pulp .menu-highlights li {
+  color: var(--foreground);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* Une ligne au bureau, la barre oblique entre deux arguments ; plus étroit,
+   ils passent à la ligne sans elle — elle ouvrait sinon une ligne. */
+@media (min-width: 1024px) {
+  .theme-le-pulp .menu-highlights ul {
+    flex-wrap: nowrap;
+    column-gap: 1.5rem;
+  }
+
+  .theme-le-pulp .menu-highlights li {
+    font-size: 0.9375rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .theme-le-pulp .menu-highlights li + li::before {
+    content: "/" / "";
+    margin-right: 1.5rem;
+    color: var(--pulp-orange);
+  }
+}
+
+/* ——— Les intertitres de la carte : « —— WHISKY —— » ——— */
+
+.theme-le-pulp .category-head {
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-le-pulp .category-head::before {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--pulp-orange);
+  transform-origin: right;
+}
+
+.theme-le-pulp .category-heading {
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.theme-le-pulp .category-rule {
+  height: 2px;
+  background-image: none;
+  background-color: var(--pulp-orange);
+  opacity: 1;
+  transform-origin: left;
+}
+
+/* ——— Les bouteilles : nom, contenance, points, prix ——— */
+
+.theme-le-pulp .dish-grid > article {
+  background: var(--surface);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.theme-le-pulp .dish-head {
+  gap: 0.6rem;
+}
+
+.theme-le-pulp .dish-head > h3 {
+  min-width: 0;
+}
+
+/* La ligne de points de la carte, du nom au prix. */
+.theme-le-pulp .dish-head::after {
+  content: "";
+  order: 1;
+  flex: 1;
+  min-width: 1.25rem;
+  margin-bottom: 0.3em;
+  border-bottom: 2px dotted color-mix(in srgb, var(--foreground) 40%, transparent);
+}
+
+.theme-le-pulp .dish-head > :last-child {
+  order: 2;
+}
+
+/* « JB – 35 cl » : la contenance après un tiret, plus petite, comme imprimée. */
+.theme-le-pulp .dish-detail {
+  margin-left: 0;
+  font-family: var(--brand-display);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.theme-le-pulp .dish-detail::before {
+  content: "– " / "";
+}
+
+.theme-le-pulp .dish-price {
+  font-weight: 700;
+  color: var(--pulp-orange);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.theme-le-pulp .dish-tarifs {
+  font-family: var(--brand-display);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/*
+  Sur deux colonnes, une bouteille sans photo restée seule (data-span, posé
+  par MenuSection) prend la rangée : une ligne de la carte imprimée, nom,
+  points, prix, et le bouton au bout. Les deux grands formats qui ferment
+  seuls leur section se montrent en paysage, la photo à gauche.
+*/
+@media (min-width: 768px) {
+  .theme-le-pulp .dish-grid > article[data-span] {
+    grid-column: 1 / -1;
+  }
+
+  .theme-le-pulp .dish-grid > article[data-span] .dish-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 2rem;
+    row-gap: 0.25rem;
+  }
+
+  .theme-le-pulp .dish-grid > article[data-span] .dish-body > :not(.dish-action) {
+    grid-column: 1;
+  }
+
+  .theme-le-pulp .dish-grid > article[data-span] .dish-action {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+
+  .theme-le-pulp .dish-grid > article:is([data-item="belvedere-magnum"], [data-item="moet-jeroboam"]) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+  }
+
+  .theme-le-pulp :is([data-item="belvedere-magnum"], [data-item="moet-jeroboam"]) .dish-photo {
+    aspect-ratio: auto;
+    min-height: 17rem;
+  }
+
+  .theme-le-pulp :is([data-item="belvedere-magnum"], [data-item="moet-jeroboam"]) .dish-photo-fade {
+    background-image: linear-gradient(to right, transparent 55%, var(--surface));
+  }
+
+  .theme-le-pulp :is([data-item="belvedere-magnum"], [data-item="moet-jeroboam"]) .dish-body {
+    justify-content: center;
+    padding: 2rem;
+  }
+}
+
+.theme-le-pulp .dish-action button:active {
+  box-shadow: 0 0 0 5px rgba(248, 152, 24, 0.22), 0 0 26px rgba(248, 152, 24, 0.55);
+}
+
+@media (hover: hover) {
+  .theme-le-pulp .dish-grid > article:hover {
+    border-color: color-mix(in srgb, var(--pulp-orange) 55%, transparent);
+    box-shadow: 0 0 28px -6px rgba(248, 152, 24, 0.35);
+  }
+}
+
+/* À l'arrivée de chaque section, les filets se tracent depuis le titre et
+   les fiches montent d'un cran — sans JavaScript : la carte reste lisible
+   avant son chargement. */
+@keyframes pulp-trace {
+  from { transform: scaleX(0); }
+}
+
+@keyframes pulp-monte {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .theme-le-pulp .category-head::before,
+    .theme-le-pulp .category-rule {
+      animation: pulp-trace linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 30%;
+    }
+
+    .theme-le-pulp .dish-grid > article {
+      animation: pulp-monte linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+/* ——— Le pied de page : un filet orange, le néon en petit ——— */
+
+.theme-le-pulp footer {
+  border-top: 2px solid var(--pulp-orange);
+  background: #000;
+}
+
+.theme-le-pulp .footer-name img {
+  height: 4.5rem;
+  filter: drop-shadow(0 0 12px rgba(248, 152, 24, 0.3));
 }
 
 @theme inline {

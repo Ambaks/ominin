@@ -7159,12 +7159,13 @@ const lePetitNice: Restaurant = {
  */
 /**
  * Leurs photos (le reportage de leur site) quand le plat y figure — soupe,
- * profiteroles, tiramisu, spritz, cafés ; le reste en photos libres (Pexels),
- * auditées. Les boissons sans photo restent en liste.
+ * profiteroles, spritz, cafés ; le reste en photos libres (Pexels),
+ * auditées, ou pas de photo quand aucune ne montre le plat de la carte. Les
+ * boissons sans photo restent en liste.
  */
 const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "menu-opera": pexels("33474053/pexels-photo-33474053.jpeg", 800),
-  "menu-enfant": pexels("28525152/pexels-photo-28525152.jpeg", 800),
+  "menu-enfant": pexels("33709287/pexels-photo-33709287.jpeg", 800),
   "rillettes-thon": pexels("38275222/pexels-photo-38275222.jpeg", 800),
   arancini: pexels("29653193/pexels-photo-29653193.jpeg", 800),
   "avocat-crevette": pexels("10875295/pexels-photo-10875295.jpeg", 800),
@@ -7173,7 +7174,7 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "terrine-foie-gras": pexels("37767594/pexels-photo-37767594.jpeg", 800),
   "bouquets-crevette": pexels("6426095/pexels-photo-6426095.jpeg", 800),
   "frites-cheddar-bacon": pexels("19264378/pexels-photo-19264378.jpeg", 800),
-  frites: pexels("8272621/pexels-photo-8272621.jpeg", 800),
+  frites: pexelsRecadre("8272621/pexels-photo-8272621.jpeg", 800),
   "ardoise-mixte": pexels("6343168/pexels-photo-6343168.jpeg", 800),
   "tataki-thon-teriyaki": pexels("17126515/pexels-photo-17126515.jpeg", 800),
   "chevre-pane-miel": pexels("29177201/pexels-photo-29177201.jpeg", 800),
@@ -7182,7 +7183,6 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "milanetas-poulet": pexels("34636425/pexels-photo-34636425.jpeg", 800),
   "patatas-bravas": pexels("28490819/pexels-photo-28490819.jpeg", 800),
   huitres: pexels("12955611/pexels-photo-12955611.jpeg", 800),
-  "huitres-gratinees": pexels("38934825/pexels-photo-38934825.jpeg", 800),
   "salade-nicoise": pexels("14693797/pexels-photo-14693797.jpeg", 800),
   "salade-italienne": pexels("5713743/pexels-photo-5713743.jpeg", 800),
   "camembert-roti": pexels("20702577/pexels-photo-20702577.jpeg", 800),
@@ -7194,20 +7194,18 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "carpaccio-boeuf": pexels("27305239/pexels-photo-27305239.jpeg", 800),
   "magret-canard": pexels("29296209/pexels-photo-29296209.jpeg", 800),
   "steak-a-cheval": pexels("15514358/pexels-photo-15514358.jpeg", 800),
-  "supreme-volaille": pexels("15532964/pexels-photo-15532964.jpeg", 800),
+  "supreme-volaille": pexelsRecadre("15532964/pexels-photo-15532964.jpeg", 800),
   "bavette-echalote": pexels("20234697/pexels-photo-20234697.jpeg", 800),
   "burger-aveyronnais": pexels("9469655/pexels-photo-9469655.jpeg", 800),
   "burger-vegi": pexels("20741663/pexels-photo-20741663.jpeg", 800),
   "burger-le-riche": pexels("31450808/pexels-photo-31450808.jpeg", 800),
   "burger-chic-chicken": pexels("12664796/pexels-photo-12664796.jpeg", 800),
-  "tataki-thon-riz": pexels("35773115/pexels-photo-35773115.jpeg", 800),
   "fish-and-chips": pexels("5894001/pexels-photo-5894001.jpeg", 800),
   "filet-bar": pexels("19318466/pexels-photo-19318466.jpeg", 800),
   "seiche-plancha": pexels("15254107/pexels-photo-15254107.jpeg", 800),
   "rouille-seiche": pexels("38756486/pexels-photo-38756486.jpeg", 800),
-  "moules-creme": pexels("31235469/pexels-photo-31235469.jpeg", 800),
+  "moules-creme": pexelsRecadre("31235469/pexels-photo-31235469.jpeg", 800),
   "moules-roquefort": pexels("12173349/pexels-photo-12173349.jpeg", 800),
-  "linguines-pesto": pexels("30651480/pexels-photo-30651480.jpeg", 800),
   "linguines-carbonara": pexels("29039082/pexels-photo-29039082.jpeg", 800),
   "linguines-vongole": pexels("17243892/pexels-photo-17243892.jpeg", 800),
   profiteroles: "/cafe-riche/profiteroles.jpg",
@@ -7218,22 +7216,14 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   "cafe-gourmand": pexels("15891150/pexels-photo-15891150.jpeg", 800),
   "pain-perdu": pexels("30458468/pexels-photo-30458468.jpeg", 800),
   "panna-cotta": pexels("40037724/pexels-photo-40037724.jpeg", 800),
-  tiramisu: "/cafe-riche/tiramisu.jpg",
+  tiramisu: pexels("27305272/pexels-photo-27305272.jpeg", 800),
   "glace-1-boule": pexels("16630827/pexels-photo-16630827.jpeg", 800),
   "glace-2-boules": pexels("2586924/pexels-photo-2586924.jpeg", 800),
   "glace-3-boules": pexels("8349413/pexels-photo-8349413.jpeg", 800),
   "chocolat-liegeois": pexels("38371322/pexels-photo-38371322.jpeg", 800),
   "cafe-liegeois": pexels("33144564/pexels-photo-33144564.jpeg", 800),
-  "banana-split": pexels("16560511/pexels-photo-16560511.jpeg", 800),
   "nutella-cup": pexels("8605224/pexels-photo-8605224.jpeg", 800),
   "after-eight": pexels("29851705/pexels-photo-29851705.jpeg", 800),
-  "crepe-sucre": pexels("36327087/pexels-photo-36327087.jpeg", 800),
-  "crepe-beurre-sucre": pexels("12814856/pexels-photo-12814856.jpeg", 800),
-  "crepe-confiture-fraise": pexels("17633037/pexels-photo-17633037.jpeg", 800),
-  "crepe-chocolat": pexels("20582722/pexels-photo-20582722.jpeg", 800),
-  "crepe-nutella": pexels("36048400/pexels-photo-36048400.jpeg", 800),
-  "crepe-nutella-banane": pexels("39037870/pexels-photo-39037870.jpeg", 800),
-  "crepe-flambee": pexels("9444007/pexels-photo-9444007.jpeg", 800),
   "formule-classique": pexels("10069877/pexels-photo-10069877.jpeg", 800),
   brunch: pexels("4109532/pexels-photo-4109532.jpeg", 800),
   croissant: pexels("11675765/pexels-photo-11675765.jpeg", 800),
@@ -7252,17 +7242,16 @@ const RICHE_PHOTOS: Partial<Record<string, string>> = {
   frappe: pexels("32395584/pexels-photo-32395584.jpeg", 800),
   spritz: "/cafe-riche/spritz.jpg",
   hugo: pexels("7376785/pexels-photo-7376785.jpeg", 800),
-  caipirinha: pexels("13059626/pexels-photo-13059626.jpeg", 800),
   cosmopolitan: pexels("15813474/pexels-photo-15813474.jpeg", 800),
   negroni: pexels("29707900/pexels-photo-29707900.jpeg", 800),
   "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
   "london-mule": pexels("25951422/pexels-photo-25951422.jpeg", 800),
   "dark-n-stormy": pexels("27126842/pexels-photo-27126842.jpeg", 800),
   mojito: pexelsRecadre("37662776/pexels-photo-37662776.jpeg", 800),
-  "pina-colada": pexels("33776445/pexels-photo-33776445.jpeg", 800),
+  "pina-colada": pexels("10986589/pexels-photo-10986589.jpeg", 800),
   "sex-on-the-beach": pexels("22882570/pexels-photo-22882570.jpeg", 800),
   daiquiri: pexels("34140556/pexels-photo-34140556.jpeg", 800),
-  margarita: pexels("33776423/pexels-photo-33776423.jpeg", 800),
+  margarita: pexelsRecadre("32912253/pexels-photo-32912253.jpeg", 800),
   "espresso-martini": pexels("34429981/pexels-photo-34429981.jpeg", 800),
   "pornstar-martini": pexels("28843506/pexels-photo-28843506.jpeg", 800),
   "virgin-mojito": pexels("30591642/pexels-photo-30591642.jpeg", 800),
@@ -7359,6 +7348,8 @@ const richeAlcool = (id: string, name: string, price: number, extra: Partial<Men
 
 /** Le veau et le canard se servent rosés : pas de bleu ni de saignant. */
 const RICHE_CUISSON_ROSE = groupeChoix("cuisson", "Cuisson", ["Rosé", "À point", "Bien cuit"], { obligatoire: true });
+/** Le steak haché des burgers : pas de bleu. */
+const RICHE_CUISSON_HACHE = groupeChoix("cuisson", "Cuisson", ["Saignant", "À point", "Bien cuit"], { obligatoire: true });
 
 /** Une viande grillée : la cuisson se demande à la commande, du plus saignant au plus cuit (celle de Café des Arts). */
 const richeGrillade = (
@@ -7386,14 +7377,29 @@ const richeGlace = (boules: number, price: number, extra: Partial<MenuItem> = {}
 const richeCrepe = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
   richeArticle(id, name, price, { options: RICHE_OPTIONS_CREPE, ...extra });
 
-/** Un article à plusieurs formats, avec sa photo s'il en a une. */
+/**
+ * Un article à plusieurs formats, avec sa photo s'il en a une. Ses prix un
+ * par ligne (.dish-tarifs, globals.css) : sur une seule, le « · » entre deux
+ * formats finissait une ligne.
+ */
 const richeFormats = (
   id: string,
   name: string,
   prix: Formats,
   extra: Partial<MenuItem> = {},
   groupe: Parameters<typeof articleFormats>[4] = []
-) => articleFormats(id, name, prix, { image: RICHE_PHOTOS[id], ...extra }, groupe);
+) =>
+  articleFormats(
+    id,
+    name,
+    prix,
+    {
+      image: RICHE_PHOTOS[id],
+      tarifs: prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join("\n"),
+      ...extra,
+    },
+    groupe
+  );
 
 /** Un vin au verre de 12 cl et à la bouteille de 75 cl. */
 const richeVin = (id: string, name: string, description: string, verre: number, bouteille: number) =>
@@ -7617,18 +7623,30 @@ const cafeRiche: Restaurant = {
       id: "burgers",
       name: "Burgers",
       items: [
-        richeGrillade("burger-aveyronnais", "L'Aveyronnais", 19.9, {
-          description: "Salade, tomate, steak haché façon bouchère, lard grillé et sauce roquefort",
-          printName: "Burger L'Aveyronnais",
-        }),
+        richeGrillade(
+          "burger-aveyronnais",
+          "L'Aveyronnais",
+          19.9,
+          {
+            description: "Salade, tomate, steak haché façon bouchère, lard grillé et sauce roquefort",
+            printName: "Burger L'Aveyronnais",
+          },
+          RICHE_CUISSON_HACHE
+        ),
         richeArticle("burger-vegi", "Le Végi", 16.9, {
           description: "Salade, tomate, steak de légumes, pickles de cornichon",
           printName: "Burger Le Végi",
         }),
-        richeGrillade("burger-le-riche", "Le Riche", 18.9, {
-          description: "Sauce burger, salade, tomate, oignons confits, steak haché façon bouchère, sauce cheddar",
-          printName: "Burger Le Riche",
-        }),
+        richeGrillade(
+          "burger-le-riche",
+          "Le Riche",
+          18.9,
+          {
+            description: "Sauce burger, salade, tomate, oignons confits, steak haché façon bouchère, sauce cheddar",
+            printName: "Burger Le Riche",
+          },
+          RICHE_CUISSON_HACHE
+        ),
         richeArticle("burger-chic-chicken", "Le Chic Chicken", 18.9, {
           description: "Salade, tomate, poulet croustillant, pickles de choux blanc, mayonnaise truffée",
           printName: "Burger Le Chic Chicken",
@@ -7732,17 +7750,17 @@ const cafeRiche: Restaurant = {
       tagline: "Petit-déjeuner de 7\u00a0h à 12\u00a0h · brunch de 8\u00a0h\u00a030 à 11\u00a0h\u00a030",
       items: [
         richeArticle("formule-classique", "Formule classique", 7.5, {
-          description: "Au choix : grand café, chocolat chaud, crème ou thé · croissant, jus d'orange pressée",
+          description: "Au choix : grand café, chocolat chaud, crème ou thé\ncroissant, jus d'orange pressée",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("formule-complete", "Formule complète", 11.5, {
           description:
-            "Au choix : grand café, chocolat chaud, crème ou thé · orange pressée, pain à tartiner avec beurre, confiture, Nutella et croissant",
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, pain à tartiner avec beurre, confiture, Nutella et croissant",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("brunch", "Brunch", 16.9, {
           description:
-            "Au choix : grand café, chocolat chaud, crème ou thé · orange pressée, 2 tartines, avocado toast et fromage frais, croissant, lard grillé, 3 œufs au plat",
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, 2 tartines, avocado toast et fromage frais, croissant, lard grillé, 3 œufs au plat",
           options: [RICHE_BOISSON_MATIN],
         }),
         richeArticle("croissant", "Croissant", 1.6),
@@ -7797,14 +7815,14 @@ const cafeRiche: Restaurant = {
         richeArticle("coca-cola", "Coca-Cola", 4.5, {
           detail: "33 cl",
           options: [
-            groupeChoix("version", "Au choix", ["Coca-Cola", "Coca-Cola sans sucres", "Coca-Cola cherry"], {
+            groupeChoix("version", "Version", ["Coca-Cola", "Coca-Cola sans sucres", "Coca-Cola cherry"], {
               obligatoire: true,
             }),
           ],
         }),
         richeArticle("sodas", "Fanta, Sprite, Fuzetea, Tropico", 4.5, {
           detail: "25 cl",
-          options: [groupeChoix("soda", "Au choix", ["Fanta", "Sprite", "Fuzetea", "Tropico"], { obligatoire: true })],
+          options: [groupeChoix("soda", "Boisson", ["Fanta", "Sprite", "Fuzetea", "Tropico"], { obligatoire: true })],
         }),
         richeArticle("pago", "Pago", 4.5, {
           detail: "20 cl",
@@ -7822,7 +7840,7 @@ const cafeRiche: Restaurant = {
         richeArticle("orangina", "Orangina", 4.5, { detail: "25 cl" }),
         richeArticle("schweppes", "Schweppes tonic ou agrumes", 4.5, {
           detail: "25 cl",
-          options: [groupeChoix("version", "Au choix", ["Tonic", "Agrumes"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Tonic", "Agrumes"], { obligatoire: true })],
         }),
         richeArticle("ginger-beer", "Ginger beer", 4.5, { detail: "25 cl" }),
         richeArticle("red-bull", "Red Bull", 5, { detail: "25 cl" }),
@@ -7859,7 +7877,7 @@ const cafeRiche: Restaurant = {
     },
     {
       id: "jus-boissons-glacees",
-      name: "Jus pressés & boissons glacées",
+      name: "Jus & boissons glacées",
       boissons: true,
       items: [
         richeArticle("jus-orange", "Jus pressé orange", 5, { detail: "33 cl" }),
@@ -7911,7 +7929,7 @@ const cafeRiche: Restaurant = {
       items: [
         richeAlcool("spritz", "Spritz", 9, {
           description: "Aperol, Campari ou Limoncello",
-          options: [groupeChoix("base", "Au choix", ["Aperol", "Campari", "Limoncello"], { obligatoire: true })],
+          options: [groupeChoix("base", "Base", ["Aperol", "Campari", "Limoncello"], { obligatoire: true })],
         }),
         richeAlcool("hugo", "Hugo", 11, { description: "St-Germain ou équivalent" }),
       ],
@@ -8053,12 +8071,12 @@ const cafeRiche: Restaurant = {
         richeAlcool("suze", "Suze", 6, { detail: "4 cl" }),
         richeAlcool("porto-muscat", "Porto, Muscat", 5, {
           detail: "8 cl",
-          options: [groupeChoix("vin", "Au choix", ["Porto", "Muscat"], { obligatoire: true })],
+          options: [groupeChoix("vin", "Apéritif", ["Porto", "Muscat"], { obligatoire: true })],
         }),
         richeAlcool("campari", "Campari", 6, { detail: "6 cl" }),
         richeAlcool("martini", "Martini blanc ou rouge", 6, {
           detail: "6 cl",
-          options: [groupeChoix("version", "Au choix", ["Blanc", "Rouge"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Blanc", "Rouge"], { obligatoire: true })],
         }),
         richeAlcool("kir", "Kir", 6, {
           description: "Cassis, pêche, framboise ou mûre",
@@ -8114,12 +8132,539 @@ const cafeRiche: Restaurant = {
         richeAlcool("poire-williams", "Poire Williams", 8.5, { detail: "4 cl" }),
         richeAlcool("get", "Get 27 / 31", 8.5, {
           detail: "6 cl",
-          options: [groupeChoix("version", "Au choix", ["Get 27", "Get 31"], { obligatoire: true })],
+          options: [groupeChoix("version", "Version", ["Get 27", "Get 31"], { obligatoire: true })],
         }),
         richeAlcool("limoncello", "Limoncello", 8.5, { detail: "6 cl" }),
         richeAlcool("baileys", "Bailey's", 8.5, { detail: "6 cl" }),
         richeAlcool("genepi", "Génépi", 8.5, { detail: "6 cl" }),
         richeAlcool("disaronno", "Disaronno", 9, { detail: "4 cl" }),
+      ],
+    },
+  ],
+};
+
+const LE_CLUB_PHOTOS: Partial<Record<string, string>> = {
+  absolut: pexels("4167425/pexels-photo-4167425.jpeg", 800),
+  "jack-daniels": pexels("27393242/pexels-photo-27393242.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  "moet-imperial": pexels("5340997/pexels-photo-5340997.jpeg", 800),
+  "moet-ice": pexels("1835743/pexels-photo-1835743.jpeg", 800),
+  "veuve-clicquot": pexels("33674006/pexels-photo-33674006.jpeg", 800),
+  mojito: pexels("37662776/pexels-photo-37662776.jpeg", 800),
+  "sex-on-the-beach": pexels("37662778/pexels-photo-37662778.jpeg", 800),
+  "pina-colada": pexelsRecadre("33221989/pexels-photo-33221989.jpeg", 800),
+  "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
+  "tequila-sunrise": pexels("37662774/pexels-photo-37662774.jpeg", 800),
+  spritz: pexels("32418599/pexels-photo-32418599.jpeg", 800),
+  "long-island": pexels("6680479/pexels-photo-6680479.jpeg", 800),
+  verre: pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  shooter: pexels("16064240/pexels-photo-16064240.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("17765844/pexels-photo-17765844.jpeg", 800),
+  soda: pexels("15205136/pexels-photo-15205136.jpeg", 800),
+  "red-bull": pexels("17423270/pexels-photo-17423270.jpeg", 800),
+  jus: pexels("11009214/pexels-photo-11009214.jpeg", 800),
+  eau: pexels("11206902/pexels-photo-11206902.jpeg", 800),
+};
+
+const clubArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: LE_CLUB_PHOTOS[id],
+  ...extra,
+});
+
+const clubAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  clubArticle(id, name, price, { ...ALCOOL, ...extra });
+
+const CLUB_SOFTS = ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Schweppes Tonic", "Jus d'orange", "Jus de cranberry"];
+const CLUB_ALCOOLS_VERRE = ["Vodka", "Gin", "Rhum blanc", "Rhum ambré", "Whisky", "Tequila"];
+const CLUB_SHOOTERS = groupeChoix("shooter", "Shooter", ["Vodka", "Tequila", "Jägermeister", "Rhum", "Get 27"], {
+  obligatoire: true,
+});
+
+/** La bouteille arrive en carré avec ses softs, au choix, et le seau à glace. */
+const clubBouteille = (id: string, name: string, price: number, description: string) =>
+  clubAlcool(id, name, price, {
+    description,
+    detail: "70 cl",
+    options: [
+      groupeChoix("softs", "Softs servis avec", CLUB_SOFTS, { obligatoire: true, multiple: true }),
+      groupeChoix("supplement", "Supplément", [["4 Red Bull", 20]], { multiple: true }),
+    ],
+  });
+
+/*
+ * Le Club — discothèque, 5 rue du Grand Saint-Jean (Montpellier, près de la
+ * gare Saint-Roch), à la place du Cargo depuis 2022 ; exploitée par TKG.
+ * Aucune carte publiée nulle part : celle-ci est un exemple de carte de club
+ * montpelliérain, posé à la demande de l'utilisateur pour la démo — chaque
+ * article et chaque prix est à remplacer par leur carte. Sources et
+ * questions : demos/le-club/profile.json.
+ */
+const leClub: Restaurant = {
+  slug: "le-club",
+  name: "Le Club",
+  demoSuivi: true,
+  tagline: "Discothèque · Montpellier",
+  address: "5 Rue du Grand Saint-Jean, 34000 Montpellier",
+  phone: "+33 6 75 25 74 89",
+  // Noxway ; InfoClapas (2022) disait du lundi au samedi dès 23h30 : à confirmer.
+  hours: "Du mercredi au samedi, minuit–⁠5h",
+  highlights: ["Mercredi au samedi, minuit–⁠5h", "À deux pas de la gare Saint-Roch"],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies en carré, avec softs et seau à glace",
+      boissons: true,
+      items: [
+        clubBouteille("absolut", "Absolut", 110, "Vodka"),
+        clubBouteille("grey-goose", "Grey Goose", 160, "Vodka"),
+        clubBouteille("bombay-sapphire", "Bombay Sapphire", 120, "Gin"),
+        clubBouteille("havana-club-3", "Havana Club 3 ans", 110, "Rhum"),
+        clubBouteille("jack-daniels", "Jack Daniel's", 120, "Whisky"),
+        clubBouteille("chivas-12", "Chivas Regal 12 ans", 150, "Whisky"),
+        clubBouteille("patron-silver", "Patrón Silver", 170, "Tequila"),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        clubAlcool("moet-imperial", "Moët & Chandon Impérial Brut", 120, { detail: "75 cl" }),
+        clubAlcool("moet-ice", "Moët & Chandon Ice Impérial", 140, { detail: "75 cl" }),
+        clubAlcool("veuve-clicquot", "Veuve Clicquot Brut", 140, { detail: "75 cl" }),
+        clubAlcool("ruinart-blanc-de-blancs", "Ruinart Blanc de Blancs", 190, { detail: "75 cl" }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        clubAlcool("mojito", "Mojito", 10, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+          options: [groupeChoix("parfum", "Parfum", PARFUMS_FRUITS, { aucun: "Nature", supplement: 1 })],
+        }),
+        clubAlcool("sex-on-the-beach", "Sex on the Beach", 10, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        clubAlcool("pina-colada", "Piña Colada", 10, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        clubAlcool("moscow-mule", "Moscow Mule", 11, { description: "Vodka, ginger beer, citron vert" }),
+        clubAlcool("tequila-sunrise", "Tequila Sunrise", 10, { description: "Tequila, jus d'orange, grenadine" }),
+        clubAlcool("spritz", "Spritz", 9, { description: "Apérol, prosecco, eau gazeuse" }),
+        clubAlcool("long-island", "Long Island Iced Tea", 12, {
+          description: "Vodka, gin, rhum, tequila, triple sec, citron, Coca-Cola",
+        }),
+      ],
+    },
+    {
+      id: "verres",
+      name: "Verres",
+      tagline: "Un alcool, un soft",
+      boissons: true,
+      items: [
+        clubAlcool("verre", "Verre alcool + soft", 9, {
+          printName: "Verre",
+          options: [
+            groupeChoix("alcool", "Alcool", CLUB_ALCOOLS_VERRE, { obligatoire: true }),
+            groupeChoix("soft", "Soft", [...CLUB_SOFTS, ["Red Bull", 2]], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        clubAlcool("shooter", "Shooter", 4, { options: [CLUB_SHOOTERS] }),
+        clubAlcool("jagerbomb", "Jägerbomb", 7, { description: "Jägermeister et Red Bull" }),
+        clubAlcool("plateau-shooters", "Plateau de 10 shooters", 35, { options: [CLUB_SHOOTERS] }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        clubAlcool("heineken", "Heineken", 7),
+        clubAlcool("desperados", "Desperados", 8),
+        clubAlcool("corona", "Corona", 8),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        clubArticle("soda", "Soda", 5, {
+          options: [
+            groupeChoix("soda", "Soda", ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Orangina", "Schweppes Tonic"], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+        clubArticle("red-bull", "Red Bull", 6),
+        clubArticle("jus", "Jus de fruits", 5, {
+          options: [groupeChoix("jus", "Jus", ["Orange", "Ananas", "Cranberry"], { obligatoire: true })],
+        }),
+        clubArticle("eau", "Eau minérale", 4, {
+          options: [groupeChoix("eau", "Eau", ["Plate", "Gazeuse"], { obligatoire: true })],
+        }),
+      ],
+    },
+  ],
+};
+
+/*
+ * L'Entrepôt Complexe — le club de musique urbaine du 4 rue du Puech Radier,
+ * à Lattes. Aucune carte publiée : celle-ci est une carte type de club, à
+ * valider avec la direction. Seuls viennent d'une source le cocktail à 15 €
+ * (Privateaser), la Vodka Red Bull à 10 € (Noxway), la bouteille de Captain
+ * Morgan à 140 € avec 1 L de Pepsi (avis Google, 2023) ; le reste, marques et
+ * prix compris, est à confirmer. Sources et questions :
+ * demos/l-entrepot/profile.json.
+ */
+
+/** Les bouteilles de marque restent sans photo : une étiquette de stock en contredirait le nom. */
+const ENTREPOT_PHOTOS: Partial<Record<string, string>> = {
+  mojito: pexelsRecadre("37662775/pexels-photo-37662775.jpeg", 800),
+  "pina-colada": pexelsRecadre("10986589/pexels-photo-10986589.jpeg", 800),
+  "sex-on-the-beach": pexels("4279113/pexels-photo-4279113.jpeg", 800),
+  caipirinha: pexels("29095925/pexels-photo-29095925.jpeg", 800),
+  planteur: pexelsRecadre("27100878/pexels-photo-27100878.jpeg", 800),
+  "tequila-sunrise": pexels("10986584/pexels-photo-10986584.jpeg", 800),
+  "virgin-mojito": pexels("7259054/pexels-photo-7259054.jpeg", 800),
+  "vodka-red-bull": pexels("16444383/pexels-photo-16444383.jpeg", 800),
+  "long-drink": pexels("13061331/pexels-photo-13061331.jpeg", 800),
+  shooter: pexels("7282724/pexels-photo-7282724.jpeg", 800),
+  jagerbomb: pexels("31682849/pexels-photo-31682849.jpeg", 800),
+  "plateau-shooters": pexels("35107450/pexels-photo-35107450.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("2286972/pexels-photo-2286972.jpeg", 800),
+  pepsi: pexels("30554816/pexels-photo-30554816.jpeg", 800),
+  "pepsi-max": pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  "seven-up": pexels("9996446/pexels-photo-9996446.jpeg", 800),
+  "ice-tea": pexels("11009226/pexels-photo-11009226.jpeg", 800),
+  "jus-orange": pexels("17612821/pexels-photo-17612821.jpeg", 800),
+  "jus-ananas": pexels("11009200/pexels-photo-11009200.jpeg", 800),
+  eau: pexels("9996342/pexels-photo-9996342.jpeg", 800),
+  "red-bull": pexels("17423276/pexels-photo-17423276.jpeg", 800),
+};
+
+const entrepotArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: ENTREPOT_PHOTOS[id],
+  ...extra,
+});
+
+const entrepotAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  entrepotArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Les softs du bar, servis aussi en diluant : la maison sert Pepsi. */
+const ENTREPOT_DILUANTS = ["Pepsi", "Pepsi Max", "7Up", "Jus d'orange", "Jus d'ananas", "Tonic"];
+
+const ENTREPOT_SHOW = ["Show cierges magiques", 20] as const;
+
+/**
+ * Une bouteille : son seul format s'affiche à côté du nom ; plusieurs (70 cl,
+ * magnum) se choisissent, chacun à son prix.
+ */
+const entrepotBouteille = (id: string, name: string, prix: Formats, extra: Partial<MenuItem>) =>
+  prix.length === 1
+    ? entrepotAlcool(id, name, prix[0][1], { detail: prix[0][0], ...extra })
+    : articleFormats(id, name, prix, { ...ALCOOL, ...extra }, ["format", "Format"]);
+
+/** Un alcool fort : 1 L de diluant compris, le reste en plus. */
+const entrepotSpiritueux = (id: string, name: string, description: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    description,
+    options: [
+      groupeChoix("diluant", "Diluant (1 L compris)", ENTREPOT_DILUANTS, { obligatoire: true }),
+      groupeChoix("extras", "En plus", [["Red Bull ×4", 24], ["1 L de diluant en plus", 10], ENTREPOT_SHOW], {
+        multiple: true,
+      }),
+    ],
+  });
+
+const entrepotChampagne = (id: string, name: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    options: [groupeChoix("extras", "En plus", [ENTREPOT_SHOW], { multiple: true })],
+  });
+
+const ENTREPOT_SHOOTERS = groupeChoix("alcool", "Alcool", ["Vodka", "Tequila", "Jägermeister", "Get 27"], {
+  obligatoire: true,
+});
+
+const lEntrepot: Restaurant = {
+  slug: "l-entrepot",
+  name: "L'Entrepôt",
+  brandName: "L'Entrepôt Complexe",
+  demoSuivi: true,
+  tagline: "Club · Musique urbaine · Lattes",
+  // Le mot-symbole de leur site (lentrepotcomplexe.com), palmier compris.
+  logo: "/l-entrepot/logo.webp",
+  logoIsName: true,
+  icons: { tab: "/l-entrepot/favicon.png", homeScreen: "/l-entrepot/icon.png" },
+  themeColor: "#0b0b12",
+  address: "4 rue du Puech Radier, 34970 Lattes",
+  phone: "07 88 76 35 16",
+  // Leur programme d'octobre 2026 : jeudi, vendredi, samedi et dimanche soir.
+  hours: "Du jeudi au dimanche, 23h–⁠7h",
+  highlights: ["Dancehall · Shatta · Bouyon · Afrobeat", "Entrée 15 € avec 1 conso alcool ou 2 softs"],
+  ticker: [
+    { text: "Entrée gratuite pour les filles avec 1 cocktail offert, horaire selon la soirée", tone: "accent" },
+    { text: "La référence de la musique urbaine dans la région", tone: "brand" },
+    { text: "Plus de 300 m d'écrans LED" },
+  ],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies à votre table, avec 1 L de diluant au choix",
+      boissons: true,
+      items: [
+        entrepotSpiritueux("absolut", "Absolut", "Vodka", [["70 cl", 150]]),
+        entrepotSpiritueux("grey-goose", "Grey Goose", "Vodka", [
+          ["70 cl", 190],
+          ["Magnum 1,5 L", 380],
+        ]),
+        entrepotSpiritueux("belvedere", "Belvedere", "Vodka", [["70 cl", 200]]),
+        entrepotSpiritueux("jack-daniels", "Jack Daniel's", "Tennessee whiskey", [["70 cl", 160]]),
+        entrepotSpiritueux("chivas-12", "Chivas Regal 12 ans", "Blended scotch whisky", [["70 cl", 180]]),
+        entrepotSpiritueux("captain-morgan", "Captain Morgan", "Rhum épicé", [["70 cl", 140]]),
+        entrepotSpiritueux("bombay-sapphire", "Bombay Sapphire", "Gin", [["70 cl", 150]]),
+        entrepotSpiritueux("patron-silver", "Patrón Silver", "Tequila", [["70 cl", 200]]),
+      ],
+    },
+    {
+      id: "champagnes",
+      name: "Champagnes",
+      tagline: "Servis frappés, en seau à glace",
+      boissons: true,
+      items: [
+        entrepotChampagne("moet-imperial", "Moët & Chandon Brut Impérial", [
+          ["75 cl", 150],
+          ["Magnum 1,5 L", 300],
+        ]),
+        entrepotChampagne("moet-ice", "Moët & Chandon Ice Impérial", [["75 cl", 180]]),
+        entrepotChampagne("veuve-clicquot", "Veuve Clicquot Brut", [["75 cl", 170]]),
+        entrepotChampagne("ruinart-blanc", "Ruinart Blanc de Blancs", [["75 cl", 250]]),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        entrepotAlcool("mojito", "Mojito", 15, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+        entrepotAlcool("pina-colada", "Piña Colada", 15, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        entrepotAlcool("sex-on-the-beach", "Sex on the Beach", 15, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        entrepotAlcool("caipirinha", "Caïpirinha", 15, { description: "Cachaça, citron vert, sucre de canne" }),
+        entrepotAlcool("planteur", "Planteur", 15, {
+          description: "Rhum ambré, jus d'orange et d'ananas, sirop de canne, cannelle",
+        }),
+        entrepotAlcool("tequila-sunrise", "Tequila Sunrise", 15, {
+          description: "Tequila, jus d'orange, sirop de grenadine",
+        }),
+        entrepotArticle("virgin-mojito", "Virgin Mojito", 10, {
+          description: "Sans alcool : citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+      ],
+    },
+    {
+      id: "long-drinks",
+      name: "Long drinks",
+      boissons: true,
+      items: [
+        entrepotAlcool("vodka-red-bull", "Vodka Red Bull", 10, { description: "Vodka, Red Bull" }),
+        entrepotAlcool("long-drink", "Long drink", 10, {
+          description: "Un alcool et un diluant au choix",
+          options: [
+            groupeChoix("alcool", "Alcool", ["Vodka", "Whisky", "Rhum", "Gin"], { obligatoire: true }),
+            groupeChoix("diluant", "Diluant", [...ENTREPOT_DILUANTS, "Red Bull"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        entrepotAlcool("shooter", "Shooter", 5, {
+          description: "Vodka, tequila, Jägermeister ou Get 27",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+        entrepotAlcool("jagerbomb", "Jägerbomb", 8, { description: "Jägermeister, Red Bull" }),
+        entrepotAlcool("plateau-shooters", "Plateau 10 shooters", 40, {
+          description: "Dix shooters du même alcool, au choix",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        entrepotAlcool("heineken", "Heineken", 8),
+        entrepotAlcool("desperados", "Desperados", 9),
+        entrepotAlcool("corona", "Corona", 9),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        entrepotArticle("pepsi", "Pepsi", 5),
+        entrepotArticle("pepsi-max", "Pepsi Max", 5),
+        entrepotArticle("seven-up", "7Up", 5),
+        entrepotArticle("ice-tea", "Lipton Ice Tea", 5),
+        entrepotArticle("jus-orange", "Jus d'orange", 5),
+        entrepotArticle("jus-ananas", "Jus d'ananas", 5),
+        entrepotArticle("eau", "Eau plate", 4),
+        entrepotArticle("red-bull", "Red Bull", 7),
+      ],
+    },
+  ],
+};
+
+/*
+ * Le Pulp (Pulp Garden) — la discothèque à ciel ouvert de l'Espace Latipolia,
+ * route de Palavas à Lattes. Leur seule carte en ligne : « Tarifs
+ * bouteilles », l'image d'un PDF de pulpgarden.fr (déposé en août 2021),
+ * transcrite ligne à ligne (demos/le-pulp/docs/). Ni verre, ni cocktail, ni
+ * soft : le club n'affiche que la bouteille. Sources et questions :
+ * demos/le-pulp/profile.json.
+ */
+const PULP_PHOTOS: Partial<Record<string, string>> = {
+  "jack-daniels": pexels("9387678/pexels-photo-9387678.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  smirnoff: pexels("19613748/pexels-photo-19613748.jpeg", 800),
+  belvedere: unsplash("photo-1645784125144-4c06a561fc58", 800),
+  // Une bouteille de 70 cl : aucune photo libre d'un magnum de Belvedere.
+  "belvedere-magnum": unsplash("photo-1659717602925-a9d07c713e99", 800),
+  havana: pexels("17687334/pexels-photo-17687334.jpeg", 800),
+  bacardi: unsplash("photo-1561150169-371f366b828a", 800),
+  "rhum-vieux-ambre": pexels("7254902/pexels-photo-7254902.jpeg", 800),
+  malibu: pexels("16845292/pexels-photo-16845292.jpeg", 800),
+  moet: pexels("3858809/pexels-photo-3858809.jpeg", 800),
+  // La coiffe cuivrée du Rosé Impérial, dans son seau.
+  "moet-rose": unsplash("photo-1643618829236-a23857519fb6", 800),
+  "dom-perignon": pexels("12099317/pexels-photo-12099317.jpeg", 800),
+  // Magnum et jéroboam : des bouteilles de 75 cl, faute de grands formats en photo libre.
+  "moet-magnum": pexels("21221001/pexels-photo-21221001.jpeg", 800),
+  "moet-jeroboam": unsplash("photo-1531821945121-d55c446bd62f", 800),
+};
+
+/** Une bouteille servie à table, sa contenance en pastille : TVA à 20 %. */
+const pulpBouteille = (
+  id: string,
+  name: string,
+  contenance: string,
+  price: number,
+  extra: Partial<MenuItem> = {}
+): MenuItem => ({ id, name, price, detail: contenance, image: PULP_PHOTOS[id], ...ALCOOL, ...extra });
+
+/** La même bouteille en 35 et 70 cl, chacune à son prix, comme sur la carte. */
+const pulpContenances = (id: string, name: string, prix: Formats) =>
+  articleFormats(id, name, prix, { image: PULP_PHOTOS[id], ...ALCOOL }, ["contenance", "Contenance"]);
+
+const lePulp: Restaurant = {
+  slug: "le-pulp",
+  name: "Le Pulp",
+  // Le logo : « pulp » en orange, « Garden » en vert dessous.
+  brandName: "Pulp Garden",
+  demoSuivi: true,
+  // Leur site : « Open air discothèque ».
+  tagline: "Open air discothèque",
+  // Le mot-symbole de leur site (logo_pulp_low.png) retracé en vectoriel, et
+  // « Garden » relevé sur l'en-tête de la carte des bouteilles.
+  logo: "/le-pulp/logo.svg",
+  logoIsName: true,
+  themeColor: "#050505",
+  // Leur site : « La Calade - Route de Palavas 34970 LATTES ». Pas de numéro
+  // de rue, ni au BODACC ni à la Base Adresse Nationale.
+  address: "La Calade, Route de Palavas, 34970 Lattes",
+  phone: "+33 6 76 57 77 22",
+  hours: "Jeudi, vendredi, samedi & veille de jour férié dès\u00a023h",
+  // Leur site, mot pour mot.
+  highlights: ["Patio à la déco unique", "2 espaces bar et 1 dancefloor", "Entrée gratuite tous les soirs"],
+  ticker: [
+    { text: "Jeudi, vendredi, samedi & veille de jour férié dès 23h", tone: "accent" },
+    { text: "Un incontournable des nuits montpelliéraines", tone: "brand" },
+    { text: "Pour toute réservation : 06 76 57 77 22" },
+    { text: "Ambiance généraliste clubbing" },
+  ],
+  categories: [
+    {
+      id: "whisky",
+      name: "Whisky",
+      boissons: true,
+      items: [
+        pulpContenances("jb", "JB", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("jack-daniels", "Jack Daniel's", "70 cl", 150),
+        pulpBouteille("chivas-12", "Chivas Regal 12 ans", "70 cl", 150),
+      ],
+    },
+    {
+      id: "vodka",
+      name: "Vodka",
+      boissons: true,
+      items: [
+        pulpContenances("smirnoff", "Smirnoff", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("belvedere", "Belvedere", "70 cl", 150),
+        pulpBouteille("belvedere-magnum", "Belvedere Magnum", "175 cl", 340),
+        pulpBouteille("belvedere-jeroboam", "Belvedere Jéroboam", "300 cl", 700),
+      ],
+    },
+    {
+      id: "rhum-malibu",
+      name: "Rhum & Malibu",
+      boissons: true,
+      items: [
+        pulpBouteille("trois-rivieres", "3 Rivières", "70 cl", 150),
+        pulpBouteille("havana", "Havana", "70 cl", 130),
+        pulpBouteille("bacardi", "Bacardi", "70 cl", 130),
+        pulpBouteille("rhum-vieux-ambre", "Rhum vieux ambré", "70 cl", 150),
+        pulpBouteille("malibu", "Malibu", "70 cl", 130),
+        // Une ligne de la carte, un prix pour les trois : la bouteille se choisit.
+        pulpBouteille("gin-get-tequila", "Gin / Get 27 / Tequila", "70 cl", 130, {
+          options: [groupeChoix("bouteille", "Bouteille", ["Gin", "Get 27", "Tequila"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        pulpBouteille("moet", "Moët & Chandon", "75 cl", 130),
+        pulpBouteille("moet-rose", "Moët & Chandon Rosé", "75 cl", 150),
+        pulpBouteille("dom-perignon", "Dom Pérignon", "75 cl", 300),
+        pulpBouteille("moet-magnum", "Magnum Moët & Chandon", "150 cl", 260),
+        // La carte imprime « MOËT & CANDON » : coquille corrigée (profile.json, note 3).
+        pulpBouteille("moet-jeroboam", "Jéroboam Moët & Chandon", "300 cl", 550),
       ],
     },
   ],
@@ -8820,6 +9365,9 @@ const restaurants: Record<string, Restaurant> = {
   [cafeRiche.slug]: cafeRiche,
   [cafePoulard.slug]: cafePoulard,
   [lePetitNice.slug]: lePetitNice,
+  [leClub.slug]: leClub,
+  [lEntrepot.slug]: lEntrepot,
+  [lePulp.slug]: lePulp,
   [cafe3Graces.slug]: cafe3Graces,
 };
 
@@ -8843,6 +9391,9 @@ const themeClasses: Record<string, string> = {
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
+  [leClub.slug]: "theme-le-club",
+  [lEntrepot.slug]: "theme-l-entrepot",
+  [lePulp.slug]: "theme-le-pulp",
   [cafe3Graces.slug]: "theme-cafe-3-graces",
 };
 

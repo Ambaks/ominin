@@ -8,6 +8,7 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Chakra_Petch,
   Cinzel,
   Cormorant_Garamond,
   DM_Sans,
@@ -20,6 +21,7 @@ import {
   Poppins,
   Questrial,
   Source_Serif_4,
+  Unbounded,
 } from "next/font/google";
 
 /*
@@ -168,8 +170,8 @@ const josefinSans = Josefin_Sans({
 
 /**
  * Café Riche — les titres et les prix de son site (caferiche-montpellier.com)
- * sont en Playfair Display ; le texte reprend DM Sans (Baï-Kō), les capitales
- * espacées Josefin Sans, proches du « CAFÉ » de son logo.
+ * sont en Playfair Display ; le texte et les capitales espacées reprennent
+ * DM Sans (Baï-Kō).
  */
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
@@ -278,7 +280,35 @@ const adventPro = Advent_Pro({
   preload: false,
 });
 
+/**
+ * Le Club — « LE CLUB » sur son badge : des capitales très larges et très
+ * grasses, aux angles arrondis. Unbounded en noir est la plus proche mesurée
+ * parmi les Google Fonts (Michroma, Krona One : trop maigres). Le texte
+ * reprend DM Sans, ci-dessus.
+ */
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
+/**
+ * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
+ * Chakra Petch en reprend les terminaisons carrées pour les titres, les
+ * bouteilles et les prix ; l'italique grasse, les intertitres « WHISKY »,
+ * « VODKA » de leur carte. Le texte courant reste en Archivo, la linéale de
+ * la carte imprimée.
+ */
+const chakraPetch = Chakra_Petch({
+  variable: "--font-chakra-petch",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
 export const brandFontVariables = [
   archivo,
   archivoBlack,
@@ -300,6 +330,8 @@ export const brandFontVariables = [
   barlow,
   cinzel,
   notoSerifDisplay,
+  unbounded,
+  chakraPetch,
   adventPro,
 ]
   .map((font) => font.variable)
