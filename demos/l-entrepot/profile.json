@@ -1,0 +1,113 @@
+{
+  "slug": "l-entrepot",
+  "name": "L'Entrepôt Complexe",
+  "tagline": "Club · Musique urbaine · Lattes",
+  "status": "prospect",
+  "demo": "Carte QR aux couleurs du club, menu seul (pas de version Ominin) : /menu/demo/l-entrepot. Paiement simulé et suivi de commande jusqu'au service (demoSuivi).",
+  "cuisine": "Discothèque — bouteilles, champagnes, cocktails, long drinks, shooters, bières, softs",
+  "address": "4 rue du Puech Radier, 34970 Lattes",
+  "city": "Lattes (Montpellier)",
+  "phone": "07 88 76 35 16",
+  "hours": "Du jeudi au dimanche, 23h–7h (programme d'octobre 2026) — à confirmer, voir notes 4 et 5",
+  "website": "https://www.lentrepotcomplexe.com",
+  "socials": {
+    "instagram": "https://www.instagram.com/lentrepot_complexe (lien depuis leur site)",
+    "tiktok": "https://www.tiktok.com/@lentrepot_complexe (lien depuis leur site)",
+    "facebook": "https://www.facebook.com/lentrepotmtp (lien depuis leur site ; ~35 000 mentions J'aime selon un extrait de recherche, non vérifié)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "Fiche probable, place id ChIJu2nDutuvthIRuvBzMo2XpnI (relevé sur Noxway, non vérifié) ; 3,0/5 sur ~1 749 avis selon un extrait lacarte.menu (403), non vérifié"
+  },
+  "legal": {
+    "raison_sociale": "MSVM (enseigne L'ENTREPOT)",
+    "forme": "SAS",
+    "siren": "808365324",
+    "siret": "80836532400017",
+    "naf": "56.30Z — débit de boissons",
+    "president": "Marc Guy Aimé Valente",
+    "creation": "2014-12-10",
+    "debut_activite": "2018-09-12 (établissement du 4 rue du Puech Radier)",
+    "source": "https://recherche-entreprises.api.gouv.fr/search?q=808365324 (consulté le 2026-10-17)",
+    "groupe": "Même président, actives : MARGUERITTE (SAS, 832985956, même adresse, 56.30Z), MV HOLDING (982250201, même adresse, 66.30Z), M V (SAS, 801093675, enseigne « Le Club 80 », route de Palavas, Lattes, 56.30Z), SARL HOTEL O (« Le Lodge », Lattes). Lien d'activité avec « Le Club 80 » non établi."
+  },
+  "design": {
+    "primary_color": "#EE385D",
+    "secondary_color": "#F1779C",
+    "accent_color": "#0B0B12",
+    "style_notes": "Couleurs mesurées sur le fichier du logo (docs/logo-site.png, Wix) : corail #EE385D (les lettres et la barre), rose #F1779C (le palmier). Fond noir #0B0B12 : la salle, ses écrans LED où le logo passe en blanc sur noir. Titrage : capitales larges et grasses du mot-symbole → Archivo (déjà chargée pour Big Smash et Chicken Street) poussée à 125 % de chasse, graisse 900 pour les sections ; noms des boissons à chasse normale pour tenir au téléphone ; texte en Archivo courante. Dispositifs : la barre peinte à la bombe du logo, découpée dans le fichier (frontend/public/l-entrepot/barre.webp), sous chaque titre de section et en haut du pied de page ; le bandeau des mentions en corail plein, encre noire (4,9:1 — le blanc ne tenait que 3,9:1). Mouvement : deux faisceaux de lyre qui balaient le hero (la salle a des lyres sur portique), la barre qui se peint à l'entrée de chaque section ; rien sous prefers-reduced-motion. Écartés : les palmiers et le jaune néon des flyers (habillage d'une soirée, « Tropical Vibes », pas de l'enseigne).",
+    "interior_vibe": "Grande salle noire sous portique (lyres, écrans LED portant le logo, canons à confettis) ; seconde salle aux néons violets et magenta, plafond étoilé ; flyers bleu nuit et jaune néon selon la soirée.",
+    "reference_images": [
+      "docs/logo-site.png",
+      "docs/icone-site.png",
+      "Flyer « Tropical Vibes » du samedi 17 octobre 2026 sur leur site (bleu nuit, palmes, jaune néon, « 23H-07H »), non archivé : il montre le DJ"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte publiée par l'établissement (site, Privateaser, Xceed, Noxway, Sluurpy, lacarte.menu en 403 ; recherche du 2026-10-17). À la demande de l'utilisateur (2026-10-17), la démo porte une carte type de club, entièrement à valider. Seuls trois prix viennent d'une source : cocktail 15 € (Privateaser, non daté), Vodka Red Bull 10 € (Noxway, 2025), bouteille de Captain Morgan 140 € avec 1 L de Pepsi (avis Google d'août 2023 : « 280 € pour deux Captain Morgan plus 1 L de Pepsi »). La carte vit dans frontend/lib/menu-data.ts (const lEntrepot).",
+    "categories_summary": [
+      "Bouteilles — 140 à 200 € la 70 cl, Grey Goose en magnum 380 € ; 1 L de diluant au choix compris, Red Bull ×4 +24 €, 1 L de diluant en plus +10 €, show cierges magiques +20 €",
+      "Champagnes — 150 à 250 € la 75 cl, Moët Brut Impérial en magnum 300 € ; show cierges magiques +20 €",
+      "Cocktails — 15 € (6 classiques), Virgin Mojito 10 €",
+      "Long drinks — Vodka Red Bull 10 €, Long drink 10 € (alcool et diluant au choix)",
+      "Shooters — Shooter 5 €, Jägerbomb 8 €, Plateau 10 shooters 40 €",
+      "Bières — Heineken 8 €, Desperados 9 €, Corona 9 €",
+      "Softs — 4 à 5 €, Red Bull 7 €"
+    ],
+    "carte_a_valider": "Tout le reste : la liste des bouteilles, champagnes, cocktails, bières et softs, leurs marques, formats (70 cl, 75 cl, magnums) et prix ; les descriptions des cocktails (recettes classiques, pas les leurs) ; Pepsi plutôt que Coca-Cola, déduit du même avis de 2023.",
+    "photos": "Photos de banque (Pexels) pour cocktails, long drinks, shooters, bières et softs, sans marque visible sauf celle du produit nommé (Heineken, Desperados, Corona, Pepsi, Red Bull, Jägermeister). Bouteilles et champagnes sans photo, par choix de l'utilisateur : une étiquette de stock contredirait la marque. Approchants : Pepsi Max (verre de cola sans étiquette), 7Up (soda citron sans étiquette), Sex on the Beach (verre court), Vodka Red Bull (verre court ambré), Jägerbomb (shooter dans son verre, pas lâché dans un verre). Leurs propres photos de bar seraient meilleures.",
+    "options_a_valider": [
+      "Bouteilles : « Diluant (1 L compris) » obligatoire — Pepsi, Pepsi Max, 7Up, Jus d'orange, Jus d'ananas, Tonic",
+      "Bouteilles : « En plus » — Red Bull ×4 (+24 €), 1 L de diluant en plus (+10 €), Show cierges magiques (+20 €)",
+      "Champagnes : « En plus » — Show cierges magiques (+20 €)",
+      "Formats : Grey Goose 70 cl / Magnum 1,5 L ; Moët & Chandon Brut Impérial 75 cl / Magnum 1,5 L",
+      "Long drink : Alcool (Vodka, Whisky, Rhum, Gin) et Diluant (les softs ci-dessus et Red Bull), obligatoires",
+      "Shooter et Plateau 10 shooters : Alcool (Vodka, Tequila, Jägermeister, Get 27), obligatoire"
+    ]
+  },
+  "offers": [
+    "Entrée 15 € avec 1 conso alcool ou 2 softs (leur site, programme du 9 au 25 octobre 2026)",
+    "Entrée gratuite pour les filles avec 1 cocktail offert avant 1h (We Love Shatta), minuit (Big Party, Tropical Vibes) ou 0h30 (Urban Vibes, The Random) — d'où « horaire selon la soirée » dans le bandeau",
+    "Après-midis Rétro le dimanche, 14h–20h : 12 € avec une boisson et des petits fours (leur site)"
+  ],
+  "research": {
+    "date": "2026-10-17",
+    "adresse": "4 rue du Puech Radier, 34970 Lattes : site officiel, Xceed, Privateaser, Noxway et registre INSEE concordent (confirmé). La BAN connaît la rue (34129_0375) mais pas de numéro 4 : elle numérote au métrique, et les coordonnées Google de Noxway tombent au 281 rue du Puech Radier (13 m). Bus 11 ou tram d'après Privateaser, arrêt non vérifié ; parking sur place (mentionné dans un avis).",
+    "horaires": "Contradiction : la page contact du site dit vendredi, samedi et veilles de fêtes 23h–7h, plus un dimanche « Rétro » 14h–20h ; Xceed dit jeudi–dimanche, 23h30–7h jeudi et dimanche, 23h vendredi et samedi ; le programme d'octobre 2026 du site a des soirées jeudi, vendredi, samedi et dimanche ; la balise du site dit « du mercredi au dimanche ». Le flyer du samedi 17 octobre : 23h–07h.",
+    "telephone": "07 88 76 35 16 (accueil et contact du site) ; 06 45 06 31 30 sur la page Après-midis Rétro et sur Sluurpy.",
+    "billetterie": "Bouton « Billetterie » du site vers https://urlz.fr/uDN6 (raccourci, destination non résolue). Aucune page Shotgun, Dice, Weezevent trouvée. Aucun prix de table ou de carré publié.",
+    "privatisation": "Privateaser : salle de 300 m² (350 pers.) et de 150 m² (150 pers.), 500 max ; bar équipé, DJ, son et lumière, fumoir avec patio, vestiaire, accès PMR. ABC Salles : 300 m² dès 2 100 €, 150 m² dès 1 500 €, agent de sécurité obligatoire 200 €.",
+    "avis": "Sluurpy (avis d'août à novembre 2023) : éloges pour le personnel, la musique, les DJ, la clim, l'extérieur, la sécurité ; reproches sur le prix des entrées, des verres et des bouteilles (« bouteille à 170 € », « 280 € pour deux Captain Morgan plus 1 L de Pepsi »), un gâteau d'anniversaire réservé jamais arrivé, un showcase tardif, une seule toilette pour femmes. Aucun avis ne parle d'attente au bar.",
+    "identite": "Logo sur leur site (Wix) : capitales larges et grasses à texture usée, barre peinte à la bombe dessous, « COMPLEXE » très espacé, palmier rose derrière « L'E ». Monochrome blanc sur les écrans LED et les flyers.",
+    "sources": [
+      "https://www.lentrepotcomplexe.com/",
+      "https://www.lentrepotcomplexe.com/contact",
+      "https://www.lentrepotcomplexe.com/apres-midis-retro",
+      "https://xceed.me/fr/montpellier/venue/lentrepot-complexe-1",
+      "https://www.privateaser.com/lieu/59527-l-entrepot-complexe",
+      "https://www.noxway.fr/nightclub/0ed4db6200abee377374cc891350",
+      "https://www.sluurpy.fr/lattes/restaurant/7973744/l-entrepot-complexe",
+      "https://recherche-entreprises.api.gouv.fr/search?q=808365324",
+      "https://api-adresse.data.gouv.fr/search/?q=4+rue+du+Puech+Radier+Lattes"
+    ],
+    "arguments_de_vente": [
+      "Les bouteilles et le service à table sont le cœur du chiffre et la source des litiges (prix, diluants, gâteau oublié) : une carte claire avec diluant compris et suppléments affichés, la commande suivie jusqu'à la table.",
+      "Deux salles (300 et 150 m², ou 800 m² selon Xceed) et quatre soirs par semaine : commander depuis sa table soulage le bar — à présenter comme de la capacité, aucun avis ne se plaint de l'attente.",
+      "Aucune carte publiée nulle part : la carte QR est aussi leur première carte en ligne.",
+      "Le même président exploite d'autres établissements à Lattes (MARGUERITTE, « Le Club 80 », l'hôtel Le Lodge) : piste de groupe, à vérifier."
+    ]
+  },
+  "notes": [
+    "1. Nous envoyer la carte réelle (bar et bouteilles) avec ses prix : celle de la démo est une carte type, marques et prix inventés sauf le cocktail à 15 €, la Vodka Red Bull à 10 € et le Captain Morgan à 140 €.",
+    "2. Les bouteilles comprennent-elles un diluant ? Combien (1 L, softs à volonté) et lesquels ? Le Red Bull est-il en supplément ?",
+    "3. Servez-vous Pepsi ou Coca-Cola ? (déduit d'un avis de 2023)",
+    "4. Horaires : jeudi au dimanche 23h–7h, comme le programme d'octobre ? La page contact ne dit que vendredi, samedi et veilles de fêtes ; Xceed annonce 23h30 le jeudi et le dimanche.",
+    "5. Le numéro à afficher : 07 88 76 35 16 ou 06 45 06 31 30 ?",
+    "6. Proposez-vous un show (cierges magiques) avec les bouteilles, et à quel prix ? Un pack anniversaire ?",
+    "7. Le service à table : qui apporte les bouteilles, et les tables ou carrés ont-ils un minimum de consommation ?",
+    "8. Commande depuis la table avec paiement en ligne, ou carte consultable seulement ? Quelle caisse et quels moyens de paiement ?",
+    "9. Pouvons-nous utiliser votre logo et des photos de votre bar (les photos de la démo sont des photos de banque) ?",
+    "10. L'entrée gratuite pour les filles, avec cocktail offert : l'heure limite change selon la soirée (1h, minuit, 0h30) — la carte doit-elle l'afficher ?",
+    "11. Les Après-midis Rétro du dimanche ont-ils leur propre carte ?",
+    "12. Lien avec MARGUERITTE, « Le Club 80 » et Le Lodge : une carte pour ces établissements aussi ?"
+  ]
+}
