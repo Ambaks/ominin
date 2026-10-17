@@ -13,7 +13,9 @@ import {
   Didact_Gothic,
   Fraunces,
   Josefin_Sans,
+  Montserrat,
   Playball,
+  Playfair_Display,
   Poppins,
   Questrial,
   Source_Serif_4,
@@ -229,6 +231,27 @@ const cinzel = Cinzel({
   weight: "variable",
   preload: false,
 });
+
+/**
+ * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
+ * Playfair Display pour les titres, Montserrat pour tout le reste.
+ */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  preload: false,
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  preload: false,
+});
+
+/** Les polices de L'Étoile, pour sa carte sur mesure. */
+export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");
 
 /** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
 export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
