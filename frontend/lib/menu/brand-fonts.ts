@@ -7,6 +7,7 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Chakra_Petch,
   Cinzel,
   Cormorant_Garamond,
   DM_Sans,
@@ -278,6 +279,21 @@ const unbounded = Unbounded({
 });
 
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
+/**
+ * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
+ * Chakra Petch en reprend les terminaisons carrées pour les titres, les
+ * bouteilles et les prix ; l'italique grasse, les intertitres « WHISKY »,
+ * « VODKA » de leur carte. Le texte courant reste en Archivo, la linéale de
+ * la carte imprimée.
+ */
+const chakraPetch = Chakra_Petch({
+  variable: "--font-chakra-petch",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
 export const brandFontVariables = [
   archivo,
   archivoBlack,
@@ -300,6 +316,7 @@ export const brandFontVariables = [
   cinzel,
   notoSerifDisplay,
   unbounded,
+  chakraPetch,
 ]
   .map((font) => font.variable)
   .join(" ");
