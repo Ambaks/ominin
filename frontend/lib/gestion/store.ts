@@ -12,6 +12,7 @@ import {
   DEFAULT_DAY_END_HOUR,
   HISTORY_ORDER_STATUSES,
   HISTORY_PAGE_SIZE,
+  ORDER_HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
   PAID_ORDER_STATUSES,
@@ -99,33 +100,22 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
   return orders;
 }
 
-/**
- * Page d'historique (commandes clôturées), curseur = created_at décroissant.
- * Une recherche par table s'arrête au début du service : la table 4 d'hier
- * soir n'est pas celle qu'on cherche.
- */
+/** Page d'historique (commandes clôturées), curseur = created_at décroissant. */
 export async function fetchOrderHistory(
-  before: string | null,
-  tableId: string | null = null
+  before: string | null
 ): Promise<{ orders: Order[]; nextCursor: string | null }> {
   const supabase = createClient();
-  const { etablissement, dayEndHour } = getState();
   let query = supabase
     .from("orders")
     .select("*, order_items(*), order_payments(*)")
-    .eq("etablissement_id", etablissement.id)
+    .eq("etablissement_id", getState().etablissement.id)
     .in("status", HISTORY_ORDER_STATUSES)
     .order("created_at", { ascending: false })
-    .limit(HISTORY_PAGE_SIZE);
-  if (tableId) {
-    query = query
-      .eq("table_id", tableId)
-      .gte("created_at", dayStart(0, dayEndHour).toISOString());
-  }
+    .limit(ORDER_HISTORY_PAGE_SIZE);
   if (before) query = query.lt("created_at", before);
   const orders = must(await query).map(rowToOrder);
   const nextCursor =
-    orders.length === HISTORY_PAGE_SIZE
+    orders.length === ORDER_HISTORY_PAGE_SIZE
       ? orders[orders.length - 1].createdAt
       : null;
   return { orders, nextCursor };
