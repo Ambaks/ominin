@@ -8325,6 +8325,355 @@ const leClub: Restaurant = {
 };
 
 /*
+ * L'Entrepôt Complexe — le club de musique urbaine du 4 rue du Puech Radier,
+ * à Lattes. Aucune carte publiée : celle-ci est une carte type de club, à
+ * valider avec la direction. Seuls viennent d'une source le cocktail à 15 €
+ * (Privateaser), la Vodka Red Bull à 10 € (Noxway), la bouteille de Captain
+ * Morgan à 140 € avec 1 L de Pepsi (avis Google, 2023) ; le reste, marques et
+ * prix compris, est à confirmer. Sources et questions :
+ * demos/l-entrepot/profile.json.
+ */
+
+/** Les bouteilles de marque restent sans photo : une étiquette de stock en contredirait le nom. */
+const ENTREPOT_PHOTOS: Partial<Record<string, string>> = {
+  mojito: pexelsRecadre("37662775/pexels-photo-37662775.jpeg", 800),
+  "pina-colada": pexelsRecadre("10986589/pexels-photo-10986589.jpeg", 800),
+  "sex-on-the-beach": pexels("4279113/pexels-photo-4279113.jpeg", 800),
+  caipirinha: pexels("29095925/pexels-photo-29095925.jpeg", 800),
+  planteur: pexelsRecadre("27100878/pexels-photo-27100878.jpeg", 800),
+  "tequila-sunrise": pexels("10986584/pexels-photo-10986584.jpeg", 800),
+  "virgin-mojito": pexels("7259054/pexels-photo-7259054.jpeg", 800),
+  "vodka-red-bull": pexels("16444383/pexels-photo-16444383.jpeg", 800),
+  "long-drink": pexels("13061331/pexels-photo-13061331.jpeg", 800),
+  shooter: pexels("7282724/pexels-photo-7282724.jpeg", 800),
+  jagerbomb: pexels("31682849/pexels-photo-31682849.jpeg", 800),
+  "plateau-shooters": pexels("35107450/pexels-photo-35107450.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("2286972/pexels-photo-2286972.jpeg", 800),
+  pepsi: pexels("30554816/pexels-photo-30554816.jpeg", 800),
+  "pepsi-max": pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  "seven-up": pexels("9996446/pexels-photo-9996446.jpeg", 800),
+  "ice-tea": pexels("11009226/pexels-photo-11009226.jpeg", 800),
+  "jus-orange": pexels("17612821/pexels-photo-17612821.jpeg", 800),
+  "jus-ananas": pexels("11009200/pexels-photo-11009200.jpeg", 800),
+  eau: pexels("9996342/pexels-photo-9996342.jpeg", 800),
+  "red-bull": pexels("17423276/pexels-photo-17423276.jpeg", 800),
+};
+
+const entrepotArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: ENTREPOT_PHOTOS[id],
+  ...extra,
+});
+
+const entrepotAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  entrepotArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Les softs du bar, servis aussi en diluant : la maison sert Pepsi. */
+const ENTREPOT_DILUANTS = ["Pepsi", "Pepsi Max", "7Up", "Jus d'orange", "Jus d'ananas", "Tonic"];
+
+const ENTREPOT_SHOW = ["Show cierges magiques", 20] as const;
+
+/**
+ * Une bouteille : son seul format s'affiche à côté du nom ; plusieurs (70 cl,
+ * magnum) se choisissent, chacun à son prix.
+ */
+const entrepotBouteille = (id: string, name: string, prix: Formats, extra: Partial<MenuItem>) =>
+  prix.length === 1
+    ? entrepotAlcool(id, name, prix[0][1], { detail: prix[0][0], ...extra })
+    : articleFormats(id, name, prix, { ...ALCOOL, ...extra }, ["format", "Format"]);
+
+/** Un alcool fort : 1 L de diluant compris, le reste en plus. */
+const entrepotSpiritueux = (id: string, name: string, description: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    description,
+    options: [
+      groupeChoix("diluant", "Diluant (1 L compris)", ENTREPOT_DILUANTS, { obligatoire: true }),
+      groupeChoix("extras", "En plus", [["Red Bull ×4", 24], ["1 L de diluant en plus", 10], ENTREPOT_SHOW], {
+        multiple: true,
+      }),
+    ],
+  });
+
+const entrepotChampagne = (id: string, name: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    options: [groupeChoix("extras", "En plus", [ENTREPOT_SHOW], { multiple: true })],
+  });
+
+const ENTREPOT_SHOOTERS = groupeChoix("alcool", "Alcool", ["Vodka", "Tequila", "Jägermeister", "Get 27"], {
+  obligatoire: true,
+});
+
+const lEntrepot: Restaurant = {
+  slug: "l-entrepot",
+  name: "L'Entrepôt",
+  brandName: "L'Entrepôt Complexe",
+  demoSuivi: true,
+  tagline: "Club · Musique urbaine · Lattes",
+  // Le mot-symbole de leur site (lentrepotcomplexe.com), palmier compris.
+  logo: "/l-entrepot/logo.webp",
+  logoIsName: true,
+  icons: { tab: "/l-entrepot/favicon.png", homeScreen: "/l-entrepot/icon.png" },
+  themeColor: "#0b0b12",
+  address: "4 rue du Puech Radier, 34970 Lattes",
+  phone: "07 88 76 35 16",
+  // Leur programme d'octobre 2026 : jeudi, vendredi, samedi et dimanche soir.
+  hours: "Du jeudi au dimanche, 23h–⁠7h",
+  highlights: ["Dancehall · Shatta · Bouyon · Afrobeat", "Entrée 15 € avec 1 conso alcool ou 2 softs"],
+  ticker: [
+    { text: "Entrée gratuite pour les filles avec 1 cocktail offert, horaire selon la soirée", tone: "accent" },
+    { text: "La référence de la musique urbaine dans la région", tone: "brand" },
+    { text: "Plus de 300 m d'écrans LED" },
+  ],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies à votre table, avec 1 L de diluant au choix",
+      boissons: true,
+      items: [
+        entrepotSpiritueux("absolut", "Absolut", "Vodka", [["70 cl", 150]]),
+        entrepotSpiritueux("grey-goose", "Grey Goose", "Vodka", [
+          ["70 cl", 190],
+          ["Magnum 1,5 L", 380],
+        ]),
+        entrepotSpiritueux("belvedere", "Belvedere", "Vodka", [["70 cl", 200]]),
+        entrepotSpiritueux("jack-daniels", "Jack Daniel's", "Tennessee whiskey", [["70 cl", 160]]),
+        entrepotSpiritueux("chivas-12", "Chivas Regal 12 ans", "Blended scotch whisky", [["70 cl", 180]]),
+        entrepotSpiritueux("captain-morgan", "Captain Morgan", "Rhum épicé", [["70 cl", 140]]),
+        entrepotSpiritueux("bombay-sapphire", "Bombay Sapphire", "Gin", [["70 cl", 150]]),
+        entrepotSpiritueux("patron-silver", "Patrón Silver", "Tequila", [["70 cl", 200]]),
+      ],
+    },
+    {
+      id: "champagnes",
+      name: "Champagnes",
+      tagline: "Servis frappés, en seau à glace",
+      boissons: true,
+      items: [
+        entrepotChampagne("moet-imperial", "Moët & Chandon Brut Impérial", [
+          ["75 cl", 150],
+          ["Magnum 1,5 L", 300],
+        ]),
+        entrepotChampagne("moet-ice", "Moët & Chandon Ice Impérial", [["75 cl", 180]]),
+        entrepotChampagne("veuve-clicquot", "Veuve Clicquot Brut", [["75 cl", 170]]),
+        entrepotChampagne("ruinart-blanc", "Ruinart Blanc de Blancs", [["75 cl", 250]]),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        entrepotAlcool("mojito", "Mojito", 15, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+        entrepotAlcool("pina-colada", "Piña Colada", 15, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        entrepotAlcool("sex-on-the-beach", "Sex on the Beach", 15, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        entrepotAlcool("caipirinha", "Caïpirinha", 15, { description: "Cachaça, citron vert, sucre de canne" }),
+        entrepotAlcool("planteur", "Planteur", 15, {
+          description: "Rhum ambré, jus d'orange et d'ananas, sirop de canne, cannelle",
+        }),
+        entrepotAlcool("tequila-sunrise", "Tequila Sunrise", 15, {
+          description: "Tequila, jus d'orange, sirop de grenadine",
+        }),
+        entrepotArticle("virgin-mojito", "Virgin Mojito", 10, {
+          description: "Sans alcool : citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+      ],
+    },
+    {
+      id: "long-drinks",
+      name: "Long drinks",
+      boissons: true,
+      items: [
+        entrepotAlcool("vodka-red-bull", "Vodka Red Bull", 10, { description: "Vodka, Red Bull" }),
+        entrepotAlcool("long-drink", "Long drink", 10, {
+          description: "Un alcool et un diluant au choix",
+          options: [
+            groupeChoix("alcool", "Alcool", ["Vodka", "Whisky", "Rhum", "Gin"], { obligatoire: true }),
+            groupeChoix("diluant", "Diluant", [...ENTREPOT_DILUANTS, "Red Bull"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        entrepotAlcool("shooter", "Shooter", 5, {
+          description: "Vodka, tequila, Jägermeister ou Get 27",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+        entrepotAlcool("jagerbomb", "Jägerbomb", 8, { description: "Jägermeister, Red Bull" }),
+        entrepotAlcool("plateau-shooters", "Plateau 10 shooters", 40, {
+          description: "Dix shooters du même alcool, au choix",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        entrepotAlcool("heineken", "Heineken", 8),
+        entrepotAlcool("desperados", "Desperados", 9),
+        entrepotAlcool("corona", "Corona", 9),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        entrepotArticle("pepsi", "Pepsi", 5),
+        entrepotArticle("pepsi-max", "Pepsi Max", 5),
+        entrepotArticle("seven-up", "7Up", 5),
+        entrepotArticle("ice-tea", "Lipton Ice Tea", 5),
+        entrepotArticle("jus-orange", "Jus d'orange", 5),
+        entrepotArticle("jus-ananas", "Jus d'ananas", 5),
+        entrepotArticle("eau", "Eau plate", 4),
+        entrepotArticle("red-bull", "Red Bull", 7),
+      ],
+    },
+  ],
+};
+
+/*
+ * Le Pulp (Pulp Garden) — la discothèque à ciel ouvert de l'Espace Latipolia,
+ * route de Palavas à Lattes. Leur seule carte en ligne : « Tarifs
+ * bouteilles », l'image d'un PDF de pulpgarden.fr (déposé en août 2021),
+ * transcrite ligne à ligne (demos/le-pulp/docs/). Ni verre, ni cocktail, ni
+ * soft : le club n'affiche que la bouteille. Sources et questions :
+ * demos/le-pulp/profile.json.
+ */
+const PULP_PHOTOS: Partial<Record<string, string>> = {
+  "jack-daniels": pexels("9387678/pexels-photo-9387678.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  smirnoff: pexels("19613748/pexels-photo-19613748.jpeg", 800),
+  belvedere: unsplash("photo-1645784125144-4c06a561fc58", 800),
+  // Une bouteille de 70 cl : aucune photo libre d'un magnum de Belvedere.
+  "belvedere-magnum": unsplash("photo-1659717602925-a9d07c713e99", 800),
+  havana: pexels("17687334/pexels-photo-17687334.jpeg", 800),
+  bacardi: unsplash("photo-1561150169-371f366b828a", 800),
+  "rhum-vieux-ambre": pexels("7254902/pexels-photo-7254902.jpeg", 800),
+  malibu: pexels("16845292/pexels-photo-16845292.jpeg", 800),
+  moet: pexels("3858809/pexels-photo-3858809.jpeg", 800),
+  // La coiffe cuivrée du Rosé Impérial, dans son seau.
+  "moet-rose": unsplash("photo-1643618829236-a23857519fb6", 800),
+  "dom-perignon": pexels("12099317/pexels-photo-12099317.jpeg", 800),
+  // Magnum et jéroboam : des bouteilles de 75 cl, faute de grands formats en photo libre.
+  "moet-magnum": pexels("21221001/pexels-photo-21221001.jpeg", 800),
+  "moet-jeroboam": unsplash("photo-1531821945121-d55c446bd62f", 800),
+};
+
+/** Une bouteille servie à table, sa contenance en pastille : TVA à 20 %. */
+const pulpBouteille = (
+  id: string,
+  name: string,
+  contenance: string,
+  price: number,
+  extra: Partial<MenuItem> = {}
+): MenuItem => ({ id, name, price, detail: contenance, image: PULP_PHOTOS[id], ...ALCOOL, ...extra });
+
+/** La même bouteille en 35 et 70 cl, chacune à son prix, comme sur la carte. */
+const pulpContenances = (id: string, name: string, prix: Formats) =>
+  articleFormats(id, name, prix, { image: PULP_PHOTOS[id], ...ALCOOL }, ["contenance", "Contenance"]);
+
+const lePulp: Restaurant = {
+  slug: "le-pulp",
+  name: "Le Pulp",
+  // Le logo : « pulp » en orange, « Garden » en vert dessous.
+  brandName: "Pulp Garden",
+  demoSuivi: true,
+  // Leur site : « Open air discothèque ».
+  tagline: "Open air discothèque",
+  // Le mot-symbole de leur site (logo_pulp_low.png) retracé en vectoriel, et
+  // « Garden » relevé sur l'en-tête de la carte des bouteilles.
+  logo: "/le-pulp/logo.svg",
+  logoIsName: true,
+  themeColor: "#050505",
+  // Leur site : « La Calade - Route de Palavas 34970 LATTES ». Pas de numéro
+  // de rue, ni au BODACC ni à la Base Adresse Nationale.
+  address: "La Calade, Route de Palavas, 34970 Lattes",
+  phone: "+33 6 76 57 77 22",
+  hours: "Jeudi, vendredi, samedi & veille de jour férié dès\u00a023h",
+  // Leur site, mot pour mot.
+  highlights: ["Patio à la déco unique", "2 espaces bar et 1 dancefloor", "Entrée gratuite tous les soirs"],
+  ticker: [
+    { text: "Jeudi, vendredi, samedi & veille de jour férié dès 23h", tone: "accent" },
+    { text: "Un incontournable des nuits montpelliéraines", tone: "brand" },
+    { text: "Pour toute réservation : 06 76 57 77 22" },
+    { text: "Ambiance généraliste clubbing" },
+  ],
+  categories: [
+    {
+      id: "whisky",
+      name: "Whisky",
+      boissons: true,
+      items: [
+        pulpContenances("jb", "JB", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("jack-daniels", "Jack Daniel's", "70 cl", 150),
+        pulpBouteille("chivas-12", "Chivas Regal 12 ans", "70 cl", 150),
+      ],
+    },
+    {
+      id: "vodka",
+      name: "Vodka",
+      boissons: true,
+      items: [
+        pulpContenances("smirnoff", "Smirnoff", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("belvedere", "Belvedere", "70 cl", 150),
+        pulpBouteille("belvedere-magnum", "Belvedere Magnum", "175 cl", 340),
+        pulpBouteille("belvedere-jeroboam", "Belvedere Jéroboam", "300 cl", 700),
+      ],
+    },
+    {
+      id: "rhum-malibu",
+      name: "Rhum & Malibu",
+      boissons: true,
+      items: [
+        pulpBouteille("trois-rivieres", "3 Rivières", "70 cl", 150),
+        pulpBouteille("havana", "Havana", "70 cl", 130),
+        pulpBouteille("bacardi", "Bacardi", "70 cl", 130),
+        pulpBouteille("rhum-vieux-ambre", "Rhum vieux ambré", "70 cl", 150),
+        pulpBouteille("malibu", "Malibu", "70 cl", 130),
+        // Une ligne de la carte, un prix pour les trois : la bouteille se choisit.
+        pulpBouteille("gin-get-tequila", "Gin / Get 27 / Tequila", "70 cl", 130, {
+          options: [groupeChoix("bouteille", "Bouteille", ["Gin", "Get 27", "Tequila"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        pulpBouteille("moet", "Moët & Chandon", "75 cl", 130),
+        pulpBouteille("moet-rose", "Moët & Chandon Rosé", "75 cl", 150),
+        pulpBouteille("dom-perignon", "Dom Pérignon", "75 cl", 300),
+        pulpBouteille("moet-magnum", "Magnum Moët & Chandon", "150 cl", 260),
+        // La carte imprime « MOËT & CANDON » : coquille corrigée (profile.json, note 3).
+        pulpBouteille("moet-jeroboam", "Jéroboam Moët & Chandon", "300 cl", 550),
+      ],
+    },
+  ],
+};
+
+/*
  * Crêperie Comédie — la crêperie du 12 place de la Comédie (Montpellier),
  * « Crêperie de la Comédie » sur son néon et sa fiche Google. La carte est
  * celle de leurs PDF en ligne, liés depuis TripAdvisor et les QR de leur
@@ -9229,6 +9578,8 @@ const restaurants: Record<string, Restaurant> = {
   [cafePoulard.slug]: cafePoulard,
   [lePetitNice.slug]: lePetitNice,
   [leClub.slug]: leClub,
+  [lEntrepot.slug]: lEntrepot,
+  [lePulp.slug]: lePulp,
   [creperieComedie.slug]: creperieComedie,
 };
 
@@ -9253,6 +9604,8 @@ const themeClasses: Record<string, string> = {
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
   [leClub.slug]: "theme-le-club",
+  [lEntrepot.slug]: "theme-l-entrepot",
+  [lePulp.slug]: "theme-le-pulp",
   [creperieComedie.slug]: "theme-creperie-comedie",
 };
 
