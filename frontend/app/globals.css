@@ -5751,7 +5751,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
-    [data-slug="le-club"]
+    [data-slug="le-club"],
+    [data-slug="cafe-3-graces"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
@@ -5975,7 +5976,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) .rail-progress {
   display: none;
 }
 
@@ -5988,7 +5989,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
-    [data-slug="le-club"]
+    [data-slug="le-club"],
+    [data-slug="cafe-3-graces"]
   ) > header.logo-hero {
   min-height: 50svh;
 }
@@ -6006,7 +6008,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
-      [data-slug="le-club"]
+      [data-slug="le-club"],
+      [data-slug="cafe-3-graces"]
     )
     .dish-grid {
     display: flex;
@@ -6021,7 +6024,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
-      [data-slug="le-club"]
+      [data-slug="le-club"],
+      [data-slug="cafe-3-graces"]
     )
     .dish-grid
     > article:has(.dish-photo) {
@@ -6054,7 +6058,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
-      [data-slug="le-club"]
+      [data-slug="le-club"],
+      [data-slug="cafe-3-graces"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
        laissait 600 px de vide de chaque côté à 1 920, et un prix filait à
@@ -6159,7 +6164,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="caffe-panis"],
           [data-slug="brasserie-laissac"],
           [data-slug="le-petit-nice"],
-          [data-slug="le-club"]
+          [data-slug="le-club"],
+          [data-slug="cafe-3-graces"]
         )
     ) {
     & > header.logo-hero {
@@ -8991,7 +8997,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -9014,7 +9020,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -9086,7 +9092,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -9107,7 +9113,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -9133,7 +9139,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -9245,6 +9251,760 @@ html:has([data-menu-root].theme-cafe-riche) body {
 @keyframes ec-filet {
   from {
     scale: 0 1;
+  }
+}
+
+/*
+  Café 3 Grâces (14 place de la Comédie) — la brasserie face à la fontaine
+  des Trois Grâces, reprise en 2025. L'identité de son site et de sa carte
+  imprimée : le fond vert olive, la sauge, la crème et la terre cuite de ses
+  cadres ; son logo au trait crème — l'arche à colonnes, le soleil et ses
+  étoiles, les trois Grâces, « CAFE 3 GRACES » en capitales Art nouveau ; ses
+  titres en capitales Art déco étroites (Arcane Nine, ici Advent Pro), son
+  texte en géométrique fine (Champagne & Limousines, ici Didact Gothic).
+  Trois dispositifs repris de la carte imprimée : l'arche cernée qui coiffe
+  chaque titre, son soleil au sommet ; les photos en fenêtre cintrée ; les
+  étoiles à quatre branches entre les arguments.
+*/
+.theme-cafe-3-graces {
+  /* Échantillonnés sur leur carte et leur site : le vert #43512d / #44522e,
+     la sauge #839563, la crème #f8eac5, la terre cuite #cc6942 ; le crème
+     jaune du logo #ffe9a1. La crème tient 7:1 sur le vert ; la terre cuite
+     ne porte aucun texte (2,3:1) : assombrie, la crème y tient 4,9:1. */
+  --tg-vert: #44522e;
+  --tg-vert-profond: #374424;
+  --tg-sauge: #839563;
+  --tg-creme: #f8eac5;
+  --tg-jaune: #ffe9a1;
+  --tg-terre: #cc6942;
+  --tg-terre-profonde: #a54a28;
+  /* L'étoile à quatre branches du logo, en découpe. */
+  --tg-etoile: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+
+  --background: var(--tg-vert);
+  --foreground: var(--tg-creme);
+
+  --surface: #4b5a33;
+  --surface-raised: #536339;
+  --hairline: rgb(248 234 197 / 0.16);
+
+  /* 4,7:1 et 4,6:1 sur les feuilles d'options (--surface-raised), plus
+     sur les fiches et le fond. */
+  --muted: #e6dab6;
+  --faint: #e4d8b4;
+
+  /* Les boutons en crème, à l'encre vert olive du fond : 7:1. */
+  --ember-1: var(--tg-creme);
+  --ember-2: var(--tg-creme);
+  --ember-3: var(--tg-jaune);
+
+  --shimmer-highlight: rgb(248 234 197 / 0.08);
+  --glow-inner: rgb(255 233 161 / 0.06);
+  --glow-outer: rgb(255 233 161 / 0.04);
+
+  --brand-display: var(--font-advent-pro), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-didact-gothic), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  --row-name-size: 1.1875rem;
+  --row-name-size-lg: 1.375rem;
+  --plus-size: 0.875rem;
+  --plus-stroke: 0.14rem;
+
+  color-scheme: dark;
+}
+
+html:has([data-menu-root].theme-cafe-3-graces),
+html:has([data-menu-root].theme-cafe-3-graces) body {
+  background-color: #44522e;
+}
+
+.theme-cafe-3-graces :focus-visible {
+  outline: 2px solid var(--tg-jaune);
+  outline-offset: 3px;
+}
+
+.theme-cafe-3-graces .ember-gradient {
+  background-image: none;
+  background-color: var(--tg-creme);
+}
+
+.theme-cafe-3-graces .ember-text {
+  background-image: none;
+  color: var(--tg-jaune);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* Advent Pro : la graisse de leurs titres, partout où le titrage parle. */
+.theme-cafe-3-graces .font-display {
+  font-weight: 600;
+}
+
+/* Le bandeau des annonces : la terre cuite de leurs cadres. */
+.theme-cafe-3-graces .menu-ticker {
+  border-bottom: 0;
+  background-color: var(--tg-terre-profonde);
+  color: var(--tg-creme);
+}
+
+.theme-cafe-3-graces .menu-ticker-item {
+  font-family: var(--brand-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.theme-cafe-3-graces .menu-ticker-pause {
+  --tw-gradient-from: var(--tg-terre-profonde);
+  color: var(--tg-creme);
+}
+
+/*
+  Le haut de page : leur logo, posé sur le vert comme sur leur site. Il
+  arrive en cinq calques découpés dans le leur (même toile, mêmes
+  proportions) : l'arche et ses colonnes (l'image, dont le texte de
+  remplacement nomme le café), puis les trois Grâces, le soleil, ses
+  étoiles et le nom dessous.
+*/
+[data-menu-root].theme-cafe-3-graces > header.logo-hero {
+  & > :nth-child(2),
+  & > :nth-child(3),
+  & :is(.hero-gradient-drift, .logo-breathe, .ember-particle) {
+    display: none;
+  }
+
+  /* Un soleil bas derrière l'arche, à peine : le vert ne reste pas plat. */
+  & > :first-child {
+    background-image: radial-gradient(ellipse 60% 45% at 50% 38%, rgb(255 233 161 / 0.09), transparent 70%);
+  }
+}
+
+.theme-cafe-3-graces .hero-logo {
+  width: min(68vw, 19rem);
+  margin-bottom: 0;
+
+  & img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  & > h1 {
+    position: relative;
+  }
+
+  &::before,
+  &::after,
+  & > h1::before,
+  & > h1::after {
+    content: "";
+    position: absolute;
+    background: center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  /* Calques placés en pourcentage de la toile du logo (822 × 890 px). */
+  &::before {
+    left: 43.187%;
+    top: 6.404%;
+    width: 13.747%;
+    height: 12.697%;
+    background-image: url("/cafe-3-graces/logo-soleil.webp");
+  }
+
+  &::after {
+    left: 35.523%;
+    top: 10.562%;
+    width: 28.954%;
+    height: 8.427%;
+    background-image: url("/cafe-3-graces/logo-etoiles.webp");
+  }
+
+  & > h1::before {
+    left: 34.307%;
+    top: 18.764%;
+    width: 31.752%;
+    height: 38.09%;
+    background-image: url("/cafe-3-graces/logo-graces.webp");
+  }
+
+  & > h1::after {
+    left: -0.243%;
+    top: 63.034%;
+    width: 100.487%;
+    height: 37.191%;
+    background-image: url("/cafe-3-graces/logo-nom.webp");
+  }
+}
+
+[data-menu-root].theme-cafe-3-graces .hero-tagline {
+  margin-top: 1.5rem;
+  color: var(--tg-creme);
+  font-family: var(--brand-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.theme-cafe-3-graces .hero-tagline .tagline-sep {
+  color: var(--tg-terre);
+}
+
+[data-menu-root].theme-cafe-3-graces .hero-rule {
+  display: none;
+}
+
+[data-menu-root].theme-cafe-3-graces .hero-contact a {
+  border-color: rgb(248 234 197 / 0.35);
+  background-color: rgb(55 68 36 / 0.6);
+  color: var(--tg-creme);
+  backdrop-filter: none;
+
+  &:hover {
+    border-color: var(--tg-creme);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-cafe-3-graces > header.logo-hero {
+    min-height: 0;
+  }
+
+  .theme-cafe-3-graces .hero-logo {
+    width: 21rem;
+  }
+}
+
+/* Les arguments sur la crème de leurs cadres, à l'encre verte, séparés
+   d'une étoile en terre cuite. */
+.theme-cafe-3-graces .menu-highlights {
+  border: 0;
+  background-color: var(--tg-creme);
+}
+
+.theme-cafe-3-graces .menu-highlights li {
+  color: var(--tg-vert);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* L'étoile au milieu de l'écart entre deux arguments (gap-x-8, puis
+   lg:gap-x-14) : la marge gauche recule de la moitié de l'écart et de la
+   moitié de l'étoile. */
+@media (min-width: 40rem) {
+  .theme-cafe-3-graces .menu-highlights li + li::before {
+    content: "";
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-inline: -1.375rem 0.625rem;
+    vertical-align: 0.05em;
+    background-color: var(--tg-terre);
+    clip-path: var(--tg-etoile);
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-cafe-3-graces .menu-highlights li + li::before {
+    width: 1rem;
+    height: 1rem;
+    margin-inline: -2.25rem 1.25rem;
+  }
+}
+
+/* Les pastilles de catégorie en capitales Art déco, cernées de sauge. */
+[data-menu-root].theme-cafe-3-graces nav [data-category] {
+  border-color: rgb(131 149 99 / 0.7);
+  color: var(--tg-creme);
+  font-family: var(--brand-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+
+  @media (hover: hover) {
+    &:hover:not([aria-current]) {
+      border-color: var(--tg-creme);
+    }
+  }
+
+  &[aria-current] {
+    border-color: transparent;
+    color: var(--tg-vert);
+    box-shadow: none;
+  }
+}
+
+/*
+  L'arche de la carte imprimée : chaque titre sous une voûte cernée de
+  sauge, son soleil au sommet ; le filet part de son pied.
+*/
+/* Le titre en bloc en ligne (en ligne dans la règle de l'Écusson, sa
+   voûte débordait au-dessus de sa ligne) ; le filet se pose à son pied. */
+[data-menu-root].theme-cafe-3-graces .category-heading {
+  display: inline-block;
+  position: relative;
+  max-width: calc(100% - 3rem);
+  vertical-align: bottom;
+  padding: 2.75rem 1.5rem 0.625rem;
+  border: 1.5px solid var(--tg-sauge);
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0 / 2.5rem 2.5rem 0 0;
+  color: var(--tg-creme);
+  font-size: 1.875rem;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  /* Le soleil, puis ses quatre étoiles, placées comme sur le logo. */
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    background: center / contain no-repeat;
+  }
+
+  &::before {
+    top: 0.625rem;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-left: -0.8125rem;
+    background-image: url("/cafe-3-graces/logo-soleil.webp");
+  }
+
+  &::after {
+    top: 1.15rem;
+    width: 3.425rem;
+    height: 1.08rem;
+    margin-left: -1.7125rem;
+    background-image: url("/cafe-3-graces/logo-etoiles.webp");
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-cafe-3-graces .category-heading {
+    padding: 3.25rem 2.25rem 0.75rem;
+    border-radius: 50% 50% 0 0 / 3rem 3rem 0 0;
+    font-size: 2.75rem;
+
+    &::before {
+      top: 0.75rem;
+      width: 2rem;
+      height: 2rem;
+      margin-left: -1rem;
+    }
+
+    &::after {
+      top: 1.405rem;
+      width: 4.215rem;
+      height: 1.33rem;
+      margin-left: -2.1075rem;
+    }
+  }
+}
+
+[data-menu-root].theme-cafe-3-graces .category-rule {
+  margin-block-start: 0;
+  vertical-align: bottom;
+  height: 1.5px;
+  background: var(--tg-sauge);
+  opacity: 1;
+}
+
+.theme-cafe-3-graces .category-tagline {
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+/* Les fiches : un panneau d'un vert plus clair, cerné d'un fil. */
+.theme-cafe-3-graces .dish-grid > article {
+  border-color: var(--hairline);
+  border-radius: 0.875rem;
+  background: var(--surface);
+}
+
+/* Les cadres pleins de leur carte : la terre cuite de « Brunch », de la
+   Formule douceur et de la Coupe 3 Grâces, la crème de « Classic », le vert
+   profond de « Complet » (leur affiche du petit déjeuner). Sur la terre cuite
+   assombrie, la crème tient 4,9:1 et le crème jaune des prix 4,8:1. */
+[data-menu-root].theme-cafe-3-graces .dish-grid > article:is([data-item="brunch"], [data-item="formule-douceur"], [data-item="coupe-3-graces"]) {
+  --muted: var(--tg-creme);
+  --faint: var(--tg-creme);
+  border-color: transparent;
+  background: var(--tg-terre-profonde);
+
+  & .cart-count {
+    background-color: var(--tg-vert);
+  }
+}
+
+[data-menu-root].theme-cafe-3-graces .dish-grid > article[data-item="complet"] {
+  border-color: transparent;
+  background: var(--tg-vert-profond);
+}
+
+/* Sur la crème, l'encre verte (7:1), les prix en terre cuite (4,9:1) et le
+   bouton en vert. */
+[data-menu-root].theme-cafe-3-graces .dish-grid > article[data-item="classic"] {
+  --muted: #55623d;
+  border-color: transparent;
+  background: var(--tg-creme);
+  color: var(--tg-vert);
+
+  & .dish-price {
+    color: var(--tg-terre-profonde);
+  }
+
+  & .dish-action > button {
+    background-color: var(--tg-vert);
+    color: var(--tg-creme);
+  }
+
+  & :focus-visible {
+    outline-color: var(--tg-vert);
+  }
+}
+
+/* La photo en fenêtre cintrée, posée dans le panneau. */
+[data-menu-root].theme-cafe-3-graces .dish-photo {
+  margin: 0.625rem 0.625rem 0;
+  border-radius: 50% 50% 0.375rem 0.375rem / 2.75rem 2.75rem 0.375rem 0.375rem;
+  background-color: var(--tg-vert-profond);
+}
+
+[data-menu-root].theme-cafe-3-graces .dish-photo-fade {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  [data-menu-root].theme-cafe-3-graces .dish-photo {
+    margin: 0.625rem 0 0.625rem 0.625rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-cafe-3-graces .dish-grid {
+    align-items: start;
+  }
+}
+
+/* Les noms en capitales de leur carte ; les prix au crème jaune du logo. */
+[data-menu-root].theme-cafe-3-graces .dish-head > h3 {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.theme-cafe-3-graces .dish-price {
+  color: var(--tg-jaune);
+  font-family: var(--brand-display);
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-cafe-3-graces .dish-detail {
+  border-color: rgb(131 149 99 / 0.8);
+  color: var(--muted);
+  font-family: var(--brand-sans);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Le bouton au-dessus de l'étoile qui s'ouvre à l'ajout (voir plus bas). */
+[data-menu-root].theme-cafe-3-graces .dish-action {
+  position: relative;
+
+  & > button {
+    z-index: 1;
+  }
+}
+
+/* Le compte au panier en terre cuite, comme les cadres « BRUNCH ». */
+[data-menu-root].theme-cafe-3-graces .cart-count {
+  background-color: var(--tg-terre-profonde);
+  color: var(--tg-creme);
+  box-shadow: 0 0 0 2px var(--tg-vert);
+}
+
+.theme-cafe-3-graces .choice-row.is-checked {
+  border-color: var(--tg-jaune);
+}
+
+[data-menu-root].theme-cafe-3-graces [role="dialog"] :is(h3, legend) {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+[data-menu-root].theme-cafe-3-graces [role="dialog"] :is(h3, legend) {
+  text-transform: uppercase;
+}
+
+[data-menu-root].theme-cafe-3-graces [role="dialog"] legend {
+  color: var(--tg-jaune);
+}
+
+.theme-cafe-3-graces :is(.cart-line-name, .cart-line-price, .cart-total) {
+  font-family: var(--brand-display);
+  font-weight: 600;
+}
+
+.theme-cafe-3-graces .cart-bar {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* Le pied de page : un vert plus profond, sous un double filet de sauge. */
+.theme-cafe-3-graces > footer {
+  border-top: 0;
+  background-color: var(--tg-vert-profond);
+  box-shadow:
+    inset 0 1.5px 0 var(--tg-sauge),
+    inset 0 calc(1.5px + 0.3125rem) 0 var(--tg-vert-profond),
+    inset 0 calc(1.5px + 0.3125rem + 1px) 0 rgb(131 149 99 / 0.6);
+}
+
+.theme-cafe-3-graces .footer-phone {
+  font-family: var(--brand-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* « Bon appétit ! » sous l'arche : le titre en capitales, la marque cernée
+   de terre cuite. */
+.theme-cafe-3-graces .serve-box-mark {
+  border-color: var(--tg-terre);
+  color: var(--tg-jaune);
+}
+
+.theme-cafe-3-graces .serve-box-title {
+  color: var(--tg-jaune);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/*
+  Le mouvement du Café 3 Grâces, en plus de celui de l'Écusson : le logo se
+  compose au chargement — l'arche monte, les Grâces apparaissent, le soleil
+  tourne d'un quart en se levant, les étoiles s'allument, le nom se pose ;
+  au défilement, le soleil de chaque arche tourne en entrant et les photos se
+  posent dans leur fenêtre ; à l'ajout, une étoile s'ouvre derrière la
+  coche ; au suivi, le trait gagne l'étape suivante et le soleil s'y lève.
+  Transformations et opacité seulement ; rien ne tourne sans fin. Mouvement
+  réduit : tout est d'emblée en place.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root].theme-cafe-3-graces {
+    --tg-lever: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* L'arche monte avec son calque (.hero-entrance : l'animation d'une
+       image du héros s'arrête sous les pastilles du suivi) ; les autres
+       calques sont des pseudo-éléments, qu'elles n'arrêtent pas. */
+    & .hero-logo {
+      animation: tg-arche 1s var(--tg-lever) both;
+
+      & > h1::before {
+        animation: tg-graces 1.1s var(--tg-lever) 0.25s both;
+      }
+
+      &::before {
+        animation: tg-soleil-leve 1.6s var(--tg-lever) 0.45s both;
+      }
+
+      &::after {
+        animation:
+          tg-etoiles 0.7s var(--ec-rebond) 0.75s both,
+          tg-scintille 1.8s ease-in-out 2s 2;
+      }
+
+      & > h1::after {
+        animation: tg-nom 0.9s var(--tg-lever) 0.85s both;
+      }
+    }
+
+    & .hero-tagline {
+      animation-delay: 1.15s;
+    }
+
+    & .hero-contact {
+      animation-delay: 1.3s;
+    }
+
+    & .menu-ticker-track {
+      animation-delay: 2s;
+    }
+
+    /* Le voile de la feuille (Sheet, rendue dans la racine du menu) se
+       levait d'un coup sous un tiroir qui montait : il s'éclaire avec lui. */
+    & > div:has(> [role="dialog"].sheet-rise) {
+      animation: tg-voile 0.2s ease-out backwards;
+    }
+
+    & .choice-row.is-checked {
+      animation: tg-choix 0.25s var(--ec-tiroir);
+    }
+
+    /* L'étoile qui s'ouvre derrière le bouton, le temps de l'ajout. */
+    & .dish-grid > article .dish-action:has(> button[data-added])::before {
+      content: "";
+      position: absolute;
+      inset: -0.75rem;
+      background-color: var(--tg-terre);
+      clip-path: var(--tg-etoile);
+      opacity: 0;
+      animation: tg-eclat 0.6s var(--tg-lever);
+    }
+
+    /* Le suivi : le trait se trace jusqu'à l'étape atteinte, sa pastille se
+       pose ; l'étape en cours s'entoure d'un soleil qui se lève. */
+    & .order-step:is([data-state="done"], [data-state="current"]) + .order-step:is([data-state="done"], [data-state="current"])::before {
+      transform-origin: left;
+      animation: tg-trait 0.7s var(--ec-trace) backwards;
+    }
+
+    & .order-step:is([data-state="done"], [data-state="current"]) .order-step-dot {
+      animation: tg-pastille 0.5s var(--ec-rebond) backwards;
+    }
+
+    & .order-step[data-state="current"] .order-step-dot::before {
+      content: "";
+      position: absolute;
+      inset: -0.5rem;
+      border-radius: 50%;
+      background: repeating-conic-gradient(var(--tg-jaune) 0 7deg, transparent 7deg 30deg);
+      mask: radial-gradient(closest-side, transparent 62%, #000 64%);
+      animation: tg-rayons 1.8s var(--tg-lever) 0.2s backwards;
+    }
+  }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-menu-root].theme-cafe-3-graces {
+      & .category-heading::before {
+        animation: tg-soleil-titre linear backwards;
+        animation-timeline: --ec-titre;
+        animation-range: entry 0% entry 100%;
+      }
+
+      & .category-heading::after {
+        animation: tg-etoiles linear backwards;
+        animation-timeline: --ec-titre;
+        animation-range: entry 20% entry 100%;
+      }
+
+      & .dish-photo img {
+        animation: tg-fenetre linear backwards;
+        animation-timeline: view();
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+}
+
+/* .hero-entrance part d'une opacité nulle : l'arrivée est explicite. */
+@keyframes tg-arche {
+  from {
+    opacity: 0;
+    transform: translateY(6%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tg-graces {
+  from {
+    opacity: 0;
+    transform: translateY(5%);
+  }
+}
+
+@keyframes tg-soleil-leve {
+  from {
+    opacity: 0;
+    transform: translateY(40%) rotate(-90deg) scale(0.5);
+  }
+}
+
+@keyframes tg-etoiles {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes tg-scintille {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes tg-nom {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+@keyframes tg-eclat {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.3) rotate(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.15) rotate(45deg);
+  }
+}
+
+@keyframes tg-trait {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes tg-pastille {
+  from {
+    transform: scale(0.4);
+  }
+}
+
+@keyframes tg-rayons {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-60deg);
+  }
+}
+
+@keyframes tg-soleil-titre {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.4);
+  }
+}
+
+@keyframes tg-voile {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes tg-choix {
+  40% {
+    scale: 0.97;
+  }
+}
+
+@keyframes tg-fenetre {
+  from {
+    transform: scale(1.14);
   }
 }
 
@@ -9854,7 +10614,8 @@ html:has([data-menu-root].theme-cafe-riche) body {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
-      [data-slug="le-club"]
+      [data-slug="le-club"],
+      [data-slug="cafe-3-graces"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
   }
@@ -10055,7 +10816,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
