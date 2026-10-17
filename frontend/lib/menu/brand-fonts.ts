@@ -1,4 +1,5 @@
 import {
+  Advent_Pro,
   Anton,
   Archivo,
   Archivo_Black,
@@ -263,6 +264,20 @@ const notoSerifDisplay = Noto_Serif_Display({
   preload: false,
 });
 
+/**
+ * Café 3 Grâces — les titres de son site (cafe3graces.com) et de sa carte
+ * imprimée sont en Arcane Nine, des capitales Art déco étroites. Advent Pro
+ * a la même chasse et les mêmes R et M parmi les Google Fonts comparées ; le
+ * texte reprend Didact Gothic (O’Crousti), la plus proche de leur Champagne &
+ * Limousines.
+ */
+const adventPro = Advent_Pro({
+  variable: "--font-advent-pro",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 export const brandFontVariables = [
   archivo,
@@ -285,6 +300,7 @@ export const brandFontVariables = [
   barlow,
   cinzel,
   notoSerifDisplay,
+  adventPro,
 ]
   .map((font) => font.variable)
   .join(" ");
