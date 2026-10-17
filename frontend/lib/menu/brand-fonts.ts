@@ -22,6 +22,7 @@ import {
   Racing_Sans_One,
   Sanchez,
   Source_Serif_4,
+  Unbounded,
 } from "next/font/google";
 
 /*
@@ -271,6 +272,19 @@ const notoSerifDisplay = Noto_Serif_Display({
 });
 
 /**
+ * Le Club — « LE CLUB » sur son badge : des capitales très larges et très
+ * grasses, aux angles arrondis. Unbounded en noir est la plus proche mesurée
+ * parmi les Google Fonts (Michroma, Krona One : trop maigres). Le texte
+ * reprend DM Sans, ci-dessus.
+ */
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
  * Crêperie Comédie — les polices de sa carte : Montserrat pour les plats et le
  * texte, Sanchez pour ses intertitres en capitales espacées, Racing Sans One
  * pour ses prix.
@@ -318,6 +332,7 @@ export const brandFontVariables = [
   barlow,
   cinzel,
   notoSerifDisplay,
+  unbounded,
   montserrat,
   sanchez,
   racingSansOne,

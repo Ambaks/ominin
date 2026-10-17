@@ -1,0 +1,91 @@
+{
+  "slug": "le-club",
+  "name": "Le Club",
+  "tagline": "Discothèque · Montpellier",
+  "status": "prospect",
+  "demo": {
+    "url_locale": "http://localhost:5801/menu/demo/le-club",
+    "url_production": "https://menu.ominin.com/demo/le-club",
+    "perimetre": "Carte QR seule, aux couleurs du club, avec le paiement simulé et le suivi jusqu'au « Bonne dégustation ! » (demoSuivi). Ni version Ominin, ni click & collect. Démo « basique » (utilisateur, 2026-10-17), cible 8/10."
+  },
+  "cuisine": "Discothèque : bouteilles en carré, champagne, cocktails, verres, shooters, bières, softs",
+  "address": "5 Rue du Grand Saint-Jean, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 6 75 25 74 89",
+  "hours": "Du mercredi au samedi, minuit–5h (Noxway, à confirmer : voir note 3)",
+  "website": "",
+  "socials": {
+    "instagram": "@leclub_montpellier (probable : page trouvée, contenu illisible sans connexion)",
+    "tiktok": "",
+    "facebook": "https://www.facebook.com/p/LE-CLUB-100086736570819/ (probable)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "Fiche probable, place id ChIJg0HmNvivthIRHCTR0jvDHg0 (repris de Noxway, non ouverte) — non utilisée sur la carte tant qu'on ne sait pas si c'est celle du Club ou de l'ancien Cargo (note 9)"
+  },
+  "legal": {
+    "raison_sociale": "TKG (enseigne LE CLUB)",
+    "forme": "SARL (nature juridique 5499)",
+    "siren": "915061212",
+    "siret": "91506121200014",
+    "naf": "56.30Z — débits de boissons",
+    "president": "Gérants : Geoffrey Carrero et Karim Flici",
+    "creation": "2022-06-29",
+    "debut_activite": "2022-10-05",
+    "effectif": "10 à 19 salariés (2024)",
+    "source": "https://recherche-entreprises.api.gouv.fr/search?q=915061212 (2026-10-17) ; Pappers inaccessible (403)"
+  },
+  "design": {
+    "primary_color": "#070304",
+    "secondary_color": "#ff5a26",
+    "accent_color": "#e3191b",
+    "style_notes": "Aucun fichier de logo : le badge est relevé en filigrane sur les photos de soirée publiées par Noxway (docs/badge-filigrane.png). Un disque noir tramé de points rouges, plus denses vers le bas, cerclé d'un néon ambre qui rougeoie ; « LE » sur « CLUB » en capitales très larges et très grasses, blanches (#c8c8c8 en filigrane) ; une bouche rouge (#c81810 mesuré, ravivé en #e3191b). La salle est baignée de rouge (14 % de rouge sur la photo de la cabine DJ, sample_palette). Typographie comparée au badge : Michroma et Krona One trop maigres, Lexend Zetta trop espacée ; Unbounded en noir, légèrement interlettrée, est la plus proche — nom et titres. DM Sans (déjà chargée) pour les boissons et les prix. Dispositifs : le haut de page est le badge recomposé en CSS (disque, trame, cercle de néon qui s'allume en grésillant puis respire, mouvement réduit respecté) ; le filet de néon sous chaque titre ; le pied de page sous un tube de néon ; le bandeau des arguments sur le rouge de la salle. Boutons et pastilles en dégradé ambre → néon (l'encre noire n'y tenait que 3,4:1 sur le rouge). La bouche n'est pas redessinée : on attend le fichier d'origine (note 6).",
+    "interior_vibe": "Une salle unique (jusqu'à 500 personnes), très sombre, murs blancs anguleux lavés de rouge et d'orange, cabine DJ surélevée contre un mur rouge, chaînes suspendues, mezzanine, lasers bleus. Public jeune, étudiant. Musique « commerciale » (Noxway).",
+    "reference_images": [
+      "docs/badge-filigrane.png",
+      "https://www.noxway.fr/uploads/images/leclubmtp-6783cbce2acdf.jpg (cabine DJ, rouge — visages : ne pas réutiliser)",
+      "https://www.noxway.fr/uploads/images/leclubmtp2-6783cbc919912.jpg (groupe en soirée — visages : ne pas réutiliser)"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte fournie ni publiée nulle part (Noxway : prix « non communiqués » ; aucune page Privateaser, Shotgun, Dice ou Xceed). À la demande de l'utilisateur (2026-10-17), la démo porte un EXEMPLE de carte de club montpelliérain : chaque article, chaque description, chaque format et chaque prix est un exemple à remplacer par leur carte (note 2). Les compositions des cocktails sont les recettes classiques. La carte vit dans frontend/lib/menu-data.ts (const leClub).",
+    "categories_summary": [
+      "Bouteilles (70 cl, en carré avec softs au choix et seau à glace ; +20 € les 4 Red Bull) — Absolut 110 €, Grey Goose 160 €, Bombay Sapphire 120 €, Havana Club 3 ans 110 €, Jack Daniel's 120 €, Chivas Regal 12 ans 150 €, Patrón Silver 170 €",
+      "Champagne (75 cl) — Moët & Chandon Impérial Brut 120 €, Moët Ice Impérial 140 €, Veuve Clicquot Brut 140 €, Ruinart Blanc de Blancs 190 €",
+      "Cocktails — 9 à 12 € : Mojito (parfum +1 €), Sex on the Beach, Piña Colada, Moscow Mule, Tequila Sunrise, Spritz, Long Island Iced Tea",
+      "Verres — Verre alcool + soft 9 € (Red Bull +2 €)",
+      "Shooters — Shooter 4 €, Jägerbomb 7 €, Plateau de 10 shooters 35 €",
+      "Bières — Heineken 7 €, Desperados 8 €, Corona 8 €",
+      "Softs — Soda 5 €, Red Bull 6 €, Jus de fruits 5 €, Eau minérale 4 €"
+    ],
+    "photos": "Toutes des photos libres (Pexels), auditées sur planches (marques, bon produit, cadrage 16:9). Sans photo : Grey Goose, Havana Club 3 ans, Patrón Silver (seules des marques concurrentes en stock), Bombay Sapphire (une autre marque de gin lisible à côté), Ruinart Blanc de Blancs (bouteille noire, pas la leur), Jägerbomb (toutes les photos portent l'étiquette Jägermeister ou une autre marque), Plateau de 10 shooters (la seule photo montre ~25 verres). Le Long Island est servi en gobelet, le Spritz porte une rondelle de citron, la Piña Colada est recadrée côté serveur (pexelsRecadre). À remplacer par leurs photos (note 7).",
+    "photos_refusees_marque": "15750736 (verre Smirnoff), 11430606 (Jägermeister, Aperol), 13713070 (The Botanist), 1277203 (« BLOOM » à côté du Bombay), 37215001/02/06, 22809336, 2454120, 13305601, 30271792, 18032215, 28180066/73/75/80/99, 14516855, 34947136, 4329151, 9538492, 34837794, 12099317, 24706245, 6127023, 830926, 6427775, 4320242, 33698245, 6554949, 12698363",
+    "options_a_valider": "Toutes inventées pour la démo : les softs servis avec une bouteille (Coca-Cola, Coca-Cola Zéro, Sprite, Schweppes Tonic, jus d'orange, jus de cranberry ; choix multiple, obligatoire) et le supplément « 4 Red Bull » (+20 €) ; le parfum du Mojito (mangue, fraise, framboise, passion, pêche, +1 €) ; l'alcool (vodka, gin, rhum blanc, rhum ambré, whisky, tequila) et le soft (Red Bull +2 €) du verre ; le shooter (vodka, tequila, Jägermeister, rhum, Get 27) ; les sodas, jus et eaux. TVA : 20 % sur tout l'alcool, 10 % (défaut) sur les softs."
+  },
+  "offers": [],
+  "research": {
+    "date": "2026-10-17",
+    "identite": "Le Club a ouvert le 30 septembre 2022 à la place du Cargo (InfoClapas, https://infoclapas.fr/loisirs/montpellier-le-club-la-nouvelle-discotheque-qui-remplace-le-cargo/, mis à jour en décembre 2023) ; début d'activité de TKG au registre : 2022-10-05. Confirmé. Ni « Le Klub » (@leklub_) ni « Le Club Cabaret » ne sont à cette adresse.",
+    "adresse": "5 Rue du Grand Saint Jean, 34000 Montpellier — Base Adresse Nationale, score 0,978 (id 34172_2655_00005). Quartier gare Saint-Roch, centre-ville. Confirmé.",
+    "horaires": "Contradictoires : Noxway du mercredi au samedi 0h–5h ; InfoClapas (2022) du lundi au samedi 23h30–5h ; Restaurant Guru (données du Cargo) 23h–5h. La carte affiche Noxway, le plus récent (photos de janvier 2025).",
+    "entree": "Gratuite tous les jours (Noxway) contre payante pour les hommes jeudi–samedi (InfoClapas, 2022). Non affichée sur la carte.",
+    "telephone": "06 75 25 74 89 — réservation par SMS (InfoClapas, 2022) et page Facebook (résumé de moteur de recherche). Probable à confirmé.",
+    "google": "Fiche non ouverte (consentement Google). Restaurant Guru affiche 2,1★ sur 420 avis, mais sur une page aux données du Cargo : à qui sont ces avis ? Plaintes récurrentes : refus à l'entrée, musique presque entièrement française.",
+    "reservation_billetterie": "Aucune page de réservation de carré ni de billetterie trouvée (Shotgun, Dice, Xceed, Privateaser, Zenchef, Weezevent, Fever) ; See Tickets 403.",
+    "partenariat": "InfoClapas (2022) : 5 € d'achat au bar Al Andalus (8 rue Vanneau) donnent un tampon d'entrée gratuite au Club. Peut-être caduc.",
+    "site": "Aucun site propre."
+  },
+  "notes": [
+    "1. Confirmer l'interlocuteur : TKG, gérants Geoffrey Carrero et Karim Flici.",
+    "2. Nous envoyer leur carte complète avec ses prix : aucune n'est publiée. Toute la carte de la démo — bouteilles, champagnes, cocktails, verres, shooters, bières, softs, leurs options et leurs prix — est un exemple à remplacer.",
+    "3. Horaires : du mercredi au samedi de minuit à 5h (Noxway, affiché sur la démo) ou du lundi au samedi dès 23h30 (InfoClapas, 2022) ?",
+    "4. Entrée : gratuite (Noxway) ou payante pour les hommes du jeudi au samedi (InfoClapas, 2022) ? À quel prix, avec une consommation ?",
+    "5. Le service en carré : que comprend une bouteille (combien de softs, Red Bull en supplément ?), un minimum par carré, des formules (anniversaire, cierges) ?",
+    "6. Le fichier d'origine du badge (« LE CLUB » et la bouche rouge) : la démo le recompose en CSS, sans la bouche.",
+    "7. Des photos de leur bar, de leurs bouteilles et de leurs cocktails, ou l'accord pour une séance photo : toutes les photos de la démo sont des photos libres, et sept articles n'en ont pas.",
+    "8. Les comptes officiels : Instagram @leclub_montpellier, Facebook « LE CLUB | Montpellier », e-mail leclub34@outlook.fr ?",
+    "9. La fiche Google : laquelle est la leur, et a-t-elle gardé les avis du Cargo (2,1★ sur 420 avis selon Restaurant Guru) ?",
+    "10. La commande à table : les clients en carré commandent-ils aujourd'hui à un serveur, au bar ? Où paient-ils ?",
+    "11. Le partenariat avec le bar Al Andalus (un tampon = l'entrée gratuite) existe-t-il encore ?",
+    "12. Les taux de TVA appliqués : la démo met 20 % sur l'alcool et 10 % sur les softs."
+  ]
+}

@@ -5751,6 +5751,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
+    [data-slug="le-club"],
     [data-slug="creperie-comedie"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
@@ -5975,7 +5976,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) .rail-progress {
   display: none;
 }
 
@@ -5988,6 +5989,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="caffe-panis"],
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
+    [data-slug="le-club"],
     [data-slug="creperie-comedie"]
   ) > header.logo-hero {
   min-height: 50svh;
@@ -6006,6 +6008,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="creperie-comedie"]
     )
     .dish-grid {
@@ -6021,6 +6024,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="creperie-comedie"]
     )
     .dish-grid
@@ -6054,6 +6058,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="creperie-comedie"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
@@ -6159,6 +6164,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="caffe-panis"],
           [data-slug="brasserie-laissac"],
           [data-slug="le-petit-nice"],
+          [data-slug="le-club"],
           [data-slug="creperie-comedie"]
         )
     ) {
@@ -8991,7 +8997,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -9014,7 +9020,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -9086,7 +9092,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -9107,7 +9113,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -9133,7 +9139,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -10539,6 +10545,7 @@ html:has([data-menu-root].theme-creperie-comedie) body {
       [data-slug="caffe-panis"],
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
+      [data-slug="le-club"],
       [data-slug="creperie-comedie"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
@@ -10740,7 +10747,7 @@ html:has([data-menu-root].theme-creperie-comedie) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-creperie-comedie) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-creperie-comedie) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
@@ -11156,6 +11163,358 @@ html:has([data-menu-root].theme-cafe-poulard) body {
   content: "•";
   margin: 0 0.3em;
   color: var(--poulard-or);
+}
+
+/*
+  Le Club (5 rue du Grand Saint-Jean) — discothèque près de la gare
+  Saint-Roch. Son identité est celle de son badge, relevé en filigrane sur
+  leurs photos (demos/le-club/docs/) : un disque noir tramé de points rouges,
+  cerclé d'un néon ambre qui rougeoie, « LE CLUB » en capitales très larges
+  et très grasses, blanches ; et la salle, baignée de rouge. Trois
+  dispositifs repris : le badge cerclé de néon en haut de page, sa trame de
+  points, le filet de néon sous les titres. La bouche rouge du badge n'est pas
+  redessinée : le fichier du logo est à demander.
+*/
+.theme-le-club {
+  /* Le néon du badge, mesuré sur photo : ambre au bord, rouge-orangé dans
+     la lueur ; le rouge de la bouche (#c81810 sur photo), ravivé. */
+  --lc-ambre: #ffc078;
+  --lc-neon: #ff5a26;
+  --lc-rouge: #e3191b;
+  --lc-trame: radial-gradient(circle, rgb(255 74 28 / 0.6) 0.9px, transparent 1.4px) 0 0 / 6px 6px;
+  --lc-lueur:
+    0 0 0 1px rgb(255 90 38 / 0.55),
+    0 0 1.25rem 0.125rem rgb(255 74 28 / 0.7),
+    0 0 4rem 0.5rem rgb(227 25 27 / 0.35),
+    inset 0 0 1.5rem rgb(255 74 28 / 0.4);
+
+  --background: #070304;
+  --foreground: #f4efec;
+
+  --surface: #140909;
+  --surface-raised: #1e0e0d;
+  --hairline: rgba(255, 90, 38, 0.18);
+
+  --muted: #c4b2ad;
+  --faint: #a08b86;
+
+  --ember-1: var(--lc-ambre);
+  --ember-2: var(--lc-neon);
+  --ember-3: var(--lc-rouge);
+
+  --shimmer-highlight: rgba(255, 90, 38, 0.16);
+  --glow-inner: rgba(255, 90, 38, 0.1);
+  --glow-outer: rgba(227, 25, 27, 0.08);
+
+  /* Unbounded, au plus près des capitales du badge, pour le nom et les
+     titres ; DM Sans pour les boissons et les prix. */
+  --brand-display: var(--font-unbounded), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has([data-menu-root].theme-le-club),
+html:has([data-menu-root].theme-le-club) body {
+  background-color: #070304;
+}
+
+.theme-le-club :focus-visible {
+  outline: 2px solid var(--lc-ambre);
+  outline-offset: 3px;
+}
+
+/* Boutons et pastilles : l'ambre qui vire au néon, sans le rouge, où
+   l'encre noire ne tenait que 3,4:1. */
+.theme-le-club .ember-gradient {
+  background-image: linear-gradient(100deg, var(--lc-ambre), var(--lc-neon));
+}
+
+.theme-le-club .ember-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--lc-ambre),
+    var(--lc-neon) 55%,
+    color-mix(in srgb, var(--lc-rouge) 62%, white)
+  );
+}
+
+.theme-le-club .font-display {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Les capitales du badge pour les titres ; les boissons restent en bas de
+   casse, plus lisibles. */
+.theme-le-club :is(.category-heading, .footer-name, .serve-box-title) {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/*
+  Le badge : le disque noir, sa trame de points plus dense vers le bas, le
+  cercle de néon. La trame et le néon sont deux calques (::before, ::after) :
+  le titre garde son entrée (.hero-entrance), le néon s'allume par-dessus.
+*/
+.theme-le-club .hero-name {
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(72vw, 17rem);
+  aspect-ratio: 1;
+  margin-top: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #1c0806, #090303 62%, #2b0905);
+  color: #f4f1ee;
+  font-size: min(12.5vw, 3.25rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.08;
+  text-transform: uppercase;
+  text-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 0.7);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  &::before {
+    z-index: -1;
+    background: var(--lc-trame);
+    mask-image: radial-gradient(circle at 50% 88%, black, transparent 70%);
+  }
+
+  &::after {
+    border: 2px solid var(--lc-ambre);
+    box-shadow: var(--lc-lueur);
+    pointer-events: none;
+  }
+}
+
+[data-menu-root].theme-le-club .hero-tagline {
+  order: 1;
+  margin-top: 2rem;
+  background: none;
+  color: #ffd9b8;
+  -webkit-text-fill-color: currentColor;
+  font-family: var(--brand-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 0.5rem rgb(255 90 38 / 0.8);
+}
+
+.theme-le-club .hero-tagline .tagline-sep {
+  color: var(--lc-neon);
+}
+
+[data-menu-root].theme-le-club .hero-rule {
+  display: none;
+}
+
+[data-menu-root].theme-le-club .hero-contact {
+  order: 2;
+}
+
+@media (min-width: 64rem) {
+  .theme-le-club .hero-name {
+    width: 22rem;
+    font-size: 4.25rem;
+  }
+
+  [data-menu-root].theme-le-club .hero-tagline {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Les arguments sur le rouge de la salle. */
+.theme-le-club .menu-highlights {
+  border: 0;
+  background-color: var(--lc-rouge);
+}
+
+.theme-le-club .menu-highlights li {
+  color: #ffffff;
+}
+
+/* Le titre en capitales larges, son filet en tube de néon. */
+[data-menu-root].theme-le-club .category-heading {
+  font-size: 1.625rem;
+}
+
+@media (min-width: 40rem) {
+  [data-menu-root].theme-le-club .category-heading {
+    font-size: 2.25rem;
+  }
+}
+
+[data-menu-root].theme-le-club .category-rule {
+  height: 2px;
+  background: var(--lc-neon);
+  opacity: 1;
+  box-shadow:
+    0 0 0.375rem var(--lc-neon),
+    0 0 1rem rgb(227 25 27 / 0.6);
+}
+
+/* Les pastilles de catégorie : un tube éteint, puis allumé. */
+[data-menu-root].theme-le-club nav [data-category] {
+  border-color: rgb(255 90 38 / 0.35);
+  font-family: var(--brand-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &:not([aria-current]) {
+    color: var(--foreground);
+  }
+
+  @media (hover: hover) {
+    &:hover:not([aria-current]) {
+      border-color: var(--lc-ambre);
+    }
+  }
+
+  &[aria-current] {
+    border-color: transparent;
+    box-shadow: 0 0 0.875rem rgb(255 90 38 / 0.55);
+  }
+}
+
+[data-menu-root].theme-le-club :is(.dish-head > h3, [role="dialog"] h3) {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.theme-le-club .dish-price {
+  color: var(--lc-ambre);
+  font-family: var(--brand-sans);
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-le-club .dish-detail {
+  border-color: rgb(255 192 120 / 0.45);
+  color: var(--lc-ambre);
+}
+
+.theme-le-club .dish-grid > article {
+  border-color: rgb(255 90 38 / 0.22);
+  background: var(--surface);
+}
+
+/* La salle sous chaque photo : une image en route ne laisse pas de case
+   vide. */
+.theme-le-club .dish-photo {
+  background-color: #2b0905;
+}
+
+/* Au bureau, la photo en vignette à gauche, haute comme le texte de sa
+   fiche : la plupart des fiches n'ont qu'un nom et un prix. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 7rem minmax(0, 1fr);
+
+    & .dish-photo {
+      min-height: 5rem;
+    }
+  }
+}
+
+/* Au bureau, le nom et le prix sur une ligne, comme dans les fiches sans
+   photo : une seule colonne de prix. */
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-photo) .dish-head {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+/* Le « + » face à la première ligne du nom, comme le prix. */
+[data-menu-root].theme-le-club .dish-grid > article:has(.dish-action > button) .dish-action {
+  align-self: start;
+  margin-block: calc((var(--row-name-size, 1.0625rem) * 1.3 - 2.75rem) / 2);
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-le-club .dish-grid > article:has(.dish-action > button) .dish-action {
+    margin-block: calc((var(--row-name-size-lg, 1.25rem) * 1.3 - 2.75rem) / 2);
+  }
+}
+
+.theme-le-club .choice-row.is-checked {
+  border-color: var(--lc-neon);
+}
+
+[data-menu-root].theme-le-club [role="dialog"] legend {
+  color: var(--lc-ambre);
+}
+
+.theme-le-club :is(.cart-line-name, .cart-line-price, .cart-total) {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+/* Le pied de page sous un tube de néon. */
+.theme-le-club > footer {
+  border-top: 2px solid var(--lc-neon);
+  box-shadow: 0 -0.25rem 1.5rem -0.5rem rgb(255 74 28 / 0.6);
+}
+
+.theme-le-club .footer-phone {
+  font-family: var(--brand-sans);
+  font-weight: 600;
+}
+
+.theme-le-club .serve-box-title {
+  color: var(--lc-ambre);
+}
+
+.theme-le-club .serve-box-mark {
+  border-color: var(--lc-neon);
+}
+
+/* Le néon du badge s'allume en grésillant, puis respire. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-le-club .hero-name::after {
+    animation:
+      lc-allumage 1.4s linear 0.4s both,
+      lc-respire 4s ease-in-out 1.8s infinite;
+  }
+}
+
+@keyframes lc-allumage {
+  0%,
+  9%,
+  15%,
+  31% {
+    border-color: rgb(255 192 120 / 0.25);
+    box-shadow: none;
+  }
+
+  6%,
+  12%,
+  24%,
+  100% {
+    border-color: var(--lc-ambre);
+    box-shadow: var(--lc-lueur);
+  }
+}
+
+@keyframes lc-respire {
+  50% {
+    opacity: 0.82;
+  }
 }
 
 @theme inline {
