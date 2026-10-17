@@ -10466,6 +10466,353 @@ html:has([data-menu-root].theme-cafe-poulard) body {
   color: var(--poulard-or);
 }
 
+/*
+  L'Entrepôt Complexe (Lattes) — club de musique urbaine. Identité relevée sur
+  le mot-symbole de leur site (demos/l-entrepot/docs/logo-site.png) : le rouge
+  corail des lettres (#EE385D) et le rose du palmier (#F1779C), mesurés sur le
+  fichier, posés sur le noir de la salle et de ses écrans LED. Les capitales
+  larges et grasses du logo : Archivo poussée en chasse large ; le texte en
+  Archivo courante. La barre peinte à la bombe sous le nom, découpée dans le
+  logo, souligne chaque titre de section.
+*/
+.theme-l-entrepot {
+  --background: #0b0b12;
+  --foreground: #f6f3f7;
+
+  --surface: #15151f;
+  --surface-raised: #1d1d2a;
+  --hairline: rgba(246, 243, 247, 0.1);
+
+  --muted: #b8b4c4;
+  --faint: #9894a6;
+
+  /* Palmier → corail : l'encre sombre des boutons tient 4,9:1 jusqu'au bout. */
+  --ember-1: #f1779c;
+  --ember-2: #f0577c;
+  --ember-3: #ee385d;
+
+  --shimmer-highlight: rgba(241, 119, 156, 0.16);
+  --glow-inner: rgba(238, 56, 93, 0.1);
+  --glow-outer: rgba(238, 56, 93, 0.06);
+  /* Un halo corail serré derrière le logo, pas un brouillard rose. */
+  --hero-halo-1: rgba(238, 56, 93, 0.3);
+  --hero-halo-2: rgba(11, 11, 18, 0);
+  --hero-glow-2: #7c3aed;
+
+  --brand-display: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  --brand-sans: var(--font-archivo), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  color-scheme: dark;
+}
+
+html:has(.theme-l-entrepot),
+html:has(.theme-l-entrepot) body {
+  background-color: #0b0b12;
+}
+
+.theme-l-entrepot :focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 3px;
+}
+
+/* Les capitales du logo, élargies ; posées ici et non dans les données, qui
+   partent aussi sur les tickets du bar. */
+.theme-l-entrepot .font-display {
+  font-stretch: 112%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.08;
+}
+
+/* ---- Hero : la scène, deux lyres qui balaient le logo ----------------- */
+
+.theme-l-entrepot .hero-logo img {
+  width: min(88vw, 44rem);
+  height: auto;
+}
+
+.theme-l-entrepot .hero-tagline {
+  font-weight: 700;
+  font-stretch: 112%;
+  letter-spacing: 0.2em;
+}
+
+@media (min-width: 640px) {
+  .theme-l-entrepot .hero-tagline {
+    font-stretch: 125%;
+    letter-spacing: 0.3em;
+  }
+}
+
+.theme-l-entrepot .hero-rule {
+  display: none;
+}
+
+/* Le cône d'une lyre, accroché en haut de la scène, qui s'éteint en
+   descendant ; son sommet à 18 % du bord. */
+.theme-l-entrepot .logo-hero::before,
+.theme-l-entrepot .logo-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1rem;
+  width: min(72vw, 36rem);
+  height: 112%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform-origin: 50% 0;
+  clip-path: polygon(48% 0, 52% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to bottom, var(--entrepot-faisceau), transparent 78%);
+}
+
+.theme-l-entrepot .logo-hero::before {
+  --entrepot-faisceau: rgba(238, 56, 93, 0.42);
+  left: calc(18% - min(36vw, 18rem));
+  transform: rotate(-16deg);
+}
+
+.theme-l-entrepot .logo-hero::after {
+  --entrepot-faisceau: rgba(241, 119, 156, 0.3);
+  right: calc(18% - min(36vw, 18rem));
+  transform: rotate(16deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-l-entrepot .logo-hero::before {
+    animation: entrepot-lyre-gauche 7s ease-in-out infinite alternate;
+  }
+
+  .theme-l-entrepot .logo-hero::after {
+    animation: entrepot-lyre-droite 9s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes entrepot-lyre-gauche {
+  from {
+    transform: rotate(-26deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes entrepot-lyre-droite {
+  from {
+    transform: rotate(24deg);
+  }
+  to {
+    transform: rotate(-12deg);
+  }
+}
+
+/* ---- Bandeaux ---------------------------------------------------------- */
+
+/* Le défilant des écrans LED : noir, capitales larges, le corail en accent. */
+.theme-l-entrepot .menu-ticker {
+  background-color: #000000;
+  border-color: rgba(238, 56, 93, 0.35);
+}
+
+.theme-l-entrepot .menu-ticker-item {
+  font-stretch: 125%;
+  font-weight: 700;
+}
+
+.theme-l-entrepot .menu-ticker-pause {
+  background-image: linear-gradient(to left, #000000 60%, transparent);
+}
+
+/* Le corail plein de la barre du logo, l'encre de la salle dessus. */
+.theme-l-entrepot .menu-highlights {
+  border-color: var(--ember-3);
+  background-color: var(--ember-3);
+}
+
+.theme-l-entrepot .menu-highlights li {
+  color: var(--background);
+  font-size: 0.75rem;
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+
+@media (min-width: 640px) {
+  .theme-l-entrepot .menu-highlights li {
+    font-size: 0.9375rem;
+    font-stretch: 125%;
+  }
+}
+
+/* ---- Sections ---------------------------------------------------------- */
+
+.theme-l-entrepot .category-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.theme-l-entrepot .category-heading {
+  font-stretch: 125%;
+  font-weight: 900;
+  letter-spacing: -0.005em;
+}
+
+/* La barre du logo, à ses proportions, sous le titre. */
+.theme-l-entrepot .category-rule {
+  flex: none;
+  width: min(62%, 15rem);
+  height: auto;
+  aspect-ratio: 15 / 1;
+  opacity: 1;
+  background: url("/l-entrepot/barre.webp") left center / 100% 100% no-repeat;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-l-entrepot .category-rule {
+      animation: entrepot-barre linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+
+@keyframes entrepot-barre {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.theme-l-entrepot .category-tagline {
+  font-style: normal;
+}
+
+/* ---- Fiches ------------------------------------------------------------ */
+
+.theme-l-entrepot article {
+  border-radius: 0.875rem;
+  border-color: rgba(238, 56, 93, 0.22);
+}
+
+.theme-l-entrepot article:hover {
+  box-shadow: 0 0 0 1px rgba(238, 56, 93, 0.35), 0 10px 40px -12px rgba(238, 56, 93, 0.45);
+}
+
+/* Les noms à chasse normale : en large, « Moët & Chandon Brut Impérial »
+   prenait quatre lignes au téléphone. */
+.theme-l-entrepot article h3 {
+  font-stretch: 100%;
+}
+
+/* « 70 cl », « 75 cl » : une pastille au rose du palmier, en bas de casse. */
+.theme-l-entrepot .dish-detail {
+  border: 1px solid rgba(241, 119, 156, 0.55);
+  border-radius: 9999px;
+  padding: 0.1rem 0.45rem;
+  color: var(--ember-1);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Les bouteilles, sans photo : nom et prix en tête, le type et le bouton sur
+   une même ligne — la fiche ne s'étire plus autour d'un mot. */
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  row-gap: 0.35rem;
+  align-items: center;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-body > * {
+  grid-column: 1;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-head {
+  grid-column: 1 / -1;
+}
+
+.theme-l-entrepot article:not(:has(.dish-photo)) .dish-action {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0;
+}
+
+/* Bières et softs : une photo et un nom, deux de front au téléphone. */
+.theme-l-entrepot .dish-grid-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .theme-l-entrepot .dish-grid-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.theme-l-entrepot .dish-grid-tiles > article {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-body {
+  flex: 1;
+  gap: 0.5rem;
+  padding: 0.75rem 0.8rem 0.85rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-head > div {
+  align-items: flex-start;
+}
+
+.theme-l-entrepot .dish-grid-tiles :is(h3, .dish-price) {
+  font-size: 1rem;
+}
+
+.theme-l-entrepot .dish-grid-tiles .dish-action {
+  margin-top: auto;
+  justify-content: flex-start;
+}
+
+.theme-l-entrepot .dish-price {
+  color: var(--ember-1);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.theme-l-entrepot .dish-tarifs {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Pied de page ------------------------------------------------------ */
+
+.theme-l-entrepot footer {
+  border-top: 0;
+  background:
+    url("/l-entrepot/barre.webp") left top / min(70%, 30rem) auto no-repeat,
+    #000000;
+  padding-top: 0.5rem;
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
