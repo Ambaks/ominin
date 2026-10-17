@@ -1,4 +1,5 @@
 import {
+  Advent_Pro,
   Anton,
   Archivo,
   Archivo_Black,
@@ -7,6 +8,7 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Chakra_Petch,
   Cinzel,
   Cormorant_Garamond,
   DM_Sans,
@@ -14,11 +16,15 @@ import {
   Fraunces,
   Josefin_Sans,
   Montserrat,
+  Noto_Serif_Display,
   Playball,
   Playfair_Display,
   Poppins,
   Questrial,
+  Racing_Sans_One,
+  Sanchez,
   Source_Serif_4,
+  Unbounded,
 } from "next/font/google";
 
 /*
@@ -55,11 +61,15 @@ const archivo = Archivo({
   preload: false,
 });
 
-/** LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier. */
+/**
+ * LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier.
+ * Crêperie Comédie — le motif « CRÊPERIE COMÉDIE » de sa couverture (Black,
+ * 900) et ses titres, à la place de Gidole, absente de Google Fonts.
+ */
 const barlowSemiCondensed = Barlow_Semi_Condensed({
   variable: "--font-barlow-semi-condensed",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "900"],
   preload: false,
 });
 
@@ -166,6 +176,18 @@ const josefinSans = Josefin_Sans({
 });
 
 /**
+ * Café Riche — les titres et les prix de son site (caferiche-montpellier.com)
+ * sont en Playfair Display ; le texte et les capitales espacées reprennent
+ * DM Sans (Baï-Kō).
+ */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair-display",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
  * Café des Arts — titres, noms et prix : la géométrique Century Gothic de son
  * mot-symbole, sans les approches larges de Didact Gothic, qui doublaient
  * l'espace avant une capitale.
@@ -258,7 +280,89 @@ export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .map((font) => font.variable)
   .join(" ");
 
+/**
+ * Café Poulard — « POULARD » sur ses visuels : des capitales à empattements
+ * étroites et contrastées. Noto Serif Display à sa chasse la plus étroite
+ * (axe wdth) est la plus proche mesurée parmi les Google Fonts ; le texte
+ * reprend Source Serif 4, ci-dessus.
+ */
+const notoSerifDisplay = Noto_Serif_Display({
+  variable: "--font-noto-serif-display",
+  subsets: ["latin"],
+  weight: "variable",
+  axes: ["wdth"],
+  preload: false,
+});
+
+/**
+ * Café 3 Grâces — les titres de son site (cafe3graces.com) et de sa carte
+ * imprimée sont en Arcane Nine, des capitales Art déco étroites. Advent Pro
+ * a la même chasse et les mêmes R et M parmi les Google Fonts comparées ; le
+ * texte reprend Didact Gothic (O’Crousti), la plus proche de leur Champagne &
+ * Limousines.
+ */
+const adventPro = Advent_Pro({
+  variable: "--font-advent-pro",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
+ * Le Club — « LE CLUB » sur son badge : des capitales très larges et très
+ * grasses, aux angles arrondis. Unbounded en noir est la plus proche mesurée
+ * parmi les Google Fonts (Michroma, Krona One : trop maigres). Le texte
+ * reprend DM Sans, ci-dessus.
+ */
+const unbounded = Unbounded({
+  variable: "--font-unbounded",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+/**
+ * Crêperie Comédie — les polices de sa carte : Montserrat pour les plats et le
+ * texte, Sanchez pour ses intertitres en capitales espacées, Racing Sans One
+ * pour ses prix.
+ */
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+const sanchez = Sanchez({
+  variable: "--font-sanchez",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+const racingSansOne = Racing_Sans_One({
+  variable: "--font-racing-sans-one",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
+/**
+ * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
+ * Chakra Petch en reprend les terminaisons carrées pour les titres, les
+ * bouteilles et les prix ; l'italique grasse, les intertitres « WHISKY »,
+ * « VODKA » de leur carte. Le texte courant reste en Archivo, la linéale de
+ * la carte imprimée.
+ */
+const chakraPetch = Chakra_Petch({
+  variable: "--font-chakra-petch",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+
 export const brandFontVariables = [
   archivo,
   archivoBlack,
@@ -272,12 +376,20 @@ export const brandFontVariables = [
   sourceSerif4,
   cormorantGaramond,
   josefinSans,
+  playfairDisplay,
   questrial,
   frauncesSoft,
   bodoniModa,
   barlowCondensed,
   barlow,
   cinzel,
+  notoSerifDisplay,
+  unbounded,
+  chakraPetch,
+  adventPro,
+  montserrat,
+  sanchez,
+  racingSansOne,
 ]
   .map((font) => font.variable)
   .join(" ");

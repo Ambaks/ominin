@@ -1,4 +1,4 @@
-import type { OpeningHours } from "@/lib/collect/hours";
+import { describeOpeningHours, type OpeningHours } from "@/lib/collect/hours";
 import type { Formule } from "@/lib/gestion/types";
 // Libellés, mise en forme et adresses de photos vivent dans lib/menu/format
 // et lib/menu/images : un module client les importe de là, sans tirer ce
@@ -4350,14 +4350,17 @@ const CDA_PARFUMS_GLACE = [
 ];
 /**
  * Le sous-choix d'un plat de formule (cuisson, sauce, parfums) ne se montre,
- * obligatoire, qu'une fois ce plat choisi dans son groupe.
+ * obligatoire, qu'une fois ce plat — ou l'un de ces plats — choisi dans son groupe.
  */
-const cdaSi = (groupe: OptionGroup, libelle: string): OptionGroup["when"] => {
-  const choix = groupe.choices.find(({ name }) => name === libelle);
-  // Un libellé mal recopié laisserait le sous-choix caché pour toujours.
-  if (!choix) throw new Error(`cdaSi — ${libelle} absent du groupe ${groupe.id}`);
-  return { group: groupe.id, choices: [choix.id] };
-};
+const cdaSi = (groupe: OptionGroup, ...libelles: string[]): OptionGroup["when"] => ({
+  group: groupe.id,
+  choices: libelles.map((libelle) => {
+    const choix = groupe.choices.find(({ name }) => name === libelle);
+    // Un libellé mal recopié laisserait le sous-choix caché pour toujours.
+    if (!choix) throw new Error(`cdaSi — ${libelle} absent du groupe ${groupe.id}`);
+    return choix.id;
+  }),
+});
 
 const cdaBoule = (rang: number, name: string, when?: OptionGroup["when"]) =>
   groupeChoix(`boule-${rang}`, name, CDA_PARFUMS_GLACE, { obligatoire: true, when });
@@ -6600,6 +6603,3778 @@ const lEtoile: Restaurant = {
   ],
 };
 
+/*
+ * Café Poulard — comptoir méditerranéen, 27 rue du Faubourg du Courreau
+ * (Montpellier), repris des Frères Poulards en février 2026 : click &
+ * collect seul, pas de carte QR. Aucune carte imprimée remise et aucun prix
+ * en ligne hors le café : les articles sont ceux qu'ils nomment sur leur
+ * Instagram (@cafe_poulard) et dans les avis récents, les prix des
+ * emplacements à valider avec eux (demos/cafe-poulard/profile.json). Photos :
+ * les leurs (Instagram, fiche Google), sinon de banque, marquées au profil.
+ */
+const POULARD_PHOTOS = "/cafe-poulard";
+const POULARD_JOURS = [
+  ["08:00", "14:30"],
+  ["19:30", "22:30"],
+] as [string, string][];
+const POULARD_HORAIRES: OpeningHours = {
+  "1": [["08:00", "14:30"]],
+  "2": POULARD_JOURS,
+  "3": POULARD_JOURS,
+  "4": POULARD_JOURS,
+  "5": POULARD_JOURS,
+  "6": POULARD_JOURS,
+  "7": POULARD_JOURS,
+};
+const poulardViennoiserie = groupeChoix("viennoiserie", "Viennoiserie", ["Croissant", "Pain au chocolat"], {
+  obligatoire: true,
+});
+
+const cafePoulard: Restaurant = {
+  slug: "cafe-poulard",
+  name: "Café Poulard",
+  tagline: "Comptoir méditerranéen",
+  coverImage: `${POULARD_PHOTOS}/salle.jpg`,
+  themeColor: "#f6efe2",
+  address: "27 Rue du Faubourg du Courreau, 34000 Montpellier",
+  phone: "04 67 58 55 74",
+  // Les horaires de retrait, ceux de la carte « À emporter » : une seule annonce.
+  hours: describeOpeningHours(POULARD_HORAIRES),
+  highlights: ["Cuisine traditionnelle", "Produits frais de saison", "Comme à la maison"],
+  placeId: "ChIJU_sWg6mvthIR1dtA2qr3Q5I",
+  collect: { openingHours: POULARD_HORAIRES },
+  formules: [
+    {
+      id: "formule-petit-dejeuner",
+      name: "Formule petit-déjeuner",
+      description: "Boisson chaude, jus de fruits pressé, viennoiserie",
+      price: 6,
+      disponible: true,
+      etapes: [
+        {
+          id: "boisson-chaude",
+          name: "Boisson chaude",
+          obligatoire: true,
+          articles: [
+            { id: "cafe", name: "Café", supplement: 0, itemId: "cafe" },
+            { id: "chocolat", name: "Chocolat", supplement: 0, itemId: "chocolat" },
+          ],
+        },
+        {
+          id: "viennoiserie",
+          name: "Viennoiserie",
+          obligatoire: true,
+          articles: [
+            { id: "croissant", name: "Croissant", supplement: 0 },
+            { id: "pain-au-chocolat", name: "Pain au chocolat", supplement: 0 },
+          ],
+        },
+      ],
+    },
+  ],
+  categories: [
+    {
+      id: "petit-dejeuner",
+      name: "Petit-déjeuner",
+      tagline: "Dès 8h, du lundi au dimanche",
+      items: [
+        { id: "cafe", name: "Café", price: 1.5, chaud: true, image: `${POULARD_PHOTOS}/cafe.jpg` },
+        {
+          id: "chocolat",
+          name: "Chocolat",
+          price: 2.5,
+          chaud: true,
+          image: pexels("239584/pexels-photo-239584.jpeg", 800),
+        },
+        articleFormats(
+          "jus-de-fruits",
+          "Jus de fruits",
+          [
+            ["En bouteille", 3],
+            ["Pressé", 4.5],
+          ],
+          { image: `${POULARD_PHOTOS}/jus-de-fruits.jpg` },
+          ["jus", "Jus"]
+        ),
+        {
+          id: "viennoiserie",
+          name: "Viennoiserie",
+          price: 1.5,
+          image: `${POULARD_PHOTOS}/viennoiseries.jpg`,
+          options: [poulardViennoiserie],
+        },
+        {
+          id: "tartines-chocolat",
+          name: "Tartines chocolat",
+          price: 3.5,
+          image: pexels("33526181/pexels-photo-33526181.jpeg", 800),
+        },
+        {
+          id: "gaufre",
+          name: "Gaufre",
+          price: 4,
+          image: pexels("32123671/pexels-photo-32123671.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "rotisserie",
+      name: "Rôtisserie",
+      tagline: "À emporter",
+      items: [
+        articleFormats(
+          "poulet-roti",
+          "Poulet rôti à la broche",
+          [
+            ["Quart", 7],
+            ["Demi", 12],
+            ["Entier", 20],
+          ],
+          { image: `${POULARD_PHOTOS}/poulet-roti.jpg` },
+          ["portion", "Portion"]
+        ),
+      ],
+    },
+    {
+      id: "sandwichs",
+      name: "Sandwichs & burger",
+      items: [
+        {
+          id: "burger",
+          name: "Burger",
+          description: "Frites et salade",
+          price: 14,
+          image: pexels("3248289/pexels-photo-3248289.jpeg", 800),
+        },
+        {
+          id: "sandwich",
+          name: "Sandwich",
+          price: 7.5,
+          image: pexels("25048970/pexels-photo-25048970.jpeg", 800),
+        },
+        {
+          id: "pita",
+          name: "Pita",
+          price: 8.5,
+          image: pexelsRecadre("6275121/pexels-photo-6275121.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Tapas",
+      tagline: "La carte du soir",
+      items: [
+        {
+          id: "poulpe",
+          name: "Tentacules de poulpe grillées",
+          price: 13,
+          image: pexels("37068830/pexels-photo-37068830.jpeg", 800),
+        },
+        {
+          id: "beignets-courgettes",
+          name: "Beignets de courgettes, sauce tartare",
+          price: 7,
+          image: pexels("32153515/pexels-photo-32153515.jpeg", 800),
+        },
+        {
+          id: "camembert-pane",
+          name: "Camembert pané",
+          description: "À partager",
+          price: 8,
+          image: pexels("29177201/pexels-photo-29177201.jpeg", 800),
+        },
+        {
+          id: "bouquet-crevettes",
+          name: "Bouquet de crevettes",
+          price: 11,
+          image: `${POULARD_PHOTOS}/bouquet-crevettes.jpg`,
+        },
+        {
+          id: "crudo-daurade",
+          name: "Crudo de daurade",
+          price: 11,
+          image: pexels("27890217/pexels-photo-27890217.jpeg", 800),
+        },
+        {
+          id: "tataki-magret",
+          name: "Tataki de magret",
+          price: 12,
+          image: `${POULARD_PHOTOS}/tataki-magret.jpg`,
+        },
+        {
+          id: "pan-con-tomate",
+          name: "Pan con tomate & jambon serrano",
+          price: 9,
+          image: `${POULARD_PHOTOS}/pan-con-tomate.jpg`,
+        },
+        {
+          id: "gaspacho",
+          name: "Gaspacho du moment",
+          price: 6,
+          image: pexels("37273396/pexels-photo-37273396.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      items: [
+        {
+          id: "filet-daurade",
+          name: "Filet de daurade sauce vierge",
+          price: 19,
+          image: `${POULARD_PHOTOS}/filet-daurade.jpg`,
+        },
+        {
+          id: "salade-mangue",
+          name: "Salade exotique mangue",
+          price: 14,
+          image: `${POULARD_PHOTOS}/salade-mangue.jpg`,
+        },
+        {
+          id: "souris-agneau",
+          name: "Souris d'agneau",
+          price: 21,
+          image: pexels("16588046/pexels-photo-16588046.jpeg", 800),
+        },
+        {
+          id: "brochettes",
+          name: "Brochettes",
+          description: "Le dimanche, avec frites",
+          price: 18,
+          image: `${POULARD_PHOTOS}/brochettes.jpg`,
+          options: [groupeChoix("brochette", "Brochette", ["Bœuf", "Canard", "Cœurs"], { obligatoire: true })],
+        },
+        // En dernier : seule fiche sans photo, elle prend la rangée entière.
+        { id: "plat-du-jour", name: "Plat du jour", description: "À découvrir chaque midi", price: 15 },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "clafoutis",
+          name: "Clafoutis",
+          price: 6,
+          image: `${POULARD_PHOTOS}/clafoutis.jpg`,
+        },
+      ],
+    },
+  ],
+};
+
+/** Photos libres (Pexels, Unsplash), auditées sur planches : le bar n'en publie aucune de ses plats. */
+const PETIT_NICE_PHOTOS: Partial<Record<string, string>> = {
+  "petit-dejeuner": pexels("10069877/pexels-photo-10069877.jpeg", 800),
+  viennoiserie: pexels("8909319/pexels-photo-8909319.jpeg", 800),
+  "club-sandwich": unsplash("photo-1712746784291-e29d5d2694d4", 800),
+  croque: pexels("31768242/pexels-photo-31768242.jpeg", 800),
+  "burger-cbo": pexels("18713432/pexels-photo-18713432.jpeg", 800),
+  "salade-italienne": pexels("29882835/pexels-photo-29882835.jpeg", 800),
+  "salade-cesar": pexels("15813486/pexels-photo-15813486.jpeg", 800),
+  "brie-roti": unsplash("photo-1625428089695-3344815b4528", 800),
+  saucisson: pexels("4639328/pexels-photo-4639328.jpeg", 800),
+  burratina: pexels("29872991/pexels-photo-29872991.jpeg", 800),
+  tenders: pexels("29653191/pexels-photo-29653191.jpeg", 800),
+  nachos: pexels("4411802/pexels-photo-4411802.jpeg", 800),
+  "ginger-rasberry": pexels("37271933/pexels-photo-37271933.jpeg", 800),
+  "lime-mandarine": unsplash("photo-1619604395920-a16f33192a50", 800),
+  "peached-iced-tea": pexels("31664032/pexels-photo-31664032.jpeg", 800),
+  // Recadrée : au centre, le verre restait dans un coin du cadre.
+  "crazy-banana": pexelsRecadre("4051773/pexels-photo-4051773.jpeg", 800),
+  "fresh-passion": pexels("5156362/pexels-photo-5156362.jpeg", 800),
+  "apple-berries": pexels("38101015/pexels-photo-38101015.jpeg", 800),
+  passionnement: pexels("8375043/pexels-photo-8375043.jpeg", 800),
+  "tropical-soda": pexels("7377090/pexels-photo-7377090.jpeg", 800),
+  "red-berries": pexels("12419161/pexels-photo-12419161.jpeg", 800),
+  "mango-drop": pexels("38896800/pexels-photo-38896800.jpeg", 800),
+  "coco-spirit": pexels("18454778/pexels-photo-18454778.jpeg", 800),
+  exotique: pexels("4669243/pexels-photo-4669243.jpeg", 800),
+  virgin: pexels("15523637/pexels-photo-15523637.jpeg", 800),
+  cappuccino: pexels("1036443/pexels-photo-1036443.jpeg", 800),
+  "chocolat-viennois": pexels("17506136/pexels-photo-17506136.jpeg", 800),
+  "irish-coffee": pexels("14721872/pexels-photo-14721872.jpeg", 800),
+  smoothie: pexels("4753650/pexels-photo-4753650.jpeg", 800),
+  "fruits-presses": unsplash("photo-1689066117649-0ca9762fc92c", 800),
+  "pinte-paulaner": pexels("11188309/pexels-photo-11188309.jpeg", 800),
+};
+
+const petitNiceArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: PETIT_NICE_PHOTOS[id],
+  ...extra,
+});
+
+const petitNiceAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  petitNiceArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** L'ardoise : « Frites maison +1 € » avec les clubs, les croques et le CBO. */
+const PETIT_NICE_FRITES = groupeChoix("frites", "Supplément", [["Frites maison", 1]], { multiple: true });
+
+/** Les sodas du feuillet des boissons fraîches. */
+const PETIT_NICE_SODAS = [
+  "Pepsi",
+  "Pepsi Max",
+  "Lipton Ice Tea",
+  "Oasis Tropical",
+  "Orangina",
+  "Schweppes Tonic",
+  "Schweppes Agrumes",
+  "Schweppes Ginger Ale",
+];
+
+/** La formule étudiante : le plat, puis la boisson qui fixe le prix. */
+const petitNiceFormuleEtudiante = (id: string, name: string, description: string, price: number, boisson: OptionGroup[] = []) =>
+  petitNiceArticle(id, name, price, {
+    description,
+    options: [
+      groupeChoix("plat", "Plat", ["Burger CBO", "Croque Monsieur", "Tenders de poulet frites"], { obligatoire: true }),
+      ...boisson,
+      groupeChoix("frites", "Supplément", [["Portion de frites (CBO, croque)", 3]], { multiple: true }),
+    ],
+  });
+
+/*
+ * Le Petit Nice — le café-bar de la grande terrasse, 1 place Jean-Jaurès
+ * (Écusson, Montpellier). Aucune carte en ligne de leur main : la cuisine
+ * vient de l'ardoise de la terrasse, les formules et les boissons des
+ * feuillets et des cartes posés sur les tables (photos de clients, 2025 et
+ * août 2026). Tous les prix sont à confirmer avec le gérant ; ceux des tapas
+ * sont attribués dans l'ordre de lecture. Sources et questions :
+ * demos/le-petit-nice/profile.json.
+ */
+const lePetitNice: Restaurant = {
+  slug: "le-petit-nice",
+  name: "Le Petit Nice",
+  demoSuivi: true,
+  // Le logo dit déjà « café ■ bar » : l'accroche nomme la terrasse et sa place.
+  tagline: "Terrasse · Place Jean-Jaurès",
+  // Le mot-symbole de l'enseigne, redessiné d'après photo (Questrial, Poppins) :
+  // le fichier d'origine est à demander.
+  logo: "/le-petit-nice/logo.svg",
+  logoIsName: true,
+  footerLogo: "/le-petit-nice/logo-sarcelle.svg",
+  icons: { tab: "/le-petit-nice/favicon.png", homeScreen: "/le-petit-nice/icon.png" },
+  themeColor: "#0e7470",
+  address: "1 Place Jean Jaurès, 34000 Montpellier",
+  phone: "+33 4 67 57 83 56",
+  hours: "Tous les jours 8h–⁠1h",
+  placeId: "ChIJp7PriaevthIRy1ghMMJXEDw",
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJp7PriaevthIRy1ghMMJXEDw",
+  // Google et leur reel Instagram : « Tous les jours de 8h à 01h » ; le
+  // feuillet des tapas : « Happy Hour 18h-20h ».
+  highlights: ["Tous les jours, 8h–⁠1h", "Happy hour 18h–⁠20h"],
+  ticker: [
+    { text: "Happy hour de 18h à 20h", tone: "accent" },
+    { text: "Formule étudiante sur présentation de la carte étudiante", tone: "brand" },
+    { text: "Frites maison, nachos et guacamole maison" },
+  ],
+  categories: [
+    {
+      // La carte « Formule étudiante » des tables (août 2026).
+      id: "formule-etudiante",
+      name: "Formule étudiante",
+      tagline: "Sur présentation d'une carte étudiante",
+      items: [
+        petitNiceFormuleEtudiante(
+          "formule-etudiante-pinte",
+          "Formule étudiante + pinte",
+          "Burger CBO, Croque Monsieur ou Tenders de poulet frites, avec une pinte de bière (+18 ans)",
+          10
+        ),
+        petitNiceFormuleEtudiante(
+          "formule-etudiante-soft",
+          "Formule étudiante + soft",
+          "Burger CBO, Croque Monsieur ou Tenders de poulet frites, avec un soft",
+          8,
+          [groupeChoix("soft", "Soft", PETIT_NICE_SODAS, { obligatoire: true })]
+        ),
+      ],
+    },
+    {
+      id: "petit-dejeuner",
+      name: "Petit-déjeuner",
+      items: [
+        petitNiceArticle("petit-dejeuner", "Le petit déjeuner", 6.5, {
+          description:
+            "Une boisson chaude, un verre d'orange ou citron pressé, un croissant ou un pain au chocolat, ou deux tartines beurrées confiture de fraise",
+          options: [
+            groupeChoix(
+              "boisson",
+              "Boisson chaude",
+              ["Expresso", "Café allongé", "Café noisette", "Grand crème", "Thé", "Chocolat chaud"],
+              { obligatoire: true }
+            ),
+            groupeChoix("presse", "Pressé", ["Orange pressée", "Citron pressé"], { obligatoire: true }),
+            groupeChoix(
+              "viennoiserie",
+              "Viennoiserie ou tartines",
+              ["Croissant", "Pain au chocolat", "Deux tartines beurrées, confiture de fraise"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("viennoiserie", "Croissant ou pain au chocolat", 1.9, {
+          options: [groupeChoix("viennoiserie", "Viennoiserie", ["Croissant", "Pain au chocolat"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      // L'ardoise accrochée à l'arbre de la terrasse.
+      id: "ardoise",
+      name: "À l'ardoise",
+      items: [
+        petitNiceArticle("plat-du-jour", "Plat du jour", 16, { description: "Demandez le plat du jour au serveur" }),
+        petitNiceArticle("dessert-du-jour", "Dessert du jour", 8, { description: "Demandez le dessert du jour au serveur" }),
+      ],
+    },
+    {
+      id: "clubs-croques",
+      name: "Clubs, croques & burger",
+      items: [
+        petitNiceArticle("club-sandwich", "Club sandwich", 17, {
+          description: "Accompagné de sa salade",
+          options: [
+            groupeChoix(
+              "garniture",
+              "Garniture",
+              ["Jambon blanc", "Jambon cru", "Poulet bacon", "Thon", "Chorizo", "Bœuf mariné façon asiatique"],
+              { obligatoire: true }
+            ),
+            PETIT_NICE_FRITES,
+          ],
+        }),
+        petitNiceArticle("croque", "Nos croques", 17, {
+          printName: "Croque",
+          options: [
+            groupeChoix(
+              "croque",
+              "Croque",
+              ["Monsieur", "Madame", "Chèvre-tomate", "Petit-Nice", "Italien", "Chorizo"],
+              { obligatoire: true, prefixe: "Croque " }
+            ),
+            PETIT_NICE_FRITES,
+          ],
+        }),
+        petitNiceArticle("burger-cbo", "Burger CBO", 19, {
+          description: "Pain artisanal, salade, gouda, poulet pané, bacon, oignon, tomate, mayonnaise épicée",
+          options: [PETIT_NICE_FRITES],
+        }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades",
+      items: [
+        petitNiceArticle("salade-italienne", "Salade Italienne", 18, {
+          description: "Jambon cru, tomates confites, mozzarella",
+        }),
+        petitNiceArticle("salade-chevre-chaud", "Salade Chèvre chaud", 18, {
+          description: "Croustillants de chèvre, herbes de Provence",
+        }),
+        petitNiceArticle("salade-cesar", "Salade César", 18, {
+          description: "Poulet pané, copeaux de parmesan, œufs, croûtons",
+        }),
+        petitNiceArticle("salade-caprese", "Salade Caprese", 18),
+        petitNiceArticle("salade-thai", "Salade Thaï", 18),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Nos tapas",
+      items: [
+        petitNiceArticle("brie-roti", "Brie rôti au miel", 10, { detail: "200 g" }),
+        petitNiceArticle("saucisson", "Saucisson nature à partager", 10, { detail: "200 g" }),
+        petitNiceArticle("burratina", "Burratina et son jambon cru", 10),
+        petitNiceArticle("tenders", "Tenders de poulet pané", 9.5),
+        petitNiceArticle("nachos", "Nachos et guacamole maison", 9.5),
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      boissons: "chaudes",
+      items: [
+        petitNiceArticle("expresso", "Expresso", 2, { description: "Arabica-robusta" }),
+        petitNiceArticle("decafeine", "Décaféiné", 2.1, { description: "100 % arabica" }),
+        petitNiceArticle("cafe-allonge", "Café allongé", 2.1),
+        petitNiceArticle("cafe-noisette", "Café noisette", 2.1),
+        petitNiceArticle("cafe-double", "Café double", 4),
+        petitNiceArticle("cappuccino", "Cappuccino", 4.2),
+        petitNiceArticle("grand-creme", "Grand crème", 4.2),
+        petitNiceArticle("cafe-viennois", "Café viennois", 4.4),
+        petitNiceArticle("the", "Thé « Jardin d'Asie »", 4.2, {
+          options: [
+            groupeChoix(
+              "the",
+              "Thé ou infusion",
+              [
+                "Thé noir Ceylan",
+                "Thé noir Darjeeling",
+                "Thé noir Yunnan",
+                "Thé noir Earl Grey",
+                "Thé noir Fruits rouges",
+                "Thé noir Caramel",
+                "Thé noir Miel pain d'épices",
+                "Thé noir Citron",
+                "Thé noir Vanille",
+                "Thé vert Gunpowder",
+                "Thé vert Menthe",
+                "Thé vert Jasmin",
+                "Thé vert Agrume",
+                "Thé vert Pêche",
+                "Infusion Verveine",
+                "Infusion Tilleul",
+                "Infusion Verveine menthe",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("chocolat-chaud", "Chocolat chaud", 4.7),
+        petitNiceArticle("chocolat-caramel", "Chocolat caramel", 4.7),
+        petitNiceArticle("chocolat-cannelle", "Chocolat cannelle", 4.7),
+        petitNiceArticle("chocolat-noisette", "Chocolat noisette", 4.7),
+        petitNiceArticle("chocolat-viennois", "Chocolat viennois", 4.9),
+      ],
+    },
+    {
+      id: "cafes-alcoolises",
+      name: "Cafés alcoolisés",
+      tagline: "Chauds",
+      boissons: "chaudes",
+      items: [
+        petitNiceAlcool("irish-coffee", "Irish coffee", 12, { description: "Irish whisky, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("jamaican-coffee", "Jamaican coffee", 12, { description: "Rhum ambré, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("italian-coffee", "Italian coffee", 12, { description: "Amaretto, café, sucre de canne, chantilly" }),
+        petitNiceAlcool("french-coffee", "French coffee", 12, { description: "Cognac, café, sucre de canne, chantilly" }),
+      ],
+    },
+    {
+      id: "thes-glaces",
+      name: "Thés glacés",
+      boissons: true,
+      items: [
+        petitNiceArticle("ginger-rasberry", "Ginger Rasberry", 7.5, {
+          description: "Gingembre frais, framboise, thé au jasmin, sucre de canne",
+        }),
+        petitNiceArticle("lime-mandarine", "Lime and Mandarine", 7.5, {
+          description: "Citron vert, mandarine, menthe fraîche, thé au jasmin, sucre de canne",
+        }),
+        petitNiceArticle("peached-iced-tea", "Peached iced tea", 7.5, {
+          description: "Purée de pêche, oranges fraîches, thé au jasmin",
+        }),
+      ],
+    },
+    {
+      // L'orthographe du feuillet : « Coktails ».
+      id: "cocktails-sans-alcool",
+      name: "Coktails sans alcool",
+      boissons: true,
+      items: [
+        petitNiceArticle("crazy-banana", "Crazy Banana", 7.5, { description: "Purée de banane, sirop de kiwi, jus d'ananas" }),
+        petitNiceArticle("pie-apple", "Pie-Apple", 7.5, { description: "Jus d'ananas, cranberry, pomme, citron vert" }),
+        petitNiceArticle("fresh-passion", "Fresh Passion", 7.5, { description: "Purée de mandarine, sirop de passion, limonade" }),
+        petitNiceArticle("apple-berries", "Apple Berries", 7.5, {
+          description: "Purée de framboise, sirop de pomme verte, limonade",
+        }),
+        // La coupure française, si le nom doit se couper (320 px) ; le ticket garde le mot entier.
+        petitNiceArticle("passionnement", "Passion\u00adnément", 7.5, {
+          printName: "Passionnément",
+          description: "Purée de passion, sirop de vanille, limonade",
+        }),
+        petitNiceArticle("tropical-soda", "Tropical Soda", 7.5, { description: "Purée de mangue, sirop de Pac, limonade" }),
+        petitNiceArticle("red-berries", "Red Berries", 7.5, {
+          description: "Purée de framboise, purée de fraise, jus de cranberry, sucre de canne",
+        }),
+        petitNiceArticle("mango-drop", "Mango Drop", 7.5, {
+          description: "Purée de mangue, purée de fraise, jus d'orange, sucre de canne",
+        }),
+        petitNiceArticle("coco-spirit", "Coco Spirit", 7.5, {
+          description: "Purée de coco, purée de mandarine, jus d'orange, sucre de canne",
+        }),
+        petitNiceArticle("exotique", "Exotique", 7.5, {
+          description: "Jus d'ananas, purée de mangue, purée de passion, fruit de la passion frais",
+        }),
+        petitNiceArticle("virgin", "Virgin Mojito / Virgin Colada", 7.5, {
+          options: [groupeChoix("virgin", "Cocktail", ["Virgin Mojito", "Virgin Colada"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "boissons-fraiches",
+      name: "Boissons fraîches",
+      boissons: true,
+      items: [
+        petitNiceArticle("soda", "Sodas", 4.3, {
+          options: [groupeChoix("soda", "Soda", PETIT_NICE_SODAS, { obligatoire: true })],
+        }),
+        petitNiceArticle("nectar", "Nectars & jus", 4.3, {
+          detail: "20 cl",
+          options: [
+            groupeChoix(
+              "jus",
+              "Parfum",
+              ["Orange", "Ananas", "Pamplemousse", "Tomate", "Pomme", "Abricot", "ACE", "Fraise & fruits", "Fruit du dragon"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        petitNiceArticle("fruits-presses", "Fruits pressés", 4.7, {
+          options: [groupeChoix("fruit", "Fruit", ["Orange", "Citron", "Orange & citron"], { obligatoire: true })],
+        }),
+        petitNiceArticle("smoothie", "Smoothies", 7.5, {
+          options: [
+            groupeChoix(
+              "smoothie",
+              "Smoothie",
+              ["Pêche", "Mangue", "Banane & fraise", "Framboise & fraise", "Mandarine, pêche & menthe", "Mangue & banane"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        articleFormats(
+          "sirop",
+          "Sirop à l'eau",
+          [
+            ["25 cl", 3.7],
+            ["50 cl", 4],
+          ],
+          {
+            options: [
+              groupeChoix(
+                "sirop",
+                "Sirop",
+                [
+                  "Fraise",
+                  "Grenadine",
+                  "Menthe",
+                  "Cassis",
+                  "Orgeat",
+                  "Violette",
+                  "Caramel",
+                  "Pomme",
+                  "Gambetta",
+                  "Cerise",
+                  "Kiwi",
+                  "Passion",
+                  "Framboise",
+                  "Pêche",
+                  "Pac",
+                ],
+                { obligatoire: true }
+              ),
+            ],
+          }
+        ),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        petitNiceAlcool("pinte-paulaner", "Pinte Paulaner pression", 7),
+        petitNiceAlcool("la-bartavelle", "La Bartavelle", 5, {
+          description: "Bière artisanale, brassée localement",
+          detail: "33 cl",
+          options: [
+            groupeChoix("biere", "Bière", ["Blonde", "Triple", "IPA", "Blanche", "Brune", "Rousse"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+  ],
+};
+
+/*
+ * Café Riche — brasserie historique, 8 place de la Comédie (Montpellier),
+ * depuis 1893 ; « Le Grand Café Riche » sur son site. Aucun document remis :
+ * la carte est celle de leur site (caferiche-montpellier.com, pages « La
+ * Carte » Restaurant et Brasserie, relevées le 16 octobre 2026), mot pour mot,
+ * à ses prix, à confirmer avec eux. Texte archivé, sources et questions :
+ * demos/cafe-riche/.
+ */
+/**
+ * Leurs photos (le reportage de leur site) quand le plat y figure — soupe,
+ * profiteroles, spritz, cafés ; le reste en photos libres (Pexels),
+ * auditées, ou pas de photo quand aucune ne montre le plat de la carte. Les
+ * boissons sans photo restent en liste.
+ */
+const RICHE_PHOTOS: Partial<Record<string, string>> = {
+  "menu-opera": pexels("33474053/pexels-photo-33474053.jpeg", 800),
+  "menu-enfant": pexels("33709287/pexels-photo-33709287.jpeg", 800),
+  "rillettes-thon": pexels("38275222/pexels-photo-38275222.jpeg", 800),
+  arancini: pexels("29653193/pexels-photo-29653193.jpeg", 800),
+  "avocat-crevette": pexels("10875295/pexels-photo-10875295.jpeg", 800),
+  "burrata-pesto": pexels("10745969/pexels-photo-10745969.jpeg", 800),
+  "soupe-poisson": "/cafe-riche/soupe-poisson.jpg",
+  "terrine-foie-gras": pexels("37767594/pexels-photo-37767594.jpeg", 800),
+  "bouquets-crevette": pexels("6426095/pexels-photo-6426095.jpeg", 800),
+  "frites-cheddar-bacon": pexels("19264378/pexels-photo-19264378.jpeg", 800),
+  frites: pexelsRecadre("8272621/pexels-photo-8272621.jpeg", 800),
+  "ardoise-mixte": pexels("6343168/pexels-photo-6343168.jpeg", 800),
+  "tataki-thon-teriyaki": pexels("17126515/pexels-photo-17126515.jpeg", 800),
+  "chevre-pane-miel": pexels("29177201/pexels-photo-29177201.jpeg", 800),
+  chipirones: pexels("33659839/pexels-photo-33659839.jpeg", 800),
+  "accras-morue": pexels("18041217/pexels-photo-18041217.jpeg", 800),
+  "milanetas-poulet": pexels("34636425/pexels-photo-34636425.jpeg", 800),
+  "patatas-bravas": pexels("28490819/pexels-photo-28490819.jpeg", 800),
+  huitres: pexels("12955611/pexels-photo-12955611.jpeg", 800),
+  "salade-nicoise": pexels("14693797/pexels-photo-14693797.jpeg", 800),
+  "salade-italienne": pexels("5713743/pexels-photo-5713743.jpeg", 800),
+  "camembert-roti": pexels("20702577/pexels-photo-20702577.jpeg", 800),
+  "salade-cesar": pexels("15813486/pexels-photo-15813486.jpeg", 800),
+  "salade-grecque": pexels("33691786/pexels-photo-33691786.jpeg", 800),
+  "tartare-thon": pexels("32076808/pexels-photo-32076808.jpeg", 800),
+  "salade-chevre-chaud": pexels("29843069/pexels-photo-29843069.jpeg", 800),
+  "tartare-boeuf": pexels("35981925/pexels-photo-35981925.jpeg", 800),
+  "carpaccio-boeuf": pexels("27305239/pexels-photo-27305239.jpeg", 800),
+  "magret-canard": pexels("29296209/pexels-photo-29296209.jpeg", 800),
+  "steak-a-cheval": pexels("15514358/pexels-photo-15514358.jpeg", 800),
+  "supreme-volaille": pexelsRecadre("15532964/pexels-photo-15532964.jpeg", 800),
+  "bavette-echalote": pexels("20234697/pexels-photo-20234697.jpeg", 800),
+  "burger-aveyronnais": pexels("9469655/pexels-photo-9469655.jpeg", 800),
+  "burger-vegi": pexels("20741663/pexels-photo-20741663.jpeg", 800),
+  "burger-le-riche": pexels("31450808/pexels-photo-31450808.jpeg", 800),
+  "burger-chic-chicken": pexels("12664796/pexels-photo-12664796.jpeg", 800),
+  "fish-and-chips": pexels("5894001/pexels-photo-5894001.jpeg", 800),
+  "filet-bar": pexels("19318466/pexels-photo-19318466.jpeg", 800),
+  "seiche-plancha": pexels("15254107/pexels-photo-15254107.jpeg", 800),
+  "rouille-seiche": pexels("38756486/pexels-photo-38756486.jpeg", 800),
+  "moules-creme": pexelsRecadre("31235469/pexels-photo-31235469.jpeg", 800),
+  "moules-roquefort": pexels("12173349/pexels-photo-12173349.jpeg", 800),
+  "linguines-carbonara": pexels("29039082/pexels-photo-29039082.jpeg", 800),
+  "linguines-vongole": pexels("17243892/pexels-photo-17243892.jpeg", 800),
+  profiteroles: "/cafe-riche/profiteroles.jpg",
+  cheesecake: pexels("29653160/pexels-photo-29653160.jpeg", 800),
+  "creme-brulee": pexels("5677282/pexels-photo-5677282.jpeg", 800),
+  "mousse-chocolat": pexels("7819053/pexels-photo-7819053.jpeg", 800),
+  affogato: pexels("10066817/pexels-photo-10066817.jpeg", 800),
+  "cafe-gourmand": pexels("15891150/pexels-photo-15891150.jpeg", 800),
+  "pain-perdu": pexels("30458468/pexels-photo-30458468.jpeg", 800),
+  "panna-cotta": pexels("40037724/pexels-photo-40037724.jpeg", 800),
+  tiramisu: pexels("27305272/pexels-photo-27305272.jpeg", 800),
+  "glace-1-boule": pexels("16630827/pexels-photo-16630827.jpeg", 800),
+  "glace-2-boules": pexels("2586924/pexels-photo-2586924.jpeg", 800),
+  "glace-3-boules": pexels("8349413/pexels-photo-8349413.jpeg", 800),
+  "chocolat-liegeois": pexels("38371322/pexels-photo-38371322.jpeg", 800),
+  "cafe-liegeois": pexels("33144564/pexels-photo-33144564.jpeg", 800),
+  "nutella-cup": pexels("8605224/pexels-photo-8605224.jpeg", 800),
+  "after-eight": pexels("29851705/pexels-photo-29851705.jpeg", 800),
+  "formule-classique": pexels("10069877/pexels-photo-10069877.jpeg", 800),
+  brunch: pexels("4109532/pexels-photo-4109532.jpeg", 800),
+  croissant: pexels("11675765/pexels-photo-11675765.jpeg", 800),
+  "pain-a-tartiner": pexels("6345227/pexels-photo-6345227.jpeg", 800),
+  omelette: pexels("23884199/pexels-photo-23884199.jpeg", 800),
+  "avocado-toast": pexels("39413009/pexels-photo-39413009.jpeg", 800),
+  "cafe-expresso": "/cafe-riche/cafe-expresso.jpg",
+  cappuccino: "/cafe-riche/cappuccino.jpg",
+  "jus-orange": pexels("17612820/pexels-photo-17612820.jpeg", 800),
+  "jus-pamplemousse": pexels("11264639/pexels-photo-11264639.jpeg", 800),
+  "jus-citron": pexels("11016603/pexels-photo-11016603.jpeg", 800),
+  "the-glace": pexels("11009224/pexels-photo-11009224.jpeg", 800),
+  citronnade: pexels("5668215/pexels-photo-5668215.jpeg", 800),
+  "citronnade-menthe": pexels("9584971/pexels-photo-9584971.jpeg", 800),
+  milkshake: pexels("28525197/pexels-photo-28525197.jpeg", 800),
+  frappe: pexels("32395584/pexels-photo-32395584.jpeg", 800),
+  spritz: "/cafe-riche/spritz.jpg",
+  hugo: pexels("7376785/pexels-photo-7376785.jpeg", 800),
+  cosmopolitan: pexels("15813474/pexels-photo-15813474.jpeg", 800),
+  negroni: pexels("29707900/pexels-photo-29707900.jpeg", 800),
+  "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
+  "london-mule": pexels("25951422/pexels-photo-25951422.jpeg", 800),
+  "dark-n-stormy": pexels("27126842/pexels-photo-27126842.jpeg", 800),
+  mojito: pexelsRecadre("37662776/pexels-photo-37662776.jpeg", 800),
+  "pina-colada": pexels("10986589/pexels-photo-10986589.jpeg", 800),
+  "sex-on-the-beach": pexels("22882570/pexels-photo-22882570.jpeg", 800),
+  daiquiri: pexels("34140556/pexels-photo-34140556.jpeg", 800),
+  margarita: pexelsRecadre("32912253/pexels-photo-32912253.jpeg", 800),
+  "espresso-martini": pexels("34429981/pexels-photo-34429981.jpeg", 800),
+  "pornstar-martini": pexels("28843506/pexels-photo-28843506.jpeg", 800),
+  "virgin-mojito": pexels("30591642/pexels-photo-30591642.jpeg", 800),
+  "virgin-colada": pexels("30794889/pexels-photo-30794889.jpeg", 800),
+  "virgin-sex-on-the-beach": pexels("36189465/pexels-photo-36189465.jpeg", 800),
+};
+
+/** « Parfums : citron, cassis, fraise… » sous la glace 1 boule. */
+const RICHE_PARFUMS_GLACE = [
+  "Citron",
+  "Cassis",
+  "Fraise",
+  "Coco",
+  "Vanille",
+  "Chocolat",
+  "Caramel",
+  "Rhum raisin",
+  "Pistache",
+  "Café",
+  "Menthe chocolat",
+];
+
+/** Les sirops de la ligne « Sirop 35 cl », repris par le diabolo. */
+const RICHE_SIROPS = [
+  "Grenadine",
+  "Menthe",
+  "Pêche",
+  "Fraise",
+  "Citron amer",
+  "Cerise",
+  "Framboise",
+  "Orgeat",
+  "Violette",
+  "Cassis",
+];
+
+/** « Au choix : grand café, chocolat chaud, crème ou thé » des formules du matin et du brunch. */
+const RICHE_BOISSON_MATIN = groupeChoix("boisson", "Boisson chaude", ["Grand café", "Chocolat chaud", "Crème", "Thé"], {
+  obligatoire: true,
+});
+
+/** « Supplément lait végétal / sirop 0,50 € » des boissons chaudes, sur celles qui prennent du lait. */
+const RICHE_SUPPLEMENTS_CHAUD = groupeChoix("supplements", "Suppléments", ["Lait végétal", "Sirop"], {
+  multiple: true,
+  supplement: 0.5,
+});
+
+/** « Supplément Picon 1,00 € · sirop 0,50 € » des bières pression. */
+const RICHE_SUPPLEMENTS_PRESSION = groupeChoix("supplements", "Suppléments", [["Picon", 1], ["Sirop", 0.5]], {
+  multiple: true,
+});
+
+/** « Supplément crème fouettée ou boule de glace 1,50 € » des crêpes ; le parfum de la boule ensuite. */
+const RICHE_BOULE_DE_GLACE = "Boule de glace";
+const RICHE_SUPPLEMENTS_CREPE = groupeChoix("supplements", "Suppléments", ["Crème fouettée", RICHE_BOULE_DE_GLACE], {
+  multiple: true,
+  supplement: 1.5,
+});
+const RICHE_OPTIONS_CREPE = [
+  RICHE_SUPPLEMENTS_CREPE,
+  groupeChoix("parfum", "Parfum de la boule", RICHE_PARFUMS_GLACE, {
+    obligatoire: true,
+    when: cdaSi(RICHE_SUPPLEMENTS_CREPE, RICHE_BOULE_DE_GLACE),
+  }),
+];
+
+/** Menu Opéra : la bavette se commande avec sa cuisson. */
+const RICHE_BAVETTE_MENU = "Bavette de bœuf, frites et salade";
+const RICHE_PLAT_OPERA = groupeChoix(
+  "plat",
+  "Plat",
+  [
+    "Rouille de seiche à la sétoise, riz basmati",
+    "Moules marinières au vin blanc, frites",
+    "Carpaccio de bœuf, frites et salade",
+    "Linguines à la Vongole",
+    RICHE_BAVETTE_MENU,
+  ],
+  { obligatoire: true }
+);
+
+/** Un article de la carte, avec sa photo s'il en a une. */
+const richeArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: RICHE_PHOTOS[id],
+  ...extra,
+});
+
+/** Une boisson alcoolisée : TVA à 20 %. */
+const richeAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  richeArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Le veau et le canard se servent rosés : pas de bleu ni de saignant. */
+const RICHE_CUISSON_ROSE = groupeChoix("cuisson", "Cuisson", ["Rosé", "À point", "Bien cuit"], { obligatoire: true });
+/** Le steak haché des burgers : pas de bleu. */
+const RICHE_CUISSON_HACHE = groupeChoix("cuisson", "Cuisson", ["Saignant", "À point", "Bien cuit"], { obligatoire: true });
+
+/** Une viande grillée : la cuisson se demande à la commande, du plus saignant au plus cuit (celle de Café des Arts). */
+const richeGrillade = (
+  id: string,
+  name: string,
+  price: number,
+  extra: Partial<MenuItem> = {},
+  cuisson: OptionGroup = CDA_CUISSON
+) => richeArticle(id, name, price, { options: [cuisson], ...extra });
+
+/** Une glace à composer : un parfum par boule. */
+const richeGlace = (boules: number, price: number, extra: Partial<MenuItem> = {}) => {
+  const pluriel = boules > 1 ? "s" : "";
+  return richeArticle(`glace-${boules}-boule${pluriel}`, `Glace ${boules} boule${pluriel}`, price, {
+    options: ["1re boule", "2e boule", "3e boule"]
+      .slice(0, boules)
+      .map((rang, i) =>
+        groupeChoix(`boule-${i + 1}`, boules > 1 ? rang : "Parfum", RICHE_PARFUMS_GLACE, { obligatoire: true })
+      ),
+    ...extra,
+  });
+};
+
+/** Une crêpe, ses suppléments et le parfum de sa boule. */
+const richeCrepe = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  richeArticle(id, name, price, { options: RICHE_OPTIONS_CREPE, ...extra });
+
+/**
+ * Un article à plusieurs formats, avec sa photo s'il en a une. Ses prix un
+ * par ligne (.dish-tarifs, globals.css) : sur une seule, le « · » entre deux
+ * formats finissait une ligne.
+ */
+const richeFormats = (
+  id: string,
+  name: string,
+  prix: Formats,
+  extra: Partial<MenuItem> = {},
+  groupe: Parameters<typeof articleFormats>[4] = []
+) =>
+  articleFormats(
+    id,
+    name,
+    prix,
+    {
+      image: RICHE_PHOTOS[id],
+      tarifs: prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join("\n"),
+      ...extra,
+    },
+    groupe
+  );
+
+/** Un vin au verre de 12 cl et à la bouteille de 75 cl. */
+const richeVin = (id: string, name: string, description: string, verre: number, bouteille: number) =>
+  richeFormats(
+    id,
+    name,
+    [
+      ["Verre 12 cl", verre],
+      ["Bouteille 75 cl", bouteille],
+    ],
+    { description, ...ALCOOL }
+  );
+
+/** Une bière pression, 25 cl et 50 cl, ses suppléments ensuite. */
+const richePression = (id: string, name: string, demi: number, pinte: number) =>
+  richeFormats(
+    id,
+    name,
+    [
+      ["25 cl", demi],
+      ["50 cl", pinte],
+    ],
+    { options: [RICHE_SUPPLEMENTS_PRESSION], ...ALCOOL }
+  );
+
+/** Les spiritueux d'une famille (whisky, gin…), 4 cl ; la famille en description, l'intertitre de la carte. */
+const richeSpiritueux = (famille: string, liste: readonly (readonly [id: string, name: string, price: number])[]) =>
+  liste.map(([id, name, price]) => richeAlcool(id, name, price, { description: famille }));
+
+const cafeRiche: Restaurant = {
+  slug: "cafe-riche",
+  name: "Café Riche",
+  demoSuivi: true,
+  // Le pied de page de leur site : « Brasserie historique · Depuis 1893 » ; le logo dit déjà l'année.
+  tagline: "Brasserie historique",
+  // Leur logo (« logo-fond-transparent » de leur site), recadré : « CAFÉ »,
+  // « RiCHE » or cerné de bleu, « DEPUIS 1893 », comme sur l'auvent.
+  logo: "/cafe-riche/logo.png",
+  logoIsName: true,
+  themeColor: "#173a6b",
+  address: "8 Place de la Comédie, 34000 Montpellier",
+  // Leur site et leur fiche Google.
+  phone: "+33 9 80 24 50 63",
+  hours: "Tous\u00a0les\u00a0jours 7h–\u20601h",
+  // Leur site : « Ouvert 7/7 de 7h à 1h du matin », « produits frais et de
+  // saison », « sa terrasse emblématique sur la Place de la Comédie ».
+  highlights: ["Ouvert 7/7 de 7h à 1h", "Produits frais et de saison", "Terrasse sur la place de la Comédie"],
+  ticker: [
+    { text: "Brasserie historique depuis 1893", tone: "brand" },
+    { text: "Plat du jour du lundi au vendredi, uniquement le midi", tone: "accent" },
+    { text: "Brunch de 8\u00a0h\u00a030 à 11\u00a0h\u00a030" },
+  ],
+  categories: [
+    {
+      id: "menus",
+      name: "Nos menus",
+      items: [
+        richeArticle("menu-opera", "Menu Opéra", 29.9, {
+          description: "Entrée, plat et dessert au choix",
+          options: [
+            groupeChoix(
+              "entree",
+              "Entrée",
+              [
+                "Arancini aux épinards et à la ricotta",
+                ["Huîtres fines de claires n°3 (6 pièces)", 5],
+                "Salade niçoise",
+                ["Terrine de foie gras", 5],
+                "Soupe de poisson et croûtons",
+              ],
+              { obligatoire: true }
+            ),
+            RICHE_PLAT_OPERA,
+            groupeChoix("cuisson", "Cuisson de la bavette", CDA_CUISSONS, {
+              obligatoire: true,
+              when: cdaSi(RICHE_PLAT_OPERA, RICHE_BAVETTE_MENU),
+            }),
+            groupeChoix(
+              "dessert",
+              "Dessert",
+              [
+                "Cheesecake au citron",
+                "Tiramisu",
+                "Panna cotta aux fruits rouges",
+                "Mousse au chocolat",
+                "Dessert du jour (selon disponibilité)",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        richeArticle("menu-enfant", "Menu Enfant", 11, {
+          description: "Sirop ou jus de fruits, steak haché ou poulet croustillant, frites, une boule de glace. Jusqu'à 8 ans",
+          options: [
+            groupeChoix("boisson", "Boisson", ["Sirop", "Jus de fruits"], { obligatoire: true }),
+            groupeChoix("plat", "Plat", ["Steak haché", "Poulet croustillant"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "formules",
+      name: "Nos formules",
+      tagline: "Du lundi au vendredi, uniquement le midi",
+      items: [
+        richeArticle("plat-du-jour-cafe", "Plat du jour + Café", 16.9),
+        richeArticle("plat-du-jour", "Plat du jour", 14.9),
+        richeArticle("plat-du-jour-cafe-gourmand", "Plat du jour + Café gourmand arabica", 19.9),
+      ],
+    },
+    {
+      id: "entrees",
+      name: "Entrées",
+      items: [
+        richeArticle("rillettes-thon", "Rillettes de thon et croûtons", 11.9),
+        richeArticle("arancini", "Arancini aux épinards et à la ricotta", 9.9),
+        richeArticle("avocat-crevette", "Avocat crevette", 8.9),
+        richeArticle("burrata-pesto", "Burrata crémeuse au pesto de basilic", 10.9),
+        richeArticle("focaccia-chevre-miel", "Focaccia chèvre miel", 8.9),
+        richeArticle("soupe-poisson", "Soupe de poisson et croûtons", 14.9),
+        richeArticle("terrine-foie-gras", "Terrine de foie gras mi-cuit maison", 15.9),
+        richeArticle("bouquets-crevette", "Bouquets de crevette", 17),
+        richeArticle("oeufs-mayonnaise", "Oeufs mayonnaise", 6.9),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Tapas",
+      // La carte Brasserie : « À partir de 15 h » ; la carte Restaurant n'en dit rien.
+      tagline: "À partir de 15\u00a0h",
+      items: [
+        richeArticle("frites-cheddar-bacon", "Assiette de frites cheddar & bacon", 8.9),
+        richeArticle("frites-cheddar", "Assiette de frites cheddar", 7.9),
+        richeArticle("frites", "Assiette de frites", 6.5),
+        richeArticle("ardoise-mixte", "Ardoise mixte charcuterie et fromage", 24.9),
+        richeArticle("tataki-thon-teriyaki", "Tataki de thon teriyaki, sauce thaï", 12.9, { printName: "Tataki de thon teriyaki" }),
+        richeArticle("chevre-pane-miel", "Chèvre pané au miel", 10.9),
+        richeArticle("chipirones", "Chipirones persillés à la plancha", 9.9),
+        richeArticle("milanetas-poulet", "Milanetas de poulet", 8.5),
+        richeArticle("accras-morue", "Accras de morue", 7.9),
+        richeArticle("patatas-bravas", "Patatas bravas", 7.5),
+      ],
+    },
+    {
+      id: "huitres",
+      name: "Huîtres",
+      items: [
+        richeFormats(
+          "huitres",
+          "Huîtres fines de claires n°3",
+          [
+            ["6 pièces", 17],
+            ["12 pièces", 31],
+          ],
+          {},
+          ["quantite", "Quantité"]
+        ),
+        richeArticle("huitres-gratinees", "Huîtres gratinées sabayon", 17, { detail: "5 pièces" }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades repas & poké",
+      items: [
+        richeArticle("salade-nicoise", "Salade Niçoise", 17.9, {
+          description: "Salade, tomates anciennes, oignon, poivrons, olives, anchois, oeuf, thon et concombre",
+        }),
+        richeArticle("salade-italienne", "Italienne", 17.9, {
+          description: "Salade, tomates anciennes, jambon serrano, copeaux de parmesan, burratina au pesto, oignons et olives",
+          printName: "Salade italienne",
+        }),
+        richeArticle("camembert-roti", "Camembert rôti et salade", 13.9),
+        richeArticle("salade-cesar", "César", 17.9, {
+          description: "Salade, tomates cerises, poulet croustillant, croûtons et copeaux de parmesan",
+          printName: "Salade César",
+        }),
+        richeArticle("salade-grecque", "Salade Grecque", 17.9, {
+          description: "Salade, tomates anciennes, oignons, poivrons, olives, feta et concombre",
+        }),
+        richeArticle("tartare-thon", "Tartare de thon maison, frites et salade", 15.9, { printName: "Tartare de thon" }),
+        richeArticle("salade-chevre-chaud", "Chèvre chaud", 17.9, {
+          description: "Salade, tomates cerise, noix, miel, chèvre, lard grillé, oignons frits",
+          printName: "Salade chèvre chaud",
+        }),
+        richeArticle("poke-vegan", "Poké Végan", 15.9, {
+          description: "Riz vinaigré, radis, tomates cerises, avocat, choux blanc, oignons frits, edamamé",
+        }),
+      ],
+    },
+    {
+      id: "viandes",
+      name: "Viandes",
+      items: [
+        richeArticle("tartare-boeuf", "Tartare de bœuf", 22.9, { description: "Frites, salade" }),
+        richeArticle("carpaccio-boeuf", "Carpaccio de bœuf", 22.9, { description: "Frites", detail: "140 g" }),
+        richeGrillade("cote-veau", "Côte de veau", 27.9, { description: "Frites, salade", detail: "300 g" }, RICHE_CUISSON_ROSE),
+        richeGrillade(
+          "magret-canard",
+          "Magret de canard",
+          27.9,
+          { description: "Frites, salade", detail: "300 g" },
+          RICHE_CUISSON_ROSE
+        ),
+        richeGrillade("steak-a-cheval", "Steak à cheval", 22.9, { description: "Frites, salade" }),
+        richeArticle("supreme-volaille", "Suprême de volaille au jus de thym", 19.9, { description: "Frites, salade" }),
+        richeGrillade("bavette-echalote", "Bavette de bœuf d'aloyau à l'échalote", 21.9, {
+          description: "Frites et légumes du marché",
+          printName: "Bavette à l'échalote",
+        }),
+        richeArticle("accompagnement", "Accompagnement au choix", 3.5, {
+          description: "Bol de frites, riz ou légumes",
+          options: [groupeChoix("accompagnement", "Accompagnement", ["Bol de frites", "Riz", "Légumes"], { obligatoire: true })],
+        }),
+        richeArticle("sauce", "Sauce au choix", 1.5, {
+          description: "Cheddar, poivre, échalote, roquefort",
+          options: [groupeChoix("sauce", "Sauce", ["Cheddar", "Poivre", "Échalote", "Roquefort"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers",
+      items: [
+        richeGrillade(
+          "burger-aveyronnais",
+          "L'Aveyronnais",
+          19.9,
+          {
+            description: "Salade, tomate, steak haché façon bouchère, lard grillé et sauce roquefort",
+            printName: "Burger L'Aveyronnais",
+          },
+          RICHE_CUISSON_HACHE
+        ),
+        richeArticle("burger-vegi", "Le Végi", 16.9, {
+          description: "Salade, tomate, steak de légumes, pickles de cornichon",
+          printName: "Burger Le Végi",
+        }),
+        richeGrillade(
+          "burger-le-riche",
+          "Le Riche",
+          18.9,
+          {
+            description: "Sauce burger, salade, tomate, oignons confits, steak haché façon bouchère, sauce cheddar",
+            printName: "Burger Le Riche",
+          },
+          RICHE_CUISSON_HACHE
+        ),
+        richeArticle("burger-chic-chicken", "Le Chic Chicken", 18.9, {
+          description: "Salade, tomate, poulet croustillant, pickles de choux blanc, mayonnaise truffée",
+          printName: "Burger Le Chic Chicken",
+        }),
+      ],
+    },
+    {
+      id: "poissons",
+      name: "Poissons",
+      items: [
+        richeArticle("tataki-thon-riz", "Tataki de thon, riz thaï", 21.9, { description: "Sauce thaï maison" }),
+        richeArticle("fish-and-chips", "Fish & chips aïoli «\u00a0maison\u00a0»", 18.9, {
+          description: "Frites, salade",
+          printName: "Fish & chips",
+        }),
+        richeArticle("filet-bar", "Filet de bar grillé", 23.9, { description: "Sauce vierge, riz basmati, légumes" }),
+        richeArticle("seiche-plancha", "Seiche à la plancha aïoli «\u00a0maison\u00a0»", 18.9, {
+          description: "Riz, légumes",
+          printName: "Seiche à la plancha",
+        }),
+        richeArticle("rouille-seiche", "Rouille de seiche à la sétoise", 18.9, { description: "Riz basmati" }),
+      ],
+    },
+    {
+      id: "moules",
+      name: "Moules frites",
+      items: [
+        richeArticle("moules-creme", "Moules à la crème et vin blanc", 17.9, { description: "Frites" }),
+        richeArticle("moules-roquefort", "Moules au roquefort et vin blanc", 17.9, { description: "Frites" }),
+      ],
+    },
+    {
+      id: "pates",
+      name: "Pâtes",
+      items: [
+        richeArticle("linguines-pesto", "Linguines au pesto", 18.9, {
+          description: "Burratina, jambon cru & copeaux de parmesan",
+        }),
+        richeArticle("linguines-carbonara", "Linguines à la carbonara", 17.9, { description: "Copeaux de parmesan" }),
+        richeArticle("linguines-vongole", "Linguines à la Vongole", 17.9),
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        richeArticle("profiteroles", "Profiteroles au chocolat maison", 9.9),
+        richeArticle("cheesecake", "Cheesecake citron, coulis fruits rouges ou exotique", 8.9, {
+          printName: "Cheesecake citron",
+          options: [groupeChoix("coulis", "Coulis", ["Fruits rouges", "Exotique"], { obligatoire: true })],
+        }),
+        richeArticle("creme-brulee", "Crème brûlée «\u00a0maison\u00a0»", 8.9, { printName: "Crème brûlée" }),
+        richeArticle("mousse-chocolat", "Mousse au chocolat", 8.9),
+        richeArticle("affogato", "Affogato", 5),
+        richeArticle("cafe-gourmand", "Café gourmand arabica", 9.9, { description: "3 mignardises, crème fouettée" }),
+        richeArticle("pain-perdu", "Pain perdu au caramel beurre salé et glace vanille", 8.9, { printName: "Pain perdu" }),
+        richeArticle("panna-cotta", "Panna cotta, coulis de fruits rouges", 8.9, { printName: "Panna cotta" }),
+        richeArticle("tiramisu", "Tiramisu", 8.9),
+        richeArticle("dessert-du-jour", "Dessert du jour", 9.9, { description: "Selon disponibilité" }),
+      ],
+    },
+    {
+      id: "glaces",
+      name: "Glaces & coupes glacées",
+      items: [
+        richeGlace(1, 3.5, {
+          description:
+            "Parfums : citron, cassis, fraise, coco, vanille, chocolat, caramel, rhum raisin, pistache, café, menthe chocolat",
+        }),
+        richeGlace(2, 6),
+        richeGlace(3, 9),
+        richeArticle("chocolat-liegeois", "Chocolat liégeois", 12.9),
+        richeArticle("cafe-liegeois", "Café liégeois", 12.9),
+        richeArticle("dame-blanche", "Dame blanche", 12.9),
+        richeArticle("banana-split", "Banana split", 12.9),
+        richeArticle("nutella-cup", "Nutella® cup", 12.9),
+        // La dose d'alcool diffère d'une carte à l'autre (2 cl, 4 cl) : question au gérant.
+        richeAlcool("colonel", "Colonel", 12.9, { description: "Vodka" }),
+        richeAlcool("after-eight", "After Eight", 12.9, { description: "Get 27" }),
+      ],
+    },
+    {
+      id: "crepes",
+      name: "Crêpes",
+      tagline: "Supplément crème fouettée ou boule de glace\u00a0: 1,50\u00a0€",
+      items: [
+        richeCrepe("crepe-sucre", "Crêpe sucre", 3.9),
+        richeCrepe("crepe-beurre-sucre", "Crêpe beurre, sucre", 4),
+        richeCrepe("crepe-confiture-fraise", "Crêpe confiture de fraise", 4),
+        richeCrepe("crepe-confiture-peche", "Crêpe confiture de pêche", 4),
+        richeCrepe("crepe-citron", "Crêpe citron, beurre, sucre", 4.2),
+        richeCrepe("crepe-chocolat", "Crêpe chocolat maison", 5),
+        richeCrepe("crepe-nutella", "Crêpe Nutella®", 5),
+        richeCrepe("crepe-nutella-banane", "Crêpe Nutella® banane", 7.5),
+        richeCrepe("crepe-flambee", "Crêpe flambée", 7.6, ALCOOL),
+      ],
+    },
+    {
+      id: "petit-dejeuner",
+      name: "Petit-déjeuner & brunch",
+      tagline: "Petit-déjeuner de 7\u00a0h à 12\u00a0h · brunch de 8\u00a0h\u00a030 à 11\u00a0h\u00a030",
+      items: [
+        richeArticle("formule-classique", "Formule classique", 7.5, {
+          description: "Au choix : grand café, chocolat chaud, crème ou thé\ncroissant, jus d'orange pressée",
+          options: [RICHE_BOISSON_MATIN],
+        }),
+        richeArticle("formule-complete", "Formule complète", 11.5, {
+          description:
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, pain à tartiner avec beurre, confiture, Nutella et croissant",
+          options: [RICHE_BOISSON_MATIN],
+        }),
+        richeArticle("brunch", "Brunch", 16.9, {
+          description:
+            "Au choix : grand café, chocolat chaud, crème ou thé\norange pressée, 2 tartines, avocado toast et fromage frais, croissant, lard grillé, 3 œufs au plat",
+          options: [RICHE_BOISSON_MATIN],
+        }),
+        richeArticle("croissant", "Croissant", 1.6),
+        richeArticle("pain-a-tartiner", "Pain à tartiner avec beurre, confiture & Nutella", 3.5, {
+          printName: "Pain à tartiner",
+        }),
+        richeArticle("omelette", "Omelette jambon, fromage", 7.9),
+        richeArticle("avocado-toast", "Avocado toast, fromage frais & salade composée", 8.9, {
+          printName: "Avocado toast",
+          options: [groupeChoix("supplement", "Supplément", [["Saumon fumé", 4]], { multiple: true })],
+        }),
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      boissons: "chaudes",
+      tagline: "Supplément lait végétal ou sirop\u00a0: 0,50\u00a0€",
+      items: [
+        richeArticle("cafe-expresso", "Café expresso", 2.3),
+        richeArticle("cafe-expresso-arabica", "Café expresso 100 % arabica", 2.9),
+        richeArticle("cafe-allonge", "Café allongé", 2.4),
+        richeArticle("cafe-allonge-arabica", "Café allongé 100 % arabica", 3.1),
+        richeArticle("decafeine", "Décaféiné", 2.3),
+        richeArticle("decafeine-allonge", "Décaféiné allongé", 2.4),
+        richeArticle("noisette", "Noisette", 3, { options: [RICHE_SUPPLEMENTS_CHAUD] }),
+        richeArticle("double-cafe", "Double café", 4.5),
+        richeArticle("double-cafe-arabica", "Double café 100 % arabica", 5.2),
+        richeArticle("creme", "Crème", 4.3, { options: [RICHE_SUPPLEMENTS_CHAUD] }),
+        richeArticle("chocolat-chaud", "Chocolat chaud", 4.5, { options: [RICHE_SUPPLEMENTS_CHAUD] }),
+        richeArticle("cappuccino", "Cappuccino", 4.5, { detail: "25 cl", options: [RICHE_SUPPLEMENTS_CHAUD] }),
+        richeArticle("chocolat-ancienne", "Chocolat à l'ancienne", 5.1, {
+          detail: "27 cl",
+          options: [RICHE_SUPPLEMENTS_CHAUD],
+        }),
+        richeArticle("the-infusion", "Thé ou infusion", 5, {
+          options: [groupeChoix("boisson", "Boisson", ["Thé", "Infusion"], { obligatoire: true })],
+        }),
+        richeArticle("cafe-latte", "Café latte", 5, {
+          description: "Mousse de lait",
+          detail: "35 cl",
+          options: [RICHE_SUPPLEMENTS_CHAUD],
+        }),
+      ],
+    },
+    {
+      id: "boissons-fraiches",
+      name: "Boissons fraîches",
+      boissons: true,
+      tagline: "Supplément tranche ou sirop\u00a0: 0,50\u00a0€",
+      items: [
+        richeArticle("coca-cola", "Coca-Cola", 4.5, {
+          detail: "33 cl",
+          options: [
+            groupeChoix("version", "Version", ["Coca-Cola", "Coca-Cola sans sucres", "Coca-Cola cherry"], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+        richeArticle("sodas", "Fanta, Sprite, Fuzetea, Tropico", 4.5, {
+          detail: "25 cl",
+          options: [groupeChoix("soda", "Boisson", ["Fanta", "Sprite", "Fuzetea", "Tropico"], { obligatoire: true })],
+        }),
+        richeArticle("pago", "Pago", 4.5, {
+          detail: "20 cl",
+          options: [
+            groupeChoix("parfum", "Parfum", ["Pomme", "Orange", "Tomate", "ACE", "Ananas", "Abricot", "Fraise"], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+        richeArticle("pago-pop", "Pago Pop", 5, {
+          detail: "25 cl",
+          options: [groupeChoix("parfum", "Parfum", ["Citron hibiscus", "Fraise menthe"], { obligatoire: true })],
+        }),
+        richeArticle("perrier", "Perrier", 4.5, { detail: "33 cl" }),
+        richeArticle("orangina", "Orangina", 4.5, { detail: "25 cl" }),
+        richeArticle("schweppes", "Schweppes tonic ou agrumes", 4.5, {
+          detail: "25 cl",
+          options: [groupeChoix("version", "Version", ["Tonic", "Agrumes"], { obligatoire: true })],
+        }),
+        richeArticle("ginger-beer", "Ginger beer", 4.5, { detail: "25 cl" }),
+        richeArticle("red-bull", "Red Bull", 5, { detail: "25 cl" }),
+        richeArticle("sirop", "Sirop", 3.5, {
+          detail: "35 cl",
+          options: [groupeChoix("parfum", "Parfum", RICHE_SIROPS, { obligatoire: true })],
+        }),
+        richeArticle("limonade", "Limonade pression", 4.2, { detail: "35 cl" }),
+        richeArticle("diabolo", "Diabolo", 4.5, {
+          description: "Limonade et sirop au choix",
+          detail: "35 cl",
+          options: [groupeChoix("parfum", "Sirop", RICHE_SIROPS, { obligatoire: true })],
+        }),
+        richeFormats(
+          "vittel",
+          "Vittel",
+          [
+            ["25 cl", 3.6],
+            ["50 cl", 4.9],
+            ["1 l", 6.5],
+          ],
+          { description: "Les 50 cl et 1 l sont réservés à la restauration" }
+        ),
+        richeFormats(
+          "san-pellegrino",
+          "San Pellegrino",
+          [
+            ["50 cl", 4.9],
+            ["1 l", 6.5],
+          ],
+          { description: "Réservé à la restauration" }
+        ),
+      ],
+    },
+    {
+      id: "jus-boissons-glacees",
+      name: "Jus & boissons glacées",
+      boissons: true,
+      items: [
+        richeArticle("jus-orange", "Jus pressé orange", 5, { detail: "33 cl" }),
+        richeArticle("jus-pamplemousse", "Jus pressé pamplemousse", 5, { detail: "33 cl" }),
+        richeArticle("jus-orange-banane", "Jus pressé orange & banane", 6, { detail: "33 cl" }),
+        richeArticle("jus-citron", "Jus pressé citron", 5, { detail: "33 cl" }),
+        richeArticle("the-glace", "Thé glacé maison", 5.5, { detail: "40 cl" }),
+        richeArticle("citronnade", "Citronnade maison", 6, { detail: "40 cl" }),
+        richeArticle("citronnade-menthe", "Citronnade menthe, gingembre", 6, { detail: "40 cl" }),
+        richeArticle("milkshake", "Milkshake", 7.5, {
+          description: "Vanille, fraise ou coco",
+          detail: "40 cl",
+          options: [groupeChoix("parfum", "Parfum", ["Vanille", "Fraise", "Coco"], { obligatoire: true })],
+        }),
+        richeArticle("frappe", "Frappé", 6, { description: "Café latte", detail: "40 cl" }),
+      ],
+    },
+    {
+      id: "cocktails-signature",
+      name: "Cocktails signature",
+      boissons: true,
+      tagline: "4 cl d'alcool",
+      items: [
+        richeAlcool("l-intox-original", "L'Intox Original", 13, {
+          description: "Tequila infusée aux poivrons, tabasco, carotte, curcuma, gingembre, Perrier",
+        }),
+        richeAlcool("pink-riche", "Pink Riche", 13, {
+          description: "Gin infusé à la verveine, jus de citron vert, fraise, framboise, pêche blanche",
+        }),
+        richeAlcool("azzura-mule", "Azzura Mule", 13, {
+          description: "Gin infusé à la verveine, ginger beer, fraise, melon, banane, citron, vanille",
+        }),
+        richeAlcool("sweet-purple", "Sweet Purple", 13, {
+          description: "Vodka, menthe, jus de citron vert, framboise, violette, mûre, Perrier",
+        }),
+        richeAlcool("gentleman-sour", "Gentleman Sour", 13, {
+          description: "Whisky infusé au romarin, bitter, sirop vanillé",
+        }),
+        richeAlcool("spicy-flash", "Spicy Flash", 13, {
+          description: "Rhum ambré, jus de passion, jus de citron, abricot, citron, épices",
+        }),
+      ],
+    },
+    {
+      id: "spritz",
+      name: "Cocktails Spritz",
+      boissons: true,
+      tagline: "4 cl d'alcool",
+      items: [
+        richeAlcool("spritz", "Spritz", 9, {
+          description: "Aperol, Campari ou Limoncello",
+          options: [groupeChoix("base", "Base", ["Aperol", "Campari", "Limoncello"], { obligatoire: true })],
+        }),
+        richeAlcool("hugo", "Hugo", 11, { description: "St-Germain ou équivalent" }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      tagline: "4 cl d'alcool · supplément purée fraise ou pêche\u00a0: 0,50\u00a0€",
+      items: [
+        richeAlcool("caipirinha", "Caïpirinha", 10),
+        richeAlcool("cosmopolitan", "Cosmopolitan", 10, {
+          description: "Vodka, triple sec, jus de cranberry, jus de citron vert",
+        }),
+        richeAlcool("negroni", "Negroni", 10, { description: "Gin, vermouth rouge, Campari" }),
+        richeAlcool("moscow-mule", "Moscow Mule", 10, { description: "Vodka, ginger beer, citron vert" }),
+        richeAlcool("london-mule", "London Mule", 10, { description: "Gin, ginger beer, citron vert" }),
+        richeAlcool("dark-n-stormy", "Dark'n Stormy", 10, { description: "Rhum ambré, citron vert, ginger beer" }),
+        richeAlcool("mojito", "Mojito", 10, { description: "Rhum, citron vert, menthe fraîche, cassonade, soda" }),
+        richeAlcool("pina-colada", "Piña Colada", 10, {
+          description: "Rhum, crème de coco, sirop de vanille, Malibu, ananas",
+        }),
+        richeAlcool("sex-on-the-beach", "Sex on the Beach", 10, {
+          description: "Vodka, orange, cranberry, crème de pêche",
+        }),
+        richeAlcool("daiquiri", "Daïquiri", 10, { description: "Rhum, citron vert, sirop de sucre de canne" }),
+        richeAlcool("margarita", "Margarita", 10, { description: "Tequila, triple sec, citron vert" }),
+        richeAlcool("vodka-red-bull", "Vodka Red Bull", 10),
+        richeAlcool("espresso-martini", "Espresso Martini", 13, { description: "Vodka, liqueur de café, café" }),
+        richeAlcool("pornstar-martini", "Pornstar Martini", 13, {
+          description: "Vodka, vanille, liqueur de fruit de la passion, jus de fruit de la passion, jus de citron",
+        }),
+      ],
+    },
+    {
+      id: "cocktails-sans-alcool",
+      name: "Cocktails sans alcool",
+      boissons: true,
+      items: [
+        richeArticle("virgin-mojito", "Virgin Mojito", 8, { description: "Citron vert, sirop de mojito, menthe fraîche" }),
+        richeArticle("virgin-colada", "Virgin Colada", 8, {
+          description: "Jus d'ananas, crème de coco, sirop de vanille",
+        }),
+        richeArticle("virgin-sex-on-the-beach", "Virgin Sex on the Beach", 8, {
+          description: "Jus d'orange, jus de cranberry",
+        }),
+        richeArticle("peace-and-love", "Peace & Love", 8, { description: "Violette, jasmin, hibiscus" }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      tagline: "Pression 25 cl ou 50 cl · supplément Picon 1,00\u00a0€, sirop 0,50\u00a0€",
+      items: [
+        richePression("pelforth-blonde", "Pelforth blonde 5,5°", 3.9, 7.2),
+        richePression("affligem-abbaye", "Abbaye Affligem 6,7°", 4.5, 8.2),
+        richePression("affligem-blanche", "Affligem blanche 5°", 4.5, 8.2),
+        richePression("lagunitas-ipa", "Lagunitas IPA 6,2°", 4.9, 8.8),
+        richePression("chouffe-blonde", "Chouffe blonde 8°", 4.9, 9.5),
+        richePression("cherry-chouffe", "Cherry Chouffe 8°", 6, 10.8),
+        richePression("desperados", "Desperados", 5.5, 9.9),
+        richeAlcool("pelforth-brune", "Pelforth brune 6,5°", 6, { detail: "33 cl" }),
+        richeAlcool("cidre-brut", "Cidre brut", 5.5, { detail: "27,5 cl" }),
+        richeArticle("heineken-zero", "Heineken 0°", 5.5, { description: "Sans alcool", detail: "33 cl" }),
+      ],
+    },
+    {
+      id: "vins",
+      name: "Vins & bulles",
+      boissons: true,
+      items: [
+        richeFormats(
+          "vin-pichet",
+          "Vin de pays au pichet",
+          [
+            ["25 cl", 8.5],
+            ["50 cl", 14.5],
+          ],
+          {
+            description: "Rouge, rosé ou blanc",
+            options: [groupeChoix("couleur", "Couleur", ["Rouge", "Rosé", "Blanc"], { obligatoire: true })],
+            ...ALCOOL,
+          }
+        ),
+        richeVin("clapiere-jardin-de-jules", "Domaine de la Clapière «\u00a0Jardin de Jules\u00a0»", "Rouge · Pays d'Oc 2023", 5, 24.9),
+        richeVin("loup-dans-la-bergerie", "Le Loup dans la Bergerie", "Rouge · IGP Hérault", 6, 28.9),
+        richeVin("chapelle-de-venenge", "La Chapelle de Venenge", "Rouge · AOP Brouilly", 6, 28.9),
+        richeAlcool("chateau-laroque-la-cupa", "Château Laroque «\u00a0La Cupa\u00a0»", 48.9, {
+          description: "Rouge · AOP Pic Saint-Loup",
+          detail: "75 cl",
+        }),
+        richeAlcool("cigalus", "Cigalus", 59.9, { description: "Rouge · IGP Aude Hauterive", detail: "75 cl" }),
+        richeAlcool("puech-haut-tete-de-belier-rouge", "Puech-Haut «\u00a0Tête de Bélier\u00a0» rouge", 62.9, {
+          description: "Rouge · AOP Coteaux du Languedoc",
+          detail: "75 cl",
+        }),
+        richeVin("clapiere-jalade", "Domaine de la Clapière «\u00a0Jalade\u00a0»", "Rosé · Pays d'Oc 2023", 5, 24.9),
+        richeVin("puech-haut-argali", "Château Puech-Haut «\u00a0Argali\u00a0»", "Rosé · IGP Pays d'Oc", 7.5, 33.9),
+        richeVin("chateau-minuty", "Château Minuty", "Rosé · Côtes de Provence", 7.5, 34.9),
+        richeAlcool("chateau-minuty-magnum", "Château Minuty magnum", 64.9, {
+          description: "Rosé · Côtes de Provence",
+          detail: "1,5 l",
+        }),
+        richeVin("clapiere-figuerette", "Domaine de la Clapière «\u00a0Figuerette\u00a0»", "Blanc · Pays d'Oc 2023", 5, 24.9),
+        richeVin("xviii-saint-luc", "XVIII Saint Luc moelleux", "Blanc · IGP Côtes de Gascogne", 5, 24.9),
+        richeVin("jamelles-viognier", "Luc les Jamelles, Viognier", "Blanc · IGP d'Oc", 5.5, 26.9),
+        richeVin("emalieres-macon-villages", "Les Émalières, Mâcon-Villages", "Blanc · Bourgogne", 6.5, 30.9),
+        richeAlcool("puech-haut-tete-de-belier-blanc", "Puech-Haut «\u00a0Tête de Bélier\u00a0» blanc", 59.9, {
+          description: "Blanc · AOP Coteaux du Languedoc",
+          detail: "75 cl",
+        }),
+        richeFormats(
+          "prosecco",
+          "Prosecco",
+          [
+            ["Verre 12 cl", 8],
+            ["Bouteille 75 cl", 30],
+          ],
+          ALCOOL
+        ),
+        richeFormats(
+          "champagne",
+          "Champagne",
+          [
+            ["Verre 12 cl", 10],
+            ["Bouteille 75 cl", 59],
+          ],
+          ALCOOL
+        ),
+      ],
+    },
+    {
+      id: "aperitifs",
+      name: "Apéritifs",
+      boissons: true,
+      items: [
+        richeAlcool("ricard-pastis", "Ricard, Pastis", 3.5, { detail: "2 cl" }),
+        richeAlcool("suze", "Suze", 6, { detail: "4 cl" }),
+        richeAlcool("porto-muscat", "Porto, Muscat", 5, {
+          detail: "8 cl",
+          options: [groupeChoix("vin", "Apéritif", ["Porto", "Muscat"], { obligatoire: true })],
+        }),
+        richeAlcool("campari", "Campari", 6, { detail: "6 cl" }),
+        richeAlcool("martini", "Martini blanc ou rouge", 6, {
+          detail: "6 cl",
+          options: [groupeChoix("version", "Version", ["Blanc", "Rouge"], { obligatoire: true })],
+        }),
+        richeAlcool("kir", "Kir", 6, {
+          description: "Cassis, pêche, framboise ou mûre",
+          detail: "12 cl",
+          options: [groupeChoix("parfum", "Parfum", ["Cassis", "Pêche", "Framboise", "Mûre"], { obligatoire: true })],
+        }),
+        richeAlcool("americano", "Americano", 8.5, { detail: "7 cl" }),
+        richeAlcool("campari-perrier", "Campari Perrier", 6.5, { detail: "6 cl" }),
+      ],
+    },
+    {
+      id: "spiritueux",
+      name: "Spiritueux",
+      boissons: true,
+      tagline: "4 cl",
+      items: [
+        ...richeSpiritueux("Whisky", [
+          ["glenfiddich", "Glenfiddich", 10],
+          ["chivas", "Chivas", 10],
+          ["jack-daniels", "Jack Daniel's", 10],
+          ["jack-daniels-honey", "Jack Daniel's Honey", 10],
+          ["jim-beam", "Jim Beam", 10],
+          ["nikka", "Nikka", 12],
+          ["black-label", "Black Label", 12],
+        ]),
+        ...richeSpiritueux("Vodka", [
+          ["belvedere", "Belvedere", 10],
+          ["grey-goose", "Grey Goose", 10],
+        ]),
+        ...richeSpiritueux("Gin", [
+          ["hendricks", "Hendrick's", 11],
+          ["citadelle", "Citadelle", 12],
+          ["bombay", "Bombay", 10],
+          ["tanqueray", "Tanqueray", 10],
+        ]),
+        ...richeSpiritueux("Rhum", [
+          ["diplomatico-reserva", "Diplomático Reserva", 11],
+          ["havana-7-ans", "Havana 7 ans", 10],
+          ["pacto-navio", "Pacto Navio", 11],
+          ["don-papa-7-ans", "Don Papa 7 ans", 11],
+          ["dictador-12-ans", "Dictador 12 ans", 12],
+        ]),
+      ],
+    },
+    {
+      id: "digestifs",
+      name: "Digestifs",
+      boissons: true,
+      items: [
+        richeAlcool("calvados", "Calvados", 9, { detail: "4 cl" }),
+        richeAlcool("armagnac-10-ans", "Armagnac 10 ans", 9.5, { detail: "4 cl" }),
+        richeAlcool("cognac-vsop", "Cognac VSOP", 10, { detail: "4 cl" }),
+        richeAlcool("poire-williams", "Poire Williams", 8.5, { detail: "4 cl" }),
+        richeAlcool("get", "Get 27 / 31", 8.5, {
+          detail: "6 cl",
+          options: [groupeChoix("version", "Version", ["Get 27", "Get 31"], { obligatoire: true })],
+        }),
+        richeAlcool("limoncello", "Limoncello", 8.5, { detail: "6 cl" }),
+        richeAlcool("baileys", "Bailey's", 8.5, { detail: "6 cl" }),
+        richeAlcool("genepi", "Génépi", 8.5, { detail: "6 cl" }),
+        richeAlcool("disaronno", "Disaronno", 9, { detail: "4 cl" }),
+      ],
+    },
+  ],
+};
+
+const LE_CLUB_PHOTOS: Partial<Record<string, string>> = {
+  absolut: pexels("4167425/pexels-photo-4167425.jpeg", 800),
+  "jack-daniels": pexels("27393242/pexels-photo-27393242.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  "moet-imperial": pexels("5340997/pexels-photo-5340997.jpeg", 800),
+  "moet-ice": pexels("1835743/pexels-photo-1835743.jpeg", 800),
+  "veuve-clicquot": pexels("33674006/pexels-photo-33674006.jpeg", 800),
+  mojito: pexels("37662776/pexels-photo-37662776.jpeg", 800),
+  "sex-on-the-beach": pexels("37662778/pexels-photo-37662778.jpeg", 800),
+  "pina-colada": pexelsRecadre("33221989/pexels-photo-33221989.jpeg", 800),
+  "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
+  "tequila-sunrise": pexels("37662774/pexels-photo-37662774.jpeg", 800),
+  spritz: pexels("32418599/pexels-photo-32418599.jpeg", 800),
+  "long-island": pexels("6680479/pexels-photo-6680479.jpeg", 800),
+  verre: pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  shooter: pexels("16064240/pexels-photo-16064240.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("17765844/pexels-photo-17765844.jpeg", 800),
+  soda: pexels("15205136/pexels-photo-15205136.jpeg", 800),
+  "red-bull": pexels("17423270/pexels-photo-17423270.jpeg", 800),
+  jus: pexels("11009214/pexels-photo-11009214.jpeg", 800),
+  eau: pexels("11206902/pexels-photo-11206902.jpeg", 800),
+};
+
+const clubArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: LE_CLUB_PHOTOS[id],
+  ...extra,
+});
+
+const clubAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  clubArticle(id, name, price, { ...ALCOOL, ...extra });
+
+const CLUB_SOFTS = ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Schweppes Tonic", "Jus d'orange", "Jus de cranberry"];
+const CLUB_ALCOOLS_VERRE = ["Vodka", "Gin", "Rhum blanc", "Rhum ambré", "Whisky", "Tequila"];
+const CLUB_SHOOTERS = groupeChoix("shooter", "Shooter", ["Vodka", "Tequila", "Jägermeister", "Rhum", "Get 27"], {
+  obligatoire: true,
+});
+
+/** La bouteille arrive en carré avec ses softs, au choix, et le seau à glace. */
+const clubBouteille = (id: string, name: string, price: number, description: string) =>
+  clubAlcool(id, name, price, {
+    description,
+    detail: "70 cl",
+    options: [
+      groupeChoix("softs", "Softs servis avec", CLUB_SOFTS, { obligatoire: true, multiple: true }),
+      groupeChoix("supplement", "Supplément", [["4 Red Bull", 20]], { multiple: true }),
+    ],
+  });
+
+/*
+ * Le Club — discothèque, 5 rue du Grand Saint-Jean (Montpellier, près de la
+ * gare Saint-Roch), à la place du Cargo depuis 2022 ; exploitée par TKG.
+ * Aucune carte publiée nulle part : celle-ci est un exemple de carte de club
+ * montpelliérain, posé à la demande de l'utilisateur pour la démo — chaque
+ * article et chaque prix est à remplacer par leur carte. Sources et
+ * questions : demos/le-club/profile.json.
+ */
+const leClub: Restaurant = {
+  slug: "le-club",
+  name: "Le Club",
+  demoSuivi: true,
+  tagline: "Discothèque · Montpellier",
+  address: "5 Rue du Grand Saint-Jean, 34000 Montpellier",
+  phone: "+33 6 75 25 74 89",
+  // Noxway ; InfoClapas (2022) disait du lundi au samedi dès 23h30 : à confirmer.
+  hours: "Du mercredi au samedi, minuit–⁠5h",
+  highlights: ["Mercredi au samedi, minuit–⁠5h", "À deux pas de la gare Saint-Roch"],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies en carré, avec softs et seau à glace",
+      boissons: true,
+      items: [
+        clubBouteille("absolut", "Absolut", 110, "Vodka"),
+        clubBouteille("grey-goose", "Grey Goose", 160, "Vodka"),
+        clubBouteille("bombay-sapphire", "Bombay Sapphire", 120, "Gin"),
+        clubBouteille("havana-club-3", "Havana Club 3 ans", 110, "Rhum"),
+        clubBouteille("jack-daniels", "Jack Daniel's", 120, "Whisky"),
+        clubBouteille("chivas-12", "Chivas Regal 12 ans", 150, "Whisky"),
+        clubBouteille("patron-silver", "Patrón Silver", 170, "Tequila"),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        clubAlcool("moet-imperial", "Moët & Chandon Impérial Brut", 120, { detail: "75 cl" }),
+        clubAlcool("moet-ice", "Moët & Chandon Ice Impérial", 140, { detail: "75 cl" }),
+        clubAlcool("veuve-clicquot", "Veuve Clicquot Brut", 140, { detail: "75 cl" }),
+        clubAlcool("ruinart-blanc-de-blancs", "Ruinart Blanc de Blancs", 190, { detail: "75 cl" }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        clubAlcool("mojito", "Mojito", 10, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+          options: [groupeChoix("parfum", "Parfum", PARFUMS_FRUITS, { aucun: "Nature", supplement: 1 })],
+        }),
+        clubAlcool("sex-on-the-beach", "Sex on the Beach", 10, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        clubAlcool("pina-colada", "Piña Colada", 10, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        clubAlcool("moscow-mule", "Moscow Mule", 11, { description: "Vodka, ginger beer, citron vert" }),
+        clubAlcool("tequila-sunrise", "Tequila Sunrise", 10, { description: "Tequila, jus d'orange, grenadine" }),
+        clubAlcool("spritz", "Spritz", 9, { description: "Apérol, prosecco, eau gazeuse" }),
+        clubAlcool("long-island", "Long Island Iced Tea", 12, {
+          description: "Vodka, gin, rhum, tequila, triple sec, citron, Coca-Cola",
+        }),
+      ],
+    },
+    {
+      id: "verres",
+      name: "Verres",
+      tagline: "Un alcool, un soft",
+      boissons: true,
+      items: [
+        clubAlcool("verre", "Verre alcool + soft", 9, {
+          printName: "Verre",
+          options: [
+            groupeChoix("alcool", "Alcool", CLUB_ALCOOLS_VERRE, { obligatoire: true }),
+            groupeChoix("soft", "Soft", [...CLUB_SOFTS, ["Red Bull", 2]], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        clubAlcool("shooter", "Shooter", 4, { options: [CLUB_SHOOTERS] }),
+        clubAlcool("jagerbomb", "Jägerbomb", 7, { description: "Jägermeister et Red Bull" }),
+        clubAlcool("plateau-shooters", "Plateau de 10 shooters", 35, { options: [CLUB_SHOOTERS] }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        clubAlcool("heineken", "Heineken", 7),
+        clubAlcool("desperados", "Desperados", 8),
+        clubAlcool("corona", "Corona", 8),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        clubArticle("soda", "Soda", 5, {
+          options: [
+            groupeChoix("soda", "Soda", ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Orangina", "Schweppes Tonic"], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+        clubArticle("red-bull", "Red Bull", 6),
+        clubArticle("jus", "Jus de fruits", 5, {
+          options: [groupeChoix("jus", "Jus", ["Orange", "Ananas", "Cranberry"], { obligatoire: true })],
+        }),
+        clubArticle("eau", "Eau minérale", 4, {
+          options: [groupeChoix("eau", "Eau", ["Plate", "Gazeuse"], { obligatoire: true })],
+        }),
+      ],
+    },
+  ],
+};
+
+/*
+ * L'Entrepôt Complexe — le club de musique urbaine du 4 rue du Puech Radier,
+ * à Lattes. Aucune carte publiée : celle-ci est une carte type de club, à
+ * valider avec la direction. Seuls viennent d'une source le cocktail à 15 €
+ * (Privateaser), la Vodka Red Bull à 10 € (Noxway), la bouteille de Captain
+ * Morgan à 140 € avec 1 L de Pepsi (avis Google, 2023) ; le reste, marques et
+ * prix compris, est à confirmer. Sources et questions :
+ * demos/l-entrepot/profile.json.
+ */
+
+/** Les bouteilles de marque restent sans photo : une étiquette de stock en contredirait le nom. */
+const ENTREPOT_PHOTOS: Partial<Record<string, string>> = {
+  mojito: pexelsRecadre("37662775/pexels-photo-37662775.jpeg", 800),
+  "pina-colada": pexelsRecadre("10986589/pexels-photo-10986589.jpeg", 800),
+  "sex-on-the-beach": pexels("4279113/pexels-photo-4279113.jpeg", 800),
+  caipirinha: pexels("29095925/pexels-photo-29095925.jpeg", 800),
+  planteur: pexelsRecadre("27100878/pexels-photo-27100878.jpeg", 800),
+  "tequila-sunrise": pexels("10986584/pexels-photo-10986584.jpeg", 800),
+  "virgin-mojito": pexels("7259054/pexels-photo-7259054.jpeg", 800),
+  "vodka-red-bull": pexels("16444383/pexels-photo-16444383.jpeg", 800),
+  "long-drink": pexels("13061331/pexels-photo-13061331.jpeg", 800),
+  shooter: pexels("7282724/pexels-photo-7282724.jpeg", 800),
+  jagerbomb: pexels("31682849/pexels-photo-31682849.jpeg", 800),
+  "plateau-shooters": pexels("35107450/pexels-photo-35107450.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("2286972/pexels-photo-2286972.jpeg", 800),
+  pepsi: pexels("30554816/pexels-photo-30554816.jpeg", 800),
+  "pepsi-max": pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  "seven-up": pexels("9996446/pexels-photo-9996446.jpeg", 800),
+  "ice-tea": pexels("11009226/pexels-photo-11009226.jpeg", 800),
+  "jus-orange": pexels("17612821/pexels-photo-17612821.jpeg", 800),
+  "jus-ananas": pexels("11009200/pexels-photo-11009200.jpeg", 800),
+  eau: pexels("9996342/pexels-photo-9996342.jpeg", 800),
+  "red-bull": pexels("17423276/pexels-photo-17423276.jpeg", 800),
+};
+
+const entrepotArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: ENTREPOT_PHOTOS[id],
+  ...extra,
+});
+
+const entrepotAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  entrepotArticle(id, name, price, { ...ALCOOL, ...extra });
+
+/** Les softs du bar, servis aussi en diluant : la maison sert Pepsi. */
+const ENTREPOT_DILUANTS = ["Pepsi", "Pepsi Max", "7Up", "Jus d'orange", "Jus d'ananas", "Tonic"];
+
+const ENTREPOT_SHOW = ["Show cierges magiques", 20] as const;
+
+/**
+ * Une bouteille : son seul format s'affiche à côté du nom ; plusieurs (70 cl,
+ * magnum) se choisissent, chacun à son prix.
+ */
+const entrepotBouteille = (id: string, name: string, prix: Formats, extra: Partial<MenuItem>) =>
+  prix.length === 1
+    ? entrepotAlcool(id, name, prix[0][1], { detail: prix[0][0], ...extra })
+    : articleFormats(id, name, prix, { ...ALCOOL, ...extra }, ["format", "Format"]);
+
+/** Un alcool fort : 1 L de diluant compris, le reste en plus. */
+const entrepotSpiritueux = (id: string, name: string, description: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    description,
+    options: [
+      groupeChoix("diluant", "Diluant (1 L compris)", ENTREPOT_DILUANTS, { obligatoire: true }),
+      groupeChoix("extras", "En plus", [["Red Bull ×4", 24], ["1 L de diluant en plus", 10], ENTREPOT_SHOW], {
+        multiple: true,
+      }),
+    ],
+  });
+
+const entrepotChampagne = (id: string, name: string, prix: Formats) =>
+  entrepotBouteille(id, name, prix, {
+    options: [groupeChoix("extras", "En plus", [ENTREPOT_SHOW], { multiple: true })],
+  });
+
+const ENTREPOT_SHOOTERS = groupeChoix("alcool", "Alcool", ["Vodka", "Tequila", "Jägermeister", "Get 27"], {
+  obligatoire: true,
+});
+
+const lEntrepot: Restaurant = {
+  slug: "l-entrepot",
+  name: "L'Entrepôt",
+  brandName: "L'Entrepôt Complexe",
+  demoSuivi: true,
+  tagline: "Club · Musique urbaine · Lattes",
+  // Le mot-symbole de leur site (lentrepotcomplexe.com), palmier compris.
+  logo: "/l-entrepot/logo.webp",
+  logoIsName: true,
+  icons: { tab: "/l-entrepot/favicon.png", homeScreen: "/l-entrepot/icon.png" },
+  themeColor: "#0b0b12",
+  address: "4 rue du Puech Radier, 34970 Lattes",
+  phone: "07 88 76 35 16",
+  // Leur programme d'octobre 2026 : jeudi, vendredi, samedi et dimanche soir.
+  hours: "Du jeudi au dimanche, 23h–⁠7h",
+  highlights: ["Dancehall · Shatta · Bouyon · Afrobeat", "Entrée 15 € avec 1 conso alcool ou 2 softs"],
+  ticker: [
+    { text: "Entrée gratuite pour les filles avec 1 cocktail offert, horaire selon la soirée", tone: "accent" },
+    { text: "La référence de la musique urbaine dans la région", tone: "brand" },
+    { text: "Plus de 300 m d'écrans LED" },
+  ],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies à votre table, avec 1 L de diluant au choix",
+      boissons: true,
+      items: [
+        entrepotSpiritueux("absolut", "Absolut", "Vodka", [["70 cl", 150]]),
+        entrepotSpiritueux("grey-goose", "Grey Goose", "Vodka", [
+          ["70 cl", 190],
+          ["Magnum 1,5 L", 380],
+        ]),
+        entrepotSpiritueux("belvedere", "Belvedere", "Vodka", [["70 cl", 200]]),
+        entrepotSpiritueux("jack-daniels", "Jack Daniel's", "Tennessee whiskey", [["70 cl", 160]]),
+        entrepotSpiritueux("chivas-12", "Chivas Regal 12 ans", "Blended scotch whisky", [["70 cl", 180]]),
+        entrepotSpiritueux("captain-morgan", "Captain Morgan", "Rhum épicé", [["70 cl", 140]]),
+        entrepotSpiritueux("bombay-sapphire", "Bombay Sapphire", "Gin", [["70 cl", 150]]),
+        entrepotSpiritueux("patron-silver", "Patrón Silver", "Tequila", [["70 cl", 200]]),
+      ],
+    },
+    {
+      id: "champagnes",
+      name: "Champagnes",
+      tagline: "Servis frappés, en seau à glace",
+      boissons: true,
+      items: [
+        entrepotChampagne("moet-imperial", "Moët & Chandon Brut Impérial", [
+          ["75 cl", 150],
+          ["Magnum 1,5 L", 300],
+        ]),
+        entrepotChampagne("moet-ice", "Moët & Chandon Ice Impérial", [["75 cl", 180]]),
+        entrepotChampagne("veuve-clicquot", "Veuve Clicquot Brut", [["75 cl", 170]]),
+        entrepotChampagne("ruinart-blanc", "Ruinart Blanc de Blancs", [["75 cl", 250]]),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        entrepotAlcool("mojito", "Mojito", 15, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+        entrepotAlcool("pina-colada", "Piña Colada", 15, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        entrepotAlcool("sex-on-the-beach", "Sex on the Beach", 15, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        entrepotAlcool("caipirinha", "Caïpirinha", 15, { description: "Cachaça, citron vert, sucre de canne" }),
+        entrepotAlcool("planteur", "Planteur", 15, {
+          description: "Rhum ambré, jus d'orange et d'ananas, sirop de canne, cannelle",
+        }),
+        entrepotAlcool("tequila-sunrise", "Tequila Sunrise", 15, {
+          description: "Tequila, jus d'orange, sirop de grenadine",
+        }),
+        entrepotArticle("virgin-mojito", "Virgin Mojito", 10, {
+          description: "Sans alcool : citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+        }),
+      ],
+    },
+    {
+      id: "long-drinks",
+      name: "Long drinks",
+      boissons: true,
+      items: [
+        entrepotAlcool("vodka-red-bull", "Vodka Red Bull", 10, { description: "Vodka, Red Bull" }),
+        entrepotAlcool("long-drink", "Long drink", 10, {
+          description: "Un alcool et un diluant au choix",
+          options: [
+            groupeChoix("alcool", "Alcool", ["Vodka", "Whisky", "Rhum", "Gin"], { obligatoire: true }),
+            groupeChoix("diluant", "Diluant", [...ENTREPOT_DILUANTS, "Red Bull"], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        entrepotAlcool("shooter", "Shooter", 5, {
+          description: "Vodka, tequila, Jägermeister ou Get 27",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+        entrepotAlcool("jagerbomb", "Jägerbomb", 8, { description: "Jägermeister, Red Bull" }),
+        entrepotAlcool("plateau-shooters", "Plateau 10 shooters", 40, {
+          description: "Dix shooters du même alcool, au choix",
+          options: [ENTREPOT_SHOOTERS],
+        }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        entrepotAlcool("heineken", "Heineken", 8),
+        entrepotAlcool("desperados", "Desperados", 9),
+        entrepotAlcool("corona", "Corona", 9),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        entrepotArticle("pepsi", "Pepsi", 5),
+        entrepotArticle("pepsi-max", "Pepsi Max", 5),
+        entrepotArticle("seven-up", "7Up", 5),
+        entrepotArticle("ice-tea", "Lipton Ice Tea", 5),
+        entrepotArticle("jus-orange", "Jus d'orange", 5),
+        entrepotArticle("jus-ananas", "Jus d'ananas", 5),
+        entrepotArticle("eau", "Eau plate", 4),
+        entrepotArticle("red-bull", "Red Bull", 7),
+      ],
+    },
+  ],
+};
+
+/*
+ * Le Pulp (Pulp Garden) — la discothèque à ciel ouvert de l'Espace Latipolia,
+ * route de Palavas à Lattes. Leur seule carte en ligne : « Tarifs
+ * bouteilles », l'image d'un PDF de pulpgarden.fr (déposé en août 2021),
+ * transcrite ligne à ligne (demos/le-pulp/docs/). Ni verre, ni cocktail, ni
+ * soft : le club n'affiche que la bouteille. Sources et questions :
+ * demos/le-pulp/profile.json.
+ */
+const PULP_PHOTOS: Partial<Record<string, string>> = {
+  "jack-daniels": pexels("9387678/pexels-photo-9387678.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  smirnoff: pexels("19613748/pexels-photo-19613748.jpeg", 800),
+  belvedere: unsplash("photo-1645784125144-4c06a561fc58", 800),
+  // Une bouteille de 70 cl : aucune photo libre d'un magnum de Belvedere.
+  "belvedere-magnum": unsplash("photo-1659717602925-a9d07c713e99", 800),
+  havana: pexels("17687334/pexels-photo-17687334.jpeg", 800),
+  bacardi: unsplash("photo-1561150169-371f366b828a", 800),
+  "rhum-vieux-ambre": pexels("7254902/pexels-photo-7254902.jpeg", 800),
+  malibu: pexels("16845292/pexels-photo-16845292.jpeg", 800),
+  moet: pexels("3858809/pexels-photo-3858809.jpeg", 800),
+  // La coiffe cuivrée du Rosé Impérial, dans son seau.
+  "moet-rose": unsplash("photo-1643618829236-a23857519fb6", 800),
+  "dom-perignon": pexels("12099317/pexels-photo-12099317.jpeg", 800),
+  // Magnum et jéroboam : des bouteilles de 75 cl, faute de grands formats en photo libre.
+  "moet-magnum": pexels("21221001/pexels-photo-21221001.jpeg", 800),
+  "moet-jeroboam": unsplash("photo-1531821945121-d55c446bd62f", 800),
+};
+
+/** Une bouteille servie à table, sa contenance en pastille : TVA à 20 %. */
+const pulpBouteille = (
+  id: string,
+  name: string,
+  contenance: string,
+  price: number,
+  extra: Partial<MenuItem> = {}
+): MenuItem => ({ id, name, price, detail: contenance, image: PULP_PHOTOS[id], ...ALCOOL, ...extra });
+
+/** La même bouteille en 35 et 70 cl, chacune à son prix, comme sur la carte. */
+const pulpContenances = (id: string, name: string, prix: Formats) =>
+  articleFormats(id, name, prix, { image: PULP_PHOTOS[id], ...ALCOOL }, ["contenance", "Contenance"]);
+
+const lePulp: Restaurant = {
+  slug: "le-pulp",
+  name: "Le Pulp",
+  // Le logo : « pulp » en orange, « Garden » en vert dessous.
+  brandName: "Pulp Garden",
+  demoSuivi: true,
+  // Leur site : « Open air discothèque ».
+  tagline: "Open air discothèque",
+  // Le mot-symbole de leur site (logo_pulp_low.png) retracé en vectoriel, et
+  // « Garden » relevé sur l'en-tête de la carte des bouteilles.
+  logo: "/le-pulp/logo.svg",
+  logoIsName: true,
+  themeColor: "#050505",
+  // Leur site : « La Calade - Route de Palavas 34970 LATTES ». Pas de numéro
+  // de rue, ni au BODACC ni à la Base Adresse Nationale.
+  address: "La Calade, Route de Palavas, 34970 Lattes",
+  phone: "+33 6 76 57 77 22",
+  hours: "Jeudi, vendredi, samedi & veille de jour férié dès\u00a023h",
+  // Leur site, mot pour mot.
+  highlights: ["Patio à la déco unique", "2 espaces bar et 1 dancefloor", "Entrée gratuite tous les soirs"],
+  ticker: [
+    { text: "Jeudi, vendredi, samedi & veille de jour férié dès 23h", tone: "accent" },
+    { text: "Un incontournable des nuits montpelliéraines", tone: "brand" },
+    { text: "Pour toute réservation : 06 76 57 77 22" },
+    { text: "Ambiance généraliste clubbing" },
+  ],
+  categories: [
+    {
+      id: "whisky",
+      name: "Whisky",
+      boissons: true,
+      items: [
+        pulpContenances("jb", "JB", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("jack-daniels", "Jack Daniel's", "70 cl", 150),
+        pulpBouteille("chivas-12", "Chivas Regal 12 ans", "70 cl", 150),
+      ],
+    },
+    {
+      id: "vodka",
+      name: "Vodka",
+      boissons: true,
+      items: [
+        pulpContenances("smirnoff", "Smirnoff", [
+          ["35 cl", 65],
+          ["70 cl", 130],
+        ]),
+        pulpBouteille("belvedere", "Belvedere", "70 cl", 150),
+        pulpBouteille("belvedere-magnum", "Belvedere Magnum", "175 cl", 340),
+        pulpBouteille("belvedere-jeroboam", "Belvedere Jéroboam", "300 cl", 700),
+      ],
+    },
+    {
+      id: "rhum-malibu",
+      name: "Rhum & Malibu",
+      boissons: true,
+      items: [
+        pulpBouteille("trois-rivieres", "3 Rivières", "70 cl", 150),
+        pulpBouteille("havana", "Havana", "70 cl", 130),
+        pulpBouteille("bacardi", "Bacardi", "70 cl", 130),
+        pulpBouteille("rhum-vieux-ambre", "Rhum vieux ambré", "70 cl", 150),
+        pulpBouteille("malibu", "Malibu", "70 cl", 130),
+        // Une ligne de la carte, un prix pour les trois : la bouteille se choisit.
+        pulpBouteille("gin-get-tequila", "Gin / Get 27 / Tequila", "70 cl", 130, {
+          options: [groupeChoix("bouteille", "Bouteille", ["Gin", "Get 27", "Tequila"], { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        pulpBouteille("moet", "Moët & Chandon", "75 cl", 130),
+        pulpBouteille("moet-rose", "Moët & Chandon Rosé", "75 cl", 150),
+        pulpBouteille("dom-perignon", "Dom Pérignon", "75 cl", 300),
+        pulpBouteille("moet-magnum", "Magnum Moët & Chandon", "150 cl", 260),
+        // La carte imprime « MOËT & CANDON » : coquille corrigée (profile.json, note 3).
+        pulpBouteille("moet-jeroboam", "Jéroboam Moët & Chandon", "300 cl", 550),
+      ],
+    },
+  ],
+};
+
+/** Leurs photos (la couverture du Bonbon, juin 2025, créditée au café), puis
+ * des photos libres (Pexels, Unsplash) auditées sur planches. */
+const GRACES_PHOTOS: Partial<Record<string, string>> = {
+  "tomates-mozzarella": "/cafe-3-graces/tomates-mozzarella.jpg",
+  "loup-grille": "/cafe-3-graces/loup-grille.jpg",
+  "mozzarella-panee": pexels("35017889/pexels-photo-35017889.jpeg", 800),
+  carpaccio: pexels("20105550/pexels-photo-20105550.jpeg", 800),
+  "jambon-serrano": pexels("24706530/pexels-photo-24706530.jpeg", 800),
+  "moules-gratinees": pexels("30279441/pexels-photo-30279441.jpeg", 800),
+  "saumon-blinis": unsplash("photo-1577906096429-f73c2c312435", 800),
+  houmous: pexels("11842151/pexels-photo-11842151.jpeg", 800),
+  "patatas-bravas": pexels("38947752/pexels-photo-38947752.jpeg", 800),
+  "planche-charcuterie": pexels("5975763/pexels-photo-5975763.jpeg", 800),
+  "planche-mixte": pexels("22819916/pexels-photo-22819916.jpeg", 800),
+  "planche-mediterranee": pexels("34026509/pexels-photo-34026509.jpeg", 800),
+  seiches: pexels("27402124/pexels-photo-27402124.jpeg", 800),
+  "tataki-thon": pexels("5638521/pexels-photo-5638521.jpeg", 800),
+  risotto: pexels("31779539/pexels-photo-31779539.jpeg", 800),
+  "cote-de-boeuf": pexels("31372405/pexels-photo-31372405.jpeg", 800),
+  rosyne: unsplash("photo-1750943082685-f9c1e15b3273", 800),
+  aglae: pexels("32538760/pexels-photo-32538760.jpeg", 800),
+  thalie: pexels("36642832/pexels-photo-36642832.jpeg", 800),
+  "burger-classic": unsplash("photo-1726039536976-404844bb2de8", 800),
+  "burger-italien": pexels("10746615/pexels-photo-10746615.jpeg", 800),
+  "burger-crispy": pexels("39042553/pexels-photo-39042553.jpeg", 800),
+  "salade-cesar": unsplash("photo-1772302541031-a3b86115ba5d", 800),
+  "salade-nordique": pexels("15735983/pexels-photo-15735983.jpeg", 800),
+  tiramisu: pexels("35135510/pexels-photo-35135510.jpeg", 800),
+  "creme-brulee": unsplash("photo-1615234435691-3b7bae98085e", 800),
+  "brioche-perdue": pexels("18319031/pexels-photo-18319031.jpeg", 800),
+  brownie: pexels("7491897/pexels-photo-7491897.jpeg", 800),
+  // Recadrées par le serveur : au centre, le sujet était coupé ou dans un coin.
+  "dame-blanche": pexelsRecadre("9510367/pexels-photo-9510367.jpeg", 800),
+  "cafe-liegeois": pexels("22222985/pexels-photo-22222985.jpeg", 800),
+  "chocolat-liegeois": unsplash("photo-1633881613747-e98695066141", 800),
+  "banana-split": pexels("16560563/pexels-photo-16560563.jpeg", 800),
+  "fraise-melba": unsplash("photo-1704006158609-2fe604e3e76f", 800),
+  "peche-melba": pexels("11569101/pexels-photo-11569101.jpeg", 800),
+  exotique: unsplash("photo-1703763253190-4af44c87a23e", 800),
+  "glace-3-boules": pexels("1683546/pexels-photo-1683546.jpeg", 800),
+  "coupe-3-graces": pexels("14608732/pexels-photo-14608732.jpeg", 800),
+  "crepe-sucre": pexels("6811051/pexels-photo-6811051.jpeg", 800),
+  "crepe-sucre-citron": pexels("6758320/pexels-photo-6758320.jpeg", 800),
+  "crepe-confiture": pexels("12814862/pexels-photo-12814862.jpeg", 800),
+  "crepe-chocolat": unsplash("photo-1515467837915-15c4777ba46a", 800),
+  "crepe-nutella": pexels("30910215/pexels-photo-30910215.jpeg", 800),
+  cappuccino: pexelsRecadre("37662747/pexels-photo-37662747.jpeg", 800),
+  "chocolat-chaud": pexels("10406759/pexels-photo-10406759.jpeg", 800),
+  latte: pexels("12580180/pexels-photo-12580180.jpeg", 800),
+  "pinky-groovy": pexels("8169597/pexels-photo-8169597.jpeg", 800),
+  "yellow-slow": pexelsRecadre("5817627/pexels-photo-5817627.jpeg", 800),
+  mojito: pexels("13772509/pexels-photo-13772509.jpeg", 800),
+  "pina-colada": pexels("28525186/pexels-photo-28525186.jpeg", 800),
+  mule: unsplash("photo-1671536055547-99f21db6e297", 800),
+  "aperol-spritz": pexels("36631083/pexels-photo-36631083.jpeg", 800),
+  "espresso-martini": pexels("15866911/pexels-photo-15866911.jpeg", 800),
+  "pornstar-martini": pexels("34760238/pexels-photo-34760238.jpeg", 800),
+};
+
+const gracesArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: GRACES_PHOTOS[id],
+  ...extra,
+});
+
+/** Une boisson alcoolisée : TVA à 20 %. */
+const gracesAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  gracesArticle(id, name, price, { ...ALCOOL, ...extra });
+
+const gracesFormats = (id: string, name: string, prix: Formats, extra: Partial<MenuItem> = {}) =>
+  articleFormats(id, name, prix, { image: GRACES_PHOTOS[id], ...extra });
+
+/** La boisson chaude d'une formule : la Formule douceur exclut le viennois et les lattes (« latte gourmand »). */
+const GRACES_BOISSONS_CHAUDES = [
+  "Café",
+  "Allongé",
+  "Noisette",
+  "Double café",
+  "Cappuccino",
+  "Thé",
+  "Infusion",
+  "Chocolat chaud maison",
+  "Latte machiatto",
+];
+
+/** La boisson chaude des formules du petit déjeuner, puis « Orange pressée supplément 2€ ». */
+const GRACES_OPTIONS_PETIT_DEJ = [
+  groupeChoix("boisson", "Boisson chaude", GRACES_BOISSONS_CHAUDES, { obligatoire: true }),
+  groupeChoix("supplement", "Supplément", [["Orange pressée", 2]], { multiple: true }),
+];
+
+/**
+ * Les softs de la Formule douceur : leur carte, hors orange pressée (exclue
+ * par la formule) et hors Granini, sirop et diabolo, dont le parfum ne se
+ * choisirait pas ici.
+ */
+const GRACES_SOFTS = [
+  "Coca Regular",
+  "Coca Zero",
+  "Coca Cherry",
+  "Perrier",
+  "Fanta",
+  "Sprite",
+  "Fuze Tea",
+  "Schweppes Tonic",
+  "Schweppes Agrumes",
+  "Oasis Tropical",
+  "Ginger Beer",
+  "Limonade tranche",
+];
+
+/** Les parfums imprimés sous le diabolo, repris pour le sirop à l'eau ; « pac », coupé à l'impression, attend le gérant. */
+const GRACES_PARFUMS_SIROP = ["Fraise", "Menthe", "Citron", "Grenadine", "Pêche"];
+
+/** Les onze parfums des boules glacées. */
+const GRACES_PARFUMS_GLACE = [
+  "Vanille",
+  "Chocolat",
+  "Fraise",
+  "Café",
+  "Caramel",
+  "Mangue",
+  "Passion",
+  "Coco",
+  "Citron",
+  "Framboise",
+  "Poire",
+];
+
+const GRACES_CREPES = ["Sucre", "Sucre citron", "Confiture", "Crème de marron", "Chocolat maison", "Nutella"];
+
+const GRACES_SUPP_FRUIT = groupeChoix("supplement", "Supplément", [["Fruit", 1]], { multiple: true });
+
+const gracesCrepe = (id: string, name: string, price: number) =>
+  gracesArticle(id, name, price, {
+    options: [groupeChoix("supplements", "Suppléments", [["Banane", 1], ["Chantilly", 1]], { multiple: true })],
+  });
+
+/** Une coupe : « boule de glace 1,50€ » en supplément. */
+const gracesCoupe = (id: string, name: string, price: number, description: string) =>
+  gracesArticle(id, name, price, {
+    description,
+    options: [groupeChoix("supplement", "Supplément", [["Boule de glace", 1.5]], { multiple: true })],
+  });
+
+/** Les boules glacées : un parfum par boule, la chantilly en supplément. */
+const gracesGlace = (boules: number, price: number) => {
+  const pluriel = boules > 1 ? "s" : "";
+  return gracesArticle(`glace-${boules}-boule${pluriel}`, `Glace ${boules} boule${pluriel}`, price, {
+    description: GRACES_PARFUMS_GLACE.join(", "),
+    options: [
+      ...["1re boule", "2e boule", "3e boule"]
+        .slice(0, boules)
+        .map((rang, i) =>
+          groupeChoix(`boule-${i + 1}`, boules > 1 ? rang : "Parfum", GRACES_PARFUMS_GLACE, { obligatoire: true })
+        ),
+      groupeChoix("supplement", "Supplément", [["Chantilly", 1]], { multiple: true }),
+    ],
+  });
+};
+
+/** Une pression, 25 cl et 50 cl, « supp sirop 0,20€ / picon 0,80€ ». */
+const gracesPression = (id: string, name: string, demi: number, pinte: number, extra: Partial<MenuItem> = {}) =>
+  gracesFormats(
+    id,
+    name,
+    [
+      ["25 cl", demi],
+      ["50 cl", pinte],
+    ],
+    {
+      ...ALCOOL,
+      ...extra,
+      options: [
+        ...(extra.options ?? []),
+        groupeChoix("supplements", "Suppléments", [["Sirop", 0.2], ["Picon", 0.8]], { multiple: true }),
+      ],
+    }
+  );
+
+/** Un vin au verre (ou à la flûte) de 12 cl et à la bouteille de 75 cl ; sans prix au verre, la bouteille seule. */
+const gracesVin = (id: string, name: string, description: string, bouteille: number, verre?: number, au = "Verre 12 cl") =>
+  verre
+    ? gracesFormats(
+        id,
+        name,
+        [
+          [au, verre],
+          ["Bouteille 75 cl", bouteille],
+        ],
+        { description, ...ALCOOL }
+      )
+    : gracesAlcool(id, name, bouteille, { description, detail: "75 cl" });
+
+/** Les spiritueux d'une famille, servis en 4 cl ; la famille en description, l'intertitre de la carte. */
+const gracesSpiritueux = (famille: string, liste: readonly (readonly [id: string, name: string, price: number])[]) =>
+  liste.map(([id, name, price]) => gracesAlcool(id, name, price, { description: famille, detail: "4 cl" }));
+
+/*
+ * Café 3 Grâces — la brasserie du 14 place de la Comédie (Montpellier), face
+ * à la fontaine des Trois Grâces, reprise et rebaptisée en 2025 (SAS 3G). La
+ * carte vient de leur site (cafe3graces.com, octobre 2026) : le texte de la
+ * cuisine, mot pour mot, et les pages de leur carte imprimée (petit déjeuner,
+ * boissons, glaces et crêpes). Sources et questions :
+ * demos/cafe-3-graces/profile.json.
+ */
+const cafe3Graces: Restaurant = {
+  slug: "cafe-3-graces",
+  name: "Café 3 Grâces",
+  demoSuivi: true,
+  // Leur site : « brasserie emblématique de la Place de la Comédie » ; le
+  // logo dit déjà « depuis 1790 ».
+  tagline: "Brasserie · Place de la Comédie",
+  // L'arche de leur logo ; les Grâces, le soleil, les étoiles et le nom
+  // arrivent en calques par-dessus (.theme-cafe-3-graces).
+  logo: "/cafe-3-graces/logo-arche.webp",
+  logoIsName: true,
+  footerLogo: "/cafe-3-graces/logo.webp",
+  icons: { tab: "/cafe-3-graces/favicon.png", homeScreen: "/cafe-3-graces/icon.png" },
+  themeColor: "#44522e",
+  address: "14 Place de la Comédie, 34000 Montpellier",
+  // Leur site et Le Bonbon (juin 2025).
+  phone: "+33 4 99 62 73 39",
+  hours: "",
+  // Leur site : « une cuisine méditerranéenne », « produits frais et de
+  // saison » ; leur carte : « Crêpes maison ».
+  highlights: ["Cuisine méditerranéenne", "Produits frais et de saison", "Crêpes maison"],
+  // Leur affiche du petit déjeuner, la Formule douceur de leur carte et de
+  // leur chevalet, la phrase d'accueil de leur site.
+  ticker: [
+    { text: "Formule petit déj dès 5,90\u00a0€", tone: "accent" },
+    { text: "Formule douceur\u00a0: crêpe au choix + boisson chaude ou soft, 7,90\u00a0€", tone: "accent" },
+    { text: "Brasserie emblématique de la Place de la Comédie depuis 1790", tone: "brand" },
+    { text: "Cuisine méditerranéenne, produits frais et de saison" },
+  ],
+  categories: [
+    {
+      // L'affiche « Formule petit déj » de leur site.
+      id: "petit-dejeuner",
+      name: "Formule petit déj",
+      tagline: "Orange pressée supplément 2\u00a0€",
+      items: [
+        gracesArticle("brunch", "Brunch", 14.9, {
+          description: "Boisson chaude, croissant, avocado toast, jus d’orange, œufs & bacon, brioche perdu",
+          options: GRACES_OPTIONS_PETIT_DEJ,
+        }),
+        gracesArticle("classic", "Classic", 5.9, {
+          description: "Boisson chaude, croissant, jus d’orange",
+          options: GRACES_OPTIONS_PETIT_DEJ,
+        }),
+        gracesArticle("complet", "Complet", 7.9, {
+          description: "Boisson chaude, croissant, jus d’orange, tartine & beurre, Nutella",
+          options: GRACES_OPTIONS_PETIT_DEJ,
+        }),
+      ],
+    },
+    {
+      id: "entrees",
+      name: "Entrées",
+      items: [
+        gracesArticle("stracciatella", "Stracciatella & toasts grillés", 9, {
+          description: "Stracciatella, toasts grillés, huile d’olive, éclats de pistache.",
+        }),
+        gracesArticle("mozzarella-panee", "Mozzarella panée", 12, {
+          description: "Mozzarella panée aux deux sésames, servie avec une sauce tomate maison.",
+        }),
+        gracesArticle("tomates-mozzarella", "Tomates & mozzarella di bufala", 12, {
+          description: "Tomates fraîches, mozzarella di bufala, arrosées d’huile d’olive et de basilic.",
+        }),
+        gracesArticle("trilogie-mozzarella", "Trilogie de mozzarella", 19, {
+          description: "Mozzarella croustillante, burrata & stracciatella, huile d’olive et basilic.",
+        }),
+        gracesArticle("carpaccio", "Carpaccio de boeuf à l’italienne", 11, {
+          description: "Fines tranches de boeuf, parmesan, pesto, huile d’olive et citron.",
+        }),
+        gracesArticle("jambon-serrano", "Jambon Serrano & pan con tomate", 13, {
+          description: "Tranches de Jambon Serrano affinées, pain grillé frotté à la tomate et à l’ail.",
+        }),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Tapas & planches",
+      items: [
+        gracesArticle("moules-gratinees", "Moules gratinée au beurre persillé", 11, {
+          description: "Moules nappées d’un beurre persillé, gratinées au four.",
+        }),
+        gracesArticle("saumon-blinis", "Saumon fumé & blinis", 13, {
+          description: "Saumon fumé, blinis moelleux et crème citronnée onctueuse.",
+        }),
+        gracesArticle("houmous", "Houmous maison & pain pita doré", 9, {
+          description: "Purée aux pois chiches & tahini, citron, pain pita grillé.",
+        }),
+        gracesArticle("patatas-bravas", "Patatas bravas", 9, {
+          description: "Pommes de terre dorées, servies avec une sauce bravas relevée.",
+        }),
+        gracesArticle("planche-charcuterie", "Planche charcuterie", 21, {
+          description: "Jambon cru, spianata picante, terrine de campagne, coppa, fuet catalan.",
+        }),
+        gracesArticle("planche-mixte", "Planche mixte", 27, {
+          description: "Assortiment de charcuteries et fromages affinés.",
+        }),
+        gracesArticle("planche-mediterranee", "Planche Méditerranée", 19, {
+          description: "Houmous, tapenade, tzatziki, féta, moules gratinées, pain pita grillé.",
+        }),
+      ],
+    },
+    {
+      id: "plats",
+      name: "Plats",
+      items: [
+        gracesArticle("seiches", "Seiches persillées", 21, {
+          description: "Seiches à la plancha, à l’ail et au persil, servies avec son risotto et ses légumes du soleil.",
+        }),
+        gracesArticle("tataki-thon", "Tataki de thon", 23, {
+          description: "Thon mi-cuit en croûte de sésame, servi avec une julienne de légumes croquants.",
+        }),
+        gracesArticle("loup-grille", "Loup grillé", 24, {
+          description: "Loup entier grillé, servi avec son risotto et ses légumes du soleil.",
+        }),
+        gracesArticle("risotto", "Risotto crémeux", 18, {
+          description: "Un risotto onctueux aux champignons, légumes grillés et copeaux de parmesan.",
+        }),
+        gracesArticle("escalope-milanaise", "Escalope milanaise", 22, {
+          description: "Escalope de veau panée, tendre et croustillante servie avec des linguines à la tomate.",
+        }),
+        gracesArticle("cote-de-boeuf", "Côte de boeuf", 28, {
+          detail: "400 g",
+          description: "Côte de boeuf grillée, sauce roquefort maison, servie avec ses frites croustillantes et sa salade fraîche.",
+          options: [CDA_CUISSON],
+        }),
+      ],
+    },
+    {
+      // Les trois pinsas portent le nom des Grâces : Aglaé, Thalie et
+      // « Rosyne » (Euphrosyne), écrit ainsi sur leur carte.
+      id: "pinsa",
+      name: "Pinsa",
+      items: [
+        gracesArticle("rosyne", "Rosyne", 18, {
+          description: "Pâte à pizza légère, base crème, saumon fumé, crème citronnée, câpres, aneth.",
+        }),
+        gracesArticle("aglae", "Aglaé", 17, {
+          description: "Pâte à pizza légère, sauce tomate, mozzarella, jambon cru, roquette, parmesan.",
+        }),
+        gracesArticle("thalie", "Thalie", 16, {
+          description: "Pâte à pizza légère, sauce tomate, mozzarella, filet d’huile d’olive, basilic frais.",
+        }),
+      ],
+    },
+    {
+      id: "burgers",
+      name: "Burgers maison",
+      items: [
+        gracesArticle("burger-classic", "Le Classic", 19, {
+          description: "Pain bun, steak de boeuf, oignons, bacon, tomate, salade, sauce cheddar maison.",
+        }),
+        gracesArticle("burger-italien", "L’Italien", 21, {
+          description: "Pain briochée, steak de boeuf, jambon cru, mozzarella, tomates confites, parmesan, roquette, pesto.",
+        }),
+        gracesArticle("burger-crispy", "Le Crispy", 19, {
+          description: "Pain bun, poulet crispy, oignons, bacon, tomate, salade, sauce cheddar maison.",
+        }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Salades gourmandes",
+      items: [
+        gracesArticle("salade-cesar", "La César", 16, {
+          description: "Salade, poulet crispy, croûtons maison, parmesan, oignons, sauce César.",
+        }),
+        gracesArticle("salade-nordique", "La Nordique", 18, {
+          description: "Salade, saumon fumé, croûtons, tomates, féta, aneth, vinaigrette citronnée.",
+        }),
+        gracesArticle("salade-romaine", "La Romaine", 17, {
+          description: "Salade, jambon cru, mozzarella di bufala, olives, tomates confites, pesto.",
+        }),
+      ],
+    },
+    {
+      id: "douceurs",
+      name: "Les douceurs maison",
+      items: [
+        gracesArticle("tiramisu", "Tiramisu", 9, { description: "Recette traditionnelle au café." }),
+        gracesArticle("creme-brulee", "Crème brûlée", 9, {
+          description: "Crème onctueuse à la vanille, fondante & craquante.",
+        }),
+        gracesArticle("brioche-perdue", "Brioche perdue", 9, {
+          description: "Brioche dorée, chantilly, caramel beurre salé.",
+        }),
+        gracesArticle("brownie", "Brownie", 9, { description: "Brownie au chocolat, glace vanille, chantilly." }),
+        gracesArticle("cafe-gourmand", "Café gourmand", 10, { description: "Gourmandises maison & café." }),
+      ],
+    },
+    {
+      // La page « Coupes glacées » de leur carte imprimée : les coupes, les
+      // boules, puis la Coupe 3 Grâces.
+      id: "glaces",
+      name: "Coupes glacées",
+      items: [
+        gracesCoupe("dame-blanche", "Dame blanche", 9.9, "3 boules vanille, chocolat maison, chantilly"),
+        gracesCoupe("cafe-liegeois", "Café liégeois", 9.9, "1 boule vanille, 2 boules café, café froid, chantilly, coulis café"),
+        gracesCoupe(
+          "chocolat-liegeois",
+          "Chocolat liégeois",
+          9.9,
+          "1 boule vanille, 2 boules chocolat, chocolat maison, chantilly, coulis chocolat"
+        ),
+        gracesCoupe(
+          "poire-belle-helene",
+          "Poire Belle Hélène",
+          10.9,
+          "1 boule vanille, 2 boules poire, 1/2 poire, chocolat maison, chantilly"
+        ),
+        gracesCoupe(
+          "banana-split",
+          "Banana split",
+          10.9,
+          "1 boule vanille, 1 boule chocolat, 1 boule fraise, banane fraîche, chocolat maison, chantilly"
+        ),
+        gracesCoupe("fraise-melba", "Fraise Melba", 10.9, "1 boule vanille, 2 boules fraise, fraises en sirop, chantilly"),
+        gracesCoupe("peche-melba", "Pêche Melba", 10.9, "1 boule vanille, 2 boules pêche, 1/2 pêche, coulis exotique, chantilly"),
+        gracesCoupe("exotique", "Exotique", 11.9, "1 boule coco, 1 boule passion, 1 boule mangue, fruits, chantilly"),
+        gracesCoupe("gourmande", "Gourmande", 11.9, "1 boule vanille, 1 boule caramel, 1 boule chocolat, Nutella, chantilly"),
+        gracesGlace(1, 3),
+        gracesGlace(2, 5.5),
+        gracesGlace(3, 8),
+        gracesCoupe(
+          "coupe-3-graces",
+          "Coupe 3 Grâces",
+          16.5,
+          "1 boule passion, 1 boule coco, 1 boule mangue, 1 boule poire, 1 boule fraise, 1 boule framboise, coulis fruits rouges, chantilly & fruits"
+        ),
+      ],
+    },
+    {
+      id: "crepes",
+      name: "Crêpes maison",
+      tagline: "Supplément banane 1\u00a0€, chantilly 1\u00a0€",
+      items: [
+        gracesCrepe("crepe-sucre", "Crêpe sucre", 4),
+        gracesCrepe("crepe-sucre-citron", "Crêpe sucre citron", 4.5),
+        gracesCrepe("crepe-confiture", "Crêpe confiture", 4.5),
+        gracesCrepe("crepe-creme-de-marron", "Crêpe crème de marron", 5),
+        gracesCrepe("crepe-chocolat", "Crêpe chocolat maison", 5),
+        gracesCrepe("crepe-nutella", "Crêpe Nutella", 5),
+        gracesArticle("formule-douceur", "Formule douceur", 7.9, {
+          description: "Crêpe au choix + boisson chaude ou soft. Hors viennois, latte gourmand & orange pressée",
+          options: [
+            groupeChoix("crepe", "Crêpe", GRACES_CREPES, { obligatoire: true }),
+            groupeChoix("boisson", "Boisson chaude ou soft", [...GRACES_BOISSONS_CHAUDES, ...GRACES_SOFTS], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "boissons-chaudes",
+      name: "Boissons chaudes",
+      tagline: "Café, allongé et noisette servis jusqu’à 17h",
+      boissons: "chaudes",
+      items: [
+        gracesArticle("cafe", "Café, allongé", 2.2, {
+          options: [groupeChoix("cafe", "Café", ["Café", "Allongé"], { obligatoire: true })],
+        }),
+        gracesArticle("noisette", "Noisette", 2.5),
+        gracesArticle("double-cafe", "Double café", 4.1),
+        gracesArticle("cappuccino", "Cappuccino", 4.1),
+        gracesArticle("the-infusion", "Thé & infusion", 4.1, {
+          options: [groupeChoix("boisson", "Boisson", ["Thé", "Infusion"], { obligatoire: true })],
+        }),
+        gracesArticle("chocolat-chaud", "Chocolat chaud maison", 4.5),
+        gracesArticle("viennois", "Viennois", 5.1, {
+          description: "Café ou chocolat",
+          options: [groupeChoix("viennois", "Viennois", ["Café", "Chocolat"], { obligatoire: true, prefixe: "Viennois " })],
+        }),
+        gracesArticle("latte", "Latte machiatto", 4.4),
+        gracesArticle("latte-vanille", "Latte vanille", 4.9),
+        gracesArticle("latte-caramel", "Latte caramel", 4.9),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        gracesArticle("coca", "Coca", 4.4, {
+          description: "Regular, zero ou cherry",
+          options: [groupeChoix("version", "Version", ["Regular", "Zero", "Cherry"], { obligatoire: true, prefixe: "Coca " })],
+        }),
+        gracesArticle("perrier", "Perrier", 4.4),
+        gracesArticle("fanta", "Fanta", 4.4),
+        gracesArticle("sprite", "Sprite", 4.4),
+        gracesArticle("fuze-tea", "Fuze Tea", 4.4),
+        gracesArticle("granini", "Granini", 4.4, {
+          description: "ACE, orange, pomme, ananas, tomate, abricot",
+          options: [
+            groupeChoix("parfum", "Parfum", ["ACE", "Orange", "Pomme", "Ananas", "Tomate", "Abricot"], { obligatoire: true }),
+          ],
+        }),
+        gracesArticle("orange-pressee", "Orange pressée", 5),
+        gracesArticle("schweppes", "Schweppes", 4.4, {
+          description: "Tonic ou agrumes",
+          options: [groupeChoix("version", "Version", ["Tonic", "Agrumes"], { obligatoire: true, prefixe: "Schweppes " })],
+        }),
+        gracesArticle("oasis", "Oasis Tropical", 4.4),
+        gracesArticle("ginger-beer", "Ginger Beer", 4.4),
+        gracesArticle("limonade", "Limonade tranche", 4.2),
+        gracesArticle("sirop", "Sirop à l’eau", 3.2, {
+          options: [groupeChoix("parfum", "Parfum", GRACES_PARFUMS_SIROP, { obligatoire: true })],
+        }),
+        gracesArticle("diabolo", "Diabolo", 4.2, {
+          description: "Fraise, menthe, citron, grenadine, pêche",
+          options: [groupeChoix("parfum", "Parfum", GRACES_PARFUMS_SIROP, { obligatoire: true })],
+        }),
+      ],
+    },
+    {
+      id: "sans-alcool",
+      name: "Sans alcool & smoothies",
+      boissons: true,
+      items: [
+        gracesArticle("douceurs-des-iles", "Douceurs des îles", 7, {
+          description: "Sirop grenadine, jus d’orange, jus d’ananas, purée passion",
+        }),
+        gracesArticle("virgin-pina", "Virgin piña", 7, { description: "Purée de coco, jus d’ananas" }),
+        gracesArticle("virgin-mojito", "Virgin mojito", 7, { description: "Menthe fraîche, citron vert, cassonade, limonade" }),
+        gracesArticle("crazy-melon", "Crazy Melon", 8, { description: "Smoothie melon, mangue, passion" }),
+        gracesArticle("papaya-mania", "Papaya Mania", 8, { description: "Smoothie fraise, pêche, papaye" }),
+        gracesArticle("pinky-groovy", "Pinky Groovy", 8, { description: "Smoothie fraise, banane" }),
+        gracesArticle("yellow-slow", "Yellow Slow", 8, { description: "Smoothie ananas, papaye, mangue" }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      tagline: "L’abus d’alcool est dangereux pour la santé, à consommer avec modération",
+      items: [
+        gracesAlcool("mojito", "Mojito", 10, {
+          description: "Rhum, menthe fraîche, cassonade, citron vert, eau gazeuse",
+          options: [GRACES_SUPP_FRUIT],
+        }),
+        gracesAlcool("caipirinha-roska", "Caipirinha & Roska", 10, {
+          description: "Cachaça ou Vodka citron vert, cassonade",
+          options: [
+            groupeChoix("cocktail", "Cocktail", ["Caipirinha (cachaça)", "Roska (vodka)"], { obligatoire: true }),
+            GRACES_SUPP_FRUIT,
+          ],
+        }),
+        gracesAlcool("sex-on-the-beach", "Sex on the beach", 10, {
+          description: "Vodka, liqueur de pêche, jus d’orange, jus de cranberry",
+        }),
+        gracesAlcool("pina-colada", "Piña colada", 10, { description: "Rhum, crème de coco, jus d’ananas" }),
+        gracesAlcool("mule", "Moscow / London mule", 10, {
+          description: "Vodka ou Gin, ginger beer, citron vert",
+          options: [groupeChoix("cocktail", "Cocktail", ["Moscow mule (vodka)", "London mule (gin)"], { obligatoire: true })],
+        }),
+        gracesAlcool("bombay-tonic", "Bombay tonic", 10, { description: "Gin Bombay Sapphire, tonic, citron jaune" }),
+        gracesAlcool("aperol-spritz", "Apérol spritz", 10, { description: "Aperol, Prosecco, eau gazeuse, orange" }),
+        gracesAlcool("saint-germain-spritz", "Saint-Germain spritz", 12, {
+          description: "Saint-Germain, Prosecco, eau gazeuse, citron jaune",
+        }),
+        gracesAlcool("peach-lover", "Peach lover", 12, { description: "Gin Belle Rive, crème pêche, Prosecco, limonade" }),
+        gracesAlcool("espresso-martini", "Espresso martini", 12, {
+          description: "Vodka, café, liqueur de café, sucre de canne",
+        }),
+        gracesAlcool("pornstar-martini", "Pornstar martini", 12, {
+          description: "Vodka, fruit de la passion, sirop de vanille, Prosecco",
+        }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      tagline: "Pression : supplément sirop 0,20\u00a0€, picon 0,80\u00a0€",
+      items: [
+        gracesPression("bud", "Bud blonde", 3.9, 6.9),
+        gracesPression("goose-island", "Goose Island", 4.5, 8.5, { description: "IPA" }),
+        gracesPression("hoegaarden", "Hoegaarden", 4.5, 8.5, { description: "Blanche" }),
+        gracesPression("leffe", "Leffe blonde", 4.9, 8.9, { description: "Abbaye" }),
+        gracesPression("panache", "Panaché / Monaco", 3.9, 6.9, {
+          options: [groupeChoix("boisson", "Boisson", ["Panaché", "Monaco"], { obligatoire: true })],
+        }),
+        gracesAlcool("leffe-ruby", "Leffe Ruby", 6, { detail: "33 cl" }),
+        gracesAlcool("corona", "Corona", 6, { detail: "33 cl" }),
+        gracesArticle("corona-0", "Corona 0%", 5, { detail: "33 cl" }),
+      ],
+    },
+    {
+      // Verre de 12 cl et bouteille de 75 cl ; la flûte pour les bulles. Un
+      // soleil à la place du prix au verre : bouteille seule.
+      id: "vins",
+      name: "Vins & bulles",
+      boissons: true,
+      items: [
+        gracesVin("marie-antoinette-blanc", "Marie Antoinette blanc", "Blanc · IGP Terres du Midi · Chardonnay & Clairette", 19, 5),
+        gracesVin("domaine-de-joy", "Domaine de JOŸ", "Blanc · IGP Côtes de Gascogne · Gros manseng", 23, 5),
+        gracesVin("paul-mas-viognier", "Domaine Paul Mas", "Blanc · IGP Pays d’Oc · Viognier", 24, 6),
+        gracesVin("clos-real", "Le Clos Real", "Blanc · AOP Côtes de Provence · Vermentino, Ugni Blanc, Clairette", 34),
+        gracesVin("marie-antoinette-rouge", "Marie Antoinette rouge", "Rouge · IGP Terres du Midi · Grenache, Syrah & Merlot", 19, 5),
+        gracesVin(
+          "paul-mas-1892",
+          "Paul Mas 1892",
+          "Rouge · IGP Pays d’Oc BIO · Carignan, Mourvèdre, Grenache noir & Sauvignon",
+          24
+        ),
+        gracesVin(
+          "domaine-argenteille",
+          "Domaine de l’Argenteille",
+          "Rouge · AOP Terrasses du Larzac · Grenache, Mourvèdre, Carignan, Syrah",
+          27,
+          6
+        ),
+        gracesVin("grain-de-sagesse", "Grain de Sagesse", "Rouge · IGP de l’Hérault · Vermentino & Roussanne", 35),
+        gracesVin("marie-antoinette-rose", "Marie Antoinette rosé", "Rosé · IGP Terres du Midi · Grenache, Cinsault & Carignan", 19, 5),
+        gracesVin("grande-sieste", "La Grande Sieste", "Rosé · IGP Pays d’Oc · Grenache, Cinsault, Syrah", 26, 6),
+        gracesVin("martini-spumante", "Martini Spumante", "Bulles · 100% Glera", 30, 6, "Flûte 12 cl"),
+        gracesVin("piper-heidsieck", "Maison Piper-Heidsieck Brut", "Bulles · Pinot noir, Meunier & Chardonnay", 70, 10, "Flûte 12 cl"),
+      ],
+    },
+    {
+      id: "aperitifs",
+      name: "Apéritifs & digestifs",
+      boissons: true,
+      items: [
+        gracesAlcool("ricard", "Ricard", 3),
+        gracesAlcool("suze", "Suze", 4.4),
+        gracesAlcool("martini", "Martini", 4.4),
+        gracesAlcool("campari", "Campari", 4.4),
+        gracesAlcool("kir", "Kir", 4.4),
+        gracesAlcool("kir-royal", "Kir royal", 10),
+        gracesAlcool("americano", "Americano", 9),
+        gracesAlcool("muscat", "Muscat", 4.5),
+        gracesAlcool("porto", "Porto", 4.5),
+        gracesAlcool("bumbu", "Bumbu cream", 8),
+        gracesAlcool("baileys", "Bailey’s", 7),
+        gracesAlcool("get", "Get 27/31", 7, {
+          options: [groupeChoix("version", "Version", ["Get 27", "Get 31"], { obligatoire: true })],
+        }),
+        gracesAlcool("limoncello", "Limoncello", 7),
+        gracesAlcool("poire", "Poire", 7),
+      ],
+    },
+    {
+      id: "spiritueux",
+      name: "Spiritueux",
+      boissons: true,
+      items: [
+        ...gracesSpiritueux("Rhum", [
+          ["bacardi", "Bacardi", 7],
+          ["dictador", "Dictador 12 ans", 9],
+          ["gouverneur", "Gouverneur", 12],
+        ]),
+        ...gracesSpiritueux("Whisky", [
+          ["ballantines", "Ballantine’s", 7],
+          ["jack-daniels", "Jack Daniel’s", 9],
+          ["duke", "Duke straight", 12],
+        ]),
+        ...gracesSpiritueux("Vodka", [
+          ["eristoff", "Eristoff", 7],
+          ["grey-goose", "Grey Goose", 10],
+        ]),
+        ...gracesSpiritueux("Tequila", [
+          ["erena", "Erena reposado", 9],
+          ["patron", "Patròn silver", 12],
+        ]),
+      ],
+    },
+  ],
+};
+
+/*
+ * Crêperie Comédie — la crêperie du 12 place de la Comédie (Montpellier),
+ * « Crêperie de la Comédie » sur son néon et sa fiche Google. La carte est
+ * celle de leurs PDF en ligne, liés depuis TripAdvisor et les QR de leur
+ * carte : la cuisine de la carte française du 28 juillet 2026, les boissons
+ * aux prix de la carte des boissons du 6 octobre 2026 (en anglais et en
+ * espagnol seulement : noms et textes repris de la carte française, ce qui
+ * est nouveau traduit), le p'tit déj du feuillet du 27 mai 2026. Photos :
+ * celles de leur carte, détourées ; les autres, des photos libres détourées
+ * de même, sur le rose de la carte. Sources et questions :
+ * demos/creperie-comedie/profile.json.
+ */
+/** Les plats et boissons qui ont une photo détourée (frontend/public/creperie-comedie/<id>.webp). */
+const COMEDIE_PHOTOS = new Set<string>([
+  "assiette-charcuterie",
+  "banana-split",
+  "binic",
+  "blonde",
+  "brandivy",
+  "cafe-liegeois",
+  "caipirinha",
+  "cappuccino",
+  "carpaccio",
+  "cheesecake",
+  "chocolat-chaud",
+  "citronnade",
+  "colonel",
+  "compose-dessert",
+  "compose-galette",
+  "compose-glace",
+  "coupe-champagne",
+  "creme-brulee",
+  "crispy-poulet",
+  "cuba-libre",
+  "dame-blanche",
+  "expresso",
+  "formule-gourmande",
+  "fraiseraie",
+  "frites",
+  "gaufre-italienne",
+  "gin-tonic",
+  "groix",
+  "jus-de-fruits",
+  "la-comedie",
+  "moelleux",
+  "mojito",
+  "mules",
+  "oranges-pressees",
+  "panna-cotta",
+  "pina-colada",
+  "planche-mixte",
+  "plougastel",
+  "poire-belle-helene",
+  "pont-l-abbe",
+  "salade-cesar",
+  "salade-italienne",
+  "salade-veggie",
+  "sene",
+  "sex-on-the-beach",
+  "sirops",
+  "sodas",
+  "spritz",
+  "spritz-0",
+  "tatin",
+  "tequila-sunrise",
+  "the",
+  "the-glace",
+  "tomates-burrata",
+  "virgin-mule",
+  "virgin-pina-colada",
+]);
+
+const comedieArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  ...(COMEDIE_PHOTOS.has(id) && { image: `/creperie-comedie/${id}.webp` }),
+  ...extra,
+});
+
+const comedieAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  comedieArticle(id, name, price, { ...ALCOOL, ...extra });
+
+const comedieFormats = (
+  id: string,
+  name: string,
+  prix: Formats,
+  extra: Partial<MenuItem> = {},
+  groupe: Parameters<typeof articleFormats>[4] = []
+) =>
+  articleFormats(id, name, prix, { ...(COMEDIE_PHOTOS.has(id) && { image: `/creperie-comedie/${id}.webp` }), ...extra }, groupe);
+
+/** « 2 ingrédients 11,90 € · 3 ingrédients 12,90 € » : les prix d'une carte à composer, insécables. */
+const comedieTarifs = (prix: Formats) =>
+  prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join(" · ");
+
+/* « Compose ta galette ! » : un ingrédient par catégorie, la sauce incluse. */
+const COMEDIE_VIANDES_POISSONS = [
+  "Andouille de Guémené",
+  "Bacon",
+  "Jambon blanc",
+  "Jambon cru",
+  "Jambon de dinde",
+  "Poulet crispy",
+  "Poulet tandoori",
+  "Viande hachée",
+  "Saumon fumé",
+];
+const COMEDIE_FROMAGES = ["Bleu", "Chèvre frais", "Cheddar râpé", "Emmental Français", "Grana padano", "Raclette"];
+const COMEDIE_LEGUMES = [
+  "Champignons de Paris",
+  "Légumes du moment",
+  "Oignons frits",
+  "Oignons caramélisés",
+  "Pommes de terre vapeur",
+  "Rösti de pommes de terre",
+  "Tomates confites",
+  "Tomates coeur de boeuf",
+];
+const COMEDIE_SAUCES = ["Crème aux herbes", "Crème fraîche", "Curry", "Miel", "Moutarde", "Pesto"];
+
+/** Le nombre d'ingrédients fixe le prix ; les catégories prises, les groupes montrés. */
+const COMEDIE_VF = "2 ingrédients : viande ou poisson, fromage";
+const COMEDIE_VL = "2 ingrédients : viande ou poisson, légume";
+const COMEDIE_FL = "2 ingrédients : fromage, légume";
+const COMEDIE_VFL = "3 ingrédients : viande ou poisson, fromage, légume";
+const COMEDIE_GALETTE_FORMULE: Formats = [
+  [COMEDIE_VF, 11.9],
+  [COMEDIE_VL, 11.9],
+  [COMEDIE_FL, 11.9],
+  [COMEDIE_VFL, 12.9],
+];
+
+const COMEDIE_GALETTE_GROUPE = ["ingredients", "Tes ingrédients"] as const;
+const COMEDIE_INGREDIENTS = groupeFormats(COMEDIE_GALETTE_FORMULE, ...COMEDIE_GALETTE_GROUPE);
+
+const comedieComposeGalette = () =>
+  comedieFormats(
+    "compose-galette",
+    "Compose ta galette !",
+    COMEDIE_GALETTE_FORMULE,
+    {
+      description: "Un ingrédient par catégorie, la sauce au choix incluse",
+      tarifs: comedieTarifs([
+        ["2 ingrédients", 11.9],
+        ["3 ingrédients", 12.9],
+      ]),
+      options: [
+        groupeChoix("viande", "Viande ou poisson", COMEDIE_VIANDES_POISSONS, {
+          obligatoire: true,
+          when: cdaSi(COMEDIE_INGREDIENTS, COMEDIE_VF, COMEDIE_VL, COMEDIE_VFL),
+        }),
+        groupeChoix("fromage", "Fromage", COMEDIE_FROMAGES, {
+          obligatoire: true,
+          when: cdaSi(COMEDIE_INGREDIENTS, COMEDIE_VF, COMEDIE_FL, COMEDIE_VFL),
+        }),
+        groupeChoix("legume", "Légume", COMEDIE_LEGUMES, {
+          obligatoire: true,
+          when: cdaSi(COMEDIE_INGREDIENTS, COMEDIE_VL, COMEDIE_FL, COMEDIE_VFL),
+        }),
+        groupeChoix("sauce", "Sauce au choix incluse", COMEDIE_SAUCES, { obligatoire: true }),
+        groupeChoix("supplements", "Suppléments", [["Oeuf", 1], ["Avocat", 2.5]], { multiple: true }),
+        groupeChoix("en-plus", "Ingrédient en plus", [...COMEDIE_VIANDES_POISSONS, ...COMEDIE_FROMAGES, ...COMEDIE_LEGUMES], {
+          multiple: true,
+          supplement: 1.5,
+        }),
+      ],
+    },
+    COMEDIE_GALETTE_GROUPE
+  );
+
+/** « On vous laisse le choix entre : Crêpe, Gaufre ou 3 Pancakes ! » */
+const COMEDIE_SERVIE_EN = groupeChoix("base", "Servie en", ["Crêpe", "Gaufre", "3 Pancakes"], { obligatoire: true });
+
+const comedieSucree = (id: string, name: string, description: string, price: number, extra: Partial<MenuItem> = {}) =>
+  comedieArticle(id, name, price, { description, options: [COMEDIE_SERVIE_EN], ...extra });
+
+/* « Compose ton dessert » : nappages, gourmandises et fruits. */
+const COMEDIE_DESSERT_INGREDIENTS = [
+  "Caramel beurre salé",
+  "Chocolat chaud maison",
+  "Confiture de fraises",
+  "Confiture d’abricot",
+  "Coulis de fruits rouges",
+  "Miel",
+  "Nutella",
+  "Sirop d’érable",
+  "Amandes effilées",
+  "Coco râpé",
+  "Pralins concassés",
+  "Speculoos concassés",
+  "Ananas",
+  "Bananes",
+  "Fruits rouges",
+  "Fraises",
+  "Pommes caramélisées",
+  "Poires caramélisées",
+];
+
+/* Les glaces : parfums, nappages, garnitures et fruits de « Compose ta glace ! ». */
+const COMEDIE_PARFUMS = [
+  "Abricot",
+  "Caramel beurre salé",
+  "Café",
+  "Cassis",
+  "Cerise",
+  "Chocolat",
+  "Citron",
+  "Coco",
+  "Fraise",
+  "Framboise",
+  "Nougat",
+  "Pomme",
+  "Poire",
+  "Vanille",
+];
+const COMEDIE_BOULES: Formats = [
+  ["1 boule", 3],
+  ["2 boules", 5.5],
+  ["3 boules", 6.5],
+];
+
+const COMEDIE_BOULES_GROUPE = ["boules", "Boules"] as const;
+const COMEDIE_NOMBRE_BOULES = groupeFormats(COMEDIE_BOULES, ...COMEDIE_BOULES_GROUPE);
+
+const comedieComposeGlace = () =>
+  comedieFormats(
+    "compose-glace",
+    "Compose ta glace !",
+    COMEDIE_BOULES,
+    {
+      options: [
+        groupeChoix("boule-1", "1re boule", COMEDIE_PARFUMS, { obligatoire: true }),
+        groupeChoix("boule-2", "2e boule", COMEDIE_PARFUMS, {
+          obligatoire: true,
+          when: cdaSi(COMEDIE_NOMBRE_BOULES, "2 boules", "3 boules"),
+        }),
+        groupeChoix("boule-3", "3e boule", COMEDIE_PARFUMS, { obligatoire: true, when: cdaSi(COMEDIE_NOMBRE_BOULES, "3 boules") }),
+        groupeChoix("boule-en-plus", "Boule en plus", COMEDIE_PARFUMS, { supplement: 1.9, aucun: "Sans boule en plus" }),
+        groupeChoix("chantilly", "Chantilly", [["Chantilly", 1]], { multiple: true }),
+        groupeChoix(
+          "nappages",
+          "Nappages",
+          ["Caramel beurre salé", "Chocolat chaud maison", "Coulis de fruits rouges", "Crème de marrons", "Miel", "Sirop d’érable"],
+          { multiple: true, supplement: 1 }
+        ),
+        groupeChoix("garnitures", "Garnitures", ["Amandes effilées", "Coco râpé", "Pralin concassé", "Speculoos concassés"], {
+          multiple: true,
+          supplement: 0.7,
+        }),
+        groupeChoix(
+          "fruits",
+          "Fruits",
+          ["Ananas", "Bananes", "Fruits rouges", "Fraises", "Pommes caramélisées", "Poires caramélisées"],
+          { multiple: true, supplement: 1.5 }
+        ),
+      ],
+    },
+    COMEDIE_BOULES_GROUPE
+  );
+
+/** Les galettes « Classiques », que reprend la formule midi. */
+const COMEDIE_GALETTES = [
+  "Pont l’Abbé",
+  "Guémené",
+  "Brandivy",
+  "Loïc",
+  "Séné",
+];
+
+/** Les crêpes sucrées « Classiques » de la formule midi, « sauf Suzette et Tatin ». */
+const COMEDIE_PLOUGASTEL_FRAISES = "Plougastel, confiture de fraises";
+const COMEDIE_PLOUGASTEL_ABRICOT = "Plougastel, confiture d’abricot";
+
+const COMEDIE_SIROPS = [
+  "Grenadine",
+  "Menthe",
+  "Fraise",
+  "Citron",
+  "Pêche",
+  "Orgeat",
+  "Pac",
+  "Gambetta",
+  "Violette",
+  "Cassis",
+  "Cerise",
+  "Framboise",
+  "Anis",
+];
+
+/** Une boisson du midi : le vin et le cidre se précisent une fois choisis. */
+const COMEDIE_BOISSON_MIDI = groupeChoix(
+  "boisson",
+  "Boisson",
+  ["Verre de vin", "Bière blonde (25cl)", "Bolée de cidre", "Jus d’orange", "Jus d’ananas", "Jus de pomme"],
+  { obligatoire: true }
+);
+
+const COMEDIE_BOISSON_ENFANT = groupeChoix("boisson", "Boisson", ["Sirop", "Oasis"], { obligatoire: true });
+const COMEDIE_DESSERT_ENFANT = groupeChoix(
+  "dessert",
+  "Crêpe sucrée ou glace",
+  ["Bréhan (Beurre, sucre)", COMEDIE_PLOUGASTEL_FRAISES, COMEDIE_PLOUGASTEL_ABRICOT, "Binic (Pâte à tartiner Nutella)", "Une boule de glace"],
+  { obligatoire: true }
+);
+
+/* Le p'tit déj : la boisson chaude, le nappage et le jus des deux formules. */
+const COMEDIE_BOISSON_CHAUDE = groupeChoix(
+  "boisson",
+  "Boisson chaude",
+  ["Expresso", "Café allongé", "Café noisette", "Décaféiné", "Thé", "Chocolat chaud"],
+  { obligatoire: true }
+);
+const COMEDIE_NAPPAGE_DEJ = groupeChoix(
+  "nappage",
+  "Nappage",
+  ["Nutella", "Beurre, Sucre, Citron", "Confiture de fraises", "Confiture d’abricots", "Coulis de fruits rouges"],
+  { obligatoire: true }
+);
+const COMEDIE_JUS_DEJ = groupeChoix("jus", "Jus", ["Jus d’oranges", ["Jus d’oranges pressées", 2]], { obligatoire: true });
+
+/** « Parfum : Classique, Fraise, Passion ou Coco » des mojitos et caïpirinhas. */
+const COMEDIE_PARFUM_COCKTAIL = groupeChoix("parfum", "Parfum", ["Classique", "Fraise", "Passion", "Coco"], {
+  obligatoire: true,
+});
+
+/** « Supp tranche / sirop » des sodas, « Extra syrup » des bières. */
+const COMEDIE_TRANCHE_SIROP = groupeChoix("supplements", "Suppléments", ["Tranche", "Sirop"], {
+  multiple: true,
+  supplement: 0.3,
+});
+
+/** Une pression Meteor en 25 et 50 cl. */
+const comediePression = (id: string, name: string, degre: string, demi: number, pinte: number, extra: Partial<MenuItem> = {}) =>
+  comedieFormats(
+    id,
+    name,
+    [
+      ["25 cl", demi],
+      ["50 cl", pinte],
+    ],
+    { detail: degre, ...ALCOOL, ...extra }
+  );
+
+/** Un vin du Domaine de Valfeuille, au verre et à la bouteille. */
+const comedieVin = (id: string, name: string, description: string, verre: number, bouteille: number) =>
+  comedieFormats(
+    id,
+    name,
+    [
+      ["Verre 12 cl", verre],
+      ["Bouteille 75 cl", bouteille],
+    ],
+    { description, ...ALCOOL }
+  );
+
+/** Un cidre Kerisac à la bolée ou au pichet. */
+const comedieCidre = (id: string, name: string, bolee: number, demi: number, litre: number) =>
+  comedieFormats(
+    id,
+    name,
+    [
+      ["Bolée 20 cl", bolee],
+      ["Pichet 50 cl", demi],
+      ["Pichet 1 L", litre],
+    ],
+    ALCOOL
+  );
+
+const creperieComedie: Restaurant = {
+  slug: "creperie-comedie",
+  name: "Crêperie Comédie",
+  demoSuivi: true,
+  tagline: "Place de la Comédie · Montpellier",
+  // Leur logo (fraise en cœur, « Crêperie Comédie » au pinceau), tiré du PDF de leur carte.
+  logo: "/creperie-comedie/logo.png",
+  logoIsName: true,
+  icons: { tab: "/creperie-comedie/favicon.png", homeScreen: "/creperie-comedie/icon.png" },
+  themeColor: "#f6d5e6",
+  address: "12 Place de la Comédie, 34000 Montpellier",
+  // La couverture de leur carte (Google et Facebook donnent le 09 75 26 48 87).
+  phone: "+33 4 67 92 30 94",
+  // Les sources se contredisent (Google, Instagram, TikTok, le néon) : à confirmer.
+  hours: "",
+  placeId: "ChIJ1WQmMaevthIR_4Si5GR6g_U",
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJ1WQmMaevthIR_4Si5GR6g_U",
+  // Le tampon de leurs pages, la formule et l'happy hour de la carte française.
+  highlights: ["Vraie cuisine maison", "Formule midi 15,90 €", "Happy hour 18h–⁠21h"],
+  ticker: [
+    { text: "Compose ta galette, ton dessert ou ta glace !", tone: "brand" },
+    { text: "Happy hour de 18h à 21h : toutes nos bières pression 50 cl au prix de la 25 cl", tone: "accent" },
+    { text: "Carafe ou verre d’eau gratuit" },
+  ],
+  categories: [
+    {
+      id: "formules",
+      name: "Nos formules",
+      tagline: "Toutes nos galettes sont accompagnées d’un mélange de salade, carottes râpées et tomates.",
+      items: [
+        comedieArticle("formule-midi", "Formule midi", 15.9, {
+          description:
+            "Jours ouvrés, jusqu’à 15h. Une boisson, une galette au choix parmi les «\u00a0Classiques\u00a0», une crêpe sucrée au choix parmi les «\u00a0Classiques\u00a0» (sauf Suzette et Tatin)",
+          options: [
+            COMEDIE_BOISSON_MIDI,
+            groupeChoix("vin", "Vin", ["Rosé «\u00a0Mélodie\u00a0»", "Blanc «\u00a0Jalousie\u00a0»", "Rouge «\u00a0Imprévu\u00a0»"], {
+              obligatoire: true,
+              when: cdaSi(COMEDIE_BOISSON_MIDI, "Verre de vin"),
+            }),
+            groupeChoix("cidre", "Cidre", ["Brut", "Doux"], {
+              obligatoire: true,
+              when: cdaSi(COMEDIE_BOISSON_MIDI, "Bolée de cidre"),
+            }),
+            groupeChoix("galette", "Galette", COMEDIE_GALETTES, { obligatoire: true }),
+            groupeChoix(
+              "crepe",
+              "Crêpe sucrée",
+              ["Groix", COMEDIE_PLOUGASTEL_FRAISES, COMEDIE_PLOUGASTEL_ABRICOT, "Binic", "Douarnenez"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        comedieArticle("galette-du-jour", "Galette du jour", 12.9, { description: "Voir Ardoise" }),
+        comedieArticle("formule-enfant", "Formule enfant", 12, {
+          description: "Une boisson, une galette au choix, une crêpe sucrée au choix ou une boule de glace",
+          options: [
+            COMEDIE_BOISSON_ENFANT,
+            groupeChoix("sirop", "Sirop", COMEDIE_SIROPS, { obligatoire: true, when: cdaSi(COMEDIE_BOISSON_ENFANT, "Sirop") }),
+            groupeChoix("galette", "Galette", ["Crispy (Poulet, Emmental)", "Dinan (Jambon, Emmental)"], { obligatoire: true }),
+            COMEDIE_DESSERT_ENFANT,
+            groupeChoix("parfum", "Parfum de la boule", COMEDIE_PARFUMS, {
+              obligatoire: true,
+              when: cdaSi(COMEDIE_DESSERT_ENFANT, "Une boule de glace"),
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      // Le feuillet « Formules p'tit dej » (mai 2026).
+      id: "petit-dej",
+      name: "P’tit déj",
+      tagline: "De 8h à 11h30",
+      items: [
+        comedieArticle("formule-gourmande", "Formule gourmande", 5.8, {
+          description: "Boisson chaude, crêpe, gaufre ou 2 pancakes avec nappage au choix, jus d’oranges",
+          options: [
+            COMEDIE_BOISSON_CHAUDE,
+            groupeChoix("base", "Crêpe, gaufre ou pancakes", ["Crêpe", "Gaufre", "2 Pancakes"], { obligatoire: true }),
+            COMEDIE_NAPPAGE_DEJ,
+            COMEDIE_JUS_DEJ,
+            groupeChoix(
+              "supplements",
+              "Suppléments",
+              [
+                ["Bananes", 1],
+                ["Fraises", 1],
+                ["Chantilly", 1],
+                ["Amandes effilées", 1],
+                ["Spéculoos concassés", 1],
+                ["Oeufs brouillés & bacon", 3.5],
+                ["Charcuterie", 2],
+                ["Fromage", 2.5],
+              ],
+              { multiple: true }
+            ),
+          ],
+        }),
+        comedieArticle("formule-brunch", "Formule brunch", 14.6, {
+          description:
+            "Boisson chaude, 2 pancakes nappage au choix, oeufs brouillés et bacon, gaufre salée avocat & protéine au choix, jus d’oranges",
+          options: [
+            COMEDIE_BOISSON_CHAUDE,
+            COMEDIE_NAPPAGE_DEJ,
+            groupeChoix("proteine", "Protéine de la gaufre", ["Poulet crispy", "Saumon", "Jambon cru", "Jambon blanc"], {
+              obligatoire: true,
+            }),
+            COMEDIE_JUS_DEJ,
+          ],
+        }),
+      ],
+    },
+    {
+      id: "galettes",
+      name: "Les galettes",
+      tagline: "Toutes nos galettes sont accompagnées d’un mélange de salade, carottes râpées et tomates.",
+      items: [
+        comedieArticle("pont-l-abbe", "Pont l’Abbé", 11.9, { description: "Jambon blanc, Emmental français râpé, Oeuf" }),
+        comedieArticle("guemene", "Guémené", 11.9, {
+          description: "Emmental français, Andouille de Guémené, Poires caramélisées",
+        }),
+        comedieArticle("brandivy", "Brandivy", 12.9, { description: "Emmental français, Saumon fumé, Crème aux herbes" }),
+        comedieArticle("loic", "Loïc", 11.9, { description: "Chèvre frais, Miel, Noix" }),
+        comedieArticle("sene", "Séné", 12.9, { description: "Poulet crispy, Emmental français râpé, crème curry" }),
+        comedieComposeGalette(),
+      ],
+    },
+    {
+      id: "gaufres",
+      name: "Les gaufres",
+      items: [
+        comedieArticle("gaufre-caprese", "Caprèse", 14.9, { description: "Tomates coeur de boeuf, Burrata, Roquette, Pesto" }),
+        comedieArticle("gaufre-avocat-saumon", "Avocat-saumon", 14.9, {
+          description: "Saumon fumé, Avocat, Tomates confites, Crème aux herbes et Roquette",
+        }),
+        comedieArticle("gaufre-italienne", "Italienne", 14.9, {
+          description: "Jambon cru, Burrata, Poivrons, Tomates confites, Olives noires, Sauce pesto et Roquette",
+        }),
+        comedieArticle("gaufre-tartiflette", "Tartiflette", 14.9, {
+          description: "Lardons fumés, Fromage à raclette, Pommes de terre vapeur, Oignons caramélisés et Salade verte",
+        }),
+        comedieArticle("gaufre-crispy", "Crispy", 14.9, {
+          description: "Poulet crispy, Rösti de pommes de terre, Sauce cheddar et Roquette",
+        }),
+      ],
+    },
+    {
+      id: "salades",
+      name: "Les salades",
+      items: [
+        comedieArticle("salade-cesar", "César", 16.9, {
+          description:
+            "Salade verte, Tomates cerise, Copeaux de parmesan, Poulet crispy, Oeuf, Oignons rouges, Croûtons à l’ail et Sauce césar",
+        }),
+        comedieArticle("salade-italienne", "Italienne", 16.9, {
+          description:
+            "Salade verte, Jambon cru, Copeaux de parmesan, Burrata, Poivrons, Tomates confites, Olives noires, Sauce pesto",
+        }),
+        comedieArticle("salade-chevre", "Chèvre", 16.9, {
+          description: "Salade verte, Toasts de chèvre fondant, Tomates cerises, Noix et miel",
+        }),
+        comedieArticle("salade-veggie", "Veggie", 16.9, {
+          description: "Salade de concombre, Poivrons marinés, Sauce yaourt feta, Oignons",
+        }),
+      ],
+    },
+    {
+      id: "tapas",
+      name: "Les tapas",
+      items: [
+        comedieArticle("frites", "Assiette de frites", 5),
+        comedieArticle("crispy-poulet", "Crispy de poulet, sauce tartare", 7),
+        comedieArticle("tomates-burrata", "Tomates coeur de boeuf et burrata", 12),
+        comedieArticle("carpaccio", "Carpaccio de boeuf & frites", 13.9),
+        comedieArticle("assiette-fromage", "Assiette de fromage", 13),
+        comedieArticle("assiette-charcuterie", "Assiette de charcuterie", 14),
+        comedieArticle("planche-mixte", "Planche mixte", 18, { description: "Charcuterie, fromage" }),
+      ],
+    },
+    {
+      id: "sucrees",
+      name: "Les sucrées",
+      tagline: "On vous laisse le choix entre : crêpe, gaufre ou 3 pancakes !",
+      items: [
+        comedieSucree("groix", "Groix", "Beurre demi-sel, Sucre et Citron", 4.5),
+        comedieSucree("plougastel", "Plougastel", "Confiture de fraises ou d’abricot", 5, {
+          options: [
+            COMEDIE_SERVIE_EN,
+            groupeChoix("confiture", "Confiture", ["Fraises", "Abricot"], { obligatoire: true }),
+          ],
+        }),
+        comedieSucree("binic", "Binic", "Pâte à tartiner Nutella", 5),
+        comedieSucree("douarnenez", "Douarnenez", "Crème de marrons", 5.5),
+        comedieSucree("tatin", "Tatin", "Pommes cuites, Caramel beurre salé, Glace vanille", 7.5),
+        comedieSucree(
+          "suzette",
+          "Suzette",
+          "Sauce au beurre demi-sel et Sucre caramélisé flambé au Grand Marnier",
+          8.5
+        ),
+        comedieArticle("compose-dessert", "Compose ton dessert", 5, {
+          tarifs: comedieTarifs([
+            ["1 ingrédient", 5],
+            ["2 ingrédients", 6],
+            ["Supplément", 1],
+          ]),
+          options: [
+            COMEDIE_SERVIE_EN,
+            groupeChoix("ingredient", "Ton ingrédient", COMEDIE_DESSERT_INGREDIENTS, { obligatoire: true }),
+            groupeChoix("en-plus", "Ingrédients en plus", COMEDIE_DESSERT_INGREDIENTS, { multiple: true, supplement: 1 }),
+            groupeChoix("glace", "Supplément glace", ["Caramel", "Café", "Chocolat", "Citron", "Fraise", "Vanille"], {
+              supplement: 2,
+              aucun: "Sans glace",
+            }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "gourmandises",
+      name: "Les gourmandises",
+      items: [
+        comedieArticle("moelleux", "Moelleux au chocolat", 7),
+        comedieArticle("tiramisu", "Tiramisu", 8),
+        comedieArticle("creme-brulee", "Crème brûlée", 7),
+        comedieArticle("expresso-gourmand", "Expresso Gourmand", 8),
+        comedieArticle("panna-cotta", "Panna cotta", 7, {
+          description: "Fruits rouges, caramel ou chocolat",
+          options: [groupeChoix("nappage", "Nappage", ["Fruits rouges", "Caramel", "Chocolat"], { obligatoire: true })],
+        }),
+        comedieArticle("cheesecake", "Cheesecake", 9),
+      ],
+    },
+    {
+      id: "glaces",
+      name: "Les glaces",
+      items: [
+        comedieArticle("la-comedie", "La Comédie", 8, {
+          description: "3 boules fraise, Fraises fruit, Chantilly et Coulis de fruits rouges",
+        }),
+        comedieArticle("dame-blanche", "Dame Blanche", 8, { description: "3 boules vanille, Sauce chocolat maison et Chantilly" }),
+        comedieArticle("chocolat-liegeois", "Chocolat Liégeois", 8, {
+          description: "3 boules chocolat, Sauce chocolat maison et Chantilly",
+        }),
+        comedieArticle("cafe-liegeois", "Café Liégeois", 8, { description: "3 boules café, Expresso et Chantilly" }),
+        comedieArticle("griottines", "Griottines", 8, { description: "3 boules cerise, Griottines au sirop et Chantilly" }),
+        comedieArticle("poire-belle-helene", "Poire Belle-Helene", 8, {
+          description: "2 boules vanille, 1 boule poire, Poire fruit, Chocolat maison et Chantilly",
+        }),
+        comedieArticle("banana-split", "Banana Split", 8, {
+          description: "1 boule vanille, fraise et chocolat, Banane fruit, Chocolat maison et Chantilly",
+        }),
+        comedieAlcool("colonel", "Colonel", 10, { description: "3 boules citron, Vodka" }),
+        comedieComposeGlace(),
+      ],
+    },
+    {
+      id: "fraicheurs",
+      name: "Les fraîcheurs",
+      boissons: true,
+      items: [
+        comedieArticle("the-glace", "Thé glacé maison", 5.5, { description: "Infusion de thé vert et de thé noir" }),
+        comedieArticle("citronnade", "Citronnade maison", 5.5, { description: "Citrons fraîchement pressés, limonade" }),
+        comedieArticle("oranges-pressees", "Oranges pressées", 5.5, { description: "Oranges fraîchement pressées" }),
+        comedieArticle("fraiseraie", "Fraiseraie", 5.5, {
+          description: "Purée de fraises, sirop de romarin et eau gazeuse. Au printemps et en été",
+          disponible: false,
+        }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails maison",
+      tagline: "Demandez notre cocktail du moment",
+      boissons: true,
+      items: [
+        comedieAlcool("mojito", "Mojito", 10, {
+          description: "Rhum blanc, Citron vert, Menthe fraîche, Cassonade, Eau gazeuse",
+          options: [COMEDIE_PARFUM_COCKTAIL],
+        }),
+        comedieAlcool("caipirinha", "Caïpirinha", 10, {
+          description: "Cachaça, Citron vert, Cassonade",
+          options: [COMEDIE_PARFUM_COCKTAIL],
+        }),
+        comedieAlcool("sex-on-the-beach", "Sex on the beach", 10, { description: "Vodka, Crème de pêche, Jus de cranberry" }),
+        comedieAlcool("pina-colada", "Piña Colada", 10, { description: "Rhum, Jus d’ananas, Crème de coco" }),
+        comedieAlcool("spritz", "Spritz", 10, {
+          description: "Base au choix, Vin blanc pétillant, Eau gazeuse",
+          options: [groupeChoix("base", "Base", ["Aperol", "Limoncello", "St Germain"], { obligatoire: true })],
+        }),
+        comedieAlcool("gin-tonic", "Gin Tonic", 10, { description: "Gin, Schweppes tonic" }),
+        comedieAlcool("cuba-libre", "Cuba libre", 10, { description: "Rhum, Coca, Citron vert" }),
+        comedieAlcool("mules", "Les Mules", 10, {
+          description: "Base au choix, Ginger beer",
+          options: [groupeChoix("base", "Base", ["Gin", "Vodka", "Rhum", "Tequila", "Cognac"], { obligatoire: true })],
+        }),
+        comedieAlcool("tequila-sunrise", "Tequila Sunrise", 10, { description: "Tequila, Jus d’orange, Sirop de grenadine" }),
+      ],
+    },
+    {
+      id: "mocktails",
+      name: "Mocktails maison",
+      boissons: true,
+      items: [
+        comedieArticle("virgin-mojito", "Virgin Mojito", 8, { options: [COMEDIE_PARFUM_COCKTAIL] }),
+        comedieArticle("virgin-pina-colada", "Virgin Piña Colada", 8, { description: "Jus d’ananas, purée de coco" }),
+        comedieArticle("spritz-0", "Spritz 0%", 8, {
+          options: [groupeChoix("base", "Base", ["Aperol 0%", "Limoncello 0%"], { obligatoire: true })],
+        }),
+        comedieArticle("virgin-mule", "Virgin Mule", 8, { description: "Sirop de rhum, jus de citron, ginger beer" }),
+      ],
+    },
+    {
+      id: "sodas-jus",
+      name: "Sodas & jus",
+      boissons: true,
+      items: [
+        comedieArticle("sodas", "Sodas", 4.5, {
+          description: "Coca, Coca Zéro, Orangina, Ice tea, Schweppes tonic/agrumes, Oasis, Sprite, Fanta orange, Redbull",
+          options: [
+            groupeChoix(
+              "soda",
+              "Soda",
+              [
+                "Coca",
+                "Coca Zéro",
+                "Orangina",
+                "Ice tea",
+                "Schweppes tonic",
+                "Schweppes agrumes",
+                "Oasis",
+                "Sprite",
+                "Fanta orange",
+                "Redbull",
+              ],
+              { obligatoire: true }
+            ),
+            COMEDIE_TRANCHE_SIROP,
+          ],
+        }),
+        comedieArticle("sirops", "Sirops à l’eau", 3.5, {
+          options: [groupeChoix("sirop", "Sirop", COMEDIE_SIROPS, { obligatoire: true })],
+        }),
+        comedieArticle("diabolos", "Diabolos", 4.5, {
+          options: [groupeChoix("sirop", "Sirop", COMEDIE_SIROPS, { obligatoire: true })],
+        }),
+        comedieArticle("jus-de-fruits", "Jus de fruits", 4.5, {
+          options: [
+            groupeChoix(
+              "jus",
+              "Jus",
+              ["Orange", "Pomme", "Tomate", "Abricot", "Fraise", "Poire", "Mangue", "Ananas", "ACE"],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+        comedieArticle("perrier", "Perrier", 4.5, { detail: "33cl", options: [COMEDIE_TRANCHE_SIROP] }),
+        comedieFormats("vittel", "Vittel", [
+          ["25 cl", 3.9],
+          ["50 cl", 5],
+          ["1 L", 7],
+        ]),
+        comedieFormats("san-pellegrino", "San Pellegrino", [
+          ["50 cl", 5],
+          ["1 L", 7],
+        ]),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières Meteor",
+      boissons: true,
+      items: [
+        comediePression("blonde", "Blonde", "5 %", 4, 8, { options: [COMEDIE_TRANCHE_SIROP] }),
+        comediePression("ipa", "IPA", "6,2 %", 4.9, 9),
+        comediePression("blanche", "Blanche", "5 %", 4.9, 9),
+        comediePression("cerise", "Cerise", "5,5 %", 5, 9),
+        comedieFormats(
+          "picon-panache-monaco",
+          "Picon / Panaché / Monaco",
+          [
+            ["25 cl", 4.2],
+            ["50 cl", 7.9],
+          ],
+          {
+            ...ALCOOL,
+            options: [groupeChoix("biere", "Bière", ["Picon", "Panaché", "Monaco"], { obligatoire: true })],
+          }
+        ),
+        comedieArticle("heineken-0", "Heineken 0%", 6, { detail: "33cl" }),
+        comedieAlcool("chouffe", "Chouffe", 7, { detail: "33cl" }),
+        comedieAlcool("desperados", "Desperados", 7, { detail: "33cl" }),
+      ],
+    },
+    {
+      id: "cidres",
+      name: "Les cidres «\u00a0Kerisac\u00a0»",
+      boissons: true,
+      items: [
+        comedieCidre("cidre-brut", "Brut Pression", 4.2, 8, 14.9),
+        comedieCidre("cidre-doux", "Doux", 5, 9.5, 16.5),
+        comedieAlcool("cidre-brut-bouteille", "Brut, en bouteille", 14, { detail: "75cl" }),
+        comedieAlcool("cidre-doux-bouteille", "Doux, en bouteille", 15.5, { detail: "75cl" }),
+      ],
+    },
+    {
+      id: "vins",
+      name: "Les vins · Champagnes",
+      boissons: true,
+      items: [
+        comedieVin("rose", "Rosé «\u00a0Mélodie\u00a0»", "Domaine de Valfeuille, AOP Languedoc (Cinsault, Grenache gris et noir)", 4.9, 19),
+        comedieVin("blanc", "Blanc «\u00a0Jalousie\u00a0»", "Domaine de Valfeuille, AOP Languedoc (Roussane, Rolle)", 4.5, 20),
+        comedieVin("rouge", "Rouge «\u00a0Imprévu\u00a0»", "Domaine de Valfeuille, AOC Languedoc (Syrah, Grenache)", 4.9, 22),
+        comedieAlcool("cafe-de-paris", "Blanc de blanc «\u00a0Café de Paris\u00a0»", 30, { detail: "75cl" }),
+        comedieFormats(
+          "paul-romain",
+          "Paul Romain",
+          [
+            ["Verre 12 cl", 11],
+            ["Bouteille 75 cl", 49],
+          ],
+          ALCOOL
+        ),
+        comedieAlcool("ruinart", "Ruinart blanc de blanc", 115, { detail: "75cl" }),
+      ],
+    },
+    {
+      id: "aperitifs",
+      name: "Les apéritifs",
+      boissons: true,
+      items: [
+        comedieAlcool("ricard", "Ricard", 3.5),
+        comedieAlcool("martini", "Martini", 4.5, {
+          options: [groupeChoix("martini", "Martini", ["Blanc", "Rouge"], { obligatoire: true })],
+        }),
+        comedieAlcool("campari", "Campari", 4.5),
+        comedieAlcool("muscat", "Muscat", 4.5),
+        comedieAlcool("porto", "Porto rouge", 4.5),
+        comedieAlcool("kir", "Kir", 4.9, {
+          description: "Vin blanc ou cidre brut",
+          options: [groupeChoix("base", "Base", ["Vin blanc", "Cidre brut"], { obligatoire: true })],
+        }),
+        comedieAlcool("whisky", "Whisky", 9.5),
+        comedieAlcool("vodka", "Vodka", 9.5),
+        comedieAlcool("rhum", "Rhum", 9.5),
+        comedieAlcool("gin", "Gin", 9.5),
+        comedieAlcool("kir-royal", "Kir Royal", 10.5),
+        comedieAlcool("coupe-champagne", "Coupe de champagne", 11),
+      ],
+    },
+    {
+      id: "digestifs",
+      name: "Les digestifs",
+      boissons: true,
+      items: [
+        comedieAlcool("calvados", "Calvados VS", 8),
+        comedieAlcool("grand-marnier", "Grand Marnier", 8),
+        comedieAlcool("get-27", "Get 27", 8),
+        comedieAlcool("limoncello", "Limoncello", 8),
+        comedieAlcool("baileys", "Baileys", 8),
+        comedieAlcool("armagnac", "Armagnac VS", 9),
+        comedieAlcool("irish", "Irish", 9, {
+          description: "Whisky ou Rhum",
+          options: [groupeChoix("base", "Base", ["Whisky", "Rhum"], { obligatoire: true })],
+        }),
+        comedieAlcool("cointreau", "Cointreau", 10.5),
+        comedieAlcool("cognac", "Cognac VS", 10.5),
+        comedieAlcool("don-papa", "Rhum Don Papa", 11),
+        comedieAlcool("diplomatico", "Rhum Diplomático", 11),
+      ],
+    },
+    {
+      id: "cafeteria",
+      name: "Cafétéria",
+      tagline: "Supplément boissons chaudes à partir de 20h, hors repas : + 0,50 €",
+      boissons: "chaudes",
+      items: [
+        comedieArticle("expresso", "Expresso", 2.2),
+        comedieArticle("cafe-allonge", "Café Allongé", 2.2),
+        comedieArticle("cafe-noisette", "Café noisette", 2.5),
+        comedieArticle("decafeine", "Décaféiné", 2.5),
+        comedieArticle("cafe-creme", "Café crème", 3.9),
+        comedieArticle("double-expresso", "Double Expresso", 4.1),
+        comedieArticle("cappuccino", "Cappuccino / Café Latte", 4.5, {
+          options: [groupeChoix("cafe", "Café", ["Cappuccino", "Café Latte"], { obligatoire: true })],
+        }),
+        comedieArticle("cafe-frappe", "Café frappé", 4.5),
+        comedieArticle("cafe-viennois", "Café Viennois", 4.9),
+        comedieArticle("chocolat-chaud", "Chocolat chaud", 4.5),
+        comedieArticle("chocolat-viennois", "Chocolat Viennois", 5.1),
+        comedieArticle("the", "Thés & infusions", 4, {
+          options: [
+            groupeChoix(
+              "the",
+              "Thé ou infusion",
+              [
+                "Yunnan",
+                "Ceylan",
+                "Jasmin",
+                "Sencha",
+                "Menthe",
+                "Earl Grey",
+                "Vanille",
+                "Caramel",
+                "Fruits Rouges",
+                "Infusion Verveine",
+                "Infusion Tilleul",
+              ],
+              { obligatoire: true }
+            ),
+          ],
+        }),
+      ],
+    },
+  ],
+};
+
 const restaurants: Record<string, Restaurant> = {
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -6616,6 +10391,14 @@ const restaurants: Record<string, Restaurant> = {
   [boulangerieCyprien.slug]: boulangerieCyprien,
   [brasserieLaissac.slug]: brasserieLaissac,
   [lEtoile.slug]: lEtoile,
+  [cafeRiche.slug]: cafeRiche,
+  [cafePoulard.slug]: cafePoulard,
+  [lePetitNice.slug]: lePetitNice,
+  [leClub.slug]: leClub,
+  [lEntrepot.slug]: lEntrepot,
+  [lePulp.slug]: lePulp,
+  [cafe3Graces.slug]: cafe3Graces,
+  [creperieComedie.slug]: creperieComedie,
 };
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -6636,6 +10419,14 @@ const themeClasses: Record<string, string> = {
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [lEtoile.slug]: "theme-l-etoile",
+  [cafeRiche.slug]: "theme-cafe-riche",
+  [cafePoulard.slug]: "theme-cafe-poulard",
+  [lePetitNice.slug]: "theme-le-petit-nice",
+  [leClub.slug]: "theme-le-club",
+  [lEntrepot.slug]: "theme-l-entrepot",
+  [lePulp.slug]: "theme-le-pulp",
+  [cafe3Graces.slug]: "theme-cafe-3-graces",
+  [creperieComedie.slug]: "theme-creperie-comedie",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

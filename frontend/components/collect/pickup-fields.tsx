@@ -117,9 +117,12 @@ export function PickupFields({
     if (value.pickupAt && !chosen) onChange({ ...value, pickupAt: "" });
   }, [value, chosen, onChange]);
   const earliest = useMemo(
-    () => (notice ? pickupSlots(hours, firstDay, slotMinutes, now, noticeMinutes)[0] : undefined),
-    [notice, hours, firstDay, slotMinutes, now, noticeMinutes]
+    () => (openNow ? undefined : pickupSlots(hours, firstDay, slotMinutes, now, noticeMinutes)[0]),
+    [openNow, hours, firstDay, slotMinutes, now, noticeMinutes]
   );
+  // « À une heure précise » ouvre le jour et l'heure sous le pli, sur
+  // téléphone : le choix les ramène à l'écran, au-dessus du pied collé.
+  const revealTime = useRef(false);
 
   useEffect(() => {
     if (!isCalendarDay(day)) return;
@@ -202,6 +205,12 @@ export function PickupFields({
           )}.
         </p>
       )}
+      {!openNow && !notice && earliest && (
+        <p className="-mt-1 text-xs leading-relaxed text-muted">
+          Fermé pour l&apos;instant&nbsp;: premier retrait possible le{" "}
+          {formatDayLong(firstDay)} à {formatClock(earliest.toISOString())}.
+        </p>
+      )}
       {/* Boutique fermée ou plat à commander à l'avance : une seule façon de
           retirer, pas de choix à présenter. */}
       {openNow && (
@@ -221,7 +230,10 @@ export function PickupFields({
             type="button"
             role="radio"
             aria-checked={!asap}
-            onClick={() => set({ pickupAt: slots[0]?.toISOString() ?? "" })}
+            onClick={() => {
+              revealTime.current = true;
+              set({ pickupAt: slots[0]?.toISOString() ?? "" });
+            }}
             className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
               !asap ? "border-ember-2/60 bg-surface-raised text-foreground" : "border-hairline text-muted"
             }`}
@@ -249,6 +261,12 @@ export function PickupFields({
           <label className="flex flex-col gap-1 text-xs font-medium text-muted">
             Heure
             <select
+              ref={(select) => {
+                if (select && revealTime.current) {
+                  revealTime.current = false;
+                  select.scrollIntoView({ block: "nearest" });
+                }
+              }}
               value={chosen}
               onChange={(event) => set({ pickupAt: event.target.value })}
               disabled={slots.length === 0}

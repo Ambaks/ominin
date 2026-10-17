@@ -187,7 +187,19 @@ sign), `7807489` (printed paper), `10315700` (printed coffee sack),
 (printed shop liner), `photo-1768203629861-33e47ea111a6` (printed paper
 bags), `photo-1753011767259-c6d57777fce2` and `photo-1752850744064-65e198039be0`
 (Korean price signs), `photo-1554475659-9fd915c8f156` (newsprint wraps),
-`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving).
+`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving). On Toast' Tea
+(salon de thé): `11552272` (script name on the plate rim), `18426952` (logo
+card), `15110222`–`15110224` (newspaper under the plate), `26936289`,
+`26936290` and `39664557` (printed paper liner), `21424391` (Cyrillic menu
+card), `2560035` ("PIOLA" placemat), `15013889` (printed placemat with an
+email), `31846558` ("MARIA AL MONTE" bottles), `11089568` ("H" logo board),
+`28760178` ("MEAT…" burger paper), `9057015` (lettered shirt), `35469100`,
+`35469120` ("POPCO…" bucket and jars), `14623909` (magazine text),
+`12814857` ("Gerus" knife blade), `34097446` ("PREGO" espresso cup),
+Unsplash `photo-1598441764246-9badfc83e3a7` ("B612" watermark) and
+`photo-1660594406883-d8cac86e9cc8` (printed menu on the table).
+
+On Café 3 Grâces (October 2026): `27298481` (lettered napkin), `8765346` (printed mussel pack), `18330019` (newsprint), `14701404`, `29177220` (printed liners), `217531xx` and `17543183` (« LA … » liner, burned wordmark), `37322855`, `36869511` (engraved board, plate rim), `36805814`, `36572256`, `9513579` (lettered napkin, menu holder, placemat), `8696541` (cup logo), `20722066` (lettered mural), `11299738` (« Hot … » fries box), `20117306` (QR stand), `2756804` (« Caf… » sign), `19120333` (Jägermeister mug), `17582266` (Dole sticker), `33149226` (printed cups), `28376178` (plate-rim logo), `19143385` (etched glass), `17013299`, `26150629` (« APEROL SPRITZ » glasses), `5433780` (« Tito's », « LAVA »), `12698363` (label), `20053276`–`20053279` (LAVA bottle), `16845303`, `34342495`, `40079582` (Aperol bottle), Unsplash `photo-1728393937618-74dda0b37158` (« ROSSO » card), `photo-1786229527541-a29d0a99fa38`, `photo-1767500536243-bf6807a331e4`, `photo-1771805689661-a6f03804a52e` (burned or engraved boards), `photo-1703219339054-7cdbe8882d6c` (printed liner), `photo-1720786913121-69e472cdb75c` (« C' Divin » wrapper), `photo-1596649299486-4cdea56fd59d` (« GOURMET BURGER KITCHEN » bag), `photo-1785304968282-a3854b0ff312` (ketchup label), `photo-1664192578370-0cd2b291c4cd` (« CAFÉ BRA… » sign), `photo-1550547660-d9450f859349` (Coca-Cola), `photo-1781681009799-956dd44d1cea` (« …ALA POP » box), `photo-1514994960127-ed3ef9239d11` (jar medallion).
 
 ## French dishes stock libraries don't have
 
@@ -203,6 +215,11 @@ wrong thing:
 - **Sandwich "américain"** (baguette, steak, fries inside): none; steak-and-
   cheese subs are the closest.
 - **Pizza kebab on a red base with white sauce**: rare; `12261064` is close.
+
+- **Crêpes Nutella-coco, crème de marrons, poire** and **coupe
+  Ardéchoise**: none on either site. **Tarte Tatin aux pommes**: only pear
+  tatins or dark studio shots. **Tartare non préparé** (served unmixed,
+  yolk on top): stock tartares are already mixed.
 
 - **Baguette au charbon végétal** (black baguette): none on either site —
   only round charcoal loaves. **Pain viennois** (plain, long): none — the

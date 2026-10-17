@@ -230,9 +230,6 @@ trips three things the dark one doesn't:
 - `color-scheme: light` on the class, so form controls and scrollbars
   follow.
 
-The Ominin version (`?theme=ominin`) has its own light mode behind the
-sun/moon toggle in the category bar; it's scored in both modes.
-
 After every edit: `dev_server.sh css-has ".theme-<slug>" <page-url>`.
 
 ## 6. Brand fonts
@@ -265,9 +262,8 @@ shouldn't need to touch it.
   demos (`?table=7`).
 - **The confirmation.** The cart's last button reads « Aperçu : voir la
   confirmation »: it empties the cart and shows the confirmation locally.
-- `?theme=ominin` drops the theme class; `?service=fast-food` shows the
-  fast-food flow (no table, a numbered ticket whose steps the preview
-  advances by hand).
+- `?service=fast-food` shows the fast-food flow (no table, a numbered
+  ticket whose steps the preview advances by hand).
 - **The room demo.** `/menu/demo/<slug>/salle` is the table-service
   counterpart of `/comptoir`: the « À servir » cards per table from the
   Commandes tab, replayed on a demo service — no login, no database,

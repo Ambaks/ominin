@@ -70,6 +70,8 @@ async function open(browser, width, extra = {}) {
       brandDisplay: vars?.getPropertyValue("--brand-display").trim().split(",")[0].replace(/"/g, "") || null,
       brandWordmark: vars?.getPropertyValue("--brand-wordmark").trim().split(",")[0].replace(/"/g, "") || null,
       brandSans: vars?.getPropertyValue("--brand-sans").trim().split(",")[0].replace(/"/g, "") || null,
+      // Une police à part pour les descriptions (Toast' Tea : l'italique de son livret).
+      brandText: vars?.getPropertyValue("--brand-text").trim().split(",")[0].replace(/"/g, "") || null,
       h1: first("h1"),
       // Un logo qui écrit le nom (logoIsName) : le h1 ne porte qu'une image,
       // sa police ne dit rien du thème.
@@ -88,7 +90,7 @@ async function open(browser, width, extra = {}) {
   // (posé sur une div) n'existe pas. Sans `font-family: var(--brand-sans)` sur
   // la classe du thème, tout le texte courant reste en police Ominin.
   if (t.brandSans) {
-    const want = t.brandSans.replace(/ Fallback$/, "");
+    const want = (t.brandText ?? t.brandSans).replace(/ Fallback$/, "");
     if (t.body && t.body.startsWith(want)) ok("police de texte du thème appliquée", want);
     else fail("police de texte du thème NON appliquée", `attendu ${want}, obtenu ${t.body} — ajouter font-family: var(--brand-sans) sur .${t.theme}`);
   }
