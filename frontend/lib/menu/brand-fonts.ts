@@ -254,27 +254,6 @@ const cinzel = Cinzel({
   preload: false,
 });
 
-/**
- * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
- * Playfair Display pour les titres, Montserrat pour tout le reste.
- */
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair-display",
-  subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  preload: false,
-});
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  preload: false,
-});
-
-/** Les polices de L'Étoile, pour sa carte sur mesure. */
-export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");
-
 /** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
 export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .map((font) => font.variable)
@@ -393,3 +372,10 @@ export const brandFontVariables = [
 ]
   .map((font) => font.variable)
   .join(" ");
+
+/**
+ * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
+ * Playfair Display pour les titres (Café Riche), Montserrat pour tout le
+ * reste (Crêperie Comédie), pour sa carte sur mesure.
+ */
+export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");
