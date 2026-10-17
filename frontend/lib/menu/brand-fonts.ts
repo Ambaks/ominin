@@ -21,8 +21,6 @@ import {
   Playfair_Display,
   Poppins,
   Questrial,
-  Racing_Sans_One,
-  Sanchez,
   Source_Serif_4,
   Unbounded,
 } from "next/font/google";
@@ -61,15 +59,11 @@ const archivo = Archivo({
   preload: false,
 });
 
-/**
- * LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier.
- * Crêperie Comédie — le motif « CRÊPERIE COMÉDIE » de sa couverture (Black,
- * 900) et ses titres, à la place de Gidole, absente de Google Fonts.
- */
+/** LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier. */
 const barlowSemiCondensed = Barlow_Semi_Condensed({
   variable: "--font-barlow-semi-condensed",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "900"],
+  weight: ["400", "500", "600"],
   preload: false,
 });
 
@@ -300,29 +294,11 @@ const unbounded = Unbounded({
   preload: false,
 });
 
-/**
- * Crêperie Comédie — les polices de sa carte : Montserrat pour les plats et le
- * texte, Sanchez pour ses intertitres en capitales espacées, Racing Sans One
- * pour ses prix.
- */
+/** L'Étoile — le texte de sa carte numérique, Montserrat (etoileFontVariables). */
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: "variable",
-  preload: false,
-});
-
-const sanchez = Sanchez({
-  variable: "--font-sanchez",
-  subsets: ["latin"],
-  weight: "400",
-  preload: false,
-});
-
-const racingSansOne = Racing_Sans_One({
-  variable: "--font-racing-sans-one",
-  subsets: ["latin"],
-  weight: "400",
   preload: false,
 });
 
@@ -366,9 +342,6 @@ export const brandFontVariables = [
   unbounded,
   chakraPetch,
   adventPro,
-  montserrat,
-  sanchez,
-  racingSansOne,
 ]
   .map((font) => font.variable)
   .join(" ");
@@ -376,6 +349,6 @@ export const brandFontVariables = [
 /**
  * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
  * Playfair Display pour les titres (Café Riche), Montserrat pour tout le
- * reste (Crêperie Comédie), pour sa carte sur mesure.
+ * reste, pour sa carte sur mesure.
  */
 export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");
