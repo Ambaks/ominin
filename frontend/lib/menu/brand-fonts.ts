@@ -372,3 +372,10 @@ export const brandFontVariables = [
 ]
   .map((font) => font.variable)
   .join(" ");
+
+/**
+ * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
+ * Playfair Display pour les titres (Café Riche), Montserrat pour tout le
+ * reste (Crêperie Comédie), pour sa carte sur mesure.
+ */
+export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");

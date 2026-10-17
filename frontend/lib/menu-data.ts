@@ -6465,6 +6465,145 @@ const brasserieLaissac: Restaurant = {
 };
 
 /*
+ * L'Étoile — club & rooftop, 2 avenue d'Atlanta (Toulouse, Borderouge). La
+ * carte vient mot pour mot de leur carte numérique (etoilemenu.vercel.app,
+ * lue le 16 octobre 2026), orthographe comprise : « Class Azul », « Jack
+ * Daniel's Rey », « Fuzetea » (questions au gérant dans demos/l-etoile).
+ * Sa page client est sur mesure : app/menu/demo/l-etoile, qui regroupe ces
+ * catégories en quatre systèmes (components/menu/etoile). Les shooters « x10 »
+ * sont des lignes à part : un toucher, pas de feuille d'options, au club.
+ */
+const etoileBouteille = (id: string, name: string, detail: string, price: number): MenuItem => ({
+  id,
+  name,
+  detail,
+  price,
+  ...ALCOOL,
+});
+
+const etoileSoft = (id: string, name: string, detail: string, price: number): MenuItem => ({
+  id,
+  name,
+  detail,
+  price,
+});
+
+const lEtoile: Restaurant = {
+  slug: "l-etoile",
+  name: "L'Étoile",
+  tagline: "Club & Rooftop — Toulouse",
+  address: "2 Avenue d'Atlanta, 31200 Toulouse",
+  phone: "+33 7 83 80 33 18",
+  hours: "",
+  themeColor: "#060d1a",
+  categories: [
+    {
+      id: "rhums",
+      name: "Rhums",
+      boissons: true,
+      items: [etoileBouteille("zacapa", "Zacapa", "70 cl", 160)],
+    },
+    {
+      id: "tequilas",
+      name: "Tequilas",
+      boissons: true,
+      items: [
+        etoileBouteille("class-azul-reposado", "Class Azul Reposado", "70 cl", 350),
+        etoileBouteille("don-julio-1942", "Don Julio 1942", "70 cl", 350),
+        etoileBouteille("don-julio-reposado", "Don Julio Reposado", "70 cl", 160),
+        etoileBouteille("don-julio-blanco", "Don Julio Blanco", "70 cl", 150),
+      ],
+    },
+    {
+      id: "whiskys",
+      name: "Whiskys",
+      boissons: true,
+      items: [
+        etoileBouteille("black-label", "Black Label", "70 cl", 150),
+        etoileBouteille("jack-daniels", "Jack Daniel's", "70 cl", 150),
+        etoileBouteille("magnum-jack-daniels", "Magnum Jack Daniel's", "175 cl", 300),
+        etoileBouteille("jack-daniels-honey", "Jack Daniel's Honey", "70 cl", 150),
+        etoileBouteille("jack-daniels-rey", "Jack Daniel's Rey", "70 cl", 150),
+        etoileBouteille("jack-daniels-apple", "Jack Daniel's Apple", "70 cl", 150),
+      ],
+    },
+    {
+      id: "vodkas",
+      name: "Vodkas",
+      boissons: true,
+      items: [
+        etoileBouteille("ciroc", "Ciroc", "70 cl", 150),
+        etoileBouteille("magnum-ciroc", "Magnum Ciroc", "175 cl", 300),
+        etoileBouteille("ciroc-aromatisee", "Ciroc Aromatisée", "70 cl", 150),
+        etoileBouteille("belvedere", "Belvedere", "70 cl", 160),
+        etoileBouteille("belvedere-lumineuse", "Belvedere Lumineuse", "70 cl", 170),
+        etoileBouteille("belvedere-chrome", "Belvedere Chrome", "70 cl", 180),
+      ],
+    },
+    {
+      id: "gins",
+      name: "Gins",
+      boissons: true,
+      items: [etoileBouteille("tanqueray-ten", "Tanqueray Ten", "70 cl", 130)],
+    },
+    {
+      id: "cognacs",
+      name: "Cognacs",
+      boissons: true,
+      items: [
+        etoileBouteille("hennessy-fine-75", "Hennessy Fine", "75 cl", 160),
+        etoileBouteille("hennessy-fine-150", "Hennessy Fine", "150 cl", 350),
+      ],
+    },
+    {
+      id: "sodas",
+      name: "Sodas",
+      boissons: true,
+      items: [
+        etoileSoft("fuzetea", "Fuzetea", "33 cl", 6),
+        etoileSoft("coca-cola", "Coca-Cola", "33 cl", 6),
+        etoileSoft("coca-cola-zero", "Coca-Cola Zéro", "33 cl", 6),
+        etoileSoft("hexis-energy-25", "Hexis Energy", "25 cl", 6),
+        etoileSoft("hexis-energy-pack", "Hexis Energy Pack", "x5", 25),
+        etoileSoft("hexis-energy-100", "Hexis Energy", "100 cl", 15),
+      ],
+    },
+    {
+      id: "eau",
+      name: "Eau",
+      boissons: true,
+      items: [etoileSoft("cristaline", "Cristaline", "50 cl", 4)],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        etoileBouteille("shooter", "Shooter", "2 cl", 4),
+        etoileBouteille("shooter-x10", "Shooter", "2 cl x10", 30),
+        etoileBouteille("shooter-superieur", "Shooter Supérieur", "2 cl", 6),
+        etoileBouteille("shooter-superieur-x10", "Shooter Supérieur", "2 cl x10", 50),
+        etoileBouteille("shooter-superieur-tequila", "Shooter Supérieur Tequila", "2 cl", 8),
+      ],
+    },
+    {
+      id: "champagnes",
+      name: "Champagnes",
+      boissons: true,
+      items: [
+        etoileBouteille("moet-brut", "Moët Brut", "75 cl", 150),
+        etoileBouteille("magnum-moet-brut", "Magnum Moët Brut", "150 cl", 300),
+        etoileBouteille("moet-ice", "Moët Ice", "75 cl", 150),
+        etoileBouteille("moet-rose", "Moët Rosé", "75 cl", 160),
+        etoileBouteille("ruinart-blanc-de-blancs", "Ruinart Blanc de Blancs", "75 cl", 300),
+        etoileBouteille("dom-perignon-lumineuse", "Dom Pérignon Lumineuse", "75 cl", 400),
+        etoileBouteille("armand-de-brignac-gold", "Armand De Brignac Gold", "75 cl", 450),
+      ],
+    },
+  ],
+};
+
+/*
  * Café Poulard — comptoir méditerranéen, 27 rue du Faubourg du Courreau
  * (Montpellier), repris des Frères Poulards en février 2026 : click &
  * collect seul, pas de carte QR. Aucune carte imprimée remise et aucun prix
@@ -10251,6 +10390,7 @@ const restaurants: Record<string, Restaurant> = {
   [caffePanis.slug]: caffePanis,
   [boulangerieCyprien.slug]: boulangerieCyprien,
   [brasserieLaissac.slug]: brasserieLaissac,
+  [lEtoile.slug]: lEtoile,
   [cafeRiche.slug]: cafeRiche,
   [cafePoulard.slug]: cafePoulard,
   [lePetitNice.slug]: lePetitNice,
@@ -10278,6 +10418,7 @@ const themeClasses: Record<string, string> = {
   [caffePanis.slug]: "theme-caffe-panis",
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
+  [lEtoile.slug]: "theme-l-etoile",
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
