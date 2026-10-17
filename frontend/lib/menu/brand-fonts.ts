@@ -15,11 +15,14 @@ import {
   Didact_Gothic,
   Fraunces,
   Josefin_Sans,
+  Montserrat,
   Noto_Serif_Display,
   Playball,
   Playfair_Display,
   Poppins,
   Questrial,
+  Racing_Sans_One,
+  Sanchez,
   Source_Serif_4,
   Unbounded,
 } from "next/font/google";
@@ -58,11 +61,15 @@ const archivo = Archivo({
   preload: false,
 });
 
-/** LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier. */
+/**
+ * LZ.FOOD — listes d'ingrédients serrées, comme sur le flyer papier.
+ * Crêperie Comédie — le motif « CRÊPERIE COMÉDIE » de sa couverture (Black,
+ * 900) et ses titres, à la place de Gidole, absente de Google Fonts.
+ */
 const barlowSemiCondensed = Barlow_Semi_Condensed({
   variable: "--font-barlow-semi-condensed",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "900"],
   preload: false,
 });
 
@@ -293,6 +300,32 @@ const unbounded = Unbounded({
   preload: false,
 });
 
+/**
+ * Crêperie Comédie — les polices de sa carte : Montserrat pour les plats et le
+ * texte, Sanchez pour ses intertitres en capitales espacées, Racing Sans One
+ * pour ses prix.
+ */
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+const sanchez = Sanchez({
+  variable: "--font-sanchez",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+const racingSansOne = Racing_Sans_One({
+  variable: "--font-racing-sans-one",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 /**
  * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
@@ -333,6 +366,9 @@ export const brandFontVariables = [
   unbounded,
   chakraPetch,
   adventPro,
+  montserrat,
+  sanchez,
+  racingSansOne,
 ]
   .map((font) => font.variable)
   .join(" ");

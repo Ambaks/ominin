@@ -5752,7 +5752,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
     [data-slug="le-club"],
-    [data-slug="cafe-3-graces"]
+    [data-slug="cafe-3-graces"],
+    [data-slug="creperie-comedie"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
@@ -5976,7 +5977,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) .rail-progress {
   display: none;
 }
 
@@ -5990,7 +5991,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
     [data-slug="le-club"],
-    [data-slug="cafe-3-graces"]
+    [data-slug="cafe-3-graces"],
+    [data-slug="creperie-comedie"]
   ) > header.logo-hero {
   min-height: 50svh;
 }
@@ -6009,7 +6011,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="creperie-comedie"]
     )
     .dish-grid {
     display: flex;
@@ -6025,7 +6028,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="creperie-comedie"]
     )
     .dish-grid
     > article:has(.dish-photo) {
@@ -6059,7 +6063,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="creperie-comedie"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
        laissait 600 px de vide de chaque côté à 1 920, et un prix filait à
@@ -6165,7 +6170,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="brasserie-laissac"],
           [data-slug="le-petit-nice"],
           [data-slug="le-club"],
-          [data-slug="cafe-3-graces"]
+          [data-slug="cafe-3-graces"],
+          [data-slug="creperie-comedie"]
         )
     ) {
     & > header.logo-hero {
@@ -8997,7 +9003,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -9020,7 +9026,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -9092,7 +9098,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -9113,7 +9119,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -9139,7 +9145,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -10517,6 +10523,691 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
   }
 }
 
+/* ---- Crêperie Comédie : la fraise en cœur, le rose de la carte --------- */
+
+/*
+  Crêperie Comédie — 12 place de la Comédie. Tout vient de leur carte de 2026
+  (PDF, demos/creperie-comedie/docs/) : le rose de la couverture et des
+  encadrés (#f6d6e7, mesuré), le papier rosé des pages (#fff7fb), l'encre
+  noire, les prix en Racing Sans One rouge brique (#9b2606, mesuré), le rouge
+  de la fraise du logo (#e60403, assombri en #c00302 pour porter le texte
+  clair des boutons, 6,2:1). Titres : Barlow Semi Condensed à la place de
+  Gidole ; intertitres en Sanchez espacée ; plats et texte en Montserrat,
+  comme la carte. Deux dispositifs : le motif « CRÊPERIE COMÉDIE » en
+  capitales noires évidées de la couverture, et les plats détourés posés sur
+  le rose, comme dans les pages de la carte.
+*/
+.theme-creperie-comedie {
+  --cc-rose: #f6d6e7;
+  --cc-papier: #fff7fb;
+  --cc-encre: #120d10;
+  --cc-brique: #9b2606;
+  --cc-fraise: #c00302;
+  --cc-fraise-vive: #e60403;
+  --cc-feuille: #3f8f2a;
+
+  --background: var(--cc-papier);
+  --foreground: var(--cc-encre);
+
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --hairline: #efd3e0;
+
+  --muted: #5c4a54;
+  --faint: #6b5862;
+
+  /* L'encre des boutons est le papier du fond : le rouge fraise y tient 6,2:1. */
+  --ember-1: var(--cc-brique);
+  --ember-2: var(--cc-fraise);
+  --ember-3: #8a1410;
+
+  --shimmer-highlight: rgba(192, 3, 2, 0.08);
+  --glow-inner: rgba(192, 3, 2, 0.05);
+  --glow-outer: rgba(192, 3, 2, 0.03);
+
+  --cc-titrage: var(--font-barlow-semi-condensed), var(--font-instrument-sans), sans-serif;
+  --cc-intertitre: var(--font-sanchez), Georgia, serif;
+  --cc-prix: var(--font-racing-sans-one), var(--font-instrument-sans), sans-serif;
+  --brand-display: var(--cc-titrage);
+  --brand-sans: var(--font-montserrat), var(--font-instrument-sans), sans-serif;
+  font-family: var(--brand-sans);
+
+  /* Les lignes : nom et prix en Montserrat grasse et Racing Sans, à leur
+     corps (règle commune de l'Écusson). */
+  --row-name-size: 1rem;
+  --row-name-size-lg: 1.125rem;
+  --plus-size: 0.875rem;
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-creperie-comedie),
+html:has([data-menu-root].theme-creperie-comedie) body {
+  background-color: #fff7fb;
+}
+
+.theme-creperie-comedie :focus-visible {
+  outline: 2px solid var(--cc-fraise);
+  outline-offset: 3px;
+}
+
+/* Les boutons à plat, rouge fraise ; le texte d'accent en brique, comme les prix. */
+.theme-creperie-comedie .ember-gradient {
+  background-image: none;
+  background-color: var(--cc-fraise);
+}
+
+.theme-creperie-comedie .ember-text {
+  background-image: none;
+  color: var(--cc-brique);
+  -webkit-text-fill-color: currentColor;
+}
+
+.theme-creperie-comedie .font-display {
+  font-weight: 400;
+}
+
+/* Le bandeau des annonces : l'encre de leurs titres, le papier dessus. */
+.theme-creperie-comedie .menu-ticker {
+  border-bottom: 0;
+  background-color: var(--cc-encre);
+  color: var(--cc-papier);
+}
+
+.theme-creperie-comedie .menu-ticker-item {
+  font-family: var(--cc-intertitre);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+/* Entre deux annonces, le cœur de leur feuillet du p'tit déj. */
+.theme-creperie-comedie .menu-ticker-item + .menu-ticker-item::before {
+  content: "♥" / "";
+  margin-inline: -1.875rem 1.5rem;
+  color: #ff8fa3;
+}
+
+.theme-creperie-comedie .menu-ticker-pause {
+  --tw-gradient-from: var(--cc-encre);
+  color: var(--cc-rose);
+}
+
+/*
+  Le haut de page : la couverture de leur carte. Le rose, et dessus « CRÊPERIE
+  COMÉDIE » en capitales noires évidées, rangée après rangée, décalées ; la
+  fraise en cœur au milieu. Deux calques de rangées (les impaires, les
+  paires), qui glissent l'un contre l'autre quand on fait défiler.
+*/
+[data-menu-root].theme-creperie-comedie > header.logo-hero {
+  --cc-motif-corps: clamp(4.25rem, 21vw, 9.5rem);
+  view-timeline-name: --cc-couverture;
+  color: var(--cc-encre);
+
+  & > :first-child {
+    background-color: var(--cc-rose);
+    overflow: hidden;
+
+    &::before,
+    &::after {
+      position: absolute;
+      left: -0.12em;
+      font-family: var(--cc-titrage);
+      font-size: var(--cc-motif-corps);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      white-space: pre;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--cc-papier);
+      pointer-events: none;
+    }
+
+    /* Rangées impaires, puis paires une rangée plus bas : « CRÊPERIE C… »
+       sur « ERIE COMÉDIE… », comme la couverture. */
+    &::before {
+      content: "CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE\A \A CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE\A \A CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE\A \A CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE" / "";
+      top: -0.08em;
+    }
+
+    &::after {
+      content: "ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE\A \A ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE\A \A ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE\A \A ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE" / "";
+      top: 0.92em;
+      left: -0.55em;
+    }
+  }
+
+  & > :nth-child(2),
+  & > :nth-child(3),
+  & :is(.hero-gradient-drift, .logo-breathe, .ember-particle) {
+    display: none;
+  }
+
+  & .hero-cue {
+    color: var(--cc-encre);
+  }
+}
+
+/* La fraise en cœur porte déjà le nom : grande, au milieu du motif. Le
+   fichier de leur carte fait 457 px : 17rem au plus, pour rester net. */
+.theme-creperie-comedie .hero-logo {
+  margin-bottom: 0;
+}
+
+.theme-creperie-comedie .hero-logo img {
+  width: min(70vw, 17rem);
+  height: auto;
+  filter: drop-shadow(0 0.75rem 1.25rem rgb(120 20 40 / 0.22));
+}
+
+.theme-creperie-comedie .hero-tagline {
+  margin-top: 1.25rem;
+  color: var(--cc-encre);
+  font-family: var(--cc-intertitre);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+}
+
+.theme-creperie-comedie .hero-tagline .tagline-sep {
+  color: var(--cc-fraise);
+}
+
+[data-menu-root].theme-creperie-comedie .hero-rule {
+  display: none;
+}
+
+[data-menu-root].theme-creperie-comedie .hero-contact a {
+  border-color: transparent;
+  background-color: var(--cc-papier);
+  color: var(--cc-encre);
+  backdrop-filter: none;
+  box-shadow: 0 1px 2px rgb(120 20 40 / 0.12);
+
+  &:hover {
+    color: var(--cc-fraise);
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-creperie-comedie > header.logo-hero {
+    --cc-motif-corps: 8.5rem;
+    min-height: 0;
+  }
+
+  .theme-creperie-comedie .hero-logo img {
+    width: 16rem;
+  }
+}
+
+/* Les arguments : en Sanchez espacée, un cœur fraise entre deux. */
+.theme-creperie-comedie .menu-highlights {
+  border-width: 0;
+  background-color: var(--surface);
+  box-shadow: inset 0 -1px 0 var(--hairline);
+}
+
+.theme-creperie-comedie .menu-highlights li {
+  color: var(--cc-encre);
+  font-family: var(--cc-intertitre);
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+}
+
+@media (min-width: 40rem) {
+  .theme-creperie-comedie .menu-highlights li + li::before {
+    content: "♥" / "";
+    margin-inline: -2.25rem 1.5rem;
+    color: var(--cc-fraise);
+    font-size: 0.75rem;
+    vertical-align: 0.05em;
+  }
+}
+
+@media (min-width: 64rem) {
+  .theme-creperie-comedie .menu-highlights ul {
+    flex-wrap: nowrap;
+  }
+
+  .theme-creperie-comedie .menu-highlights li {
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+}
+
+/* Les catégories en pastilles roses, comme leurs encadrés ; la courante en
+   rouge fraise. */
+[data-menu-root].theme-creperie-comedie nav [data-category] {
+  border-color: transparent;
+  background-color: var(--cc-rose);
+  color: var(--cc-encre);
+  font-weight: 600;
+
+  &[aria-current] {
+    background-color: var(--cc-fraise);
+    color: var(--cc-papier);
+    box-shadow: none;
+  }
+}
+
+/* Les titres de leurs pages : « LES GALETTES », capitales noires étroites ;
+   dessous, le filet noir à pointes de leurs séparations. */
+[data-menu-root].theme-creperie-comedie .category-heading {
+  color: var(--cc-encre);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+}
+
+[data-menu-root].theme-creperie-comedie .category-rule {
+  position: relative;
+  height: 1.5px;
+  background: var(--cc-encre);
+  opacity: 1;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 0.375rem;
+    height: 0.375rem;
+    background: var(--cc-encre);
+    translate: 0 -50%;
+    rotate: 45deg;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+}
+
+.theme-creperie-comedie .category-tagline {
+  color: var(--muted);
+  font-style: normal;
+}
+
+/* Les plats en Montserrat grasse, les prix en Racing Sans One brique. */
+[data-menu-root].theme-creperie-comedie .dish-head > h3 {
+  font-family: var(--brand-sans);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+.theme-creperie-comedie .dish-price {
+  color: var(--cc-brique);
+  font-family: var(--cc-prix);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-creperie-comedie .dish-grid > article {
+  border-color: transparent;
+  border-radius: 1.25rem;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(120 20 40 / 0.06), 0 0.5rem 1.5rem -1rem rgb(120 20 40 / 0.18);
+}
+
+/*
+  Les photos : chaque plat détouré, posé sur le rose de la carte, entier —
+  contenu dans sa case et non recadré, à toutes les largeurs.
+*/
+[data-menu-root].theme-creperie-comedie .dish-photo-fade {
+  display: none;
+}
+
+[data-menu-root].theme-creperie-comedie .dish-photo {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, rgb(255 255 255 / 0.55), transparent 75%),
+    var(--cc-rose);
+
+  & > img {
+    object-fit: contain;
+    padding: 0.3125rem;
+  }
+}
+
+/* Une case rose à gauche de la ligne, à toutes les largeurs : la carte est
+   longue (cent cinquante articles), une photo pleine largeur coupait les
+   listes. */
+[data-menu-root].theme-creperie-comedie .dish-grid > article:has(.dish-photo) {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+
+  /* Une case carrée, au milieu de la hauteur de la fiche : étirée, elle
+     laissait le plat petit au milieu d'une colonne rose. */
+  & .dish-photo {
+    align-self: center;
+    aspect-ratio: 1;
+    min-height: 0;
+    border-radius: 1rem;
+    margin: 0.5rem 0 0.5rem 0.5rem;
+  }
+
+  /* Le prix sous le nom, à côté de la case : le nom garde la largeur. */
+  & .dish-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+  }
+
+  & .dish-body {
+    align-self: center;
+    padding-left: 0.875rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  [data-menu-root].theme-creperie-comedie .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 80rem) {
+  [data-menu-root].theme-creperie-comedie .dish-grid > article:has(.dish-photo) {
+    grid-template-columns: 10rem minmax(0, 1fr);
+  }
+}
+
+/* Le « + » face à la première ligne du nom, comme le prix. */
+[data-menu-root].theme-creperie-comedie .dish-grid > article:has(.dish-action > button) .dish-action {
+  align-self: start;
+  margin-block: calc((var(--row-name-size) * 1.3 - 2.75rem) / 2);
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-creperie-comedie .dish-grid > article:has(.dish-action > button) .dish-action {
+    margin-block: calc((var(--row-name-size-lg) * 1.3 - 2.75rem) / 2);
+  }
+}
+
+.theme-creperie-comedie .choice-row.is-checked {
+  border-color: var(--cc-fraise);
+}
+
+/* La feuille d'options : le plat en Montserrat grasse, les groupes en
+   Sanchez espacée, comme les intertitres de leur carte. */
+[data-menu-root].theme-creperie-comedie [role="dialog"] h3 {
+  font-family: var(--brand-sans);
+  font-weight: 700;
+}
+
+[data-menu-root].theme-creperie-comedie [role="dialog"] legend {
+  color: var(--cc-encre);
+  font-family: var(--cc-intertitre);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+
+  & > span {
+    font-family: var(--brand-sans);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+.theme-creperie-comedie :is(.cart-line-price, .cart-total) {
+  font-family: var(--cc-prix);
+}
+
+[data-menu-root].theme-creperie-comedie .cart-count {
+  background-color: var(--cc-papier);
+  color: var(--cc-fraise);
+  box-shadow: 0 0 0 1px var(--cc-fraise);
+}
+
+/* Le pied de page : la quatrième de couverture, rose, le motif repris. */
+.theme-creperie-comedie > footer {
+  position: relative;
+  overflow: hidden;
+  border-top: 0;
+  background-color: var(--cc-rose);
+  isolation: isolate;
+
+  &::before {
+    content: "CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE\A \A ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE\A \A CRÊPERIE COMÉDIE CRÊPERIE COMÉDIE\A \A ERIE COMÉDIE CRÊPERIE COMÉDIE CRÊPERIE" / "";
+    position: absolute;
+    z-index: -1;
+    top: -0.1em;
+    left: -0.3em;
+    font-family: var(--cc-titrage);
+    font-size: clamp(4rem, 18vw, 8rem);
+    font-weight: 900;
+    line-height: 0.5;
+    white-space: pre;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--cc-papier);
+    pointer-events: none;
+  }
+
+  & :is(.text-muted, .footer-address) {
+    color: #4a3a43;
+  }
+}
+
+.theme-creperie-comedie .footer-phone {
+  font-family: var(--brand-sans);
+  font-weight: 700;
+}
+
+.theme-creperie-comedie .serve-box-mark {
+  border-color: var(--cc-rose);
+  background-color: var(--cc-rose);
+  color: var(--cc-fraise);
+}
+
+.theme-creperie-comedie .serve-box-title {
+  color: var(--cc-encre);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Le suivi : le trait vers l'étape atteinte se remplit de rouge, de gauche à
+   droite (un calque sur le trait commun). Sans mouvement, il est plein d'un
+   coup. */
+.theme-creperie-comedie .order-step + .order-step::after {
+  content: "";
+  position: absolute;
+  top: calc(0.4375rem - 1px);
+  right: calc(50% + 0.875rem);
+  left: calc(-50% + 0.875rem);
+  height: 2px;
+  border-radius: 1px;
+  background: var(--cc-fraise);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.theme-creperie-comedie
+  .order-step:is([data-state="done"], [data-state="current"])
+  + .order-step:is([data-state="done"], [data-state="current"])::after {
+  transform: none;
+}
+
+.theme-creperie-comedie .order-step[data-state="done"] .order-step-dot {
+  background-image: none;
+  background-color: var(--cc-fraise);
+}
+
+.theme-creperie-comedie .order-step[data-state="current"] .order-step-dot {
+  border-color: var(--cc-fraise);
+  background: var(--cc-fraise);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc-fraise) 20%, transparent);
+}
+
+/*
+  Le mouvement de la Crêperie Comédie, en plus de celui de l'Écusson : à
+  l'ouverture, les rangées du motif glissent en place l'une contre l'autre et
+  la fraise tombe dans le rose, puis bat deux fois, comme un cœur ; au
+  défilement, les rangées s'écartent, chaque plat se pose sur sa case en se
+  redressant ; à l'ajout, un cœur monte du bouton ; au suivi, le trait se
+  remplit vers l'étape atteinte et sa pastille se pose. Transformations et
+  opacité seulement ; mouvement réduit : tout est d'emblée en place.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root].theme-creperie-comedie {
+    & > header.logo-hero > :first-child::before {
+      animation: cc-rangee-gauche 1.1s var(--ec-tiroir) both;
+    }
+
+    & > header.logo-hero > :first-child::after {
+      animation: cc-rangee-droite 1.1s var(--ec-tiroir) both;
+    }
+
+    & .hero-logo img {
+      animation:
+        cc-chute 0.75s var(--ec-rebond) 0.15s backwards,
+        cc-battement 0.9s ease-in-out 1s;
+    }
+
+    /* Le cœur qui monte du bouton, le temps du « Ajouté ✓ » (data-added). */
+    & .dish-action > button[data-added]::after {
+      content: "";
+      position: absolute;
+      top: -0.25rem;
+      left: 50%;
+      width: 1rem;
+      height: 1rem;
+      margin-left: -0.5rem;
+      background: var(--cc-fraise-vive);
+      clip-path: path("M8 15 L1.6 8.6 A3.9 3.9 0 0 1 8 3.4 A3.9 3.9 0 0 1 14.4 8.6 Z");
+      pointer-events: none;
+      animation: cc-coeur 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    }
+
+    & .order-step + .order-step::after {
+      transition: transform 0.7s var(--ec-trace) 0.15s;
+    }
+
+    & .order-step:is([data-state="done"], [data-state="current"]) .order-step-dot {
+      animation: cc-pastille 0.45s var(--ec-rebond) 0.6s backwards;
+    }
+
+    & .serve-box-mark {
+      animation:
+        ec-pastille 0.45s var(--ec-rebond) 0.2s backwards,
+        cc-battement 0.9s ease-in-out 0.8s;
+    }
+  }
+}
+
+/* Au défilement : les rangées du motif s'écartent à mesure que la couverture
+   sort ; chaque photo se pose sur sa case en se redressant, avant d'être
+   entière à l'écran. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-menu-root].theme-creperie-comedie {
+      & > header.logo-hero > :first-child::before {
+        animation:
+          cc-rangee-gauche 1.1s var(--ec-tiroir) both,
+          cc-ecart-gauche linear both;
+        animation-timeline: auto, --cc-couverture;
+        animation-range: normal, exit 0% exit 100%;
+      }
+
+      & > header.logo-hero > :first-child::after {
+        animation:
+          cc-rangee-droite 1.1s var(--ec-tiroir) both,
+          cc-ecart-droite linear both;
+        animation-timeline: auto, --cc-couverture;
+        animation-range: normal, exit 0% exit 100%;
+      }
+
+      & .dish-photo > img {
+        animation: cc-pose linear backwards;
+        animation-timeline: view();
+        animation-range: entry 10% entry 90%;
+      }
+    }
+  }
+}
+
+@keyframes cc-rangee-gauche {
+  from {
+    opacity: 0;
+    transform: translateX(-12%);
+  }
+}
+
+@keyframes cc-rangee-droite {
+  from {
+    opacity: 0;
+    transform: translateX(12%);
+  }
+}
+
+@keyframes cc-ecart-gauche {
+  to {
+    translate: -18% 0;
+  }
+}
+
+@keyframes cc-ecart-droite {
+  to {
+    translate: 18% 0;
+  }
+}
+
+@keyframes cc-chute {
+  from {
+    opacity: 0;
+    transform: translateY(-2.5rem) scale(0.8) rotate(-6deg);
+  }
+}
+
+/* Deux battements, le second plus doux. */
+@keyframes cc-battement {
+  15% {
+    scale: 1.07;
+  }
+
+  30% {
+    scale: 1;
+  }
+
+  45% {
+    scale: 1.04;
+  }
+
+  60% {
+    scale: 1;
+  }
+}
+
+@keyframes cc-coeur {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.4);
+  }
+
+  25% {
+    opacity: 1;
+    transform: translateY(-0.5rem) scale(1.1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-2.25rem) scale(0.9);
+  }
+}
+
+@keyframes cc-pastille {
+  from {
+    transform: scale(0.3);
+  }
+}
+
+@keyframes cc-pose {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
+    rotate: -6deg;
+  }
+}
+
 /*
   Écusson — le service. L'aperçu à table (demoSuivi) salue la commande servie
   d'une feuille (menu/order-ticket.tsx, ServeBox) : « Bon appétit ! » ou
@@ -10615,7 +11306,8 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="creperie-comedie"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
   }
@@ -10816,7 +11508,7 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-creperie-comedie) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
