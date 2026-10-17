@@ -1,0 +1,92 @@
+{
+  "slug": "le-pulp",
+  "name": "Le Pulp",
+  "brand_name": "Pulp Garden",
+  "tagline": "Open air discothèque",
+  "cuisine": "Discothèque à ciel ouvert — service bouteilles à table",
+  "address": "La Calade, Route de Palavas, 34970 Lattes",
+  "city": "Lattes (Montpellier)",
+  "phone": "+33 6 76 57 77 22",
+  "hours": "Jeudi, vendredi, samedi & veille de jour férié dès 23h (heure de fermeture non publiée)",
+  "website": "https://www.pulpgarden.fr/",
+  "socials": {
+    "instagram": "@pulpgardenofficiel (probable : listé par restaurantguru, profil non lisible sans connexion)",
+    "tiktok": "",
+    "facebook": "https://www.facebook.com/PULP-Garden-Officiel-91419143329/ (« PULP Garden - Officiel »)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "Fiche existante, non ouverte (redirection de consentement) ; agrégateurs : 2,5/5 sur 440 avis (wanderlog), 2,6/5 sur 462 (restaurantguru)"
+  },
+  "legal": {
+    "raison_sociale": "LE PULP GARDEN (sigle LE PULP)",
+    "forme": "SAS (SARL à la création, modifiée au BODACC du 20/02/2026)",
+    "siren": "985062330",
+    "siret": "98506233000016",
+    "naf": "56.30Z",
+    "president": "RJB (personne morale) ; gérant à la création : Jérôme René Beneito",
+    "creation": "2024-03-13",
+    "debut_activite": "2024-03-13 (BODACC) ou 2024-04-02 (API Recherche d'entreprises) — à confirmer",
+    "source": "recherche-entreprises.api.gouv.fr ; BODACC A20240047579 (création), B20260035469 (administration et forme juridique), C202600473593 (comptes 2024, confidentiels). L'ancienne LE PULP (SIREN 791860984, 2013) est cessée."
+  },
+  "design": {
+    "primary_color": "#f89818",
+    "secondary_color": "#050505",
+    "accent_color": "#23b531",
+    "style_notes": "Orange #f89818 mesuré sur le trait du logo (PNG du site et en-tête de la carte, #f89818 dans les deux). Vert de « Garden » mesuré #07810d sur la photo de la carte, assombri par l'impression et la prise de vue : poussé à #23b531 (6,5:1 sur le fond) pour un écran noir. Fond noir comme la carte. Le mot-symbole « pulp » est retracé en vectoriel d'après logo_pulp_low.png (axes des traits mesurés au demi-pixel, épaisseur 5,3 px), « Garden » relevé sur l'en-tête de la carte dans le même système de traits : frontend/public/le-pulp/logo.svg. Typo : Chakra Petch (terminaisons carrées du logo) pour titres, bouteilles et prix, en capitales comme la carte ; l'italique grasse pour les intertitres, comme « WHISKY » ; Archivo (linéale, proche de l'Helvetica de la carte) pour le texte. Dispositifs repris de la carte : l'intertitre entre deux filets orange et la ligne de points jusqu'au prix ; « – 70 cl » après le nom. L'accroche reprend le vert et l'espacement de « G a r d e n ». Mouvement : le logo s'allume comme un néon puis grésille de temps en temps, deux faisceaux orange et vert balaient le héros (les lyres vertes de leur photo de piste, img_2330.jpg), filets et fiches s'animent à l'arrivée ; rien sous prefers-reduced-motion.",
+    "interior_vibe": "Patio à ciel ouvert (« patio à la déco unique »), 2 bars, 1 dancefloor, structure de scène avec lyres et boule à facettes (photos du site 2021-2022). Un blog parle d'une déco « inspirée d'une piscine » : non vérifié.",
+    "reference_images": [
+      "demos/le-pulp/docs/tarifs-bouteilles.pdf",
+      "demos/le-pulp/docs/tarifs-bouteilles.png",
+      "demos/le-pulp/docs/logo-site.png"
+    ]
+  },
+  "menu": {
+    "source": "La seule carte publiée par le club : « TARIFS BOUTEILLES », un PDF d'une page de pulpgarden.fr (/images/TARIFS_BOUTEILLES.pdf, Last-Modified 13/08/2021) qui n'embarque qu'une photo de la carte papier. Transcrite ligne à ligne : 4 sections, 21 lignes, prix et contenances tels qu'imprimés. Les lignes 35 cl / 70 cl d'une même marque (JB, Smirnoff) sont regroupées en une fiche à deux contenances. Capitales de la carte rendues en casse normale avec leurs accents (ROSE → Rosé, PERIGNON → Pérignon, RIVIERES → Rivières, JEROBOAM → Jéroboam, AMBRE → ambré) ; l'affichage repasse en capitales. La carte elle-même vit dans frontend/lib/menu-data.ts (const lePulp) — ne pas la dupliquer ici.",
+    "categories_summary": [
+      "Whisky — JB 35/70 cl, Jack Daniel's, Chivas Regal 12 ans : 65 à 150 €",
+      "Vodka — Smirnoff 35/70 cl, Belvedere 70 cl, magnum 175 cl, jéroboam 300 cl : 65 à 700 €",
+      "Rhum & Malibu — 3 Rivières, Havana, Bacardi, rhum vieux ambré, Malibu, Gin / Get 27 / Tequila (une ligne, la bouteille au choix) : 130 à 150 €",
+      "Champagne — Moët & Chandon, Rosé, Dom Pérignon, magnum 150 cl, jéroboam 300 cl : 130 à 550 €"
+    ],
+    "photos": "Toutes de banque d'images (Pexels, Unsplash), une par marque quand il en existe une ; aucune photo du club n'est utilisée (les deux du site montrent des clients identifiables et portent la signature du photographe). Sans photo, faute d'image libre de la bonne bouteille : JB (J&B), Belvedere Jéroboam, 3 Rivières, Gin / Get 27 / Tequila. Grands formats montrés en 70/75 cl faute de mieux : Belvedere Magnum, Magnum et Jéroboam Moët. Bacardi : la photo montre le 151 (variante à 75,5 % vol.), pas la Carta Blanca. Malibu : l'étiquette dit 750 ml.",
+    "options_a_valider": "Aucune option inventée. Seul choix : la bouteille de la ligne « GIN / GET 27 / TEQUILA », tirée du libellé imprimé."
+  },
+  "offers": [
+    "Entrée gratuite tous les soirs (site)",
+    "Opening 2026 : jeudi 2 avril avant-première, vendredi 3 opening, samedi 4 grand opening, dimanche 5 veille de jour férié (site)"
+  ],
+  "research": {
+    "date": "2026-10-17",
+    "adresse": "BODACC : « Espace Latipolia, Lieu-dit la Calade, Route de Palavas, 34970 Lattes ». Pas de numéro de rue (BAN : rue seulement ; voisins numérotés à 80-95 m, allée de la Calade). Point Google probable 43.5731163, 3.8954752 (lien d'itinéraire de restaurantguru). Accès voiture (« A9 sortie Montpellier sud ») ; arrêt de transport le plus proche non trouvé. Confiance : confirmée pour la zone, numéro absent.",
+    "telephone": "06 76 57 77 22 sur le site (seul numéro rattaché à Pulp Garden). Les agrégateurs portent d'anciens fixes : 04 67 71 90 99 (mapstr), 04 67 22 14 03 (restaurantguru), 04 67 65 39 07 (koifaire).",
+    "horaires_saison": "Site : jeudi, vendredi, samedi et veille de jour férié dès 23h, entrée gratuite. Fermeture non publiée (agrégateurs contradictoires : 5h ou 7h). Saison non publiée : « OPENING 2026 » début avril laisse penser à une saison d'avril à l'automne ; ouverture en octobre non confirmée.",
+    "reservation": "Par téléphone uniquement (« Attention pas de réservations par email »). Rien sur Shotgun, Weezevent ou Privateaser. Minimum de consommation et softs inclus avec les bouteilles : non publiés.",
+    "avis": "Google ≈ 2,5/5 sur ~440 avis (dont ~240 à une étoile), Tripadvisor 1,8/5 sur 30. Reproches récurrents : refoulements après longue attente, pression vers les bouteilles et favoritisme envers les tables, attente, sanitaires. Éloges : équipe, musique, grande piste, patio à palmiers. Une partie des avis peut viser l'exploitant d'avant 2024.",
+    "site": "pulpgarden.fr, une page Joomla : pied de page « © 2026 Your Company » laissé du modèle ; lien « Le Club » vers #restaurant sans section restaurant ; carte des boissons en image PDF de 2021.",
+    "homonymes": "Pulp de Bordeaux (quai de Paludate) et ancien Pulp de Paris (1997-2007) : sans rapport.",
+    "sources": [
+      "https://www.pulpgarden.fr/",
+      "https://www.pulpgarden.fr/images/TARIFS_BOUTEILLES.pdf",
+      "https://recherche-entreprises.api.gouv.fr/search?q=pulp%20lattes",
+      "https://bodacc-datadila.opendatasoft.com (annonces 985062330)",
+      "https://api-adresse.data.gouv.fr/search/?q=Route%20de%20Palavas%2034970%20Lattes",
+      "https://wanderlog.com/place/details/723823/le-pulp-garden",
+      "https://restaurantguru.com/Pulp-Lattes",
+      "https://www.koifaire.com/languedoc-roussillon/le,pulp-48.html"
+    ]
+  },
+  "notes": [
+    "1. La carte des bouteilles date d'août 2021 (date du fichier sur le site) : les prix sont-ils toujours ceux-là ?",
+    "2. Le club vend-il aussi au verre (alcools, cocktails, bières, softs, Red Bull) ? Rien n'est publié : la démo ne montre que les bouteilles.",
+    "3. La carte imprime « JEROBOAM MOËT & CANDON » : coquille corrigée en « Chandon » sur la démo — à confirmer.",
+    "4. Les softs sont-ils compris avec une bouteille ? Combien, lesquels ? Ce serait un choix à ajouter à chaque bouteille (rien n'est inventé pour l'instant).",
+    "5. « GIN / GET 27 / TEQUILA » : quelles marques de gin et de tequila ? La démo propose le choix entre les trois.",
+    "6. « RHUM VIEUX AMBRE » : quelle marque ?",
+    "7. Y a-t-il un minimum de consommation par table, ou des formules (bouteille + softs, table VIP) ?",
+    "8. Saison 2026 : jusqu'à quand le club est-il ouvert ? À quelle heure ferme-t-il ?",
+    "9. Adresse exacte et fiche Google : quel numéro de rue (aucun publié), et la fiche Google est-elle la leur (pour le lien d'avis) ?",
+    "10. Comptes officiels : Instagram @pulpgardenofficiel ? TikTok, Snapchat ?",
+    "11. Photos : peuvent-ils fournir leurs propres photos de bouteilles en service (étincelles, seaux) et le logo en fichier source ? Aucune photo libre pour JB, 3 Rivières, Belvedere Jéroboam et Gin / Get 27 / Tequila.",
+    "12. Comment servent-ils les tables aujourd'hui (serveurs dédiés, encaissement à table, TPE) ? Quelle caisse ?"
+  ]
+}
