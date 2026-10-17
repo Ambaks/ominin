@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
+const isHosted = !isDev && Boolean(process.env.VERCEL);
 
 /*
  * Origine Supabase réellement configurée, ajoutée à la CSP en plus du domaine
@@ -67,7 +68,10 @@ const csp = [
   "frame-src 'self' https:",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
-  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+  // Seulement hébergé (Vercel) : un `next start` local sert en http, et Safari,
+  // contrairement à Chrome, applique cette directive même sur localhost — toutes
+  // les ressources partiraient en https et la page arriverait nue.
+  ...(isHosted ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [
