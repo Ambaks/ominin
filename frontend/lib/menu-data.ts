@@ -8143,6 +8143,184 @@ const cafeRiche: Restaurant = {
   ],
 };
 
+const LE_CLUB_PHOTOS: Partial<Record<string, string>> = {
+  absolut: pexels("4167425/pexels-photo-4167425.jpeg", 800),
+  "jack-daniels": pexels("27393242/pexels-photo-27393242.jpeg", 800),
+  "chivas-12": pexels("194925/pexels-photo-194925.jpeg", 800),
+  "moet-imperial": pexels("5340997/pexels-photo-5340997.jpeg", 800),
+  "moet-ice": pexels("1835743/pexels-photo-1835743.jpeg", 800),
+  "veuve-clicquot": pexels("33674006/pexels-photo-33674006.jpeg", 800),
+  mojito: pexels("37662776/pexels-photo-37662776.jpeg", 800),
+  "sex-on-the-beach": pexels("37662778/pexels-photo-37662778.jpeg", 800),
+  "pina-colada": pexelsRecadre("33221989/pexels-photo-33221989.jpeg", 800),
+  "moscow-mule": pexels("19766950/pexels-photo-19766950.jpeg", 800),
+  "tequila-sunrise": pexels("37662774/pexels-photo-37662774.jpeg", 800),
+  spritz: pexels("32418599/pexels-photo-32418599.jpeg", 800),
+  "long-island": pexels("6680479/pexels-photo-6680479.jpeg", 800),
+  verre: pexels("8879617/pexels-photo-8879617.jpeg", 800),
+  shooter: pexels("16064240/pexels-photo-16064240.jpeg", 800),
+  heineken: pexels("4336734/pexels-photo-4336734.jpeg", 800),
+  desperados: pexels("16363708/pexels-photo-16363708.jpeg", 800),
+  corona: pexels("17765844/pexels-photo-17765844.jpeg", 800),
+  soda: pexels("15205136/pexels-photo-15205136.jpeg", 800),
+  "red-bull": pexels("17423270/pexels-photo-17423270.jpeg", 800),
+  jus: pexels("11009214/pexels-photo-11009214.jpeg", 800),
+  eau: pexels("11206902/pexels-photo-11206902.jpeg", 800),
+};
+
+const clubArticle = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}): MenuItem => ({
+  id,
+  name,
+  price,
+  image: LE_CLUB_PHOTOS[id],
+  ...extra,
+});
+
+const clubAlcool = (id: string, name: string, price: number, extra: Partial<MenuItem> = {}) =>
+  clubArticle(id, name, price, { ...ALCOOL, ...extra });
+
+const CLUB_SOFTS = ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Schweppes Tonic", "Jus d'orange", "Jus de cranberry"];
+const CLUB_ALCOOLS_VERRE = ["Vodka", "Gin", "Rhum blanc", "Rhum ambré", "Whisky", "Tequila"];
+const CLUB_SHOOTERS = groupeChoix("shooter", "Shooter", ["Vodka", "Tequila", "Jägermeister", "Rhum", "Get 27"], {
+  obligatoire: true,
+});
+
+/** La bouteille arrive en carré avec ses softs, au choix, et le seau à glace. */
+const clubBouteille = (id: string, name: string, price: number, description: string) =>
+  clubAlcool(id, name, price, {
+    description,
+    detail: "70 cl",
+    options: [
+      groupeChoix("softs", "Softs servis avec", CLUB_SOFTS, { obligatoire: true, multiple: true }),
+      groupeChoix("supplement", "Supplément", [["4 Red Bull", 20]], { multiple: true }),
+    ],
+  });
+
+/*
+ * Le Club — discothèque, 5 rue du Grand Saint-Jean (Montpellier, près de la
+ * gare Saint-Roch), à la place du Cargo depuis 2022 ; exploitée par TKG.
+ * Aucune carte publiée nulle part : celle-ci est un exemple de carte de club
+ * montpelliérain, posé à la demande de l'utilisateur pour la démo — chaque
+ * article et chaque prix est à remplacer par leur carte. Sources et
+ * questions : demos/le-club/profile.json.
+ */
+const leClub: Restaurant = {
+  slug: "le-club",
+  name: "Le Club",
+  demoSuivi: true,
+  tagline: "Discothèque · Montpellier",
+  address: "5 Rue du Grand Saint-Jean, 34000 Montpellier",
+  phone: "+33 6 75 25 74 89",
+  // Noxway ; InfoClapas (2022) disait du lundi au samedi dès 23h30 : à confirmer.
+  hours: "Du mercredi au samedi, minuit–⁠5h",
+  highlights: ["Mercredi au samedi, minuit–⁠5h", "À deux pas de la gare Saint-Roch"],
+  categories: [
+    {
+      id: "bouteilles",
+      name: "Bouteilles",
+      tagline: "Servies en carré, avec softs et seau à glace",
+      boissons: true,
+      items: [
+        clubBouteille("absolut", "Absolut", 110, "Vodka"),
+        clubBouteille("grey-goose", "Grey Goose", 160, "Vodka"),
+        clubBouteille("bombay-sapphire", "Bombay Sapphire", 120, "Gin"),
+        clubBouteille("havana-club-3", "Havana Club 3 ans", 110, "Rhum"),
+        clubBouteille("jack-daniels", "Jack Daniel's", 120, "Whisky"),
+        clubBouteille("chivas-12", "Chivas Regal 12 ans", 150, "Whisky"),
+        clubBouteille("patron-silver", "Patrón Silver", 170, "Tequila"),
+      ],
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      boissons: true,
+      items: [
+        clubAlcool("moet-imperial", "Moët & Chandon Impérial Brut", 120, { detail: "75 cl" }),
+        clubAlcool("moet-ice", "Moët & Chandon Ice Impérial", 140, { detail: "75 cl" }),
+        clubAlcool("veuve-clicquot", "Veuve Clicquot Brut", 140, { detail: "75 cl" }),
+        clubAlcool("ruinart-blanc-de-blancs", "Ruinart Blanc de Blancs", 190, { detail: "75 cl" }),
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        clubAlcool("mojito", "Mojito", 10, {
+          description: "Rhum blanc, citron vert, menthe fraîche, sucre de canne, eau gazeuse",
+          options: [groupeChoix("parfum", "Parfum", PARFUMS_FRUITS, { aucun: "Nature", supplement: 1 })],
+        }),
+        clubAlcool("sex-on-the-beach", "Sex on the Beach", 10, {
+          description: "Vodka, liqueur de pêche, jus d'orange, jus de cranberry",
+        }),
+        clubAlcool("pina-colada", "Piña Colada", 10, { description: "Rhum blanc, crème de coco, jus d'ananas" }),
+        clubAlcool("moscow-mule", "Moscow Mule", 11, { description: "Vodka, ginger beer, citron vert" }),
+        clubAlcool("tequila-sunrise", "Tequila Sunrise", 10, { description: "Tequila, jus d'orange, grenadine" }),
+        clubAlcool("spritz", "Spritz", 9, { description: "Apérol, prosecco, eau gazeuse" }),
+        clubAlcool("long-island", "Long Island Iced Tea", 12, {
+          description: "Vodka, gin, rhum, tequila, triple sec, citron, Coca-Cola",
+        }),
+      ],
+    },
+    {
+      id: "verres",
+      name: "Verres",
+      tagline: "Un alcool, un soft",
+      boissons: true,
+      items: [
+        clubAlcool("verre", "Verre alcool + soft", 9, {
+          printName: "Verre",
+          options: [
+            groupeChoix("alcool", "Alcool", CLUB_ALCOOLS_VERRE, { obligatoire: true }),
+            groupeChoix("soft", "Soft", [...CLUB_SOFTS, ["Red Bull", 2]], { obligatoire: true }),
+          ],
+        }),
+      ],
+    },
+    {
+      id: "shooters",
+      name: "Shooters",
+      boissons: true,
+      items: [
+        clubAlcool("shooter", "Shooter", 4, { options: [CLUB_SHOOTERS] }),
+        clubAlcool("jagerbomb", "Jägerbomb", 7, { description: "Jägermeister et Red Bull" }),
+        clubAlcool("plateau-shooters", "Plateau de 10 shooters", 35, { options: [CLUB_SHOOTERS] }),
+      ],
+    },
+    {
+      id: "bieres",
+      name: "Bières",
+      boissons: true,
+      items: [
+        clubAlcool("heineken", "Heineken", 7),
+        clubAlcool("desperados", "Desperados", 8),
+        clubAlcool("corona", "Corona", 8),
+      ],
+    },
+    {
+      id: "softs",
+      name: "Softs",
+      boissons: true,
+      items: [
+        clubArticle("soda", "Soda", 5, {
+          options: [
+            groupeChoix("soda", "Soda", ["Coca-Cola", "Coca-Cola Zéro", "Sprite", "Orangina", "Schweppes Tonic"], {
+              obligatoire: true,
+            }),
+          ],
+        }),
+        clubArticle("red-bull", "Red Bull", 6),
+        clubArticle("jus", "Jus de fruits", 5, {
+          options: [groupeChoix("jus", "Jus", ["Orange", "Ananas", "Cranberry"], { obligatoire: true })],
+        }),
+        clubArticle("eau", "Eau minérale", 4, {
+          options: [groupeChoix("eau", "Eau", ["Plate", "Gazeuse"], { obligatoire: true })],
+        }),
+      ],
+    },
+  ],
+};
+
 /*
  * L'Entrepôt Complexe — le club de musique urbaine du 4 rue du Puech Radier,
  * à Lattes. Aucune carte publiée : celle-ci est une carte type de club, à
@@ -8383,6 +8561,7 @@ const restaurants: Record<string, Restaurant> = {
   [cafeRiche.slug]: cafeRiche,
   [cafePoulard.slug]: cafePoulard,
   [lePetitNice.slug]: lePetitNice,
+  [leClub.slug]: leClub,
   [lEntrepot.slug]: lEntrepot,
 };
 
@@ -8406,6 +8585,7 @@ const themeClasses: Record<string, string> = {
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
+  [leClub.slug]: "theme-le-club",
   [lEntrepot.slug]: "theme-l-entrepot",
 };
 
