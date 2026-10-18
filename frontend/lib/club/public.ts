@@ -15,7 +15,7 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
   const db = createPublicClient();
   const { data: etab } = await db
     .from("etablissements")
-    .select("id, slug, name, tagline, address, phone, table_fee_percent, payment_provider, online_payment")
+    .select("id, slug, name, tagline, address, phone, table_fee_percent, payment_provider, online_payment, club_min_age, club_dress_code, club_refused")
     .eq("slug", slug)
     .maybeSingle();
   if (!etab) return null;
@@ -34,6 +34,11 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
     feePercent: Number(etab.table_fee_percent),
     paymentProvider: etab.payment_provider ?? "stripe",
     onlinePayment: etab.online_payment,
+    conditions: {
+      minAge: etab.club_min_age,
+      dress: etab.club_dress_code,
+      refused: etab.club_refused,
+    },
     zones: zones.map(rowToZone),
     tables: (tables ?? []).map(rowToTable),
   };
@@ -59,10 +64,10 @@ export type EventAvailability = {
   guestListLeft: number | null;
 };
 
-export async function fetchEvent(
+export const fetchEvent = cache(async (
   clubId: string,
   eventSlug: string
-): Promise<ClubEvent | null> {
+): Promise<ClubEvent | null> => {
   const { data } = await createPublicClient()
     .from("club_events")
     .select("*")
@@ -71,7 +76,7 @@ export async function fetchEvent(
     .eq("published", true)
     .maybeSingle();
   return data ? rowToEvent(data) : null;
-}
+});
 
 /** Ce qui est en vente ce soir-là, et ce qui ne l'est plus. Jamais mis en cache. */
 export async function fetchAvailability(

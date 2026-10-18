@@ -25,6 +25,8 @@ const TABLE = 34;
 const TABLE_LARGE = 46;
 /** Zone de toucher autour d'une table, plus large que son dessin. */
 const HIT = 30;
+/** Rayon par défaut de la pastille des places. */
+const BADGE = 8;
 
 function Mark({ mark }: { mark: PlanMark }) {
   switch (mark.kind) {
@@ -83,6 +85,8 @@ export function FloorPlan({
   onSelect,
   describe,
   className,
+  label,
+  badge = BADGE,
 }: {
   layout: ZoneLayout;
   tables: ClubTable[];
@@ -92,6 +96,10 @@ export function FloorPlan({
   /** Nom accessible d'une table : « Table 304, 5 places, 500 €, libre ». */
   describe: (table: ClubTable, state: TableState) => string;
   className?: string;
+  /** Nom accessible du plan (la zone). */
+  label?: string;
+  /** Rayon de la pastille des places. */
+  badge?: number;
 }) {
   return (
     <svg
@@ -99,6 +107,7 @@ export function FloorPlan({
       className={className}
       data-tone={layout.tone ?? "nuit"}
       role="group"
+      aria-label={label}
     >
       <g className="plan-murs" aria-hidden>
         {layout.walls.map((wall, index) => (
@@ -116,6 +125,7 @@ export function FloorPlan({
           <g
             key={table.id}
             className="plan-table"
+            data-id={table.id}
             data-state={state}
             data-shape={table.shape}
             data-selected={table.id === selectedId || undefined}
@@ -150,11 +160,13 @@ export function FloorPlan({
                 rx={7}
               />
             )}
+            {/* Le trait d'une table prise : sans trait par défaut, chaque feuille de style décide. */}
+            <line className="plan-barre" x1={-size / 2} y1={size / 2} x2={size / 2} y2={-size / 2} />
             <text className="plan-numero" textAnchor="middle" dominantBaseline="central">
               {table.label}
             </text>
             <g className="plan-places" transform={`translate(${size / 2} ${-size / 2})`}>
-              <circle r={8} />
+              <circle r={badge} />
               <text textAnchor="middle" dominantBaseline="central">
                 {table.seats}
               </text>

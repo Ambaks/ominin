@@ -78,20 +78,30 @@ export async function POST(request: Request) {
   }
 
   let intent: Stripe.PaymentIntent;
-  if (previous?.status === "requires_payment_method") {
+  if (previous && previous.status !== "canceled") {
     intent = previous;
   } else {
-    intent = await stripe.paymentIntents.create(
-      {
-        amount: booking.total_cents,
-        currency: "eur",
-        payment_method_types: ["card"],
-        description: `Table ${booking.club_tables?.label ?? ""} — ${booking.club_events?.title ?? ""} — ${etab.name}`,
-        metadata: { booking_id: booking.id },
-        ...(booking.fee_cents > 0 ? { application_fee_amount: booking.fee_cents } : {}),
-      },
-      { ...stripeAccount, idempotencyKey: `club-booking-${booking.id}` }
-    );
+    const created = await stripe.paymentIntents
+      .create(
+        {
+          amount: booking.total_cents,
+          currency: "eur",
+          payment_method_types: ["card"],
+          description: `Table ${booking.club_tables?.label ?? ""} — ${booking.club_events?.title ?? ""} — ${etab.name}`,
+          metadata: { booking_id: booking.id },
+          ...(booking.fee_cents > 0 ? { application_fee_amount: booking.fee_cents } : {}),
+        },
+        { ...stripeAccount, idempotencyKey: `club-booking-${booking.id}` }
+      )
+      .catch((error: { type?: string }) => {
+        // Deux onglets qui préparent le même paiement au même instant.
+        if (error.type === "StripeIdempotencyError") return null;
+        throw error;
+      });
+    if (!created) {
+      return NextResponse.json({ error: "Paiement en cours de préparation." }, { status: 409 });
+    }
+    intent = created;
     const { error } = await admin
       .from("club_bookings")
       .update({ stripe_payment_intent_id: intent.id })

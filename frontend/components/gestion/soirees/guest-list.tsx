@@ -7,7 +7,7 @@ import { inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import type { ClubEvent, ClubGuest } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
-import { matchesSearch, people } from "@/lib/gestion/club-selectors";
+import { formatPhone, matchesSearch, people } from "@/lib/gestion/club-selectors";
 
 /*
  * La liste d'invités à la porte : on cherche un nom, on coche l'arrivée.
@@ -42,12 +42,12 @@ export function GuestList({ event, guests }: { event: ClubEvent; guests: ClubGue
           },
         ].map((stat) => (
           <div key={stat.label} className="rounded-2xl border border-hairline bg-surface px-4 py-3">
-            <dt className="text-[10px] font-semibold uppercase tracking-wider text-faint">{stat.label}</dt>
+            <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted">{stat.label}</dt>
             <dd className="mt-1 truncate font-display text-xl font-medium tabular-nums">{stat.value}</dd>
           </div>
         ))}
       </dl>
-      <p className="text-xs text-faint">
+      <p className="text-xs text-muted">
         {event.guestListOpen ? "Inscriptions ouvertes" : "Inscriptions fermées"} · jusqu&rsquo;à{" "}
         {people(event.guestListMaxParty)} par inscription.
       </p>
@@ -81,9 +81,9 @@ export function GuestList({ event, guests }: { event: ClubEvent; guests: ClubGue
                     <p className={`truncate text-sm font-medium ${guest.arrivedAt ? "text-muted" : ""}`}>
                       {guest.name}
                     </p>
-                    <p className="truncate text-xs text-faint">
+                    <p className="truncate text-xs text-muted">
                       {people(guest.partySize)}
-                      {guest.phone ? ` · ${guest.phone}` : ""}
+                      {guest.phone ? ` · ${formatPhone(guest.phone)}` : ""}
                     </p>
                   </div>
                   <button
@@ -94,10 +94,10 @@ export function GuestList({ event, guests }: { event: ClubEvent; guests: ClubGue
                     className={`flex size-11 shrink-0 items-center justify-center rounded-full border transition-colors lg:pointer-fine:size-9 ${
                       guest.arrivedAt
                         ? "border-transparent bg-status-signed text-background"
-                        : "border-hairline text-faint hover:border-ember-2/40 hover:text-foreground"
+                        : "border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
                     }`}
                   >
-                    <CheckIcon key={String(Boolean(guest.arrivedAt))} className={`size-4.5 ${guest.arrivedAt ? "pop" : ""}`} />
+                    <CheckIcon key={String(Boolean(guest.arrivedAt))} className={`size-4.5 ${guest.arrivedAt ? "statut-pose" : ""}`} />
                   </button>
                 </li>
               ))}

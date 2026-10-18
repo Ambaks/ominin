@@ -2,28 +2,141 @@
 
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
-import { PriceInput } from "@/components/ui/price-input";
 import { useToast } from "@/components/ui/toast";
 import { formatCents } from "@/lib/club/format";
 import type { ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
+import type { ClubConditions } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
-import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
+import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 
 /*
- * Le prix d'une table de chaque zone quand une soirée n'en fixe pas d'autre,
- * et ce qu'elle comprend, lu par le client sur le plan. Le dessin de la
- * salle, lui, se fait avec Ominin.
+ * La salle et ses règles : le prix d'une table de chaque zone quand une
+ * soirée n'en fixe pas d'autre, ce qu'elle comprend, et les conditions
+ * d'entrée que le client accepte avant de payer. Le dessin de la salle, lui,
+ * se fait avec Ominin.
  */
+
+const AGES = Array.from(
+  { length: CLUB_LIMITS.minAgeTo - CLUB_LIMITS.minAgeFrom + 1 },
+  (_, index) => CLUB_LIMITS.minAgeFrom + index
+);
+
+function SaveBar({ saving, disabled, onReset }: { saving: boolean; disabled: boolean; onReset: () => void }) {
+  return (
+    <div className="flex justify-end gap-2">
+      <button
+        type="button"
+        onClick={onReset}
+        className="min-h-11 rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:text-foreground lg:pointer-fine:min-h-9"
+      >
+        Annuler
+      </button>
+      <button
+        type="submit"
+        disabled={saving || disabled}
+        className="ember-gradient min-h-11 rounded-full px-4 text-sm font-semibold text-background disabled:opacity-50 lg:pointer-fine:min-h-9"
+      >
+        {saving ? "Enregistrement…" : "Enregistrer"}
+      </button>
+    </div>
+  );
+}
+
+function ConditionsForm({ conditions }: { conditions: ClubConditions }) {
+  const toast = useToast();
+  const [minAge, setMinAge] = useState(conditions.minAge);
+  const [dressCode, setDressCode] = useState(conditions.dressCode ?? "");
+  const [refused, setRefused] = useState(conditions.refused ?? "");
+  const [saving, setSaving] = useState(false);
+  const dirty =
+    minAge !== conditions.minAge ||
+    dressCode.trim() !== (conditions.dressCode ?? "") ||
+    refused.trim() !== (conditions.refused ?? "");
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await clubApi.updateConditions({
+        minAge,
+        dressCode: dressCode.trim() || null,
+        refused: refused.trim() || null,
+      });
+      toast.success("Conditions d'entrée enregistrées.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-display text-lg font-medium">Conditions d&rsquo;entrée</h2>
+        <p className="mt-1 text-sm text-muted">
+          Montrées au client avant qu&rsquo;il paie sa table : il les accepte pour réserver.
+        </p>
+      </div>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void save();
+        }}
+        className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5"
+      >
+        <div className="grid gap-4 sm:grid-cols-[9rem_1fr]">
+          <Field label="Âge minimum">
+            <select value={minAge} onChange={(e) => setMinAge(Number(e.target.value))} className={inputClass}>
+              {AGES.map((age) => (
+                <option key={age} value={age}>
+                  {age} ans
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Tenue" hint="Vide : pas de consigne.">
+            <input
+              value={dressCode}
+              maxLength={CLUB_LIMITS.dressCode}
+              onChange={(e) => setDressCode(e.target.value)}
+              placeholder="Tenue correcte exigée"
+              className={inputClass}
+            />
+          </Field>
+        </div>
+        <Field label="Refusé à l'entrée" hint="Vide : rien de particulier.">
+          <input
+            value={refused}
+            maxLength={CLUB_LIMITS.refused}
+            onChange={(e) => setRefused(e.target.value)}
+            placeholder="Baskets de sport, casquettes"
+            className={inputClass}
+          />
+        </Field>
+        {dirty && (
+          <SaveBar
+            saving={saving}
+            disabled={false}
+            onReset={() => {
+              setMinAge(conditions.minAge);
+              setDressCode(conditions.dressCode ?? "");
+              setRefused(conditions.refused ?? "");
+            }}
+          />
+        )}
+      </form>
+    </section>
+  );
+}
 
 function ZoneRow({ zone, tableCount }: { zone: ClubZone; tableCount: number }) {
   const toast = useToast();
-  const [price, setPrice] = useState(priceToInput(zone.priceCents / 100));
+  const [price, setPrice] = useState(eurosToInput(zone.priceCents));
   const [inclus, setInclus] = useState(zone.inclus ?? "");
   const [saving, setSaving] = useState(false);
 
-  const parsed = parsePriceInput(price);
-  const priceCents = parsed === null ? null : Math.round(parsed * 100);
+  const priceCents = parseEuros(price);
   const priceError = priceCents === null || priceCents <= 0 ? "Indiquez un prix." : undefined;
   const dirty = priceCents !== zone.priceCents || inclus.trim() !== (zone.inclus ?? "");
 
@@ -50,13 +163,13 @@ function ZoneRow({ zone, tableCount }: { zone: ClubZone; tableCount: number }) {
     >
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="font-display text-base font-medium">{zone.name}</h3>
-        <p className="text-xs text-faint">
+        <p className="text-xs text-muted">
           {tableCount} table{tableCount > 1 ? "s" : ""}
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
         <Field label="Prix d'une table" required error={dirty ? priceError : undefined}>
-          <PriceInput value={price} onChange={setPrice} invalid={dirty && Boolean(priceError)} />
+          <EurosInput value={price} onChange={setPrice} invalid={dirty && Boolean(priceError)} />
         </Field>
         <Field label="Ce que comprend la table" hint="Lu par le client sur le plan.">
           <input
@@ -69,49 +182,49 @@ function ZoneRow({ zone, tableCount }: { zone: ClubZone; tableCount: number }) {
         </Field>
       </div>
       {dirty && (
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setPrice(priceToInput(zone.priceCents / 100));
-              setInclus(zone.inclus ?? "");
-            }}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={saving || Boolean(priceError)}
-            className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-50"
-          >
-            {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
-        </div>
+        <SaveBar
+          saving={saving}
+          disabled={Boolean(priceError)}
+          onReset={() => {
+            setPrice(eurosToInput(zone.priceCents));
+            setInclus(zone.inclus ?? "");
+          }}
+        />
       )}
     </form>
   );
 }
 
-export function ZonesSettings({ zones, tableCounts }: { zones: ClubZone[]; tableCounts: Map<string, number> }) {
+export function ZonesSettings({
+  zones,
+  tableCounts,
+  conditions,
+}: {
+  zones: ClubZone[];
+  tableCounts: Map<string, number>;
+  conditions: ClubConditions;
+}) {
   return (
-    <section className="flex flex-col gap-3">
-      <div>
-        <h2 className="font-display text-lg font-medium">Zones et prix</h2>
-        <p className="mt-1 text-sm text-muted">
-          Le prix par défaut d&rsquo;une table, zone par zone. Une soirée peut le changer pour son
-          soir ; elle le reprend sinon.
+    <div className="flex flex-col gap-8">
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="font-display text-lg font-medium">Zones et prix</h2>
+          <p className="mt-1 text-sm text-muted">
+            Le prix par défaut d&rsquo;une table, zone par zone. Une soirée peut le changer pour son
+            soir ; elle le reprend sinon.
+          </p>
+        </div>
+        <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+          {zones.map((zone) => (
+            <ZoneRow key={zone.id} zone={zone} tableCount={tableCounts.get(zone.id) ?? 0} />
+          ))}
+        </div>
+        <p className="text-xs text-muted">
+          Le plan de la salle se dessine avec Ominin : écrivez-nous pour ajouter une zone ou déplacer
+          une table.
         </p>
-      </div>
-      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-        {zones.map((zone) => (
-          <ZoneRow key={zone.id} zone={zone} tableCount={tableCounts.get(zone.id) ?? 0} />
-        ))}
-      </div>
-      <p className="text-xs text-faint">
-        Le plan de la salle se dessine avec Ominin : écrivez-nous pour ajouter une zone ou déplacer
-        une table.
-      </p>
-    </section>
+      </section>
+      <ConditionsForm key={JSON.stringify(conditions)} conditions={conditions} />
+    </div>
   );
 }

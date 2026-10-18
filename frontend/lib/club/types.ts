@@ -67,6 +67,14 @@ export type ClubEvent = {
   guestListMaxParty: number;
 };
 
+/** Les conditions d'entrée, à accepter avant de payer. */
+export type ClubConditions = {
+  minAge: number;
+  dress: string | null;
+  /** Ce que la porte refuse, en clair. */
+  refused: string | null;
+};
+
 /** Une zone en vente un soir donné, à son prix du soir. */
 export type EventZone = { zoneId: string; priceCents: number };
 
@@ -80,6 +88,7 @@ export type Club = {
   feePercent: number;
   paymentProvider: Database["public"]["Enums"]["payment_provider"];
   onlinePayment: boolean;
+  conditions: ClubConditions;
   zones: ClubZone[];
   tables: ClubTable[];
 };
@@ -110,7 +119,7 @@ export type ClubGuest = {
   eventId: string;
   name: string;
   partySize: number;
-  phone: string | null;
+  phone: string;
   email: string | null;
   arrivedAt: string | null;
   createdAt: string;

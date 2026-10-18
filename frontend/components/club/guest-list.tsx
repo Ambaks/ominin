@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Reveal } from "@/components/landing-kit/reveal";
+import { Reveal } from "@/components/club/reveal";
 import { createClient } from "@/lib/supabase/client";
 
 /*
- * La liste d'invités d'une soirée : un nom et un nombre de personnes, le
- * téléphone et l'e-mail en option. inscrire_guest_list (anonyme) tient le
- * plafond et le nombre de personnes par inscription, et le dit en clair.
+ * La liste d'invités d'une soirée : un nom, un nombre de personnes et un
+ * téléphone (une inscription par numéro et par soirée), l'e-mail en option.
+ * inscrire_guest_list (anonyme) tient le plafond, le nombre de personnes
+ * par inscription et le numéro, et le dit en clair.
  */
 export function GuestList({
   eventId,
@@ -126,14 +127,13 @@ export function GuestList({
               </div>
             </div>
             <label className="club-field">
-              <span>
-                Téléphone <em>facultatif</em>
-              </span>
+              <span>Téléphone</span>
               <input
                 name="guest-phone"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
+                required
                 value={phone}
                 onChange={(input) => setPhone(input.target.value)}
                 disabled={full}

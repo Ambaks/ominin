@@ -375,7 +375,7 @@ export type Database = {
           id: string
           name: string
           party_size: number
-          phone: string | null
+          phone: string
         }
         Insert: {
           arrived_at?: string | null
@@ -386,7 +386,7 @@ export type Database = {
           id?: string
           name: string
           party_size: number
-          phone?: string | null
+          phone: string
         }
         Update: {
           arrived_at?: string | null
@@ -397,7 +397,7 @@ export type Database = {
           id?: string
           name?: string
           party_size?: number
-          phone?: string | null
+          phone?: string
         }
         Relationships: [
           {
@@ -1613,6 +1613,9 @@ export type Database = {
         Row: {
           address: string
           admin_pin_set: boolean
+          club_dress_code: string | null
+          club_min_age: number
+          club_refused: string | null
           collect_fee_percent: number | null
           collect_slot_capacity: number
           collect_slot_minutes: number
@@ -1644,6 +1647,9 @@ export type Database = {
         Insert: {
           address?: string
           admin_pin_set?: boolean
+          club_dress_code?: string | null
+          club_min_age?: number
+          club_refused?: string | null
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -1675,6 +1681,9 @@ export type Database = {
         Update: {
           address?: string
           admin_pin_set?: boolean
+          club_dress_code?: string | null
+          club_min_age?: number
+          club_refused?: string | null
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { SoireesIcon } from "@/components/gestion/icons";
 import {
   ClubLoadError,
   ClubLocked,
@@ -21,11 +20,11 @@ import { useNow } from "@/lib/gestion/use-now";
 
 /*
  * Les soirées du club : celles à venir, ce qu'elles ont vendu en direct, et
- * l'accès au plan du soir. Le gérant y prépare ses soirées et ses prix ;
- * l'équipe y trouve le plan de la porte.
+ * l'accès au plan du soir. Le gérant y prépare ses soirées, ses prix et ses
+ * conditions d'entrée ; l'équipe y trouve le plan de la porte.
  */
 
-type Tab = "a_venir" | "passees" | "zones";
+type Tab = "a_venir" | "passees" | "salle";
 
 const CHIP = "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider";
 
@@ -47,11 +46,36 @@ function StatusChips({ event, now }: { event: ClubEvent; now: number }) {
   );
 }
 
+/** Sans affiche, le jour de la soirée en tient lieu : « sam. / 24 / oct. ». */
+function Thumb({ event }: { event: ClubEvent }) {
+  if (event.posterUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
+      <img
+        src={event.posterUrl}
+        alt=""
+        className="h-20 w-16 shrink-0 rounded-xl border border-hairline object-cover"
+      />
+    );
+  }
+  const [weekday, day, month] = formatNightShort(event.startsAt).split(" ");
+  return (
+    <span
+      aria-hidden
+      className="flex h-20 w-16 shrink-0 flex-col items-center justify-center rounded-xl border border-hairline bg-surface-raised"
+    >
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">{weekday}</span>
+      <span className="ember-text font-display text-2xl font-medium leading-tight tabular-nums">{day}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">{month}</span>
+    </span>
+  );
+}
+
 function Counter({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">{label}</p>
-      <p className="truncate font-display text-base font-medium tabular-nums">{value}</p>
+      <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</dt>
+      <dd className="truncate font-display text-base font-medium tabular-nums">{value}</dd>
     </div>
   );
 }
@@ -70,76 +94,72 @@ function EventRow({
   const loaded = Boolean(club.nights[event.id]);
   const stats = nightStats(club, event.id);
   const live = `/gestion/soirees/${event.id}/live`;
+  const tonight = isTonight(event, now);
   const guestList = event.guestListOpen || stats.guests > 0;
-  return (
-    <li
-      className="rise flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ember-2/40 sm:flex-row sm:items-center sm:p-5"
+  const planLink = !event.cancelledAt && (
+    <Link
+      href={live}
+      className={`flex min-h-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-semibold transition-colors lg:pointer-fine:min-h-9 ${
+        tonight
+          ? "ember-gradient text-background"
+          : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+      }`}
     >
-      <Link
-        href={gerant ? `/gestion/soirees/${event.id}` : live}
-        className="flex min-w-0 flex-1 items-center gap-4"
-      >
-        {event.posterUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
-          <img
-            src={event.posterUrl}
-            alt=""
-            className="h-20 w-16 shrink-0 rounded-xl border border-hairline object-cover"
-          />
-        ) : (
-          <span className="flex h-20 w-16 shrink-0 items-center justify-center rounded-xl border border-dashed border-hairline text-faint">
-            <SoireesIcon className="size-6" />
+      Plan du soir
+    </Link>
+  );
+  return (
+    <li className="soirees-entree flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ember-2/40 sm:p-5">
+      <div className="flex items-start gap-4">
+        <Link
+          href={gerant ? `/gestion/soirees/${event.id}` : live}
+          className="flex min-w-0 flex-1 items-center gap-4 rounded-xl"
+        >
+          <Thumb event={event} />
+          <span className="flex min-w-0 flex-col gap-1">
+            <span className="flex flex-wrap gap-x-1.5 text-xs font-medium text-muted">
+              <span className="whitespace-nowrap first-letter:uppercase">
+                {formatNightShort(event.startsAt)}
+              </span>
+              <span aria-hidden>·</span>
+              <span className="whitespace-nowrap">{formatHours(event.startsAt, event.endsAt)}</span>
+            </span>
+            <span className="line-clamp-2 font-display text-lg font-medium leading-snug">
+              {event.title}
+            </span>
+            <span className="flex flex-wrap gap-1.5">
+              {event.tag && <span className={`${CHIP} border-hairline text-muted`}>{event.tag}</span>}
+              <StatusChips event={event} now={now} />
+            </span>
           </span>
-        )}
-        <span className="flex min-w-0 flex-col gap-1">
-          <span className="block text-xs font-medium text-muted first-letter:uppercase">
-            {formatNightShort(event.startsAt)} · {formatHours(event.startsAt, event.endsAt)}
-          </span>
-          <span className="truncate font-display text-lg font-medium">{event.title}</span>
-          <span className="flex flex-wrap gap-1.5">
-            {event.tag && <span className={`${CHIP} border-hairline text-muted`}>{event.tag}</span>}
-            <StatusChips event={event} now={now} />
-          </span>
-        </span>
-      </Link>
-
-      <div className="flex items-center gap-4 border-t border-hairline pt-4 sm:border-t-0 sm:pt-0">
-        {loaded ? (
-          <div
-            className={`grid flex-1 grid-cols-2 gap-x-5 gap-y-2 sm:flex-none ${
-              gerant ? "sm:w-[23rem] sm:grid-cols-4" : "sm:w-48"
-            }`}
-          >
-            <Counter label="Tables" value={`${stats.sold} / ${stats.capacity}`} />
-            {gerant && <Counter label="Revenu" value={formatCents(stats.online + stats.onSite)} />}
-            {gerant && <Counter label="Frais Ominin" value={formatCents(stats.fees)} />}
-            <Counter
-              label="Invités"
-              value={
-                !guestList
-                  ? "—"
-                  : event.guestListCapacity
-                    ? `${stats.guests} / ${event.guestListCapacity}`
-                    : String(stats.guests)
-              }
-            />
-          </div>
-        ) : (
-          <div aria-busy className="shimmer h-10 flex-1 rounded-xl sm:w-[23rem] sm:flex-none" />
-        )}
-        {!event.cancelledAt && (
-          <Link
-            href={live}
-            className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-semibold transition-colors lg:pointer-fine:min-h-9 ${
-              isTonight(event, now)
-                ? "ember-gradient text-background"
-                : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-            }`}
-          >
-            Plan du soir
-          </Link>
-        )}
+        </Link>
+        <div className="hidden sm:flex">{planLink}</div>
       </div>
+
+      {loaded ? (
+        <dl
+          className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${
+            gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"
+          }`}
+        >
+          <Counter label="Tables" value={`${stats.sold} / ${stats.capacity}`} />
+          {gerant && <Counter label="Revenu" value={formatCents(stats.online + stats.onSite)} />}
+          {gerant && <Counter label="Frais Ominin" value={formatCents(stats.fees)} />}
+          <Counter
+            label="Invités"
+            value={
+              !guestList
+                ? "Liste fermée"
+                : event.guestListCapacity
+                  ? `${stats.guests} / ${event.guestListCapacity}`
+                  : String(stats.guests)
+            }
+          />
+        </dl>
+      ) : (
+        <div aria-busy className="shimmer h-12 rounded-xl" />
+      )}
+      <div className="flex sm:hidden [&>a]:flex-1">{planLink}</div>
     </li>
   );
 }
@@ -156,7 +176,7 @@ export default function SoireesPage() {
   const upcoming = events.filter((event) => !isPast(event, now));
   const past = events.filter((event) => isPast(event, now)).reverse();
   const shown = tab === "passees" ? past : upcoming;
-  useClubNights(tab === "zones" ? [] : shown.map((event) => event.id));
+  useClubNights(tab === "salle" ? [] : shown.map((event) => event.id));
 
   if (!state) return null;
   if (!hasFeature("soirees")) return <ClubLocked />;
@@ -166,7 +186,7 @@ export default function SoireesPage() {
   const tabs = [
     { id: "a_venir", label: "À venir", count: upcoming.length },
     { id: "passees", label: "Passées" },
-    ...(gerant ? [{ id: "zones", label: "Zones et prix" }] : []),
+    ...(gerant ? [{ id: "salle", label: "Salle et conditions" }] : []),
   ];
   const tableCounts = new Map<string, number>();
   for (const table of club.tables) {
@@ -174,7 +194,7 @@ export default function SoireesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="soirees flex flex-col gap-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">Soirées</h1>
@@ -198,8 +218,8 @@ export default function SoireesPage() {
 
       <PillTabs tabs={tabs} activeId={tab} onSelect={(id) => setTab(id as Tab)} />
 
-      {tab === "zones" ? (
-        <ZonesSettings zones={club.zones} tableCounts={tableCounts} />
+      {tab === "salle" ? (
+        <ZonesSettings zones={club.zones} tableCounts={tableCounts} conditions={club.conditions} />
       ) : shown.length === 0 ? (
         <EmptyState
           title={tab === "passees" ? "Aucune soirée passée" : "Aucune soirée à venir"}

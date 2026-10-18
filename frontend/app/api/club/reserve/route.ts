@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { cleanContact, rpcMessage } from "@/lib/club/server";
+import { connectedAccount } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -33,13 +34,20 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: event } = await admin
     .from("club_events")
-    .select("etablissements(payment_provider, online_payment)")
+    .select("etablissement_id, etablissements(payment_provider, online_payment)")
     .eq("id", eventId)
     .maybeSingle();
   const etab = event?.etablissements;
+  if (!event || !etab) {
+    return NextResponse.json({ error: "Soirée introuvable." }, { status: 404 });
+  }
+  // Vérifié avant de tenir la table : sans compte prêt à encaisser, le
+  // client ne remplirait le formulaire que pour se heurter au paiement.
   const bookable =
-    etab?.payment_provider === "demo" ||
-    (etab?.payment_provider === "stripe" && etab.online_payment);
+    etab.payment_provider === "demo" ||
+    (etab.payment_provider === "stripe" &&
+      etab.online_payment &&
+      (await connectedAccount(admin, event.etablissement_id))?.chargesEnabled === true);
   if (!bookable) {
     return NextResponse.json(
       { error: "La réservation en ligne n'est pas ouverte pour ce club." },

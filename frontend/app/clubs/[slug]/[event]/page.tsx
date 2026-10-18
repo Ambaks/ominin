@@ -4,8 +4,8 @@ import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { EventBooking } from "@/components/club/event-booking";
 import { GuestList } from "@/components/club/guest-list";
 import { Poster } from "@/components/club/poster";
-import { clubConditions } from "@/lib/club/conditions";
-import { formatHours, formatNight } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { allInCents } from "@/lib/club/pricing";
 import { fetchAvailability, fetchClub, fetchEvent } from "@/lib/club/public";
 
 /* Les tables prises changent à chaque réservation : jamais de rendu en cache. */
@@ -38,6 +38,8 @@ export default async function EventPage({ params }: { params: Params }) {
   const cancelled = Boolean(event.cancelledAt);
   const bookable = club.paymentProvider === "demo" || (club.paymentProvider === "stripe" && club.onlinePayment);
   const night = formatNight(event.startsAt);
+  const prices = availability.zones.map((zone) => zone.priceCents);
+  const from = prices.length ? allInCents(Math.min(...prices), club.feePercent) : null;
 
   return (
     <main className="club-page">
@@ -76,6 +78,11 @@ export default async function EventPage({ params }: { params: Params }) {
               <a href="#plan" className="club-button club-button-primary">
                 Choisir ma table
               </a>
+              {from !== null && (
+                <p className="club-event-from">
+                  Tables à partir de <strong className="club-nums">{formatCents(from)}</strong>, frais compris
+                </p>
+              )}
               {event.ticketUrl && (
                 <a
                   href={event.ticketUrl}
@@ -97,7 +104,6 @@ export default async function EventPage({ params }: { params: Params }) {
           club={club}
           event={event}
           availability={availability}
-          conditions={clubConditions(club.slug)}
           bookable={bookable}
         />
       )}

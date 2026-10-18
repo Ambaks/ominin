@@ -3,10 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { Poster } from "@/components/club/poster";
+import { Reveal } from "@/components/club/reveal";
 import { CLUB_TIMING } from "@/components/club/timing";
-import { Reveal } from "@/components/landing-kit/reveal";
 import { EtoileMark } from "@/components/menu/etoile/logo";
-import { clubConditions } from "@/lib/club/conditions";
 import { formatHours, formatNight } from "@/lib/club/format";
 import { clubHref } from "@/lib/club/links";
 import { fetchClub, fetchUpcomingEvents } from "@/lib/club/public";
@@ -44,7 +43,8 @@ export default async function ClubPage({ params }: { params: Params }) {
   const club = await fetchClub(slug);
   if (!club) notFound();
   const events = await fetchUpcomingEvents(club.id);
-  const conditions = clubConditions(slug);
+  const { conditions } = club;
+  const next = events.find((event) => !event.cancelledAt);
 
   return (
     <main className="club-page">
@@ -52,7 +52,9 @@ export default async function ClubPage({ params }: { params: Params }) {
 
       <section className="club-hero" data-chapter>
         <div className="club-hero-glow" aria-hidden />
-        <EtoileMark className="club-hero-mark" />
+        <span className="club-hero-star">
+          <EtoileMark className="club-hero-mark" />
+        </span>
         <h1 className="club-wordmark" aria-label={club.name}>
           {[...club.name].map((char, index) => (
             <span key={index} aria-hidden style={{ "--i": index } as React.CSSProperties}>
@@ -62,9 +64,26 @@ export default async function ClubPage({ params }: { params: Params }) {
         </h1>
         {club.tagline && <p className="club-hero-tagline">{club.tagline}</p>}
         {club.address && <p className="club-hero-address">{club.address}</p>}
-        <a href="#soirees" className="club-button club-button-ghost club-hero-cta">
-          Voir les soirées
-        </a>
+        {next ? (
+          <div className="club-hero-next">
+            <p className="club-hero-next-label">
+              Prochaine soirée · <span>{formatNight(next.startsAt)}</span>
+            </p>
+            <p className="club-hero-next-title">{next.title}</p>
+            <div className="club-hero-actions">
+              <Link href={`${clubHref(`/${slug}/${next.slug}`)}#plan`} className="club-button club-button-primary">
+                Choisir ma table
+              </Link>
+              <a href="#soirees" className="club-button club-button-ghost">
+                Toutes les soirées
+              </a>
+            </div>
+          </div>
+        ) : (
+          <a href="#soirees" className="club-button club-button-ghost club-hero-cta">
+            Voir les soirées
+          </a>
+        )}
       </section>
 
       <section id="soirees" className="club-section" data-chapter aria-labelledby="soirees-titre">
@@ -150,7 +169,7 @@ export default async function ClubPage({ params }: { params: Params }) {
           <p className="club-eyebrow">À l&rsquo;entrée</p>
           <ul className="club-chips">
             <li>{conditions.minAge} ans et plus</li>
-            <li>{conditions.dress}</li>
+            {conditions.dress && <li>{conditions.dress}</li>}
             {conditions.refused && <li>{conditions.refused}</li>}
           </ul>
         </Reveal>

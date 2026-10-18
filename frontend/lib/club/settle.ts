@@ -153,6 +153,22 @@ export async function settleDemoBooking(admin: Admin, bookingId: string): Promis
   return true;
 }
 
+/**
+ * Un remboursement fait ailleurs (tableau de bord Stripe du club) : la
+ * réservation suit, sans e-mail — le club a parlé au client.
+ */
+export async function syncRefundedCharge(admin: Admin, charge: Stripe.Charge): Promise<void> {
+  const paymentIntentId =
+    typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+  if (!paymentIntentId || !charge.refunded) return;
+  const { error } = await admin
+    .from("club_bookings")
+    .update({ status: "remboursee", refunded_at: new Date().toISOString() })
+    .eq("stripe_payment_intent_id", paymentIntentId)
+    .in("status", ["payee", "arrivee"]);
+  if (error) throw new Error(error.message);
+}
+
 export type RefundOutcome = "refunded" | "cancelled" | "not_refundable";
 
 /**
@@ -177,25 +193,30 @@ export async function refundBooking(
   }
   const paidOnline = booking.source === "en_ligne" && booking.paid_at !== null;
   if (!paidOnline) {
-    const { error } = await admin
+    const { data: cancelled, error } = await admin
       .from("club_bookings")
       .update({ status: "annulee", cancelled_at: new Date().toISOString() })
       .eq("id", bookingId)
-      .in("status", ["en_attente", "payee", "arrivee"]);
+      .in("status", ["en_attente", "payee", "arrivee"])
+      .select("id");
     if (error) throw new Error(error.message);
-    return "cancelled";
+    return cancelled?.length ? "cancelled" : "not_refundable";
   }
   if (booking.stripe_payment_intent_id) {
     const account = await connectedAccount(admin, booking.etablissement_id);
     if (!account || !stripe) throw new Error("Compte Stripe du club introuvable.");
     await refundIntent(stripe, booking.stripe_payment_intent_id, account.id);
   }
-  const { error } = await admin
+  const { data: refunded, error } = await admin
     .from("club_bookings")
     .update({ status: "remboursee", refunded_at: new Date().toISOString() })
     .eq("id", bookingId)
-    .in("status", ["payee", "arrivee"]);
+    .in("status", ["payee", "arrivee"])
+    .select("id");
   if (error) throw new Error(error.message);
+  // Un second clic, ou un appel concurrent, a déjà rendu la table : un seul
+  // e-mail part.
+  if (!refunded?.length) return "not_refundable";
   if (options.notify) {
     const mail = await bookingMail(admin, bookingId);
     if (mail) await sendBookingRefunded(mail);

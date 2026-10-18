@@ -30,7 +30,16 @@ function fold(line: string): string {
   return out.join("\r\n ");
 }
 
-const text = (value: string) => value.replace(/[\;,]/g, (char) => `\\${char}`).replace(/\n/g, "\\n");
+/* TEXT (RFC 5545 §3.3.11) : barre oblique inverse, point-virgule et virgule échappés, sauts de ligne en \n. */
+const text = (value: string) => value.replace(/[\\;,]/g, (char) => `\\${char}`).replace(/\r?\n/g, "\\n");
+
+/* Un nom de fichier sûr dans l'en-tête : ASCII seul, sans guillemets ni espaces. */
+const asciiName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 const stamp = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
 export async function GET(
@@ -63,7 +72,7 @@ export async function GET(
   return new Response(`${lines.map(fold).join("\r\n")}\r\n`, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${slug}-table-${booking.table.label}.ics"`,
+      "Content-Disposition": `attachment; filename="${asciiName(`${slug}-table-${booking.table.label}`) || "reservation"}.ics"`,
       "Cache-Control": "no-store",
     },
   });

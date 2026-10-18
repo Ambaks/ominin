@@ -2,21 +2,23 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
-import { HoldCountdown } from "@/components/club/hold-countdown";
+import { useSkyPause } from "@/components/club/club-sky";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_BURST, CLUB_EASE, CLUB_TIMING } from "@/components/club/timing";
-import { TABLE_HOLD_S } from "@/lib/club/hold";
 import type { Club } from "@/lib/club/types";
 
 /*
  * Ce qui vit sur la page de réservation : le statut relu à intervalle (payée
  * à l'instant, arrivée scannée à la porte, remboursée par le club) et, tant
- * que la table est tenue, le compte à rebours et le paiement repris.
+ * que la table est tenue, le compte à rebours et le paiement repris. Le
+ * ciel s'y fige : le billet passe devant.
  */
 
-export function BookingWatch() {
+export function BookingWatch({ live }: { live: boolean }) {
   const router = useRouter();
+  useSkyPause(true);
   useEffect(() => {
+    if (!live) return;
     const onVisible = () => {
       if (!document.hidden) router.refresh();
     };
@@ -26,7 +28,7 @@ export function BookingWatch() {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [router]);
+  }, [router, live]);
   return null;
 }
 
@@ -47,16 +49,11 @@ export function ResumePayment({
   const onExpired = useCallback(() => router.refresh(), [router]);
   return (
     <div className="club-resume">
-      <div className="club-paystep-head">
-        <HoldCountdown remainingMs={remainingMs} totalMs={TABLE_HOLD_S * 1000} onExpire={onExpired} />
-        <p>
-          <strong>Table tenue pour vous.</strong> Réglez avant la fin du compte à rebours.
-        </p>
-      </div>
       <TablePayment
         provider={provider}
         bookingId={bookingId}
         totalCents={totalCents}
+        remainingMs={remainingMs}
         onPaid={onPaid}
         onExpired={onExpired}
       />
@@ -64,37 +61,56 @@ export function ResumePayment({
   );
 }
 
-/* La constellation qui éclate autour du billet, une seule fois, au retour du paiement. */
+/*
+ * Au retour du paiement, une fois : quand le QR code s'est posé, sa plaque
+ * s'éclaire d'un anneau d'or, une constellation en jaillit (dans une couche
+ * fixe, au-dessus du billet qui la rognerait), puis l'étape « Payée »
+ * s'allume.
+ */
 export function PaidBurst() {
-  const ref = useRef<HTMLDivElement>(null);
+  const layer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete("paye");
     window.history.replaceState(window.history.state, "", url);
-    const host = ref.current;
-    if (!host || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const [near, far] = CLUB_BURST.reach;
-    const animations = Array.from({ length: CLUB_BURST.stars }, (_, index) => {
-      const star = document.createElement("span");
-      star.className = "club-burst-star";
-      host.appendChild(star);
-      const angle = (index / CLUB_BURST.stars) * Math.PI * 2 + Math.random() * 0.3;
-      const reach = near + Math.random() * (far - near);
-      const animation = star.animate(
-        [
-          { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
-          { opacity: 1, offset: 0.2 },
-          {
-            transform: `translate(calc(-50% + ${Math.cos(angle) * reach}px), calc(-50% + ${Math.sin(angle) * reach}px)) scale(1)`,
-            opacity: 0,
-          },
-        ],
-        { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_TIMING.stagger * 2, easing: CLUB_EASE, fill: "both" }
-      );
-      animation.onfinish = () => star.remove();
-      return animation;
-    });
-    return () => animations.forEach((animation) => animation.cancel());
+    const host = layer.current;
+    const plate = document.querySelector<HTMLElement>(".club-qr-plate");
+    const step = document.querySelector<HTMLElement>(".club-track [data-step='payee']");
+    if (!host || !plate || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const animations: Animation[] = [];
+    const timer = window.setTimeout(() => {
+      const box = plate.getBoundingClientRect();
+      host.style.setProperty("--x", `${box.left + box.width / 2}px`);
+      host.style.setProperty("--y", `${box.top + box.height / 2}px`);
+      plate.setAttribute("data-flash", "");
+      const [near, far] = CLUB_BURST.reach;
+      for (let index = 0; index < CLUB_BURST.stars; index++) {
+        const star = document.createElement("span");
+        star.className = "club-burst-star";
+        host.appendChild(star);
+        const angle = (index / CLUB_BURST.stars) * Math.PI * 2 + Math.random() * 0.3;
+        const reach = near + Math.random() * (far - near);
+        const animation = star.animate(
+          [
+            { transform: "translate(-50%, -50%) scale(0.2)", opacity: 0 },
+            { opacity: 1, offset: 0.2 },
+            {
+              transform: `translate(calc(-50% + ${Math.cos(angle) * reach}px), calc(-50% + ${Math.sin(angle) * reach}px)) scale(1)`,
+              opacity: 0,
+            },
+          ],
+          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_TIMING.stagger * 2, easing: CLUB_EASE, fill: "both" }
+        );
+        animation.onfinish = () => star.remove();
+        animations.push(animation);
+      }
+      step?.setAttribute("data-lit", "");
+    }, CLUB_TIMING.burstDelay);
+    return () => {
+      clearTimeout(timer);
+      animations.forEach((animation) => animation.cancel());
+    };
   }, []);
-  return <div ref={ref} className="club-burst" aria-hidden />;
+  return <div ref={layer} className="club-burst" aria-hidden />;
 }

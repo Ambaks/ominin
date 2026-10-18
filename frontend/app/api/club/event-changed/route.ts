@@ -4,6 +4,8 @@ import { requireClubGerant } from "@/lib/club/server";
 import { bookingMail } from "@/lib/club/settle";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const maxDuration = 60;
+
 /*
  * Appelée par la gestion après un changement d'horaire d'une soirée : chaque
  * client dont la table tient encore reçoit le nouvel horaire. Un client
@@ -31,12 +33,8 @@ export async function POST(request: Request) {
     .select("id")
     .eq("event_id", eventId)
     .in("status", ["payee", "arrivee"]);
-  let notified = 0;
-  for (const booking of bookings ?? []) {
-    const mail = await bookingMail(admin, booking.id);
-    if (!mail) continue;
-    await sendEventChanged(mail);
-    notified += 1;
-  }
-  return NextResponse.json({ notified });
+  const mails = await Promise.all((bookings ?? []).map((booking) => bookingMail(admin, booking.id)));
+  const recipients = mails.filter((mail) => mail !== null);
+  await Promise.all(recipients.map(sendEventChanged));
+  return NextResponse.json({ notified: recipients.length });
 }

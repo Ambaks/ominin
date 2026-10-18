@@ -7,6 +7,7 @@ import {
   getClub,
   refreshClubNow,
   refreshNightNow,
+  type ClubConditions,
   type ClubState,
   type EventZoneSetting,
 } from "./club-store";
@@ -57,6 +58,23 @@ export async function updateZone(zoneId: string, input: { priceCents: number; in
   apply((draft) => {
     const zone = draft.zones.find((candidate) => candidate.id === zoneId);
     if (zone) Object.assign(zone, input);
+  });
+}
+
+export async function updateConditions(conditions: ClubConditions) {
+  const { etablissementId } = getClub();
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({
+        club_min_age: conditions.minAge,
+        club_dress_code: conditions.dressCode,
+        club_refused: conditions.refused,
+      })
+      .eq("id", etablissementId)
+  );
+  apply((draft) => {
+    draft.conditions = conditions;
   });
 }
 
@@ -158,9 +176,15 @@ export async function setPublished(eventId: string, published: boolean) {
   });
 }
 
-/** Annule la soirée : chaque table est remboursée ou annulée, chaque client prévenu. */
-export async function cancelEvent(eventId: string): Promise<{ refunded: number; released: number }> {
-  const result = await post<{ refunded: number; released: number }>("/api/club/cancel-event", { eventId });
+export type CancelResult = { refunded: number; cancelled: number; failed: string[] };
+
+/**
+ * Annule la soirée : chaque table est remboursée ou annulée, chaque client
+ * prévenu. Sans danger à relancer : seules les tables encore tenues sont
+ * reprises, celles dont le remboursement a échoué (failed) comprises.
+ */
+export async function cancelEvent(eventId: string): Promise<CancelResult> {
+  const result = await post<CancelResult>("/api/club/cancel-event", { eventId });
   await refreshClubNow();
   return result;
 }
@@ -207,17 +231,19 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
 }
 
 /**
- * L'équipe pointe une arrivée (ou la défait). Une table à régler sur place
- * se règle en même temps (paid), ou seule (arrived false). Affichée tout de
- * suite, relue si la base refuse.
+ * L'équipe pointe une arrivée, la défait, ou encaisse sur place (paid) une
+ * table saisie par le club — avec ou sans l'arrivée. Défaire une arrivée ne
+ * touche pas au règlement (club_marquer_arrivee). Affichée tout de suite,
+ * relue si la base refuse.
  */
 export async function markArrival(booking: ClubBooking, arrived: boolean, paid = false) {
   const now = new Date().toISOString();
+  const paidAt = booking.paidAt ?? (paid ? now : null);
   apply((draft) =>
     patchBooking(draft, booking, {
-      status: arrived ? "arrivee" : "payee",
-      arrivedAt: arrived ? now : null,
-      paidAt: booking.paidAt ?? now,
+      status: arrived ? "arrivee" : paidAt ? "payee" : "en_attente",
+      arrivedAt: arrived ? (booking.arrivedAt ?? now) : null,
+      paidAt,
     })
   );
   const result = await createClient().rpc("club_marquer_arrivee", {

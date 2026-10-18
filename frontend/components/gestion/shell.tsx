@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { collectBrand } from "@/lib/collect-landing-data";
@@ -222,6 +222,25 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           ).length,
         };
   const badgeHints = pickupShop ? PICKUP_BADGE_HINTS : BADGE_HINTS;
+  // Une barre du bas à un seul onglet (un club : Soirées) ne mène nulle part
+  // de plus : elle laisse la place aux barres collées des écrans.
+  const mobileItems = items.filter((item) => !item.sidebarOnly);
+  const mobileNav = mobileItems.length > 1;
+  // Hauteur de l'en-tête collé, pour ce qui se colle dessous (onglets d'un
+  // écran) : elle change avec la largeur, l'en-tête passant sur deux lignes.
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = header.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      document.documentElement.style.setProperty(
+        "--gestion-entete",
+        `${entry.borderBoxSize[0].blockSize}px`
+      );
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
   // Visite de la page, pour le gérant (la vue salle d'une tablette
@@ -280,8 +299,12 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastProvider>
-      <div className="flex min-h-dvh w-full flex-col">
+      <div
+        className="flex min-h-dvh w-full flex-col"
+        style={{ "--gestion-barre-bas": mobileNav ? "5rem" : "1rem" } as React.CSSProperties}
+      >
         <header
+          ref={header}
           data-visite-bord="haut"
           className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden"
         >
@@ -474,41 +497,43 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        <nav
-          data-visite="nav"
-          data-visite-bord="bas"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
-        >
-          <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {items.filter((item) => !item.sidebarOnly).map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                  className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                    active ? "text-ember-1" : "text-faint"
-                  }`}
-                >
-                  <item.icon className="size-5" />
-                  {/* Sept onglets sur 320 px : le libellé se resserre plutôt que de toucher son voisin. */}
-                  <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
-                    {item.label}
-                  </span>
-                  {(badges[item.href] ?? 0) > 0 && (
-                    <span
-                      title={badgeHints[item.href]}
-                      className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
-                    >
-                      {badges[item.href]}
+        {mobileNav && (
+          <nav
+            data-visite="nav"
+            data-visite-bord="bas"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
+          >
+            <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+              {mobileItems.map((item) => {
+                const active = isActive(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
+                    className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                      active ? "text-ember-1" : "text-faint"
+                    }`}
+                  >
+                    <item.icon className="size-5" />
+                    {/* Sept onglets sur 320 px : le libellé se resserre plutôt que de toucher son voisin. */}
+                    <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
+                      {item.label}
                     </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+                    {(badges[item.href] ?? 0) > 0 && (
+                      <span
+                        title={badgeHints[item.href]}
+                        className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
+                      >
+                        {badges[item.href]}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </div>
     </ToastProvider>
   );

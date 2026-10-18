@@ -27,6 +27,16 @@ alter table public.etablissements
   add column table_fee_percent numeric(5,2) not null default 0
     check (table_fee_percent between 0 and 100);
 
+-- Les conditions d'entrée du club, montrées avant le paiement et à accepter :
+-- âge minimum, tenue, ce que la porte refuse. Réglées par le gérant.
+alter table public.etablissements
+  add column club_min_age smallint not null default 18
+    check (club_min_age between 16 and 25),
+  add column club_dress_code text
+    check (club_dress_code is null or length(btrim(club_dress_code)) between 1 and 80),
+  add column club_refused text
+    check (club_refused is null or length(btrim(club_refused)) between 1 and 120);
+
 comment on column public.etablissements.table_fee_percent is
   'Frais de service Ominin sur une table réservée en ligne, en % du prix, '
   'ajoutés au total payé par le client. Réservé à Ominin.';
@@ -158,8 +168,10 @@ create table public.club_bookings (
   id uuid primary key default gen_random_uuid(),
   etablissement_id uuid not null
     references public.etablissements (id) on delete cascade,
-  event_id uuid not null references public.club_events (id) on delete cascade,
-  table_id uuid not null references public.club_tables (id) on delete restrict,
+  -- Sans cascade : une soirée ou une table qui porte des réservations ne
+  -- s'efface pas (la suppression du club entier, elle, les emporte).
+  event_id uuid not null references public.club_events (id),
+  table_id uuid not null references public.club_tables (id),
   -- La clé de la page de réservation du client, envoyée par e-mail.
   token text not null unique default encode(extensions.gen_random_bytes(16), 'hex'),
   name text not null check (length(btrim(name)) between 1 and 80),
@@ -208,13 +220,16 @@ create table public.club_guests (
   event_id uuid not null references public.club_events (id) on delete cascade,
   name text not null check (length(btrim(name)) between 1 and 80),
   party_size smallint not null check (party_size between 1 and 20),
-  phone text check (phone is null or length(btrim(phone)) between 6 and 30),
+  phone text not null check (phone ~ '^\+?[0-9]{6,20}$'),
   email text check (email is null or email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
   arrived_at timestamptz,
   created_at timestamptz not null default now()
 );
 
 create index club_guests_event_idx on public.club_guests (event_id);
+-- Une inscription par téléphone et par soirée : la liste ne se remplit pas
+-- de doublons, ni d'un robot qui la vide en un instant.
+create unique index club_guests_phone_idx on public.club_guests (event_id, phone);
 
 -- ---------------------------------------------------------------------------
 -- RLS
@@ -244,7 +259,13 @@ create policy "public read" on public.club_tables
 create policy "gerant write" on public.club_tables
   for all to authenticated
   using (public.current_member_role(etablissement_id) = 'gerant')
-  with check (public.current_member_role(etablissement_id) = 'gerant');
+  with check (
+    public.current_member_role(etablissement_id) = 'gerant'
+    and exists (
+      select 1 from public.club_zones z
+      where z.id = zone_id and z.etablissement_id = club_tables.etablissement_id
+    )
+  );
 
 -- anon n'a pas le droit d'exécuter current_member_role : sa policy ne
 -- l'appelle pas, sans quoi même une soirée publiée lui serait refusée.
@@ -478,6 +499,15 @@ begin
   v_fee := round(v_price * coalesce(v_percent, 0) / 100);
 
   perform club_liberer_attentes(p_event, p_table);
+  -- Un paiement en cours par personne et par soirée : choisir une autre
+  -- table rend la précédente. Un même e-mail ou téléphone ne peut pas
+  -- bloquer toute une salle.
+  update club_bookings
+  set status = 'annulee', cancelled_at = now()
+  where event_id = p_event
+    and status = 'en_attente'
+    and source = 'en_ligne'
+    and (email = lower(btrim(p_email)) or phone = btrim(p_phone));
 
   begin
     insert into club_bookings (
@@ -537,6 +567,12 @@ begin
      or current_member_role(v_event.etablissement_id) is distinct from 'gerant' then
     raise exception 'Accès refusé.' using errcode = '42501';
   end if;
+  if v_event.cancelled_at is not null then
+    raise exception 'Cette soirée est annulée.';
+  end if;
+  if v_event.ends_at <= now() then
+    raise exception 'Cette soirée est terminée.';
+  end if;
 
   select seats into v_seats from club_tables
   where id = p_table and etablissement_id = v_event.etablissement_id;
@@ -582,8 +618,9 @@ grant execute on function public.creer_reservation_club(
   uuid, uuid, text, text, smallint, public.club_booking_source, boolean, text
 ) to authenticated;
 
--- L'équipe coche une arrivée (ou la décoche après une erreur). Une table à
--- régler sur place est réglée à l'arrivée (p_paid).
+-- L'équipe coche une arrivée, ou la décoche après une erreur. p_paid :
+-- la table à régler sur place est encaissée à cet instant (à l'arrivée, ou
+-- seule). Décocher une arrivée ne touche pas au règlement.
 create function public.club_marquer_arrivee(
   p_booking uuid,
   p_arrived boolean,
@@ -596,6 +633,7 @@ set search_path = public
 as $$
 declare
   v_booking club_bookings;
+  v_paid boolean;
 begin
   select * into v_booking from club_bookings where id = p_booking;
   if v_booking.id is null
@@ -606,14 +644,19 @@ begin
      or (v_booking.status = 'en_attente' and v_booking.hold_expires_at is not null) then
     raise exception 'Cette réservation n''est plus active.';
   end if;
-  if p_arrived and v_booking.status = 'en_attente' and not p_paid then
+  v_paid := v_booking.paid_at is not null or p_paid;
+  if p_arrived and not v_paid then
     raise exception 'Table à régler avant l''arrivée.';
   end if;
 
   update club_bookings
-  set status = case when p_arrived then 'arrivee' else 'payee' end::club_booking_status,
-      arrived_at = case when p_arrived then now() end,
-      paid_at = coalesce(paid_at, now())
+  set status = case
+        when p_arrived then 'arrivee'
+        when v_paid then 'payee'
+        else 'en_attente'
+      end::club_booking_status,
+      arrived_at = case when p_arrived then coalesce(arrived_at, now()) end,
+      paid_at = case when v_paid then coalesce(paid_at, now()) end
   where id = p_booking;
 end;
 $$;
@@ -692,12 +735,20 @@ begin
     end if;
   end if;
 
-  insert into club_guests (etablissement_id, event_id, name, party_size, phone, email)
-  values (
-    v_event.etablissement_id, p_event, btrim(p_name), p_party,
-    nullif(btrim(p_phone), ''), nullif(lower(btrim(p_email)), '')
-  )
-  returning id into v_id;
+  begin
+    insert into club_guests (etablissement_id, event_id, name, party_size, phone, email)
+    values (
+      v_event.etablissement_id, p_event, btrim(p_name), p_party,
+      regexp_replace(coalesce(p_phone, ''), '[^0-9+]', '', 'g'),
+      nullif(lower(btrim(p_email)), '')
+    )
+    returning id into v_id;
+  exception
+    when unique_violation then
+      raise exception 'Ce numéro est déjà sur la liste.';
+    when check_violation then
+      raise exception 'Numéro de téléphone invalide.';
+  end;
   return v_id;
 end;
 $$;

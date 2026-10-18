@@ -69,7 +69,7 @@ const ZONES: ZoneSpec[] = [
         { kind: "dj", x: 310, y: 440, w: 80, h: 30, label: "DJ" },
         { kind: "bar", x: 240, y: 250, w: 140, h: 185, label: "Bar" },
         { kind: "entree", x: 585, y: 195, rotate: 180 },
-        { kind: "texte", x: 300, y: 90, label: "Vue sur Toulouse" },
+        { kind: "texte", x: 300, y: 205, label: "Vue sur Toulouse" },
       ],
     },
     tables: [
@@ -122,8 +122,8 @@ const ZONES: ZoneSpec[] = [
       ],
     },
     tables: [
-      ["209", 112, 72], ["208", 155, 72], ["207", 220, 72], ["206", 285, 72],
-      ["205", 356, 72], ["204", 420, 72], ["203", 486, 72], ["202", 556, 72],
+      ["209", 100, 72], ["208", 162, 72], ["207", 224, 72], ["206", 286, 72],
+      ["205", 348, 72], ["204", 410, 72], ["203", 472, 72], ["202", 534, 72],
       ["210", 84, 150], ["201", 586, 150],
     ],
   },
@@ -281,6 +281,8 @@ async function main() {
         phone: "07 83 80 33 18",
         payment_provider: "demo",
         table_fee_percent: 5,
+        club_dress_code: "Tenue élégante exigée",
+        club_refused: "Casquettes, sacs et tongs refusés",
       })
       .select("id")
       .single()

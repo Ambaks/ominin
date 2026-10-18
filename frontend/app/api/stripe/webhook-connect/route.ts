@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { settleBookingIntent } from "@/lib/club/settle";
+import { settleBookingIntent, syncRefundedCharge } from "@/lib/club/settle";
 import {
   getStripe,
   settleCheckoutSession,
@@ -64,6 +64,11 @@ export async function POST(request: Request) {
       if (event.account) {
         await settleCheckoutSession(admin, stripe, session, event.account);
       }
+      break;
+    }
+    // Une table remboursée depuis le tableau de bord Stripe du club.
+    case "charge.refunded": {
+      await syncRefundedCharge(admin, event.data.object);
       break;
     }
     case "checkout.session.expired": {

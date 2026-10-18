@@ -222,7 +222,8 @@ export const DEFAULT_COLLECT_SLOT_MINUTES = 15;
 
 /**
  * Bornes des saisies d'Ominin Club, miroirs des contraintes SQL de
- * club_events, club_zones et club_bookings (20261019000001) : le formulaire
+ * club_events, club_zones, club_bookings et des conditions d'entrée
+ * d'etablissements (20261019000001) : le formulaire
  * refuse ce que la base refuserait.
  */
 export const CLUB_LIMITS = {
@@ -235,6 +236,10 @@ export const CLUB_LIMITS = {
   phoneMin: 6,
   phoneMax: 30,
   note: 300,
+  minAgeFrom: 16,
+  minAgeTo: 25,
+  dressCode: 80,
+  refused: 120,
 } as const;
 
 /** Jours proposés d'un geste dans Retraits, aujourd'hui compris ; au-delà, le champ date. */

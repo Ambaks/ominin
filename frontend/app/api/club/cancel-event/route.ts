@@ -5,11 +5,14 @@ import { requireClubGerant } from "@/lib/club/server";
 import { getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const maxDuration = 60;
+
 /*
  * Le club annule une soirée : elle reste visible, marquée annulée, et
  * chaque table est rendue d'office — remboursée si elle a été payée en
  * ligne, annulée sinon — avec un e-mail au client. Personne n'a à réclamer
- * son argent.
+ * son argent. Rejouable : un remboursement qui échoue (Stripe indisponible)
+ * est rapporté, et un nouvel appel ne traite que ce qui reste actif.
  */
 export async function POST(request: Request) {
   const { eventId } = (await request.json().catch(() => ({}))) as { eventId?: string };
@@ -36,19 +39,35 @@ export async function POST(request: Request) {
     if (error) throw new Error(error.message);
   }
 
+  // Les tables qui tiennent encore : payées, arrivées, saisies par le club,
+  // ou en cours de paiement dans leur délai. Un paiement abandonné ne
+  // reçoit pas d'e-mail ; s'il aboutissait, settleBookingIntent le rendrait.
+  const now = new Date().toISOString();
   const { data: bookings } = await admin
     .from("club_bookings")
     .select("id, stripe_payment_intent_id")
     .eq("event_id", eventId)
-    .in("status", ["en_attente", "payee", "arrivee"]);
+    .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`);
   const stripe = bookings?.some((booking) => booking.stripe_payment_intent_id) ? getStripe() : null;
-  let refunded = 0;
-  for (const booking of bookings ?? []) {
-    const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
-    if (outcome === "not_refundable") continue;
-    if (outcome === "refunded") refunded += 1;
-    const mail = await bookingMail(admin, booking.id);
-    if (mail) await sendEventCancelled(mail, outcome === "refunded");
-  }
-  return NextResponse.json({ refunded, released: bookings?.length ?? 0 });
+
+  const results = await Promise.all(
+    (bookings ?? []).map(async (booking) => {
+      try {
+        const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
+        if (outcome !== "not_refundable") {
+          const mail = await bookingMail(admin, booking.id);
+          if (mail) await sendEventCancelled(mail, outcome === "refunded");
+        }
+        return { id: booking.id, outcome };
+      } catch (error) {
+        console.error("[club] remboursement à l'annulation", { bookingId: booking.id, error });
+        return { id: booking.id, outcome: "failed" as const };
+      }
+    })
+  );
+  return NextResponse.json({
+    refunded: results.filter((result) => result.outcome === "refunded").length,
+    cancelled: results.filter((result) => result.outcome === "cancelled").length,
+    failed: results.filter((result) => result.outcome === "failed").map((result) => result.id),
+  });
 }

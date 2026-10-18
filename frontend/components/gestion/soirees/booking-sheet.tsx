@@ -9,8 +9,15 @@ import { formatClock } from "@/lib/collect/hours";
 import { formatCents } from "@/lib/club/format";
 import type { ClubBooking, ClubEvent, ClubTable, ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
-import { isClubEntered, people, TABLE_STATE_LABELS, staffTableState } from "@/lib/gestion/club-selectors";
+import {
+  formatPhone,
+  isClubEntered,
+  people,
+  staffTableState,
+  telHref,
+} from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
+import { StatusChip } from "./night-plan";
 
 /*
  * Une table du plan du soir, touchée à la porte : sa réservation et les
@@ -24,16 +31,17 @@ const SOURCE_LABELS: Record<ClubBooking["source"], string> = {
   sur_place: "Sur place",
 };
 
-const PRIMARY = "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50";
+const PRIMARY =
+  "ember-gradient min-h-11 w-full rounded-full px-5 text-sm font-semibold text-background disabled:opacity-50";
 const SECONDARY =
-  "rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-50";
+  "min-h-11 w-full rounded-full border border-hairline px-5 text-sm font-semibold text-foreground transition-colors hover:border-ember-2/40 disabled:opacity-50";
 const DANGER =
-  "mr-auto rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:border-ember-3/40 disabled:opacity-50";
+  "mx-auto min-h-11 rounded-full px-4 text-sm font-medium text-ember-3 underline-offset-4 transition-colors hover:underline disabled:opacity-50";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 px-4 py-3">
-      <dt className="text-xs font-semibold uppercase tracking-wider text-faint">{label}</dt>
+      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</dt>
       <dd className="min-w-0 text-right text-sm">{children}</dd>
     </div>
   );
@@ -67,7 +75,7 @@ function BookingCard({
   const [confirm, setConfirm] = useState<"refund" | "cancel" | null>(null);
   const state = staffTableState(booking, true);
   const clubEntered = isClubEntered(booking);
-  const settling = booking.status === "en_attente" && clubEntered;
+  const unpaid = booking.status === "en_attente" && clubEntered;
   const holding = booking.status === "en_attente" && !clubEntered;
 
   const run = async (action: () => Promise<unknown>, success: string, close = false) => {
@@ -84,17 +92,50 @@ function BookingCard({
   };
 
   const tableName = `Table ${table.label}`;
+  // Le geste attendu d'abord, sur toute la largeur ; ce qui défait ou rend
+  // l'argent en dernier, discret, et toujours confirmé.
   const footer = holding ? undefined : (
     <>
-      {gerant && booking.paidOnline && (
-        <button type="button" disabled={busy} onClick={() => setConfirm("refund")} className={DANGER}>
-          Rembourser
+      {booking.status === "payee" && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run(() => clubApi.markArrival(booking, true), `${tableName} : arrivée.`, true)}
+          className={PRIMARY}
+        >
+          Marquer arrivé(e)
         </button>
       )}
-      {gerant && clubEntered && (
-        <button type="button" disabled={busy} onClick={() => setConfirm("cancel")} className={DANGER}>
-          Annuler la réservation
-        </button>
+      {unpaid && (
+        <>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              void run(
+                () => clubApi.markArrival(booking, true, true),
+                `${tableName} : ${formatCents(booking.priceCents)} encaissés, arrivée.`,
+                true
+              )
+            }
+            className={PRIMARY}
+          >
+            Encaisser {formatCents(booking.priceCents)} et marquer arrivé(e)
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              void run(
+                () => clubApi.markArrival(booking, false, true),
+                `${tableName} : ${formatCents(booking.priceCents)} encaissés.`
+              )
+            }
+            className={SECONDARY}
+          >
+            Encaisser sur place seulement
+          </button>
+        </>
       )}
       {booking.status === "arrivee" && (
         <button
@@ -106,35 +147,15 @@ function BookingCard({
           Annuler l&rsquo;arrivée
         </button>
       )}
-      {booking.status === "payee" && (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void run(() => clubApi.markArrival(booking, true), `${tableName} : arrivée.`, true)}
-          className={PRIMARY}
-        >
-          Arrivée
+      {gerant && booking.paidOnline && (
+        <button type="button" disabled={busy} onClick={() => setConfirm("refund")} className={DANGER}>
+          Rembourser la table
         </button>
       )}
-      {settling && (
-        <>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void run(() => clubApi.markArrival(booking, false), `${tableName} : réglée.`)}
-            className={SECONDARY}
-          >
-            Réglée
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void run(() => clubApi.markArrival(booking, true, true), `${tableName} : réglée et arrivée.`, true)}
-            className={PRIMARY}
-          >
-            Réglée et arrivée
-          </button>
-        </>
+      {gerant && clubEntered && (
+        <button type="button" disabled={busy} onClick={() => setConfirm("cancel")} className={DANGER}>
+          Annuler la réservation
+        </button>
       )}
     </>
   );
@@ -149,30 +170,24 @@ function BookingCard({
               {people(booking.partySize)} · {table.seats} places
             </p>
           </div>
-          <span
-            key={state}
-            className="statut-pose flex shrink-0 items-center gap-1.5 rounded-full border border-hairline px-2.5 py-1 text-[11px] font-semibold"
-          >
-            <span className="plan-legende" data-state={state} aria-hidden />
-            {TABLE_STATE_LABELS[state]}
-          </span>
+          <StatusChip key={state} state={state} />
         </div>
 
         <dl className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
           {booking.phone && (
             <Row label="Téléphone">
               <a
-                href={`tel:${booking.phone.replace(/[^\d+]/g, "")}`}
-                className="font-semibold text-ember-1 transition-opacity hover:opacity-80"
+                href={telHref(booking.phone)}
+                className="inline-flex min-h-11 items-center font-semibold tabular-nums text-ember-1 transition-opacity hover:opacity-80 lg:pointer-fine:min-h-0"
               >
-                {booking.phone}
+                {formatPhone(booking.phone)}
               </a>
             </Row>
           )}
           <Row label="Total">
             <span className="font-semibold tabular-nums">{formatCents(booking.totalCents)}</span>
             {booking.feeCents > 0 && (
-              <span className="block text-xs text-faint">
+              <span className="block text-xs text-muted">
                 dont {formatCents(booking.feeCents)} de frais de service
               </span>
             )}
@@ -185,7 +200,7 @@ function BookingCard({
           {booking.email && <Row label="E-mail">{booking.email}</Row>}
           {booking.note && (
             <div className="px-4 py-3">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-faint">Note</dt>
+              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Note</dt>
               <dd className="mt-1 whitespace-pre-line text-sm">{booking.note}</dd>
             </div>
           )}
@@ -325,7 +340,7 @@ function ReserveForm({
         <p className="text-sm text-muted">
           {zone.name} · {table.seats} places · <span className="font-semibold text-foreground">{formatCents(price)}</span>
           {zone.inclus ? ` · ${zone.inclus}` : ""}
-          {!onSale && <span className="mt-1 block text-xs text-faint">Gardée hors vente ce soir : vous seul pouvez la réserver.</span>}
+          {!onSale && <span className="mt-1 block text-xs text-muted">Gardée hors vente ce soir : vous seul pouvez la réserver.</span>}
         </p>
 
         <div role="radiogroup" aria-label="Réservation prise" className="flex rounded-full border border-hairline p-1">

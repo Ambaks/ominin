@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { BookingWatch, PaidBurst, ResumePayment } from "@/components/club/booking-live";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { QrCode } from "@/components/pitch/qr-code";
-import { clubConditions } from "@/lib/club/conditions";
+import { REFUND_RULE } from "@/lib/club/conditions";
 import { formatCents, formatHours, formatNight } from "@/lib/club/format";
 import { bookingPath, clubHref } from "@/lib/club/links";
-import { fetchBookingByToken, type BookingTicket } from "@/lib/club/public";
+import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
 import { clubSiteUrl } from "@/lib/site";
 
 /* Le statut change sans le client (paiement, porte, remboursement) : relu à chaque visite. */
@@ -99,19 +99,19 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
 }
 
 /* Le parcours de la réservation, étape par étape : où elle en est, sans avoir à demander. */
-function trackOf(view: View, eventCancelled: boolean): { label: string; done: boolean }[] | null {
+function trackOf(view: View, eventCancelled: boolean): { step: string; label: string; done: boolean }[] | null {
   if (view === "remboursee") {
     return [
-      { label: "Payée", done: true },
-      { label: eventCancelled ? "Soirée annulée" : "Remboursement", done: true },
-      { label: "Remboursée", done: true },
+      { step: "payee", label: "Payée", done: true },
+      { step: "annulation", label: eventCancelled ? "Soirée annulée" : "Remboursement", done: true },
+      { step: "remboursee", label: "Remboursée", done: true },
     ];
   }
   if (view !== "attente" && view !== "payee" && view !== "arrivee") return null;
   return [
-    { label: "Table tenue", done: true },
-    { label: "Payée", done: view !== "attente" },
-    { label: "À l'entrée", done: view === "arrivee" },
+    { step: "tenue", label: "Table tenue", done: true },
+    { step: "payee", label: "Payée", done: view !== "attente" },
+    { step: "entree", label: "À l'entrée", done: view === "arrivee" },
   ];
 }
 
@@ -131,15 +131,15 @@ export default async function BookingPage({
   searchParams: SearchParams;
 }) {
   const [{ slug, token }, query] = await Promise.all([params, searchParams]);
-  const { booking, now } = await load(token);
-  if (!booking || booking.club.slug !== slug) notFound();
+  const [{ booking, now }, club] = await Promise.all([load(token), fetchClub(slug)]);
+  if (!booking || !club || booking.club.slug !== slug) notFound();
 
   const view = viewOf(booking, now);
   const eventCancelled = Boolean(booking.event.cancelledAt);
   const eventOver = Date.parse(booking.event.endsAt) <= now;
   const copy = statusCopy(view, booking, eventCancelled);
   const track = trackOf(view, eventCancelled);
-  const conditions = clubConditions(slug);
+  const { conditions } = club;
   const holding = view === "attente" || view === "payee" || view === "sur_place";
   const eventHref = clubHref(`/${slug}/${booking.event.slug}`);
   const night = formatNight(booking.event.startsAt);
@@ -147,7 +147,8 @@ export default async function BookingPage({
   return (
     <main className="club-page">
       <ClubTop slug={slug} name={booking.club.name} />
-      {(view === "attente" || view === "payee" || view === "sur_place") && !eventOver && <BookingWatch />}
+      <BookingWatch live={(view === "attente" || view === "payee" || view === "sur_place") && !eventOver} />
+      {query.paye !== undefined && view === "payee" && <PaidBurst />}
 
       <section className="club-booking-page" data-chapter>
         <header className="club-status" data-view={view}>
@@ -160,7 +161,7 @@ export default async function BookingPage({
           {track && (
             <ol className="club-track" aria-label="Où en est votre réservation">
               {track.map((item) => (
-                <li key={item.label} data-done={item.done || undefined}>
+                <li key={item.step} data-step={item.step} data-done={item.done || undefined}>
                   <span aria-hidden />
                   {item.label}
                   <span className="sr-only">{item.done ? " : fait" : " : à venir"}</span>
@@ -192,7 +193,6 @@ export default async function BookingPage({
 
           {(view === "payee" || view === "arrivee") && (
             <div className="club-ticket-qr">
-              {query.paye !== undefined && view === "payee" && <PaidBurst />}
               <div className="club-qr-plate">
                 <QrCode
                   value={`${clubSiteUrl}${bookingPath(slug, booking.token)}`}
@@ -274,19 +274,28 @@ export default async function BookingPage({
           )}
         </div>
 
-        {(view === "payee" || view === "sur_place") && (
-          <aside className="club-door">
-            <p className="club-eyebrow">À l&rsquo;entrée</p>
-            <ul className="club-chips">
-              <li>{conditions.minAge} ans et plus, pièce d&rsquo;identité</li>
-              <li>{conditions.dress}</li>
-              {conditions.refused && <li>{conditions.refused}</li>}
-            </ul>
-          </aside>
-        )}
+        <aside className="club-door" aria-labelledby="conditions-titre">
+          <h2 id="conditions-titre" className="club-eyebrow">
+            Conditions et contact
+          </h2>
+          <ul className="club-chips">
+            <li>{conditions.minAge} ans et plus, pièce d&rsquo;identité</li>
+            {conditions.dress && <li>{conditions.dress}</li>}
+            {conditions.refused && <li>{conditions.refused}</li>}
+          </ul>
+          <p className="club-door-text">{REFUND_RULE}</p>
+          {club.phone && (
+            <p className="club-door-text">
+              Une question ? Le club au{" "}
+              <a className="club-link club-nums" href={`tel:${club.phone.replace(/\s/g, "")}`}>
+                {club.phone}
+              </a>
+            </p>
+          )}
+        </aside>
       </section>
 
-      <ClubFooter name={booking.club.name} address={booking.club.address} phone={null} />
+      <ClubFooter name={club.name} address={club.address} phone={club.phone} />
     </main>
   );
 }

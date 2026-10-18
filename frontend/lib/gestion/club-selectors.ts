@@ -117,6 +117,19 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
 /** « 1 personne », « 5 personnes ». */
 export const people = (count: number) => `${count} personne${count > 1 ? "s" : ""}`;
 
+/** « 06 12 34 56 78 », « +33 6 12 34 56 78 » ; tel quel s'il n'a pas une forme française. */
+export function formatPhone(phone: string): string {
+  const digits = phone.replace(/[^\d+]/g, "");
+  const national = /^0\d{9}$/.test(digits) ? digits : null;
+  const international = /^\+33\d{9}$/.test(digits) ? digits.slice(3) : null;
+  if (national) return national.replace(/(\d{2})(?=\d)/g, "$1 ");
+  if (international) return `+33 ${international[0]} ${international.slice(1).replace(/(\d{2})(?=\d)/g, "$1 ")}`;
+  return phone;
+}
+
+/** Lien d'appel d'un numéro saisi librement. */
+export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
+
 /** Recherche de l'équipe : nom, téléphone (chiffres seuls) ou numéro de table. */
 export function matchesSearch(query: string, fields: (string | null)[]): boolean {
   const needle = query.trim().toLocaleLowerCase("fr");

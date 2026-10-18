@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { BookingSheet } from "@/components/gestion/soirees/booking-sheet";
+import { BookingsList, type HeldTable } from "@/components/gestion/soirees/bookings-list";
 import {
   BackToSoirees,
   ClubLoadError,
@@ -14,16 +15,15 @@ import {
 } from "@/components/gestion/soirees/club-states";
 import { GuestList } from "@/components/gestion/soirees/guest-list";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
-import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatHours, formatNight } from "@/lib/club/format";
-import type { ClubBooking, ClubTable } from "@/lib/club/types";
+import type { ClubTable } from "@/lib/club/types";
 import {
   bookingsByTable,
+  isSold,
   isTonight,
-  matchesSearch,
   nightStats,
   onSaleTableIds,
   people,
@@ -45,8 +45,8 @@ import { useNow } from "@/lib/gestion/use-now";
 
 /*
  * Le plan du soir, à la porte ou au comptoir VIP, sur un téléphone : chaque
- * table dans son état, en direct (une table réservée en ligne s'y allume),
- * sa réservation d'un geste, et la liste d'invités. L'équipe pointe les
+ * table dans son état, en direct (une table payée en ligne s'y allume), sa
+ * réservation d'un geste, et la liste d'invités. L'équipe pointe les
  * arrivées ; le gérant seul saisit, annule et rembourse.
  */
 
@@ -56,8 +56,8 @@ const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "prise", "
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="min-w-0 rounded-2xl border border-hairline bg-surface px-3.5 py-2.5 sm:px-4 sm:py-3">
-      <dt className="truncate text-[10px] font-semibold uppercase tracking-wider text-faint">{label}</dt>
+    <div className="w-36 shrink-0 snap-start rounded-2xl border border-hairline bg-surface px-3.5 py-2.5 sm:w-auto sm:px-4 sm:py-3">
+      <dt className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</dt>
       <dd className="mt-0.5 truncate font-display text-lg font-medium tabular-nums sm:text-xl">{value}</dd>
       {hint && <dd className="truncate text-[11px] text-muted">{hint}</dd>}
     </div>
@@ -77,18 +77,17 @@ export default function LivePage() {
   const [view, setView] = useState<View>("plan");
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
 
   const tables = club?.tables;
-  // Une table réservée en ligne pendant que le plan est ouvert : annoncée,
-  // et touchable depuis l'annonce.
+  // Une table payée en ligne pendant que le plan est ouvert : annoncée, et
+  // touchable depuis l'annonce.
   useEffect(
     () =>
       onClubArrival(({ booking, eventId }) => {
         if (eventId !== id) return;
         const table = tables?.find((candidate) => candidate.id === booking.tableId);
         if (!table) return;
-        toast.notice(`Table ${table.label} réservée en ligne · ${booking.name}`, {
+        toast.notice(`Table ${table.label} payée en ligne · ${booking.name}`, {
           label: "Voir",
           onPress: () => {
             setView("plan");
@@ -148,19 +147,17 @@ export default function LivePage() {
       .join(", ");
   };
 
-  const held: { booking: ClubBooking; table: ClubTable }[] = [...byTable.values()]
+  const held: HeldTable[] = [...byTable.values()]
     .flatMap((booking) => {
       const table = tableById.get(booking.tableId);
-      return table ? [{ booking, table }] : [];
+      return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "" }] : [];
     })
     .sort(
       (a, b) =>
         (zoneSort.get(a.table.zoneId) ?? 0) - (zoneSort.get(b.table.zoneId) ?? 0) ||
         a.table.label.localeCompare(b.table.label, "fr", { numeric: true })
     );
-  const listed = held.filter(({ booking, table }) =>
-    matchesSearch(query, [booking.name, booking.phone, table.label])
-  );
+  const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
   const guestList = event.guestListOpen || night.guests.length > 0;
   const views = [
     { id: "plan", label: "Plan" },
@@ -170,17 +167,18 @@ export default function LivePage() {
 
   const selected = selectedId ? tableById.get(selectedId) : undefined;
   const selectedZone = selected ? club.zones.find((candidate) => candidate.id === selected.zoneId) : undefined;
+  const expected = stats.sold - stats.arrived;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
+    <div className="soirees flex flex-col gap-5">
+      <div className="flex flex-col gap-2">
         <BackToSoirees />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-medium tracking-tight lg:text-3xl">
+            <h1 className="truncate font-display text-xl font-medium tracking-tight sm:text-2xl lg:text-3xl">
               {event.title}
             </h1>
-            <p className="mt-1 text-sm text-muted first-letter:uppercase">
+            <p className="mt-0.5 text-sm text-muted first-letter:uppercase">
               {formatNight(event.startsAt)} · {formatHours(event.startsAt, event.endsAt)}
             </p>
           </div>
@@ -211,8 +209,25 @@ export default function LivePage() {
       </div>
 
       {event.cancelledAt && (
-        <p className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm text-ember-3">
-          Soirée annulée : chaque table a été remboursée ou annulée, et son client prévenu.
+        <p role="status" className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm">
+          Soirée annulée.{" "}
+          {toReturn > 0 ? (
+            <>
+              {toReturn} table{toReturn > 1 ? "s" : ""} encore à rendre
+              {gerant && (
+                <>
+                  {" "}
+                  :{" "}
+                  <Link href={`/gestion/soirees/${event.id}`} className="font-semibold text-ember-3 underline underline-offset-4">
+                    relancer les remboursements
+                  </Link>
+                </>
+              )}
+              .
+            </>
+          ) : (
+            "Chaque table a été remboursée ou annulée, et son client prévenu."
+          )}
         </p>
       )}
       {!event.published && !event.cancelledAt && (
@@ -221,28 +236,27 @@ export default function LivePage() {
         </p>
       )}
 
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Stat label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
+      {/* Sur un téléphone, les deux chiffres de la porte d'abord, le reste au doigt. */}
+      <dl className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
         <Stat
           label="Arrivées"
           value={`${stats.arrived} / ${stats.sold}`}
-          hint={
-            stats.sold > stats.arrived
-              ? `${stats.sold - stats.arrived} attendue${stats.sold - stats.arrived > 1 ? "s" : ""}`
-              : undefined
-          }
+          hint={expected > 0 ? `${expected} attendue${expected > 1 ? "s" : ""}` : undefined}
         />
+        {gerant && <Stat label="À encaisser" value={formatCents(stats.toCollect)} hint="Sur place" />}
+        <Stat label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
         {gerant && (
           <>
             <Stat label="Encaissé en ligne" value={formatCents(stats.online)} />
-            <Stat label="Sur place" value={formatCents(stats.onSite)} />
-            <Stat label="À encaisser" value={formatCents(stats.toCollect)} />
+            <Stat label="Encaissé sur place" value={formatCents(stats.onSite)} />
             <Stat label="Frais Ominin" value={formatCents(stats.fees)} hint="Payés par les clients" />
           </>
         )}
       </dl>
 
-      <PillTabs tabs={views} activeId={view} onSelect={(next) => setView(next as View)} />
+      <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md lg:mx-0 lg:px-0">
+        <PillTabs tabs={views} activeId={view} onSelect={(next) => setView(next as View)} />
+      </div>
 
       {view === "plan" &&
         (zone ? (
@@ -279,61 +293,7 @@ export default function LivePage() {
           />
         ))}
 
-      {view === "liste" && (
-        <div className="flex flex-col gap-4">
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Chercher un nom, un numéro, une table…"
-            aria-label="Chercher une réservation"
-            className={inputClass}
-          />
-          {held.length === 0 ? (
-            <EmptyState
-              title="Aucune table réservée"
-              body="Les tables réservées en ligne, au téléphone ou à la porte s'affichent ici en direct."
-            />
-          ) : listed.length === 0 ? (
-            <p className="px-1 text-sm text-muted">Aucune réservation ne correspond.</p>
-          ) : (
-            <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-              {listed.map(({ booking, table }) => {
-                const tableState = staffTableState(booking, true);
-                return (
-                  <li key={booking.id} className="rise">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(table.id)}
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-raised"
-                    >
-                      <span className="flex w-12 shrink-0 flex-col items-center">
-                        <span className="font-display text-lg font-medium tabular-nums">{table.label}</span>
-                        <span className="max-w-full truncate text-[10px] text-faint">{zoneName.get(table.zoneId)}</span>
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">{booking.name}</span>
-                        <span className="block truncate text-xs text-faint">
-                          {people(booking.partySize)}
-                          {booking.phone ? ` · ${booking.phone}` : ""}
-                        </span>
-                      </span>
-                      <span
-                        key={tableState}
-                        className="statut-pose flex shrink-0 items-center gap-1.5 text-[11px] font-semibold text-muted"
-                      >
-                        <span className="plan-legende" data-state={tableState} aria-hidden />
-                        <span className="hidden sm:inline">{TABLE_STATE_LABELS[tableState]}</span>
-                        <span className="sr-only sm:hidden">{TABLE_STATE_LABELS[tableState]}</span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
+      {view === "liste" && <BookingsList held={held} onOpen={setSelectedId} />}
 
       {view === "invites" && <GuestList event={event} guests={night.guests} />}
 

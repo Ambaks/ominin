@@ -40,8 +40,12 @@ export type ClubNight = { bookings: ClubBooking[]; guests: ClubGuest[] };
 /** Une table payée en ligne par un client pendant que l'écran était ouvert. */
 export type ClubArrival = { booking: ClubBooking; eventId: string };
 
+/** Les conditions d'entrée du club, montrées au client avant de payer sa table. */
+export type ClubConditions = { minAge: number; dressCode: string | null; refused: string | null };
+
 export interface ClubState {
   etablissementId: string;
+  conditions: ClubConditions;
   zones: ClubZone[];
   tables: ClubTable[];
   events: ClubEvent[];
@@ -76,8 +80,14 @@ function notify() {
   for (const listener of listeners) listener();
 }
 
-/** Lecture par pages, chacune reprenant après la dernière ligne reçue (plafond de PostgREST). */
-async function readAll<T extends { created_at: string }>(
+type Row = { id: string; created_at: string };
+
+/**
+ * Lecture par pages (plafond de PostgREST), triées par (created_at, id) :
+ * chacune reprend après la dernière ligne reçue, l'id départageant les
+ * lignes nées dans la même transaction.
+ */
+async function readAll<T extends Row>(
   page: (after: string | null) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>
 ): Promise<T[]> {
   const rows: T[] = [];
@@ -86,12 +96,13 @@ async function readAll<T extends { created_at: string }>(
     const batch: T[] = must(await page(after));
     if (batch.length === 0) return rows;
     rows.push(...batch);
-    after = batch[batch.length - 1].created_at;
+    const last = batch[batch.length - 1];
+    after = `created_at.gt."${last.created_at}",and(created_at.eq."${last.created_at}",id.gt.${last.id})`;
   }
 }
 
 async function fetchBase(supabase: Client, etablissementId: string) {
-  const [zones, tables, events] = await Promise.all([
+  const [zones, tables, events, conditions] = await Promise.all([
     supabase
       .from("club_zones")
       .select("*")
@@ -105,8 +116,19 @@ async function fetchBase(supabase: Client, etablissementId: string) {
       .eq("etablissement_id", etablissementId)
       .order("starts_at", { ascending: true })
       .then(must),
+    supabase
+      .from("etablissements")
+      .select("club_min_age, club_dress_code, club_refused")
+      .eq("id", etablissementId)
+      .single()
+      .then(must),
   ]);
   return {
+    conditions: {
+      minAge: conditions.club_min_age,
+      dressCode: conditions.club_dress_code,
+      refused: conditions.club_refused,
+    },
     zones: zones.map(rowToZone),
     tables: tables
       .map(rowToTable)
@@ -132,8 +154,9 @@ async function fetchNights(supabase: Client, eventIds: string[]): Promise<Record
         .select("*")
         .in("event_id", eventIds)
         .in("status", NIGHT_STATUSES)
-        .order("created_at", { ascending: true });
-      if (after) query = query.gt("created_at", after);
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true });
+      if (after) query = query.or(after);
       return query;
     }),
     readAll((after) => {
@@ -141,8 +164,9 @@ async function fetchNights(supabase: Client, eventIds: string[]): Promise<Record
         .from("club_guests")
         .select("*")
         .in("event_id", eventIds)
-        .order("created_at", { ascending: true });
-      if (after) query = query.gt("created_at", after);
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true });
+      if (after) query = query.or(after);
       return query;
     }),
   ]);

@@ -7,7 +7,6 @@ import type { TableState } from "@/components/club/floor-plan";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
-import { PriceInput } from "@/components/ui/price-input";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { slugify, uniqueSlug } from "@/lib/admin/slug";
@@ -32,11 +31,11 @@ import {
 } from "@/lib/gestion/club-selectors";
 import type { ClubState } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS, WAIT_TICK_MS } from "@/lib/gestion/constants";
-import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { uploadPhoto } from "@/lib/gestion/photo";
 import { useNow } from "@/lib/gestion/use-now";
 import { clubSiteUrl } from "@/lib/site";
 import { BackToSoirees } from "./club-states";
+import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { NightPlan, PlanLegend } from "./night-plan";
 
 /*
@@ -98,7 +97,7 @@ function initialDraft(club: ClubState, event: ClubEvent | null): Draft {
           zone.id,
           {
             on: settings ? Boolean(setting) : true,
-            price: setting?.priceCents ? priceToInput(setting.priceCents / 100) : "",
+            price: setting?.priceCents ? eurosToInput(setting.priceCents) : "",
           },
         ];
       })
@@ -147,6 +146,8 @@ export function EventEditor({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  /** Réservations que le dernier passage n'a pas pu rendre (remboursement refusé, réseau). */
+  const [failed, setFailed] = useState<string[]>([]);
   const zonesOn = club.zones.filter((zone) => draft.zones[zone.id]?.on);
   const [planZoneId, setPlanZoneId] = useState(zonesOn[0]?.id ?? null);
 
@@ -186,8 +187,8 @@ export function EventEditor({
   const zonePrices = Object.fromEntries(
     club.zones.map((zone) => {
       const raw = draft.zones[zone.id]?.price.trim() ?? "";
-      const parsed = raw ? parsePriceInput(raw) : null;
-      return [zone.id, raw ? (parsed && parsed > 0 ? Math.round(parsed * 100) : NaN) : null];
+      const cents = raw ? parseEuros(raw) : null;
+      return [zone.id, raw ? (cents && cents > 0 ? cents : NaN) : null];
     })
   );
   const errors = {
@@ -218,6 +219,12 @@ export function EventEditor({
   const valid = Object.values(errors).every((error) => !error);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const ended = event ? isPast(event, now) : false;
+  // Soirée annulée dont des tables tiennent encore : un remboursement a
+  // échoué, ou le passage a été interrompu.
+  const pending = event?.cancelledAt
+    ? [...byTable.values()].filter((booking) => isSold(booking) || failed.includes(booking.id))
+    : [];
+  const labelOf = (tableId: string) => club.tables.find((table) => table.id === tableId)?.label ?? "?";
 
   const save = async (publish?: boolean) => {
     if (!valid || !startsAt || !endsAt) {
@@ -283,17 +290,27 @@ export function EventEditor({
     }
   };
 
+  // Annuler, ou relancer une annulation restée incomplète : la route ne
+  // reprend que les tables encore tenues, sans rien rembourser deux fois.
   const cancelNight = async () => {
     if (!event) return;
     setConfirmCancel(false);
     setSaving(true);
     try {
-      const { refunded, released } = await clubApi.cancelEvent(event.id);
-      toast.success(
-        released === 0
-          ? "Soirée annulée."
-          : `Soirée annulée : ${released} réservation${released > 1 ? "s" : ""} rendue${released > 1 ? "s" : ""}, dont ${refunded} remboursée${refunded > 1 ? "s" : ""}.`
-      );
+      const result = await clubApi.cancelEvent(event.id);
+      setFailed(result.failed);
+      const done = [
+        result.refunded > 0 && `${result.refunded} remboursée${result.refunded > 1 ? "s" : ""}`,
+        result.cancelled > 0 && `${result.cancelled} annulée${result.cancelled > 1 ? "s" : ""}`,
+      ].filter(Boolean);
+      const summary = `Soirée annulée${done.length > 0 ? ` : ${done.join(", ")}` : ""}.`;
+      if (result.failed.length > 0) {
+        toast.error(
+          `${summary} ${result.failed.length} réservation${result.failed.length > 1 ? "s" : ""} à reprendre : relancez les remboursements.`
+        );
+      } else {
+        toast.success(summary);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
     } finally {
@@ -322,7 +339,7 @@ export function EventEditor({
   const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="soirees flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <BackToSoirees />
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -410,7 +427,7 @@ export function EventEditor({
           </Field>
         </div>
         {settled > 0 && (
-          <p className="text-xs text-faint">
+          <p className="text-xs text-muted">
             Un nouvel horaire est envoyé par e-mail aux clients des tables réglées.
           </p>
         )}
@@ -468,7 +485,7 @@ export function EventEditor({
               className="h-36 w-28 rounded-xl border border-hairline object-cover"
             />
           ) : (
-            <span className="flex h-36 w-28 items-center justify-center rounded-xl border border-dashed border-hairline px-3 text-center text-xs text-faint">
+            <span className="flex h-36 w-28 items-center justify-center rounded-xl border border-dashed border-hairline px-3 text-center text-xs text-muted">
               Pas d&rsquo;affiche
             </span>
           )}
@@ -521,7 +538,10 @@ export function EventEditor({
             const count = club.tables.filter((table) => table.zoneId === zone.id).length;
             const invalid = zoneDraft.on && Number.isNaN(zonePrices[zone.id]);
             return (
-              <li key={zone.id} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3.5">
+              <li
+                key={zone.id}
+                className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 px-4 py-3.5 sm:grid-cols-[auto_1fr_9rem]"
+              >
                 <Toggle
                   checked={zoneDraft.on}
                   onChange={(on) => {
@@ -530,20 +550,21 @@ export function EventEditor({
                   }}
                   label={`Vendre les tables ${zone.name}`}
                 />
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0">
                   <p className="text-sm font-medium">{zone.name}</p>
-                  <p className="truncate text-xs text-faint">
+                  <p className="line-clamp-2 text-xs text-muted">
                     {count} table{count > 1 ? "s" : ""} · {formatCents(zone.priceCents)}
                     {zone.inclus ? ` · ${zone.inclus}` : ""}
                   </p>
                 </div>
                 {zoneDraft.on && (
-                  <PriceInput
+                  <EurosInput
                     value={zoneDraft.price}
                     onChange={(price) => set("zones", { ...draft.zones, [zone.id]: { ...zoneDraft, price } })}
-                    placeholder={priceToInput(zone.priceCents / 100)}
+                    placeholder={eurosToInput(zone.priceCents)}
                     invalid={invalid}
-                    className="w-32 shrink-0"
+                    label={`Prix d'une table ${zone.name} ce soir`}
+                    className="col-span-2 sm:col-span-1"
                   />
                 )}
               </li>
@@ -626,6 +647,43 @@ export function EventEditor({
         )}
       </Section>
 
+      {event?.cancelledAt && pending.length > 0 && (
+        <section
+          role="alert"
+          className="flex flex-col gap-4 rounded-2xl border border-ember-3/40 bg-ember-3/5 p-5"
+        >
+          <div>
+            <h2 className="font-display text-lg font-medium">Tables encore à rendre</h2>
+            <p className="mt-1 text-sm text-muted">
+              La soirée est annulée, mais {pending.length} réservation{pending.length > 1 ? "s" : ""}{" "}
+              n&rsquo;{pending.length > 1 ? "ont" : "a"} pas pu être rendue{pending.length > 1 ? "s" : ""}. Relancer
+              ne rembourse jamais deux fois.
+            </p>
+          </div>
+          <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface text-sm">
+            {pending.map((booking) => (
+              <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                <span className="min-w-0 truncate">
+                  Table {labelOf(booking.tableId)} · {booking.name}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted">
+                  {formatCents(booking.totalCents)}
+                  {failed.includes(booking.id) ? " · échec" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() => void cancelNight()}
+            disabled={saving}
+            className="ember-gradient min-h-11 self-start rounded-full px-5 text-sm font-semibold text-background disabled:opacity-50"
+          >
+            {saving ? "Remboursements en cours…" : "Relancer les remboursements"}
+          </button>
+        </section>
+      )}
+
       {event && !event.cancelledAt && !ended && (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-ember-3/30 p-5">
           <div className="min-w-0 flex-1">
@@ -646,7 +704,7 @@ export function EventEditor({
         </section>
       )}
 
-      <div className="sticky bottom-20 z-30 flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-hairline bg-surface-raised/95 px-4 py-3 shadow-lg shadow-background/60 backdrop-blur-md lg:bottom-6">
+      <div className="sticky bottom-[var(--gestion-barre-bas,5rem)] z-30 flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-hairline bg-surface-raised/95 px-4 py-3 shadow-lg shadow-background/60 backdrop-blur-md lg:bottom-6">
         <p className="mr-auto text-xs text-muted" aria-live="polite">
           {dirty ? "Modifications non enregistrées" : event ? "Tout est enregistré" : ""}
         </p>
