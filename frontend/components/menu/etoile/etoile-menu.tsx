@@ -14,97 +14,75 @@ import { cartLineKey, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import { scrollBehavior } from "@/lib/menu/scroll";
 import {
-  displayPhone,
   type MenuCategory,
   type MenuItem,
   type Restaurant,
 } from "@/lib/menu-data";
-import type { BlackHole } from "./black-hole";
-import type { BodyKind, Cosmos, IntroFrame } from "./cosmos";
+import { createBlackHole, type BlackHole } from "./black-hole";
 import { EtoileMark } from "./logo";
+import { createStage, type Stage } from "./stage";
+import { createStars, type Stars } from "./stars";
 import { ETOILE_TIMING } from "./timing";
 import "./etoile.css";
 
 /*
- * La carte de L'Étoile, version vaisseau : un plongeon dans la galaxie à
- * l'ouverture, un système stellaire par famille de bouteilles, un saut en
- * hyperespace d'un système à l'autre, et le panier en trou noir. Dessous,
- * tout le parcours de commande reste celui d'Ominin (CartProvider, CartBar,
- * OptionsModal) : seule la mise en scène est propre à l'établissement.
+ * La carte de L'Étoile, club fictif, en argent : une scène vidéo derrière la
+ * page (la Voie lactée, puis un astre par chapitre, des sauts en hyperespace
+ * de l'un à l'autre, voir stage.ts) sous un ciel d'étoiles vivant (stars.ts),
+ * la carte en quatre chapitres, le panier en trou noir. Dessous, tout le parcours de commande reste celui d'Ominin
+ * (CartProvider, CartBar, OptionsModal) : seule la mise en scène est propre
+ * à l'établissement.
  */
 
-interface SystemDef {
+interface ChapterDef {
   id: string;
   name: string;
-  body: BodyKind;
   categories: string[];
 }
 
-/* Les catégories de la carte, regroupées en systèmes : un astre chacun. */
-const SYSTEMS: SystemDef[] = [
+/* Les catégories de la carte, en chapitres ; le chapitre k a le repère k de la scène. */
+const CHAPTERS: ChapterDef[] = [
   {
     id: "alcools",
     name: "Alcools",
-    body: "constellation",
     categories: ["rhums", "tequilas", "whiskys", "vodkas", "gins", "cognacs"],
   },
-  {
-    id: "softs",
-    name: "Softs",
-    body: "binary",
-    categories: ["sodas", "eau"],
-  },
-  {
-    id: "shooters",
-    name: "Shooters",
-    body: "pulsar",
-    categories: ["shooters"],
-  },
-  {
-    id: "champagnes",
-    name: "Champagnes",
-    body: "gold-giant",
-    categories: ["champagnes"],
-  },
+  { id: "softs", name: "Softs", categories: ["sodas", "eau"] },
+  { id: "shooters", name: "Shooters", categories: ["shooters"] },
+  { id: "champagnes", name: "Champagnes", categories: ["champagnes"] },
 ];
 
-/* 2 avenue d'Atlanta (43,6406 N, 1,4681 E, OpenStreetMap), à la minute d'arc. */
-const COORDS = "43°38′N 1°28′E";
-const INTRO_SEEN = "etoile-intro-vue";
-/* Distance affichée au départ du plongeon, en années-lumière. */
-const INTRO_DISTANCE_AL = 26000;
-/* Au-delà, le moteur WebGL n'est pas encore là (réseau du club) : la carte s'ouvre sans intro. */
-const INTRO_WAIT_MS = 6000;
+const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
+
+/* Un chapitre devient courant dès que son haut passe cette hauteur d'écran (part de la hauteur) : son astre arrive avec lui. */
+const CHAPTER_AT = 0.9;
 
 /* Traînée de la bouteille vers le trou noir : nombre d'échos, retard entre deux. */
 const PARTICLE_TRAIL = 6;
 const PARTICLE_ECHO_MS = 22;
 /* Révélation des lignes : décalage en racine de l'index (rapide puis s'étire). */
 const REVEAL_STAGGER_MS = 110;
-/* Trou noir : préparé au repos après ce délai ; gonflement à l'impact. */
+/* Trou noir : préparé au repos après ce délai ; à l'impact, une onde, une secousse, un gonflement. */
 const HOLE_IDLE_MS = 2500;
-const HOLE_SWELL = 1.45;
+const HOLE_IMPACT = {
+  ring: { from: 0.5, to: 2.4, opacity: 0.9, ms: 520, ease: "cubic-bezier(0.16, 1, 0.3, 1)" },
+  flash: { brightness: 1.8, ms: 160 },
+  shake: { px: 2, ms: 220 },
+  swell: { scale: 1.18, at: 0.3, ms: 600 },
+  bar: { scale: 1.035, ms: 260 },
+  ease: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+} as const;
+/* La carte reste retirée un instant après l'éclat du saut, le temps qu'il retombe (ms). */
+const WARP_HOLD = 120;
+/* L'onde du bouton « + » au contact : couleur, portée (px), courbe. */
+const RIPPLE = { color: "232, 234, 238", spread: 16, alpha: 0.6, ease: "cubic-bezier(0.2, 0.7, 0.2, 1)" } as const;
+/* Une ligne apparaît un peu avant d'entrer dans l'écran : jamais de bande vide au bas d'un chapitre. */
+const REVEAL_MARGIN = "0px 0px 10% 0px";
+/* La barre de commande se monte avec le premier article : le trou noir la guette tant d'images. */
+const PLACE_TRIES = 30;
 
-const isMobile = () =>
-  matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
 
 const pad = (n: number) => String(n).padStart(2, "0");
-
-function introSeen() {
-  try {
-    return sessionStorage.getItem(INTRO_SEEN) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function rememberIntro() {
-  try {
-    sessionStorage.setItem(INTRO_SEEN, "1");
-  } catch {
-    // Stockage refusé : l'intro rejouera en entier, rien de plus.
-  }
-}
 
 /*
  * Trajet d'une bouteille vers le trou noir : un arc jusqu'au bord du disque,
@@ -166,7 +144,7 @@ function spiralFrames(
   return frames;
 }
 
-interface SystemView extends SystemDef {
+interface Chapter extends ChapterDef {
   groups: MenuCategory[];
   items: MenuItem[];
 }
@@ -181,55 +159,55 @@ export function EtoileMenu({
   const cart = useCart();
   const noSheet = useNoSheet();
   const rootRef = useRef<HTMLDivElement>(null);
-  const canvasHostRef = useRef<HTMLDivElement>(null);
-  const holeRef = useRef<HTMLDivElement>(null);
-  const holeCanvasRef = useRef<HTMLCanvasElement>(null);
-  const fxRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const starsRef = useRef<HTMLCanvasElement>(null);
+  const topRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
-  const timeRef = useRef<HTMLElement>(null);
-  const speedRef = useRef<HTMLElement>(null);
-  const distRef = useRef<HTMLElement>(null);
-  const cosmosRef = useRef<Cosmos | null>(null);
+  const holeRef = useRef<HTMLDivElement>(null);
+  const holeVideoRef = useRef<HTMLVideoElement>(null);
+  const fxRef = useRef<HTMLDivElement>(null);
+  const stage = useRef<Stage | null>(null);
+  const stars = useRef<Stars | null>(null);
   const holeApi = useRef<BlackHole | null>(null);
-  const tops = useRef<number[]>([]);
-  /* Paires (scroll, progression) : chaque système compte une demi-station
-     pour son en-tête et une demie pour sa liste. */
-  const stops = useRef<[number, number][]>([]);
   const origin = useRef<{ x: number; y: number } | null>(null);
   const pendingOrigin = useRef<{ x: number; y: number } | null>(null);
   const reduced = useRef(false);
-  const skipped = useRef(false);
-  const finishRef = useRef<(() => void) | null>(null);
-  const jumpToken = useRef(0);
-  const progress = useRef(0);
-  const noSheetRef = useRef(true);
-  const [warpLabel, setWarpLabel] = useState<string | null>(null);
-  const [phase, setPhase] = useState<"boot" | "intro" | "ready">("boot");
-  const [revealed, setRevealed] = useState(false);
-  const [webgl, setWebgl] = useState(true);
+  const jumping = useRef(false);
+  /* Le dernier saut en cours : seul lui rend la carte. */
+  const warps = useRef(0);
+  /* Minuteries de la mise en scène, coupées au démontage. */
+  const timers = useRef(new Set<number>());
+  const later = useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      timers.current.delete(id);
+      fn();
+    }, ms);
+    timers.current.add(id);
+  }, []);
+  useEffect(() => {
+    const pending = timers.current;
+    return () => pending.forEach((id) => window.clearTimeout(id));
+  }, []);
+  const [ready, setReady] = useState(false);
   const [active, setActive] = useState(0);
   const [optionsItem, setOptionsItem] = useState<MenuItem | null>(null);
-  const [clock, setClock] = useState<string | null>(null);
-  const [short, setShort] = useState(false);
   const [holeReady, setHoleReady] = useState(false);
+  /* Le compte du trou noir : il change quand la bouteille y tombe, pas avant. */
+  const [holeCount, setHoleCount] = useState(0);
 
-  const systems = useMemo<SystemView[]>(() => {
+  const chapters = useMemo<Chapter[]>(() => {
     const byId = new Map(
       restaurant.categories.map((category) => [category.id, category]),
     );
-    return SYSTEMS.map((system) => {
-      const groups = system.categories.flatMap((id) => byId.get(id) ?? []);
+    return CHAPTERS.map((chapter) => {
+      const groups = chapter.categories.flatMap((id) => byId.get(id) ?? []);
       return {
-        ...system,
+        ...chapter,
         groups,
         items: groups.flatMap((group) => group.items),
       };
-    }).filter((system) => system.items.length > 0);
+    }).filter((chapter) => chapter.items.length > 0);
   }, [restaurant]);
-  const references = systems.reduce(
-    (sum, system) => sum + system.items.length,
-    0,
-  );
 
   const inCart = useMemo(() => {
     const counts = new Map<string, number>();
@@ -238,178 +216,159 @@ export function EtoileMenu({
     return counts;
   }, [cart.lines]);
 
-  /* ---------- Cosmos et intro ---------- */
+  /* ---------- Scène ---------- */
   useEffect(() => {
-    const host = canvasHostRef.current;
-    if (!host) return;
-    /* Un canevas neuf par montage : deux montages (Strict Mode) ne se partagent pas un contexte. */
-    const canvas = document.createElement("canvas");
-    canvas.className = "et-canvas";
-    host.appendChild(canvas);
+    const host = stageRef.current;
+    const canvas = starsRef.current;
+    if (!host || !canvas) return;
     reduced.current = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const seen = introSeen();
-    setShort(seen);
-    const html = document.documentElement;
-    let disposed = false;
-    let cosmos: Cosmos | null = null;
-
-    html.classList.add("et-locked");
-    const restoration = history.scrollRestoration;
-    history.scrollRestoration = "manual";
-    window.scrollTo({ top: 0, behavior: "instant" });
-
-    const finish = () => {
-      if (disposed) return;
-      html.classList.remove("et-locked");
-      rememberIntro();
-      setRevealed(true);
-      setPhase("ready");
-    };
-    let fell = false;
-    const fallback = (error?: unknown) => {
-      if (disposed || fell) return;
-      fell = true;
-      window.clearTimeout(wait);
-      if (error) console.error("L'Étoile : cosmos indisponible", error);
-      rootRef.current?.classList.remove("is-warping");
-      setWebgl(false);
-      finish();
-    };
-    finishRef.current = finish;
-    const wait = window.setTimeout(() => {
-      skipped.current = true;
-      finish();
-    }, INTRO_WAIT_MS);
-
-    const writeTelemetry = (frame: IntroFrame, elapsed: number) => {
-      if (timeRef.current) {
-        const seconds = elapsed / 1000;
-        timeRef.current.textContent = `${pad(Math.floor(seconds / 60))}:${seconds.toFixed(2).padStart(5, "0")}`;
-      }
-      if (speedRef.current)
-        speedRef.current.textContent = `${(Math.min(frame.speed, 1) * 0.997).toFixed(3)} c`;
-      if (distRef.current) {
-        const al = Math.round(
-          INTRO_DISTANCE_AL * Math.pow(1 - frame.progress, 1.6),
-        );
-        distRef.current.textContent = `${al.toLocaleString("fr-FR")} al`;
-      }
-    };
-
-    import("./cosmos")
-      .then(({ createCosmos }) =>
-        createCosmos(canvas, {
-          kinds: systems.map((system) => system.body),
-          mobile: isMobile(),
-          reducedMotion: reduced.current,
-          onLost: () => {
-            cosmos?.dispose();
-            cosmos = null;
-            cosmosRef.current = null;
-            fallback(new Error("contexte WebGL perdu"));
-          },
-        }),
-      )
-      .then((created) => {
-        if (disposed) {
-          created.dispose();
-          return;
-        }
-        window.clearTimeout(wait);
-        cosmos = created;
-        cosmosRef.current = created;
-        created.setPaused(!noSheetRef.current);
-        /* Intro déjà passée (« Passer » ou attente trop longue) : le ciel arrive
-           directement là où la carte est déjà défilée. */
-        if (skipped.current) {
-          created.setProgress(progress.current, true);
-          return;
-        }
-        setPhase("intro");
-        let started = 0;
-        created
-          .intro({
-            short: seen,
-            onFrame: (frame) => {
-              const now = performance.now();
-              if (!started) started = now;
-              writeTelemetry(frame, now - started);
-            },
-            onFlare: () => setRevealed(true),
-          })
-          .then(finish);
-      })
-      .catch(fallback);
-
+    const sky = createStars(canvas, { reducedMotion: reduced.current });
+    const created = createStage(host, {
+      reducedMotion: reduced.current,
+      onWarp: (duration, peak, spot) => {
+        sky.warp(duration, peak, spot);
+        /* Le temps du saut, la carte se retire derrière lui : on voit le voyage, pas une liste. */
+        const warp = ++warps.current;
+        rootRef.current?.setAttribute("data-warp", "");
+        later(() => warp === warps.current && rootRef.current?.removeAttribute("data-warp"), duration * peak + WARP_HOLD);
+      },
+    });
+    stage.current = created;
+    stars.current = sky;
+    const frame = requestAnimationFrame(() => setReady(true));
     return () => {
-      disposed = true;
-      window.clearTimeout(wait);
-      html.classList.remove("et-locked");
-      history.scrollRestoration = restoration;
-      cosmos?.dispose();
-      cosmosRef.current = null;
-      canvas.remove();
+      cancelAnimationFrame(frame);
+      created.dispose();
+      sky.dispose();
+      stage.current = null;
+      stars.current = null;
     };
-  }, [systems]);
+  }, [later]);
 
-  const skipIntro = useCallback(() => {
-    if (cosmosRef.current) {
-      cosmosRef.current.skipIntro();
-      return;
-    }
-    skipped.current = true;
-    finishRef.current?.();
-  }, []);
+  /* ---------- Défilement : chapitre courant, scène ---------- */
+  useEffect(() => {
+    let raf = 0;
+    /* Les hauts des chapitres, mesurés à chaque changement de mise en page, pas à chaque image. */
+    let tops: number[] = [];
+    const measure = () => {
+      tops = chapters.map((chapter) => {
+        const section = document.getElementById(chapter.id);
+        return section ? section.getBoundingClientRect().top + window.scrollY : Infinity;
+      });
+    };
+    const update = () => {
+      raf = 0;
+      const line = window.scrollY + window.innerHeight * CHAPTER_AT;
+      const current = tops.filter((top) => top <= line).length;
+      setActive(current);
+      /* Pendant un saut de la navigation, la scène suit le saut, pas le défilement. */
+      if (!jumping.current) stage.current?.goTo(current);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    const observer = new ResizeObserver(() => {
+      measure();
+      onScroll();
+    });
+    observer.observe(document.body);
+    measure();
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [chapters]);
+
+  /* Le filet du chapitre courant glisse sous son nom ; à l'accueil, il s'efface. */
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const place = () => {
+      const line = nav.querySelector<HTMLElement>(".et-top-line");
+      const button = active ? nav.querySelectorAll<HTMLElement>("ol button")[active - 1] : null;
+      if (!line) return;
+      line.style.opacity = button ? "1" : "0";
+      if (!button) return;
+      line.style.setProperty("--x", `${button.offsetLeft}px`);
+      line.style.setProperty("--w", `${button.offsetWidth}px`);
+    };
+    /* Les largeurs bougent aussi quand la police arrive : le filet suit. */
+    const observer = new ResizeObserver(place);
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [active]);
+
+  /* Saut vers un chapitre (0 = accueil) : le contenu s'efface, la scène saute, la page se pose au pic. */
+  const jump = useCallback(
+    (index: number) => {
+      const target = index
+        ? document.getElementById(chapters[index - 1].id)
+        : null;
+      const top = target
+        ? target.getBoundingClientRect().top + window.scrollY - (topRef.current?.offsetHeight ?? 0)
+        : 0;
+      const focus = () =>
+        index > 0 &&
+        document
+          .getElementById(`${chapters[index - 1].id}-titre`)
+          ?.focus({ preventScroll: true });
+      const root = rootRef.current;
+      /* Un saut à la fois : un second toucher pendant le premier est ignoré. */
+      if (jumping.current) return;
+      cart.track("categorie");
+      if (!stage.current || !root || reduced.current) {
+        window.scrollTo({ top, behavior: scrollBehavior() });
+        focus();
+        return;
+      }
+      jumping.current = true;
+      root.setAttribute("data-warping", "");
+      /* Le plongeon part pendant que la page s'efface : pas de temps mort entre le toucher et le voyage. */
+      later(() => {
+        stage.current?.goTo(index, () =>
+          /* La page se pose sur une image, au cœur du saut : jamais d'image intermédiaire. */
+          requestAnimationFrame(() => {
+            window.scrollTo({ top, behavior: "instant" });
+            jumping.current = false;
+            root.removeAttribute("data-warping");
+            focus();
+          }),
+        );
+      }, ETOILE_TIMING.dive);
+    },
+    [cart, chapters, later],
+  );
 
   /* ---------- Trou noir ---------- */
   const hasItems = cart.count > 0;
   const countRef = useRef(cart.count);
   const liveRef = useRef(false);
-  const holeStarted = useRef(false);
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
+  useEffect(
+    () => () => {
       holeApi.current?.dispose();
       holeApi.current = null;
-    };
-  }, []);
-  /* Préparé au repos après la révélation (ou au premier article) : prêt à
-     naître avant que la première bouteille n'arrive. */
+    },
+    [],
+  );
+  /* Préparé au repos (ou au premier article) : prêt avant que la première bouteille n'arrive. */
   const [holeIdle, setHoleIdle] = useState(false);
   useEffect(() => {
-    if (phase !== "ready" || holeIdle) return;
+    if (!ready || holeIdle) return;
     const timer = window.setTimeout(() => setHoleIdle(true), HOLE_IDLE_MS);
     return () => window.clearTimeout(timer);
-  }, [phase, holeIdle]);
-  const holeWanted = phase === "ready" && (holeIdle || hasItems);
+  }, [ready, holeIdle]);
+  const holeWanted = ready && (holeIdle || hasItems);
   useEffect(() => {
-    const canvas = holeCanvasRef.current;
-    if (!canvas || !holeWanted || holeStarted.current) return;
-    holeStarted.current = true;
-    const lost = (error?: unknown) => {
-      if (error) console.error("L'Étoile : trou noir indisponible", error);
-      holeApi.current?.dispose();
-      holeApi.current = null;
-      setHoleReady(false);
-    };
-    /* Sans trou noir (pas de WebGL2, shader refusé), la pastille de la barre réapparaît. */
-    import("./black-hole")
-      .then(({ createBlackHole }) => {
-        if (!mounted.current) return;
-        const hole = createBlackHole(canvas, {
-          reducedMotion: reduced.current,
-          mobile: isMobile(),
-          onLost: () => lost(new Error("contexte WebGL perdu")),
-        });
-        if (!hole) return;
-        holeApi.current = hole;
-        hole.setCount(countRef.current);
-        hole.setPaused(!liveRef.current);
-        setHoleReady(true);
-      })
-      .catch(lost);
+    const video = holeVideoRef.current;
+    if (!video || !holeWanted || holeApi.current) return;
+    const hole = createBlackHole(video, { reducedMotion: reduced.current });
+    holeApi.current = hole;
+    hole.setCount(countRef.current);
+    hole.setPaused(!liveRef.current);
+    setHoleReady(true);
   }, [holeWanted]);
 
   useEffect(() => {
@@ -417,13 +376,15 @@ export function EtoileMenu({
     holeApi.current?.setCount(cart.count);
   }, [cart.count]);
 
-  /* Feuille ouverte ou panier vide : les rendus s'arrêtent. */
+  /* Feuille ouverte ou panier vide : les vidéos s'arrêtent. */
   useEffect(() => {
-    noSheetRef.current = noSheet;
     liveRef.current = noSheet && hasItems;
-    cosmosRef.current?.setPaused(!noSheet);
+    stage.current?.setPaused(!noSheet);
+    stars.current?.setPaused(!noSheet);
+    /* Les animations CSS du fond se figent aussi. */
+    rootRef.current?.toggleAttribute("data-paused", !noSheet);
     holeApi.current?.setPaused(!liveRef.current);
-  }, [noSheet, hasItems, phase]);
+  }, [noSheet, hasItems]);
 
   /* Le trou noir se pose sur le compteur de la barre, ancré comme elle au bas de l'écran. */
   useEffect(() => {
@@ -435,7 +396,7 @@ export function EtoileMenu({
       const hole = holeRef.current;
       if (!badge || !hole) {
         /* La barre se monte au même rendu : on la guette quelques images. */
-        if (tries++ < 30) raf = requestAnimationFrame(place);
+        if (tries++ < PLACE_TRIES) raf = requestAnimationFrame(place);
         return;
       }
       const rect = badge.getBoundingClientRect();
@@ -452,39 +413,42 @@ export function EtoileMenu({
     };
   }, [hasItems]);
 
-  /* Impact : le trou noir s'illumine, une onde s'échappe, la barre tressaille. */
+  /* Impact : le trou noir s'emballe, une onde s'échappe, la barre tressaille. */
   const impact = useCallback(() => {
     holeApi.current?.pulse();
     const hole = holeRef.current;
     if (!hole || reduced.current) return;
+    const { ring, flash, shake, swell, bar, ease } = HOLE_IMPACT;
     hole.querySelector(".et-hole-ring")?.animate(
       [
-        { transform: "scale(0.35)", opacity: 0.9 },
-        { transform: "scale(1.5)", opacity: 0 },
+        { transform: `scale(${ring.from})`, opacity: ring.opacity },
+        { transform: `scale(${ring.to})`, opacity: 0 },
       ],
-      { duration: 480, easing: "cubic-bezier(0.2, 0.7, 0.1, 1)" },
+      { duration: ring.ms, easing: ring.ease },
     );
     hole.animate(
       [
         { translate: "0 0" },
-        { translate: "2px -1px" },
-        { translate: "-2px 1px" },
+        { translate: `${shake.px}px ${-shake.px / 2}px` },
+        { translate: `${-shake.px}px ${shake.px / 2}px` },
         { translate: "0 0" },
       ],
-      {
-        duration: 220,
-      },
+      { duration: shake.ms },
     );
-    hole
-      .querySelector("canvas")
-      ?.animate(
-        [
-          { scale: "1" },
-          { scale: String(HOLE_SWELL), offset: 0.3 },
-          { scale: "1" },
-        ],
-        { duration: 600, easing: "cubic-bezier(0.2, 0.7, 0.1, 1)" },
-      );
+    document.querySelector(".cart-bar")?.animate(
+      [{ scale: "1" }, { scale: String(bar.scale) }, { scale: "1" }],
+      { duration: bar.ms, easing: ease },
+    );
+    /* Le disque s'embrase un instant et gonfle, puis se repose. */
+    hole.querySelector("video")?.animate(
+      [
+        { scale: "1", filter: `brightness(${flash.brightness})` },
+        { filter: "brightness(1)", offset: flash.ms / swell.ms },
+        { scale: String(swell.scale), offset: swell.at },
+        { scale: "1", filter: "brightness(1)" },
+      ],
+      { duration: swell.ms, easing: ease },
+    );
   }, []);
 
   /* Un ajout : la bouteille part en spirale dans le trou noir. */
@@ -494,11 +458,16 @@ export function EtoileMenu({
     previousCount.current = cart.count;
     const from = origin.current;
     origin.current = null;
-    if (cart.count <= previous || !from) return;
+    const count = cart.count;
+    if (count <= previous || !from) {
+      setHoleCount(count);
+      return;
+    }
     const hole = holeApi.current;
     const badge = document.querySelector<HTMLElement>(".cart-bar-count");
     const layer = fxRef.current;
     if (!badge || !layer || reduced.current) {
+      setHoleCount(count);
       hole?.pulse();
       return;
     }
@@ -522,7 +491,9 @@ export function EtoileMenu({
       });
       animation.onfinish = () => {
         particle.remove();
-        if (i === 0) impact();
+        if (i !== 0) return;
+        setHoleCount(countRef.current);
+        impact();
       };
     }
   }, [cart.count, impact]);
@@ -538,10 +509,10 @@ export function EtoileMenu({
       if (!reduced.current)
         button.animate(
           [
-            { boxShadow: "0 0 0 0 rgba(0, 212, 255, 0.7)" },
-            { boxShadow: "0 0 0 16px rgba(0, 212, 255, 0)" },
+            { boxShadow: `0 0 0 0 rgba(${RIPPLE.color}, ${RIPPLE.alpha})` },
+            { boxShadow: `0 0 0 ${RIPPLE.spread}px rgba(${RIPPLE.color}, 0)` },
           ],
-          { duration: ETOILE_TIMING.ripple, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+          { duration: ETOILE_TIMING.ripple, easing: RIPPLE.ease },
         );
       if (item.options?.length) {
         pendingOrigin.current = point;
@@ -565,120 +536,8 @@ export function EtoileMenu({
     [cart],
   );
 
-  /* ---------- Scroll → trajet de la caméra ---------- */
+  /* Apparition des lignes au fil de la lecture. */
   useEffect(() => {
-    if (phase !== "ready") return;
-    const n = systems.length;
-    const measure = () => {
-      const navHeight = navRef.current?.offsetHeight ?? 0;
-      const max = Math.max(
-        document.documentElement.scrollHeight - window.innerHeight,
-        1,
-      );
-      const pairs: [number, number][] = [[0, 0]];
-      const starts = [0];
-      systems.forEach((system, i) => {
-        const section = document.getElementById(system.id);
-        const head = section?.querySelector<HTMLElement>(".et-system-head");
-        const top = section
-          ? Math.min(
-              max,
-              section.getBoundingClientRect().top + window.scrollY - navHeight,
-            )
-          : max;
-        starts.push(top);
-        pairs.push(
-          [top, i + 1],
-          [Math.min(max, top + (head?.offsetHeight ?? 0)), i + 1.5],
-        );
-      });
-      pairs.push([max, n + 1]);
-      tops.current = starts;
-      stops.current = pairs;
-    };
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const s = stops.current;
-      const y = window.scrollY;
-      let p = s[s.length - 1][1];
-      for (let i = 0; i < s.length - 1; i++) {
-        const [y0, p0] = s[i];
-        const [y1, p1] = s[i + 1];
-        if (y < y1) {
-          p = y1 > y0 ? p0 + ((p1 - p0) * Math.max(0, y - y0)) / (y1 - y0) : p1;
-          break;
-        }
-      }
-      progress.current = p;
-      cosmosRef.current?.setProgress(p);
-      const current = Math.min(n, Math.floor(p + 0.02));
-      setActive((previous) => (previous === current ? previous : current));
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    measure();
-    update();
-    const observer = new ResizeObserver(() => {
-      measure();
-      onScroll();
-    });
-    observer.observe(document.body);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      observer.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [phase, systems]);
-
-  /* Saut en hyperespace vers un système (0 = héros). */
-  const jump = useCallback(
-    (index: number) => {
-      const top = tops.current[index] ?? 0;
-      const focus = () =>
-        index > 0 &&
-        document
-          .getElementById(`${systems[index - 1].id}-titre`)
-          ?.focus({ preventScroll: true });
-      cart.track("categorie");
-      const cosmos = cosmosRef.current;
-      if (!cosmos || reduced.current) {
-        window.scrollTo({ top, behavior: scrollBehavior() });
-        focus();
-        return;
-      }
-      const root = rootRef.current;
-      const token = ++jumpToken.current;
-      root?.classList.add("is-warping");
-      setWarpLabel(
-        index > 0
-          ? `Système ${pad(index)} · ${systems[index - 1].name}`
-          : "Retour au héros",
-      );
-      cosmos
-        .jump(index, () => {
-          window.scrollTo({ top, behavior: "instant" });
-          /* Le contenu arrive pendant le freinage, pas après : scène et interface atterrissent ensemble,
-             et la lecture du saut s'efface avec l'éclair. */
-          if (token !== jumpToken.current) return;
-          root?.classList.remove("is-warping");
-          setWarpLabel(null);
-        })
-        .then(() => {
-          /* Un saut plus récent a pris la main : c'est lui qui rendra le contenu. */
-          if (token !== jumpToken.current) return;
-          root?.classList.remove("is-warping");
-          focus();
-        });
-    },
-    [cart, systems],
-  );
-
-  /* Apparition des lignes, une orbite après l'autre. */
-  useEffect(() => {
-    if (phase !== "ready") return;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -688,110 +547,66 @@ export function EtoileMenu({
           }
         }
       },
-      { rootMargin: "0px 0px -8% 0px" },
+      { rootMargin: REVEAL_MARGIN },
     );
     rootRef.current
       ?.querySelectorAll("[data-reveal]")
       .forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [phase]);
-
-  /* Heure de Toulouse dans la barre de télémétrie. */
-  useEffect(() => {
-    const format = new Intl.DateTimeFormat("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Europe/Paris",
-    });
-    const tick = () => setClock(format.format(new Date()));
-    tick();
-    const timer = setInterval(tick, 15000);
-    return () => clearInterval(timer);
-  }, []);
+  }, [chapters]);
 
   return (
     <>
       <div
         ref={rootRef}
         className="et"
-        data-phase={phase}
-        data-revealed={revealed || undefined}
-        data-webgl={webgl || undefined}
+        data-ready={ready || undefined}
+        data-chapter={active}
       >
-        <div ref={canvasHostRef} className="et-canvas-host" aria-hidden />
-        <div className="et-veil" aria-hidden />
-        <p
-          className="et-warp-hud"
-          data-on={warpLabel ? "" : undefined}
-          aria-hidden
-        >
-          <span>Saut hyperespace</span>
-          <strong>{warpLabel}</strong>
-          <i
-            className="et-warp-progress"
-            style={{ "--jump": `${ETOILE_TIMING.jump}ms` } as CSSProperties}
-          />
-        </p>
+        <div ref={stageRef} className="et-stage" aria-hidden />
+        <div className="et-haze" aria-hidden />
+        <canvas ref={starsRef} className="et-stars" aria-hidden />
+        <div className="et-shade" aria-hidden />
 
-        {phase !== "ready" && (
-          <div
-            className="et-intro"
-            onPointerDown={skipIntro}
-            style={
-              {
-                "--intro": `${short ? ETOILE_TIMING.introShort : ETOILE_TIMING.intro}ms`,
-              } as CSSProperties
-            }
+        <header ref={topRef} className="et-top">
+          <button
+            type="button"
+            className="et-top-mark"
+            onClick={() => jump(0)}
           >
-            <div className="et-intro-top">
-              <span>L&apos;Étoile — Toulouse</span>
-              <button type="button" className="et-skip" onClick={skipIntro}>
-                Passer
-              </button>
-            </div>
-            <div className="et-reticle" aria-hidden>
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
-            <dl className="et-telemetry" aria-hidden>
-              <div>
-                <dt>T+</dt>
-                <dd ref={timeRef}>00:00.00</dd>
-              </div>
-              <div>
-                <dt>Vitesse</dt>
-                <dd ref={speedRef}>0.000 c</dd>
-              </div>
-              <div>
-                <dt>Distance</dt>
-                <dd ref={distRef}>
-                  {INTRO_DISTANCE_AL.toLocaleString("fr-FR")} al
-                </dd>
-              </div>
-              <div>
-                <dt>Cible</dt>
-                <dd>{COORDS}</dd>
-              </div>
-            </dl>
-          </div>
-        )}
+            L’Étoile
+          </button>
+          <nav ref={navRef} aria-label="Chapitres" className="et-top-nav">
+            <span className="et-top-line" aria-hidden />
+            <ol>
+              {chapters.map((chapter, i) => (
+                <li key={chapter.id}>
+                  <button
+                    type="button"
+                    aria-current={active === i + 1 ? "location" : undefined}
+                    onClick={() => jump(i + 1)}
+                  >
+                    <span className="et-top-num" aria-hidden>
+                      {ROMAN[i]}
+                    </span>
+                    {chapter.name}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </header>
 
-        <header className="et-hero">
-          <div className="et-hud">
-            <span>{COORDS}</span>
+        <section className="et-hero" aria-labelledby="et-titre">
+          <p className="et-hero-meta">
+            <span>Club &amp; Rooftop</span>
             <span>
               {tableNumber !== null && <>Table {pad(tableNumber)}</>}
-              {clock && <> · {clock}</>}
             </span>
-          </div>
-          <div className="et-hero-center">
-            <div className="et-hero-star">
-              <span className="et-orbit" aria-hidden />
-              <EtoileMark className="et-hero-mark" />
-            </div>
-            <h1 className="et-wordmark">
+          </p>
+          <div className="et-hero-body">
+            <EtoileMark className="et-hero-mark" />
+            <h1 id="et-titre" className="et-wordmark">
               <span className="sr-only">L&apos;Étoile</span>
               {["L’", "É", "T", "O", "I", "L", "E"].map((letter, i) => (
                 <span key={i} aria-hidden style={{ "--i": i } as CSSProperties}>
@@ -799,61 +614,37 @@ export function EtoileMenu({
                 </span>
               ))}
             </h1>
-            <p className="et-hero-city">Toulouse · Club &amp; Rooftop</p>
-            <p className="et-tagline">On fait la fête à l&apos;Étoile</p>
-          </div>
-          <p className="et-scroll-cue" aria-hidden>
-            Défiler
-          </p>
-          <div className="et-hero-foot">
+            <p className="et-hero-line">On fait la fête à l&apos;Étoile</p>
             <button type="button" className="et-cta" onClick={() => jump(1)}>
-              <span>Explorer la carte</span>
+              <span>Découvrir la carte</span>
               <svg viewBox="0 0 24 24" aria-hidden>
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </button>
-            <dl className="et-stats">
-              <div>
-                <dt>Systèmes</dt>
-                <dd>{pad(systems.length)}</dd>
-              </div>
-              <div>
-                <dt>Références</dt>
-                <dd>{pad(references)}</dd>
-              </div>
-            </dl>
           </div>
-        </header>
-
-        <nav
-          ref={navRef}
-          className="et-nav"
-          aria-label="Catégories"
-          style={{ "--systems": systems.length } as CSSProperties}
-        >
-          <ol>
-            {systems.map((system, i) => (
-              <li key={system.id}>
-                <button
-                  type="button"
-                  data-kind={system.body}
-                  aria-current={active === i + 1 ? "true" : undefined}
-                  onClick={() => jump(i + 1)}
-                >
-                  <span className="et-orb" aria-hidden />
-                  <span className="et-orb-name">{system.name}</span>
+          <ol className="et-index" aria-label="Sommaire">
+            {chapters.map((chapter, i) => (
+              <li key={chapter.id}>
+                <button type="button" onClick={() => jump(i + 1)}>
+                  <span className="et-index-num" aria-hidden>
+                    {ROMAN[i]}
+                  </span>
+                  <span className="et-index-name">{chapter.name}</span>
+                  <span className="et-index-count">
+                    {chapter.items.length} réf.
+                  </span>
                 </button>
               </li>
             ))}
           </ol>
-        </nav>
+        </section>
 
         <main className="et-main">
-          {systems.map((system, i) => (
-            <SystemSection
-              key={system.id}
-              system={system}
-              index={i + 1}
+          {chapters.map((chapter, i) => (
+            <ChapterSection
+              key={chapter.id}
+              chapter={chapter}
+              index={i}
               inCart={inCart}
               onAdd={add}
             />
@@ -863,35 +654,12 @@ export function EtoileMenu({
         <footer className="et-footer">
           <EtoileMark className="et-footer-mark" />
           <p className="et-footer-name">L&apos;Étoile</p>
-          <address>
-            2 Avenue d&apos;Atlanta
+          <p>Club &amp; Rooftop</p>
+          <p className="et-credit">
+            Images NASA, ESA, CSA, STScI, ESO
             <br />
-            31200 Toulouse
-          </address>
-          <a href={`tel:${restaurant.phone.replace(/\s/g, "")}`}>
-            Réservation VIP · {displayPhone(restaurant.phone)}
-          </a>
-          <ul className="et-socials">
-            <li>
-              <a
-                href="https://www.instagram.com/etoile_toulouse/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Instagram
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.tiktok.com/@etoileclub_"
-                target="_blank"
-                rel="noreferrer"
-              >
-                TikTok
-              </a>
-            </li>
-          </ul>
-          <p className="et-credit">Carte Ominin</p>
+            Carte Ominin
+          </p>
         </footer>
 
         {optionsItem && (
@@ -912,9 +680,9 @@ export function EtoileMenu({
         data-ready={holeReady || undefined}
         aria-hidden
       >
-        <canvas ref={holeCanvasRef} />
+        <video ref={holeVideoRef} muted loop playsInline disablePictureInPicture />
         <span className="et-hole-ring" />
-        <span className="et-hole-count">{hasItems ? cart.count : null}</span>
+        <span className="et-hole-count">{hasItems && holeCount ? holeCount : null}</span>
       </div>
       <div ref={fxRef} className="et-fx" aria-hidden />
       {/* Sous la barre de commande, la carte s'efface dans le noir au lieu d'y être coupée. */}
@@ -927,41 +695,45 @@ export function EtoileMenu({
   );
 }
 
-function SystemSection({
-  system,
+function ChapterSection({
+  chapter,
   index,
   inCart,
   onAdd,
 }: {
-  system: SystemView;
+  chapter: Chapter;
   index: number;
   inCart: Map<string, number>;
   onAdd: (item: MenuItem, button: HTMLElement) => void;
 }) {
-  const prices = system.items.map((item) => item.price);
-  const nested = system.groups.length > 1;
+  const prices = chapter.items.map((item) => item.price);
+  const nested = chapter.groups.length > 1;
   return (
     <section
-      id={system.id}
-      className="et-system"
-      data-body={system.body}
-      aria-labelledby={`${system.id}-titre`}
+      id={chapter.id}
+      className="et-chapter"
+      aria-labelledby={`${chapter.id}-titre`}
     >
-      <div className="et-system-head" data-reveal>
-        <p className="et-eyebrow">
-          <span>Système {pad(index)}</span>
-          <span>{pad(system.items.length)} réf.</span>
+      <div className="et-head" data-reveal>
+        <p className="et-kicker">
+          <span>Chapitre {ROMAN[index]}</span>
+          <span>{chapter.items.length} références</span>
         </p>
-        <h2 id={`${system.id}-titre`} className="et-system-title" tabIndex={-1}>
-          {system.name}
+        <h2
+          id={`${chapter.id}-titre`}
+          className="et-title"
+          tabIndex={-1}
+          style={{ "--len": chapter.name.length } as CSSProperties}
+        >
+          {chapter.name}
         </h2>
         <p className="et-range">
-          <span>De</span> {formatPrice(Math.min(...prices))} <span>à</span>{" "}
+          De {formatPrice(Math.min(...prices))} à{" "}
           {formatPrice(Math.max(...prices))}
         </p>
         {nested && (
           <ul className="et-subnav">
-            {system.groups.map((group) => (
+            {chapter.groups.map((group) => (
               <li key={group.id}>
                 <a
                   href={`#${group.id}`}
@@ -980,7 +752,7 @@ function SystemSection({
         )}
       </div>
       <div className="et-list">
-        {system.groups.map((group) => (
+        {chapter.groups.map((group) => (
           <div key={group.id} id={group.id} className="et-group">
             {nested && (
               <h3 className="et-group-title" data-reveal>

@@ -128,6 +128,14 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
         ],
       },
+      {
+        // Les vidéos de la scène de L'Étoile (plusieurs Mo) : gardées un jour,
+        // resservies une semaine pendant qu'elles se revalident.
+        source: "/l-etoile/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
     ];
   },
 };
