@@ -42,3 +42,53 @@ export async function fetchLoyaltyBalance(
   if (error) throw new Error(error.message);
   return data;
 }
+
+/** Cookie httpOnly qui porte la clé du téléphone reconnu (voir /api/fidelite). */
+export const LOYALTY_DEVICE_COOKIE = "ominin_fidelite";
+/** Un téléphone reste reconnu un an après son dernier scan (secondes). */
+export const LOYALTY_DEVICE_MAX_AGE = 365 * 24 * 60 * 60;
+/** Durée de l'accueil avant qu'il se replie en pastille de points (ms). */
+export const LOYALTY_GREETING_MS = 4000;
+
+/** Le client derrière un téléphone reconnu, vu de ce restaurant. */
+export interface LoyaltyMember {
+  /** Contact normalisé (loyalty_contact) : il rattache la commande. */
+  contact: string;
+  firstName: string | null;
+  /** Solde ici ; null : pas encore de carte dans cette maison. */
+  points: number | null;
+  /** Date de la carte dans cette maison (ISO), null avec points. */
+  since: string | null;
+}
+
+/** Une ligne de la carte : gain d'une commande, article offert, geste du gérant. */
+export interface LoyaltyHistoryEntry {
+  kind: "gain" | "depense" | "ajustement";
+  points: number;
+  at: string;
+  /** Table de la commande ; null hors commande à table. */
+  table: number | null;
+  /** Articles offerts par une dépense, « Rose Garden, Thé menthe ». */
+  rewards: string | null;
+}
+
+/** Le palier suivant : le moins cher que le solde n'atteint pas encore. */
+export function nextReward(
+  program: LoyaltyProgram,
+  points: number
+): LoyaltyReward | undefined {
+  return program.rewards.find((reward) => reward.points > points);
+}
+
+/**
+ * Le contact à l'écran d'un téléphone que d'autres peuvent voir : « 06 •• ••
+ * 56 78 », « j•••@mail.fr ». Normalisé par loyalty_contact (chiffres seuls).
+ */
+export function maskContact(contact: string): string {
+  const at = contact.indexOf("@");
+  if (at > 0) return `${contact[0]}•••${contact.slice(at)}`;
+  const pairs = contact.match(/\d{1,2}/g) ?? [];
+  return pairs
+    .map((pair, i) => (i === 0 || i >= pairs.length - 2 ? pair : "••"))
+    .join(" ");
+}

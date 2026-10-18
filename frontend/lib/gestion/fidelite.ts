@@ -155,3 +155,44 @@ export async function adjustPoints(
     })
   );
 }
+
+/** Une semaine du programme (du lundi, heure de Paris). */
+export interface LoyaltyWeek {
+  /** Lundi de la semaine, AAAA-MM-JJ. */
+  week: string;
+  paidOrders: number;
+  cardOrders: number;
+  rewardsUsed: number;
+  newMembers: number;
+}
+
+export interface LoyaltyStats {
+  weeks: LoyaltyWeek[];
+  members: number;
+  returningMembers: number;
+  rememberedPhones: number;
+  pointsOutstanding: number;
+}
+
+/** Les résultats du programme, en tête de l'onglet. */
+export async function loadLoyaltyStats(etablissementId: string): Promise<LoyaltyStats> {
+  const supabase = createClient();
+  const [weeks, members] = await Promise.all([
+    supabase.rpc("loyalty_stats_weeks", { p_etablissement_id: etablissementId }),
+    supabase.rpc("loyalty_stats_members", { p_etablissement_id: etablissementId }),
+  ]);
+  const totals = must(members)[0];
+  return {
+    weeks: must(weeks).map((row) => ({
+      week: row.week,
+      paidOrders: row.paid_orders,
+      cardOrders: row.card_orders,
+      rewardsUsed: row.rewards_used,
+      newMembers: row.new_members,
+    })),
+    members: totals?.members ?? 0,
+    returningMembers: totals?.returning_members ?? 0,
+    rememberedPhones: totals?.remembered_phones ?? 0,
+    pointsOutstanding: totals?.points_outstanding ?? 0,
+  };
+}

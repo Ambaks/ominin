@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AdjustPointsModal } from "@/components/gestion/fidelite/adjust-points-modal";
+import { LoyaltyResults } from "@/components/gestion/fidelite/loyalty-results";
 import { TierFormModal } from "@/components/gestion/fidelite/tier-form-modal";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
@@ -15,9 +16,11 @@ import {
   createTier,
   deleteTier,
   loadLoyalty,
+  loadLoyaltyStats,
   saveLoyaltySettings,
   updateTier,
   type LoyaltyData,
+  type LoyaltyStats,
   type LoyaltyTier,
   type LoyaltyTierInput,
 } from "@/lib/gestion/fidelite";
@@ -28,7 +31,9 @@ import type { MenuCategory } from "@/lib/menu-data";
 /*
  * Le gérant règle ici son programme de fidélité : l'allumer, le taux de
  * points par euro, les paliers qu'offre le menu QR — et il suit ses clients,
- * solde par solde, avec la main pour un geste commercial.
+ * solde par solde, avec la main pour un geste commercial. En tête, ce que le
+ * programme rapporte (LoyaltyResults) ; illisibles, ces chiffres s'effacent
+ * sans gêner les réglages.
  */
 
 const cardClass = "rounded-2xl border border-hairline bg-surface px-4 py-3";
@@ -51,6 +56,7 @@ function LoyaltyManager({
 }) {
   const toast = useToast();
   const [data, setData] = useState<LoyaltyData | null>(null);
+  const [stats, setStats] = useState<LoyaltyStats | null>(null);
   const [rate, setRate] = useState("");
   const [editing, setEditing] = useState<TierEditing>(null);
   const [tierToDelete, setTierToDelete] = useState<LoyaltyTier | null>(null);
@@ -64,8 +70,12 @@ function LoyaltyManager({
   );
 
   const refresh = useCallback(async () => {
-    const next = await loadLoyalty(etablissementId);
+    const [next, results] = await Promise.all([
+      loadLoyalty(etablissementId),
+      loadLoyaltyStats(etablissementId).catch(() => null),
+    ]);
     setData(next);
+    setStats(results);
     setRate(String(next.settings.pointsPerEuro));
   }, [etablissementId]);
 
@@ -158,6 +168,13 @@ function LoyaltyManager({
 
   return (
     <div className="flex max-w-xl flex-col gap-8">
+      {stats && (
+        <section className="flex flex-col gap-3">
+          <h2 className="font-display text-lg font-medium">Résultats</h2>
+          <LoyaltyResults stats={stats} />
+        </section>
+      )}
+
       <section data-visite="fidelite-programme" className="flex flex-col gap-3">
         <h2 className="font-display text-lg font-medium">Programme</h2>
         <div className={`${cardClass} flex items-center justify-between gap-3`}>

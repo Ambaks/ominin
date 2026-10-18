@@ -197,7 +197,7 @@ export function CategoryNav({
   );
 
   return (
-    <nav aria-label="Catégories" className={`sticky z-20 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
+    <nav aria-label="Catégories" data-category-nav className={`sticky z-20 border-b border-hairline bg-background ${embedded ? "top-12" : "top-0"}`}>
       <div className="rail-row mx-auto flex max-w-2xl items-center gap-2 px-5 lg:max-w-5xl lg:gap-3 lg:px-10">
         {arrow("start")}
         {/* Le fondu des bords signale le défilement ; la marge intérieure qui
