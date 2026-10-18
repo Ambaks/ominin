@@ -5,9 +5,9 @@
 -- leur plan et leurs tables numérotées, placées sur ce plan. Chaque soirée
 -- ouvre ces zones à son prix — une table n'a pas le même prix un jeudi
 -- étudiant et un soir de showcase — et peut en garder hors vente. Le client
--- choisit SA table sur le plan, règle en ligne le prix complet, frais de
--- service d'Ominin en sus, et la table est à lui : pas d'acompte, pas de
--- table « à confirmer ».
+-- choisit une offre (une zone : Rooftop, VIP Balcon…), jamais une table : il
+-- ne voit ni le plan ni ce qui reste — le serveur lui attribue une table
+-- libre, que le club peut ensuite déplacer.
 --
 -- Une table se tient le temps du paiement (hold_expires_at, durée fixée par
 -- l'application qui appelle reserver_table), puis se libère d'elle-même :
@@ -314,8 +314,10 @@ create policy "gerant write" on public.club_zones
   using (public.current_member_role(etablissement_id) = 'gerant')
   with check (public.current_member_role(etablissement_id) = 'gerant');
 
-create policy "public read" on public.club_tables
-  for select to anon, authenticated using (true);
+-- Le plan reste à l'équipe : le client ne voit que les offres (club_offres).
+create policy "member read" on public.club_tables
+  for select to authenticated
+  using (etablissement_id in (select public.member_etablissements()));
 create policy "gerant write" on public.club_tables
   for all to authenticated
   using (public.current_member_role(etablissement_id) = 'gerant')
@@ -370,9 +372,6 @@ create policy "gerant write" on public.club_event_zones
     )
   );
 
-create policy "public read" on public.club_event_blocked_tables
-  for select to anon
-  using (exists (select 1 from public.club_events e where e.id = event_id and e.published));
 create policy "member read" on public.club_event_blocked_tables
   for select to authenticated
   using (
@@ -443,26 +442,46 @@ as $$
       and (p_hold_expires_at is null or p_hold_expires_at > now()));
 $$;
 
--- Les tables prises d'une soirée publiée, pour le plan du client : des
--- identifiants seulement, aucune coordonnée.
-create function public.club_tables_prises(p_event uuid)
-returns setof uuid
+-- Les offres d'une soirée publiée pour la page du club : chaque zone en
+-- vente, son prix du soir, et seulement si elle a encore une table libre —
+-- avec la plus grande tablée qu'elle peut accueillir. Jamais de stock : le
+-- client ne doit pas savoir combien de tables restent.
+create function public.club_offres(p_event uuid)
+returns table (zone_id uuid, price_cents int, available boolean, max_party int)
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select b.table_id
-  from club_bookings b
-  join club_events e on e.id = b.event_id and e.published
-  where b.event_id = p_event
-    and club_booking_holds(b.status, b.hold_expires_at);
+  select
+    z.id,
+    coalesce(ez.price_cents, z.price_cents),
+    max(t.seats) filter (where libre.id is not null) is not null,
+    coalesce(max(t.seats) filter (where libre.id is not null), max(t.seats))::int
+  from club_events e
+  join club_event_zones ez on ez.event_id = e.id
+  join club_zones z on z.id = ez.zone_id
+  join club_tables t on t.zone_id = z.id
+  left join lateral (
+    select t.id
+    where not exists (
+      select 1 from club_event_blocked_tables bt
+      where bt.event_id = e.id and bt.table_id = t.id
+    )
+    and not exists (
+      select 1 from club_bookings b
+      where b.event_id = e.id and b.table_id = t.id
+        and club_booking_holds(b.status, b.hold_expires_at)
+    )
+  ) libre on true
+  where e.id = p_event and e.published
+  group by z.id, ez.price_cents, z.price_cents;
 $$;
 
 revoke execute on function public.club_booking_holds(public.club_booking_status, timestamptz)
   from public, anon, authenticated;
-revoke execute on function public.club_tables_prises(uuid) from public;
-grant execute on function public.club_tables_prises(uuid) to anon, authenticated;
+revoke execute on function public.club_offres(uuid) from public;
+grant execute on function public.club_offres(uuid) to anon, authenticated;
 
 -- Le prix d'une table pour une soirée, ou null si elle n'y est pas en vente
 -- (zone fermée ce soir-là, table gardée).
@@ -533,7 +552,7 @@ revoke execute on function public.club_frais(uuid, int) from public, anon, authe
 
 create function public.reserver_table(
   p_event uuid,
-  p_table uuid,
+  p_zone uuid,
   p_name text,
   p_phone text,
   p_email text,
@@ -552,6 +571,7 @@ as $$
 declare
   v_event club_events;
   v_seats smallint;
+  v_table uuid;
   v_price int;
   v_fee int;
   v_total int;
@@ -577,14 +597,18 @@ begin
     raise exception 'Cette soirée est terminée.';
   end if;
 
-  select seats into v_seats from club_tables
-  where id = p_table and etablissement_id = v_event.etablissement_id;
-  v_price := club_prix_table(p_event, p_table);
-  if v_seats is null or v_price is null then
-    raise exception 'Cette table n''est pas en vente ce soir.';
+  select coalesce(ez.price_cents, z.price_cents), max(t.seats)
+  into v_price, v_seats
+  from club_event_zones ez
+  join club_zones z on z.id = ez.zone_id and z.etablissement_id = v_event.etablissement_id
+  join club_tables t on t.zone_id = z.id
+  where ez.event_id = p_event and ez.zone_id = p_zone
+  group by ez.price_cents, z.price_cents;
+  if v_price is null then
+    raise exception 'Cette offre n''est pas en vente ce soir.';
   end if;
   if p_party is null or p_party < 1 or p_party > v_seats then
-    raise exception 'Cette table accueille % personnes au plus.', v_seats;
+    raise exception 'Cette offre accueille % personnes au plus.', v_seats;
   end if;
 
   -- Le client voit la table frais compris : les frais de service d'Ominin
@@ -613,9 +637,8 @@ begin
   end if;
   v_amount := coalesce(p_share_cents, v_total) - v_fee;
 
-  perform club_liberer_attentes(p_event, p_table);
-  -- Un paiement en cours par personne et par soirée : choisir une autre
-  -- table rend la précédente. La personne est reconnue à son e-mail ET à
+  -- Un paiement en cours par personne et par soirée : réserver à nouveau
+  -- rend la table tenue avant. La personne est reconnue à son e-mail ET à
   -- son téléphone : qui ne connaît que l'un des deux ne peut pas faire
   -- tomber la réservation d'un autre.
   with rendues as (
@@ -631,27 +654,43 @@ begin
   update club_payments set status = 'annulee'
   where status = 'en_attente' and booking_id in (select id from rendues);
 
-  begin
-    insert into club_bookings (
-      etablissement_id, event_id, table_id, name, phone, email, party_size,
-      price_cents, fee_cents, total_cents, status, source, hold_expires_at,
-      shared, share_token
-    ) values (
-      v_event.etablissement_id, p_event, p_table, btrim(p_name),
-      btrim(p_phone), lower(btrim(p_email)), p_party,
-      v_price, v_fee, v_total,
-      'en_attente', 'en_ligne', v_hold,
-      p_share_cents is not null,
-      case when p_share_cents is not null then encode(extensions.gen_random_bytes(12), 'hex') end
-    )
-    returning * into v_booking;
-  exception when unique_violation then
-    raise exception 'Cette table vient d''être réservée.';
-  end;
+  -- La table : la plus petite libre de la zone qui accueille la tablée. Une
+  -- autre réservation qui la prend au même instant fait échouer l'insertion
+  -- (index unique) : on passe à la suivante.
+  for v_table in
+    select t.id from club_tables t
+    where t.zone_id = p_zone
+      and t.seats >= p_party
+      and not exists (
+        select 1 from club_event_blocked_tables bt
+        where bt.event_id = p_event and bt.table_id = t.id
+      )
+    order by t.seats, t.label
+  loop
+    perform club_liberer_attentes(p_event, v_table);
+    begin
+      insert into club_bookings (
+        etablissement_id, event_id, table_id, name, phone, email, party_size,
+        price_cents, fee_cents, total_cents, status, source, hold_expires_at,
+        shared, share_token
+      ) values (
+        v_event.etablissement_id, p_event, v_table, btrim(p_name),
+        btrim(p_phone), lower(btrim(p_email)), p_party,
+        v_price, v_fee, v_total,
+        'en_attente', 'en_ligne', v_hold,
+        p_share_cents is not null,
+        case when p_share_cents is not null then encode(extensions.gen_random_bytes(12), 'hex') end
+      )
+      returning * into v_booking;
+      exit;
+    exception when unique_violation then
+      continue;
+    end;
+  end loop;
+  if v_booking.id is null then
+    raise exception 'Cette offre est complète ce soir.';
+  end if;
 
-  -- Les frais de service portent sur la table entière et se paient une
-  -- fois, avec la part de l'organisateur : ses amis paient leur part sans
-  -- frais.
   insert into club_payments (
     booking_id, etablissement_id, name, email, phone, organiser,
     amount_cents, fee_cents, total_cents, method, hold_expires_at
@@ -1042,6 +1081,46 @@ revoke execute on function public.creer_reservation_club(
 grant execute on function public.creer_reservation_club(
   uuid, uuid, text, text, smallint, public.club_booking_source, boolean, text
 ) to authenticated;
+
+-- Le club déplace une réservation sur une autre table libre de la soirée
+-- (le serveur avait attribué la plus petite qui convenait).
+create function public.club_deplacer_reservation(p_booking uuid, p_table uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_booking club_bookings;
+  v_seats smallint;
+begin
+  select * into v_booking from club_bookings where id = p_booking;
+  if v_booking.id is null
+     or current_member_role(v_booking.etablissement_id) is distinct from 'gerant' then
+    raise exception 'Accès refusé.' using errcode = '42501';
+  end if;
+  if not club_booking_holds(v_booking.status, v_booking.hold_expires_at) then
+    raise exception 'Cette réservation n''est plus active.';
+  end if;
+  select seats into v_seats from club_tables
+  where id = p_table and etablissement_id = v_booking.etablissement_id;
+  if v_seats is null then
+    raise exception 'Table introuvable.';
+  end if;
+  if v_seats < v_booking.party_size then
+    raise exception 'Cette table accueille % personnes au plus.', v_seats;
+  end if;
+  perform club_liberer_attentes(v_booking.event_id, p_table);
+  begin
+    update club_bookings set table_id = p_table where id = p_booking;
+  exception when unique_violation then
+    raise exception 'Cette table est déjà réservée.';
+  end;
+end;
+$$;
+
+revoke execute on function public.club_deplacer_reservation(uuid, uuid) from public, anon;
+grant execute on function public.club_deplacer_reservation(uuid, uuid) to authenticated;
 
 -- L'équipe coche une arrivée, ou la décoche après une erreur. p_paid : le
 -- reste de la table (toute la table si rien n'est payé) est encaissé à cet

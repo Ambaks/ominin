@@ -92,7 +92,6 @@ export type Club = {
   onlinePayment: boolean;
   conditions: ClubConditions;
   zones: ClubZone[];
-  tables: ClubTable[];
 };
 
 export type ClubBooking = {

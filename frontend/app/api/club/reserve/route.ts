@@ -4,16 +4,17 @@ import { cleanContact, onlineBookable, rpcMessage } from "@/lib/club/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Le client a choisi sa table et rempli le formulaire : la table lui est
- * tenue le temps de payer (TABLE_HOLD_S). Il paie la table entière, ou — en
- * la partageant — sa part (shareCents), bornée en base. Prix et frais sont
+ * Le client a choisi une offre (une zone) et rempli le formulaire : une
+ * table libre de la zone lui est attribuée et tenue le temps de payer
+ * (TABLE_HOLD_S) — il ne choisit ni ne voit la table. Il paie la table
+ * entière, ou un acompte / sa part (shareCents), bornés en base. Prix et frais sont
  * fixés par reserver_table, jamais repris du navigateur. Il faut avoir
  * accepté les conditions du club (âge, tenue, remboursement) pour réserver.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
     eventId?: unknown;
-    tableId?: unknown;
+    zoneId?: unknown;
     name?: unknown;
     phone?: unknown;
     email?: unknown;
@@ -22,14 +23,14 @@ export async function POST(request: Request) {
     accepted?: unknown;
   } | null;
   const eventId = typeof body?.eventId === "string" ? body.eventId : "";
-  const tableId = typeof body?.tableId === "string" ? body.tableId : "";
+  const zoneId = typeof body?.zoneId === "string" ? body.zoneId : "";
   const party = typeof body?.partySize === "number" ? Math.trunc(body.partySize) : 0;
   const shareCents =
     typeof body?.shareCents === "number" && Number.isFinite(body.shareCents)
       ? Math.round(body.shareCents)
       : null;
   const contact = body ? cleanContact(body) : null;
-  if (!eventId || !tableId || !contact || party < 1) {
+  if (!eventId || !zoneId || !contact || party < 1) {
     return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
   }
   if (body?.accepted !== true) {
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await admin.rpc("reserver_table", {
     p_event: eventId,
-    p_table: tableId,
+    p_zone: zoneId,
     p_name: contact.name,
     p_phone: contact.phone,
     p_email: contact.email,

@@ -5362,6 +5362,10 @@ export type Database = {
         Args: { p_booking: string }
         Returns: Database["public"]["Enums"]["club_booking_status"]
       }
+      club_deplacer_reservation: {
+        Args: { p_booking: string; p_table: string }
+        Returns: undefined
+      }
       club_guest_list_restant: { Args: { p_event: string }; Returns: number }
       club_marquer_arrivee: {
         Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }
@@ -5370,6 +5374,15 @@ export type Database = {
       club_marquer_invite: {
         Args: { p_arrived: boolean; p_guest: string }
         Returns: undefined
+      }
+      club_offres: {
+        Args: { p_event: string }
+        Returns: {
+          available: boolean
+          max_party: number
+          price_cents: number
+          zone_id: string
+        }[]
       }
       club_partage_etat: {
         Args: { p_booking: string }
@@ -5411,7 +5424,6 @@ export type Database = {
         Args: { p_payment: string }
         Returns: undefined
       }
-      club_tables_prises: { Args: { p_event: string }; Returns: string[] }
       collect_full_slots: {
         Args: { p_from: string; p_slug: string; p_to: string }
         Returns: string[]
@@ -5789,7 +5801,7 @@ export type Database = {
           p_party: number
           p_phone: string
           p_share_cents?: number | null
-          p_table: string
+          p_zone: string
         }
         Returns: {
           booking_id: string

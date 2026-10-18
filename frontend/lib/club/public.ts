@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { isShareToken } from "@/lib/club/links";
-import { rowToEvent, rowToTable, rowToZone, publicName, sharePayers } from "@/lib/club/mappers";
+import { rowToEvent, rowToZone, publicName, sharePayers } from "@/lib/club/mappers";
 import type { BookingStatus, Club, ClubConditions, ClubEvent, EventZone, SharePayer } from "@/lib/club/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -20,10 +20,11 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
     .eq("slug", slug)
     .maybeSingle();
   if (!etab) return null;
-  const [{ data: zones }, { data: tables }] = await Promise.all([
-    db.from("club_zones").select("*").eq("etablissement_id", etab.id).order("sort"),
-    db.from("club_tables").select("*").eq("etablissement_id", etab.id),
-  ]);
+  const { data: zones } = await db
+    .from("club_zones")
+    .select("*")
+    .eq("etablissement_id", etab.id)
+    .order("sort");
   if (!zones?.length) return null;
   return {
     id: etab.id,
@@ -42,7 +43,6 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
       refused: etab.club_refused,
     },
     zones: zones.map(rowToZone),
-    tables: (tables ?? []).map(rowToTable),
   };
 });
 
@@ -58,14 +58,6 @@ export async function fetchUpcomingEvents(clubId: string): Promise<ClubEvent[]> 
   return (data ?? []).map(rowToEvent);
 }
 
-export type EventAvailability = {
-  zones: EventZone[];
-  blocked: string[];
-  taken: string[];
-  /** Places restantes sur la liste d'invités ; null : sans plafond. */
-  guestListLeft: number | null;
-};
-
 export const fetchEvent = cache(async (
   clubId: string,
   eventSlug: string
@@ -80,27 +72,37 @@ export const fetchEvent = cache(async (
   return data ? rowToEvent(data) : null;
 });
 
-/** Ce qui est en vente ce soir-là, et ce qui ne l'est plus. Jamais mis en cache. */
-export async function fetchAvailability(
-  club: Club,
-  eventId: string
-): Promise<EventAvailability> {
+/** Une offre du soir : une zone en vente, sans rien dire du stock. */
+export type EventOffer = {
+  zoneId: string;
+  /** Prix de la table ce soir-là, hors frais ; le client le voit frais compris. */
+  priceCents: number;
+  /** Une table au moins est encore libre. */
+  available: boolean;
+  /** La plus grande tablée que l'offre peut encore accueillir. */
+  maxParty: number;
+};
+
+export type EventAvailability = {
+  offers: EventOffer[];
+  /** Places restantes sur la liste d'invités ; null : sans plafond. */
+  guestListLeft: number | null;
+};
+
+/** Les offres du soir et la liste d'invités. Jamais mis en cache. */
+export async function fetchAvailability(eventId: string): Promise<EventAvailability> {
   const db = createPublicClient();
-  const [{ data: zones }, { data: blocked }, { data: taken }, { data: left }] =
-    await Promise.all([
-      db.from("club_event_zones").select("zone_id, price_cents").eq("event_id", eventId),
-      db.from("club_event_blocked_tables").select("table_id").eq("event_id", eventId),
-      db.rpc("club_tables_prises", { p_event: eventId }),
-      db.rpc("club_guest_list_restant", { p_event: eventId }),
-    ]);
-  const zonePrice = new Map(club.zones.map((zone) => [zone.id, zone.priceCents]));
+  const [{ data: offers }, { data: left }] = await Promise.all([
+    db.rpc("club_offres", { p_event: eventId }),
+    db.rpc("club_guest_list_restant", { p_event: eventId }),
+  ]);
   return {
-    zones: (zones ?? []).map((row) => ({
-      zoneId: row.zone_id,
-      priceCents: row.price_cents ?? zonePrice.get(row.zone_id) ?? 0,
+    offers: (offers ?? []).map((offer) => ({
+      zoneId: offer.zone_id,
+      priceCents: offer.price_cents,
+      available: offer.available,
+      maxParty: offer.max_party,
     })),
-    blocked: (blocked ?? []).map((row) => row.table_id),
-    taken: taken ?? [],
     guestListLeft: left ?? null,
   };
 }
