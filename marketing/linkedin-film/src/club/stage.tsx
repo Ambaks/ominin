@@ -57,7 +57,8 @@ export const Beams = ({ energy = 1 }: { energy?: number }) => {
               transform: `rotate(${angle}deg)`,
               clipPath: "polygon(47% 0, 53% 0, 100% 100%, 0 100%)",
               background: `linear-gradient(${beam.color}, transparent 82%)`,
-              opacity: (0.16 + 0.1 * energy) * (0.85 + 0.15 * Math.sin(frame * 0.3 + i)),
+              // The lights pump on every beat: every scene starts on one.
+              opacity: (0.16 + 0.1 * energy) * (0.75 + 0.45 * pulse(frame)) * (0.9 + 0.1 * Math.sin(frame * 0.3 + i)),
               filter: "blur(10px)",
             }}
           />

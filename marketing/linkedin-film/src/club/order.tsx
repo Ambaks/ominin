@@ -8,26 +8,27 @@ import { BAR_CHOICE } from "./copy";
 import { Caption, SoonTag } from "./parts";
 import { BarSheet, MenuScreen, PaySheet, ScanScreen, TicketScreen } from "./screens";
 import { Beams, Crowd, Haze, pulse, Room, useFloorRows } from "./stage";
-import { SCENE } from "./timeline";
+import { beats, SCENE } from "./timeline";
 
 /*
  * The order, on her phone, from the floor: scan, pick the drinks, pick the
- * bar, pay, back to dancing. Frames are the scene's own. In 16:9 the phone
- * crosses the frame from one step to the next, the caption on its other side.
+ * bar, pay, back to dancing: four beats a step, every tap on a beat. In
+ * 16:9 the phone whips across the frame from one step to the next, the
+ * caption on its other side.
  */
 export const ORDER = {
-  lock: 34,
-  link: 44,
-  openTap: 62,
-  menu: 70,
-  adds: [108, 136],
-  orderTap: 172,
-  bar: 186,
-  pickTap: 228,
-  pay: 262,
-  payTap: 296,
-  paid: 300,
-  ticket: 326,
+  lock: beats(1),
+  link: beats(1.5),
+  openTap: beats(2.5),
+  menu: beats(4),
+  adds: [beats(5), beats(6)],
+  orderTap: beats(7),
+  bar: beats(8),
+  pickTap: beats(10),
+  pay: beats(12),
+  payTap: beats(13.5),
+  paid: beats(14),
+  ticket: beats(16),
 };
 
 /** Tap points, in the phone's screen px. */
@@ -48,23 +49,23 @@ export const ORDER_TAPS = [ORDER.openTap, ...ORDER.adds, ORDER.orderTap, ORDER.p
 type Step = { at: number; title: string; sub?: string; soon?: boolean };
 
 const STEPS: Step[] = [
-  { at: 0, title: "Scannez le QR code", sub: "Où que vous soyez dans le club." },
-  { at: ORDER.menu, title: "Choisissez vos verres", sub: "La carte du club, sur votre téléphone." },
-  { at: ORDER.bar, title: "Choisissez votre bar", sub: "Central, Rooftop ou VIP.", soon: BAR_CHOICE === "soon" },
-  { at: ORDER.pay, title: "Payez en un geste" },
-  { at: ORDER.ticket, title: "Retournez danser", sub: "Téléphone en poche : on vous prévient." },
+  { at: 0, title: "Scannez, où que vous soyez." },
+  { at: ORDER.menu, title: "Choisissez vos verres." },
+  { at: ORDER.bar, title: "Choisissez votre bar.", soon: BAR_CHOICE === "soon" },
+  { at: ORDER.pay, title: "Payez en un geste." },
+  { at: ORDER.ticket, title: "Retournez danser." },
 ];
 
 /** How far off centre the phone sits in 16:9, as a share of the width. */
 const SIDE = 0.24;
 /** A caption waits for the phone to land on its side before rising. */
-const CAPTION_DELAY = 16;
+const CAPTION_DELAY = 2;
 
 export const Order = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { width, height, portrait, pick } = useLayout();
-  const enter = useIn(0, springs.heavy);
+  const enter = useIn(0, springs.push);
   const size = pick(height * 0.86, height * 0.64);
   const rows = useFloorRows(0.7);
   const length = SCENE.dance - SCENE.order;
@@ -81,7 +82,7 @@ export const Order = () => {
       <TicketScreen at={ORDER.ticket} />
     );
   // Each new step swings the phone to the other side (16:9) and turns it a little.
-  const swing = STEPS.slice(1).reduce((sum, step, i) => sum + (i % 2 ? 1 : -1) * 2 * spring({ frame: frame - step.at, fps, config: springs.heavy }), 1);
+  const swing = STEPS.slice(1).reduce((sum, step, i) => sum + (i % 2 ? 1 : -1) * 2 * spring({ frame: frame - step.at, fps, config: springs.push }), 1);
   const x = portrait ? 0 : swing * width * SIDE;
   const turn = portrait ? 0 : -swing * 12;
   return (
@@ -113,7 +114,7 @@ export const Order = () => {
         return (
           <Caption
             key={step.title}
-            at={step.at + (i ? CAPTION_DELAY : 4)}
+            at={step.at + CAPTION_DELAY}
             until={i < STEPS.length - 1 ? next - 6 : undefined}
             kick={
               <>
@@ -128,9 +129,9 @@ export const Order = () => {
             }
             title={step.title}
             sub={step.sub}
-            size={pick(92, 84)}
+            size={pick(104, 92)}
             style={pick(
-              { left: left ? 130 : width * 0.58, right: left ? width * 0.58 : 130, top: height * 0.32 },
+              { left: left ? 130 : width * 0.42, right: left ? width * 0.42 : 130, top: height * 0.34 },
               { left: 70, right: 70, top: height * 0.13 },
             )}
           />

@@ -1,40 +1,48 @@
 import { FPS } from "../timeline";
 
 /*
- * The club film runs on C.B.P.D (public/audio/music/cbpd.mp3, Mixkit), read
- * from its first second. Measured on the file: about 143.5 BPM, first beat
- * at 0.30 s; the beat comes in at 13.26 s (beat 31), the track peaks from
- * beat 126, falls silent at 64.75 s and lands again on beat 157.
+ * The club film runs on C.B.P.D (public/audio/music/cbpd.mp3, Mixkit),
+ * measured at about 143.5 BPM, first beat at 0.30 s. It comes in on beat 60
+ * of the track, in the groove (the quiet intro is skipped): the track peaks
+ * from beat 126, falls silent at 64.75 s and lands again on beat 157, the
+ * end card.
  */
 const BPM = 143.5;
 const FIRST_BEAT = 0.3;
+const START_BEAT = 60;
+
+/** Frames per beat, unrounded: what the dancers, strobes and cuts count with. */
+export const BEAT = (60 / BPM) * FPS;
+
+/** Track second the film starts on. */
+export const TRACK_IN = FIRST_BEAT + (START_BEAT * 60) / BPM;
 
 /** Film frame of beat n of the track. */
-export const beat = (n: number) => Math.round((FIRST_BEAT + (n * 60) / BPM) * FPS);
+export const beat = (n: number) => Math.round((n - START_BEAT) * BEAT);
 
-/** Frames per beat, unrounded: what the dancers and strobes count with. */
-export const BEAT = (60 / BPM) * FPS;
+/** n beats, in frames: the scenes count their own moments with it. */
+export const beats = (n: number) => Math.round(n * BEAT);
 
 export const SCENE = {
   floor: 0,
-  queue: beat(10),
-  drop: beat(31),
-  order: beat(37),
-  dance: beat(71),
-  ready: beat(88),
-  pickup: beat(102),
+  queue: beat(66),
+  drop: beat(77),
+  order: beat(81),
+  dance: beat(101),
+  ready: beat(109),
+  pickup: beat(115),
   night: beat(126),
-  back: beat(133),
-  slams: beat(142),
-  silence: Math.round(64.75 * FPS),
+  back: beat(134),
+  slams: beat(141),
+  silence: Math.round((64.75 - TRACK_IN) * FPS),
   end: beat(157),
 };
 
 /** The three statements, one every four beats. */
-export const SLAM_BEATS = [142, 146, 150].map(beat);
+export const SLAM_BEATS = [141, 145, 149].map(beat);
 
-/** The queue clock: a minute every half beat, from beat 12 of the track. */
-export const clockTick = (k: number) => beat(12 + k / 2);
+/** The queue clock: a minute every quarter beat, from the queue's second beat. */
+export const clockTick = (k: number) => SCENE.queue + beats(1 + k / 4);
 
 /** The end card holds, then the music fades out under it. */
-export const CLUB_DURATION = SCENE.end + Math.round(5.5 * FPS);
+export const CLUB_DURATION = SCENE.end + Math.round(4.5 * FPS);

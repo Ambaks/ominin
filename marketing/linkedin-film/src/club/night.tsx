@@ -12,11 +12,11 @@ import { DEMO_URL, DRINKS, FIELD_SECONDS, ORDER_NUMBER, PICKED, PRICE } from "./
 import { Caption, Friends, headline, Hero, kicker, People, Silver, waiting } from "./parts";
 import { LockScreen, LoyaltyScreen, Star } from "./screens";
 import { Bar, Beams, Counter, Crowd, dance, Figure, Glass, Haze, HeldPhone, Lasers, pulse, Room, Scrim, useFloorRows } from "./stage";
-import { SCENE, SLAM_BEATS } from "./timeline";
+import { beats, SCENE, SLAM_BEATS } from "./timeline";
 import { club, silverGradient } from "./tokens";
 
 /** Back on the floor with her friends; meanwhile the ticket prints at the bar. */
-export const PRINT_AT = 108;
+export const PRINT_AT = beats(3);
 
 export const Dance = () => {
   const frame = useCurrentFrame();
@@ -37,8 +37,8 @@ export const Dance = () => {
         </People>
       </AbsoluteFill>
       <Caption
-        at={6}
-        until={PRINT_AT - 6}
+        at={2}
+        until={PRINT_AT - 4}
         title="Ses verres se préparent."
         sub="Elle, téléphone en poche, danse."
         size={pick(96, 88)}
@@ -50,7 +50,7 @@ export const Dance = () => {
 
 const TICKET_LINES = [PICKED.name.toUpperCase(), `N° ${ORDER_NUMBER}`, `1 × ${DRINKS[0].name}`, `1 × ${DRINKS[1].name}`, "Payée en ligne"];
 /** The printer feeds a line every this many frames. */
-const LINE_FRAMES = 7;
+const LINE_FRAMES = 4;
 
 /** The ticket printing behind the bar, line by line, and the measured figure counting up. */
 const Printer = () => {
@@ -89,21 +89,21 @@ const Printer = () => {
         </div>
       </div>
       <div style={{ position: "absolute", left: pick(840, 70), right: pick(110, 70), top: pick(height * 0.24, height * 0.13) }}>
-        <Appear at={6}>
+        <Appear at={3}>
           <p style={kicker(28, club.amber)}>Au bar, le ticket sort tout seul</p>
         </Appear>
-        <Appear at={12}>
+        <Appear at={6} pop>
           <p style={{ ...headline(pick(260, 240)), lineHeight: 0.9, marginTop: 24 }}>
             <span style={{ color: club.silver }}>
-              <Odometer to={FIELD_SECONDS} delay={12} duration={18} />
+              <Odometer to={FIELD_SECONDS} delay={6} duration={14} />
               &nbsp;s
             </span>
           </p>
         </Appear>
-        <Appear at={20}>
+        <Appear at={10}>
           <p style={{ ...headline(pick(56, 54)), marginTop: 18 }}>de la commande au ticket.</p>
         </Appear>
-        <Appear at={26}>
+        <Appear at={14}>
           <p style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: pick(28, 30), color: club.muted, margin: "20px 0 0", lineHeight: 1.4 }}>
             Médiane mesurée chez un client Ominin,
             <br />
@@ -116,13 +116,13 @@ const Printer = () => {
 };
 
 /** 1:19, still on the floor: her phone buzzes in her pocket, a notification says it's ready. */
-export const READY_AT = 22;
+export const READY_AT = beats(1);
 
 export const Ready = () => {
   const frame = useCurrentFrame();
   const { width, height, pick } = useLayout();
-  const buzz = frame >= READY_AT && frame < READY_AT + 34 ? Math.sin(frame * 2.6) * (1 - (frame - READY_AT) / 34) : 0;
-  const push = useIn(0, springs.heavy);
+  const buzz = frame >= READY_AT && frame < READY_AT + 24 ? Math.sin(frame * 2.6) * (1 - (frame - READY_AT) / 24) : 0;
+  const push = useIn(0, springs.push);
   const rows = useFloorRows(0.9);
   return (
     <Room>
@@ -144,7 +144,7 @@ export const Ready = () => {
       </AbsoluteFill>
       <Caption
         at={READY_AT + 2}
-        kick="1 h 19 · Bzz"
+        kick="1 h 19 · Bzz"
         title={
           <>
             Une notification&nbsp;:
@@ -152,7 +152,7 @@ export const Ready = () => {
             <Silver>c’est prêt.</Silver>
           </>
         }
-        sub="Commandée à 1 h 13, prête à 1 h 19 : six minutes, sans quitter la piste."
+        sub="Prête en 6 minutes. Sans quitter la piste."
         size={pick(96, 88)}
         style={{ left: pick(130, 70), right: pick(width * 0.5, 70), top: pick(height * 0.3, height * 0.06) }}
       />
@@ -161,8 +161,9 @@ export const Ready = () => {
 };
 
 /** The barman's hand-off, in scene frames: the glass slides along the counter, then she takes it. */
-const SLIDE = [118, 142];
-const TAKEN = 146;
+const SLIDE = [beats(4), beats(5.5)];
+export const TAKEN = beats(6);
+const LEAVES = beats(8);
 
 /** The pickup point: an empty stretch of bar. She shows her number, takes her drinks, goes back. */
 export const Pickup = () => {
@@ -175,14 +176,14 @@ export const Pickup = () => {
   const spot = width * pick(0.74, 0.5);
   const bartenderX = spot + pick(60, 50);
   const ground = counterTop + pick(470, 760);
-  const arrive = ramp(frame, 0, 90);
+  const arrive = ramp(frame, 0, beats(2.5));
   const handover = useIn(SLIDE[0], springs.smooth);
   // The bartender sets the glass on the counter and slides it to her.
   const slide = ramp(frame, SLIDE[0], SLIDE[1]);
-  const leave = ramp(frame, 196, length);
+  const leave = ramp(frame, LEAVES, length);
   const heroX = interpolate(arrive, [0, 1], [width * pick(0.2, 0.15), spot]) + leave * width * 0.45;
   const holding = frame >= TAKEN;
-  const showing = frame > 96 && !holding;
+  const showing = frame > beats(2) && !holding;
   return (
     <Room glow={club.amber}>
       <Bar name={PICKED.name} top={barTop} height={barHeight} />
@@ -195,7 +196,7 @@ export const Pickup = () => {
           facing={-1}
           fill="#120e0a"
           rim="rgb(255 180 94 / 0.5)"
-          holding={frame > 96 && frame < SLIDE[0] ? <g transform="scale(1.4)"><Glass /></g> : undefined}
+          holding={frame > beats(2) && frame < SLIDE[0] ? <g transform="scale(1.4)"><Glass /></g> : undefined}
         />
       </People>
       {/* The pickup point: a lit silver sign high over the bartender, the number glowing when it's hers. */}
@@ -237,7 +238,7 @@ export const Pickup = () => {
           x={heroX}
           y={ground}
           scale={pick(2.3, 3.2)}
-          facing={frame < 196 ? 1 : -1}
+          facing={frame < LEAVES ? 1 : -1}
           moves={
             holding
               ? { left: 70, right: 70, leftBend: 100, rightBend: 100, bob: Math.abs(Math.sin(frame / 5)) * 6 * leave, lean: 0 }
@@ -250,15 +251,15 @@ export const Pickup = () => {
       </People>
       <Scrim reach={pick(0.36, 0.3)} />
       <Caption
-        at={20}
-        until={140}
+        at={4}
+        until={TAKEN - 4}
         kick="Au point de retrait"
         title="Pas de file."
         size={pick(110, 100)}
         style={{ left: pick(110, 70), right: pick(width * 0.45, 70), ...pick({ bottom: 90 }, { top: 70 }) }}
       />
       <Caption
-        at={150}
+        at={TAKEN}
         title={
           <>
             Elle montre son numéro,
@@ -308,14 +309,14 @@ export const Night = () => {
 /** The next Saturday: she's back, her points waiting. */
 export const Back = () => {
   const { width, height, pick } = useLayout();
-  const enter = useIn(0, springs.heavy);
+  const enter = useIn(0, springs.push);
   return (
     <Room>
       <Haze strength={0.8} />
       <Beams energy={0.8} />
       <AbsoluteFill style={{ alignItems: pick("flex-end", "center"), justifyContent: pick("center", "flex-end"), padding: pick(`0 ${width * 0.12}px 0 0`, `0 0 ${height * 0.1}px`) }}>
         <Device model={DEVICES.phone} size={pick(height * 0.86, height * 0.56)} float={3} pose={pose({ rotateY: pick(-12, -5), rotateX: 4, rotateZ: 2, y: (1 - enter) * height })}>
-          <LoyaltyScreen unlock={44} />
+          <LoyaltyScreen unlock={beats(2.5)} />
         </Device>
       </AbsoluteFill>
       <Caption
@@ -326,7 +327,7 @@ export const Back = () => {
             Elle <Silver>revient.</Silver>
           </>
         }
-        sub="Ses points l’attendent : une consommation offerte."
+        sub="Ses points : une consommation offerte."
         size={pick(110, 100)}
         style={{ left: pick(130, 70), right: pick(width * 0.5, 70), top: pick(height * 0.32, height * 0.07) }}
       />
@@ -334,7 +335,7 @@ export const Back = () => {
   );
 };
 
-const SLAMS = ["Plus de verres.", "Moins de file.", "Une équipe qui sert."];
+const SLAMS = ["Plus de verres.", "Moins de file.", "Des barmen qui servent."];
 
 /** What the club gets: three statements, one every four beats, stacking up. */
 export const Slams = () => {
@@ -406,7 +407,7 @@ export const End = () => {
               <span style={{ fontFamily: fonts.display, fontWeight: 700, fontSize: pick(44, 50), letterSpacing: "-0.02em" }}>{DEMO_URL}</span>
             </div>
             <div style={{ padding: 10, borderRadius: 18, background: "#fff" }}>
-              <Qr size={pick(150, 220)} value={`https://${DEMO_URL}`} color={club.night} />
+              <Qr size={220} value={`https://${DEMO_URL}`} color={club.night} />
             </div>
           </div>
         </Appear>
