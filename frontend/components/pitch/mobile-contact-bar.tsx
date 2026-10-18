@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { buttonPrimary, buttonSecondary } from "@/components/pitch/buttons";
+import { pitchUi } from "@/lib/pitch/kit";
 
 /**
  * Au téléphone, la page est longue : la démo et le contact restent à portée
@@ -12,8 +13,10 @@ export function MobileContactBar({
   watch,
   until,
   demoHref,
+  demoExternal = false,
   demoLabel,
   mailHref,
+  mailExternal = false,
   mailLabel,
 }: {
   /** id de l'élément dont la sortie de l'écran fait paraître la barre. */
@@ -21,8 +24,11 @@ export function MobileContactBar({
   /** id de l'élément dont l'arrivée à l'écran la fait disparaître. */
   until: string;
   demoHref: string;
+  /** demoExternal, mailExternal : le lien mène à un autre site (la démo, WhatsApp) et s'ouvre dans un nouvel onglet ; la page reste ouverte. */
+  demoExternal?: boolean;
   demoLabel: string;
   mailHref: string;
+  mailExternal?: boolean;
   mailLabel: string;
 }) {
   const [past, setPast] = useState(false);
@@ -53,11 +59,13 @@ export function MobileContactBar({
       }`}
     >
       <div className="mx-auto grid max-w-md grid-cols-[auto_1fr] gap-2">
-        <a href={demoHref} className={`${buttonSecondary} min-h-11 px-5 text-sm`}>
+        <a href={demoHref} {...(demoExternal && { target: "_blank", rel: "noopener" })} className={`${buttonSecondary} min-h-11 px-5 text-sm`}>
           {demoLabel}
+          {demoExternal && <span className="sr-only">{pitchUi.newTab}</span>}
         </a>
-        <a href={mailHref} className={`${buttonPrimary} min-h-11 px-5 text-sm`}>
+        <a href={mailHref} {...(mailExternal && { target: "_blank", rel: "noopener" })} className={`${buttonPrimary} min-h-11 px-5 text-sm`}>
           {mailLabel}
+          {mailExternal && <span className="sr-only">{pitchUi.newTab}</span>}
         </a>
       </div>
     </div>
