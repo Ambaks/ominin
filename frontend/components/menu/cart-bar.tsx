@@ -7,6 +7,7 @@ import {
   pickupNotice,
   type CollectDetails,
 } from "@/components/collect/pickup-fields";
+import { CartPairings } from "@/components/menu/chef-pairings";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PreviewPayment } from "@/components/menu/preview-payment";
@@ -1040,6 +1041,7 @@ export function CartBar() {
                         );
                       })}
                     </ul>
+                    <CartPairings />
                     {cart.loyalty && (
                       <LoyaltySection
                         program={cart.loyalty}

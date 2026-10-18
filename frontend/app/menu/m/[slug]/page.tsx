@@ -81,6 +81,7 @@ export default async function MenuPage({
     callServer,
     loyalty,
     formules,
+    pairings,
   } = data;
 
   // Le visuel des formules s'affiche sous l'affiche ; sans lui (ou sans
@@ -156,6 +157,7 @@ export default async function MenuPage({
         // Sans commande, rien à fermer : pas de relecture.
         etablissementId: orderingEnabled ? id : undefined,
         closedItems: orderingEnabled ? closedItems : undefined,
+        pairings,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :

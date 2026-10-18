@@ -14,6 +14,8 @@ export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
+/** L'accord du chef : accords proposés à la fois dans le panier du menu QR. */
+export const CART_PAIRINGS_COUNT = 2;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Bascule de la journée de service. Miroir du défaut SQL de

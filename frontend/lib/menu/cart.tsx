@@ -13,9 +13,12 @@ import {
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { lineName } from "@/lib/menu/format";
+import type { MenuItem } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
+import type { Pairing } from "./pairings";
 import { TicketsProvider } from "./tickets";
 import {
   createTracker,
@@ -137,6 +140,8 @@ export interface CartConfig {
   etablissementId?: string;
   /** Articles coupés au rendu de la page. */
   closedItems?: string[];
+  /** L'accord du chef, par id de plat ; absent ⇒ rien n'est proposé. */
+  pairings?: Record<string, Pairing[]>;
   /**
    * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
    * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
@@ -220,6 +225,19 @@ export function cartLineKey(
   const key = ids.length ? `${itemId}#${ids.join("+")}` : itemId;
   return rewardId ? `${rewardId}/${key}` : key;
 }
+
+/** La ligne de panier d'un plat sans options. */
+export const plainLine = (item: MenuItem): Omit<CartLine, "quantity"> => ({
+  key: cartLineKey(item.id, []),
+  itemId: item.id,
+  name: lineName(item),
+  detail: item.detail,
+  unitPrice: item.price,
+  optionSummary: [],
+  choices: [],
+  stock: item.stock,
+  noticeHours: item.noticeHours,
+});
 
 /** Clé du panier gardé dans l'onglet : par carte, par table, aperçu à part. */
 export function savedCartKey(slug: string, table: number | null, preview?: boolean) {

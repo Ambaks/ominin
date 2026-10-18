@@ -11,7 +11,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
+import { cartLineKey, plainLine, useCart, type CartChoice } from "@/lib/menu/cart";
 import {
   addVerb,
   formatPrice,
@@ -27,6 +27,7 @@ import {
   type MenuItem,
   type OptionGroup,
 } from "@/lib/menu-data";
+import { SheetPairings, useSheetPairings } from "./chef-pairings";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
@@ -375,17 +376,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     .reduce((sum, line) => sum + line.quantity, 0);
 
   const addPlain = () => {
-    addLine({
-      key: cartLineKey(item.id, []),
-      itemId: item.id,
-      name: lineName(item),
-      detail: item.detail,
-      unitPrice: item.price,
-      optionSummary: [],
-      choices: [],
-      stock: item.stock,
-      noticeHours: item.noticeHours,
-    });
+    addLine(plainLine(item));
     // « panier » implique « plat » : l'étape ne recule pas, un seul envoi suffit.
     track("panier", { items: [item.id] });
     flashAdded();
@@ -473,6 +464,11 @@ export function OptionsModal({
   const { addLine, track } = useCart();
   const groups = item.options ?? [];
   const [selected, setSelected] = useState<Record<string, string[]>>({});
+  // Un plat offert se compose seul : ses accords se paieraient en euros.
+  const sheetPairings = useSheetPairings(item.id);
+  const pairings = reward ? [] : sheetPairings;
+  const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
+  const pickedPairings = pairings.filter(({ item: other }) => picked.has(other.id));
   // Groupe manquant signalé au toucher du bouton qui le nomme.
   const [flash, setFlash] = useState<Flash>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -583,6 +579,14 @@ export function OptionsModal({
     ? `${reward.points}\u00a0pts${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
     : `${fromPrice ? "dès\u00a0" : ""}${formatPrice(unitPrice)}`;
 
+  // Le bouton dit ce qui part avec le plat : ses accords cochés compris.
+  const confirmLabel =
+    pickedPairings.length > 0
+      ? `Ajouter ${pickedPairings.length + 1} articles · ${fromPrice ? "dès\u00a0" : ""}${formatPrice(
+          unitPrice + pickedPairings.reduce((sum, { item: other }) => sum + other.price, 0)
+        )}`
+      : `Ajouter · ${priceLabel}`;
+
   /* Un menu à composer : ce qui est choisi, et le nom des groupes qui
      attendent encore — au moment de valider, le premier choix est loin
      au-dessus. Les groupes facultatifs n'y figurent pas : jamais manquants,
@@ -644,6 +648,7 @@ export function OptionsModal({
       noticeHours: item.noticeHours,
       reward,
     });
+    for (const { item: other } of pickedPairings) addLine(plainLine(other));
     track("panier");
     onAdded();
     close();
@@ -755,6 +760,21 @@ export function OptionsModal({
                 </div>
               ))}
             </div>
+            {pairings.length > 0 && (
+              <div className="mt-6">
+                <SheetPairings
+                  pairings={pairings}
+                  picked={picked}
+                  onToggle={(id) =>
+                    setPicked((current) => {
+                      const next = new Set(current);
+                      if (!next.delete(id)) next.add(id);
+                      return next;
+                    })
+                  }
+                />
+              </div>
+            )}
           </div>
 
           {/* Épinglée : les options d'un tacos 3 viandes défilent sur plus de
@@ -773,7 +793,7 @@ export function OptionsModal({
               <span aria-live="polite" className="block text-balance leading-tight">
                 {missingGroups.length > 0
                   ? `Choisir\u00a0: ${missingGroups[0].name}`
-                  : `Ajouter · ${priceLabel}`}
+                  : confirmLabel}
               </span>
             </button>
           </div>

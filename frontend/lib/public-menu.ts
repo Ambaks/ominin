@@ -5,6 +5,7 @@ import { fetchClosedItems } from "@/lib/menu/fermetures";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getRestaurant, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
+import { resolvePairings, type Pairing } from "@/lib/menu/pairings";
 import { createPublicClient } from "@/lib/supabase/public";
 
 const ISO_DAYS: Record<string, number> = {
@@ -83,6 +84,8 @@ export async function fetchRestaurant(slug: string): Promise<{
    * menu les filtre d'après l'état relu (components/menu/formules.tsx).
    */
   closedItems: string[];
+  /** L'accord du chef, par id de plat ; absent ⇒ le restaurant n'en propose pas. */
+  pairings: Record<string, Pairing[]> | undefined;
   /** Horaires structurés : les créneaux de retrait du click & collect. */
   openingHours: OpeningHours | null;
   collectSlotMinutes: number;
@@ -217,6 +220,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       features?.appel_serveur !== false && etablissement.service_mode === "restaurant",
     loyalty,
     formules,
+    pairings: resolvePairings(categories, staticData?.pairings),
     openingHours: etablissement.opening_hours as OpeningHours | null,
     collectSlotMinutes: etablissement.collect_slot_minutes,
     restaurant: {

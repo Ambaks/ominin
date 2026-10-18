@@ -5,6 +5,7 @@ import type { Formule } from "@/lib/gestion/types";
 // registre dans son paquet.
 import { formatPrice } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
+import type { PairingNotes } from "@/lib/menu/pairings";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -235,6 +236,12 @@ export interface Restaurant {
   ticker?: TickerItem[];
   /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
   glossary?: { term: string; definition: string }[];
+  /**
+   * L'accord du chef : par plat (son nom en base), ce qui l'accompagne. Le
+   * panier le propose à partir de ce qui est déjà commandé, la feuille d'un
+   * plat à côté de ses options. Registre seulement, la base n'en a pas.
+   */
+  pairings?: PairingNotes;
   categories: MenuCategory[];
   /**
    * Formules d'une carte d'aperçu (/menu/demo) : en production elles vivent
@@ -708,6 +715,47 @@ const boho: Restaurant = {
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
+  // Noms de la carte en ligne : la base a renommé des plats depuis la
+  // transcription du menu papier (« Crevettes tempura (x3) »).
+  pairings: {
+    "Mojito": [
+      { with: "Assortiment BOHO", why: "Un peu de tout à partager, le croustillant face à la menthe" },
+      { with: "Nems poulet (x4)", why: "Le nem chaud entre deux gorgées fraîches" },
+    ],
+    "Coco Mango": [{ with: "Crevettes tempura (x3)", why: "La friture légère va bien avec la coco" }],
+    "Pina Colada": [{ with: "Crevettes tempura (x3)", why: "Ananas et tempura, l'accord des îles" }],
+    "Red Dragon": [{ with: "Nems légumes (x4)", why: "Le fruit rouge acidulé allège la friture" }],
+    "Rose Garden": [{ with: "Nems légumes (x4)", why: "Fruité et croustillant, à grignoter" }],
+    "Vitamina": [{ with: "Yakitori bœuf fromage (x3)", why: "Les agrumes coupent le fromage fondu" }],
+    "Sex on the Beach": [{ with: "Samoussas bœuf (x4)", why: "L'épice du samoussa répond au fruit" }],
+    "Latina Passion": [{ with: "Crevettes tempura (x3)", why: "Le citron vert, comme sur un tempura" }],
+    "Blue Lagoon": [{ with: "Assortiment BOHO", why: "Un plateau à partager pour la table" }],
+    "Ginger Lemonade": [{ with: "Yakitori bœuf fromage (x3)", why: "Le gingembre réveille le bœuf grillé" }],
+    "Terracota": [{ with: "Nems poulet (x4)", why: "Fraise et orange, doux avec le nem" }],
+    "Citronnade maison": [{ with: "Samoussas bœuf (x4)", why: "La menthe rafraîchit l'épice" }],
+    "Mi Amor": [{ with: "Assortiment BOHO", why: "De quoi grignoter pendant la chicha" }],
+    "Royale": [{ with: "Assortiment BOHO", why: "De quoi grignoter pendant la chicha" }],
+    "Premium": [{ with: "Assortiment BOHO", why: "De quoi grignoter pendant la chicha" }],
+    "Classique": [{ with: "Bol de Frites", why: "Un bol à partager pendant la chicha" }],
+    "L'Entrecôte « La Fameuse »": [
+      { with: "Ginger Lemonade", why: "Le gingembre relève la sauce verte" },
+      { with: "Latina Passion", why: "L'acidulé tranche le gras de l'entrecôte" },
+    ],
+    "Pièce de bœuf grillée": [{ with: "Ginger Lemonade", why: "Le gingembre relève le grillé" }],
+    "Magret de canard grillé": [{ with: "Terracota", why: "Fraise et orange, comme un canard aux fruits" }],
+    "Pièce de poulet grillée": [{ with: "Latina Passion", why: "Le citron vert réveille le poulet" }],
+    "Escalope de saumon frais à la plancha": [
+      { with: "Citronnade maison", why: "Citron et menthe, faits pour le poisson" },
+    ],
+    "Burger original Boho": [{ with: "Red Dragon", why: "Fruité et frais à côté du burger" }],
+    "Pizza Poulet Indienne": [{ with: "Coco Mango", why: "La coco adoucit le curry" }],
+    "Pizza Chèvre Miel": [{ with: "Rose Garden", why: "Le fruit rouge avec le chèvre et le miel" }],
+    "Pizza Saumon Norvégienne": [{ with: "Citronnade maison", why: "Citron et aneth, l'accord du saumon" }],
+    "Pizza Margarita": [{ with: "Terracota", why: "Tomate et fraise, l'été sur la table" }],
+    "Carpaccio de bœuf": [{ with: "Ginger Lemonade", why: "Le gingembre avec la roquette et le parmesan" }],
+    "Salade César": [{ with: "Citronnade maison", why: "Le citron allège la sauce César" }],
+    "Tomate burrata": [{ with: "Vitamina", why: "Les agrumes avec la tomate et la burrata" }],
+  },
   categories: [
     {
       id: "a-partager",
