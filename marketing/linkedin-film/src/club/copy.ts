@@ -20,13 +20,19 @@ export const SOON_TAG = "Bientôt";
 export const VENUE = "L’Étoile";
 export const ORDER_NUMBER = 42;
 
+/**
+ * The bars, each with the wait the AI estimates for a new order, in minutes;
+ * `busy` flags the one that's overloaded. Also shown as live at the owner's
+ * request, not built yet: per-bar estimates and sending orders to the bar
+ * that serves fastest.
+ */
 export const BARS = [
-  { name: "Bar Central", where: "Rez-de-chaussée" },
-  { name: "Bar Rooftop", where: "3ᵉ étage, en terrasse" },
-  { name: "Bar VIP", where: "Côté carrés" },
+  { name: "Bar Central", where: "Rez-de-chaussée", wait: 12, busy: true },
+  { name: "Bar Rooftop", where: "3ᵉ étage, en terrasse", wait: 3, busy: false },
+  { name: "Bar VIP", where: "Côté carrés", wait: 6, busy: false },
 ] as const;
 
-/** The bar the guest picks. */
+/** The bar the guest picks: the fastest one. */
 export const PICKED = BARS[1];
 
 export const DRINKS = [

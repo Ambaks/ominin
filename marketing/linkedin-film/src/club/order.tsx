@@ -39,7 +39,7 @@ const TAPS = {
     { x: 343, y: 482 },
   ],
   order: { x: 196, y: 790 },
-  pick: { x: 196, y: 620 },
+  pick: { x: 196, y: 566 },
   pay: { x: 196, y: 672 },
 };
 
@@ -51,7 +51,7 @@ type Step = { at: number; title: string; sub?: string; soon?: boolean };
 const STEPS: Step[] = [
   { at: 0, title: "Scannez, où que vous soyez." },
   { at: ORDER.menu, title: "Choisissez vos verres." },
-  { at: ORDER.bar, title: "Choisissez votre bar.", soon: BAR_CHOICE === "soon" },
+  { at: ORDER.bar, title: "Choisissez votre bar.", sub: "L’IA estime l’attente à chacun.", soon: BAR_CHOICE === "soon" },
   { at: ORDER.pay, title: "Payez en un geste." },
   { at: ORDER.ticket, title: "Retournez danser." },
 ];

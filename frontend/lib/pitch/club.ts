@@ -1,5 +1,5 @@
 import { connectCommission, contactEmail, starterKit } from "@/lib/landing-data";
-import { cardFees, commonSources, decimal, euros, offer, onlineOrderCost, percent, stripeSource } from "@/lib/pitch/kit";
+import { commonSources, euros, offer, percent } from "@/lib/pitch/kit";
 import { menuPrintUrl } from "@/lib/site";
 
 /*
@@ -10,7 +10,9 @@ import { menuPrintUrl } from "@/lib/site";
  *
  * Présentés comme disponibles à la demande du propriétaire, pas encore dans
  * le produit : le choix du bar (un point de retrait par établissement
- * aujourd'hui) et la notification « C'est prêt » sur l'écran verrouillé.
+ * aujourd'hui), l'attente de chaque bar estimée par l'IA et l'envoi des
+ * commandes vers le bar le plus rapide, et la notification « C'est prêt »
+ * sur l'écran verrouillé.
  * barChoice "soon" remettrait « Bientôt » sur l'étape, comme BAR_CHOICE dans
  * le film (marketing/linkedin-film/src/club/copy.ts).
  */
@@ -24,18 +26,12 @@ const mailBody = "Bonjour,\n\nJe suis intéressé(e) par Ominin pour mon club.\n
 
 const shot = (name: string) => `/pitch/club/${name}.webp`;
 
-/**
- * La commande du film, deux cocktails de la carte de démonstration (14 € +
- * 13 €, DRINKS dans marketing/linkedin-film/src/club/copy.ts), et ce qu'elle
- * coûte payée en ligne.
- */
+/** La commande du film, deux cocktails de la carte de démonstration (14 € + 13 €, DRINKS dans marketing/linkedin-film/src/club/copy.ts). */
 const exampleTicket = 27;
-const exampleOrder = onlineOrderCost(exampleTicket, connectCommission.percent);
 
 export const clubSources = {
   report: commonSources.report,
   lu: commonSources.lu,
-  stripe: stripeSource(),
 };
 
 export type ClubSourceId = keyof typeof clubSources;
@@ -45,7 +41,7 @@ type Step = { title: string; text: string; soon?: boolean; screen: { src: string
 const stepItems: Step[] = [
   { title: "Scannez", text: "Un QR code sur les tables, les murs, les piliers\u00a0: on commande d’où l’on est.", screen: { src: shot("phone-scan"), alt: "L’appareil photo du téléphone sur le QR code de L’Étoile, le lien de la carte en dessous" } },
   { title: "Choisissez vos verres", text: "La carte du club, avec ses cocktails, ses bouteilles et leurs options, à jour en direct.", screen: { src: shot("phone-menu"), alt: "La carte de L’Étoile\u00a0: deux cocktails ajoutés, le bouton Commander en bas" } },
-  { title: "Choisissez votre bar", text: "Central, Rooftop ou VIP\u00a0: le client choisit où il récupère sa commande.", soon: barChoice === "soon", screen: { src: shot("phone-bar"), alt: "Où récupérer votre commande\u00a0? Bar Central, Bar Rooftop (choisi) ou Bar VIP" } },
+  { title: "Choisissez votre bar", text: "Central, Rooftop ou VIP, avec l’attente de chacun, estimée par notre IA. Un bar débordé\u00a0? Les commandes partent vers celui qui sert le plus vite.", soon: barChoice === "soon", screen: { src: shot("phone-bar"), alt: "Où récupérer votre commande\u00a0? Bar Central, très demandé, environ 12 minutes\u00a0; Bar Rooftop, le plus rapide, environ 3 minutes (choisi)\u00a0; Bar VIP, environ 6 minutes" } },
   { title: "Payez", text: "Carte, Apple\u00a0Pay ou Google\u00a0Pay, dans la page, en un geste.", screen: { src: shot("phone-pay"), alt: `Le paiement dans la page\u00a0: deux cocktails, ${euros(exampleTicket)}, paiement accepté` } },
   { title: "Retournez danser", text: "Le ticket sort au bar. Téléphone en poche, le client reçoit une notification dès que c’est prêt.", screen: { src: shot("phone-ticket"), alt: "Le ticket du client\u00a0: numéro 42, en préparation au bar" } },
   { title: "Récupérez", text: "Au point de retrait, le client montre son numéro et repart, sans repasser par la file.", screen: { src: shot("phone-ready"), alt: "C’est prêt\u00a0! Numéro 42, à récupérer au Bar Rooftop" } },
@@ -154,17 +150,6 @@ export const club = {
     eyebrow: "Le prix",
     title: { first: `${euros(0)} par mois.`, accent: `${percent(connectCommission.percent)} des commandes`, rest: "payées en ligne." },
     lead: "Pas d’abonnement, pas d’engagement\u00a0: Ominin se rémunère sur les commandes payées en ligne par carte, et seulement sur elles.",
-    example: {
-      label: `Une commande de ${euros(exampleOrder.ticket)} (deux cocktails), payée en ligne`,
-      lines: [
-        { label: `Ominin (${percent(connectCommission.percent)})`, value: euros(exampleOrder.ominin) },
-        { label: `Carte (Stripe, ${percent(cardFees.standard.percent)} + ${euros(cardFees.standard.fixed)})`, value: euros(exampleOrder.card) },
-      ],
-      totalLabel: "Frais en tout",
-      total: euros(exampleOrder.total),
-      share: `soit ${decimal((exampleOrder.total / exampleOrder.ticket) * 100)}\u00a0% de la commande`,
-      note: "Tarif Stripe public d’une carte européenne standard\u00a0; Square a le sien.",
-    },
     items: [
       `Commission dégressive jusqu’à ${percent(offer.commissionPercent.min)} selon votre volume, fixée au devis`,
       `Espèces et paiements au comptoir\u00a0: ${percent(0)} de commission`,
@@ -172,7 +157,6 @@ export const club = {
       `${starterKit.omilink.name}\u00a0: ${euros(starterKit.omilink.price)}, une fois, s’il faut relier vos imprimantes de bar`,
       "Mise en ligne de votre carte par notre équipe\u00a0: incluse",
     ],
-    sources: ["stripe"] satisfies ClubSourceId[],
   },
 
   closing: {
@@ -182,6 +166,6 @@ export const club = {
     scan: "La démo, de votre téléphone",
   },
 
-  sourcesNote: "Le relevé terrain vient d’un client Ominin, anonymisé\u00a0; les prix sont ceux de nos tarifs publics et de Stripe.",
+  sourcesNote: "Le relevé terrain vient d’un client Ominin, anonymisé\u00a0; les prix sont ceux de nos tarifs publics.",
   footer: "Ominin · La commande QR pour les clubs et discothèques",
 };

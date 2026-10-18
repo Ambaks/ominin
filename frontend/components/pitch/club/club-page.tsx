@@ -264,7 +264,6 @@ function Faq() {
 
 function Pricing() {
   const { pricing } = c;
-  const { example } = pricing;
   return (
     <Section className="overflow-hidden">
       <div className={`${container} club-reveal`}>
@@ -276,36 +275,14 @@ function Pricing() {
           </span>
         </h2>
         <p className={`${lead} mt-5 max-w-3xl`}>{pricing.lead}</p>
-        <div className="mt-10 grid gap-4 lg:grid-cols-[0.9fr_1.3fr] lg:gap-8">
-          <div className="self-start rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
-            <p className="font-semibold">{example.label}</p>
-            <dl className="mt-4 flex flex-col gap-2">
-              {example.lines.map((line) => (
-                <div key={line.label} className="flex justify-between gap-4 text-(--pitch-muted)">
-                  <dt>{line.label}</dt>
-                  <dd className="shrink-0 tabular-nums">{line.value}</dd>
-                </div>
-              ))}
-              <div className="mt-2 flex items-baseline justify-between gap-4 border-t border-dashed border-(--pitch-line) pt-3">
-                <dt className="font-bold">{example.totalLabel}</dt>
-                <dd className="text-right">
-                  <span className="block font-numeral text-5xl leading-none">{example.total}</span>
-                  <span className="mt-1 block text-xs text-(--pitch-faint)">{example.share}</span>
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-4 text-sm leading-relaxed text-(--pitch-faint)">{example.note}</p>
-          </div>
-          <ul className="flex flex-col">
-            {pricing.items.map((item) => (
-              <li key={item} className="flex gap-3 border-b border-(--pitch-line) py-4 font-medium leading-relaxed">
-                <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-(--club-cyan)" />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <SourceNote sources={clubSources} ids={pricing.sources} className="mt-5" />
+        <ul className="mt-10 grid gap-x-10 md:grid-cols-2">
+          {pricing.items.map((item) => (
+            <li key={item} className="flex gap-3 border-b border-(--pitch-line) py-4 font-medium leading-relaxed">
+              <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-(--club-cyan)" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   );
