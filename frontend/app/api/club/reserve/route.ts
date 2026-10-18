@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
-import { cleanContact, rpcMessage } from "@/lib/club/server";
-import { connectedAccount } from "@/lib/stripe/server";
+import { cleanContact, onlineBookable, rpcMessage } from "@/lib/club/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Le client a choisi sa table et rempli le formulaire : la table lui est
- * tenue le temps de payer (TABLE_HOLD_S). Prix et frais sont fixés en base
- * par reserver_table, jamais repris du navigateur. Il faut avoir accepté
- * les conditions du club (âge, tenue, non-remboursement) pour réserver.
+ * tenue le temps de payer (TABLE_HOLD_S). Il paie la table entière, ou — en
+ * la partageant — sa part (shareCents), bornée en base. Prix et frais sont
+ * fixés par reserver_table, jamais repris du navigateur. Il faut avoir
+ * accepté les conditions du club (âge, tenue, remboursement) pour réserver.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
@@ -18,11 +18,16 @@ export async function POST(request: Request) {
     phone?: unknown;
     email?: unknown;
     partySize?: unknown;
+    shareCents?: unknown;
     accepted?: unknown;
   } | null;
   const eventId = typeof body?.eventId === "string" ? body.eventId : "";
   const tableId = typeof body?.tableId === "string" ? body.tableId : "";
   const party = typeof body?.partySize === "number" ? Math.trunc(body.partySize) : 0;
+  const shareCents =
+    typeof body?.shareCents === "number" && Number.isFinite(body.shareCents)
+      ? Math.round(body.shareCents)
+      : null;
   const contact = body ? cleanContact(body) : null;
   if (!eventId || !tableId || !contact || party < 1) {
     return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
@@ -34,28 +39,21 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: event } = await admin
     .from("club_events")
-    .select("etablissement_id, etablissements(payment_provider, online_payment)")
+    .select("etablissement_id")
     .eq("id", eventId)
     .maybeSingle();
-  const etab = event?.etablissements;
-  if (!event || !etab) {
+  if (!event) {
     return NextResponse.json({ error: "Soirée introuvable." }, { status: 404 });
   }
-  // Vérifié avant de tenir la table : sans compte prêt à encaisser, le
-  // client ne remplirait le formulaire que pour se heurter au paiement.
-  const bookable =
-    etab.payment_provider === "demo" ||
-    (etab.payment_provider === "stripe" &&
-      etab.online_payment &&
-      (await connectedAccount(admin, event.etablissement_id))?.chargesEnabled === true);
-  if (!bookable) {
+  const online = await onlineBookable(admin, event.etablissement_id);
+  if (!online) {
     return NextResponse.json(
       { error: "La réservation en ligne n'est pas ouverte pour ce club." },
       { status: 409 }
     );
   }
 
-  const { data: booking, error } = await admin.rpc("reserver_table", {
+  const { data, error } = await admin.rpc("reserver_table", {
     p_event: eventId,
     p_table: tableId,
     p_name: contact.name,
@@ -63,9 +61,11 @@ export async function POST(request: Request) {
     p_email: contact.email,
     p_party: party,
     p_hold_seconds: TABLE_HOLD_S,
+    p_share_cents: shareCents,
   });
-  if (error) {
-    const message = rpcMessage(error);
+  const reserved = data?.[0];
+  if (error || !reserved) {
+    const message = error ? rpcMessage(error) : null;
     if (!message) console.error("[club] reserver_table", error);
     return NextResponse.json(
       { error: message ?? "Réservation impossible pour le moment." },
@@ -73,10 +73,11 @@ export async function POST(request: Request) {
     );
   }
   return NextResponse.json({
-    bookingId: booking.id,
-    token: booking.token,
-    totalCents: booking.total_cents,
-    holdExpiresAt: booking.hold_expires_at,
-    provider: etab.payment_provider,
+    bookingId: reserved.booking_id,
+    paymentId: reserved.payment_id,
+    token: reserved.token,
+    totalCents: reserved.total_cents,
+    holdExpiresAt: reserved.hold_expires_at,
+    provider: online.provider,
   });
 }

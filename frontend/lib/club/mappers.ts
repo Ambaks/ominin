@@ -1,6 +1,8 @@
 import type { Tables } from "@/lib/supabase/database.types";
 import type {
   ClubBooking,
+  ClubPayment,
+  SharePayer,
   ClubEvent,
   ClubGuest,
   ClubTable,
@@ -68,11 +70,55 @@ export function rowToBooking(row: Tables<"club_bookings">): ClubBooking {
     source: row.source,
     holdExpiresAt: row.hold_expires_at,
     paidOnline: row.source === "en_ligne" && row.paid_at !== null,
+    shared: row.shared,
+    shareToken: row.share_token,
+    paidCents: row.paid_cents,
+    remainingCents: row.price_cents - row.paid_cents,
     note: row.note,
     paidAt: row.paid_at,
     arrivedAt: row.arrived_at,
     createdAt: row.created_at,
   };
+}
+
+export function rowToPayment(row: Tables<"club_payments">): ClubPayment {
+  return {
+    id: row.id,
+    bookingId: row.booking_id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    organiser: row.organiser,
+    amountCents: row.amount_cents,
+    feeCents: row.fee_cents,
+    method: row.method,
+    status: row.status,
+    paidAt: row.paid_at,
+    createdAt: row.created_at,
+  };
+}
+
+/** « Sarah Lopez » → « Sarah L. » : ce qu'un ami de la table voit des autres. */
+export function publicName(name: string): string {
+  const [first, ...rest] = name.trim().split(/\s+/);
+  const initial = rest.at(-1)?.[0];
+  return initial ? `${first} ${initial.toUpperCase()}.` : first;
+}
+
+/** Les parts payées en ligne, dans l'ordre où elles sont arrivées. */
+export function sharePayers(
+  rows: Pick<Tables<"club_payments">, "id" | "name" | "amount_cents" | "organiser" | "paid_at" | "status" | "method">[]
+): SharePayer[] {
+  return rows
+    .filter((row) => row.status === "payee" && row.method === "en_ligne" && row.paid_at)
+    .sort((a, b) => Date.parse(a.paid_at!) - Date.parse(b.paid_at!))
+    .map((row) => ({
+      id: row.id,
+      name: publicName(row.name),
+      amountCents: row.amount_cents,
+      organiser: row.organiser,
+      paidAt: row.paid_at!,
+    }));
 }
 
 export function rowToGuest(row: Tables<"club_guests">): ClubGuest {

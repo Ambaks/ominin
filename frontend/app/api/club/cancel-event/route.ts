@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { bookingMail, refundBooking } from "@/lib/club/settle";
+import { bookingRecipients, refundBooking } from "@/lib/club/settle";
 import { sendEventCancelled } from "@/lib/club/mail";
 import { requireClubGerant } from "@/lib/club/server";
 import { getStripe } from "@/lib/stripe/server";
@@ -45,10 +45,10 @@ export async function POST(request: Request) {
   const now = new Date().toISOString();
   const { data: bookings } = await admin
     .from("club_bookings")
-    .select("id, stripe_payment_intent_id")
+    .select("id")
     .eq("event_id", eventId)
     .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`);
-  const stripe = bookings?.some((booking) => booking.stripe_payment_intent_id) ? getStripe() : null;
+  const stripe = bookings?.length ? getStripe() : null;
 
   // En parallèle : au plus une réservation par table du club.
   const results = await Promise.all(
@@ -56,8 +56,8 @@ export async function POST(request: Request) {
       try {
         const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
         if (outcome !== "not_refundable") {
-          const mail = await bookingMail(admin, booking.id);
-          if (mail) await sendEventCancelled(mail, outcome === "refunded");
+          const mails = await bookingRecipients(admin, booking.id);
+          await Promise.all(mails.map((mail) => sendEventCancelled(mail, outcome === "refunded")));
         }
         return { id: booking.id, outcome };
       } catch (error) {

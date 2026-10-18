@@ -108,10 +108,43 @@ export type ClubBooking = {
   source: BookingSource;
   holdExpiresAt: string | null;
   paidOnline: boolean;
+  /** Table partagée entre amis, et le lien de leurs parts. */
+  shared: boolean;
+  shareToken: string | null;
+  /** Réglé du prix de la table (parts en ligne et sur place) ; le reste se paie à l'entrée. */
+  paidCents: number;
+  remainingCents: number;
   note: string | null;
   paidAt: string | null;
   arrivedAt: string | null;
   createdAt: string;
+};
+
+export type PaymentStatus = Database["public"]["Enums"]["club_payment_status"];
+
+/** Un paiement d'une table : la table entière, une part d'ami, ou le reste encaissé à l'entrée. */
+export type ClubPayment = {
+  id: string;
+  bookingId: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  organiser: boolean;
+  amountCents: number;
+  feeCents: number;
+  method: Database["public"]["Enums"]["club_payment_method"];
+  status: PaymentStatus;
+  paidAt: string | null;
+  createdAt: string;
+};
+
+/** Qui a payé quoi, pour les pages publiques : prénom et initiale seulement. */
+export type SharePayer = {
+  id: string;
+  name: string;
+  amountCents: number;
+  organiser: boolean;
+  paidAt: string;
 };
 
 export type ClubGuest = {

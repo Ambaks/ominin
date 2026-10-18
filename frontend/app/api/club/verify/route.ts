@@ -1,40 +1,39 @@
 import { NextResponse } from "next/server";
-import { settleBookingIntent } from "@/lib/club/settle";
+import { settleClubIntent } from "@/lib/club/settle";
 import { connectedAccount, getStripe } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Appelée par la feuille dès que Stripe.js a confirmé le paiement d'une
- * table : l'intent est relu chez Stripe, ce que dit le navigateur ne fait
- * jamais foi. Redondante avec le webhook connecté, à dessein.
+ * table ou d'une part : l'intent est relu chez Stripe, ce que dit le
+ * navigateur ne fait jamais foi. Redondante avec le webhook connecté, à
+ * dessein.
  */
 export async function POST(request: Request) {
-  const { bookingId } = (await request.json().catch(() => ({}))) as { bookingId?: string };
-  if (!bookingId) {
-    return NextResponse.json({ error: "Réservation manquante." }, { status: 400 });
+  const { paymentId } = (await request.json().catch(() => ({}))) as { paymentId?: string };
+  if (!paymentId) {
+    return NextResponse.json({ error: "Paiement manquant." }, { status: 400 });
   }
   const admin = createAdminClient();
-  const { data: booking } = await admin
-    .from("club_bookings")
+  const { data: payment } = await admin
+    .from("club_payments")
     .select("etablissement_id, status, stripe_payment_intent_id")
-    .eq("id", bookingId)
+    .eq("id", paymentId)
     .maybeSingle();
-  if (!booking) {
-    return NextResponse.json({ error: "Réservation introuvable." }, { status: 404 });
+  if (!payment) {
+    return NextResponse.json({ error: "Paiement introuvable." }, { status: 404 });
   }
-  if (booking.status === "payee" || booking.status === "arrivee") {
-    return NextResponse.json({ paid: true });
-  }
-  if (!booking.stripe_payment_intent_id) return NextResponse.json({ paid: false });
+  if (payment.status === "payee") return NextResponse.json({ paid: true });
+  if (!payment.stripe_payment_intent_id) return NextResponse.json({ paid: false });
 
-  const account = await connectedAccount(admin, booking.etablissement_id);
+  const account = await connectedAccount(admin, payment.etablissement_id);
   if (!account) return NextResponse.json({ paid: false });
   const stripe = getStripe();
   const intent = await stripe.paymentIntents.retrieve(
-    booking.stripe_payment_intent_id,
+    payment.stripe_payment_intent_id,
     {},
     { stripeAccount: account.id }
   );
-  const outcome = await settleBookingIntent(admin, stripe, intent, account.id);
+  const outcome = await settleClubIntent(admin, stripe, intent, account.id);
   return NextResponse.json({ paid: outcome === "paid" || outcome === "already_paid" });
 }

@@ -1,6 +1,6 @@
 import { cache } from "react";
-import { rowToEvent, rowToTable, rowToZone } from "@/lib/club/mappers";
-import type { BookingStatus, Club, ClubEvent, EventZone } from "@/lib/club/types";
+import { rowToEvent, rowToTable, rowToZone, publicName, sharePayers } from "@/lib/club/mappers";
+import type { BookingStatus, Club, ClubConditions, ClubEvent, EventZone, SharePayer } from "@/lib/club/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -117,6 +117,13 @@ export type BookingTicket = {
   paidAt: string | null;
   refundedAt: string | null;
   cancelledAt: string | null;
+  shared: boolean;
+  shareToken: string | null;
+  paidCents: number;
+  remainingCents: number;
+  /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page. */
+  pendingPaymentId: string | null;
+  payers: SharePayer[];
   table: { label: string; seats: number; zone: string; inclus: string | null };
   event: ClubEvent;
   club: {
@@ -137,7 +144,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider)"
+      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
@@ -156,6 +163,14 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     paidAt: data.paid_at,
     refundedAt: data.refunded_at,
     cancelledAt: data.cancelled_at,
+    shared: data.shared,
+    shareToken: data.share_token,
+    paidCents: data.paid_cents,
+    remainingCents: data.price_cents - data.paid_cents,
+    pendingPaymentId:
+      data.club_payments.find((payment) => payment.organiser && payment.status === "en_attente")?.id ??
+      null,
+    payers: sharePayers(data.club_payments),
     table: {
       label: data.club_tables.label,
       seats: data.club_tables.seats,
@@ -168,6 +183,87 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
       name: data.etablissements.name,
       address: data.etablissements.address,
       paymentProvider: data.etablissements.payment_provider ?? "stripe",
+    },
+  };
+}
+
+export type ShareTable = {
+  shareToken: string;
+  organiser: string;
+  status: BookingStatus;
+  partySize: number;
+  priceCents: number;
+  paidCents: number;
+  feePercent: number;
+  payers: SharePayer[];
+  /** Ce qui reste, places encore libres pour une part, et la plus petite part possible. */
+  remainingCents: number;
+  seatsLeft: number;
+  minimumCents: number;
+  /** Les amis peuvent payer : table confirmée, soirée ni annulée ni commencée. */
+  open: boolean;
+  table: { label: string; seats: number; zone: string; inclus: string | null };
+  event: ClubEvent;
+  club: {
+    slug: string;
+    name: string;
+    address: string | null;
+    paymentProvider: Club["paymentProvider"];
+    conditions: ClubConditions;
+  };
+};
+
+/**
+ * Une table partagée, par le lien que l'organisateur envoie à ses amis.
+ * Lue au serveur sans RLS : la clé fait office d'accès ; des autres payeurs
+ * ne sortent que le prénom et l'initiale.
+ */
+export async function fetchShareByToken(shareToken: string): Promise<ShareTable | null> {
+  if (!/^[0-9a-f]{24}$/.test(shareToken)) return null;
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("club_bookings")
+    .select(
+      "id, status, name, party_size, price_cents, paid_cents, share_token, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, table_fee_percent, club_min_age, club_dress_code, club_refused), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
+    )
+    .eq("share_token", shareToken)
+    .maybeSingle();
+  if (!data?.share_token || !data.club_tables?.club_zones || !data.club_events || !data.etablissements) {
+    return null;
+  }
+  const { data: state } = await admin.rpc("club_partage_etat", { p_booking: data.id });
+  const now = Date.now();
+  const event = rowToEvent(data.club_events);
+  const etab = data.etablissements;
+  return {
+    shareToken: data.share_token,
+    organiser: publicName(data.name),
+    status: data.status,
+    partySize: data.party_size,
+    priceCents: data.price_cents,
+    paidCents: data.paid_cents,
+    feePercent: Number(etab.table_fee_percent),
+    payers: sharePayers(data.club_payments),
+    remainingCents: state?.[0]?.remaining_cents ?? 0,
+    seatsLeft: state?.[0]?.seats_left ?? 0,
+    minimumCents: state?.[0]?.minimum_cents ?? 0,
+    open:
+      (data.status === "payee" || data.status === "arrivee") &&
+      !event.cancelledAt &&
+      Date.parse(event.startsAt) > now,
+    table: {
+      label: data.club_tables.label,
+      seats: data.club_tables.seats,
+      zone: data.club_tables.club_zones.name,
+      inclus: data.club_tables.club_zones.inclus,
+    },
+    event,
+    club: {
+      slug: etab.slug,
+      name: etab.name,
+      address: etab.address,
+      paymentProvider: etab.payment_provider ?? "stripe",
+      conditions: { minAge: etab.club_min_age, dress: etab.club_dress_code, refused: etab.club_refused },
     },
   };
 }

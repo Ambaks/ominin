@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEventChanged } from "@/lib/club/mail";
 import { requireClubGerant } from "@/lib/club/server";
-import { bookingMail } from "@/lib/club/settle";
+import { bookingRecipients } from "@/lib/club/settle";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const maxDuration = 60;
@@ -33,8 +33,9 @@ export async function POST(request: Request) {
     .select("id")
     .eq("event_id", eventId)
     .in("status", ["payee", "arrivee"]);
-  const mails = await Promise.all((bookings ?? []).map((booking) => bookingMail(admin, booking.id)));
-  const recipients = mails.filter((mail) => mail !== null);
+  const recipients = (
+    await Promise.all((bookings ?? []).map((booking) => bookingRecipients(admin, booking.id)))
+  ).flat();
   await Promise.all(recipients.map(sendEventChanged));
   return NextResponse.json({ notified: recipients.length });
 }
