@@ -243,6 +243,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   }, []);
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
+  const sidebarItems = showProduits ? [...items, PRODUITS_ITEM] : items;
+  // Même règle à gauche : un seul onglet, la page prend toute la largeur.
+  const sidebar = !state || sidebarItems.length > 1;
   // Visite de la page, pour le gérant (la vue salle d'une tablette
   // verrouillée se présente en serveur : elle n'en voit aucune). Elle s'ouvre
   // d'elle-même au premier passage d'un gérant inscrit, sauf au retour d'un
@@ -418,38 +421,40 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
-          <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
-            <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
-              {(showProduits ? [...items, PRODUITS_ITEM] : items).map((item) => {
-                const active = isActive(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                      active
-                        ? "border border-hairline bg-surface text-foreground"
-                        : "text-muted hover:text-foreground"
-                    }`}
-                  >
-                    <item.icon
-                      className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                    />
-                    {item.label}
-                    {(badges[item.href] ?? 0) > 0 && (
-                      <span
-                        title={badgeHints[item.href]}
-                        className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
-                      >
-                        {badges[item.href]}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </aside>
+          {sidebar && (
+            <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
+              <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
+                {sidebarItems.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                        active
+                          ? "border border-hairline bg-surface text-foreground"
+                          : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      <item.icon
+                        className={`size-4.5 ${active ? "text-ember-1" : ""}`}
+                      />
+                      {item.label}
+                      {(badges[item.href] ?? 0) > 0 && (
+                        <span
+                          title={badgeHints[item.href]}
+                          className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
+                        >
+                          {badges[item.href]}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </aside>
+          )}
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
             {!state ? (

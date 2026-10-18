@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { CSSProperties } from "react";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
+import { MagneticLink } from "@/components/club/magnetic-link";
 import { Poster } from "@/components/club/poster";
 import { Reveal } from "@/components/club/reveal";
+import { Spotlight } from "@/components/club/spotlight";
 import { CLUB_TIMING } from "@/components/club/timing";
-import { EtoileMark } from "@/components/menu/etoile/logo";
-import { formatHours, formatNight } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
 import { clubHref } from "@/lib/club/links";
-import { fetchClub, fetchUpcomingEvents } from "@/lib/club/public";
+import { nightSummary } from "@/lib/club/pricing";
+import { fetchAvailability, fetchClub, fetchUpcomingEvents } from "@/lib/club/public";
 
-/* Une soirée publiée ou annulée par le club se voit dès le rechargement. */
+/* Une soirée publiée ou annulée, une table réservée : visibles dès le rechargement. */
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
@@ -23,156 +26,152 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return { title, description, openGraph: { title, description } };
 }
 
-const steps = (wallets: boolean) => [
-  {
-    title: "Choisissez votre table",
-    text: "Sur le plan du club, en direct : vous voyez celles qui restent, leur prix et ce qu'elles comprennent.",
-  },
-  {
-    title: "Réglez en ligne",
-    text: `Le total, frais compris, s'affiche avant toute saisie.${wallets ? " Apple Pay, Google Pay ou carte bancaire." : ""}`,
-  },
-  {
-    title: "Présentez votre QR code",
-    text: "Il arrive avec votre confirmation. À l'entrée, il suffit de le montrer.",
-  },
-];
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export default async function ClubPage({ params }: { params: Params }) {
   const { slug } = await params;
   const club = await fetchClub(slug);
   if (!club) notFound();
   const events = await fetchUpcomingEvents(club.id);
-  const { conditions } = club;
   const next = events.find((event) => !event.cancelledAt);
+  const summary = next ? nightSummary(club, await fetchAvailability(club, next.id)) : null;
+  const later = events.filter((event) => event.id !== next?.id);
+  const { conditions } = club;
+  const wallets = club.paymentProvider === "stripe";
+  const nextHref = next ? clubHref(`/${slug}/${next.slug}`) : null;
 
   return (
-    <main className="club-page">
-      <ClubTop slug={slug} name={club.name} />
+    <main className="club-page club-home">
+      <ClubTop slug={slug} name={club.name} tagline={club.tagline} />
 
-      <section className="club-hero" data-chapter>
-        <div className="club-hero-glow" aria-hidden />
-        <span className="club-hero-star">
-          <EtoileMark className="club-hero-mark" />
-        </span>
-        <h1 className="club-wordmark" aria-label={club.name}>
-          {[...club.name].map((char, index) => (
-            <span key={index} aria-hidden style={{ "--i": index } as React.CSSProperties}>
-              {char}
-            </span>
-          ))}
-        </h1>
-        {club.tagline && <p className="club-hero-tagline">{club.tagline}</p>}
-        {club.address && <p className="club-hero-address">{club.address}</p>}
-        {next ? (
-          <div className="club-hero-next">
-            <p className="club-hero-next-label">
-              Prochaine soirée · <span>{formatNight(next.startsAt)}</span>
+      {next && nextHref && summary ? (
+        <section className="club-feature" data-chapter aria-labelledby="prochaine-titre">
+          <Link href={nextHref} className="club-feature-poster" tabIndex={-1} aria-hidden>
+            <Poster event={next} clubName={club.name} sizes="(min-width: 1024px) 520px, 100vw" />
+          </Link>
+          <div className="club-feature-info">
+            <p className="club-date-chip">
+              <span className="club-live-dot" aria-hidden />
+              {capitalize(formatNight(next.startsAt))} · <span className="club-mono">{formatHours(next.startsAt, next.endsAt)}</span>
             </p>
-            <p className="club-hero-next-title">{next.title}</p>
-            <div className="club-hero-actions">
-              <Link href={`${clubHref(`/${slug}/${next.slug}`)}#plan`} className="club-button club-button-primary">
+            <h1 id="prochaine-titre" className="club-h1">
+              {next.title}
+            </h1>
+            {next.description && <p className="club-lead">{next.description}</p>}
+            {summary.fromCents !== null && (
+              <p className="club-from">
+                Tables dès <strong className="club-mono">{formatCents(summary.fromCents)}</strong>, frais compris
+              </p>
+            )}
+            {summary.total > 0 && (
+              <div className="club-meter" aria-label={`${summary.reserved} tables réservées sur ${summary.total}`}>
+                <p>
+                  <span className="club-mono">
+                    {summary.reserved} / {summary.total}
+                  </span>{" "}
+                  tables réservées
+                </p>
+                <span
+                  className="club-meter-bar"
+                  style={{ "--fill": summary.reserved / summary.total } as CSSProperties}
+                  aria-hidden
+                />
+              </div>
+            )}
+            <div className="club-feature-actions">
+              <MagneticLink href={`${nextHref}#plan`} className="club-button club-button-primary">
                 Choisir ma table
-              </Link>
-              <a href="#soirees" className="club-button club-button-ghost">
-                Toutes les soirées
-              </a>
+              </MagneticLink>
+              {next.ticketUrl && (
+                <a href={next.ticketUrl} target="_blank" rel="noopener noreferrer" className="club-button club-button-ghost">
+                  Billets d&rsquo;entrée (sans table)
+                  <span className="sr-only"> (nouvel onglet)</span>
+                </a>
+              )}
             </div>
           </div>
-        ) : (
-          <a href="#soirees" className="club-button club-button-ghost club-hero-cta">
-            Voir les soirées
-          </a>
-        )}
-      </section>
-
-      <section id="soirees" className="club-section" data-chapter aria-labelledby="soirees-titre">
-        <header className="club-section-head">
-          <p className="club-eyebrow">Programme</p>
-          <h2 id="soirees-titre" className="club-h2">
-            Prochaines soirées
-          </h2>
-        </header>
-        {events.length === 0 ? (
+          <div className="club-dock">
+            <Link href={`${nextHref}#plan`} className="club-button club-button-primary club-button-block">
+              Choisir ma table · {formatNightShort(next.startsAt)}
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <section className="club-section" data-chapter>
+          <h1 className="club-h1">{club.name}</h1>
           <p className="club-empty">Le programme des prochaines soirées arrive bientôt.</p>
-        ) : (
-          <ul className="club-nights">
-            {events.map((event, index) => {
-              const href = clubHref(`/${slug}/${event.slug}`);
-              const cancelled = Boolean(event.cancelledAt);
-              return (
-                <Reveal as="li" key={event.id} delay={index * CLUB_TIMING.stagger} className="club-night">
-                  <Link href={href} className="club-night-poster" tabIndex={-1} aria-hidden>
-                    <Poster
-                      event={event}
-                      clubName={club.name}
-                      sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 92vw"
-                    />
-                  </Link>
-                  <div className="club-night-body">
-                    <p className="club-night-date">
-                      {formatNight(event.startsAt)}
-                      <span aria-hidden> · </span>
-                      <span className="club-nums">{formatHours(event.startsAt, event.endsAt)}</span>
-                    </p>
-                    <h3 className="club-night-title">
-                      <Link href={href}>{event.title}</Link>
-                    </h3>
-                    {event.tag && event.tag !== event.title && <p className="club-tag">{event.tag}</p>}
-                    {cancelled ? (
-                      <p className="club-night-cancelled">Soirée annulée</p>
-                    ) : (
-                      <div className="club-night-actions">
-                        <Link href={href} className="club-button club-button-primary">
-                          Réserver une table
-                        </Link>
-                        {event.ticketUrl && (
-                          <a
-                            href={event.ticketUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="club-button club-button-ghost"
-                          >
-                            Billets
-                            <span className="sr-only"> (nouvel onglet)</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </Reveal>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+        </section>
+      )}
+
+      {later.length > 0 && (
+        <section className="club-section club-later" data-chapter aria-labelledby="soirees-titre">
+          <header className="club-section-row">
+            <h2 id="soirees-titre" className="club-h2">
+              Les soirées suivantes
+            </h2>
+            <p className="club-section-note">Faites glisser</p>
+          </header>
+          <Spotlight className="club-rail">
+            <ul className="club-rail-list">
+              {later.map((event, index) => {
+                const href = clubHref(`/${slug}/${event.slug}`);
+                const cancelled = Boolean(event.cancelledAt);
+                return (
+                  <Reveal as="li" key={event.id} delay={index * CLUB_TIMING.stagger} className="club-card">
+                    <Link href={href} className="club-card-link" data-spotlight>
+                      <Poster event={event} clubName={club.name} sizes="(min-width: 1024px) 300px, 72vw" />
+                      <span className="club-card-body">
+                        <span className="club-card-date">{capitalize(formatNight(event.startsAt))}</span>
+                        <span className="club-card-title">{event.title}</span>
+                        <span className="club-card-meta">
+                          {cancelled ? (
+                            <span className="club-card-cancelled">Soirée annulée</span>
+                          ) : (
+                            <>
+                              <span className="club-mono">{formatHours(event.startsAt, event.endsAt)}</span>
+                              {event.tag && event.tag !== event.title && <span className="club-pill-tag">{event.tag}</span>}
+                            </>
+                          )}
+                        </span>
+                      </span>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </ul>
+          </Spotlight>
+        </section>
+      )}
 
       <section className="club-section" data-chapter aria-labelledby="comment-titre">
-        <header className="club-section-head">
-          <p className="club-eyebrow">Réserver une table</p>
-          <h2 id="comment-titre" className="club-h2">
-            En trois temps
-          </h2>
-        </header>
+        <h2 id="comment-titre" className="club-h2">
+          Votre table en trois gestes
+        </h2>
         <ol className="club-steps">
-          {steps(club.paymentProvider === "stripe").map((step, index) => (
-            <Reveal as="li" key={step.title} delay={index * CLUB_TIMING.stagger} className="club-step">
-              <span className="club-step-num" aria-hidden>
-                {["I", "II", "III"][index]}
-              </span>
-              <h3 className="club-step-title">{step.title}</h3>
-              <p className="club-step-text">{step.text}</p>
-            </Reveal>
-          ))}
+          <Reveal as="li" className="club-step-card">
+            <span className="club-step-num club-mono">01</span>
+            <h3>Choisissez la table</h3>
+            <p>Sur le plan du club, en direct : celles qui restent, ce qu&rsquo;elles comprennent, leur prix.</p>
+          </Reveal>
+          <Reveal as="li" delay={CLUB_TIMING.stagger} className="club-step-card">
+            <span className="club-step-num club-mono">02</span>
+            <h3>Réglez en ligne</h3>
+            <p>
+              Le total, frais compris, s&rsquo;affiche avant toute saisie.
+              {wallets ? " Apple Pay, Google Pay ou carte." : ""}
+            </p>
+          </Reveal>
+          <Reveal as="li" delay={CLUB_TIMING.stagger * 2} className="club-step-card">
+            <span className="club-step-num club-mono">03</span>
+            <h3>Montrez votre QR code</h3>
+            <p>Il arrive avec votre confirmation. À l&rsquo;entrée, il suffit de le présenter.</p>
+          </Reveal>
         </ol>
-        <Reveal className="club-door">
-          <p className="club-eyebrow">À l&rsquo;entrée</p>
-          <ul className="club-chips">
-            <li>{conditions.minAge} ans et plus</li>
-            {conditions.dress && <li>{conditions.dress}</li>}
-            {conditions.refused && <li>{conditions.refused}</li>}
-          </ul>
-        </Reveal>
+        <ul className="club-chips club-door-chips" aria-label="Conditions d'entrée">
+          <li>{conditions.minAge} ans et plus</li>
+          {conditions.dress && <li>{conditions.dress}</li>}
+          {conditions.refused && <li>{conditions.refused}</li>}
+        </ul>
       </section>
 
       <ClubFooter name={club.name} address={club.address} phone={club.phone} />

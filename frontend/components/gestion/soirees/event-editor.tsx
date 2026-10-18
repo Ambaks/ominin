@@ -116,15 +116,77 @@ function autoSlug(title: string, date: string): string {
   return slugify(title, day);
 }
 
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+/** Les sections de l'éditeur, dans l'ordre de la page et du sommaire. */
+const SECTIONS = [
+  { id: "infos", label: "Infos" },
+  { id: "affiche", label: "Affiche & billets" },
+  { id: "zones", label: "Zones & prix" },
+  { id: "gardees", label: "Tables gardées" },
+  { id: "invites", label: "Liste d'invités" },
+] as const;
+
+type SectionId = (typeof SECTIONS)[number]["id"];
+
+/** Une section repliable (utile sur un téléphone), ancrée pour le sommaire. */
+function Section({
+  id,
+  title,
+  hint,
+  children,
+}: {
+  id: SectionId;
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
-      <div>
-        <h2 className="font-display text-lg font-medium">{title}</h2>
-        {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
-      </div>
-      {children}
-    </section>
+    <details
+      id={id}
+      open
+      className="group scroll-mt-[calc(var(--gestion-entete,0px)+4.5rem)] rounded-2xl border border-hairline bg-surface"
+    >
+      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 p-5 [&::-webkit-details-marker]:hidden">
+        <span>
+          <h2 className="font-display text-lg font-medium">{title}</h2>
+          {hint && <span className="mt-1 block text-sm text-muted">{hint}</span>}
+        </span>
+        <svg viewBox="0 0 24 24" className="mt-1 size-5 shrink-0 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <div className="flex flex-col gap-4 px-5 pb-5">{children}</div>
+    </details>
+  );
+}
+
+/** Sommaire collé sous l'en-tête : une section se rejoint (et se déplie) d'un geste. */
+function SectionNav({ available }: { available: SectionId[] }) {
+  const go = (id: SectionId) => {
+    const target = document.getElementById(id);
+    if (!(target instanceof HTMLDetailsElement)) return;
+    target.open = true;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" });
+  };
+  return (
+    <nav
+      aria-label="Sections de la soirée"
+      className="no-scrollbar sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 flex gap-1.5 overflow-x-auto bg-background/90 px-5 py-2 backdrop-blur-md lg:mx-0 lg:px-0"
+    >
+      {SECTIONS.filter((section) => available.includes(section.id)).map((section) => (
+        <a
+          key={section.id}
+          href={`#${section.id}`}
+          onClick={(event) => {
+            event.preventDefault();
+            go(section.id);
+          }}
+          className="flex min-h-10 shrink-0 items-center rounded-full border border-hairline px-3.5 text-sm font-medium text-muted hover:text-foreground"
+        >
+          {section.label}
+        </a>
+      ))}
+    </nav>
   );
 }
 
@@ -339,7 +401,7 @@ export function EventEditor({
   const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
 
   return (
-    <div className="soirees flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-20">
       <div className="flex flex-col gap-3">
         <BackToSoirees />
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -382,7 +444,9 @@ export function EventEditor({
         </div>
       </div>
 
-      <Section title="La soirée">
+      <SectionNav available={SECTIONS.map((section) => section.id).filter((id) => id !== "gardees" || Boolean(planZone))} />
+
+      <Section id="infos" title="La soirée">
         <Field label="Titre" required error={shownError("title")}>
           <input
             value={draft.title}
@@ -475,7 +539,7 @@ export function EventEditor({
         </Field>
       </Section>
 
-      <Section title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
+      <Section id="affiche" title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
         <div className="flex flex-wrap items-center gap-4">
           {draft.posterUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
@@ -529,6 +593,7 @@ export function EventEditor({
       </Section>
 
       <Section
+        id="zones"
         title="Tables en vente"
         hint="Les zones ouvertes ce soir et leur prix. Vide, le prix est celui de la zone."
       >
@@ -577,39 +642,38 @@ export function EventEditor({
           </p>
         )}
 
-        {planZone && (
-          <div className="flex flex-col gap-3 border-t border-hairline pt-4">
-            <div>
-              <h3 className="font-display text-base font-medium">Tables gardées</h3>
-              <p className="mt-1 text-sm text-muted">
-                Touchez une table pour la garder hors vente ce soir — artiste, habitués. Vous pourrez
-                toujours la réserver vous-même.
-              </p>
-            </div>
-            {zonesOn.length > 1 && (
-              <PillTabs
-                tabs={zonesOn.map((zone) => ({ id: zone.id, label: zone.name, count: blockedIn(zone.id) }))}
-                activeId={planZone.id}
-                onSelect={setPlanZoneId}
-              />
-            )}
-            <NightPlan
-              zone={planZone}
-              tables={planTables}
-              states={planStates}
-              onSelect={(table) => toggleBlocked(table.id)}
-              describe={(table, state) =>
-                `Table ${table.label}, ${table.seats} places, ${
-                  state === "libre" ? "en vente" : (TABLE_STATE_LABELS[state] ?? state).toLowerCase()
-                }`
-              }
-            />
-            <PlanLegend states={["libre", "gardee", "payee", "attente"]} />
-          </div>
-        )}
       </Section>
 
-      <Section title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
+      {planZone && (
+        <Section
+          id="gardees"
+          title="Tables gardées"
+          hint="Touchez une table pour la garder hors vente ce soir — artiste, habitués. Vous pourrez toujours la réserver vous-même."
+        >
+          {zonesOn.length > 1 && (
+            <PillTabs
+              tabs={zonesOn.map((zone) => ({ id: zone.id, label: zone.name, count: blockedIn(zone.id) }))}
+              activeId={planZone.id}
+              onSelect={setPlanZoneId}
+            />
+          )}
+          <NightPlan
+            key={planZone.id}
+            zone={planZone}
+            tables={planTables}
+            states={planStates}
+            onSelect={(table) => toggleBlocked(table.id)}
+            describe={(table, state) =>
+              `Table ${table.label}, ${table.seats} places, ${
+                state === "libre" ? "en vente" : (TABLE_STATE_LABELS[state] ?? state).toLowerCase()
+              }`
+            }
+          />
+          <PlanLegend states={["libre", "gardee", "payee", "attente"]} />
+        </Section>
+      )}
+
+      <Section id="invites" title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-medium">Inscriptions ouvertes</p>
           <Toggle
@@ -704,28 +768,30 @@ export function EventEditor({
         </section>
       )}
 
-      <div className="sticky bottom-[var(--gestion-barre-bas,5rem)] z-30 flex flex-wrap items-center justify-end gap-3 rounded-2xl border border-hairline bg-surface-raised/95 px-4 py-3 shadow-lg shadow-background/60 backdrop-blur-md lg:bottom-6">
-        <p className="mr-auto text-xs text-muted" aria-live="polite">
-          {dirty ? "Modifications non enregistrées" : event ? "Tout est enregistré" : ""}
-        </p>
-        {event && !event.cancelledAt && (
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-end gap-3 px-5 py-3 lg:max-w-5xl lg:px-10">
+          <p className="mr-auto text-xs text-muted" aria-live="polite">
+            {dirty ? "Modifications non enregistrées" : event ? "Tout est enregistré" : ""}
+          </p>
+          {event && !event.cancelledAt && (
+            <button
+              type="button"
+              onClick={() => void save(!event.published)}
+              disabled={saving}
+              className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            >
+              {event.published ? "Dépublier" : "Publier"}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => void save(!event.published)}
-            disabled={saving}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            onClick={() => void save()}
+            disabled={saving || (event !== null && !dirty)}
+            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
           >
-            {event.published ? "Dépublier" : "Publier"}
+            {saving ? "Enregistrement…" : event ? "Enregistrer" : "Créer la soirée"}
           </button>
-        )}
-        <button
-          type="button"
-          onClick={() => void save()}
-          disabled={saving || (event !== null && !dirty)}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
-        >
-          {saving ? "Enregistrement…" : event ? "Enregistrer" : "Créer la soirée"}
-        </button>
+        </div>
       </div>
 
       {confirmCancel && event && (

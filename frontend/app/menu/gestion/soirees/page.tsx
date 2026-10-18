@@ -194,7 +194,7 @@ export default function SoireesPage() {
   }
 
   return (
-    <div className="soirees flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">Soirées</h1>

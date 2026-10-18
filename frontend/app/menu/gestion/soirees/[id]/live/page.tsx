@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { BookingSheet } from "@/components/gestion/soirees/booking-sheet";
-import { BookingsList, type HeldTable } from "@/components/gestion/soirees/bookings-list";
 import {
   BackToSoirees,
   ClubLoadError,
@@ -13,13 +12,15 @@ import {
   ClubSkeleton,
   NightNotFound,
 } from "@/components/gestion/soirees/club-states";
+import { DoorList, type HeldTable } from "@/components/gestion/soirees/door-list";
 import { GuestList } from "@/components/gestion/soirees/guest-list";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
-import type { ClubTable } from "@/lib/club/types";
+import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
+import type { ClubBooking, ClubTable } from "@/lib/club/types";
 import {
   bookingsByTable,
   isSold,
@@ -44,23 +45,76 @@ import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useNow } from "@/lib/gestion/use-now";
 
 /*
- * Le plan du soir, à la porte ou au comptoir VIP, sur un téléphone : chaque
- * table dans son état, en direct (une table payée en ligne s'y allume), sa
- * réservation d'un geste, et la liste d'invités. L'équipe pointe les
- * arrivées ; le gérant seul saisit, annule et rembourse.
+ * Le plan du soir. Sur un téléphone, à la porte ou au comptoir VIP : le
+ * plan, la porte (la liste de ceux qu'on attend, en plein écran) et les
+ * invités, un écran à la fois. Sur un grand écran : le plan à gauche, la
+ * porte à droite. Tout bouge en direct ; une table payée en ligne s'allume.
+ * L'équipe fait entrer ; le gérant seul saisit, annule et rembourse.
  */
 
-type View = "plan" | "liste" | "invites";
+type View = "plan" | "porte" | "invites";
 
 const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "prise", "gardee"];
 
+/** Le seuil lg de Tailwind : deux colonnes au-delà. */
+const WIDE = "(min-width: 64rem)";
+
+function subscribeWide(callback: () => void) {
+  const query = window.matchMedia(WIDE);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+const useWide = () =>
+  useSyncExternalStore(subscribeWide, () => window.matchMedia(WIDE).matches, () => false);
+
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="w-36 shrink-0 snap-start rounded-2xl border border-hairline bg-surface px-3.5 py-2.5 sm:w-auto sm:px-4 sm:py-3">
-      <dt className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</dt>
-      <dd className="mt-0.5 truncate font-display text-lg font-medium tabular-nums sm:text-xl">{value}</dd>
+    <div className="min-w-0 rounded-2xl border border-hairline bg-surface px-4 py-3">
+      <dt className="truncate text-[11px] font-medium text-muted">{label}</dt>
+      <dd className="mt-0.5 truncate text-2xl font-semibold tabular-nums">{value}</dd>
       {hint && <dd className="truncate text-[11px] text-muted">{hint}</dd>}
     </div>
+  );
+}
+
+/** Sous le plan d'un téléphone : les tables de la zone en pastilles, à toucher sans viser. */
+function ZoneTables({
+  tables,
+  states,
+  byTable,
+  onSelect,
+}: {
+  tables: ClubTable[];
+  states: Record<string, TableState>;
+  byTable: Map<string, ClubBooking>;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+      {tables.map((table) => {
+        const booking = byTable.get(table.id);
+        const state = states[table.id];
+        return (
+          <li key={table.id}>
+            <button
+              type="button"
+              onClick={() => onSelect(table.id)}
+              aria-label={`Table ${table.label}, ${TABLE_STATE_LABELS[state]?.toLowerCase()}${booking ? `, ${booking.name}` : ""}`}
+              className="flex min-h-12 w-full items-center gap-2 rounded-xl border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-ember-2/40"
+            >
+              <span className="plan-legende" data-state={state} aria-hidden />
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold tabular-nums">{table.label}</span>
+                <span className="block truncate text-[11px] text-muted">
+                  {booking ? booking.name : TABLE_STATE_LABELS[state]}
+                </span>
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -72,9 +126,11 @@ export default function LivePage() {
   const error = useClubLoadError();
   const live = useClubRealtime();
   const toast = useToast();
+  const wide = useWide();
   const now = useNow(WAIT_TICK_MS).getTime();
   useClubNights([id]);
   const [view, setView] = useState<View>("plan");
+  const [side, setSide] = useState<"porte" | "invites">("porte");
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -101,11 +157,11 @@ export default function LivePage() {
 
   if (!state) return null;
   if (!hasFeature("soirees")) return <ClubLocked />;
-  if (!club) return error ? <ClubLoadError message={error} /> : <ClubSkeleton />;
+  if (!club) return error ? <ClubLoadError message={error} /> : <ClubSkeleton variant="soiree" />;
   const event = club.events.find((candidate) => candidate.id === id);
   if (!event) return <NightNotFound />;
   const night = club.nights[event.id];
-  if (!night) return error ? <ClubLoadError message={error} /> : <ClubSkeleton />;
+  if (!night) return error ? <ClubLoadError message={error} /> : <ClubSkeleton variant="soiree" />;
 
   const gerant = can("soirees.edit");
   const tonight = isTonight(event, now);
@@ -132,7 +188,6 @@ export default function LivePage() {
       return table ? [{ id: arrival.booking.id, table }] : [];
     });
   const zoneName = new Map(club.zones.map((candidate) => [candidate.id, candidate.name]));
-  const zoneSort = new Map(club.zones.map((candidate) => [candidate.id, candidate.sort]));
   const tableById = new Map(club.tables.map((table) => [table.id, table]));
 
   const describe = (table: ClubTable, tableState: TableState) => {
@@ -147,50 +202,71 @@ export default function LivePage() {
       .join(", ");
   };
 
-  const held: HeldTable[] = [...byTable.values()]
-    .flatMap((booking) => {
-      const table = tableById.get(booking.tableId);
-      return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "" }] : [];
-    })
-    .sort(
-      (a, b) =>
-        (zoneSort.get(a.table.zoneId) ?? 0) - (zoneSort.get(b.table.zoneId) ?? 0) ||
-        a.table.label.localeCompare(b.table.label, "fr", { numeric: true })
-    );
+  const held: HeldTable[] = [...byTable.values()].flatMap((booking) => {
+    const table = tableById.get(booking.tableId);
+    return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "" }] : [];
+  });
+  const expected = held.filter(({ booking }) => booking.status !== "arrivee" && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
   const guestList = event.guestListOpen || night.guests.length > 0;
-  const views = [
-    { id: "plan", label: "Plan" },
-    { id: "liste", label: "Liste", count: held.length },
-    ...(guestList ? [{ id: "invites", label: "Invités", count: stats.guests }] : []),
-  ];
 
   const selected = selectedId ? tableById.get(selectedId) : undefined;
   const selectedZone = selected ? club.zones.find((candidate) => candidate.id === selected.zoneId) : undefined;
-  const expected = stats.sold - stats.arrived;
+
+  const plan = zone ? (
+    <div className="flex flex-col gap-3">
+      {zones.length > 1 && (
+        <PillTabs
+          tabs={zones.map((candidate) => ({
+            id: candidate.id,
+            label: candidate.name,
+            count: club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length,
+          }))}
+          activeId={zone.id}
+          onSelect={setZoneId}
+        />
+      )}
+      <NightPlan
+        key={zone.id}
+        zone={zone}
+        tables={zoneTables}
+        states={states}
+        selectedId={selectedId}
+        onSelect={(table) => setSelectedId(table.id)}
+        describe={describe}
+        pings={pings}
+        onPingEnd={acknowledgeArrival}
+      />
+      <PlanLegend states={LEGEND} />
+      {!wide && <ZoneTables tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
+    </div>
+  ) : (
+    <EmptyState
+      title="Aucune zone en vente"
+      body={gerant ? "Ouvrez au moins une zone dans la soirée pour vendre ses tables." : "Aucune table n'est en vente ce soir."}
+    />
+  );
+
+  const guests = <GuestList event={event} guests={night.guests} />;
 
   return (
-    <div className="soirees flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4 lg:gap-5">
+      <div className="flex flex-col gap-1">
         <BackToSoirees />
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-xl font-medium tracking-tight sm:text-2xl lg:text-3xl">
-              {event.title}
-            </h1>
-            <p className="mt-0.5 text-sm text-muted first-letter:uppercase">
-              {formatNight(event.startsAt)} · {formatHours(event.startsAt, event.endsAt)}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
+            <h1 className="truncate font-display text-2xl font-medium">{event.title}</h1>
+            <p className="text-sm text-muted first-letter:uppercase">
+              {formatNightShort(event.startsAt)} · {formatHours(event.startsAt, event.endsAt)}
             </p>
           </div>
           <div className="flex items-center gap-3">
             {live !== null && (
               <span
-                className={`flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider ${
-                  live ? "text-muted" : "text-ember-3"
-                }`}
+                className={`flex items-center gap-1.5 text-xs font-medium ${live ? "text-muted" : "text-ember-3"}`}
               >
                 <span
-                  className={`size-1.5 rounded-full ${live ? "animate-pulse bg-ember-2" : "bg-ember-3"}`}
+                  className={`size-1.5 rounded-full ${live ? "animate-pulse bg-[var(--soirees-ok)]" : "bg-ember-3"}`}
                   aria-hidden
                 />
                 {live ? "En direct" : "Reconnexion…"}
@@ -199,7 +275,7 @@ export default function LivePage() {
             {gerant && (
               <Link
                 href={`/gestion/soirees/${event.id}`}
-                className="flex min-h-11 items-center rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
+                className="flex min-h-11 items-center rounded-full border border-hairline px-4 text-sm font-medium text-muted hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
               >
                 Modifier
               </Link>
@@ -236,66 +312,88 @@ export default function LivePage() {
         </p>
       )}
 
-      {/* Sur un téléphone, les deux chiffres de la porte d'abord, le reste au doigt. */}
-      <dl className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+      <dl className={`grid grid-cols-2 gap-3 ${gerant ? "lg:grid-cols-4" : ""}`}>
         <Stat
           label="Arrivées"
           value={`${stats.arrived} / ${stats.sold}`}
           hint={expected > 0 ? `${expected} attendue${expected > 1 ? "s" : ""}` : undefined}
         />
-        {gerant && <Stat label="À encaisser" value={formatCents(stats.toCollect)} hint="Sur place" />}
         <Stat label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
         {gerant && (
           <>
-            <Stat label="Encaissé en ligne" value={formatCents(stats.online)} />
-            <Stat label="Encaissé sur place" value={formatCents(stats.onSite)} />
-            <Stat label="Frais Ominin" value={formatCents(stats.fees)} hint="Payés par les clients" />
+            <Stat label="À encaisser" value={formatCents(stats.toCollect)} hint="Sur place" />
+            <Stat
+              label="Encaissé"
+              value={formatCents(stats.online + stats.onSite)}
+              hint={`${formatCents(stats.online)} en ligne · frais Ominin ${formatCents(stats.fees)}`}
+            />
           </>
         )}
       </dl>
 
-      <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md lg:mx-0 lg:px-0">
-        <PillTabs tabs={views} activeId={view} onSelect={(next) => setView(next as View)} />
-      </div>
-
-      {view === "plan" &&
-        (zone ? (
-          <div className="flex flex-col gap-4">
-            {zones.length > 1 && (
+      {wide ? (
+        <div className="grid grid-cols-[minmax(0,1fr)_24rem] items-start gap-6">
+          {plan}
+          <div className="sticky top-[calc(var(--gestion-entete,0px)+1rem)] flex max-h-[calc(100dvh-var(--gestion-entete,0px)-2rem)] flex-col gap-3 overflow-y-auto overscroll-contain rounded-2xl">
+            {guestList && (
               <PillTabs
-                tabs={zones.map((candidate) => ({
-                  id: candidate.id,
-                  label: candidate.name,
-                  count: club.tables.filter(
-                    (table) => table.zoneId === candidate.id && byTable.has(table.id)
-                  ).length,
-                }))}
-                activeId={zone.id}
-                onSelect={setZoneId}
+                tabs={[
+                  { id: "porte", label: "Porte", count: expected },
+                  { id: "invites", label: "Invités", count: stats.guests },
+                ]}
+                activeId={side}
+                onSelect={(next) => setSide(next as "porte" | "invites")}
               />
             )}
-            <NightPlan
-              zone={zone}
-              tables={zoneTables}
-              states={states}
-              selectedId={selectedId}
-              onSelect={(table) => setSelectedId(table.id)}
-              describe={describe}
-              pings={pings}
-              onPingEnd={acknowledgeArrival}
-            />
-            <PlanLegend states={LEGEND} />
+            {side === "porte" || !guestList ? <DoorList held={held} onOpen={setSelectedId} /> : guests}
           </div>
-        ) : (
-          <EmptyState
-            title="Aucune zone en vente"
-            body={gerant ? "Ouvrez au moins une zone dans la soirée pour vendre ses tables." : "Aucune table n'est en vente ce soir."}
-          />
-        ))}
-
-      {view === "liste" && <BookingsList held={held} onOpen={setSelectedId} />}
-
-      {view === "invites" && <GuestList event={event} guests={night.guests} />}
+        </div>
+      ) : (
+        <>
+          <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md">
+            <PillTabs
+              tabs={[
+                { id: "plan", label: "Plan" },
+                { id: "porte", label: "Porte", count: expected },
+                ...(guestList ? [{ id: "invites", label: "Invités", count: stats.guests }] : []),
+              ]}
+              activeId={view}
+              onSelect={(next) => setView(next as View)}
+            />
+          </div>
+          {view === "plan" && plan}
+          {view === "invites" && guests}
+          {view === "porte" && (
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Porte · ${event.title}`}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && !e.defaultPrevented) setView("plan");
+              }}
+              className="soirees-entree fixed inset-0 z-50 flex flex-col bg-background"
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-lg font-semibold">Porte · {event.title}</p>
+                  <p className="text-xs text-muted">
+                    <span className="tabular-nums">{expected}</span> attendue{expected > 1 ? "s" : ""} ·{" "}
+                    <span className="tabular-nums">{stats.arrived}</span> arrivée{stats.arrived > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <IconButton aria-label="Fermer la porte" onClick={() => setView("plan")} autoFocus>
+                  <svg viewBox="0 0 24 24" className="size-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </IconButton>
+              </div>
+              <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3">
+                <DoorList held={held} onOpen={setSelectedId} />
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {selected && selectedZone && (
         <BookingSheet

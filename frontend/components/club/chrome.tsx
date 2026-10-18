@@ -4,12 +4,23 @@ import { clubHref } from "@/lib/club/links";
 
 /* L'en-tête et le pied communs aux pages d'un club. */
 
-export function ClubTop({ slug, name, back }: { slug: string; name: string; back?: string }) {
+export function ClubTop({
+  slug,
+  name,
+  tagline,
+  back,
+}: {
+  slug: string;
+  name: string;
+  tagline?: string | null;
+  back?: string;
+}) {
   return (
     <header className="club-top">
       <Link href={clubHref(`/${slug}`)} className="club-top-brand">
         <EtoileMark className="club-top-mark" />
         <span className="club-wordmark-sm">{name}</span>
+        {tagline && <span className="club-top-tagline">{tagline}</span>}
       </Link>
       {back && (
         <Link href={clubHref(`/${slug}`)} className="club-top-back">

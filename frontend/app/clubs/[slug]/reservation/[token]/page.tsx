@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BookingWatch, PaidBurst, ResumePayment } from "@/components/club/booking-live";
+import { BookingWatch, PaidBurst, PassActions, QrZoom, ResumePayment } from "@/components/club/booking-live";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
+import { EtoileMark } from "@/components/menu/etoile/logo";
 import { QrCode } from "@/components/pitch/qr-code";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
 import { bookingPath, clubHref } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
 import { clubSiteUrl } from "@/lib/site";
@@ -98,20 +99,22 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
   }
 }
 
-/* Le parcours de la réservation, étape par étape : où elle en est, sans avoir à demander. */
-function trackOf(view: View, eventCancelled: boolean): { step: string; label: string; done: boolean }[] | null {
+/* Le parcours de la réservation : fait, en cours (il pulse), à venir. */
+type Track = { step: string; label: string; state: "done" | "current" | "next" }[];
+
+function trackOf(view: View, eventCancelled: boolean): Track | null {
   if (view === "remboursee") {
     return [
-      { step: "payee", label: "Payée", done: true },
-      { step: "annulation", label: eventCancelled ? "Soirée annulée" : "Remboursement", done: true },
-      { step: "remboursee", label: "Remboursée", done: true },
+      { step: "payee", label: "Payée", state: "done" },
+      { step: "annulation", label: eventCancelled ? "Soirée annulée" : "Remboursement", state: "done" },
+      { step: "remboursee", label: "Remboursée", state: "done" },
     ];
   }
   if (view !== "attente" && view !== "payee" && view !== "arrivee") return null;
   return [
-    { step: "tenue", label: "Table tenue", done: true },
-    { step: "payee", label: "Payée", done: view !== "attente" },
-    { step: "entree", label: "À l'entrée", done: view === "arrivee" },
+    { step: "tenue", label: "Table tenue", state: "done" },
+    { step: "payee", label: "Payée", state: view === "attente" ? "current" : "done" },
+    { step: "entree", label: "À l'entrée", state: view === "arrivee" ? "done" : view === "payee" ? "current" : "next" },
   ];
 }
 
@@ -122,6 +125,11 @@ async function load(token: string) {
 }
 
 const reference = (token: string) => `${token.slice(0, 4)}-${token.slice(4, 8)}`.toUpperCase();
+
+/* L'itinéraire vers le club : la recherche d'adresse de Google Maps, qui ouvre l'app sur téléphone. */
+const MAPS_SEARCH = "https://www.google.com/maps/search/?api=1&query=";
+
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 export default async function BookingPage({
   params,
@@ -140,31 +148,35 @@ export default async function BookingPage({
   const copy = statusCopy(view, booking, eventCancelled);
   const track = trackOf(view, eventCancelled);
   const { conditions } = club;
-  const holding = view === "attente" || view === "payee" || view === "sur_place";
+  const holding = view === "payee" || view === "sur_place";
+  const passValid = view === "payee" || view === "arrivee";
   const eventHref = clubHref(`/${slug}/${booking.event.slug}`);
-  const night = formatNight(booking.event.startsAt);
+  const url = `${clubSiteUrl}${bookingPath(slug, booking.token)}`;
 
   return (
-    <main className="club-page">
-      <ClubTop slug={slug} name={booking.club.name} />
-      <BookingWatch live={(view === "attente" || view === "payee" || view === "sur_place") && !eventOver} />
+    <main className="club-page club-pass-page">
+      <ClubTop slug={slug} name={club.name} />
+      {/* « En attente » n'est pas relu : le paiement en cours (vérification, expiration) rafraîchit lui-même. */}
+      <BookingWatch live={holding && !eventOver} />
       {query.paye !== undefined && view === "payee" && <PaidBurst />}
 
-      <section className="club-booking-page" data-chapter>
+      <section className="club-pass-layout" data-chapter>
         <header className="club-status" data-view={view}>
           <p className="club-pill">
             <span aria-hidden />
             {copy.pill}
           </p>
           <h1 className="club-h1">{copy.title}</h1>
-          <p className="club-status-text">{copy.text}</p>
+          <p className="club-lead">{copy.text}</p>
           {track && (
             <ol className="club-track" aria-label="Où en est votre réservation">
               {track.map((item) => (
-                <li key={item.step} data-step={item.step} data-done={item.done || undefined}>
+                <li key={item.step} data-step={item.step} data-state={item.state}>
                   <span aria-hidden />
                   {item.label}
-                  <span className="sr-only">{item.done ? " : fait" : " : à venir"}</span>
+                  <span className="sr-only">
+                    {item.state === "done" ? " : fait" : item.state === "current" ? " : en cours" : " : à venir"}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -180,87 +192,94 @@ export default async function BookingPage({
           />
         )}
 
-        <article className="club-ticket" data-view={view}>
-          <header className="club-ticket-head">
-            <p className="club-wordmark-sm">{booking.club.name}</p>
-            <h2 className="club-ticket-title">{booking.event.title}</h2>
-            <p className="club-ticket-date">
-              {night.charAt(0).toUpperCase() + night.slice(1)}
-              <span aria-hidden> · </span>
-              <span className="club-nums">{formatHours(booking.event.startsAt, booking.event.endsAt)}</span>
-            </p>
+        <article className="club-pass" data-view={view} aria-label="Votre réservation">
+          <header className="club-pass-head">
+            <span className="club-pass-brand">
+              <EtoileMark className="club-pass-mark" />
+              <span className="club-wordmark-sm">{club.name}</span>
+            </span>
+            <span className="club-pass-date club-mono">{formatNightShort(booking.event.startsAt)}</span>
           </header>
-
-          {(view === "payee" || view === "arrivee") && (
-            <div className="club-ticket-qr">
-              <div className="club-qr-plate">
-                <QrCode
-                  value={`${clubSiteUrl}${bookingPath(slug, booking.token)}`}
-                  label={`QR code de la réservation, table ${booking.table.label}`}
-                  className="club-qr"
-                />
-              </div>
-              <p className="club-ticket-ref">
-                N° <span className="club-nums">{reference(booking.token)}</span>
-              </p>
+          <div className="club-pass-primary">
+            <p className="club-label">{booking.table.zone}</p>
+            <p className="club-pass-table">
+              Table <span className="club-mono">{booking.table.label}</span>
+            </p>
+          </div>
+          <dl className="club-pass-fields">
+            <div className="club-pass-wide">
+              <dt>Soirée</dt>
+              <dd>{booking.event.title}</dd>
             </div>
-          )}
-
-          <div className="club-ticket-perf" aria-hidden />
-
-          <dl className="club-ticket-grid">
+            <div>
+              <dt>Date</dt>
+              <dd>{capitalize(formatNight(booking.event.startsAt))}</dd>
+            </div>
+            <div>
+              <dt>Horaires</dt>
+              <dd className="club-mono">{formatHours(booking.event.startsAt, booking.event.endsAt)}</dd>
+            </div>
             <div>
               <dt>Au nom de</dt>
               <dd>{booking.name}</dd>
             </div>
             <div>
-              <dt>Table</dt>
-              <dd className="club-nums">{booking.table.label}</dd>
-            </div>
-            <div>
-              <dt>Zone</dt>
-              <dd>{booking.table.zone}</dd>
-            </div>
-            <div>
               <dt>Personnes</dt>
-              <dd className="club-nums">
-                {booking.partySize} sur {booking.table.seats}
+              <dd className="club-mono">
+                {booking.partySize} / {booking.table.seats}
               </dd>
             </div>
             {booking.table.inclus && (
-              <div className="club-ticket-wide">
-                <dt>Ce qui est inclus</dt>
+              <div className="club-pass-wide">
+                <dt>Inclus</dt>
                 <dd>{booking.table.inclus}</dd>
               </div>
             )}
           </dl>
 
-          <dl className="club-lines">
+          {passValid && (
+            <div className="club-pass-qr">
+              <QrZoom label={`QR code de la réservation, table ${booking.table.label}`} arrived={view === "arrivee"}>
+                <QrCode value={url} label={`QR code de la réservation, table ${booking.table.label}`} className="club-qr" />
+              </QrZoom>
+              <p className="club-pass-ref">
+                Code <span className="club-mono">{reference(booking.token)}</span>
+              </p>
+            </div>
+          )}
+
+          <dl className="club-lines club-pass-lines">
             <div>
               <dt>Table</dt>
-              <dd className="club-nums">{formatCents(booking.priceCents)}</dd>
+              <dd className="club-mono">{formatCents(booking.priceCents)}</dd>
             </div>
             <div>
               <dt>Frais de service</dt>
-              <dd className="club-nums">{formatCents(booking.feeCents)}</dd>
+              <dd className="club-mono">{formatCents(booking.feeCents)}</dd>
             </div>
             <div className="club-lines-total">
-              <dt>
-                {view === "payee" || view === "arrivee"
-                  ? "Total payé"
-                  : view === "remboursee"
-                    ? "Total remboursé"
-                    : "Total"}
-              </dt>
-              <dd className="club-nums">{formatCents(booking.totalCents)}</dd>
+              <dt>{passValid ? "Total payé" : view === "remboursee" ? "Total remboursé" : "Total"}</dt>
+              <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
             </div>
           </dl>
         </article>
 
-        <div className="club-ticket-actions">
-          {holding && !eventOver && (
+        <div className="club-pass-actions">
+          {(holding || view === "attente") && !eventOver && (
             <a href={clubHref(`${bookingPath(slug, booking.token)}/agenda`)} className="club-button club-button-ghost">
               Ajouter au calendrier
+            </a>
+          )}
+          {passValid && <PassActions url={url} title={`${booking.event.title} — ${club.name}`} />}
+          {club.address && (
+            <a
+              href={`${MAPS_SEARCH}${encodeURIComponent(club.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="club-button club-button-ghost"
+            >
+              Itinéraire
+              <span className="sr-only"> (nouvel onglet)</span>
             </a>
           )}
           {(view === "expiree" || view === "annulee") && !eventCancelled && !eventOver ? (
@@ -275,7 +294,7 @@ export default async function BookingPage({
         </div>
 
         <aside className="club-door" aria-labelledby="conditions-titre">
-          <h2 id="conditions-titre" className="club-eyebrow">
+          <h2 id="conditions-titre" className="club-label">
             Conditions et contact
           </h2>
           <ul className="club-chips">
@@ -287,7 +306,7 @@ export default async function BookingPage({
           {club.phone && (
             <p className="club-door-text">
               Une question ? Le club au{" "}
-              <a className="club-link club-nums" href={`tel:${club.phone.replace(/\s/g, "")}`}>
+              <a className="club-link club-mono" href={`tel:${club.phone.replace(/\s/g, "")}`}>
                 {club.phone}
               </a>
             </p>

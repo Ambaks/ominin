@@ -1,0 +1,50 @@
+/*
+ * Ominin Club : les jetons communs aux pages publiques (club.css) et à
+ * l'espace de gestion des soirées. Couleurs de la marque, surfaces,
+ * typographie, durées et courbes : un seul endroit à changer.
+ */
+
+.club,
+.club-tokens {
+  /* Nuit */
+  --c-ink: #070a1c;
+  --c-navy: #121731;
+  --c-surface: rgba(18, 23, 49, 0.82);
+  --c-surface-2: #182042;
+  --c-raised: #1c2550;
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-line-strong: rgba(255, 255, 255, 0.16);
+  /* Texte (contraste ≥ 4.5:1 sur --c-navy) */
+  --c-text: #f2f3fb;
+  --c-muted: #b9bedc;
+  --c-faint: #9399c2;
+  /* Marque : l'or de l'étoile, le corail de l'action, le lagon */
+  --c-gold: #e2c48f;
+  --c-gold-light: #fbefd2;
+  --c-coral: #fc6141;
+  --c-coral-press: #e9502f;
+  --c-coral-glow: rgba(252, 97, 65, 0.4);
+  --c-teal: #2fd4b4;
+  --c-violet: #8f7bff;
+  --c-danger: #ff8f7a;
+
+  /* Typographie */
+  --c-display: var(--font-club-display), "Helvetica Neue", Arial, sans-serif;
+  --c-sans: var(--font-club-sans), system-ui, sans-serif;
+  --c-mono: var(--font-club-mono), ui-monospace, monospace;
+
+  /* Formes */
+  --c-radius: 16px;
+  --c-radius-lg: 24px;
+  --c-control: 52px;
+
+  /* Mouvement : trois durées, une courbe d'entrée, une de sortie, un ressort */
+  --c-fast: 120ms;
+  --c-base: 200ms;
+  --c-slow: 320ms;
+  --c-sheet: 520ms;
+  --c-state: 600ms;
+  --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --c-exit: cubic-bezier(0.4, 0, 1, 1);
+  --c-spring: linear(0, 0.18 7%, 0.62 17%, 0.96 27%, 1.07 34%, 1.09 39%, 1.06 47%, 1.01 57%, 0.995 70%, 1);
+}

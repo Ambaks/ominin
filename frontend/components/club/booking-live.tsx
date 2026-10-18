@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSkyPause } from "@/components/club/club-sky";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_BURST, CLUB_EASE, CLUB_TIMING } from "@/components/club/timing";
@@ -10,13 +10,13 @@ import type { Club } from "@/lib/club/types";
 /*
  * Ce qui vit sur la page de réservation : le statut relu à intervalle (payée
  * à l'instant, arrivée scannée à la porte, remboursée par le club) et, tant
- * que la table est tenue, le compte à rebours et le paiement repris. Le
- * ciel s'y fige : le billet passe devant.
+ * que la table est tenue, le compte à rebours et le paiement repris (le
+ * ciel se fige le temps de payer). Puis le passe : QR code à agrandir,
+ * partage du lien.
  */
 
 export function BookingWatch({ live }: { live: boolean }) {
   const router = useRouter();
-  useSkyPause(true);
   useEffect(() => {
     if (!live) return;
     const onVisible = () => {
@@ -45,6 +45,7 @@ export function ResumePayment({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  useSkyPause(true);
   const onPaid = useCallback(() => router.replace(`${pathname}?paye=1`, { scroll: false }), [router, pathname]);
   const onExpired = useCallback(() => router.refresh(), [router]);
   return (
@@ -113,4 +114,61 @@ export function PaidBurst() {
     };
   }, []);
   return <div ref={layer} className="club-burst" aria-hidden />;
+}
+
+/* Le QR code, à toucher pour l'afficher en grand et plus lumineux devant la porte. */
+export function QrZoom({ label, arrived, children }: { label: string; arrived: boolean; children: ReactNode }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  return (
+    <>
+      <button
+        type="button"
+        className="club-qr-plate"
+        data-arrived={arrived || undefined}
+        onClick={() => dialog.current?.showModal()}
+        aria-label={`${label} : afficher en grand`}
+      >
+        {children}
+      </button>
+      <dialog
+        ref={dialog}
+        className="club-qr-dialog"
+        aria-label={label}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) dialog.current?.close();
+        }}
+      >
+        <div className="club-qr-dialog-plate">{children}</div>
+        <p>Montrez ce code à l&rsquo;entrée</p>
+        <button type="button" className="club-button club-button-secondary" onClick={() => dialog.current?.close()}>
+          Fermer
+        </button>
+      </dialog>
+    </>
+  );
+}
+
+/* Partager la réservation (feuille de partage du téléphone), sinon copier son lien. */
+export function PassActions({ url, title }: { url: string; title: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), CLUB_TIMING.copied);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const share = async () => {
+    if (navigator.share) {
+      await navigator.share({ title, url }).catch(() => {});
+      return;
+    }
+    await navigator.clipboard?.writeText(url).then(() => setCopied(true), () => {});
+  };
+  return (
+    <button type="button" className="club-button club-button-ghost" onClick={() => void share()}>
+      {copied ? "Lien copié" : "Partager"}
+      <span className="sr-only" aria-live="polite">
+        {copied ? "Le lien de la réservation est copié." : ""}
+      </span>
+    </button>
+  );
 }

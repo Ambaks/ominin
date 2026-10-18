@@ -68,7 +68,7 @@ export function GuestList({
             {left !== null && !done && (
               <>
                 {" "}
-                <span className="club-nums club-guest-left">
+                <span className="club-mono club-guest-left">
                   {full ? "La liste est complète." : `${left} place${left > 1 ? "s" : ""} restante${left > 1 ? "s" : ""}.`}
                 </span>
               </>
@@ -113,7 +113,7 @@ export function GuestList({
                 >
                   −
                 </button>
-                <output className="club-nums" aria-live="polite">
+                <output className="club-mono" aria-live="polite">
                   {party}
                 </output>
                 <button
@@ -160,7 +160,7 @@ export function GuestList({
                 {error}
               </p>
             )}
-            <button type="submit" className="club-button club-button-gold club-button-block" disabled={sending || full}>
+            <button type="submit" className="club-button club-button-secondary club-button-block" disabled={sending || full}>
               {sending ? (
                 <>
                   <span className="club-spinner" aria-hidden />

@@ -15,13 +15,29 @@ export function ClubLocked() {
   );
 }
 
-export function ClubSkeleton() {
+/** En attendant les données, la silhouette de l'écran qui vient : la liste, ou une soirée. */
+export function ClubSkeleton({ variant = "liste" }: { variant?: "liste" | "soiree" }) {
   return (
-    <div aria-busy className="flex flex-col gap-4">
-      <div className="shimmer h-9 w-44 rounded-xl" />
-      <div className="shimmer h-10 w-72 max-w-full rounded-full" />
-      <div className="shimmer h-32 rounded-2xl" />
-      <div className="shimmer h-32 rounded-2xl" />
+    <div aria-busy aria-label="Chargement" className="flex flex-col gap-4">
+      <div className="shimmer h-8 w-48 rounded-xl" />
+      {variant === "soiree" ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[0, 1, 2, 3].map((index) => (
+              <div key={index} className="shimmer h-20 rounded-2xl" />
+            ))}
+          </div>
+          <div className="shimmer h-11 w-64 max-w-full rounded-full" />
+          <div className="shimmer aspect-[6/5] rounded-2xl lg:aspect-[2/1]" />
+        </>
+      ) : (
+        <>
+          <div className="shimmer h-11 w-80 max-w-full rounded-full" />
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="shimmer h-36 rounded-2xl" />
+          ))}
+        </>
+      )}
     </div>
   );
 }
