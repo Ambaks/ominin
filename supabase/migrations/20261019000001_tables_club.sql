@@ -15,10 +15,11 @@
 -- suivante sur la même table l'annule au passage. Un paiement qui aboutit
 -- après coup sur une table reprise est remboursé par l'application.
 --
--- La table peut aussi se partager : l'organisateur en paie une première
--- part avec les frais de service de toute la table, reçoit un lien, et ses
--- amis paient chacun la leur, sans frais — au plus une part par personne
--- attendue, jusqu'au début de la soirée. Ce qui reste se règle à l'entrée.
+-- Le client voit la table frais de service compris ; ces frais se prélèvent
+-- une fois, sur le premier paiement. La table peut aussi se partager :
+-- l'organisateur en paie une première part, reçoit un lien, et ses amis se
+-- partagent le reste — au plus une part par personne attendue, jusqu'au
+-- début de la soirée. Ce qui reste se règle à l'entrée.
 -- Chaque part est un paiement à part entière (club_payments), remboursable
 -- seul.
 --
@@ -527,7 +528,8 @@ create function public.reserver_table(
   p_email text,
   p_party smallint,
   p_hold_seconds int,
-  -- Table partagée : la part de l'organisateur. Null : la table entière.
+  -- Table partagée : ce que l'organisateur paie maintenant, frais compris.
+  -- Null : la table entière.
   p_share_cents int default null
 )
 returns table (booking_id uuid, payment_id uuid, token text, total_cents int, hold_expires_at timestamptz)
@@ -540,6 +542,8 @@ declare
   v_event club_events;
   v_seats smallint;
   v_price int;
+  v_fee int;
+  v_total int;
   v_amount int;
   v_booking club_bookings;
   v_payment club_payments;
@@ -570,14 +574,22 @@ begin
     raise exception 'Cette table accueille % personnes au plus.', v_seats;
   end if;
 
-  -- Partagée, l'organisateur paie au moins une part égale, au plus tout.
-  v_amount := coalesce(p_share_cents, v_price);
+  -- Le client voit la table frais compris : les frais de service d'Ominin
+  -- portent sur toute la table et se prélèvent sur le premier paiement,
+  -- celui de l'organisateur. Partagée, il paie au moins une part égale du
+  -- total (et au moins les frais), au plus tout ; ses amis se partagent le
+  -- reste, sans frais.
+  v_fee := club_frais(v_event.etablissement_id, v_price);
+  v_total := v_price + v_fee;
   if p_share_cents is not null
-     and (p_party < 2 or v_amount < ceil(v_price::numeric / p_party) or v_amount > v_price) then
+     and (p_party < 2
+       or p_share_cents < greatest(ceil(v_total::numeric / p_party), v_fee + 1)
+       or p_share_cents > v_total) then
     raise exception 'Votre part va de % à % €.',
-      replace(to_char(ceil(v_price::numeric / greatest(p_party, 1)) / 100, 'FM999990.00'), '.', ','),
-      replace(to_char(v_price / 100.0, 'FM999990.00'), '.', ',');
+      replace(to_char(greatest(ceil(v_total::numeric / greatest(p_party, 1)), v_fee + 1) / 100.0, 'FM999990.00'), '.', ','),
+      replace(to_char(v_total / 100.0, 'FM999990.00'), '.', ',');
   end if;
+  v_amount := coalesce(p_share_cents, v_total) - v_fee;
 
   perform club_liberer_attentes(p_event, p_table);
   -- Un paiement en cours par personne et par soirée : choisir une autre
@@ -605,8 +617,7 @@ begin
     ) values (
       v_event.etablissement_id, p_event, p_table, btrim(p_name),
       btrim(p_phone), lower(btrim(p_email)), p_party,
-      v_price, club_frais(v_event.etablissement_id, v_price),
-      v_price + club_frais(v_event.etablissement_id, v_price),
+      v_price, v_fee, v_total,
       'en_attente', 'en_ligne', v_hold,
       p_share_cents is not null,
       case when p_share_cents is not null then encode(extensions.gen_random_bytes(12), 'hex') end

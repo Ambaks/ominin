@@ -197,6 +197,8 @@ export type ShareTable = {
   status: BookingStatus;
   partySize: number;
   priceCents: number;
+  /** La table frais compris : le prix que voient l'organisateur et ses amis. */
+  totalCents: number;
   paidCents: number;
   feePercent: number;
   payers: SharePayer[];
@@ -228,7 +230,7 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, status, name, party_size, price_cents, paid_cents, share_token, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, table_fee_percent, club_min_age, club_dress_code, club_refused), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
+      "id, status, name, party_size, price_cents, total_cents, paid_cents, share_token, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, table_fee_percent, club_min_age, club_dress_code, club_refused), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
     )
     .eq("share_token", shareToken)
     .maybeSingle();
@@ -245,6 +247,7 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
     status: data.status,
     partySize: data.party_size,
     priceCents: data.price_cents,
+    totalCents: data.total_cents,
     paidCents: data.paid_cents,
     feePercent: Number(etab.table_fee_percent),
     payers: sharePayers(data.club_payments),
