@@ -127,17 +127,6 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   }
 }
 
-/* Saut lancé de la navigation : la page s'efface, la scène voyage seule. */
-.et :is(.et-hero, .et-main, .et-footer) {
-  transition: opacity 360ms var(--et-cross);
-}
-
-.et[data-warping] :is(.et-hero, .et-main, .et-footer) {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 180ms var(--et-cross);
-}
-
 /* ---------- Bandeau ---------- */
 
 .et-top {
@@ -490,25 +479,25 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 
 .et-chapter {
   position: relative;
-  padding: 0 24px 14svh;
+  padding: 0 24px 6svh;
 }
 
-/* En portrait, l'astre occupe le haut de l'écran ; l'en-tête vient juste dessous, les premières lignes avec lui. */
+/* Entre deux chapitres, un temps de ciel : le passage où les étoiles s'étirent (sky.ts). */
 .et-head {
   position: relative;
   container-type: inline-size;
   display: flex;
   flex-direction: column;
-  padding: 36svh 0 24px;
+  padding: 14svh 0 24px;
 }
 
-/* Le bas de l'astre s'efface sous le titre : jamais de capitales sur une nébuleuse. */
+/* Le ciel s'efface sous le titre : jamais de capitales sur la Voie lactée. */
 .et-head::before {
   content: "";
   position: absolute;
   inset: 0 -24px;
   z-index: -1;
-  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 20svh, rgba(5, 5, 7, 0.3) 28svh, rgba(5, 5, 7, 0.7) 34svh, rgba(5, 5, 7, 0.86) 40svh);
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 4svh, rgba(5, 5, 7, 0.3) 8svh, rgba(5, 5, 7, 0.7) 12svh, rgba(5, 5, 7, 0.86) 17svh);
   transition: opacity 600ms var(--et-cross);
 }
 
@@ -625,7 +614,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   }
 }
 
-/* Sous les lignes, un fond plein qui naît en fondu : jamais de texte sur un astre lumineux. */
+/* Sous les lignes, un fond plein qui naît en fondu : jamais de texte sur une traînée lumineuse. */
 .et-list {
   position: relative;
 }
@@ -806,7 +795,14 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   transform: none;
 }
 
-/* ---------- Paysage : la carte à gauche, le repère à droite ---------- */
+/* Arrivée en plein défilement rapide : la ligne est déjà là, sans montée ni attente. */
+.et [data-reveal][data-instant] {
+  transform: none;
+  transition: opacity var(--et-fast) ease;
+  transition-delay: 0ms;
+}
+
+/* ---------- Paysage : la carte à gauche, le ciel à droite ---------- */
 
 @media (min-aspect-ratio: 1/1) {
   .et-hero {
@@ -837,10 +833,10 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   }
   .et-chapter {
     max-width: calc(min(46vw, 720px) + 2 * clamp(40px, 6vw, 96px));
-    padding: 0 clamp(40px, 6vw, 96px) 18vh;
+    padding: 0 clamp(40px, 6vw, 96px) 12vh;
   }
   .et-head {
-    padding: 16vh 0 32px;
+    padding: 12vh 0 32px;
   }
   .et-head::before {
     content: none;
@@ -960,11 +956,11 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   border-color: rgba(217, 192, 138, 0.55);
 }
 
-/* Bureau : la barre et le suivi se rangent sous l'astre, jamais sur les lignes de la carte. */
+/* Bureau : la barre et le suivi s'alignent sur la colonne de la carte. */
 @media (min-aspect-ratio: 1/1) and (min-width: 900px) {
   .theme-l-etoile :is(div:has(> .cart-bar), .ticket-dock) {
-    justify-content: flex-end;
-    padding-right: clamp(40px, 6vw, 96px);
+    justify-content: flex-start;
+    padding-left: clamp(40px, 6vw, 96px);
   }
 }
 
@@ -1031,7 +1027,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   position: fixed;
   inset: auto 0 0;
   z-index: 39;
-  height: 128px;
+  height: 168px;
   pointer-events: none;
   background: linear-gradient(to bottom, rgba(5, 5, 7, 0), rgba(5, 5, 7, 0.92) 70%);
   opacity: 0;
@@ -1069,7 +1065,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 /* Le disque : rendu par lancer de rayons (black-hole.ts) ; sans WebGL, une ombre cernée d'argent en dégradés. */
 .et-hole-disk {
   position: absolute;
-  inset: -10px;
+  inset: -22px;
   border-radius: 50%;
   background:
     radial-gradient(circle, #000 0 22%, rgba(255, 255, 255, 0.92) 25%, rgba(214, 217, 223, 0.4) 31%, rgba(214, 217, 223, 0.12) 42%, transparent 58%);
@@ -1089,7 +1085,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   display: block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 5px rgba(232, 234, 238, 0.28));
+  filter: drop-shadow(0 0 7px rgba(232, 234, 238, 0.32));
 }
 
 .et-hole-ring {
@@ -1105,8 +1101,8 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 /* Le compte, en pastille d'argent posée au bord de l'horizon. */
 .et-hole-count {
   position: absolute;
-  top: -4px;
-  left: 42px;
+  top: -12px;
+  left: 48px;
   display: grid;
   place-items: center;
   min-width: 20px;
@@ -1237,7 +1233,8 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   color: var(--et-white);
 }
 
-.theme-l-etoile [role="dialog"] button.ember-gradient {
+/* Le bouton d'envoi ; le choix de règlement retenu porte la même classe, sans son retrait (les deux choix restent alignés). */
+.theme-l-etoile [role="dialog"] button.ember-gradient:not([role="radio"]) {
   margin-top: 10px;
   min-height: 54px;
   border-radius: 999px;

@@ -7,10 +7,11 @@
  * Voie lactée, calculée par lancer de rayons dans un disque de poussière
  * (émission, absorption, couloirs sombres), cuite une fois dans une texture
  * équirectangulaire, bande par bande, sans bloquer la page. De temps en
- * temps, une étoile filante. Changer de chapitre en lisant tourne doucement
- * le ciel ; un saut de la navigation passe en vitesse lumière : les étoiles
- * s'étirent en traînées décalées vers le bleu, un éclat, la page change au
- * pic, le ciel se repose ailleurs. Aucun astre, aucun zoom.
+ * temps, une étoile filante. Tout suit le défilement, en continu : sa vitesse
+ * tend les étoiles en traînées décalées vers le bleu (vite : vitesse lumière ;
+ * au pas : rien), le passage d'un chapitre au suivant les étire un peu même au
+ * pas, et le ciel tourne d'une pose à l'autre au même rythme. Aucun saut,
+ * aucun astre, aucun zoom.
  */
 import * as THREE from "three";
 
@@ -49,6 +50,8 @@ export const SKY = {
   glintLength: 3.2,
   glintWidth: 0.55,
   glintGain: 0.5,
+  /* Le quad d'une croix couvre tant de fois sa longueur (sa décroissance s'y éteint). */
+  glintReach: 4,
   /* Croisière au repos (unités/s), dérive latérale (x, y, unités/s). */
   cruise: 1.4,
   drift: [0.22, 0.06],
@@ -57,38 +60,58 @@ export const SKY = {
   /* Rotation lente de la Voie lactée (rad/s). */
   spin: 0.0025,
   /*
-   * Saut de la navigation : durée (ms), part de la durée au pic, vitesse
-   * maximale (unités/s), courbes de l'accélération et du freinage
-   * (exposants), longueur des traînées (s de vitesse), éclat au pic et sa
-   * largeur (part de la durée), fenêtre où le ciel tourne autour du pic.
+   * Défilement → vitesse lumière, en continu. Sous `calm` px/s rien ne
+   * s'étire ; à `full` px/s, l'étirement est maximal (courbe : exposant).
+   * Lissage (s) : montée, retombée. Les chapitres se franchissent au point
+   * `anchor` de l'écran (part de la hauteur), sur une frontière de demi-largeur
+   * `boundary` (part de la hauteur) où le ciel s'étire de `boundaryWarp`, même
+   * au pas. Sous `settled`, le téléphone repasse à une image sur deux.
    */
-  warp: { ms: 1500, peak: 0.5, speed: 1400, rise: 2, fall: 2.2, streak: 0.075, flash: 0.3, flashWidth: 0.1, turn: 0.12 },
+  scroll: {
+    calm: 450,
+    full: 6500,
+    curve: 1.3,
+    attack: 0.08,
+    release: 0.4,
+    anchor: 0.55,
+    boundary: 0.26,
+    boundaryWarp: 0.22,
+    settled: 0.01,
+  },
+  /*
+   * Vitesse lumière à plein (unités/s), longueur des traînées (s de vitesse),
+   * surcroît d'éclat des étoiles, éclat central (courbe : exposant de
+   * l'étirement), étirement au-delà duquel aucune étoile filante ne part,
+   * courbe (exposant) de l'effacement de la Voie lactée dans les traînées.
+   */
+  warp: { speed: 1400, streak: 0.062, boost: 0.6, flash: 0.14, flashCurve: 3, quiet: 0.05, bandFade: 2 },
   /* Couleur de la queue des traînées (décalage vers le bleu) et de l'éclat. */
   blueshift: [0.62, 0.74, 1],
-  flashColor: [0.86, 0.89, 0.95],
-  /* Chapitre atteint en lisant : le ciel tourne (ms), une poussée légère (unités/s). */
-  glide: { ms: 2600, speed: 26 },
+  flashColor: [0.8, 0.85, 0.96],
   /* Arrivée : on sort de l'hyperespace, freinage (ms) depuis cette vitesse. */
-  arrival: { ms: 2600, speed: 220 },
+  arrival: { ms: 2200, speed: 180 },
   /* Pose du ciel par chapitre (0 = accueil) : rotations (rad) autour de x, y, z ; dorure (Champagnes). */
   poses: [
     { x: -0.04, y: 0.3, z: -0.62, gold: 0 },
     { x: 0.1, y: 1.1, z: 0.35, gold: 0 },
     { x: -0.22, y: 2, z: -0.25, gold: 0 },
     { x: 0.3, y: 2.9, z: 0.8, gold: 0 },
-    { x: 0.05, y: -0.3, z: 0.55, gold: 0.8 },
+    { x: 0.05, y: -0.3, z: 0.55, gold: 1 },
   ],
   /* La dorure : sa teinte. */
-  gold: [0.85, 0.72, 0.46],
+  gold: [0.95, 0.78, 0.46],
+  /* La poussière dorée prend tant de fois la luminosité de l'argent qu'elle remplace. */
+  goldLift: 1.25,
   /*
    * Voie lactée cuite : largeur de la texture (px, hauteur moitié), pas de
-   * marche par rayon, rangées par image, gain d'affichage, fondu d'arrivée (ms).
+   * marche par rayon, rangées par image (le coût d'une image pendant la
+   * cuisson), gain d'affichage, fondu d'arrivée (ms).
    */
   dust: {
-    width: { phone: 2048, desktop: 2048 },
-    steps: { phone: 72, desktop: 96 },
-    rowsPerFrame: { phone: 16, desktop: 48 },
-    gain: 2.1,
+    width: 2048,
+    steps: { phone: 56, desktop: 80 },
+    rowsPerFrame: { phone: 12, desktop: 24 },
+    gain: { phone: 2.6, desktop: 2.6 },
     fadeMs: 2400,
   },
   /*
@@ -104,9 +127,21 @@ export const SKY = {
     bulge: 0.55,
     radius: [0.32, 0.6],
     bright: [0.1, 0.6],
+    /* Exposant tiré sur l'éclat : surtout des faibles. */
+    brightCurve: 1.5,
+    /* Sans halo : le quad couvre tant de fois le rayon. */
+    reach: 3,
   },
-  /* Vignettage : assombrissement des bords. */
-  vignette: 0.55,
+  /*
+   * Le disque galactique traversé par les rayons de la cuisson (unités) :
+   * portée d'un rayon, épaisseur² de la couche d'étoiles et de celle de
+   * poussière, densité de la poussière (couloirs sombres), rayon² du bulbe.
+   */
+  galaxy: { reach: 9, thickness: 0.22, laneThickness: 0.03, laneDensity: 6, bulge: 4 },
+  /* Le fond de la nuit (#050507, comme --et-ink). */
+  ink: [0.0196, 0.0196, 0.0275],
+  /* Vignettage : assombrissement des bords, de tant à tant de la demi-diagonale. */
+  vignette: { amount: 0.55, from: 0.35, to: 1.5 },
   /* Étoile filante : intervalle (ms), vitesse (px/s), longueur (px), vie (s), épaisseur (px), éclat ; départ dans le haut de l'écran. */
   shooting: {
     every: [6500, 14000],
@@ -126,16 +161,17 @@ export const SKY = {
   /* Téléphone au repos : une image sur deux ; plein régime pendant un saut ou un défilement (ms après le dernier). */
   phoneFrameSkip: 2,
   scrollActiveMs: 300,
-  /* Au-delà de cette moyenne d'image (ms, sur tant d'images), la résolution baisse une fois. */
-  slowFrame: 26,
+  /* Au-delà de cette moyenne d'image (ms, sur tant d'images ; au-dessus des 33 ms d'un iPhone en économie d'énergie), la résolution baisse une fois. */
+  slowFrame: 40,
+  slowPixelRatio: 1,
   slowSamples: 90,
   /* Écart maximal entre deux images (s) : un onglet repris ne fait pas sauter le ciel. */
   maxStep: 0.05,
 } as const;
 
 export interface Sky {
-  /** Mène le ciel au chapitre `index` ; avec `onPeak`, en vitesse lumière, `onPeak` au pic. */
-  goTo(index: number, onPeak?: () => void): void;
+  /** Les hauts des chapitres (px du document) : le ciel passe d'une pose à l'autre en les franchissant. */
+  setChapters(tops: readonly number[]): void;
   setPaused(paused: boolean): void;
   dispose(): void;
 }
@@ -199,7 +235,7 @@ void main() {
   float lon = (uv.x - 0.5) * 2.0 * PI;
   float lat = (uv.y - 0.5) * PI;
   vec3 rd = vec3(cos(lat) * sin(lon), sin(lat), -cos(lat) * cos(lon));
-  const float reach = 9.0;
+  const float reach = GALAXY_REACH;
   float dt = reach / float(STEPS);
   float t = dt * 0.5;
   vec3 light = vec3(0.0);
@@ -207,16 +243,16 @@ void main() {
   const vec3 core = vec3(0.0, 0.0, -7.0);
   for (int i = 0; i < STEPS; i++) {
     vec3 p = rd * t;
-    float disk = exp(-p.y * p.y / 0.22);
-    float lane = exp(-p.y * p.y / 0.03);
+    float disk = exp(-p.y * p.y / GALAXY_THICKNESS);
+    float lane = exp(-p.y * p.y / GALAXY_LANE_THICKNESS);
     vec3 b = (p - core) * vec3(1.0, 2.8, 1.0);
-    float bulge = exp(-dot(b, b) / 4.0);
+    float bulge = exp(-dot(b, b) / GALAXY_BULGE);
     float clouds = fbm(p * 1.3);
     float knots = pow(fbm(p * 4.2 + 11.0), 2.2);
     float emit = disk * (0.06 + clouds * clouds * 1.2 + knots * 1.6) + bulge * 1.8;
     float warmth = clamp(bulge * 1.3 + knots * 0.5, 0.0, 1.0);
     vec3 tint = mix(vec3(0.6, 0.67, 0.84), vec3(1.0, 0.94, 0.84), warmth);
-    float dust = lane * smoothstep(0.36, 0.68, fbm(p * 2.4 + 4.0)) * 6.0;
+    float dust = lane * smoothstep(0.36, 0.68, fbm(p * 2.4 + 4.0)) * GALAXY_LANE_DENSITY;
     light += transmit * emit * tint * dt;
     transmit *= exp(-dust * dt);
     t += dt;
@@ -242,7 +278,7 @@ uniform float uVignette;
 uniform float uAspect;
 uniform float uTime;
 const float PI = 3.14159265;
-const vec3 INK = vec3(0.0196, 0.0196, 0.0275);
+uniform vec3 uInk;
 float hash2(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -251,10 +287,10 @@ void main() {
   vec2 uv = vec2(atan(dir.x, -dir.z) / (2.0 * PI) + 0.5, asin(clamp(dir.y, -1.0, 1.0)) / PI + 0.5);
   vec3 dust = texture2D(uDust, uv).rgb * uGain;
   float lum = dot(dust, vec3(0.2126, 0.7152, 0.0722));
-  dust = mix(dust, lum * uGoldTint * 1.25, uGold);
+  dust = mix(dust, lum * uGoldTint * GOLD_LIFT, uGold);
   vec2 q = vNdc * vec2(uAspect, 1.0);
-  float edge = smoothstep(0.35, 1.5, length(vNdc));
-  vec3 col = INK + dust * (1.0 - uVignette * edge);
+  float edge = smoothstep(VIGNETTE_FROM, VIGNETTE_TO, length(vNdc));
+  vec3 col = uInk + dust * (1.0 - uVignette * edge);
   col += uFlashColor * uFlash * exp(-dot(q, q) * 1.6);
   col += (hash2(gl_FragCoord.xy + fract(uTime) * 61.0) - 0.5) / 255.0;
   gl_FragColor = vec4(col, 1.0);
@@ -294,7 +330,7 @@ void main() {
   vec2 xy = mod(aPos.xy * uBox.xy - uShift + uBox.xy, 2.0 * uBox.xy) - uBox.xy;
   vec2 center = uRes * 0.5;
   vec2 head = center + uFocal * xy / dist;
-  vec2 tail = center + uFocal * xy / (dist + uStreak);
+  vec2 tail = center + uFocal * xy / max(dist + uStreak, uNear * 0.5);
   float closeness = 1.0 - (dist - uNear) / uBox.z;
   float r = aStar.x * (1.0 + NEAR_RADIUS * closeness * closeness);
   float rMin = MIN_PIXELS / uPixel;
@@ -306,7 +342,7 @@ void main() {
   vR = r;
   vG = aGlint;
   vC = aColor;
-  float reach = r * HALO + aGlint * GLINT_LENGTH * 4.0;
+  float reach = r * HALO + aGlint * GLINT_LENGTH * GLINT_REACH;
   vec2 axis = head - tail;
   float len = length(axis);
   vec2 dir = len > 0.001 ? axis / len : vec2(1.0, 0.0);
@@ -379,7 +415,7 @@ void main() {
   vR = r;
   vG = 0.0;
   vC = aColor;
-  vec2 p = head + corner * r * 3.0;
+  vec2 p = head + corner * r * BAND_REACH;
   vP = p;
   vA = head;
   vB = head;
@@ -454,14 +490,13 @@ function blackbody(kelvin: number): [number, number, number] {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const smooth = (t: number) => t * t * (3 - 2 * t);
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const between = (rand: () => number, [min, max]: readonly [number, number]) => min + rand() * (max - min);
-const mixPose = (a: Pose, b: Pose, t: number): Pose => ({
-  x: lerp(a.x, b.x, t),
-  y: lerp(a.y, b.y, t),
-  z: lerp(a.z, b.z, t),
-  gold: lerp(a.gold, b.gold, t),
-});
+const mixPose = (out: Pose, a: Pose, b: Pose, t: number) => {
+  out.x = lerp(a.x, b.x, t);
+  out.y = lerp(a.y, b.y, t);
+  out.z = lerp(a.z, b.z, t);
+  out.gold = lerp(a.gold, b.gold, t);
+};
 const vec3 = ([x, y, z]: readonly [number, number, number]) => new THREE.Vector3(x, y, z);
 
 /* Un quad instancié, ses coins dans l'ordre (bas gauche, bas droit, haut droit, haut gauche). */
@@ -486,7 +521,7 @@ const additive = {
 
 export function createSky(
   host: HTMLElement,
-  { reducedMotion, chapter }: { reducedMotion: boolean; chapter: number },
+  { reducedMotion }: { reducedMotion: boolean },
 ): Sky | null {
   const phone = matchMedia("(pointer: coarse)").matches;
   const device = phone ? "phone" : "desktop";
@@ -494,13 +529,13 @@ export function createSky(
   canvas.className = "et-sky-canvas";
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: "high-performance" });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
   } catch {
     return null;
   }
   host.appendChild(canvas);
-  renderer.setClearColor(0x050507, 1);
-  renderer.autoClear = true;
+  /* Le fond peint chaque pixel : pas d'effacement. */
+  renderer.autoClear = false;
   let pixelRatio = Math.min(window.devicePixelRatio || 1, SKY.dprCap[device]);
   renderer.setPixelRatio(pixelRatio);
 
@@ -511,7 +546,7 @@ export function createSky(
   fullscreen.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
 
   /* La Voie lactée cuite : demi-flottants si possible, sinon 8 bits (le tramage d'affichage masque les paliers). */
-  const dustWidth = SKY.dust.width[device];
+  const dustWidth = SKY.dust.width;
   const floatable =
     renderer.extensions.has("EXT_color_buffer_half_float") || renderer.extensions.has("EXT_color_buffer_float");
   const dustTarget = new THREE.WebGLRenderTarget(dustWidth, dustWidth / 2, {
@@ -526,7 +561,14 @@ export function createSky(
   const bakeMaterial = new THREE.ShaderMaterial({
     vertexShader: FULLSCREEN_VERT,
     fragmentShader: DUST_BAKE_FRAG,
-    defines: { STEPS: SKY.dust.steps[device] },
+    defines: {
+      STEPS: SKY.dust.steps[device],
+      GALAXY_REACH: SKY.galaxy.reach.toFixed(4),
+      GALAXY_THICKNESS: SKY.galaxy.thickness.toFixed(4),
+      GALAXY_LANE_THICKNESS: SKY.galaxy.laneThickness.toFixed(4),
+      GALAXY_LANE_DENSITY: SKY.galaxy.laneDensity.toFixed(4),
+      GALAXY_BULGE: SKY.galaxy.bulge.toFixed(4),
+    },
     depthTest: false,
     depthWrite: false,
   });
@@ -545,7 +587,8 @@ export function createSky(
     uGoldTint: { value: vec3(SKY.gold) },
     uFlash: { value: 0 },
     uFlashColor: { value: vec3(SKY.flashColor) },
-    uVignette: { value: SKY.vignette },
+    uVignette: { value: SKY.vignette.amount },
+    uInk: { value: vec3(SKY.ink) },
     uAspect: { value: 1 },
     uTime: { value: 0 },
   };
@@ -553,12 +596,16 @@ export function createSky(
     vertexShader: FULLSCREEN_VERT,
     fragmentShader: SKY_FRAG,
     uniforms: skyUniforms,
+    defines: {
+      VIGNETTE_FROM: SKY.vignette.from.toFixed(4),
+      VIGNETTE_TO: SKY.vignette.to.toFixed(4),
+      GOLD_LIFT: SKY.goldLift.toFixed(4),
+    },
     depthTest: false,
     depthWrite: false,
   });
   const skyMesh = new THREE.Mesh(fullscreen, skyMaterial);
   skyMesh.frustumCulled = false;
-  skyMesh.renderOrder = 0;
   scene.add(skyMesh);
 
   /* Les étoiles. */
@@ -610,6 +657,8 @@ export function createSky(
       GLINT_LENGTH: SKY.glintLength.toFixed(4),
       GLINT_WIDTH: SKY.glintWidth.toFixed(4),
       GLINT_GAIN: SKY.glintGain.toFixed(4),
+      GLINT_REACH: SKY.glintReach.toFixed(4),
+      BAND_REACH: SKY.bandStars.reach.toFixed(4),
     },
     ...additive,
   });
@@ -633,7 +682,7 @@ export function createSky(
     const lon = toward ? (rand() - 0.5) * (rand() + rand()) * Math.PI * 0.5 : (rand() * 2 - 1) * Math.PI;
     dirs.set([Math.cos(lat) * Math.sin(lon), Math.sin(lat), -Math.cos(lat) * Math.cos(lon)], i * 3);
     bandStats.set(
-      [between(rand, band.radius), between(rand, band.bright) * rand() ** 1.5, rand() * Math.PI * 2, between(rand, SKY.twinkleSpeed)],
+      [between(rand, band.radius), between(rand, band.bright) * rand() ** band.brightCurve, rand() * Math.PI * 2, between(rand, SKY.twinkleSpeed)],
       i * 4,
     );
     const [r, g, b] = blackbody(between(rand, SKY.temperature));
@@ -697,12 +746,17 @@ export function createSky(
   /* ---------- État ---------- */
   const poses = SKY.poses as readonly Pose[];
   const last = poses.length - 1;
-  let target = Math.max(0, Math.min(last, chapter));
-  let pose: Pose = { ...poses[target] };
+  const flow = SKY.scroll;
+  let tops: readonly number[] = [];
+  let chapter = 0;
   let time = 0;
   let travel = 0;
   let driftX = 0;
   let driftY = 0;
+  /* L'élan du défilement, signé (vers le bas : on avance), lissé ; et le dernier sens franc. */
+  let rush = 0;
+  let heading = 1;
+  let lastScroll = window.scrollY;
   let raf = 0;
   let tick = 0;
   let lastNow = 0;
@@ -717,29 +771,29 @@ export function createSky(
   let width = 0;
   let height = 0;
   let nextShooting = SKY.shooting.every[0] / 1000;
-  let warp: { start: number; from: Pose; to: number; onPeak: (() => void) | null } | null = null;
-  let glide: { start: number; from: Pose; to: number } | null = null;
-  const arrival = reducedMotion ? null : { start: 0 };
+  const reading = { index: 0, bump: 0 };
+  const pose: Pose = { x: 0, y: 0, z: 0, gold: 0 };
   const euler = new THREE.Euler();
   const rotation = new THREE.Matrix4();
 
-  const firePeak = () => {
-    const callback = warp?.onPeak;
-    if (warp) warp.onPeak = null;
-    callback?.();
-  };
-  /* Un saut abrégé (onglet caché, feuille ouverte) : le contenu change, le ciel se pose. */
-  const settle = () => {
-    if (warp) {
-      firePeak();
-      pose = { ...poses[warp.to] };
-      warp = null;
+  /*
+   * Où en est la lecture : `index` passe en douceur d'un chapitre au suivant
+   * quand le point d'ancrage de l'écran franchit le haut d'un chapitre ;
+   * `bump` monte puis retombe pendant ce franchissement (0 hors frontière).
+   */
+  const field = () => {
+    const line = window.scrollY + height * flow.anchor;
+    const half = height * flow.boundary;
+    let index = 0;
+    let bump = 0;
+    for (const top of tops) {
+      const x = (line - top) / half;
+      index += smooth(clamp01((x + 1) / 2));
+      if (Math.abs(x) < 1) bump = Math.max(bump, (1 - x * x) ** 2);
     }
-    if (glide) {
-      pose = { ...poses[glide.to] };
-      glide = null;
-    }
-    dirty = true;
+    reading.index = Math.min(index, last);
+    reading.bump = bump;
+    return reading;
   };
 
   const resize = () => {
@@ -771,7 +825,7 @@ export function createSky(
     shootingAttrs.aLife.array[0] = between(rand, s.life);
     shootingAttrs.aLen.array[0] = between(rand, s.length);
     for (const attr of Object.values(shootingAttrs)) attr.needsUpdate = true;
-    nextShooting = time + shootingAttrs.aLife.array[0] + between(rand, target === s.shootersChapter ? s.everyShooters : s.every) / 1000;
+    nextShooting = time + shootingAttrs.aLife.array[0] + between(rand, chapter === s.shootersChapter ? s.everyShooters : s.every) / 1000;
   };
 
   /* Une bande de la Voie lactée par image : la page reste fluide pendant la cuisson. */
@@ -787,67 +841,66 @@ export function createSky(
     if (bakedRows >= dustWidth / 2) fadeStart = time;
   };
 
-  const update = (dt: number, now: number) => {
+  /* `dt` : le pas de l'animation (borné) ; `elapsed` : le temps réel écoulé, pour mesurer la vitesse du défilement. */
+  const update = (dt: number, elapsed: number, now: number) => {
     time += dt;
-    let speed = reducedMotion ? 0 : SKY.cruise;
-    let streakMix = 0;
-    let flash = 0;
-    if (arrival) {
-      const p = clamp01((time - arrival.start) / (SKY.arrival.ms / 1000));
-      speed += SKY.arrival.speed * (1 - p) ** 3;
+    const { index, bump } = field();
+    chapter = Math.round(index);
+    const w = SKY.warp;
+    let warp = 0;
+    let extra = 0;
+    if (!reducedMotion) {
+      /* La vitesse lumière suit la vitesse du défilement, lissée ; au passage d'un chapitre, même lent, le ciel s'étire un peu. */
+      const scroll = window.scrollY;
+      const velocity = elapsed > 0 ? (scroll - lastScroll) / elapsed : 0;
+      lastScroll = scroll;
+      const want = Math.sign(velocity) * clamp01((Math.abs(velocity) - flow.calm) / (flow.full - flow.calm)) ** flow.curve;
+      rush += (want - rush) * (1 - Math.exp(-dt / (Math.abs(want) > Math.abs(rush) ? flow.attack : flow.release)));
+      if (Math.abs(rush) > flow.settled) heading = Math.sign(rush);
+      warp = clamp01(Math.abs(rush) + bump * flow.boundaryWarp);
+      const arrival = SKY.arrival.speed * (1 - clamp01(time / (SKY.arrival.ms / 1000))) ** 3;
+      extra = heading * w.speed * warp + arrival;
     }
-    if (glide) {
-      const p = clamp01((time - glide.start) / (SKY.glide.ms / 1000));
-      pose = mixPose(glide.from, poses[glide.to], ease(p));
-      speed += SKY.glide.speed * Math.sin(Math.PI * p);
-      if (p >= 1) glide = null;
-    }
-    if (warp) {
-      const w = SKY.warp;
-      const p = clamp01((time - warp.start) / (w.ms / 1000));
-      const s = p < w.peak ? (p / w.peak) ** w.rise : (1 - (p - w.peak) / (1 - w.peak)) ** w.fall;
-      speed += w.speed * s;
-      streakMix = s;
-      flash = w.flash * Math.exp(-(((p - w.peak) / w.flashWidth) ** 2));
-      pose = mixPose(warp.from, poses[warp.to], smooth(clamp01((p - w.peak + w.turn) / (2 * w.turn))));
-      if (p >= w.peak) firePeak();
-      if (p >= 1) warp = null;
-    }
-    const extra = speed - (reducedMotion ? 0 : SKY.cruise);
-    travel = (travel + speed * dt) % SKY.depth;
+    const speed = (reducedMotion ? 0 : SKY.cruise) + extra;
+    const stretch = clamp01(Math.abs(extra) / w.speed);
+    travel = (((travel + speed * dt) % SKY.depth) + SKY.depth) % SKY.depth;
     const box = starUniforms.uBox.value;
     driftX = (driftX + SKY.drift[0] * dt) % (2 * box.x);
     driftY = (driftY + SKY.drift[1] * dt) % (2 * box.y);
     const parallax = reducedMotion ? 0 : (window.scrollY * SKY.parallax) % (2 * box.y);
     starUniforms.uTravel.value = travel;
     starUniforms.uShift.value.set(driftX, driftY - parallax);
-    starUniforms.uStreak.value = extra * SKY.warp.streak;
-    starUniforms.uStreakMix.value = Math.max(streakMix, clamp01(extra / SKY.warp.speed));
-    starUniforms.uBoost.value = 1 + streakMix * 0.6;
+    starUniforms.uStreak.value = extra * w.streak;
+    starUniforms.uStreakMix.value = stretch;
+    starUniforms.uBoost.value = 1 + stretch * w.boost;
     starUniforms.uTime.value = time;
     shootingUniforms.uTime.value = time;
-    if (!reducedMotion && !warp && time >= nextShooting) spawnShooting();
+    if (!reducedMotion && stretch < w.quiet && time >= nextShooting) spawnShooting();
 
+    /* La pose suit la lecture, d'un chapitre au suivant ; en mouvement réduit, elle change d'un coup, au chapitre. */
+    const at = reducedMotion ? chapter : index;
+    const from = Math.min(Math.floor(at), last - 1);
+    mixPose(pose, poses[from], poses[from + 1], at - from);
     euler.set(pose.x, pose.y + (reducedMotion ? 0 : time * SKY.spin), pose.z, "YXZ");
     rotation.makeRotationFromEuler(euler);
     skyUniforms.uRot.value.setFromMatrix4(rotation);
     skyUniforms.uGold.value = pose.gold;
-    skyUniforms.uFlash.value = flash;
+    skyUniforms.uFlash.value = w.flash * stretch ** w.flashCurve;
     skyUniforms.uTime.value = now / 1000;
     const fade = fadeStart < 0 ? 0 : reducedMotion ? 1 : clamp01((time - fadeStart) / (SKY.dust.fadeMs / 1000));
-    skyUniforms.uGain.value = SKY.dust.gain * smooth(fade);
+    skyUniforms.uGain.value = SKY.dust.gain[device] * smooth(fade);
     /* La bande tourne avec le ciel ; elle s'efface dans la vitesse lumière, où seules comptent les traînées. */
     bandUniforms.uToView.value.copy(skyUniforms.uRot.value).transpose();
-    bandUniforms.uFade.value = (1 - streakMix) * smooth(fade);
+    bandUniforms.uFade.value = (1 - stretch ** w.bandFade) * smooth(fade);
   };
 
   /* Une seule baisse de résolution si les images tardent (téléphone ancien). */
   const watchBudget = (delta: number) => {
-    if (slowCount < 0 || pixelRatio <= 1) return;
+    if (slowCount < 0 || pixelRatio <= SKY.slowPixelRatio) return;
     slowSum += delta;
     if (++slowCount < SKY.slowSamples) return;
     if (slowSum / slowCount > SKY.slowFrame) {
-      pixelRatio = 1;
+      pixelRatio = SKY.slowPixelRatio;
       renderer.setPixelRatio(pixelRatio);
       resize();
     }
@@ -861,7 +914,7 @@ export function createSky(
   const frame = (now: number) => {
     raf = 0;
     if (paused || lost || document.hidden || !width) return;
-    const busy = Boolean(warp || glide) || now < scrollActiveUntil || baking();
+    const busy = Math.abs(rush) > flow.settled || now < scrollActiveUntil || baking();
     const delta = lastNow ? now - lastNow : 0;
     raf = requestAnimationFrame(frame);
     if (phone && !busy && tick++ % SKY.phoneFrameSkip) return;
@@ -869,7 +922,7 @@ export function createSky(
     lastNow = now;
     if (!busy && delta) watchBudget(delta / (phone ? SKY.phoneFrameSkip : 1));
     if (baking()) bakeStep();
-    update(reducedMotion ? 0 : step, now);
+    update(reducedMotion ? 0 : step, delta / 1000, now);
     renderer.render(scene, camera);
     dirty = false;
     if (!shown) {
@@ -882,9 +935,11 @@ export function createSky(
     }
   };
 
+  /* Après une pause, le défilement fait entre-temps ne compte pas comme une vitesse. */
   function kick() {
     if (raf || paused || lost || document.hidden) return;
     lastNow = 0;
+    lastScroll = window.scrollY;
     raf = requestAnimationFrame(frame);
   }
   const stop = () => {
@@ -892,21 +947,19 @@ export function createSky(
     raf = 0;
   };
 
-  const onVisibility = () => {
-    if (document.hidden) {
-      settle();
-      stop();
-    } else kick();
-  };
+  const onVisibility = () => (document.hidden ? stop() : kick());
   const onScroll = () => {
     scrollActiveUntil = performance.now() + SKY.scrollActiveMs;
-    if (!reducedMotion) kick();
+    if (!reducedMotion) return;
+    const next = Math.round(field().index);
+    if (next === chapter) return;
+    dirty = true;
+    kick();
   };
   /* Contexte perdu : le dégradé CSS de .et-sky reprend ; rendu, tout se recuit. */
   const onLost = (event: Event) => {
     event.preventDefault();
     lost = true;
-    settle();
     stop();
     delete canvas.dataset.on;
     shown = false;
@@ -927,41 +980,15 @@ export function createSky(
   resize();
 
   return {
-    goTo(index, onPeak) {
-      const to = Math.max(0, Math.min(last, index));
-      if (onPeak) {
-        if (warp) firePeak();
-        glide = null;
-        target = to;
-        if (reducedMotion || paused || lost || document.hidden || !width) {
-          pose = { ...poses[to] };
-          dirty = true;
-          kick();
-          onPeak();
-          return;
-        }
-        warp = { start: time, from: { ...pose }, to, onPeak };
-        kick();
-        return;
-      }
-      if (to === target) return;
-      target = to;
-      if (warp) {
-        warp.to = to;
-        return;
-      }
-      if (reducedMotion) {
-        pose = { ...poses[to] };
-        dirty = true;
-      } else glide = { start: time, from: { ...pose }, to };
+    setChapters(next) {
+      tops = next;
+      dirty = true;
       kick();
     },
     setPaused(next) {
       paused = next;
-      if (paused) {
-        settle();
-        stop();
-      } else kick();
+      if (paused) stop();
+      else kick();
     },
     dispose() {
       stop();

@@ -26,8 +26,8 @@ import "./etoile.css";
 
 /*
  * La carte de L'Étoile, club fictif, en argent : un ciel de nuit en WebGL
- * derrière la page (étoiles, Voie lactée, étoiles filantes, sauts en vitesse
- * lumière d'un chapitre à l'autre, voir sky.ts), chargé après la carte, la
+ * derrière la page (étoiles, Voie lactée, étoiles filantes, vitesse lumière
+ * qui suit le défilement, voir sky.ts), chargé après la carte, la
  * carte en quatre chapitres, le panier en trou noir rendu par lancer de rayons
  * (black-hole.ts). Dessous, tout le parcours de commande reste celui d'Ominin
  * (CartProvider, CartBar, OptionsModal) : seule la mise en scène est propre
@@ -54,8 +54,25 @@ const CHAPTERS: ChapterDef[] = [
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
-/* Un chapitre devient courant dès que son haut passe cette hauteur d'écran (part de la hauteur) : le ciel tourne avec lui. */
+/* Un chapitre devient courant dès que son haut passe cette hauteur d'écran (part de la hauteur). */
 const CHAPTER_AT = 0.9;
+/*
+ * Navigation vers un chapitre : un défilement animé, jamais un saut ; sa
+ * vitesse fait d'elle-même la vitesse lumière du ciel (sky.ts). Durée selon
+ * la distance (ms par px), bornée.
+ */
+const NAV_SCROLL = { minMs: 650, maxMs: 1200, msPerPx: 0.12 } as const;
+/*
+ * Un geste du lecteur reprend la main sur le défilement animé : un toucher,
+ * une touche de défilement, une molette à contresens ou franche (l'inertie
+ * d'un pavé tactile, qui retombe, ne l'arrête pas).
+ */
+const NAV_INTERRUPT = {
+  keys: ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "],
+  wheelPx: 40,
+} as const;
+/* La bouteille s'étire avec sa vitesse : px parcourus par image pour un étirement de 1, étirement maximal. */
+const PARTICLE_STRETCH = { perPx: 9, max: 1.8 } as const;
 
 /* Traînée de la bouteille vers le trou noir : nombre d'échos, retard entre deux. */
 const PARTICLE_TRAIL = 6;
@@ -76,11 +93,14 @@ const HOLE_IMPACT = {
 const RIPPLE = { color: "232, 234, 238", spread: 16, alpha: 0.6, ease: "cubic-bezier(0.2, 0.7, 0.2, 1)" } as const;
 /* Une ligne apparaît un peu avant d'entrer dans l'écran : jamais de bande vide au bas d'un chapitre. */
 const REVEAL_MARGIN = "0px 0px 10% 0px";
+/* Une ligne vue pour la première fois déjà au-dessus de cette hauteur d'écran (part) est arrivée en défilement rapide : elle paraît aussitôt. */
+const REVEAL_INSTANT_AT = 0.85;
 /* La barre de commande se monte avec le premier article : le trou noir la guette tant d'images. */
 const PLACE_TRIES = 30;
 
 
 const pad = (n: number) => String(n).padStart(2, "0");
+const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
 /*
  * Trajet d'une bouteille vers le trou noir : un arc jusqu'au bord du disque,
@@ -132,7 +152,7 @@ function spiralFrames(
     const q = point(Math.min(1, t + 1 / steps));
     const angle = Math.atan2(q.y - p.y, q.x - p.x);
     const speed = Math.hypot(q.x - p.x, q.y - p.y);
-    const stretch = 1 + Math.min(speed / 9, 2.4);
+    const stretch = 1 + Math.min(speed / PARTICLE_STRETCH.perPx, PARTICLE_STRETCH.max);
     frames.push({
       offset: t,
       opacity: t > 0.94 ? (1 - t) / 0.06 : 1,
@@ -165,26 +185,15 @@ export function EtoileMenu({
   const fxRef = useRef<HTMLDivElement>(null);
   const sky = useRef<Sky | null>(null);
   /* Ce que le ciel doit savoir s'il arrive après coup (chargé à la demande). */
-  const chapterRef = useRef(0);
+  const topsRef = useRef<number[]>([]);
   const skyPaused = useRef(false);
   const holeApi = useRef<BlackHole | null>(null);
   const origin = useRef<{ x: number; y: number } | null>(null);
   const pendingOrigin = useRef<{ x: number; y: number } | null>(null);
   const reduced = useRef(false);
-  const jumping = useRef(false);
-  /* Minuteries de la mise en scène, coupées au démontage. */
-  const timers = useRef(new Set<number>());
-  const later = useCallback((fn: () => void, ms: number) => {
-    const id = window.setTimeout(() => {
-      timers.current.delete(id);
-      fn();
-    }, ms);
-    timers.current.add(id);
-  }, []);
-  useEffect(() => {
-    const pending = timers.current;
-    return () => pending.forEach((id) => window.clearTimeout(id));
-  }, []);
+  /* Le défilement animé en cours : l'arrêter. */
+  const flight = useRef<(() => void) | null>(null);
+  useEffect(() => () => flight.current?.(), []);
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(0);
   const [optionsItem, setOptionsItem] = useState<MenuItem | null>(null);
@@ -222,7 +231,8 @@ export function EtoileMenu({
     import("./sky")
       .then(({ createSky }) => {
         if (disposed) return;
-        sky.current = createSky(host, { reducedMotion: reduced.current, chapter: chapterRef.current });
+        sky.current = createSky(host, { reducedMotion: reduced.current });
+        sky.current?.setChapters(topsRef.current);
         sky.current?.setPaused(skyPaused.current);
       })
       .catch(() => {});
@@ -235,7 +245,7 @@ export function EtoileMenu({
     };
   }, []);
 
-  /* ---------- Défilement : chapitre courant, scène ---------- */
+  /* ---------- Défilement : chapitre courant ; le ciel reçoit les hauts des chapitres ---------- */
   useEffect(() => {
     let raf = 0;
     /* Les hauts des chapitres, mesurés à chaque changement de mise en page, pas à chaque image. */
@@ -245,15 +255,14 @@ export function EtoileMenu({
         const section = document.getElementById(chapter.id);
         return section ? section.getBoundingClientRect().top + window.scrollY : Infinity;
       });
+      topsRef.current = tops;
+      sky.current?.setChapters(tops);
     };
     const update = () => {
       raf = 0;
       const line = window.scrollY + window.innerHeight * CHAPTER_AT;
       const current = tops.filter((top) => top <= line).length;
       setActive(current);
-      chapterRef.current = current;
-      /* Pendant un saut de la navigation, le ciel suit le saut, pas le défilement. */
-      if (!jumping.current) sky.current?.goTo(current);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -292,45 +301,62 @@ export function EtoileMenu({
     return () => observer.disconnect();
   }, [active]);
 
-  /* Saut vers un chapitre (0 = accueil) : le contenu s'efface, le ciel passe en vitesse lumière, la page se pose au pic. */
+  /* Vers un chapitre (0 = accueil) : la page défile jusqu'à lui, vite, en douceur ; le ciel passe en vitesse lumière avec elle. */
   const jump = useCallback(
     (index: number) => {
       const target = index
         ? document.getElementById(chapters[index - 1].id)
         : null;
-      const top = target
-        ? target.getBoundingClientRect().top + window.scrollY - (topRef.current?.offsetHeight ?? 0)
-        : 0;
+      /* Relu à chaque image : une police ou une apparition qui décale la page ne fait pas manquer l'arrivée. */
+      const destination = () =>
+        target
+          ? target.getBoundingClientRect().top + window.scrollY - (topRef.current?.offsetHeight ?? 0)
+          : 0;
       const focus = () =>
         index > 0 &&
         document
           .getElementById(`${chapters[index - 1].id}-titre`)
           ?.focus({ preventScroll: true });
-      const root = rootRef.current;
-      /* Un saut à la fois : un second toucher pendant le premier est ignoré. */
-      if (jumping.current) return;
       cart.track("categorie");
-      if (!sky.current || !root || reduced.current) {
-        window.scrollTo({ top, behavior: scrollBehavior() });
+      flight.current?.();
+      if (reduced.current) {
+        window.scrollTo({ top: destination(), behavior: "instant" });
         focus();
         return;
       }
-      jumping.current = true;
-      root.setAttribute("data-warping", "");
-      /* Le plongeon part pendant que la page s'efface : pas de temps mort entre le toucher et le voyage. */
-      later(() => {
-        sky.current?.goTo(index, () =>
-          /* La page se pose sur une image, au cœur du saut : jamais d'image intermédiaire. */
-          requestAnimationFrame(() => {
-            window.scrollTo({ top, behavior: "instant" });
-            jumping.current = false;
-            root.removeAttribute("data-warping");
-            focus();
-          }),
-        );
-      }, ETOILE_TIMING.dive);
+      const from = window.scrollY;
+      const sense = Math.sign(destination() - from);
+      const duration = Math.min(NAV_SCROLL.maxMs, Math.max(NAV_SCROLL.minMs, Math.abs(destination() - from) * NAV_SCROLL.msPerPx));
+      const start = performance.now();
+      let raf = 0;
+      /* Interrompu, le saut laisse quand même le focus au chapitre visé. */
+      const stop = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("wheel", onWheel);
+        window.removeEventListener("touchstart", stop);
+        window.removeEventListener("keydown", onKey);
+        flight.current = null;
+        focus();
+      };
+      const onWheel = (event: WheelEvent) => {
+        if (Math.sign(event.deltaY) !== sense || Math.abs(event.deltaY) > NAV_INTERRUPT.wheelPx) stop();
+      };
+      const onKey = (event: KeyboardEvent) => {
+        if ((NAV_INTERRUPT.keys as readonly string[]).includes(event.key)) stop();
+      };
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        window.scrollTo({ top: from + (destination() - from) * easeInOut(t), behavior: "instant" });
+        if (t < 1) raf = requestAnimationFrame(step);
+        else stop();
+      };
+      window.addEventListener("wheel", onWheel, { passive: true });
+      window.addEventListener("touchstart", stop, { passive: true });
+      window.addEventListener("keydown", onKey);
+      flight.current = stop;
+      raf = requestAnimationFrame(step);
     },
-    [cart, chapters, later],
+    [cart, chapters],
   );
 
   /* ---------- Trou noir ---------- */
@@ -381,7 +407,7 @@ export function EtoileMenu({
     liveRef.current = noSheet && hasItems;
     skyPaused.current = !noSheet;
     sky.current?.setPaused(!noSheet);
-    /* Les animations CSS du fond se figent aussi. */
+    /* Le bouton d'appel, seule animation CSS en boucle, se fige aussi. */
     rootRef.current?.toggleAttribute("data-paused", !noSheet);
     holeApi.current?.setPaused(!liveRef.current);
   }, [noSheet, hasItems]);
@@ -542,6 +568,8 @@ export function EtoileMenu({
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
+            if (entry.boundingClientRect.top < window.innerHeight * REVEAL_INSTANT_AT)
+              entry.target.setAttribute("data-instant", "");
             entry.target.setAttribute("data-in", "");
             observer.unobserve(entry.target);
           }

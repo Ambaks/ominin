@@ -14,7 +14,7 @@ import * as THREE from "three";
 /** Réglages : valeurs nommées, à valider (voir la passation). */
 export const BLACK_HOLE = {
   /* Échelle du disque : panier d'un article → panier plein. */
-  scale: [0.8, 1],
+  scale: [0.9, 1],
   /* Nombre d'articles à partir duquel le trou noir a sa taille maximale. */
   fullAt: 10,
   /* Un ajout : retour au régime (s), vitesse de rotation au pic, surcroît d'éclat au pic. */
@@ -26,16 +26,25 @@ export const BLACK_HOLE = {
   /* Caméra : élévation au-dessus du disque (rad), distance, demi-champ (unités, rayon de l'horizon = 1). */
   elevation: 0.24,
   distance: 26,
-  field: 9.4,
+  field: 10.4,
   /* Disque : rayons intérieur et extérieur, éclat, part de lumière gagnée du côté qui vient vers nous. */
   disk: [2.6, 8.8],
-  brightness: 2,
+  brightness: 2.4,
   beaming: 0.15,
   /* Opacité du disque par unité d'éclat : un disque épais cache l'ombre derrière lui. */
   opacity: 2.5,
+  /* Décroissance de l'éclat avec le rayon (exposant), profondeur des sillons du disque (0–1). */
+  falloff: 1.6,
+  rings: 0.1,
   /* Pas de marche par rayon ; rayons par pixel, par côté (2 → 4 rayons, bords lissés). */
   steps: 160,
   samples: 2,
+  /* Pas de marche : part de la distance au trou, bornes. */
+  step: { scale: 0.08, min: 0.02, max: 1.2 },
+  /* Le disque tourne lentement : une image sur tant suffit. */
+  frameSkip: 2,
+  /* Écart maximal entre deux images (s) : un onglet repris ne fait pas bondir le disque. */
+  maxStep: 0.1,
   dprCap: 2,
 } as const;
 
@@ -81,9 +90,9 @@ vec4 disk(vec3 hit, vec3 ray) {
   float orbit = angle + uPhase * pow(uDisk.x / r, 1.5);
   vec2 swirl = vec2(cos(orbit), sin(orbit)) * r;
   float streaks = noise(swirl * 1.6) * 0.6 + noise(swirl * 4.1 + 7.0) * 0.4;
-  float rings = 0.75 + 0.25 * sin(r * 9.0 + streaks * 3.0);
+  float rings = 1.0 - RINGS + RINGS * sin(r * 9.0 + streaks * 3.0);
   float edge = smoothstep(uDisk.x, uDisk.x + 0.35, r) * (1.0 - smoothstep(uDisk.y - 2.6, uDisk.y, r));
-  float falloff = pow(uDisk.x / r, 2.2);
+  float falloff = pow(uDisk.x / r, FALLOFF);
   vec3 tangent = normalize(vec3(-hit.z, 0.0, hit.x));
   float beaming = pow(clamp(1.0 + BEAMING * dot(tangent, -ray), 0.2, 2.0), 3.0);
   float light = BRIGHTNESS * edge * falloff * (0.35 + 0.65 * streaks) * rings * beaming * (1.0 + uGlow);
@@ -109,8 +118,9 @@ vec4 trace(vec2 ndc) {
       break;
     }
     float r = sqrt(r2);
-    float dt = clamp(0.08 * r, 0.02, 1.2);
+    float dt = clamp(STEP_SCALE * r, STEP_MIN, STEP_MAX);
     vec3 next = p + ray * dt;
+    /* Binet : la courbure d'un rayon de lumière autour d'une masse, en 3/2 h² / r⁵ (rayon de l'horizon = 1). */
     ray = normalize(ray - 1.5 * h2 * p / (r2 * r2 * r) * dt);
     if (p.y * next.y < 0.0) {
       vec4 d = disk(mix(p, next, p.y / (p.y - next.y)), ray);
@@ -162,6 +172,11 @@ export function createBlackHole(host: HTMLElement, { reducedMotion }: { reducedM
       BRIGHTNESS: BLACK_HOLE.brightness.toFixed(4),
       BEAMING: BLACK_HOLE.beaming.toFixed(4),
       OPACITY: BLACK_HOLE.opacity.toFixed(4),
+      FALLOFF: BLACK_HOLE.falloff.toFixed(4),
+      RINGS: BLACK_HOLE.rings.toFixed(4),
+      STEP_SCALE: BLACK_HOLE.step.scale.toFixed(4),
+      STEP_MIN: BLACK_HOLE.step.min.toFixed(4),
+      STEP_MAX: BLACK_HOLE.step.max.toFixed(4),
     },
     depthTest: false,
     depthWrite: false,
@@ -179,6 +194,7 @@ export function createBlackHole(host: HTMLElement, { reducedMotion }: { reducedM
   let pulse = 0;
   let raf = 0;
   let last = 0;
+  let tick = 0;
 
   const draw = () => {
     if (!renderer || lost) return;
@@ -188,17 +204,19 @@ export function createBlackHole(host: HTMLElement, { reducedMotion }: { reducedM
   const frame = (now: number) => {
     raf = 0;
     if (paused || lost || document.hidden) return;
-    const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+    raf = requestAnimationFrame(frame);
+    if (tick++ % BLACK_HOLE.frameSkip) return;
+    const dt = last ? Math.min((now - last) / 1000, BLACK_HOLE.maxStep) : 0;
     last = now;
     pulse = Math.max(0, pulse - dt / BLACK_HOLE.pulseSeconds);
     const boost = pulse * pulse;
     uniforms.uPhase.value -= dt * BLACK_HOLE.spin * (1 + (BLACK_HOLE.pulseRate - 1) * boost);
     uniforms.uGlow.value = BLACK_HOLE.pulseGlow * boost;
     draw();
-    raf = requestAnimationFrame(frame);
   };
+  /* Sans WebGL, rien à faire tourner : le disque CSS reste. */
   const play = () => {
-    if (reducedMotion || paused || document.hidden || lost || raf) return;
+    if (!renderer || reducedMotion || paused || document.hidden || lost || raf) return;
     last = 0;
     raf = requestAnimationFrame(frame);
   };
