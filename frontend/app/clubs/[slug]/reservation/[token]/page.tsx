@@ -6,7 +6,8 @@ import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { EtoileMark } from "@/components/menu/etoile/logo";
 import { QrCode } from "@/components/pitch/qr-code";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort, tableName } from "@/lib/club/format";
+import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
 import { clubSiteUrl } from "@/lib/site";
@@ -99,22 +100,45 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
   }
 }
 
-/* Le parcours de la réservation : fait, en cours (il pulse), à venir. */
-type Track = { step: string; label: string; state: "done" | "current" | "next" }[];
+/* Le parcours de la réservation : fait (avec son heure quand elle est connue), en cours (il pulse), à venir. */
+type Track = { step: string; label: string; state: "done" | "current" | "next"; time?: string }[];
 
-function trackOf(view: View, eventCancelled: boolean): Track | null {
+const MOMENT = new Intl.DateTimeFormat("fr-FR", {
+  timeZone: "Europe/Paris",
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+const moment = (iso: string | null) => (iso ? MOMENT.format(new Date(iso)) : undefined);
+const TIME = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+
+function trackOf(view: View, booking: BookingTicket, eventCancelled: boolean): Track | null {
   if (view === "remboursee") {
     return [
-      { step: "payee", label: "Payée", state: "done" },
-      { step: "annulation", label: eventCancelled ? "Soirée annulée" : "Remboursement", state: "done" },
-      { step: "remboursee", label: "Remboursée", state: "done" },
+      { step: "payee", label: "Payée", state: "done", time: moment(booking.paidAt) },
+      {
+        step: "annulation",
+        label: eventCancelled ? "Soirée annulée" : "Remboursement",
+        state: "done",
+        time: moment(booking.event.cancelledAt),
+      },
+      { step: "remboursee", label: "Remboursée", state: "done", time: moment(booking.refundedAt) },
     ];
   }
   if (view !== "attente" && view !== "payee" && view !== "arrivee") return null;
+  const heldAt = booking.holdExpiresAt
+    ? new Date(Date.parse(booking.holdExpiresAt) - TABLE_HOLD_S * 1000).toISOString()
+    : null;
   return [
-    { step: "tenue", label: "Table tenue", state: "done" },
-    { step: "payee", label: "Payée", state: view === "attente" ? "current" : "done" },
-    { step: "entree", label: "À l'entrée", state: view === "arrivee" ? "done" : view === "payee" ? "current" : "next" },
+    { step: "tenue", label: "Table tenue", state: "done", time: moment(heldAt) },
+    { step: "payee", label: "Payée", state: view === "attente" ? "current" : "done", time: moment(booking.paidAt) },
+    {
+      step: "entree",
+      label: "À l'entrée",
+      state: view === "arrivee" ? "done" : view === "payee" ? "current" : "next",
+      time: view === "arrivee" ? undefined : `dès ${TIME.format(new Date(booking.event.startsAt))}`,
+    },
   ];
 }
 
@@ -146,7 +170,7 @@ export default async function BookingPage({
   const eventCancelled = Boolean(booking.event.cancelledAt);
   const eventOver = Date.parse(booking.event.endsAt) <= now;
   const copy = statusCopy(view, booking, eventCancelled);
-  const track = trackOf(view, eventCancelled);
+  const track = trackOf(view, booking, eventCancelled);
   const { conditions } = club;
   const holding = view === "payee" || view === "sur_place";
   const passValid = view === "payee" || view === "arrivee";
@@ -171,9 +195,15 @@ export default async function BookingPage({
           {track && (
             <ol className="club-track" aria-label="Où en est votre réservation">
               {track.map((item) => (
-                <li key={item.step} data-step={item.step} data-state={item.state}>
+                <li
+                  key={item.step}
+                  data-step={item.step}
+                  data-state={item.state}
+                  aria-current={item.state === "current" ? "step" : undefined}
+                >
                   <span aria-hidden />
                   {item.label}
+                  {item.time && <small className="club-mono">{item.time}</small>}
                   <span className="sr-only">
                     {item.state === "done" ? " : fait" : item.state === "current" ? " : en cours" : " : à venir"}
                   </span>
@@ -189,6 +219,12 @@ export default async function BookingPage({
             provider={booking.club.paymentProvider}
             totalCents={booking.totalCents}
             remainingMs={Date.parse(booking.holdExpiresAt) - now}
+            recap={[
+              formatNightShort(booking.event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
+              tableName(booking.table.zone, booking.table.label),
+              `${booking.partySize} pers.`,
+              `${formatCents(booking.totalCents)} tout compris`,
+            ].join(" · ")}
           />
         )}
 
@@ -201,9 +237,9 @@ export default async function BookingPage({
             <span className="club-pass-date club-mono">{formatNightShort(booking.event.startsAt)}</span>
           </header>
           <div className="club-pass-primary">
-            <p className="club-label">{booking.table.zone}</p>
+            <p className="club-label">Table</p>
             <p className="club-pass-table">
-              Table <span className="club-mono">{booking.table.label}</span>
+              {booking.table.zone} · <span className="club-code">{booking.table.label}</span>
             </p>
           </div>
           <dl className="club-pass-fields">
@@ -265,32 +301,31 @@ export default async function BookingPage({
         </article>
 
         <div className="club-pass-actions">
-          {(holding || view === "attente") && !eventOver && (
-            <a href={clubHref(`${bookingPath(slug, booking.token)}/agenda`)} className="club-button club-button-ghost">
-              Ajouter au calendrier
-            </a>
-          )}
-          {passValid && <PassActions url={url} title={`${booking.event.title} — ${club.name}`} />}
-          {club.address && (
-            <a
-              href={`${MAPS_SEARCH}${encodeURIComponent(club.address)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="club-button club-button-ghost"
-            >
-              Itinéraire
-              <span className="sr-only"> (nouvel onglet)</span>
-            </a>
-          )}
           {(view === "expiree" || view === "annulee") && !eventCancelled && !eventOver ? (
-            <Link href={eventHref} className="club-button club-button-primary">
+            <Link href={eventHref} className="club-button club-button-primary club-button-block">
               Choisir une table
             </Link>
           ) : (
-            <Link href={eventHref} className="club-button club-button-ghost">
-              Voir la soirée
-            </Link>
+            (holding || view === "attente") &&
+            !eventOver && (
+              <a
+                href={clubHref(`${bookingPath(slug, booking.token)}/agenda`)}
+                className="club-button club-button-primary club-button-block"
+              >
+                Ajouter au calendrier
+              </a>
+            )
           )}
+          <div className="club-pass-links">
+            {club.address && (
+              <a href={`${MAPS_SEARCH}${encodeURIComponent(club.address)}`} target="_blank" rel="noopener noreferrer">
+                Itinéraire
+                <span className="sr-only"> (nouvel onglet)</span>
+              </a>
+            )}
+            {passValid && <PassActions url={url} title={`${booking.event.title} — ${club.name}`} />}
+            <Link href={eventHref}>Voir la soirée</Link>
+          </div>
         </div>
 
         <aside className="club-door" aria-labelledby="conditions-titre">

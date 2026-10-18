@@ -8,7 +8,7 @@ import { Poster } from "@/components/club/poster";
 import { Reveal } from "@/components/club/reveal";
 import { Spotlight } from "@/components/club/spotlight";
 import { CLUB_TIMING } from "@/components/club/timing";
-import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight } from "@/lib/club/format";
 import { clubHref } from "@/lib/club/links";
 import { nightSummary } from "@/lib/club/pricing";
 import { fetchAvailability, fetchClub, fetchUpcomingEvents } from "@/lib/club/public";
@@ -92,7 +92,12 @@ export default async function ClubPage({ params }: { params: Params }) {
           </div>
           <div className="club-dock">
             <Link href={`${nextHref}#plan`} className="club-button club-button-primary club-button-block">
-              Choisir ma table · {formatNightShort(next.startsAt)}
+              Choisir ma table
+              {summary.fromCents !== null && (
+                <span className="club-dock-price">
+                  dès <span className="club-mono">{formatCents(summary.fromCents)}</span>
+                </span>
+              )}
             </Link>
           </div>
         </section>

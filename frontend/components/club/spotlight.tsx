@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { PLAN_POINTER } from "@/components/club/timing";
+import { finePointer, prefersReducedMotion } from "@/lib/club/media";
 
 /*
  * Au bureau, une lumière dorée suit le curseur sur les cartes d'un groupe
@@ -14,8 +15,8 @@ export function Spotlight({ children, className }: { children: ReactNode; classN
     const root = ref.current;
     if (
       !root ||
-      !matchMedia("(hover: hover) and (pointer: fine)").matches ||
-      matchMedia("(prefers-reduced-motion: reduce)").matches
+      !finePointer() ||
+      prefersReducedMotion()
     )
       return;
     let raf = 0;

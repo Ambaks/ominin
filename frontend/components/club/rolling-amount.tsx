@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CLUB_TIMING } from "@/components/club/timing";
 import { formatCents } from "@/lib/club/format";
+import { prefersReducedMotion } from "@/lib/club/media";
 
 /*
  * Un montant qui défile jusqu'à sa nouvelle valeur, à l'euro près en route.
@@ -18,7 +19,7 @@ export function RollingAmount({ cents, className = "" }: { cents: number; classN
     const node = ref.current;
     const from = current.current;
     if (!node || from === cents) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       current.current = cents;
       node.textContent = formatCents(cents);
       return;
@@ -38,7 +39,7 @@ export function RollingAmount({ cents, className = "" }: { cents: number; classN
   }, [cents]);
 
   return (
-    <span className={`club-nums ${className}`}>
+    <span className={`club-mono ${className}`}>
       <span ref={ref} aria-hidden>
         {formatCents(initial)}
       </span>

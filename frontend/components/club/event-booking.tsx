@@ -17,13 +17,14 @@ import type { TableState } from "@/components/club/floor-plan";
 import { PlanView } from "@/components/club/plan-view";
 import { RollingAmount } from "@/components/club/rolling-amount";
 import { TablePayment } from "@/components/club/table-payment";
-import { CLUB_EASE, CLUB_SHEET, CLUB_TIMING } from "@/components/club/timing";
+import { CLUB_SHEET, CLUB_TIMING } from "@/components/club/timing";
 import { useMagnetic } from "@/components/club/use-magnetic";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents } from "@/lib/club/format";
+import { formatCents, formatNightShort, tableName } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref } from "@/lib/club/links";
 import { fetchLiveTables } from "@/lib/club/live";
+import { clubToken, phoneLayout, prefersReducedMotion as reducedMotion } from "@/lib/club/media";
 import { allInCents, serviceFeeCents } from "@/lib/club/pricing";
 import type { EventAvailability } from "@/lib/club/public";
 import type { Club, ClubEvent, ClubTable, ClubZone } from "@/lib/club/types";
@@ -71,9 +72,6 @@ const STATE_LABEL: Record<"libre" | "prise" | "fermee", string> = {
 };
 
 const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
-const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-/* La feuille basse (et la barre de prix) : sous la largeur du panneau collé. */
-const phoneLayout = () => matchMedia("(max-width: 1023px)").matches;
 
 export function EventBooking({
   club,
@@ -124,6 +122,10 @@ export function EventBooking({
   const price = selectedZone?.priceCents ?? zone?.priceCents ?? 0;
   const total = allIn(price);
   const paying = step === "paiement" && hold !== null;
+  // La barre de prix garde sa dernière table le temps de sortir.
+  const [barTable, setBarTable] = useState<ClubTable | null>(null);
+  if (selected && selected !== barTable) setBarTable(selected);
+  const barZone = barTable ? zones.find((candidate) => candidate.id === barTable.zoneId) : undefined;
 
   const states = useMemo(() => {
     const out: Record<string, TableState> = {};
@@ -189,10 +191,38 @@ export function EventBooking({
     const row = chipsRef.current;
     const chip = row?.querySelector<HTMLElement>(`[data-zone="${zoneId}"]`);
     if (!row || !chip) return;
-    row.style.setProperty("--pill-x", `${chip.offsetLeft}px`);
-    row.style.setProperty("--pill-w", `${chip.offsetWidth}px`);
-    chip.scrollIntoView({ block: "nearest", inline: "nearest", behavior: reducedMotion() ? "auto" : "smooth" });
+    const measure = () => {
+      row.style.setProperty("--pill-x", `${chip.offsetLeft}px`);
+      row.style.setProperty("--pill-w", `${chip.offsetWidth}px`);
+    };
+    measure();
+    // La puce active, centrée dans la rangée (sans défiler la page).
+    row.scrollTo({
+      left: chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2,
+      behavior: reducedMotion() ? "auto" : "smooth",
+    });
+    const observer = new ResizeObserver(measure);
+    observer.observe(row);
+    return () => observer.disconnect();
   }, [zoneId]);
+
+  /* La rangée des zones dit qu'elle continue : fondu du côté où il reste des puces. */
+  useEffect(() => {
+    const row = chipsRef.current;
+    if (!row) return;
+    const edges = () => {
+      row.toggleAttribute("data-more-left", row.scrollLeft > 1);
+      row.toggleAttribute("data-more-right", row.scrollLeft < row.scrollWidth - row.clientWidth - 1);
+    };
+    edges();
+    row.addEventListener("scroll", edges, { passive: true });
+    const observer = new ResizeObserver(edges);
+    observer.observe(row);
+    return () => {
+      row.removeEventListener("scroll", edges);
+      observer.disconnect();
+    };
+  }, []);
 
   const switchZone = useCallback(
     (id: string) => {
@@ -293,7 +323,7 @@ export function EventBooking({
   // La poignée : la feuille suit le doigt, le voile s'éclaircit ; relâchée, elle se ferme ou revient.
   const drag = useRef<{ y: number; time: number; dy: number } | null>(null);
   const onHandleDown = (pointer: ReactPointerEvent) => {
-    if (!phoneLayout() || paying) return;
+    if (!phoneLayout() || paying || (pointer.target as Element).closest("button")) return;
     drag.current = { y: pointer.clientY, time: pointer.timeStamp, dy: 0 };
     pointer.currentTarget.setPointerCapture(pointer.pointerId);
     sheetRef.current?.setAttribute("data-dragging", "");
@@ -328,7 +358,7 @@ export function EventBooking({
     const to = stage.offsetHeight;
     stageHeight.current = to;
     if (!from || from === to || reducedMotion()) return;
-    stage.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: CLUB_TIMING.step, easing: CLUB_EASE });
+    stage.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: CLUB_TIMING.step, easing: clubToken("--c-ease") });
   }, [step, selectedId, hold]);
 
   useEffect(() => {
@@ -375,7 +405,7 @@ export function EventBooking({
     if (hold) router.push(`${clubHref(bookingPath(club.slug, hold.token))}?paye=1`);
   }, [hold, router, club.slug]);
 
-  const onExpired = useCallback(() => {
+  const onExpired = useCallback((message?: string) => {
     if (hold) {
       released.current = { id: hold.tableId, until: performance.now() + CLUB_TIMING.releaseGrace };
       setTaken((current) => {
@@ -387,7 +417,8 @@ export function EventBooking({
     setHold(null);
     setStep("table");
     setNotice(
-      `Les ${TABLE_HOLD_S / 60} minutes sont passées sans paiement enregistré : la table est remise en vente. Vous pouvez la réserver à nouveau.`
+      message ??
+        `Les ${TABLE_HOLD_S / 60} minutes sont passées sans paiement enregistré : la table est remise en vente. Vous pouvez la réserver à nouveau.`
     );
   }, [hold]);
 
@@ -412,13 +443,16 @@ export function EventBooking({
         <h2 id="plan-titre" className="club-h2">
           Choisissez votre table
         </h2>
-        <ul className="club-chips" aria-label="Conditions d'entrée">
-          <li>{conditions.minAge} ans et plus</li>
-          {conditions.dress && <li>{conditions.dress}</li>}
-          {conditions.refused && <li>{conditions.refused}</li>}
-        </ul>
+        <p className="club-conditions-line">
+          <span className="sr-only">Conditions d&rsquo;entrée : </span>
+          {[`${conditions.minAge}+`, conditions.dress, conditions.refused].filter(Boolean).join(" · ")}
+        </p>
       </header>
 
+      <div className="club-zones-bar">
+      <p className="club-zones-count">
+        {zones.length} zones · {zones.reduce((sum, candidate) => sum + freeIn(candidate).length, 0)} tables libres
+      </p>
       <div
         ref={chipsRef}
         className="club-zones"
@@ -453,6 +487,8 @@ export function EventBooking({
         })}
       </div>
 
+      </div>
+
       <div className="club-booking-grid">
         <div className="club-plan-col">
           <div className="club-plan-bar">
@@ -465,7 +501,7 @@ export function EventBooking({
               {bookable ? (
                 <>
                   <span className="club-touch-only">Touchez une table · pincez ou double-touchez pour zoomer</span>
-                  <span className="club-mouse-only">Cliquez une table · Ctrl + molette ou double-clic pour zoomer</span>
+                  <span className="club-mouse-only">Cliquez une table · Ctrl + molette ou + pour zoomer</span>
                 </>
               ) : (
                 "Réservation en ligne pas encore ouverte"
@@ -489,21 +525,23 @@ export function EventBooking({
           />
         </div>
 
-        {selected && selectedZone && !sheetOpen && (
-          <div className="club-pricebar" role="region" aria-label="Table choisie">
+        {barTable && barZone && (
+          <div
+            className="club-pricebar"
+            role="region"
+            aria-label="Table choisie"
+            data-shown={(Boolean(selected) && !sheetOpen) || undefined}
+            inert={!selected || sheetOpen}
+          >
             <p>
               <span className="club-pricebar-table">
-                Table <span className="club-mono">{selected.label}</span> · {party} pers.
+                {barZone.name} · <span className="club-code">{barTable.label}</span> · {party} pers.
               </span>
               <span className="club-pricebar-total">
-                <RollingAmount cents={total} className="club-mono" /> tout compris
+                <RollingAmount cents={allIn(barZone.priceCents)} className="club-mono" /> tout compris
               </span>
             </p>
-            <button
-              type="button"
-              className="club-button club-button-primary"
-              onClick={() => setSheetOpen(true)}
-            >
+            <button type="button" className="club-button club-button-primary" onClick={() => setSheetOpen(true)}>
               Réserver
             </button>
           </div>
@@ -565,7 +603,13 @@ export function EventBooking({
             </div>
           ) : (
             <div className="club-sheet-body">
-              <div className="club-sheet-head">
+              <div
+                className="club-sheet-head"
+                onPointerDown={onHandleDown}
+                onPointerMove={onHandleMove}
+                onPointerUp={onHandleUp}
+                onPointerCancel={onHandleUp}
+              >
                 {step === "infos" ? (
                   <button type="button" className="club-icon-button" onClick={() => setStep("table")} aria-label="Revenir à la table">
                     <svg viewBox="0 0 16 16" aria-hidden>
@@ -602,11 +646,9 @@ export function EventBooking({
 
               <div className="club-sheet-table">
                 <h3 ref={headingRef} tabIndex={-1} className="club-sheet-title">
-                  Table <span className="club-mono">{selected.label}</span>
+                  {selectedZone.name} · <span className="club-code">{selected.label}</span>
                 </h3>
-                <p className="club-sheet-text">
-                  {selectedZone.name} · jusqu&rsquo;à {selected.seats} pers.
-                </p>
+                <p className="club-sheet-text">Jusqu&rsquo;à {selected.seats} personnes</p>
               </div>
 
               <div ref={stageRef} className="club-stage">
@@ -714,31 +756,38 @@ export function EventBooking({
                       <small>Votre confirmation et votre QR code y arrivent.</small>
                     </label>
                     <div className="club-conditions">
-                      <p className="club-conditions-summary">
-                        {[
-                          `${conditions.minAge} ans et plus`,
-                          conditions.dress,
-                          "non remboursable sauf soirée annulée",
-                          `table tenue ${TABLE_HOLD_S / 60} min`,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </p>
-                      <details className="club-conditions-more">
-                        <summary>Lire les conditions</summary>
-                        <ul>
-                          <li>Entrée à partir de {conditions.minAge} ans, pièce d&rsquo;identité à l&rsquo;appui.</li>
-                          {(conditions.dress || conditions.refused) && (
-                            <li>{[conditions.dress, conditions.refused].filter(Boolean).join(" · ")}.</li>
-                          )}
-                          <li>{REFUND_RULE}</li>
-                          <li>La table vous est tenue {TABLE_HOLD_S / 60} minutes, le temps de régler.</li>
-                        </ul>
-                      </details>
+                      <ul className="club-conditions-list">
+                        <li>
+                          <svg viewBox="0 0 24 24" aria-hidden>
+                            <rect x="3" y="5" width="18" height="14" rx="3" />
+                            <circle cx="9" cy="11" r="2.2" />
+                            <path d="M6 16c.8-1.6 1.9-2.4 3-2.4s2.2.8 3 2.4M14 10h4M14 13.5h3" />
+                          </svg>
+                          <span>{`${conditions.minAge} ans et plus, pièce d’identité à l’appui`}</span>
+                        </li>
+                        {(conditions.dress || conditions.refused) && (
+                          <li>
+                            <svg viewBox="0 0 24 24" aria-hidden>
+                              <path d="M9 3 4 6l2 4 2-1v12h8V9l2 1 2-4-5-3c-.5 1.4-1.7 2.2-3 2.2S9.5 4.4 9 3Z" />
+                            </svg>
+                            <span>{[conditions.dress, conditions.refused].filter(Boolean).join(" · ")}</span>
+                          </li>
+                        )}
+                        <li>
+                          <svg viewBox="0 0 24 24" aria-hidden>
+                            <path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4" />
+                            <path d="M12 8v4l3 2" />
+                          </svg>
+                          <span>{REFUND_RULE}</span>
+                        </li>
+                      </ul>
                       <label className="club-check">
                         <input type="checkbox" required checked={accepted} onChange={(input) => setAccepted(input.target.checked)} />
                         <span>J&rsquo;accepte les conditions du club</span>
                       </label>
+                      <p className="club-fine club-hold-note">
+                        La table vous est tenue {TABLE_HOLD_S / 60} minutes dès que vous passez au paiement.
+                      </p>
                     </div>
                     {formError && (
                       <p className="club-error" role="alert">
@@ -774,6 +823,12 @@ export function EventBooking({
                       bookingId={hold.bookingId}
                       totalCents={hold.totalCents}
                       remainingMs={hold.remainingMs}
+                      recap={[
+                        formatNightShort(event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
+                        tableName(selectedZone.name, selected.label),
+                        `${party} pers.`,
+                        `${formatCents(hold.totalCents)} tout compris`,
+                      ].join(" · ")}
                       onPaid={onPaid}
                       onExpired={onExpired}
                     />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/club/media";
 
 /*
  * Le temps qui reste pour régler une table tenue, en anneau qui se vide.
@@ -37,7 +38,7 @@ export function HoldCountdown({
     const ring = ringRef.current;
     const start = Math.max(0, remainingMs);
     const deadline = performance.now() + start;
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     const sweep =
       ring && !reduced && start > 0
         ? ring.animate(
@@ -80,7 +81,7 @@ export function HoldCountdown({
           strokeDashoffset={offsetAt(Math.max(0, remainingMs), totalMs)}
         />
       </svg>
-      <span className="club-countdown-time club-nums" role="timer" aria-label={`Temps restant : ${label}`}>
+      <span className="club-countdown-time" role="timer" aria-label={`Temps restant : ${label}`}>
         {label}
       </span>
       <span className="sr-only" aria-live="polite">

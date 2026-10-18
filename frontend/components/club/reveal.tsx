@@ -3,10 +3,10 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 /*
- * Apparition au défilement (.club-reveal, data-shown la première fois que
- * l'élément entre à l'écran). Sans script, l'élément n'est jamais masqué
- * (club.css, @media (scripting: enabled)) ; sans IntersectionObserver, il
- * s'affiche tout de suite.
+ * Apparition au défilement (.club-reveal). Rien n'est jamais masqué en
+ * attendant : le rendu serveur est visible ; seul un élément encore sous
+ * l'écran après hydratation se met en retrait (data-pending) jusqu'à y
+ * entrer.
  */
 export function Reveal({
   children,
@@ -24,14 +24,14 @@ export function Reveal({
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (typeof IntersectionObserver === "undefined") {
-      node.dataset.shown = "";
-      return;
-    }
+    // Déjà à l'écran au montage, ou sans IntersectionObserver : rien à jouer. Sinon, l'élément (hors de
+    // l'écran, donc sans que cela se voie) se met en retrait jusqu'à son entrée.
+    if (typeof IntersectionObserver === "undefined" || node.getBoundingClientRect().top < window.innerHeight) return;
+    node.dataset.pending = "";
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        node.dataset.shown = "";
+        delete node.dataset.pending;
         observer.disconnect();
       },
       { rootMargin: "0px 0px 8% 0px" }

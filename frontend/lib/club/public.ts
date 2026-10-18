@@ -112,6 +112,7 @@ export type BookingTicket = {
   priceCents: number;
   feeCents: number;
   totalCents: number;
+  createdAt: string;
   holdExpiresAt: string | null;
   paidAt: string | null;
   refundedAt: string | null;
@@ -136,7 +137,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider)"
+      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider)"
     )
     .eq("token", token)
     .maybeSingle();
@@ -150,6 +151,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     priceCents: data.price_cents,
     feeCents: data.fee_cents,
     totalCents: data.total_cents,
+    createdAt: data.created_at,
     holdExpiresAt: data.hold_expires_at,
     paidAt: data.paid_at,
     refundedAt: data.refunded_at,

@@ -20,7 +20,8 @@ import type { Club } from "@/lib/club/types";
  * rendre la table.
  */
 
-type Outcome = { onPaid: () => void; onExpired: () => void; onBusy: (busy: boolean) => void };
+/* onExpired : le message du serveur quand la table n'est plus tenue (délai passé, réservation reprise). */
+type Outcome = { onPaid: () => void; onExpired: (message?: string) => void; onBusy: (busy: boolean) => void };
 
 async function post(path: "/api/club/pay" | "/api/club/verify", bookingId: string) {
   const response = await fetch(path, {
@@ -85,7 +86,7 @@ function DemoPayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { boo
     setError(null);
     try {
       const { status, ok, body } = await post("/api/club/pay", bookingId);
-      if (status === 410) return onExpired();
+      if (status === 409 || status === 410) return onExpired(body.error);
       if (ok && body.paid) {
         setPaid(true);
         return onPaid();
@@ -100,10 +101,21 @@ function DemoPayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { boo
   };
   return (
     <div className="club-pay">
+      {/* La place d'Apple Pay et de Google Pay, en tête comme chez Stripe ; ici, inactifs et dits tels. */}
+      <ul className="club-demo-wallets" aria-label="Portefeuilles (démonstration, inactifs)">
+        <li>
+          <span>Apple Pay</span>
+          <span className="club-demo-badge">Démo</span>
+        </li>
+        <li>
+          <span>Google Pay</span>
+          <span className="club-demo-badge">Démo</span>
+        </li>
+      </ul>
       <div className="club-demo">
         <div className="club-demo-card" aria-hidden>
           <span className="club-demo-card-chip" />
-          <span className="club-demo-card-number club-mono">•••• 0000</span>
+          <span className="club-demo-card-number club-code">•••• 0000</span>
         </div>
         <p className="club-pay-note">
           <strong>Carte de démonstration.</strong> Aucun débit : la table est réservée comme après un vrai paiement.
@@ -126,15 +138,20 @@ const CARD_ID = "club-stripe-card";
 
 function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { bookingId: string; totalCents: number } & Outcome) {
   const [refunded, setRefunded] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const prepare = useCallback(async (): Promise<PreparedIntent> => {
     const { status, ok, body } = await post("/api/club/pay", bookingId);
-    if (status === 410) {
-      onExpired();
+    // Délai passé (410) ou réservation qui n'est plus active (409) : la table n'est plus tenue.
+    if (status === 409 || status === 410) {
+      onExpired(body.error);
       return { kind: "halt" };
     }
     if (ok && body.paid) return { kind: "paid" };
-    if (!ok || !body.clientSecret || !body.accountId || !body.publishableKey) return { kind: "error" };
+    if (!ok || !body.clientSecret || !body.accountId || !body.publishableKey) {
+      setServerError(body.error ?? null);
+      return { kind: "error" };
+    }
     return { kind: "intent", clientSecret: body.clientSecret, accountId: body.accountId, publishableKey: body.publishableKey };
   }, [bookingId, onExpired]);
 
@@ -193,7 +210,7 @@ function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }
           Votre paiement est arrivé après la fin du délai, et la table n&rsquo;était plus libre : il vous est remboursé
           automatiquement, sans démarche de votre part.
         </p>
-        <button type="button" className="club-button club-button-ghost club-button-block" onClick={onExpired}>
+        <button type="button" className="club-button club-button-ghost club-button-block" onClick={() => onExpired()}>
           Choisir une autre table
         </button>
       </div>
@@ -206,9 +223,16 @@ function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }
         <p className="club-error" role="alert">
           {state === "declined"
             ? "Paiement refusé par votre banque. Rien n'a été débité."
-            : "Le paiement n'a pas pu aboutir. Réessayez : un paiement déjà passé ne sera pas compté deux fois."}
+            : (serverError ?? "Le paiement n'a pas pu aboutir. Réessayez : un paiement déjà passé ne sera pas compté deux fois.")}
         </p>
-        <button type="button" className="club-button club-button-ghost club-button-block" onClick={retry}>
+        <button
+          type="button"
+          className="club-button club-button-ghost club-button-block"
+          onClick={() => {
+            setServerError(null);
+            retry();
+          }}
+        >
           Réessayer
         </button>
       </div>
@@ -248,6 +272,7 @@ export function TablePayment({
   bookingId,
   totalCents,
   remainingMs,
+  recap,
   onPaid,
   onExpired,
 }: {
@@ -256,8 +281,10 @@ export function TablePayment({
   totalCents: number;
   /** Temps restant sur la table tenue, au montage. */
   remainingMs: number;
+  /** « Sam. 24 oct. · VIP Salon Rouge · 03 · 8 pers. · 1 050 € tout compris ». */
+  recap: string;
   onPaid: () => void;
-  onExpired: () => void;
+  onExpired: (message?: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [timeUp, setTimeUp] = useState(false);
@@ -267,14 +294,17 @@ export function TablePayment({
     outcome.current = { onPaid, onExpired };
   }, [onPaid, onExpired]);
   const paid = useCallback(() => outcome.current.onPaid(), []);
-  const expired = useCallback(() => outcome.current.onExpired(), []);
+  const expired = useCallback((message?: string) => outcome.current.onExpired(message), []);
 
   useEffect(() => {
     if (!timeUp || busy) return;
     let gone = false;
     post("/api/club/verify", bookingId)
       .then(({ body }) => {
-        if (!gone) (body.paid ? paid : expired)();
+        if (!gone) {
+          if (body.paid) paid();
+          else expired();
+        }
       })
       .catch(() => {
         if (!gone) expired();
@@ -288,6 +318,7 @@ export function TablePayment({
   const props = { bookingId, totalCents, onPaid: paid, onExpired: expired, onBusy: setBusy };
   return (
     <div className="club-paystep">
+      <p className="club-recap">{recap}</p>
       <div className="club-paystep-head">
         <HoldCountdown remainingMs={remainingMs} totalMs={TABLE_HOLD_S * 1000} onExpire={onTimeUp} />
         <p aria-live="polite">
@@ -299,7 +330,7 @@ export function TablePayment({
             )
           ) : (
             <>
-              <strong>Table tenue pour vous.</strong> Réglez avant la fin du compte à rebours.
+              <strong>Table tenue {TABLE_HOLD_S / 60} min pour vous.</strong> Réglez avant la fin du compte à rebours.
             </>
           )}
         </p>

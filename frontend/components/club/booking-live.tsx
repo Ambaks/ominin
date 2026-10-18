@@ -4,7 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSkyPause } from "@/components/club/club-sky";
 import { TablePayment } from "@/components/club/table-payment";
-import { CLUB_BURST, CLUB_EASE, CLUB_TIMING } from "@/components/club/timing";
+import { CLUB_BURST, CLUB_TIMING } from "@/components/club/timing";
+import { clubToken, prefersReducedMotion } from "@/lib/club/media";
 import type { Club } from "@/lib/club/types";
 
 /*
@@ -37,11 +38,13 @@ export function ResumePayment({
   provider,
   totalCents,
   remainingMs,
+  recap,
 }: {
   bookingId: string;
   provider: Club["paymentProvider"];
   totalCents: number;
   remainingMs: number;
+  recap: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -55,6 +58,7 @@ export function ResumePayment({
         bookingId={bookingId}
         totalCents={totalCents}
         remainingMs={remainingMs}
+        recap={recap}
         onPaid={onPaid}
         onExpired={onExpired}
       />
@@ -77,7 +81,7 @@ export function PaidBurst() {
     const host = layer.current;
     const plate = document.querySelector<HTMLElement>(".club-qr-plate");
     const step = document.querySelector<HTMLElement>(".club-track [data-step='payee']");
-    if (!host || !plate || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!host || !plate || prefersReducedMotion()) return;
 
     const animations: Animation[] = [];
     const timer = window.setTimeout(() => {
@@ -86,6 +90,7 @@ export function PaidBurst() {
       host.style.setProperty("--y", `${box.top + box.height / 2}px`);
       plate.setAttribute("data-flash", "");
       const [near, far] = CLUB_BURST.reach;
+      const ease = clubToken("--c-ease");
       for (let index = 0; index < CLUB_BURST.stars; index++) {
         const star = document.createElement("span");
         star.className = "club-burst-star";
@@ -101,7 +106,7 @@ export function PaidBurst() {
               opacity: 0,
             },
           ],
-          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_TIMING.stagger * 2, easing: CLUB_EASE, fill: "both" }
+          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_TIMING.stagger * 2, easing: ease, fill: "both" }
         );
         animation.onfinish = () => star.remove();
         animations.push(animation);
@@ -164,7 +169,7 @@ export function PassActions({ url, title }: { url: string; title: string }) {
     await navigator.clipboard?.writeText(url).then(() => setCopied(true), () => {});
   };
   return (
-    <button type="button" className="club-button club-button-ghost" onClick={() => void share()}>
+    <button type="button" onClick={() => void share()}>
       {copied ? "Lien copié" : "Partager"}
       <span className="sr-only" aria-live="polite">
         {copied ? "Le lien de la réservation est copié." : ""}

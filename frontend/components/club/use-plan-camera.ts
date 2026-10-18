@@ -1,88 +1,158 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PLAN_CAMERA as CAM } from "@/components/club/timing";
+import { prefersReducedMotion } from "@/lib/club/media";
 
 /*
- * La caméra du plan : le dessin (le <svg>, à la largeur du cadre) se
- * déplace et s'agrandit par une transformation CSS, jamais par sa mise en
- * page. Glisser déplace (zoomé), pincer ou Ctrl/⌘ + molette agrandit autour
- * du point visé, double toucher zoome sur la table ; relâché, le plan glisse
- * et ralentit, et revient en ressort s'il a dépassé ses bords. À l'échelle 1,
- * un glissement vertical reste le défilement de la page (touch-action
- * pan-y) ; un glissement horizontal change de zone (onSwipe). Les gestes
- * sont lus au fil des évènements, appliqués une fois par image.
+ * La caméra d'un plan de salle, partagée par la page du club et l'espace de
+ * gestion. Le dessin (le calque `content`, à la largeur du cadre
+ * `viewport`) se déplace et s'agrandit par une transformation CSS, jamais
+ * par sa mise en page.
  *
- * Un toucher sans glissement est rendu par onTap (le plan choisit la table
- * la plus proche du doigt) ; les clics de pointeur qui suivent sont
- * absorbés. Mouvement réduit : ni élan, ni ressort, ni débordement.
+ * Au repos, la caméra cadre `fit` (fractions du calque : la salle utile,
+ * sans le vide autour) dans le cadre. Glisser déplace (zoomé), pincer ou
+ * Ctrl/⌘ + molette agrandit autour du point visé, double toucher zoome
+ * (doubleTapZoom) ; relâché, le plan glisse, ralentit, et revient en ressort
+ * s'il a dépassé ses bords. Au repos, un glissement vertical reste le
+ * défilement de la page (touch-action pan-y) — sauf à deux doigts, qui
+ * pincent ; un glissement horizontal est rendu par onSwipe. Le focus
+ * clavier d'un élément hors cadre l'y ramène.
+ *
+ * Un toucher sans glissement est rendu par onTap (point écran, cadre) ; avec
+ * doubleTapZoom, un toucher au doigt attend doubleTapMs qu'un second ne le
+ * transforme pas en zoom. Les clics de pointeur sont absorbés ; ceux du
+ * clavier et des lecteurs d'écran passent. Mouvement réduit : ni élan, ni
+ * ressort, ni débordement.
  */
 
-type Cam = { x: number; y: number; s: number };
+export type PlanCamera = { x: number; y: number; s: number };
+/** Un rectangle en fractions du calque (0 à 1). */
+export type FitRect = { x: number; y: number; w: number; h: number };
 type Point = { x: number; y: number };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+/* Écart d'échelle sous lequel deux caméras sont confondues. */
+const EPSILON = 0.001;
 
 export function usePlanCamera({
   resetKey,
+  fit = null,
+  fitHeight = false,
+  maxZoom = CAM.max,
+  doubleTapZoom = true,
   onTap,
   onSwipe,
+  onChange,
 }: {
-  /** Change (la zone) ⇒ retour instantané à la vue entière. */
+  /** Change (la zone) ⇒ retour instantané au cadrage de repos. */
   resetKey: string;
-  onTap: (point: Point) => void;
-  onSwipe: (direction: 1 | -1) => void;
+  fit?: FitRect | null;
+  /**
+   * Le cadre prend la hauteur de `fit` à pleine largeur, bornée par sa
+   * feuille de style (min-height, max-height) ; une transition de hauteur
+   * la fait glisser d'un cadrage à l'autre.
+   */
+  fitHeight?: boolean;
+  /** Agrandissement maximal, relatif au cadrage de repos. */
+  maxZoom?: number;
+  doubleTapZoom?: boolean;
+  /** Un toucher : le point (écran) et le cadre à cet instant. */
+  onTap?: (point: Point, frame: DOMRect) => void;
+  onSwipe?: (direction: 1 | -1) => void;
+  /** Après chaque image où la caméra a bougé. */
+  onChange?: (camera: PlanCamera) => void;
 }) {
-  /* Le cadre (gestes) et le calque transformé (le plan). */
   const viewport = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState(false);
-  const cam = useRef<Cam>({ x: 0, y: 0, s: 1 });
-  const handlers = useRef({ onTap, onSwipe });
+  const cam = useRef<PlanCamera>({ x: 0, y: 0, s: 1 });
+  const handlers = useRef({ onTap, onSwipe, onChange });
   useEffect(() => {
-    handlers.current = { onTap, onSwipe };
-  }, [onTap, onSwipe]);
-  const api = useRef<{
-    recenter: () => void;
-    zoomBy: (factor: number) => void;
-  } | null>(null);
+    handlers.current = { onTap, onSwipe, onChange };
+  }, [onTap, onSwipe, onChange]);
+  const fitKey = fit ? `${fit.x}:${fit.y}:${fit.w}:${fit.h}` : "";
+  const fitRef = useRef(fit);
+  // Avant tout autre effet : le cadrage et la hauteur lisent le `fit` de ce rendu.
+  useLayoutEffect(() => {
+    fitRef.current = fit;
+  }, [fit]);
+  const api = useRef<{ recenter: () => void; zoomBy: (factor: number) => void } | null>(null);
+
+  useLayoutEffect(() => {
+    const frame = viewport.current;
+    const layer = content.current;
+    if (!fitHeight || !frame || !layer) return;
+    const size = () => {
+      const f = fitRef.current ?? { x: 0, y: 0, w: 1, h: 1 };
+      frame.style.height = `${(f.h * layer.offsetHeight) / f.w}px`;
+    };
+    size();
+    // La largeur du calque suit celle du cadre : sa hauteur dit la nouvelle proportion.
+    const observer = new ResizeObserver(size);
+    observer.observe(layer);
+    return () => observer.disconnect();
+  }, [fitHeight, fitKey]);
 
   useEffect(() => {
     const frame = viewport.current;
     const layer = content.current;
     if (!frame || !layer) return;
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     const c = cam.current;
-    c.x = 0;
-    c.y = 0;
-    c.s = 1;
 
-    let raf = 0;
-    let motion: "idle" | "drag" | "pinch" | "glide" | "spring" = "idle";
-    let target: Cam = { x: 0, y: 0, s: 1 };
-    const velocity = { x: 0, y: 0, s: 0 };
-    let last = 0;
-
-    const bounds = (s: number) => {
-      const w = frame.clientWidth;
+    /* ---------- Cadrage ---------- */
+    const focusRect = () => {
+      const w = layer.offsetWidth;
       const h = layer.offsetHeight;
-      return { minX: w - w * s, minY: h - h * s };
+      const f = fitRef.current ?? { x: 0, y: 0, w: 1, h: 1 };
+      return { x: f.x * w, y: f.y * h, w: f.w * w, h: f.h * h };
     };
-    const soft = (value: number, min: number) => {
-      if (value > 0) return reduced ? 0 : value * CAM.rubber;
+    const home = (): PlanCamera => {
+      const r = focusRect();
+      const vw = frame.clientWidth;
+      const vh = frame.clientHeight;
+      const s = Math.min(vw / r.w, vh / r.h);
+      return { s, x: vw / 2 - (r.x + r.w / 2) * s, y: vh / 2 - (r.y + r.h / 2) * s };
+    };
+    let rest = home();
+    const range = () => ({ min: rest.s, max: rest.s * maxZoom });
+    /* Bornes d'une caméra d'échelle s : la salle utile reste à l'écran, centrée si elle y tient. */
+    const limits = (s: number) => {
+      const r = focusRect();
+      const axis = (start: number, size: number, view: number) => {
+        if (size * s <= view) {
+          const centred = view / 2 - (start + size / 2) * s;
+          return { min: centred, max: centred };
+        }
+        return { min: view - (start + size) * s, max: -start * s };
+      };
+      return { x: axis(r.x, r.w, frame.clientWidth), y: axis(r.y, r.h, frame.clientHeight) };
+    };
+    const soft = (value: number, { min, max }: { min: number; max: number }) => {
+      if (value > max) return reduced ? max : max + (value - max) * CAM.rubber;
       if (value < min) return reduced ? min : min + (value - min) * CAM.rubber;
       return value;
     };
-    const inBounds = (cam: Cam): Cam => {
-      const s = clamp(cam.s, CAM.min, CAM.max);
-      const { minX, minY } = bounds(s);
-      return { s, x: clamp(cam.x, minX, 0), y: clamp(cam.y, minY, 0) };
+    const inBounds = (next: PlanCamera): PlanCamera => {
+      const { min, max } = range();
+      const s = clamp(next.s, min, max);
+      const { x, y } = limits(s);
+      return { s, x: clamp(next.x, x.min, x.max), y: clamp(next.y, y.min, y.max) };
     };
 
-    let wasZoomed = false;
+    /* ---------- Rendu ---------- */
+    let raf = 0;
+    let motion: "idle" | "drag" | "pinch" | "glide" | "spring" = "idle";
+    let target: PlanCamera = { ...rest };
+    const velocity = { x: 0, y: 0, s: 0 };
+    let last = 0;
+    let wasZoomed: boolean | null = null;
+
     const paint = () => {
       layer.style.transform = `translate3d(${c.x}px, ${c.y}px, 0) scale(${c.s})`;
-      const isZoomed = c.s > CAM.min + 0.001;
+      handlers.current.onChange?.({ ...c });
+      const isZoomed = c.s > rest.s * (1 + EPSILON);
       if (isZoomed === wasZoomed) return;
       wasZoomed = isZoomed;
       frame.style.touchAction = isZoomed ? "none" : "pan-y";
@@ -92,8 +162,18 @@ export function usePlanCamera({
     const kick = () => {
       if (!raf) raf = requestAnimationFrame(step);
     };
-    const settle = (to: Cam) => {
+    const stop = () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      motion = "idle";
+    };
+    const zeroVelocity = () => {
+      velocity.x = velocity.y = velocity.s = 0;
+    };
+    /* Vers une caméra, en ressort ; carry : l'élan d'un glissement s'y prolonge. */
+    const settle = (to: PlanCamera, carry = false) => {
       target = inBounds(to);
+      if (!carry) zeroVelocity();
       if (reduced) {
         Object.assign(c, target);
         motion = "idle";
@@ -104,14 +184,22 @@ export function usePlanCamera({
       last = 0;
       kick();
     };
+    function zoomAt(point: Point, scale: number, from: PlanCamera = c) {
+      const { min, max } = range();
+      const s = clamp(scale, min, max);
+      const ratio = s / from.s;
+      settle({ s, x: point.x - (point.x - from.x) * ratio, y: point.y - (point.y - from.y) * ratio });
+    }
 
     /* ---------- Gestes ---------- */
     const pointers = new Map<number, Point>();
-    let start: { cam: Cam; point: Point; time: number } | null = null;
-    let pinch: { cam: Cam; distance: number; mid: Point } | null = null;
+    let start: { cam: PlanCamera; point: Point } | null = null;
+    let pinch: { cam: PlanCamera; distance: number; mid: Point } | null = null;
     let moved = false;
     let lastTap: { point: Point; time: number } | null = null;
-    let sample: { point: Point; time: number } | null = null;
+    let pendingTap = 0;
+    /* Les dernières positions du doigt : la vitesse se lit sur sampleMs, pas sur un seul évènement. */
+    let samples: { x: number; y: number; t: number }[] = [];
 
     const local = (event: { clientX: number; clientY: number }): Point => {
       const box = frame.getBoundingClientRect();
@@ -121,6 +209,7 @@ export function usePlanCamera({
       const [a, b] = [...pointers.values()];
       return { distance: Math.hypot(a.x - b.x, a.y - b.y), mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
     };
+    const zoomedNow = () => c.s > rest.s * (1 + EPSILON);
 
     const onDown = (event: PointerEvent) => {
       if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -129,18 +218,18 @@ export function usePlanCamera({
       try {
         frame.setPointerCapture(event.pointerId);
       } catch {}
-      motion = "idle";
-      cancelAnimationFrame(raf);
-      raf = 0;
+      stop();
+      zeroVelocity();
       if (pointers.size === 1) {
-        start = { cam: { ...c }, point: local(event), time: event.timeStamp };
-        sample = { point: local(event), time: event.timeStamp };
+        start = { cam: { ...c }, point: local(event) };
+        samples = [{ ...local(event), t: event.timeStamp }];
         moved = false;
       } else if (pointers.size === 2) {
         const { distance, mid } = twoFingers();
         pinch = { cam: { ...c }, distance, mid };
         moved = true;
         motion = "pinch";
+        clearTimeout(pendingTap);
       }
     };
 
@@ -153,22 +242,24 @@ export function usePlanCamera({
         return;
       }
       if (!start) return;
-      const dx = point.x - start.point.x;
-      const dy = point.y - start.point.y;
-      if (!moved && Math.hypot(dx, dy) > CAM.tapSlop) {
+      if (!moved && Math.hypot(point.x - start.point.x, point.y - start.point.y) > CAM.tapSlop) {
         moved = true;
-        // À l'échelle 1, un glissement vertical appartient à la page.
-        if (c.s > CAM.min + 0.001) motion = "drag";
+        // Au repos, un glissement vertical appartient à la page.
+        if (zoomedNow()) motion = "drag";
       }
       if (motion === "drag") {
-        if (sample) {
-          const dt = Math.max(event.timeStamp - sample.time, 1);
-          velocity.x = (point.x - sample.point.x) / dt;
-          velocity.y = (point.y - sample.point.y) / dt;
-        }
-        sample = { point, time: event.timeStamp };
+        samples.push({ ...point, t: event.timeStamp });
+        while (samples.length > 2 && event.timeStamp - samples[0].t > CAM.sampleMs) samples.shift();
         kick();
       }
+    };
+
+    const fling = (now: number) => {
+      const first = samples[0];
+      const latest = samples[samples.length - 1];
+      if (!first || !latest || now - latest.t > CAM.sampleMs) return null;
+      const dt = Math.max(latest.t - first.t, 1);
+      return { x: (latest.x - first.x) / dt, y: (latest.y - first.y) / dt };
     };
 
     const onUp = (event: PointerEvent) => {
@@ -186,28 +277,42 @@ export function usePlanCamera({
       if (!start) return;
       const dx = point.x - start.point.x;
       const dy = point.y - start.point.y;
+      start = null;
       if (!moved) {
+        const tap = { x: event.clientX, y: event.clientY };
+        if (!doubleTapZoom || event.pointerType === "mouse") {
+          handlers.current.onTap?.(tap, frame.getBoundingClientRect());
+          return;
+        }
         const now = event.timeStamp;
         const double =
-          lastTap && now - lastTap.time < CAM.doubleTapMs && Math.hypot(point.x - lastTap.point.x, point.y - lastTap.point.y) < CAM.doubleTapSlop;
+          lastTap &&
+          now - lastTap.time < CAM.doubleTapMs &&
+          Math.hypot(point.x - lastTap.point.x, point.y - lastTap.point.y) < CAM.doubleTapSlop;
+        clearTimeout(pendingTap);
         if (double) {
           lastTap = null;
-          zoomAt(point, c.s > CAM.min + 0.001 ? CAM.min : CAM.doubleZoom);
+          zoomAt(point, zoomedNow() ? rest.s : rest.s * CAM.doubleZoom);
         } else {
           lastTap = { point, time: now };
-          handlers.current.onTap({ x: event.clientX, y: event.clientY });
+          pendingTap = window.setTimeout(() => handlers.current.onTap?.(tap, frame.getBoundingClientRect()), CAM.doubleTapMs);
         }
-      } else if (motion === "drag") {
-        const fresh = sample && event.timeStamp - sample.time < 80;
-        if (!reduced && fresh && Math.hypot(velocity.x, velocity.y) > CAM.minSpeed) {
+        return;
+      }
+      if (motion === "drag") {
+        const speed = fling(event.timeStamp);
+        if (!reduced && speed && Math.hypot(speed.x, speed.y) > CAM.minSpeed) {
+          velocity.x = speed.x;
+          velocity.y = speed.y;
           motion = "glide";
           last = 0;
           kick();
         } else settle(c);
-      } else if (c.s <= CAM.min + 0.001 && Math.abs(dx) > CAM.swipe && Math.abs(dx) > Math.abs(dy) * 1.5) {
-        handlers.current.onSwipe(dx < 0 ? 1 : -1);
+        return;
       }
-      start = null;
+      if (!zoomedNow() && Math.abs(dx) > CAM.swipe && Math.abs(dx) > Math.abs(dy) * CAM.swipeRatio) {
+        handlers.current.onSwipe?.(dx < 0 ? 1 : -1);
+      }
     };
 
     const onCancel = (event: PointerEvent) => {
@@ -224,78 +329,109 @@ export function usePlanCamera({
       event.preventDefault();
     };
 
+    // Deux doigts au repos : c'est un pincement, pas le défilement de la page.
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length >= 2) event.preventDefault();
+    };
+
     const onWheel = (event: WheelEvent) => {
       if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
-      zoomAt(local(event), c.s * Math.exp(-event.deltaY * CAM.wheel), true);
+      // Molette continue : chaque cran part de la cible en cours, le ressort suit.
+      const from = motion === "spring" ? target : c;
+      zoomAt(local(event), from.s * Math.exp(-event.deltaY * CAM.wheel), from);
     };
 
-    function zoomAt(point: Point, scale: number, instant = false) {
-      const s = clamp(scale, CAM.min, CAM.max);
-      const ratio = s / c.s;
-      const next = { s, x: point.x - (point.x - c.x) * ratio, y: point.y - (point.y - c.y) * ratio };
-      if (instant || reduced) {
-        Object.assign(c, inBounds(next));
-        paint();
-      } else settle(next);
-    }
+    // Un élément focalisé hors du cadre (Tab) y revient, sans défiler le cadre lui-même.
+    const onFocusIn = (event: FocusEvent) => {
+      const element = event.target as Element;
+      if (!layer.contains(element)) return;
+      const box = element.getBoundingClientRect();
+      const view = frame.getBoundingClientRect();
+      const inside =
+        box.left >= view.left && box.right <= view.right && box.top >= view.top && box.bottom <= view.bottom;
+      if (inside) return;
+      settle({
+        s: c.s,
+        x: c.x + (view.left + view.width / 2 - (box.left + box.width / 2)),
+        y: c.y + (view.top + view.height / 2 - (box.top + box.height / 2)),
+      });
+    };
 
     /* ---------- Une image ---------- */
     function step(now: number) {
       raf = 0;
-      const dt = last ? Math.min(now - last, 32) : 16;
+      const dt = last ? Math.min(now - last, CAM.maxStep) : CAM.frameMs;
       last = now;
       if (motion === "pinch" && pinch && pointers.size === 2) {
         const { distance, mid } = twoFingers();
-        const s = clamp((pinch.cam.s * distance) / pinch.distance, CAM.min * 0.85, CAM.max * 1.15);
+        const { min, max } = range();
+        const s = clamp((pinch.cam.s * distance) / pinch.distance, min * CAM.pinchSlack[0], max * CAM.pinchSlack[1]);
         const anchor = { x: (pinch.mid.x - pinch.cam.x) / pinch.cam.s, y: (pinch.mid.y - pinch.cam.y) / pinch.cam.s };
         c.s = s;
         c.x = mid.x - anchor.x * s;
         c.y = mid.y - anchor.y * s;
       } else if (motion === "drag" && start && pointers.size === 1) {
         const point = [...pointers.values()][0];
-        const { minX, minY } = bounds(c.s);
-        c.x = soft(start.cam.x + point.x - start.point.x, minX);
-        c.y = soft(start.cam.y + point.y - start.point.y, minY);
+        const { x, y } = limits(c.s);
+        c.x = soft(start.cam.x + point.x - start.point.x, x);
+        c.y = soft(start.cam.y + point.y - start.point.y, y);
       } else if (motion === "glide") {
-        const decay = CAM.friction ** (dt / 16);
+        // Vitesse en px/ms, freinée par image de frameMs.
+        const decay = CAM.friction ** (dt / CAM.frameMs);
         c.x += velocity.x * dt;
         c.y += velocity.y * dt;
         velocity.x *= decay;
         velocity.y *= decay;
-        const { minX, minY } = bounds(c.s);
-        const out = c.x > 0 || c.x < minX || c.y > 0 || c.y < minY;
+        const { x, y } = limits(c.s);
+        const out = c.x > x.max || c.x < x.min || c.y > y.max || c.y < y.min;
         if (out || Math.hypot(velocity.x, velocity.y) < CAM.minSpeed) {
+          // Le ressort compte en px/s : l'élan lui est passé converti.
+          velocity.x *= 1000;
+          velocity.y *= 1000;
           paint();
-          settle(c);
+          settle(c, true);
           return;
         }
         raf = requestAnimationFrame(step);
       } else if (motion === "spring") {
         const t = dt / 1000;
-        let rest = true;
+        let resting = true;
         for (const key of ["x", "y", "s"] as const) {
           const force = -CAM.stiffness * (c[key] - target[key]) - CAM.damping * velocity[key];
           velocity[key] += force * t;
           c[key] += velocity[key] * t;
-          const scale = key === "s" ? 0.001 : 0.1;
-          if (Math.abs(c[key] - target[key]) > scale || Math.abs(velocity[key]) > scale) rest = false;
+          const tolerance = key === "s" ? EPSILON : CAM.restPx;
+          if (Math.abs(c[key] - target[key]) > tolerance || Math.abs(velocity[key]) > tolerance) resting = false;
         }
-        if (rest) {
+        if (resting) {
           Object.assign(c, target);
-          velocity.x = velocity.y = velocity.s = 0;
+          zeroVelocity();
           motion = "idle";
         } else raf = requestAnimationFrame(step);
       }
       paint();
     }
 
-    layer.style.transform = "";
-    frame.style.touchAction = "pan-y";
-    frame.removeAttribute("data-zoomed");
+    // Le cadrage de repos, à l'arrivée (zone changée) et à chaque nouveau gabarit du cadre.
+    const reframe = () => {
+      const atRest = wasZoomed !== true;
+      rest = home();
+      Object.assign(c, atRest ? rest : inBounds(c));
+      paint();
+    };
+    reframe();
+    const resize = new ResizeObserver(() => {
+      if (motion === "idle") reframe();
+    });
+    resize.observe(frame);
+
     api.current = {
-      recenter: () => settle({ x: 0, y: 0, s: CAM.min }),
-      zoomBy: (factor) => zoomAt({ x: frame.clientWidth / 2, y: layer.offsetHeight / 2 }, c.s * factor),
+      recenter: () => settle(rest),
+      zoomBy: (factor) => {
+        const from = motion === "spring" ? target : c;
+        zoomAt({ x: frame.clientWidth / 2, y: frame.clientHeight / 2 }, from.s * factor, from);
+      },
     };
 
     frame.addEventListener("pointerdown", onDown);
@@ -303,21 +439,28 @@ export function usePlanCamera({
     frame.addEventListener("pointerup", onUp);
     frame.addEventListener("pointercancel", onCancel);
     frame.addEventListener("click", onClick, true);
+    frame.addEventListener("touchstart", onTouchStart, { passive: false });
     frame.addEventListener("wheel", onWheel, { passive: false });
+    frame.addEventListener("focusin", onFocusIn);
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(pendingTap);
+      resize.disconnect();
       api.current = null;
       frame.removeEventListener("pointerdown", onDown);
       frame.removeEventListener("pointermove", onMove);
       frame.removeEventListener("pointerup", onUp);
       frame.removeEventListener("pointercancel", onCancel);
       frame.removeEventListener("click", onClick, true);
+      frame.removeEventListener("touchstart", onTouchStart);
       frame.removeEventListener("wheel", onWheel);
-      layer.style.transform = "";
+      frame.removeEventListener("focusin", onFocusIn);
     };
-  }, [resetKey]);
+  }, [resetKey, fitKey, maxZoom, doubleTapZoom]);
 
   const recenter = useCallback(() => api.current?.recenter(), []);
   const zoomBy = useCallback((factor: number) => api.current?.zoomBy(factor), []);
-  return { viewport, content, zoomed, recenter, zoomBy };
+  /** La caméra du moment (calque en px du cadre) : pour projeter un point du plan à l'écran. */
+  const camera = useCallback((): PlanCamera => ({ ...cam.current }), []);
+  return { viewport, content, zoomed, recenter, zoomBy, camera };
 }

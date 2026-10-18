@@ -47,8 +47,7 @@ html:has(.club) {
 }
 
 /* Les montants : chiffres tabulaires, alignés d'une ligne à l'autre. */
-.club-mono,
-.club-nums {
+.club-mono {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
@@ -358,12 +357,10 @@ html:has(.club) {
   color: var(--c-gold-light);
 }
 
-/* Apparition au défilement (reveal.tsx) ; sans script, rien n'est masqué. */
-@media (scripting: enabled) {
-  .club-reveal:not([data-shown]) {
-    opacity: 0;
-    transform: translateY(16px);
-  }
+/* Apparition au défilement (reveal.tsx) : seul un élément encore sous l'écran attend. */
+.club-reveal[data-pending] {
+  opacity: 0;
+  transform: translateY(16px);
 }
 
 .club-reveal {
@@ -1027,12 +1024,48 @@ html:has(.club) {
 
 /* ---------- Zones ---------- */
 
+.club-conditions-line {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+/* La rangée des zones reste en haut de l'écran pendant qu'on parcourt le plan. */
+.club-zones-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 calc(var(--c-gutter) * -1) 12px;
+  padding: 10px var(--c-gutter) 0;
+  border-bottom: 1px solid var(--c-line);
+  background: #131a3d;
+}
+
+.club-zones-count {
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--c-faint);
+}
+
+.club-zones[data-more-left],
+.club-zones[data-more-right] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade-l, 0px), #000 calc(100% - var(--fade-r, 0px)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--fade-l, 0px), #000 calc(100% - var(--fade-r, 0px)), transparent);
+}
+
+.club-zones[data-more-left] {
+  --fade-l: 32px;
+}
+
+.club-zones[data-more-right] {
+  --fade-r: 32px;
+}
+
 .club-zones {
   position: relative;
   display: flex;
   gap: 8px;
-  margin: 0 calc(var(--c-gutter) * -1) 16px;
-  padding: 2px var(--c-gutter) 6px;
+  margin: 0 calc(var(--c-gutter) * -1);
+  padding: 2px var(--c-gutter) 8px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scroll-padding-inline: var(--c-gutter);
@@ -1164,10 +1197,14 @@ html:has(.club) {
   border-radius: 3px;
 }
 
+/* Libre : l'étoile du club, comme sur le plan du club. */
 .club-legend [data-state="libre"]::before {
-  background: rgba(226, 196, 143, 0.3);
-  border: 1.5px solid var(--c-gold);
-  box-shadow: 0 0 10px rgba(251, 239, 210, 0.7);
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--c-state-libre);
+  -webkit-mask: var(--c-star) center / contain no-repeat;
+  mask: var(--c-star) center / contain no-repeat;
 }
 
 .club-legend [data-state="prise"]::before {
@@ -1194,11 +1231,12 @@ html:has(.club) {
   animation: club-rise var(--c-slow) var(--c-ease) both;
 }
 
+/* Téléphone : le plan pleine largeur, bord à bord. */
 .club-plan-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--c-line);
-  border-radius: var(--c-radius);
+  margin: 0 calc(var(--c-gutter) * -1);
+  border-block: 1px solid var(--c-line);
   background: var(--c-surface);
   backdrop-filter: blur(12px);
 }
@@ -1219,11 +1257,15 @@ html:has(.club) {
   opacity: 1;
 }
 
+/* Hauteur fixe : d'une zone à l'autre, la page ne saute pas ; la caméra cadre les tables dedans. */
 .club-plan-viewport {
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  margin: 12px;
+  height: 60svh;
+  min-height: 280px;
+  max-height: 60svh;
+  overflow: clip;
+  transition: height var(--c-slow) var(--c-ease);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
@@ -1387,7 +1429,7 @@ html:has(.club) {
 
 .club-plan .plan-forme {
   fill: rgb(226 196 143 / calc(0.16 + var(--near) * 0.22));
-  stroke: var(--c-gold);
+  stroke: var(--c-state-libre);
   stroke-width: 1.5;
   transform-box: fill-box;
   transform-origin: center;
@@ -1456,7 +1498,7 @@ html:has(.club) {
 
 .club-plan .plan-table[data-state="prise"] .plan-forme {
   fill: rgba(255, 255, 255, 0.05);
-  stroke: rgba(255, 255, 255, 0.4);
+  stroke: var(--c-state-prise);
 }
 
 .club-plan .plan-table[data-state="prise"] .plan-barre {
@@ -1470,7 +1512,7 @@ html:has(.club) {
 
 .club-plan .plan-table[data-state="fermee"] .plan-forme {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.42);
+  stroke: var(--c-state-fermee);
   stroke-dasharray: 3 4;
 }
 
@@ -1505,6 +1547,7 @@ html:has(.club) {
   animation-play-state: paused !important;
 }
 
+/* Au-dessus du plan, jamais sur ses tables. */
 .club-plan-tools {
   position: relative;
   z-index: 2;
@@ -1512,7 +1555,9 @@ html:has(.club) {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding: 0 10px 10px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--c-line);
 }
 
 .club-tooltip,
@@ -1575,7 +1620,7 @@ html:has(.club) {
   width: max-content;
   max-width: min(320px, 90%);
   font-weight: 500;
-  animation: club-toast 2.4s var(--c-ease) both;
+  animation: club-toast var(--toast-ms) var(--c-ease) both;
 }
 
 @keyframes club-tip {
@@ -1618,13 +1663,13 @@ html:has(.club) {
   background: rgba(24, 32, 66, 0.92);
   box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(16px);
-  animation: club-bar-in var(--c-sheet) var(--c-spring) both;
+  transform: translateY(calc(100% + 40px));
+  transition: transform var(--c-slow) var(--c-exit);
 }
 
-@keyframes club-bar-in {
-  from {
-    transform: translateY(calc(100% + 24px));
-  }
+.club-pricebar[data-shown] {
+  transform: none;
+  transition: transform var(--c-sheet) var(--c-sheet-ease);
 }
 
 .club-pricebar p {
@@ -1668,15 +1713,16 @@ html:has(.club) {
   transform: translateY(calc(100% + 24px));
   visibility: hidden;
   transition:
-    transform var(--c-sheet) var(--c-spring),
+    transform var(--c-sheet) var(--c-sheet-ease),
     visibility 0s linear var(--c-sheet);
 }
 
+/* Ancrée en bas : pas de rebond, qui découvrirait la page dessous. */
 .club-sheet[data-open] {
   transform: none;
   visibility: visible;
   transition:
-    transform var(--c-sheet) var(--c-spring),
+    transform var(--c-sheet) var(--c-sheet-ease),
     visibility 0s;
 }
 
@@ -1734,6 +1780,7 @@ html:has(.club) {
 }
 
 .club-sheet-head {
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2028,7 +2075,8 @@ html:has(.club) {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px 16px;
+  overflow: hidden;
+  padding: 14px 16px 10px;
   border: 1px solid var(--c-line);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
@@ -2060,13 +2108,48 @@ html:has(.club) {
   animation: club-rise var(--c-slow) var(--c-ease) both;
 }
 
+/* Toute la rangée coche la case. */
 .club-check {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 44px;
-  font-weight: 500;
+  min-height: 52px;
+  margin: 0 -16px;
+  padding: 0 16px;
+  border-top: 1px solid var(--c-line);
+  font-weight: 600;
   cursor: pointer;
+}
+
+.club-conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 6px;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-conditions-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.club-conditions-list svg {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-hold-note {
+  text-align: left;
 }
 
 .club-check input {
@@ -2205,6 +2288,44 @@ html:has(.club) {
   color: var(--c-text);
 }
 
+.club-recap {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+  color: var(--c-text);
+}
+
+/* La place des portefeuilles, en démonstration : inactifs, et dits tels. */
+.club-demo-wallets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.club-demo-wallets li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px dashed var(--c-line-strong);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+.club-demo-badge {
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: rgba(226, 196, 143, 0.16);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-gold-light);
+}
+
 .club-demo {
   display: flex;
   align-items: center;
@@ -2308,7 +2429,7 @@ html:has(.club) {
 }
 
 .club-status {
-  --status: var(--c-gold);
+  --status: var(--c-state-libre);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -2316,11 +2437,11 @@ html:has(.club) {
 }
 
 .club-status[data-view="attente"] {
-  --status: var(--c-coral);
+  --status: var(--c-state-attente);
 }
 
 .club-status[data-view="arrivee"] {
-  --status: var(--c-teal);
+  --status: var(--c-state-arrivee);
 }
 
 .club-status[data-view="remboursee"] {
@@ -2328,7 +2449,7 @@ html:has(.club) {
 }
 
 .club-status:is([data-view="annulee"], [data-view="expiree"]) {
-  --status: var(--c-muted);
+  --status: var(--c-state-annulee);
 }
 
 .club-status .club-h1 {
@@ -2368,7 +2489,16 @@ html:has(.club) {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+.club-track small {
+  font-size: 12px;
+  color: var(--c-faint);
+}
+
+.club-track [data-state="current"] {
+  font-weight: 600;
 }
 
 .club-track li > span:first-child {
@@ -2479,7 +2609,7 @@ html:has(.club) {
 
 .club-pass-table {
   font-family: var(--c-display);
-  font-size: 44px;
+  font-size: 30px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -2572,11 +2702,12 @@ html:has(.club) {
   }
 }
 
+/* QR : modules noirs purs sur blanc pur, le contraste le plus lisible à la porte. */
 .club-qr {
   display: block;
   width: 100%;
   height: auto;
-  color: #070a1c;
+  color: #000;
 }
 
 .club-pass-ref {
@@ -2594,14 +2725,37 @@ html:has(.club) {
   border-top: 1px dashed var(--c-line-strong);
 }
 
+/* Une action principale, puis une rangée discrète. */
 .club-pass-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.club-pass-actions .club-button {
-  padding: 0 14px;
+.club-pass-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 8px;
+}
+
+.club-pass-links :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--c-gold-light);
+  cursor: pointer;
+  transition: background-color var(--c-base) var(--c-ease);
+}
+
+.club-pass-links :is(a, button):hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .club-door {
@@ -2743,6 +2897,23 @@ html:has(.club) {
     padding-inline: 0;
     overflow: visible;
   }
+  .club-plan-card {
+    margin: 0;
+    border: 1px solid var(--c-line);
+    border-radius: var(--c-radius);
+  }
+  .club-plan-viewport {
+    max-height: min(64vh, 620px);
+  }
+  .club-zones-bar {
+    position: static;
+    margin-inline: 0;
+    padding-inline: 0;
+    background: none;
+  }
+  .club-zones-count {
+    display: none;
+  }
   .club-booking-grid {
     grid-template-columns: minmax(0, 1fr) 400px;
     align-items: start;
@@ -2810,7 +2981,7 @@ html:has(.club) {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
   }
-  .club-reveal:not([data-shown]) {
+  .club-reveal[data-pending] {
     opacity: 1;
     transform: none;
   }
@@ -2831,4 +3002,14 @@ html:has(.club) {
   .club-track [data-state="current"] > span:first-child {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--status) 35%, transparent);
   }
+}
+
+.club-dock-price {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.club-dock-price::before {
+  content: "·";
+  margin: 0 6px;
 }

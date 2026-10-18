@@ -47,4 +47,17 @@
   --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --c-exit: cubic-bezier(0.4, 0, 1, 1);
   --c-spring: linear(0, 0.18 7%, 0.62 17%, 0.96 27%, 1.07 34%, 1.09 39%, 1.06 47%, 1.01 57%, 0.995 70%, 1);
+  /* Une feuille ancrée en bas arrive sans rebond. */
+  --c-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* États d'une table, les mêmes sur le plan client et le plan du club */
+  --c-state-libre: #e2c48f;
+  --c-state-prise: rgba(255, 255, 255, 0.42);
+  --c-state-fermee: rgba(255, 255, 255, 0.42);
+  --c-state-attente: #fc6141;
+  --c-state-payee: #fbefd2;
+  --c-state-arrivee: #2fd4b4;
+  --c-state-annulee: #9399c2;
+  /* L'étoile du club (quatre branches), en masque CSS pour un pictogramme ou une pastille */
+  --c-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C51.6 30 56 44.4 100 50C56 55.6 51.6 70 50 100C48.4 70 44 55.6 0 50C44 44.4 48.4 30 50 0Z'/%3E%3C/svg%3E");
 }

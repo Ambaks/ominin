@@ -39,3 +39,6 @@ export const formatNightShort = (iso: string) => DAY_SHORT.format(new Date(iso))
 /** « 23:00 – 06:00 ». */
 export const formatHours = (startsAt: string, endsAt: string) =>
   `${TIME.format(new Date(startsAt))} – ${TIME.format(new Date(endsAt))}`;
+
+/** Une table comme la porte la lit, partout (plan, passe, liste de la porte) : « VIP Salon Rouge · 03 ». */
+export const tableName = (zone: string, label: string) => `${zone} · ${label}`;

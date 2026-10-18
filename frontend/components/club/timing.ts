@@ -31,14 +31,9 @@ export const CLUB_TIMING = {
   copied: 1_800,
 } as const;
 
-/* La courbe d'entrée (= --c-ease de tokens.css) et le ressort d'arrivée d'une étoile. */
-export const CLUB_EASE = "cubic-bezier(0.2, 0.8, 0.2, 1)";
-export const CLUB_SPRING =
-  "linear(0, 0.18 7%, 0.62 17%, 0.96 27%, 1.07 34%, 1.09 39%, 1.06 47%, 1.01 57%, 0.995 70%, 1)";
-
 /*
- * La caméra du plan (use-plan-camera.ts). Zoom de 1 (la zone entière) à
- * max, double toucher à double ; un geste devient un glissement au-delà de
+ * La caméra du plan (use-plan-camera.ts). Zoom du cadrage de repos à max
+ * fois celui-ci, double toucher à doubleZoom ; un geste devient un glissement au-delà de
  * tapSlop px ; deux touchers à moins de doubleTapMs et doubleTapSlop px font
  * un double toucher ; à l'échelle 1, un glissement horizontal de swipe px
  * change de zone. Au-delà des bords, le plan résiste (rubber) ; relâché, il
@@ -47,19 +42,28 @@ export const CLUB_SPRING =
  * fait sur un ressort (raideur, amortissement).
  */
 export const PLAN_CAMERA = {
-  min: 1,
   max: 2.5,
   doubleZoom: 2,
   tapSlop: 6,
   doubleTapMs: 300,
   doubleTapSlop: 24,
   swipe: 56,
+  /* Un glissement compte comme horizontal s'il l'est swipeRatio fois plus que vertical. */
+  swipeRatio: 1.5,
   rubber: 0.35,
   friction: 0.92,
   minSpeed: 0.02,
+  /* La vitesse d'un lâcher se lit sur les sampleMs derniers ms du geste. */
+  sampleMs: 80,
   wheel: 0.0025,
   stiffness: 170,
   damping: 26,
+  /* Un pincement peut dépasser les bornes d'échelle de ce facteur (en dessous, au-dessus), puis revient. */
+  pinchSlack: [0.85, 1.15],
+  /* Une image de référence (ms), l'écart maximal pris en compte entre deux images, le repos (px). */
+  frameMs: 16,
+  maxStep: 32,
+  restPx: 0.1,
 } as const;
 
 /*
@@ -68,6 +72,13 @@ export const PLAN_CAMERA = {
  * (lerp par image) et éclaire les tables à moins de proximity px.
  */
 export const PLAN_POINTER = { tapRadius: 28, proximity: 140, lerp: 0.18 } as const;
+
+/*
+ * Le plan côté client : tables dessinées tableScale fois plus grandes que
+ * sur le plan du club (lisibles au téléphone), cadrées sur leur ensemble à
+ * margin unités près.
+ */
+export const PLAN_FIT = { tableScale: 1.2, margin: 24 } as const;
 
 /* Le bouton principal attiré par le curseur : portée (px) et déplacement maximal (px). */
 export const CLUB_MAGNET = { reach: 60, pull: 6 } as const;

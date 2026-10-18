@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Sky } from "@/components/menu/etoile/sky";
+import { prefersReducedMotion } from "@/lib/club/media";
 
 /*
  * Le ciel des pages d'un club : celui de la carte de L'Étoile (sky.ts), un
@@ -53,7 +54,7 @@ export function ClubSky() {
   useEffect(() => {
     const host = hostRef.current;
     if (!host || lowEnd()) return;
-    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = prefersReducedMotion();
     let disposed = false;
     const measure = () => {
       const tops = [...document.querySelectorAll<HTMLElement>("[data-chapter]")].map(

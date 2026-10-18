@@ -28,6 +28,35 @@ const HIT = 30;
 /** Rayon par défaut de la pastille des places. */
 const BADGE = 8;
 
+/** Côté (ou diamètre) d'une table dessinée, en unités du plan ; scale : l'agrandissement voulu par une page. */
+export function tableSize(seats: number, scale = 1): number {
+  return (seats >= 10 ? TABLE_LARGE : TABLE) * scale;
+}
+
+/**
+ * Le rectangle (unités du plan) qui contient toutes les tables, pastilles
+ * comprises, plus margin : ce qu'une caméra cadre pour ne montrer que la
+ * salle utile.
+ */
+export function tablesBounds(
+  tables: readonly ClubTable[],
+  { scale = 1, badge = BADGE, margin = 0 }: { scale?: number; badge?: number; margin?: number } = {}
+): { x: number; y: number; w: number; h: number } | null {
+  if (!tables.length) return null;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const table of tables) {
+    const half = tableSize(table.seats, scale) / 2;
+    minX = Math.min(minX, table.x - half - margin);
+    minY = Math.min(minY, table.y - half - badge - margin);
+    maxX = Math.max(maxX, table.x + half + badge + margin);
+    maxY = Math.max(maxY, table.y + half + margin);
+  }
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
 function Mark({ mark }: { mark: PlanMark }) {
   switch (mark.kind) {
     case "entree":
@@ -87,6 +116,7 @@ export function FloorPlan({
   className,
   label,
   badge = BADGE,
+  scale = 1,
 }: {
   layout: ZoneLayout;
   tables: ClubTable[];
@@ -100,6 +130,8 @@ export function FloorPlan({
   label?: string;
   /** Rayon de la pastille des places. */
   badge?: number;
+  /** Agrandissement des tables dessinées (1 : taille du plan). */
+  scale?: number;
 }) {
   return (
     <svg
@@ -119,7 +151,7 @@ export function FloorPlan({
       ))}
       {tables.map((table) => {
         const state = states[table.id] ?? "libre";
-        const size = table.seats >= 10 ? TABLE_LARGE : TABLE;
+        const size = tableSize(table.seats, scale);
         const interactive = Boolean(onSelect);
         return (
           <g
