@@ -11,6 +11,7 @@ le fichier est la seule source des accords, rien ne part en base.
 
 import json
 import sys
+from collections import Counter
 from pathlib import Path
 
 # Lancé par chemin, sys.path[0] est scripts/ — pas la racine qui contient app.
@@ -18,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.clients.claude import parse_structured
 from app.clients.supabase import get_supabase
-from app.prompts.pairings import PAIRINGS_SYSTEM, CartePairings
+from app.prompts.pairings import PAIRINGS_SYSTEM, REVIEW_SYSTEM, CartePairings
 
 OUT_DIR = Path(__file__).resolve().parents[2] / "frontend" / "lib" / "menu" / "accords"
 
@@ -72,7 +73,15 @@ def main() -> None:
     slug = sys.argv[1]
     sections = carte(slug)
     items = {item["name"]: item for _, section in sections for item in section}
-    result = parse_structured(PAIRINGS_SYSTEM, render(sections), CartePairings)
+    menu = render(sections)
+    draft = parse_structured(PAIRINGS_SYSTEM, menu, CartePairings)
+    # Seconde lecture : le premier jet tient les règles au prix du goût, la
+    # relecture reprend chaque accord face à la carte et le corrige.
+    result = parse_structured(
+        REVIEW_SYSTEM,
+        f"{menu}\n\n# Premier jet\n{draft.model_dump_json(indent=1)}",
+        CartePairings,
+    )
 
     # Un nom mal recopié ou un accord vers un article à questions ne
     # s'afficherait pas : écarté ici, et dit.
@@ -98,6 +107,9 @@ def main() -> None:
     print(f"{len(notes)} articles accordés → {out}")
     for name in dropped:
         print(f"  écarté : {name}")
+    # Une suggestion qui revient partout : le panier montre toujours la même.
+    targets = Counter(p["with"] for pairings in notes.values() for p in pairings)
+    print("  suggestions les plus fréquentes :", ", ".join(f"{n} ×{c}" for n, c in targets.most_common(5)))
 
 
 if __name__ == "__main__":

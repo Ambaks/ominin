@@ -1,378 +1,224 @@
 {
   "Assortiment BOHO": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre nettoie le gras de la friture."
-    },
-    {
-      "with": "Latina Passion",
-      "why": "Le citron vert tranche dans la tempura."
-    }
-  ],
-  "Nems légumes (x4)": [
-    {
-      "with": "Citronnade maison",
-      "why": "La menthe fraîche allège les nems frits."
+      "with": "Sex on the Beach",
+      "why": "Avec le samoussa au bœuf, l'ananas apporte sa fraîcheur."
     }
   ],
   "Yakitori bœuf fromage (x3)": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le soda au gingembre coupe le fromage fondu."
-    }
-  ],
-  "Samoussas bœuf (x4)": [
-    {
-      "with": "Citronnade maison",
-      "why": "Menthe et citron rafraîchissent le bœuf frit."
+      "with": "Latina Passion",
+      "why": "Le citron vert allège le fromage."
     }
   ],
   "Crevettes tempura (x3)": [
     {
-      "with": "Latina Passion",
-      "why": "Le citron vert relève la crevette tempura."
-    },
-    {
-      "with": "Blue Lagoon",
-      "why": "L'ananas coco adoucit la friture salée."
-    }
-  ],
-  "Nems poulet (x4)": [
-    {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre relève le poulet frit."
-    }
-  ],
-  "Bol de Frites": [
-    {
-      "with": "Citronnade maison",
-      "why": "Le citron rafraîchit entre deux frites salées."
+      "with": "Sex on the Beach",
+      "why": "Rafraîchissant, le cocktail équilibre la tempura."
     }
   ],
   "Magret de canard grillé": [
     {
       "with": "Ginger Lemonade",
-      "why": "Le gingembre tranche le gras du magret."
-    },
-    {
-      "with": "Terracota",
-      "why": "L'orange fruitée accompagne le canard grillé."
+      "why": "Le miel de ce cocktail se marie au canard."
     }
   ],
   "Pièce de bœuf grillée": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre pétillant relève le bœuf grillé."
+      "with": "Latina Passion",
+      "why": "L'acidité du fruit de la passion tranche avec le grillé."
     }
   ],
   "Pièce de poulet grillée": [
     {
-      "with": "Citronnade maison",
-      "why": "Citron et menthe allègent le poulet grillé."
+      "with": "Ginger Lemonade",
+      "why": "La volaille grillée s'éclaire de citron et de gingembre."
     }
   ],
   "L'Entrecôte « La Fameuse »": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre répond au gras de l'entrecôte."
-    },
-    {
-      "with": "Terracota",
-      "why": "La fraise adoucit la viande grillée salée."
+      "with": "Vitamina",
+      "why": "L'acidité des agrumes réveille la viande grillée."
     }
   ],
   "Escalope de saumon frais à la plancha": [
     {
-      "with": "Latina Passion",
-      "why": "Le citron vert souligne le saumon grillé."
+      "with": "Citronnade maison",
+      "why": "Le citron et la menthe s'accordent aux herbes fraîches."
     }
   ],
   "Burger original Boho": [
     {
-      "with": "Banoffee",
-      "why": "Le caramel banane adoucit le burger salé."
+      "with": "Sex on the Beach",
+      "why": "Orange et ananas donnent de l'éclat aux frites maison."
     }
   ],
   "Pizza Margarita": [
     {
       "with": "Citronnade maison",
-      "why": "La menthe prolonge le basilic de la pizza."
+      "why": "La menthe fraîche fait écho au basilic."
     }
   ],
   "Pizza Poulet Indienne": [
     {
       "with": "Coco Mango",
-      "why": "La coco adoucit la sauce curry."
-    },
-    {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre prolonge les épices du curry."
+      "why": "La coco et la mangue adoucissent la sauce curry."
     }
   ],
   "Pizza Chèvre Miel": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le miel du cocktail répond au miel du chèvre."
+      "with": "Latina Passion",
+      "why": "Le fruit de la passion, acidulé, coupe la douceur du miel."
     }
   ],
   "Pizza Saumon Norvégienne": [
     {
-      "with": "Latina Passion",
-      "why": "Le citron vert relève le saumon et l'aneth."
+      "with": "Vitamina",
+      "why": "Tonique, le pamplemousse tranche avec la crème fraîche."
     }
   ],
   "Carpaccio de bœuf": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le pétillant allège l'huile d'olive."
+      "with": "Latina Passion",
+      "why": "Le citron vert complète l'huile d'olive sur le bœuf."
     }
   ],
   "Tomate burrata": [
     {
-      "with": "Citronnade maison",
-      "why": "La menthe fraîche prolonge le pesto."
+      "with": "Ginger Lemonade",
+      "why": "Les bulles et le citron réveillent ce fromage crémeux."
     }
   ],
   "Salade César": [
     {
-      "with": "Latina Passion",
-      "why": "Le citron vert allège la sauce César."
-    }
-  ],
-  "Plateau de fruits frais": [
-    {
       "with": "Vitamina",
-      "why": "Kiwi et agrumes prolongent les fruits frais."
+      "why": "L'acidité du citron relève la sauce César."
     }
   ],
   "Brioche façon pain perdu": [
     {
-      "with": "Espresso",
-      "why": "L'amertume du café coupe le caramel."
-    }
-  ],
-  "Gaufre liégeoise": [
-    {
-      "with": "Espresso",
-      "why": "Le café amer équilibre la gaufre sucrée."
+      "with": "Lungo",
+      "why": "La garniture sucrée appelle l'amertume d'un café long."
     }
   ],
   "Crêpes": [
     {
-      "with": "Espresso",
-      "why": "Le café serré tranche le Nutella sucré."
+      "with": "Ristretto",
+      "why": "Un café serré nuance le sucre de la crêpe garnie."
     }
   ],
   "Crème brûlée": [
     {
-      "with": "Ristretto",
-      "why": "Le ristretto serré contraste le sucre brûlé."
-    }
-  ],
-  "Tiramisu au café": [
-    {
-      "with": "Lungo",
-      "why": "Le lungo allonge les notes de café."
-    }
-  ],
-  "Coupe de fruits": [
-    {
-      "with": "Vitamina",
-      "why": "Les agrumes prolongent les fruits coupés."
+      "with": "Espresso",
+      "why": "L'amertume d'un café noir répond à la crème."
     }
   ],
   "Fondant au chocolat": [
     {
-      "with": "Espresso",
-      "why": "Le café amer souligne le chocolat fondant."
-    }
-  ],
-  "Coupe de glace (2 boules)": [
-    {
-      "with": "Espresso",
-      "why": "L'espresso chaud contraste la glace froide."
-    }
-  ],
-  "Menu enfant": [
-    {
-      "with": "Rose Garden",
-      "why": "La fraise et la banane plaisent aux enfants."
+      "with": "Lungo",
+      "why": "Un café allongé tempère la douceur du chocolat."
     }
   ],
   "Sex on the Beach": [
     {
-      "with": "Assortiment BOHO",
-      "why": "Le salé des fritures répond à l'ananas sucré."
-    }
-  ],
-  "Terracota": [
-    {
       "with": "Samoussas bœuf (x4)",
-      "why": "L'orange acidulée allège les samoussas frits."
+      "why": "Face au bœuf, la fraîcheur de l'orange et de la cranberry."
     }
   ],
   "Latina Passion": [
     {
       "with": "Crevettes tempura (x3)",
-      "why": "Le citron vert relève la crevette frite."
-    },
-    {
-      "with": "Assortiment BOHO",
-      "why": "L'acidité coupe le gras des bouchées frites."
-    }
-  ],
-  "Jus de fruits naturel": [
-    {
-      "with": "Assortiment BOHO",
-      "why": "Les bouchées salées tranchent le jus pressé."
+      "why": "Acidulé, le citron vert relève les crevettes."
     }
   ],
   "Ginger Lemonade": [
     {
-      "with": "Nems poulet (x4)",
-      "why": "Le gingembre relève le poulet des nems."
-    },
-    {
-      "with": "Assortiment BOHO",
-      "why": "Le citron nettoie le gras des fritures."
+      "with": "Yakitori bœuf fromage (x3)",
+      "why": "Le fromage trouve son équilibre avec citron et gingembre."
     }
   ],
   "Citronnade maison": [
     {
-      "with": "Nems légumes (x4)",
-      "why": "La menthe accompagne les nems aux légumes."
-    }
-  ],
-  "Blue Lagoon": [
-    {
-      "with": "Crevettes tempura (x3)",
-      "why": "La crevette salée répond à l'ananas coco."
+      "with": "Pizza Margarita",
+      "why": "Le basilic de la pizza et la menthe se répondent."
     }
   ],
   "Mojito": [
     {
       "with": "Assortiment BOHO",
-      "why": "La menthe fraîche suit les bouchées frites."
+      "why": "Frais et pétillant, il relance la crevette tempura."
     }
   ],
   "Coco Mango": [
     {
       "with": "Pizza Poulet Indienne",
-      "why": "La coco adoucit la sauce curry du poulet."
-    }
-  ],
-  "Pina Colada": [
-    {
-      "with": "Crevettes tempura (x3)",
-      "why": "L'ananas coco adoucit la crevette frite."
-    }
-  ],
-  "Rose Garden": [
-    {
-      "with": "Pizza Chèvre Miel",
-      "why": "La fraise accompagne le miel du chèvre."
-    }
-  ],
-  "Red Dragon": [
-    {
-      "with": "Assortiment BOHO",
-      "why": "L'acidité de la framboise coupe les fritures."
+      "why": "L'onctueux de la coco arrondit le curry."
     }
   ],
   "Vitamina": [
     {
-      "with": "Nems légumes (x4)",
-      "why": "Les agrumes allègent les nems frits."
-    }
-  ],
-  "Banoffee": [
-    {
-      "with": "Bol de Frites",
-      "why": "Le salé des frites répond au caramel."
-    }
-  ],
-  "Pop Corn": [
-    {
-      "with": "Bol de Frites",
-      "why": "Le sel des frites prolonge le caramel."
-    }
-  ],
-  "Fraise Tagada": [
-    {
-      "with": "Bol de Frites",
-      "why": "Les frites salées équilibrent le bonbon sucré."
-    }
-  ],
-  "Milkshake": [
-    {
-      "with": "Bol de Frites",
-      "why": "Le salé des frites tranche la vanille sucrée."
-    }
-  ],
-  "Coca Cola": [
-    {
-      "with": "Pizza Margarita",
-      "why": "Le soda frais désaltère la mozzarella chaude."
-    }
-  ],
-  "Ice Tea": [
-    {
-      "with": "Samoussas bœuf (x4)",
-      "why": "Le thé glacé calme le bœuf frit chaud."
-    }
-  ],
-  "Redbull Peach Summer Édition": [
-    {
-      "with": "Yakitori bœuf fromage (x3)",
-      "why": "La pêche acidulée coupe le fromage fondu."
-    }
-  ],
-  "Redbull Vanille Givrée Summer Edition": [
-    {
-      "with": "Bol de Frites",
-      "why": "La vanille douce contraste les frites salées."
-    }
-  ],
-  "Redbull": [
-    {
-      "with": "Samoussas bœuf (x4)",
-      "why": "La canette givrée coupe le bœuf frit."
+      "with": "Pizza Saumon Norvégienne",
+      "why": "Pamplemousse et citron allègent la crème fraîche."
     }
   ],
   "Royale": [
     {
-      "with": "Citronnade maison",
-      "why": "La menthe du cocktail suit la menthe du tabac."
+      "with": "Ginger Lemonade",
+      "why": "Entre deux bouffées, gingembre et citron rafraîchissent."
+    },
+    {
+      "with": "Nems légumes (x4)",
+      "why": "Le temps d'une chicha, de quoi grignoter."
     }
   ],
   "Mi Amor": [
     {
-      "with": "Citronnade maison",
-      "why": "Menthe et citron rafraîchissent entre deux bouffées."
+      "with": "Sex on the Beach",
+      "why": "L'orange et la cranberry, fraîches contre la fumée."
+    },
+    {
+      "with": "Nems poulet (x4)",
+      "why": "De quoi partager pendant que la chicha tourne."
     }
   ],
   "Premium": [
     {
-      "with": "Latina Passion",
-      "why": "Le fruit de la passion suit ces saveurs fruitées."
+      "with": "Citronnade maison",
+      "why": "Citron et menthe glissent de la fraîcheur dans la fumée."
+    },
+    {
+      "with": "Nems légumes (x4)",
+      "why": "Une bouchée, puis une bouffée."
     }
   ],
   "Classique": [
     {
       "with": "Citronnade maison",
-      "why": "La menthe fraîche prolonge la menthe du tabac."
+      "why": "La menthe du verre prolonge celle de la chicha."
+    },
+    {
+      "with": "Nems poulet (x4)",
+      "why": "Des bouchées qui circulent avec la menthe."
     }
   ],
   "IMPÉRIALE WOOKAH": [
     {
-      "with": "Ginger Lemonade",
-      "why": "Le gingembre rafraîchit entre deux bouffées."
+      "with": "Terracota",
+      "why": "L'orange garde la bouche fraîche, bouffée après bouffée."
+    },
+    {
+      "with": "Assortiment BOHO",
+      "why": "Plusieurs bouchées autour du vase en cristal."
     }
   ],
   "Prestige Quasar ÉDITION UNIQUE": [
     {
-      "with": "Red Dragon",
-      "why": "Fraise et ananas font écho aux fruits du vase."
+      "with": "Vitamina",
+      "why": "Kiwi et agrumes apportent leur fraîcheur à la chicha."
+    },
+    {
+      "with": "Assortiment BOHO",
+      "why": "Devant cette pièce unique, on picore à plusieurs."
     }
   ]
 }
