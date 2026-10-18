@@ -1,9 +1,6 @@
-/** Durées de la mise en scène (ms), partagées par le moteur WebGL et la page. */
+/** Durées de la mise en scène (ms). */
 export const ETOILE_TIMING = {
-  intro: 2600,
-  introShort: 950,
-  jump: 1150,
-  particle: 950,
+  particle: 1100,
   /* Onde du bouton « + » au contact. */
   ripple: 480,
 } as const;
