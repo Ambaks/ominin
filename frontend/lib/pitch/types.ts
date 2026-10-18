@@ -64,7 +64,7 @@ export interface Demo {
 }
 
 /** Un couloir de la course : sa durée en secondes règle la longueur de la barre. */
-interface RaceLane {
+export interface RaceLane {
   label: string;
   value: string;
   seconds: number;

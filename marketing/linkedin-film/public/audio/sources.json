@@ -18,5 +18,8 @@
   "sfx/riser.wav": { "title": "Cinematic trailer riser", "source": "https://assets.mixkit.co/active_storage/sfx/790/790.wav", "license": "Mixkit Sound Effects Free License" },
   "sfx/tick.wav": { "title": "Clock ticker single", "source": "https://assets.mixkit.co/active_storage/sfx/1061/1061.wav", "license": "Mixkit Sound Effects Free License" },
   "sfx/coins.wav": { "title": "Clinking coins", "source": "https://assets.mixkit.co/active_storage/sfx/1993/1993.wav", "license": "Mixkit Sound Effects Free License" },
-  "sfx/vibration.wav": { "title": "Phone vibration, two pulses", "source": "synthesized with ffmpeg aevalsrc (171 Hz square + 342 Hz, 0.44 s pulses)", "license": "own work" }
+  "sfx/vibration.wav": { "title": "Phone vibration, two pulses", "source": "synthesized with ffmpeg aevalsrc (171 Hz square + 342 Hz, 0.44 s pulses)", "license": "own work" },
+  "music/cbpd.mp3": { "title": "C.B.P.D", "author": "Arulo", "source": "https://assets.mixkit.co/music/400/400.mp3", "license": "Mixkit Stock Music Free License (https://mixkit.co/license/#musicFree)" },
+  "sfx/bass-hit-future.wav": { "title": "Futuristic bass hit", "source": "https://assets.mixkit.co/active_storage/sfx/2303/2303.wav", "license": "Mixkit Sound Effects Free License" },
+  "sfx/pop-whoosh.wav": { "title": "Explainer video pops whoosh light pop", "source": "https://assets.mixkit.co/active_storage/sfx/3005/3005.wav", "license": "Mixkit Sound Effects Free License" }
 }
