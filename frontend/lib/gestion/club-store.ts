@@ -177,29 +177,28 @@ async function fetchNights(supabase: Client, eventIds: string[]): Promise<Record
       return query;
     }),
   ]);
-  // Les paiements n'ont pas de soirée : ils se lisent par leurs réservations.
-  // Seuls comptent ceux qui ont abouti (et leurs remboursements) ; une part
+  // Les paiements n'ont pas de soirée : ils se lisent par celle de leur
+  // réservation (jointure), quelle que soit la taille de la soirée. Seuls
+  // comptent ceux qui ont abouti (et leurs remboursements) ; une part
   // abandonnée en cours de paiement n'a rien à montrer.
-  const bookingIds = bookings.map((row) => row.id);
-  const payments = bookingIds.length
-    ? await readAll((after) => {
-        let query = supabase
-          .from("club_payments")
-          .select("*")
-          .in("booking_id", bookingIds)
-          .in("status", PAYMENT_STATUSES)
-          .order("created_at", { ascending: true })
-          .order("id", { ascending: true });
-        if (after) query = query.or(after);
-        return query;
-      })
-    : [];
+  const payments = await readAll((after) => {
+    let query = supabase
+      .from("club_payments")
+      .select("*, club_bookings!inner(event_id)")
+      .in("club_bookings.event_id", eventIds)
+      .in("status", PAYMENT_STATUSES)
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true });
+    if (after) query = query.or(after);
+    return query;
+  });
   const nights: Record<string, ClubNight> = Object.fromEntries(
     eventIds.map((id) => [id, { bookings: [], payments: [], guests: [] }])
   );
-  const eventOf = new Map(bookings.map((row) => [row.id, row.event_id]));
   for (const row of bookings) nights[row.event_id].bookings.push(rowToBooking(row));
-  for (const row of payments) nights[eventOf.get(row.booking_id)!].payments.push(rowToPayment(row));
+  for (const { club_bookings: booking, ...row } of payments) {
+    nights[booking.event_id].payments.push(rowToPayment(row));
+  }
   for (const row of guests) nights[row.event_id].guests.push(rowToGuest(row));
   return nights;
 }
@@ -281,7 +280,7 @@ const refreshAll = coalescedBy("du club", async () => {
   if (loaded.length > 0) mergeNights(await fetchNights(createClient(), loaded));
 });
 
-type NightRow = { event_id?: string; booking_id?: string };
+type NightRow = { event_id?: string; booking_id?: string; status?: string };
 
 // Une suppression n'a que l'ancienne ligne (replica identity full), un ajout que la nouvelle.
 function onNightChange(payload: { new: NightRow; old: NightRow }) {
@@ -289,8 +288,12 @@ function onNightChange(payload: { new: NightRow; old: NightRow }) {
   if (eventId && state?.nights[eventId]) void refreshNight(eventId);
 }
 
-// Un paiement porte sa réservation, pas sa soirée : on la retrouve parmi celles chargées.
+// Un paiement porte sa réservation, pas sa soirée : on la retrouve parmi
+// celles chargées. Une part qui s'ouvre ou s'abandonne en cours de paiement
+// ne change rien à l'écran : seules une part réglée ou remboursée relisent.
 function onPaymentChange(payload: { new: NightRow; old: NightRow }) {
+  const status = payload.new.status ?? payload.old.status;
+  if (!status || !(PAYMENT_STATUSES as string[]).includes(status)) return;
   const bookingId = payload.new.booking_id ?? payload.old.booking_id;
   if (!bookingId || !state) return;
   for (const [eventId, night] of Object.entries(state.nights)) {

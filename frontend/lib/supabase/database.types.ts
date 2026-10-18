@@ -1722,6 +1722,7 @@ export type Database = {
           siret: string | null
           slug: string
           square_location_id: string | null
+          table_deposit_percent: number | null
           table_fee_percent: number
           tagline: string
         }
@@ -1756,6 +1757,7 @@ export type Database = {
           siret?: string | null
           slug: string
           square_location_id?: string | null
+          table_deposit_percent?: number | null
           table_fee_percent?: number
           tagline?: string
         }
@@ -1790,6 +1792,7 @@ export type Database = {
           siret?: string | null
           slug?: string
           square_location_id?: string | null
+          table_deposit_percent?: number | null
           table_fee_percent?: number
           tagline?: string
         }

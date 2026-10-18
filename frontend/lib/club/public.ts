@@ -16,7 +16,7 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
   const db = createPublicClient();
   const { data: etab } = await db
     .from("etablissements")
-    .select("id, slug, name, tagline, address, phone, table_fee_percent, payment_provider, online_payment, club_min_age, club_dress_code, club_refused")
+    .select("id, slug, name, tagline, address, phone, table_fee_percent, table_deposit_percent, payment_provider, online_payment, club_min_age, club_dress_code, club_refused")
     .eq("slug", slug)
     .maybeSingle();
   if (!etab) return null;
@@ -33,6 +33,7 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
     address: etab.address,
     phone: etab.phone,
     feePercent: Number(etab.table_fee_percent),
+    depositPercent: etab.table_deposit_percent === null ? null : Number(etab.table_deposit_percent),
     paymentProvider: etab.payment_provider ?? "stripe",
     onlinePayment: etab.online_payment,
     conditions: {

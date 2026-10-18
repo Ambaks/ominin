@@ -45,6 +45,16 @@ alter table public.etablissements
   add column club_refused text
     check (club_refused is null or length(btrim(club_refused)) between 1 and 120);
 
+-- Acompte : le plus petit premier paiement d'une table, en % de son prix
+-- frais compris. Il couvre au moins les frais d'Ominin ; le reste de
+-- l'acompte va au club. Null : pas d'acompte, une part égale au minimum.
+alter table public.etablissements
+  add column table_deposit_percent numeric(5,2)
+    check (table_deposit_percent is null or table_deposit_percent between 1 and 100);
+
+comment on column public.etablissements.table_deposit_percent is
+  'Acompte minimal d''une table réservée en ligne, en % du prix frais compris. Réservé à Ominin.';
+
 comment on column public.etablissements.table_fee_percent is
   'Frais de service Ominin sur une table réservée en ligne, en % du prix, '
   'ajoutés au total payé par le client. Réservé à Ominin.';
@@ -61,7 +71,8 @@ begin
   if new.platform_fee_percent is distinct from old.platform_fee_percent
      or new.collect_fee_percent is distinct from old.collect_fee_percent
      or new.collect_slot_minutes is distinct from old.collect_slot_minutes
-     or new.table_fee_percent is distinct from old.table_fee_percent then
+     or new.table_fee_percent is distinct from old.table_fee_percent
+     or new.table_deposit_percent is distinct from old.table_deposit_percent then
     raise exception 'La commission plateforme est réservée à Ominin.';
   end if;
   return new;
@@ -528,8 +539,8 @@ create function public.reserver_table(
   p_email text,
   p_party smallint,
   p_hold_seconds int,
-  -- Table partagée : ce que l'organisateur paie maintenant, frais compris.
-  -- Null : la table entière.
+  -- Acompte ou table partagée : ce que l'organisateur paie maintenant, frais
+  -- compris. Null : la table entière.
   p_share_cents int default null
 )
 returns table (booking_id uuid, payment_id uuid, token text, total_cents int, hold_expires_at timestamptz)
@@ -544,6 +555,8 @@ declare
   v_price int;
   v_fee int;
   v_total int;
+  v_minimum int;
+  v_deposit numeric;
   v_amount int;
   v_booking club_bookings;
   v_payment club_payments;
@@ -576,17 +589,26 @@ begin
 
   -- Le client voit la table frais compris : les frais de service d'Ominin
   -- portent sur toute la table et se prélèvent sur le premier paiement,
-  -- celui de l'organisateur. Partagée, il paie au moins une part égale du
-  -- total (et au moins les frais), au plus tout ; ses amis se partagent le
-  -- reste, sans frais.
+  -- celui de l'organisateur. Sans tout payer, il verse au moins l'acompte du
+  -- club (à défaut, une part égale du total) — et toujours plus que les
+  -- frais ; ses amis se partagent le reste, sans frais, ou il se règle à
+  -- l'entrée.
   v_fee := club_frais(v_event.etablissement_id, v_price);
   v_total := v_price + v_fee;
+  select table_deposit_percent into v_deposit
+  from etablissements where id = v_event.etablissement_id;
+  v_minimum := greatest(
+    case when v_deposit is not null
+      then ceil(v_total * v_deposit / 100)
+      else ceil(v_total::numeric / greatest(p_party, 1)) end,
+    v_fee + 1
+  );
   if p_share_cents is not null
-     and (p_party < 2
-       or p_share_cents < greatest(ceil(v_total::numeric / p_party), v_fee + 1)
+     and ((v_deposit is null and p_party < 2)
+       or p_share_cents < v_minimum
        or p_share_cents > v_total) then
-    raise exception 'Votre part va de % à % €.',
-      replace(to_char(greatest(ceil(v_total::numeric / greatest(p_party, 1)), v_fee + 1) / 100.0, 'FM999990.00'), '.', ','),
+    raise exception 'Votre premier paiement va de % à % €.',
+      replace(to_char(v_minimum / 100.0, 'FM999990.00'), '.', ','),
       replace(to_char(v_total / 100.0, 'FM999990.00'), '.', ',');
   end if;
   v_amount := coalesce(p_share_cents, v_total) - v_fee;

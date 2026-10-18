@@ -281,6 +281,7 @@ async function main() {
         phone: "07 83 80 33 18",
         payment_provider: "demo",
         table_fee_percent: 5,
+        table_deposit_percent: 10,
         club_dress_code: "Tenue élégante exigée",
         club_refused: "Casquettes, sacs et tongs refusés",
       })

@@ -86,6 +86,8 @@ export type Club = {
   address: string | null;
   phone: string | null;
   feePercent: number;
+  /** Acompte minimal en % du prix frais compris ; null : une part égale au minimum. */
+  depositPercent: number | null;
   paymentProvider: Database["public"]["Enums"]["payment_provider"];
   onlinePayment: boolean;
   conditions: ClubConditions;

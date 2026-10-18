@@ -88,6 +88,9 @@ export interface NightStats {
   /** Tables en vente ce soir, plus celles vendues hors vente (gardées, zone fermée). */
   capacity: number;
   arrived: number;
+  /** Personnes attendues aux tables vendues, et celles déjà entrées. */
+  people: number;
+  peopleArrived: number;
   /** Parts payées en ligne, frais Ominin à part. */
   online: number;
   onSite: number;
@@ -105,6 +108,8 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
     sold: sold.length,
     capacity: new Set([...onSale, ...sold.map((booking) => booking.tableId)]).size,
     arrived: 0,
+    people: 0,
+    peopleArrived: 0,
     online: 0,
     onSite: 0,
     toCollect: 0,
@@ -113,7 +118,11 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
     guestsArrived: 0,
   };
   for (const booking of sold) {
-    if (booking.status === "arrivee") stats.arrived += 1;
+    stats.people += booking.partySize;
+    if (booking.status === "arrivee") {
+      stats.arrived += 1;
+      stats.peopleArrived += booking.partySize;
+    }
     stats.toCollect += booking.remainingCents;
   }
   const active = new Set(sold.map((booking) => booking.id));
