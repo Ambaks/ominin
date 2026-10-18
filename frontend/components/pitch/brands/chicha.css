@@ -1,0 +1,178 @@
+/*
+  Pitch aux restaurants-chicha : un salon le soir. Un noir chaud, la braise
+  du charbon en accent (boutons, mots marqués), l'ambre des lampes, et une
+  fumée qui monte lentement en tête de page. Geist pour tout : les grands
+  chiffres en graisse 600, serrés.
+*/
+.pitch-chicha {
+  --pitch-ground: #0b0806;
+  --pitch-surface: #17110d;
+  --pitch-raised: #211812;
+  --pitch-accent: #ff8a3d;
+  --pitch-accent-deep: #c4561a;
+  --pitch-accent-light: #ffb07a;
+  --pitch-accent-text: #ffa05e;
+  --pitch-on-accent: #170b04;
+  --pitch-ink: #f7f1ea;
+  --pitch-muted: #c8bcae;
+  --pitch-faint: #998b7c;
+  --pitch-line: rgba(255, 236, 216, 0.1);
+  --pitch-film: #000000;
+
+  --chicha-amber: #ffc36e;
+  --chicha-coal: #ff5a1f;
+  --chicha-smoke: rgba(255, 241, 228, 0.07);
+
+  --font-pitch-numeral: var(--font-pitch-text);
+}
+
+.pitch-chicha .font-numeral {
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+/* Le mot marqué : l'aplat de braise, plus vif au cœur. */
+.pitch-chicha .mark {
+  background-image: linear-gradient(100deg, var(--pitch-accent-light), var(--pitch-accent) 50%, var(--pitch-accent-deep));
+}
+
+/* Le point de l'eyebrow : un charbon qui rougeoie. */
+.pitch-chicha .eyebrow::before {
+  background: var(--chicha-coal);
+  box-shadow: 0 0 0.8em var(--chicha-coal);
+}
+
+/* ——— La fumée ————————————————————————————————————————————————————
+   Des volutes floutées qui montent et s'effilochent au-dessus d'une lueur
+   de braise. Elles ne montent qu'en tête de page (.chicha-smoke-moving) et
+   seulement sans mouvement réduit ; ailleurs, elles restent posées. */
+.chicha-smoke {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.chicha-smoke::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -20% 0;
+  height: 70%;
+  background: radial-gradient(ellipse 55% 60% at 70% 100%, color-mix(in srgb, var(--chicha-coal) 22%, transparent), transparent 70%);
+}
+
+.chicha-wisp {
+  position: absolute;
+  bottom: -30%;
+  width: var(--size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--chicha-smoke), transparent 65%);
+  filter: blur(24px);
+  translate: 0 0;
+}
+
+/* Au téléphone, trois volutes suffisent : le flou coûte cher. */
+@media (width < 48rem) {
+  .chicha-wisp:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chicha-smoke-moving .chicha-wisp {
+    animation: chicha-rise var(--speed) linear var(--delay) infinite;
+  }
+
+  .chicha-smoke-moving::before {
+    animation: chicha-ember 5s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes chicha-rise {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.6;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--drift) -150vh;
+    scale: 1.8;
+  }
+}
+
+@keyframes chicha-ember {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* L'étiquette « Bientôt ». */
+.chicha-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25em 0.75em;
+  border-radius: 999px;
+  background: var(--chicha-amber);
+  color: var(--pitch-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Les sections entrent en fondu à mesure qu'on défile, et les barres de
+   l'adoption s'allongent, là où le navigateur sait lier une animation au
+   défilement ; ailleurs, tout est là d'emblée. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .chicha-reveal {
+      animation: chicha-fade linear both;
+      animation-timeline: view();
+      /* En longueur, pas en part de la section : une section plus haute que
+         l'écran du téléphone ne resterait pas à demi transparente. */
+      animation-range: entry 0px entry 260px;
+    }
+
+    .chicha-bar {
+      transform-origin: left;
+      animation: chicha-grow linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 40%;
+    }
+  }
+}
+
+@keyframes chicha-fade {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes chicha-grow {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+@media print {
+  .chicha-reveal,
+  .chicha-bar {
+    animation: none;
+  }
+}

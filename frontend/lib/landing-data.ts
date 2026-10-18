@@ -103,7 +103,7 @@ export interface FaqItem {
 export const brand = "Ominin";
 
 /** Plancher du nombre de caisses compatibles : le texte dit « plus de ». */
-const compatibleTills = 40;
+export const compatibleTills = 40;
 
 export const contactEmail = "omininsupport@gmail.com";
 
