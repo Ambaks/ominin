@@ -1,5 +1,5 @@
 import { connectCommission, contactEmail, starterKit } from "@/lib/landing-data";
-import { cardFees, commonSources, decimal, euros, fieldReport, minutesSeconds, offer, onlineOrderCost, percent, stripeSource } from "@/lib/pitch/kit";
+import { cardFees, commonSources, decimal, euros, offer, onlineOrderCost, percent, stripeSource } from "@/lib/pitch/kit";
 import { menuPrintUrl } from "@/lib/site";
 
 /*
@@ -81,7 +81,7 @@ export const club = {
     facts: [
       { value: euros(0), label: "d’abonnement, sans engagement" },
       { value: percent(connectCommission.percent), label: "des commandes payées en ligne, rien sur le reste" },
-      { value: `${fieldReport.onlineSeconds}\u00a0s`, label: `de la commande au ticket du bar, en médiane chez un client\u00a0; ${minutesSeconds(fieldReport.counterSeconds)} au comptoir` },
+      { value: "+100\u00a0h", label: "rendues chaque année à votre équipe, pour servir plus de verres" },
     ],
     screen: { src: shot("phone-notif"), alt: "L’écran verrouillé du client\u00a0: la notification « C’est prêt\u00a0! N°\u00a042 », commande à récupérer au Bar Rooftop" },
   },
@@ -120,15 +120,15 @@ export const club = {
   },
 
   proof: {
-    eyebrow: "Mesuré chez un client",
-    title: { text: "De la commande au ticket du bar,", accent: `${fieldReport.onlineSeconds}\u00a0secondes.` },
-    context: `Dans un bar-restaurant équipé d’Ominin, sur ${fieldReport.nights}\u00a0soirs de service\u00a0: le temps médian entre la commande et l’impression de son ticket, en ligne et au comptoir.`,
-    raceLabel: "Commande → ticket imprimé, en médiane",
-    race: [
-      { label: "Commande en ligne (QR)", value: `${fieldReport.onlineSeconds}\u00a0s`, seconds: fieldReport.onlineSeconds },
-      { label: "Commande au comptoir", value: minutesSeconds(fieldReport.counterSeconds), seconds: fieldReport.counterSeconds },
+    eyebrow: "Le temps de votre équipe",
+    title: { text: "Des centaines d’heures", accent: "rendues à vos barmen." },
+    context: "Chaque commande passée au QR, c’est un passage en caisse de moins. Sur une saison, ce sont des centaines d’heures que votre équipe passe à servir, et plus à encaisser.",
+    points: [
+      { title: "Plus de prise de commande", text: "Le client choisit seul, sur la carte du club\u00a0: personne à héler, rien à répéter dans le bruit." },
+      { title: "Plus d’encaissement", text: "Payé en ligne avant d’arriver au bar\u00a0: ni terminal à tendre, ni monnaie à rendre." },
+      { title: "Le ticket sort tout seul", text: "Il s’imprime au bon bar, avec le numéro du client\u00a0: il n’y a plus qu’à préparer." },
     ],
-    takeaway: "Au comptoir, la commande attend son tour, puis la caisse. En ligne, le bar la reçoit tout de suite.",
+    takeaway: "Ce temps-là, vos barmen le passent à faire des verres.",
     sources: ["report"] satisfies ClubSourceId[],
   },
 

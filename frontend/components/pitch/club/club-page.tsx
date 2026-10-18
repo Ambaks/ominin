@@ -5,7 +5,7 @@ import { PhoneFrame } from "@/components/pitch/devices";
 import { FilmOpener } from "@/components/pitch/film-opener";
 import { FilmPlayer } from "@/components/pitch/film-player";
 import { MobileContactBar } from "@/components/pitch/mobile-contact-bar";
-import { container, Eyebrow, h2, lead, NewTab, PitchFooter, RaceBars, Section, SourceNote, SourcesList } from "@/components/pitch/page-sections";
+import { container, Eyebrow, h2, lead, NewTab, PitchFooter, Section, SourceNote, SourcesList } from "@/components/pitch/page-sections";
 import { QrCode } from "@/components/pitch/qr-code";
 import { club, clubSources } from "@/lib/pitch/club";
 import { pitchUi } from "@/lib/pitch/kit";
@@ -199,8 +199,14 @@ function Proof() {
         <Eyebrow>{proof.eyebrow}</Eyebrow>
         <Title {...proof.title} />
         <p className={`${lead} mt-6 max-w-3xl`}>{proof.context}</p>
-        <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.18em] text-(--pitch-faint) md:text-xs">{proof.raceLabel}</p>
-        <RaceBars race={proof.race} />
+        <ul className="mt-10 grid gap-4 md:grid-cols-3">
+          {proof.points.map((point) => (
+            <li key={point.title} className="rounded-3xl border border-(--pitch-line) bg-(--pitch-surface) p-6 md:p-8">
+              <p className="text-xl font-bold leading-snug">{point.title}</p>
+              <p className="mt-2 leading-relaxed text-(--pitch-muted)">{point.text}</p>
+            </li>
+          ))}
+        </ul>
         <p className="mt-10 text-2xl font-bold tracking-[-0.02em] md:text-3xl">{proof.takeaway}</p>
         <SourceNote sources={clubSources} ids={proof.sources} className="mt-4" />
       </div>
