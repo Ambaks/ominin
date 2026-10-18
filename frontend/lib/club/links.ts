@@ -13,3 +13,6 @@ export const bookingPath = (slug: string, token: string) => `/${slug}/reservatio
 
 /** La page d'une table partagée, où les amis de l'organisateur paient leur part. */
 export const sharePath = (slug: string, shareToken: string) => `/${slug}/partage/${shareToken}`;
+
+/** La clé d'un lien de partage : 12 octets aléatoires en hexadécimal (reserver_table). */
+export const isShareToken = (value: string) => /^[0-9a-f]{24}$/.test(value);

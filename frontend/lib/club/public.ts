@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { isShareToken } from "@/lib/club/links";
 import { rowToEvent, rowToTable, rowToZone, publicName, sharePayers } from "@/lib/club/mappers";
 import type { BookingStatus, Club, ClubConditions, ClubEvent, EventZone, SharePayer } from "@/lib/club/types";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -222,7 +223,7 @@ export type ShareTable = {
  * ne sortent que le prénom et l'initiale.
  */
 export async function fetchShareByToken(shareToken: string): Promise<ShareTable | null> {
-  if (!/^[0-9a-f]{24}$/.test(shareToken)) return null;
+  if (!isShareToken(shareToken)) return null;
   const admin = createAdminClient();
   const { data } = await admin
     .from("club_bookings")

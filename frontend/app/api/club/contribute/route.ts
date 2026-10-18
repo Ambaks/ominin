@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isShareToken } from "@/lib/club/links";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { cleanContact, onlineBookable, rpcMessage } from "@/lib/club/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
       ? Math.round(body.amountCents)
       : 0;
   const contact = body ? cleanContact(body) : null;
-  if (!/^[0-9a-f]{24}$/.test(shareToken) || !contact || amount <= 0) {
+  if (!isShareToken(shareToken) || !contact || amount <= 0) {
     return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
   }
   if (body?.accepted !== true) {

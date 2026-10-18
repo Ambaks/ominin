@@ -39,20 +39,32 @@ export async function POST(request: Request) {
     if (error) throw new Error(error.message);
   }
 
-  // Les tables qui tiennent encore : payées, arrivées, saisies par le club,
-  // ou en cours de paiement dans leur délai. Un paiement abandonné ne
-  // reçoit pas d'e-mail ; s'il aboutissait, settleBookingIntent le rendrait.
+  // Les tables qui tiennent encore — payées, arrivées, saisies par le club,
+  // en cours de paiement dans leur délai — et celles déjà closes dont un
+  // remboursement a échoué (relance). Un paiement abandonné ne reçoit pas
+  // d'e-mail ; s'il aboutissait, settleClubIntent le rendrait.
   const now = new Date().toISOString();
-  const { data: bookings } = await admin
-    .from("club_bookings")
-    .select("id")
-    .eq("event_id", eventId)
-    .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`);
-  const stripe = bookings?.length ? getStripe() : null;
+  const [{ data: active }, { data: unrefunded }] = await Promise.all([
+    admin
+      .from("club_bookings")
+      .select("id")
+      .eq("event_id", eventId)
+      .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`),
+    admin
+      .from("club_payments")
+      .select("booking_id, club_bookings!inner(event_id)")
+      .eq("club_bookings.event_id", eventId)
+      .eq("method", "en_ligne")
+      .eq("status", "payee"),
+  ]);
+  const bookings = [
+    ...new Set([...(active ?? []).map((row) => row.id), ...(unrefunded ?? []).map((row) => row.booking_id)]),
+  ].map((id) => ({ id }));
+  const stripe = bookings.length ? getStripe() : null;
 
   // En parallèle : au plus une réservation par table du club.
   const results = await Promise.all(
-    (bookings ?? []).map(async (booking) => {
+    bookings.map(async (booking) => {
       try {
         const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
         if (outcome !== "not_refundable") {

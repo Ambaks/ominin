@@ -5355,6 +5355,10 @@ export type Database = {
         Args: { p_booking: string }
         Returns: undefined
       }
+      club_clore_reservation: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Enums"]["club_booking_status"]
+      }
       club_guest_list_restant: { Args: { p_event: string }; Returns: number }
       club_marquer_arrivee: {
         Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }

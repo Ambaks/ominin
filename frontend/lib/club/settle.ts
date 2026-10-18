@@ -24,19 +24,24 @@ type Admin = ReturnType<typeof createAdminClient>;
 const MAIL_SELECT =
   "name, email, token, share_token, party_size, price_cents, paid_cents, club_tables(label, club_zones(name)), club_events(title, starts_at, ends_at), etablissements(slug, name, address)";
 
-/** Une table vue par une personne qui l'a réservée ou y a payé sa part. */
-export async function bookingMail(
-  admin: Admin,
-  bookingId: string,
-  payer?: { name: string; email: string | null; amountCents: number; organiser: boolean }
-): Promise<BookingMail | null> {
-  const { data } = await admin
-    .from("club_bookings")
-    .select(MAIL_SELECT)
-    .eq("id", bookingId)
-    .maybeSingle();
-  const to = payer ? payer.email : data?.email;
-  if (!to || !data?.club_tables?.club_zones || !data.club_events || !data.etablissements) {
+type MailBooking = {
+  name: string;
+  email: string | null;
+  token: string;
+  share_token: string | null;
+  party_size: number;
+  price_cents: number;
+  paid_cents: number;
+  club_tables: { label: string; club_zones: { name: string } | null } | null;
+  club_events: { title: string; starts_at: string; ends_at: string } | null;
+  etablissements: { slug: string; name: string; address: string | null } | null;
+};
+
+type Payer = { name: string; email: string | null; amountCents: number; organiser: boolean };
+
+function mailFor(data: MailBooking, payer?: Payer): BookingMail | null {
+  const to = payer ? payer.email : data.email;
+  if (!to || !data.club_tables?.club_zones || !data.club_events || !data.etablissements) {
     return null;
   }
   return {
@@ -59,46 +64,78 @@ export async function bookingMail(
   };
 }
 
-/** Tous ceux à prévenir d'un changement : l'organisateur et chaque ami qui a payé. */
+/** Une table vue par une personne qui l'a réservée ou y a payé sa part. */
+export async function bookingMail(
+  admin: Admin,
+  bookingId: string,
+  payer?: Payer
+): Promise<BookingMail | null> {
+  const { data } = await admin
+    .from("club_bookings")
+    .select(MAIL_SELECT)
+    .eq("id", bookingId)
+    .maybeSingle();
+  return data ? mailFor(data, payer) : null;
+}
+
+/**
+ * Tous ceux à prévenir d'un changement : l'organisateur et chaque ami qui a
+ * payé, chacun avec ce qu'il a payé (la table entière pour une réservation
+ * saisie par le club).
+ */
 export async function bookingRecipients(admin: Admin, bookingId: string): Promise<BookingMail[]> {
-  const { data: payments } = await admin
-    .from("club_payments")
-    .select("name, email, amount_cents")
-    .eq("booking_id", bookingId)
-    .eq("method", "en_ligne")
-    .eq("organiser", false)
-    .in("status", ["payee", "remboursee"]);
-  const mails = await Promise.all([
-    bookingMail(admin, bookingId),
-    ...(payments ?? []).map((payment) =>
-      bookingMail(admin, bookingId, {
-        name: payment.name,
-        email: payment.email,
-        amountCents: payment.amount_cents,
-        organiser: false,
-      })
-    ),
+  const [{ data: booking }, { data: payments }] = await Promise.all([
+    admin.from("club_bookings").select(MAIL_SELECT).eq("id", bookingId).maybeSingle(),
+    admin
+      .from("club_payments")
+      .select("name, email, amount_cents, organiser")
+      .eq("booking_id", bookingId)
+      .eq("method", "en_ligne")
+      .in("status", ["payee", "remboursee"]),
   ]);
+  if (!booking) return [];
+  const organiserPaid = (payments ?? []).find((payment) => payment.organiser);
+  const mails = [
+    mailFor(
+      booking,
+      organiserPaid
+        ? { name: booking.name, email: booking.email, amountCents: organiserPaid.amount_cents, organiser: true }
+        : undefined
+    ),
+    ...(payments ?? [])
+      .filter((payment) => !payment.organiser)
+      .map((payment) =>
+        mailFor(booking, {
+          name: payment.name,
+          email: payment.email,
+          amountCents: payment.amount_cents,
+          organiser: false,
+        })
+      ),
+  ];
   return mails.filter((mail) => mail !== null);
 }
 
 /**
  * Rembourse un paiement, frais Ominin compris. La clé d'idempotence porte
- * la tentative : deux appels d'une même tentative (webhook et vérification
- * qui se croisent) n'en font qu'un, mais un remboursement refusé (solde du
- * club insuffisant, panne Stripe) peut être relancé tout de suite — Stripe
- * rejouerait sinon l'échec mémorisé pendant 24 h.
+ * la tentative (null : sans clé) : deux appels d'une même tentative n'en font
+ * qu'un, mais un remboursement refusé (solde du club insuffisant, panne
+ * Stripe) peut être relancé tout de suite — Stripe rejouerait sinon l'échec
+ * mémorisé pendant 24 h.
  */
 async function refundIntent(
   stripe: Stripe,
   paymentIntentId: string,
   accountId: string,
-  attempt: string
+  attempt: string | null
 ) {
   try {
     await stripe.refunds.create(
       { payment_intent: paymentIntentId, refund_application_fee: true },
-      { stripeAccount: accountId, idempotencyKey: `refund-${paymentIntentId}-${attempt}` }
+      {
+        stripeAccount: accountId,
+        ...(attempt ? { idempotencyKey: `refund-${paymentIntentId}-${attempt}` } : {}),
+      }
     );
   } catch (error) {
     if ((error as { code?: string }).code !== "charge_already_refunded") throw error;
@@ -163,7 +200,9 @@ export async function settleClubIntent(
   if (error) throw new Error(error.message);
   if (outcome === "already_paid") return "already_paid";
   if (outcome === "refund") {
-    await refundIntent(stripe, intent.id, accountId, "auto");
+    // Sans clé : un refus (solde du club insuffisant) se rejoue à la prochaine
+    // livraison du webhook ; un doublon se heurte à charge_already_refunded.
+    await refundIntent(stripe, intent.id, accountId, null);
     console.error("[club] paiement remboursé : il ne pouvait plus compter", { paymentId });
     return "refunded";
   }
@@ -224,7 +263,12 @@ export async function refundPayment(
         claimed.refunded_at ?? paymentId
       );
     } catch (refundError) {
-      await admin.rpc("club_retablir_paiement", { p_payment: paymentId });
+      const { error: restoreError } = await admin.rpc("club_retablir_paiement", {
+        p_payment: paymentId,
+      });
+      if (restoreError) {
+        console.error("[club] remboursement refusé, part non rétablie", { paymentId, restoreError });
+      }
       throw refundError;
     }
   }
@@ -241,10 +285,12 @@ export async function refundPayment(
 }
 
 /**
- * Rend une table, côté club (« Rembourser », soirée annulée) : chaque
- * paiement en ligne est remboursé, puis la réservation est close —
- * remboursée si quelqu'un avait payé en ligne, annulée sinon (réservation
- * saisie par le club, dont l'argent se rend en main propre).
+ * Rend une table, côté club (« Rembourser », soirée annulée). La table est
+ * close d'abord, sous verrou (club_clore_reservation) : une part qui
+ * aboutirait pendant les remboursements serait refusée, donc rendue. Puis
+ * chaque paiement en ligne encore payé est remboursé — y compris ceux qu'un
+ * appel précédent n'a pas pu rendre : relancer reprend là où Stripe a
+ * échoué. Une réservation saisie par le club est simplement annulée.
  */
 export async function refundBooking(
   admin: Admin,
@@ -252,40 +298,31 @@ export async function refundBooking(
   bookingId: string,
   options: { notify: boolean }
 ): Promise<RefundOutcome> {
-  const [{ data: booking }, { data: payments }] = await Promise.all([
-    admin.from("club_bookings").select("status").eq("id", bookingId).maybeSingle(),
-    admin
-      .from("club_payments")
-      .select("id")
-      .eq("booking_id", bookingId)
-      .eq("method", "en_ligne")
-      .eq("status", "payee"),
-  ]);
-  if (!booking || !["en_attente", "payee", "arrivee"].includes(booking.status)) {
-    return "not_refundable";
-  }
-  // Un échec Stripe interrompt tout : rien n'est marqué rendu de travers, et
-  // la relance reprend les parts encore payées.
-  for (const payment of payments ?? []) {
-    await refundPayment(admin, stripe, payment.id, options);
-  }
-  const paidOnline = (payments ?? []).length > 0;
-  const now = new Date().toISOString();
-  const { data: closed, error } = await admin
+  const { data: before } = await admin
     .from("club_bookings")
-    .update(paidOnline ? { status: "remboursee", refunded_at: now } : { status: "annulee", cancelled_at: now })
+    .select("status")
     .eq("id", bookingId)
-    .in("status", ["en_attente", "payee", "arrivee"])
-    .select("id");
+    .maybeSingle();
+  const { data: status, error } = await admin.rpc("club_clore_reservation", {
+    p_booking: bookingId,
+  });
   if (error) throw new Error(error.message);
-  const { error: pendingError } = await admin
+  if (!before || !status) return "not_refundable";
+
+  const { data: payments } = await admin
     .from("club_payments")
-    .update({ status: "annulee" })
+    .select("id")
     .eq("booking_id", bookingId)
-    .eq("status", "en_attente");
-  if (pendingError) throw new Error(pendingError.message);
-  if (!closed?.length) return "not_refundable";
-  return paidOnline ? "refunded" : "cancelled";
+    .eq("method", "en_ligne")
+    .eq("status", "payee");
+  // Un échec Stripe interrompt la boucle : la relance reprend les parts encore payées.
+  let refunded = 0;
+  for (const payment of payments ?? []) {
+    if (await refundPayment(admin, stripe, payment.id, options)) refunded += 1;
+  }
+  if (refunded > 0) return "refunded";
+  const wasActive = ["en_attente", "payee", "arrivee"].includes(before.status);
+  return wasActive ? (status === "remboursee" ? "refunded" : "cancelled") : "not_refundable";
 }
 
 /**

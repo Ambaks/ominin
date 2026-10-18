@@ -820,6 +820,9 @@ begin
 end;
 $$;
 
+-- Défait un remboursement que Stripe a refusé. Si la place rendue a été
+-- reprise entre-temps (un ami a payé la part libérée), le paiement ne peut
+-- plus compter : l'erreur remonte, le club doit rembourser à la main.
 create function public.club_retablir_paiement(p_payment uuid)
 returns void
 language plpgsql
@@ -828,22 +831,64 @@ set search_path = public
 as $$
 declare
   v_payment club_payments;
+  v_booking club_bookings;
 begin
-  update club_payments
-  set status = 'payee', refunded_at = null
-  where id = p_payment and status = 'remboursee'
-  returning * into v_payment;
-  if v_payment.id is not null then
-    update club_bookings set paid_cents = paid_cents + v_payment.amount_cents
-    where id = v_payment.booking_id;
+  select * into v_payment from club_payments where id = p_payment;
+  select * into v_booking from club_bookings where id = v_payment.booking_id for update;
+  if v_payment.status <> 'remboursee' then
+    return;
   end if;
+  if v_booking.paid_cents + v_payment.amount_cents > v_booking.price_cents then
+    raise exception 'Remboursement refusé par Stripe et part reprise entre-temps : à rembourser à la main.';
+  end if;
+  update club_payments set status = 'payee', refunded_at = null where id = p_payment;
+  update club_bookings set paid_cents = paid_cents + v_payment.amount_cents
+  where id = v_payment.booking_id;
+end;
+$$;
+
+-- Ferme une table avant de la rendre : remboursée si quelqu'un a payé en
+-- ligne, annulée sinon. Close d'abord, sous verrou, pour qu'aucune part ne
+-- puisse plus compter pendant les remboursements (regler_paiement la
+-- refuse). Rend le statut de la table, fermée ou déjà fermée.
+create function public.club_clore_reservation(p_booking uuid)
+returns public.club_booking_status
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_booking club_bookings;
+  v_online boolean;
+begin
+  select * into v_booking from club_bookings where id = p_booking for update;
+  if v_booking.id is null then
+    return null;
+  end if;
+  if v_booking.status in ('en_attente', 'payee', 'arrivee') then
+    select exists (
+      select 1 from club_payments
+      where booking_id = p_booking and method = 'en_ligne' and status = 'payee'
+    ) into v_online;
+    update club_bookings
+    set status = case when v_online then 'remboursee' else 'annulee' end::club_booking_status,
+        refunded_at = case when v_online then now() end,
+        cancelled_at = case when v_online then null else now() end
+    where id = p_booking
+    returning * into v_booking;
+    update club_payments set status = 'annulee'
+    where booking_id = p_booking and status = 'en_attente';
+  end if;
+  return v_booking.status;
 end;
 $$;
 
 revoke execute on function public.club_rembourser_paiement(uuid) from public, anon, authenticated;
 revoke execute on function public.club_retablir_paiement(uuid) from public, anon, authenticated;
+revoke execute on function public.club_clore_reservation(uuid) from public, anon, authenticated;
 grant execute on function public.club_rembourser_paiement(uuid) to service_role;
 grant execute on function public.club_retablir_paiement(uuid) to service_role;
+grant execute on function public.club_clore_reservation(uuid) to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Côté club
