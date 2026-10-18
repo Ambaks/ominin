@@ -220,6 +220,23 @@ export const DEFAULT_VAT_RATE = 10;
 /** Durée d'un créneau de retrait (miroir du défaut SQL de etablissements.collect_slot_minutes). */
 export const DEFAULT_COLLECT_SLOT_MINUTES = 15;
 
+/**
+ * Bornes des saisies d'Ominin Club, miroirs des contraintes SQL de
+ * club_events, club_zones et club_bookings (20261019000001) : le formulaire
+ * refuse ce que la base refuserait.
+ */
+export const CLUB_LIMITS = {
+  title: 80,
+  tag: 30,
+  description: 2000,
+  inclus: 120,
+  guestMaxParty: 20,
+  name: 80,
+  phoneMin: 6,
+  phoneMax: 30,
+  note: 300,
+} as const;
+
 /** Jours proposés d'un geste dans Retraits, aujourd'hui compris ; au-delà, le champ date. */
 export const RETRAITS_DAYS_SHOWN = 14;
 
@@ -362,6 +379,12 @@ export const VIEWS: ViewSpec[] = [
     features: [],
   },
   {
+    id: "soirees",
+    label: "Soirées",
+    hint: "Ominin Club : les soirées du club, les tables à vendre et leurs prix, le plan du soir en direct à la porte et la liste d'invités. Hors offre : Ominin l'ouvre pour un club.",
+    features: [],
+  },
+  {
     id: "produits",
     label: "Produits",
     hint: "L'onglet compte : l'offre souscrite, le rôle et le catalogue Ominin. Fermé au serveur quoi qu'il arrive.",
@@ -461,6 +484,7 @@ export const ACTION_LABELS: Record<Action, string> = {
   "categories.edit": "Modifier les catégories",
   "etablissement.edit": "Modifier l'établissement",
   "fermetures.basculer": "Fermer ou rouvrir la cuisine",
+  "soirees.edit": "Préparer les soirées, saisir et rembourser les tables",
 };
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
@@ -472,6 +496,7 @@ export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
     ])
   ) as Record<Extract<Action, `orders.${string}`>, Feature>),
   "fermetures.basculer": "commandes",
+  "soirees.edit": "soirees",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {

@@ -137,6 +137,374 @@ export type Database = {
         }
         Relationships: []
       }
+      club_bookings: {
+        Row: {
+          arrived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          name: string
+          note: string | null
+          paid_at: string | null
+          party_size: number
+          phone: string | null
+          price_cents: number
+          refunded_at: string | null
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          stripe_payment_intent_id: string | null
+          table_id: string
+          token: string
+          total_cents: number
+        }
+        Insert: {
+          arrived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          paid_at?: string | null
+          party_size: number
+          phone?: string | null
+          price_cents: number
+          refunded_at?: string | null
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status?: Database["public"]["Enums"]["club_booking_status"]
+          stripe_payment_intent_id?: string | null
+          table_id: string
+          token?: string
+          total_cents: number
+        }
+        Update: {
+          arrived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          event_id?: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          paid_at?: string | null
+          party_size?: number
+          phone?: string | null
+          price_cents?: number
+          refunded_at?: string | null
+          source?: Database["public"]["Enums"]["club_booking_source"]
+          status?: Database["public"]["Enums"]["club_booking_status"]
+          stripe_payment_intent_id?: string | null
+          table_id?: string
+          token?: string
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_bookings_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_bookings_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_blocked_tables: {
+        Row: {
+          event_id: string
+          table_id: string
+        }
+        Insert: {
+          event_id: string
+          table_id: string
+        }
+        Update: {
+          event_id?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_blocked_tables_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_event_blocked_tables_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_zones: {
+        Row: {
+          event_id: string
+          price_cents: number | null
+          zone_id: string
+        }
+        Insert: {
+          event_id: string
+          price_cents?: number | null
+          zone_id: string
+        }
+        Update: {
+          event_id?: string
+          price_cents?: number | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_zones_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_event_zones_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "club_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_events: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          etablissement_id: string
+          guest_list_capacity: number | null
+          guest_list_max_party: number
+          guest_list_open: boolean
+          id: string
+          poster_url: string | null
+          published: boolean
+          slug: string
+          starts_at: string
+          tag: string | null
+          ticket_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          etablissement_id: string
+          guest_list_capacity?: number | null
+          guest_list_max_party?: number
+          guest_list_open?: boolean
+          id?: string
+          poster_url?: string | null
+          published?: boolean
+          slug: string
+          starts_at: string
+          tag?: string | null
+          ticket_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          etablissement_id?: string
+          guest_list_capacity?: number | null
+          guest_list_max_party?: number
+          guest_list_open?: boolean
+          id?: string
+          poster_url?: string | null
+          published?: boolean
+          slug?: string
+          starts_at?: string
+          tag?: string | null
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_events_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_guests: {
+        Row: {
+          arrived_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          id: string
+          name: string
+          party_size: number
+          phone: string | null
+        }
+        Insert: {
+          arrived_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          event_id: string
+          id?: string
+          name: string
+          party_size: number
+          phone?: string | null
+        }
+        Update: {
+          arrived_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          event_id?: string
+          id?: string
+          name?: string
+          party_size?: number
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_guests_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_tables: {
+        Row: {
+          etablissement_id: string
+          id: string
+          label: string
+          seats: number
+          shape: string
+          x: number
+          y: number
+          zone_id: string
+        }
+        Insert: {
+          etablissement_id: string
+          id?: string
+          label: string
+          seats: number
+          shape?: string
+          x: number
+          y: number
+          zone_id: string
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          label?: string
+          seats?: number
+          shape?: string
+          x?: number
+          y?: number
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_tables_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_tables_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "club_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_zones: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          inclus: string | null
+          layout: Json
+          name: string
+          price_cents: number
+          sort: number
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          inclus?: string | null
+          layout?: Json
+          name: string
+          price_cents: number
+          sort?: number
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          inclus?: string | null
+          layout?: Json
+          name?: string
+          price_cents?: number
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_zones_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_pins: {
         Row: {
           etablissement_id: string
@@ -1270,6 +1638,7 @@ export type Database = {
           siret: string | null
           slug: string
           square_location_id: string | null
+          table_fee_percent: number
           tagline: string
         }
         Insert: {
@@ -1300,6 +1669,7 @@ export type Database = {
           siret?: string | null
           slug: string
           square_location_id?: string | null
+          table_fee_percent?: number
           tagline?: string
         }
         Update: {
@@ -1330,6 +1700,7 @@ export type Database = {
           siret?: string | null
           slug?: string
           square_location_id?: string | null
+          table_fee_percent?: number
           tagline?: string
         }
         Relationships: []
@@ -4890,6 +5261,20 @@ export type Database = {
         Args: { p_code: string | null; p_entry_id: string; p_signature: string }
         Returns: undefined
       }
+      club_annuler_reservation: {
+        Args: { p_booking: string }
+        Returns: undefined
+      }
+      club_guest_list_restant: { Args: { p_event: string }; Returns: number }
+      club_marquer_arrivee: {
+        Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }
+        Returns: undefined
+      }
+      club_marquer_invite: {
+        Args: { p_arrived: boolean; p_guest: string }
+        Returns: undefined
+      }
+      club_tables_prises: { Args: { p_event: string }; Returns: string[] }
       collect_full_slots: {
         Args: { p_from: string; p_slug: string; p_to: string }
         Returns: string[]
@@ -4934,6 +5319,48 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "staff"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      creer_reservation_club: {
+        Args: {
+          p_event: string
+          p_name: string
+          p_note: string
+          p_paid: boolean
+          p_party: number
+          p_phone: string
+          p_source: Database["public"]["Enums"]["club_booking_source"]
+          p_table: string
+        }
+        Returns: {
+          arrived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          name: string
+          note: string | null
+          paid_at: string | null
+          party_size: number
+          phone: string | null
+          price_cents: number
+          refunded_at: string | null
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          stripe_payment_intent_id: string | null
+          table_id: string
+          token: string
+          total_cents: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "club_bookings"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -5001,6 +5428,16 @@ export type Database = {
       }
       gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
+      inscrire_guest_list: {
+        Args: {
+          p_email: string
+          p_event: string
+          p_name: string
+          p_party: number
+          p_phone: string
+        }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       loyalty_active: { Args: { p_etablissement_id: string }; Returns: boolean }
       loyalty_adjust: {
@@ -5184,6 +5621,47 @@ export type Database = {
         Args: { p_item_id: string; p_quantity?: number }
         Returns: undefined
       }
+      reserver_table: {
+        Args: {
+          p_email: string
+          p_event: string
+          p_hold_seconds: number
+          p_name: string
+          p_party: number
+          p_phone: string
+          p_table: string
+        }
+        Returns: {
+          arrived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          name: string
+          note: string | null
+          paid_at: string | null
+          party_size: number
+          phone: string | null
+          price_cents: number
+          refunded_at: string | null
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          stripe_payment_intent_id: string | null
+          table_id: string
+          token: string
+          total_cents: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "club_bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       save_starter_setup: {
         Args: { p_etablissement_id: string; p_setup: Json }
@@ -5263,6 +5741,13 @@ export type Database = {
       }
     }
     Enums: {
+      club_booking_source: "en_ligne" | "telephone" | "sur_place"
+      club_booking_status:
+        | "en_attente"
+        | "payee"
+        | "arrivee"
+        | "annulee"
+        | "remboursee"
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       crm_activity_type:
@@ -5511,6 +5996,14 @@ export const Constants = {
   },
   public: {
     Enums: {
+      club_booking_source: ["en_ligne", "telephone", "sur_place"],
+      club_booking_status: [
+        "en_attente",
+        "payee",
+        "arrivee",
+        "annulee",
+        "remboursee",
+      ],
       badge: ["maison", "top", "nouveau"],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       crm_activity_type: [

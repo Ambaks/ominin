@@ -52,6 +52,16 @@ const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com"
 export const collectSiteUrl = `${collectHost.includes("localhost") ? "http" : "https"}://${collectHost}`;
 
 /**
+ * Origine publique d'Ominin Club (club.ominin.com) : pages des clubs, leurs
+ * soirées et les réservations de tables. Host absent ⇒ servi sur
+ * ominin.com/clubs (/club est la page de présentation aux clubs).
+ */
+const clubHost = process.env.NEXT_PUBLIC_CLUB_HOST;
+export const clubSiteUrl = clubHost
+  ? `${clubHost.includes("localhost") ? "http" : "https"}://${clubHost}`
+  : `${siteUrl}/clubs`;
+
+/**
  * Origine publique d'Ominin Shop (landing, boutiques /<slug>, espace de
  * gestion). Même repli que menu : host absent ⇒ servi sur ominin.com/shop.
  */

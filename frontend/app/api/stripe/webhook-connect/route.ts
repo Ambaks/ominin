@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { settleBookingIntent } from "@/lib/club/settle";
 import {
   getStripe,
   settleCheckoutSession,
@@ -47,8 +48,12 @@ export async function POST(request: Request) {
     // Le paiement dans la page : le filet de la vérification faite par la
     // feuille, si le client ferme l'onglet juste après avoir payé.
     case "payment_intent.succeeded": {
+      // Une table de club (metadata.booking_id) ou une commande.
+      const intent = event.data.object;
       if (event.account) {
-        await settlePaymentIntent(admin, stripe, event.data.object, event.account);
+        await (intent.metadata?.booking_id
+          ? settleBookingIntent(admin, stripe, intent, event.account)
+          : settlePaymentIntent(admin, stripe, intent, event.account));
       }
       break;
     }

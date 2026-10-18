@@ -41,6 +41,16 @@ export function isPickupShop(state: GestionState | null): boolean {
   return state !== null && activeProducts(state).offre === null && state.features.retraits;
 }
 
+/**
+ * Club sur Ominin Club seul, sans offre ni click & collect : ni carte ni
+ * service à table, son espace tient dans ses soirées.
+ */
+export function isClubOnly(state: GestionState | null): boolean {
+  if (!state) return false;
+  const products = activeProducts(state);
+  return products.offre === null && !products.collect && state.features.soirees;
+}
+
 /** Les noms des rôles à l'écran ; en base, les rôles restent les mêmes. */
 export function roleLabels(state: GestionState | null): Record<Role, string> {
   return state && isPickupShop(state) ? PICKUP_ROLE_LABELS : ROLE_LABELS;

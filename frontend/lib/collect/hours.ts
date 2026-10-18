@@ -53,7 +53,7 @@ export function parisParts(at: Date) {
 }
 
 /** Instant correspondant à une heure de Paris, un jour donné (AAAA-MM-JJ). */
-function parisInstant(date: string, minutes: number): Date {
+export function parisInstant(date: string, minutes: number): Date {
   const guess = new Date(`${date}T00:00:00Z`);
   guess.setUTCMinutes(minutes);
   // Décalage de Paris à cet instant : la différence entre l'heure lue à Paris

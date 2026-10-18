@@ -1,0 +1,130 @@
+import type { TableState } from "@/components/club/floor-plan";
+import { bookingHolds } from "@/lib/club/mappers";
+import type { ClubBooking, ClubEvent, ClubTable } from "@/lib/club/types";
+import type { ClubNight, ClubState } from "./club-store";
+
+/* Lectures des soirées d'un club pour la gestion : ventes, plan, arrivées. */
+
+/** Saisie par le club (téléphone, porte) : ni paiement en ligne ni frais Ominin. */
+export const isClubEntered = (booking: ClubBooking) => booking.source !== "en_ligne";
+
+/** Une soirée finie ne revient pas dans « À venir », même passé minuit. */
+export const isPast = (event: ClubEvent, now: number) => Date.parse(event.endsAt) <= now;
+
+export const isTonight = (event: ClubEvent, now: number) =>
+  Date.parse(event.startsAt) <= now && !isPast(event, now);
+
+/**
+ * Réglée, arrivée, ou à régler sur place : la table est vendue. Un paiement
+ * en ligne en cours la tient sans être une vente.
+ */
+export function isSold(booking: ClubBooking): boolean {
+  return (
+    booking.status === "payee" ||
+    booking.status === "arrivee" ||
+    (booking.status === "en_attente" && booking.holdExpiresAt === null)
+  );
+}
+
+/** La réservation qui tient chaque table ce soir-là. */
+export function bookingsByTable(night: ClubNight | undefined, now: number): Map<string, ClubBooking> {
+  const map = new Map<string, ClubBooking>();
+  for (const booking of night?.bookings ?? []) {
+    if (bookingHolds(booking, now)) map.set(booking.tableId, booking);
+  }
+  return map;
+}
+
+/** Tables proposées aux clients ce soir-là : zones ouvertes, tables gardées exclues. */
+export function onSaleTableIds(club: ClubState, eventId: string): Set<string> {
+  const zones = new Set((club.eventZones[eventId] ?? []).map((setting) => setting.zoneId));
+  const blocked = new Set(club.blocked[eventId] ?? []);
+  return new Set(
+    club.tables
+      .filter((table) => zones.has(table.zoneId) && !blocked.has(table.id))
+      .map((table) => table.id)
+  );
+}
+
+/** Prix d'une table ce soir-là : celui de la soirée, sinon celui de sa zone (creer_reservation_club). */
+export function tablePrice(club: ClubState, eventId: string, table: ClubTable): number {
+  const zone = club.zones.find((candidate) => candidate.id === table.zoneId);
+  const setting = club.eventZones[eventId]?.find((candidate) => candidate.zoneId === table.zoneId);
+  return setting?.priceCents ?? zone?.priceCents ?? 0;
+}
+
+/** L'état d'une table sur le plan de l'équipe. */
+export function staffTableState(booking: ClubBooking | undefined, onSale: boolean): TableState {
+  if (!booking) return onSale ? "libre" : "gardee";
+  if (booking.status === "arrivee") return "arrivee";
+  if (booking.status === "payee") return "payee";
+  return booking.holdExpiresAt === null ? "attente" : "prise";
+}
+
+export const TABLE_STATE_LABELS: Partial<Record<TableState, string>> = {
+  libre: "Libre",
+  prise: "Paiement en ligne en cours",
+  payee: "Payée",
+  attente: "À régler sur place",
+  arrivee: "Arrivée",
+  gardee: "Gardée, hors vente",
+};
+
+export interface NightStats {
+  sold: number;
+  /** Tables en vente ce soir, plus celles vendues hors vente (gardées, zone fermée). */
+  capacity: number;
+  arrived: number;
+  /** Prix des tables réglées en ligne, frais Ominin à part. */
+  online: number;
+  onSite: number;
+  toCollect: number;
+  fees: number;
+  guests: number;
+  guestsArrived: number;
+}
+
+export function nightStats(club: ClubState, eventId: string): NightStats {
+  const night = club.nights[eventId];
+  const sold = (night?.bookings ?? []).filter(isSold);
+  const onSale = onSaleTableIds(club, eventId);
+  const stats: NightStats = {
+    sold: sold.length,
+    capacity: new Set([...onSale, ...sold.map((booking) => booking.tableId)]).size,
+    arrived: 0,
+    online: 0,
+    onSite: 0,
+    toCollect: 0,
+    fees: 0,
+    guests: 0,
+    guestsArrived: 0,
+  };
+  for (const booking of sold) {
+    if (booking.status === "arrivee") stats.arrived += 1;
+    if (booking.paidOnline) {
+      stats.online += booking.priceCents;
+      stats.fees += booking.feeCents;
+    } else if (booking.paidAt) stats.onSite += booking.priceCents;
+    else stats.toCollect += booking.priceCents;
+  }
+  for (const guest of night?.guests ?? []) {
+    stats.guests += guest.partySize;
+    if (guest.arrivedAt) stats.guestsArrived += guest.partySize;
+  }
+  return stats;
+}
+
+/** « 1 personne », « 5 personnes ». */
+export const people = (count: number) => `${count} personne${count > 1 ? "s" : ""}`;
+
+/** Recherche de l'équipe : nom, téléphone (chiffres seuls) ou numéro de table. */
+export function matchesSearch(query: string, fields: (string | null)[]): boolean {
+  const needle = query.trim().toLocaleLowerCase("fr");
+  if (!needle) return true;
+  const digits = needle.replace(/\D/g, "");
+  return fields.some((field) => {
+    if (!field) return false;
+    const value = field.toLocaleLowerCase("fr");
+    return value.includes(needle) || (digits.length >= 2 && value.replace(/\D/g, "").includes(digits));
+  });
+}

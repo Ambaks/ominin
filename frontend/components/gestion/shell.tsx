@@ -13,6 +13,7 @@ import {
   activeProducts,
   awaitsAcknowledgement,
   cardCount,
+  isClubOnly,
   isPickupShop,
   needsAttention,
   offreFeeDue,
@@ -28,7 +29,7 @@ import {
   useOrderChime,
 } from "@/lib/gestion/use-order-chime";
 import { VISITE_IDS, visiteFor, type VisiteId } from "@/lib/gestion/visites";
-import { collectSiteUrl, menuSiteUrl } from "@/lib/site";
+import { clubSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
@@ -45,6 +46,7 @@ import {
   MenuIcon,
   PrinterIcon,
   ProductsIcon,
+  SoireesIcon,
   TablesIcon,
   TeamIcon,
   type IconProps,
@@ -75,6 +77,7 @@ const NAV_ITEMS: NavItem[] = [
   // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
   { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
+  { href: "/gestion/soirees", label: "Soirées", feature: "soirees", icon: SoireesIcon },
   { href: "/gestion/retraits", label: "Retraits", feature: "retraits", icon: BagIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
@@ -178,8 +181,10 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
   const products = activeProducts(state);
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
-  // payés, plus sur le seul abonnement à l'offre.
-  const subscribed = products.offre != null || products.collect;
+  // payés, plus sur le seul abonnement à l'offre. Un club ne s'abonne pas :
+  // Ominin se paie sur ses tables vendues, l'espace s'ouvre avec ses soirées.
+  const clubOnly = isClubOnly(state);
+  const subscribed = products.offre != null || products.collect || clubOnly;
   const pickupShop = isPickupShop(state);
   const items = NAV_ITEMS.filter(
     (item) =>
@@ -189,12 +194,19 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         state?.role !== "serveur" ||
         (state.features[item.serveurFeature] ?? false)) &&
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role)) &&
+      // Un club n'a pas de carte : le menu, qui ne se retire jamais d'un
+      // restaurant, n'a rien à y faire.
+      (item.href !== "/gestion/menu" || !clubOnly) &&
       // En boutique à emporter seule, l'aperçu de l'équipe renvoie à Retraits.
       (item.feature !== "apercu" || state?.role === "gerant" || !pickupShop)
   );
   // La page que voient les clients : pour une boutique à emporter seule, sa
   // page de commande en ligne — elle n'a pas de menu QR.
-  const voirClient = pickupShop ? "Voir ma boutique en ligne" : "Voir mon menu";
+  const voirClient = clubOnly
+    ? "Voir ma page club"
+    : pickupShop
+      ? "Voir ma boutique en ligne"
+      : "Voir mon menu";
   // Pastilles : ce qui attend un geste, là où il se fait — les commandes du
   // site pour un jour à venir se prennent en charge depuis Retraits. En
   // boutique à emporter seule, Retraits les compte toutes, aujourd'hui compris :
@@ -221,8 +233,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // vide » n'ouvre pas celle du menu par-dessus la feuille des catégories,
   // qui attendra le passage suivant — le « ? » relance, lui, la visite du
   // moment.
+  // Les visites présentent la carte et le service : un club n'en a pas.
   const visite =
-    state?.role === "gerant" ? visiteFor(pathname, state) : undefined;
+    state?.role === "gerant" && !clubOnly ? visiteFor(pathname, state) : undefined;
   // L'abonnement compte dans l'arrivée : revenu de Stripe Checkout avant le
   // webhook, le gérant arrive sur l'écran d'activation, et l'accueil s'ouvre
   // quand l'espace se déverrouille.
@@ -259,7 +272,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
     ? `${
         state.etablissement.offre
           ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
-          : collectBrand
+          : clubOnly
+            ? "Ominin Club"
+            : collectBrand
       } · ${roleLabels(state)[state.role]}`
     : "Espace de gestion";
 
@@ -314,9 +329,11 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 <ThemeToggle />
                 <a
                   href={
-                    pickupShop
-                      ? `${collectSiteUrl}/${state.etablissement.slug}`
-                      : `${menuSiteUrl}/m/${state.etablissement.slug}`
+                    clubOnly
+                      ? `${clubSiteUrl}/${state.etablissement.slug}`
+                      : pickupShop
+                        ? `${collectSiteUrl}/${state.etablissement.slug}`
+                        : `${menuSiteUrl}/m/${state.etablissement.slug}`
                   }
                   data-visite="voir-menu"
                   target="_blank"
@@ -338,7 +355,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     <BellIcon className="size-4" />
                   </Link>
                 )}
-                {can(state.role, "etablissement.edit") && (
+                {/* Les réglages de l'établissement sont ceux d'un restaurant
+                    (horaires, tablette de salle, encaissement) : rien pour un club. */}
+                {can(state.role, "etablissement.edit") && !clubOnly && (
                   <Link
                     href="/gestion/etablissement"
                     data-visite="etablissement"

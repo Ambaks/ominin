@@ -60,7 +60,8 @@ export type Feature =
   | "equipe_sans_comptes"
   | "produits"
   | "lien_heures"
-  | "fidelite";
+  | "fidelite"
+  | "soirees";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -84,7 +85,8 @@ export type Action =
   | "formules.edit"
   | "categories.edit"
   | "etablissement.edit"
-  | "fermetures.basculer";
+  | "fermetures.basculer"
+  | "soirees.edit";
 
 export interface Etablissement {
   id: string;

@@ -193,12 +193,15 @@ export default function ApercuPage() {
   if (!state) return null;
   const pickupShop = isPickupShop(state);
   // Écran d'accueil quand l'aperçu ne s'affiche pas : le service s'il est
-  // ouvert, le menu sinon — lui ne se retire jamais.
+  // ouvert, les soirées d'un club, le menu sinon — lui ne se retire jamais
+  // d'un restaurant.
   const home = pickupShop
     ? "/gestion/retraits"
     : hasFeature("commandes")
       ? "/gestion/commandes"
-      : "/gestion/menu";
+      : hasFeature("soirees")
+        ? "/gestion/soirees"
+        : "/gestion/menu";
   // La salle n'a pas d'aperçu par défaut : son écran d'accueil est le service
   // lui-même. Ouvert, elle a le sien. La cuisine garde le sien — c'est là
   // qu'elle tient les disponibilités. En boutique à emporter seule, l'équipe
