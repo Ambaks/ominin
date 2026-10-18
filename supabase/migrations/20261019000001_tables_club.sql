@@ -500,14 +500,16 @@ begin
 
   perform club_liberer_attentes(p_event, p_table);
   -- Un paiement en cours par personne et par soirée : choisir une autre
-  -- table rend la précédente. Un même e-mail ou téléphone ne peut pas
-  -- bloquer toute une salle.
+  -- table rend la précédente. La personne est reconnue à son e-mail ET à
+  -- son téléphone : qui ne connaît que l'un des deux ne peut pas faire
+  -- tomber la réservation d'un autre.
   update club_bookings
   set status = 'annulee', cancelled_at = now()
   where event_id = p_event
     and status = 'en_attente'
     and source = 'en_ligne'
-    and (email = lower(btrim(p_email)) or phone = btrim(p_phone));
+    and email = lower(btrim(p_email))
+    and phone = btrim(p_phone);
 
   begin
     insert into club_bookings (

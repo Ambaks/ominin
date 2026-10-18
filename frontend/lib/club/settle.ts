@@ -52,11 +52,23 @@ async function confirm(admin: Admin, bookingId: string) {
   if (mail) await sendBookingConfirmed(mail);
 }
 
-async function refundIntent(stripe: Stripe, paymentIntentId: string, accountId: string) {
+/**
+ * Rembourse un paiement, frais Ominin compris. La clé d'idempotence porte
+ * la tentative : deux appels d'une même tentative (webhook et vérification
+ * qui se croisent) n'en font qu'un, mais un remboursement refusé (solde du
+ * club insuffisant, panne Stripe) peut être relancé tout de suite — Stripe
+ * rejouerait sinon l'échec mémorisé pendant 24 h.
+ */
+async function refundIntent(
+  stripe: Stripe,
+  paymentIntentId: string,
+  accountId: string,
+  attempt: string
+) {
   try {
     await stripe.refunds.create(
       { payment_intent: paymentIntentId, refund_application_fee: true },
-      { stripeAccount: accountId, idempotencyKey: `refund-${paymentIntentId}` }
+      { stripeAccount: accountId, idempotencyKey: `refund-${paymentIntentId}-${attempt}` }
     );
   } catch (error) {
     if ((error as { code?: string }).code !== "charge_already_refunded") throw error;
@@ -73,7 +85,7 @@ export async function settleBookingIntent(
   if (!bookingId || intent.status !== "succeeded") return "unpaid";
 
   const refund = async (reason: string): Promise<SettleOutcome> => {
-    await refundIntent(stripe, intent.id, accountId);
+    await refundIntent(stripe, intent.id, accountId, "auto");
     console.error(`[club] paiement remboursé : ${reason}`, { bookingId, paymentIntentId: intent.id });
     return "refunded";
   };
@@ -206,9 +218,10 @@ export async function refundBooking(
   // webhook charge.refunded que ce remboursement déclenche la trouve déjà
   // rendue, et un second clic n'envoie ni second remboursement ni second
   // e-mail. Stripe en échec : elle reprend son état.
+  const claimedAt = new Date().toISOString();
   const { data: claimed, error } = await admin
     .from("club_bookings")
-    .update({ status: "remboursee", refunded_at: new Date().toISOString() })
+    .update({ status: "remboursee", refunded_at: claimedAt })
     .eq("id", bookingId)
     .in("status", ["payee", "arrivee"])
     .select("id");
@@ -218,7 +231,7 @@ export async function refundBooking(
     try {
       const account = await connectedAccount(admin, booking.etablissement_id);
       if (!account || !stripe) throw new Error("Compte Stripe du club introuvable.");
-      await refundIntent(stripe, booking.stripe_payment_intent_id, account.id);
+      await refundIntent(stripe, booking.stripe_payment_intent_id, account.id, claimedAt);
     } catch (refundError) {
       await admin
         .from("club_bookings")
