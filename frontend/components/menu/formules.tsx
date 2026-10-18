@@ -32,14 +32,14 @@ import { type FormulesBanner as Banner, type OptionGroup } from "@/lib/menu-data
  * panier en une ligne ; la base revérifie prix et choix (formule_line).
  */
 
-type Picks = Record<string, { articleId: string; options: Record<string, string[]> }>;
+export type Picks = Record<string, { articleId: string; options: Record<string, string[]> }>;
 
 /**
  * La formule telle qu'elle se commande en ce moment : sans les choix dont le
  * plat est fermé (cuisine fermée) ; une étape obligatoire vidée l'emporte,
  * comme un plat épuisé au rendu de la page.
  */
-function openFormule(
+export function openFormule(
   formule: Formule,
   closed: ReadonlySet<string>
 ): Formule | null {
@@ -76,17 +76,20 @@ function optionsSupplement(article: Article, chosen: Record<string, string[]>) {
   );
 }
 
-function FormuleModal({
+export function FormuleModal({
   formule,
+  initialPicks = {},
   onClose,
   onAdded,
 }: {
   formule: Formule;
+  /** Étapes déjà choisies à l'ouverture (l'accord du chef part d'un plat commandé). */
+  initialPicks?: Picks;
   onClose: () => void;
-  onAdded?: () => void;
+  onAdded?: (selections: FormuleSelection[]) => void;
 }) {
   const { orderingEnabled, canOrder, addLine, track } = useCart();
-  const [picks, setPicks] = useState<Picks>({});
+  const [picks, setPicks] = useState<Picks>(initialPicks);
   const [flash, setFlash] = useState<Flash>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   // Au doigt seulement, la feuille amène les questions d'un plat choisi (voir
@@ -270,7 +273,7 @@ function FormuleModal({
       formule: { selections, items },
     });
     track("panier");
-    onAdded?.();
+    onAdded?.(selections);
     close();
   };
 

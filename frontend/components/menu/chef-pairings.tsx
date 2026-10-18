@@ -1,9 +1,8 @@
 "use client";
 
-import { CART_PAIRINGS_COUNT } from "@/lib/gestion/constants";
-import { plainLine, useCart } from "@/lib/menu/cart";
+import { useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
-import { cartPairings, canSuggest, type Pairing } from "@/lib/menu/pairings";
+import { canSuggest, type Pairing } from "@/lib/menu/pairings";
 
 function Spark() {
   return (
@@ -13,7 +12,7 @@ function Spark() {
   );
 }
 
-function ChefTag({ children }: { children: string }) {
+export function ChefTag({ children }: { children: string }) {
   return (
     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-ember-1">
       <Spark />
@@ -25,46 +24,8 @@ function ChefTag({ children }: { children: string }) {
   );
 }
 
-const chefCard =
+export const chefCard =
   "flex flex-col gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/10 p-3.5";
-
-/** Les accords de ce qui est déjà commandé, à ajouter d'un toucher. */
-export function CartPairings() {
-  const { pairings, lines, closed, addLine, track } = useCart();
-  if (!pairings) return null;
-  const suggested = cartPairings(lines, pairings, closed, CART_PAIRINGS_COUNT);
-  if (suggested.length === 0) return null;
-  return (
-    <section aria-label="L'accord du chef" className={`mt-5 ${chefCard}`}>
-      <ChefTag>L&apos;accord du chef</ChefTag>
-      <ul className="flex flex-col gap-3">
-        {suggested.map(({ item, why }) => (
-          <li key={item.id} className="flex items-center gap-3">
-            {item.image && (
-              // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
-              <img src={item.image} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="font-display text-sm font-medium leading-tight">{lineName(item)}</p>
-              <p className="mt-0.5 text-xs leading-snug text-muted">{why}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                addLine(plainLine(item));
-                track("panier", { items: [item.id] });
-              }}
-              aria-label={`Ajouter : ${lineName(item)}, ${formatPrice(item.price)}`}
-              className="ember-gradient min-h-9 shrink-0 rounded-full px-3 text-xs font-semibold text-background tabular-nums transition-transform active:scale-95"
-            >
-              + {formatPrice(item.price)}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 /** Ce qui se commande bien avec un plat qu'on compose, coché ou non par le client. */
 export function useSheetPairings(itemId: string): Pairing[] {

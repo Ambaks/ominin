@@ -1,3 +1,4 @@
+import type { Formule } from "@/lib/gestion/types";
 import type { MenuCategory, MenuItem } from "@/lib/menu-data";
 import type { CartLine } from "./cart";
 
@@ -35,6 +36,110 @@ export function resolvePairings(
     if (pairings.length > 0) resolved[item.id] = pairings;
   }
   return resolved;
+}
+
+/**
+ * Une formule à deux étapes qu'un plat déjà commandé entame : le reste
+ * coûte alors moins cher en formule qu'à la carte (le dessert de la Formule
+ * Boho à 6,90 € quand le cocktail est commandé seul).
+ */
+export interface FormuleOffer {
+  formule: Formule;
+  /** L'étape que remplit le plat commandé. */
+  etapeId: string;
+  /** Par id de plat : son article dans l'étape, et ce que coûte le reste en formule. */
+  anchors: Record<string, { articleId: string; extra: number }>;
+  /** L'étape restante, son prix habituel à la carte et une photo. */
+  rest: { name: string; regularPrice: number; image?: string };
+}
+
+/**
+ * Le prix que paient la plupart des choix d'une étape (à égalité, le plus
+ * bas) : « au lieu de 8 € » vaut pour les desserts à 8 €, pas pour la seule
+ * coupe de glace à 6 € qui ferait tomber l'offre.
+ */
+function usualPrice(prices: number[]): number {
+  const counts = new Map<number, number>();
+  for (const price of prices) counts.set(price, (counts.get(price) ?? 0) + 1);
+  return [...counts].sort(([a, countA], [b, countB]) => countB - countA || a - b)[0][0];
+}
+
+/**
+ * Les offres de formule de la carte : chaque formule à deux étapes
+ * obligatoires, dans les deux sens, gardée seulement pour les plats où elle
+ * fait vraiment payer le reste moins cher qu'à la carte.
+ */
+export function resolveFormuleOffers(
+  formules: Formule[],
+  categories: MenuCategory[]
+): FormuleOffer[] {
+  const items = new Map(
+    categories.flatMap((category) => category.items.map((item) => [item.id, item]))
+  );
+  return formules.flatMap((formule) => {
+    if (formule.etapes.length !== 2 || !formule.etapes.every((etape) => etape.obligatoire)) {
+      return [];
+    }
+    return formule.etapes.flatMap((anchor, index) => {
+      const restEtape = formule.etapes[1 - index];
+      const restItems = restEtape.articles.flatMap((article) => {
+        const item = article.itemId ? items.get(article.itemId) : undefined;
+        return item ? [item] : [];
+      });
+      if (restItems.length === 0) return [];
+      const regularPrice = usualPrice(restItems.map((item) => item.price));
+      const anchors: FormuleOffer["anchors"] = {};
+      for (const article of anchor.articles) {
+        const item = article.itemId ? items.get(article.itemId) : undefined;
+        if (!item) continue;
+        const extra = Math.round((formule.price + article.supplement - item.price) * 100) / 100;
+        if (extra > 0 && extra < regularPrice) anchors[item.id] = { articleId: article.id, extra };
+      }
+      if (Object.keys(anchors).length === 0) return [];
+      return [
+        {
+          formule,
+          etapeId: anchor.id,
+          anchors,
+          rest: {
+            name: restEtape.name,
+            regularPrice,
+            image: restItems.find((item) => item.image)?.image,
+          },
+        },
+      ];
+    });
+  });
+}
+
+/** Une ligne du panier qui entame une formule. */
+export interface FormuleMatch {
+  offer: FormuleOffer;
+  line: CartLine;
+  articleId: string;
+  extra: number;
+}
+
+/**
+ * La première formule qu'entame une ligne commandée seule (ni formule, ni
+ * offerte). `servable` dit si la formule se commande en ce moment, avec
+ * l'article de la ligne.
+ */
+export function formuleMatch(
+  lines: CartLine[],
+  offers: FormuleOffer[],
+  servable: (offer: FormuleOffer, articleId: string) => boolean
+): FormuleMatch | null {
+  for (const line of lines) {
+    if (line.formule || line.reward) continue;
+    for (const offer of offers) {
+      const anchor = offer.anchors[line.itemId];
+      if (anchor && servable(offer, anchor.articleId)) {
+        return { offer, line, articleId: anchor.articleId, extra: anchor.extra };
+      }
+    }
+  }
+  return null;
 }
 
 /** Un plat proposé doit pouvoir partir : en carte, en stock, pas coupé. */

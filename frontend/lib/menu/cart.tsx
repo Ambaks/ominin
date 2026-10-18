@@ -18,7 +18,7 @@ import type { MenuItem } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
-import type { Pairing } from "./pairings";
+import type { FormuleOffer, Pairing } from "./pairings";
 import { TicketsProvider } from "./tickets";
 import {
   createTracker,
@@ -142,6 +142,8 @@ export interface CartConfig {
   closedItems?: string[];
   /** L'accord du chef, par id de plat ; absent ⇒ rien n'est proposé. */
   pairings?: Record<string, Pairing[]>;
+  /** Les formules que l'accord du chef propose de compléter. */
+  formuleOffers?: FormuleOffer[];
   /**
    * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
    * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
