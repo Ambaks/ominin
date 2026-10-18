@@ -6,6 +6,7 @@ import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { FormulesBanner, FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
+import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
@@ -13,6 +14,7 @@ import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
+import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import { brandName, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
@@ -160,63 +162,66 @@ export default async function MenuPage({
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
-      <div
-        data-menu-root
-        data-slug={slug}
-        data-service={fastFood ? "fast-food" : undefined}
-        className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
-      >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <MenuTicker items={restaurant.ticker} />
-        <Hero
-          restaurant={restaurant}
-          firstSectionId={categoryLinks[0]?.id}
-          banner={
-            showBanner ? (
-              <FormulesBanner banner={banner} formules={formules} />
-            ) : undefined
-          }
-        />
-        <MenuHighlights highlights={restaurant.highlights} />
-        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-            bout de la carte. */}
-        <TicketTracker />
-        <CartBar />
-        <CategoryNav
-          categories={categoryLinks}
-          embedded={embed === "1"}
-          themeLocked={Boolean(restaurantThemeClass(slug))}
-        />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {!showBanner && formules.length > 0 && (
-            <FormulesSection formules={formules} />
-          )}
-          {restaurant.categories.length === 0 ? (
-            <p className="py-16 text-center text-sm text-muted">
-              La carte est en préparation — revenez bientôt.
-            </p>
-          ) : (
-            restaurant.categories.map((category) => (
-              <MenuSection
-                key={category.id}
-                category={category}
-                // La première photo ne se charge d'emblée qu'en tête de carte :
-                // sous des formules, elle est déjà loin sous le premier écran.
-                first={category.id === categoryLinks[0]?.id}
-              />
-            ))
-          )}
-        </main>
-        <MenuFooter
-          restaurant={restaurant}
-          themeToggle={!restaurantThemeClass(slug)}
-        />
-        {callServer && <CallServerButton />}
-      </div>
+      <LoyaltyMemberProvider slug={slug} enabled={orderingEnabled && loyalty != null}>
+        <div
+          data-menu-root
+          data-slug={slug}
+          data-service={fastFood ? "fast-food" : undefined}
+          className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
+        >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+          <MenuTicker items={restaurant.ticker} />
+          <Hero
+            restaurant={restaurant}
+            firstSectionId={categoryLinks[0]?.id}
+            banner={
+              showBanner ? (
+                <FormulesBanner banner={banner} formules={formules} />
+              ) : undefined
+            }
+          />
+          <MenuHighlights highlights={restaurant.highlights} />
+          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+              bout de la carte. */}
+          <TicketTracker />
+          <CartBar />
+          <CategoryNav
+            categories={categoryLinks}
+            embedded={embed === "1"}
+            themeLocked={Boolean(restaurantThemeClass(slug))}
+          />
+          <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+            {!showBanner && formules.length > 0 && (
+              <FormulesSection formules={formules} />
+            )}
+            {restaurant.categories.length === 0 ? (
+              <p className="py-16 text-center text-sm text-muted">
+                La carte est en préparation — revenez bientôt.
+              </p>
+            ) : (
+              restaurant.categories.map((category) => (
+                <MenuSection
+                  key={category.id}
+                  category={category}
+                  // La première photo ne se charge d'emblée qu'en tête de carte :
+                  // sous des formules, elle est déjà loin sous le premier écran.
+                  first={category.id === categoryLinks[0]?.id}
+                />
+              ))
+            )}
+          </main>
+          <MenuFooter
+            restaurant={restaurant}
+            themeToggle={!restaurantThemeClass(slug)}
+          />
+          {callServer && <CallServerButton />}
+          <LoyaltyWelcome brand={brandName(restaurant)} logo={restaurant.logo} />
+        </div>
+      </LoyaltyMemberProvider>
     </CartProvider>
   );
 }

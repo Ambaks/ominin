@@ -3,6 +3,7 @@ import { type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 import { DishIndicators } from "./dish-indicators";
 import { keepHyphenated } from "./keep-hyphenated";
+import { RewardHint } from "./reward-hint";
 
 function Badges({ badges }: { badges?: Badge[] }) {
   if (!badges?.length) return null;
@@ -162,6 +163,7 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
         <Notice hours={item.noticeHours} />
         <Allergens item={item} />
         <Pairing pairing={item.pairing} />
+        <RewardHint itemId={item.id} />
         <div className="dish-action mt-1 flex justify-end">
           <AddToOrder item={item} />
         </div>
