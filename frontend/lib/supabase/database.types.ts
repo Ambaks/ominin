@@ -2136,6 +2136,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          accord: Database["public"]["Enums"]["accord_source"] | null
           components: Json | null
           id: string
           item_id: string | null
@@ -2151,6 +2152,7 @@ export type Database = {
           vat_rate: number | null
         }
         Insert: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -2166,6 +2168,7 @@ export type Database = {
           vat_rate?: number | null
         }
         Update: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -5338,6 +5341,7 @@ export type Database = {
       }
     }
     Enums: {
+      accord_source: "panier" | "fiche" | "formule"
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       crm_activity_type:
@@ -5586,6 +5590,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      accord_source: ["panier", "fiche", "formule"],
       badge: ["maison", "top", "nouveau"],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       crm_activity_type: [

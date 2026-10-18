@@ -1,41 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ChefTag, chefCard } from "@/components/menu/chef-pairings";
+import { ChefTag, chefCard, suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
 import { FormuleModal, openFormule, type Picks } from "@/components/menu/formules";
 import { CART_PAIRINGS_COUNT } from "@/lib/gestion/constants";
 import { plainLine, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import { cartPairings, formuleMatch, type FormuleMatch } from "@/lib/menu/pairings";
-
-const addClass =
-  "ember-gradient min-h-9 shrink-0 rounded-full px-3 text-xs font-semibold text-background tabular-nums transition-transform active:scale-95";
-
-function Row({
-  image,
-  title,
-  why,
-  children,
-}: {
-  image?: string;
-  title: string;
-  why: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className="flex items-center gap-3">
-      {image && (
-        // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
-        <img src={image} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="font-display text-sm font-medium leading-tight">{title}</p>
-        <p className="mt-0.5 text-xs leading-snug text-muted">{why}</p>
-      </div>
-      {children}
-    </li>
-  );
-}
 
 /** Les choix d'une ligne du panier, rangés par groupe comme les retient une formule. */
 function linePicks({ offer, line, articleId }: FormuleMatch): Picks {
@@ -73,42 +44,46 @@ export function CartPairings() {
   return (
     <>
       {(match || suggested.length > 0) && (
-        <section aria-label="L'accord du chef" className={`mt-5 ${chefCard}`}>
-          <ChefTag>L&apos;accord du chef</ChefTag>
+        <section aria-label="L'accord du chef" className={`mt-5 ${chefCard} p-3.5`}>
+          <ChefTag />
           <ul className="flex flex-col gap-3">
             {match && (
-              <Row
-                image={match.offer.rest.image}
-                title={match.offer.formule.name}
-                why={`Avec votre ${match.line.name} : ${match.offer.rest.name.toLowerCase()} à ${formatPrice(
-                  match.extra
-                )} au lieu de ${formatPrice(match.offer.rest.regularPrice)}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setComposing(match)}
-                  aria-haspopup="dialog"
-                  aria-label={`Composer la ${match.offer.formule.name}, ${formatPrice(match.extra)} de plus`}
-                  className={addClass}
+              <li>
+                <SuggestionRow
+                  image={match.offer.rest.image}
+                  title={match.offer.formule.name}
+                  why={`${match.offer.rest.name} à ${formatPrice(match.extra)} au lieu de ${formatPrice(
+                    match.offer.rest.regularPrice
+                  )}`}
                 >
-                  + {formatPrice(match.extra)}
-                </button>
-              </Row>
+                  <button
+                    type="button"
+                    onClick={() => setComposing(match)}
+                    aria-haspopup="dialog"
+                    aria-label={`Composer la ${match.offer.formule.name}, ${formatPrice(match.extra)} de plus`}
+                    className={suggestionButton()}
+                  >
+                    + {formatPrice(match.extra)}
+                  </button>
+                </SuggestionRow>
+              </li>
             )}
             {suggested.map(({ item, why }) => (
-              <Row key={item.id} image={item.image} title={lineName(item)} why={why}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    addLine(plainLine(item));
-                    track("panier", { items: [item.id] });
-                  }}
-                  aria-label={`Ajouter : ${lineName(item)}, ${formatPrice(item.price)}`}
-                  className={addClass}
-                >
-                  + {formatPrice(item.price)}
-                </button>
-              </Row>
+              <li key={item.id}>
+                <SuggestionRow image={item.image} title={lineName(item)} why={why}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addLine(plainLine(item, "panier"));
+                      track("panier", { items: [item.id] });
+                    }}
+                    aria-label={`Ajouter : ${lineName(item)}, ${formatPrice(item.price)}`}
+                    className={suggestionButton()}
+                  >
+                    + {formatPrice(item.price)}
+                  </button>
+                </SuggestionRow>
+              </li>
             ))}
           </ul>
         </section>
@@ -117,6 +92,7 @@ export function CartPairings() {
         <FormuleModal
           formule={composing.offer.formule}
           initialPicks={linePicks(composing)}
+          accord="formule"
           onClose={() => setComposing(null)}
           onAdded={(selections) => {
             // La formule reprend le plat commandé seul : sa ligne perd une

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { isUnavailable, OptionsModal } from "@/components/menu/add-to-order";
 import { cartLineKey, useCart } from "@/lib/menu/cart";
 import {
@@ -53,6 +53,16 @@ export function LoyaltySection({
   };
 }) {
   const cart = useCart();
+  // Repliée tant que rien n'est saisi : le gain et un bouton, sur une rangée,
+  // pour que l'accord du chef et le pied restent à l'écran.
+  const [opened, setOpened] = useState(false);
+  // Ouverte d'un toucher (« Cumuler », « Ce n'est pas moi ») : le champ prend
+  // le focus et remonte au milieu de la feuille, hors du pied et du clavier.
+  const focusOnOpen = useRef(false);
+  const open = () => {
+    focusOnOpen.current = true;
+    setOpened(true);
+  };
   const [lookup, setLookup] = useState<LookupState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<{
@@ -111,17 +121,48 @@ export function LoyaltySection({
     cart.track("panier", { items: [item.id] });
   };
 
+  // Ce que la commande rapporte d'abord : c'est ce qui fait laisser un numéro.
+  const title = (
+    <div className="min-w-0">
+      <h4 className="text-sm font-semibold">
+        Fidélité
+        {earned > 0 && (
+          <>
+            {" · "}
+            <span className="text-ember-1">
+              +{earned}&nbsp;{earned > 1 ? "points" : "point"}
+            </span>
+          </>
+        )}
+      </h4>
+      {earned > 0 && <p className="text-xs text-muted">avec cette commande</p>}
+    </div>
+  );
+
+  if (!opened && !member && !contact.trim() && balance === null) {
+    return (
+      <section className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-hairline p-4">
+        {title}
+        <button
+          type="button"
+          onClick={open}
+          className="min-h-9 shrink-0 rounded-full border border-ember-1/50 px-3.5 text-xs font-semibold text-foreground"
+        >
+          Cumuler
+        </button>
+      </section>
+    );
+  }
+
   return (
-    <section className="mt-6 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
+    <section className="mt-5 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
       <div>
-        <h4 className="text-sm font-semibold">Fidélité</h4>
-        <p className="mt-0.5 text-xs text-muted">
-          1&nbsp;€ dépensé = {program.pointsPerEuro.toLocaleString("fr-FR")}&nbsp;
-          {program.pointsPerEuro > 1 ? "points" : "point"}.{" "}
-          {member
-            ? "Ce téléphone est reconnu : vos points se cumulent tout seuls."
-            : "Laissez votre numéro ou votre email pour cumuler et utiliser vos points."}
-        </p>
+        {title}
+        {member && (
+          <p className="mt-1 text-xs text-muted">
+            Ce téléphone est reconnu&nbsp;: vos points se cumulent tout seuls.
+          </p>
+        )}
       </div>
       {member ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-hairline px-3 py-2.5 text-sm">
@@ -133,7 +174,10 @@ export function LoyaltySection({
           </span>
           <button
             type="button"
-            onClick={onForget}
+            onClick={() => {
+              open();
+              onForget?.();
+            }}
             className="shrink-0 text-xs font-semibold text-muted underline underline-offset-4"
           >
             Ce n&rsquo;est pas moi
@@ -142,7 +186,7 @@ export function LoyaltySection({
       ) : (
         <>
           <form
-            className="flex gap-2"
+            className="flex flex-col gap-2"
             onSubmit={(event) => {
               event.preventDefault();
               void showBalance();
@@ -154,14 +198,24 @@ export function LoyaltySection({
               autoComplete="email"
               value={contact}
               onChange={(event) => changeContact(event.target.value)}
+              ref={(node) => {
+                if (node && focusOnOpen.current) {
+                  focusOnOpen.current = false;
+                  node.focus({ preventScroll: true });
+                  node.scrollIntoView({ block: "center" });
+                }
+              }}
               placeholder="Téléphone ou email"
               aria-label="Téléphone ou email pour la fidélité"
-              className="min-w-0 flex-1 rounded-xl border border-hairline bg-background px-3 py-2.5 text-base outline-none transition-colors focus:border-ember-2/50"
+              className="min-w-0 flex-1 rounded-xl border border-hairline bg-background px-3 py-2.5 text-base outline-none transition-colors placeholder:text-sm focus:border-ember-2/50"
             />
+            <p className="text-xs text-muted">
+              Votre numéro ou votre email suffit&nbsp;: les points s&rsquo;ajoutent à cette commande.
+            </p>
             <button
               type="submit"
               disabled={!contact.trim() || lookup === "loading"}
-              className="shrink-0 rounded-xl border border-hairline px-3 py-2.5 text-xs font-semibold disabled:opacity-50"
+              className="self-start text-xs font-semibold text-ember-1 underline underline-offset-4 disabled:no-underline disabled:opacity-50"
             >
               {lookup === "loading" ? "…" : "Voir mes points"}
             </button>
@@ -213,9 +267,7 @@ export function LoyaltySection({
           </p>
           {earned > 0 && (
             <p className="-mt-2 text-xs text-muted">
-              +{earned} {earned === 1 ? "point" : "points"}{" "}
-              avec cette commande,
-              crédités à l&rsquo;encaissement.
+              Ceux de cette commande sont crédités à l&rsquo;encaissement.
             </p>
           )}
           <ul className="flex flex-col gap-3">

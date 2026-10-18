@@ -19,6 +19,7 @@ import { Sheet } from "@/components/menu/sheet";
 import type { Article, Formule } from "@/lib/gestion/types";
 import {
   useCart,
+  type AccordSource,
   type CartChoice,
   type FormuleSelection,
 } from "@/lib/menu/cart";
@@ -79,10 +80,13 @@ function optionsSupplement(article: Article, chosen: Record<string, string[]>) {
 export function FormuleModal({
   formule,
   initialPicks = {},
+  accord,
   onClose,
   onAdded,
 }: {
   formule: Formule;
+  /** Ouverte depuis l'accord du chef : la ligne le garde (order_items.accord). */
+  accord?: AccordSource;
   /** Étapes déjà choisies à l'ouverture (l'accord du chef part d'un plat commandé). */
   initialPicks?: Picks;
   onClose: () => void;
@@ -271,6 +275,7 @@ export function FormuleModal({
       optionSummary,
       choices: [],
       formule: { selections, items },
+      accord,
     });
     track("panier");
     onAdded?.(selections);

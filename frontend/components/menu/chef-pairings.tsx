@@ -12,20 +12,54 @@ function Spark() {
   );
 }
 
-export function ChefTag({ children }: { children: string }) {
+export function ChefTag() {
   return (
     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-ember-1">
       <Spark />
-      {children}
-      <span className="ml-auto rounded-full border border-ember-1/35 px-2 py-0.5 text-[10px] font-medium tracking-[0.06em] text-muted">
-        IA
-      </span>
+      L&apos;accord du chef
+      <span className="ml-auto text-[10px] font-semibold tracking-[0.08em] text-muted">IA</span>
     </p>
   );
 }
 
-export const chefCard =
-  "flex flex-col gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/10 p-3.5";
+export const chefCard = "flex flex-col gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/10";
+
+/**
+ * Le bouton d'un accord, le même au panier et sur la feuille d'un plat :
+ * cerné tant qu'il propose, plein une fois l'accord retenu. Jamais le dégradé
+ * du bouton principal, qu'il ne doit pas concurrencer.
+ */
+export const suggestionButton = (on = false) =>
+  `min-h-9 shrink-0 rounded-full border px-3 text-xs font-semibold tabular-nums transition-[color,background-color,border-color,transform] active:scale-95 ${
+    on ? "border-transparent bg-ember-1 text-background" : "border-ember-1/50 bg-ember-1/15 text-foreground"
+  }`;
+
+/** Une suggestion : sa photo, son nom, la raison du chef, et son bouton. */
+export function SuggestionRow({
+  image,
+  title,
+  why,
+  children,
+}: {
+  image?: string;
+  title: string;
+  why: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
+        <img src={image} alt="" className="size-11 shrink-0 rounded-xl object-cover" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-sm font-medium leading-tight">{title}</p>
+        <p className="suggestion-why mt-0.5 text-pretty text-xs leading-snug text-muted">{why}</p>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 /** Ce qui se commande bien avec un plat qu'on compose, coché ou non par le client. */
 export function useSheetPairings(itemId: string): Pairing[] {
@@ -33,6 +67,10 @@ export function useSheetPairings(itemId: string): Pairing[] {
   return (pairings?.[itemId] ?? []).filter(({ item }) => canSuggest(item, closed));
 }
 
+/**
+ * Les accords d'un plat, épinglés au-dessus du bouton de la feuille, dans la
+ * même carte qu'au panier : ils se voient sans faire défiler les options.
+ */
 export function SheetPairings({
   pairings,
   picked,
@@ -43,42 +81,32 @@ export function SheetPairings({
   onToggle: (itemId: string) => void;
 }) {
   return (
-    <section aria-label="Se marie bien avec" className={chefCard}>
-      <ChefTag>Se marie bien avec</ChefTag>
-      <div className="grid grid-cols-2 gap-2">
+    <section aria-label="L'accord du chef" className={`sheet-pairings ${chefCard} p-3`}>
+      <ChefTag />
+      <ul className="flex flex-col gap-2.5">
         {pairings.map(({ item, why }) => {
           const on = picked.has(item.id);
           return (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={on}
-              onClick={() => onToggle(item.id)}
-              className={`relative flex flex-col overflow-hidden rounded-xl border bg-surface text-left transition-colors ${
-                on ? "border-ember-1" : "border-hairline"
-              }`}
-            >
-              <span
-                aria-hidden
-                className={`absolute right-1.5 top-1.5 z-10 flex size-6 items-center justify-center rounded-full text-sm font-bold ${
-                  on ? "bg-ember-1 text-background" : "bg-background/60 text-foreground"
-                }`}
-              >
-                {on ? "✓" : "+"}
-              </span>
-              {item.image && (
-                // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
-                <img src={item.image} alt="" className="h-[4.5rem] w-full object-cover" />
-              )}
-              <span className="flex flex-col gap-0.5 p-2.5">
-                <span className="text-[13px] font-semibold leading-tight">{lineName(item)}</span>
-                <span className="text-[11px] leading-snug text-muted">{why}</span>
-                <span className="font-display text-[13px] text-ember-1">{formatPrice(item.price)}</span>
-              </span>
-            </button>
+            <li key={item.id}>
+              <SuggestionRow image={item.image} title={lineName(item)} why={why}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  aria-label={
+                    on
+                      ? `Ajouté avec le plat\u00a0: ${lineName(item)}`
+                      : `Ajouter avec le plat\u00a0: ${lineName(item)}, ${formatPrice(item.price)}`
+                  }
+                  onClick={() => onToggle(item.id)}
+                  className={suggestionButton(on)}
+                >
+                  {on ? "✓ Ajouté" : `+ ${formatPrice(item.price)}`}
+                </button>
+              </SuggestionRow>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </section>
   );
 }

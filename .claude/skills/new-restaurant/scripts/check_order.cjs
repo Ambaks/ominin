@@ -214,6 +214,12 @@ const inspectDialog = (page) =>
   if (bar && preview) {
     await page.locator("button", { hasText: "Voir la commande" }).first().click();
     await page.waitForTimeout(600);
+    // Un règlement à choisir : la feuille passe d'abord par « Continuer ».
+    const next = page.locator("[data-cart-continue]");
+    if (await next.count()) {
+      await next.click();
+      await page.waitForTimeout(600);
+    }
     const send = page.locator('[role="dialog"] button', { hasText: /^\s*Aperçu/ });
     // Aperçu à table (demoSuivi) : la feuille finit sur « Payer en ligne · X € »,
     // puis la carte simulée (data-preview-pay) ; la commande se suit ensuite au

@@ -648,7 +648,7 @@ export function OptionsModal({
       noticeHours: item.noticeHours,
       reward,
     });
-    for (const { item: other } of pickedPairings) addLine(plainLine(other));
+    for (const { item: other } of pickedPairings) addLine(plainLine(other, "fiche"));
     track("panier");
     onAdded();
     close();
@@ -760,42 +760,42 @@ export function OptionsModal({
                 </div>
               ))}
             </div>
-            {pairings.length > 0 && (
-              <div className="mt-6">
-                <SheetPairings
-                  pairings={pairings}
-                  picked={picked}
-                  onToggle={(id) =>
-                    setPicked((current) => {
-                      const next = new Set(current);
-                      if (!next.delete(id)) next.add(id);
-                      return next;
-                    })
-                  }
-                />
-              </div>
-            )}
           </div>
 
           {/* Épinglée : les options d'un tacos 3 viandes défilent sur plus de
               1 600 px, le bouton ne doit pas partir avec elles. */}
-          <div className="flex items-center gap-3 border-t border-hairline bg-surface p-4">
-            <button type="button" onClick={close} className={sheetCancelClass}>
-              Annuler
-            </button>
-            <button
-              type="button"
-              onClick={() => confirm(close)}
-              // Incomplet, il reste actif — il emmène au groupe qui manque — et
-              // lisible : pas d'estompage, un aplat neutre.
-              className={sheetConfirmClass(missingGroups.length === 0)}
-            >
-              <span aria-live="polite" className="block text-balance leading-tight">
-                {missingGroups.length > 0
-                  ? `Choisir\u00a0: ${missingGroups[0].name}`
-                  : confirmLabel}
-              </span>
-            </button>
+          <div className="flex flex-col gap-4 border-t border-hairline bg-surface px-6 py-4">
+            {pairings.length > 0 && (
+              <SheetPairings
+                pairings={pairings}
+                picked={picked}
+                onToggle={(id) =>
+                  setPicked((current) => {
+                    const next = new Set(current);
+                    if (!next.delete(id)) next.add(id);
+                    return next;
+                  })
+                }
+              />
+            )}
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={close} className={sheetCancelClass}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => confirm(close)}
+                // Incomplet, il reste actif — il emmène au groupe qui manque — et
+                // lisible : pas d'estompage, un aplat neutre.
+                className={sheetConfirmClass(missingGroups.length === 0)}
+              >
+                <span aria-live="polite" className="block text-balance leading-tight">
+                  {missingGroups.length > 0
+                    ? `Choisir\u00a0: ${missingGroups[0].name}`
+                    : confirmLabel}
+                </span>
+              </button>
+            </div>
           </div>
         </>
       )}
