@@ -19,6 +19,7 @@
     "legal:publish": "tsx --env-file=../backend/.env scripts/publish-legal.ts",
     "seed:shop": "tsx --env-file=../backend/.env scripts/seed-shop.ts",
     "shop:owner": "tsx --env-file=../backend/.env scripts/shop-owner.ts",
+    "photos:shrink": "tsx --env-file=../backend/.env scripts/shrink-photos.ts",
     "menu:gerant": "tsx --env-file=../backend/.env scripts/lien-gerant.ts",
     "journal": "tsx --env-file=../backend/.env scripts/journal.ts",
     "agents:activate": "tsx --env-file=../backend/.env scripts/agents-activate.ts",

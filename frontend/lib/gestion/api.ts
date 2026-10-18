@@ -13,7 +13,7 @@ import {
   rowToStaff,
   toJson,
 } from "./mappers";
-import { commit, getState, refreshOrdersNow } from "./store";
+import { commit, getState, ordersOfLines, refreshOrdersNow } from "./store";
 import type {
   CashDetails,
   Closure,
@@ -443,12 +443,12 @@ export async function createStaffOrder(
   // Fast food : le numéro se relit sur la commande — une relecture déjà en
   // cours rendrait la main avant de l'avoir.
   if (getState().etablissement.serviceMode !== "fast_food") {
-    await refreshOrdersNow();
+    await refreshOrdersNow([orderId]);
     return undefined;
   }
   const [{ data: order }] = await Promise.all([
     supabase.from("orders").select("order_number").eq("id", orderId).single(),
-    refreshOrdersNow(),
+    refreshOrdersNow([orderId]),
   ]);
   return order?.order_number ?? undefined;
 }
@@ -474,7 +474,7 @@ export async function createPickupOrder(
   lines: StaffOrderLine[]
 ): Promise<void> {
   const supabase = createClient();
-  check(
+  const orderId = must(
     await supabase.rpc("place_order", {
       p_slug: getState().etablissement.slug,
       // Pas de table : les types générés ne connaissent pas d'argument nul.
@@ -493,7 +493,7 @@ export async function createPickupOrder(
       },
     })
   );
-  await refreshOrdersNow();
+  await refreshOrdersNow([orderId]);
 }
 
 export async function updateOrderStatus(
@@ -544,6 +544,7 @@ export async function payOrderItems(
   tip?: number
 ): Promise<void> {
   const supabase = createClient();
+  const orderIds = ordersOfLines(items.map((item) => item.itemId));
   const cash = mode === "carte" ? undefined : cashDetails;
   check(
     await supabase.rpc("pay_order_items", {
@@ -559,7 +560,7 @@ export async function payOrderItems(
       p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
     })
   );
-  await refreshOrdersNow();
+  await refreshOrdersNow(orderIds);
 }
 
 /** Annule une ou plusieurs unités encore impayées, puis relit l'addition. */
@@ -567,6 +568,7 @@ export async function cancelOrderItem(
   itemId: string,
   quantity = 1
 ): Promise<void> {
+  const orderIds = ordersOfLines([itemId]);
   const supabase = createClient();
   check(
     await supabase.rpc("cancel_order_item", {
@@ -574,7 +576,7 @@ export async function cancelOrderItem(
       p_quantity: quantity,
     })
   );
-  await refreshOrdersNow();
+  await refreshOrdersNow(orderIds);
 }
 
 /**
@@ -584,7 +586,7 @@ export async function cancelOrderItem(
 export async function serveOrderItems(itemIds: string[]): Promise<void> {
   const supabase = createClient();
   check(await supabase.rpc("serve_order_items", { p_item_ids: itemIds }));
-  await refreshOrdersNow();
+  await refreshOrdersNow(ordersOfLines(itemIds));
 }
 
 /*

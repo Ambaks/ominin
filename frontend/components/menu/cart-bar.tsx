@@ -9,6 +9,7 @@ import {
 } from "@/components/collect/pickup-fields";
 import { CartPairings } from "@/components/menu/cart-pairings";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
+import { ClaimPoints } from "@/components/menu/claim-points";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PreviewPayment } from "@/components/menu/preview-payment";
 import { leaveAfterSheet, Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
@@ -22,6 +23,8 @@ import { useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
+import { pointsEarned } from "@/lib/menu/loyalty";
+import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
@@ -107,6 +110,11 @@ export function CartBar() {
   const [sentPayment, setSentPayment] = useState<PaymentChoice>("comptoir");
   const [contact, setContact] = useState("");
   const [balance, setBalance] = useState<number | null>(null);
+  const loyaltyMember = useLoyaltyMember();
+  const [rememberPhone, setRememberPhone] = useState(true);
+  const [firstName, setFirstName] = useState("");
+  // Commande partie sans carte : la confirmation propose d'en garder les points.
+  const [unclaimed, setUnclaimed] = useState<{ orderId: string; points: number } | null>(null);
   const [tipChoice, setTipChoice] = useState<TipChoice>(null);
   const [customTip, setCustomTip] = useState("");
   // Le champ du montant libre prend le focus quand on choisit « Autre », pas
@@ -296,7 +304,9 @@ export function CartBar() {
   if (!cart.canOrder) return null;
   if (cart.count === 0 && state !== "sent") return status;
 
-  const loyaltyContact = cart.loyalty ? contact.trim() : "";
+  // Téléphone reconnu, champ laissé vide : c'est son contact qui part.
+  const member = contact.trim() ? null : loyaltyMember.member;
+  const loyaltyContact = cart.loyalty ? (member?.contact ?? contact.trim()) : "";
   // Un article offert ne part pas seul : place_order le refuserait.
   const rewardsOnly = cart.lines.length > 0 && cart.lines.every((line) => line.reward);
   // La cuisine a fermé depuis l'ajout : place_order refuserait ces lignes.
@@ -519,6 +529,20 @@ export function CartBar() {
     setSentPayment(payment);
     // Le solde affiché ne vaut plus : il se relira à la prochaine commande.
     setBalance(null);
+    // Un téléphone reconnu relit son solde (des points ont pu partir) ; sinon,
+    // place_order vient de créer la carte : le téléphone peut la retenir.
+    if (member) {
+      loyaltyMember.refresh().catch(() => {});
+    } else if (loyaltyContact && rememberPhone && loyaltyMember.enabled) {
+      loyaltyMember
+        .remember(loyaltyContact, firstName.trim() || undefined)
+        .then(() => setContact(""), () => {});
+    }
+    setUnclaimed(
+      cart.loyalty && !loyaltyContact && !cart.collect && !cart.fastFood
+        ? { orderId, points: pointsEarned(cart.earningTotal, cart.loyalty.pointsPerEuro) }
+        : null
+    );
     // Fast food : le numéro est gardé dès maintenant, quel que soit le
     // règlement — un client qui quitte la page de paiement le retrouve.
     tickets?.add(orderId);
@@ -695,6 +719,7 @@ export function CartBar() {
     setOpen(false);
     if (state === "sent") {
       setState("idle");
+      setUnclaimed(null);
       setSumupPayment(null);
       setSquarePayment(null);
       setStripePayment(null);
@@ -859,11 +884,19 @@ export function CartBar() {
                       réglerez votre addition au comptoir.
                     </p>
                   )}
-                  {loyaltyContact && (
-                    <p className="text-xs leading-relaxed text-muted">
-                      Vos points de fidélité sont crédités sur {loyaltyContact}{" "}
-                      à l&rsquo;encaissement.
-                    </p>
+                  {unclaimed && unclaimed.points > 0 ? (
+                    <ClaimPoints
+                      orderId={unclaimed.orderId}
+                      points={unclaimed.points}
+                      paid={sentPayment === "carte" && !cardFailed}
+                    />
+                  ) : (
+                    loyaltyContact && (
+                      <p className="text-xs leading-relaxed text-muted">
+                        Vos points de fidélité sont crédités sur {loyaltyContact}{" "}
+                        à l&rsquo;encaissement.
+                      </p>
+                    )
                   )}
                   {/* La route d'aperçu est publique et saute le paiement : la
                       mention dit que rien n'est parti et où le paiement s'ouvre,
@@ -1047,8 +1080,23 @@ export function CartBar() {
                         program={cart.loyalty}
                         contact={contact}
                         onContactChange={setContact}
-                        balance={balance}
+                        balance={member ? (member.points ?? 0) : balance}
                         onBalance={setBalance}
+                        member={member}
+                        onForget={() => {
+                          cart.clearRewards();
+                          void loyaltyMember.forget();
+                        }}
+                        remember={
+                          loyaltyMember.enabled
+                            ? {
+                                checked: rememberPhone,
+                                onChange: setRememberPhone,
+                                firstName,
+                                onFirstNameChange: setFirstName,
+                              }
+                            : undefined
+                        }
                       />
                     )}
                     {cart.collect && (
