@@ -16,10 +16,11 @@
 -- après coup sur une table reprise est remboursé par l'application.
 --
 -- La table peut aussi se partager : l'organisateur en paie une première
--- part, reçoit un lien, et ses amis paient chacun la leur — au plus une part
--- par personne attendue, jusqu'au début de la soirée. Ce qui reste se règle
--- à l'entrée. Chaque part est un paiement à part entière (club_payments),
--- frais de service compris, remboursable seul.
+-- part avec les frais de service de toute la table, reçoit un lien, et ses
+-- amis paient chacun la leur, sans frais — au plus une part par personne
+-- attendue, jusqu'au début de la soirée. Ce qui reste se règle à l'entrée.
+-- Chaque part est un paiement à part entière (club_payments), remboursable
+-- seul.
 --
 -- Le club saisit aussi les réservations prises au téléphone ou sur place
 -- (sans paiement en ligne, sans frais Ominin) ; elles occupent la table sans
@@ -615,13 +616,16 @@ begin
     raise exception 'Cette table vient d''être réservée.';
   end;
 
+  -- Les frais de service portent sur la table entière et se paient une
+  -- fois, avec la part de l'organisateur : ses amis paient leur part sans
+  -- frais.
   insert into club_payments (
     booking_id, etablissement_id, name, email, phone, organiser,
     amount_cents, fee_cents, total_cents, method, hold_expires_at
   ) values (
     v_booking.id, v_booking.etablissement_id, v_booking.name, v_booking.email,
-    v_booking.phone, true, v_amount, club_frais(v_booking.etablissement_id, v_amount),
-    v_amount + club_frais(v_booking.etablissement_id, v_amount), 'en_ligne', v_hold
+    v_booking.phone, true, v_amount, v_booking.fee_cents,
+    v_amount + v_booking.fee_cents, 'en_ligne', v_hold
   )
   returning * into v_payment;
 
@@ -725,8 +729,7 @@ begin
     amount_cents, fee_cents, total_cents, method, hold_expires_at
   ) values (
     v_booking.id, v_booking.etablissement_id, btrim(p_name), lower(btrim(p_email)),
-    btrim(p_phone), false, p_amount, club_frais(v_booking.etablissement_id, p_amount),
-    p_amount + club_frais(v_booking.etablissement_id, p_amount), 'en_ligne', v_hold
+    btrim(p_phone), false, p_amount, 0, p_amount, 'en_ligne', v_hold
   )
   returning * into v_payment;
 
