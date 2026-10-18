@@ -5,6 +5,7 @@ import type { TableState } from "@/components/club/floor-plan";
 import { PhoneIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
+import { formatCents } from "@/lib/club/format";
 import * as clubApi from "@/lib/gestion/club-api";
 import { formatPhone, matchesSearch, staffTableState, tableName, telHref } from "@/lib/gestion/club-selectors";
 import { StatusChip } from "./night-plan";
@@ -25,7 +26,13 @@ const SWIPE_START = 10;
 /** L'astuce du glissé ne se montre qu'une fois par appareil. */
 const SWIPE_HINT_KEY = "ominin-soirees-glisse-vu";
 
-export type HeldTable = { booking: ClubBooking; table: ClubTable; zoneName: string };
+export type HeldTable = {
+  booking: ClubBooking;
+  table: ClubTable;
+  zoneName: string;
+  /** Les amis qui ont payé leur part en ligne (table partagée). */
+  payers: string[];
+};
 type Entry = HeldTable & { state: TableState };
 type Phase = "repos" | "glisse" | "pret" | "parti";
 
@@ -51,13 +58,15 @@ function DoorRow({
   next: boolean;
   hint: boolean;
   onOpen: () => void;
-  /** Résout faux si l'arrivée n'a pas pu être enregistrée : la rangée revient. */
+  /** Fait entrer (et encaisse d'abord le reste s'il y en a) ; résout faux si la base refuse : la rangée revient. */
   onArrive: () => Promise<boolean>;
 }) {
-  const { booking, table, zoneName, state } = entry;
+  const { booking, table, zoneName, state, payers } = entry;
+  const remaining = booking.remainingCents;
   const row = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ id: number; x: number; y: number; dx: number; active: boolean } | null>(null);
   const [phase, setPhase] = useState<Phase>("repos");
+  // Glisser fait entrer une table réglée ; l'argent, lui, se prend d'un geste visible.
   const canSwipe = state === "payee";
   const name = tableName(zoneName, table.label);
 
@@ -143,7 +152,18 @@ function DoorRow({
           </span>
           <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
             {party(booking.partySize)}
-            <StatusChip key={state} state={state} />
+            {booking.shared && payers.length > 0 && (
+              <span>
+                · {payers.length} payeur{payers.length > 1 ? "s" : ""}
+              </span>
+            )}
+            {remaining > 0 && booking.paidCents > 0 ? (
+              <span className="statut statut-pose" data-state="attente">
+                Reste <span className="tabular-nums">{formatCents(remaining)}</span>
+              </span>
+            ) : (
+              <StatusChip key={state} state={state} />
+            )}
             {next && <span className="text-xs font-semibold text-ember-2">Suivant</span>}
           </span>
         </button>
@@ -161,7 +181,8 @@ function DoorRow({
               </a>
             )}
             {state === "payee" && button("Arrivé(e)", () => void commit())}
-            {state === "attente" && button("Encaisser et faire entrer", onOpen)}
+            {state === "attente" &&
+              button(`Encaisser ${formatCents(remaining)} et faire entrer`, () => void commit())}
           </div>
         )}
         {hint && (
@@ -179,8 +200,8 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
 
   const entries: Entry[] = held
     .map((entry) => ({ ...entry, state: staffTableState(entry.booking, true) }))
-    .filter(({ booking, table, zoneName }) =>
-      matchesSearch(query, [booking.name, booking.phone, table.label, tableName(zoneName, table.label)])
+    .filter(({ booking, table, zoneName, payers }) =>
+      matchesSearch(query, [booking.name, booking.phone, table.label, tableName(zoneName, table.label), ...payers])
     );
   // À encaisser d'abord, puis réglées, puis paiements en ligne en cours ;
   // à l'intérieur, la réservation la plus ancienne.
@@ -210,8 +231,14 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
   }, [hintId]);
 
   const arrive = async (booking: ClubBooking, name: string): Promise<boolean> => {
+    const collect = booking.remainingCents;
     try {
-      await clubApi.markArrival(booking, true);
+      await clubApi.markArrival(booking, true, collect > 0);
+      if (collect > 0) {
+        // De l'argent a changé de main : rien à annuler d'un geste, la fiche de la table le permet.
+        toast.success(`${name} : ${formatCents(collect)} encaissés, ${booking.name} est entré(e).`);
+        return true;
+      }
       toast.notice(`${name} : ${booking.name} est entré(e).`, {
         label: "Annuler",
         onPress: () => {

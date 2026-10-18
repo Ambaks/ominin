@@ -10,3 +10,6 @@ export function clubHref(path: string): string {
 
 /** La page de réservation d'un client, relative à la racine d'Ominin Club. */
 export const bookingPath = (slug: string, token: string) => `/${slug}/reservation/${token}`;
+
+/** La page d'une table partagée, où les amis de l'organisateur paient leur part. */
+export const sharePath = (slug: string, shareToken: string) => `/${slug}/partage/${shareToken}`;

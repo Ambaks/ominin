@@ -26,6 +26,8 @@ import {
   isClubEntered,
   isPast,
   isSold,
+  paymentsOf,
+  refundableOnline,
   staffTableState,
   TABLE_STATE_LABELS,
   tableName,
@@ -234,7 +236,7 @@ export function EventEditor({
   const night = event ? club.nights[event.id] : undefined;
   const byTable = bookingsByTable(night, now);
   const sold = (night?.bookings ?? []).filter(isSold);
-  const paidOnline = sold.filter((booking) => booking.paidOnline).length;
+  const paidOnline = sold.filter((booking) => refundableOnline(paymentsOf(night, booking.id)).length > 0).length;
   const settled = sold.filter((booking) => booking.status !== "en_attente").length;
   const clubEntered = sold.filter(isClubEntered).length;
 

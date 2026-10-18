@@ -123,6 +123,7 @@ export type BookingTicket = {
   remainingCents: number;
   /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page. */
   pendingPaymentId: string | null;
+  pendingTotalCents: number | null;
   payers: SharePayer[];
   table: { label: string; seats: number; zone: string; inclus: string | null };
   event: ClubEvent;
@@ -144,11 +145,14 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
+      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, amount_cents, total_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
   if (!data?.club_tables?.club_zones || !data.club_events || !data.etablissements) return null;
+  const pending = data.club_payments.find(
+    (payment) => payment.organiser && payment.status === "en_attente"
+  );
   return {
     id: data.id,
     token: data.token,
@@ -167,9 +171,8 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     shareToken: data.share_token,
     paidCents: data.paid_cents,
     remainingCents: data.price_cents - data.paid_cents,
-    pendingPaymentId:
-      data.club_payments.find((payment) => payment.organiser && payment.status === "en_attente")?.id ??
-      null,
+    pendingPaymentId: pending?.id ?? null,
+    pendingTotalCents: pending?.total_cents ?? null,
     payers: sharePayers(data.club_payments),
     table: {
       label: data.club_tables.label,

@@ -16,6 +16,8 @@ import { useSkyPause } from "@/components/club/club-sky";
 import type { TableState } from "@/components/club/floor-plan";
 import { PlanView } from "@/components/club/plan-view";
 import { RollingAmount } from "@/components/club/rolling-amount";
+import { SeatRing } from "@/components/club/seat-ring";
+import { ShareAmount } from "@/components/club/share-amount";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_SHEET, CLUB_TIMING } from "@/components/club/timing";
 import { useMagnetic } from "@/components/club/use-magnetic";
@@ -44,7 +46,7 @@ import type { Club, ClubEvent, ClubTable, ClubZone } from "@/lib/club/types";
 
 type Step = "table" | "infos" | "paiement";
 type Hold = {
-  bookingId: string;
+  paymentId: string;
   token: string;
   tableId: string;
   totalCents: number;
@@ -52,6 +54,8 @@ type Hold = {
   provider: Club["paymentProvider"];
 };
 type Contact = { name: string; phone: string; email: string };
+/* Payer la table entière, ou sa part en la partageant avec ses amis. */
+type Mode = "full" | "shared";
 type TonightZone = ClubZone & { tables: ClubTable[]; minSeats: number; maxSeats: number };
 
 const STEPS: { id: Step; label: string }[] = [
@@ -111,6 +115,8 @@ export function EventBooking({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [contact, setContact] = useState<Contact>({ name: "", phone: "", email: "" });
   const [accepted, setAccepted] = useState(false);
+  const [mode, setMode] = useState<Mode>("full");
+  const [shareCents, setShareCents] = useState<number | null>(null);
   const [hold, setHold] = useState<Hold | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -120,7 +126,11 @@ export function EventBooking({
   const selected = selectedId ? (club.tables.find((table) => table.id === selectedId) ?? null) : null;
   const selectedZone = selected ? zones.find((candidate) => candidate.id === selected.zoneId) : undefined;
   const price = selectedZone?.priceCents ?? zone?.priceCents ?? 0;
-  const total = allIn(price);
+  // Une part égale, plus petite part de l'organisateur (contrôlée en base aussi).
+  const part = Math.ceil(price / (party ?? 1));
+  const share = Math.min(price, Math.max(part, shareCents ?? part));
+  const shared = mode === "shared";
+  const total = shared ? share + fee(share) : allIn(price);
   const paying = step === "paiement" && hold !== null;
   // La barre de prix garde sa dernière table le temps de sortir.
   const [barTable, setBarTable] = useState<ClubTable | null>(null);
@@ -359,7 +369,7 @@ export function EventBooking({
     stageHeight.current = to;
     if (!from || from === to || reducedMotion()) return;
     stage.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: CLUB_TIMING.step, easing: clubToken("--c-ease") });
-  }, [step, selectedId, hold]);
+  }, [step, selectedId, hold, mode]);
 
   useEffect(() => {
     if (step !== "table") headingRef.current?.focus({ preventScroll: true });
@@ -375,17 +385,24 @@ export function EventBooking({
       const response = await fetch("/api/club/reserve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId: event.id, tableId: selected.id, ...contact, partySize: party, accepted }),
+        body: JSON.stringify({
+          eventId: event.id,
+          tableId: selected.id,
+          ...contact,
+          partySize: party,
+          accepted,
+          ...(shared ? { shareCents: share } : {}),
+        }),
       });
       const body = (await response.json().catch(() => ({}))) as Partial<Hold> & { error?: string };
-      if (!response.ok || !body.bookingId || !body.token) {
+      if (!response.ok || !body.paymentId || !body.token) {
         setFormError(body.error ?? (response.status === 400 ? "Vérifiez vos coordonnées." : "Réservation impossible pour le moment."));
         if (response.status === 409) await refresh();
         return;
       }
       released.current = null;
       setHold({
-        bookingId: body.bookingId,
+        paymentId: body.paymentId,
         token: body.token,
         tableId: selected.id,
         totalCents: body.totalCents ?? total,
@@ -684,17 +701,64 @@ export function EventBooking({
                         </button>
                       </div>
                     </div>
+                    <div className="club-mode" role="radiogroup" aria-label="Paiement de la table">
+                      <span className="club-mode-pill" data-mode={mode} aria-hidden />
+                      <button type="button" role="radio" aria-checked={!shared} onClick={() => setMode("full")}>
+                        Table complète
+                      </button>
+                      <button type="button" role="radio" aria-checked={shared} onClick={() => setMode("shared")}>
+                        Partager avec mes amis
+                      </button>
+                    </div>
+                    {shared && (party ?? 1) > 1 && (
+                      <div className="club-share" key="share">
+                        <SeatRing
+                          seats={party ?? 1}
+                          priceCents={price}
+                          shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
+                          label={selected.label}
+                        />
+                        <ShareAmount
+                          value={share}
+                          min={part}
+                          max={price}
+                          part={part}
+                          feePercent={club.feePercent}
+                          othersLabel="vos amis"
+                          presets={[
+                            { label: "1 part", cents: part },
+                            ...((party ?? 1) > 2 ? [{ label: "2 parts", cents: part * 2 }] : []),
+                            { label: "La moitié", cents: Math.ceil(price / 2) },
+                            { label: "Tout", cents: price },
+                          ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
+                          onChange={setShareCents}
+                        />
+                        <p className="club-fine club-share-note">
+                          La table est à vous dès ce paiement. Vos amis reçoivent un lien privé pour payer leur part
+                          jusqu&rsquo;au début de la soirée ; ce qui reste se règle à l&rsquo;entrée.
+                        </p>
+                      </div>
+                    )}
+                    {shared && (party ?? 1) <= 1 && (
+                      <p className="club-fine club-share-note">Ajoutez des personnes pour partager la table.</p>
+                    )}
                     <dl className="club-lines">
                       <div>
-                        <dt>Table</dt>
-                        <dd className="club-mono">{formatCents(price)}</dd>
+                        <dt>{shared ? "Votre part" : "Table"}</dt>
+                        <dd className="club-mono">{formatCents(shared ? share : price)}</dd>
                       </div>
                       <div>
                         <dt>Frais de service ({club.feePercent} %)</dt>
-                        <dd className="club-mono">{formatCents(fee(price))}</dd>
+                        <dd className="club-mono">{formatCents(fee(shared ? share : price))}</dd>
                       </div>
+                      {shared && (
+                        <div>
+                          <dt>Reste pour vos amis</dt>
+                          <dd className="club-mono">{formatCents(price - share)}</dd>
+                        </div>
+                      )}
                       <div className="club-lines-total">
-                        <dt>Total, tout compris</dt>
+                        <dt>{shared ? "À payer maintenant" : "Total, tout compris"}</dt>
                         <dd>
                           <RollingAmount cents={total} className="club-mono" />
                         </dd>
@@ -706,6 +770,7 @@ export function EventBooking({
                         type="button"
                         className="club-button club-button-primary club-button-block club-magnet"
                         onClick={() => setStep("infos")}
+                        disabled={shared && (party ?? 1) <= 1}
                       >
                         Continuer
                       </button>
@@ -820,14 +885,14 @@ export function EventBooking({
                   <div className="club-step" key="paiement">
                     <TablePayment
                       provider={hold.provider}
-                      bookingId={hold.bookingId}
+                      paymentId={hold.paymentId}
                       totalCents={hold.totalCents}
                       remainingMs={hold.remainingMs}
                       recap={[
                         formatNightShort(event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
                         tableName(selectedZone.name, selected.label),
                         `${party} pers.`,
-                        `${formatCents(hold.totalCents)} tout compris`,
+                        shared ? `votre part ${formatCents(hold.totalCents)} frais compris` : `${formatCents(hold.totalCents)} tout compris`,
                       ].join(" · ")}
                       onPaid={onPaid}
                       onExpired={onExpired}

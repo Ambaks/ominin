@@ -4,6 +4,7 @@ import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useSyncExternalStore } from "react";
 import {
   rowToBooking,
+  rowToPayment,
   rowToEvent,
   rowToGuest,
   rowToTable,
@@ -11,9 +12,11 @@ import {
 } from "@/lib/club/mappers";
 import type {
   BookingStatus,
+  PaymentStatus,
   ClubBooking,
   ClubEvent,
   ClubGuest,
+  ClubPayment,
   ClubTable,
   ClubZone,
 } from "@/lib/club/types";
@@ -35,7 +38,8 @@ type Client = SupabaseClient<Database>;
 /** Une zone en vente un soir : son prix du soir, null pour celui de la zone. */
 export type EventZoneSetting = { zoneId: string; priceCents: number | null };
 
-export type ClubNight = { bookings: ClubBooking[]; guests: ClubGuest[] };
+/** Une soirée vue de la porte : ses réservations, leurs paiements (parts d'amis, encaissements sur place) et ses invités. */
+export type ClubNight = { bookings: ClubBooking[]; payments: ClubPayment[]; guests: ClubGuest[] };
 
 /** Une table payée en ligne par un client pendant que l'écran était ouvert. */
 export type ClubArrival = { booking: ClubBooking; eventId: string };
@@ -65,6 +69,7 @@ export interface ClubState {
  * de paiement abandonnées surtout — s'accumulent et n'ont rien à montrer.
  */
 const NIGHT_STATUSES: BookingStatus[] = ["en_attente", "payee", "arrivee", "remboursee"];
+const PAYMENT_STATUSES: PaymentStatus[] = ["payee", "remboursee"];
 
 let state: ClubState | null = null;
 let loadingFor: string | null = null;
@@ -172,10 +177,29 @@ async function fetchNights(supabase: Client, eventIds: string[]): Promise<Record
       return query;
     }),
   ]);
+  // Les paiements n'ont pas de soirée : ils se lisent par leurs réservations.
+  // Seuls comptent ceux qui ont abouti (et leurs remboursements) ; une part
+  // abandonnée en cours de paiement n'a rien à montrer.
+  const bookingIds = bookings.map((row) => row.id);
+  const payments = bookingIds.length
+    ? await readAll((after) => {
+        let query = supabase
+          .from("club_payments")
+          .select("*")
+          .in("booking_id", bookingIds)
+          .in("status", PAYMENT_STATUSES)
+          .order("created_at", { ascending: true })
+          .order("id", { ascending: true });
+        if (after) query = query.or(after);
+        return query;
+      })
+    : [];
   const nights: Record<string, ClubNight> = Object.fromEntries(
-    eventIds.map((id) => [id, { bookings: [], guests: [] }])
+    eventIds.map((id) => [id, { bookings: [], payments: [], guests: [] }])
   );
+  const eventOf = new Map(bookings.map((row) => [row.id, row.event_id]));
   for (const row of bookings) nights[row.event_id].bookings.push(rowToBooking(row));
+  for (const row of payments) nights[eventOf.get(row.booking_id)!].payments.push(rowToPayment(row));
   for (const row of guests) nights[row.event_id].guests.push(rowToGuest(row));
   return nights;
 }
@@ -257,12 +281,24 @@ const refreshAll = coalescedBy("du club", async () => {
   if (loaded.length > 0) mergeNights(await fetchNights(createClient(), loaded));
 });
 
-type NightRow = { event_id?: string };
+type NightRow = { event_id?: string; booking_id?: string };
 
 // Une suppression n'a que l'ancienne ligne (replica identity full), un ajout que la nouvelle.
 function onNightChange(payload: { new: NightRow; old: NightRow }) {
   const eventId = payload.new.event_id ?? payload.old.event_id;
   if (eventId && state?.nights[eventId]) void refreshNight(eventId);
+}
+
+// Un paiement porte sa réservation, pas sa soirée : on la retrouve parmi celles chargées.
+function onPaymentChange(payload: { new: NightRow; old: NightRow }) {
+  const bookingId = payload.new.booking_id ?? payload.old.booking_id;
+  if (!bookingId || !state) return;
+  for (const [eventId, night] of Object.entries(state.nights)) {
+    if (night.bookings.some((booking) => booking.id === bookingId)) {
+      void refreshNight(eventId);
+      return;
+    }
+  }
 }
 
 function subscribeClub(supabase: Client, etablissementId: string) {
@@ -279,6 +315,7 @@ function subscribeClub(supabase: Client, etablissementId: string) {
     .channel("gestion-club")
     .on("postgres_changes", { event: "*", schema: "public", table: "club_bookings", filter }, onNightChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "club_guests", filter }, onNightChange)
+    .on("postgres_changes", { event: "*", schema: "public", table: "club_payments", filter }, onPaymentChange)
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "club_events", filter },

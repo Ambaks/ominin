@@ -34,15 +34,16 @@ export function BookingWatch({ live }: { live: boolean }) {
 }
 
 export function ResumePayment({
-  bookingId,
+  paymentId,
   provider,
   totalCents,
   remainingMs,
   recap,
 }: {
-  bookingId: string;
+  paymentId: string;
   provider: Club["paymentProvider"];
-  totalCents: number;
+  /** null : montant d'une part, inconnu ici (le serveur le relit). */
+  totalCents: number | null;
   remainingMs: number;
   recap: string;
 }) {
@@ -55,7 +56,7 @@ export function ResumePayment({
     <div className="club-resume">
       <TablePayment
         provider={provider}
-        bookingId={bookingId}
+        paymentId={paymentId}
         totalCents={totalCents}
         remainingMs={remainingMs}
         recap={recap}
@@ -67,19 +68,20 @@ export function ResumePayment({
 }
 
 /*
- * Au retour du paiement, une fois : quand le QR code s'est posé, sa plaque
- * s'éclaire d'un anneau d'or, une constellation en jaillit (dans une couche
- * fixe, au-dessus du billet qui la rognerait), puis l'étape « Payée »
- * s'allume.
+ * Au retour du paiement, une fois : quand l'élément visé s'est posé (le QR
+ * code, la place d'un ami), il s'éclaire d'un anneau d'or, une
+ * constellation en jaillit (dans une couche fixe, au-dessus de ce qui la
+ * rognerait), puis l'étape « Payée » s'allume s'il y en a une. Le paramètre
+ * d'URL qui l'a déclenchée est retiré : un rechargement ne la rejoue pas.
  */
-export function PaidBurst() {
+export function PaidBurst({ target = ".club-qr-plate", param = "paye" }: { target?: string; param?: string }) {
   const layer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const url = new URL(window.location.href);
-    url.searchParams.delete("paye");
+    url.searchParams.delete(param);
     window.history.replaceState(window.history.state, "", url);
     const host = layer.current;
-    const plate = document.querySelector<HTMLElement>(".club-qr-plate");
+    const plate = document.querySelector<HTMLElement>(target);
     const step = document.querySelector<HTMLElement>(".club-track [data-step='payee']");
     if (!host || !plate || prefersReducedMotion()) return;
 
@@ -117,7 +119,7 @@ export function PaidBurst() {
       clearTimeout(timer);
       animations.forEach((animation) => animation.cancel());
     };
-  }, []);
+  }, [target, param]);
   return <div ref={layer} className="club-burst" aria-hidden />;
 }
 

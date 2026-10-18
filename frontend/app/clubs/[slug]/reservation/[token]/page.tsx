@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingWatch, PaidBurst, PassActions, QrZoom, ResumePayment } from "@/components/club/booking-live";
+import { SeatRing } from "@/components/club/seat-ring";
+import { ShareLink, ShareMeter } from "@/components/club/share-live";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { EtoileMark } from "@/components/menu/etoile/logo";
 import { QrCode } from "@/components/pitch/qr-code";
 import { REFUND_RULE } from "@/lib/club/conditions";
 import { formatCents, formatHours, formatNight, formatNightShort, tableName } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
-import { bookingPath, clubHref } from "@/lib/club/links";
+import { bookingPath, clubHref, sharePath } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
 import { clubSiteUrl } from "@/lib/site";
 
@@ -169,6 +171,7 @@ export default async function BookingPage({
   const view = viewOf(booking, now);
   const eventCancelled = Boolean(booking.event.cancelledAt);
   const eventOver = Date.parse(booking.event.endsAt) <= now;
+  const eventStarted = Date.parse(booking.event.startsAt) <= now;
   const copy = statusCopy(view, booking, eventCancelled);
   const track = trackOf(view, booking, eventCancelled);
   const { conditions } = club;
@@ -213,11 +216,11 @@ export default async function BookingPage({
           )}
         </header>
 
-        {view === "attente" && booking.holdExpiresAt && (
+        {view === "attente" && booking.holdExpiresAt && booking.pendingPaymentId && (
           <ResumePayment
-            bookingId={booking.id}
+            paymentId={booking.pendingPaymentId}
             provider={booking.club.paymentProvider}
-            totalCents={booking.totalCents}
+            totalCents={booking.shared ? null : booking.totalCents}
             remainingMs={Date.parse(booking.holdExpiresAt) - now}
             recap={[
               formatNightShort(booking.event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
@@ -226,6 +229,39 @@ export default async function BookingPage({
               `${formatCents(booking.totalCents)} tout compris`,
             ].join(" · ")}
           />
+        )}
+
+        {booking.shared && booking.shareToken && passValid && (
+          <section className="club-share-panel" aria-labelledby="partage-titre">
+            <h2 id="partage-titre" className="club-h2">
+              Table partagée
+            </h2>
+            <SeatRing
+              seats={booking.partySize}
+              priceCents={booking.priceCents}
+              shares={booking.payers.map((payer) => ({
+                id: payer.id,
+                name: payer.name,
+                amountCents: payer.amountCents,
+                tone: payer.organiser ? "you" : "friend",
+              }))}
+              label={booking.table.label}
+              freshId={booking.payers.at(-1)?.id}
+            />
+            <ShareMeter paidCents={booking.paidCents} priceCents={booking.priceCents} />
+            {booking.remainingCents > 0 ? (
+              <ShareLink
+                url={`${clubSiteUrl}${sharePath(slug, booking.shareToken)}`}
+                text={`Je réserve une table pour ${booking.event.title} au ${club.name}, ${formatNight(booking.event.startsAt)}. Ta part, en deux minutes :`}
+                startsAt={booking.event.startsAt}
+                remainingCents={booking.remainingCents}
+              />
+            ) : (
+              <p className="club-share-closed" data-tone="success">
+                Toutes les parts sont payées : la table est entièrement réglée.
+              </p>
+            )}
+          </section>
         )}
 
         <article className="club-pass" data-view={view} aria-label="Votre réservation">
@@ -284,20 +320,37 @@ export default async function BookingPage({
             </div>
           )}
 
-          <dl className="club-lines club-pass-lines">
-            <div>
-              <dt>Table</dt>
-              <dd className="club-mono">{formatCents(booking.priceCents)}</dd>
-            </div>
-            <div>
-              <dt>Frais de service</dt>
-              <dd className="club-mono">{formatCents(booking.feeCents)}</dd>
-            </div>
-            <div className="club-lines-total">
-              <dt>{passValid ? "Total payé" : view === "remboursee" ? "Total remboursé" : "Total"}</dt>
-              <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
-            </div>
-          </dl>
+          {booking.shared ? (
+            <dl className="club-lines club-pass-lines">
+              <div>
+                <dt>Table</dt>
+                <dd className="club-mono">{formatCents(booking.priceCents)}</dd>
+              </div>
+              <div>
+                <dt>Déjà payé, toutes parts</dt>
+                <dd className="club-mono">{formatCents(booking.paidCents)}</dd>
+              </div>
+              <div className="club-lines-total">
+                <dt>{eventStarted ? "Reste à régler à l'entrée" : "Reste à payer"}</dt>
+                <dd className="club-mono">{formatCents(booking.remainingCents)}</dd>
+              </div>
+            </dl>
+          ) : (
+            <dl className="club-lines club-pass-lines">
+              <div>
+                <dt>Table</dt>
+                <dd className="club-mono">{formatCents(booking.priceCents)}</dd>
+              </div>
+              <div>
+                <dt>Frais de service</dt>
+                <dd className="club-mono">{formatCents(booking.feeCents)}</dd>
+              </div>
+              <div className="club-lines-total">
+                <dt>{passValid ? "Total payé" : view === "remboursee" ? "Total remboursé" : "Total"}</dt>
+                <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
+              </div>
+            </dl>
+          )}
         </article>
 
         <div className="club-pass-actions">

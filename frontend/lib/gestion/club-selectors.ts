@@ -1,6 +1,6 @@
 import type { TableState } from "@/components/club/floor-plan";
 import { bookingHolds } from "@/lib/club/mappers";
-import type { ClubBooking, ClubEvent, ClubTable } from "@/lib/club/types";
+import type { ClubBooking, ClubEvent, ClubPayment, ClubTable } from "@/lib/club/types";
 import type { ClubNight, ClubState } from "./club-store";
 
 /* Lectures des soirées d'un club pour la gestion : ventes, plan, arrivées. */
@@ -54,18 +54,31 @@ export function tablePrice(club: ClubState, eventId: string, table: ClubTable): 
 }
 
 /** L'état d'une table sur le plan de l'équipe. */
+/**
+ * L'état d'une table sur le plan de l'équipe. Une table tenue dont il reste
+ * à encaisser (saisie par le club, ou partagée et pas encore réglée en
+ * entier) est « à régler sur place » : c'est à la porte que le reste se paie.
+ */
 export function staffTableState(booking: ClubBooking | undefined, onSale: boolean): TableState {
   if (!booking) return onSale ? "libre" : "gardee";
   if (booking.status === "arrivee") return "arrivee";
-  if (booking.status === "payee") return "payee";
-  return booking.holdExpiresAt === null ? "attente" : "prise";
+  if (booking.status === "en_attente" && booking.holdExpiresAt !== null) return "prise";
+  return booking.remainingCents > 0 ? "attente" : "payee";
 }
+
+/** Les paiements d'une réservation, dans l'ordre où ils sont arrivés. */
+export const paymentsOf = (night: ClubNight | undefined, bookingId: string): ClubPayment[] =>
+  (night?.payments ?? []).filter((payment) => payment.bookingId === bookingId);
+
+/** Payé en ligne, non remboursé : ce qu'un remboursement de la table rend. */
+export const refundableOnline = (payments: ClubPayment[]) =>
+  payments.filter((payment) => payment.method === "en_ligne" && payment.status === "payee");
 
 export const TABLE_STATE_LABELS: Partial<Record<TableState, string>> = {
   libre: "Libre",
   prise: "Paiement en ligne en cours",
   payee: "Payée",
-  attente: "À régler sur place",
+  attente: "À encaisser",
   arrivee: "Arrivée",
   gardee: "Gardée, hors vente",
 };
@@ -75,7 +88,7 @@ export interface NightStats {
   /** Tables en vente ce soir, plus celles vendues hors vente (gardées, zone fermée). */
   capacity: number;
   arrived: number;
-  /** Prix des tables réglées en ligne, frais Ominin à part. */
+  /** Parts payées en ligne, frais Ominin à part. */
   online: number;
   onSite: number;
   toCollect: number;
@@ -101,11 +114,17 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
   };
   for (const booking of sold) {
     if (booking.status === "arrivee") stats.arrived += 1;
-    if (booking.paidOnline) {
-      stats.online += booking.priceCents;
-      stats.fees += booking.feeCents;
-    } else if (booking.paidAt) stats.onSite += booking.priceCents;
-    else stats.toCollect += booking.priceCents;
+    stats.toCollect += booking.remainingCents;
+  }
+  const active = new Set(sold.map((booking) => booking.id));
+  for (const payment of night?.payments ?? []) {
+    if (payment.status !== "payee" || !active.has(payment.bookingId)) continue;
+    if (payment.method === "en_ligne") {
+      stats.online += payment.amountCents;
+      stats.fees += payment.feeCents;
+    } else {
+      stats.onSite += payment.amountCents;
+    }
   }
   for (const guest of night?.guests ?? []) {
     stats.guests += guest.partySize;

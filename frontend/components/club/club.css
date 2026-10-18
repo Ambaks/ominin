@@ -3013,3 +3013,607 @@ html:has(.club) {
   content: "·";
   margin: 0 6px;
 }
+
+/* ---------- Table partagée ---------- */
+
+/* Table complète / partager : deux choix, une pastille qui glisse de l'un à l'autre. */
+.club-mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.club-mode-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: var(--c-gold-light);
+  box-shadow: 0 6px 20px -8px rgba(251, 239, 210, 0.6);
+  transition: transform var(--c-sheet) var(--c-spring);
+}
+
+.club-mode-pill[data-mode="shared"] {
+  transform: translateX(100%);
+}
+
+.club-mode button {
+  position: relative;
+  z-index: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-muted);
+  cursor: pointer;
+  transition: color var(--c-base) var(--c-ease);
+}
+
+.club-mode button[aria-checked="true"] {
+  color: var(--c-ink);
+}
+
+.club-share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: club-step-in var(--c-slow) var(--c-ease) both;
+}
+
+.club-share-note {
+  text-align: left;
+}
+
+/* La table vue d'en haut, ses places tout autour (seat-ring.tsx). */
+.club-seats {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.club-seats-track {
+  fill: none;
+  stroke: var(--c-line);
+  stroke-width: 2;
+}
+
+.club-seats-progress {
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--paid));
+  transition: stroke-dashoffset var(--c-sheet) var(--c-ease);
+  animation: club-progress-in 1s var(--c-ease) 200ms both;
+}
+
+@keyframes club-progress-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.club-seats-lines {
+  fill: none;
+  stroke: rgba(226, 196, 143, 0.55);
+  stroke-width: 1.2;
+  stroke-dasharray: 1;
+  stroke-linejoin: round;
+  animation: club-lines-in 900ms var(--c-ease) 300ms both;
+}
+
+@keyframes club-lines-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.club-seats-table circle {
+  fill: var(--c-raised);
+  stroke: var(--c-line-strong);
+  stroke-width: 1.2;
+}
+
+.club-seats-star {
+  fill: var(--c-gold);
+}
+
+.club-seats-table text {
+  fill: var(--c-text);
+  font-family: var(--c-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.club-seat {
+  --seat: var(--c-state-libre);
+}
+
+.club-seat[data-tone="friend"] {
+  --seat: #c4b8ff;
+}
+
+.club-seat[data-tone="you"],
+.club-seat[data-tone="preview"] {
+  --seat: var(--c-gold-light);
+}
+
+.club-seat-base {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 1.2;
+}
+
+/* Les places vides respirent. */
+.club-seat[data-empty] .club-seat-base {
+  animation: club-seat-breathe 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.4s);
+}
+
+@keyframes club-seat-breathe {
+  50% {
+    stroke: rgba(226, 196, 143, 0.55);
+    fill: rgba(226, 196, 143, 0.06);
+  }
+}
+
+.club-seat-fill {
+  fill: var(--seat);
+  transform: scale(var(--fill));
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform var(--c-sheet) var(--c-spring),
+    fill var(--c-base) var(--c-ease);
+  animation: club-seat-in var(--c-sheet) var(--c-spring) both;
+  animation-delay: calc(var(--i) * 60ms + 150ms);
+}
+
+@keyframes club-seat-in {
+  from {
+    transform: scale(0);
+  }
+}
+
+.club-seat-halo {
+  fill: var(--seat);
+  opacity: 0;
+}
+
+.club-seat[data-fresh] .club-seat-halo {
+  animation: club-seat-pulse 1.4s var(--c-ease) 3 600ms;
+}
+
+@keyframes club-seat-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.club-seat-initials {
+  fill: var(--c-text);
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+  animation-delay: calc(var(--i) * 60ms + 300ms);
+}
+
+.club-seat[data-full] .club-seat-initials {
+  fill: var(--c-ink);
+}
+
+.club-seats[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
+/* Le montant d'une part (share-amount.tsx). */
+.club-share-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.club-share-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.club-share-value {
+  font-family: var(--c-display);
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.club-share-sub {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-share-control {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.club-share-control .club-icon-button {
+  font-size: 20px;
+}
+
+.club-share-control .club-icon-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.club-range {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.club-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--c-gold) calc(var(--fill) * 100%), rgba(255, 255, 255, 0.14) 0);
+}
+
+.club-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.club-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--c-gold);
+}
+
+.club-range::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 6px rgba(226, 196, 143, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform var(--c-slow) var(--c-spring);
+  -webkit-appearance: none;
+}
+
+.club-range::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 6px rgba(226, 196, 143, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.club-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+
+.club-range:focus-visible {
+  outline: none;
+}
+
+.club-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 3px var(--c-navy),
+    0 0 0 5px var(--c-gold-light);
+}
+
+.club-share-bounds {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 54px;
+  font-size: 13px;
+  color: var(--c-faint);
+}
+
+.club-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.club-presets button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color var(--c-base) var(--c-ease),
+    background-color var(--c-base) var(--c-ease),
+    transform var(--c-slow) var(--c-spring);
+}
+
+.club-presets button:active {
+  transform: scale(0.96);
+}
+
+.club-presets button[aria-pressed="true"] {
+  border-color: var(--c-gold);
+  background: rgba(226, 196, 143, 0.14);
+  color: var(--c-gold-light);
+}
+
+/* Payé / reste. */
+.club-share-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.club-share-meter p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+.club-share-meter .club-mono {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-share-meter .club-meter-bar::after {
+  transition: transform var(--c-sheet) var(--c-ease);
+}
+
+/* Le lien à envoyer. */
+.club-share-link {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.club-share-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.club-share-url > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--c-muted);
+}
+
+.club-share-url button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--c-raised);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--c-base) var(--c-ease),
+    color var(--c-base) var(--c-ease);
+}
+
+.club-share-url svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-share-url button[data-copied] {
+  background: rgba(47, 212, 180, 0.18);
+  color: #8ff0dc;
+}
+
+.club-share-url button[data-copied] svg {
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+}
+
+.club-share-closed {
+  padding: 14px 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--c-muted);
+}
+
+.club-share-closed[data-tone="success"] {
+  border-color: rgba(47, 212, 180, 0.4);
+  color: var(--c-text);
+}
+
+.club-share-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: var(--c-surface);
+  backdrop-filter: blur(12px);
+  animation: club-rise 700ms var(--c-ease) both;
+}
+
+.club-share-panel .club-h2 {
+  font-size: 26px;
+}
+
+/* La page des amis. */
+.club-share-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px var(--c-gutter) 56px;
+}
+
+.club-share-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: club-rise 700ms var(--c-ease) both;
+}
+
+.club-share-hero .club-h1 {
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+}
+
+.club-share-board {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius-lg);
+  background: var(--c-surface);
+  backdrop-filter: blur(12px);
+}
+
+.club-payers {
+  display: flex;
+  flex-direction: column;
+}
+
+.club-payers li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  border-bottom: 1px solid var(--c-line);
+  font-size: 15px;
+}
+
+.club-payers li:last-child {
+  border-bottom: 0;
+}
+
+.club-payers li > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.club-payers li[data-you] {
+  color: var(--c-gold-light);
+  font-weight: 600;
+}
+
+.club-share-join {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.club-join {
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: #141a3c;
+}
+
+.club-join .club-sticky-cta {
+  margin: 0 -20px;
+  padding-inline: 20px;
+}
+
+.club-share-state {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: var(--c-surface);
+  animation: club-rise var(--c-slow) var(--c-ease) both;
+}
+
+.club-share-state[data-tone="success"] {
+  border-color: rgba(47, 212, 180, 0.45);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(47, 212, 180, 0.12), transparent 70%),
+    var(--c-surface);
+}
+
+@media (min-width: 1024px) {
+  .club-share-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    align-items: start;
+    gap: 24px 56px;
+    max-width: 1120px;
+    padding-top: 40px;
+  }
+  .club-share-layout > * {
+    grid-column: 1;
+  }
+  .club-share-layout > :is(.club-share-join, .club-share-state) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club-seats-progress,
+  .club-seats-lines {
+    stroke-dashoffset: 0;
+  }
+  .club-seats-progress {
+    stroke-dashoffset: calc(1 - var(--paid));
+  }
+  .club-seat[data-fresh] .club-seat-halo {
+    opacity: 0.3;
+  }
+}

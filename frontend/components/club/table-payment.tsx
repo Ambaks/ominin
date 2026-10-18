@@ -10,8 +10,9 @@ import { TABLE_HOLD_S } from "@/lib/club/hold";
 import type { Club } from "@/lib/club/types";
 
 /*
- * Le règlement d'une table tenue, sous son compte à rebours. Fournisseur
- * « demo » : rien n'est débité, /api/club/pay règle la réservation. Stripe :
+ * Le règlement d'un paiement tenu (la table entière, la part de
+ * l'organisateur ou celle d'un ami), sous son compte à rebours. Fournisseur
+ * « demo » : rien n'est débité, /api/club/pay règle le paiement. Stripe :
  * use-stripe-elements (comme le menu) sur le compte connecté du club, Apple
  * Pay et Google Pay en tête ; /api/club/verify constate le paiement.
  *
@@ -23,11 +24,11 @@ import type { Club } from "@/lib/club/types";
 /* onExpired : le message du serveur quand la table n'est plus tenue (délai passé, réservation reprise). */
 type Outcome = { onPaid: () => void; onExpired: (message?: string) => void; onBusy: (busy: boolean) => void };
 
-async function post(path: "/api/club/pay" | "/api/club/verify", bookingId: string) {
+async function post(path: "/api/club/pay" | "/api/club/verify", paymentId: string) {
   const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bookingId }),
+    body: JSON.stringify({ paymentId }),
   });
   const body = (await response.json().catch(() => ({}))) as {
     paid?: boolean;
@@ -47,7 +48,7 @@ function PayButton({
 }: {
   busy: boolean;
   paid?: boolean;
-  totalCents: number;
+  totalCents: number | null;
   onClick?: () => void;
 }) {
   const ref = useMagnetic<HTMLButtonElement>();
@@ -69,14 +70,14 @@ function PayButton({
         </>
       ) : (
         <>
-          Payer <span className="club-mono">{formatCents(totalCents)}</span>
+          Payer {totalCents === null ? "ma part" : <span className="club-mono">{formatCents(totalCents)}</span>}
         </>
       )}
     </button>
   );
 }
 
-function DemoPayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { bookingId: string; totalCents: number } & Outcome) {
+function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { paymentId: string; totalCents: number | null } & Outcome) {
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +86,7 @@ function DemoPayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { boo
     onBusy(true);
     setError(null);
     try {
-      const { status, ok, body } = await post("/api/club/pay", bookingId);
+      const { status, ok, body } = await post("/api/club/pay", paymentId);
       if (status === 409 || status === 410) return onExpired(body.error);
       if (ok && body.paid) {
         setPaid(true);
@@ -136,12 +137,12 @@ function DemoPayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { boo
 const EXPRESS_ID = "club-stripe-express";
 const CARD_ID = "club-stripe-card";
 
-function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }: { bookingId: string; totalCents: number } & Outcome) {
+function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { paymentId: string; totalCents: number | null } & Outcome) {
   const [refunded, setRefunded] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const prepare = useCallback(async (): Promise<PreparedIntent> => {
-    const { status, ok, body } = await post("/api/club/pay", bookingId);
+    const { status, ok, body } = await post("/api/club/pay", paymentId);
     // Délai passé (410) ou réservation qui n'est plus active (409) : la table n'est plus tenue.
     if (status === 409 || status === 410) {
       onExpired(body.error);
@@ -153,16 +154,16 @@ function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }
       return { kind: "error" };
     }
     return { kind: "intent", clientSecret: body.clientSecret, accountId: body.accountId, publishableKey: body.publishableKey };
-  }, [bookingId, onExpired]);
+  }, [paymentId, onExpired]);
 
   // Débité : le serveur relit l'intent. S'il n'a pas pu tenir la table (délai
   // passé et table reprise), il a remboursé : on le dit. Sans réponse, le
   // webhook réglera la réservation ; la page de réservation fait foi.
   const onSucceeded = useCallback(async () => {
-    const verified = await post("/api/club/verify", bookingId).catch(() => null);
+    const verified = await post("/api/club/verify", paymentId).catch(() => null);
     if (verified?.ok && verified.body.paid === false) setRefunded(true);
     else onPaid();
-  }, [bookingId, onPaid]);
+  }, [paymentId, onPaid]);
 
   const appearance = useCallback((container: HTMLElement) => {
     const color = themeColors(container, ["--c-raised", "--c-text", "--c-muted", "--c-line-strong", "--c-gold", "--c-danger"]);
@@ -190,7 +191,7 @@ function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }
   const { state, hasWallet, confirm, retry } = useStripeElements({
     expressId: EXPRESS_ID,
     cardId: CARD_ID,
-    prepareKey: bookingId,
+    prepareKey: paymentId,
     prepare,
     onSucceeded,
     onAlreadyPaid: onPaid,
@@ -269,7 +270,7 @@ function StripeTablePayment({ bookingId, totalCents, onPaid, onExpired, onBusy }
 
 export function TablePayment({
   provider,
-  bookingId,
+  paymentId,
   totalCents,
   remainingMs,
   recap,
@@ -277,8 +278,9 @@ export function TablePayment({
   onExpired,
 }: {
   provider: Club["paymentProvider"];
-  bookingId: string;
-  totalCents: number;
+  paymentId: string;
+  /** null : montant d'une part, relu au serveur. */
+  totalCents: number | null;
   /** Temps restant sur la table tenue, au montage. */
   remainingMs: number;
   /** « Sam. 24 oct. · VIP Salon Rouge · 03 · 8 pers. · 1 050 € tout compris ». */
@@ -299,7 +301,7 @@ export function TablePayment({
   useEffect(() => {
     if (!timeUp || busy) return;
     let gone = false;
-    post("/api/club/verify", bookingId)
+    post("/api/club/verify", paymentId)
       .then(({ body }) => {
         if (!gone) {
           if (body.paid) paid();
@@ -312,10 +314,10 @@ export function TablePayment({
     return () => {
       gone = true;
     };
-  }, [timeUp, busy, bookingId, paid, expired]);
+  }, [timeUp, busy, paymentId, paid, expired]);
 
   const onTimeUp = useCallback(() => setTimeUp(true), []);
-  const props = { bookingId, totalCents, onPaid: paid, onExpired: expired, onBusy: setBusy };
+  const props = { paymentId, totalCents, onPaid: paid, onExpired: expired, onBusy: setBusy };
   return (
     <div className="club-paystep">
       <p className="club-recap">{recap}</p>

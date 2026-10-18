@@ -1,5 +1,5 @@
 import { rowToBooking, rowToEvent } from "@/lib/club/mappers";
-import type { BookingSource, ClubBooking, ClubEvent, ClubGuest } from "@/lib/club/types";
+import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
 import {
@@ -224,26 +224,30 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
     })
   );
   const booking = rowToBooking(row);
-  return apply((draft) => {
+  apply((draft) => {
     draft.nights[input.eventId]?.bookings.push(booking);
-    return booking;
   });
+  // Réglée à la saisie : son paiement sur place est né avec elle.
+  if (input.paid) await refreshNightNow(input.eventId);
+  return booking;
 }
 
 /**
- * L'équipe pointe une arrivée, la défait, ou encaisse sur place (paid) une
- * table saisie par le club — avec ou sans l'arrivée. Défaire une arrivée ne
- * touche pas au règlement (club_marquer_arrivee). Affichée tout de suite,
- * relue si la base refuse.
+ * L'équipe pointe une arrivée, la défait, ou encaisse à la porte (paid) ce
+ * qui reste de la table — tout le prix d'une table saisie par le club, la fin
+ * d'une table partagée —, avec ou sans l'arrivée. Une arrivée n'entre que
+ * table réglée ; la défaire ne touche pas au règlement (club_marquer_arrivee).
+ * Affichée tout de suite, relue ensuite : l'encaissement crée son paiement.
  */
 export async function markArrival(booking: ClubBooking, arrived: boolean, paid = false) {
   const now = new Date().toISOString();
-  const paidAt = booking.paidAt ?? (paid ? now : null);
+  const settled = paid || booking.remainingCents === 0;
   apply((draft) =>
     patchBooking(draft, booking, {
-      status: arrived ? "arrivee" : paidAt ? "payee" : "en_attente",
+      status: arrived ? "arrivee" : settled ? "payee" : booking.status,
       arrivedAt: arrived ? (booking.arrivedAt ?? now) : null,
-      paidAt,
+      paidAt: booking.paidAt ?? (paid ? now : null),
+      ...(paid ? { paidCents: booking.priceCents, remainingCents: 0 } : {}),
     })
   );
   const result = await createClient().rpc("club_marquer_arrivee", {
@@ -251,16 +255,33 @@ export async function markArrival(booking: ClubBooking, arrived: boolean, paid =
     p_arrived: arrived,
     p_paid: paid,
   });
-  if (result.error) {
-    await refreshNightNow(booking.eventId);
-    throw new Error(result.error.message);
-  }
+  if (paid || result.error) await refreshNightNow(booking.eventId);
+  if (result.error) throw new Error(result.error.message);
 }
 
-/** Rembourse une table payée en ligne, frais Ominin compris ; le client est prévenu. */
+/** Rembourse toute la table : chaque part payée en ligne, frais compris ; chaque payeur est prévenu. */
 export async function refundBooking(booking: ClubBooking) {
   await post("/api/club/refund", { bookingId: booking.id });
   apply((draft) => patchBooking(draft, booking, { status: "remboursee" }));
+  await refreshNightNow(booking.eventId);
+}
+
+/**
+ * Rembourse la part d'un ami qui se désiste : la table reste réservée, ce
+ * qui reste à encaisser à la porte grandit d'autant.
+ */
+export async function refundPayment(booking: ClubBooking, payment: ClubPayment) {
+  await post("/api/club/refund", { paymentId: payment.id });
+  apply((draft) => {
+    const night = draft.nights[booking.eventId];
+    const entry = night?.payments.find((candidate) => candidate.id === payment.id);
+    if (entry) entry.status = "remboursee";
+    patchBooking(draft, booking, {
+      paidCents: booking.paidCents - payment.amountCents,
+      remainingCents: booking.remainingCents + payment.amountCents,
+    });
+  });
+  await refreshNightNow(booking.eventId);
 }
 
 /** Annule une réservation saisie par le club : la table redevient libre. */

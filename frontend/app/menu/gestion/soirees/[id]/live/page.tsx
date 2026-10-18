@@ -28,6 +28,7 @@ import {
   isTonight,
   nightStats,
   onSaleTableIds,
+  paymentsOf,
   people,
   staffTableState,
   TABLE_STATE_LABELS,
@@ -219,7 +220,10 @@ export default function LivePage() {
 
   const held: HeldTable[] = [...byTable.values()].flatMap((booking) => {
     const table = tableById.get(booking.tableId);
-    return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "" }] : [];
+    const payers = paymentsOf(night, booking.id)
+      .filter((payment) => payment.method === "en_ligne" && payment.status === "payee")
+      .map((payment) => payment.name);
+    return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "", payers }] : [];
   });
   const expected = held.filter(({ booking }) => booking.status !== "arrivee" && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
@@ -418,6 +422,7 @@ export default function LivePage() {
           table={selected}
           zone={selectedZone}
           booking={byTable.get(selected.id)}
+          payments={paymentsOf(night, byTable.get(selected.id)?.id ?? "")}
           price={tablePrice(club, event.id, selected)}
           onSale={onSale.has(selected.id)}
           tonight={tonight}

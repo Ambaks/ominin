@@ -3,13 +3,18 @@
 const EUROS = new Intl.NumberFormat("fr-FR", {
   style: "currency",
   currency: "EUR",
+  maximumFractionDigits: 0,
+});
+const EUROS_CENTS = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-  minimumFractionDigits: 0,
 });
 
-/** 105000 → « 1 050 € » ; les centimes n'apparaissent que s'il y en a. */
+/** 105000 → « 1 050 € », 26250 → « 262,50 € » : les centimes n'apparaissent que s'il y en a, et alors tous les deux. */
 export function formatCents(cents: number): string {
-  return EUROS.format(cents / 100).replace(/ /g, " ");
+  return (cents % 100 === 0 ? EUROS : EUROS_CENTS).format(cents / 100).replace(/ /g, " ");
 }
 
 const PARIS = "Europe/Paris";
