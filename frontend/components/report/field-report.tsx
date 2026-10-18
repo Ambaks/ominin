@@ -374,7 +374,7 @@ export function FieldReport() {
             <Stat label={c.speed.medOnline} value={f.dur(s.online.p50)} sub={c.speed.nineIn10(f.dur(s.online.p90))} hot />
             <Stat label={c.speed.medCounter} value={f.dur(s.counter.p50)} sub={c.speed.nineIn10(f.dur(s.counter.p90))} />
             <Stat label={c.speed.over15} value={f.pct(s.over15, 1)} sub={c.speed.over30(f.pct(s.over30, 1))} count={[s.over15, "pct1"]} />
-            <Stat label={c.speed.saved} value={f.hours(s.saved_hours)} sub={c.speed.savedSub(s.n_online)} count={[s.saved_hours, "hours"]} />
+            <Stat label={c.speed.saved} value={f.hours(s.saved_hours)} sub={c.speed.savedSub(f.int(s.n_online))} count={[s.saved_hours, "hours"]} />
           </div>
           <div className="panel">
             <div className="panel-head"><h3>{c.speed.ecdfTitle}</h3><p className="small">{c.speed.ecdfSub}</p></div>

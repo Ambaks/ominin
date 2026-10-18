@@ -6462,13 +6462,11 @@ const brasserieLaissac: Restaurant = {
 };
 
 /*
- * L'Étoile — club & rooftop, 2 avenue d'Atlanta (Toulouse, Borderouge). La
- * carte vient mot pour mot de leur carte numérique (etoilemenu.vercel.app,
- * lue le 16 octobre 2026), orthographe comprise : « Class Azul », « Jack
- * Daniel's Rey », « Fuzetea » (questions au gérant dans demos/l-etoile).
- * Sa page client est sur mesure : app/menu/demo/l-etoile, qui regroupe ces
- * catégories en quatre systèmes (components/menu/etoile). Les shooters « x10 »
- * sont des lignes à part : un toucher, pas de feuille d'options, au club.
+ * L'Étoile — club fictif, vitrine d'Ominin pour les clubs haut de gamme : ni
+ * adresse ni téléphone, aucun établissement réel derrière. Sa page est sur
+ * mesure : app/menu/demo/club, qui regroupe ces catégories en quatre
+ * chapitres (components/menu/etoile). Les shooters « x10 » sont des lignes à
+ * part : un toucher, pas de feuille d'options, au club.
  */
 const etoileBouteille = (id: string, name: string, detail: string, price: number): MenuItem => ({
   id,
@@ -6488,11 +6486,12 @@ const etoileSoft = (id: string, name: string, detail: string, price: number): Me
 const lEtoile: Restaurant = {
   slug: "l-etoile",
   name: "L'Étoile",
-  tagline: "Club & Rooftop — Toulouse",
-  address: "2 Avenue d'Atlanta, 31200 Toulouse",
-  phone: "+33 7 83 80 33 18",
+  tagline: "Club & Rooftop",
+  address: "",
+  phone: "",
   hours: "",
-  themeColor: "#060d1a",
+  themeColor: "#050507",
+  demoSuivi: true,
   categories: [
     {
       id: "rhums",
@@ -6577,9 +6576,9 @@ const lEtoile: Restaurant = {
       boissons: true,
       items: [
         etoileBouteille("shooter", "Shooter", "2 cl", 4),
-        etoileBouteille("shooter-x10", "Shooter", "2 cl x10", 30),
+        etoileBouteille("shooter-x10", "Shooter", "Lot de 10 · 2 cl", 30),
         etoileBouteille("shooter-superieur", "Shooter Supérieur", "2 cl", 6),
-        etoileBouteille("shooter-superieur-x10", "Shooter Supérieur", "2 cl x10", 50),
+        etoileBouteille("shooter-superieur-x10", "Shooter Supérieur", "Lot de 10 · 2 cl", 50),
         etoileBouteille("shooter-superieur-tequila", "Shooter Supérieur Tequila", "2 cl", 8),
       ],
     },

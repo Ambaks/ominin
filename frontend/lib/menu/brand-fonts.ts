@@ -15,7 +15,6 @@ import {
   Didact_Gothic,
   Fraunces,
   Josefin_Sans,
-  Montserrat,
   Noto_Serif_Display,
   Playball,
   Playfair_Display,
@@ -294,14 +293,6 @@ const unbounded = Unbounded({
   preload: false,
 });
 
-/** L'Étoile — le texte de sa carte numérique, Montserrat (etoileFontVariables). */
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: "variable",
-  preload: false,
-});
-
 /** À poser sur la racine des pages qui rendent une carte d'établissement. */
 /**
  * Le Pulp — son logo est un trait unique à angles droits (« pulp », « Garden ») :
@@ -347,8 +338,8 @@ export const brandFontVariables = [
   .join(" ");
 
 /**
- * L'Étoile — les polices de leur carte numérique (etoilemenu.vercel.app) :
- * Playfair Display pour les titres (Café Riche), Montserrat pour tout le
- * reste, pour sa carte sur mesure.
+ * L'Étoile — club fictif, argent et moderne : Archivo seule (déclarée pour
+ * Chicken Street), élargie à 125 % en capitales fines pour les titres, à
+ * chasse normale pour le texte et les chiffres.
  */
-export const etoileFontVariables = [playfairDisplay, montserrat].map((font) => font.variable).join(" ");
+export const etoileFontVariables = archivo.variable;
