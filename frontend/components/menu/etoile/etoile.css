@@ -1,8 +1,8 @@
 /*
  * L'Étoile — mise en scène de la carte. Argent de club haut de gamme : noir
- * graphite, une scène vidéo plein écran (stage.ts) sous un ciel d'étoiles
- * vivant (stars.ts), Archivo élargie en capitales fines pour les titres en
- * argent poli, filets fins ; l'or du champagne pour sa seule section. Les jetons du thème habillent aussi les
+ * graphite, un ciel de nuit en WebGL plein écran (sky.ts), Archivo élargie
+ * en capitales fines pour les titres en argent poli, filets fins ; l'or du
+ * champagne pour sa seule section. Les jetons du thème habillent aussi les
  * feuilles partagées (panier, paiement), portées dans [data-menu-root].
  */
 
@@ -76,137 +76,54 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   color: inherit;
 }
 
-/* ---------- Scène ---------- */
+/* ---------- Ciel ---------- */
 
-.et-stage {
+/* Le ciel WebGL (sky.ts) ; dessous, et seul sans WebGL, une nuit en dégradés : une Voie lactée à peine posée. */
+.et-sky {
   position: fixed;
   inset: 0;
   z-index: -5;
   height: 100lvh;
-  background: var(--et-ink);
+  background:
+    radial-gradient(60% 18% at 52% 42%, rgba(196, 202, 214, 0.07), transparent 70%),
+    radial-gradient(120% 34% at 50% 44%, rgba(160, 168, 184, 0.05), transparent 75%),
+    var(--et-ink);
+}
+
+.et-sky-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  transition: opacity 1s cubic-bezier(0.2, 0, 0, 1);
-  transform: scale(1.08);
-  will-change: transform;
+  transition: opacity 1.6s cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* À l'arrivée, la caméra recule sur le repère ; ensuite elle n'est jamais tout à fait immobile : une lente poussée, aller-retour. */
-.et[data-ready] .et-stage {
+.et-sky-canvas[data-on] {
   opacity: 1;
-  animation: et-arrive 3s cubic-bezier(0.22, 0.8, 0.2, 1) both, et-drift 24s ease-in-out 3s infinite alternate;
 }
 
-/* Une feuille ouverte fige aussi le fond. */
-.et[data-paused] :is(.et-stage, .et-haze, .et-cta) {
+/* Une feuille ouverte fige aussi le bouton d'appel. */
+.et[data-paused] .et-cta {
   animation-play-state: paused;
 }
 
-@keyframes et-arrive {
-  from { transform: scale(1.08); }
-  to { transform: scale(1); }
-}
-
-@keyframes et-drift {
-  from { transform: scale(1); }
-  to { transform: scale(1.06); }
-}
-
-
-.et-stage-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity var(--et-base) var(--et-cross);
-}
-
-.et-stage-layer[data-on] {
-  opacity: 1;
-}
-
-/* Un saut est de la lumière, pas un cadre : son bord se fond dans la nuit autour du repère. */
-.et-stage-layer:is([data-kind="warp"], [data-kind="cut"]) {
-  transition-duration: 200ms;
-  filter: brightness(0.82);
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 24%, #000 35%, transparent 80%);
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 24%, #000 35%, transparent 80%);
-}
-
-.et-stage-layer[data-kind="cut"] {
-  transition-duration: 100ms;
-}
-
-@media (min-aspect-ratio: 1/1) {
-  .et-stage-layer:is([data-kind="warp"], [data-kind="cut"]) {
-    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 70% 50%, #000 35%, transparent 80%);
-    mask-image: radial-gradient(ellipse 60% 70% at 70% 50%, #000 35%, transparent 80%);
-  }
-}
-
-.et-stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(5, 5, 7, 0.85) 90%);
-  opacity: 0;
-  transition: opacity var(--et-base) var(--et-cross);
-}
-
-.et[data-warp] .et-stage::after {
-  opacity: 1;
-}
-
-/* Le cosmos bouge : trois voiles d'argent très lents, comme une nébuleuse qui dérive. */
-.et-haze {
-  position: fixed;
-  inset: -20%;
-  z-index: -4;
-  pointer-events: none;
-  background:
-    radial-gradient(38% 30% at 22% 30%, rgba(214, 220, 232, 0.07), transparent 70%),
-    radial-gradient(30% 26% at 78% 72%, rgba(232, 226, 214, 0.05), transparent 70%),
-    radial-gradient(46% 36% at 60% 18%, rgba(190, 198, 214, 0.05), transparent 72%);
-  animation: et-haze 70s ease-in-out infinite alternate;
-}
-
-@keyframes et-haze {
-  from { transform: translate3d(-3%, 2%, 0) rotate(0deg) scale(1); }
-  to { transform: translate3d(3%, -2%, 0) rotate(8deg) scale(1.08); }
-}
-
-.et-stars {
-  position: fixed;
-  inset: 0;
-  z-index: -3;
-  display: block;
-  width: 100%;
-  height: 100lvh;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 2s ease 0.4s;
-}
-
-.et[data-ready] .et-stars {
-  opacity: 1;
-}
-
-/* Lisibilité : en portrait le texte vit sous le repère, en paysage à sa gauche. */
+/* Lisibilité : un voile léger sous le texte (en portrait vers le bas, en paysage à gauche) ; le ciel reste visible partout. */
 .et-shade {
   position: fixed;
   inset: 0;
   z-index: -2;
   height: 100lvh;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 28%, rgba(5, 5, 7, 0.5) 58%, rgba(5, 5, 7, 0.88) 100%);
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 30%, rgba(5, 5, 7, 0.32) 62%, rgba(5, 5, 7, 0.6) 100%);
 }
 
 @media (min-aspect-ratio: 1/1) {
   .et-shade {
     background:
-      linear-gradient(to right, rgba(5, 5, 7, 0.94) 0%, rgba(5, 5, 7, 0.9) 40%, rgba(5, 5, 7, 0.74) 50%, rgba(5, 5, 7, 0.3) 62%, rgba(5, 5, 7, 0) 74%),
-      linear-gradient(to bottom, rgba(5, 5, 7, 0.6) 0%, rgba(5, 5, 7, 0) 18%);
+      linear-gradient(to right, rgba(5, 5, 7, 0.7) 0%, rgba(5, 5, 7, 0.58) 36%, rgba(5, 5, 7, 0.2) 56%, rgba(5, 5, 7, 0) 70%),
+      linear-gradient(to bottom, rgba(5, 5, 7, 0.5) 0%, rgba(5, 5, 7, 0) 16%);
   }
 }
 
@@ -737,17 +654,6 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   text-shadow: 0 1px 12px rgba(5, 5, 7, 0.8);
 }
 
-/* Pendant un saut, la carte se retire derrière le voyage, puis revient. */
-.et[data-warp] :is(.et-list, .et-head)::before {
-  opacity: 0.3;
-  transition-duration: 200ms;
-}
-
-.et[data-warp] .et-main {
-  opacity: 0.45;
-  transition: opacity 200ms var(--et-cross);
-}
-
 .et-group {
   scroll-margin-top: 110px;
 }
@@ -1160,20 +1066,30 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   transition: opacity 0.45s ease 0.3s;
 }
 
-.et-hole video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Le fond noir de la simulation s'efface au-delà du disque. */
+/* Le disque : rendu par lancer de rayons (black-hole.ts) ; sans WebGL, une ombre cernée d'argent en dégradés. */
+.et-hole-disk {
+  position: absolute;
+  inset: -10px;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(232, 234, 238, 0.32);
+  background:
+    radial-gradient(circle, #000 0 22%, rgba(255, 255, 255, 0.92) 25%, rgba(214, 217, 223, 0.4) 31%, rgba(214, 217, 223, 0.12) 42%, transparent 58%);
   transform: scale(0.3);
   transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
 }
 
-.et-hole[data-on] video {
+.et-hole-disk[data-gl] {
+  background: none;
+}
+
+.et-hole[data-on] .et-hole-disk {
   transform: scale(var(--et-fill, 1));
+}
+
+.et-hole-gl {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 5px rgba(232, 234, 238, 0.28));
 }
 
 .et-hole-ring {
@@ -1417,15 +1333,11 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 /* ---------- Moins de mouvement ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .et-stage,
-  .et-stage-layer,
-  .et-stars {
+  .et-sky-canvas {
     transition-duration: 0.01s;
   }
-  .et-haze,
-  .et-cta,
-  .et[data-ready] .et-stage { animation: none; transform: none; }
-  .et-hole video,
+  .et-cta { animation: none; transform: none; }
+  .et-hole-disk,
   .et-top { transition: none; }
   .et [data-reveal],
   .et-wordmark span[aria-hidden],

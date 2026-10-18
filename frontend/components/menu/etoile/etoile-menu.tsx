@@ -18,18 +18,18 @@ import {
   type MenuItem,
   type Restaurant,
 } from "@/lib/menu-data";
-import { createBlackHole, type BlackHole } from "./black-hole";
+import type { BlackHole } from "./black-hole";
 import { EtoileMark } from "./logo";
-import { createStage, type Stage } from "./stage";
-import { createStars, type Stars } from "./stars";
+import type { Sky } from "./sky";
 import { ETOILE_TIMING } from "./timing";
 import "./etoile.css";
 
 /*
- * La carte de L'Étoile, club fictif, en argent : une scène vidéo derrière la
- * page (la Voie lactée, puis un astre par chapitre, des sauts en hyperespace
- * de l'un à l'autre, voir stage.ts) sous un ciel d'étoiles vivant (stars.ts),
- * la carte en quatre chapitres, le panier en trou noir. Dessous, tout le parcours de commande reste celui d'Ominin
+ * La carte de L'Étoile, club fictif, en argent : un ciel de nuit en WebGL
+ * derrière la page (étoiles, Voie lactée, étoiles filantes, sauts en vitesse
+ * lumière d'un chapitre à l'autre, voir sky.ts), chargé après la carte, la
+ * carte en quatre chapitres, le panier en trou noir rendu par lancer de rayons
+ * (black-hole.ts). Dessous, tout le parcours de commande reste celui d'Ominin
  * (CartProvider, CartBar, OptionsModal) : seule la mise en scène est propre
  * à l'établissement.
  */
@@ -40,7 +40,7 @@ interface ChapterDef {
   categories: string[];
 }
 
-/* Les catégories de la carte, en chapitres ; le chapitre k a le repère k de la scène. */
+/* Les catégories de la carte, en chapitres ; le chapitre k a la pose k du ciel. */
 const CHAPTERS: ChapterDef[] = [
   {
     id: "alcools",
@@ -54,7 +54,7 @@ const CHAPTERS: ChapterDef[] = [
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
-/* Un chapitre devient courant dès que son haut passe cette hauteur d'écran (part de la hauteur) : son astre arrive avec lui. */
+/* Un chapitre devient courant dès que son haut passe cette hauteur d'écran (part de la hauteur) : le ciel tourne avec lui. */
 const CHAPTER_AT = 0.9;
 
 /* Traînée de la bouteille vers le trou noir : nombre d'échos, retard entre deux. */
@@ -72,8 +72,6 @@ const HOLE_IMPACT = {
   bar: { scale: 1.035, ms: 260 },
   ease: "cubic-bezier(0.34, 1.56, 0.64, 1)",
 } as const;
-/* La carte reste retirée un instant après l'éclat du saut, le temps qu'il retombe (ms). */
-const WARP_HOLD = 120;
 /* L'onde du bouton « + » au contact : couleur, portée (px), courbe. */
 const RIPPLE = { color: "232, 234, 238", spread: 16, alpha: 0.6, ease: "cubic-bezier(0.2, 0.7, 0.2, 1)" } as const;
 /* Une ligne apparaît un peu avant d'entrer dans l'écran : jamais de bande vide au bas d'un chapitre. */
@@ -159,22 +157,21 @@ export function EtoileMenu({
   const cart = useCart();
   const noSheet = useNoSheet();
   const rootRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const starsRef = useRef<HTMLCanvasElement>(null);
+  const skyRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const holeRef = useRef<HTMLDivElement>(null);
-  const holeVideoRef = useRef<HTMLVideoElement>(null);
+  const holeDiskRef = useRef<HTMLSpanElement>(null);
   const fxRef = useRef<HTMLDivElement>(null);
-  const stage = useRef<Stage | null>(null);
-  const stars = useRef<Stars | null>(null);
+  const sky = useRef<Sky | null>(null);
+  /* Ce que le ciel doit savoir s'il arrive après coup (chargé à la demande). */
+  const chapterRef = useRef(0);
+  const skyPaused = useRef(false);
   const holeApi = useRef<BlackHole | null>(null);
   const origin = useRef<{ x: number; y: number } | null>(null);
   const pendingOrigin = useRef<{ x: number; y: number } | null>(null);
   const reduced = useRef(false);
   const jumping = useRef(false);
-  /* Le dernier saut en cours : seul lui rend la carte. */
-  const warps = useRef(0);
   /* Minuteries de la mise en scène, coupées au démontage. */
   const timers = useRef(new Set<number>());
   const later = useCallback((fn: () => void, ms: number) => {
@@ -216,34 +213,27 @@ export function EtoileMenu({
     return counts;
   }, [cart.lines]);
 
-  /* ---------- Scène ---------- */
+  /* ---------- Ciel : three.js arrive après la carte ; sans WebGL, le dégradé de .et-sky reste ---------- */
   useEffect(() => {
-    const host = stageRef.current;
-    const canvas = starsRef.current;
-    if (!host || !canvas) return;
+    const host = skyRef.current;
+    if (!host) return;
     reduced.current = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const sky = createStars(canvas, { reducedMotion: reduced.current });
-    const created = createStage(host, {
-      reducedMotion: reduced.current,
-      onWarp: (duration, peak, spot) => {
-        sky.warp(duration, peak, spot);
-        /* Le temps du saut, la carte se retire derrière lui : on voit le voyage, pas une liste. */
-        const warp = ++warps.current;
-        rootRef.current?.setAttribute("data-warp", "");
-        later(() => warp === warps.current && rootRef.current?.removeAttribute("data-warp"), duration * peak + WARP_HOLD);
-      },
-    });
-    stage.current = created;
-    stars.current = sky;
+    let disposed = false;
+    import("./sky")
+      .then(({ createSky }) => {
+        if (disposed) return;
+        sky.current = createSky(host, { reducedMotion: reduced.current, chapter: chapterRef.current });
+        sky.current?.setPaused(skyPaused.current);
+      })
+      .catch(() => {});
     const frame = requestAnimationFrame(() => setReady(true));
     return () => {
+      disposed = true;
       cancelAnimationFrame(frame);
-      created.dispose();
-      sky.dispose();
-      stage.current = null;
-      stars.current = null;
+      sky.current?.dispose();
+      sky.current = null;
     };
-  }, [later]);
+  }, []);
 
   /* ---------- Défilement : chapitre courant, scène ---------- */
   useEffect(() => {
@@ -261,8 +251,9 @@ export function EtoileMenu({
       const line = window.scrollY + window.innerHeight * CHAPTER_AT;
       const current = tops.filter((top) => top <= line).length;
       setActive(current);
-      /* Pendant un saut de la navigation, la scène suit le saut, pas le défilement. */
-      if (!jumping.current) stage.current?.goTo(current);
+      chapterRef.current = current;
+      /* Pendant un saut de la navigation, le ciel suit le saut, pas le défilement. */
+      if (!jumping.current) sky.current?.goTo(current);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -301,7 +292,7 @@ export function EtoileMenu({
     return () => observer.disconnect();
   }, [active]);
 
-  /* Saut vers un chapitre (0 = accueil) : le contenu s'efface, la scène saute, la page se pose au pic. */
+  /* Saut vers un chapitre (0 = accueil) : le contenu s'efface, le ciel passe en vitesse lumière, la page se pose au pic. */
   const jump = useCallback(
     (index: number) => {
       const target = index
@@ -319,7 +310,7 @@ export function EtoileMenu({
       /* Un saut à la fois : un second toucher pendant le premier est ignoré. */
       if (jumping.current) return;
       cart.track("categorie");
-      if (!stage.current || !root || reduced.current) {
+      if (!sky.current || !root || reduced.current) {
         window.scrollTo({ top, behavior: scrollBehavior() });
         focus();
         return;
@@ -328,7 +319,7 @@ export function EtoileMenu({
       root.setAttribute("data-warping", "");
       /* Le plongeon part pendant que la page s'efface : pas de temps mort entre le toucher et le voyage. */
       later(() => {
-        stage.current?.goTo(index, () =>
+        sky.current?.goTo(index, () =>
           /* La page se pose sur une image, au cœur du saut : jamais d'image intermédiaire. */
           requestAnimationFrame(() => {
             window.scrollTo({ top, behavior: "instant" });
@@ -362,13 +353,22 @@ export function EtoileMenu({
   }, [ready, holeIdle]);
   const holeWanted = ready && (holeIdle || hasItems);
   useEffect(() => {
-    const video = holeVideoRef.current;
-    if (!video || !holeWanted || holeApi.current) return;
-    const hole = createBlackHole(video, { reducedMotion: reduced.current });
-    holeApi.current = hole;
-    hole.setCount(countRef.current);
-    hole.setPaused(!liveRef.current);
-    setHoleReady(true);
+    const disk = holeDiskRef.current;
+    if (!disk || !holeWanted || holeApi.current) return;
+    let cancelled = false;
+    import("./black-hole")
+      .then(({ createBlackHole }) => {
+        if (cancelled || holeApi.current) return;
+        const hole = createBlackHole(disk, { reducedMotion: reduced.current });
+        holeApi.current = hole;
+        hole.setCount(countRef.current);
+        hole.setPaused(!liveRef.current);
+      })
+      .catch(() => {})
+      .finally(() => !cancelled && setHoleReady(true));
+    return () => {
+      cancelled = true;
+    };
   }, [holeWanted]);
 
   useEffect(() => {
@@ -376,11 +376,11 @@ export function EtoileMenu({
     holeApi.current?.setCount(cart.count);
   }, [cart.count]);
 
-  /* Feuille ouverte ou panier vide : les vidéos s'arrêtent. */
+  /* Feuille ouverte ou panier vide : les rendus s'arrêtent. */
   useEffect(() => {
     liveRef.current = noSheet && hasItems;
-    stage.current?.setPaused(!noSheet);
-    stars.current?.setPaused(!noSheet);
+    skyPaused.current = !noSheet;
+    sky.current?.setPaused(!noSheet);
     /* Les animations CSS du fond se figent aussi. */
     rootRef.current?.toggleAttribute("data-paused", !noSheet);
     holeApi.current?.setPaused(!liveRef.current);
@@ -440,7 +440,7 @@ export function EtoileMenu({
       { duration: bar.ms, easing: ease },
     );
     /* Le disque s'embrase un instant et gonfle, puis se repose. */
-    hole.querySelector("video")?.animate(
+    hole.querySelector(".et-hole-disk")?.animate(
       [
         { scale: "1", filter: `brightness(${flash.brightness})` },
         { filter: "brightness(1)", offset: flash.ms / swell.ms },
@@ -563,9 +563,7 @@ export function EtoileMenu({
         data-ready={ready || undefined}
         data-chapter={active}
       >
-        <div ref={stageRef} className="et-stage" aria-hidden />
-        <div className="et-haze" aria-hidden />
-        <canvas ref={starsRef} className="et-stars" aria-hidden />
+        <div ref={skyRef} className="et-sky" aria-hidden />
         <div className="et-shade" aria-hidden />
 
         <header ref={topRef} className="et-top">
@@ -655,11 +653,7 @@ export function EtoileMenu({
           <EtoileMark className="et-footer-mark" />
           <p className="et-footer-name">L&apos;Étoile</p>
           <p>Club &amp; Rooftop</p>
-          <p className="et-credit">
-            Images NASA, ESA, CSA, STScI, ESO
-            <br />
-            Carte Ominin
-          </p>
+          <p className="et-credit">Carte Ominin</p>
         </footer>
 
         {optionsItem && (
@@ -680,7 +674,7 @@ export function EtoileMenu({
         data-ready={holeReady || undefined}
         aria-hidden
       >
-        <video ref={holeVideoRef} muted loop playsInline disablePictureInPicture />
+        <span ref={holeDiskRef} className="et-hole-disk" />
         <span className="et-hole-ring" />
         <span className="et-hole-count">{hasItems && holeCount ? holeCount : null}</span>
       </div>
