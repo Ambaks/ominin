@@ -247,13 +247,17 @@ const Sheet = ({ at, children, height }: { at: number; children: ReactNode; heig
 
 // ——— 3. The bar ———————————————————————————————————————————————————————
 
-/** Where to collect: three bars, the Rooftop picked at `pick`. Tagged « Bientôt » while it isn't built. */
+/** The bar with the shortest estimated wait. */
+const FASTEST = BARS.reduce((best, bar) => (bar.wait < best.wait ? bar : best));
+
+/** Where to collect: three bars and the AI's estimated wait at each, the fastest picked at `pick`; tagged « Bientôt » under BAR_CHOICE "soon". */
 export const BarSheet = ({ at, pick }: { at: number; pick: number }) => {
   const frame = useCurrentFrame();
   const picked = frame >= pick;
   return (
-    <Sheet at={at} height={470}>
+    <Sheet at={at} height={500}>
       <p style={{ ...text(22, 700), margin: 0 }}>Où récupérer votre commande&nbsp;?</p>
+      <p style={{ ...text(13, 500, etoile.muted), margin: "6px 0 0" }}>Temps d’attente estimés par l’IA, en direct</p>
       {BAR_CHOICE === "soon" && (
         <span style={{ ...caps(11, "#07070a"), display: "inline-block", marginTop: 10, padding: "5px 10px", borderRadius: 999, background: club.cyan }}>{SOON_TAG}</span>
       )}
@@ -265,9 +269,13 @@ export const BarSheet = ({ at, pick }: { at: number; pick: number }) => {
               <span style={{ width: 22, height: 22, borderRadius: 999, border: `2px solid ${on ? etoile.silver : "rgb(255 255 255 / 0.3)"}`, display: "grid", placeItems: "center" }}>
                 {on && <span style={{ width: 10, height: 10, borderRadius: 999, background: etoile.silver }} />}
               </span>
-              <span>
+              <span style={{ flex: 1 }}>
                 <span style={{ ...text(17, 600), display: "block" }}>{bar.name}</span>
-                <span style={{ ...text(13, 500, etoile.muted), display: "block", marginTop: 2 }}>{bar.where}</span>
+                <span style={{ ...text(13, 500, bar.busy ? club.alert : etoile.muted), display: "block", marginTop: 2 }}>{bar.busy ? "Très demandé" : bar.where}</span>
+              </span>
+              <span style={{ textAlign: "right" }}>
+                <span style={{ ...text(18, 700, bar.busy ? club.alert : bar === FASTEST ? club.ready : etoile.ink), display: "block" }}>≈ {bar.wait} min</span>
+                {bar === FASTEST && <span style={{ ...caps(9, club.ready), display: "block", marginTop: 3, letterSpacing: "0.14em" }}>Le plus rapide</span>}
               </span>
             </div>
           );
