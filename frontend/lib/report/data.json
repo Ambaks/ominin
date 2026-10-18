@@ -1,20 +1,20 @@
 {
- "extracted": "2026-10-13",
- "last_weekend": "2026-10-09",
+ "extracted": "2026-10-18",
+ "last_weekend": "2026-10-16",
  "totals": {
-  "nights": 25,
-  "paid": 2874,
-  "rev": 60424.8,
-  "basket": 21.06,
+  "nights": 30,
+  "paid": 3507,
+  "rev": 73720.9,
+  "basket": 21.05,
   "units": 1.91,
-  "online_paid": 845,
-  "online_rev": 16004.4,
-  "basket_online": 18.94,
-  "basket_counter": 22.78,
-  "units_online": 1.72,
-  "units_counter": 2.03,
-  "lw_online_share": 51.3,
-  "lw_online_rev_share": 46.3,
+  "online_paid": 1096,
+  "online_rev": 21279.4,
+  "basket_online": 19.42,
+  "basket_counter": 22.39,
+  "units_online": 1.76,
+  "units_counter": 2.0,
+  "lw_online_share": 42.0,
+  "lw_online_rev_share": 40.5,
   "sat26_before": 15.2,
   "sat26_after": 31.9
  },
@@ -368,26 +368,96 @@
    "cancelled": 1,
    "counter_med": 388.0,
    "counter_p90": 867.0
+  },
+  {
+   "day": "2026-10-13",
+   "dow": "Tue",
+   "orders": 37,
+   "online": 18,
+   "card": 14,
+   "mixed": 0,
+   "cash": 5,
+   "rev": 684.1,
+   "rev_online": 473.2,
+   "cancelled": 10,
+   "counter_med": 133.0,
+   "counter_p90": 318.0
+  },
+  {
+   "day": "2026-10-14",
+   "dow": "Wed",
+   "orders": 52,
+   "online": 13,
+   "card": 18,
+   "mixed": 1,
+   "cash": 20,
+   "rev": 982.1,
+   "rev_online": 227.9,
+   "cancelled": 1,
+   "counter_med": 196.0,
+   "counter_p90": 415.0
+  },
+  {
+   "day": "2026-10-15",
+   "dow": "Thu",
+   "orders": 56,
+   "online": 15,
+   "card": 23,
+   "mixed": 2,
+   "cash": 16,
+   "rev": 1013.3,
+   "rev_online": 276.3,
+   "cancelled": 1,
+   "counter_med": 194.0,
+   "counter_p90": 352.0
+  },
+  {
+   "day": "2026-10-16",
+   "dow": "Fri",
+   "orders": 189,
+   "online": 78,
+   "card": 57,
+   "mixed": 2,
+   "cash": 52,
+   "rev": 4368.9,
+   "rev_online": 1671.6,
+   "cancelled": 11,
+   "counter_med": 376.0,
+   "counter_p90": 1018.0
+  },
+  {
+   "day": "2026-10-17",
+   "dow": "Sat",
+   "orders": 299,
+   "online": 127,
+   "card": 93,
+   "mixed": 13,
+   "cash": 66,
+   "rev": 6247.7,
+   "rev_online": 2626.0,
+   "cancelled": 16,
+   "counter_med": 300.0,
+   "counter_p90": 1098.0
   }
  ],
  "speed": {
   "counter": {
-   "p50": 268.0,
-   "p90": 916.0
+   "p50": 267.0,
+   "p90": 910.0
   },
   "online": {
    "p50": 18.0,
-   "p90": 57.0
+   "p90": 59.0
   },
   "fallback": {
-   "p50": 379.0
+   "p50": 352.0
   },
-  "n_counter": 2001,
-  "n_online": 845,
-  "n_fallback": 28,
-  "over15": 10.2,
-  "over30": 1.6,
-  "saved_hours": 58.8,
+  "n_counter": 2377,
+  "n_online": 1096,
+  "n_fallback": 34,
+  "over15": 10.1,
+  "over30": 1.4,
+  "saved_hours": 75.8,
   "print_med": 3.4,
   "print_under60": 99.6
  },
@@ -477,69 +547,69 @@
   ],
   "counter": [
    0.0,
-   2.1,
-   6.3,
-   9.3,
-   11.9,
-   16.0,
-   19.5,
-   23.7,
-   27.3,
-   30.0,
-   33.1,
-   35.8,
-   38.2,
-   40.6,
-   42.7,
-   44.8,
+   2.0,
+   5.8,
+   8.8,
+   11.3,
+   15.4,
+   19.1,
+   22.9,
+   26.5,
+   29.2,
+   32.1,
+   35.0,
+   37.3,
+   40.1,
+   42.5,
+   44.7,
    46.8,
-   48.7,
-   50.2,
-   52.3,
-   54.3,
-   55.9,
-   58.0,
-   59.9,
-   61.0,
-   62.2,
-   63.5,
-   65.1,
-   66.1,
-   67.3,
-   68.6,
-   70.3,
-   71.1,
-   72.4,
-   73.7,
-   74.4,
+   48.8,
+   50.5,
+   52.6,
+   54.5,
+   56.0,
+   58.2,
+   60.1,
+   61.3,
+   62.5,
+   63.7,
+   65.3,
+   66.4,
+   67.7,
+   69.0,
+   70.4,
+   71.4,
+   72.6,
+   73.8,
+   74.5,
    75.4,
-   76.2,
-   77.2,
-   77.8,
-   78.7,
-   79.6,
-   80.6,
-   81.5,
-   82.2,
-   83.1,
-   83.5,
+   76.3,
+   77.3,
+   78.0,
+   78.9,
+   79.8,
+   80.7,
+   81.7,
+   82.5,
+   83.2,
+   83.6,
    84.2,
    85.1,
-   85.6,
-   86.0,
-   86.5,
+   85.5,
+   85.9,
+   86.4,
    86.7,
    87.1,
-   87.6,
-   87.8,
-   88.0,
-   88.5,
-   89.0,
+   87.7,
+   87.9,
+   88.1,
+   88.6,
+   89.1,
    89.4,
-   89.8,
+   89.9,
    90.0,
-   90.2,
    90.3,
+   90.4,
    90.7,
    91.1,
    91.4,
@@ -551,33 +621,33 @@
    92.5,
    92.8,
    93.0,
-   93.2,
+   93.1,
    93.4,
    93.5,
-   94.0,
+   93.9,
    94.3,
    94.7
   ],
   "online": [
    0.0,
-   37.6,
-   73.3,
-   84.6,
-   90.9,
-   93.7,
-   96.0,
-   97.2,
-   97.8,
-   98.5,
+   35.5,
+   72.6,
+   83.9,
+   90.2,
+   93.5,
+   95.5,
+   96.9,
+   97.6,
+   98.3,
+   98.4,
+   98.4,
+   98.4,
+   98.4,
    98.6,
    98.6,
-   98.6,
-   98.6,
-   98.7,
-   98.7,
-   98.8,
-   98.8,
    98.9,
+   98.9,
+   99.0,
    99.2,
    99.2,
    99.3,
@@ -586,6 +656,9 @@
    99.5,
    99.5,
    99.5,
+   99.5,
+   99.5,
+   99.5,
    99.6,
    99.6,
    99.6,
@@ -617,67 +690,64 @@
    99.6,
    99.6,
    99.6,
-   99.6,
-   99.6,
-   99.6,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8,
-   99.8
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7,
+   99.7
   ]
  },
  "load": [
   {
    "label": "1–3",
-   "n": 339,
-   "med": 237.0,
-   "p90": 695.0
+   "n": 403,
+   "med": 228.0,
+   "p90": 638.0
   },
   {
    "label": "4–6",
-   "n": 382,
+   "n": 440,
    "med": 209.0,
-   "p90": 619.0
+   "p90": 599.0
   },
   {
    "label": "7–10",
-   "n": 379,
-   "med": 200.0,
-   "p90": 726.0
+   "n": 446,
+   "med": 209.0,
+   "p90": 719.0
   },
   {
    "label": "11–15",
-   "n": 410,
-   "med": 259.0,
-   "p90": 972.0
+   "n": 462,
+   "med": 253.0,
+   "p90": 960.0
   },
   {
    "label": "16–25",
-   "n": 423,
-   "med": 458.0,
-   "p90": 1222.0
+   "n": 519,
+   "med": 446.0,
+   "p90": 1187.0
   },
   {
    "label": "26+",
-   "n": 68,
-   "med": 608.0,
-   "p90": 1302.0
+   "n": 107,
+   "med": 672.0,
+   "p90": 1304.0
   }
  ],
  "mix": {
@@ -687,14 +757,14 @@
    "especes": 20.0
   },
   "after": {
-   "en_ligne": 34.3,
-   "carte": 33.9,
-   "especes": 31.8
+   "en_ligne": 35.5,
+   "carte": 32.8,
+   "especes": 31.7
   },
   "last_weekend": {
-   "en_ligne": 46.3,
-   "carte": 24.3,
-   "especes": 29.4
+   "en_ligne": 40.5,
+   "carte": 28.1,
+   "especes": 31.5
   }
  },
  "online_funnel": {
@@ -807,54 +877,54 @@
     0.0
    ],
    [
-    1.3,
-    6.3,
-    8.3,
-    14.0,
-    12.7,
-    10.3,
-    0.7,
-    0.0
-   ],
-   [
-    0.0,
     1.0,
-    5.3,
-    13.0,
-    10.7,
-    7.3,
-    2.7,
+    4.8,
+    8.2,
+    12.2,
+    11.5,
+    9.2,
+    2.0,
     0.0
    ],
    [
-    0.3,
-    8.0,
-    6.7,
-    17.0,
-    15.0,
-    13.0,
-    4.7,
+    0.5,
+    1.8,
+    9.2,
+    12.0,
+    9.8,
+    6.5,
+    3.2,
     0.0
    ],
    [
-    1.2,
+    0.2,
+    7.0,
+    7.5,
+    13.5,
+    13.0,
+    15.5,
     5.8,
-    26.8,
-    32.5,
-    42.5,
-    43.2,
-    15.8,
     0.0
    ],
    [
-    3.5,
-    10.0,
-    34.8,
-    57.5,
-    74.8,
-    62.5,
-    45.5,
-    11.5
+    2.8,
+    6.0,
+    27.4,
+    37.8,
+    43.8,
+    41.0,
+    13.2,
+    0.0
+   ],
+   [
+    3.6,
+    10.2,
+    31.4,
+    60.6,
+    73.2,
+    65.4,
+    44.0,
+    11.4
    ],
    [
     2.5,
@@ -869,223 +939,223 @@
   ],
   "rev_dow": [
    1063.0,
-   1229.0,
-   837.0,
-   1317.0,
-   3553.0,
-   6266.0,
+   1093.0,
+   874.0,
+   1241.0,
+   3716.0,
+   6263.0,
    1686.0
   ],
   "nights_dow": [
    4,
-   3,
-   3,
-   3,
    4,
    4,
+   4,
+   5,
+   5,
    4
   ],
-  "peak_slot": "2026-10-10 23:00",
-  "peak_n": 29
+  "peak_slot": "2026-10-18 00:00",
+  "peak_n": 31
  },
  "categories": [
   {
    "category": "Chichas",
-   "units": 1197,
-   "rev": 24705.0
+   "units": 1459,
+   "rev": 30210.0
   },
   {
    "category": "Grillades",
-   "units": 597,
-   "rev": 10956.4
+   "units": 712,
+   "rev": 13129.8
   },
   {
    "category": "Boissons",
-   "units": 1597,
-   "rev": 5862.0
+   "units": 1940,
+   "rev": 7120.0
   },
   {
    "category": "Cocktails",
-   "units": 553,
-   "rev": 4272.0
+   "units": 646,
+   "rev": 4984.0
   },
   {
    "category": "Desserts",
-   "units": 415,
-   "rev": 3686.0
+   "units": 527,
+   "rev": 4674.0
   },
   {
    "category": "Pizzas",
-   "units": 241,
-   "rev": 3584.2
+   "units": 298,
+   "rev": 4455.5
   },
   {
    "category": "À partager",
-   "units": 338,
-   "rev": 2319.4
+   "units": 433,
+   "rev": 3013.6
   },
   {
    "category": "Smoothies",
-   "units": 219,
-   "rev": 1752.0
+   "units": 256,
+   "rev": 2048.0
   },
   {
    "category": "Salades gourmandes",
-   "units": 96,
-   "rev": 1585.7
+   "units": 110,
+   "rev": 1820.3
   },
   {
    "category": "Formules & retired items",
-   "units": 67,
-   "rev": 747.3
+   "units": 86,
+   "rev": 974.9
   },
   {
    "category": "Milkshakes",
-   "units": 66,
-   "rev": 594.0
+   "units": 84,
+   "rev": 756.0
   },
   {
    "category": "Boissons chaudes",
-   "units": 99,
-   "rev": 311.3
+   "units": 135,
+   "rev": 435.8
   },
   {
    "category": "Menu enfant",
-   "units": 5,
-   "rev": 49.5
+   "units": 10,
+   "rev": 99.0
   }
  ],
  "top": [
   {
    "name": "Chicha Premium",
-   "units": 541,
-   "rev": 10855.0
+   "units": 662,
+   "rev": 13335.0
   },
   {
    "name": "Chicha Classique",
-   "units": 454,
-   "rev": 8215.0
+   "units": 553,
+   "rev": 10060.0
   },
   {
    "name": "Chicha signature",
-   "units": 136,
-   "rev": 3560.0
+   "units": 157,
+   "rev": 4105.0
   },
   {
    "name": "Entrecôte",
-   "units": 146,
-   "rev": 3001.0
-  },
-  {
-   "name": "Magret de canard grillé",
-   "units": 135,
-   "rev": 2383.2
+   "units": 165,
+   "rev": 3393.0
   },
   {
    "name": "Pièce de bœuf grillée",
-   "units": 125,
-   "rev": 2203.3
+   "units": 168,
+   "rev": 2994.0
+  },
+  {
+   "name": "Magret de canard grillé",
+   "units": 164,
+   "rev": 2917.3
   },
   {
    "name": "Coca-Cola",
-   "units": 628,
-   "rev": 2192.0
+   "units": 780,
+   "rev": 2728.5
   },
   {
    "name": "Pizza au poulet",
-   "units": 113,
-   "rev": 1724.7
+   "units": 140,
+   "rev": 2154.0
+  },
+  {
+   "name": "Chicha Royale",
+   "units": 64,
+   "rev": 2060.0
   },
   {
    "name": "Mojito",
-   "units": 213,
-   "rev": 1704.0
-  },
-  {
-   "name": "Pièce de poulet grillée",
-   "units": 95,
-   "rev": 1675.0
+   "units": 245,
+   "rev": 1960.0
   }
  ],
  "tables": {
-  "nights": 997,
-  "per_night": 2.88,
-  "multi": 67.1,
-  "rev": 60.61,
+  "nights": 1222,
+  "per_night": 2.87,
+  "multi": 67.3,
+  "rev": 60.33,
   "span": 82.0,
   "dist": [
    {
     "n": 1,
-    "count": 328
+    "count": 400
    },
    {
     "n": 2,
-    "count": 221
+    "count": 289
    },
    {
     "n": 3,
-    "count": 168
+    "count": 199
    },
    {
     "n": 4,
-    "count": 100
+    "count": 114
    },
    {
     "n": 5,
-    "count": 68
+    "count": 81
    },
    {
     "n": 6,
-    "count": 42
+    "count": 53
    },
    {
     "n": 7,
-    "count": 22
+    "count": 26
    },
    {
     "n": 8,
-    "count": 48
+    "count": 60
    }
   ],
   "used": 93,
   "total": 100
  },
  "funnel": {
-  "sessions": 5294,
+  "sessions": 6377,
   "steps": [
    {
     "stage": "vue",
-    "reached": 5294
+    "reached": 6377
    },
    {
     "stage": "categorie",
-    "reached": 3407
+    "reached": 4132
    },
    {
     "stage": "plat",
-    "reached": 2974
+    "reached": 3608
    },
    {
     "stage": "panier",
-    "reached": 2863
+    "reached": 3479
    },
    {
     "stage": "commande",
-    "reached": 2685
+    "reached": 3270
    },
    {
     "stage": "paiement",
-    "reached": 1254
+    "reached": 1610
    }
   ],
-  "scan_to_order_med": 177.0
+  "scan_to_order_med": 178.0
  },
  "loyalty": {
-  "members": 133,
-  "share": 11.7,
-  "returning": 24,
-  "redemptions": 15,
-  "points_redeemed": 2800
+  "members": 157,
+  "share": 11.9,
+  "returning": 33,
+  "redemptions": 17,
+  "points_redeemed": 3100
  },
  "milestones": {
   "card_live": "2026-09-23",

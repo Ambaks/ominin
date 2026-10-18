@@ -206,7 +206,7 @@ const en = {
     over15: "Counter orders waiting over 15\u00a0min",
     over30: (v: string) => `${v} wait over 30\u00a0min`,
     saved: "Waiting time saved by paying online",
-    savedSub: (n: number) => `${n} orders × the median gap`,
+    savedSub: (n: string) => `${n} orders × the median gap`,
     ecdfTitle: "Share of orders already in the kitchen, by time since ordering",
     ecdfSub: "How to read it: one minute after ordering, what share of orders already has its ticket printed?",
     loadTitle: "The counter slows down when the bar is busy",
