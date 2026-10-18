@@ -2,10 +2,9 @@
  * What the club film says, in one place. Typography: no-break space ( )
  * before « : ; ! ? », before « € » and « % », and inside « ».
  *
- * The figures mirror the site: Connect's price (frontend/lib/landing-data.ts,
- * connectCommission and connectPrice) and the field report's median order →
- * ticket time (frontend/lib/pitch/kit.ts, fieldReport.onlineSeconds). Change
- * them there first, then here, then re-render.
+ * The price mirrors the site: Connect's (frontend/lib/landing-data.ts,
+ * connectCommission and connectPrice). Change it there first, then here,
+ * then re-render.
  */
 
 /**
@@ -40,7 +39,6 @@ export const DRINKS = [
 /** The guest orders the first two. */
 export const ORDER_TOTAL = DRINKS[0].price + DRINKS[1].price;
 
-export const FIELD_SECONDS = 18;
 export const PRICE = { monthly: 0, commissionPercent: 3 } as const;
 
 export const DEMO_URL = "menu.ominin.com/demo/club";

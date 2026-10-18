@@ -5,10 +5,9 @@ import { OmininMark } from "../brand/OmininMark";
 import { DEVICES, Device, pose } from "../kit/Device";
 import { useLayout } from "../kit/layout";
 import { springs } from "../kit/motion";
-import { Counter as Odometer } from "../kit/type";
 import { Qr } from "../scenes/art";
 import { Appear, clamp, ramp, useIn } from "../scenes/common";
-import { DEMO_URL, DRINKS, FIELD_SECONDS, ORDER_NUMBER, PICKED, PRICE } from "./copy";
+import { DEMO_URL, DRINKS, ORDER_NUMBER, PICKED, PRICE } from "./copy";
 import { Caption, Friends, headline, Hero, kicker, People, Silver, waiting } from "./parts";
 import { LockScreen, LoyaltyScreen, Star } from "./screens";
 import { Bar, Beams, Counter, Crowd, dance, Figure, Glass, Haze, HeldPhone, Lasers, pulse, Room, Scrim, useFloorRows } from "./stage";
@@ -52,7 +51,7 @@ const TICKET_LINES = [PICKED.name.toUpperCase(), `N° ${ORDER_NUMBER}`, `1 × $
 /** The printer feeds a line every this many frames. */
 const LINE_FRAMES = 4;
 
-/** The ticket printing behind the bar, line by line, and the measured figure counting up. */
+/** The ticket printing behind the bar, line by line: the hours the staff get back. */
 const Printer = () => {
   const frame = useCurrentFrame() - PRINT_AT;
   const { height, pick } = useLayout();
@@ -93,21 +92,16 @@ const Printer = () => {
           <p style={kicker(28, club.amber)}>Au bar, le ticket sort tout seul</p>
         </Appear>
         <Appear at={6} pop>
-          <p style={{ ...headline(pick(260, 240)), lineHeight: 0.9, marginTop: 24 }}>
-            <span style={{ color: club.silver }}>
-              <Odometer to={FIELD_SECONDS} delay={6} duration={14} />
-              &nbsp;s
-            </span>
+          <p style={{ ...headline(pick(150, 130)), lineHeight: 0.95, marginTop: 24 }}>
+            <Silver>Des centaines d’heures</Silver>
           </p>
         </Appear>
         <Appear at={10}>
-          <p style={{ ...headline(pick(56, 54)), marginTop: 18 }}>de la commande au ticket.</p>
+          <p style={{ ...headline(pick(56, 54)), marginTop: 22 }}>rendues à votre équipe.</p>
         </Appear>
         <Appear at={14}>
-          <p style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: pick(28, 30), color: club.muted, margin: "20px 0 0", lineHeight: 1.4 }}>
-            Médiane mesurée chez un client Ominin,
-            <br />
-            sur ses commandes payées en ligne.
+          <p style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: pick(32, 34), color: club.muted, margin: "20px 0 0", lineHeight: 1.4 }}>
+            Moins de caisse, plus de verres servis.
           </p>
         </Appear>
       </div>
