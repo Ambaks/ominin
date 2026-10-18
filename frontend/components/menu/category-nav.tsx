@@ -5,6 +5,7 @@ import { SectionLink } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
 import { scrollBehavior } from "@/lib/menu/scroll";
+import { useQueryParam } from "@/lib/menu/use-query-param";
 
 interface CategoryLink {
   id: string;
@@ -19,16 +20,16 @@ const RAIL_STEP = 0.75;
 
 export function CategoryNav({
   categories,
-  embedded,
   themeLocked,
 }: {
   categories: CategoryLink[];
-  embedded?: boolean;
   /** Palette d'établissement verrouillée (.theme-<slug>) : le basculement
       clair/sombre n'aurait aucun effet visible, on n'affiche pas le bouton. */
   themeLocked?: boolean;
 }) {
   const { track } = useCart();
+  // Menu montré dans une iframe de la page d'accueil (?embed=1).
+  const embedded = useQueryParam("embed") === "1";
   const [activeId, setActiveId] = useState(categories[0]?.id);
   const [progress, setProgress] = useState(0);
   const railRef = useRef<HTMLDivElement>(null);
