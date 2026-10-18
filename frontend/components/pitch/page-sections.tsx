@@ -8,7 +8,7 @@ import { FilmPlayer } from "@/components/pitch/film-player";
 import { MobileContactBar } from "@/components/pitch/mobile-contact-bar";
 import { QrCode } from "@/components/pitch/qr-code";
 import { pitchUi, raceBarWidth, sourcesLabel } from "@/lib/pitch/kit";
-import type { Pitch } from "@/lib/pitch/types";
+import type { Pitch, RaceLane, Source } from "@/lib/pitch/types";
 
 /*
  * La page privée : le récit de la présentation, resserré pour se lire au
@@ -28,7 +28,7 @@ const deck = (p: Pitch) =>
 
 type SectionProps = { p: Pitch; brand: BrandKit };
 
-const container = "mx-auto w-full max-w-6xl px-5 md:px-8";
+export const container = "mx-auto w-full max-w-6xl px-5 md:px-8";
 
 /**
  * Les chiffres du héros : au téléphone, une colonne de largeur fixe ; serrés
@@ -49,23 +49,24 @@ const heroFactLayouts = {
 /** Un lien « Ouvrir la démo » d'appoint : en texte, ou en bouton à contour quand le pitch le demande (page.linkButtons). */
 const minorLink = (p: Pitch, asText: string, asButton: string) => (p.page.linkButtons ? `${asButton} ${buttonSecondary} gap-2` : asText);
 
-const h2 = "text-balance text-[38px] font-extrabold leading-[1.06] tracking-[-0.04em] sm:text-[52px] lg:text-[68px]";
-const lead = "text-pretty text-[17px] leading-relaxed text-(--pitch-muted) md:text-xl";
+export const h2 = "text-balance text-[38px] font-extrabold leading-[1.06] tracking-[-0.04em] sm:text-[52px] lg:text-[68px]";
+export const lead = "text-pretty text-[17px] leading-relaxed text-(--pitch-muted) md:text-xl";
 
-function Eyebrow({ children }: { children: ReactNode }) {
+export function Eyebrow({ children }: { children: ReactNode }) {
   return <p className="eyebrow text-[11px] tracking-[0.18em]! text-(--pitch-muted) md:text-xs md:tracking-[0.28em]!">{children}</p>;
 }
 
-function SourceNote({ p, ids, className = "" }: { p: Pitch; ids: string[]; className?: string }) {
+/** « Source : … » sous un bloc : les sources citées, sans doublon. */
+export function SourceNote<K extends string>({ sources, ids, className = "" }: { sources: Record<K, Source>; ids: readonly K[]; className?: string }) {
   return (
     <p className={`text-[13px] leading-relaxed text-(--pitch-faint) md:text-sm ${className}`}>
       {sourcesLabel(new Set(ids).size)}
-      {[...new Set(ids)].map((id) => p.sources[id].short).join(" · ")}
+      {[...new Set(ids)].map((id) => sources[id].short).join(" · ")}
     </p>
   );
 }
 
-function Section({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
+export function Section({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
   return (
     <section id={id} className={`relative scroll-mt-4 border-t border-(--pitch-line) py-14 md:py-24 ${className}`}>
       {children}
@@ -74,7 +75,7 @@ function Section({ id, children, className = "" }: { id?: string; children: Reac
 }
 
 /** La flèche des liens qui ouvrent une démo dans un nouvel onglet, et son équivalent lu. */
-function NewTab({ className = "" }: { className?: string }) {
+export function NewTab({ className = "" }: { className?: string }) {
   return (
     <>
       <svg viewBox="0 0 24 24" aria-hidden className={`size-4 shrink-0 fill-none stroke-current ${className}`} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -268,7 +269,7 @@ function Story({ p, brand }: SectionProps) {
           </div>
           <div className={`${container} relative`}>
             <p className={`${lead} mt-12`}>{promise.closing}</p>
-            <SourceNote p={p} ids={promise.sources} className="mt-5" />
+            <SourceNote sources={p.sources} ids={promise.sources} className="mt-5" />
           </div>
         </Section>
       )}
@@ -302,7 +303,7 @@ function Story({ p, brand }: SectionProps) {
               ))}
             </div>
             <p className="mt-8 text-2xl font-extrabold tracking-[-0.01em] text-(--pitch-ink) md:text-3xl">{walkAway.followUp}</p>
-            <SourceNote p={p} ids={[...walkAway.facts.map((fact) => fact.source), ...(walkAway.followUpSources ?? [])]} className="mt-4" />
+            <SourceNote sources={p.sources} ids={[...walkAway.facts.map((fact) => fact.source), ...(walkAway.followUpSources ?? [])]} className="mt-4" />
           </div>
         </Section>
       )}
@@ -412,7 +413,7 @@ function Estimator({ p }: SectionProps) {
             <p className="w-full text-2xl font-extrabold tracking-[-0.02em] sm:w-auto md:text-3xl">{e.verdict}</p>
           </div>
           <PointList points={e.points} />
-          {e.sources && <SourceNote p={p} ids={e.sources} className="mt-6" />}
+          {e.sources && <SourceNote sources={p.sources} ids={e.sources} className="mt-6" />}
         </div>
         <PhoneFrame src={p.screens[e.screen].src} alt={p.screens[e.screen].alt} sizes="(min-width: 1024px) 320px, 240px" className="mx-auto w-full max-w-[240px] lg:max-w-[320px]" />
       </div>
@@ -420,10 +421,31 @@ function Estimator({ p }: SectionProps) {
   );
 }
 
+/** La course commande → ticket : chaque durée en barre, à l'échelle de la plus longue ; la première, en accent. */
+export function RaceBars({ race, unitsInText }: { race: readonly RaceLane[]; unitsInText?: boolean }) {
+  const longest = Math.max(...race.map((lane) => lane.seconds));
+  return (
+    <div className="mt-4 flex flex-col gap-6">
+      {race.map((lane, i) => (
+        <div key={lane.label}>
+          <div className="flex items-baseline justify-between gap-4">
+            <p className="font-bold md:text-lg">{lane.label}</p>
+            <p className={`font-numeral text-[44px] leading-none tabular-nums md:text-[64px] ${i ? "" : "text-(--pitch-accent-text)"}`}>
+              {unitsInText ? <Duration value={lane.value} /> : lane.value}
+            </p>
+          </div>
+          <div className="mt-2 h-3 rounded-full bg-(--pitch-surface) md:h-4">
+            <div className={`h-full rounded-full ${i ? "bg-(--pitch-muted)" : "bg-(--pitch-accent)"}`} style={{ width: raceBarWidth(lane.seconds, longest) }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function FieldProof({ p }: SectionProps) {
   const f = p.fieldProof;
   if (!f) return null;
-  const longest = Math.max(...f.race.map((lane) => lane.seconds));
   return (
     <Section>
       <div className={container}>
@@ -433,21 +455,7 @@ function FieldProof({ p }: SectionProps) {
         </h2>
         <p className={`${lead} mt-6`}>{f.context}</p>
         <p className="mt-10 text-[11px] font-bold uppercase tracking-[0.18em] text-(--pitch-faint) md:text-xs">{f.raceLabel}</p>
-        <div className="mt-4 flex flex-col gap-6">
-          {f.race.map((lane, i) => (
-            <div key={lane.label}>
-              <div className="flex items-baseline justify-between gap-4">
-                <p className="font-bold md:text-lg">{lane.label}</p>
-                <p className={`font-numeral text-[44px] leading-none tabular-nums md:text-[64px] ${i ? "" : "text-(--pitch-accent-text)"}`}>
-                  {f.unitsInText ? <Duration value={lane.value} /> : lane.value}
-                </p>
-              </div>
-              <div className="mt-2 h-3 rounded-full bg-(--pitch-surface) md:h-4">
-                <div className={`h-full rounded-full ${i ? "bg-(--pitch-muted)" : "bg-(--pitch-accent)"}`} style={{ width: raceBarWidth(lane.seconds, longest) }} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <RaceBars race={f.race} unitsInText={f.unitsInText} />
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {f.facts.map((fact) => (
             <div key={fact.label} className="rounded-3xl bg-(--pitch-surface) p-6 md:p-8">
@@ -457,7 +465,7 @@ function FieldProof({ p }: SectionProps) {
           ))}
         </div>
         <p className="mt-8 text-2xl font-extrabold tracking-[-0.01em] md:text-3xl">{f.takeaway}</p>
-        <SourceNote p={p} ids={f.sources} className="mt-4" />
+        <SourceNote sources={p.sources} ids={f.sources} className="mt-4" />
       </div>
     </Section>
   );
@@ -512,7 +520,7 @@ function Benefits({ p }: SectionProps) {
                 <span className="font-bold text-(--pitch-ink)">{forCustomers.scan.question}</span> {forCustomers.scan.answer}{" "}
                 {forCustomers.scan.pilot}
               </p>
-              <SourceNote p={p} ids={[...forCustomers.sources, ...(forCustomers.scan.sources ?? [])]} className="mt-4" />
+              <SourceNote sources={p.sources} ids={[...forCustomers.sources, ...(forCustomers.scan.sources ?? [])]} className="mt-4" />
             </div>
           </div>
         </Section>
@@ -560,7 +568,7 @@ function Benefits({ p }: SectionProps) {
               </a>
             </p>
             <p className="mt-8 max-w-3xl border-t border-(--pitch-line) pt-5 text-sm leading-relaxed text-(--pitch-muted)">{p.forTeams.simple}</p>
-            <SourceNote p={p} ids={p.forTeams.sources} className="mt-3" />
+            <SourceNote sources={p.sources} ids={p.forTeams.sources} className="mt-3" />
           </div>
         </div>
       </Section>
@@ -637,7 +645,7 @@ function Calculation({ p }: SectionProps) {
           </ol>
           <p className="mt-8 border-t border-(--pitch-line) pt-4 text-sm leading-relaxed text-(--pitch-muted)">{forRevenue.beyond}</p>
         </div>
-        <SourceNote p={p} ids={forRevenue.sources} className="mt-5" />
+        <SourceNote sources={p.sources} ids={forRevenue.sources} className="mt-5" />
       </div>
     </Section>
   );
@@ -663,7 +671,7 @@ function Deployment({ p }: SectionProps) {
             </li>
           ))}
         </ol>
-        {deployment.sources && <SourceNote p={p} ids={deployment.sources} className="mt-5" />}
+        {deployment.sources && <SourceNote sources={p.sources} ids={deployment.sources} className="mt-5" />}
       </div>
     </Section>
   );
@@ -731,7 +739,7 @@ function Pricing({ p, brand }: SectionProps) {
             </p>
           </div>
         </div>
-        <SourceNote p={p} ids={pricing.sources} className="mt-5" />
+        <SourceNote sources={p.sources} ids={pricing.sources} className="mt-5" />
       </div>
     </Section>
   );
@@ -874,8 +882,8 @@ function MailText({ p, className }: { p: Pitch; className: string }) {
   );
 }
 
-function Sources({ p }: SectionProps) {
-  if (p.sourcesNote === undefined) return null;
+/** Les sources en entier, repliées en pied de page, et la note de méthode. */
+export function SourcesList({ sources, note }: { sources: Record<string, Source>; note: string }) {
   return (
     <section id="sources" className="scroll-mt-4 border-t border-(--pitch-line) py-12">
       <div className={container}>
@@ -887,7 +895,7 @@ function Sources({ p }: SectionProps) {
             </span>
           </summary>
           <ul className="mt-6 grid gap-4 text-sm leading-relaxed md:grid-cols-2 md:gap-x-10">
-            {Object.values(p.sources).map((source) => (
+            {Object.values(sources).map((source) => (
               <li key={source.full}>
                 <p>{source.full}</p>
                 {source.url && (
@@ -898,19 +906,20 @@ function Sources({ p }: SectionProps) {
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-xs text-(--pitch-faint)">{p.sourcesNote}</p>
+          <p className="mt-6 text-xs text-(--pitch-faint)">{note}</p>
         </details>
       </div>
     </section>
   );
 }
 
-function Footer({ p }: SectionProps) {
+/** Le pied de page : la marque Ominin et une ligne. */
+export function PitchFooter({ text }: { text: string }) {
   return (
     <footer className="border-t border-(--pitch-line) pb-28 pt-10 lg:pb-10">
       <div className={`${container} flex flex-col gap-4 text-sm text-(--pitch-faint) sm:flex-row sm:items-center sm:justify-between`}>
         <OmininMark className="text-[22px]" />
-        <p>{p.page.footer}</p>
+        <p>{text}</p>
       </div>
     </footer>
   );
@@ -944,9 +953,9 @@ export function PitchPage({ pitch: p, brand }: { pitch: Pitch; brand: BrandKit }
         <Calculation {...props} />
         <Proposal {...props} />
         <FinalCta {...props} />
-        <Sources {...props} />
+        {p.sourcesNote !== undefined && <SourcesList sources={p.sources} note={p.sourcesNote} />}
       </main>
-      <Footer {...props} />
+      <PitchFooter text={p.page.footer} />
     </>
   );
 }

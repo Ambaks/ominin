@@ -1,0 +1,135 @@
+/*
+  Pitch aux clubs : la nuit, l'argent poli de L'Étoile en aplats (boutons,
+  mots marqués, QR), deux gélatines néon (violet, cyan) pour les faisceaux.
+  Geist pour tout : les grands chiffres en graisse 600, serrés.
+*/
+.pitch-club {
+  --pitch-ground: #060609;
+  --pitch-surface: #101016;
+  --pitch-raised: #181820;
+  --pitch-accent: #dfe3e8;
+  --pitch-accent-deep: #9aa0a8;
+  --pitch-accent-light: #ffffff;
+  --pitch-accent-text: #e6e9ee;
+  --pitch-on-accent: #08080b;
+  --pitch-ink: #f4f5f7;
+  --pitch-muted: #b7bbc3;
+  --pitch-faint: #8d929b;
+  --pitch-line: rgba(255, 255, 255, 0.1);
+  --pitch-film: #000000;
+
+  --club-violet: #8e5bff;
+  --club-cyan: #43d9ff;
+
+  --font-pitch-numeral: var(--font-pitch-text);
+}
+
+.pitch-club .font-numeral {
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+/* Le mot marqué : l'aplat argent a son reflet, comme l'étoile. */
+.pitch-club .mark {
+  background-image: linear-gradient(100deg, #ffffff, #c9cdd4 55%, #eef0f3);
+}
+
+/* Le point de l'eyebrow, en néon cyan. */
+.pitch-club .eyebrow::before {
+  background: var(--club-cyan);
+  box-shadow: 0 0 0.7em var(--club-cyan);
+}
+
+/* ——— Les faisceaux ———————————————————————————————————————————————
+   Des lyres accrochées au plafond : des cônes de lumière floutés. Ils ne
+   balaient qu'en tête de page (.club-lights-moving), et seulement sans
+   mouvement réduit ; ailleurs ils restent posés. */
+.club-lights {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.club-beam {
+  position: absolute;
+  top: -4%;
+  width: 26%;
+  height: 130%;
+  transform-origin: 50% 0;
+  clip-path: polygon(48% 0, 52% 0, 100% 100%, 0 100%);
+  background: linear-gradient(var(--beam), transparent 75%);
+  opacity: 0.22;
+  filter: blur(14px);
+  rotate: var(--from);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .club-lights-moving .club-beam {
+    animation: club-sweep var(--speed) ease-in-out infinite alternate;
+  }
+}
+
+@keyframes club-sweep {
+  from {
+    rotate: var(--from);
+  }
+  to {
+    rotate: var(--to);
+  }
+}
+
+.club-haze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 45% at 25% 30%, color-mix(in srgb, var(--club-violet) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 55% 45% at 78% 40%, color-mix(in srgb, var(--club-cyan) 10%, transparent), transparent 70%);
+}
+
+/* L'étape à venir : son étiquette cyan. */
+.club-soon {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  background: var(--club-cyan);
+  color: var(--pitch-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Les sections entrent en fondu à mesure qu'on défile, là où le navigateur
+   sait lier une animation au défilement ; ailleurs, elles sont là d'emblée. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .club-reveal {
+      animation: club-rise linear both;
+      animation-timeline: view();
+      /* En longueur, pas en part de la section : une section plus haute que
+         l'écran du téléphone ne resterait pas à demi transparente. */
+      animation-range: entry 0px entry 260px;
+    }
+  }
+}
+
+@keyframes club-rise {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media print {
+  .club-reveal {
+    animation: none;
+  }
+}
