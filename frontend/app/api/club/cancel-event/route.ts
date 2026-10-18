@@ -50,6 +50,7 @@ export async function POST(request: Request) {
     .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`);
   const stripe = bookings?.some((booking) => booking.stripe_payment_intent_id) ? getStripe() : null;
 
+  // En parallèle : au plus une réservation par table du club.
   const results = await Promise.all(
     (bookings ?? []).map(async (booking) => {
       try {

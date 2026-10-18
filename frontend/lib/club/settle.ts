@@ -202,21 +202,31 @@ export async function refundBooking(
     if (error) throw new Error(error.message);
     return cancelled?.length ? "cancelled" : "not_refundable";
   }
-  if (booking.stripe_payment_intent_id) {
-    const account = await connectedAccount(admin, booking.etablissement_id);
-    if (!account || !stripe) throw new Error("Compte Stripe du club introuvable.");
-    await refundIntent(stripe, booking.stripe_payment_intent_id, account.id);
-  }
-  const { data: refunded, error } = await admin
+  // La réservation est marquée remboursée AVANT l'appel à Stripe : le
+  // webhook charge.refunded que ce remboursement déclenche la trouve déjà
+  // rendue, et un second clic n'envoie ni second remboursement ni second
+  // e-mail. Stripe en échec : elle reprend son état.
+  const { data: claimed, error } = await admin
     .from("club_bookings")
     .update({ status: "remboursee", refunded_at: new Date().toISOString() })
     .eq("id", bookingId)
     .in("status", ["payee", "arrivee"])
     .select("id");
   if (error) throw new Error(error.message);
-  // Un second clic, ou un appel concurrent, a déjà rendu la table : un seul
-  // e-mail part.
-  if (!refunded?.length) return "not_refundable";
+  if (!claimed?.length) return "not_refundable";
+  if (booking.stripe_payment_intent_id) {
+    try {
+      const account = await connectedAccount(admin, booking.etablissement_id);
+      if (!account || !stripe) throw new Error("Compte Stripe du club introuvable.");
+      await refundIntent(stripe, booking.stripe_payment_intent_id, account.id);
+    } catch (refundError) {
+      await admin
+        .from("club_bookings")
+        .update({ status: booking.status, refunded_at: null })
+        .eq("id", bookingId);
+      throw refundError;
+    }
+  }
   if (options.notify) {
     const mail = await bookingMail(admin, bookingId);
     if (mail) await sendBookingRefunded(mail);

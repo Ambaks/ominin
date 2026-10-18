@@ -727,6 +727,10 @@ begin
     raise exception 'Jusqu''à % personnes par inscription.', v_event.guest_list_max_party
      ;
   end if;
+  if nullif(btrim(p_email), '') is not null
+     and p_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Adresse e-mail invalide.';
+  end if;
   if v_event.guest_list_capacity is not null then
     select coalesce(sum(party_size), 0) into v_taken
     from club_guests where event_id = p_event;

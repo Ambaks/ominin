@@ -77,8 +77,17 @@ export async function POST(request: Request) {
     );
   }
 
+  // Annulé depuis le tableau de bord Stripe du club : la clé d'idempotence
+  // rendrait le même intent annulé, le client ne peut plus payer celui-ci.
+  if (previous?.status === "canceled") {
+    return NextResponse.json(
+      { error: "Ce paiement a été annulé par le club. Choisissez à nouveau votre table." },
+      { status: 409 }
+    );
+  }
+
   let intent: Stripe.PaymentIntent;
-  if (previous && previous.status !== "canceled") {
+  if (previous) {
     intent = previous;
   } else {
     const created = await stripe.paymentIntents
