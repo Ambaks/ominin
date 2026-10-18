@@ -17,7 +17,6 @@ import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import { brandName, restaurantThemeClass } from "@/lib/menu-data";
-import { tableParam } from "@/lib/menu/table-param";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -29,6 +28,13 @@ import { menuSiteUrl } from "@/lib/site";
  * cache() déduplique entre generateMetadata et la page dans un même rendu.
  */
 export const revalidate = 60;
+
+// Aucune carte pré-rendue au build : chacune se rend au premier scan, puis
+// sert depuis le cache. Table et iframe (?table=, ?embed=) se lisent dans le
+// navigateur — searchParams rendrait la page à chaque visite.
+export async function generateStaticParams() {
+  return [];
+}
 
 const getRestaurant = cache(fetchRestaurant);
 
@@ -63,10 +69,8 @@ export async function generateMetadata({
 
 export default async function MenuPage({
   params,
-  searchParams,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
-  const { embed, table } = await searchParams;
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
@@ -93,7 +97,6 @@ export default async function MenuPage({
     banner != null &&
     formules.some((formule) => banner.formules.includes(formule.name));
 
-  const tableNumber = tableParam(table);
   const orderingEnabled = offre === "smart" || offre === "connect";
   // Fast food : un seul QR, au comptoir ; on commande sans table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
@@ -146,7 +149,8 @@ export default async function MenuPage({
         slug,
         // Un ancien QR de table ne compte plus en fast food : ni panier par
         // table, ni table dans l'analytique.
-        tableNumber: fastFood ? null : tableNumber,
+        tableNumber: null,
+        tableFromUrl: !fastFood,
         orderingEnabled,
         serviceMode,
         restaurantName: restaurant.name,
@@ -191,7 +195,6 @@ export default async function MenuPage({
           <CartBar />
           <CategoryNav
             categories={categoryLinks}
-            embedded={embed === "1"}
             themeLocked={Boolean(restaurantThemeClass(slug))}
           />
           <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
