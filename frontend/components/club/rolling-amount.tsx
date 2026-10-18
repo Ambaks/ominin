@@ -24,10 +24,12 @@ export function RollingAmount({ cents, className = "" }: { cents: number; classN
       node.textContent = formatCents(cents);
       return;
     }
-    const start = performance.now();
+    // L'origine est la première image, sur la même horloge que les suivantes.
+    let start: number | null = null;
     let raf = 0;
     const step = (now: number) => {
-      const progress = Math.min((now - start) / CLUB_TIMING.roll, 1);
+      start ??= now;
+      const progress = Math.min(Math.max((now - start) / CLUB_TIMING.roll, 0), 1);
       const eased = 1 - (1 - progress) ** 3;
       const value = progress === 1 ? cents : Math.round((from + (cents - from) * eased) / 100) * 100;
       current.current = value;
