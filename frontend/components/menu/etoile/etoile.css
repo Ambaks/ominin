@@ -109,7 +109,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   animation-play-state: paused;
 }
 
-/* Lisibilité : un voile léger sous le texte (en portrait vers le bas, en paysage à gauche) ; le ciel reste visible partout. */
+/* Lisibilité : un voile léger sous le texte (en portrait vers le bas, en paysage sur toute la largeur) ; le ciel reste visible partout. */
 .et-shade {
   position: fixed;
   inset: 0;
@@ -121,9 +121,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 
 @media (min-aspect-ratio: 1/1) {
   .et-shade {
-    background:
-      linear-gradient(to right, rgba(5, 5, 7, 0.7) 0%, rgba(5, 5, 7, 0.58) 36%, rgba(5, 5, 7, 0.2) 56%, rgba(5, 5, 7, 0) 70%),
-      linear-gradient(to bottom, rgba(5, 5, 7, 0.5) 0%, rgba(5, 5, 7, 0) 16%);
+    background: linear-gradient(to bottom, rgba(5, 5, 7, 0.5) 0%, rgba(5, 5, 7, 0.3) 16%, rgba(5, 5, 7, 0.3) 72%, rgba(5, 5, 7, 0.55) 100%);
   }
 }
 
@@ -802,38 +800,40 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   transition-delay: 0ms;
 }
 
-/* ---------- Paysage : la carte à gauche, le ciel à droite ---------- */
+/* ---------- Paysage : la carte sur toute la largeur, les lignes sur deux colonnes ---------- */
 
 @media (min-aspect-ratio: 1/1) {
-  .et-hero {
-    padding: 120px clamp(40px, 6vw, 96px) 56px;
+  .et {
+    --et-gutter: clamp(40px, 6vw, 96px);
   }
   .et-hero {
-    justify-content: center;
+    padding: 120px var(--et-gutter) 56px;
   }
   .et-hero-meta {
     position: absolute;
     top: 104px;
-    right: clamp(40px, 6vw, 96px);
-    left: clamp(40px, 6vw, 96px);
+    right: var(--et-gutter);
+    left: var(--et-gutter);
   }
   .et-hero-body {
-    flex: none;
-    align-items: flex-start;
-    max-width: min(46vw, 720px);
-    padding-bottom: 48px;
-    text-align: left;
+    padding-bottom: 56px;
   }
   .et-wordmark {
-    padding-left: 0;
-    font-size: min(7.6vw, 104px);
+    font-size: min(10vw, 168px);
   }
+  /* Le sommaire : les quatre chapitres côte à côte. */
   .et-index {
-    max-width: min(46vw, 560px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: clamp(24px, 3vw, 48px);
   }
   .et-chapter {
-    max-width: calc(min(46vw, 720px) + 2 * clamp(40px, 6vw, 96px));
-    padding: 0 clamp(40px, 6vw, 96px) 12vh;
+    padding: 0 var(--et-gutter) 12vh;
+  }
+  .et-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(40px, 5vw, 96px);
   }
   .et-head {
     padding: 12vh 0 32px;
@@ -846,12 +846,6 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   }
   .et-title {
     letter-spacing: 0.03em;
-  }
-  .et-footer {
-    align-items: flex-start;
-    max-width: calc(min(46vw, 720px) + 2 * clamp(40px, 6vw, 96px));
-    padding-inline: clamp(40px, 6vw, 96px);
-    text-align: left;
   }
   .et-item {
     padding: 28px 0;
@@ -954,14 +948,6 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 /* Au chapitre doré, la barre aussi. */
 .theme-l-etoile:has(.et[data-chapter="4"]) .cart-bar {
   border-color: rgba(217, 192, 138, 0.55);
-}
-
-/* Bureau : la barre et le suivi s'alignent sur la colonne de la carte. */
-@media (min-aspect-ratio: 1/1) and (min-width: 900px) {
-  .theme-l-etoile :is(div:has(> .cart-bar), .ticket-dock) {
-    justify-content: flex-start;
-    padding-left: clamp(40px, 6vw, 96px);
-  }
 }
 
 .theme-l-etoile .cart-bar-count {
