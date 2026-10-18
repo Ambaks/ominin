@@ -81,7 +81,7 @@ export const club = {
     facts: [
       { value: euros(0), label: "d’abonnement, sans engagement" },
       { value: percent(connectCommission.percent), label: "des commandes payées en ligne, rien sur le reste" },
-      { value: "+100\u00a0h", label: "rendues chaque année à votre équipe, pour servir plus de verres" },
+      { value: "+100\u00a0h", label: "rendues chaque mois à votre équipe, pour servir plus de verres" },
     ],
     screen: { src: shot("phone-notif"), alt: "L’écran verrouillé du client\u00a0: la notification « C’est prêt\u00a0! N°\u00a042 », commande à récupérer au Bar Rooftop" },
   },
@@ -122,7 +122,7 @@ export const club = {
   proof: {
     eyebrow: "Le temps de votre équipe",
     title: { text: "Des centaines d’heures", accent: "rendues à vos barmen." },
-    context: "Chaque commande passée au QR, c’est un passage en caisse de moins. Sur une saison, ce sont des centaines d’heures que votre équipe passe à servir, et plus à encaisser.",
+    context: "Chaque commande passée au QR, c’est un passage en caisse de moins. Chaque mois, ce sont des centaines d’heures que votre équipe passe à servir, et plus à encaisser.",
     points: [
       { title: "Plus de prise de commande", text: "Le client choisit seul, sur la carte du club\u00a0: personne à héler, rien à répéter dans le bruit." },
       { title: "Plus d’encaissement", text: "Payé en ligne avant d’arriver au bar\u00a0: ni terminal à tendre, ni monnaie à rendre." },
