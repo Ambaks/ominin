@@ -821,20 +821,33 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   .et-wordmark {
     font-size: min(10vw, 168px);
   }
-  /* Le sommaire : les quatre chapitres côte à côte. */
+  /* Le sommaire : les chapitres deux par deux, puis les quatre côte à côte quand la largeur le permet. */
   .et-index {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     column-gap: clamp(24px, 3vw, 48px);
   }
   .et-chapter {
     padding: 0 var(--et-gutter) 12vh;
   }
+}
+
+/* Assez large pour deux lignes côte à côte (nom, prix, bouton) sans serrer. */
+@media (min-aspect-ratio: 1/1) and (min-width: 960px) {
   .et-items {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: clamp(40px, 5vw, 96px);
   }
+}
+
+@media (min-aspect-ratio: 1/1) and (min-width: 1180px) {
+  .et-index {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-aspect-ratio: 1/1) {
   .et-head {
     padding: 12vh 0 32px;
   }
