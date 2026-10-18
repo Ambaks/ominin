@@ -26,7 +26,7 @@ import { useNow } from "@/lib/gestion/use-now";
 
 type Tab = "a_venir" | "passees" | "salle";
 
-const CHIP = "rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider";
+const CHIP = "rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider";
 
 function StatusChips({ event, now }: { event: ClubEvent; now: number }) {
   if (event.cancelledAt) {
@@ -64,9 +64,9 @@ function Thumb({ event }: { event: ClubEvent }) {
       aria-hidden
       className="flex h-20 w-16 shrink-0 flex-col items-center justify-center rounded-xl border border-hairline bg-surface-raised"
     >
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">{weekday}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted">{weekday}</span>
       <span className="ember-text font-display text-2xl font-medium leading-tight tabular-nums">{day}</span>
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">{month}</span>
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted">{month}</span>
     </span>
   );
 }
@@ -74,7 +74,7 @@ function Thumb({ event }: { event: ClubEvent }) {
 function Counter({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted">{label}</dt>
+      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</dt>
       <dd className="truncate font-display text-base font-medium tabular-nums">{value}</dd>
     </div>
   );
@@ -85,81 +85,77 @@ function EventRow({
   event,
   now,
   gerant,
+  next,
 }: {
   club: ClubState;
   event: ClubEvent;
   now: number;
   gerant: boolean;
+  /** La prochaine soirée (ou celle en cours) : cerclée de corail. */
+  next: boolean;
 }) {
   const loaded = Boolean(club.nights[event.id]);
   const stats = nightStats(club, event.id);
-  const live = `/gestion/soirees/${event.id}/live`;
   const tonight = isTonight(event, now);
   const guestList = event.guestListOpen || stats.guests > 0;
-  const planLink = !event.cancelledAt && (
-    <Link
-      href={live}
-      className={`flex min-h-11 shrink-0 items-center justify-center rounded-full px-4 text-sm font-semibold transition-colors lg:pointer-fine:min-h-9 ${
-        tonight
-          ? "ember-gradient text-background"
-          : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-      }`}
-    >
-      Plan du soir
-    </Link>
-  );
+  // Une seule destination par carte : le plan si la soirée a commencé (ou
+  // pour l'équipe), sa préparation sinon.
+  const href =
+    tonight || !gerant ? `/gestion/soirees/${event.id}/live` : `/gestion/soirees/${event.id}`;
   return (
-    <li className="soirees-entree flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ember-2/40 sm:p-5">
-      <div className="flex items-start gap-4">
-        <Link
-          href={gerant ? `/gestion/soirees/${event.id}` : live}
-          className="flex min-w-0 flex-1 items-center gap-4 rounded-xl"
-        >
+    <li className="soirees-entree">
+      <Link
+        href={href}
+        className={`group flex flex-col gap-4 rounded-2xl border bg-surface p-4 hover:border-ember-2/60 sm:p-5 ${
+          next ? "border-[var(--soirees-coral)]" : "border-hairline"
+        }`}
+      >
+        <span className="flex items-center gap-4">
           <Thumb event={event} />
-          <span className="flex min-w-0 flex-col gap-1">
+          <span className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="flex flex-wrap gap-x-1.5 text-xs font-medium text-muted">
-              <span className="whitespace-nowrap first-letter:uppercase">
-                {formatNightShort(event.startsAt)}
-              </span>
+              <span className="whitespace-nowrap first-letter:uppercase">{formatNightShort(event.startsAt)}</span>
               <span aria-hidden>·</span>
               <span className="whitespace-nowrap">{formatHours(event.startsAt, event.endsAt)}</span>
             </span>
-            <span className="line-clamp-2 font-display text-lg font-medium leading-snug">
-              {event.title}
-            </span>
+            <span className="line-clamp-2 font-display text-lg font-medium leading-snug">{event.title}</span>
             <span className="flex flex-wrap gap-1.5">
               {event.tag && <span className={`${CHIP} border-hairline text-muted`}>{event.tag}</span>}
               <StatusChips event={event} now={now} />
             </span>
           </span>
-        </Link>
-        <div className="hidden sm:flex">{planLink}</div>
-      </div>
+          <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-muted group-hover:text-foreground">
+            <span className="hidden sm:inline">{href.endsWith("/live") ? "Plan du soir" : "Préparer"}</span>
+            <svg viewBox="0 0 24 24" className="size-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+          </span>
+        </span>
 
-      {loaded ? (
-        <dl
-          className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${
-            gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"
-          }`}
-        >
-          <Counter label="Tables" value={`${stats.sold} / ${stats.capacity}`} />
-          {gerant && <Counter label="Revenu" value={formatCents(stats.online + stats.onSite)} />}
-          {gerant && <Counter label="Frais Ominin" value={formatCents(stats.fees)} />}
-          <Counter
-            label="Invités"
-            value={
-              !guestList
-                ? "Liste fermée"
-                : event.guestListCapacity
-                  ? `${stats.guests} / ${event.guestListCapacity}`
-                  : String(stats.guests)
-            }
-          />
-        </dl>
-      ) : (
-        <div aria-busy className="shimmer h-12 rounded-xl" />
-      )}
-      <div className="flex sm:hidden [&>a]:flex-1">{planLink}</div>
+        {loaded ? (
+          <dl
+            className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${
+              gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"
+            }`}
+          >
+            <Counter label="Tables" value={`${stats.sold} / ${stats.capacity}`} />
+            {gerant && <Counter label="Revenu" value={formatCents(stats.online + stats.onSite)} />}
+            {gerant && <Counter label="Frais Ominin" value={formatCents(stats.fees)} />}
+            <Counter
+              label="Invités"
+              value={
+                !guestList
+                  ? "Liste fermée"
+                  : event.guestListCapacity
+                    ? `${stats.guests} / ${event.guestListCapacity}`
+                    : String(stats.guests)
+              }
+            />
+          </dl>
+        ) : (
+          <span aria-busy className="shimmer block h-12 rounded-xl" />
+        )}
+      </Link>
     </li>
   );
 }
@@ -176,6 +172,7 @@ export default function SoireesPage() {
   const upcoming = events.filter((event) => !isPast(event, now));
   const past = events.filter((event) => isPast(event, now)).reverse();
   const shown = tab === "passees" ? past : upcoming;
+  const nextId = upcoming.find((event) => !event.cancelledAt)?.id;
   useClubNights(tab === "salle" ? [] : shown.map((event) => event.id));
 
   if (!state) return null;
@@ -244,7 +241,14 @@ export default function SoireesPage() {
       ) : (
         <ul className="flex flex-col gap-3">
           {shown.map((event) => (
-            <EventRow key={event.id} club={club} event={event} now={now} gerant={gerant} />
+            <EventRow
+              key={event.id}
+              club={club}
+              event={event}
+              now={now}
+              gerant={gerant}
+              next={tab === "a_venir" && event.id === nextId}
+            />
           ))}
         </ul>
       )}

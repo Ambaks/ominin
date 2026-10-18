@@ -1,79 +1,97 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
+import { PhoneIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
-import { formatPhone, matchesSearch, people, staffTableState } from "@/lib/gestion/club-selectors";
+import { formatPhone, matchesSearch, staffTableState, tableName, telHref } from "@/lib/gestion/club-selectors";
 import { StatusChip } from "./night-plan";
 import { usePresence } from "./use-presence";
 
 /*
- * La porte : les tables du soir en une liste, celles qu'on attend d'abord
- * (la plus ancienne réservation en tête, signalée), les arrivées repliées
- * dessous. Un seul geste par rangée ; une table réglée entre aussi d'un
- * glissé vers la droite, et une annonce permet de revenir dessus.
+ * La porte : les tables du soir en une liste. D'abord celles à encaisser
+ * (cerclées de corail), puis les tables réglées qu'on attend, la plus
+ * ancienne réservation en tête, signalée ; les arrivées repliées dessous.
+ * Un seul geste par rangée ; une table réglée entre aussi d'un glissé vers
+ * la droite, et l'annonce qui suit permet de revenir dessus.
  */
 
-/** Glissé (px) qui fait entrer une table ; en deçà, la rangée revient. */
+/** Glissé (px) qui fait entrer une table ; au-delà, l'étiquette le dit et le lâcher suffit. */
 const SWIPE_COMMIT = 96;
 /** Glissé (px) à partir duquel la rangée suit le doigt plutôt que le défilement. */
 const SWIPE_START = 10;
+/** L'astuce du glissé ne se montre qu'une fois par appareil. */
+const SWIPE_HINT_KEY = "ominin-soirees-glisse-vu";
 
 export type HeldTable = { booking: ClubBooking; table: ClubTable; zoneName: string };
 type Entry = HeldTable & { state: TableState };
+type Phase = "repos" | "glisse" | "pret" | "parti";
+
+/** « 8 pers. », court : la rangée tient sur un téléphone. */
+const party = (count: number) => `${count} pers.`;
+
+function readHintSeen(): boolean {
+  try {
+    return window.localStorage.getItem(SWIPE_HINT_KEY) !== null;
+  } catch {
+    return true;
+  }
+}
 
 function DoorRow({
   entry,
   next,
+  hint,
   onOpen,
   onArrive,
 }: {
   entry: Entry;
   next: boolean;
+  hint: boolean;
   onOpen: () => void;
-  onArrive: () => void;
+  /** Résout faux si l'arrivée n'a pas pu être enregistrée : la rangée revient. */
+  onArrive: () => Promise<boolean>;
 }) {
   const { booking, table, zoneName, state } = entry;
   const row = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ id: number; x: number; y: number; dx: number; active: boolean } | null>(null);
-  const [swiping, setSwiping] = useState(false);
+  const [phase, setPhase] = useState<Phase>("repos");
   const canSwipe = state === "payee";
+  const name = tableName(zoneName, table.label);
 
   const setOffset = (dx: number) => row.current?.style.setProperty("--glisse", `${dx}px`);
 
-  const action =
-    state === "payee" ? (
-      <button
-        type="button"
-        onClick={onArrive}
-        className={`min-h-12 shrink-0 rounded-full px-5 text-sm font-semibold ${
-          next ? "ember-gradient" : "border border-hairline text-foreground hover:border-ember-2/50"
-        }`}
-      >
-        Arrivé(e)
-      </button>
-    ) : state === "attente" ? (
-      <button
-        type="button"
-        onClick={onOpen}
-        className={`min-h-12 shrink-0 rounded-full px-5 text-sm font-semibold ${
-          next ? "ember-gradient" : "border border-hairline text-foreground hover:border-ember-2/50"
-        }`}
-      >
-        Encaisser et faire entrer
-      </button>
-    ) : null;
+  const commit = async () => {
+    setPhase("parti");
+    setOffset(row.current?.offsetWidth ?? 0);
+    if (await onArrive()) return;
+    setPhase("repos");
+    setOffset(0);
+  };
+
+  const button = (label: string, onClick: () => void) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-12 flex-1 rounded-full px-5 text-sm font-semibold ${
+        next ? "ember-gradient" : "border border-hairline text-foreground hover:border-ember-2/50"
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div
       ref={row}
       className="porte-rangee"
-      data-suivant={next || undefined}
-      data-glisse={swiping || undefined}
+      data-phase={phase}
+      data-a-regler={state === "attente" || undefined}
+      data-indice={hint || undefined}
       onPointerDown={(event) => {
-        if (!canSwipe || event.button !== 0) return;
+        if (!canSwipe || event.button !== 0 || phase === "parti") return;
         swipe.current = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, active: false };
       }}
       onPointerMove={(event) => {
@@ -88,94 +106,113 @@ function DoorRow({
           if (dx < SWIPE_START) return;
           current.active = true;
           event.currentTarget.setPointerCapture(event.pointerId);
-          setSwiping(true);
         }
         current.dx = Math.max(0, dx);
         setOffset(current.dx);
+        setPhase(current.dx >= SWIPE_COMMIT ? "pret" : "glisse");
       }}
       onPointerUp={() => {
         const current = swipe.current;
         swipe.current = null;
         if (!current?.active) return;
-        setSwiping(false);
+        if (current.dx >= SWIPE_COMMIT) {
+          void commit();
+          return;
+        }
+        setPhase("repos");
         setOffset(0);
-        if (current.dx >= SWIPE_COMMIT) onArrive();
       }}
       onPointerCancel={() => {
         swipe.current = null;
-        setSwiping(false);
+        setPhase("repos");
         setOffset(0);
       }}
     >
       {canSwipe && (
         <div className="porte-fond" aria-hidden>
-          Faire entrer →
+          {phase === "pret" || phase === "parti" ? "Relâchez : il entre" : "Faire entrer →"}
         </div>
       )}
-      <div className="porte-contenu flex items-center gap-3 py-3 pl-4 pr-3">
-        <button
-          type="button"
-          onClick={onOpen}
-          className="flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left"
-        >
-          <span className="w-12 shrink-0 text-center text-xl font-semibold tabular-nums">{table.label}</span>
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="flex items-center gap-2">
-              <span className="truncate text-base font-semibold">{booking.name}</span>
-              {next && (
-                <span className="shrink-0 rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
-                  Suivant
-                </span>
-              )}
-            </span>
-            <span className="text-xs text-muted">
-              {zoneName} · {people(booking.partySize)}
-              {booking.phone && <span className="whitespace-nowrap"> · {formatPhone(booking.phone)}</span>}
-            </span>
-            <span>
-              <StatusChip key={state} state={state} />
+      <div className="porte-contenu flex flex-col gap-3 p-4">
+        <button type="button" onClick={onOpen} className="flex flex-col gap-1.5 rounded-xl text-left">
+          <span className="flex items-start justify-between gap-3">
+            <span className="text-base font-semibold leading-snug">{booking.name}</span>
+            <span className="shrink-0 rounded-full border border-hairline px-2.5 py-1 text-xs font-semibold tabular-nums">
+              {name}
             </span>
           </span>
+          <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
+            {party(booking.partySize)}
+            <StatusChip key={state} state={state} />
+            {next && <span className="text-xs font-semibold text-ember-2">Suivant</span>}
+          </span>
         </button>
-        {action}
+        {(booking.phone || state === "payee" || state === "attente") && (
+          <div className="flex items-center gap-2">
+            {booking.phone && (
+              <a
+                href={telHref(booking.phone)}
+                draggable={false}
+                aria-label={`Appeler ${booking.name}, ${formatPhone(booking.phone)}`}
+                title={formatPhone(booking.phone)}
+                className="flex size-12 shrink-0 items-center justify-center rounded-full border border-hairline text-muted hover:text-foreground"
+              >
+                <PhoneIcon className="size-5" />
+              </a>
+            )}
+            {state === "payee" && button("Arrivé(e)", () => void commit())}
+            {state === "attente" && button("Encaisser et faire entrer", onOpen)}
+          </div>
+        )}
+        {hint && (
+          <p className="text-xs text-muted">Astuce : glissez une table réglée vers la droite pour la faire entrer.</p>
+        )}
       </div>
     </div>
   );
 }
 
-export function DoorList({
-  held,
-  onOpen,
-  autoFocus = false,
-}: {
-  held: HeldTable[];
-  onOpen: (tableId: string) => void;
-  autoFocus?: boolean;
-}) {
+export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId: string) => void }) {
   const toast = useToast();
   const [query, setQuery] = useState("");
+  const [hintSeen] = useState(readHintSeen);
 
   const entries: Entry[] = held
     .map((entry) => ({ ...entry, state: staffTableState(entry.booking, true) }))
-    .filter(({ booking, table }) => matchesSearch(query, [booking.name, booking.phone, table.label]));
-  // Ceux qu'on attend : à faire entrer ou à encaisser d'abord, les paiements
-  // en ligne en cours ensuite ; à l'intérieur, la réservation la plus ancienne.
-  const rank = (state: TableState) => (state === "prise" ? 1 : 0);
+    .filter(({ booking, table, zoneName }) =>
+      matchesSearch(query, [booking.name, booking.phone, table.label, tableName(zoneName, table.label)])
+    );
+  // À encaisser d'abord, puis réglées, puis paiements en ligne en cours ;
+  // à l'intérieur, la réservation la plus ancienne.
+  const rank: Partial<Record<TableState, number>> = { attente: 0, payee: 1, prise: 2 };
   const waiting = entries
     .filter((entry) => entry.state !== "arrivee")
     .sort(
-      (a, b) => rank(a.state) - rank(b.state) || Date.parse(a.booking.createdAt) - Date.parse(b.booking.createdAt)
+      (a, b) =>
+        (rank[a.state] ?? 3) - (rank[b.state] ?? 3) ||
+        Date.parse(a.booking.createdAt) - Date.parse(b.booking.createdAt)
     );
   const arrived = entries
     .filter((entry) => entry.state === "arrivee")
     .sort((a, b) => Date.parse(b.booking.arrivedAt ?? "") - Date.parse(a.booking.arrivedAt ?? ""));
   const nextId = waiting.find((entry) => entry.state !== "prise")?.booking.id;
+  const hintId = hintSeen ? undefined : waiting.find((entry) => entry.state === "payee")?.booking.id;
   const [rows, done] = usePresence(waiting, (entry) => entry.booking.id);
 
-  const arrive = async (booking: ClubBooking, label: string) => {
+  // L'astuce montrée, elle ne revient plus sur cet appareil.
+  useEffect(() => {
+    if (!hintId) return;
+    try {
+      window.localStorage.setItem(SWIPE_HINT_KEY, "1");
+    } catch {
+      // Stockage refusé (navigation privée) : l'astuce reviendra, rien de plus.
+    }
+  }, [hintId]);
+
+  const arrive = async (booking: ClubBooking, name: string): Promise<boolean> => {
     try {
       await clubApi.markArrival(booking, true);
-      toast.notice(`Table ${label} : ${booking.name} est entré(e).`, {
+      toast.notice(`${name} : ${booking.name} est entré(e).`, {
         label: "Annuler",
         onPress: () => {
           clubApi
@@ -185,8 +222,10 @@ export function DoorList({
             );
         },
       });
+      return true;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      return false;
     }
   };
 
@@ -200,7 +239,6 @@ export function DoorList({
           placeholder="Nom, téléphone ou table"
           aria-label="Chercher une réservation"
           enterKeyHint="search"
-          autoFocus={autoFocus}
           className="w-full rounded-2xl border border-hairline bg-surface px-4 py-3.5 text-base outline-none transition-colors placeholder:text-muted focus:border-ember-2/60"
         />
       </div>
@@ -233,8 +271,9 @@ export function DoorList({
                     <DoorRow
                       entry={item}
                       next={item.booking.id === nextId}
+                      hint={item.booking.id === hintId}
                       onOpen={() => onOpen(item.table.id)}
-                      onArrive={() => void arrive(item.booking, item.table.label)}
+                      onArrive={() => arrive(item.booking, tableName(item.zoneName, item.table.label))}
                     />
                   </div>
                 </li>
@@ -244,7 +283,7 @@ export function DoorList({
 
           {arrived.length > 0 && (
             <details className="group mt-4 rounded-2xl border border-hairline bg-surface">
-              <summary className="flex min-h-12 cursor-pointer list-none items-center [&::-webkit-details-marker]:hidden justify-between gap-3 px-4 text-sm font-semibold">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
                 <span>
                   Arrivées · <span className="tabular-nums">{arrived.length}</span>
                 </span>
@@ -258,12 +297,12 @@ export function DoorList({
                     <button
                       type="button"
                       onClick={() => onOpen(table.id)}
-                      className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-left"
+                      className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-2 text-left"
                     >
-                      <span className="w-12 shrink-0 text-center font-semibold tabular-nums">{table.label}</span>
-                      <span className="min-w-0 flex-1 truncate text-sm">{booking.name}</span>
-                      <span className="shrink-0 text-xs text-muted">{zoneName}</span>
-                      <StatusChip state="arrivee" />
+                      <span className="min-w-0 text-sm font-medium">{booking.name}</span>
+                      <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
+                        {tableName(zoneName, table.label)}
+                      </span>
                     </button>
                   </li>
                 ))}

@@ -14,6 +14,7 @@ import {
   isClubEntered,
   people,
   staffTableState,
+  tableName,
   telHref,
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
@@ -91,7 +92,7 @@ function BookingCard({
     }
   };
 
-  const tableName = `Table ${table.label}`;
+  const name = tableName(zone.name, table.label);
   // Le geste attendu d'abord, sur toute la largeur ; ce qui défait ou rend
   // l'argent en dernier, discret, et toujours confirmé.
   const footer = holding ? undefined : (
@@ -100,7 +101,7 @@ function BookingCard({
         <button
           type="button"
           disabled={busy}
-          onClick={() => void run(() => clubApi.markArrival(booking, true), `${tableName} : arrivée.`, true)}
+          onClick={() => void run(() => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
           className={PRIMARY}
         >
           Marquer arrivé(e)
@@ -114,7 +115,7 @@ function BookingCard({
             onClick={() =>
               void run(
                 () => clubApi.markArrival(booking, true, true),
-                `${tableName} : ${formatCents(booking.priceCents)} encaissés, arrivée.`,
+                `${name} : ${formatCents(booking.priceCents)} encaissés, arrivée.`,
                 true
               )
             }
@@ -128,7 +129,7 @@ function BookingCard({
             onClick={() =>
               void run(
                 () => clubApi.markArrival(booking, false, true),
-                `${tableName} : ${formatCents(booking.priceCents)} encaissés.`
+                `${name} : ${formatCents(booking.priceCents)} encaissés.`
               )
             }
             className={SECONDARY}
@@ -141,7 +142,7 @@ function BookingCard({
         <button
           type="button"
           disabled={busy}
-          onClick={() => void run(() => clubApi.markArrival(booking, false), `${tableName} : arrivée annulée.`)}
+          onClick={() => void run(() => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
           className={SECONDARY}
         >
           Annuler l&rsquo;arrivée
@@ -161,7 +162,7 @@ function BookingCard({
   );
 
   return (
-    <Modal title={`${tableName} · ${zone.name}`} onClose={onClose} footer={footer}>
+    <Modal title={name} onClose={onClose} footer={footer}>
       <div className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -192,7 +193,7 @@ function BookingCard({
               </span>
             )}
           </Row>
-          <Row label="Règlement">{payment(booking)}</Row>
+          {!unpaid && <Row label="Règlement">{payment(booking)}</Row>}
           <Row label="Réservée">
             {SOURCE_LABELS[booking.source]} à {formatClock(booking.createdAt)}
           </Row>
@@ -218,21 +219,21 @@ function BookingCard({
           title={`Rembourser ${formatCents(booking.totalCents)} ?`}
           message={`${booking.name} est remboursé de ${formatCents(booking.totalCents)} sur sa carte${
             booking.feeCents > 0 ? `, frais de service de ${formatCents(booking.feeCents)} compris` : ""
-          }, et prévenu par e-mail. La ${tableName.toLowerCase()} redevient libre. C'est définitif.`}
+          }, et prévenu par e-mail. La table ${name} redevient libre. C'est définitif.`}
           confirmLabel="Rembourser"
           cancelLabel="Ne pas rembourser"
           destructive
           onClose={() => setConfirm(null)}
           onConfirm={() => {
             setConfirm(null);
-            void run(() => clubApi.refundBooking(booking), `${tableName} remboursée.`, true);
+            void run(() => clubApi.refundBooking(booking), `${name} remboursée.`, true);
           }}
         />
       )}
       {confirm === "cancel" && (
         <ConfirmDialog
           title="Annuler la réservation ?"
-          message={`La réservation de ${booking.name} est annulée et la ${tableName.toLowerCase()} redevient libre.${
+          message={`La réservation de ${booking.name} est annulée et la table ${name} redevient libre.${
             booking.paidAt ? ` Les ${formatCents(booking.priceCents)} réglés sur place sont à lui rendre au comptoir.` : ""
           }`}
           confirmLabel="Annuler la réservation"
@@ -241,7 +242,7 @@ function BookingCard({
           onClose={() => setConfirm(null)}
           onConfirm={() => {
             setConfirm(null);
-            void run(() => clubApi.cancelClubBooking(booking), `${tableName} libérée.`, true);
+            void run(() => clubApi.cancelClubBooking(booking), `${name} libérée.`, true);
           }}
         />
       )}
@@ -300,7 +301,7 @@ function ReserveForm({
         paid,
         note: note.trim(),
       });
-      toast.success(`Table ${table.label} réservée pour ${name.trim()}.`);
+      toast.success(`${tableName(zone.name, table.label)} réservée pour ${name.trim()}.`);
       onClose();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
@@ -315,7 +316,7 @@ function ReserveForm({
 
   return (
     <Modal
-      title={`Réserver la table ${table.label}`}
+      title={`Réserver ${tableName(zone.name, table.label)}`}
       onClose={onClose}
       footer={
         <>
@@ -454,7 +455,7 @@ export function BookingSheet({
     );
   }
   return (
-    <Modal title={`Table ${table.label} · ${zone.name}`} onClose={onClose}>
+    <Modal title={tableName(zone.name, table.label)} onClose={onClose}>
       <div className="flex flex-col gap-2">
         <p className="font-display text-xl font-medium">{onSale ? "Libre" : "Gardée, hors vente"}</p>
         <p className="text-sm text-muted">

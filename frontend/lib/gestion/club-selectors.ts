@@ -114,6 +114,9 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
   return stats;
 }
 
+/** « Salon Rouge · 03 » : une table se nomme par sa zone, comme sur la page du club. */
+export const tableName = (zoneName: string, label: string) => `${zoneName} · ${label}`;
+
 /** « 1 personne », « 5 personnes ». */
 export const people = (count: number) => `${count} personne${count > 1 ? "s" : ""}`;
 

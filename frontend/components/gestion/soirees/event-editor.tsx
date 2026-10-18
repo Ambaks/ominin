@@ -28,6 +28,7 @@ import {
   isSold,
   staffTableState,
   TABLE_STATE_LABELS,
+  tableName,
 } from "@/lib/gestion/club-selectors";
 import type { ClubState } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS, WAIT_TICK_MS } from "@/lib/gestion/constants";
@@ -37,6 +38,7 @@ import { clubSiteUrl } from "@/lib/site";
 import { BackToSoirees } from "./club-states";
 import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { NightPlan, PlanLegend } from "./night-plan";
+import { useWide } from "./use-wide";
 
 /*
  * Préparer une soirée (gérant) : ce qu'en lit le client — titre, horaire,
@@ -127,7 +129,10 @@ const SECTIONS = [
 
 type SectionId = (typeof SECTIONS)[number]["id"];
 
-/** Une section repliable (utile sur un téléphone), ancrée pour le sommaire. */
+/**
+ * Une section repliable, ancrée pour le sommaire. Sur un téléphone, seules
+ * les infos s'ouvrent d'emblée : le reste se déplie à la demande.
+ */
 function Section({
   id,
   title,
@@ -139,11 +144,12 @@ function Section({
   hint?: string;
   children: React.ReactNode;
 }) {
+  const wide = useWide();
   return (
     <details
       id={id}
-      open
-      className="group scroll-mt-[calc(var(--gestion-entete,0px)+4.5rem)] rounded-2xl border border-hairline bg-surface"
+      open={wide || id === "infos"}
+      className="group scroll-mb-28 scroll-mt-[calc(var(--gestion-entete,0px)+4.5rem)] rounded-2xl border border-hairline bg-surface"
     >
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 p-5 [&::-webkit-details-marker]:hidden">
         <span>
@@ -286,7 +292,11 @@ export function EventEditor({
   const pending = event?.cancelledAt
     ? [...byTable.values()].filter((booking) => isSold(booking) || failed.includes(booking.id))
     : [];
-  const labelOf = (tableId: string) => club.tables.find((table) => table.id === tableId)?.label ?? "?";
+  const labelOf = (tableId: string) => {
+    const table = club.tables.find((candidate) => candidate.id === tableId);
+    const zone = club.zones.find((candidate) => candidate.id === table?.zoneId);
+    return table && zone ? tableName(zone.name, table.label) : "?";
+  };
 
   const save = async (publish?: boolean) => {
     if (!valid || !startsAt || !endsAt) {
@@ -664,7 +674,7 @@ export function EventEditor({
             states={planStates}
             onSelect={(table) => toggleBlocked(table.id)}
             describe={(table, state) =>
-              `Table ${table.label}, ${table.seats} places, ${
+              `${tableName(planZone.name, table.label)}, ${table.seats} places, ${
                 state === "libre" ? "en vente" : (TABLE_STATE_LABELS[state] ?? state).toLowerCase()
               }`
             }
@@ -728,7 +738,7 @@ export function EventEditor({
             {pending.map((booking) => (
               <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
                 <span className="min-w-0 truncate">
-                  Table {labelOf(booking.tableId)} · {booking.name}
+                  {labelOf(booking.tableId)} · {booking.name}
                 </span>
                 <span className="shrink-0 tabular-nums text-muted">
                   {formatCents(booking.totalCents)}
@@ -768,7 +778,7 @@ export function EventEditor({
         </section>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
+      <div className="soirees-barre fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-end gap-3 px-5 py-3 lg:max-w-5xl lg:px-10">
           <p className="mr-auto text-xs text-muted" aria-live="polite">
             {dirty ? "Modifications non enregistrées" : event ? "Tout est enregistré" : ""}

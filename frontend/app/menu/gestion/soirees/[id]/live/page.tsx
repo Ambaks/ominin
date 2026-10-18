@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { BookingSheet } from "@/components/gestion/soirees/booking-sheet";
 import {
@@ -15,6 +15,7 @@ import {
 import { DoorList, type HeldTable } from "@/components/gestion/soirees/door-list";
 import { GuestList } from "@/components/gestion/soirees/guest-list";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
+import { useWide } from "@/components/gestion/soirees/use-wide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -30,6 +31,7 @@ import {
   people,
   staffTableState,
   TABLE_STATE_LABELS,
+  tableName,
   tablePrice,
 } from "@/lib/gestion/club-selectors";
 import {
@@ -40,7 +42,7 @@ import {
   useClubNights,
   useClubRealtime,
 } from "@/lib/gestion/club-store";
-import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { SERVICE_CLOCK_TICK_MS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useNow } from "@/lib/gestion/use-now";
 
@@ -56,35 +58,46 @@ type View = "plan" | "porte" | "invites";
 
 const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "prise", "gardee"];
 
-/** Le seuil lg de Tailwind : deux colonnes au-delà. */
-const WIDE = "(min-width: 64rem)";
-
-function subscribeWide(callback: () => void) {
-  const query = window.matchMedia(WIDE);
-  query.addEventListener("change", callback);
-  return () => query.removeEventListener("change", callback);
+/** « il y a 3 s », « il y a 2 min » : depuis quand l'écran est à jour. */
+function Freshness({ live, syncedAt }: { live: boolean | null; syncedAt: number }) {
+  const now = useNow(SERVICE_CLOCK_TICK_MS).getTime();
+  if (live === null) return null;
+  const seconds = Math.max(0, Math.round((now - syncedAt) / 1000));
+  const [count, unit] = seconds < 60 ? [seconds, "s"] : [Math.floor(seconds / 60), "min"];
+  return (
+    <span
+      aria-live="off"
+      className={`flex items-center gap-1.5 text-xs font-medium ${live ? "text-muted" : "text-ember-3"}`}
+    >
+      <span
+        className={`size-1.5 rounded-full ${live ? "animate-pulse bg-[var(--soirees-ok)]" : "bg-ember-3"}`}
+        aria-hidden
+      />
+      {live ? "En direct" : "Reconnexion…"} · il y a <span className="tabular-nums">{count}</span> {unit}
+    </span>
+  );
 }
 
-const useWide = () =>
-  useSyncExternalStore(subscribeWide, () => window.matchMedia(WIDE).matches, () => false);
-
-function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+/** Une case du bandeau : un chiffre, son libellé, et sa précision dessous si elle tient. */
+function Figure({ label, value, detail, strong }: { label: string; value: string; detail?: string; strong?: boolean }) {
   return (
-    <div className="min-w-0 rounded-2xl border border-hairline bg-surface px-4 py-3">
-      <dt className="truncate text-[11px] font-medium text-muted">{label}</dt>
-      <dd className="mt-0.5 truncate text-2xl font-semibold tabular-nums">{value}</dd>
-      {hint && <dd className="truncate text-[11px] text-muted">{hint}</dd>}
+    <div className="min-w-0 bg-surface px-4 py-3">
+      <dt className="text-xs font-medium text-muted">{label}</dt>
+      <dd className={`mt-0.5 font-semibold tabular-nums ${strong ? "text-2xl" : "text-lg"}`}>{value}</dd>
+      {detail && <dd className="text-xs text-muted">{detail}</dd>}
     </div>
   );
 }
 
 /** Sous le plan d'un téléphone : les tables de la zone en pastilles, à toucher sans viser. */
 function ZoneTables({
+  zoneName,
   tables,
   states,
   byTable,
   onSelect,
 }: {
+  zoneName: string;
   tables: ClubTable[];
   states: Record<string, TableState>;
   byTable: Map<string, ClubBooking>;
@@ -100,13 +113,13 @@ function ZoneTables({
             <button
               type="button"
               onClick={() => onSelect(table.id)}
-              aria-label={`Table ${table.label}, ${TABLE_STATE_LABELS[state]?.toLowerCase()}${booking ? `, ${booking.name}` : ""}`}
+              aria-label={`${tableName(zoneName, table.label)}, ${TABLE_STATE_LABELS[state]?.toLowerCase()}${booking ? `, ${booking.name}` : ""}`}
               className="flex min-h-12 w-full items-center gap-2 rounded-xl border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-ember-2/40"
             >
               <span className="plan-legende" data-state={state} aria-hidden />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold tabular-nums">{table.label}</span>
-                <span className="block truncate text-[11px] text-muted">
+                <span className="block truncate text-xs text-muted">
                   {booking ? booking.name : TABLE_STATE_LABELS[state]}
                 </span>
               </span>
@@ -135,6 +148,7 @@ export default function LivePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const tables = club?.tables;
+  const clubZones = club?.zones;
   // Une table payée en ligne pendant que le plan est ouvert : annoncée, et
   // touchable depuis l'annonce.
   useEffect(
@@ -143,7 +157,8 @@ export default function LivePage() {
         if (eventId !== id) return;
         const table = tables?.find((candidate) => candidate.id === booking.tableId);
         if (!table) return;
-        toast.notice(`Table ${table.label} payée en ligne · ${booking.name}`, {
+        const zone = clubZones?.find((candidate) => candidate.id === table.zoneId)?.name ?? "";
+        toast.notice(`${tableName(zone, table.label)} payée en ligne · ${booking.name}`, {
           label: "Voir",
           onPress: () => {
             setView("plan");
@@ -152,7 +167,7 @@ export default function LivePage() {
           },
         });
       }),
-    [id, tables, toast]
+    [id, tables, clubZones, toast]
   );
 
   if (!state) return null;
@@ -193,7 +208,7 @@ export default function LivePage() {
   const describe = (table: ClubTable, tableState: TableState) => {
     const booking = byTable.get(table.id);
     return [
-      `Table ${table.label}`,
+      tableName(zone?.name ?? "", table.label),
       `${table.seats} places`,
       TABLE_STATE_LABELS[tableState]?.toLowerCase(),
       booking ? `${booking.name}, ${people(booking.partySize)}` : formatCents(tablePrice(club, event.id, table)),
@@ -238,7 +253,7 @@ export default function LivePage() {
         onPingEnd={acknowledgeArrival}
       />
       <PlanLegend states={LEGEND} />
-      {!wide && <ZoneTables tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
+      {!wide && <ZoneTables zoneName={zone.name} tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
     </div>
   ) : (
     <EmptyState
@@ -261,17 +276,7 @@ export default function LivePage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            {live !== null && (
-              <span
-                className={`flex items-center gap-1.5 text-xs font-medium ${live ? "text-muted" : "text-ember-3"}`}
-              >
-                <span
-                  className={`size-1.5 rounded-full ${live ? "animate-pulse bg-[var(--soirees-ok)]" : "bg-ember-3"}`}
-                  aria-hidden
-                />
-                {live ? "En direct" : "Reconnexion…"}
-              </span>
-            )}
+            <Freshness live={live} syncedAt={club.syncedAt} />
             {gerant && (
               <Link
                 href={`/gestion/soirees/${event.id}`}
@@ -312,24 +317,35 @@ export default function LivePage() {
         </p>
       )}
 
-      <dl className={`grid grid-cols-2 gap-3 ${gerant ? "lg:grid-cols-4" : ""}`}>
-        <Stat
+      {/* Un seul bandeau : les deux chiffres de la porte en grand, le reste à côté. */}
+      <dl className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline ${gerant ? "lg:grid-cols-4" : ""}`}>
+        <Figure
+          strong
           label="Arrivées"
           value={`${stats.arrived} / ${stats.sold}`}
-          hint={expected > 0 ? `${expected} attendue${expected > 1 ? "s" : ""}` : undefined}
+          detail={expected > 0 ? `${expected} attendue${expected > 1 ? "s" : ""}` : undefined}
         />
-        <Stat label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
+        {gerant ? (
+          <Figure strong label="À encaisser" value={formatCents(stats.toCollect)} detail="sur place" />
+        ) : (
+          <Figure strong label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
+        )}
         {gerant && (
           <>
-            <Stat label="À encaisser" value={formatCents(stats.toCollect)} hint="Sur place" />
-            <Stat
+            <Figure label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
+            <Figure
               label="Encaissé"
               value={formatCents(stats.online + stats.onSite)}
-              hint={`${formatCents(stats.online)} en ligne · frais Ominin ${formatCents(stats.fees)}`}
+              detail={`dont ${formatCents(stats.online)} en ligne`}
             />
           </>
         )}
       </dl>
+      {gerant && stats.fees > 0 && (
+        <p className="-mt-2 text-xs text-muted">
+          Frais de service Ominin payés par les clients : <span className="tabular-nums">{formatCents(stats.fees)}</span>
+        </p>
+      )}
 
       {wide ? (
         <div className="grid grid-cols-[minmax(0,1fr)_24rem] items-start gap-6">

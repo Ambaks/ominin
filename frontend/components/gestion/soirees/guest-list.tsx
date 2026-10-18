@@ -42,7 +42,7 @@ export function GuestList({ event, guests }: { event: ClubEvent; guests: ClubGue
           },
         ].map((stat) => (
           <div key={stat.label} className="rounded-2xl border border-hairline bg-surface px-4 py-3">
-            <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted">{stat.label}</dt>
+            <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{stat.label}</dt>
             <dd className="mt-1 truncate font-display text-xl font-medium tabular-nums">{stat.value}</dd>
           </div>
         ))}

@@ -55,6 +55,8 @@ export interface ClubState {
   nights: Record<string, ClubNight>;
   /** Réservations arrivées en direct, que le plan signale jusqu'à leur acquittement. */
   arrivals: ClubArrival[];
+  /** Dernière lecture réussie (ms) : l'écran dit depuis quand il est à jour. */
+  syncedAt: number;
 }
 
 /*
@@ -209,7 +211,7 @@ const refreshBase = coalescedBy("des soirées", async () => {
   if (!state) return;
   const base = await fetchBase(createClient(), state.etablissementId);
   if (state) {
-    state = { ...state, ...base };
+    state = { ...state, ...base, syncedAt: Date.now() };
     notify();
   }
 });
@@ -237,6 +239,7 @@ function mergeNights(fresh: Record<string, ClubNight>) {
     ...state,
     nights: { ...state.nights, ...fresh },
     arrivals: [...state.arrivals, ...arrivals],
+    syncedAt: Date.now(),
   };
   notify();
   for (const arrival of arrivals) {
@@ -301,7 +304,7 @@ function startLoad(etablissementId: string) {
   subscribeClub(supabase, etablissementId);
   fetchBase(supabase, etablissementId)
     .then((base) => {
-      state = { etablissementId, ...base, nights: {}, arrivals: [] };
+      state = { etablissementId, ...base, nights: {}, arrivals: [], syncedAt: Date.now() };
       notify();
     })
     .catch((error: unknown) => {
@@ -320,7 +323,7 @@ function ensureNights(eventIds: string[]) {
   fetchNights(createClient(), missing)
     .then((nights) => {
       if (!state) return;
-      state = { ...state, nights: { ...state.nights, ...nights } };
+      state = { ...state, nights: { ...state.nights, ...nights }, syncedAt: Date.now() };
       notify();
     })
     .catch((error: unknown) => {
