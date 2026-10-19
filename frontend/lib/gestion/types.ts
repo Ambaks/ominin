@@ -19,6 +19,8 @@ export type OrderStatus =
   | "retiree";
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
+/** D'où vient une ligne suggérée par l'accord du chef (order_items.accord). */
+export type AccordSource = "panier" | "fiche" | "formule";
 /** Modes qu'un serveur choisit au comptoir ; l'en ligne, lui, est subi. */
 export type EncaissementMode = Extract<
   PaymentMode,
@@ -144,6 +146,8 @@ export interface OrderItem {
   servedAt?: string;
   /** Points payés par unité : la ligne est offerte par la fidélité. */
   loyaltyPoints?: number;
+  /** Ajoutée sur une suggestion de l'accord du chef ; absente, commandée depuis la carte. */
+  accord?: AccordSource;
 }
 
 /**

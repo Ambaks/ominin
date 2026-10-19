@@ -1,4 +1,5 @@
 import type {
+  AccordSource,
   Action,
   Feature,
   Offre,
@@ -211,6 +212,13 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   carte: "Carte",
   en_ligne: "En ligne",
   mixte: "Espèces + carte",
+};
+
+/** Origines d'une vente de l'accord du chef, dans l'ordre de la page Analytique. */
+export const ACCORD_SOURCE_LABELS: Record<AccordSource, string> = {
+  panier: "Suggérés dans le panier",
+  fiche: "Cochés sur une fiche plat",
+  formule: "Formules proposées",
 };
 
 /**
