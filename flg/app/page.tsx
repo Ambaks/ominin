@@ -175,7 +175,7 @@ export default function Home() {
               ))}
             </div>
 
-            <CtaBand title="Un plafond, une charpente, un auvent à rendre à son bois d'origine ?" />
+            <CtaBand title="Un travail à effectuer ? Demandez un devis." />
           </div>
         </section>
 
