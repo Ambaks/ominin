@@ -1343,6 +1343,7 @@ export type Database = {
           etablissement_id: string
           etapes: Json
           id: string
+          image: string | null
           name: string
           price: number
         }
@@ -1354,6 +1355,7 @@ export type Database = {
           etablissement_id: string
           etapes?: Json
           id?: string
+          image?: string | null
           name: string
           price: number
         }
@@ -1365,6 +1367,7 @@ export type Database = {
           etablissement_id?: string
           etapes?: Json
           id?: string
+          image?: string | null
           name?: string
           price?: number
         }

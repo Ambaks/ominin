@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PhotoField } from "@/components/gestion/photo-field";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
@@ -35,6 +36,7 @@ export function FormuleFormModal({
 
   const [name, setName] = useState(formule?.name ?? "");
   const [description, setDescription] = useState(formule?.description ?? "");
+  const [image, setImage] = useState(formule?.image ?? "");
   const [price, setPrice] = useState(
     formule ? priceToInput(formule.price) : ""
   );
@@ -58,6 +60,7 @@ export function FormuleFormModal({
     const input: api.FormuleInput = {
       name: name.trim(),
       description: description.trim() || undefined,
+      image: image.trim() || undefined,
       price: parsedPrice,
       disponible,
       days:
@@ -133,6 +136,12 @@ export function FormuleFormModal({
             className={`${inputClass} resize-none`}
           />
         </Field>
+
+        <PhotoField
+          value={image}
+          onChange={setImage}
+          alt="Aperçu de la photo de la formule"
+        />
 
         <label className="flex items-center gap-2.5 text-sm text-muted">
           <Toggle
