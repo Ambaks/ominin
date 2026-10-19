@@ -54,8 +54,7 @@ export type Case = {
 };
 
 export const featured = {
-  kind: "Bâtiment neuf · Extérieur",
-  title: "Chantier extérieur",
+  title: "Chantiers extérieurs et intérieurs",
   wide: auventGalerie,
   film: {
     src: "/films/auvent-travelling.mp4",
@@ -87,11 +86,11 @@ export const smallCases: readonly Case[] = [
 ];
 
 export const steps = [
-  { title: "Visite et devis", body: "On regarde le support, la couche à retirer, l'accès et la surface. Le devis est gratuit." },
-  { title: "Protection", body: "Sols, menuiseries, vitrages et murs sont bâchés avant toute projection." },
-  { title: "Aérogommage", body: "Abrasif et pression choisis pour le matériau : on retire la couche sans attaquer le support." },
+  { title: "Visite et devis", body: "Vérification du type de support et de la matière à décaper." },
+  { title: "Protection", body: "Sols, menuiseries, vitrages et murs sont bâchés avant toute projection, un extracteur de particules est mis en place." },
+  { title: "Aérogommage", body: "La pression et l'abrasif sont choisis selon le type de matériau." },
   { title: "Finition", body: "Si vous le souhaitez, lasure, vernis ou huile de fabricants reconnus pour protéger le support." },
-  { title: "Réception", body: "Chantier nettoyé, bâches retirées, le résultat vu ensemble." },
+  { title: "Réception", body: "Désinstallation et nettoyage du chantier. Le chantier est réceptionné par le client." },
 ] as const;
 
 export const applications = [
