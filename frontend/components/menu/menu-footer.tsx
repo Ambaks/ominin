@@ -47,7 +47,7 @@ export function MenuFooter({
     category.items.some((item) => item.allergens?.length)
   );
   const hasPhotos =
-    Boolean(restaurant.coverImage || restaurant.formulesBanner) ||
+    Boolean(restaurant.coverImage || restaurant.affiches?.length) ||
     restaurant.categories.some((category) => category.items.some((item) => item.image));
   // La palette Ominin (themeToggle) garde le logo du héros, qu'elle sait éclaircir.
   const brandLogo = themeToggle ? undefined : restaurant.footerLogo;

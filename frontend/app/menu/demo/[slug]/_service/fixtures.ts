@@ -172,6 +172,7 @@ export function demoState(
     staff: [],
     categories: restaurant.categories,
     formules: [],
+    affiches: [],
     priceRules: [],
     closures: [],
     tables,

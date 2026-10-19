@@ -306,6 +306,7 @@ export function seed(): GestionState {
     // La démo montre la carte telle quelle : un tarif planifié se règle, il
     // ne se raconte pas.
     priceRules: [],
+    affiches: [],
     closures: [],
     formules: [
       {

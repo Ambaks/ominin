@@ -25,7 +25,7 @@ import {
 } from "@/lib/menu/cart";
 import { FORMULES_LINK, formatPrice } from "@/lib/menu/format";
 import { scrollBehavior } from "@/lib/menu/scroll";
-import { type FormulesBanner as Banner, type OptionGroup } from "@/lib/menu-data";
+import type { AfficheMenu, OptionGroup } from "@/lib/menu-data";
 
 /*
  * Formules du menu QR : un choix par étape (« Soft », « Dessert »), puis les
@@ -464,30 +464,73 @@ export function FormuleModal({
 /**
  * Le bandeau défile en continu : la piste porte trois copies (le keyframe
  * `marquee` recule d'un tiers). Seule la première compte pour les lecteurs
- * d'écran et le clavier, les boutons sous le bandeau font le reste.
+ * d'écran ; les affiches ne s'ouvrent pas au doigt, les boutons dessous si.
  */
 const MARQUEE_COPIES = [0, 1, 2];
+/** Temps de passage de chaque offre d'une affiche dans le défilement. */
+const SECONDS_PER_OFFRE = 6;
 
-/** Le visuel des formules, découpé en zones : chacune ouvre sa formule. */
-export function FormulesBanner({
-  banner,
-  formules,
-}: {
-  banner: Banner;
-  formules: Formule[];
-}) {
+/** Les affiches des offres en défilement, et un bouton par formule placée. */
+function AffichesMarquee({ affiches }: { affiches: AfficheMenu[] }) {
   const [open, setOpen] = useState<Formule | null>(null);
   const servable = useServable();
-  const shown = formules.flatMap((formule) => servable(formule) ?? []);
-  const zones = banner.formules.map((name) =>
-    shown.find((formule) => formule.name === name)
-  );
-  // Proposée aujourd'hui mais fermée en ce moment : sa zone le dit, au lieu
-  // de rester muette sous le doigt.
-  const closedZone = (index: number) =>
-    formules.some((formule) => formule.name === banner.formules[index]);
-  const duration = banner.secondsPerFormule * zones.length;
+  const formules = affiches.flatMap((affiche) => affiche.formules);
+  const offres = affiches.reduce((sum, affiche) => sum + affiche.offres, 0);
+  const alt = `Nos offres : ${formules.map((formule) => formule.name).join(", ")}`;
 
+  return (
+    <>
+      <div className="overflow-hidden rounded-2xl motion-reduce:overflow-x-auto">
+        <div
+          className="marquee-track flex w-max"
+          style={{ "--marquee-duration": `${SECONDS_PER_OFFRE * offres}s` } as React.CSSProperties}
+        >
+          {MARQUEE_COPIES.map((copy) => (
+            <div key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0">
+              {affiches.map((affiche, index) => (
+                // eslint-disable-next-line @next/next/no-img-element -- URL téléversée ou saisie par le gérant
+                <img
+                  key={affiche.id}
+                  src={affiche.image}
+                  alt={copy === 0 && index === 0 ? alt : ""}
+                  className={`h-44 w-auto max-w-none lg:h-60 ${affiches.length > 1 ? "pr-3" : ""}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {formules.map((formule) => {
+          const served = servable(formule);
+          return served ? (
+            <button
+              key={formule.id}
+              type="button"
+              onClick={() => setOpen(served)}
+              className="min-w-[45%] flex-1 rounded-full border border-hairline bg-surface/70 px-3 py-2.5 text-xs font-semibold backdrop-blur transition-colors hover:border-ember-2/50"
+            >
+              {formule.name} · {formatPrice(formule.price)}
+            </button>
+          ) : (
+            <span
+              key={formule.id}
+              className="min-w-[45%] flex-1 rounded-full border border-hairline px-3 py-2.5 text-center text-xs font-semibold text-faint"
+            >
+              {formule.name} · Plus servie
+            </span>
+          );
+        })}
+      </div>
+      {open && <FormuleModal formule={open} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
+
+/** Les affiches sous l'affiche du restaurant (poster), dans l'en-tête. */
+export function AffichesBanner({ affiches }: { affiches: AfficheMenu[] }) {
+  // pb-20 : la place du bouton flottant « Appeler un serveur », qui
+  // couvrirait sinon les boutons des offres.
   return (
     <div
       className="hero-entrance mx-auto w-full max-w-3xl px-4 pt-4 pb-20"
@@ -496,77 +539,7 @@ export function FormulesBanner({
       <h2 className="mb-3 text-center font-display text-2xl font-medium tracking-tight">
         Nos Offres
       </h2>
-      <div className="overflow-hidden rounded-2xl motion-reduce:overflow-x-auto">
-        <div
-          className="marquee-track flex w-max"
-          style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
-        >
-          {MARQUEE_COPIES.map((copy) => (
-            <div
-              key={copy}
-              aria-hidden={copy > 0 || undefined}
-              className="relative h-44 shrink-0 lg:h-60"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions connues */}
-              <img
-                src={banner.src}
-                alt={copy === 0 ? banner.alt : ""}
-                width={banner.width}
-                height={banner.height}
-                className="h-full w-auto max-w-none"
-              />
-              <div className="absolute inset-0 flex">
-                {zones.map((formule, index) =>
-                  formule ? (
-                    <button
-                      key={formule.id}
-                      type="button"
-                      tabIndex={copy > 0 ? -1 : undefined}
-                      onClick={() => setOpen(formule)}
-                      aria-label={`Choisir la ${formule.name}`}
-                      className="flex-1 transition-colors hover:bg-white/5 active:bg-white/10"
-                    />
-                  ) : (
-                    <span key={index} className="flex flex-1 items-end justify-center pb-3">
-                      {closedZone(index) && (
-                        <span className="rounded-full bg-background/85 px-3 py-1 text-xs font-semibold text-muted">
-                          Plus servie
-                        </span>
-                      )}
-                    </span>
-                  )
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* La marge du bas laisse la place au bouton flottant « Appeler un
-          serveur », qui couvrirait sinon ces boutons. */}
-      <div className="mt-2 flex gap-2">
-        {zones.map((formule, index) =>
-          formule ? (
-            <button
-              key={formule.id}
-              type="button"
-              onClick={() => setOpen(formule)}
-              className="flex-1 rounded-full border border-hairline bg-surface/70 px-3 py-2.5 text-xs font-semibold backdrop-blur transition-colors hover:border-ember-2/50"
-            >
-              {formule.name} · {formatPrice(formule.price)}
-            </button>
-          ) : closedZone(index) ? (
-            <span
-              key={index}
-              className="flex-1 rounded-full border border-hairline px-3 py-2.5 text-center text-xs font-semibold text-faint"
-            >
-              {banner.formules[index]} · Plus servie
-            </span>
-          ) : (
-            <span key={index} className="flex-1" />
-          )
-        )}
-      </div>
-      {open && <FormuleModal formule={open} onClose={() => setOpen(null)} />}
+      <AffichesMarquee affiches={affiches} />
     </div>
   );
 }
@@ -628,17 +601,6 @@ export function FormuleTile({
         aria-hidden
         className="formule-glow ember-gradient absolute -right-12 -top-12 size-40 rounded-full opacity-20 blur-2xl"
       />
-      {formule.image && (
-        <span className="formule-photo relative -mx-5 -mt-5 block aspect-video overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
-          <img
-            src={formule.image}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 size-full object-cover"
-          />
-        </span>
-      )}
       <span>
         <span className="ember-text block text-[11px] font-semibold uppercase tracking-[0.28em]">
           Formule
@@ -701,8 +663,17 @@ export function FormuleTile({
   );
 }
 
-/** Les formules en tête de carte, pour un restaurant sans visuel dédié. */
-export function FormulesSection({ formules }: { formules: Formule[] }) {
+/**
+ * Les formules en tête de carte : les affiches d'abord (quand l'en-tête ne
+ * les porte pas), puis les formules placées sur aucune, en tuiles.
+ */
+export function FormulesSection({
+  formules,
+  affiches = [],
+}: {
+  formules: Formule[];
+  affiches?: AfficheMenu[];
+}) {
   const servable = useServable();
   const { closed, closedAt, collect } = useCart();
   const [open, setOpen] = useState<Formule | null>(null);
@@ -720,6 +691,11 @@ export function FormulesSection({ formules }: { formules: Formule[] }) {
         </h2>
         <span aria-hidden className="category-rule ember-gradient h-px flex-1 opacity-40" />
       </div>
+      {affiches.length > 0 && (
+        <div className={formules.length > 0 ? "mb-6 lg:mb-8" : undefined}>
+          <AffichesMarquee affiches={affiches} />
+        </div>
+      )}
       <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5">
         {formules.map((formule, index) => {
           const served = servable(formule);

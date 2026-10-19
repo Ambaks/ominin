@@ -1,5 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import { assembleCategories, rowToFormule } from "@/lib/gestion/mappers";
+import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
@@ -104,11 +104,12 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*)")
+    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("position", { referencedTable: "items", ascending: true })
     .order("created_at", { referencedTable: "items", ascending: true })
+    .order("created_at", { referencedTable: "affiches", ascending: true })
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!etablissement) return null;
@@ -209,6 +210,17 @@ export async function fetchRestaurant(slug: string): Promise<{
     .filter((formule) => formule.etapes.length > 0)
     .sort((a, b) => a.price - b.price);
 
+  // Une affiche se montre avec les formules du jour placées dessus ; sans
+  // aucune, elle n'aurait rien à ouvrir.
+  const affiches = etablissement.affiches
+    .map((row) => ({
+      ...rowToAffiche(row),
+      formules: formules
+        .filter((formule) => formule.affiche?.id === row.id)
+        .sort((a, b) => (a.affiche?.rang ?? 0) - (b.affiche?.rang ?? 0)),
+    }))
+    .filter((affiche) => affiche.formules.length > 0);
+
   return {
     id: etablissement.id,
     offre: etablissement.offre,
@@ -241,7 +253,7 @@ export async function fetchRestaurant(slug: string): Promise<{
         : (etablissement.cover_image ?? undefined),
       logo: staticData?.logo,
       poster: staticData?.poster,
-      formulesBanner: staticData?.formulesBanner,
+      affiches,
       highlights: staticData?.highlights,
       ticker: staticData?.ticker,
       glossary: staticData?.glossary,

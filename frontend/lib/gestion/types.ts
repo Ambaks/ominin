@@ -263,12 +263,20 @@ export interface Formule {
   id: string;
   name: string;
   description?: string;
-  image?: string;
   price: number;
   disponible: boolean;
   /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */
   days?: number[];
   etapes: Etape[];
+  /** Son emplacement sur une affiche des offres (rang 1 = à gauche) ; absent ⇒ tuile. */
+  affiche?: { id: string; rang: number };
+}
+
+/** Un visuel téléversé qui présente `offres` formules côte à côte. */
+export interface Affiche {
+  id: string;
+  image: string;
+  offres: number;
 }
 
 /** Mois offerts de l'offre : leur ouverture, et le verdict rendu à leur terme. */
@@ -306,6 +314,8 @@ export interface GestionState {
   staff: Staff[];
   categories: MenuCategory[];
   formules: Formule[];
+  /** Affiches des offres, de la plus ancienne à la plus récente. */
+  affiches: Affiche[];
   /** Tarifs planifiés du restaurant, du plus récent au plus ancien. */
   priceRules: PriceRule[];
   /** Fermetures, de la plus ancienne à la plus récente. */
