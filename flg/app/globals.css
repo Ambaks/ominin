@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/*
+ * FLG Aérogommage — « La matière, révélée ».
+ * Deux surfaces tirées du chantier : le basalte (l'abrasif, l'atelier sombre)
+ * et la chaux (la peinture qu'on retire). Un seul accent, le laiton.
+ * Les composants ne lisent que les rôles (--bg, --fg, --muted…) : une section
+ * passe en clair en posant .surface-chaux, sans rien réécrire.
+ */
+
+@theme inline {
+  --color-basalte: #0f0e0c;
+  --color-basalte-2: #181613;
+  --color-basalte-3: #23201b;
+  --color-chaux: #f1ece3;
+  --color-chaux-2: #e6dfd2;
+
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-curtain: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+:root {
+  --dur-micro: 250ms;
+  --dur-reveal: 900ms;
+  --dur-curtain: 1200ms;
+
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --section: clamp(6rem, 12vw, 11rem);
+
+  /* Titrage : Archivo élargi au maximum de son axe, graisse légère. */
+  --display-weight: 250;
+  --display-stretch: 125%;
+  --display-tracking: -0.035em;
+  --display-scale: 0.74;
+
+  --laiton: #c8a46a;
+  --laiton-on-light: #7d5f2e;
+}
+
+:root,
+.surface-basalte {
+  --bg: var(--color-basalte);
+  --bg-raised: var(--color-basalte-2);
+  --fg: var(--color-chaux);
+  --muted: #a39886;
+  --line: rgb(241 236 227 / 0.12);
+  --accent: var(--laiton);
+  --accent-ink: #0f0e0c;
+  --accent-text: var(--laiton);
+}
+
+.surface-chaux {
+  --bg: var(--color-chaux);
+  --bg-raised: #faf7f1;
+  --fg: #171512;
+  --muted: #6e6559;
+  --line: rgb(23 21 18 / 0.14);
+  --accent: var(--laiton);
+  --accent-ink: #0f0e0c;
+  --accent-text: var(--laiton-on-light);
+}
+
+.surface-basalte,
+.surface-chaux {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+html {
+  background: var(--color-basalte);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+}
+
+/* Grain minéral posé sur toute la page : une texture de surface, jamais un
+   motif. Tuile SVG unique, rendue une fois par le navigateur. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-stretch: var(--display-stretch);
+  letter-spacing: var(--display-tracking);
+  font-synthesis: none;
+  text-wrap: balance;
+}
+
+@utility display-xl {
+  font-size: calc(clamp(3.4rem, 9.2vw, 9.75rem) * var(--display-scale));
+  line-height: 0.9;
+}
+
+@utility display-l {
+  font-size: calc(clamp(2.75rem, 6.4vw, 6.5rem) * var(--display-scale));
+  line-height: 0.95;
+}
+
+@utility display-m {
+  font-size: calc(clamp(2.1rem, 4.2vw, 4rem) * var(--display-scale));
+  line-height: 1;
+}
+
+@utility display-s {
+  font-size: calc(clamp(1.6rem, 2.4vw, 2.25rem) * var(--display-scale));
+  line-height: 1.1;
+}
+
+@utility lead {
+  font-size: clamp(1.125rem, 1.45vw, 1.375rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* Étiquettes techniques : Archivo élargi, capitales espacées — la voix des
+   fiches de chantier (pression, granulométrie, surface). */
+@utility label {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-stretch: 125%;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility shell {
+  width: 100%;
+  max-width: 96rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Le mot d'accent d'un titre passe par la couleur seule : Archivo n'est
+   chargée qu'en romain, jamais de faux italique. */
+.display em {
+  font-style: normal;
+  color: var(--accent-text);
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
