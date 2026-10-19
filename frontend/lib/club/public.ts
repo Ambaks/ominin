@@ -106,6 +106,10 @@ export async function fetchAvailability(eventId: string): Promise<EventAvailabil
   };
 }
 
+/** La somme de ce qui a été payé d'une table, frais compris, en ligne et à l'entrée. */
+const paidTotal = (payments: { total_cents: number; status: string }[]) =>
+  payments.filter((payment) => payment.status === "payee").reduce((sum, payment) => sum + payment.total_cents, 0);
+
 export type BookingTicket = {
   id: string;
   token: string;
@@ -123,8 +127,11 @@ export type BookingTicket = {
   shareToken: string | null;
   paidCents: number;
   remainingCents: number;
-  /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page. */
+  /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page, et son montant. */
   pendingPaymentId: string | null;
+  pendingTotalCents: number | null;
+  /** Tout ce qui a été payé, frais compris : en ligne et à l'entrée. */
+  paidTotalCents: number;
   payers: SharePayer[];
   /** La zone réservée : le client ne voit pas le numéro de table, que le club peut changer. */
   table: { zone: string; inclus: string | null };
@@ -173,6 +180,8 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     paidCents: data.paid_cents,
     remainingCents: data.price_cents - data.paid_cents,
     pendingPaymentId: pending?.id ?? null,
+    pendingTotalCents: pending?.total_cents ?? null,
+    paidTotalCents: paidTotal(data.club_payments),
     payers: sharePayers(data.club_payments),
     table: {
       zone: data.club_tables.club_zones.name,
@@ -198,6 +207,8 @@ export type ShareTable = {
   payers: SharePayer[];
   /** Tout le prix est réglé (parts payées seulement, pas celles en cours). */
   fullyPaid: boolean;
+  /** Tout ce qui a été payé, frais compris. */
+  paidTotalCents: number;
   /** Ce qui reste, places encore libres pour une part, et la plus petite part possible. */
   remainingCents: number;
   seatsLeft: number;
@@ -245,6 +256,7 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
     partySize: data.party_size,
     totalCents: data.total_cents,
     fullyPaid: data.paid_cents >= data.price_cents,
+    paidTotalCents: paidTotal(data.club_payments),
     payers: sharePayers(data.club_payments),
     remainingCents: state?.[0]?.remaining_cents ?? 0,
     seatsLeft: state?.[0]?.seats_left ?? 0,

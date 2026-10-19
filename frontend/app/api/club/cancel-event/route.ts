@@ -66,9 +66,11 @@ export async function POST(request: Request) {
   const results = await Promise.all(
     bookings.map(async (booking) => {
       try {
+        // Qui prévenir se lit avant de rendre l'argent : remboursés, leurs
+        // paiements ne comptent plus parmi ceux qui tiennent la table.
+        const mails = await bookingRecipients(admin, booking.id);
         const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
         if (outcome !== "not_refundable") {
-          const mails = await bookingRecipients(admin, booking.id);
           await Promise.all(mails.map((mail) => sendEventCancelled(mail, outcome === "refunded")));
         }
         return { id: booking.id, outcome };

@@ -89,9 +89,9 @@ export async function bookingMail(
 }
 
 /**
- * Tous ceux à prévenir d'un changement : l'organisateur et chaque ami qui a
- * payé, chacun avec ce qu'il a payé (la table entière pour une réservation
- * saisie par le club).
+ * Tous ceux à prévenir d'un changement : l'organisateur et chaque ami dont
+ * le paiement tient encore, chacun avec ce qu'il a payé. Un paiement
+ * abandonné ou déjà remboursé ne reçoit rien.
  */
 export async function bookingRecipients(admin: Admin, bookingId: string): Promise<BookingMail[]> {
   const [{ data: booking }, { data: payments }] = await Promise.all([
@@ -101,17 +101,18 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
       .select("name, email, total_cents, organiser")
       .eq("booking_id", bookingId)
       .eq("method", "en_ligne")
-      .in("status", ["payee", "remboursee"]),
+      .eq("status", "payee"),
   ]);
   if (!booking) return [];
   const organiserPaid = (payments ?? []).find((payment) => payment.organiser);
   const mails = [
-    mailFor(
-      booking,
-      organiserPaid
-        ? { name: booking.name, email: booking.email, amountCents: organiserPaid.total_cents, organiser: true }
-        : undefined
-    ),
+    organiserPaid &&
+      mailFor(booking, {
+        name: booking.name,
+        email: booking.email,
+        amountCents: organiserPaid.total_cents,
+        organiser: true,
+      }),
     ...(payments ?? [])
       .filter((payment) => !payment.organiser)
       .map((payment) =>
@@ -123,7 +124,7 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
         })
       ),
   ];
-  return mails.filter((mail) => mail !== null);
+  return mails.filter((mail): mail is BookingMail => Boolean(mail));
 }
 
 /**
@@ -345,10 +346,18 @@ export async function syncRefundedCharge(admin: Admin, charge: Stripe.Charge): P
   if (!paymentIntentId || !charge.refunded) return;
   const { data: payment } = await admin
     .from("club_payments")
-    .select("id")
+    .select("id, booking_id, organiser")
     .eq("stripe_payment_intent_id", paymentIntentId)
     .maybeSingle();
   if (!payment) return;
+  // La part de l'organisateur tient la table : rendue, la table est close
+  // (les parts d'amis encore payées apparaissent « à relancer » au club).
+  if (payment.organiser) {
+    const { error: closeError } = await admin.rpc("club_clore_reservation", {
+      p_booking: payment.booking_id,
+    });
+    if (closeError) throw new Error(closeError.message);
+  }
   const { error } = await admin.rpc("club_rembourser_paiement", { p_payment: payment.id });
   if (error) throw new Error(error.message);
 }

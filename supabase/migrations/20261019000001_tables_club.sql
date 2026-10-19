@@ -1213,7 +1213,7 @@ as $$
 declare
   v_booking club_bookings;
 begin
-  select * into v_booking from club_bookings where id = p_booking;
+  select * into v_booking from club_bookings where id = p_booking for update;
   if v_booking.id is null
      or current_member_role(v_booking.etablissement_id) is distinct from 'gerant' then
     raise exception 'Accès refusé.' using errcode = '42501';
@@ -1227,6 +1227,8 @@ begin
   update club_bookings
   set status = 'annulee', cancelled_at = now()
   where id = p_booking and status in ('en_attente', 'payee', 'arrivee');
+  update club_payments set status = 'annulee'
+  where booking_id = p_booking and status = 'en_attente';
 end;
 $$;
 
