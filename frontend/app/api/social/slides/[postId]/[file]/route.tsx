@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import sharp from "sharp";
 import { BRAND_BY_ID, type Brand, type Slide } from "@/lib/social/brands";
+import { SCREEN_BY_ID, screenPath } from "@/lib/social/screens";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -14,7 +15,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * Gabarit des landings (components/landing-kit) : Geist très gras et serré,
  * fond sombre avec un halo, étiquette à pastille, et les mots du titre que
- * le rédacteur encadre de [[ ]] posés sur le dégradé de la marque.
+ * le rédacteur encadre de [[ ]] posés sur le dégradé de la marque. Une image
+ * qui porte une capture (lib/social/screens) garde le texte en haut et pose
+ * l'écran dans un téléphone qui sort par le bas du cadre.
  */
 
 /* Formats imposés par les réseaux : portrait 4:5 du fil, 9:16 des stories. */
@@ -51,10 +54,47 @@ function loadAssets() {
   return assets;
 }
 
+/* Téléphone des images à capture : largeur, haut de l'écran dans le cadre
+ * (fil, story), bordure et arrondi. Les captures font 780 px de large. */
+const PHONE = { width: 560, top: 640, storyTop: 900, bezel: 16, radius: 72 };
+
+/** Capture du catalogue en data URI, lue par HTTP sur le site lui-même et non
+ * sur le disque : un chemin assemblé ferait embarquer tout public/ (voir
+ * loadAssets). Un id inconnu ou une capture introuvable donne une image
+ * texte seul plutôt qu'une erreur. Une capture cadrée en bas est réduite au
+ * bas de l'écran, à la hauteur que le téléphone laisse voir dans le fil. */
+async function loadScreen(
+  id: string | undefined,
+  origin: string,
+): Promise<string | null> {
+  const screen = id ? SCREEN_BY_ID.get(id) : undefined;
+  if (!screen) return null;
+  const response = await fetch(new URL(screenPath(screen.id), origin)).catch(
+    () => null,
+  );
+  if (!response?.ok) return null;
+  let data: Buffer = Buffer.from(await response.arrayBuffer());
+  if (screen.focus === "bottom") {
+    const { width = 0, height = 0 } = await sharp(data).metadata();
+    const visible = Math.round(
+      ((FEED.height - PHONE.top - PHONE.bezel) * width) /
+        (PHONE.width - 2 * PHONE.bezel),
+    );
+    if (visible < height) {
+      data = await sharp(data)
+        .extract({ left: 0, top: height - visible, width, height: visible })
+        .jpeg({ quality: JPEG_QUALITY })
+        .toBuffer();
+    }
+  }
+  return `data:image/jpeg;base64,${data.toString("base64")}`;
+}
+
 /** Le corps du titre suit sa longueur : le rédacteur vise 70 caractères,
- * mais rien ne doit déborder s'il en écrit davantage. */
-function titleSize(title: string, cover: boolean): number {
-  const base = cover ? 118 : 86;
+ * mais rien ne doit déborder s'il en écrit davantage. Au-dessus d'une
+ * capture, il cède la place au téléphone. */
+function titleSize(title: string, cover: boolean, withScreen: boolean): number {
+  const base = withScreen ? 72 : cover ? 118 : 86;
   const length = title.replace(HIGHLIGHT, "$1").length;
   if (length > 90) return base * 0.62;
   if (length > 60) return base * 0.78;
@@ -94,6 +134,7 @@ function SlideImage({
   total,
   story,
   logo,
+  screen,
 }: {
   brand: Brand;
   slide: Slide;
@@ -101,13 +142,16 @@ function SlideImage({
   total: number;
   story: boolean;
   logo: string;
+  /** Capture en data URI, ou null : image texte seul. */
+  screen: string | null;
 }) {
   const { theme } = brand;
   const cover = index === 1;
   const last = index === total;
   const accent = `linear-gradient(90deg, ${theme.accentFrom}, ${theme.accentTo})`;
-  const size = titleSize(slide.title, cover);
+  const size = titleSize(slide.title, cover, screen !== null);
   const [first, ...rest] = brand.name.split(" ");
+  const pagination = last ? "" : `${index} / ${total}  →`;
 
   return (
     <div
@@ -134,6 +178,31 @@ function SlideImage({
         }}
       />
 
+      {screen ? (
+        <div
+          style={{
+            position: "absolute",
+            top: story ? PHONE.storyTop : PHONE.top,
+            left: (FEED.width - PHONE.width) / 2,
+            width: PHONE.width,
+            display: "flex",
+            padding: PHONE.bezel,
+            borderRadius: PHONE.radius,
+            backgroundColor: "#1b1714",
+            border: `2px solid ${theme.muted}55`,
+            boxShadow: `0 -30px 120px ${theme.accentTo}40`,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- rendu next/og, pas de next/image */}
+          <img
+            src={screen}
+            width={PHONE.width - 2 * PHONE.bezel}
+            alt=""
+            style={{ borderRadius: PHONE.radius - PHONE.bezel }}
+          />
+        </div>
+      ) : null}
+
       <div
         style={{
           position: "relative",
@@ -141,31 +210,43 @@ function SlideImage({
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: screen ? "flex-start" : "space-between",
+          gap: screen ? 44 : 0,
           // Les stories perdent le haut et le bas sous l'interface de l'appli.
           padding: story ? "260px 96px 300px" : "96px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: 14,
-              backgroundColor: theme.accentFrom,
-            }}
-          />
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 800,
-              letterSpacing: 6,
-              textTransform: "uppercase",
-              color: theme.accentFrom,
-            }}
-          >
-            {slide.kicker || brand.name}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 14,
+                backgroundColor: theme.accentFrom,
+              }}
+            />
+            <div
+              style={{
+                fontSize: 28,
+                fontWeight: 800,
+                letterSpacing: 6,
+                textTransform: "uppercase",
+                color: theme.accentFrom,
+              }}
+            >
+              {slide.kicker || brand.name}
+            </div>
           </div>
+          {screen ? (
+            <div style={{ fontSize: 28, color: theme.muted }}>{pagination}</div>
+          ) : null}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -210,8 +291,8 @@ function SlideImage({
           {slide.body ? (
             <div
               style={{
-                marginTop: 48,
-                fontSize: 40,
+                marginTop: screen ? 28 : 48,
+                fontSize: screen ? 34 : 40,
                 lineHeight: 1.4,
                 letterSpacing: -0.5,
                 color: theme.muted,
@@ -239,29 +320,31 @@ function SlideImage({
           ) : null}
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontSize: 28,
-            color: theme.muted,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element -- rendu next/og, pas de next/image */}
-            <img src={logo} width={44} height={44} alt="" />
-            <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: 38 }}>
-              <span style={{ color: theme.accentFrom }}>{first}</span>
-              {rest.length ? (
-                <span style={{ marginLeft: 10, color: theme.foreground }}>
-                  {rest.join(" ")}
-                </span>
-              ) : null}
+        {screen ? null : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontSize: 28,
+              color: theme.muted,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- rendu next/og, pas de next/image */}
+              <img src={logo} width={44} height={44} alt="" />
+              <div style={{ display: "flex", fontFamily: "Fraunces", fontSize: 38 }}>
+                <span style={{ color: theme.accentFrom }}>{first}</span>
+                {rest.length ? (
+                  <span style={{ marginLeft: 10, color: theme.foreground }}>
+                    {rest.join(" ")}
+                  </span>
+                ) : null}
+              </div>
             </div>
+            <div>{pagination}</div>
           </div>
-          <div>{last ? "" : `${index} / ${total}  →`}</div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -287,8 +370,12 @@ export async function GET(
   const slide = slides[index - 1];
   if (!brand || !slide) return new Response("Not found", { status: 404 });
 
-  const story = new URL(request.url).searchParams.get("format") === "story";
-  const { fonts, logo } = await loadAssets();
+  const url = new URL(request.url);
+  const story = url.searchParams.get("format") === "story";
+  const [{ fonts, logo }, screen] = await Promise.all([
+    loadAssets(),
+    loadScreen(slide.screen, url.origin),
+  ]);
   const png = await new ImageResponse(
     (
       <SlideImage
@@ -298,6 +385,7 @@ export async function GET(
         total={slides.length}
         story={story}
         logo={logo}
+        screen={screen}
       />
     ),
     { ...(story ? STORY : FEED), fonts },

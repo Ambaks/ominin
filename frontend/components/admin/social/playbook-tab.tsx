@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useRunMutation } from "@/components/ui/toast";
@@ -8,13 +9,13 @@ import { formatDayTime } from "@/lib/admin/format";
 import * as api from "@/lib/admin/social";
 import type { SocialPlaybook } from "@/lib/admin/social";
 import type { Brand, SocialBrand } from "@/lib/social/brands";
-import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
+import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 /*
  * La ligne éditoriale que l'agent suit, marque par marque, et la façon dont
- * elle a évolué. Il la réécrit seul après chaque analyse : cet écran sert à
- * comprendre ce qu'il a changé et pourquoi, et à revenir en arrière si une
- * version part dans le mauvais sens.
+ * elle a évolué. Personne ne la change seul : l'analyse hebdomadaire des
+ * résultats propose une version, qu'on adopte ou qu'on ignore ; on peut
+ * aussi la corriger à la main, ou revenir à une version précédente.
  */
 export function PlaybookTab({
   brands,
@@ -29,16 +30,21 @@ export function PlaybookTab({
   const run = useRunMutation();
   const [brand, setBrand] = useState<SocialBrand>(brands[0].id);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [draft, setDraft] = useState<string | null>(null);
 
   // Déjà triées de la plus récente à la plus ancienne.
   const versions = playbooks.filter((playbook) => playbook.brand === brand);
   const [current, ...history] = versions;
+  const proposal = current?.proposal ?? null;
 
-  const findings = current
+  // Le dernier bilan : celui de la proposition en attente, sinon celui qui a
+  // produit la version en vigueur.
+  const latestFindings = proposal?.findings ?? current?.findings;
+  const findings = latestFindings
     ? [
-        { title: "Ce qui marche", items: current.findings.whatWorks },
-        { title: "Ce qui échoue", items: current.findings.whatFails },
-        { title: "Paris à tenter", items: current.findings.nextExperiments },
+        { title: "Ce qui marche", items: latestFindings.whatWorks },
+        { title: "Ce qui échoue", items: latestFindings.whatFails },
+        { title: "Paris à tenter", items: latestFindings.nextExperiments },
       ].filter((section) => section.items.length > 0)
     : [];
 
@@ -48,26 +54,125 @@ export function PlaybookTab({
         <PillTabs
           tabs={brands.map((item) => ({ id: item.id, label: item.name }))}
           activeId={brand}
-          onSelect={(id) => setBrand(id as SocialBrand)}
+          onSelect={(id) => {
+            setBrand(id as SocialBrand);
+            setDraft(null);
+          }}
         />
       )}
 
       {!current ? (
         <EmptyState
           title="Pas encore de ligne éditoriale"
-          body="L'agent inscrit sa ligne de départ à la première publication de cette marque, puis la réécrit à mesure que les résultats arrivent."
+          body="La ligne de départ de chaque marque est posée par les migrations : si elle manque, la base n'est pas à jour."
         />
       ) : (
         <>
+          {proposal?.guidelines && (
+            <div className="rounded-2xl border border-ember-2/40 bg-surface p-4">
+              <p className={SECTION_TITLE}>
+                Proposée par l&apos;analyse · {formatDayTime(proposal.createdAt)}
+              </p>
+              <p className="mt-2 text-sm">{proposal.changeSummary}</p>
+              <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-surface-raised p-4 font-sans text-sm leading-relaxed text-muted">
+                {proposal.guidelines}
+              </pre>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void run(async () => {
+                      await api.addPlaybookVersion(
+                        current,
+                        proposal.guidelines ?? current.guidelines,
+                        proposal.changeSummary ?? "Proposition de l'analyse adoptée.",
+                        proposal.findings
+                      );
+                      onChange();
+                    }, "Ligne adoptée : l'agent la suit dès les prochains brouillons.")
+                  }
+                  className={PRIMARY_BUTTON}
+                >
+                  Adopter
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void run(async () => {
+                      await api.dismissProposal(current.id);
+                      onChange();
+                    }, "Proposition ignorée.")
+                  }
+                  className={SECONDARY_BUTTON}
+                >
+                  Ignorer
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-hairline bg-surface p-4">
-            <p className={SECTION_TITLE}>
-              En vigueur · version {current.version} ·{" "}
-              {formatDayTime(current.createdAt)}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className={`${SECTION_TITLE} flex-1`}>
+                En vigueur · version {current.version} ·{" "}
+                {formatDayTime(current.createdAt)}
+              </p>
+              {draft === null && (
+                <button
+                  type="button"
+                  onClick={() => setDraft(current.guidelines)}
+                  className={SECONDARY_BUTTON}
+                >
+                  Modifier
+                </button>
+              )}
+            </div>
             <p className="mt-2 text-sm">{current.changeSummary}</p>
-            <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-surface-raised p-4 font-sans text-sm leading-relaxed text-muted">
-              {current.guidelines}
-            </pre>
+            {draft === null ? (
+              <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-surface-raised p-4 font-sans text-sm leading-relaxed text-muted">
+                {current.guidelines}
+              </pre>
+            ) : (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void run(async () => {
+                    await api.addPlaybookVersion(
+                      current,
+                      draft.trim(),
+                      "Modifiée à la main."
+                    );
+                    setDraft(null);
+                    onChange();
+                  }, "Ligne enregistrée : l'agent la suit dès les prochains brouillons.");
+                }}
+                className="mt-3 flex flex-col gap-2"
+              >
+                <textarea
+                  aria-label="Ligne éditoriale"
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  rows={14}
+                  className={inputClass}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={!draft.trim() || draft.trim() === current.guidelines}
+                    className={`${PRIMARY_BUTTON} disabled:opacity-50`}
+                  >
+                    Enregistrer comme nouvelle version
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDraft(null)}
+                    className={SECONDARY_BUTTON}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {findings.length > 0 && (
@@ -122,9 +227,13 @@ export function PlaybookTab({
                       type="button"
                       onClick={() =>
                         void run(async () => {
-                          await api.restorePlaybook(playbook, current.version);
+                          await api.addPlaybookVersion(
+                            current,
+                            playbook.guidelines,
+                            `Retour manuel à la version ${playbook.version}.`
+                          );
                           onChange();
-                        }, `Version ${playbook.version} rétablie : l'agent la suit dès la prochaine publication.`)
+                        }, `Version ${playbook.version} rétablie : l'agent la suit dès les prochains brouillons.`)
                       }
                       className={SECONDARY_BUTTON}
                     >

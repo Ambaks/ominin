@@ -1,5 +1,6 @@
-"""Meta Graph API: carousel publishing and post metrics for Instagram
-professional accounts and Facebook Pages, both driven by a Page access token
+"""Meta Graph API: carousel, single image and Reel publishing, and post
+metrics, for Instagram professional accounts and Facebook Pages, all driven
+by a Page access token
 (a Page token derived from a long-lived user token does not expire)."""
 
 import json
@@ -45,15 +46,107 @@ def _call(method: str, path: str, token: str, **params: str) -> dict:
     return body
 
 
-def _wait_finished(container_id: str, token: str) -> None:
-    for _ in range(settings.social_container_poll_attempts):
+def _wait_finished(container_id: str, token: str, *, video: bool = False) -> None:
+    """A video container takes minutes to process, an image one seconds."""
+    attempts, pause = (
+        (settings.social_video_poll_attempts, settings.social_video_poll_seconds)
+        if video
+        else (
+            settings.social_container_poll_attempts,
+            settings.social_container_poll_seconds,
+        )
+    )
+    for _ in range(attempts):
         status = _call("GET", container_id, token, fields="status_code")["status_code"]
         if status == "FINISHED":
             return
         if status in ("ERROR", "EXPIRED"):
             raise MetaError(f"container {container_id} ended as {status}")
-        time.sleep(settings.social_container_poll_seconds)
+        time.sleep(pause)
     raise MetaError(f"container {container_id} still processing, gave up")
+
+
+def _publish_instagram(
+    ig_user_id: str, token: str, container: str
+) -> tuple[str, str | None]:
+    media_id = _call(
+        "POST", f"{ig_user_id}/media_publish", token, creation_id=container
+    )["id"]
+    permalink = _call("GET", media_id, token, fields="permalink").get("permalink")
+    return media_id, permalink
+
+
+def publish_instagram_image(
+    ig_user_id: str, token: str, image_url: str, caption: str
+) -> tuple[str, str | None]:
+    container = _call(
+        "POST", f"{ig_user_id}/media", token, image_url=image_url, caption=caption
+    )["id"]
+    _wait_finished(container, token)
+    return _publish_instagram(ig_user_id, token, container)
+
+
+def publish_instagram_reel(
+    ig_user_id: str, token: str, video_url: str, caption: str
+) -> tuple[str, str | None]:
+    """Instagram fetches the MP4 by URL; share_to_feed shows it on the grid."""
+    container = _call(
+        "POST",
+        f"{ig_user_id}/media",
+        token,
+        media_type="REELS",
+        video_url=video_url,
+        caption=caption,
+        share_to_feed="true",
+    )["id"]
+    _wait_finished(container, token, video=True)
+    return _publish_instagram(ig_user_id, token, container)
+
+
+def publish_facebook_photo(
+    page_id: str, token: str, image_url: str, message: str
+) -> tuple[str, str | None]:
+    post_id = _call("POST", f"{page_id}/photos", token, url=image_url, message=message)[
+        "post_id"
+    ]
+    permalink = _call("GET", post_id, token, fields="permalink_url").get(
+        "permalink_url"
+    )
+    return post_id, permalink
+
+
+def publish_facebook_reel(
+    page_id: str, token: str, video_url: str, description: str
+) -> tuple[str, str | None]:
+    """Page Reels go through the resumable upload API in three phases; the
+    upload phase hands Facebook the MP4's URL instead of its bytes."""
+    video_id = _call("POST", f"{page_id}/video_reels", token, upload_phase="start")[
+        "video_id"
+    ]
+    response = httpx.post(
+        f"https://rupload.facebook.com/video-upload/"
+        f"{settings.meta_graph_version}/{video_id}",
+        headers={"Authorization": f"OAuth {token}", "file_url": video_url},
+        timeout=settings.meta_timeout_seconds,
+    )
+    if response.is_error:
+        raise MetaError(
+            f"reel upload {video_id}: {response.status_code} {response.text}"
+        )
+    _call(
+        "POST",
+        f"{page_id}/video_reels",
+        token,
+        upload_phase="finish",
+        video_id=video_id,
+        video_state="PUBLISHED",
+        description=description,
+    )
+    permalink = _call("GET", video_id, token, fields="permalink_url").get(
+        "permalink_url"
+    )
+    # Facebook renvoie un chemin relatif (« /reel/123… »).
+    return video_id, permalink and f"https://www.facebook.com{permalink}"
 
 
 def publish_instagram_carousel(

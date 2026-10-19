@@ -1,0 +1,5 @@
+node_modules/
+# Préparés à chaque rendu par scripts/render.ts : polices, logo, captures,
+# démos filmées, voix ; et les MP4 produits.
+public/
+out/

@@ -10,6 +10,7 @@ from app.services import (
     inbox,
     outreach,
     runs,
+    social_draft,
     social_post,
     social_research,
 )
@@ -25,6 +26,9 @@ JOBS: dict[str, Callable[..., dict]] = {
     "autoresearch": autoresearch.run_autoresearch,
     "social_post": social_post.run_social_post,
     "social_research": social_research.run_social_research,
+    "social_draft": social_draft.run_social_draft,
+    "social_redraft": social_draft.run_social_redraft,
+    "social_render": social_draft.run_social_render,
     "agents_tick": agents_tick.run_tick,
 }
 
@@ -75,3 +79,18 @@ def trigger_social_research(background_tasks: BackgroundTasks) -> dict:
 @router.post("/agents-tick", status_code=202)
 def trigger_agents_tick(background_tasks: BackgroundTasks) -> dict:
     return _trigger("agents_tick", background_tasks)
+
+
+@router.post("/social-draft", status_code=202)
+def trigger_social_draft(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("social_draft", background_tasks)
+
+
+@router.post("/social-redraft", status_code=202)
+def trigger_social_redraft(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("social_redraft", background_tasks)
+
+
+@router.post("/social-render", status_code=202)
+def trigger_social_render(background_tasks: BackgroundTasks) -> dict:
+    return _trigger("social_render", background_tasks)
