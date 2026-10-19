@@ -1,0 +1,67 @@
+/*
+ * Ominin Club : les jetons communs aux pages publiques (club.css) et à
+ * l'espace de gestion des soirées. Couleurs de la marque, surfaces,
+ * typographie, durées et courbes : un seul endroit à changer.
+ */
+
+.club,
+.club-tokens {
+  /* Nuit */
+  --c-ink: #070a1c;
+  --c-navy: #121731;
+  --c-surface: rgba(18, 23, 49, 0.82);
+  --c-surface-2: #182042;
+  --c-raised: #1c2550;
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-line-strong: rgba(255, 255, 255, 0.16);
+  /* Texte (contraste ≥ 4.5:1 sur --c-navy) */
+  --c-text: #f2f3fb;
+  --c-muted: #c9cde8;
+  --c-faint: #aeb3d8;
+  /* Marque : l'or de l'étoile, le corail de l'action, le lagon */
+  --c-gold: #e2c48f;
+  --c-gold-light: #fbefd2;
+  --c-coral: #fc6141;
+  --c-coral-press: #e9502f;
+  --c-coral-glow: rgba(252, 97, 65, 0.4);
+  --c-teal: #2fd4b4;
+  --c-violet: #8f7bff;
+  --c-danger: #ff8f7a;
+
+  /* Typographie */
+  --c-display: var(--font-club-display), "Helvetica Neue", Arial, sans-serif;
+  --c-sans: var(--font-club-sans), system-ui, sans-serif;
+  --c-mono: var(--font-club-mono), ui-monospace, monospace;
+
+  /* Formes */
+  --c-radius: 16px;
+  --c-radius-lg: 24px;
+  --c-control: 52px;
+
+  /* Mouvement : trois durées, une courbe d'entrée, une de sortie, un ressort */
+  --c-fast: 120ms;
+  --c-base: 200ms;
+  --c-slow: 320ms;
+  --c-sheet: 520ms;
+  --c-state: 600ms;
+  /* Entrées de page, tracés et remplissages longs, effets qui se répètent */
+  --c-enter: 700ms;
+  --c-draw: 900ms;
+  --c-pulse: 1.6s;
+  --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --c-exit: cubic-bezier(0.4, 0, 1, 1);
+  --c-spring: linear(0, 0.18 7%, 0.62 17%, 0.96 27%, 1.07 34%, 1.09 39%, 1.06 47%, 1.01 57%, 0.995 70%, 1);
+  /* Une feuille ancrée en bas arrive sans rebond. */
+  --c-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* États d'une table, les mêmes sur le plan client et le plan du club */
+  --c-state-libre: #e2c48f;
+  --c-state-prise: rgba(255, 255, 255, 0.42);
+  --c-state-fermee: rgba(255, 255, 255, 0.42);
+  --c-state-attente: #fc6141;
+  --c-state-payee: #fbefd2;
+  --c-state-arrivee: #2fd4b4;
+  --c-state-annulee: #9399c2;
+  /* L'étoile du club (quatre branches), en masque CSS pour un pictogramme ou une pastille */
+  --c-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C51.6 30 56 44.4 100 50C56 55.6 51.6 70 50 100C48.4 70 44 55.6 0 50C44 44.4 48.4 30 50 0Z'/%3E%3C/svg%3E");
+}

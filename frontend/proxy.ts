@@ -117,6 +117,21 @@ const PRODUCTS: readonly ProductConfig[] = [
     isViewSegment: isProduct,
   },
   {
+    host: process.env.NEXT_PUBLIC_CLUB_HOST,
+    // /club est la page de présentation aux clubs, sur ominin.com.
+    prefix: "/clubs",
+    // Comme collect : le club gère ses soirées sur son propre host, avec
+    // l'espace de gestion et la connexion de l'arborescence menu.
+    privatePaths: ["/gestion"],
+    afterLogin: "/gestion/soirees",
+    legacyPaths: [],
+    rewriteOverrides: [
+      { path: "/gestion", prefix: "/menu" },
+      { path: "/connexion", prefix: "/menu" },
+      ...LEGAL_OVERRIDES,
+    ],
+  },
+  {
     host: process.env.NEXT_PUBLIC_MENU_HOST,
     prefix: "/menu",
     privatePaths: ["/gestion", "/onboarding"],

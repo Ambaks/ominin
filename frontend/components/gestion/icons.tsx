@@ -251,3 +251,21 @@ export function HelpIcon(props: IconProps) {
     </Svg>
   );
 }
+
+/** Un croissant de lune et une étoile : les soirées d'un club. */
+export function SoireesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 15A8 8 0 0 1 9 4a8 8 0 1 0 11 11Z" />
+      <path d="M17 3.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z" />
+    </Svg>
+  );
+}
+
+export function PhoneIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 3.5h3.5l1.5 4.5-2.2 1.4a11 11 0 0 0 4.8 4.8l1.4-2.2 4.5 1.5V17a2 2 0 0 1-2 2A15.5 15.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />
+    </Svg>
+  );
+}

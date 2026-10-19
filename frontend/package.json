@@ -13,6 +13,7 @@
     "seed:crm": "tsx --env-file=../backend/.env scripts/seed-crm.ts",
     "seed:demo": "tsx --env-file=../backend/.env scripts/seed-demo.ts",
     "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
+    "seed:club": "tsx --env-file=.env.local scripts/seed-club.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts",
     "setup:stripe:live": "tsx --env-file=../backend/.env scripts/setup-stripe.ts --live",
     "legal:check": "tsx --env-file=../backend/.env scripts/publish-legal.ts --check",

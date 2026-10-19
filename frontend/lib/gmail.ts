@@ -10,7 +10,7 @@ const GMAIL_SEND_URL =
   "https://gmail.googleapis.com/gmail/v1/users/me/messages/send";
 const MAIL_TIMEOUT_MS = 10_000;
 
-function mailConfig() {
+export function mailConfig() {
   const clientId = process.env.GMAIL_CLIENT_ID;
   const clientSecret = process.env.GMAIL_CLIENT_SECRET;
   const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
