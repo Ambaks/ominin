@@ -8,7 +8,6 @@ import escalierAvant from "@/assets/chantiers/escalier-avant.jpg";
 import escalierApres from "@/assets/chantiers/escalier-apres.jpg";
 import portailAvant from "@/assets/chantiers/portail-avant.jpg";
 import portailApres from "@/assets/chantiers/portail-apres.jpg";
-import auventGalerie from "@/assets/chantiers/auvent-galerie.jpg";
 
 export const navLinks = [
   { href: "#chantiers", label: "Chantiers" },
@@ -55,11 +54,15 @@ export type Case = {
 
 export const featured = {
   title: "Chantiers extérieurs et intérieurs",
-  wide: auventGalerie,
   film: {
     src: "/films/auvent-travelling.mp4",
     poster: "/films/auvent-travelling.jpg",
     label: "Travelling le long de l'auvent : les poutres décapées sur toute la galerie",
+  },
+  filmBefore: {
+    src: "/films/auvent-avant.mp4",
+    poster: "/films/auvent-avant.jpg",
+    label: "Travelling le long de l'auvent avant le décapage : les poutres noircies sur toute la galerie",
   },
   compare: { title: "Plafond intérieur", before: plafondAvant, after: plafondApres },
 };

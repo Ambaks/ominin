@@ -135,12 +135,12 @@ export default function Home() {
                   Après · toute la galerie
                 </span>
               </div>
-              <CurtainImage
-                src={featured.wide}
-                alt="La galerie de l'auvent pendant le chantier : protections au sol, échafaudage, poutres décapées"
-                sizes="(min-width: 768px) 30vw, 100vw"
-                className="hidden aspect-[9/16] md:block"
-              />
+              <div className="relative hidden aspect-[9/16] overflow-hidden md:block">
+                <VideoLoop {...featured.filmBefore} className="absolute inset-0 size-full" />
+                <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
+                  Avant · toute la galerie
+                </span>
+              </div>
               <BeforeAfter
                 before={featured.compare.before}
                 after={featured.compare.after}
