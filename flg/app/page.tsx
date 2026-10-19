@@ -148,6 +148,7 @@ export default function Home() {
                 className="aspect-[9/16]"
               />
             </div>
+            <p className="mt-6 max-w-xl text-muted">{featured.note}</p>
 
             <div className="mt-24 grid gap-x-6 gap-y-20 md:mt-32 md:grid-cols-2">
               {cases.map((c) => (
