@@ -2,7 +2,9 @@
 
 import { useRef, useState } from "react";
 import { isUnavailable, OptionsModal } from "@/components/menu/add-to-order";
+import { suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
 import { cartLineKey, useCart } from "@/lib/menu/cart";
+import { formatPrice, lineName } from "@/lib/menu/format";
 import {
   fetchLoyaltyBalance,
   maskContact,
@@ -284,20 +286,29 @@ export function LoyaltySection({
                     </span>
                   </p>
                   {reachable ? (
-                    <div className="flex flex-wrap gap-1.5">
+                    // Comme l'accord du chef : photo, nom, ce qu'il vaut, un bouton.
+                    <ul className="flex flex-col gap-2.5">
                       {reward.items
                         .filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)))
                         .map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => offer(item, reward)}
-                            className="rounded-full border border-ember-2/40 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-surface-raised"
-                          >
-                            + {item.name}
-                          </button>
+                          <li key={item.id}>
+                            <SuggestionRow
+                              image={item.image}
+                              title={lineName(item)}
+                              why={`Offert au lieu de ${formatPrice(item.price)}`}
+                            >
+                              <button
+                                type="button"
+                                onClick={() => offer(item, reward)}
+                                aria-label={`Ajouter, offert : ${lineName(item)}, ${reward.points} points`}
+                                className={suggestionButton()}
+                              >
+                                + Offert
+                              </button>
+                            </SuggestionRow>
+                          </li>
                         ))}
-                    </div>
+                    </ul>
                   ) : (
                     <p className="text-xs text-faint">
                       Encore {reward.points - remaining}{" "}
