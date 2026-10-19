@@ -5,6 +5,7 @@ import { useCart } from "@/lib/menu/cart";
 import {
   maskContact,
   nextReward,
+  type GarlandMotif,
   type LoyaltyHistoryEntry,
 } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
@@ -38,10 +39,14 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 export function LoyaltyCardSheet({
   brand,
   logo,
+  wordmark,
+  motif,
   onClose,
 }: {
   brand: string;
   logo?: string;
+  wordmark?: boolean;
+  motif?: GarlandMotif;
   onClose: () => void;
 }) {
   const { loyalty } = useCart();
@@ -94,6 +99,7 @@ export function LoyaltyCardSheet({
             <LoyaltyCard
               brand={brand}
               logo={logo}
+              wordmark={wordmark}
               name={member.firstName}
               since={member.since}
               points={points}
@@ -112,7 +118,7 @@ export function LoyaltyCardSheet({
                   : "Toutes les récompenses sont à portée"}
               </span>
             </p>
-            <Garland program={loyalty} points={points} />
+            <Garland program={loyalty} points={points} motif={motif} />
           </div>
 
           <section className="flex flex-col gap-2.5">
