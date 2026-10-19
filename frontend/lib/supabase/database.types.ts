@@ -4742,6 +4742,7 @@ export type Database = {
           findings: Json
           guidelines: string
           id: string
+          proposal: Json | null
           version: number
         }
         Insert: {
@@ -4751,6 +4752,7 @@ export type Database = {
           findings?: Json
           guidelines: string
           id?: string
+          proposal?: Json | null
           version: number
         }
         Update: {
@@ -4760,6 +4762,7 @@ export type Database = {
           findings?: Json
           guidelines?: string
           id?: string
+          proposal?: Json | null
           version?: number
         }
         Relationships: []
@@ -4770,36 +4773,60 @@ export type Database = {
           brand: string
           captions: Json
           created_at: string
+          feedback: string | null
           format: string
           id: string
           playbook_id: string
           post_date: string
+          reel: Json | null
+          render_error: string | null
+          render_status: string | null
+          scheduled_at: string
           slides: Json
+          status: string
           topic: string
+          updated_at: string
+          video_path: string | null
         }
         Insert: {
           angle: string
           brand: string
           captions: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id: string
           post_date: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at: string
           slides: Json
+          status?: string
           topic: string
+          updated_at?: string
+          video_path?: string | null
         }
         Update: {
           angle?: string
           brand?: string
           captions?: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id?: string
           post_date?: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at?: string
           slides?: Json
+          status?: string
           topic?: string
+          updated_at?: string
+          video_path?: string | null
         }
         Relationships: [
           {

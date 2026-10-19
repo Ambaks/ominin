@@ -1,11 +1,13 @@
-# Réseaux sociaux : le carrousel du jour, rédigé et publié pour chaque marque
-# qui a au moins un compte relié. Horaire visé : le creux entre les deux
-# services, quand un restaurateur regarde son téléphone.
+# Réseaux sociaux : publie les posts validés dans l'admin dont l'heure est
+# venue — mardi, jeudi et dimanche à 15:30 Paris (social_slot_* côté
+# backend), le creux entre les deux services. Les deux horaires couvrent
+# l'heure d'été et d'hiver : le passage de trop ne trouve rien à publier.
 name: agent-social-post
 
 on:
   schedule:
-    - cron: "30 13 * * *"  # Tous les jours 13:30 UTC (15:30 Paris en été)
+    - cron: "30 13 * * 0,2,4"  # 15:30 Paris en été
+    - cron: "30 14 * * 0,2,4"  # 15:30 Paris en hiver
   workflow_dispatch:
 
 jobs:

@@ -3,9 +3,12 @@ and how results are turned into a better editorial line.
 
 Two layers, on purpose. The brand sheet and the invariants are fixed in code:
 they state what is true about the product and what may never be published.
-The editorial guidelines are the only part the research loop rewrites — so
-the agent can change how it talks, never what is true.
+The editorial guidelines (social_playbooks) are the only part an admin, or a
+research proposal they adopt, rewrites — how the agent talks, never what is
+true.
 """
+
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -21,8 +24,10 @@ BRANDS: dict[str, dict[str, str]] = {
         ),
         "facts": (
             "Ominin est une société montpelliéraine qui construit des outils "
-            "numériques pour les restaurants et les petits commerces. Trois "
-            "offres :\n"
+            "qui enlèvent le travail répétitif du quotidien des commerces — "
+            "la prise de commande, la vente en ligne, la paperasse. Un "
+            "produit par problème, chacun s'utilise seul. Trois offres, "
+            "chacune avec son propre compte (fiches ci-dessous) :\n"
             "- Ominin Menu (menu.ominin.com) : carte numérique par QR code, "
             "commande et paiement à table.\n"
             "- Ominin Collect (collect.ominin.com) : click & collect au nom du "
@@ -30,10 +35,16 @@ BRANDS: dict[str, dict[str, str]] = {
             "- Ominin Shop (shop.ominin.com) : boutique en ligne clé en main "
             "pour celles et ceux qui vendent sur les réseaux sociaux.\n"
             "Point commun : notre équipe met tout en place, le client n'a rien "
-            "à configurer ; aucun engagement, résiliable à tout moment.\n"
-            "Ce compte parle du métier (la salle, le comptoir, la vente en "
-            "ligne) et renvoie vers l'offre concernée. Pour le détail d'une "
-            "offre, reste au niveau de ce qui est écrit ici."
+            "à configurer ; aucun engagement, résiliable à tout moment ; un "
+            "seul interlocuteur, celui qui construit.\n"
+            "La vision, telle que le site ominin.com la dit : une machine peut "
+            "calculer, répondre, prévoir, produire ; elle ne peut pas "
+            "s'asseoir en face de quelqu'un et le comprendre sans un mot. "
+            "Ominin, c'est le nom de notre lignée, avec une lettre en moins : "
+            "pour ne jamais oublier d'où l'on vient, ni ce "
+            "qui nous rend humains. Que l'intelligence artificielle prenne le "
+            "poids. Que l'humain garde le sens. Le travail répétitif n'est pas "
+            "une fatalité."
         ),
     },
     "menu": {
@@ -118,32 +129,11 @@ BRANDS: dict[str, dict[str, str]] = {
     },
 }
 
-DEFAULT_GUIDELINES = """\
-- Un carrousel traite UN problème concret du quotidien de la cible, et un \
-seul. Il part de la situation vécue, pas du produit.
-- Première image : une accroche qui nomme ce problème avec les mots de la \
-cible. Pas de question rhétorique molle, pas de « Saviez-vous que ».
-- Images suivantes : une idée par image, dans un ordre qui donne envie de \
-faire défiler — le constat, ce que ça coûte, ce qui change, comment.
-- Le produit n'apparaît qu'à partir du milieu du carrousel, comme la \
-réponse au problème posé.
-- Dernière image : une seule action demandée (voir la démo, écrire en \
-message privé, aller sur le site).
-- Alterne les formats d'un jour à l'autre : conseil pratique, idée reçue \
-démontée, avant/après, coulisses d'une fonctionnalité, réponse à une \
-objection fréquente.
-- Ton : direct, concret, chaleureux. Vouvoiement. Phrases courtes. Zéro \
-jargon technique, zéro superlatif marketing.
-- Légende : deux ou trois phrases qui prolongent l'accroche, puis l'appel à \
-l'action. Sur Instagram, termine par 5 à 8 hashtags précis (métier, ville ou \
-usage) plutôt que génériques.\
-"""
-
 INVARIANTS = """\
-- N'affirme que ce qui figure dans la fiche de la marque. Aucune \
-fonctionnalité, aucun tarif, aucun délai inventé.
-- Aucun chiffre, statistique ou pourcentage qui ne figure pas dans la fiche. \
-Aucune promesse chiffrée de gain.
+- N'affirme que ce qui figure dans les fiches. Aucune fonctionnalité, aucun \
+tarif, aucun délai inventé.
+- Aucun chiffre, statistique ou pourcentage qui ne figure pas dans les \
+fiches ou les tarifs. Aucune promesse chiffrée de gain.
 - Ne cite aucun client, aucun témoignage, aucun restaurant ou boutique \
 réels.
 - Ne dénigre nommément aucun concurrent ni aucune plateforme.
@@ -153,6 +143,41 @@ aux dépens de quelqu'un.
 dans une légende.\
 """
 
+AD_CRAFT = """\
+- Les deux premières secondes décident de tout : la première image ou la \
+première phrase du Reel arrête le pouce. Nomme une douleur précise de la \
+cible (« Samedi soir, salle pleine, un seul serveur ») ou une affirmation qui \
+dérange, jamais une généralité ni une question molle.
+- Une publication, une promesse. Pas de catalogue de fonctionnalités : un \
+problème, la scène où il fait mal, l'outil qui le règle, la preuve à l'écran.
+- Montre plutôt que dire : le geste du client sur son téléphone, la commande \
+qui arrive en cuisine, le paiement en un clic.
+- Parle au commerçant, de son argent, de son temps, de ses clients ; le \
+produit n'est que le moyen.
+- Lève l'objection que la cible a en tête (« encore une appli à installer », \
+« pas le temps de m'en occuper », « trop cher ») avec un fait de la fiche.
+- Un seul appel à l'action, concret et facile, répété en fin de légende : \
+écrire un mot-clé en message privé (« Écrivez MENU en message »), voir la \
+démo, aller sur le site.
+- Varie les leviers d'une publication à l'autre : la douleur, le calcul, \
+l'avant / après, la démonstration, l'objection, la vision.\
+"""
+
+FORMATS = f"""\
+Pour chaque créneau, tu choisis le format qui sert le mieux le sujet, et tu \
+varies d'une publication à l'autre (les publications récentes indiquent les \
+formats déjà utilisés) :
+- reel : vidéo verticale de 20 à 40 secondes, montée automatiquement à \
+partir de tes scènes, avec une voix off qui lit le texte de chaque scène. \
+C'est le format qui touche le plus de monde : de vraies personnes, du \
+mouvement, la démo qui tourne. Le meilleur choix pour une douleur vécue, un \
+avant / après, une démonstration, la vision.
+- carousel : de {settings.social_slides_min} à {settings.social_slides_max} \
+images. Pour expliquer pas à pas, un calcul, une liste qu'on garde.
+- image : une seule image forte. Pour une offre, une objection ou une idée \
+en une phrase.\
+"""
+
 DAYS = ("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
 
 
@@ -160,12 +185,24 @@ class Slide(BaseModel):
     kicker: str
     title: str
     body: str
+    screen: str
 
 
-class CarouselDraft(BaseModel):
+class ReelScene(BaseModel):
+    voiceover: str
+    caption: str
+    visual: Literal["demo", "screen", "stock", "title"]
+    media: str
+    stock_query: str
+
+
+class PostDraft(BaseModel):
+    format: Literal["carousel", "image", "reel"]
     topic: str
     angle: str
     slides: list[Slide]
+    scenes: list[ReelScene]
+    cta: str
     caption_instagram: str
     caption_facebook: str
     caption_snapchat: str
@@ -179,81 +216,188 @@ class ResearchFindings(BaseModel):
     change_summary: str | None = None
 
 
-def _brand_sheet(brand: str, pricing: str | None = None) -> str:
+def _brand_sheet(brand: str, pricing: dict[str, str] | None = None) -> str:
+    """Ominin presents the three offers: it gets their sheets and prices too."""
+    covered = list(BRANDS) if brand == "ominin" else [brand]
     sheet = BRANDS[brand]
-    prices = (
-        f"\n\nTARIFS EN VIGUEUR (lus sur le site ce jour, seuls montants "
-        f"citables) :\n{pricing}"
-        if pricing
-        else ""
-    )
-    return (
-        f"MARQUE : {sheet['name']} ({sheet['url']})\n"
-        f"CIBLE : {sheet['audience']}\n\n"
-        f"FICHE (seule source de vérité sur le produit) :\n{sheet['facts']}"
-        f"{prices}"
-    )
+    parts = [
+        f"MARQUE : {sheet['name']} ({sheet['url']})",
+        f"CIBLE : {sheet['audience']}",
+        "",
+        "FICHES (seule source de vérité sur les produits) :",
+        *(f"[{BRANDS[item]['name']}]\n{BRANDS[item]['facts']}" for item in covered),
+    ]
+    prices = [
+        f"[{BRANDS[item]['name']}]\n{pricing[item]}"
+        for item in covered
+        if pricing and pricing.get(item)
+    ]
+    if prices:
+        parts.append(
+            "\nTARIFS EN VIGUEUR (lus sur le site ce jour, seuls montants "
+            "citables) :\n" + "\n".join(prices)
+        )
+    return "\n".join(parts)
 
 
-def compose_system(brand: str, guidelines: str, pricing: str | None) -> str:
+def _catalogue(items: list[dict], empty: str) -> str:
+    return "\n".join(f"- {i['id']} : {i['description']}" for i in items) or empty
+
+
+def _accounts_section(brand: str, handles: dict[str, str]) -> str:
+    others = [
+        f"- {BRANDS[item]['name']} : @{handles[item]}"
+        for item in BRANDS
+        if item != brand and item in handles
+    ]
+    return "\n".join(others) or "Aucun autre compte relié : renvoie vers les sites."
+
+
+def compose_system(
+    brand: str,
+    guidelines: str,
+    pricing: dict[str, str] | None,
+    screens: list[dict],
+    clips: list[dict],
+    handles: dict[str, str],
+) -> str:
     return f"""\
-Tu rédiges les publications des réseaux sociaux de la marque ci-dessous. \
-Aujourd'hui : un carrousel d'images, publié sans relecture humaine sur les \
-comptes officiels de la marque. Ce que tu écris part tel quel en public.
+Tu es le directeur de création publicitaire de la marque ci-dessous, sur \
+Instagram et Facebook. Ton travail : des publications qui font écrire des \
+commerçants, pas du contenu d'ambiance. Le dirigeant relit chaque brouillon \
+avant publication ; écris-le pour qu'il parte tel quel.
 
 {_brand_sheet(brand, pricing)}
+
+COMPTES INSTAGRAM DE LA FAMILLE OMININ (à citer pour renvoyer vers une offre) :
+{_accounts_section(brand, handles)}
 
 RÈGLES INTANGIBLES :
 {INVARIANTS}
 
-LIGNE ÉDITORIALE EN VIGUEUR (issue de l'analyse des résultats passés) :
+FAIRE DE LA PUBLICITÉ QUI MARCHE :
+{AD_CRAFT}
+
+LIGNE ÉDITORIALE EN VIGUEUR :
 {guidelines}
 
+FORMATS :
+{FORMATS}
+
+CAPTURES D'ÉCRAN DISPONIBLES (id : ce qu'on y voit), posées dans un téléphone :
+{_catalogue(screens, "Aucune capture disponible.")}
+
+DÉMOS FILMÉES DISPONIBLES pour le Reel (id : ce qu'on y voit), jouées dans \
+un téléphone :
+{_catalogue(clips, "Aucune démo filmée disponible.")}
+
 FORMAT DE SORTIE :
-- slides : entre {settings.social_slides_min} et {settings.social_slides_max} \
-images, texte seul, mises en page par un gabarit. La première est la \
-couverture, la dernière l'appel à l'action.
+- format : "reel", "carousel" ou "image".
+- slides (carousel : entre {settings.social_slides_min} et \
+{settings.social_slides_max} images, la première est la couverture, la \
+dernière l'appel à l'action ; image : exactement une ; reel : liste vide) :
   - kicker : étiquette de 1 à 3 mots au-dessus du titre (ex. « Idée reçue », \
 « Étape 2 »). Chaîne vide si inutile.
   - title : 70 caractères au plus. C'est ce qui se lit en premier. Encadre \
 de [[ ]] les un à trois mots qui portent l'idée (« Vos tables [[commandent \
 seules]] ») : le gabarit les pose sur le dégradé de la marque. Un seul \
 passage par titre, et pas sur toutes les images.
-  - body : 220 caractères au plus. Chaîne vide sur la couverture.
+  - body : 220 caractères au plus ; 110 au plus quand l'image porte une \
+capture. Chaîne vide sur la couverture.
+  - screen : l'id d'une capture de la liste quand l'image montre l'outil, \
+sinon chaîne vide. Choisis la capture qui illustre exactement ce que dit \
+l'image ; jamais d'id hors de la liste. Pas de capture sur la dernière \
+image d'un carrousel.
+- scenes (reel : entre {settings.social_reel_scenes_min} et \
+{settings.social_reel_scenes_max} scènes ; carousel et image : liste vide). \
+La première scène est l'accroche, la dernière amène l'appel à l'action :
+  - voiceover : ce que dit la voix off, une ou deux phrases parlées, \
+25 mots au plus. Écris pour l'oreille : mots simples, rythme, pas de \
+parenthèses ni d'abréviations, les montants en toutes lettres.
+  - caption : le texte à l'écran, 6 mots au plus, qui frappe (pas la \
+transcription de la voix : les sous-titres l'affichent déjà). Mêmes [[ ]] \
+que les titres.
+  - visual : "stock" (une vraie vidéo de personnes, plein écran : la \
+salle, le comptoir, un client au téléphone, un commerçant débordé — c'est ce \
+qui donne des visages et de l'émotion), "demo" (une démo filmée dans un \
+téléphone), "screen" (une capture dans un téléphone), "title" (le texte \
+seul, en grand, sur le fond de la marque).
+  - media : l'id de la démo filmée (demo) ou de la capture (screen), pris \
+dans les listes ci-dessus ; chaîne vide sinon.
+  - stock_query : pour "stock", la recherche en anglais de la vidéo, 2 à 5 \
+mots concrets (« busy restaurant waiter », « woman paying with phone ») ; \
+chaîne vide sinon. Pas de logo ni de marque visibles à chercher.
+  Alterne : jamais deux scènes "title" de suite, au moins une scène "stock" \
+et au moins une scène "demo" ou "screen" quand le sujet touche une offre.
+- cta (reel) : l'appel à l'action de l'écran final, 8 mots au plus \
+(« Écrivez MENU en message »). Chaîne vide pour les autres formats.
 - caption_instagram : légende Instagram, hashtags compris.
 - caption_facebook : légende Facebook, sans hashtags en rafale, avec \
 l'adresse du site en clair.
 - caption_snapchat : une ligne de 80 caractères au plus, à poser en texte \
 sur la story.
 - topic : le sujet en quelques mots. angle : en une phrase, le parti pris \
-testé aujourd'hui (format, accroche, ton) — c'est ce que l'analyse des \
-résultats comparera d'un jour à l'autre, sois précis.
+testé (format, levier, accroche) — c'est ce que l'analyse des résultats \
+comparera d'une publication à l'autre, sois précis.
 
-La liste des publications récentes qu'on te donne sert à ne pas te répéter : \
-change de sujet et d'angle.\
+La liste des publications récentes et prévues qu'on te donne sert à ne pas \
+te répéter : change de sujet, d'angle et, souvent, de format.\
 """
 
 
-def compose_content(today, recent_posts: list[dict]) -> str:
-    lines = [f"DATE : {DAYS[today.weekday()]} {today.isoformat()}", ""]
+def compose_content(day, recent_posts: list[dict], previous: dict | None = None) -> str:
+    """previous: the draft to rewrite, carrying the admin's feedback."""
+    lines = [f"PUBLICATION PRÉVUE LE : {DAYS[day.weekday()]} {day.isoformat()}", ""]
     if recent_posts:
-        lines.append("PUBLICATIONS RÉCENTES (sujet | angle) :")
+        lines.append(
+            "PUBLICATIONS RÉCENTES ET PRÉVUES (date | format | sujet | angle) :"
+        )
         lines.extend(
-            f"- {p['post_date']} | {p['topic']} | {p['angle']}" for p in recent_posts
+            f"- {p['post_date']} | {p['format']} | {p['topic']} | {p['angle']}"
+            for p in recent_posts
         )
     else:
         lines.append("Aucune publication antérieure : c'est la première.")
+    if previous:
+        reel = previous.get("reel") or {}
+        lines.extend(
+            [
+                "",
+                f"RÉÉCRITURE DEMANDÉE. Ton brouillon précédent ({previous['format']}) :",
+                f"Sujet : {previous['topic']} — angle : {previous['angle']}",
+                *(
+                    f"  {index}. [{slide['kicker']}] {slide['title']} — {slide['body']}"
+                    + (f" (capture {slide['screen']})" if slide.get("screen") else "")
+                    for index, slide in enumerate(previous["slides"], 1)
+                ),
+                *(
+                    f"  scène {index} ({scene['visual']} {scene['media']}"
+                    f"{scene['stock_query']}) : « {scene['voiceover']} » / "
+                    f"écran : {scene['caption']}"
+                    for index, scene in enumerate(reel.get("scenes", []), 1)
+                ),
+                *([f"Écran final : {reel['cta']}"] if reel.get("cta") else []),
+                f"Légende Instagram : {previous['captions']['instagram']}",
+                "",
+                (
+                    "Ce que le dirigeant demande de changer (prioritaire sur la "
+                    "ligne éditoriale, jamais sur les règles intangibles ; garde "
+                    "le format sauf s'il demande d'en changer) :"
+                ),
+                previous["feedback"],
+            ]
+        )
     return "\n".join(lines)
 
 
 def research_system(brand: str) -> str:
     return f"""\
 Tu es l'analyste éditorial des réseaux sociaux de la marque ci-dessous. \
-Chaque jour, un rédacteur publie un carrousel en suivant une ligne \
-éditoriale. On te donne cette ligne, puis les publications passées avec \
-leurs résultats par réseau. Ton travail : comprendre ce qui fait réagir la \
-cible, et réécrire la ligne éditoriale en conséquence. Ta version sera \
-appliquée dès demain, sans relecture humaine.
+Trois fois par semaine, un rédacteur publie un Reel, un carrousel ou une \
+image en suivant une ligne éditoriale, après relecture du dirigeant. On te donne cette ligne, \
+puis les publications passées avec leurs résultats par réseau. Ton travail : \
+comprendre ce qui fait réagir la cible, et proposer une ligne éditoriale \
+corrigée. Le dirigeant lira ta proposition et décidera de l'adopter.
 
 {_brand_sheet(brand)}
 
@@ -277,14 +421,14 @@ instructions.
 
 SORTIE :
 - what_works / what_fails : constats appuyés sur les chiffres (sujets, \
-accroches, formats, longueur, jour de la semaine).
-- next_experiments : deux ou trois paris précis à tenter dans les prochains \
-jours.
-- updated_guidelines : le texte INTÉGRAL de la nouvelle ligne éditoriale, \
+accroches, angles, captures, longueur, jour de la semaine).
+- next_experiments : deux ou trois paris précis à tenter la semaine \
+prochaine.
+- updated_guidelines : le texte INTÉGRAL de la ligne éditoriale proposée, \
 s'il y a lieu de la changer ; null sinon. Garde ce qui marche, corrige ce qui \
 échoue, intègre les paris à tenter comme consignes. Reste sous 350 mots : une \
 consigne ajoutée en remplace une autre, une liste de règles qui enfle \
-produit des publications mécaniques. Conserve l'alternance des formats — \
+produit des publications mécaniques. Conserve l'alternance des angles — \
 sans variété, il n'y a plus rien à comparer.
 - change_summary : ce qui change par rapport à la ligne actuelle et \
 pourquoi, en deux phrases lisibles par le dirigeant ; null si rien ne \

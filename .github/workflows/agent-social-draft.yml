@@ -1,11 +1,15 @@
-# Réseaux sociaux : relevé quotidien des résultats et réécriture de la ligne
-# éditoriale. Passe avant agent-social-post pour que la publication du jour
-# suive déjà la ligne corrigée.
-name: agent-social-research
+# Réseaux sociaux, chaque mercredi soir : bilan des résultats (proposition de
+# ligne éditoriale, adoptée ou non dans l'admin) puis brouillons des trois
+# créneaux à venir pour chaque marque — jeudi, dimanche, mardi. Rien n'est
+# publié ici : les brouillons attendent une validation dans /admin/reseaux.
+#
+# Pas encore planifié : lancement à la main seulement, tant que les variables
+# du rendu ne sont pas posées (tâches de l'admin, Projet). Pour l'activer :
+#   schedule:
+#     - cron: "0 18 * * 3"  # Mercredi 18:00 UTC (20:00 Paris en été, 19:00 en hiver)
+name: agent-social-draft
 
 on:
-  schedule:
-    - cron: "0 12 * * *"  # Tous les jours 12:00 UTC (14:00 Paris en été)
   workflow_dispatch:
 
 jobs:
@@ -17,6 +21,11 @@ jobs:
           curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
             -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
             "${{ secrets.BACKEND_URL }}/agent/social-research"
+      - name: Trigger /agent/social-draft
+        run: |
+          curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/social-draft"
       # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
       # plus, voir lib/admin/alerts.ts). Jamais bloquant.
       - name: Prévenir l'admin

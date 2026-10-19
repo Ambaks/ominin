@@ -98,9 +98,20 @@ export interface Slide {
   kicker: string;
   title: string;
   body: string;
+  /** Capture de l'outil posée dans un téléphone (lib/social/screens), ou "". */
+  screen?: string;
 }
 
-/** Image n (à partir de 1) d'une publication ; format story pour Snapchat. */
-export function slideUrl(postId: string, index: number, story = false): string {
-  return `/api/social/slides/${postId}/${index}.jpg${story ? "?format=story" : ""}`;
+/** Image n (à partir de 1) d'une publication ; format story pour Snapchat.
+ * version (updated_at du post) : les images sont en cache immuable, une
+ * correction doit changer d'URL. */
+export function slideUrl(
+  postId: string,
+  index: number,
+  version: string,
+  story = false
+): string {
+  const params = new URLSearchParams({ v: version });
+  if (story) params.set("format", "story");
+  return `/api/social/slides/${postId}/${index}.jpg?${params}`;
 }
