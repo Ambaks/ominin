@@ -96,18 +96,25 @@ export type Payer = {
 /**
  * Les payeurs d'une table, dans l'ordre de leur premier paiement : une
  * personne qui paie deux fois (sa part en ligne, le reste à la porte) reste
- * une personne, reconnue à son nom. La liste « Qui a payé » et l'anneau en
- * sont la source.
+ * une personne, reconnue à son e-mail ou à son téléphone, à défaut à son
+ * nom. La liste « Qui a payé » et l'anneau en sont la source.
  */
 export function payersOf(payments: ClubPayment[]): Payer[] {
-  const byKey = new Map<string, Payer>();
+  const payers: Payer[] = [];
+  const known = new Map<Payer, Set<string>>();
   for (const payment of payments) {
-    const key = payment.name.trim().toLowerCase();
-    const payer =
-      byKey.get(key) ??
-      byKey
-        .set(key, { key, name: payment.name, organiser: false, totalCents: 0, amountCents: 0, feeCents: 0, payments: [] })
-        .get(key)!;
+    const ids = [
+      payment.email && `@${payment.email.trim().toLowerCase()}`,
+      payment.phone && `#${payment.phone.replace(/\D/g, "")}`,
+      `~${payment.name.trim().toLowerCase()}`,
+    ].filter((id): id is string => Boolean(id));
+    let payer = payers.find((candidate) => ids.some((id) => known.get(candidate)?.has(id)));
+    if (!payer) {
+      payer = { key: ids[0], name: payment.name, organiser: false, totalCents: 0, amountCents: 0, feeCents: 0, payments: [] };
+      payers.push(payer);
+      known.set(payer, new Set());
+    }
+    for (const id of ids) known.get(payer)?.add(id);
     payer.organiser ||= payment.organiser;
     payer.payments.push(payment);
     if (payment.status === "payee") {
@@ -116,7 +123,7 @@ export function payersOf(payments: ClubPayment[]): Payer[] {
       payer.totalCents += payment.amountCents + payment.feeCents;
     }
   }
-  return [...byKey.values()];
+  return payers;
 }
 
 /** Payé en ligne, non remboursé : ce qu'un remboursement de la table rend. */

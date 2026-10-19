@@ -36,6 +36,7 @@ import { CLUB_LIMITS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { uploadPhoto } from "@/lib/gestion/photo";
 import { useNow } from "@/lib/gestion/use-now";
 import { clubSiteUrl } from "@/lib/site";
+import { CheckIcon } from "@/components/gestion/icons";
 import { BackToSoirees } from "./club-states";
 import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { NightPlan, PlanLegend } from "./night-plan";
@@ -834,28 +835,47 @@ export function EventEditor({
       )}
 
       <div className="soirees-barre fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-end gap-3 px-5 py-3 lg:max-w-5xl lg:px-10">
-          <p className="mr-auto text-xs text-muted" aria-live="polite">
-            {dirty ? "Modifications non enregistrées" : event ? "Tout est enregistré" : ""}
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-end gap-2 px-5 py-3 sm:gap-3 lg:max-w-5xl lg:px-10">
+          {/* L'état de la soirée se lit d'un coup d'œil : rien de neuf, à enregistrer, enregistré. */}
+          <p
+            className="mr-auto flex items-center gap-2 text-sm"
+            aria-live="polite"
+            data-etat={saving ? "envoi" : dirty || !event ? "modifie" : "enregistre"}
+          >
+            {saving ? (
+              <span className="text-muted">Enregistrement…</span>
+            ) : dirty || !event ? (
+              <>
+                <span className="size-2 rounded-full bg-[var(--soirees-gold)]" aria-hidden />
+                <span className="font-medium">{event ? "À enregistrer" : "Pas encore créée"}</span>
+              </>
+            ) : (
+              <>
+                <CheckIcon className="size-4 text-[var(--soirees-ok)]" />
+                <span className="text-muted">Enregistré</span>
+              </>
+            )}
           </p>
           {event && !event.cancelledAt && (
             <button
               type="button"
               onClick={() => void save(!event.published)}
               disabled={saving}
-              className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+              className="min-h-11 rounded-full border border-hairline px-5 text-sm font-semibold text-foreground hover:border-[var(--soirees-gold)] disabled:opacity-50"
             >
               {event.published ? "Dépublier" : "Publier"}
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => void save()}
-            disabled={saving || (event !== null && !dirty)}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
-          >
-            {saving ? "Enregistrement…" : event ? "Enregistrer" : "Créer la soirée"}
-          </button>
+          {(dirty || !event) && (
+            <button
+              type="button"
+              onClick={() => void save()}
+              disabled={saving}
+              className="ember-gradient min-h-11 rounded-full px-5 text-sm font-semibold disabled:opacity-50"
+            >
+              {saving ? "Enregistrement…" : event ? "Enregistrer" : "Créer la soirée"}
+            </button>
+          )}
         </div>
       </div>
 

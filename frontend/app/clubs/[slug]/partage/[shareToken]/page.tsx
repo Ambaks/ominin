@@ -56,9 +56,7 @@ export default async function SharePage({ params, searchParams }: { params: Para
       <section className="club-share-layout" data-chapter>
         <header className="club-share-hero">
           <p className="club-label">Invitation</p>
-          <h1 className="club-h1">
-            {yours ? "Votre place est prise" : `${table.organiser} vous invite à sa table`}
-          </h1>
+          <h1 className="club-h1">{yours ? "Votre place est prise" : `${table.organiser} vous invite à sa table`}</h1>
           <p className="club-date-chip">
             {night} · <span className="club-mono">{formatHours(table.event.startsAt, table.event.endsAt)}</span>
           </p>
@@ -69,17 +67,16 @@ export default async function SharePage({ params, searchParams }: { params: Para
         </header>
 
         {!joinable && (
-        <div className="club-share-board">
-          <SeatRing
-            seats={table.partySize}
-            priceCents={table.totalCents}
-            shares={shares}
-            label={`${table.partySize} pers.`}
-            freshId={query.nouveau !== undefined ? yours?.id : undefined}
-          />
-          <ShareMeter paidCents={table.paidTotalCents} priceCents={table.totalCents} />
-
-        </div>
+          <div className="club-share-board">
+            <SeatRing
+              seats={table.partySize}
+              priceCents={table.totalCents}
+              shares={shares}
+              label={`${table.partySize} pers.`}
+              freshId={query.nouveau !== undefined ? yours?.id : undefined}
+            />
+            <ShareMeter paidCents={table.paidTotalCents} priceCents={table.totalCents} />
+          </div>
         )}
 
         {yours ? (
@@ -118,8 +115,8 @@ export default async function SharePage({ params, searchParams }: { params: Para
           <div className="club-share-state" data-tone="muted" role="status">
             <p className="club-sheet-title">La soirée a commencé</p>
             <p className="club-lead">
-              Le lien est fermé : le reste, <strong className="club-mono">{formatCents(table.remainingCents)}</strong>, se
-              règle à l&rsquo;entrée.
+              Le lien est fermé : le reste, <strong className="club-mono">{formatCents(table.remainingCents)}</strong>,
+              se règle à l&rsquo;entrée.
             </p>
           </div>
         ) : joinable ? (
@@ -137,7 +134,6 @@ export default async function SharePage({ params, searchParams }: { params: Para
               recap={`${capitalize(formatNightShort(table.event.startsAt))} · ${where}`}
               seats={table.partySize}
               totalCents={table.totalCents}
-              paidCents={table.paidTotalCents}
               shares={shares}
             />
           </section>

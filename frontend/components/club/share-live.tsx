@@ -86,7 +86,10 @@ export function ShareLink({
     return () => clearTimeout(timer);
   }, [copied]);
   const copy = async () => {
-    await navigator.clipboard?.writeText(`${text}\n${url}`).then(() => setCopied(true), () => {});
+    await navigator.clipboard?.writeText(`${text}\n${url}`).then(
+      () => setCopied(true),
+      () => {},
+    );
   };
   const share = async () => {
     if (navigator.share) {
@@ -123,7 +126,9 @@ export function ShareLink({
         </button>
       </div>
       <p className="club-fine" aria-live="polite">
-        {left === null ? " " : `Le lien ferme au début de la soirée, dans ${untilLabel(left)}. Ce qui reste se règle alors à l'entrée.`}
+        {left === null
+          ? " "
+          : `Le lien ferme au début de la soirée, dans ${untilLabel(left)}. Ce qui reste se règle alors à l'entrée.`}
       </p>
     </div>
   );
@@ -140,17 +145,15 @@ export function ShareJoin({
   payerIds,
   seats,
   totalCents,
-  paidCents,
   shares,
 }: {
   shareToken: string;
   provider: Club["paymentProvider"];
   minimumCents: number;
   remainingCents: number;
-  /** La tablée, le prix de la table (frais compris), ce qui en est payé et par qui : l'anneau. */
+  /** La tablée, le prix de la table (frais compris) et qui en a payé quoi : l'anneau. */
   seats: number;
   totalCents: number;
-  paidCents: number;
   shares: SeatShare[];
   conditions: Club["conditions"];
   /** « Sam. 24 oct. · VIP Salon Rouge ». */
@@ -164,7 +167,11 @@ export function ShareJoin({
   const [amount, setAmount] = useState(minimumCents);
   // Les bornes bougent quand un autre ami paie (page relue) : la part choisie y reste.
   const value = Math.min(remainingCents, Math.max(minimumCents, amount));
-  const [contact, setContact] = useState<Contact>({ name: "", phone: "", email: "" });
+  const [contact, setContact] = useState<Contact>({
+    name: "",
+    phone: "",
+    email: "",
+  });
   const [accepted, setAccepted] = useState(false);
   const [tried, setTried] = useState(false);
   // Le curseur du montant est tenu : montants et anneau suivent sans animation.
@@ -173,7 +180,12 @@ export function ShareJoin({
   const valid = Object.keys(errors).length === 0;
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hold, setHold] = useState<{ paymentId: string; totalCents: number; remainingMs: number; provider: Club["paymentProvider"] } | null>(null);
+  const [hold, setHold] = useState<{
+    paymentId: string;
+    totalCents: number;
+    remainingMs: number;
+    provider: Club["paymentProvider"];
+  } | null>(null);
   useSkyPause(hold !== null);
 
   // Déjà payé depuis ce navigateur : la page de la part réglée, pas un second formulaire.
@@ -200,7 +212,12 @@ export function ShareJoin({
       const response = await fetch("/api/club/contribute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareToken, ...contact, amountCents: value, accepted }),
+        body: JSON.stringify({
+          shareToken,
+          ...contact,
+          amountCents: value,
+          accepted,
+        }),
       });
       const body = (await response.json().catch(() => ({}))) as {
         paymentId?: string;
@@ -232,15 +249,20 @@ export function ShareJoin({
       localStorage.setItem(memoryKey(shareToken), hold.paymentId);
     } catch {}
     // ?part : la part réglée (reste à la relecture) ; ?nouveau : la gerbe, une seule fois.
-    router.replace(`${pathname}?part=${hold.paymentId}&nouveau=1`, { scroll: false });
+    router.replace(`${pathname}?part=${hold.paymentId}&nouveau=1`, {
+      scroll: false,
+    });
   }, [hold, router, pathname, shareToken]);
   const onExpired = useCallback(
     (message?: string) => {
       setHold(null);
-      setError(message ?? `Les ${TABLE_HOLD_S / 60} minutes sont passées sans paiement : rien n'a été débité. Vous pouvez recommencer.`);
+      setError(
+        message ??
+          `Les ${TABLE_HOLD_S / 60} minutes sont passées sans paiement : rien n'a été débité. Vous pouvez recommencer.`,
+      );
       router.refresh();
     },
-    [router]
+    [router],
   );
 
   if (hold) {
@@ -261,30 +283,7 @@ export function ShareJoin({
 
   const shown = tried ? errors : {};
   return (
-    <>
-      <div className="club-join-top">
-        <p className="club-label">Votre part</p>
-        <p className="club-share-value">
-          <RollingAmount cents={value} instant={scrubbing} />
-        </p>
-        <p className="club-share-sub">
-          Reste <RollingAmount cents={Math.max(0, remainingCents - value)} instant={scrubbing} /> après vous
-        </p>
-        <a href="#ma-part" className="club-button club-button-primary">
-          Payer ma part
-        </a>
-      </div>
-      <div className="club-share-board">
-        <SeatRing
-          seats={seats}
-          priceCents={totalCents}
-          shares={[...shares, { id: "votre-part", name: contact.name || "Vous", amountCents: value, tone: "preview" }]}
-          label={`${seats} pers.`}
-          scrubbing={scrubbing}
-        />
-        <ShareMeter paidCents={paidCents} priceCents={totalCents} />
-      </div>
-    <form id="ma-part" ref={formRef} className="club-join club-form" onSubmit={submit} noValidate>
+    <form ref={formRef} className="club-join club-form" onSubmit={submit} noValidate data-valid={valid || undefined}>
       <ShareAmount
         value={value}
         min={minimumCents}
@@ -292,8 +291,27 @@ export function ShareJoin({
         part={minimumCents}
         note={
           <>
-            Reste après vous : <RollingAmount cents={Math.max(0, remainingCents - value)} className="club-mono" />
+            Reste après vous :{" "}
+            <RollingAmount cents={Math.max(0, remainingCents - value)} instant={scrubbing} className="club-mono" />
           </>
+        }
+        visual={
+          <SeatRing
+            seats={seats}
+            priceCents={totalCents}
+            shares={[
+              ...shares,
+              {
+                id: "votre-part",
+                name: contact.name || "Vous",
+                amountCents: value,
+                tone: "preview",
+              },
+            ]}
+            label={`${seats} pers.`}
+            scrubbing={scrubbing}
+            compact
+          />
         }
         presets={[
           { label: "Minimum", cents: minimumCents },
@@ -317,37 +335,39 @@ export function ShareJoin({
           {error}
         </p>
       )}
-      <button
-        type="submit"
-        className="club-button club-button-primary club-button-block"
-        disabled={sending}
-        aria-busy={sending || undefined}
-        aria-describedby={!valid ? "part-missing" : undefined}
-      >
-        {sending ? (
-          <>
-            <span className="club-spinner" aria-hidden />
-            Un instant…
-          </>
-        ) : (
-          <>
-            Payer <RollingAmount cents={value} />
-          </>
+      {/* Une fois tout rempli, le bouton reste en vue en bas de l'écran. */}
+      <div className="club-sticky-cta">
+        <button
+          type="submit"
+          className="club-button club-button-primary club-button-block"
+          disabled={sending}
+          aria-busy={sending || undefined}
+          aria-describedby={!valid ? "part-missing" : undefined}
+        >
+          {sending ? (
+            <>
+              <span className="club-spinner" aria-hidden />
+              Un instant…
+            </>
+          ) : (
+            <>
+              Payer <RollingAmount cents={value} />
+            </>
+          )}
+        </button>
+        {!valid && (
+          <p className="club-fine club-pay-hint" id="part-missing">
+            {`Encore : ${[
+              errors.name && "votre nom",
+              errors.phone && "votre téléphone",
+              errors.email && "votre e-mail",
+              errors.accepted && "les conditions à accepter",
+            ]
+              .filter(Boolean)
+              .join(", ")}.`}
+          </p>
         )}
-      </button>
-      {!valid && (
-        <p className="club-fine club-pay-hint" id="part-missing">
-          {`Encore : ${[
-            errors.name && "votre nom",
-            errors.phone && "votre téléphone",
-            errors.email && "votre e-mail",
-            errors.accepted && "les conditions à accepter",
-          ]
-            .filter(Boolean)
-            .join(", ")}.`}
-        </p>
-      )}
+      </div>
     </form>
-    </>
   );
 }

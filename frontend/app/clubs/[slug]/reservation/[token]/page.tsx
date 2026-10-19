@@ -94,7 +94,7 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
         return {
           pill: eventCancelled ? "Soirée annulée" : "Remboursée",
           title: "Remboursement effectué",
-          text: `${eventCancelled ? "Le club a annulé la soirée : c" : "C"}haque part payée en ligne est remboursée automatiquement${refunded}, à la personne qui l'a payée. Le délai d'affichage sur un compte dépend de la banque.`,
+          text: `${eventCancelled ? "Le club a annulé la soirée : c" : "C"}haque part payée en ligne est remboursée automatiquement${refunded}, à la personne qui l'a payée (${formatCents(booking.refundedTotalCents)} en tout). Le délai d'affichage sur un compte dépend de la banque.`,
         };
       }
       return eventCancelled
@@ -112,9 +112,7 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
       return {
         pill: eventCancelled ? "Soirée annulée" : "Annulée",
         title: eventCancelled ? "La soirée est annulée" : "Réservation annulée",
-        text: booking.paidAt
-          ? "Cette réservation est annulée."
-          : "Cette réservation est annulée. Rien n'a été débité.",
+        text: booking.paidAt ? "Cette réservation est annulée." : "Cette réservation est annulée. Rien n'a été débité.",
       };
   }
 }
@@ -174,13 +172,7 @@ const MAPS_SEARCH = "https://www.google.com/maps/search/?api=1&query=";
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
-export default async function BookingPage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: SearchParams;
-}) {
+export default async function BookingPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   const [{ slug, token }, query] = await Promise.all([params, searchParams]);
   const [{ booking, now }, club] = await Promise.all([load(token), fetchClub(slug)]);
   if (!booking || !club || booking.club.slug !== slug) notFound();
@@ -322,9 +314,7 @@ export default async function BookingPage({
             </div>
             <div>
               <dt>Personnes</dt>
-              <dd className="club-mono">
-                {booking.partySize}
-              </dd>
+              <dd className="club-mono">{booking.partySize}</dd>
             </div>
             {booking.table.inclus && (
               <div className="club-pass-wide">
@@ -345,29 +335,40 @@ export default async function BookingPage({
               {booking.shared && booking.remainingCents > 0 && (
                 <p className="club-pass-caption">
                   Valable à l&rsquo;entrée. Reste{" "}
-                  <strong className="club-mono">{formatCents(booking.remainingCents)}</strong>{" "}à régler par
-                  l&rsquo;hôte si vos amis n&rsquo;ont pas payé.
+                  <strong className="club-mono">{formatCents(booking.remainingCents)}</strong> à régler par l&rsquo;hôte
+                  si vos amis n&rsquo;ont pas payé.
                 </p>
               )}
             </div>
           )}
 
-          {booking.shared ? (
-            passValid && (
+          {booking.shared && view === "remboursee" ? (
             <dl className="club-lines club-pass-lines">
               <div>
                 <dt>Table, tout compris</dt>
                 <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
               </div>
-              <div>
-                <dt>Déjà payé, toutes parts</dt>
-                <dd className="club-mono">{formatCents(booking.paidTotalCents)}</dd>
-              </div>
               <div className="club-lines-total">
-                <dt>{eventStarted ? "Reste à régler à l'entrée" : "Reste à payer"}</dt>
-                <dd className="club-mono">{formatCents(booking.remainingCents)}</dd>
+                <dt>Remboursé, toutes parts</dt>
+                <dd className="club-mono">{formatCents(booking.refundedTotalCents)}</dd>
               </div>
             </dl>
+          ) : booking.shared ? (
+            passValid && (
+              <dl className="club-lines club-pass-lines">
+                <div>
+                  <dt>Table, tout compris</dt>
+                  <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
+                </div>
+                <div>
+                  <dt>Déjà payé, toutes parts</dt>
+                  <dd className="club-mono">{formatCents(booking.paidTotalCents)}</dd>
+                </div>
+                <div className="club-lines-total">
+                  <dt>{eventStarted ? "Reste à régler à l'entrée" : "Reste à payer"}</dt>
+                  <dd className="club-mono">{formatCents(booking.remainingCents)}</dd>
+                </div>
+              </dl>
             )
           ) : (
             <dl className="club-lines club-pass-lines">
@@ -380,8 +381,10 @@ export default async function BookingPage({
                 <dd className="club-mono">{formatCents(booking.feeCents)}</dd>
               </div>
               <div className="club-lines-total">
-                <dt>{passValid ? "Total payé" : view === "remboursee" ? "Total remboursé" : "Total"}</dt>
-                <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
+                <dt>{passValid ? "Total payé" : view === "remboursee" ? "Remboursé" : "Total"}</dt>
+                <dd className="club-mono">
+                  {formatCents(view === "remboursee" ? booking.refundedTotalCents : booking.totalCents)}
+                </dd>
               </div>
             </dl>
           )}

@@ -636,6 +636,17 @@ html:has(.soirees-barre) {
   transform: scale(calc(0.6 + 0.4 * var(--progres, 0)));
 }
 
+/* Au seuil, la coche bondit une fois : lâcher fera entrer. */
+.porte-rangee[data-phase="pret"] .porte-coche {
+  animation: coche-pop var(--c-slow) var(--c-spring);
+}
+
+@keyframes coche-pop {
+  50% {
+    scale: 1.3;
+  }
+}
+
 /* Passé le seuil, le fond le dit : lâcher fait entrer. */
 .porte-rangee:is([data-phase="pret"], [data-phase="parti"]) .porte-fond {
   background: color-mix(in srgb, var(--soirees-ok) 42%, var(--surface));
@@ -645,7 +656,8 @@ html:has(.soirees-barre) {
   position: relative;
   background: var(--surface);
   transform: translateX(var(--glisse, 0px));
-  transition: transform var(--c-slow) var(--c-ease);
+  /* Lâchée avant le seuil, la rangée revient en ressort. */
+  transition: transform var(--c-sheet) var(--c-spring);
 }
 
 .porte-rangee:is([data-phase="glisse"], [data-phase="pret"]) .porte-contenu {
@@ -691,7 +703,8 @@ html:has(.soirees-barre) {
   .porte-rangee[data-phase] .porte-contenu {
     transition: none;
   }
-  .porte-rangee[data-indice] .porte-contenu {
+  .porte-rangee[data-indice] .porte-contenu,
+  .porte-rangee[data-phase="pret"] .porte-coche {
     animation: none;
   }
   /* Le halo reste en place et s'éteint : le signal demeure. */
@@ -796,6 +809,11 @@ html:has(.soirees-barre) {
   .anneau-place {
     animation: none;
   }
+  .anneau-part,
+  .anneau-plein,
+  .porte-fond {
+    transition: none;
+  }
 }
 
 /* Onglets soulignés (underline-tabs.tsx) : le trait d'or glisse sous l'onglet ouvert. */
@@ -830,16 +848,67 @@ html:has(.soirees-barre) {
 }
 
 /*
-  Au téléphone, plan entier : les pastilles des places, trop petites pour
-  être lues, s'effacent ; elles reviennent dès qu'on agrandit (et sur la
-  fiche de la table).
+  Plan entier : les pastilles des places se chevaucheraient d'une table à
+  l'autre ; seule celle de la table choisie reste. Elles reviennent toutes
+  dès qu'on agrandit (et la fiche de la table dit ses places).
 */
-@media (max-width: 63.99rem) {
-  .plan-cadre:not([data-zoomed]) .plan-places {
-    opacity: 0;
-  }
+.plan-cadre:not([data-zoomed]) .plan-table:not([data-selected]) .plan-places {
+  opacity: 0;
 }
 
 .gestion-plan .plan-places {
   transition: opacity var(--c-base) var(--c-ease);
+}
+
+/* Les tables d'une zone en tuiles (téléphone) : remplies de la couleur de leur état. */
+.tuile {
+  --tuile: var(--etat-libre);
+  border-color: var(--hairline);
+  background: var(--surface);
+  transition:
+    background-color var(--c-base) var(--c-ease),
+    border-color var(--c-base) var(--c-ease);
+}
+
+.tuile[data-state="payee"] {
+  --tuile: var(--etat-payee);
+}
+
+.tuile[data-state="attente"] {
+  --tuile: var(--etat-attente);
+}
+
+.tuile[data-state="arrivee"] {
+  --tuile: var(--etat-arrivee);
+}
+
+.tuile[data-state="prise"] {
+  --tuile: var(--etat-prise);
+}
+
+.tuile[data-state="gardee"] {
+  --tuile: var(--etat-gardee);
+  background: var(--surface);
+}
+
+/* Une table tenue se remplit de la couleur de son état ; une table libre reste sobre. */
+.tuile:is([data-state="payee"], [data-state="attente"], [data-state="arrivee"], [data-state="prise"]) {
+  border-color: color-mix(in srgb, var(--tuile) 60%, transparent);
+  background: color-mix(in srgb, var(--tuile) 22%, var(--surface));
+}
+
+/* Ce qui reste à encaisser sur une table : du texte clair sur la surface, un repère corail. */
+.reste {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--hairline);
+  background: var(--surface-raised);
+  padding: 0.125rem 0.5rem;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--foreground);
 }

@@ -126,7 +126,7 @@ export function EventBooking({
       return offer
         ? [{ ...zone, offerCents: offer.priceCents, available: offer.available, maxParty: offer.maxParty }]
         : [];
-    });
+    }).sort((a, b) => a.offerCents - b.offerCents);
   }, [club.zones, availability.offers]);
 
   const [offerId, setOfferId] = useState<string | null>(null);
@@ -318,7 +318,10 @@ export function EventBooking({
     let dragging = false;
     let dy = 0;
     const onStart = (touch: TouchEvent) => {
-      start = sheet.scrollTop <= 0 && !live.current.paying ? { y: touch.touches[0].clientY, time: touch.timeStamp } : null;
+      // Le curseur, le nombre de personnes, le mode : le geste leur appartient, jamais à la feuille.
+      const control = (touch.target as Element).closest("input[type=range], [data-no-sheet-drag]");
+      start =
+        sheet.scrollTop <= 0 && !live.current.paying && !control ? { y: touch.touches[0].clientY, time: touch.timeStamp } : null;
       dragging = false;
       dy = 0;
     };
@@ -535,6 +538,14 @@ export function EventBooking({
                     <span className="club-offer-price club-mono">{formatCents(allIn(offer.offerCents))}</span>
                     <span className="club-offer-meta">Jusqu&rsquo;à {offer.maxParty} personnes</span>
                     {offer.inclus && <span className="club-offer-inclus">{offer.inclus}</span>}
+                    {offer.available && !checked && (
+                      <span className="club-offer-cta" aria-hidden>
+                        Choisir
+                        <svg viewBox="0 0 16 16">
+                          <path d="M6 3l5 5-5 5" />
+                        </svg>
+                      </span>
+                    )}
                   </span>
                 </button>
               );
@@ -622,10 +633,10 @@ export function EventBooking({
                 <h3 ref={headingRef} tabIndex={-1} className="club-sheet-title">
                   {selected.name}
                 </h3>
-                <p className="club-sheet-text">Jusqu&rsquo;à {selected.maxParty} personnes · table attribuée par le club</p>
                 <p className="club-sheet-price">
-                  <RollingAmount cents={tablePrice} className="club-mono" /> tout compris · {people} pers.
+                  <RollingAmount cents={tablePrice} className="club-mono" /> tout compris
                 </p>
+                <p className="club-sheet-text">Table attribuée par le club</p>
               </div>
 
               <div ref={stageRef} className="club-stage" data-back={back || undefined}>
@@ -638,8 +649,10 @@ export function EventBooking({
                       </div>
                     )}
                     <div className="club-party">
-                      <span id="party-label">Vous serez</span>
-                      <div className="club-stepper" role="group" aria-labelledby="party-label">
+                      <span id="party-label">
+                        Vous serez <span className="club-party-max">jusqu&rsquo;à {selected.maxParty}</span>
+                      </span>
+                      <div className="club-stepper" role="group" aria-labelledby="party-label" data-no-sheet-drag>
                         <button
                           type="button"
                           onClick={() => setParty(Math.max(1, people - 1))}
@@ -667,6 +680,7 @@ export function EventBooking({
                       aria-label="Paiement de la table"
                       style={{ "--modes": modes.length, "--mode": modeIndex } as CSSProperties}
                       onKeyDown={onModesKey}
+                      data-no-sheet-drag
                     >
                       <span className="club-mode-pill" aria-hidden />
                       {modes.map((item) => (
@@ -698,6 +712,16 @@ export function EventBooking({
                     {shared && people > 1 && (
                       <div className="club-share" key="share" data-key-figure>
                         <ShareAmount
+                          visual={
+                            <SeatRing
+                              seats={people}
+                              priceCents={tablePrice}
+                              shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
+                              label={`${people} pers.`}
+                              scrubbing={scrubbing}
+                              compact
+                            />
+                          }
                           value={share}
                           min={part}
                           max={tablePrice}
@@ -716,13 +740,6 @@ export function EventBooking({
                           ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
                           onChange={setShareCents}
                           onScrub={setScrubbing}
-                        />
-                        <SeatRing
-                          seats={people}
-                          priceCents={tablePrice}
-                          shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
-                          label={`${people} pers.`}
-                          scrubbing={scrubbing}
                         />
                         <p className="club-fine club-share-note">
                           La table est à vous dès ce paiement. Vos amis reçoivent un lien privé pour payer leur part

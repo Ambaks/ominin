@@ -57,11 +57,79 @@ function readHintSeen(): boolean {
 
 type Filter = "toutes" | "attente" | "payee";
 
+/** Les groupes de la porte, dans l'ordre : ce qu'il faut encaisser, puis ce qui est réglé. */
+const GROUPS: Partial<Record<TableState, string>> = {
+  attente: "À encaisser",
+  payee: "Payées",
+  prise: "Paiement en ligne en cours",
+};
+
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "toutes", label: "Toutes" },
   { id: "attente", label: "À encaisser" },
   { id: "payee", label: "Payées" },
 ];
+
+/** « ⋯ » d'une rangée : appeler, lire la note, ouvrir la fiche (déplacer, rembourser). */
+function RowMenu({ booking, onOpen }: { booking: ClubBooking; onOpen: () => void }) {
+  const [open, setOpen] = useState(false);
+  const item = "flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm hover:bg-surface-raised";
+  return (
+    <div
+      className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && open) {
+          event.stopPropagation();
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Plus d'actions pour ${booking.name}`}
+        onClick={() => setOpen(!open)}
+        className="flex size-12 shrink-0 items-center justify-center rounded-full border border-hairline text-lg text-muted hover:text-foreground"
+      >
+        ⋯
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="soirees-entree absolute bottom-full left-0 z-20 mb-2 flex w-64 flex-col gap-1 rounded-2xl border border-hairline bg-surface-raised p-1.5 shadow-lg shadow-background/60"
+        >
+          {booking.phone && (
+            <a role="menuitem" href={telHref(booking.phone)} draggable={false} className={item}>
+              <PhoneIcon className="size-4 text-muted" />
+              Appeler <span className="tabular-nums">{formatPhone(booking.phone)}</span>
+            </a>
+          )}
+          {booking.note && (
+            <p className="px-3 py-2 text-sm">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted">Note</span>
+              {booking.note}
+            </p>
+          )}
+          <button
+            role="menuitem"
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onOpen();
+            }}
+            className={item}
+          >
+            Ouvrir la fiche · déplacer
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function DoorRow({
   entry,
@@ -196,12 +264,14 @@ function DoorRow({
               </span>
             )}
             {deposit !== null ? (
-              <span className="statut statut-pose" data-state="attente">
+              <span className="reste statut-pose">
+                <span className="plan-legende" data-state="attente" aria-hidden />
                 Acompte <span className="tabular-nums">{formatCents(deposit)}</span> · reste{" "}
                 <span className="tabular-nums">{formatCents(remaining)}</span>
               </span>
             ) : remaining > 0 && booking.paidCents > 0 ? (
-              <span className="statut statut-pose" data-state="attente">
+              <span className="reste statut-pose">
+                <span className="plan-legende" data-state="attente" aria-hidden />
                 Reste <span className="tabular-nums">{formatCents(remaining)}</span>
               </span>
             ) : (
@@ -210,19 +280,9 @@ function DoorRow({
             {next && <span className="text-xs font-semibold text-ember-2">Suivant</span>}
           </span>
         </button>
-        {(booking.phone || state === "payee" || state === "attente") && (
+        {(state === "payee" || state === "attente" || booking.phone || booking.note) && (
           <div className="flex items-center gap-2">
-            {booking.phone && (
-              <a
-                href={telHref(booking.phone)}
-                draggable={false}
-                aria-label={`Appeler ${booking.name}, ${formatPhone(booking.phone)}`}
-                title={formatPhone(booking.phone)}
-                className="flex size-12 shrink-0 items-center justify-center rounded-full border border-hairline text-muted hover:text-foreground"
-              >
-                <PhoneIcon className="size-5" />
-              </a>
-            )}
+            <RowMenu booking={booking} onOpen={onOpen} />
             {state === "payee" && button("Arrivé(e)", () => void commit())}
             {state === "attente" &&
               button(`Encaisser ${formatCents(remaining)} et faire entrer`, () => void commit())}
@@ -337,35 +397,44 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
         </p>
       ) : (
         <>
-          <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            Tables attendues · <span className="tabular-nums">{waiting.length}</span>
-          </p>
           {rows.length === 0 ? (
             <p className="px-1 pb-4 text-sm text-muted">
               {query ? "Personne d'attendu ne correspond." : "Tout le monde est arrivé."}
             </p>
           ) : (
-            <ul className="divide-y divide-hairline overflow-hidden rounded-2xl border border-hairline bg-surface">
-              {rows.map(({ key, item, presence }) => (
-                <li
-                  key={key}
-                  className="rangee"
-                  data-presence={presence}
-                  onAnimationEnd={(event) => {
-                    if (event.target === event.currentTarget && presence === "sortie") done(key);
-                  }}
-                >
-                  <div>
-                    <DoorRow
-                      entry={item}
-                      next={item.booking.id === nextId}
-                      hint={item.booking.id === hintId}
-                      onOpen={() => onOpen(item.table.id)}
-                      onArrive={() => arrive(item.booking, tableName(item.zoneName, item.table.label))}
-                    />
-                  </div>
-                </li>
-              ))}
+            <ul className="flex flex-col">
+              {rows.map(({ key, item, presence }, index) => {
+                const group = GROUPS[item.state] ?? GROUPS.payee;
+                const opens = index === 0 || (GROUPS[rows[index - 1].item.state] ?? GROUPS.payee) !== group;
+                const count = waiting.filter((entry) => (GROUPS[entry.state] ?? GROUPS.payee) === group).length;
+                return (
+                  <li
+                    key={key}
+                    className="rangee"
+                    data-presence={presence}
+                    onAnimationEnd={(event) => {
+                      if (event.target === event.currentTarget && presence === "sortie") done(key);
+                    }}
+                  >
+                    <div className="pb-2">
+                      {opens && (
+                        <p className={`px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-muted ${index > 0 ? "pt-4" : ""}`}>
+                          {group} · <span className="tabular-nums">{count}</span>
+                        </p>
+                      )}
+                      <div className="overflow-hidden rounded-2xl border border-hairline bg-surface">
+                        <DoorRow
+                          entry={item}
+                          next={item.booking.id === nextId}
+                          hint={item.booking.id === hintId}
+                          onOpen={() => onOpen(item.table.id)}
+                          onArrive={() => arrive(item.booking, tableName(item.zoneName, item.table.label))}
+                        />
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
 

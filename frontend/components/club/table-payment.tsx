@@ -32,12 +32,6 @@ type Outcome = {
   label?: string;
 };
 
-/* Payé : le bouton le dit (et le téléphone vibre) un instant, puis on passe à la réservation. */
-const celebrate = (onPaid: () => void) => {
-  navigator.vibrate?.(CLUB_TIMING.paidVibrateMs);
-  window.setTimeout(onPaid, CLUB_TIMING.paidPause);
-};
-
 async function post(path: "/api/club/pay" | "/api/club/verify", paymentId: string) {
   const response = await fetch(path, {
     method: "POST",
@@ -118,7 +112,7 @@ function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy, label }
       if (status === 409 || status === 410) return onExpired(body.error);
       if (ok && body.paid) {
         setPaid(true);
-        return celebrate(onPaid);
+        return onPaid();
       }
       setError(body.error ?? "Le paiement n'a pas abouti.");
     } catch {
@@ -193,7 +187,7 @@ function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy, 
     if (verified?.ok && verified.body.paid === false) setRefunded(true);
     else {
       setSucceeded(true);
-      celebrate(onPaid);
+      onPaid();
     }
   }, [paymentId, onPaid]);
 
@@ -330,11 +324,24 @@ export function TablePayment({
   useEffect(() => {
     outcome.current = { onPaid, onExpired };
   }, [onPaid, onExpired]);
-  const paid = useCallback(() => outcome.current.onPaid(), []);
+  /*
+   * Payé : le bouton le dit (et le téléphone vibre) un instant, puis on passe
+   * à la réservation. Une seule fois, d'où que vienne la nouvelle (bouton,
+   * fin du délai) ; rien ne part si la page est quittée entre-temps.
+   */
+  const done = useRef(false);
+  const pause = useRef(0);
+  useEffect(() => () => window.clearTimeout(pause.current), []);
+  const paid = useCallback(() => {
+    if (done.current) return;
+    done.current = true;
+    navigator.vibrate?.(CLUB_TIMING.paidVibrateMs);
+    pause.current = window.setTimeout(() => outcome.current.onPaid(), CLUB_TIMING.paidPause);
+  }, []);
   const expired = useCallback((message?: string) => outcome.current.onExpired(message), []);
 
   useEffect(() => {
-    if (!timeUp || busy) return;
+    if (!timeUp || busy || done.current) return;
     let gone = false;
     post("/api/club/verify", paymentId)
       .then(({ body }) => {

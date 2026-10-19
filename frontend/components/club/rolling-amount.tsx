@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CLUB_TIMING } from "@/components/club/timing";
+import { CLUB_TIMING, rollEase } from "@/components/club/timing";
 import { formatCents } from "@/lib/club/format";
 import { prefersReducedMotion } from "@/lib/club/media";
 
@@ -41,7 +41,7 @@ export function RollingAmount({
     const step = (now: number) => {
       start ??= now;
       const progress = Math.min(Math.max((now - start) / CLUB_TIMING.roll, 0), 1);
-      const eased = 1 - (1 - progress) ** 3;
+      const eased = rollEase(progress);
       const raw = Math.round(from + (cents - from) * eased);
       // En route, à l'euro si l'arrivée est ronde ; au centime sinon.
       const value = progress === 1 ? cents : cents % 100 === 0 ? Math.round(raw / 100) * 100 : raw;

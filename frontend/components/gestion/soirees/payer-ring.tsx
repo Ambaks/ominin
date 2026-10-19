@@ -1,5 +1,7 @@
 "use client";
 
+import { initials } from "@/lib/club/mappers";
+import { fillSeats } from "@/lib/club/seats";
 import type { Payer } from "@/lib/gestion/club-selectors";
 
 /*
@@ -14,34 +16,6 @@ import type { Payer } from "@/lib/gestion/club-selectors";
 
 /* Repère du dessin (unités du viewBox) : taille, anneau, cercle des places, rayon maximal d'une place. */
 const RING = { size: 240, progress: 108, seats: 74, seatMax: 21, gap: 4 } as const;
-
-type Seat = { fill: number; owner: number | null; first: boolean };
-
-function initials(name: string): string {
-  const [first, second] = name.replace(/\./g, "").trim().split(/\s+/);
-  return `${first?.[0] ?? ""}${second?.[0] ?? ""}`.toUpperCase();
-}
-
-/** Les places remplies payeur après payeur : une part égale (prix ÷ places) remplit une place. */
-function fillSeats(count: number, priceCents: number, payers: Payer[]): Seat[] {
-  const seats: Seat[] = Array.from({ length: count }, () => ({ fill: 0, owner: null, first: false }));
-  const unit = priceCents / count;
-  let cursor = 0;
-  payers.forEach((payer, owner) => {
-    const start = cursor;
-    const end = Math.min(count, cursor + payer.amountCents / unit);
-    for (let index = Math.floor(start); index < Math.ceil(end); index++) {
-      const covered = Math.min(end, index + 1) - Math.max(start, index);
-      if (covered <= 0) continue;
-      seats[index].fill = Math.min(1, seats[index].fill + covered);
-      seats[index].owner ??= owner;
-    }
-    const home = seats.findIndex((seat, index) => index >= Math.floor(start) && seat.owner === owner);
-    if (home >= 0) seats[home].first = true;
-    cursor = end;
-  });
-  return seats;
-}
 
 export function PayerRing({
   label,
@@ -59,7 +33,7 @@ export function PayerRing({
 }) {
   const centre = RING.size / 2;
   const share = priceCents > 0 ? Math.min(1, paidCents / priceCents) : 1;
-  const seats = fillSeats(Math.max(count, 1), priceCents, payers);
+  const seats = fillSeats(Math.max(count, 1), priceCents, payers, (payer) => payer.amountCents);
   const radius = Math.min(RING.seatMax, (Math.PI * RING.seats) / seats.length - RING.gap);
   return (
     <svg
@@ -86,7 +60,7 @@ export function PayerRing({
       </g>
       {seats.map((seat, index) => {
         const angle = (index / seats.length) * Math.PI * 2 - Math.PI / 2;
-        const payer = seat.owner === null ? null : payers[seat.owner];
+        const payer = seat.owner;
         return (
           <g
             key={index}
@@ -102,7 +76,7 @@ export function PayerRing({
               {seat.fill > 0 && (
                 <circle className="anneau-plein" r={radius} style={{ "--fill": seat.fill } as React.CSSProperties} />
               )}
-              {seat.first && payer && (
+              {seat.home && payer && (
                 <text className="anneau-initiales" textAnchor="middle" dominantBaseline="central">
                   {initials(payer.name)}
                 </text>

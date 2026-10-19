@@ -12,9 +12,9 @@ import {
   ClubSkeleton,
   NightNotFound,
 } from "@/components/gestion/soirees/club-states";
-import { RollingAmount } from "@/components/club/rolling-amount";
 import { DoorList, type HeldTable } from "@/components/gestion/soirees/door-list";
 import { GuestList } from "@/components/gestion/soirees/guest-list";
+import { Money } from "@/components/gestion/soirees/money";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
 import { useWide } from "@/components/gestion/soirees/use-wide";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -92,10 +92,10 @@ function Figure({
   detail?: React.ReactNode;
 }) {
   return (
-    <div className="min-w-0 bg-surface px-4 py-3">
+    <div className="min-w-0 bg-surface px-3.5 py-2.5 sm:px-4 sm:py-3">
       <dt className="text-xs font-medium text-muted">{label}</dt>
-      <dd className="mt-0.5 text-2xl font-semibold tabular-nums">
-        {cents === undefined ? value : <RollingAmount cents={cents} />}
+      <dd className="mt-0.5 text-xl font-semibold tabular-nums sm:text-2xl">
+        {cents === undefined ? value : <Money cents={cents} />}
       </dd>
       {detail && <dd className="text-xs text-muted">{detail}</dd>}
     </div>
@@ -177,7 +177,8 @@ function ZoneTables({
               type="button"
               onClick={() => onSelect(table.id)}
               aria-label={`${tableName(zoneName, table.label)}, ${TABLE_STATE_LABELS[state]?.toLowerCase()}${booking ? `, ${booking.name}` : ""}`}
-              className="flex min-h-12 w-full items-center gap-2 rounded-xl border border-hairline bg-surface px-2.5 py-1.5 text-left hover:border-ember-2/40"
+              data-state={state}
+              className="tuile flex min-h-14 w-full items-center gap-2 rounded-xl border px-3 py-2 text-left"
             >
               <span className="plan-legende" data-state={state} aria-hidden />
               <span className="min-w-0">
@@ -339,6 +340,8 @@ export default function LivePage() {
           })}
         </div>
       )}
+      {!wide && <ZoneTables zoneName={zone.name} tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
+      {!wide && <h2 className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted">Vue d&rsquo;ensemble</h2>}
       <NightPlan
         key={zone.id}
         zone={zone}
@@ -351,7 +354,6 @@ export default function LivePage() {
         onPingEnd={acknowledgeArrival}
       />
       <PlanLegend states={LEGEND} />
-      {!wide && <ZoneTables zoneName={zone.name} tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
     </div>
   ) : (
     <EmptyState
@@ -416,6 +418,22 @@ export default function LivePage() {
         </p>
       )}
 
+      {/* Au téléphone, les vues d'abord : la porte se rejoint d'un geste, sans passer les chiffres. */}
+      {!wide && (
+        <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md">
+          <UnderlineTabs
+            label="Le plan du soir"
+            tabs={[
+              { id: "plan", label: "Plan" },
+              { id: "porte", label: "Porte", count: expected },
+              ...(guestList ? [{ id: "invites", label: "Invités", count: stats.guests }] : []),
+            ]}
+            activeId={view}
+            onSelect={(next) => setView(next as View)}
+          />
+        </div>
+      )}
+
       {/* Un seul bandeau, les mêmes mots partout : des tables (réservées, attendues, arrivées), des personnes, de l'argent. */}
       <dl
         className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline lg:sticky lg:top-[calc(var(--gestion-entete,0px)+0.5rem)] lg:z-20 lg:shadow-lg lg:shadow-background/60 ${
@@ -477,18 +495,6 @@ export default function LivePage() {
         </div>
       ) : (
         <>
-          <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md">
-            <UnderlineTabs
-              label="Le plan du soir"
-              tabs={[
-                { id: "plan", label: "Plan" },
-                { id: "porte", label: "Porte", count: expected },
-                ...(guestList ? [{ id: "invites", label: "Invités", count: stats.guests }] : []),
-              ]}
-              activeId={view}
-              onSelect={(next) => setView(next as View)}
-            />
-          </div>
           {view === "plan" && plan}
           {view === "invites" && guests}
           {view === "porte" && (

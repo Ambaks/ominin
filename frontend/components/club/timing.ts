@@ -3,6 +3,9 @@
  * (ms, px) : valeurs nommées, à valider. Les durées CSS sont dans tokens.css.
  */
 
+/* La courbe des montants qui défilent, partagée par tout ce qui bouge avec eux (le curseur d'une part). */
+export const rollEase = (progress: number) => 1 - (1 - progress) ** 3;
+
 export const CLUB_TIMING = {
   /* Relecture du statut d'une réservation (paiement, porte, remboursement). */
   refresh: 20_000,
