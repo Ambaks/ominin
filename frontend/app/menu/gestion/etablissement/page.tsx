@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataLicenceSettings } from "@/components/gestion/data-licence-settings";
 import { CollectSettings } from "@/components/gestion/collect-settings";
 import { FermeturesSettings } from "@/components/gestion/fermetures-settings";
 import { GiftIcon } from "@/components/gestion/icons";
+import { fetchHubriseStatus, HubriseSettings } from "@/components/gestion/hubrise-settings";
 import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
@@ -19,7 +20,14 @@ import * as api from "@/lib/gestion/api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Etablissement } from "@/lib/gestion/types";
 
-function EtablissementForm({ etablissement }: { etablissement: Etablissement }) {
+function EtablissementForm({
+  etablissement,
+  hoursManaged,
+}: {
+  etablissement: Etablissement;
+  /** Les horaires viennent de la caisse (HubRise) : on ne les saisit plus ici. */
+  hoursManaged: boolean;
+}) {
   const toast = useToast();
   const [name, setName] = useState(etablissement.name);
   const [tagline, setTagline] = useState(etablissement.tagline);
@@ -42,7 +50,7 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const problem = hoursProblem(openingHours);
+    const problem = hoursManaged ? null : hoursProblem(openingHours);
     if (problem) {
       toast.error(problem);
       return;
@@ -55,8 +63,13 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
         address: address.trim(),
         phone: phone.trim(),
         // Le texte affiché est celui du gérant ; vide, il suit les plages.
-        hours: hours.trim() || generated,
-        openingHours: generated ? openingHours : null,
+        // Les horaires de la caisse ne se réécrivent pas d'ici.
+        hours: hoursManaged ? etablissement.hours : hours.trim() || generated,
+        openingHours: hoursManaged
+          ? etablissement.openingHours
+          : generated
+            ? openingHours
+            : null,
         googleReviewUrl: googleReviewUrl.trim() || undefined,
       });
       toast.success("Informations enregistrées.");
@@ -108,22 +121,37 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
         <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
           Horaires d&apos;ouverture
         </legend>
-        <OpeningHoursEditor value={openingHours} onChange={setOpeningHours} />
-        <span className="text-xs text-faint">
-          Le click &amp; collect propose ses heures de retrait dans ces plages.
-        </span>
+        {hoursManaged ? (
+          <p className="rounded-xl border border-hairline bg-background px-4 py-3 text-sm leading-relaxed">
+            <span className="block text-muted">
+              Les horaires viennent de votre caisse, par HubRise : modifiez-les là-bas.
+            </span>
+            <span className="mt-1 block font-medium">
+              {etablissement.hours || "Aucun horaire reçu."}
+            </span>
+          </p>
+        ) : (
+          <>
+            <OpeningHoursEditor value={openingHours} onChange={setOpeningHours} />
+            <span className="text-xs text-faint">
+              Le click &amp; collect propose ses heures de retrait dans ces plages.
+            </span>
+          </>
+        )}
       </fieldset>
-      <Field
-        label="Horaires affichés sur la carte"
-        hint="Votre texte ; laissé vide, il est écrit d'après les plages ci-dessus."
-      >
-        <input
-          value={hours}
-          onChange={(event) => setHours(event.target.value)}
-          placeholder={formatOpeningHours(openingHours)}
-          className={inputClass}
-        />
-      </Field>
+      {!hoursManaged && (
+        <Field
+          label="Horaires affichés sur la carte"
+          hint="Votre texte ; laissé vide, il est écrit d'après les plages ci-dessus."
+        >
+          <input
+            value={hours}
+            onChange={(event) => setHours(event.target.value)}
+            placeholder={formatOpeningHours(openingHours)}
+            className={inputClass}
+          />
+        </Field>
+      )}
       <Field
         label="Avis Google"
         hint="Le lien « Laisser un avis » de votre fiche Google Business, proposé en bas de votre menu en ligne."
@@ -151,6 +179,16 @@ function EtablissementForm({ etablissement }: { etablissement: Etablissement }) 
 export default function EtablissementPage() {
   const state = useGestion();
   const { can, products, hasFeature } = useGestionAccess();
+  const [hubriseHours, setHubriseHours] = useState(false);
+  const isGerant = state?.role === "gerant";
+
+  // Relié à HubRise, la caisse fait foi pour les horaires.
+  useEffect(() => {
+    if (!isGerant) return;
+    void fetchHubriseStatus().then((status) =>
+      setHubriseHours(status.connected && status.syncedAt?.hours != null)
+    );
+  }, [isGerant]);
 
   if (!state) return null;
 
@@ -170,6 +208,7 @@ export default function EtablissementPage() {
           <EtablissementForm
             key={state.etablissement.slug}
             etablissement={state.etablissement}
+            hoursManaged={hubriseHours}
           />
           {/* Le type de service n'a de sens qu'avec la commande en ligne. */}
           {hasFeature("commandes") && state.etablissement.offre !== null && (
@@ -204,6 +243,7 @@ export default function EtablissementPage() {
               }
             />
           )}
+          {isGerant && <HubriseSettings />}
           {/* Sur mobile, la barre du bas n'a pas la place d'un onglet de
               plus : la fidélité se rejoint d'ici. */}
           {hasFeature("fidelite") && (

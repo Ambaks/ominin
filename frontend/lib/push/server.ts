@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { kickHubrise } from "@/lib/hubrise/sync";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   CALL_THROTTLE_MS,
@@ -90,6 +91,10 @@ export async function dispatchOrderEvent(
   event: PushEvent,
   options?: { skipUserId?: string }
 ): Promise<void> {
+  // Même point de passage que la notification : la commande vient de devenir
+  // « vraie » (réglée, ou choisie pour se régler sur place), la caisse HubRise
+  // du restaurant doit la recevoir sans attendre le filet du cron.
+  kickHubrise();
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   const subject = process.env.VAPID_SUBJECT;
