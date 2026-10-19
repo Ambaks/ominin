@@ -35,11 +35,11 @@ const protection = [
   { src: auventEchafaudage, alt: "Échafaudage et protection sous un auvent" },
 ];
 
-function SectionHead({ n, title, intro }: { n: string; title: string; intro?: string }) {
+function SectionHead({ n, title, intro }: { n: string; title?: string; intro?: string }) {
   return (
     <div className="mb-16 grid gap-6 border-t border-line pt-8 md:mb-24 md:grid-cols-12">
       <p className="label tabular text-accent-text md:col-span-2">{n}</p>
-      <RiseText text={title} className="display display-l md:col-span-6" />
+      {title && <RiseText text={title} className="display display-l md:col-span-6" />}
       {intro && <p className="text-muted md:col-span-4 md:pt-3">{intro}</p>}
     </div>
   );
@@ -53,19 +53,6 @@ function CtaBand({ title }: { title: string }) {
       <p className="display display-s max-w-2xl">{title}</p>
       <Button href="#devis">Demander un devis</Button>
     </Reveal>
-  );
-}
-
-function Facts({ facts }: { facts: readonly (readonly [string, string])[] }) {
-  return (
-    <dl className="mt-6 flex flex-wrap gap-2">
-      {facts.map(([k, v]) => (
-        <div key={k} className="border border-line px-3 py-2">
-          <dt className="label text-muted">{k}</dt>
-          <dd className="text-[0.9rem]">{v}</dd>
-        </div>
-      ))}
-    </dl>
   );
 }
 
@@ -138,22 +125,10 @@ export default function Home() {
 
         <section id="chantiers" className="scroll-mt-18 pb-[var(--section)]">
           <div className="shell">
-            <SectionHead
-              n="01"
-              title="Des chantiers *à l'échelle.*"
-              intro="Plafonds entiers, charpentes, auvents : des surfaces traitées sur place, sans démontage. Glissez sur chaque photo pour comparer."
-            />
+            <SectionHead n="01" />
 
-            <div className="grid gap-8 md:grid-cols-12">
-              <div className="md:col-span-6">
-                <p className="label text-accent-text">{featured.kind}</p>
-                <h3 className="display display-l mt-4">{featured.title}</h3>
-              </div>
-              <div className="md:col-span-5 md:col-start-8">
-                <p className="text-muted">{featured.body}</p>
-                <Facts facts={featured.facts} />
-              </div>
-            </div>
+            <p className="label text-accent-text">{featured.kind}</p>
+            <h3 className="display display-l mt-4">{featured.title}</h3>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
               <div className="relative aspect-[9/16] overflow-hidden">
                 <VideoLoop {...featured.film} className="absolute inset-0 size-full" />
@@ -168,9 +143,9 @@ export default function Home() {
                 className="hidden aspect-[9/16] md:block"
               />
               <BeforeAfter
-                before={featured.before}
-                after={featured.after}
-                alt={featured.title}
+                before={featured.compare.before}
+                after={featured.compare.after}
+                alt={featured.compare.title}
                 sizes="(min-width: 768px) 30vw, 100vw"
                 className="aspect-[9/16]"
               />
@@ -180,10 +155,9 @@ export default function Home() {
               {cases.map((c) => (
                 <Reveal key={c.title}>
                   <BeforeAfter before={c.before} after={c.after} alt={c.title} sizes={half} className="aspect-[4/5]" />
-                  <p className="label mt-6 text-accent-text">{c.kind}</p>
-                  <h3 className="display display-s mt-3">{c.title}</h3>
-                  <p className="mt-3 max-w-md text-muted">{c.body}</p>
-                  <Facts facts={c.facts} />
+                  {c.kind && <p className="label mt-6 text-accent-text">{c.kind}</p>}
+                  <h3 className={`display display-s ${c.kind ? "mt-3" : "mt-6"}`}>{c.title}</h3>
+                  {c.body && <p className="mt-3 max-w-md text-muted">{c.body}</p>}
                 </Reveal>
               ))}
             </div>

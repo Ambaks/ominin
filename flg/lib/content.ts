@@ -1,7 +1,5 @@
 import type { StaticImageData } from "next/image";
 
-import auventAvant from "@/assets/chantiers/auvent-avant.jpg";
-import auventApres from "@/assets/chantiers/auvent-apres.jpg";
 import plafondAvant from "@/assets/chantiers/plafond-avant.jpg";
 import plafondApres from "@/assets/chantiers/plafond-apres.jpg";
 import charpenteAvant from "@/assets/chantiers/charpente-avant.jpg";
@@ -10,8 +8,6 @@ import escalierAvant from "@/assets/chantiers/escalier-avant.jpg";
 import escalierApres from "@/assets/chantiers/escalier-apres.jpg";
 import portailAvant from "@/assets/chantiers/portail-avant.jpg";
 import portailApres from "@/assets/chantiers/portail-apres.jpg";
-import plafondClairAvant from "@/assets/chantiers/plafond-clair-avant.jpg";
-import plafondClairApres from "@/assets/chantiers/plafond-clair-apres.jpg";
 import auventGalerie from "@/assets/chantiers/auvent-galerie.jpg";
 
 export const navLinks = [
@@ -47,70 +43,26 @@ export const proofs = [
 
 export type Case = {
   title: string;
-  kind: string;
-  body: string;
-  facts: readonly (readonly [string, string])[];
+  kind?: string;
+  body?: string;
   before: StaticImageData;
   after: StaticImageData;
 };
 
-export const featured: Case & { film: { src: string; poster: string; label: string }; wide: StaticImageData } = {
-  title: "Auvent en lamellé-collé",
+export const featured = {
   kind: "Bâtiment neuf · Extérieur",
-  body: "Sur un bâtiment neuf, les poutres de l'auvent avaient grisé et taché pendant le chantier. Décapage poutre par poutre depuis l'échafaudage, sol bâché, pour rendre au bois sa teinte d'origine sur toute la longueur de la galerie.",
-  facts: [
-    ["Support", "Lamellé-collé"],
-    ["Couche retirée", "Grisaillement, taches de chantier"],
-    ["Accès", "Échafaudage roulant"],
-    ["Protection", "Sol bâché"],
-  ],
-  before: auventAvant,
-  after: auventApres,
+  title: "Chantier extérieur",
   wide: auventGalerie,
   film: {
     src: "/films/auvent-travelling.mp4",
     poster: "/films/auvent-travelling.jpg",
     label: "Travelling le long de l'auvent : les poutres décapées sur toute la galerie",
   },
+  compare: { title: "Plafond intérieur", before: plafondAvant, after: plafondApres },
 };
 
 export const cases: readonly Case[] = [
-  {
-    title: "Plafond à solives",
-    kind: "Plafond · Intérieur",
-    body: "Solives et entrevous sous une peinture blanche écaillée. Décapage complet jusqu'au bois, fenêtres et murs protégés.",
-    facts: [
-      ["Support", "Solives et entrevous bois"],
-      ["Couche retirée", "Peinture blanche écaillée"],
-    ],
-    before: plafondAvant,
-    after: plafondApres,
-  },
-  {
-    title: "Charpente de terrasse",
-    kind: "Charpente · Extérieur",
-    body: "Bois grisé par les intempéries. Décapé, puis protégé par une lasure qui lui rend sa chaleur.",
-    facts: [
-      ["Support", "Charpente bois"],
-      ["Finition", "Lasure"],
-    ],
-    before: charpenteAvant,
-    after: charpenteApres,
-  },
-  {
-    title: "Plafond bois",
-    kind: "Plafond · Intérieur",
-    body: "Lames et poutres sous une peinture blanche. Le bois remis à nu sur toute la pièce.",
-    facts: [
-      ["Support", "Lames et poutres bois"],
-      ["Couche retirée", "Peinture blanche"],
-    ],
-    before: plafondClairAvant,
-    after: plafondClairApres,
-  },
-];
-
-export const smallCases: readonly Omit<Case, "facts">[] = [
+  { title: "Charpente extérieure", before: charpenteAvant, after: charpenteApres },
   {
     title: "Escalier en chêne",
     kind: "Escalier · Intérieur",
@@ -118,6 +70,9 @@ export const smallCases: readonly Omit<Case, "facts">[] = [
     before: escalierAvant,
     after: escalierApres,
   },
+];
+
+export const smallCases: readonly Case[] = [
   {
     title: "Portail métallique",
     kind: "Métal · Extérieur",
