@@ -24,5 +24,5 @@ jobs:
         run: |
           curl -s --max-time 30 -X POST \
             -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
-            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            -d "{\"title\":\"Léa (lecture des réponses) n'a pas tourné\",\"body\":\"Touche pour ouvrir le run et voir l'erreur.\",\"key\":\"${{ github.workflow }}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"urgent\":true}" \
             "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

@@ -66,6 +66,9 @@ export interface DispatchBody {
   event: PushEvent;
 }
 
+/** Gestes proposés dans une notification du suivi, sans ouvrir l'admin. */
+export type PushAction = "done" | "take" | "unblock";
+
 /**
  * Charge utile chiffrée envoyée à l'appareil, lue par le service worker
  * (public/sw.js — dupliquer tout changement de forme là-bas).
@@ -79,6 +82,11 @@ export interface PushPayload {
   url: string;
   /** « essai » : notification de test ; « projet » : suivi du projet (admin). */
   event: PushEvent | "essai" | "projet";
+  /** Reste affichée jusqu'à un geste : une urgence, pas une information. */
+  urgent?: boolean;
+  /** Étape du suivi concernée, cible des boutons d'action. */
+  step?: string;
+  actions?: PushAction[];
 }
 
 /**
