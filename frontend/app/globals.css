@@ -958,7 +958,7 @@ div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/menu-co
 /* L'option choisie cerclée du jaune plein de l'enseigne : à 60 %, il virait
    au kaki sur le gris de la feuille. De même le règlement choisi au panier. */
 .theme-o-crousti-poulet .choice-row.is-checked,
-.theme-o-crousti-poulet .cart-foot [role="radio"][aria-checked="true"] {
+.theme-o-crousti-poulet .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--ember-2);
 }
 
@@ -1476,7 +1476,7 @@ div[data-menu-root][data-slug="big-smash"] .dish-action {
 
 /* L'option choisie cerclée du rouge plein. */
 .theme-big-smash .choice-row.is-checked,
-.theme-big-smash .cart-foot [role="radio"][aria-checked="true"] {
+.theme-big-smash .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--bs-red);
 }
 
@@ -1812,7 +1812,7 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
 
 /* L'option choisie : cerclée de noir, fond jaune pâle. */
 .theme-chicken-street .choice-row.is-checked,
-.theme-chicken-street .cart-foot [role="radio"][aria-checked="true"] {
+.theme-chicken-street .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--cs-ink);
   background-color: #fff8cc;
 }
@@ -4352,52 +4352,37 @@ html:has(.ticket-dock) {
 /*
   Écran court (iPhone SE, téléphone à l'horizontale) : l'en-tête et le pied
   collants du panier en prenaient les deux tiers, une ligne et demie restait
-  visible. Les marges se serrent, et « Retour à la carte » devient un
-  « Retour » compact sur la ligne du total, au lieu d'une rangée à lui.
+  visible. Les marges se serrent ; le pied tient déjà sur une rangée.
 */
 @media (max-height: 640px) {
   [data-menu-root] :is(.cart-head, .cart-foot) {
     padding-block: 0.75rem;
   }
+}
 
-  [data-menu-root] .cart-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.75rem;
-  }
-
-  [data-menu-root] .cart-foot > * {
-    flex-basis: 100%;
-  }
-
-  [data-menu-root] .cart-foot > :first-child {
-    flex: 1 1 0;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-
-  [data-menu-root] .cart-foot > .cart-back {
-    order: -1;
-    flex: none;
-    width: auto;
-    margin: 0 0 0.5rem;
-    padding-inline: 1.25rem;
-    border: 1px solid var(--hairline);
-  }
-
-  [data-menu-root] .cart-back-long {
+/* Écran très bas (téléphone couché) : les accords épinglés d'une feuille de
+   plat gardent leur nom, leur prix et leur bouton, sans la raison du chef —
+   les options doivent rester lisibles au-dessus. */
+@media (max-height: 560px) {
+  [data-menu-root] .sheet-pairings .suggestion-why {
     display: none;
   }
 }
 
-/* Fast food, téléphone couché : le pied du panier — total, choix du
-   règlement, envoi — prenait toute la hauteur, aucune ligne ne se lisait. Le
-   panier passe en deux volets, comme le ticket : la commande à gauche, qui
-   défile, le règlement à droite, toujours en vue. */
+/* Téléphone court (iPhone SE) : deux accords épinglés et plus perdent leur
+   raison, un seul la garde. */
+@media (max-height: 700px) {
+  [data-menu-root] .sheet-pairings:has(li + li) .suggestion-why {
+    display: none;
+  }
+}
+
+/* Fast food, téléphone couché, au règlement : le choix du règlement et
+   l'envoi prenaient toute la hauteur. La feuille passe en deux volets, comme
+   le ticket : le règlement à gauche, qui défile, le total et l'envoi à
+   droite, toujours en vue. La commande, elle, garde toute la largeur. */
 @media (orientation: landscape) and (max-height: 500px) {
-  [data-service="fast-food"] [role="dialog"]:has(> .cart-foot) {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) {
     max-width: 44rem;
     height: calc(100dvh - 1rem);
     display: grid;
@@ -4405,24 +4390,24 @@ html:has(.ticket-dock) {
     overflow: hidden;
   }
 
-  [data-service="fast-food"] [role="dialog"] > .cart-head {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > .cart-head {
     grid-column: 1 / -1;
   }
 
-  [data-service="fast-food"] [role="dialog"] > :is(.cart-content, .cart-foot) {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > :is(.cart-content, .cart-foot) {
     position: relative;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  [data-service="fast-food"] [role="dialog"] > .cart-foot {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > .cart-foot {
     position: static;
     align-content: start;
     border-top: 0;
     border-left: 1px solid var(--hairline);
   }
 
-  [data-service="fast-food"] .cart-content :is(button, input, select, textarea, a, [role="status"], [data-collect-fields]) {
+  [data-service="fast-food"] .cart-reglement :is(button, input, select, textarea, a, [role="status"]) {
     scroll-margin: 0;
   }
 }
@@ -4430,16 +4415,8 @@ html:has(.ticket-dock) {
 /* Deux volets étroits (568 × 320) : « Payer au comptoir » passait à la ligne,
    pas « Payer en ligne » ; les deux s'y mettent. */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 39.99rem) {
-  [data-service="fast-food"] .cart-foot [role="radio"] > .text-balance {
+  [data-service="fast-food"] .cart-reglement [role="radio"] > .text-balance {
     width: min-content;
-  }
-}
-
-/* Deux volets très bas (568 × 320) : la phrase sous le choix du règlement
-   repoussait l'envoi hors de l'écran ; le bouton dit déjà où l'on paie. */
-@media (orientation: landscape) and (max-height: 359px) {
-  [data-service="fast-food"] .cart-hint {
-    display: none;
   }
 }
 
@@ -4447,7 +4424,7 @@ html:has(.ticket-dock) {
    sous l'autre, chacun sur une ligne — côte à côte, l'un passait à la ligne
    et pas l'autre. */
 @media (max-width: 21.25rem) {
-  [data-menu-root] .cart-foot > [role="radiogroup"] {
+  [data-menu-root] .cart-reglement > [role="radiogroup"] {
     flex-direction: column;
   }
 }

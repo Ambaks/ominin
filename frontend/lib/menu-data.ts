@@ -5,6 +5,8 @@ import type { Formule } from "@/lib/gestion/types";
 // registre dans son paquet.
 import { formatPrice } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
+import type { PairingNotes } from "@/lib/menu/pairings";
+import bohoAccords from "@/lib/menu/accords/boho.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -235,6 +237,12 @@ export interface Restaurant {
   ticker?: TickerItem[];
   /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
   glossary?: { term: string; definition: string }[];
+  /**
+   * L'accord du chef : par plat (son nom en base), ce qui l'accompagne. Le
+   * panier le propose à partir de ce qui est déjà commandé, la feuille d'un
+   * plat à côté de ses options. Registre seulement, la base n'en a pas.
+   */
+  pairings?: PairingNotes;
   categories: MenuCategory[];
   /**
    * Formules d'une carte d'aperçu (/menu/demo) : en production elles vivent
@@ -708,6 +716,8 @@ const boho: Restaurant = {
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
+  // Généré par Claude depuis la carte en ligne (backend/scripts/pairings.py).
+  pairings: bohoAccords,
   categories: [
     {
       id: "a-partager",
