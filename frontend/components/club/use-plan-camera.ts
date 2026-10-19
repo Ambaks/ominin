@@ -19,9 +19,9 @@ import { prefersReducedMotion } from "@/lib/club/media";
  * pincent ; un glissement horizontal est rendu par onSwipe. Le focus
  * clavier d'un élément hors cadre l'y ramène.
  *
- * Un toucher sans glissement est rendu par onTap (point écran, cadre) ; avec
- * doubleTapZoom, un toucher au doigt attend doubleTapMs qu'un second ne le
- * transforme pas en zoom. Les clics de pointeur sont absorbés ; ceux du
+ * Un toucher sans glissement est rendu tout de suite par onTap (point écran,
+ * cadre), qui dit s'il a touché quelque chose ; avec doubleTapZoom, deux
+ * touchers rapprochés dans le vide (onTap rend false) zooment. Les clics de pointeur sont absorbés ; ceux du
  * clavier et des lecteurs d'écran passent. Mouvement réduit : ni élan, ni
  * ressort, ni débordement.
  */
@@ -57,8 +57,8 @@ export function usePlanCamera({
   /** Agrandissement maximal, relatif au cadrage de repos. */
   maxZoom?: number;
   doubleTapZoom?: boolean;
-  /** Un toucher : le point (écran) et le cadre à cet instant. */
-  onTap?: (point: Point, frame: DOMRect) => void;
+  /** Un toucher : le point (écran) et le cadre à cet instant ; true s'il a touché un élément (pas de double toucher). */
+  onTap?: (point: Point, frame: DOMRect) => boolean | void;
   onSwipe?: (direction: 1 | -1) => void;
   /** Après chaque image où la caméra a bougé. */
   onChange?: (camera: PlanCamera) => void;
@@ -197,7 +197,8 @@ export function usePlanCamera({
     let pinch: { cam: PlanCamera; distance: number; mid: Point } | null = null;
     let moved = false;
     let lastTap: { point: Point; time: number } | null = null;
-    let pendingTap = 0;
+    // Un toucher qui a arrêté un ressort ou un élan : la caméra doit se reposer ensuite.
+    let interrupted = false;
     /* Les dernières positions du doigt : la vitesse se lit sur sampleMs, pas sur un seul évènement. */
     let samples: { x: number; y: number; t: number }[] = [];
 
@@ -218,6 +219,7 @@ export function usePlanCamera({
       try {
         frame.setPointerCapture(event.pointerId);
       } catch {}
+      interrupted = motion === "spring" || motion === "glide";
       stop();
       zeroVelocity();
       if (pointers.size === 1) {
@@ -229,7 +231,6 @@ export function usePlanCamera({
         pinch = { cam: { ...c }, distance, mid };
         moved = true;
         motion = "pinch";
-        clearTimeout(pendingTap);
       }
     };
 
@@ -279,9 +280,10 @@ export function usePlanCamera({
       const dy = point.y - start.point.y;
       start = null;
       if (!moved) {
-        const tap = { x: event.clientX, y: event.clientY };
-        if (!doubleTapZoom || event.pointerType === "mouse") {
-          handlers.current.onTap?.(tap, frame.getBoundingClientRect());
+        if (interrupted) settle(c);
+        const hit = handlers.current.onTap?.({ x: event.clientX, y: event.clientY }, frame.getBoundingClientRect());
+        if (hit || !doubleTapZoom || event.pointerType === "mouse") {
+          lastTap = null;
           return;
         }
         const now = event.timeStamp;
@@ -289,14 +291,10 @@ export function usePlanCamera({
           lastTap &&
           now - lastTap.time < CAM.doubleTapMs &&
           Math.hypot(point.x - lastTap.point.x, point.y - lastTap.point.y) < CAM.doubleTapSlop;
-        clearTimeout(pendingTap);
         if (double) {
           lastTap = null;
           zoomAt(point, zoomedNow() ? rest.s : rest.s * CAM.doubleZoom);
-        } else {
-          lastTap = { point, time: now };
-          pendingTap = window.setTimeout(() => handlers.current.onTap?.(tap, frame.getBoundingClientRect()), CAM.doubleTapMs);
-        }
+        } else lastTap = { point, time: now };
         return;
       }
       if (motion === "drag") {
@@ -444,7 +442,6 @@ export function usePlanCamera({
     frame.addEventListener("focusin", onFocusIn);
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(pendingTap);
       resize.disconnect();
       api.current = null;
       frame.removeEventListener("pointerdown", onDown);

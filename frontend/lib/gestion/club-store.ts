@@ -50,6 +50,8 @@ export type ClubConditions = { minAge: number; dressCode: string | null; refused
 export interface ClubState {
   etablissementId: string;
   conditions: ClubConditions;
+  /** Acompte en ligne, en % de la table frais compris ; null : table payée en entier. Réglé par Ominin. */
+  depositPercent: number | null;
   zones: ClubZone[];
   tables: ClubTable[];
   events: ClubEvent[];
@@ -125,7 +127,7 @@ async function fetchBase(supabase: Client, etablissementId: string) {
       .then(must),
     supabase
       .from("etablissements")
-      .select("club_min_age, club_dress_code, club_refused")
+      .select("club_min_age, club_dress_code, club_refused, table_deposit_percent")
       .eq("id", etablissementId)
       .single()
       .then(must),
@@ -136,6 +138,7 @@ async function fetchBase(supabase: Client, etablissementId: string) {
       dressCode: conditions.club_dress_code,
       refused: conditions.club_refused,
     },
+    depositPercent: conditions.table_deposit_percent,
     zones: zones.map(rowToZone),
     tables: tables
       .map(rowToTable)

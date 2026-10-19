@@ -40,7 +40,6 @@ import { clubSiteUrl } from "@/lib/site";
 import { BackToSoirees } from "./club-states";
 import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { NightPlan, PlanLegend } from "./night-plan";
-import { useWide } from "./use-wide";
 
 /*
  * Préparer une soirée (gérant) : ce qu'en lit le client — titre, horaire,
@@ -120,7 +119,7 @@ function autoSlug(title: string, date: string): string {
   return slugify(title, day);
 }
 
-/** Les sections de l'éditeur, dans l'ordre de la page et du sommaire. */
+/** Les onglets de l'éditeur, dans l'ordre où l'on prépare une soirée. */
 const SECTIONS = [
   { id: "infos", label: "Infos" },
   { id: "affiche", label: "Affiche & billets" },
@@ -131,70 +130,93 @@ const SECTIONS = [
 
 type SectionId = (typeof SECTIONS)[number]["id"];
 
-/**
- * Une section repliable, ancrée pour le sommaire. Sur un téléphone, seules
- * les infos s'ouvrent d'emblée : le reste se déplie à la demande.
- */
+/** L'onglet de chaque champ contrôlé : une erreur y ramène. */
+const ERROR_TAB = {
+  title: "infos",
+  slug: "infos",
+  date: "infos",
+  end: "infos",
+  ticketUrl: "affiche",
+  zones: "zones",
+  capacity: "invites",
+  maxParty: "invites",
+} as const satisfies Record<string, SectionId>;
+
+/** Un onglet de l'éditeur : affiché seul, le reste de la soirée attend son tour. */
 function Section({
   id,
+  current,
   title,
   hint,
   children,
 }: {
   id: SectionId;
+  current: SectionId;
   title: string;
   hint?: string;
   children: React.ReactNode;
 }) {
-  const wide = useWide();
+  if (id !== current) return null;
   return (
-    <details
-      id={id}
-      open={wide || id === "infos"}
-      className="group scroll-mb-28 scroll-mt-[calc(var(--gestion-entete,0px)+4.5rem)] rounded-2xl border border-hairline bg-surface"
+    <section
+      id={`panneau-${id}`}
+      role="tabpanel"
+      aria-labelledby={`onglet-${id}`}
+      className="soirees-entree flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5"
     >
-      <summary className="flex cursor-pointer list-none items-start justify-between gap-4 p-5 [&::-webkit-details-marker]:hidden">
-        <span>
-          <h2 className="font-display text-lg font-medium">{title}</h2>
-          {hint && <span className="mt-1 block text-sm text-muted">{hint}</span>}
-        </span>
-        <svg viewBox="0 0 24 24" className="mt-1 size-5 shrink-0 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="m6 9 6 6 6-6" />
-        </svg>
-      </summary>
-      <div className="flex flex-col gap-4 px-5 pb-5">{children}</div>
-    </details>
+      <div>
+        <h2 className="font-display text-lg font-medium">{title}</h2>
+        {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
+      </div>
+      {children}
+    </section>
   );
 }
 
-/** Sommaire collé sous l'en-tête : une section se rejoint (et se déplie) d'un geste. */
-function SectionNav({ available }: { available: SectionId[] }) {
-  const go = (id: SectionId) => {
-    const target = document.getElementById(id);
-    if (!(target instanceof HTMLDetailsElement)) return;
-    target.open = true;
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    target.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start" });
-  };
+/** Les onglets, collés sous l'en-tête ; un point signale celui qui a un champ à corriger. */
+function SectionTabs({
+  available,
+  current,
+  flagged,
+  onSelect,
+}: {
+  available: SectionId[];
+  current: SectionId;
+  flagged: SectionId[];
+  onSelect: (id: SectionId) => void;
+}) {
   return (
-    <nav
-      aria-label="Sections de la soirée"
+    <div
+      role="tablist"
+      aria-label="Préparer la soirée"
       className="no-scrollbar sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 flex gap-1.5 overflow-x-auto bg-background/90 px-5 py-2 backdrop-blur-md lg:mx-0 lg:px-0"
     >
-      {SECTIONS.filter((section) => available.includes(section.id)).map((section) => (
-        <a
-          key={section.id}
-          href={`#${section.id}`}
-          onClick={(event) => {
-            event.preventDefault();
-            go(section.id);
-          }}
-          className="flex min-h-10 shrink-0 items-center rounded-full border border-hairline px-3.5 text-sm font-medium text-muted hover:text-foreground"
-        >
-          {section.label}
-        </a>
-      ))}
-    </nav>
+      {SECTIONS.filter((section) => available.includes(section.id)).map((section, index) => {
+        const active = section.id === current;
+        return (
+          <button
+            key={section.id}
+            id={`onglet-${section.id}`}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            aria-controls={`panneau-${section.id}`}
+            onClick={() => onSelect(section.id)}
+            className={`flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
+              active
+                ? "border-[var(--soirees-gold)] text-foreground"
+                : "border-hairline text-muted hover:text-foreground"
+            }`}
+          >
+            <span className="tabular-nums text-xs text-muted">{index + 1}</span>
+            {section.label}
+            {flagged.includes(section.id) && (
+              <span className="size-1.5 rounded-full bg-ember-3" aria-label="(à corriger)" />
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -216,6 +238,7 @@ export function EventEditor({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [tab, setTab] = useState<SectionId>("infos");
   /** Réservations que le dernier passage n'a pas pu rendre (remboursement refusé, réseau). */
   const [failed, setFailed] = useState<string[]>([]);
   const zonesOn = club.zones.filter((zone) => draft.zones[zone.id]?.on);
@@ -287,6 +310,11 @@ export function EventEditor({
       : undefined,
   };
   const valid = Object.values(errors).every((error) => !error);
+  const flagged = [
+    ...new Set(
+      (Object.keys(errors) as (keyof typeof errors)[]).filter((key) => errors[key]).map((key) => ERROR_TAB[key])
+    ),
+  ];
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const ended = event ? isPast(event, now) : false;
   // Soirée annulée dont des tables tiennent encore : un remboursement a
@@ -303,6 +331,7 @@ export function EventEditor({
   const save = async (publish?: boolean) => {
     if (!valid || !startsAt || !endsAt) {
       setShowErrors(true);
+      if (flagged[0]) setTab(flagged[0]);
       toast.error("Certains champs sont à corriger.");
       return;
     }
@@ -408,6 +437,8 @@ export function EventEditor({
       blocked.has(tableId) ? draft.blocked.filter((id) => id !== tableId) : [...draft.blocked, tableId]
     );
   };
+  const tabs = SECTIONS.map((section) => section.id).filter((id) => id !== "gardees" || Boolean(planZone));
+  const nextTab = tabs[tabs.indexOf(tab) + 1];
   const blockedIn = (zoneId: string) =>
     draft.blocked.filter((id) => club.tables.find((table) => table.id === id)?.zoneId === zoneId).length;
   const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
@@ -456,9 +487,9 @@ export function EventEditor({
         </div>
       </div>
 
-      <SectionNav available={SECTIONS.map((section) => section.id).filter((id) => id !== "gardees" || Boolean(planZone))} />
+      <SectionTabs available={tabs} current={tab} flagged={showErrors ? flagged : []} onSelect={setTab} />
 
-      <Section id="infos" title="La soirée">
+      <Section id="infos" current={tab} title="La soirée">
         <Field label="Titre" required error={shownError("title")}>
           <input
             value={draft.title}
@@ -551,7 +582,7 @@ export function EventEditor({
         </Field>
       </Section>
 
-      <Section id="affiche" title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
+      <Section id="affiche" current={tab} title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
         <div className="flex flex-wrap items-center gap-4">
           {draft.posterUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
@@ -606,6 +637,7 @@ export function EventEditor({
 
       <Section
         id="zones"
+        current={tab}
         title="Tables en vente"
         hint="Les zones ouvertes ce soir et leur prix. Vide, le prix est celui de la zone."
       >
@@ -659,6 +691,7 @@ export function EventEditor({
       {planZone && (
         <Section
           id="gardees"
+          current={tab}
           title="Tables gardées"
           hint="Touchez une table pour la garder hors vente ce soir — artiste, habitués. Vous pourrez toujours la réserver vous-même."
         >
@@ -671,6 +704,7 @@ export function EventEditor({
           )}
           <NightPlan
             key={planZone.id}
+            compact
             zone={planZone}
             tables={planTables}
             states={planStates}
@@ -685,7 +719,7 @@ export function EventEditor({
         </Section>
       )}
 
-      <Section id="invites" title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
+      <Section id="invites" current={tab} title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-medium">Inscriptions ouvertes</p>
           <Toggle
@@ -722,6 +756,19 @@ export function EventEditor({
           </div>
         )}
       </Section>
+
+      {nextTab && (
+        <button
+          type="button"
+          onClick={() => setTab(nextTab)}
+          className="flex min-h-11 items-center gap-2 self-end rounded-full border border-hairline px-5 text-sm font-medium hover:border-[var(--soirees-gold)]"
+        >
+          Suivant : {SECTIONS.find((section) => section.id === nextTab)?.label}
+          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </button>
+      )}
 
       {event?.cancelledAt && pending.length > 0 && (
         <section
@@ -761,9 +808,15 @@ export function EventEditor({
       )}
 
       {event && !event.cancelledAt && !ended && (
-        <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-ember-3/30 p-5">
+        <section
+          aria-labelledby="zone-sensible"
+          className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-ember-3/50 bg-ember-3/5 p-5"
+        >
           <div className="min-w-0 flex-1">
-            <h2 className="font-display text-lg font-medium">Annuler la soirée</h2>
+            <p id="zone-sensible" className="text-xs font-semibold uppercase tracking-wider text-ember-3">
+              Zone sensible
+            </p>
+            <h2 className="mt-1 font-display text-lg font-medium">Annuler la soirée</h2>
             <p className="mt-1 text-sm text-muted">
               Chaque table est rendue à son client, remboursée si elle a été payée en ligne, et le
               client prévenu par e-mail.

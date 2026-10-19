@@ -70,6 +70,18 @@ export function staffTableState(booking: ClubBooking | undefined, onSale: boolea
 export const paymentsOf = (night: ClubNight | undefined, bookingId: string): ClubPayment[] =>
   (night?.payments ?? []).filter((payment) => payment.bookingId === bookingId);
 
+/**
+ * L'acompte d'une table dont seul l'organisateur a payé, en partie : ce
+ * qu'il a réglé en ligne, frais compris ; null sinon (table réglée, ou des
+ * amis ont payé leur part). Le reste se paie à la porte.
+ */
+export function depositOf(booking: ClubBooking, payments: ClubPayment[]): number | null {
+  if (booking.source !== "en_ligne" || booking.remainingCents === 0) return null;
+  const online = payments.filter((payment) => payment.method === "en_ligne" && payment.status === "payee");
+  if (online.length !== 1 || !online[0].organiser) return null;
+  return online[0].amountCents + online[0].feeCents;
+}
+
 /** Payé en ligne, non remboursé : ce qu'un remboursement de la table rend. */
 export const refundableOnline = (payments: ClubPayment[]) =>
   payments.filter((payment) => payment.method === "en_ligne" && payment.status === "payee");

@@ -10,6 +10,7 @@ import { formatCents } from "@/lib/club/format";
 import type { ClubBooking, ClubEvent, ClubPayment, ClubTable, ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
+  depositOf,
   formatPhone,
   isClubEntered,
   people,
@@ -19,6 +20,7 @@ import {
   telHref,
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
+import { SeatRing, type SeatShare } from "@/components/club/seat-ring";
 import { StatusChip } from "./night-plan";
 
 /*
@@ -38,7 +40,7 @@ const PRIMARY =
 const SECONDARY =
   "min-h-11 w-full rounded-full border border-hairline px-5 text-sm font-semibold text-foreground transition-colors hover:border-ember-2/40 disabled:opacity-50";
 const DANGER =
-  "mx-auto min-h-11 rounded-full px-4 text-sm font-medium text-ember-3 underline-offset-4 transition-colors hover:underline disabled:opacity-50";
+  "min-h-11 rounded-full border border-ember-3/40 px-4 text-sm font-semibold text-ember-3 transition-colors hover:bg-ember-3/10 disabled:opacity-50";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -49,24 +51,35 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/** Les tables où une réservation peut aller, zone par zone. */
+export type MoveTarget = { zone: ClubZone; tables: ClubTable[] };
+
 const METHOD_LABELS: Record<ClubPayment["method"], string> = {
   en_ligne: "En ligne",
   sur_place: "Sur place",
 };
 
 /** Payé / reste, et la part déjà réglée en barre : ce que la porte a encore à encaisser. */
-function Progress({ booking }: { booking: ClubBooking }) {
+function Progress({ booking, deposit }: { booking: ClubBooking; deposit: number | null }) {
   const share = booking.priceCents > 0 ? booking.paidCents / booking.priceCents : 1;
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <span>
-          Payé <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>
+          {deposit !== null ? (
+            <>
+              Acompte en ligne <span className="font-semibold tabular-nums">{formatCents(deposit)}</span>
+            </>
+          ) : (
+            <>
+              Payé <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>
+            </>
+          )}
         </span>
         <span className={booking.remainingCents > 0 ? "font-semibold text-ember-2" : "text-muted"}>
           {booking.remainingCents > 0 ? (
             <>
-              Reste <span className="tabular-nums">{formatCents(booking.remainingCents)}</span>
+              Reste <span className="tabular-nums">{formatCents(booking.remainingCents)}</span> à encaisser
             </>
           ) : (
             "Table réglée"
@@ -94,6 +107,8 @@ function Progress({ booking }: { booking: ClubBooking }) {
 function BookingCard({
   booking,
   payments,
+  moveTargets,
+  onMoved,
   table,
   zone,
   gerant,
@@ -101,14 +116,19 @@ function BookingCard({
 }: {
   booking: ClubBooking;
   payments: ClubPayment[];
+  moveTargets: MoveTarget[];
+  onMoved: (tableId: string) => void;
   table: ClubTable;
   zone: ClubZone;
   gerant: boolean;
   onClose: () => void;
 }) {
   const toast = useToast();
-  const [busy, setBusy] = useState(false);
+  /** Le geste en cours (« porte », « table » ou l'id d'une part) : son bouton dit qu'il travaille. */
+  const [busy, setBusy] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<"refund" | "cancel" | ClubPayment | null>(null);
+  const [moving, setMoving] = useState(false);
+  const [target, setTarget] = useState<{ table: ClubTable; zone: ClubZone } | null>(null);
   const state = staffTableState(booking, true);
   const clubEntered = isClubEntered(booking);
   const holding = state === "prise";
@@ -116,10 +136,17 @@ function BookingCard({
   const online = refundableOnline(payments);
   const onlineTotal = online.reduce((sum, payment) => sum + payment.amountCents + payment.feeCents, 0);
   const fees = online.reduce((sum, payment) => sum + payment.feeCents, 0);
-  const payers = payments.filter((payment) => payment.method === "en_ligne").length;
+  const paid = payments.filter((payment) => payment.status === "payee");
+  const payers = paid.filter((payment) => payment.method === "en_ligne").length;
+  const shares: SeatShare[] = paid.map((payment) => ({
+    id: payment.id,
+    name: payment.name,
+    amountCents: payment.amountCents,
+    tone: payment.organiser ? "organiser" : "friend",
+  }));
 
-  const run = async (action: () => Promise<unknown>, success: string, close = false) => {
-    setBusy(true);
+  const run = async (key: string, action: () => Promise<unknown>, success: string, close = false) => {
+    setBusy(key);
     try {
       await action();
       toast.success(success);
@@ -127,22 +154,24 @@ function BookingCard({
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   };
 
   const name = tableName(zone.name, table.label);
-  // Le geste attendu d'abord, sur toute la largeur ; ce qui défait ou rend
-  // l'argent en dernier, discret, et toujours confirmé.
+  const working = busy !== null;
+  // Le geste attendu, sur toute la largeur. Ce qui défait ou rend l'argent
+  // vit dans la fiche, en bas, et passe toujours par une confirmation.
   const footer = holding ? undefined : (
     <>
       {remaining > 0 && booking.status !== "arrivee" && (
         <>
           <button
             type="button"
-            disabled={busy}
+            disabled={working}
             onClick={() =>
               void run(
+                "porte",
                 () => clubApi.markArrival(booking, true, true),
                 `${name} : ${formatCents(remaining)} encaissés, arrivée.`,
                 true
@@ -150,48 +179,40 @@ function BookingCard({
             }
             className={PRIMARY}
           >
-            {booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} {formatCents(remaining)} et faire entrer
+            {busy === "porte"
+              ? "Encaissement…"
+              : `${booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} ${formatCents(remaining)} et faire entrer`}
           </button>
           <button
             type="button"
-            disabled={busy}
+            disabled={working}
             onClick={() =>
-              void run(() => clubApi.markArrival(booking, false, true), `${name} : ${formatCents(remaining)} encaissés.`)
+              void run("sans", () => clubApi.markArrival(booking, false, true), `${name} : ${formatCents(remaining)} encaissés.`)
             }
             className={SECONDARY}
           >
-            Encaisser {formatCents(remaining)} sans faire entrer
+            {busy === "sans" ? "Encaissement…" : `Encaisser ${formatCents(remaining)} sans faire entrer`}
           </button>
         </>
       )}
       {remaining === 0 && booking.status === "payee" && (
         <button
           type="button"
-          disabled={busy}
-          onClick={() => void run(() => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
+          disabled={working}
+          onClick={() => void run("porte", () => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
           className={PRIMARY}
         >
-          Marquer arrivé(e)
+          {busy === "porte" ? "Un instant…" : "Marquer arrivé(e)"}
         </button>
       )}
       {booking.status === "arrivee" && (
         <button
           type="button"
-          disabled={busy}
-          onClick={() => void run(() => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
+          disabled={working}
+          onClick={() => void run("porte", () => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
           className={SECONDARY}
         >
-          Annuler l&rsquo;arrivée
-        </button>
-      )}
-      {gerant && online.length > 0 && (
-        <button type="button" disabled={busy} onClick={() => setConfirm("refund")} className={DANGER}>
-          Rembourser la table
-        </button>
-      )}
-      {gerant && clubEntered && (
-        <button type="button" disabled={busy} onClick={() => setConfirm("cancel")} className={DANGER}>
-          Annuler la réservation
+          {busy === "porte" ? "Un instant…" : "Annuler l’arrivée"}
         </button>
       )}
     </>
@@ -205,18 +226,26 @@ function BookingCard({
             <p className="font-display text-xl font-medium">{booking.name}</p>
             <p className="mt-0.5 text-sm text-muted">
               {people(booking.partySize)} · {table.seats} places
-              {booking.shared && (
-                <>
-                  {" · "}
-                  <span className="font-medium text-foreground">
-                    Table partagée, {payers} payeur{payers > 1 ? "s" : ""}
-                  </span>
-                </>
-              )}
             </p>
+            {booking.shared && payers > 1 && (
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-hairline px-2.5 py-1 text-xs font-medium">
+                <span className="etoile" aria-hidden />
+                Table partagée · {payers} payeur{payers > 1 ? "s" : ""}
+              </span>
+            )}
           </div>
           <StatusChip key={state} state={state} />
         </div>
+
+        {booking.shared && payers > 1 && (
+          <SeatRing
+            seats={booking.partySize}
+            priceCents={booking.priceCents}
+            shares={shares}
+            label={table.label}
+            className="max-w-[13rem]"
+          />
+        )}
 
         {holding ? (
           <p className="text-sm text-muted">
@@ -225,58 +254,66 @@ function BookingCard({
             paiement, elle se libère d&rsquo;elle-même.
           </p>
         ) : (
-          <Progress booking={booking} />
+          <Progress booking={booking} deposit={depositOf(booking, payments)} />
         )}
 
         {payments.length > 0 && (
           <section aria-label="Paiements" className="flex flex-col gap-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Paiements</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Qui a payé</h3>
             <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
               {payments.map((payment) => {
                 const refunded = payment.status === "remboursee";
+                // Un ami qui se désiste ; la part de l'organisateur (et les frais) part avec la table entière.
+                const refundable =
+                  gerant && booking.shared && !payment.organiser && payment.method === "en_ligne" && !refunded;
                 return (
-                  <li key={payment.id} className="flex flex-col gap-2 px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="min-w-0">
-                        <span className={`text-sm font-medium ${refunded ? "text-muted line-through" : ""}`}>
-                          {payment.name}
-                        </span>
-                        {payment.organiser && booking.shared && (
-                          <span className="ml-2 rounded-full border border-hairline px-2 py-0.5 text-xs text-muted">
-                            Organisateur
-                          </span>
-                        )}
-                        <span className="mt-0.5 block text-xs text-muted">
-                          {METHOD_LABELS[payment.method]}
-                          {refunded
+                  <li key={payment.id} className="flex items-center gap-3 px-4 py-2.5">
+                    <span className="min-w-0 flex-1">
+                      <span className={`text-sm font-medium ${refunded ? "text-muted line-through" : ""}`}>
+                        {payment.name}
+                      </span>
+                      {payment.organiser && booking.shared && (
+                        <span className="ml-1.5 text-xs font-medium text-ember-1">Organisateur</span>
+                      )}
+                      <span className="block text-xs text-muted">
+                        {METHOD_LABELS[payment.method]}
+                        {refunded
+                          ? booking.status === "remboursee"
                             ? " · remboursée"
-                            : payment.paidAt
-                              ? ` · ${formatClock(payment.paidAt)}`
-                              : ""}
-                        </span>
-                      </span>
-                      <span className="shrink-0 text-right">
-                        <span className="block text-sm font-semibold tabular-nums">{formatCents(payment.amountCents)}</span>
+                            : " · part remboursée"
+                          : payment.paidAt
+                            ? ` · ${formatClock(payment.paidAt)}`
+                            : ""}
                         {payment.feeCents > 0 && (
-                          <span className="block text-xs text-muted">
-                            + <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais
-                          </span>
+                          <>
+                            {" · + "}
+                            <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais
+                          </>
                         )}
                       </span>
-                    </div>
-                    {gerant && booking.shared && payment.method === "en_ligne" && !refunded && (
+                    </span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums">{formatCents(payment.amountCents)}</span>
+                    {refundable && (
                       <button
                         type="button"
-                        disabled={busy}
+                        disabled={working}
                         onClick={() => setConfirm(payment)}
-                        className="min-h-11 self-start rounded-full px-1 text-sm font-medium text-ember-3 underline-offset-4 hover:underline disabled:opacity-50"
+                        aria-label={`Rembourser la part de ${payment.name}`}
+                        className="min-h-11 shrink-0 rounded-full border border-ember-3/40 px-3 text-xs font-semibold text-ember-3 hover:bg-ember-3/10 disabled:opacity-50 lg:pointer-fine:min-h-9"
                       >
-                        Rembourser cette part
+                        {busy === payment.id ? "…" : "Rembourser"}
                       </button>
+                    )}
+                    {gerant && booking.status === "remboursee" && payment.method === "en_ligne" && !refunded && (
+                      <span className="shrink-0 text-xs font-semibold text-ember-3">Remboursement à relancer</span>
                     )}
                   </li>
                 );
               })}
+              <li className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                <span className="font-medium">Total payé</span>
+                <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>
+              </li>
             </ul>
           </section>
         )}
@@ -302,6 +339,9 @@ function BookingCard({
           </Row>
           <Row label="Réservée">
             {SOURCE_LABELS[booking.source]} à {formatClock(booking.createdAt)}
+            {booking.source === "en_ligne" && (
+              <span className="block text-xs text-muted">Table attribuée automatiquement</span>
+            )}
           </Row>
           {booking.arrivedAt && <Row label="Arrivée">{formatClock(booking.arrivedAt)}</Row>}
           {booking.email && <Row label="E-mail">{booking.email}</Row>}
@@ -312,14 +352,101 @@ function BookingCard({
             </div>
           )}
         </dl>
+
+        {gerant && !holding && booking.status !== "remboursee" && (
+          <button
+            type="button"
+            disabled={working}
+            onClick={() => setMoving(true)}
+            className={`${SECONDARY} flex items-center justify-center gap-2`}
+          >
+            {busy === "deplacer" ? "Déplacement…" : "Déplacer sur une autre table"}
+          </button>
+        )}
+
+        {gerant && (online.length > 0 || clubEntered) && (
+          <div className="flex flex-col items-start gap-2 border-t border-hairline pt-4">
+            {online.length > 0 && (
+              <button type="button" disabled={working} onClick={() => setConfirm("refund")} className={DANGER}>
+                {busy === "table" ? "Remboursement…" : `Rembourser toute la table (${formatCents(onlineTotal)})`}
+              </button>
+            )}
+            {clubEntered && (
+              <button type="button" disabled={working} onClick={() => setConfirm("cancel")} className={DANGER}>
+                Annuler la réservation
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
+      {moving && (
+        <Modal title={`Déplacer ${booking.name}`} onClose={() => setMoving(false)}>
+          <div className="flex flex-col gap-5">
+            <p className="text-sm text-muted">
+              Les tables libres ce soir qui accueillent {people(booking.partySize)}. Le prix payé ne change pas.
+            </p>
+            {moveTargets.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-hairline px-4 py-6 text-center text-sm text-muted">
+                Aucune table libre n&rsquo;accueille ce groupe ce soir.
+              </p>
+            ) : (
+              moveTargets.map((group) => (
+                <section key={group.zone.id} className="flex flex-col gap-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">{group.zone.name}</h3>
+                  <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {group.tables.map((candidate) => (
+                      <li key={candidate.id}>
+                        <button
+                          type="button"
+                          onClick={() => setTarget({ table: candidate, zone: group.zone })}
+                          className="flex min-h-12 w-full flex-col items-start rounded-xl border border-hairline bg-surface px-3 py-2 text-left hover:border-[var(--soirees-gold)]"
+                        >
+                          <span className="text-sm font-semibold tabular-nums">{candidate.label}</span>
+                          <span className="text-xs text-muted">{candidate.seats} places</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))
+            )}
+          </div>
+        </Modal>
+      )}
+      {target && (
+        <ConfirmDialog
+          title={`Déplacer vers ${tableName(target.zone.name, target.table.label)} ?`}
+          message={`${booking.name} (${people(booking.partySize)}) passe de ${name} à ${tableName(target.zone.name, target.table.label)}. ${name} redevient libre ; le prix payé ne change pas.`}
+          confirmLabel="Déplacer"
+          cancelLabel="Choisir une autre table"
+          onClose={() => setTarget(null)}
+          onConfirm={() => {
+            const destination = target;
+            setTarget(null);
+            setMoving(false);
+            void run(
+              "deplacer",
+              async () => {
+                await clubApi.moveBooking(booking, destination.table.id);
+                onMoved(destination.table.id);
+              },
+              `${booking.name} est à ${tableName(destination.zone.name, destination.table.label)}.`
+            );
+          }}
+        />
+      )}
       {confirm === "refund" && (
         <ConfirmDialog
           title={`Rembourser ${formatCents(onlineTotal)} ?`}
-          message={`${
-            online.length > 1 ? `Les ${online.length} payeurs sont remboursés` : `${online[0]?.name ?? booking.name} est remboursé`
-          } sur leur carte, frais de service compris, et prévenus par e-mail. La table ${name} redevient libre.${
+          message={`${online
+            .map(
+              (payment) =>
+                `${payment.name} : ${formatCents(payment.amountCents)}${
+                  payment.feeCents > 0 ? ` + ${formatCents(payment.feeCents)} de frais` : ""
+                }`
+            )
+            .join(" ; ")}. Chacun est remboursé sur sa carte et prévenu par e-mail ; la table ${name} redevient libre.${
             booking.paidCents > onlineTotal - fees ? " Ce qui a été réglé sur place est à rendre au comptoir." : ""
           } C'est définitif.`}
           confirmLabel="Rembourser la table"
@@ -328,14 +455,16 @@ function BookingCard({
           onClose={() => setConfirm(null)}
           onConfirm={() => {
             setConfirm(null);
-            void run(() => clubApi.refundBooking(booking), `${name} remboursée.`, true);
+            void run("table", () => clubApi.refundBooking(booking), `${name} remboursée.`, true);
           }}
         />
       )}
       {confirm !== null && typeof confirm === "object" && (
         <ConfirmDialog
-          title={`Rembourser la part de ${confirm.name} ?`}
-          message={`${formatCents(confirm.amountCents + confirm.feeCents)} lui sont rendus sur sa carte, frais de service compris, et il est prévenu par e-mail. La table reste réservée : il restera ${formatCents(remaining + confirm.amountCents)} à encaisser à la porte.`}
+          title={`Rembourser ${formatCents(confirm.amountCents)}${
+            confirm.feeCents > 0 ? ` + ${formatCents(confirm.feeCents)} de frais` : ""
+          } à ${confirm.name} ?`}
+          message={`Sa part lui est rendue sur sa carte et il est prévenu par e-mail. La table reste réservée : il restera ${formatCents(remaining + confirm.amountCents)} à encaisser à la porte.`}
           confirmLabel="Rembourser cette part"
           cancelLabel="Garder"
           destructive
@@ -343,7 +472,7 @@ function BookingCard({
           onConfirm={() => {
             const payment = confirm;
             setConfirm(null);
-            void run(() => clubApi.refundPayment(booking, payment), `Part de ${payment.name} remboursée.`);
+            void run(payment.id, () => clubApi.refundPayment(booking, payment), `Part de ${payment.name} remboursée.`);
           }}
         />
       )}
@@ -361,7 +490,7 @@ function BookingCard({
           onClose={() => setConfirm(null)}
           onConfirm={() => {
             setConfirm(null);
-            void run(() => clubApi.cancelClubBooking(booking), `${name} libérée.`, true);
+            void run("table", () => clubApi.cancelClubBooking(booking), `${name} libérée.`, true);
           }}
         />
       )}
@@ -546,12 +675,18 @@ export function BookingSheet({
   onSale,
   tonight,
   gerant,
+  moveTargets,
+  onMoved,
   onClose,
 }: {
   event: ClubEvent;
   table: ClubTable;
   zone: ClubZone;
   booking: ClubBooking | undefined;
+  /** Tables libres ce soir qui accueillent le groupe, zone par zone : où la réservation peut aller. */
+  moveTargets: MoveTarget[];
+  /** La réservation a changé de table : la fiche la suit. */
+  onMoved: (tableId: string) => void;
   /** Les paiements de la réservation (parts en ligne, encaissements à la porte). */
   payments: ClubPayment[];
   price: number;
@@ -565,6 +700,8 @@ export function BookingSheet({
       <BookingCard
         booking={booking}
         payments={payments}
+        moveTargets={moveTargets}
+        onMoved={onMoved}
         table={table}
         zone={zone}
         gerant={gerant}

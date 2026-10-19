@@ -1,4 +1,5 @@
 import "@/components/club/tokens.css";
+import "@/components/club/club.css";
 import "@/components/gestion/soirees/soirees.css";
 import { soireesFonts } from "@/lib/gestion/club-fonts";
 

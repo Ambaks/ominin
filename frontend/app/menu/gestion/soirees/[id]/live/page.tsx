@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
-import { BookingSheet } from "@/components/gestion/soirees/booking-sheet";
+import { BookingSheet, type MoveTarget } from "@/components/gestion/soirees/booking-sheet";
 import {
   BackToSoirees,
   ClubLoadError,
@@ -12,6 +12,7 @@ import {
   ClubSkeleton,
   NightNotFound,
 } from "@/components/gestion/soirees/club-states";
+import { RollingAmount } from "@/components/club/rolling-amount";
 import { DoorList, type HeldTable } from "@/components/gestion/soirees/door-list";
 import { GuestList } from "@/components/gestion/soirees/guest-list";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
@@ -22,8 +23,10 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
+import * as clubApi from "@/lib/gestion/club-api";
 import {
   bookingsByTable,
+  depositOf,
   isSold,
   isTonight,
   nightStats,
@@ -38,6 +41,7 @@ import {
 import {
   acknowledgeArrival,
   onClubArrival,
+  type ClubNight,
   useClub,
   useClubLoadError,
   useClubNights,
@@ -70,23 +74,82 @@ function Freshness({ live, syncedAt }: { live: boolean | null; syncedAt: number 
       aria-live="off"
       className={`flex items-center gap-1.5 text-xs font-medium ${live ? "text-muted" : "text-ember-3"}`}
     >
-      <span
-        className={`size-1.5 rounded-full ${live ? "animate-pulse bg-[var(--soirees-ok)]" : "bg-ember-3"}`}
-        aria-hidden
-      />
+      <span className="pouls" data-coupe={!live || undefined} aria-hidden />
       {live ? "En direct" : "Reconnexion…"} · il y a <span className="tabular-nums">{count}</span> {unit}
     </span>
   );
 }
 
-/** Une case du bandeau : un chiffre, son libellé, et sa précision dessous si elle tient. */
-function Figure({ label, value, detail, strong }: { label: string; value: string; detail?: string; strong?: boolean }) {
+/** Une case du bandeau : un chiffre (un montant défile jusqu'à sa valeur), son libellé, sa précision. */
+function Figure({
+  label,
+  value,
+  cents,
+  detail,
+}: {
+  label: string;
+  value?: string;
+  cents?: number;
+  detail?: React.ReactNode;
+}) {
   return (
     <div className="min-w-0 bg-surface px-4 py-3">
       <dt className="text-xs font-medium text-muted">{label}</dt>
-      <dd className={`mt-0.5 font-semibold tabular-nums ${strong ? "text-2xl" : "text-lg"}`}>{value}</dd>
+      <dd className="mt-0.5 text-2xl font-semibold tabular-nums">
+        {cents === undefined ? value : <RollingAmount cents={cents} />}
+      </dd>
       {detail && <dd className="text-xs text-muted">{detail}</dd>}
     </div>
+  );
+}
+
+/**
+ * Une table rendue dont une part n'a pas été remboursée (refus de Stripe,
+ * réseau) : elle se relance d'ici, sans rien rembourser deux fois.
+ */
+function RefundRetries({ night, tableName: nameOf }: { night: ClubNight; tableName: (tableId: string) => string }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState<string | null>(null);
+  const pending = night.bookings.filter(
+    (booking) =>
+      booking.status === "remboursee" &&
+      night.payments.some(
+        (payment) => payment.bookingId === booking.id && payment.method === "en_ligne" && payment.status === "payee"
+      )
+  );
+  if (pending.length === 0) return null;
+  const retry = async (booking: ClubBooking) => {
+    setBusy(booking.id);
+    try {
+      await clubApi.refundBooking(booking);
+      toast.success(`${nameOf(booking.tableId)} : remboursement relancé.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setBusy(null);
+    }
+  };
+  return (
+    <section role="alert" className="flex flex-col gap-3 rounded-2xl border border-ember-3/40 bg-ember-3/10 p-4">
+      <p className="text-sm font-semibold">Remboursement à relancer</p>
+      <ul className="flex flex-col gap-2">
+        {pending.map((booking) => (
+          <li key={booking.id} className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <span>
+              {nameOf(booking.tableId)} · {booking.name}
+            </span>
+            <button
+              type="button"
+              disabled={busy === booking.id}
+              onClick={() => void retry(booking)}
+              className="min-h-11 rounded-full border border-hairline px-4 text-sm font-semibold hover:border-ember-2/50 disabled:opacity-50"
+            >
+              {busy === booking.id ? "Remboursement…" : "Relancer"}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -220,16 +283,36 @@ export default function LivePage() {
 
   const held: HeldTable[] = [...byTable.values()].flatMap((booking) => {
     const table = tableById.get(booking.tableId);
-    const payers = paymentsOf(night, booking.id)
+    const payments = paymentsOf(night, booking.id);
+    const payers = payments
       .filter((payment) => payment.method === "en_ligne" && payment.status === "payee")
       .map((payment) => payment.name);
-    return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "", payers }] : [];
+    const deposit = depositOf(booking, payments);
+    return table ? [{ booking, table, zoneName: zoneName.get(table.zoneId) ?? "", payers, deposit }] : [];
   });
   const expected = held.filter(({ booking }) => booking.status !== "arrivee" && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
   const guestList = event.guestListOpen || night.guests.length > 0;
 
+  const nameOfTable = (tableId: string) => {
+    const table = tableById.get(tableId);
+    return table ? tableName(zoneName.get(table.zoneId) ?? "", table.label) : "";
+  };
+
   const selected = selectedId ? tableById.get(selectedId) : undefined;
+  const selectedBooking = selected ? byTable.get(selected.id) : undefined;
+  // Où la réservation ouverte peut aller : les tables libres ce soir qui accueillent son groupe.
+  const moveTargets: MoveTarget[] = selectedBooking
+    ? club.zones
+        .map((candidate) => ({
+          zone: candidate,
+          tables: club.tables.filter(
+            (table) =>
+              table.zoneId === candidate.id && !byTable.has(table.id) && table.seats >= selectedBooking.partySize
+          ),
+        }))
+        .filter((group) => group.tables.length > 0)
+    : [];
   const selectedZone = selected ? club.zones.find((candidate) => candidate.id === selected.zoneId) : undefined;
 
   const plan = zone ? (
@@ -315,39 +398,48 @@ export default function LivePage() {
           )}
         </p>
       )}
+      {gerant && <RefundRetries night={night} tableName={nameOfTable} />}
       {!event.published && !event.cancelledAt && (
         <p className="rounded-2xl border border-hairline bg-surface px-4 py-3 text-sm text-muted">
           Brouillon : les clients ne voient pas encore cette soirée.
         </p>
       )}
 
-      {/* Un seul bandeau : les deux chiffres de la porte en grand, le reste à côté. */}
-      <dl className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline ${gerant ? "lg:grid-cols-4" : ""}`}>
+      {/* Un seul bandeau, les mêmes mots partout : des tables (réservées, attendues, arrivées), des personnes, de l'argent. */}
+      <dl
+        className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline ${
+          gerant ? "lg:grid-cols-4" : ""
+        }`}
+      >
         <Figure
-          strong
-          label="Arrivées"
+          label="Tables arrivées"
           value={`${stats.arrived} / ${stats.sold}`}
-          detail={expected > 0 ? `${expected} attendue${expected > 1 ? "s" : ""}` : undefined}
+          detail={`${stats.sold} réservée${stats.sold > 1 ? "s" : ""} · ${expected} attendue${expected > 1 ? "s" : ""}`}
         />
-        {gerant ? (
-          <Figure strong label="À encaisser" value={formatCents(stats.toCollect)} detail="sur place" />
-        ) : (
-          <Figure strong label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
-        )}
+        <Figure
+          label="Personnes entrées"
+          value={`${stats.peopleArrived} / ${stats.people}`}
+          detail={`${stats.people - stats.peopleArrived} encore attendue${stats.people - stats.peopleArrived > 1 ? "s" : ""}`}
+        />
         {gerant && (
           <>
-            <Figure label="Tables vendues" value={`${stats.sold} / ${stats.capacity}`} />
+            <Figure label="À encaisser" cents={stats.toCollect} detail="à la porte" />
             <Figure
               label="Encaissé"
-              value={formatCents(stats.online + stats.onSite)}
-              detail={`dont ${formatCents(stats.online)} en ligne`}
+              cents={stats.online + stats.onSite}
+              detail={
+                <>
+                  <span className="tabular-nums">{formatCents(stats.online)}</span> en ligne ·{" "}
+                  <span className="tabular-nums">{formatCents(stats.onSite)}</span> sur place
+                </>
+              }
             />
           </>
         )}
       </dl>
       {gerant && stats.fees > 0 && (
         <p className="-mt-2 text-xs text-muted">
-          Frais de service Ominin payés par les clients : <span className="tabular-nums">{formatCents(stats.fees)}</span>
+          Frais de service Ominin, payés par les clients en plus : <span className="tabular-nums">{formatCents(stats.fees)}</span>
         </p>
       )}
 
@@ -427,6 +519,8 @@ export default function LivePage() {
           onSale={onSale.has(selected.id)}
           tonight={tonight}
           gerant={gerant}
+          moveTargets={moveTargets}
+          onMoved={setSelectedId}
           onClose={() => setSelectedId(null)}
         />
       )}

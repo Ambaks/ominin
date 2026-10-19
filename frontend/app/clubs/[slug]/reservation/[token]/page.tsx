@@ -8,7 +8,7 @@ import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { EtoileMark } from "@/components/menu/etoile/logo";
 import { QrCode } from "@/components/pitch/qr-code";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents, formatHours, formatNight, formatNightShort, tableName } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref, sharePath } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
@@ -68,6 +68,15 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
         text: `Le club a noté votre réservation : ${total} à régler sur place.`,
       };
     case "payee":
+      // Partagée et pas encore réglée en entier : réservée, mais il reste un montant.
+      if (booking.shared && booking.remainingCents > 0) {
+        const remaining = formatCents(booking.remainingCents);
+        return {
+          pill: `Réservée · ${remaining} à régler`,
+          title: "Votre table est réservée",
+          text: `${formatCents(booking.totalCents - booking.remainingCents)} déjà payés. Vos amis peuvent payer leur part jusqu'au début de la soirée ; à l'entrée, ce qui reste (${remaining} aujourd'hui) se règle sur place, par vous.`,
+        };
+      }
       return {
         pill: "Payée",
         title: "Votre table est réservée",
@@ -224,7 +233,7 @@ export default async function BookingPage({
             remainingMs={Date.parse(booking.holdExpiresAt) - now}
             recap={[
               formatNightShort(booking.event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
-              tableName(booking.table.zone, booking.table.label),
+              booking.table.zone,
               `${booking.partySize} pers.`,
               `${formatCents(booking.totalCents)} tout compris`,
             ].join(" · ")}
@@ -238,17 +247,17 @@ export default async function BookingPage({
             </h2>
             <SeatRing
               seats={booking.partySize}
-              priceCents={booking.priceCents}
+              priceCents={booking.totalCents}
               shares={booking.payers.map((payer) => ({
                 id: payer.id,
                 name: payer.name,
                 amountCents: payer.amountCents,
                 tone: payer.organiser ? "you" : "friend",
               }))}
-              label={booking.table.label}
+              label={`${booking.partySize} pers.`}
               freshId={booking.payers.at(-1)?.id}
             />
-            <ShareMeter paidCents={booking.paidCents} priceCents={booking.priceCents} />
+            <ShareMeter paidCents={booking.totalCents - booking.remainingCents} priceCents={booking.totalCents} />
             {booking.remainingCents > 0 ? (
               <ShareLink
                 url={`${clubSiteUrl}${sharePath(slug, booking.shareToken)}`}
@@ -273,10 +282,8 @@ export default async function BookingPage({
             <span className="club-pass-date club-mono">{formatNightShort(booking.event.startsAt)}</span>
           </header>
           <div className="club-pass-primary">
-            <p className="club-label">Table</p>
-            <p className="club-pass-table">
-              {booking.table.zone} · <span className="club-code">{booking.table.label}</span>
-            </p>
+            <p className="club-label">Votre table vous attend</p>
+            <p className="club-pass-table">{booking.table.zone}</p>
           </div>
           <dl className="club-pass-fields">
             <div className="club-pass-wide">
@@ -298,7 +305,7 @@ export default async function BookingPage({
             <div>
               <dt>Personnes</dt>
               <dd className="club-mono">
-                {booking.partySize} / {booking.table.seats}
+                {booking.partySize}
               </dd>
             </div>
             {booking.table.inclus && (
@@ -311,24 +318,31 @@ export default async function BookingPage({
 
           {passValid && (
             <div className="club-pass-qr">
-              <QrZoom label={`QR code de la réservation, table ${booking.table.label}`} arrived={view === "arrivee"}>
-                <QrCode value={url} label={`QR code de la réservation, table ${booking.table.label}`} className="club-qr" />
+              <QrZoom label={`QR code de la réservation, ${booking.table.zone}`} arrived={view === "arrivee"}>
+                <QrCode value={url} label={`QR code de la réservation, ${booking.table.zone}`} className="club-qr" />
               </QrZoom>
               <p className="club-pass-ref">
                 Code <span className="club-mono">{reference(booking.token)}</span>
               </p>
+              {booking.shared && booking.remainingCents > 0 && (
+                <p className="club-pass-caption">
+                  Valable à l&rsquo;entrée. Reste{" "}
+                  <strong className="club-mono">{formatCents(booking.remainingCents)}</strong> à régler par
+                  l&rsquo;hôte si vos amis n&rsquo;ont pas payé.
+                </p>
+              )}
             </div>
           )}
 
           {booking.shared ? (
             <dl className="club-lines club-pass-lines">
               <div>
-                <dt>Table</dt>
-                <dd className="club-mono">{formatCents(booking.priceCents)}</dd>
+                <dt>Table, tout compris</dt>
+                <dd className="club-mono">{formatCents(booking.totalCents)}</dd>
               </div>
               <div>
                 <dt>Déjà payé, toutes parts</dt>
-                <dd className="club-mono">{formatCents(booking.paidCents)}</dd>
+                <dd className="club-mono">{formatCents(booking.totalCents - booking.remainingCents)}</dd>
               </div>
               <div className="club-lines-total">
                 <dt>{eventStarted ? "Reste à régler à l'entrée" : "Reste à payer"}</dt>
@@ -372,12 +386,22 @@ export default async function BookingPage({
           <div className="club-pass-links">
             {club.address && (
               <a href={`${MAPS_SEARCH}${encodeURIComponent(club.address)}`} target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" />
+                  <circle cx="12" cy="9.5" r="2.5" />
+                </svg>
                 Itinéraire
                 <span className="sr-only"> (nouvel onglet)</span>
               </a>
             )}
             {passValid && <PassActions url={url} title={`${booking.event.title} — ${club.name}`} />}
-            <Link href={eventHref}>Voir la soirée</Link>
+            <Link href={eventHref}>
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <rect x="4" y="5" width="16" height="15" rx="3" />
+                <path d="M4 10h16M9 3v4M15 3v4" />
+              </svg>
+              Voir la soirée
+            </Link>
           </div>
         </div>
 

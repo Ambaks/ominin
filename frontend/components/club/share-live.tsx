@@ -1,8 +1,15 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { useSkyPause } from "@/components/club/club-sky";
+import {
+  ConditionsBlock,
+  ContactFields,
+  contactErrors,
+  focusFirstError,
+  type Contact,
+} from "@/components/club/contact-form";
 import { RollingAmount } from "@/components/club/rolling-amount";
 import { ShareAmount } from "@/components/club/share-amount";
 import { TablePayment } from "@/components/club/table-payment";
@@ -10,7 +17,7 @@ import { CLUB_TIMING } from "@/components/club/timing";
 import type { Club } from "@/lib/club/types";
 import { formatCents } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
-import { serviceFeeCents } from "@/lib/club/pricing";
+import { MINUTE, untilLabel } from "@/lib/club/time";
 
 /*
  * Une table partagée, côté navigateur : ce que l'organisateur suit et
@@ -18,16 +25,8 @@ import { serviceFeeCents } from "@/lib/club/pricing";
  * ferme), et ce qu'un ami remplit pour payer sa part.
  */
 
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-
-/** « 2 j 4 h », « 3 h 12 min », « 8 min » : le temps avant le début de la soirée. */
-function untilLabel(ms: number): string {
-  if (ms >= DAY) return `${Math.floor(ms / DAY)} j ${Math.floor((ms % DAY) / HOUR)} h`;
-  if (ms >= HOUR) return `${Math.floor(ms / HOUR)} h ${Math.floor((ms % HOUR) / MINUTE)} min`;
-  return `${Math.max(1, Math.ceil(ms / MINUTE))} min`;
-}
+/* Ce navigateur a payé une part de cette table : la page s'en souvient au retour. */
+const memoryKey = (shareToken: string) => `ominin-club-part:${shareToken}`;
 
 /* Le temps qui reste avant le début de la soirée, relu chaque minute ; null avant l'hydratation. */
 function useUntil(startsAt: string) {
@@ -135,34 +134,53 @@ export function ShareJoin({
   provider,
   minimumCents,
   remainingCents,
-  feePercent,
   conditions,
   recap,
+  payerIds,
 }: {
   shareToken: string;
   provider: Club["paymentProvider"];
   minimumCents: number;
   remainingCents: number;
-  feePercent: number;
   conditions: Club["conditions"];
   /** « Sam. 24 oct. · VIP Salon Rouge · 03 ». */
   recap: string;
+  /** Les parts déjà payées : si ce navigateur en a payé une, la page le dit. */
+  payerIds: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const formRef = useRef<HTMLFormElement>(null);
   const [amount, setAmount] = useState(minimumCents);
   // Les bornes bougent quand un autre ami paie (page relue) : la part choisie y reste.
   const value = Math.min(remainingCents, Math.max(minimumCents, amount));
-  const [contact, setContact] = useState({ name: "", phone: "", email: "" });
+  const [contact, setContact] = useState<Contact>({ name: "", phone: "", email: "" });
   const [accepted, setAccepted] = useState(false);
+  const [tried, setTried] = useState(false);
+  const errors = contactErrors(contact, accepted);
+  const valid = Object.keys(errors).length === 0;
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hold, setHold] = useState<{ paymentId: string; totalCents: number; remainingMs: number; provider: Club["paymentProvider"] } | null>(null);
   useSkyPause(hold !== null);
 
+  // Déjà payé depuis ce navigateur : la page de la part réglée, pas un second formulaire.
+  useEffect(() => {
+    let paid: string | null = null;
+    try {
+      paid = localStorage.getItem(memoryKey(shareToken));
+    } catch {}
+    if (paid && payerIds.includes(paid)) router.replace(`${pathname}?part=${paid}`, { scroll: false });
+  }, [shareToken, payerIds, router, pathname]);
+
   const submit = async (formEvent: FormEvent) => {
     formEvent.preventDefault();
     if (sending) return;
+    if (!valid) {
+      setTried(true);
+      focusFirstError(formRef.current, errors);
+      return;
+    }
     setSending(true);
     setError(null);
     const sentAt = performance.now();
@@ -185,7 +203,7 @@ export function ShareJoin({
       }
       setHold({
         paymentId: body.paymentId,
-        totalCents: body.totalCents ?? value + serviceFeeCents(value, feePercent),
+        totalCents: body.totalCents ?? value,
         remainingMs: TABLE_HOLD_S * 1000 - (performance.now() - sentAt),
         provider: body.provider ?? provider,
       });
@@ -197,8 +215,13 @@ export function ShareJoin({
   };
 
   const onPaid = useCallback(() => {
-    if (hold) router.replace(`${pathname}?part=${hold.paymentId}`, { scroll: false });
-  }, [hold, router, pathname]);
+    if (!hold) return;
+    try {
+      localStorage.setItem(memoryKey(shareToken), hold.paymentId);
+    } catch {}
+    // ?part : la part réglée (reste à la relecture) ; ?nouveau : la gerbe, une seule fois.
+    router.replace(`${pathname}?part=${hold.paymentId}&nouveau=1`, { scroll: false });
+  }, [hold, router, pathname, shareToken]);
   const onExpired = useCallback(
     (message?: string) => {
       setHold(null);
@@ -216,7 +239,7 @@ export function ShareJoin({
           paymentId={hold.paymentId}
           totalCents={hold.totalCents}
           remainingMs={hold.remainingMs}
-          recap={`${recap} · votre part ${formatCents(hold.totalCents)} frais compris`}
+          recap={`${recap} · votre part ${formatCents(hold.totalCents)}`}
           onPaid={onPaid}
           onExpired={onExpired}
         />
@@ -224,117 +247,58 @@ export function ShareJoin({
     );
   }
 
+  const shown = tried ? errors : {};
   return (
-    <form className="club-join club-form" onSubmit={submit}>
+    <form ref={formRef} className="club-join club-form" onSubmit={submit} noValidate>
       <ShareAmount
         value={value}
         min={minimumCents}
         max={remainingCents}
         part={minimumCents}
-        feePercent={feePercent}
-        othersLabel="reste après vous"
+        note={
+          <>
+            Reste après vous : <RollingAmount cents={Math.max(0, remainingCents - value)} className="club-mono" />
+          </>
+        }
         presets={[
           { label: "Part égale", cents: minimumCents },
           { label: "Tout le reste", cents: remainingCents },
         ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
         onChange={setAmount}
       />
-      <label className="club-field">
-        <span>Nom et prénom</span>
-        <input
-          name="name"
-          autoComplete="name"
-          required
-          minLength={2}
-          maxLength={80}
-          value={contact.name}
-          onChange={(input) => setContact({ ...contact, name: input.target.value })}
-        />
-      </label>
-      <label className="club-field">
-        <span>Téléphone</span>
-        <input
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          required
-          value={contact.phone}
-          onChange={(input) => setContact({ ...contact, phone: input.target.value })}
-        />
-      </label>
-      <label className="club-field">
-        <span>E-mail</span>
-        <input
-          name="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          autoCapitalize="none"
-          spellCheck={false}
-          required
-          value={contact.email}
-          onChange={(input) => setContact({ ...contact, email: input.target.value })}
-        />
-        <small>Votre reçu y arrive.</small>
-      </label>
-      <div className="club-conditions">
-        <ul className="club-conditions-list">
-          <li>
-            <svg viewBox="0 0 24 24" aria-hidden>
-              <rect x="3" y="5" width="18" height="14" rx="3" />
-              <circle cx="9" cy="11" r="2.2" />
-              <path d="M6 16c.8-1.6 1.9-2.4 3-2.4s2.2.8 3 2.4M14 10h4M14 13.5h3" />
-            </svg>
-            <span>{`${conditions.minAge} ans et plus, pièce d’identité à l’appui`}</span>
-          </li>
-          {(conditions.dress || conditions.refused) && (
-            <li>
-              <svg viewBox="0 0 24 24" aria-hidden>
-                <path d="M9 3 4 6l2 4 2-1v12h8V9l2 1 2-4-5-3c-.5 1.4-1.7 2.2-3 2.2S9.5 4.4 9 3Z" />
-              </svg>
-              <span>{[conditions.dress, conditions.refused].filter(Boolean).join(" · ")}</span>
-            </li>
-          )}
-          <li>
-            <svg viewBox="0 0 24 24" aria-hidden>
-              <path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4" />
-              <path d="M12 8v4l3 2" />
-            </svg>
-            <span>
-              Votre part n&rsquo;est remboursée que si le club l&rsquo;accepte, ou automatiquement si la soirée est
-              annulée.
-            </span>
-          </li>
-        </ul>
-        <label className="club-check">
-          <input type="checkbox" required checked={accepted} onChange={(input) => setAccepted(input.target.checked)} />
-          <span>J&rsquo;accepte les conditions du club</span>
-        </label>
-        <p className="club-fine club-hold-note">
-          Votre part vous est tenue {TABLE_HOLD_S / 60} minutes dès que vous passez au paiement.
-        </p>
-      </div>
+      <ContactFields value={contact} onChange={setContact} errors={shown} emailHint="Votre reçu y arrive." />
+      <ConditionsBlock
+        conditions={conditions}
+        refund="Votre part n'est remboursée que si le club l'accepte, ou automatiquement si la soirée est annulée."
+        holdNote={`Votre part vous est tenue ${TABLE_HOLD_S / 60} minutes dès que vous passez au paiement.`}
+        accepted={accepted}
+        onAccept={setAccepted}
+        error={shown.accepted}
+      />
+      <p className="club-fee-sum">
+        Vous payez <RollingAmount cents={value} className="club-mono club-fee-total" />
+      </p>
       {error && (
         <p className="club-error" role="alert">
           {error}
         </p>
       )}
-      <div className="club-sticky-cta">
-        <button type="submit" className="club-button club-button-primary club-button-block" disabled={sending} aria-busy={sending || undefined}>
-          {sending ? (
-            <>
-              <span className="club-spinner" aria-hidden />
-              Un instant…
-            </>
-          ) : (
-            <>
-              Payer ma part ·{" "}
-              <span className="club-mono">{formatCents(value + serviceFeeCents(value, feePercent))}</span>
-            </>
-          )}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="club-button club-button-primary club-button-block"
+        data-incomplete={!valid || undefined}
+        disabled={sending}
+        aria-busy={sending || undefined}
+      >
+        {sending ? (
+          <>
+            <span className="club-spinner" aria-hidden />
+            Un instant…
+          </>
+        ) : (
+          "Payer ma part"
+        )}
+      </button>
     </form>
   );
 }

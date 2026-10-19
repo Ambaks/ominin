@@ -38,6 +38,7 @@ export function NightPlan({
   describe,
   pings = [],
   onPingEnd,
+  compact = false,
 }: {
   zone: ClubZone;
   tables: ClubTable[];
@@ -47,6 +48,8 @@ export function NightPlan({
   describe: (table: ClubTable, state: TableState) => string;
   pings?: PlanPing[];
   onPingEnd?: (id: string) => void;
+  /** Plan d'appoint (l'éditeur) : moins haut, il laisse voir ce qui l'entoure. */
+  compact?: boolean;
 }) {
   const glow = useId();
   const { w, h } = zone.layout;
@@ -122,7 +125,12 @@ export function NightPlan({
         </div>
       </div>
       <div className="rounded-2xl border border-hairline bg-surface p-2 sm:p-3">
-        <div ref={viewport} className="plan-cadre" data-zoomed={zoomed || undefined}>
+        <div
+          ref={viewport}
+          className="plan-cadre"
+          data-zoomed={zoomed || undefined}
+          data-compact={compact || undefined}
+        >
           <div ref={content} className="plan-toile">
             <FloorPlan
               className="gestion-plan"

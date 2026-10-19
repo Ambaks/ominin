@@ -33,13 +33,10 @@
   --etat-gardee: var(--c-state-fermee);
   /* Le numéro posé sur une table pleine (payée, arrivée). */
   --etat-encre: var(--c-ink);
-  /* Texte secondaire relevé : ≥ 7:1 sur les surfaces sombres de la gestion. */
-  --muted: #bdb5a8;
   font-family: var(--font-soirees-sans), system-ui, sans-serif;
 }
 
 html.light .soirees {
-  --muted: #6b5d4c;
   --soirees-coral-text: #b8391b;
   --soirees-gold: #8a6a2f;
   --soirees-ok: #1d7a52;
@@ -90,6 +87,102 @@ html.light .soirees {
 .soirees :is(button, a):active:not(:disabled) {
   transform: scale(0.97);
   transition-duration: var(--c-fast);
+}
+
+/*
+  La nuit du club sur tout l'espace quand il montre ses soirées : les
+  surfaces marine et le texte des pages du club (mêmes valeurs que --c-ink,
+  --c-navy, --c-raised, --c-line, --c-text, --c-muted de tokens.css, qui ne
+  vivent que sous .club-tokens et ne remontent pas jusqu'à l'en-tête), un
+  ciel à peine étoilé. En clair, le même bleu en encre sur un papier lavande.
+  La gestion d'un restaurant n'affiche jamais .soirees : elle n'en voit rien.
+*/
+html:not(.light):has(.soirees) {
+  --background: #070a1c;
+  --surface: #121731;
+  --surface-raised: #1c2550;
+  --hairline: rgba(255, 255, 255, 0.09);
+  --foreground: #f2f3fb;
+  --muted: #b9bedc;
+  --faint: #9399c2;
+  --shimmer-highlight: rgba(226, 196, 143, 0.12);
+}
+
+html:not(.light):has(.soirees) body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.45), transparent 60%),
+    radial-gradient(1px 1px at 68% 9%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(1.5px 1.5px at 84% 42%, rgba(226, 196, 143, 0.5), transparent 60%),
+    radial-gradient(1px 1px at 33% 71%, rgba(255, 255, 255, 0.3), transparent 60%),
+    radial-gradient(1px 1px at 91% 83%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(120% 60% at 50% -10%, rgba(109, 91, 208, 0.18), transparent 70%);
+  background-size: 640px 640px, 640px 640px, 640px 640px, 640px 640px, 640px 640px, 100% 100%;
+  background-attachment: fixed;
+}
+
+html.light:has(.soirees) {
+  --background: #f5f6fc;
+  --surface: #eceefa;
+  --surface-raised: #ffffff;
+  --hairline: rgba(18, 23, 49, 0.12);
+  --foreground: #121731;
+  --muted: #4a5078;
+  --faint: #6b7096;
+}
+
+/* Une carte des soirées : la surface marine, un liseré d'or au survol. */
+.soirees .bg-surface {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--foreground) 3%, transparent), transparent 40%);
+}
+
+/* « En direct » : un point qui respire, son onde qui s'élargit. */
+.pouls {
+  position: relative;
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--soirees-ok);
+}
+
+.pouls::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: pouls 2s var(--c-ease) infinite;
+}
+
+.pouls[data-coupe] {
+  background: var(--ember-3);
+}
+
+.pouls[data-coupe]::after {
+  animation: none;
+}
+
+@keyframes pouls {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+/* L'étoile du club, en pastille : la forme des tables du client. */
+.etoile {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  background: var(--etoile, var(--soirees-gold));
+  -webkit-mask: var(--c-star) center / contain no-repeat;
+  mask: var(--c-star) center / contain no-repeat;
 }
 
 /*
@@ -204,54 +297,39 @@ html:has(.soirees-barre) {
   --statut: var(--etat-attente);
 }
 
+/*
+  La pastille d'un statut : l'étoile du client, à la couleur de l'état. Les
+  signes ✓ et € restent posés sur les tables du plan : la couleur seule ne
+  suffit pas (corail et lagon se confondent pour un œil sur douze).
+*/
 .plan-legende {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   width: 0.875rem;
   height: 0.875rem;
   flex-shrink: 0;
-  border-radius: 0.25rem;
-  border: 1.5px solid var(--etat-libre);
-  background: var(--surface-raised);
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--etat-encre);
+  background: var(--etat-libre);
+  -webkit-mask: var(--c-star) center / contain no-repeat;
+  mask: var(--c-star) center / contain no-repeat;
 }
 
 .plan-legende[data-state="payee"] {
-  border-color: var(--etat-payee);
   background: var(--etat-payee);
 }
 
 .plan-legende[data-state="arrivee"] {
-  border-color: var(--etat-arrivee);
   background: var(--etat-arrivee);
 }
 
-.plan-legende[data-state="arrivee"]::after {
-  content: "✓";
-}
-
 .plan-legende[data-state="attente"] {
-  border: 1.5px dashed var(--etat-attente);
-  background: color-mix(in srgb, var(--etat-attente) 22%, var(--surface-raised));
-  color: var(--foreground);
-}
-
-.plan-legende[data-state="attente"]::after {
-  content: "€";
+  background: var(--etat-attente);
 }
 
 .plan-legende[data-state="prise"] {
-  border: 2px dotted var(--etat-prise);
-  background: color-mix(in srgb, var(--etat-prise) 14%, var(--surface-raised));
+  background: var(--etat-prise);
 }
 
 .plan-legende[data-state="gardee"] {
-  border: 1.5px dashed var(--etat-gardee);
-  background: var(--surface);
+  background: var(--etat-gardee);
 }
 
 /* ---------------------------------------------------------------------------
@@ -268,6 +346,11 @@ html:has(.soirees-barre) {
   user-select: none;
   -webkit-user-select: none;
   transition: height var(--c-slow) var(--c-ease);
+}
+
+.plan-cadre[data-compact] {
+  min-height: 10rem;
+  max-height: 42svh;
 }
 
 .plan-cadre[data-zoomed] {

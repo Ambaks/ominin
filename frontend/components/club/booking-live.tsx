@@ -74,7 +74,16 @@ export function ResumePayment({
  * rognerait), puis l'étape « Payée » s'allume s'il y en a une. Le paramètre
  * d'URL qui l'a déclenchée est retiré : un rechargement ne la rejoue pas.
  */
-export function PaidBurst({ target = ".club-qr-plate", param = "paye" }: { target?: string; param?: string }) {
+export function PaidBurst({
+  target = ".club-qr-plate",
+  param = "paye",
+  scroll = false,
+}: {
+  target?: string;
+  param?: string;
+  /** L'élément visé est d'abord amené au centre de l'écran ; la gerbe part quand le défilement s'est posé. */
+  scroll?: boolean;
+}) {
   const layer = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -83,10 +92,15 @@ export function PaidBurst({ target = ".club-qr-plate", param = "paye" }: { targe
     const host = layer.current;
     const plate = document.querySelector<HTMLElement>(target);
     const step = document.querySelector<HTMLElement>(".club-track [data-step='payee']");
-    if (!host || !plate || prefersReducedMotion()) return;
+    if (!host || !plate) return;
+    const reduced = prefersReducedMotion();
+    if (scroll) plate.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    if (reduced) return;
 
     const animations: Animation[] = [];
-    const timer = window.setTimeout(() => {
+    let timer = 0;
+    let started = false;
+    const fire = () => {
       const box = plate.getBoundingClientRect();
       host.style.setProperty("--x", `${box.left + box.width / 2}px`);
       host.style.setProperty("--y", `${box.top + box.height / 2}px`);
@@ -114,12 +128,23 @@ export function PaidBurst({ target = ".club-qr-plate", param = "paye" }: { targe
         animations.push(animation);
       }
       step?.setAttribute("data-lit", "");
-    }, CLUB_TIMING.burstDelay);
+    };
+    const start = () => {
+      if (started) return;
+      started = true;
+      timer = window.setTimeout(fire, CLUB_TIMING.burstDelay);
+    };
+    // Sans défilement à faire, scrollend ne vient pas : le délai de repli prend le relais.
+    const fallback = scroll ? window.setTimeout(start, CLUB_TIMING.scrollSettle) : 0;
+    if (scroll) window.addEventListener("scrollend", start, { once: true });
+    else start();
     return () => {
       clearTimeout(timer);
+      clearTimeout(fallback);
+      window.removeEventListener("scrollend", start);
       animations.forEach((animation) => animation.cancel());
     };
-  }, [target, param]);
+  }, [target, param, scroll]);
   return <div ref={layer} className="club-burst" aria-hidden />;
 }
 
@@ -172,7 +197,10 @@ export function PassActions({ url, title }: { url: string; title: string }) {
   };
   return (
     <button type="button" onClick={() => void share()}>
-      {copied ? "Lien copié" : "Partager"}
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+      </svg>
+      {copied ? "Lien copié" : "Envoyer mon billet"}
       <span className="sr-only" aria-live="polite">
         {copied ? "Le lien de la réservation est copié." : ""}
       </span>

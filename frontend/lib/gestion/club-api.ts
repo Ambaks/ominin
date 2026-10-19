@@ -284,6 +284,22 @@ export async function refundPayment(booking: ClubBooking, payment: ClubPayment) 
   await refreshNightNow(booking.eventId);
 }
 
+/**
+ * Déplace une réservation sur une autre table libre ce soir-là (gérant) :
+ * la base vérifie qu'elle est libre et qu'elle accueille le groupe.
+ */
+export async function moveBooking(booking: ClubBooking, tableId: string) {
+  apply((draft) => patchBooking(draft, booking, { tableId }));
+  const result = await createClient().rpc("club_deplacer_reservation", {
+    p_booking: booking.id,
+    p_table: tableId,
+  });
+  if (result.error) {
+    await refreshNightNow(booking.eventId);
+    throw new Error(result.error.message);
+  }
+}
+
 /** Annule une réservation saisie par le club : la table redevient libre. */
 export async function cancelClubBooking(booking: ClubBooking) {
   check(await createClient().rpc("club_annuler_reservation", { p_booking: booking.id }));

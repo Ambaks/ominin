@@ -135,12 +135,12 @@ function EventRow({
         {loaded ? (
           <dl
             className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${
-              gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2"
+              gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"
             }`}
           >
-            <Counter label="Tables" value={`${stats.sold} / ${stats.capacity}`} />
-            {gerant && <Counter label="Revenu" value={formatCents(stats.online + stats.onSite)} />}
-            {gerant && <Counter label="Frais Ominin" value={formatCents(stats.fees)} />}
+            <Counter label="Tables réservées" value={`${stats.sold} / ${stats.capacity}`} />
+            <Counter label="Personnes" value={String(stats.people)} />
+            {gerant && <Counter label="Encaissé" value={formatCents(stats.online + stats.onSite)} />}
             <Counter
               label="Invités"
               value={
@@ -216,7 +216,12 @@ export default function SoireesPage() {
       <PillTabs tabs={tabs} activeId={tab} onSelect={(id) => setTab(id as Tab)} />
 
       {tab === "salle" ? (
-        <ZonesSettings zones={club.zones} tableCounts={tableCounts} conditions={club.conditions} />
+        <ZonesSettings
+          zones={club.zones}
+          tableCounts={tableCounts}
+          conditions={club.conditions}
+          depositPercent={club.depositPercent}
+        />
       ) : shown.length === 0 ? (
         <EmptyState
           title={tab === "passees" ? "Aucune soirée passée" : "Aucune soirée à venir"}

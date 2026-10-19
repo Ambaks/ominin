@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { formatCents } from "@/lib/club/format";
 
 /*
  * Une table partagée vue d'en haut : la table au centre, une place par
@@ -9,8 +10,9 @@ import { useEffect, useRef, type CSSProperties } from "react";
  * d'arrivée ; la première place qu'elle touche porte les initiales du
  * payeur. Les places pleines se relient en constellation, l'anneau
  * extérieur dit la part de la table déjà réglée. Les places vides
- * respirent doucement ; la plus récente pulse. Les remplissages arrivent un
- * à un au montage et glissent ensuite d'une valeur à l'autre.
+ * respirent doucement ; une part arrivée pendant qu'on regarde pulse. Le
+ * disque d'une place pleine à moitié a la moitié de sa surface (échelle en
+ * racine). Toucher ou survoler une place dit qui l'a payée et combien.
  */
 
 export type SeatShare = {
@@ -22,6 +24,9 @@ export type SeatShare = {
 };
 
 type Seat = { fill: number; owner: SeatShare | null; tone: SeatShare["tone"] | null };
+
+/* Au-delà de cette échelle, le disque couvre assez la place pour porter des initiales sombres. */
+const SOLID = 0.72;
 
 /* Repère du dessin (unités du viewBox) : centre, rayon des places, de l'anneau, de la table. */
 const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4 } as const;
@@ -65,11 +70,14 @@ export function SeatRing({
   shares: SeatShare[];
   /** Au centre : le numéro de la table. */
   label: string;
-  /** La part qui vient d'arriver : sa place pulse. */
+  /** Une part à fêter dès le montage (celle qu'on vient de payer) ; les autres pulsent si elles arrivent ensuite. */
   freshId?: string | null;
   className?: string;
 }) {
   const ref = useRef<SVGSVGElement>(null);
+  // Les parts déjà là au montage ne pulsent pas : seules celles qui arrivent ensuite.
+  const [known] = useState(() => new Set(shares.map((share) => share.id)));
+  const [active, setActive] = useState<number | null>(null);
   /* Les respirations s'arrêtent hors de l'écran. */
   useEffect(() => {
     const node = ref.current;
@@ -90,69 +98,105 @@ export function SeatRing({
   const lit = points.filter((_, index) => seats[index].fill >= 1);
   const names = shares.filter((share) => share.tone !== "preview").map((share) => share.name);
   const free = seats.filter((seat) => seat.fill < 1).length;
+  const paidCents = shares.reduce((sum, share) => sum + share.amountCents, 0);
+  const remaining = Math.max(0, priceCents - paidCents);
+  const caption = active !== null ? seats[active]?.owner : null;
 
   return (
-    <svg
-      ref={ref}
-      viewBox={`0 0 ${RING.size} ${RING.size}`}
-      className={`club-seats ${className}`}
-      role="img"
-      aria-label={`${count} places${names.length ? ` · ${names.join(", ")} ${names.length > 1 ? "ont" : "a"} payé` : ""} · ${free} place${free > 1 ? "s" : ""} à prendre`}
-    >
-      <circle className="club-seats-track" cx={centre} cy={centre} r={RING.progress} />
-      <circle
-        className="club-seats-progress"
-        cx={centre}
-        cy={centre}
-        r={RING.progress}
-        pathLength={1}
-        style={{ "--paid": paid } as CSSProperties}
-        transform={`rotate(-90 ${centre} ${centre})`}
-      />
-      {lit.length > 1 && (
-        <polyline
-          key={lit.length}
-          className="club-seats-lines"
-          points={lit.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
+    <figure className={`club-seats-figure ${className}`}>
+      <svg
+        ref={ref}
+        viewBox={`0 0 ${RING.size} ${RING.size}`}
+        className="club-seats"
+        role="group"
+        aria-label={`${count} places${names.length ? ` · ${names.join(", ")} ${names.length > 1 ? "ont" : "a"} payé` : ""} · ${free} place${free > 1 ? "s" : ""} à prendre`}
+      >
+        <circle className="club-seats-track" cx={centre} cy={centre} r={RING.progress} />
+        <circle
+          className="club-seats-progress"
+          cx={centre}
+          cy={centre}
+          r={RING.progress}
           pathLength={1}
+          style={{ "--paid": paid } as CSSProperties}
+          transform={`rotate(-90 ${centre} ${centre})`}
         />
-      )}
-      <g className="club-seats-table" transform={`translate(${centre} ${centre})`}>
-        <circle r={RING.table} />
-        <path
-          className="club-seats-star"
-          d="M0-14C.5-4 1.4-1.4 14 0 1.4 1.4.5 4 0 14-.5 4-1.4 1.4-14 0-1.4-1.4-.5-4 0-14Z"
-          transform="translate(0 -12)"
-        />
-        <text y={16} textAnchor="middle" dominantBaseline="central">
-          {label}
-        </text>
-      </g>
-      {seats.map((seat, index) => {
-        const point = points[index];
-        const fresh = seat.owner && seat.owner.id === freshId;
-        return (
-          <g
-            key={index}
-            className="club-seat"
-            data-tone={seat.tone ?? undefined}
-            data-full={seat.fill >= 1 || undefined}
-            data-empty={seat.fill === 0 || undefined}
-            data-fresh={fresh || undefined}
-            transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`}
-            style={{ "--i": index } as CSSProperties}
-          >
-            <circle className="club-seat-halo" r={seatRadius + 7} />
-            <circle className="club-seat-base" r={seatRadius} />
-            <circle className="club-seat-fill" r={seatRadius} style={{ "--fill": seat.fill } as CSSProperties} />
-            {seat.owner && (
-              <text className="club-seat-initials" textAnchor="middle" dominantBaseline="central">
-                {seat.owner.tone === "preview" || seat.owner.tone === "you" ? "Vous" : initials(seat.owner.name)}
-              </text>
-            )}
-          </g>
-        );
-      })}
-    </svg>
+        {lit.length > 1 && (
+          <polyline
+            key={lit.length}
+            className="club-seats-lines"
+            points={lit.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
+            pathLength={1}
+          />
+        )}
+        <g className="club-seats-table" transform={`translate(${centre} ${centre})`}>
+          <circle r={RING.table} />
+          <path
+            className="club-seats-star"
+            d="M0-14C.5-4 1.4-1.4 14 0 1.4 1.4.5 4 0 14-.5 4-1.4 1.4-14 0-1.4-1.4-.5-4 0-14Z"
+            transform="translate(0 -12)"
+          />
+          <text y={6} textAnchor="middle" dominantBaseline="central">
+            {label}
+          </text>
+          <text className="club-seats-left" y={24} textAnchor="middle" dominantBaseline="central">
+            {remaining > 0 ? `${free} pl. · ${formatCents(remaining)}` : "Réglée"}
+          </text>
+        </g>
+        {seats.map((seat, index) => {
+          const point = points[index];
+          const owner = seat.owner;
+          const fresh = owner && (owner.id === freshId || !known.has(owner.id));
+          // La surface du disque suit la part de la place : échelle en racine.
+          const scale = Math.sqrt(seat.fill);
+          return (
+            <g
+              key={index}
+              className="club-seat"
+              data-tone={seat.tone ?? undefined}
+              data-solid={scale >= SOLID || undefined}
+              data-empty={seat.fill === 0 || undefined}
+              data-fresh={fresh || undefined}
+              data-active={active === index || undefined}
+              transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`}
+              style={{ "--i": index } as CSSProperties}
+              {...(owner && owner.tone !== "preview"
+                ? {
+                    role: "button",
+                    tabIndex: 0,
+                    "aria-label": `${owner.tone === "you" ? "Vous" : owner.name} : ${formatCents(owner.amountCents)}`,
+                    onClick: () => setActive((current) => (current === index ? null : index)),
+                    onPointerEnter: (event: React.PointerEvent) => event.pointerType === "mouse" && setActive(index),
+                    onPointerLeave: (event: React.PointerEvent) => event.pointerType === "mouse" && setActive(null),
+                    onFocus: () => setActive(index),
+                    onBlur: () => setActive(null),
+                  }
+                : {})}
+            >
+              <circle className="club-seat-halo" r={seatRadius + 7} />
+              <circle className="club-seat-base" r={seatRadius} />
+              <circle className="club-seat-fill" r={seatRadius} style={{ "--fill": scale } as CSSProperties} />
+              {seat.owner && (
+                <text className="club-seat-initials" textAnchor="middle" dominantBaseline="central">
+                  {seat.owner.tone === "preview" || seat.owner.tone === "you" ? "Vous" : initials(seat.owner.name)}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption className="club-seats-caption" aria-live="polite">
+        {caption ? (
+          <>
+            <strong>{caption.tone === "you" || caption.tone === "preview" ? "Vous" : caption.name}</strong>
+            <span className="club-mono">{formatCents(caption.amountCents)}</span>
+          </>
+        ) : (
+          <span>
+            1 place ≈ <span className="club-mono">{formatCents(Math.ceil(priceCents / count))}</span>
+          </span>
+        )}
+      </figcaption>
+    </figure>
   );
 }

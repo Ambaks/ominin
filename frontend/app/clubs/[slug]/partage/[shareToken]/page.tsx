@@ -5,7 +5,7 @@ import { PaidBurst } from "@/components/club/booking-live";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { SeatRing, type SeatShare } from "@/components/club/seat-ring";
 import { ShareJoin, ShareMeter } from "@/components/club/share-live";
-import { formatCents, formatHours, formatNight, formatNightShort, tableName } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
 import { clubHref } from "@/lib/club/links";
 import { fetchShareByToken } from "@/lib/club/public";
 
@@ -36,17 +36,22 @@ export default async function SharePage({ params, searchParams }: { params: Para
     tone: payer.id === yours?.id ? "you" : payer.organiser ? "organiser" : "friend",
   }));
   const complete = table.remainingCents <= 0;
-  const cancelled = Boolean(table.event.cancelledAt) || table.status === "annulee" || table.status === "remboursee";
+  const eventCancelled = Boolean(table.event.cancelledAt);
+  // La réservation elle-même n'est plus valable (délai de paiement passé, annulée ou remboursée par le club).
+  const voided = !eventCancelled && (table.status === "annulee" || table.status === "remboursee");
+  // L'organisateur n'a pas encore réglé sa part : la table n'est pas confirmée.
+  const pending = table.status === "en_attente";
+  const cancelled = eventCancelled || voided;
   // Confirmée, ni annulée ni complète, mais fermée : la soirée a commencé.
   const started = !cancelled && !table.open && (table.status === "payee" || table.status === "arrivee");
   const joinable = table.open && !complete && table.seatsLeft > 0 && !yours;
   const night = capitalize(formatNight(table.event.startsAt));
-  const where = tableName(table.table.zone, table.table.label);
+  const where = table.table.zone;
 
   return (
     <main className="club-page club-share-page">
       <ClubTop slug={slug} name={table.club.name} />
-      {yours && <PaidBurst target={`.club-seat[data-fresh]`} param="part" />}
+      {yours && query.nouveau !== undefined && <PaidBurst target=".club-seat[data-fresh]" param="nouveau" scroll />}
 
       <section className="club-share-layout" data-chapter>
         <header className="club-share-hero">
@@ -58,19 +63,20 @@ export default async function SharePage({ params, searchParams }: { params: Para
             {night} · <span className="club-mono">{formatHours(table.event.startsAt, table.event.endsAt)}</span>
           </p>
           <p className="club-lead">
-            {table.event.title} · {where} · {table.partySize} pers.
+            {table.event.title} · {where} · {table.partySize} pers. · table{" "}
+            <span className="club-mono">{formatCents(table.totalCents)}</span>
           </p>
         </header>
 
         <div className="club-share-board">
           <SeatRing
             seats={table.partySize}
-            priceCents={table.priceCents}
+            priceCents={table.totalCents}
             shares={shares}
-            label={table.table.label}
+            label={`${table.partySize} pers.`}
             freshId={yours?.id ?? table.payers.at(-1)?.id}
           />
-          <ShareMeter paidCents={table.paidCents} priceCents={table.priceCents} />
+          <ShareMeter paidCents={table.totalCents - table.remainingCents} priceCents={table.totalCents} />
           <ul className="club-payers" aria-label="Déjà à table">
             {table.payers.map((payer) => (
               <li key={payer.id} data-you={payer.id === yours?.id || undefined}>
@@ -91,10 +97,25 @@ export default async function SharePage({ params, searchParams }: { params: Para
               {`Votre part de ${formatCents(yours.amountCents)} est payée : votre reçu arrive par e-mail. À l’entrée, présentez-vous avec ${table.organiser.split(" ")[0]}, pièce d’identité à la main.`}
             </p>
           </div>
-        ) : cancelled ? (
+        ) : eventCancelled ? (
           <div className="club-share-state" data-tone="muted" role="status">
             <p className="club-sheet-title">Soirée annulée</p>
             <p className="club-lead">Les parts déjà payées sont remboursées automatiquement.</p>
+          </div>
+        ) : voided ? (
+          <div className="club-share-state" data-tone="muted" role="status">
+            <p className="club-sheet-title">Cette réservation n&rsquo;est plus valable</p>
+            <p className="club-lead">
+              La table a été libérée : le lien de partage est fermé. Rien n&rsquo;est à payer ici.
+            </p>
+          </div>
+        ) : pending ? (
+          <div className="club-share-state" data-tone="muted" role="status">
+            <p className="club-sheet-title">La table n&rsquo;est pas encore confirmée</p>
+            <p className="club-lead">
+              {table.organiser.split(" ")[0]} est en train de régler sa part : revenez dans quelques minutes, le lien
+              s&rsquo;ouvre dès que c&rsquo;est fait.
+            </p>
           </div>
         ) : complete ? (
           <div className="club-share-state" data-tone="success" role="status">
@@ -116,14 +137,14 @@ export default async function SharePage({ params, searchParams }: { params: Para
             </h2>
             <p className="club-lead">
               Reste <strong className="club-mono">{formatCents(table.remainingCents)}</strong> pour {table.seatsLeft}{" "}
-              place{table.seatsLeft > 1 ? "s" : ""}. Choisissez votre montant, frais de service en plus.
+              place{table.seatsLeft > 1 ? "s" : ""}. Choisissez votre montant.
             </p>
             <ShareJoin
               shareToken={table.shareToken}
               provider={table.club.paymentProvider}
               minimumCents={table.minimumCents}
               remainingCents={table.remainingCents}
-              feePercent={table.feePercent}
+              payerIds={table.payers.map((payer) => payer.id)}
               conditions={table.club.conditions}
               recap={`${capitalize(formatNightShort(table.event.startsAt))} · ${where}`}
             />

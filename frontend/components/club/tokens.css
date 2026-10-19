@@ -16,8 +16,8 @@
   --c-line-strong: rgba(255, 255, 255, 0.16);
   /* Texte (contraste ≥ 4.5:1 sur --c-navy) */
   --c-text: #f2f3fb;
-  --c-muted: #b9bedc;
-  --c-faint: #9399c2;
+  --c-muted: #c9cde8;
+  --c-faint: #aeb3d8;
   /* Marque : l'or de l'étoile, le corail de l'action, le lagon */
   --c-gold: #e2c48f;
   --c-gold-light: #fbefd2;

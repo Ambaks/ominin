@@ -26,6 +26,8 @@ export const CLUB_TIMING = {
   step: 320,
   /* La constellation du paiement réussi, lancée quand le QR code s'est posé. */
   burstDelay: 450,
+  /* Au plus ce délai pour qu'un défilement vers l'élément fêté se pose. */
+  scrollSettle: 900,
   burst: 1_600,
   /* « Lien copié » reste affiché. */
   copied: 1_800,
@@ -78,7 +80,7 @@ export const PLAN_POINTER = { tapRadius: 28, proximity: 140, lerp: 0.18 } as con
  * sur le plan du club (lisibles au téléphone), cadrées sur leur ensemble à
  * margin unités près.
  */
-export const PLAN_FIT = { tableScale: 1.2, margin: 24 } as const;
+export const PLAN_FIT = { tableScale: 1.25, margin: 16 } as const;
 
 /* Le bouton principal attiré par le curseur : portée (px) et déplacement maximal (px). */
 export const CLUB_MAGNET = { reach: 60, pull: 6 } as const;

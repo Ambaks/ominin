@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { CSSProperties } from "react";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { MagneticLink } from "@/components/club/magnetic-link";
 import { Poster } from "@/components/club/poster";
@@ -10,7 +9,7 @@ import { Spotlight } from "@/components/club/spotlight";
 import { CLUB_TIMING } from "@/components/club/timing";
 import { formatCents, formatHours, formatNight } from "@/lib/club/format";
 import { clubHref } from "@/lib/club/links";
-import { nightSummary } from "@/lib/club/pricing";
+import { fromCents } from "@/lib/club/pricing";
 import { fetchAvailability, fetchClub, fetchUpcomingEvents } from "@/lib/club/public";
 
 /* Une soirée publiée ou annulée, une table réservée : visibles dès le rechargement. */
@@ -34,7 +33,7 @@ export default async function ClubPage({ params }: { params: Params }) {
   if (!club) notFound();
   const events = await fetchUpcomingEvents(club.id);
   const next = events.find((event) => !event.cancelledAt);
-  const summary = next ? nightSummary(club, await fetchAvailability(club, next.id)) : null;
+  const from = next ? fromCents(await fetchAvailability(next.id), club.feePercent) : null;
   const later = events.filter((event) => event.id !== next?.id);
   const { conditions } = club;
   const wallets = club.paymentProvider === "stripe";
@@ -44,7 +43,7 @@ export default async function ClubPage({ params }: { params: Params }) {
     <main className="club-page club-home">
       <ClubTop slug={slug} name={club.name} tagline={club.tagline} />
 
-      {next && nextHref && summary ? (
+      {next && nextHref ? (
         <section className="club-feature" data-chapter aria-labelledby="prochaine-titre">
           <Link href={nextHref} className="club-feature-poster" tabIndex={-1} aria-hidden>
             <Poster event={next} clubName={club.name} sizes="(min-width: 1024px) 520px, 100vw" />
@@ -58,28 +57,16 @@ export default async function ClubPage({ params }: { params: Params }) {
               {next.title}
             </h1>
             {next.description && <p className="club-lead">{next.description}</p>}
-            {summary.fromCents !== null && (
+            {from !== null ? (
               <p className="club-from">
-                Tables dès <strong className="club-mono">{formatCents(summary.fromCents)}</strong>, frais compris
+                Tables dès <strong className="club-mono">{formatCents(from)}</strong>, frais compris · réservation
+                conseillée
               </p>
-            )}
-            {summary.total > 0 && (
-              <div className="club-meter" aria-label={`${summary.reserved} tables réservées sur ${summary.total}`}>
-                <p>
-                  <span className="club-mono">
-                    {summary.reserved} / {summary.total}
-                  </span>{" "}
-                  tables réservées
-                </p>
-                <span
-                  className="club-meter-bar"
-                  style={{ "--fill": summary.reserved / summary.total } as CSSProperties}
-                  aria-hidden
-                />
-              </div>
+            ) : (
+              <p className="club-from">Toutes les tables sont réservées pour cette soirée.</p>
             )}
             <div className="club-feature-actions">
-              <MagneticLink href={`${nextHref}#plan`} className="club-button club-button-primary">
+              <MagneticLink href={`${nextHref}#offres`} className="club-button club-button-primary">
                 Choisir ma table
               </MagneticLink>
               {next.ticketUrl && (
@@ -91,11 +78,11 @@ export default async function ClubPage({ params }: { params: Params }) {
             </div>
           </div>
           <div className="club-dock">
-            <Link href={`${nextHref}#plan`} className="club-button club-button-primary club-button-block">
+            <Link href={`${nextHref}#offres`} className="club-button club-button-primary club-button-block">
               Choisir ma table
-              {summary.fromCents !== null && (
+              {from !== null && (
                 <span className="club-dock-price">
-                  dès <span className="club-mono">{formatCents(summary.fromCents)}</span>
+                  dès <span className="club-mono">{formatCents(from)}</span>
                 </span>
               )}
             </Link>
@@ -153,24 +140,24 @@ export default async function ClubPage({ params }: { params: Params }) {
           Votre table en trois gestes
         </h2>
         <ol className="club-steps">
-          <Reveal as="li" className="club-step-card">
+          <li className="club-step-card">
             <span className="club-step-num club-mono">01</span>
             <h3>Choisissez la table</h3>
             <p>Sur le plan du club, en direct : celles qui restent, ce qu&rsquo;elles comprennent, leur prix.</p>
-          </Reveal>
-          <Reveal as="li" delay={CLUB_TIMING.stagger} className="club-step-card">
+          </li>
+          <li className="club-step-card">
             <span className="club-step-num club-mono">02</span>
             <h3>Réglez en ligne</h3>
             <p>
               Le total, frais compris, s&rsquo;affiche avant toute saisie.
               {wallets ? " Apple Pay, Google Pay ou carte." : ""}
             </p>
-          </Reveal>
-          <Reveal as="li" delay={CLUB_TIMING.stagger * 2} className="club-step-card">
+          </li>
+          <li className="club-step-card">
             <span className="club-step-num club-mono">03</span>
             <h3>Montrez votre QR code</h3>
             <p>Il arrive avec votre confirmation. À l&rsquo;entrée, il suffit de le présenter.</p>
-          </Reveal>
+          </li>
         </ol>
         <ul className="club-chips club-door-chips" aria-label="Conditions d'entrée">
           <li>{conditions.minAge} ans et plus</li>

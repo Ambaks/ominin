@@ -1,15 +1,14 @@
 "use client";
 
-import { useId, type CSSProperties } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import { RollingAmount } from "@/components/club/rolling-amount";
 import { formatCents } from "@/lib/club/format";
-import { serviceFeeCents } from "@/lib/club/pricing";
 
 /*
  * Choisir le montant d'une part : un curseur entre le minimum et le
  * maximum, des raccourcis (une part, deux parts, tout), et ± une part. Le
- * montant suit en grand ; les frais de service et ce qu'il restera aux
- * autres se lisent dessous. Les bornes viennent du serveur ; le curseur
+ * montant suit en grand ; dessous, ce que la page veut en dire (frais,
+ * ce qu'il restera aux autres). Les bornes viennent du serveur ; le curseur
  * avance à l'euro, les raccourcis tombent juste sur les bornes.
  */
 
@@ -21,9 +20,8 @@ export function ShareAmount({
   min,
   max,
   part,
-  feePercent,
   presets,
-  othersLabel,
+  note,
   onChange,
 }: {
   value: number;
@@ -31,15 +29,13 @@ export function ShareAmount({
   max: number;
   /** Une part égale (centimes) : le pas de ± et des raccourcis. */
   part: number;
-  feePercent: number;
   presets: { label: string; cents: number }[];
-  /** « vos amis », « reste après vous ». */
-  othersLabel: string;
+  /** Sous le montant : frais, part des autres. */
+  note: ReactNode;
   onChange: (cents: number) => void;
 }) {
   const id = useId();
   const clampValue = (cents: number) => Math.min(max, Math.max(min, cents));
-  const fee = serviceFeeCents(value, feePercent);
   const fillRatio = max > min ? (value - min) / (max - min) : 1;
   return (
     <div className="club-share-amount">
@@ -50,10 +46,7 @@ export function ShareAmount({
         <p className="club-share-value">
           <RollingAmount cents={value} className="club-mono" />
         </p>
-        <p className="club-share-sub">
-          + <span className="club-mono">{formatCents(fee)}</span> de frais de service · {othersLabel}{" "}
-          <span className="club-mono">{formatCents(Math.max(0, max - value))}</span>
-        </p>
+        <p className="club-share-sub">{note}</p>
       </div>
       <div className="club-share-control">
         <button

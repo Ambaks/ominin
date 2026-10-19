@@ -62,9 +62,9 @@ export async function GET(
     `DTSTAMP:${stamp(new Date().toISOString())}`,
     `DTSTART:${stamp(booking.event.startsAt)}`,
     `DTEND:${stamp(booking.event.endsAt)}`,
-    `SUMMARY:${text(`${booking.event.title} — ${booking.club.name}, table ${booking.table.label}`)}`,
+    `SUMMARY:${text(`${booking.event.title} — ${booking.club.name}, ${booking.table.zone}`)}`,
     ...(booking.club.address ? [`LOCATION:${text(booking.club.address)}`] : []),
-    `DESCRIPTION:${text(`${booking.table.zone}, table ${booking.table.label}, ${booking.partySize} pers. — ${formatCents(booking.totalCents)}.\nVotre réservation et son QR code : ${url}`)}`,
+    `DESCRIPTION:${text(`${booking.table.zone}, ${booking.partySize} pers. — ${formatCents(booking.totalCents)}.\nVotre réservation et son QR code : ${url}`)}`,
     `URL:${url}`,
     "END:VEVENT",
     "END:VCALENDAR",
@@ -72,7 +72,7 @@ export async function GET(
   return new Response(`${lines.map(fold).join("\r\n")}\r\n`, {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${asciiName(`${slug}-table-${booking.table.label}`) || "reservation"}.ics"`,
+      "Content-Disposition": `attachment; filename="${asciiName(`${slug}-${booking.table.zone}`) || "reservation"}.ics"`,
       "Cache-Control": "no-store",
     },
   });

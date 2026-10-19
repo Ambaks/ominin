@@ -43,7 +43,7 @@ function SaveBar({ saving, disabled, onReset }: { saving: boolean; disabled: boo
   );
 }
 
-function ConditionsForm({ conditions }: { conditions: ClubConditions }) {
+function ConditionsForm({ conditions, depositPercent }: { conditions: ClubConditions; depositPercent: number | null }) {
   const toast = useToast();
   const [minAge, setMinAge] = useState(conditions.minAge);
   const [dressCode, setDressCode] = useState(conditions.dressCode ?? "");
@@ -105,6 +105,14 @@ function ConditionsForm({ conditions }: { conditions: ClubConditions }) {
             />
           </Field>
         </div>
+        <p className="flex items-start gap-2 rounded-xl border border-hairline bg-background/40 px-3 py-2.5 text-sm text-muted">
+          <span className="etoile mt-0.5" aria-hidden />
+          <span>
+            {depositPercent
+              ? `Acompte en ligne : ${depositPercent} % de la table, frais compris — le reste se règle à la porte. Réglé par Ominin.`
+              : "Les tables se paient en entier en ligne. Réglé par Ominin."}
+          </span>
+        </p>
         <Field label="Refusé à l'entrée" hint="Vide : rien de particulier.">
           <input
             value={refused}
@@ -199,10 +207,12 @@ export function ZonesSettings({
   zones,
   tableCounts,
   conditions,
+  depositPercent,
 }: {
   zones: ClubZone[];
   tableCounts: Map<string, number>;
   conditions: ClubConditions;
+  depositPercent: number | null;
 }) {
   return (
     <div className="flex flex-col gap-8">
@@ -224,7 +234,7 @@ export function ZonesSettings({
           une table.
         </p>
       </section>
-      <ConditionsForm key={JSON.stringify(conditions)} conditions={conditions} />
+      <ConditionsForm key={JSON.stringify(conditions)} conditions={conditions} depositPercent={depositPercent} />
     </div>
   );
 }

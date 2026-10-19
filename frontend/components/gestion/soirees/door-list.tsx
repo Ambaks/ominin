@@ -32,6 +32,8 @@ export type HeldTable = {
   zoneName: string;
   /** Les amis qui ont payé leur part en ligne (table partagée). */
   payers: string[];
+  /** Acompte réglé en ligne (table non partagée), frais compris ; null sinon. */
+  deposit: number | null;
 };
 type Entry = HeldTable & { state: TableState };
 type Phase = "repos" | "glisse" | "pret" | "parti";
@@ -61,7 +63,7 @@ function DoorRow({
   /** Fait entrer (et encaisse d'abord le reste s'il y en a) ; résout faux si la base refuse : la rangée revient. */
   onArrive: () => Promise<boolean>;
 }) {
-  const { booking, table, zoneName, state, payers } = entry;
+  const { booking, table, zoneName, state, payers, deposit } = entry;
   const remaining = booking.remainingCents;
   const row = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ id: number; x: number; y: number; dx: number; active: boolean } | null>(null);
@@ -152,12 +154,17 @@ function DoorRow({
           </span>
           <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
             {party(booking.partySize)}
-            {booking.shared && payers.length > 0 && (
+            {booking.shared && payers.length > 1 && (
               <span>
                 · {payers.length} payeur{payers.length > 1 ? "s" : ""}
               </span>
             )}
-            {remaining > 0 && booking.paidCents > 0 ? (
+            {deposit !== null ? (
+              <span className="statut statut-pose" data-state="attente">
+                Acompte <span className="tabular-nums">{formatCents(deposit)}</span> · reste{" "}
+                <span className="tabular-nums">{formatCents(remaining)}</span>
+              </span>
+            ) : remaining > 0 && booking.paidCents > 0 ? (
               <span className="statut statut-pose" data-state="attente">
                 Reste <span className="tabular-nums">{formatCents(remaining)}</span>
               </span>
@@ -277,7 +284,7 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
       ) : (
         <>
           <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            Attendues · <span className="tabular-nums">{waiting.length}</span>
+            Tables attendues · <span className="tabular-nums">{waiting.length}</span>
           </p>
           {rows.length === 0 ? (
             <p className="px-1 pb-4 text-sm text-muted">
@@ -312,7 +319,7 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
             <details className="group mt-4 rounded-2xl border border-hairline bg-surface">
               <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
                 <span>
-                  Arrivées · <span className="tabular-nums">{arrived.length}</span>
+                  Tables arrivées · <span className="tabular-nums">{arrived.length}</span>
                 </span>
                 <svg viewBox="0 0 24 24" className="size-4 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="m6 9 6 6 6-6" />

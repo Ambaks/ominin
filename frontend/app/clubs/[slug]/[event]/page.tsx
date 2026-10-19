@@ -5,7 +5,7 @@ import { EventBooking } from "@/components/club/event-booking";
 import { GuestList } from "@/components/club/guest-list";
 import { Poster } from "@/components/club/poster";
 import { formatCents, formatHours, formatNight } from "@/lib/club/format";
-import { nightSummary } from "@/lib/club/pricing";
+import { fromCents } from "@/lib/club/pricing";
 import { fetchAvailability, fetchClub, fetchEvent } from "@/lib/club/public";
 import type { Club } from "@/lib/club/types";
 import { connectedAccount } from "@/lib/stripe/server";
@@ -45,10 +45,10 @@ export default async function EventPage({ params }: { params: Params }) {
   const found = await load(params);
   if (!found) notFound();
   const { club, event } = found;
-  const [availability, bookable] = await Promise.all([fetchAvailability(club, event.id), isBookable(club)]);
+  const [availability, bookable] = await Promise.all([fetchAvailability(event.id), isBookable(club)]);
   const cancelled = Boolean(event.cancelledAt);
   const night = formatNight(event.startsAt);
-  const { fromCents } = nightSummary(club, availability);
+  const from = fromCents(availability, club.feePercent);
 
   return (
     <main className="club-page club-calm">
@@ -71,9 +71,9 @@ export default async function EventPage({ params }: { params: Params }) {
             </p>
           ) : (
             <>
-              {fromCents !== null && (
+              {from !== null && (
                 <p className="club-from">
-                  Tables dès <strong className="club-mono">{formatCents(fromCents)}</strong>, frais compris
+                  Tables dès <strong className="club-mono">{formatCents(from)}</strong>, frais compris
                 </p>
               )}
               {event.ticketUrl && (
