@@ -2137,6 +2137,30 @@ export type Database = {
           },
         ]
       }
+      loyalty_devices: {
+        Row: {
+          contact: string
+          created_at: string
+          first_name: string | null
+          last_seen_at: string
+          token_hash: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          first_name?: string | null
+          last_seen_at?: string
+          token_hash: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          first_name?: string | null
+          last_seen_at?: string
+          token_hash?: string
+        }
+        Relationships: []
+      }
       loyalty_entries: {
         Row: {
           created_at: string
@@ -2576,6 +2600,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          accord: Database["public"]["Enums"]["accord_source"] | null
           components: Json | null
           id: string
           item_id: string | null
@@ -2591,6 +2616,7 @@ export type Database = {
           vat_rate: number | null
         }
         Insert: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -2606,6 +2632,7 @@ export type Database = {
           vat_rate?: number | null
         }
         Update: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -5619,6 +5646,10 @@ export type Database = {
         Args: { p_contact: string; p_slug: string }
         Returns: number
       }
+      loyalty_claim_order: {
+        Args: { p_contact: string; p_order_id: string }
+        Returns: undefined
+      }
       loyalty_contact: { Args: { p_raw: string }; Returns: string }
       loyalty_customers_summary: {
         Args: { p_etablissement_id: string }
@@ -5627,6 +5658,53 @@ export type Database = {
           id: string
           last_activity: string
           points: number
+        }[]
+      }
+      loyalty_device_history: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          created_at: string
+          kind: Database["public"]["Enums"]["loyalty_entry_kind"]
+          points: number
+          rewards: string | null
+          table_number: number | null
+        }[]
+      }
+      loyalty_device_member: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          contact: string
+          first_name: string | null
+          member_since: string | null
+          points: number | null
+        }[]
+      }
+      loyalty_device_remember: {
+        Args: {
+          p_contact: string
+          p_first_name?: string | null
+          p_slug: string
+          p_token_hash: string
+        }
+        Returns: undefined
+      }
+      loyalty_stats_members: {
+        Args: { p_etablissement_id: string }
+        Returns: {
+          members: number
+          points_outstanding: number
+          remembered_phones: number
+          returning_members: number
+        }[]
+      }
+      loyalty_stats_weeks: {
+        Args: { p_etablissement_id: string }
+        Returns: {
+          card_orders: number
+          new_members: number
+          paid_orders: number
+          rewards_used: number
+          week: string
         }[]
       }
       mark_demo_order_paid: {
@@ -5890,8 +5968,9 @@ export type Database = {
       }
     }
     Enums: {
-      club_payment_method: "en_ligne" | "sur_place"
-      club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      accord_source: "panier" | "fiche" | "formule"
+      badge: "maison" | "top" | "nouveau"
+      clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       club_booking_source: "en_ligne" | "telephone" | "sur_place"
       club_booking_status:
         | "en_attente"
@@ -5899,8 +5978,8 @@ export type Database = {
         | "arrivee"
         | "annulee"
         | "remboursee"
-      badge: "maison" | "top" | "nouveau"
-      clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
+      club_payment_method: "en_ligne" | "sur_place"
+      club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
       crm_activity_type:
         | "note"
         | "call"
@@ -6147,8 +6226,9 @@ export const Constants = {
   },
   public: {
     Enums: {
-      club_payment_method: ["en_ligne", "sur_place"],
-      club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
+      accord_source: ["panier", "fiche", "formule"],
+      badge: ["maison", "top", "nouveau"],
+      clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       club_booking_source: ["en_ligne", "telephone", "sur_place"],
       club_booking_status: [
         "en_attente",
@@ -6157,8 +6237,8 @@ export const Constants = {
         "annulee",
         "remboursee",
       ],
-      badge: ["maison", "top", "nouveau"],
-      clip_post_status: ["en_cours", "publie", "partiel", "echec"],
+      club_payment_method: ["en_ligne", "sur_place"],
+      club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
       crm_activity_type: [
         "note",
         "call",

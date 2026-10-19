@@ -1,13 +1,15 @@
 "use client";
 
-import { Fragment, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   collectProblem,
   PickupFields,
   pickupNotice,
   type CollectDetails,
 } from "@/components/collect/pickup-fields";
+import { CartPairings } from "@/components/menu/cart-pairings";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
+import { ClaimPoints } from "@/components/menu/claim-points";
 import { LoyaltySection } from "@/components/menu/loyalty-section";
 import { PreviewPayment } from "@/components/menu/preview-payment";
 import { leaveAfterSheet, Sheet, useSheetHistoryReset } from "@/components/menu/sheet";
@@ -21,6 +23,9 @@ import { useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
+import { pointsEarned } from "@/lib/menu/loyalty";
+import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
+import { CART_LINES_SHOWN } from "@/lib/gestion/constants";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 
@@ -106,6 +111,11 @@ export function CartBar() {
   const [sentPayment, setSentPayment] = useState<PaymentChoice>("comptoir");
   const [contact, setContact] = useState("");
   const [balance, setBalance] = useState<number | null>(null);
+  const loyaltyMember = useLoyaltyMember();
+  const [rememberPhone, setRememberPhone] = useState(true);
+  const [firstName, setFirstName] = useState("");
+  // Commande partie sans carte : la confirmation propose d'en garder les points.
+  const [unclaimed, setUnclaimed] = useState<{ orderId: string; points: number } | null>(null);
   const [tipChoice, setTipChoice] = useState<TipChoice>(null);
   const [customTip, setCustomTip] = useState("");
   // Le champ du montant libre prend le focus quand on choisit « Autre », pas
@@ -121,6 +131,21 @@ export function CartBar() {
     pickupAt: cart.collect && !isOpenAt(cart.collect.hours, new Date()) ? "" : null,
     note: "",
   }));
+  // Deux temps quand il y a un règlement à choisir : la commande (lignes,
+  // accords, fidélité), puis le règlement. Le pied de la commande n'a plus que
+  // le total et un bouton : le reste de la feuille se voit.
+  const [step, setStep] = useState<"commande" | "reglement">("commande");
+  // Passée d'une étape à l'autre, la feuille remonte et le focus va au titre.
+  // Un compteur et non l'étape : l'ouverture remet l'étape sans rien focaliser.
+  const [stepMoves, setStepMoves] = useState(0);
+  const [allLines, setAllLines] = useState(false);
+  const stepTitleRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (stepMoves === 0) return;
+    const title = stepTitleRef.current;
+    title?.closest<HTMLElement>('[role="dialog"]')?.scrollTo({ top: 0 });
+    title?.focus({ preventScroll: true });
+  }, [stepMoves]);
   // Paiement carte choisi mais impossible à démarrer : la commande reste
   // valable, il faut le dire au client (il paiera au comptoir).
   const [cardFailed, setCardFailed] = useState(false);
@@ -163,6 +188,17 @@ export function CartBar() {
   // Le panier relu après un rechargement n'est pas un ajout : ni saut, ni
   // annonce, on prend juste son compte comme point de départ.
   const [baselined, setBaselined] = useState(false);
+  // Une ligne nouvelle, la feuille ouverte (accord, palier, formule) : elle
+  // arrive en bas de la liste, qui se déplie pour la montrer. Les clés et non
+  // le compte : une formule qui reprend un plat le laisse inchangé, et un « + »
+  // sur une ligne déjà là ne déplie rien.
+  const lineKeys = cart.lines.map((line) => line.key).join("\n");
+  const [knownKeys, setKnownKeys] = useState(lineKeys);
+  if (knownKeys !== lineKeys) {
+    const known = new Set(knownKeys.split("\n"));
+    if (open && cart.lines.some((line) => !known.has(line.key))) setAllLines(true);
+    setKnownKeys(lineKeys);
+  }
   if (!baselined) {
     if (cart.ready) {
       setBaselined(true);
@@ -211,7 +247,9 @@ export function CartBar() {
       // Écran bas (paysage, zoom, pourboire libre ouvert) : collés, l'en-tête
       // et le pied ne laissaient plus voir une seule ligne de la commande. Le
       // pied se décolle alors, et la feuille défile en entier.
-      const line = panel.querySelector<HTMLElement>(".cart-content li");
+      // Le premier bloc de l'étape : une ligne de la commande, ou le choix du
+      // règlement.
+      const line = panel.querySelector<HTMLElement>('.cart-content li, .cart-reglement > [role="radiogroup"]');
       const cramped =
         panel.clientHeight - (head?.offsetHeight ?? 0) - foot.offsetHeight <
         (line?.offsetHeight ?? 0);
@@ -295,13 +333,31 @@ export function CartBar() {
   if (!cart.canOrder) return null;
   if (cart.count === 0 && state !== "sent") return status;
 
-  const loyaltyContact = cart.loyalty ? contact.trim() : "";
+  // Téléphone reconnu, champ laissé vide : c'est son contact qui part.
+  const member = contact.trim() ? null : loyaltyMember.member;
+  const loyaltyContact = cart.loyalty ? (member?.contact ?? contact.trim()) : "";
+  const loyaltyPoints =
+    cart.loyalty && loyaltyContact ? pointsEarned(cart.earningTotal, cart.loyalty.pointsPerEuro) : 0;
   // Un article offert ne part pas seul : place_order le refuserait.
   const rewardsOnly = cart.lines.length > 0 && cart.lines.every((line) => line.reward);
   // La cuisine a fermé depuis l'ajout : place_order refuserait ces lignes.
   const lineClosed = (line: CartLine) =>
     judgeClosed ? cart.closedDish(line) : undefined;
   const closedLines = cart.lines.filter(lineClosed);
+  // Un plat coupé pendant le règlement : la feuille revient à la commande,
+  // focus compris, et y reste une fois le plat retiré.
+  if (closedLines.length > 0 && step === "reglement") {
+    setStep("commande");
+    setStepMoves((moves) => moves + 1);
+  }
+  if (closedLines.length > 0 && !allLines) setAllLines(true);
+  // Une longue commande se replie sur ses premières lignes : l'accord du chef
+  // et la fidélité restent à l'écran.
+  const foldable = cart.lines.length > CART_LINES_SHOWN;
+  const shownLines = foldable && !allLines ? cart.lines.slice(0, CART_LINES_SHOWN) : cart.lines;
+  const hiddenCount = cart.lines
+    .slice(CART_LINES_SHOWN)
+    .reduce((sum, line) => sum + line.quantity, 0);
   // Une ligne coupée : ce qui l'est, et comment repartir. Une formule ne perd
   // pas un choix en silence, elle se recompose.
   const closedNotice = () => {
@@ -362,10 +418,19 @@ export function CartBar() {
   const tipAmount = tipCents / 100;
   // Aperçu à table : paiement simulé et suivi (demoSuivi).
   const previewSuivi = cart.preview && cart.demoSuivi !== undefined;
+  // Le règlement a son étape quand il y a un choix à faire (en ligne ou au
+  // comptoir, puis le pourboire).
+  const paymentStep = cart.onlinePayment && cart.total > 0 && !belowMinimum && !cart.collect;
+  const onPayment = paymentStep && step === "reglement";
+  const goTo = (next: "commande" | "reglement") => {
+    setStep(next);
+    setStepMoves((moves) => moves + 1);
+  };
 
   // Partie, une commande ne lègue ni son règlement ni son pourboire à la
   // suivante.
   const resetChoices = () => {
+    setStep("commande");
     setPayment("carte");
     setTipChoice(null);
     setCustomTip("");
@@ -476,12 +541,14 @@ export function CartBar() {
             formule_id: line.itemId,
             quantity: line.quantity,
             selections: line.formule.selections,
+            ...(line.accord && { accord: line.accord }),
           }
         : {
             item_id: line.itemId,
             quantity: line.quantity,
             choices: line.choices,
             ...(line.reward && { reward_id: line.reward.id }),
+            ...(line.accord && { accord: line.accord }),
           }
     );
     const { data: orderId, error: rpcError } = await supabase.rpc(
@@ -518,6 +585,20 @@ export function CartBar() {
     setSentPayment(payment);
     // Le solde affiché ne vaut plus : il se relira à la prochaine commande.
     setBalance(null);
+    // Un téléphone reconnu relit son solde (des points ont pu partir) ; sinon,
+    // place_order vient de créer la carte : le téléphone peut la retenir.
+    if (member) {
+      loyaltyMember.refresh().catch(() => {});
+    } else if (loyaltyContact && rememberPhone && loyaltyMember.enabled) {
+      loyaltyMember
+        .remember(loyaltyContact, firstName.trim() || undefined)
+        .then(() => setContact(""), () => {});
+    }
+    setUnclaimed(
+      cart.loyalty && !loyaltyContact && !cart.collect && !cart.fastFood
+        ? { orderId, points: pointsEarned(cart.earningTotal, cart.loyalty.pointsPerEuro) }
+        : null
+    );
     // Fast food : le numéro est gardé dès maintenant, quel que soit le
     // règlement — un client qui quitte la page de paiement le retrouve.
     tickets?.add(orderId);
@@ -694,6 +775,7 @@ export function CartBar() {
     setOpen(false);
     if (state === "sent") {
       setState("idle");
+      setUnclaimed(null);
       setSumupPayment(null);
       setSquarePayment(null);
       setStripePayment(null);
@@ -716,6 +798,8 @@ export function CartBar() {
               event.currentTarget.focus({ preventScroll: true });
               // En click & collect, l'effet de l'heure de retrait s'en charge.
               if (!cart.collect) cart.refreshClosed();
+              setStep("commande");
+              setAllLines(false);
               setOpen(true);
             }}
             aria-haspopup="dialog"
@@ -858,11 +942,19 @@ export function CartBar() {
                       réglerez votre addition au comptoir.
                     </p>
                   )}
-                  {loyaltyContact && (
-                    <p className="text-xs leading-relaxed text-muted">
-                      Vos points de fidélité sont crédités sur {loyaltyContact}{" "}
-                      à l&rsquo;encaissement.
-                    </p>
+                  {unclaimed && unclaimed.points > 0 ? (
+                    <ClaimPoints
+                      orderId={unclaimed.orderId}
+                      points={unclaimed.points}
+                      paid={sentPayment === "carte" && !cardFailed}
+                    />
+                  ) : (
+                    loyaltyContact && (
+                      <p className="text-xs leading-relaxed text-muted">
+                        Vos points de fidélité sont crédités sur {loyaltyContact}{" "}
+                        à l&rsquo;encaissement.
+                      </p>
+                    )
                   )}
                   {/* La route d'aperçu est publique et saute le paiement : la
                       mention dit que rien n'est parti et où le paiement s'ouvre,
@@ -891,15 +983,31 @@ export function CartBar() {
                   {/* En-tête et pied collés, la liste à sa hauteur : sur un écran
                       bas (paysage, zoom), c'est la feuille entière qui défile —
                       la liste ne s'écrase plus à zéro ligne visible. */}
-                  <div className="cart-head sticky top-0 z-10 flex items-center justify-between border-b border-hairline bg-surface p-5">
-                    <h3 id={titleId} className="cart-title font-display text-lg font-medium">
-                      Votre commande
-                      <span className="mt-0.5 block font-sans text-xs font-normal normal-case tracking-normal text-muted">
+                  <div className="cart-head sticky top-0 z-10 flex items-center gap-2 border-b border-hairline bg-surface p-5">
+                    <h3
+                      id={titleId}
+                      ref={stepTitleRef}
+                      tabIndex={-1}
+                      className="cart-title min-w-0 flex-1 font-display text-lg font-medium outline-none"
+                    >
+                      {onPayment ? "Règlement" : "Votre commande"}
+                      <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-sans text-xs font-normal normal-case tracking-normal text-muted">
                         {cart.collect
                           ? "À emporter"
                           : cart.fastFood
                             ? "À récupérer au comptoir"
                             : `Table ${cart.tableNumber}`}
+                        {paymentStep && (
+                          <>
+                            <span aria-hidden className="flex w-10 gap-1">
+                              <span className="ember-gradient h-1 flex-1 rounded-full" />
+                              <span
+                                className={`h-1 flex-1 rounded-full ${onPayment ? "ember-gradient" : "bg-hairline"}`}
+                              />
+                            </span>
+                            <span>Étape {onPayment ? 2 : 1} sur 2</span>
+                          </>
+                        )}
                       </span>
                     </h3>
                     <button
@@ -913,183 +1021,21 @@ export function CartBar() {
                     </button>
                   </div>
 
-                  <div className="cart-content shrink-0 p-5">
-                    <ul className="flex flex-col gap-4">
-                      {cart.lines.map((line) => {
-                        const dish = lineClosed(line);
-                        return (
-                          <li key={line.key} className="flex gap-3">
-                            <div className="min-w-0 flex-1">
-                              {/* Estompée, la ligne coupée ; pas l'avis qui le dit. */}
-                              <div className={dish ? "opacity-60" : undefined}>
-                                <p className="cart-line-name font-display text-sm font-medium">
-                                  {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 ». */}
-                                  {line.detail ? (
-                                    <>
-                                      {keepHyphenated(`${line.name.slice(0, -line.detail.length - 1)} `)}
-                                      <span className="whitespace-nowrap text-xs font-normal text-muted">
-                                        {line.detail}
-                                      </span>
-                                    </>
-                                  ) : (
-                                    keepHyphenated(line.name)
-                                  )}
-                                </p>
-                                {line.optionSummary.length > 0 && (
-                                  // Chaque choix d'un bloc, comme sur le ticket : il passe entier à
-                                  // la ligne, et ne se coupe entre ses mots que plus long qu'elle
-                                  // (jamais sur un trait d'union, « Coca- / Cola », ni avant son
-                                  // supplément) ; « · » est dans le bloc du précédent, il ne commence
-                                  // jamais une ligne. Insécable en entier, un long choix passait sous
-                                  // les boutons de quantité.
-                                  <p className="mt-0.5 text-xs text-muted">
-                                    {line.optionSummary.map((option, i) => (
-                                      // Clé par position : un tacos « Poulet + Poulet » répète le libellé.
-                                      // Une formule, une étape par ligne : à la suite, ses étapes et
-                                      // leurs choix faisaient un bloc de sept lignes.
-                                      <Fragment key={i}>
-                                        <span className={line.formule ? "block" : "inline-block max-w-full"}>
-                                          {keepHyphenated(option.replaceAll(" (+", "\u00a0(+"))}
-                                          {!line.formule && i < line.optionSummary.length - 1 && "\u00a0·"}
-                                        </span>{" "}
-                                      </Fragment>
-                                    ))}
-                                  </p>
-                                )}
-                                {/* Après les choix : le format (« 50 cl ») reste avec le nom
-                                    qu'il distingue d'une autre ligne du même article. */}
-                                {line.quantity > 1 && (
-                                  <p className="mt-0.5 text-xs text-muted">
-                                    {line.quantity} × {formatPrice(line.unitPrice)}
-                                  </p>
-                                )}
-                              </div>
-                              {dish && (
-                                <p className="mt-1 text-xs font-semibold text-ember-3">
-                                  {line.formule
-                                    ? `Plus servi\u00a0: ${dish}`
-                                    : cart.collect
-                                      ? "Plus servi à l’heure du retrait"
-                                      : "Plus servi en ce moment"}
-                                </p>
-                              )}
-                            </div>
-                            {/* Prix et quantité dans la colonne de droite : sur
-                                leur propre rangée, les boutons doublaient la
-                                hauteur de chaque ligne. */}
-                            <div className="flex shrink-0 flex-col items-end gap-1">
-                              {line.reward ? (
-                                <span className="cart-line-price text-right font-display text-sm font-semibold text-ember-1">
-                                  Offert
-                                  <span className="block font-sans text-xs font-medium normal-case text-muted">
-                                    {line.reward.points * line.quantity}&nbsp;pts
-                                    {line.unitPrice > 0 &&
-                                      ` + ${formatPrice(line.unitPrice * line.quantity)}`}
-                                  </span>
-                                </span>
-                              ) : (
-                                <span className="cart-line-price font-display text-sm font-semibold text-ember-1">
-                                  {formatPrice(line.unitPrice * line.quantity)}
-                                </span>
-                              )}
-                              <div className="inline-flex items-center gap-1 rounded-full border border-hairline px-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (line.quantity === 1) {
-                                      // La ligne et ce bouton vont disparaître :
-                                      // le focus ne doit pas tomber hors de la
-                                      // feuille. Panier vidé : elle se referme,
-                                      // sinon le prochain ajout la rouvrait seul.
-                                      if (cart.count === 1) setOpen(false);
-                                      else closeRef.current?.focus();
-                                    }
-                                    cart.setQuantity(line.key, line.quantity - 1);
-                                    clearError();
-                                  }}
-                                  className="flex size-11 items-center justify-center text-lg text-muted"
-                                  aria-label={`${line.quantity === 1 ? "Retirer" : "Diminuer la quantité"}\u00a0: ${lineLabel(line)}`}
-                                >
-                                  {line.quantity === 1 ? <BinIcon /> : "−"}
-                                </button>
-                                <span className="min-w-5 text-center text-sm font-semibold">
-                                  <span className="sr-only">Quantité&nbsp;: </span>
-                                  {line.quantity}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    cart.setQuantity(line.key, line.quantity + 1)
-                                  }
-                                  disabled={
-                                    dish !== undefined ||
-                                    (line.stock != null &&
-                                      line.quantity >= line.stock) ||
-                                    (line.reward != null &&
-                                      (balance ?? 0) - cart.pointsSpent <
-                                        line.reward.points)
-                                  }
-                                  className="flex size-11 items-center justify-center text-lg text-muted disabled:opacity-40"
-                                  aria-label={`Augmenter la quantité\u00a0: ${lineLabel(line)}`}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    {cart.loyalty && (
-                      <LoyaltySection
-                        program={cart.loyalty}
-                        contact={contact}
-                        onContactChange={setContact}
-                        balance={balance}
-                        onBalance={setBalance}
-                      />
-                    )}
-                    {cart.collect && (
-                      <PickupFields
-                        slug={cart.slug}
-                        hours={cart.collect.hours}
-                        slotMinutes={cart.collect.slotMinutes}
-                        notice={pickupNotice(cart.lines)}
-                        value={details}
-                        onChange={(next) => {
-                          setDetails(next);
-                          clearError();
-                        }}
-                      />
-                    )}
-                  </div>
-
-                  <div ref={footRef} className="cart-foot sticky bottom-0 border-t border-hairline bg-surface p-5">
-                    {/* Avec le pourboire : ce que le règlement débitera (les
-                        routes de paiement l'ajoutent aux lignes). */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted">
-                          {tipCents > 0 ? "Total à régler" : "Total"}
-                        </span>
-                        <span className="cart-total font-display text-xl font-semibold">
-                          {formatPrice((totalCents + tipCents) / 100)}
-                        </span>
-                      </div>
-                      {tipCents > 0 && (
-                        <p className="mt-0.5 text-right text-xs text-muted">
-                          Dont pourboire {formatPrice(tipAmount)}, reversé au service.
-                        </p>
-                      )}
-                    </div>
-                    {cart.onlinePayment && belowMinimum && !cart.collect && (
-                      <p className="mb-4 text-pretty text-xs leading-relaxed text-muted">
-                        Paiement en ligne dès {formatPrice(minimumCents / 100)}&nbsp;:
-                        ajoutez {formatPrice(missingCents / 100)} pour
-                        payer par carte, ou réglez au comptoir.
-                      </p>
-                    )}
-                    {cart.onlinePayment && cart.total > 0 && !belowMinimum && !cart.collect && (
+                  {onPayment ? (
+                    <div className="cart-content cart-reglement flex shrink-0 flex-col p-5">
+                      <button
+                        type="button"
+                        onClick={() => goTo("commande")}
+                        className="mb-4 self-start text-left text-sm text-muted underline-offset-4 hover:underline"
+                      >
+                        {cart.count} article{cart.count > 1 ? "s" : ""} · {formatPrice(cart.total)}
+                        {loyaltyPoints > 0 && (
+                          <span className="text-ember-1">
+                            {" · "}+{loyaltyPoints}&nbsp;{loyaltyPoints > 1 ? "points" : "point"}
+                          </span>
+                        )}
+                        <span className="sr-only">, revenir à la commande</span>
+                      </button>
                       <div
                         role="radiogroup"
                         aria-label="Règlement"
@@ -1150,90 +1096,309 @@ export function CartBar() {
                           </button>
                         ))}
                       </div>
-                    )}
-                    {/* Fast food : ce que le choix change pour la suite. Les
-                        deux phrases occupent la même case, l'autre cachée :
-                        d'un choix à l'autre, la feuille ne saute pas. */}
-                    {cart.fastFood && cart.onlinePayment && cart.total > 0 && (
-                      <p className="cart-hint mb-4 grid text-pretty text-xs leading-relaxed text-muted">
-                        {(
-                          [
-                            ["carte", "Payée maintenant, elle part tout\u00a0de\u00a0suite en\u00a0cuisine."],
-                            ["comptoir", "Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."],
-                          ] as const
-                        ).map(([choice, text]) => (
-                          <span
-                            key={choice}
-                            id={`${hintId}-${choice}`}
-                            aria-hidden={choice !== payment || undefined}
-                            className={`[grid-area:1/1] ${choice === payment ? "" : "invisible"}`}
-                          >
-                            {text}
-                          </span>
-                        ))}
-                      </p>
-                    )}
-                    {tipOffered && (
-                      <div className="mb-4 flex flex-col gap-2.5">
-                        <p id={`${hintId}-tip`} className="text-xs font-medium text-muted">
-                          Un pourboire pour l&rsquo;équipe&nbsp;?
-                        </p>
-                        <div
-                          role="group"
-                          aria-labelledby={`${hintId}-tip`}
-                          className="flex gap-2"
-                        >
-                          {[...TIP_PERCENTS, "autre" as const].map((choice) => (
-                            <button
+                      {/* Fast food : ce que le choix change pour la suite. Les
+                          deux phrases occupent la même case, l'autre cachée :
+                          d'un choix à l'autre, la feuille ne saute pas. */}
+                      {cart.fastFood && (
+                        <p className="mb-4 grid text-pretty text-xs leading-relaxed text-muted">
+                          {(
+                            [
+                              ["carte", "Payée maintenant, elle part tout\u00a0de\u00a0suite en\u00a0cuisine."],
+                              ["comptoir", "Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."],
+                            ] as const
+                          ).map(([choice, text]) => (
+                            <span
                               key={choice}
-                              type="button"
-                              aria-pressed={tipChoice === choice}
-                              onClick={() => {
-                                focusCustomTip.current = choice === "autre" && tipChoice !== "autre";
-                                setTipChoice(tipChoice === choice ? null : choice);
-                              }}
-                              className={`min-h-11 flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
-                                tipChoice === choice
-                                  ? "border-ember-2/60 bg-surface-raised text-foreground"
-                                  : "border-hairline text-muted"
-                              }`}
+                              id={`${hintId}-${choice}`}
+                              aria-hidden={choice !== payment || undefined}
+                              className={`[grid-area:1/1] ${choice === payment ? "" : "invisible"}`}
                             >
-                              {choice === "autre" ? "Autre" : `${choice}\u00a0%`}
-                            </button>
+                              {text}
+                            </span>
                           ))}
+                        </p>
+                      )}
+                      {tipOffered && (
+                        <div className="mb-4 flex flex-col gap-2.5">
+                          <p id={`${hintId}-tip`} className="text-xs font-medium text-muted">
+                            Un pourboire pour l&rsquo;équipe&nbsp;?
+                          </p>
+                          <div
+                            role="group"
+                            aria-labelledby={`${hintId}-tip`}
+                            className="flex gap-2"
+                          >
+                            {[...TIP_PERCENTS, "autre" as const].map((choice) => (
+                              <button
+                                key={choice}
+                                type="button"
+                                aria-pressed={tipChoice === choice}
+                                onClick={() => {
+                                  focusCustomTip.current = choice === "autre" && tipChoice !== "autre";
+                                  setTipChoice(tipChoice === choice ? null : choice);
+                                }}
+                                className={`min-h-11 flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                                  tipChoice === choice
+                                    ? "border-ember-2/60 bg-surface-raised text-foreground"
+                                    : "border-hairline text-muted"
+                                }`}
+                              >
+                                {choice === "autre" ? "Autre" : `${choice}\u00a0%`}
+                              </button>
+                            ))}
+                          </div>
+                          {tipChoice === "autre" && (
+                            <input
+                              ref={(node) => {
+                                if (node && focusCustomTip.current) {
+                                  focusCustomTip.current = false;
+                                  // Au milieu de la feuille : sous le pied collé, il restait à moitié caché à 320 px.
+                                  node.focus({ preventScroll: true });
+                                  node.scrollIntoView({ block: "center" });
+                                }
+                              }}
+                              type="text"
+                              inputMode="decimal"
+                              value={customTip}
+                              onChange={(event) => setCustomTip(event.target.value)}
+                              placeholder="Montant en €"
+                              aria-label="Montant du pourboire en euros"
+                              aria-invalid={tipError !== null}
+                              aria-describedby={tipError ? `${hintId}-tip-error` : undefined}
+                              // 16 px : en dessous, Safari sur iPhone zoome la page au focus.
+                              className={`rounded-xl border bg-background px-3 py-2.5 text-base outline-none transition-colors ${
+                                tipError
+                                  ? "border-ember-3/70"
+                                  : "border-hairline focus:border-ember-2/50"
+                              }`}
+                            />
+                          )}
+                          {tipError && (
+                            <p id={`${hintId}-tip-error`} role="alert" className="text-xs text-ember-3">
+                              {tipError}
+                            </p>
+                          )}
                         </div>
-                        {tipChoice === "autre" && (
-                          <input
-                            ref={(node) => {
-                              if (node && focusCustomTip.current) {
-                                focusCustomTip.current = false;
-                                // Au milieu de la feuille : sous le pied collé, il restait à moitié caché à 320 px.
-                                node.focus({ preventScroll: true });
-                                node.scrollIntoView({ block: "center" });
-                              }
-                            }}
-                            type="text"
-                            inputMode="decimal"
-                            value={customTip}
-                            onChange={(event) => setCustomTip(event.target.value)}
-                            placeholder="Montant en €"
-                            aria-label="Montant du pourboire en euros"
-                            aria-invalid={tipError !== null}
-                            aria-describedby={tipError ? `${hintId}-tip-error` : undefined}
-                            // 16 px : en dessous, Safari sur iPhone zoome la page au focus.
-                            className={`rounded-xl border bg-background px-3 py-2.5 text-base outline-none transition-colors ${
-                              tipError
-                                ? "border-ember-3/70"
-                                : "border-hairline focus:border-ember-2/50"
-                            }`}
-                          />
-                        )}
-                        {tipError && (
-                          <p id={`${hintId}-tip-error`} role="alert" className="text-xs text-ember-3">
-                            {tipError}
+                      )}
+                    </div>
+                  ) : (
+                    <div className="cart-content shrink-0 p-5">
+                      <ul className="flex flex-col gap-4">
+                        {shownLines.map((line) => {
+                          const dish = lineClosed(line);
+                          return (
+                            <li key={line.key} className="flex items-center gap-3">
+                              <div className="min-w-0 flex-1">
+                                {/* Estompée, la ligne coupée ; pas l'avis qui le dit. */}
+                                <div className={dish ? "opacity-60" : undefined}>
+                                  <p className="cart-line-name font-display text-sm font-medium">
+                                    {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 ». */}
+                                    {line.detail ? (
+                                      <>
+                                        {keepHyphenated(`${line.name.slice(0, -line.detail.length - 1)} `)}
+                                        <span className="whitespace-nowrap text-xs font-normal text-muted">
+                                          {line.detail}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      keepHyphenated(line.name)
+                                    )}
+                                  </p>
+                                  {line.formule && line.optionSummary.length > 0 && (
+                                    // Une formule, une étape par ligne : à la suite, ses étapes et
+                                    // leurs choix faisaient un bloc de sept lignes.
+                                    <p className="mt-0.5 text-xs text-muted">
+                                      {line.optionSummary.map((option, i) => (
+                                        // Clé par position : deux étapes peuvent répéter le libellé.
+                                        <span key={i} className="block">
+                                          {keepHyphenated(option.replaceAll(" (+", "\u00a0(+"))}
+                                        </span>
+                                      ))}
+                                    </p>
+                                  )}
+                                  {/* Le prix, le détail d'une quantité, puis les choix d'un
+                                      article seul ; ceux d'une formule restent au-dessus, une
+                                      étape par ligne. */}
+                                  <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-xs text-muted">
+                                    {line.reward ? (
+                                      <span className="cart-line-price font-display text-sm font-semibold text-ember-1">
+                                        Offert{" "}
+                                        <span className="font-sans text-xs font-medium normal-case text-muted">
+                                          {line.reward.points * line.quantity}&nbsp;pts
+                                          {line.unitPrice > 0 &&
+                                            ` + ${formatPrice(line.unitPrice * line.quantity)}`}
+                                        </span>
+                                      </span>
+                                    ) : (
+                                      <span className="cart-line-price font-display text-sm font-semibold text-ember-1">
+                                        {formatPrice(line.unitPrice * line.quantity)}
+                                      </span>
+                                    )}
+                                    {line.quantity > 1 && !line.reward && (
+                                      <span>
+                                        {line.quantity} × {formatPrice(line.unitPrice)}
+                                      </span>
+                                    )}
+                                    {/* Les choix d'un article seul suivent son prix : une
+                                        rangée de moins par ligne. Chaque choix d'un bloc,
+                                        précédé de son « · » : il passe entier à la ligne,
+                                        jamais coupé avant son supplément. */}
+                                    {!line.formule &&
+                                      line.optionSummary.map((option, i) => (
+                                        <span key={i} className="inline-block max-w-full">
+                                          <span aria-hidden>·&nbsp;</span>
+                                          {keepHyphenated(option.replaceAll(" (+", "\u00a0(+"))}
+                                        </span>
+                                      ))}
+                                  </p>
+                                </div>
+                                {dish && (
+                                  <p className="mt-1 text-xs font-semibold text-ember-3">
+                                    {line.formule
+                                      ? `Plus servi\u00a0: ${dish}`
+                                      : cart.collect
+                                        ? "Plus servi à l’heure du retrait"
+                                        : "Plus servi en ce moment"}
+                                  </p>
+                                )}
+                              </div>
+                              {/* La quantité seule à droite, le prix sous le nom : la
+                                  ligne tient sur la hauteur de ses boutons, et
+                                  l'accord du chef reste à l'écran. */}
+                              <div className="flex shrink-0 items-center">
+                                <div className="inline-flex items-center gap-1 rounded-full border border-hairline px-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (line.quantity === 1) {
+                                        // La ligne et ce bouton vont disparaître :
+                                        // le focus ne doit pas tomber hors de la
+                                        // feuille. Panier vidé : elle se referme,
+                                        // sinon le prochain ajout la rouvrait seul.
+                                        if (cart.count === 1) setOpen(false);
+                                        else closeRef.current?.focus();
+                                      }
+                                      cart.setQuantity(line.key, line.quantity - 1);
+                                      clearError();
+                                    }}
+                                    className="flex size-10 items-center justify-center text-lg text-muted"
+                                    aria-label={`${line.quantity === 1 ? "Retirer" : "Diminuer la quantité"}\u00a0: ${lineLabel(line)}`}
+                                  >
+                                    {line.quantity === 1 ? <BinIcon /> : "−"}
+                                  </button>
+                                  <span className="min-w-5 text-center text-sm font-semibold">
+                                    <span className="sr-only">Quantité&nbsp;: </span>
+                                    {line.quantity}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      cart.setQuantity(line.key, line.quantity + 1)
+                                    }
+                                    disabled={
+                                      dish !== undefined ||
+                                      (line.stock != null &&
+                                        line.quantity >= line.stock) ||
+                                      (line.reward != null &&
+                                        ((member ? member.points : balance) ?? 0) - cart.pointsSpent <
+                                          line.reward.points)
+                                    }
+                                    className="flex size-10 items-center justify-center text-lg text-muted disabled:opacity-40"
+                                    aria-label={`Augmenter la quantité\u00a0: ${lineLabel(line)}`}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {/* Un bouton qui reste : le focus ne tombe pas hors de la feuille. */}
+                      {foldable && closedLines.length === 0 && (
+                        <button
+                          type="button"
+                          aria-expanded={allLines}
+                          onClick={() => setAllLines(!allLines)}
+                          className="mt-3 text-xs font-semibold text-muted underline underline-offset-4"
+                        >
+                          {allLines
+                            ? "Replier la liste"
+                            : hiddenCount === 1
+                              ? "Voir l’autre article"
+                              : `Voir les ${hiddenCount} autres articles`}
+                        </button>
+                      )}
+                      <CartPairings />
+                      {cart.loyalty && (
+                        <LoyaltySection
+                          program={cart.loyalty}
+                          contact={contact}
+                          onContactChange={setContact}
+                          balance={member ? (member.points ?? 0) : balance}
+                          onBalance={setBalance}
+                          member={member}
+                          onForget={() => {
+                            cart.clearRewards();
+                            void loyaltyMember.forget();
+                          }}
+                          remember={
+                            loyaltyMember.enabled
+                              ? {
+                                  checked: rememberPhone,
+                                  onChange: setRememberPhone,
+                                  firstName,
+                                  onFirstNameChange: setFirstName,
+                                }
+                              : undefined
+                          }
+                        />
+                      )}
+                      {cart.collect && (
+                        <PickupFields
+                          slug={cart.slug}
+                          hours={cart.collect.hours}
+                          slotMinutes={cart.collect.slotMinutes}
+                          notice={pickupNotice(cart.lines)}
+                          value={details}
+                          onChange={(next) => {
+                            setDetails(next);
+                            clearError();
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  <div ref={footRef} className="cart-foot sticky bottom-0 border-t border-hairline bg-surface p-5">
+                    {/* Le total se lit sur le bouton tant qu'il reste une étape ;
+                        au règlement, avec le pourboire : ce que la carte débitera
+                        (les routes de paiement l'ajoutent aux lignes). */}
+                    {(!paymentStep || onPayment) && (
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted">
+                            {tipCents > 0 ? "Total à régler" : "Total"}
+                          </span>
+                          <span className="cart-total font-display text-xl font-semibold">
+                            {formatPrice((totalCents + tipCents) / 100)}
+                          </span>
+                        </div>
+                        {tipCents > 0 && (
+                          <p className="mt-0.5 text-right text-xs text-muted">
+                            Dont pourboire {formatPrice(tipAmount)}, reversé au service.
                           </p>
                         )}
                       </div>
+                    )}
+                    {cart.onlinePayment && belowMinimum && !cart.collect && (
+                      <p className="mb-3 text-pretty text-xs leading-relaxed text-muted">
+                        Paiement en ligne dès {formatPrice(minimumCents / 100)}&nbsp;:
+                        ajoutez {formatPrice(missingCents / 100)} pour
+                        payer par carte, ou réglez au comptoir.
+                        {cart.fastFood &&
+                          " Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."}
+                      </p>
                     )}
                     {/* Refusée pour un plat fermé : l'avis des lignes coupées le dit mieux. */}
                     {state === "error" && closedLines.length === 0 && (
@@ -1266,63 +1431,83 @@ export function CartBar() {
                         commander (minimum {formatPrice(minimumCents / 100)}).
                       </p>
                     )}
-                    <button
-                      type="button"
-                      data-cart-submit
-                      onClick={(event) => {
-                        if (event.detail <= 1) void submit();
-                      }}
-                      aria-describedby={
-                        closedLines.length > 0
-                          ? `${hintId}-closed`
-                          : collectShort
-                            ? `${hintId}-minimum`
-                            : undefined
-                      }
-                      disabled={
-                        state === "sending" ||
-                        cart.count === 0 ||
-                        rewardsOnly ||
-                        closedLines.length > 0 ||
-                        collectShort ||
-                        tipError !== null
-                      }
-                      className="ember-gradient w-full rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
-                    >
-                      {cart.preview
-                        ? previewSuivi
-                          ? payment === "carte"
-                            ? `Payer en\u00a0ligne · ${formatPrice((totalCents + tipCents) / 100)}`
-                            : "Envoyer la commande"
-                          : cart.fastFood
-                            ? "Aperçu\u00a0: voir le ticket"
-                            : cart.collect
-                              ? "Aperçu\u00a0: voir le suivi"
-                              : "Aperçu\u00a0: voir la confirmation"
-                        : state === "sending"
-                          ? "Envoi…"
-                          : cart.collect
-                            ? `Commander et payer · ${formatPrice(cart.total)}`
-                            : !cart.fastFood
-                            ? "Envoyer la commande"
-                            : payment === "carte"
-                              ? `Commander et payer · ${formatPrice(cart.total)}`
-                              : "Commander · payer au comptoir"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {/* Refermer à portée du pouce : la croix est tout en haut.
+                          Au règlement, le même bouton ramène à la commande. */}
+                      <button
+                        type="button"
+                        onClick={onPayment ? () => goTo("commande") : dismiss}
+                        className="cart-back min-h-12 shrink-0 rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+                      >
+                        {onPayment ? (
+                          "Modifier"
+                        ) : (
+                          <>
+                            <span aria-hidden>←</span> La carte
+                          </>
+                        )}
+                      </button>
+                      {paymentStep && !onPayment ? (
+                        <button
+                          type="button"
+                          data-cart-continue
+                          onClick={() => goTo("reglement")}
+                          disabled={rewardsOnly || closedLines.length > 0}
+                          aria-describedby={closedLines.length > 0 ? `${hintId}-closed` : undefined}
+                          className="ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
+                        >
+                          Continuer · {formatPrice(cart.total)}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          data-cart-submit
+                          onClick={(event) => {
+                            if (event.detail <= 1) void submit();
+                          }}
+                          aria-describedby={
+                            closedLines.length > 0
+                              ? `${hintId}-closed`
+                              : collectShort
+                                ? `${hintId}-minimum`
+                                : undefined
+                          }
+                          disabled={
+                            state === "sending" ||
+                            rewardsOnly ||
+                            closedLines.length > 0 ||
+                            collectShort ||
+                            tipError !== null
+                          }
+                          className="ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
+                        >
+                          {cart.preview
+                            ? previewSuivi
+                              ? payment === "carte"
+                                ? `Payer en\u00a0ligne · ${formatPrice((totalCents + tipCents) / 100)}`
+                                : "Envoyer la commande"
+                              : cart.fastFood
+                                ? "Aperçu\u00a0: voir le ticket"
+                                : cart.collect
+                                  ? "Aperçu\u00a0: voir le suivi"
+                                  : "Aperçu\u00a0: voir la confirmation"
+                            : state === "sending"
+                              ? "Envoi…"
+                              : cart.collect
+                                ? `Commander et payer · ${formatPrice(cart.total)}`
+                                : !cart.fastFood
+                                ? "Envoyer la commande"
+                                : payment === "carte"
+                                  ? `Commander et payer · ${formatPrice(cart.total)}`
+                                  : "Commander · payer au comptoir"}
+                        </button>
+                      )}
+                    </div>
                     {previewSuivi && (
                       <p className="mt-2 text-center text-[11px] text-muted">
                         Démo — commande et paiement simulés.
                       </p>
                     )}
-                    {/* Refermer à portée du pouce : la croix est tout en haut.
-                        Écran court : « Retour » seul, sur la ligne du total. */}
-                    <button
-                      type="button"
-                      onClick={dismiss}
-                      className="cart-back mt-2 min-h-11 w-full rounded-full text-sm font-semibold text-muted transition-colors hover:text-foreground"
-                    >
-                      Retour<span className="cart-back-long"> à la carte</span>
-                    </button>
                   </div>
                 </>
               )}

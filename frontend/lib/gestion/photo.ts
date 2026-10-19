@@ -1,12 +1,12 @@
 /*
  * Compression côté client avant upload : recadre à PHOTO_MAX_EDGE px de
- * grand côté et ré-encode en JPEG à PHOTO_JPEG_QUALITY. Une photo de
- * téléphone (~4 Mo) descend ainsi vers ~200-400 Ko — le free tier Storage
- * (1 Go) absorbe des dizaines de restaurants.
+ * grand côté et ré-encode en WebP à PHOTO_QUALITY. Chaque visiteur du menu
+ * télécharge ces photos depuis Supabase : leur poids compte dans l'egress
+ * du free tier. 1080 px couvrent une fiche plein écran sur un téléphone 3×.
  */
 
-export const PHOTO_MAX_EDGE = 1600;
-export const PHOTO_JPEG_QUALITY = 0.82;
+export const PHOTO_MAX_EDGE = 1080;
+export const PHOTO_QUALITY = 0.8;
 
 export async function compressPhoto(file: File): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
@@ -22,9 +22,12 @@ export async function compressPhoto(file: File): Promise<Blob> {
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/jpeg", PHOTO_JPEG_QUALITY)
-  );
+  const encode = (type: string) =>
+    new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, PHOTO_QUALITY));
+  // Un navigateur qui n'encode pas le WebP rend du PNG, bien plus lourd :
+  // le JPEG reste alors le meilleur choix.
+  const webp = await encode("image/webp");
+  const blob = webp?.type === "image/webp" ? webp : await encode("image/jpeg");
   if (!blob) throw new Error("Compression impossible sur ce navigateur.");
   return blob;
 }
@@ -33,7 +36,7 @@ export async function compressPhoto(file: File): Promise<Blob> {
 export async function uploadPhoto(file: File): Promise<string> {
   const blob = await compressPhoto(file);
   const form = new FormData();
-  form.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
+  form.append("file", new File([blob], "photo", { type: blob.type }));
   const response = await fetch("/api/photos", { method: "POST", body: form });
   const body = (await response.json()) as { url?: string; error?: string };
   if (!response.ok || !body.url) {

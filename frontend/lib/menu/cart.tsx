@@ -13,10 +13,16 @@ import {
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { lineName } from "@/lib/menu/format";
+import type { MenuItem } from "@/lib/menu-data";
+import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/client";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
+import type { FormuleOffer, Pairing } from "./pairings";
+import { tableParam } from "./table-param";
 import { TicketsProvider } from "./tickets";
+import { useQueryParam } from "./use-query-param";
 import {
   createTracker,
   type MenuTracker,
@@ -66,7 +72,14 @@ export interface CartLine {
     selections: FormuleSelection[];
     items?: { id: string; name: string }[];
   };
+  /**
+   * L'accord du chef d'où vient la ligne (order_items.accord) : le panier, la
+   * feuille d'un plat ou l'offre de formule. Absent : ajoutée depuis la carte.
+   */
+  accord?: AccordSource;
 }
+
+export type AccordSource = Database["public"]["Enums"]["accord_source"];
 
 const noSubscription = () => () => {};
 
@@ -109,6 +122,11 @@ export interface CartConfig {
   slug: string;
   /** Table scannée (via ?table=), ou null si le menu est ouvert sans QR. */
   tableNumber: number | null;
+  /**
+   * La table se lit dans l'URL (?table=) une fois la page hydratée, à la
+   * place de tableNumber : la page reste en cache, la même pour toutes.
+   */
+  tableFromUrl?: boolean;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
   /**
@@ -137,6 +155,10 @@ export interface CartConfig {
   etablissementId?: string;
   /** Articles coupés au rendu de la page. */
   closedItems?: string[];
+  /** L'accord du chef, par id de plat ; absent ⇒ rien n'est proposé. */
+  pairings?: Record<string, Pairing[]>;
+  /** Les formules que l'accord du chef propose de compléter. */
+  formuleOffers?: FormuleOffer[];
   /**
    * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
    * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
@@ -221,6 +243,20 @@ export function cartLineKey(
   return rewardId ? `${rewardId}/${key}` : key;
 }
 
+/** La ligne de panier d'un plat sans options. */
+export const plainLine = (item: MenuItem, accord?: AccordSource): Omit<CartLine, "quantity"> => ({
+  key: cartLineKey(item.id, []),
+  itemId: item.id,
+  name: lineName(item),
+  detail: item.detail,
+  unitPrice: item.price,
+  optionSummary: [],
+  choices: [],
+  stock: item.stock,
+  noticeHours: item.noticeHours,
+  accord,
+});
+
 /** Clé du panier gardé dans l'onglet : par carte, par table, aperçu à part. */
 export function savedCartKey(slug: string, table: number | null, preview?: boolean) {
   return `ominin-panier:${preview ? "apercu:" : ""}${slug}:${table ?? "-"}`;
@@ -243,7 +279,6 @@ export function CartProvider({
    */
   // L'aperçu a sa propre clé : ses lignes (ids du registre) ne doivent pas
   // réapparaître dans le vrai menu du même restaurant, ni l'inverse.
-  const storageKey = savedCartKey(config.slug, config.tableNumber, config.preview);
   // Faux pendant l'hydratation (le rendu doit égaler celui du serveur), vrai
   // juste après : le panier gardé est relu à ce moment-là, une fois par clé.
   const hydrated = useSyncExternalStore(
@@ -251,6 +286,13 @@ export function CartProvider({
     () => true,
     () => false
   );
+  // Lue au même rendu que hydrated : la clé du panier et le suivi partent
+  // directement avec la bonne table.
+  const urlTable = useQueryParam("table");
+  const tableNumber = config.tableFromUrl
+    ? tableParam(urlTable ?? undefined)
+    : config.tableNumber;
+  const storageKey = savedCartKey(config.slug, tableNumber, config.preview);
   const [restoredKey, setRestoredKey] = useState<string | null>(null);
   if (hydrated && restoredKey !== storageKey) {
     setRestoredKey(storageKey);
@@ -274,9 +316,12 @@ export function CartProvider({
           return [...current, { ...line, quantity: capped(line, quantity) }];
         }
         const next = [...current];
+        // Une ligne touchée par une suggestion compte en entier pour l'accord
+        // du chef, quantité comprise : order_items ne détaille pas l'unité.
         next[index] = {
           ...next[index],
           quantity: capped(line, next[index].quantity + quantity),
+          accord: next[index].accord ?? line.accord,
         };
         return next;
       });
@@ -344,17 +389,19 @@ export function CartProvider({
   }, [etablissementId, refreshClosed]);
 
   const tracker = useRef<MenuTracker | null>(null);
-  const tracking = !config.preview;
+  // Une table lue dans l'URL n'est connue qu'après l'hydratation : la visite
+  // ne s'ouvre qu'avec elle, pas une première fois sans table.
+  const tracking = !config.preview && (!config.tableFromUrl || hydrated);
   useEffect(() => {
     if (!tracking) return;
-    const instance = createTracker(config.slug, config.tableNumber);
+    const instance = createTracker(config.slug, tableNumber);
     tracker.current = instance;
     instance.start();
     return () => {
       instance.stop();
       tracker.current = null;
     };
-  }, [tracking, config.slug, config.tableNumber]);
+  }, [tracking, config.slug, tableNumber]);
 
   const track = useCallback((stage: MenuStage, options?: TrackOptions) => {
     tracker.current?.track(stage, options);
@@ -372,10 +419,11 @@ export function CartProvider({
     const fastFood = config.serviceMode === "fast_food";
     return {
       ...config,
+      tableNumber,
       fastFood,
       canOrder:
         config.orderingEnabled &&
-        (fastFood || config.collect !== undefined || config.tableNumber !== null),
+        (fastFood || config.collect !== undefined || tableNumber !== null),
       lines,
       count,
       total,
@@ -399,6 +447,7 @@ export function CartProvider({
     };
   }, [
     config,
+    tableNumber,
     lines,
     addLine,
     setQuantity,
@@ -419,7 +468,7 @@ export function CartProvider({
           {children}
         </TicketsProvider>
       ) : config.preview && config.demoSuivi ? (
-        <TicketsProvider slug={config.slug} preview table={config.tableNumber}>
+        <TicketsProvider slug={config.slug} preview table={tableNumber}>
           {children}
         </TicketsProvider>
       ) : (

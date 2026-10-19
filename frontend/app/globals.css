@@ -958,7 +958,7 @@ div[data-menu-root][data-slug="o-crousti-poulet"] .dish-photo img[src$="/menu-co
 /* L'option choisie cerclée du jaune plein de l'enseigne : à 60 %, il virait
    au kaki sur le gris de la feuille. De même le règlement choisi au panier. */
 .theme-o-crousti-poulet .choice-row.is-checked,
-.theme-o-crousti-poulet .cart-foot [role="radio"][aria-checked="true"] {
+.theme-o-crousti-poulet .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--ember-2);
 }
 
@@ -1476,7 +1476,7 @@ div[data-menu-root][data-slug="big-smash"] .dish-action {
 
 /* L'option choisie cerclée du rouge plein. */
 .theme-big-smash .choice-row.is-checked,
-.theme-big-smash .cart-foot [role="radio"][aria-checked="true"] {
+.theme-big-smash .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--bs-red);
 }
 
@@ -1812,7 +1812,7 @@ div[data-menu-root][data-slug="chicken-street"] .dish-action {
 
 /* L'option choisie : cerclée de noir, fond jaune pâle. */
 .theme-chicken-street .choice-row.is-checked,
-.theme-chicken-street .cart-foot [role="radio"][aria-checked="true"] {
+.theme-chicken-street .cart-reglement [role="radio"][aria-checked="true"] {
   border-color: var(--cs-ink);
   background-color: #fff8cc;
 }
@@ -4352,52 +4352,37 @@ html:has(.ticket-dock) {
 /*
   Écran court (iPhone SE, téléphone à l'horizontale) : l'en-tête et le pied
   collants du panier en prenaient les deux tiers, une ligne et demie restait
-  visible. Les marges se serrent, et « Retour à la carte » devient un
-  « Retour » compact sur la ligne du total, au lieu d'une rangée à lui.
+  visible. Les marges se serrent ; le pied tient déjà sur une rangée.
 */
 @media (max-height: 640px) {
   [data-menu-root] :is(.cart-head, .cart-foot) {
     padding-block: 0.75rem;
   }
+}
 
-  [data-menu-root] .cart-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.75rem;
-  }
-
-  [data-menu-root] .cart-foot > * {
-    flex-basis: 100%;
-  }
-
-  [data-menu-root] .cart-foot > :first-child {
-    flex: 1 1 0;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-
-  [data-menu-root] .cart-foot > .cart-back {
-    order: -1;
-    flex: none;
-    width: auto;
-    margin: 0 0 0.5rem;
-    padding-inline: 1.25rem;
-    border: 1px solid var(--hairline);
-  }
-
-  [data-menu-root] .cart-back-long {
+/* Écran très bas (téléphone couché) : les accords épinglés d'une feuille de
+   plat gardent leur nom, leur prix et leur bouton, sans la raison du chef —
+   les options doivent rester lisibles au-dessus. */
+@media (max-height: 560px) {
+  [data-menu-root] .sheet-pairings .suggestion-why {
     display: none;
   }
 }
 
-/* Fast food, téléphone couché : le pied du panier — total, choix du
-   règlement, envoi — prenait toute la hauteur, aucune ligne ne se lisait. Le
-   panier passe en deux volets, comme le ticket : la commande à gauche, qui
-   défile, le règlement à droite, toujours en vue. */
+/* Téléphone court (iPhone SE) : deux accords épinglés et plus perdent leur
+   raison, un seul la garde. */
+@media (max-height: 700px) {
+  [data-menu-root] .sheet-pairings:has(li + li) .suggestion-why {
+    display: none;
+  }
+}
+
+/* Fast food, téléphone couché, au règlement : le choix du règlement et
+   l'envoi prenaient toute la hauteur. La feuille passe en deux volets, comme
+   le ticket : le règlement à gauche, qui défile, le total et l'envoi à
+   droite, toujours en vue. La commande, elle, garde toute la largeur. */
 @media (orientation: landscape) and (max-height: 500px) {
-  [data-service="fast-food"] [role="dialog"]:has(> .cart-foot) {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) {
     max-width: 44rem;
     height: calc(100dvh - 1rem);
     display: grid;
@@ -4405,24 +4390,24 @@ html:has(.ticket-dock) {
     overflow: hidden;
   }
 
-  [data-service="fast-food"] [role="dialog"] > .cart-head {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > .cart-head {
     grid-column: 1 / -1;
   }
 
-  [data-service="fast-food"] [role="dialog"] > :is(.cart-content, .cart-foot) {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > :is(.cart-content, .cart-foot) {
     position: relative;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
 
-  [data-service="fast-food"] [role="dialog"] > .cart-foot {
+  [data-service="fast-food"] [role="dialog"]:has(> .cart-reglement) > .cart-foot {
     position: static;
     align-content: start;
     border-top: 0;
     border-left: 1px solid var(--hairline);
   }
 
-  [data-service="fast-food"] .cart-content :is(button, input, select, textarea, a, [role="status"], [data-collect-fields]) {
+  [data-service="fast-food"] .cart-reglement :is(button, input, select, textarea, a, [role="status"]) {
     scroll-margin: 0;
   }
 }
@@ -4430,16 +4415,8 @@ html:has(.ticket-dock) {
 /* Deux volets étroits (568 × 320) : « Payer au comptoir » passait à la ligne,
    pas « Payer en ligne » ; les deux s'y mettent. */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 39.99rem) {
-  [data-service="fast-food"] .cart-foot [role="radio"] > .text-balance {
+  [data-service="fast-food"] .cart-reglement [role="radio"] > .text-balance {
     width: min-content;
-  }
-}
-
-/* Deux volets très bas (568 × 320) : la phrase sous le choix du règlement
-   repoussait l'envoi hors de l'écran ; le bouton dit déjà où l'on paie. */
-@media (orientation: landscape) and (max-height: 359px) {
-  [data-service="fast-food"] .cart-hint {
-    display: none;
   }
 }
 
@@ -4447,7 +4424,7 @@ html:has(.ticket-dock) {
    sous l'autre, chacun sur une ligne — côte à côte, l'un passait à la ligne
    et pas l'autre. */
 @media (max-width: 21.25rem) {
-  [data-menu-root] .cart-foot > [role="radiogroup"] {
+  [data-menu-root] .cart-reglement > [role="radiogroup"] {
     flex-direction: column;
   }
 }
@@ -13778,5 +13755,309 @@ html:has(.groupe-dialog:modal) {
   from {
     opacity: 0;
     transform: translateY(8px) scale(0.98);
+  }
+}
+
+/*
+  Fidélité : accueil d'un téléphone reconnu (components/menu/loyalty-welcome.tsx).
+  La carte descend avec un léger rebond, le cercle du sceau se trace, le logo
+  s'ouvre ; après LOYALTY_GREETING_MS elle se replie vers la pastille
+  (--fold-x/--fold-y mesurés à l'écran), qui éclot et pulse deux fois. Les
+  barres de progression se remplissent une fois la carte posée.
+*/
+.loyalty-greeting {
+  animation: loyalty-drop 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+.loyalty-greeting[data-phase="folding"] {
+  animation: loyalty-fold 0.65s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+.loyalty-ring circle {
+  stroke-dasharray: 1 1;
+  animation: loyalty-ring 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.8s both;
+}
+.loyalty-seal-logo {
+  animation: loyalty-logo 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1s both;
+}
+.loyalty-pill-enter {
+  animation: loyalty-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+.loyalty-pill-enter::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--ember-1);
+  opacity: 0;
+  pointer-events: none;
+  animation: loyalty-ping 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1s 2;
+}
+/* Rangée dans la barre des catégories collée en haut : le rail lui laisse
+   sa place au lieu de faire passer les catégories dessous. */
+[data-menu-root]:has(.loyalty-pill[data-docked]) [data-category-nav] .rail-row {
+  padding-right: 6rem;
+}
+.loyalty-bar > i,
+.reward-hint-bar > i {
+  transform-origin: left;
+  animation: loyalty-bar 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@keyframes loyalty-drop {
+  0% { opacity: 0; transform: translateY(-140%) scale(0.92); }
+  70% { opacity: 1; transform: translateY(6%) scale(1.01); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes loyalty-fold {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translate(var(--fold-x, 0), var(--fold-y, 0)) scale(0.18); }
+}
+@keyframes loyalty-ring {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes loyalty-logo {
+  from { clip-path: circle(0% at 50% 50%); transform: rotate(-45deg) scale(0.7); }
+  to { clip-path: circle(75% at 50% 50%); transform: none; }
+}
+@keyframes loyalty-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  60% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes loyalty-ping {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+@keyframes loyalty-bar {
+  from { transform: scaleX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loyalty-greeting,
+  .loyalty-ring circle,
+  .loyalty-seal-logo,
+  .loyalty-pill-enter,
+  .loyalty-pill-enter::after,
+  .loyalty-bar > i,
+  .reward-hint-bar > i {
+    animation: none;
+  }
+}
+
+/*
+  « Ma carte » (components/menu/loyalty-card.tsx, loyalty-card-sheet.tsx).
+  La carte prend les couleurs du thème : nuit du fond, braises en dégradé,
+  lueur de lampe en bas à droite. À l'ouverture elle se redresse, le logo se
+  trace en filigrane, un reflet la traverse ; la guirlande s'allume ampoule
+  par ampoule (--d, calculé au rythme de l'étincelle), les récompenses
+  montent puis se dessinent.
+*/
+.loyalty-card {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 24px 50px -18px rgba(0, 0, 0, 0.75),
+    inset 0 0 0 1px color-mix(in srgb, white 14%, transparent);
+}
+.loyalty-card-bg {
+  background:
+    radial-gradient(90% 80% at 92% 108%, color-mix(in srgb, var(--ember-1) 70%, transparent), transparent 60%),
+    radial-gradient(70% 60% at 10% -10%, color-mix(in srgb, var(--ember-3) 35%, transparent), transparent 70%),
+    linear-gradient(
+      158deg,
+      color-mix(in srgb, var(--background) 92%, var(--ember-3)) 0%,
+      color-mix(in srgb, var(--background) 60%, var(--ember-3)) 38%,
+      color-mix(in srgb, var(--ember-3) 85%, var(--background)) 74%,
+      var(--ember-2) 100%
+    );
+}
+.loyalty-card-grain {
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.loyalty-card-sheen {
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 240, 225, 0.22) 50%, transparent 60%);
+  mix-blend-mode: soft-light;
+  transform: translateX(var(--sheen-x, -70%));
+  animation: loyalty-sheen 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+}
+.loyalty-card-logo {
+  animation: loyalty-logo 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+.loyalty-card-enter {
+  perspective: 900px;
+}
+.loyalty-card-enter > .loyalty-card {
+  animation: loyalty-card-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.loyalty-garland .wire {
+  fill: none;
+  stroke: color-mix(in srgb, var(--foreground) 35%, transparent);
+  stroke-width: 1.2;
+}
+.loyalty-garland line {
+  stroke: color-mix(in srgb, var(--foreground) 35%, transparent);
+  stroke-width: 1;
+}
+.loyalty-garland .glass {
+  fill: var(--surface-raised);
+  stroke: color-mix(in srgb, var(--foreground) 28%, transparent);
+  stroke-width: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.loyalty-garland .bulb.on .glass {
+  fill: var(--ember-1);
+  stroke: color-mix(in srgb, var(--ember-1) 60%, white);
+  animation:
+    loyalty-bulb-on 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--d) backwards,
+    loyalty-flicker 3.4s ease-in-out calc(var(--d) + 0.6s) infinite;
+}
+.loyalty-garland .sway {
+  animation: loyalty-sway 5s ease-in-out infinite;
+}
+.loyalty-garland .lantern:nth-of-type(2n) .sway {
+  animation-delay: -2.5s;
+}
+.loyalty-garland .shade {
+  fill: var(--surface-raised);
+  stroke: color-mix(in srgb, var(--foreground) 40%, transparent);
+  stroke-width: 1;
+}
+.loyalty-garland .weave {
+  fill: none;
+  stroke: color-mix(in srgb, var(--foreground) 30%, transparent);
+  stroke-width: 0.8;
+}
+.loyalty-garland .halo {
+  fill: var(--ember-1);
+  opacity: 0;
+}
+.loyalty-garland .lantern.on .shade {
+  fill: color-mix(in srgb, var(--ember-1) 80%, var(--ember-3));
+  stroke: color-mix(in srgb, var(--ember-1) 60%, white);
+  animation: loyalty-lantern-on 0.7s cubic-bezier(0.16, 1, 0.3, 1) var(--d) backwards;
+}
+.loyalty-garland .lantern.on .weave {
+  stroke: color-mix(in srgb, var(--ember-3) 60%, transparent);
+}
+.loyalty-garland .lantern.on .halo {
+  opacity: 0.45;
+  animation: loyalty-halo-on 0.9s ease-out var(--d) backwards;
+}
+.loyalty-garland text {
+  fill: var(--faint);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.loyalty-garland .lantern.on text {
+  fill: var(--ember-1);
+}
+.loyalty-garland .spark {
+  fill: color-mix(in srgb, var(--ember-1) 30%, white);
+  opacity: 0;
+}
+
+.loyalty-drawing {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.loyalty-draw {
+  stroke-dasharray: 1 1;
+  animation: loyalty-ring 0.9s cubic-bezier(0.65, 0, 0.35, 1) var(--d) both;
+}
+.loyalty-waft {
+  opacity: 0;
+  animation: loyalty-waft 2.8s ease-in-out infinite;
+}
+.loyalty-waft-late {
+  animation-delay: 1.3s;
+}
+.loyalty-bubble {
+  fill: currentColor;
+  stroke: none;
+  animation: loyalty-bubble 2.6s ease-in infinite;
+}
+.loyalty-bubble-2 {
+  animation-delay: 0.9s;
+}
+.loyalty-bubble-3 {
+  animation-delay: 1.7s;
+}
+.loyalty-rise {
+  animation: loyalty-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d) backwards;
+}
+
+/* « On les garde ? » sur la confirmation : la carte monte, puis le gain éclot. */
+.loyalty-claim {
+  animation: loyalty-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s backwards;
+}
+.loyalty-claim-chip {
+  animation: loyalty-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.loyalty-claim-done > p {
+  animation: loyalty-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.25s backwards;
+}
+
+@keyframes loyalty-sheen {
+  from { transform: translateX(-70%); }
+  to { transform: translateX(70%); }
+}
+@keyframes loyalty-card-in {
+  from { opacity: 0; transform: translateY(24px) rotateX(18deg); }
+}
+@keyframes loyalty-bulb-on {
+  0% { fill: var(--surface-raised); transform: scale(0.6); }
+  50% { transform: scale(1.7); }
+}
+@keyframes loyalty-lantern-on {
+  from { fill: var(--surface-raised); }
+}
+@keyframes loyalty-halo-on {
+  from { opacity: 0; }
+  40% { opacity: 0.8; }
+}
+@keyframes loyalty-flicker {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 0.82; }
+  50% { opacity: 1; }
+  52% { opacity: 0.9; }
+}
+@keyframes loyalty-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+@keyframes loyalty-waft {
+  0% { opacity: 0; transform: translateY(5px); }
+  35% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-7px); }
+}
+@keyframes loyalty-bubble {
+  0% { opacity: 0; transform: translateY(6px); }
+  30% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+@keyframes loyalty-rise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loyalty-card-sheen,
+  .loyalty-card-logo,
+  .loyalty-card-enter > .loyalty-card,
+  .loyalty-garland .bulb.on .glass,
+  .loyalty-garland .sway,
+  .loyalty-garland .lantern.on .shade,
+  .loyalty-garland .lantern.on .halo,
+  .loyalty-draw,
+  .loyalty-waft,
+  .loyalty-bubble,
+  .loyalty-rise,
+  .loyalty-claim,
+  .loyalty-claim-chip,
+  .loyalty-claim-done > p {
+    animation: none;
   }
 }

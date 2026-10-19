@@ -1243,6 +1243,12 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   text-transform: uppercase;
 }
 
+/* Au pied du panier, l'envoi partage sa rangée avec « La carte » : même hauteur, sans retrait. */
+.theme-l-etoile [role="dialog"] .cart-foot :is(button.ember-gradient, .cart-back) {
+  margin-top: 0;
+  min-height: 54px;
+}
+
 .theme-l-etoile [role="dialog"] .cart-back {
   font-size: 11px;
   letter-spacing: 0.22em;

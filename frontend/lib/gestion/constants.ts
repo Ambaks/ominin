@@ -1,4 +1,5 @@
 import type {
+  AccordSource,
   Action,
   Feature,
   Offre,
@@ -14,13 +15,17 @@ export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
+/** L'accord du chef : accords proposés à la fois dans le panier du menu QR. */
+export const CART_PAIRINGS_COUNT = 2;
+/** Lignes du panier montrées d'emblée : au-delà, la liste se replie sous l'accord du chef et la fidélité. */
+export const CART_LINES_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;
-/** Nombre de commandes par page dans l'historique (chargement à la demande). */
-export const HISTORY_PAGE_SIZE = 50;
+/** Onglet Paiements : encaissements affichés d'emblée, puis ajoutés à chaque « Voir plus ». */
+export const PAYMENTS_PAGE_SIZE = 20;
 /** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
 export const ORDER_HISTORY_PAGE_SIZE = 10;
 
@@ -209,6 +214,13 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   mixte: "Espèces + carte",
 };
 
+/** Origines d'une vente de l'accord du chef, dans l'ordre de la page Analytique. */
+export const ACCORD_SOURCE_LABELS: Record<AccordSource, string> = {
+  panier: "Suggérés dans le panier",
+  fiche: "Cochés sur une fiche plat",
+  formule: "Formules proposées",
+};
+
 /**
  * Taux de TVA de la restauration française : 5,5 % (emporter différé /
  * scellé), 10 % (sur place et emporter immédiat), 20 % (alcools).
@@ -223,7 +235,7 @@ export const DEFAULT_COLLECT_SLOT_MINUTES = 15;
 /**
  * Bornes des saisies d'Ominin Club, miroirs des contraintes SQL de
  * club_events, club_zones, club_bookings et des conditions d'entrée
- * d'etablissements (20261019000001) : le formulaire
+ * d'etablissements (20261020000001) : le formulaire
  * refuse ce que la base refuserait.
  */
 export const CLUB_LIMITS = {
