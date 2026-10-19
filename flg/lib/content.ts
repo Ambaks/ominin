@@ -8,6 +8,8 @@ import escalierAvant from "@/assets/chantiers/escalier-avant.jpg";
 import escalierApres from "@/assets/chantiers/escalier-apres.jpg";
 import portailAvant from "@/assets/chantiers/portail-avant.jpg";
 import portailApres from "@/assets/chantiers/portail-apres.jpg";
+import plafondBlancAvant from "@/assets/chantiers/plafond-blanc-avant.jpg";
+import plafondBlancApres from "@/assets/chantiers/plafond-blanc-apres.jpg";
 
 export const navLinks = [
   { href: "#chantiers", label: "Chantiers" },
@@ -70,15 +72,8 @@ export const featured = {
 export const cases: readonly Case[] = [
   { title: "Charpente extérieure", before: charpenteAvant, after: charpenteApres },
   { title: "Escalier intérieur", before: escalierAvant, after: escalierApres },
-];
-
-export const smallCases: readonly Case[] = [
-  {
-    title: "Portail métallique",
-    body: "Décapé, application anti-rouille.",
-    before: portailAvant,
-    after: portailApres,
-  },
+  { title: "Portail métallique", body: "Décapé, application anti-rouille.", before: portailAvant, after: portailApres },
+  { title: "Plafond et poutres", before: plafondBlancAvant, after: plafondBlancApres },
 ];
 
 export const steps = [
