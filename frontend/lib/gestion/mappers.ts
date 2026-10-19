@@ -2,10 +2,13 @@ import type { OpeningHours } from "@/lib/collect/hours";
 import type { MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
+  Affiche,
+  Closure,
   Etablissement,
   Etape,
   Formule,
   Member,
+  MenuTarget,
   Order,
   OrderPayment,
   PriceRule,
@@ -39,6 +42,9 @@ export function rowToEtablissement(
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,
     collectSlotCapacity: row.collect_slot_capacity,
+    collectSlotMinutes: row.collect_slot_minutes,
+    onlineMinOrder:
+      row.online_min_order === null ? null : Number(row.online_min_order),
     googleReviewUrl: row.google_review_url ?? undefined,
     adminPinSet: row.admin_pin_set,
     paymentPinSet: row.payment_pin_set,
@@ -60,6 +66,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
+    noticeHours: row.notice_hours ?? undefined,
     // Colonne de la migration 20260817000001 (types à régénérer).
     vatRate:
       (row as { vat_rate?: number | string }).vat_rate != null
@@ -92,7 +99,15 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     disponible: row.disponible,
     days: row.days ?? undefined,
     etapes: row.etapes as unknown as Etape[],
+    affiche:
+      row.affiche_id && row.affiche_rang
+        ? { id: row.affiche_id, rang: row.affiche_rang }
+        : undefined,
   };
+}
+
+export function rowToAffiche(row: Tables<"affiches">): Affiche {
+  return { id: row.id, image: row.image, offres: row.offres };
 }
 
 export function rowToTable(row: Tables<"tables">): Table {
@@ -143,6 +158,7 @@ export function rowToOrder(row: OrderRow): Order {
     onlinePaymentStartedAt: row.online_payment_started_at ?? undefined,
     customerName: row.customer_name ?? undefined,
     customerPhone: row.customer_phone ?? undefined,
+    customerNote: row.customer_note ?? undefined,
     pickupAt: row.pickup_at ?? undefined,
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
@@ -168,10 +184,19 @@ export function rowToOrder(row: OrderRow): Order {
         paidMode: line.paid_mode ?? undefined,
         servedAt: line.served_at ?? undefined,
         loyaltyPoints: line.loyalty_points ?? undefined,
+        accord: line.accord ?? undefined,
       };
     }),
   };
 }
+
+const rowToTarget = (target: {
+  category_id: string | null;
+  item_id: string | null;
+}): MenuTarget =>
+  target.item_id
+    ? { kind: "item", id: target.item_id }
+    : { kind: "category", id: target.category_id as string };
 
 /**
  * Une règle de tarif et ses cibles. Les cibles arrivent embarquées par
@@ -190,10 +215,22 @@ export function rowToPriceRule(
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     actif: row.actif,
-    targets: row.price_rule_targets.map((target) =>
-      target.item_id
-        ? { kind: "item" as const, id: target.item_id }
-        : { kind: "category" as const, id: target.category_id as string }
-    ),
+    targets: row.price_rule_targets.map(rowToTarget),
+  };
+}
+
+/** Une fermeture et ses cibles, embarquées comme celles d'un tarif. */
+export function rowToClosure(
+  row: Tables<"closures"> & { closure_targets: Tables<"closure_targets">[] }
+): Closure {
+  return {
+    id: row.id,
+    name: row.name,
+    days: row.days,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    overrideClosed: row.override_closed,
+    overrideDay: row.override_day,
+    targets: row.closure_targets.map(rowToTarget),
   };
 }

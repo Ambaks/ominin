@@ -8,6 +8,7 @@ import { formatDay } from "@/lib/admin/format";
 import * as api from "@/lib/admin/social";
 import type { SocialPost, SocialPublication } from "@/lib/admin/social";
 import { BRAND_BY_ID, slideUrl } from "@/lib/social/brands";
+import { videoUrl } from "@/lib/social/reel";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 export interface SnapchatItem {
@@ -114,9 +115,19 @@ function ToPostCard({
         </button>
       </div>
 
+      {post.videoPath && (
+        // Un Reel se poste tel quel en story : la vidéo est déjà en 9:16.
+        <a
+          href={videoUrl(post.videoPath)}
+          download={`${post.brand}-${post.postDate}.mp4`}
+          className={`${SECONDARY_BUTTON} w-fit`}
+        >
+          Télécharger la vidéo
+        </a>
+      )}
       <div className="no-scrollbar flex gap-3 overflow-x-auto">
         {post.slides.map((_, index) => {
-          const url = slideUrl(post.id, index + 1, true);
+          const url = slideUrl(post.id, index + 1, post.updatedAt, true);
           return (
             <a
               key={index}

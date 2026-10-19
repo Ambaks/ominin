@@ -62,6 +62,7 @@ def execute(run_id: str, job: str, fn: Callable[..., dict]) -> None:
             notify.send(
                 f"Léa — run {job} interrompu",
                 f"{stats.get('aborted')}\nDernière erreur : {stats.get('last_error')}",
+                path="/prospection",
             )
     except Exception as exc:  # noqa: BLE001 — the run row is the error report
         error = f"{type(exc).__name__}: {exc}"
@@ -72,4 +73,4 @@ def execute(run_id: str, job: str, fn: Callable[..., dict]) -> None:
                 "finished_at": datetime.now(UTC).isoformat(),
             }
         ).eq("id", run_id).execute()
-        notify.send(f"Léa — run {job} en échec", error)
+        notify.send(f"Léa — run {job} en échec", error, path="/prospection")

@@ -27,6 +27,11 @@ import { createClient } from "@/lib/supabase/client";
  * ouvre souvent un nouvel onglet, et doit y retrouver son numéro). Une
  * commande remise, annulée, ou d'un autre jour (order_ticket ne rend que
  * celles du jour de numérotation) quitte la liste.
+ *
+ * Aperçu à table (demoSuivi, `table`) : les commandes de la table se suivent
+ * de même, sans base ni stockage. Une salle simulée les fait avancer seule —
+ * reçue, en préparation, servie —, et une commande servie reste au bas de
+ * l'écran jusqu'à la fermeture de la page, saluée d'un « Bon appétit ! ».
  */
 
 export interface TicketLine {
@@ -34,6 +39,8 @@ export interface TicketLine {
   quantity: number;
   /** Les choix de la ligne (options, étapes d'une formule), dans l'ordre. */
   choices: string[];
+  /** Une formule de l'aperçu : une étape par ligne, comme au panier. */
+  formule?: boolean;
 }
 
 /** L'heure où la commande devrait être prête, comptée depuis `from` (le règlement). */
@@ -55,6 +62,14 @@ export interface Ticket {
   lines: TicketLine[];
   /** En cuisine : quand elle sera prête. Rien ne la calcule encore hors aperçu. */
   estimate: ReadyEstimate | null;
+  /** Aperçu à table : rien que des boissons, la salutation du service change. */
+  drinksOnly?: boolean;
+  /** Aperçu à table : rien que des boissons chaudes (une tasse au salut). */
+  hotDrinksOnly?: boolean;
+  /** Aperçu à table : le pourboire compris dans total, réglé en ligne. */
+  tip?: number;
+  /** Aperçu à table : à régler, puis réglée, au comptoir (un serveur passe). */
+  atCounter?: boolean;
 }
 
 /** Ce qu'un ticket d'aperçu montre de la commande : le panier envoyé. */
@@ -62,13 +77,17 @@ export type PreviewOrder = {
   status: OrderStatus;
   total: number;
   lines: TicketLine[];
-};
+} & Pick<Ticket, "drinksOnly" | "hotDrinksOnly" | "tip">;
 
 type TicketUpdate = Partial<Omit<Ticket, "id">>;
 
 /** La commande attend encore le client : à régler, en préparation ou prête. */
 export const isActiveTicket = (ticket: Ticket) =>
   ticket.status !== "servie" && ticket.status !== "annulee";
+
+/** Le mot du service : une commande sans rien à manger se déguste. */
+export const servedGreeting = (ticket: Ticket) =>
+  ticket.drinksOnly ? "Bonne dégustation\u00a0!" : "Bon appétit\u00a0!";
 
 /** Le client attend : l'écran doit rester allumé pour recevoir « prête ». */
 const isWaiting = (ticket: Ticket) =>
@@ -96,11 +115,19 @@ interface TicketsValue {
   announcement: string;
   /** Aperçu commercial : l'étape suivante se joue à la main. */
   advance: ((orderId: string) => void) | null;
+  /** Aperçu à table : le numéro de la table ; null en fast food. */
+  table: number | null;
+  /**
+   * Aperçu à table : la commande servie que la page salue, une à la fois.
+   * Le salut attend qu'aucune feuille ne soit ouverte (TicketTracker).
+   */
+  served: Ticket | null;
+  dismissServed: () => void;
 }
 
 const TicketsContext = createContext<TicketsValue | null>(null);
 
-/** Null hors fast food : aucun ticket à suivre. */
+/** Null hors fast food et hors aperçu à table : aucun ticket à suivre. */
 export function useTickets(): TicketsValue | null {
   return useContext(TicketsContext);
 }
@@ -128,6 +155,23 @@ const PREVIEW_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   prete: "servie",
 };
 
+/**
+ * Aperçu à table : reçue (payée en ligne, ou à régler — la salle simulée
+ * l'encaisse en passant), en préparation, servie.
+ */
+const PREVIEW_TABLE_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
+  en_attente: "en_preparation",
+  payee: "en_preparation",
+  en_preparation: "servie",
+};
+
+/** Aperçu à table : le temps que la salle simulée laisse à chaque état, en ms. */
+const PREVIEW_TABLE_STEP_MS: Partial<Record<OrderStatus, number>> = {
+  en_attente: 5_000,
+  payee: 5_000,
+  en_preparation: 8_000,
+};
+
 /** Aperçu : la préparation simulée d'une commande réglée, en minutes. */
 const PREVIEW_PREPARATION_MINUTES = 6;
 
@@ -153,6 +197,17 @@ const SPOKEN: Partial<Record<OrderStatus, string>> = {
   prete: "prête\u00a0! Venez la chercher au comptoir.",
   servie: "remise. Bon appétit\u00a0!",
   annulee: "annulée. Adressez-vous au comptoir.",
+};
+
+/**
+ * Aperçu à table. Payée en ligne, la commande reçue ne se dit pas : la
+ * feuille du paiement vient de dire « Paiement accepté », et le ticket qui
+ * s'ouvre, la table et le numéro. La salutation se dit par sa feuille.
+ */
+const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
+  en_attente: "reçue, à régler auprès d’un serveur ou au comptoir.",
+  en_preparation: "en préparation.",
+  servie: "servie.",
 };
 
 const unknownTicket = (id: string): Ticket => ({
@@ -281,14 +336,40 @@ function TicketWatcher({
   return null;
 }
 
+/**
+ * Aperçu à table : la salle simulée fait passer la commande à l'état suivant
+ * au bout de son temps. Une minuterie par commande : « Suivant → » sur l'une
+ * ne relance pas celle des autres.
+ */
+function PreviewService({
+  id,
+  status,
+  onStep,
+}: {
+  id: string;
+  status: OrderStatus;
+  onStep: (id: string, from: OrderStatus) => void;
+}) {
+  useEffect(() => {
+    const delay = PREVIEW_TABLE_STEP_MS[status];
+    if (delay === undefined) return;
+    const timer = setTimeout(() => onStep(id, status), delay);
+    return () => clearTimeout(timer);
+  }, [id, status, onStep]);
+  return null;
+}
+
 export function TicketsProvider({
   slug,
   preview = false,
+  table = null,
   children,
 }: {
   slug: string;
   /** Aperçu : rien n'est lu ni gardé, le ticket se montre sur un numéro fictif. */
   preview?: boolean;
+  /** Aperçu à table (demoSuivi) : la table suivie ; absent, fast food. */
+  table?: number | null;
   children: React.ReactNode;
 }) {
   const storageKey = `ominin-commandes:${slug}`;
@@ -296,6 +377,8 @@ export function TicketsProvider({
   const [shownId, setShownId] = useState<string | null>(null);
   const [notices, setNotices] = useState<string[]>([]);
   const [handedOff, setHandedOff] = useState(false);
+  // Aperçu à table : les commandes servies à saluer, dans l'ordre.
+  const [toGreet, setToGreet] = useState<string[]>([]);
 
   // Relu une fois après l'hydratation (le serveur n'en sait rien), comme le panier.
   const hydrated = useSyncExternalStore(noSubscription, () => true, () => false);
@@ -330,6 +413,10 @@ export function TicketsProvider({
     setAnnouncement(
       changed
         .map((ticket) => {
+          if (table !== null) {
+            const spoken = SPOKEN_TABLE[ticket.status!];
+            return spoken ? `Commande ${ticket.number}, table ${table}\u00a0: ${spoken}` : "";
+          }
           const spoken = ticket.paying ? "paiement en cours." : SPOKEN[ticket.status!];
           const time = readyTime(ticket);
           return spoken
@@ -348,6 +435,13 @@ export function TicketsProvider({
       setNotices([]);
       setHandedOff(false);
       setShownId(urgent.id);
+    }
+    // À table, la commande servie se salue : la feuille du service prend la
+    // place du ticket ouvert, qui disait la même chose en plus petit.
+    const served = table === null ? [] : changed.filter((ticket) => ticket.status === "servie");
+    if (served.length > 0) {
+      setShownId(null);
+      setToGreet([...toGreet, ...served.map((ticket) => ticket.id)]);
     }
   }
 
@@ -406,7 +500,8 @@ export function TicketsProvider({
           // Stockage refusé : le suivi tient le temps de l'onglet.
         }
       }
-      const estimate = order?.status === "payee" ? previewEstimate() : null;
+      // À table, la salle simulée sert en quelques secondes : pas d'heure prévue.
+      const estimate = order?.status === "payee" && table === null ? previewEstimate() : null;
       setTickets((current) =>
         current.some((ticket) => ticket.id === orderId)
           ? current
@@ -424,32 +519,38 @@ export function TicketsProvider({
                     paying: false,
                     lines: order.lines,
                     estimate,
+                    drinksOnly: order.drinksOnly,
+                    hotDrinksOnly: order.hotDrinksOnly,
+                    tip: order.tip,
+                    atCounter: table !== null && order.status === "en_attente",
                   }
                 : unknownTicket(orderId),
             ]
       );
     },
-    [preview, storageKey]
+    [preview, storageKey, table]
   );
 
-  const advance = useCallback((orderId: string) => {
-    // Réglée au comptoir : l'estimation part de maintenant.
-    const estimate = previewEstimate();
+  // from : l'état que la minuterie a vu ; passé à la main entre-temps, la
+  // commande ne saute pas une étape.
+  const step = useCallback((orderId: string, from?: OrderStatus) => {
+    const flow = table === null ? PREVIEW_NEXT : PREVIEW_TABLE_NEXT;
     setTickets((current) =>
       current.map((ticket) => {
-        const next = ticket.status && PREVIEW_NEXT[ticket.status];
-        return ticket.id === orderId && next
+        const next = ticket.status && flow[ticket.status];
+        return ticket.id === orderId && next && (from === undefined || ticket.status === from)
           ? {
               ...ticket,
               status: next,
               paid: true,
               due: 0,
-              estimate: next === "payee" ? estimate : ticket.estimate,
+              // Réglée au comptoir : l'estimation part de maintenant.
+              estimate: next === "payee" ? previewEstimate() : ticket.estimate,
             }
           : ticket;
       })
     );
-  }, []);
+  }, [table]);
 
   // Une commande qui devient prête se signale même onglet en arrière-plan :
   // le titre de la page le dit, et le téléphone vibre là où il sait le faire.
@@ -482,15 +583,42 @@ export function TicketsProvider({
       notices,
       handedOff,
       announcement,
-      advance: preview ? advance : null,
+      advance: preview ? step : null,
+      table,
+      served: tickets.find((ticket) => ticket.id === toGreet[0]) ?? null,
+      dismissServed: () => {
+        setToGreet((current) => current.slice(1));
+        // Un ticket qui attendait derrière le salut n'en prend pas le relais :
+        // il monte, comme ouvert à la main.
+        setHandedOff(false);
+      },
     }),
-    [tickets, add, onUpdate, shownId, notices, handedOff, announcement, preview, advance]
+    [
+      tickets,
+      add,
+      onUpdate,
+      shownId,
+      notices,
+      handedOff,
+      announcement,
+      preview,
+      step,
+      table,
+      toGreet,
+    ]
   );
 
   return (
     <TicketsContext.Provider value={value}>
       {!preview &&
         activeIds.map((id) => <TicketWatcher key={id} id={id} onUpdate={onUpdate} />)}
+      {table !== null &&
+        tickets.map(
+          (ticket) =>
+            ticket.status && (
+              <PreviewService key={ticket.id} id={ticket.id} status={ticket.status} onStep={step} />
+            )
+        )}
       {children}
     </TicketsContext.Provider>
   );

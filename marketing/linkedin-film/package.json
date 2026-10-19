@@ -6,6 +6,8 @@
     "studio": "remotion studio",
     "render": "remotion render Film out/film-16x9-1080p.mp4",
     "render:9x16": "remotion render Film-9x16 out/film-9x16.mp4",
+    "render:club": "remotion render Club out/club-16x9.mp4 --image-format=jpeg --jpeg-quality=92",
+    "render:club-9x16": "remotion render Club-9x16 out/club-9x16.mp4 --image-format=jpeg --jpeg-quality=92",
     "still": "remotion still",
     "typecheck": "tsc"
   },

@@ -5,6 +5,8 @@ import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import {
+  rowToAffiche,
+  rowToClosure,
   rowToFormule,
   rowToMenuItem,
   rowToOrder,
@@ -12,18 +14,20 @@ import {
   rowToStaff,
   toJson,
 } from "./mappers";
-import { commit, getState, refreshOrdersNow } from "./store";
+import { commit, getState, ordersOfLines, refreshOrdersNow } from "./store";
 import type {
+  Affiche,
   CashDetails,
+  Closure,
   EncaissementMode,
   Etablissement,
   Formule,
   GestionState,
+  MenuTarget,
   Order,
   OrderStatus,
   PriceRule,
   PriceRuleDirection,
-  PriceRuleTarget,
   PriceRuleUnit,
   Role,
   ServiceMode,
@@ -80,6 +84,8 @@ export interface ItemInput {
   options: OptionGroup[];
   categoryId: string;
   vatRate: number;
+  /** Délai de commande en heures ; null ⇒ sans délai. */
+  noticeHours: number | null;
 }
 
 function itemColumns(
@@ -98,6 +104,7 @@ function itemColumns(
     stock: input.stock,
     options: toJson(input.options),
     vat_rate: input.vatRate,
+    notice_hours: input.noticeHours,
   };
 }
 
@@ -182,6 +189,31 @@ export async function setItemAvailability(
   check(await supabase.from("items").update({ disponible }).eq("id", itemId));
   apply((draft) => {
     findItem(draft, itemId).item.disponible = disponible;
+  });
+}
+
+/** Un choix d'option (variante, sauce, supplément) épuisé ou remis. */
+export async function setChoiceAvailability(
+  itemId: string,
+  groupId: string,
+  choiceId: string,
+  disponible: boolean
+): Promise<void> {
+  check(
+    await createClient().rpc("set_option_choice_disponible", {
+      p_item: itemId,
+      p_group: groupId,
+      p_choice: choiceId,
+      p_disponible: disponible,
+    })
+  );
+  apply((draft) => {
+    const choice = findItem(draft, itemId)
+      .item.options?.find((group) => group.id === groupId)
+      ?.choices.find((candidate) => candidate.id === choiceId);
+    if (!choice) return;
+    if (disponible) delete choice.disponible;
+    else choice.disponible = false;
   });
 }
 
@@ -307,6 +339,8 @@ function formuleColumns(
     disponible: input.disponible,
     days: input.days ?? null,
     etapes: toJson(input.etapes),
+    affiche_id: input.affiche?.id ?? null,
+    affiche_rang: input.affiche?.rang ?? null,
   };
 }
 
@@ -369,6 +403,85 @@ export async function setFormuleAvailability(
   });
 }
 
+/** Place une formule sur l'emplacement d'une affiche, ou l'en retire (null). */
+export async function placeFormule(
+  formuleId: string,
+  affiche: Formule["affiche"] | null
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("formules")
+      .update({ affiche_id: affiche?.id ?? null, affiche_rang: affiche?.rang ?? null })
+      .eq("id", formuleId)
+  );
+  apply((draft) => {
+    const formule = draft.formules.find((f) => f.id === formuleId);
+    if (!formule) throw new Error("Formule introuvable.");
+    formule.affiche = affiche ?? undefined;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Affiches des offres
+
+export type AfficheInput = Omit<Affiche, "id">;
+
+export async function createAffiche(input: AfficheInput): Promise<Affiche> {
+  const supabase = createClient();
+  const affiche = rowToAffiche(
+    must(
+      await supabase
+        .from("affiches")
+        .insert({ etablissement_id: etablissementId(), ...input })
+        .select()
+        .single()
+    )
+  );
+  return apply((draft) => {
+    draft.affiches.push(affiche);
+    return affiche;
+  });
+}
+
+/** Moins d'offres qu'avant : les formules des emplacements disparus redeviennent des tuiles. */
+export async function updateAffiche(
+  afficheId: string,
+  input: AfficheInput
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("affiches").update(input).eq("id", afficheId));
+  check(
+    await supabase
+      .from("formules")
+      .update({ affiche_id: null, affiche_rang: null })
+      .eq("affiche_id", afficheId)
+      .gt("affiche_rang", input.offres)
+  );
+  apply((draft) => {
+    const index = draft.affiches.findIndex((a) => a.id === afficheId);
+    if (index === -1) throw new Error("Affiche introuvable.");
+    draft.affiches[index] = { id: afficheId, ...input };
+    for (const formule of draft.formules) {
+      if (formule.affiche?.id === afficheId && formule.affiche.rang > input.offres) {
+        formule.affiche = undefined;
+      }
+    }
+  });
+}
+
+/** Ses formules restent, en tuiles (formules.affiche_id on delete set null). */
+export async function deleteAffiche(afficheId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("affiches").delete().eq("id", afficheId));
+  apply((draft) => {
+    draft.affiches = draft.affiches.filter((a) => a.id !== afficheId);
+    for (const formule of draft.formules) {
+      if (formule.affiche?.id === afficheId) formule.affiche = undefined;
+    }
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Commandes
 
@@ -413,14 +526,57 @@ export async function createStaffOrder(
   // Fast food : le numéro se relit sur la commande — une relecture déjà en
   // cours rendrait la main avant de l'avoir.
   if (getState().etablissement.serviceMode !== "fast_food") {
-    await refreshOrdersNow();
+    await refreshOrdersNow([orderId]);
     return undefined;
   }
   const [{ data: order }] = await Promise.all([
     supabase.from("orders").select("order_number").eq("id", orderId).single(),
-    refreshOrdersNow(),
+    refreshOrdersNow([orderId]),
   ]);
   return order?.order_number ?? undefined;
+}
+
+/** Le client d'une commande à emporter prise par l'équipe, et son retrait. */
+export interface PickupCustomer {
+  name: string;
+  phone: string;
+  /** ISO de l'heure convenue avec le client. */
+  pickupAt: string;
+  /** Inscription sur le gâteau, allergie… ; vide ⇒ rien. */
+  note: string;
+}
+
+/**
+ * Commande à emporter prise au comptoir ou au téléphone, pour un jour donné.
+ * Même RPC que le site : place_order valide articles, prix et horaires ; la
+ * commande part en préparation et se règle quand le client vient la
+ * chercher.
+ */
+export async function createPickupOrder(
+  customer: PickupCustomer,
+  lines: StaffOrderLine[]
+): Promise<void> {
+  const supabase = createClient();
+  const orderId = must(
+    await supabase.rpc("place_order", {
+      p_slug: getState().etablissement.slug,
+      // Pas de table : les types générés ne connaissent pas d'argument nul.
+      p_table_number: null as unknown as number,
+      p_items: lines.map((line) => ({
+        item_id: line.itemId,
+        quantity: line.quantity,
+        choices: line.choices,
+      })),
+      p_collect: {
+        name: customer.name,
+        phone: customer.phone,
+        pickup_at: customer.pickupAt,
+        note: customer.note,
+        pay_at_pickup: true,
+      },
+    })
+  );
+  await refreshOrdersNow([orderId]);
 }
 
 export async function updateOrderStatus(
@@ -471,6 +627,7 @@ export async function payOrderItems(
   tip?: number
 ): Promise<void> {
   const supabase = createClient();
+  const orderIds = ordersOfLines(items.map((item) => item.itemId));
   const cash = mode === "carte" ? undefined : cashDetails;
   check(
     await supabase.rpc("pay_order_items", {
@@ -486,7 +643,7 @@ export async function payOrderItems(
       p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
     })
   );
-  await refreshOrdersNow();
+  await refreshOrdersNow(orderIds);
 }
 
 /** Annule une ou plusieurs unités encore impayées, puis relit l'addition. */
@@ -494,6 +651,7 @@ export async function cancelOrderItem(
   itemId: string,
   quantity = 1
 ): Promise<void> {
+  const orderIds = ordersOfLines([itemId]);
   const supabase = createClient();
   check(
     await supabase.rpc("cancel_order_item", {
@@ -501,7 +659,7 @@ export async function cancelOrderItem(
       p_quantity: quantity,
     })
   );
-  await refreshOrdersNow();
+  await refreshOrdersNow(orderIds);
 }
 
 /**
@@ -511,7 +669,7 @@ export async function cancelOrderItem(
 export async function serveOrderItems(itemIds: string[]): Promise<void> {
   const supabase = createClient();
   check(await supabase.rpc("serve_order_items", { p_item_ids: itemIds }));
-  await refreshOrdersNow();
+  await refreshOrdersNow(ordersOfLines(itemIds));
 }
 
 /*
@@ -817,9 +975,11 @@ export type EtablissementInput = Omit<
   | "onlinePayment"
   | "paymentProvider"
   | "collectSlotCapacity"
+  | "collectSlotMinutes"
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"
+  | "onlineMinOrder"
 >;
 
 export async function updateEtablissement(
@@ -899,6 +1059,20 @@ export async function setServiceMode(mode: ServiceMode): Promise<void> {
   });
 }
 
+/** Sous ce total, le paiement en ligne n'est pas proposé ; null ⇒ aucun minimum. */
+export async function setOnlineMinOrder(amount: number | null): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("etablissements")
+      .update({ online_min_order: amount })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.onlineMinOrder = amount;
+  });
+}
+
 export async function setCollectSlotCapacity(capacity: number): Promise<void> {
   const supabase = createClient();
   check(
@@ -923,7 +1097,7 @@ export interface PriceRuleInput {
   days: number[];
   startsAt: string | null;
   endsAt: string | null;
-  targets: PriceRuleTarget[];
+  targets: MenuTarget[];
 }
 
 function priceRuleColumns(input: PriceRuleInput) {
@@ -941,7 +1115,7 @@ function priceRuleColumns(input: PriceRuleInput) {
 /** Les cibles se réécrivent en bloc : à quatre lignes, un diff coûte plus cher. */
 async function replaceTargets(
   ruleId: string,
-  targets: PriceRuleTarget[]
+  targets: MenuTarget[]
 ): Promise<void> {
   const supabase = createClient();
   check(await supabase.from("price_rule_targets").delete().eq("rule_id", ruleId));
@@ -1024,6 +1198,93 @@ export async function deletePriceRule(ruleId: string): Promise<void> {
   check(await supabase.from("price_rules").delete().eq("id", ruleId));
   apply((draft) => {
     draft.priceRules = draft.priceRules.filter((r) => r.id !== ruleId);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fermetures
+
+export interface ClosureInput {
+  name: string;
+  /** null ⇒ fermeture à la main seulement. */
+  days: number[] | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  targets: MenuTarget[];
+}
+
+/**
+ * Fermeture et cibles en une transaction (enregistrer_fermeture) : les autres
+ * appareils, prévenus par l'événement de la fermeture, la relisent entière.
+ * closureId null ⇒ nouvelle fermeture.
+ */
+async function saveClosure(
+  closureId: string | null,
+  input: ClosureInput
+): Promise<void> {
+  const supabase = createClient();
+  const row = must(
+    await supabase.rpc("enregistrer_fermeture", {
+      p_etablissement: etablissementId(),
+      p_closure: closureId,
+      p_name: input.name,
+      p_days: input.days,
+      p_starts_at: input.startsAt,
+      p_ends_at: input.endsAt,
+      p_targets: input.targets.map((target) =>
+        target.kind === "category"
+          ? { category_id: target.id }
+          : { item_id: target.id }
+      ),
+    })
+  );
+  const closure = {
+    ...rowToClosure({ ...row, closure_targets: [] }),
+    targets: input.targets,
+  };
+  apply((draft) => {
+    // La relecture realtime a pu la poser avant cette réponse.
+    const index = draft.closures.findIndex((c) => c.id === closure.id);
+    if (index === -1) draft.closures.push(closure);
+    else draft.closures[index] = closure;
+  });
+}
+
+export const createClosure = (input: ClosureInput) => saveClosure(null, input);
+
+export const updateClosure = (closureId: string, input: ClosureInput) =>
+  saveClosure(closureId, input);
+
+export async function deleteClosure(closureId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("closures").delete().eq("id", closureId));
+  apply((draft) => {
+    draft.closures = draft.closures.filter((c) => c.id !== closureId);
+  });
+}
+
+/**
+ * Fermer ou rouvrir pour le reste de la journée de service (gérant ou
+ * cuisinier). La base décide du forçage : si l'horaire donne déjà l'état
+ * demandé, elle l'efface.
+ */
+export async function toggleClosure(
+  closureId: string,
+  closed: boolean
+): Promise<Closure> {
+  const supabase = createClient();
+  const row = must(
+    await supabase.rpc("basculer_fermeture", {
+      p_closure: closureId,
+      p_fermee: closed,
+    })
+  );
+  return apply((draft) => {
+    const closure = draft.closures.find((c) => c.id === closureId);
+    if (!closure) throw new Error("Fermeture introuvable.");
+    closure.overrideClosed = row.override_closed;
+    closure.overrideDay = row.override_day;
+    return closure;
   });
 }
 

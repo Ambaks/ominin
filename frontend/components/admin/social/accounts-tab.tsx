@@ -4,7 +4,7 @@ import { useState } from "react";
 import { inputClass } from "@/components/ui/field";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/admin/social";
-import type { SocialAccount } from "@/lib/admin/social";
+import type { MetaCheck, SocialAccount } from "@/lib/admin/social";
 import {
   BRANDS,
   PLATFORMS,
@@ -32,11 +32,32 @@ export function AccountsTab({
   const run = useRunMutation();
   const unassigned = accounts.filter((account) => account.brand === null);
   const hasMeta = accounts.some((account) => account.platform !== "snapchat");
+  const [check, setCheck] = useState<MetaCheck | null>(null);
+  const [checking, setChecking] = useState(false);
 
   const connectMeta = () =>
     void run(async () => {
       window.location.assign(await api.startMetaConnect());
     });
+
+  const checkMeta = () => {
+    setChecking(true);
+    void run(async () => {
+      try {
+        const results = await api.checkMetaConnection();
+        setCheck(results);
+        const verdicts = Object.values(results);
+        const failing = verdicts.filter((problem) => problem !== null).length;
+        if (failing > 0) {
+          throw new Error(
+            `${failing} compte${failing > 1 ? "s" : ""} sur ${verdicts.length} en échec : détail sous chaque compte.`
+          );
+        }
+      } finally {
+        setChecking(false);
+      }
+    }, "Connexion Meta vérifiée : tous les comptes répondent et peuvent publier.");
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -49,9 +70,21 @@ export function AccountsTab({
             liés.
           </p>
         </div>
-        <button type="button" onClick={connectMeta} className={PRIMARY_BUTTON}>
-          {hasMeta ? "Actualiser la connexion Meta" : "Connecter Meta"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {hasMeta && (
+            <button
+              type="button"
+              onClick={checkMeta}
+              disabled={checking}
+              className={SECONDARY_BUTTON}
+            >
+              {checking ? "Vérification…" : "Vérifier la connexion"}
+            </button>
+          )}
+          <button type="button" onClick={connectMeta} className={PRIMARY_BUTTON}>
+            {hasMeta ? "Actualiser la connexion Meta" : "Connecter Meta"}
+          </button>
+        </div>
       </div>
 
       {unassigned.length > 0 && (
@@ -121,6 +154,7 @@ export function AccountsTab({
                       account.platform === platform.id
                   ) ?? null
                 }
+                check={check}
                 onChange={onChange}
               />
             ))}
@@ -142,12 +176,15 @@ function AccountRow({
   platform,
   label,
   account,
+  check,
   onChange,
 }: {
   brand: Brand;
   platform: SocialPlatform;
   label: string;
   account: SocialAccount | null;
+  /** Dernière vérification Meta ; null tant qu'elle n'a pas été lancée. */
+  check: MetaCheck | null;
   onChange: () => void;
 }) {
   const run = useRunMutation();
@@ -208,6 +245,13 @@ function AccountRow({
           </span>
         )}
       </span>
+      {check && account.id in check && (
+        <span
+          className={`w-full text-xs ${check[account.id] ? "text-ember-2" : "text-muted"}`}
+        >
+          {check[account.id] ?? "✓ Connexion vérifiée"}
+        </span>
+      )}
       <div className="flex gap-2">
         <button
           type="button"

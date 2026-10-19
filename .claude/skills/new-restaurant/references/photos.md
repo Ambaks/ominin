@@ -106,6 +106,7 @@ doesn't pay for it again.
 | Range | Brand visible |
 |---|---|
 | `334575xx`, `334576xx`, `334580xx` | "Dubai Gastro" wordmark on the parchment liner |
+| `334579xx` | printed « …bar » liner (same series) |
 | `373244xx`, `376241xx` | "THE BIG BREAKFAST" roundel on the paper |
 | `16007xx`, `16038xx`, `16335xx` | "SAUDI BROASTED" crate in the background |
 | `29306xxx` | "ÖMER KEBAB" printed wrapper |
@@ -116,6 +117,17 @@ doesn't pay for it again.
 | `32641693`, `32645121`–`32645123` | Versace-pattern plates |
 | `41092xx` | McDonald's red fry box, hands (O’Crousti, fries) |
 | Unsplash `photo-1746635*` | "Sidral Mundet" soda bottles on yellow |
+| `3675xxxx`–`3678xxxx` (speckled gold-rimmed plates, e.g. `36782573`) | gold "PA…" wordmark on the plate rim |
+| Unsplash `photo-176658915*` | burned logo on the board, branded beer bottle |
+| `129916xx` | newspaper under the prosciutto |
+| `303502xx` | printed « …dough » liner (same shoot as `30350296`) |
+| `165331xx` (`16533148`, `16533156`) | « Street Food News » newsprint |
+| `32268814`, `32268825` | "Café K…" script printed on the plate |
+| `40156938`–`40156941` | "LOOPS" printed napkin |
+| `26838691`–`26838693` | "SAL DE RISO" label on the baba |
+| `16119657`, `16119660` | "ЗАВТРА…" menu card |
+| `13865275`, `13865277` | QR-code stand on the table |
+| `37676233`, `37676237` | Cyrillic newspaper wrap under the bread |
 
 Single photos rejected for branding on LZ.FOOD: `14979836` (logo on
 wrapper), `18852568` and `33718644` (newsprint), `14866627` (Russian menu
@@ -129,7 +141,65 @@ burger" paper), `9932888` (printed fry cup), `11659577` (Mirinda), Unsplash
 `photo-1690988109029-aa2377d08b12` (Coke Studio promo with a QR code). On BOHO:
 Unsplash `photo-1778855400007-37cbd89592ef` (Gemini watermark, AI image),
 Unsplash `photo-1731703698022-2bcf47d3d09b` ("SANDYS" printed paper),
-`10115297` (labelled water bottle).
+`10115297` (labelled water bottle). On Caffè Panis: `12916029` (« Café de
+Nicole's Flower » on the tiramisu's chocolate plaque).
+On the Écusson bars (October 2026): `25068078` (Italian printed placemat),
+`4083582` (labelled wine bottle), `29819346` (FIX beer), `37279725` (« the
+frazzled cook » liner), `12758949` and `34528321`, `10970330`, `17366877`,
+`29189498`, `7961933` (printed liners), `38366578` (« SEÑOR BARRIO »),
+`12653308` (menu card), `10794112` (branded knife), `37044083` (wine label),
+`30557313` (shop sign), `9200544` (« Choco Nussa »), `11136513` (stamps),
+`12099847` (newspaper), `14141170` (book page), `18465600` (« …rest in queso »
+skillet), `19370451`, `13741662` (« PUBTIME »), `21235061` and `30776098`
+(newsprint), `25048973` (« CANDELAS » cup), `4871277`, `5863643` (menu card),
+`12824133`, `17313960` (« BURGERS & FRIES » bag), `17132991`, `27459857`,
+Unsplash `photo-1629386199824-700da7af2097` (maker's stamp on the plate),
+`40036735` (« SCALA » napkin), `16677728` (newspaper), `38774775` (« THE
+VEN… » liner), `3682837` (printed lettering), `19260942`, `37347960`,
+`4748485` (labelled bottles), `16446218` (« ITALIA » print), `38712743`
+(menu card), `9546272` (printed placemat), Unsplash
+`photo-1671794313460-d8a0294f75bb` (menu card under the bowl), Unsplash
+`photo-1724116382212-b0af49d9eb5f` (« GINA'S » on the peel), `36799467`,
+`34554515`, `19674142` (printed liners), Unsplash
+`photo-1550942356-fcfc6eba2acb` (signage), `15387326` (« YENI RAKI »),
+`9524171` (burned mark on the board), `33312298` (printed coaster),
+`1126728` (beer label), `11164379` (printed paper), `32767085` (tin label),
+`3861132` (monogram on the rim), `15279743` (jar and cheese-box labels),
+`253900xx` (script card behind the board), `29732924` (name on the plate
+rim), `33017545`, `1397514`, `39413021` (spread jars), `37964137`,
+`33469313`, `33709319` (menu text), `37964139` (glasses), `25856532`
+(printed liner), Unsplash `photo-1565599837634-134bc3aadce8` (newspaper
+liner), `photo-1586185158460-950e01e6982a`,
+`photo-1586185158675-17a2b0dc1cb0` (wine glass),
+`photo-1767974963436-2208b3553561` (glasses), `14924014`, `1123249`,
+`33307827`, `10560080` (printed liners), `19250682` (Estrella Galicia),
+`13526267`, `8250377`, `8250426`, `8250693` (stall signs, chalk boards), `31596394` (printed board), `7463364`, `7463311` (menu card and napkin), `192607xx`–`192609xx` (« Acqua & Farina » box), `17692688`, `36430335` (jar labels), `29516111` (« WE ARE OPEN »), `38103950` (« Bon Appetit » plate), `29807155` (leaflet), Unsplash `photo-1621523439264`, `photo-1677175202003`, `photo-1660297730980` (labels, packet, emblem), `268386xx` (« SAL DE RISO »), `13991927`, `13991929` (jug logo, neon), `16119657` (Russian menu card), `11100906` (« Prego »), `11675721`–`22` (« S » plaques), `14467432` (newspaper), `7013982`, `7013983`, `7013989` (« EXCEPTIONAL QUALITY » pick), `31906030` (« AUPA »), `37284048` (« SINGLE ORIGIN »), `23996337` (Coca-Cola), `4958950` (printed bag), `28760157` (« MOON » flag), `34985106` (sign), `29200682` (« CHOCOLABS »), `8161427` (embossed jar), `25469620` (menu card), `25003390` (wine label), Unsplash `photo-1541950747932-b59b50dcc0d5` (book spines), `photo-1667390034698-c2369cd1668b` (shirt logo), `photo-1597564684442-b603ab8dcdcf` (printed wrapper), `photo-1628412277659-b4bb70d40b7c` (labelled bottle), `photo-1630334337820-84afb05acf3a` (« BULL'S EYE »), `29121112` (printed URL on the placemat), `33002473` (« NAPOLI » liner), `37604434` (newspaper), `166777xx` (newspaper), `34425xxx` (printed menus on the table), `20793365` (bottle label), Unsplash `photo-17715085582*` (« CUCINA ITALIANA » apron), `photo-1724116382291-02878f4a13e5` (« GINA'S » peel), `830926`, `6427775`, `4762721`, Unsplash `photo-1503726800290-d5f1a00e05b0` (engraved mugs), `5433781` (mixer label), `10779226` (bar sign), `20094378`, `10085714`, `18070096`, `18070094` (« APEROL SPRITZ » glasses), `11912753` (bar mat), `6895932` (printed coaster), Unsplash `photo-1664451314616-6c93f17b9da3` (gelato box), `37110022`, `9501344` (printed logos), Unsplash `photo-1635491231222-8e524584da52` (a candle, not a sundae), `8029207` (« ÉLAN »), `34291660` (plate emblem), `10289311` (Corona), `13741669` (Coca-Cola, napkin), `33414289` (printed placemat), Unsplash `photo-1550424557-39930b383cd5` (Coca-Cola can), `photo-1615830783066-26a99bc9d959` (newspaper liner), `12436857` (NESCAFÉ can), Unsplash `photo-1624781740834-fbfbf5fd221a` (OREO), `30102165` (book text), `30335686` (newspaper, signs), `30500766` (« Burger » cup), `34487807` (« SOY FRESA » cup), `34926740` (Ferrero Rocher), `8774282` (stencilled crate).
+On Brasserie Laissac (October 2026): `37515833`, `37658757` (« GI METAL » and lettered pizza tools), `19808760` (« La Pimpollina » bottle), `2373525` (engraved spatula), `154763xx` except 15476362 when cropped server-side (Coca-Cola bottle in the background), `4992661` (« ambrosia » burned into the board), `10805993` (wine label), `30337350` (burned logo, cheese flags), `14537707` (newspaper liner), `7998092` (printed liner, Coca-Cola can), `5378423` (printed fry-basket liner), Unsplash `photo-1594631662035-eec051dc9795` (printed card), `photo-1692311358804-34b31f6ef43c` (engraved board), `30910496` (embossed rim lettering, uncertain), `356143xx` (« SHARE » tray), `28376175` (« Luigi Bormioli » on the glass foot), `9501345`, `7144269`, `14662100` (printed logos), `22809603` (printed ice-cream cups), `6895879` (printed packet), `12381455` (soda bottle), `27668709`, `39345500`, `19724822` (« APEROL » glasses), `14387125` (labelled bottle), `39948650` (printed bar mat), `33287155` (logo glass), `1089931` (tap handle), `5860683`, `5860684` (bar menu), `7259068` (« MARTINI »), `30591644` (« TAV… » sign), `39320135` (« PACIFICO »), `7220277` (labelled bottles), `14356408`, `5858219` (printed beer glasses), `1267289` (« VEZA SUR »), Unsplash `photo-1783000482668-60d46bab573b` (« Old Mout »), `photo-1752503578284-4af9ee41f531` (« Grimbergen »), `photo-1731870688048-62a51018983e` (« Cibeles »), `26856730` (Bacardi), and every Pexels « jager bomb » result (Jägermeister labels).
+On Boulangerie Cyprien (bakery): `13706837`
+("CAFFET" board), `32707881` ("DU BONHEUR" chocolate plaque), `20914252`
+("HOMEMADE STYLE … BAKERY" paper), `3514539` ("TASTY & GOOD FOOD" board),
+`13991927` (logo jug), `19859280` and `38972491` (chalkboard price tags),
+`7474197` ("MAKE A WISH COME TRUE" plate), `30826793` (bakery chalkboard
+sign), `7807489` (printed paper), `10315700` (printed coffee sack),
+`30811295` (printed paper cones), `29380150` (printed poster), Unsplash
+`photo-1707578365452-56abc4c38873` ("PARIS BAGUETTE" tag),
+`photo-1721489619993-ec80a253b77e` and `photo-1721489620017-aedd0cffb93e`
+(printed shop liner), `photo-1768203629861-33e47ea111a6` (printed paper
+bags), `photo-1753011767259-c6d57777fce2` and `photo-1752850744064-65e198039be0`
+(Korean price signs), `photo-1554475659-9fd915c8f156` (newsprint wraps),
+`photo-1607098595246-2804f6ed0794` ("Coconut Bowls" engraving). On Toast' Tea
+(salon de thé): `11552272` (script name on the plate rim), `18426952` (logo
+card), `15110222`–`15110224` (newspaper under the plate), `26936289`,
+`26936290` and `39664557` (printed paper liner), `21424391` (Cyrillic menu
+card), `2560035` ("PIOLA" placemat), `15013889` (printed placemat with an
+email), `31846558` ("MARIA AL MONTE" bottles), `11089568` ("H" logo board),
+`28760178` ("MEAT…" burger paper), `9057015` (lettered shirt), `35469100`,
+`35469120` ("POPCO…" bucket and jars), `14623909` (magazine text),
+`12814857` ("Gerus" knife blade), `34097446` ("PREGO" espresso cup),
+Unsplash `photo-1598441764246-9badfc83e3a7` ("B612" watermark) and
+`photo-1660594406883-d8cac86e9cc8` (printed menu on the table).
+
+On Café 3 Grâces (October 2026): `27298481` (lettered napkin), `8765346` (printed mussel pack), `18330019` (newsprint), `14701404`, `29177220` (printed liners), `217531xx` and `17543183` (« LA … » liner, burned wordmark), `37322855`, `36869511` (engraved board, plate rim), `36805814`, `36572256`, `9513579` (lettered napkin, menu holder, placemat), `8696541` (cup logo), `20722066` (lettered mural), `11299738` (« Hot … » fries box), `20117306` (QR stand), `2756804` (« Caf… » sign), `19120333` (Jägermeister mug), `17582266` (Dole sticker), `33149226` (printed cups), `28376178` (plate-rim logo), `19143385` (etched glass), `17013299`, `26150629` (« APEROL SPRITZ » glasses), `5433780` (« Tito's », « LAVA »), `12698363` (label), `20053276`–`20053279` (LAVA bottle), `16845303`, `34342495`, `40079582` (Aperol bottle), Unsplash `photo-1728393937618-74dda0b37158` (« ROSSO » card), `photo-1786229527541-a29d0a99fa38`, `photo-1767500536243-bf6807a331e4`, `photo-1771805689661-a6f03804a52e` (burned or engraved boards), `photo-1703219339054-7cdbe8882d6c` (printed liner), `photo-1720786913121-69e472cdb75c` (« C' Divin » wrapper), `photo-1596649299486-4cdea56fd59d` (« GOURMET BURGER KITCHEN » bag), `photo-1785304968282-a3854b0ff312` (ketchup label), `photo-1664192578370-0cd2b291c4cd` (« CAFÉ BRA… » sign), `photo-1550547660-d9450f859349` (Coca-Cola), `photo-1781681009799-956dd44d1cea` (« …ALA POP » box), `photo-1514994960127-ed3ef9239d11` (jar medallion).
 
 ## French dishes stock libraries don't have
 
@@ -145,5 +215,15 @@ wrong thing:
 - **Sandwich "américain"** (baguette, steak, fries inside): none; steak-and-
   cheese subs are the closest.
 - **Pizza kebab on a red base with white sauce**: rare; `12261064` is close.
+
+- **Crêpes Nutella-coco, crème de marrons, poire** and **coupe
+  Ardéchoise**: none on either site. **Tarte Tatin aux pommes**: only pear
+  tatins or dark studio shots. **Tartare non préparé** (served unmixed,
+  yolk on top): stock tartares are already mixed.
+
+- **Baguette au charbon végétal** (black baguette): none on either site —
+  only round charcoal loaves. **Pain viennois** (plain, long): none — the
+  closest are chocolate-chip rolls. **Paris-Brest à partager** (whole ring
+  for 6–8): only individual ones. **Chou praliné-pécan**: no visible pecans.
 
 These are the first dishes to put on the owner's photo-shoot list.

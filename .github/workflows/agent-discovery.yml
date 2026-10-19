@@ -29,3 +29,12 @@ jobs:
             "${{ secrets.BACKEND_URL }}/agent/enrich")
           echo "enrich: HTTP $code"
           case "$code" in 202|409) ;; *) exit 1 ;; esac
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Léa (recherche de prospects) n'a pas tourné\",\"body\":\"Touche pour ouvrir le run et voir l'erreur.\",\"key\":\"${{ github.workflow }}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"urgent\":true}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

@@ -1,0 +1,3642 @@
+/*
+ * Ominin Club, côté client. Une grotesque grasse et serrée pour les titres,
+ * Geist pour l'interface, Geist Mono pour les chiffres. Le ciel étoilé
+ * (sky.ts) habille l'accueil et le passe ; les écrans de choix et de
+ * paiement (.club-calm) sont des surfaces calmes, bleu nuit à plat. Le
+ * corail est réservé à l'action principale ; l'or est la lumière des
+ * étoiles. Jetons (couleurs, durées, courbes) : tokens.css.
+ */
+
+.club {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  color: var(--c-text);
+  font-family: var(--c-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Le ton du bas du ciel : sous le ciel fixe, la page continue sans couture. */
+html:has(.club),
+html:has(.club) body {
+  background-color: #0a0e26;
+}
+
+html:has(.club) {
+  scroll-behavior: smooth;
+}
+
+.club :focus-visible {
+  outline: 2px solid var(--c-gold-light);
+  outline-offset: 3px;
+}
+
+/* Spécificité nulle : les classes des boutons et des champs l'emportent. */
+:where(.club) :where(button, input) {
+  font: inherit;
+  color: inherit;
+}
+
+:where(.club) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Les montants : chiffres tabulaires, alignés d'une ligne à l'autre. */
+.club-mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Ce qui se recopie ou se lit à la porte : numéros de table, code, compte à rebours. */
+.club-code,
+.club-countdown-time,
+.club-pass-date,
+.club-pass-ref .club-mono,
+.club-sheet-title .club-mono,
+.club-pass-table .club-mono,
+.club-pricebar-table .club-mono {
+  font-family: var(--c-mono);
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Ciel ---------- */
+
+.club-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  min-height: 100lvh;
+  pointer-events: none;
+  /* Le bas du ciel se fond dans le fond de la page : aucune couture, même en capture pleine page. */
+  mask-image: linear-gradient(180deg, #000 calc(100% - 200px), transparent);
+  background:
+    radial-gradient(70% 45% at 70% 10%, rgba(143, 123, 255, 0.2), transparent 70%),
+    radial-gradient(60% 40% at 15% 80%, rgba(226, 196, 143, 0.1), transparent 70%),
+    linear-gradient(180deg, var(--c-navy), #0a0e26);
+  transition:
+    opacity var(--c-sheet) var(--c-ease),
+    visibility 0s;
+}
+
+.club-sky-host {
+  position: absolute;
+  inset: 0;
+}
+
+.club-sky .et-sky-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.6s var(--c-ease);
+}
+
+.club-sky .et-sky-canvas[data-on] {
+  opacity: 1;
+}
+
+/* Le ciel d'argent passe au bleu nuit du club : en mode écran, le noir devient bleu, les étoiles restent blanches. */
+.club-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(110% 70% at 50% 0%, rgba(38, 48, 120, 0.7), transparent 65%),
+    radial-gradient(70% 50% at 88% 78%, rgba(143, 123, 255, 0.18), transparent 70%),
+    linear-gradient(180deg, #121731 0%, #0a0e26 100%);
+  mix-blend-mode: screen;
+}
+
+/* Écrans de choix et de paiement : pas de ciel, une nuit à plat. */
+.club:has(.club-calm) .club-sky {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--c-sheet) var(--c-ease),
+    visibility 0s linear var(--c-sheet);
+}
+
+/* Le halo du haut s'éteint à 900 px ; au-delà, la nuit à plat continue jusqu'en bas de la page. */
+.club-calm {
+  background: radial-gradient(120% 900px at 50% 0%, #1a2150 0%, var(--c-navy) 45%, #0c1029 100%) #0c1029;
+}
+
+/* ---------- Charpente ---------- */
+
+.club-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: clip;
+  padding-bottom: env(safe-area-inset-bottom);
+  --c-gutter: 20px;
+}
+
+.club-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1200px;
+  min-height: 64px;
+  margin: 0 auto;
+  padding: 10px var(--c-gutter);
+}
+
+.club-top-brand,
+.club-top-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.club-top-mark {
+  width: 22px;
+  height: 22px;
+}
+
+.club-wordmark-sm {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.club-top-tagline {
+  padding-left: 10px;
+  border-left: 1px solid var(--c-line-strong);
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-top-back {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-muted);
+  transition: color var(--c-base) var(--c-ease);
+}
+
+.club-top-back:hover {
+  color: var(--c-text);
+}
+
+.club-top-back svg,
+.club-icon-button svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px var(--c-gutter);
+}
+
+.club-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.club-section-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.club-section-note {
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--c-muted);
+}
+
+.club-party-max {
+  display: block;
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+/* ---------- Typographie ---------- */
+
+.club-h1,
+.club-h2,
+.club-sheet-title {
+  font-family: var(--c-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.club-h1 {
+  font-size: clamp(2.5rem, 6.2vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.club-h2 {
+  font-size: clamp(1.75rem, 3.6vw, 2.75rem);
+  line-height: 1;
+}
+
+.club-lead,
+.club-section-lead {
+  max-width: 52ch;
+  font-size: 16px;
+  color: var(--c-muted);
+}
+
+.club-label,
+.club-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+}
+
+.club-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.club-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-teal);
+  box-shadow: 0 0 0 0 rgba(47, 212, 180, 0.6);
+  animation: club-ping 2s var(--c-ease) infinite;
+}
+
+@keyframes club-ping {
+  70%,
+  100% {
+    box-shadow: 0 0 0 8px rgba(47, 212, 180, 0);
+  }
+}
+
+.club-from {
+  font-size: 16px;
+  color: var(--c-muted);
+}
+
+.club-from strong {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(226, 196, 143, 0.12);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-gold-light);
+}
+
+.club-empty {
+  padding: 40px 24px;
+  border: 1px dashed var(--c-line-strong);
+  border-radius: var(--c-radius);
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.club-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.club-chips li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-link,
+.club-text-link {
+  text-decoration: underline;
+  text-decoration-color: rgba(226, 196, 143, 0.5);
+  text-underline-offset: 4px;
+}
+
+.club-text-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--c-gold-light);
+}
+
+/* Apparition au défilement (reveal.tsx) : seul un élément encore sous l'écran attend. */
+.club-reveal[data-pending] {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.club-reveal {
+  transition:
+    opacity var(--c-slow) var(--c-ease),
+    transform var(--c-slow) var(--c-ease);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* ---------- Boutons ---------- */
+
+.club-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--c-control);
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--c-slow) var(--c-spring),
+    background-color var(--c-base) var(--c-ease),
+    border-color var(--c-base) var(--c-ease),
+    box-shadow var(--c-base) var(--c-ease),
+    translate var(--c-slow) var(--c-spring);
+}
+
+.club-button:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: var(--c-fast);
+  transition-timing-function: var(--c-ease);
+}
+
+.club-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.club-button-primary {
+  background: var(--c-coral);
+  color: #12070a;
+  box-shadow: 0 10px 30px -12px var(--c-coral-glow);
+}
+
+.club-button-primary:hover:not(:disabled) {
+  background: #ff7255;
+}
+
+.club-button-primary:active:not(:disabled) {
+  background: var(--c-coral-press);
+}
+
+/* Payé : la coche se trace, le bouton passe à l'or clair d'un petit rebond, sans l'atténuation d'un bouton inactif. */
+.club-button[data-paid],
+.club-button[data-paid]:disabled {
+  background: var(--c-gold-light);
+  color: var(--c-ink);
+  box-shadow: 0 10px 30px -12px rgba(251, 239, 210, 0.6);
+  cursor: default;
+  opacity: 1;
+  animation: club-paid-pop var(--c-slow) var(--c-spring) both;
+}
+
+.club-paid-check {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-paid-check path {
+  stroke-dasharray: 1;
+  animation: club-check-draw 350ms var(--c-ease) both;
+}
+
+@keyframes club-paid-pop {
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes club-check-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.club-button-ghost {
+  border-color: var(--c-line-strong);
+  background: transparent;
+  color: var(--c-text);
+}
+
+.club-button-ghost:hover:not(:disabled),
+.club-button-secondary:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.club-button-secondary {
+  border-color: var(--c-line);
+  background: var(--c-raised);
+  color: var(--c-text);
+}
+
+.club-button-block {
+  width: 100%;
+}
+
+.club-magnet {
+  transition:
+    transform var(--c-slow) var(--c-spring),
+    background-color var(--c-base) var(--c-ease),
+    translate var(--c-slow) var(--c-spring);
+}
+
+.club-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: club-spin 0.8s linear infinite;
+}
+
+@keyframes club-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.club-icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--c-line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: transform var(--c-slow) var(--c-spring);
+}
+
+.club-icon-button:active {
+  transform: scale(0.92);
+}
+
+.club-icon-spacer {
+  width: 44px;
+}
+
+.club-chip-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: rgba(12, 16, 41, 0.85);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+}
+
+@keyframes club-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.club-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: rgba(12, 16, 41, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.club-segmented button {
+  width: 40px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.club-segmented button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.club-segmented button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---------- Squelettes ---------- */
+
+.club-skeleton {
+  display: block;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05)) 0 0 / 200% 100%;
+  animation: club-shimmer 1.4s linear infinite;
+}
+
+@keyframes club-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.club-skeleton-line {
+  height: 18px;
+  width: 60%;
+}
+
+.club-skeleton-title {
+  height: 44px;
+  width: 80%;
+  margin: 12px 0;
+}
+
+.club-skeleton-block {
+  height: 340px;
+  margin-top: 20px;
+  border-radius: var(--c-radius);
+}
+
+.club-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.club-skeleton-wallet {
+  height: 52px;
+  border-radius: 999px;
+}
+
+.club-skeleton-card {
+  height: 120px;
+}
+
+/* ---------- Affiche ---------- */
+
+.club-poster {
+  --p1: #e2c48f;
+  --p2: #8f7bff;
+  --p-ink: #0a0d24;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius-lg);
+  background: var(--p-ink);
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+.club-poster-image {
+  object-fit: cover;
+}
+
+.club-poster[data-variant="lagon"] {
+  --p1: #2fd4b4;
+  --p2: #2a63ff;
+  --p-ink: #041a1f;
+}
+
+.club-poster[data-variant="projecteurs"] {
+  --p1: #b9a8ff;
+  --p2: #ff4fa3;
+  --p-ink: #0e0a26;
+}
+
+.club-poster[data-variant="corail"] {
+  --p1: #fc6141;
+  --p2: #ffc04d;
+  --p-ink: #1a0816;
+}
+
+.club-poster-art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(90% 60% at 20% 100%, color-mix(in srgb, var(--p2) 26%, transparent), transparent 70%);
+}
+
+.club-poster-orb {
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  width: var(--os);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% -50%;
+  background:
+    radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--p1) 40%, white) 0%, var(--p1) 22%, color-mix(in srgb, var(--p1) 45%, var(--p2)) 52%, transparent 71%),
+    radial-gradient(circle, color-mix(in srgb, var(--p1) 45%, transparent) 0%, transparent 72%);
+  box-shadow: 0 0 18cqw 4cqw color-mix(in srgb, var(--p1) 35%, transparent);
+}
+
+.club-poster-ring {
+  position: absolute;
+  left: var(--ox);
+  top: var(--oy);
+  width: calc(var(--os) * 1.5);
+  aspect-ratio: 3.2;
+  border: 0.6cqw solid color-mix(in srgb, var(--p1) 55%, white);
+  border-radius: 50%;
+  opacity: 0.55;
+  translate: -50% -50%;
+  rotate: -18deg;
+}
+
+.club-poster-star {
+  position: absolute;
+  left: calc(var(--ox) - var(--os) * 0.42);
+  top: calc(var(--oy) + var(--os) * 0.36);
+  width: 9cqw;
+  fill: #fff;
+  filter: drop-shadow(0 0 2cqw rgba(255, 255, 255, 0.8));
+}
+
+.club-poster-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6cqw;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--p-ink) 92%, transparent) 0%, transparent 52%);
+  color: #fff;
+}
+
+.club-poster-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2cqw;
+  margin-bottom: auto;
+}
+
+.club-poster-tag {
+  padding: 1.4cqw 3cqw;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: max(10px, 3.3cqw);
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+}
+
+.club-poster-club {
+  font-size: max(9px, 2.8cqw);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.club-poster-date {
+  display: flex;
+  align-items: baseline;
+  gap: 3cqw;
+}
+
+.club-poster-day {
+  font-family: var(--c-display);
+  font-size: 30cqw;
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+}
+
+.club-poster-month {
+  font-family: var(--c-mono);
+  font-size: max(10px, 4cqw);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--p1) 60%, white);
+}
+
+.club-poster-title {
+  margin-top: 3cqw;
+  font-family: var(--c-display);
+  font-size: 11cqw;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+/* ---------- Accueil ---------- */
+
+.club-feature {
+  display: grid;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px var(--c-gutter) 40px;
+}
+
+.club-feature-poster {
+  display: block;
+  border-radius: var(--c-radius-lg);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
+  animation: club-rise var(--c-enter) var(--c-ease) both;
+}
+
+.club-feature-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: club-rise var(--c-enter) var(--c-ease) 120ms both;
+}
+
+@keyframes club-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+
+.club-meter-bar {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.club-meter-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--c-gold), var(--c-coral));
+  transform: scaleX(var(--fill));
+  transform-origin: left;
+  animation: club-fill var(--c-draw) var(--c-ease) 300ms both;
+}
+
+@keyframes club-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.club-feature-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Téléphone : l'action reste sous le pouce. */
+.club-dock {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+  padding: 12px var(--c-gutter) calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgba(7, 10, 28, 0.92) 40%);
+}
+
+.club-home {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+.club-feature-actions .club-button-primary {
+  display: none;
+}
+
+.club-rail {
+  margin: 0 calc(var(--c-gutter) * -1);
+}
+
+.club-rail-list {
+  display: flex;
+  gap: 14px;
+  padding: 4px var(--c-gutter) 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--c-gutter);
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.club-rail-list::-webkit-scrollbar {
+  display: none;
+}
+
+.club-card {
+  flex: 0 0 min(72vw, 280px);
+  scroll-snap-align: start;
+}
+
+.club-card-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  border-radius: var(--c-radius-lg);
+  transition: transform var(--c-slow) var(--c-spring);
+}
+
+.club-card-link:active {
+  transform: scale(0.98);
+}
+
+/* Lumière dorée qui suit le curseur (spotlight.tsx). */
+.club-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--c-radius-lg);
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 30%), rgba(251, 239, 210, 0.16), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--c-slow) var(--c-ease);
+}
+
+@media (hover: hover) {
+  .club-card-link:hover {
+    transform: translateY(-4px);
+  }
+  .club-card-link:hover::after {
+    opacity: 1;
+  }
+}
+
+.club-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.club-card-date {
+  font-size: 14px;
+  color: var(--c-gold);
+}
+
+.club-card-title {
+  font-family: var(--c-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.club-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-card-cancelled {
+  color: var(--c-danger);
+}
+
+.club-steps {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.club-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+  backdrop-filter: blur(12px);
+}
+
+.club-step-card h3 {
+  font-family: var(--c-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.club-step-card p {
+  color: var(--c-muted);
+}
+
+.club-step-num {
+  font-size: 13px;
+  color: var(--c-gold);
+}
+
+.club-door-chips {
+  margin-top: 20px;
+}
+
+.club-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px var(--c-gutter) 40px;
+  border-top: 1px solid var(--c-line);
+  text-align: center;
+}
+
+.club-footer-mark {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 6px;
+}
+
+.club-footer-line {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--c-muted);
+}
+
+.club-footer-by {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-footer-by span {
+  color: var(--c-gold);
+}
+
+/* ---------- La soirée ---------- */
+
+.club-event-hero {
+  display: grid;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px var(--c-gutter) 8px;
+}
+
+.club-event-poster {
+  aspect-ratio: 16 / 9;
+}
+
+.club-event-poster .club-poster-day {
+  font-size: 18cqw;
+}
+
+.club-event-poster .club-poster-title {
+  font-size: 7cqw;
+}
+
+.club-event-poster .club-poster-text {
+  padding: 4cqw;
+}
+
+.club-event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.club-banner {
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 143, 122, 0.4);
+  border-radius: var(--c-radius);
+  background: rgba(252, 97, 65, 0.08);
+}
+
+.club-banner strong {
+  color: var(--c-danger);
+}
+
+/* ---------- Offres ---------- */
+
+.club-conditions-line {
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+.club-allin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-gold-light);
+}
+
+.club-allin::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.club-refund-note {
+  text-align: left;
+}
+
+.club-booking-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.club-offers-col {
+  min-width: 0;
+}
+
+.club-notice:not(:empty) {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(226, 196, 143, 0.35);
+  border-radius: 12px;
+  background: rgba(226, 196, 143, 0.08);
+  font-size: 15px;
+  animation: club-rise var(--c-slow) var(--c-ease) both;
+}
+
+.club-offers {
+  display: grid;
+  gap: 12px;
+}
+
+/* Une offre : la silhouette de sa zone, son prix frais compris, ce qu'elle comprend. */
+.club-offer {
+  --tone: var(--c-gold);
+  position: relative;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius-lg);
+  background: var(--c-surface);
+  text-align: left;
+  cursor: pointer;
+  animation: club-rise 600ms var(--c-ease) both;
+  animation-delay: calc(var(--i) * 60ms);
+  transition:
+    border-color var(--c-base) var(--c-ease),
+    background-color var(--c-base) var(--c-ease),
+    box-shadow var(--c-slow) var(--c-ease),
+    transform var(--c-slow) var(--c-spring);
+}
+
+.club-offer[data-tone="rouge"] {
+  --tone: #ff8a73;
+}
+
+.club-offer[data-tone="or"] {
+  --tone: var(--c-gold-light);
+}
+
+@media (hover: hover) {
+  .club-offer:not([aria-disabled]):hover {
+    border-color: var(--c-line-strong);
+    background: #1a2250;
+  }
+}
+
+.club-offer:not([aria-disabled]):active {
+  transform: scale(0.98);
+  transition-duration: var(--c-fast);
+}
+
+.club-offer[aria-checked="true"] {
+  border-color: var(--c-gold);
+  background: linear-gradient(180deg, rgba(226, 196, 143, 0.12), rgba(226, 196, 143, 0.02)), #1a2250;
+  box-shadow:
+    0 0 0 1px rgba(226, 196, 143, 0.4),
+    0 24px 50px -28px rgba(251, 239, 210, 0.45);
+}
+
+.club-offer[aria-disabled] {
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.club-offer[aria-disabled] .club-offer-visual {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.club-offer[aria-disabled] :is(.club-offer-price, .club-offer-ambience) {
+  color: var(--c-muted);
+}
+
+.club-offer-art {
+  position: relative;
+  display: block;
+}
+
+.club-offer-art .club-offer-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.club-offer-ambience {
+  font-size: 14px;
+  font-style: normal;
+  color: var(--c-gold);
+}
+
+.club-offer-ambience:empty {
+  display: none;
+}
+
+/* La barre de prix monte au choix : la carte choisie garde sa place au-dessus. */
+.club-offer {
+  scroll-margin-bottom: 120px;
+}
+
+/* Lumière dorée qui suit le curseur (spotlight.tsx). */
+.club-offer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), rgba(251, 239, 210, 0.1), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--c-slow) var(--c-ease);
+}
+
+@media (hover: hover) {
+  .club-offer:not([aria-disabled]):hover::after {
+    opacity: 1;
+  }
+}
+
+/*
+ * Les murs se tracent à l'arrivée, les repères suivent ; choisie, l'offre se
+ * retrace. Le tracé d'arrivée anime le groupe (stroke-dashoffset s'hérite),
+ * le retracé anime les murs : quitter le choix ne relance pas l'arrivée.
+ */
+.club-offer-walls {
+  stroke-dasharray: 1;
+  animation: club-wall-draw var(--c-draw) var(--c-ease) both;
+  animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+.club-offer-marks {
+  animation: club-marks-in var(--c-slow) var(--c-ease) both;
+  animation-delay: calc(var(--i) * 80ms + 600ms);
+}
+
+.club-offer[aria-checked="true"] .club-offer-walls polyline {
+  animation: club-wall-redraw var(--c-draw) var(--c-ease) both;
+}
+
+@keyframes club-wall-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes club-wall-redraw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes club-marks-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.club-offer-visual {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  background: radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--tone) 22%, transparent), transparent 70%), #0c1029;
+}
+
+.club-offer-visual svg {
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
+}
+
+/* Traits fins à toute taille : l'épaisseur ne dépend pas de l'échelle du dessin. */
+.club-offer-visual :is(polyline, rect, line) {
+  vector-effect: non-scaling-stroke;
+}
+
+.club-offer-walls polyline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--tone) 70%, white);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.club-offer-marks rect {
+  fill: color-mix(in srgb, var(--tone) 22%, transparent);
+  stroke: color-mix(in srgb, var(--tone) 60%, transparent);
+  stroke-width: 1;
+}
+
+.club-offer-marks line {
+  stroke: color-mix(in srgb, var(--tone) 70%, transparent);
+  stroke-width: 1.4;
+  stroke-dasharray: 2 10;
+  stroke-linecap: round;
+}
+
+.club-offer[aria-checked="true"] .club-offer-walls polyline {
+  opacity: 1;
+}
+
+.club-offer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+
+.club-offer-name {
+  font-family: var(--c-display);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.club-offer-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 99px;
+  background: var(--c-gold-light);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ink);
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+}
+
+.club-offer-badge svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-offer-badge[data-full] {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--c-text);
+  animation: none;
+}
+
+.club-offer-price {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.club-offer-meta {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-offer-inclus {
+  font-size: 14px;
+  color: var(--c-text);
+}
+
+.club-offer-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-gold-light);
+}
+
+.club-offer-cta svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate var(--c-base) var(--c-ease);
+}
+
+@media (hover: hover) {
+  .club-offer:hover .club-offer-cta svg {
+    translate: 3px 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .club-offers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .club-offer {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    align-content: start;
+  }
+  .club-offer-visual {
+    aspect-ratio: 16 / 9;
+  }
+  /* Sous-ligne réservée même vide (le Bar n'en a pas) : noms et prix alignés d'une carte à l'autre. */
+  .club-offer-ambience:empty {
+    display: block;
+    min-height: 1lh;
+  }
+  .club-offer-body {
+    height: 100%;
+  }
+  .club-offer-cta {
+    margin-top: auto;
+    padding-top: 6px;
+  }
+  /* Une offre seule sur sa ligne prend toute la largeur, dessin à gauche. */
+  .club-offer:nth-child(odd):last-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+/* ---------- Barre de prix (téléphone) ---------- */
+
+.club-pricebar {
+  position: fixed;
+  inset-inline: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 10px 18px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 20px;
+  background: rgba(24, 32, 66, 0.92);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(16px);
+  transform: translateY(calc(100% + 40px));
+  transition: transform var(--c-slow) var(--c-exit);
+}
+
+.club-pricebar[data-shown] {
+  transform: none;
+  transition: transform var(--c-sheet) var(--c-sheet-ease);
+}
+
+.club-pricebar p {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.club-pricebar-table {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-pricebar-total {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-pricebar-total .club-mono {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+/* ---------- Feuille (téléphone) / panneau (bureau) ---------- */
+
+.club-sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--c-gutter) env(safe-area-inset-bottom);
+  border: 1px solid var(--c-line-strong);
+  border-bottom: 0;
+  border-radius: var(--c-radius-lg) var(--c-radius-lg) 0 0;
+  background: #141a3c;
+  box-shadow: 0 -30px 80px -20px rgba(0, 0, 0, 0.8);
+  transform: translateY(calc(100% + 24px));
+  visibility: hidden;
+  transition:
+    transform var(--c-sheet) var(--c-sheet-ease),
+    translate var(--c-sheet) var(--c-sheet-ease),
+    visibility 0s linear var(--c-sheet);
+}
+
+/* Ancrée en bas : pas de rebond, qui découvrirait la page dessous. */
+.club-sheet[data-open] {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform var(--c-sheet) var(--c-sheet-ease),
+    translate var(--c-sheet) var(--c-sheet-ease),
+    visibility 0s;
+}
+
+.club-sheet[data-dragging],
+.club-sheet-backdrop[data-dragging] {
+  transition: none;
+}
+
+/* Fermée d'un geste : elle ne descend que par translate, depuis là où le doigt l'a laissée. */
+.club-sheet[data-dismissing] {
+  transform: none;
+  transition:
+    translate var(--c-sheet) var(--c-sheet-ease),
+    visibility 0s linear var(--c-sheet);
+}
+
+.club-sheet-handle {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 28px;
+  margin: 0 calc(var(--c-gutter) * -1);
+  background: #141a3c;
+  cursor: grab;
+  touch-action: none;
+}
+
+.club-sheet-handle::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--c-line-strong);
+  transform: translateX(-50%);
+}
+
+.club-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(4, 6, 18, 0.62);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--c-slow) var(--c-ease);
+}
+
+.club-sheet-backdrop[data-on] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.club-sheet-idle {
+  display: none;
+}
+
+.club-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.club-sheet-head {
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.club-stepper-nav {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-faint);
+}
+
+.club-stepper-nav li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color var(--c-base) var(--c-ease);
+}
+
+.club-stepper-nav li + li::before {
+  content: "";
+  width: 14px;
+  height: 1px;
+  background: var(--c-line-strong);
+}
+
+.club-stepper-nav [data-state="current"] {
+  color: var(--c-text);
+}
+
+.club-stepper-nav [data-state="done"] {
+  color: var(--c-gold);
+}
+
+.club-sheet-title {
+  font-size: 32px;
+  line-height: 1;
+  outline: none;
+}
+
+.club-sheet-text {
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+/* clip et non hidden : la barre d'action collée en bas (.club-sticky-cta) reste collée à la feuille. */
+.club-stage {
+  overflow: clip;
+}
+
+.club-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: club-step-in var(--c-slow) var(--c-ease) both;
+}
+
+@keyframes club-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--enter-dir, 1) * 12px));
+  }
+}
+
+/* En arrière (étape précédente, mode à gauche), ce qui arrive vient de la gauche. */
+.club-stage[data-back] {
+  --enter-dir: -1;
+}
+
+.club-sticky-cta {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 calc(var(--c-gutter) * -1);
+  padding: 12px var(--c-gutter) 4px;
+  border-top: 1px solid var(--c-line);
+  background: #141a3c;
+}
+
+.club-fine {
+  font-size: 14px;
+  color: var(--c-faint);
+  text-align: center;
+}
+
+.club-included {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.club-lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.club-lines > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-muted);
+}
+
+.club-lines dd {
+  color: var(--c-text);
+}
+
+.club-lines > .club-lines-total {
+  padding-top: 12px;
+  border-bottom: 0;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-lines-total dd {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.club-party {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--c-muted);
+}
+
+.club-stepper {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+}
+
+.club-stepper button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--c-slow) var(--c-spring);
+}
+
+.club-stepper button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.club-stepper button:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
+.club-stepper button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.club-stepper output {
+  min-width: 40px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-sheet-idle .club-sheet-title {
+  font-size: 26px;
+}
+
+
+
+
+
+
+
+
+/* ---------- Formulaires ---------- */
+
+.club-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.club-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.club-field > span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-muted);
+}
+
+.club-field em {
+  margin-left: 6px;
+  font-style: normal;
+  color: var(--c-faint);
+}
+
+.club-field input {
+  height: var(--c-control);
+  padding: 0 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 16px;
+  transition:
+    border-color var(--c-base) var(--c-ease),
+    box-shadow var(--c-base) var(--c-ease);
+}
+
+.club-field input:focus {
+  outline: none;
+  border-color: var(--c-gold);
+  box-shadow: 0 0 0 4px rgba(226, 196, 143, 0.18);
+}
+
+.club-field input:disabled {
+  opacity: 0.5;
+}
+
+.club-field small {
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.club-conditions-summary {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-conditions-more summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-gold-light);
+  cursor: pointer;
+}
+
+.club-conditions-more ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 18px;
+  list-style: disc;
+  font-size: 14px;
+  color: var(--c-muted);
+  animation: club-rise var(--c-slow) var(--c-ease) both;
+}
+
+/* Toute la rangée coche la case. */
+.club-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  margin: 0 -16px;
+  padding: 0 16px;
+  border-top: 1px solid var(--c-line);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.club-conditions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 6px;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-conditions-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.club-conditions-list svg {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-hold-note {
+  text-align: left;
+}
+
+.club-check input {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--c-coral);
+}
+
+.club-error {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 143, 122, 0.5);
+  border-radius: 12px;
+  background: rgba(252, 97, 65, 0.1);
+  font-size: 15px;
+  color: #ffd2c8;
+}
+
+/* ---------- Paiement ---------- */
+
+.club-paystep,
+.club-resume {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.club-resume {
+  padding: 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius);
+  background: #141a3c;
+}
+
+.club-resume .club-sticky-cta {
+  border-top: 0;
+  background: none;
+}
+
+.club-paystep-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+.club-paystep-head strong {
+  color: var(--c-text);
+}
+
+.club-countdown {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+}
+
+.club-countdown svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.club-countdown circle {
+  fill: none;
+  stroke-width: 3;
+}
+
+.club-countdown-track {
+  stroke: var(--c-line-strong);
+}
+
+.club-countdown-ring {
+  stroke: var(--c-gold);
+  stroke-linecap: round;
+  transition: stroke var(--c-base) var(--c-ease);
+}
+
+.club-countdown[data-urgent] .club-countdown-ring {
+  stroke: var(--c-coral);
+  animation: club-urgent var(--c-pulse) ease-in-out infinite;
+}
+
+@keyframes club-urgent {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.club-countdown-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.club-pay-locked {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.club-pay-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-pay-or::before,
+.club-pay-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--c-line);
+}
+
+.club-pay-card {
+  min-height: 1px;
+}
+
+.club-pay-note {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-pay-note strong {
+  color: var(--c-text);
+}
+
+.club-recap {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+  color: var(--c-text);
+}
+
+/* La place des portefeuilles, en démonstration : inactifs, et dits tels. */
+.club-demo-wallets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.club-demo-wallets li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px dashed var(--c-line-strong);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+.club-demo-badge {
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: rgba(226, 196, 143, 0.16);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-gold-light);
+}
+
+.club-demo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.club-demo-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 96px;
+  aspect-ratio: 1.586;
+  padding: 9px 10px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 10px;
+  background:
+    radial-gradient(80% 100% at 100% 0%, rgba(226, 196, 143, 0.35), transparent 60%),
+    linear-gradient(135deg, #283270, #11163a);
+}
+
+.club-demo-card-chip {
+  width: 16px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--c-gold);
+}
+
+.club-demo-card-number {
+  font-size: 10px;
+  color: rgba(242, 243, 251, 0.85);
+}
+
+/* ---------- Liste d'invités ---------- */
+
+.club-guest {
+  max-width: 680px;
+}
+
+.club-guest-left {
+  color: var(--c-gold-light);
+  font-weight: 600;
+}
+
+.club-guest-form {
+  padding: 22px 20px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+  backdrop-filter: blur(12px);
+}
+
+.club-guest-done {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid rgba(47, 212, 180, 0.35);
+  border-radius: var(--c-radius);
+  background: var(--c-surface);
+  animation: club-rise var(--c-slow) var(--c-ease) both;
+}
+
+.club-guest-done-mark {
+  width: 44px;
+  height: 44px;
+  fill: none;
+  stroke: var(--c-teal);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-guest-done-mark path,
+.club-guest-done-mark circle {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: club-draw 600ms var(--c-ease) forwards;
+}
+
+.club-guest-done-mark path {
+  animation-delay: 250ms;
+}
+
+@keyframes club-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- Le passe ---------- */
+
+.club-pass-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px var(--c-gutter) 56px;
+}
+
+.club-status {
+  --status: var(--c-state-libre);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.club-status[data-view="attente"] {
+  --status: var(--c-state-attente);
+}
+
+.club-status[data-view="arrivee"] {
+  --status: var(--c-state-arrivee);
+}
+
+.club-status[data-view="remboursee"] {
+  --status: var(--c-violet);
+}
+
+.club-status:is([data-view="annulee"], [data-view="expiree"]) {
+  --status: var(--c-state-annulee);
+}
+
+.club-status .club-h1 {
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+}
+
+.club-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--status) 16%, transparent);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--status);
+}
+
+.club-pill span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status);
+}
+
+.club-track {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-track li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.club-track small {
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-track [data-state="current"] {
+  font-weight: 600;
+}
+
+.club-track li > span:first-child {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--c-muted);
+  border-radius: 50%;
+  background: rgba(185, 190, 220, 0.14);
+}
+
+.club-track li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 5.5px;
+  left: 18px;
+  right: 6px;
+  height: 1px;
+  background: var(--c-line-strong);
+}
+
+.club-track [data-state="done"],
+.club-track [data-state="current"] {
+  color: var(--c-text);
+}
+
+.club-track [data-state="done"] > span:first-child {
+  border-color: var(--status);
+  background: var(--status);
+}
+
+.club-track [data-state="done"]:not(:last-child)::after {
+  background: var(--status);
+}
+
+/* L'étape en cours pulse. */
+.club-track [data-state="current"] > span:first-child {
+  border-color: var(--status);
+  animation: club-current var(--c-pulse) var(--c-ease) infinite;
+}
+
+@keyframes club-current {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--status) 70%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 9px transparent;
+  }
+}
+
+/* Payée à l'instant : l'étape s'allume d'un anneau d'or (statique sous mouvement réduit), et bondit sinon. */
+.club-track li[data-lit] > span:first-child {
+  box-shadow: 0 0 0 4px rgba(226, 196, 143, 0.45);
+  animation: club-lit var(--c-draw) var(--c-spring) both;
+}
+
+@keyframes club-lit {
+  40% {
+    transform: scale(1.7);
+  }
+}
+
+/* Le passe : une carte à montrer à l’entrée. */
+.club-pass {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 26px;
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(226, 196, 143, 0.2), transparent 60%),
+    linear-gradient(180deg, #1f2860, #121731 70%);
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.95);
+  animation: club-rise var(--c-enter) var(--c-ease) 80ms both;
+}
+
+.club-pass:is([data-view="annulee"], [data-view="expiree"]) {
+  filter: saturate(0.3);
+  opacity: 0.8;
+}
+
+.club-pass-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--c-line);
+}
+
+.club-pass-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.club-pass-mark {
+  width: 20px;
+  height: 20px;
+}
+
+.club-pass-date {
+  font-size: 14px;
+  color: var(--c-gold-light);
+}
+
+.club-pass-primary {
+  padding: 20px 20px 4px;
+}
+
+.club-pass-table {
+  font-family: var(--c-display);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.club-pass-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+  padding: 18px 20px;
+}
+
+.club-pass-fields dt {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+}
+
+.club-pass-fields dd {
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.club-pass-wide {
+  grid-column: 1 / -1;
+}
+
+.club-pass-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px 20px;
+}
+
+.club-qr-plate {
+  position: relative;
+  width: min(240px, 66vw);
+  padding: 14px;
+  border: 0;
+  border-radius: 18px;
+  background: #fff;
+  cursor: zoom-in;
+  box-shadow: 0 0 50px -12px rgba(251, 239, 210, 0.5);
+  transition: transform var(--c-slow) var(--c-spring);
+  animation: club-qr-in 600ms var(--c-ease) 250ms both;
+}
+
+.club-qr-plate:active {
+  transform: scale(0.97);
+}
+
+@keyframes club-qr-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.club-qr-plate[data-arrived] {
+  opacity: 0.4;
+}
+
+.club-qr-plate::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--c-gold-light);
+  border-radius: 22px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.club-qr-plate[data-flash]::after {
+  animation: club-flash var(--c-draw) var(--c-ease) both;
+}
+
+@keyframes club-flash {
+  0% {
+    opacity: 1;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+
+/* QR : modules noirs purs sur blanc pur, le contraste le plus lisible à la porte. */
+.club-qr {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: #000;
+}
+
+.club-pass-ref {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-pass-ref .club-mono {
+  color: var(--c-text);
+  letter-spacing: 0.08em;
+}
+
+.club-pass-lines {
+  padding: 4px 20px 20px;
+  border-top: 1px dashed var(--c-line-strong);
+}
+
+/* Une action principale, puis une rangée discrète. */
+.club-pass-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.club-pass-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.club-pass-links :is(a, button) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+  padding: 10px 6px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--c-text);
+  cursor: pointer;
+  transition:
+    background-color var(--c-base) var(--c-ease),
+    transform var(--c-slow) var(--c-spring);
+}
+
+.club-pass-links :is(a, button):hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.club-pass-links :is(a, button):active {
+  transform: scale(0.97);
+}
+
+.club-pass-links svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-door {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.club-door-text {
+  max-width: 60ch;
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+/* Le QR code en grand, lumineux, pour la porte. */
+.club-qr-dialog {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  background: #fff;
+  color: #070a1c;
+}
+
+.club-qr-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+}
+
+.club-qr-dialog::backdrop {
+  background: #fff;
+}
+
+.club-qr-dialog-plate {
+  width: min(88vw, 420px);
+}
+
+.club-qr-dialog p {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.club-burst {
+  position: fixed;
+  top: var(--y, 50%);
+  left: var(--x, 50%);
+  z-index: 50;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.club-burst-star {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--c-gold-light);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+
+.club-burst-star:nth-child(3n) {
+  width: 7px;
+  height: 7px;
+  background: #fff;
+}
+
+/* ---------- Tablette et bureau ---------- */
+
+@media (min-width: 640px) {
+  .club-page {
+    --c-gutter: 32px;
+  }
+  .club-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .club-guest-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 26px;
+  }
+  .club-guest-form > :is(.club-field:first-child, .club-party, .club-error, button) {
+    grid-column: 1 / -1;
+  }
+
+}
+
+@media (min-width: 1024px) {
+  .club-section {
+    padding-block: 80px;
+  }
+  .club-dock {
+    display: none;
+  }
+  .club-home {
+    padding-bottom: 0;
+  }
+  .club-feature-actions .club-button-primary {
+    display: inline-flex;
+  }
+  .club-feature {
+    grid-template-columns: 500px minmax(0, 1fr);
+    align-items: center;
+    gap: 64px;
+    padding-top: 24px;
+  }
+  .club-card {
+    flex-basis: 280px;
+  }
+  .club-event-hero {
+    grid-template-columns: 300px minmax(0, 1fr);
+    align-items: center;
+    gap: 48px;
+    padding-top: 16px;
+  }
+  .club-event-poster {
+    aspect-ratio: 4 / 5;
+  }
+  .club-event-poster .club-poster-day {
+    font-size: 30cqw;
+  }
+  .club-event-poster .club-poster-title {
+    font-size: 11cqw;
+  }
+  .club-event-poster .club-poster-text {
+    padding: 6cqw;
+  }
+  .club-booking-grid {
+    grid-template-columns: minmax(0, 1fr) 400px;
+    align-items: start;
+    gap: 28px;
+  }
+  .club-pricebar,
+  .club-sheet-backdrop,
+  .club-sheet-handle {
+    display: none;
+  }
+  .club-sheet,
+  .club-sheet[data-open] {
+    position: sticky;
+    top: 20px;
+    z-index: auto;
+    max-height: calc(100dvh - 40px);
+    padding: 24px 24px 0;
+    border: 1px solid var(--c-line);
+    border-radius: var(--c-radius);
+    background: var(--c-surface);
+    box-shadow: none;
+    backdrop-filter: blur(12px);
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
+  .club-sheet .club-sticky-cta {
+    margin: 0 -24px;
+    padding: 12px 24px 20px;
+    background: #121731;
+  }
+  .club-sheet-idle {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 24px;
+  }
+  .club-pass-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    align-items: start;
+    gap: 24px 64px;
+    max-width: 1120px;
+    padding-top: 40px;
+  }
+  .club-pass-layout > * {
+    grid-column: 1;
+  }
+  .club-pass-layout > .club-pass {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+  }
+}
+
+/* ---------- Mouvement réduit : tout est en place, rien ne bouge ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.club) {
+    scroll-behavior: auto;
+  }
+  .club *,
+  .club *::before,
+  .club *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .club-reveal[data-pending] {
+    opacity: 1;
+    transform: none;
+  }
+  .club-meter-bar::after {
+    transform: scaleX(var(--fill));
+  }
+  .club-guest-done-mark path,
+  .club-guest-done-mark circle {
+    stroke-dashoffset: 0;
+  }
+  /* Repères fixes à la place du mouvement : le passe valide cerclé d'or, l'étape en cours marquée. */
+  .club-pass[data-view="payee"] .club-qr-plate::after {
+    opacity: 1;
+  }
+  .club-track [data-state="current"] > span:first-child {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--status) 35%, transparent);
+  }
+}
+
+.club-dock-price {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.club-dock-price::before {
+  content: "·";
+  margin: 0 6px;
+}
+
+/* ---------- Table partagée ---------- */
+
+/* Table complète / partager : deux choix, une pastille qui glisse de l'un à l'autre. */
+.club-mode {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--modes, 2), 1fr);
+  padding: 4px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.club-mode-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--modes, 2));
+  border-radius: 999px;
+  background: var(--c-gold-light);
+  box-shadow: 0 6px 20px -8px rgba(251, 239, 210, 0.6);
+  transform: translateX(calc(var(--mode, 0) * 100%));
+  transition: transform var(--c-slow) var(--c-sheet-ease);
+}
+
+.club-mode button {
+  position: relative;
+  z-index: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-muted);
+  cursor: pointer;
+  transition: color var(--c-slow) var(--c-sheet-ease);
+}
+
+.club-mode button[aria-checked="true"] {
+  color: var(--c-ink);
+}
+
+.club-share {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: club-step-in var(--c-slow) var(--c-ease) both;
+}
+
+.club-share-note {
+  text-align: left;
+}
+
+/* La table vue d'en haut, ses places tout autour (seat-ring.tsx). */
+.club-seats {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.club-seats-track {
+  fill: none;
+  stroke: var(--c-line);
+  stroke-width: 2;
+}
+
+.club-seats-progress {
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--paid));
+  transition: stroke-dashoffset var(--c-sheet) var(--c-ease);
+  animation: club-progress-in var(--c-draw) var(--c-ease) 200ms both;
+}
+
+@keyframes club-progress-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.club-seats-lines {
+  fill: none;
+  stroke: rgba(226, 196, 143, 0.55);
+  stroke-width: 1.2;
+  stroke-dasharray: 1;
+  stroke-linejoin: round;
+  animation: club-lines-in var(--c-draw) var(--c-ease) 300ms both;
+}
+
+@keyframes club-lines-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.club-seats-table circle {
+  fill: var(--c-raised);
+  stroke: var(--c-line-strong);
+  stroke-width: 1.2;
+}
+
+.club-seats-star {
+  fill: var(--c-gold);
+}
+
+.club-seats-table text {
+  fill: var(--c-text);
+  font-family: var(--c-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.club-seat {
+  --seat: var(--c-state-libre);
+  transition: transform var(--c-slow) var(--c-ease);
+}
+
+/* Le montant glissé : les places suivent le doigt, sans délai ni rebond. */
+.club-seats-figure[data-scrub] :is(.club-seat, .club-seat-fill, .club-seats-progress) {
+  transition: none;
+}
+
+.club-seats-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.club-seats-legend i {
+  width: 10px;
+  height: 10px;
+  margin-left: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+
+.club-seats-legend i[data-tone] {
+  border: 0;
+  background: var(--seat);
+}
+
+.club-seats-legend i[data-tone="you"] {
+  box-shadow: 0 0 0 2px var(--c-coral);
+}
+
+/* « Vous » est le même partout (votre part en cours de choix, votre place payée) : blanc cerclé de corail. */
+:is(.club-seat, .club-seats-legend i)[data-tone="you"],
+.club-seat[data-tone="preview"] {
+  --seat: #fff;
+}
+
+:is(.club-seat, .club-seats-legend i)[data-tone="organiser"] {
+  --seat: var(--c-gold);
+}
+
+:is(.club-seat, .club-seats-legend i)[data-tone="friend"] {
+  --seat: #c4b8ff;
+}
+
+.club-seat-base {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: rgba(255, 255, 255, 0.24);
+  stroke-width: 1.2;
+}
+
+.club-seat:is([data-tone="you"], [data-tone="preview"]) .club-seat-base {
+  stroke: var(--c-coral);
+  stroke-width: 3;
+}
+
+.club-seat-free {
+  fill: var(--c-faint);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* Les places vides respirent. */
+/* Les places vides respirent, en opacité seulement. */
+.club-seat[data-empty] .club-seat-halo {
+  opacity: 0.08;
+  animation: club-seat-breathe 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.4s);
+}
+
+@keyframes club-seat-breathe {
+  50% {
+    opacity: 0.22;
+  }
+}
+
+.club-seat-fill {
+  fill: var(--seat);
+  transform: scale(var(--fill));
+  transform-box: fill-box;
+  transform-origin: center;
+  /* Une part qui couvre plusieurs places les remplit l'une après l'autre. */
+  transition:
+    transform var(--c-sheet) var(--c-spring) calc(var(--i) * 50ms),
+    fill var(--c-base) var(--c-ease);
+  animation: club-seat-in var(--c-sheet) var(--c-spring) both;
+  animation-delay: calc(var(--i) * 60ms + 150ms);
+}
+
+@keyframes club-seat-in {
+  from {
+    transform: scale(0);
+  }
+}
+
+.club-seat-halo {
+  fill: var(--seat);
+  opacity: 0;
+}
+
+.club-seat[data-fresh] .club-seat-halo {
+  animation: club-seat-pulse var(--c-pulse) var(--c-ease) 3 600ms;
+}
+
+@keyframes club-seat-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.club-seat-initials {
+  fill: var(--c-text);
+  font-weight: 700;
+  pointer-events: none;
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+  animation-delay: calc(var(--i) * 60ms + 300ms);
+}
+
+.club-seat[data-solid] .club-seat-initials {
+  fill: var(--c-ink);
+}
+
+.club-seat[role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+
+.club-seat[role="button"]:focus-visible .club-seat-base,
+.club-seat[data-active] .club-seat-base {
+  stroke: var(--c-gold-light);
+  stroke-width: 2.5;
+}
+
+.club-seats-table .club-seats-left {
+  fill: var(--c-muted);
+  font-family: var(--c-sans);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.club-seats-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.club-seats-caption {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-seats-caption strong {
+  color: var(--c-text);
+}
+
+.club-seats-legend > span,
+.club-seats-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Compact : un bloc de hauteur fixe sous le montant, l'anneau à gauche, ses textes (≥ 11 px) à droite. */
+.club-seats-figure[data-compact] {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  height: 150px;
+}
+
+.club-seats-figure[data-compact] .club-seats {
+  width: 136px;
+  max-width: none;
+  margin: 0;
+}
+
+.club-seats-figure[data-compact] .club-seats-caption {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  white-space: normal;
+}
+
+.club-seats-figure[data-compact] .club-seats-legend {
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.club-seats-summary {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.club-seats-summary strong {
+  font-family: var(--c-display);
+  font-size: 18px;
+}
+
+.club-seats[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
+/* Le montant d'une part (share-amount.tsx). */
+.club-share-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.club-share-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.club-share-value {
+  font-family: var(--c-display);
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.club-share-sub {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.club-share-control {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.club-share-control .club-icon-button {
+  font-size: 20px;
+}
+
+.club-share-control .club-icon-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.club-range {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.club-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--c-gold) calc(var(--fill) * 100%), rgba(255, 255, 255, 0.14) 0);
+}
+
+.club-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.club-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--c-gold);
+}
+
+/* Pouce de 44 px au doigt, disque visible de 28 px. */
+.club-range::-webkit-slider-thumb {
+  width: 44px;
+  height: 44px;
+  margin-top: -19px;
+  border: 8px solid transparent;
+  border-radius: 50%;
+  background: #fff padding-box;
+  box-shadow:
+    0 0 0 6px rgba(226, 196, 143, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform var(--c-slow) var(--c-spring);
+  -webkit-appearance: none;
+}
+
+.club-range::-moz-range-thumb {
+  width: 44px;
+  height: 44px;
+  border: 8px solid transparent;
+  border-radius: 50%;
+  background: #fff padding-box;
+  box-shadow:
+    0 0 0 6px rgba(226, 196, 143, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.club-range:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+
+.club-range:focus-visible {
+  outline: none;
+}
+
+.club-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 3px var(--c-navy),
+    0 0 0 5px var(--c-gold-light);
+}
+
+.club-share-bounds {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 54px;
+  font-size: 14px;
+  color: var(--c-faint);
+}
+
+.club-presets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.club-presets button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color var(--c-base) var(--c-ease),
+    background-color var(--c-base) var(--c-ease),
+    transform var(--c-slow) var(--c-spring);
+}
+
+.club-presets button:active {
+  transform: scale(0.96);
+}
+
+.club-presets button[aria-pressed="true"] {
+  border-color: var(--c-gold);
+  background: rgba(226, 196, 143, 0.14);
+  color: var(--c-gold-light);
+}
+
+/* Payé / reste. */
+.club-share-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.club-share-meter p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+.club-share-meter .club-mono {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.club-share-meter .club-meter-bar::after {
+  transition: transform var(--c-sheet) var(--c-ease);
+}
+
+/* Le lien à envoyer. */
+.club-share-link {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.club-share-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.club-share-url > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--c-muted);
+}
+
+.club-share-url button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--c-raised);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--c-base) var(--c-ease),
+    color var(--c-base) var(--c-ease);
+}
+
+.club-share-url svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.club-share-url button[data-copied] {
+  background: rgba(47, 212, 180, 0.18);
+  color: #8ff0dc;
+}
+
+.club-share-url button[data-copied] svg {
+  animation: club-pop var(--c-slow) var(--c-spring) both;
+}
+
+.club-share-closed {
+  padding: 14px 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--c-muted);
+}
+
+.club-share-closed[data-tone="success"] {
+  border-color: rgba(47, 212, 180, 0.4);
+  color: var(--c-text);
+}
+
+.club-share-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: #141a3c;
+  animation: club-rise var(--c-enter) var(--c-ease) both;
+}
+
+.club-share-panel .club-h2 {
+  font-size: 26px;
+}
+
+/* La page des amis. */
+.club-share-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px var(--c-gutter) 56px;
+}
+
+.club-share-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: club-rise var(--c-enter) var(--c-ease) both;
+}
+
+.club-share-hero .club-h1 {
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+}
+
+.club-share-board {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--c-radius-lg);
+  background: #141a3c;
+}
+
+.club-payers {
+  display: flex;
+  flex-direction: column;
+}
+
+.club-payers li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  border-bottom: 1px solid var(--c-line);
+  font-size: 15px;
+}
+
+.club-payers li:last-child {
+  border-bottom: 0;
+}
+
+.club-payers li > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.club-payers li[data-you] {
+  color: var(--c-gold-light);
+  font-weight: 600;
+}
+
+.club-share-join {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.club-join {
+  scroll-margin-top: 16px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: #141a3c;
+}
+
+.club-join .club-sticky-cta {
+  position: static;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.club-join[data-valid] .club-sticky-cta {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -20px -22px;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--c-line);
+  border-radius: 0 0 var(--c-radius-lg) var(--c-radius-lg);
+  background: #141a3c;
+}
+
+.club-share-state {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: var(--c-surface);
+  animation: club-rise var(--c-slow) var(--c-ease) both;
+}
+
+.club-share-state[data-tone="success"] {
+  border-color: rgba(47, 212, 180, 0.45);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(47, 212, 180, 0.12), transparent 70%),
+    var(--c-surface);
+}
+
+@media (min-width: 1024px) {
+  .club-share-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    align-items: start;
+    gap: 24px 56px;
+    max-width: 1120px;
+    padding-top: 40px;
+  }
+  .club-share-layout > * {
+    grid-column: 1;
+  }
+  .club-share-layout > :is(.club-share-join, .club-share-state) {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club-seats-progress,
+  .club-seats-lines {
+    stroke-dashoffset: 0;
+  }
+  .club-seats-progress {
+    stroke-dashoffset: calc(1 - var(--paid));
+  }
+  .club-seat[data-fresh] .club-seat-halo {
+    opacity: 0.3;
+  }
+}
+
+/* ---------- Formulaires : erreurs, bouton pas encore prêt ---------- */
+
+.club-field[data-invalid] input {
+  border-color: var(--c-danger);
+}
+
+.club-field-error {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-danger) !important;
+}
+
+.club-conditions[data-invalid] {
+  border-color: rgba(255, 143, 122, 0.6);
+}
+
+
+.club-fee-note {
+  text-align: left;
+}
+
+.club-fee-sum {
+  font-size: 15px;
+  color: var(--c-muted);
+}
+
+.club-fee-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+/* Acompte : un montant, ce qui reste et où. */
+.club-deposit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+  animation: club-step-in var(--c-slow) var(--c-ease) both;
+}
+
+.club-pass-caption {
+  max-width: 34ch;
+  font-size: 14px;
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.club-pass-caption strong {
+  color: var(--c-text);
+}
+
+
+
+@media (min-width: 1024px) {
+  .club-sheet,
+  .club-sheet[data-open] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+/* Le bouton de paiement des amis reste corail ; ce qui manque se dit dessous. */
+.club-pay-hint {
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.club-payers-board {
+  padding-block: 8px;
+}
+
+@media (min-width: 1024px) {
+  .club-stepper button {
+    width: 52px;
+    height: 48px;
+  }
+}
+
+/* Trois par ligne, sur une grille de six : la dernière ligne se partage la largeur, sans case vide. */
+@media (min-width: 1280px) {
+  .club-offers {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .club-offer,
+  .club-offer:nth-child(odd):last-child {
+    grid-column: span 2;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .club-offer:nth-child(3n + 1):nth-last-child(2),
+  .club-offer:nth-child(3n + 2):last-child {
+    grid-column: span 3;
+  }
+  .club-offer:nth-child(3n + 1):last-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+/* Accueil, téléphone : l'affiche devient un bandeau (le titre et la date sont juste dessous). */
+@media (max-width: 1023px) {
+  .club-feature-poster .club-poster {
+    aspect-ratio: 2 / 1;
+  }
+  .club-feature-poster :is(.club-poster-date, .club-poster-title) {
+    display: none;
+  }
+}

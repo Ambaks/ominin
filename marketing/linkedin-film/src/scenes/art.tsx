@@ -1,16 +1,29 @@
 import QRCode from "qrcode";
 
-const qr = QRCode.create("https://ominin.com", { errorCorrectionLevel: "M" });
-const QR_SIZE = qr.modules.size;
-const QR_PATH = Array.from({ length: QR_SIZE * QR_SIZE }, (_, i) =>
-  qr.modules.data[i] ? `M${i % QR_SIZE} ${Math.floor(i / QR_SIZE)}h1v1h-1z` : "",
-).join("");
+const paths = new Map<string, { size: number; d: string }>();
 
-export const Qr = ({ size, color = "#1A1512" }: { size: number; color?: string }) => (
-  <svg viewBox={`-2 -2 ${QR_SIZE + 4} ${QR_SIZE + 4}`} width={size} height={size} style={{ display: "block", background: "#fff", borderRadius: size * 0.05 }}>
-    <path d={QR_PATH} fill={color} shapeRendering="crispEdges" />
-  </svg>
-);
+/** The module path of a QR code, computed once per value. */
+const qrPath = (value: string) => {
+  let qr = paths.get(value);
+  if (!qr) {
+    const { modules } = QRCode.create(value, { errorCorrectionLevel: "M" });
+    const d = Array.from({ length: modules.size * modules.size }, (_, i) =>
+      modules.data[i] ? `M${i % modules.size} ${Math.floor(i / modules.size)}h1v1h-1z` : "",
+    ).join("");
+    qr = { size: modules.size, d };
+    paths.set(value, qr);
+  }
+  return qr;
+};
+
+export const Qr = ({ size, color = "#1A1512", value = "https://ominin.com" }: { size: number; color?: string; value?: string }) => {
+  const qr = qrPath(value);
+  return (
+    <svg viewBox={`-2 -2 ${qr.size + 4} ${qr.size + 4}`} width={size} height={size} style={{ display: "block", background: "#fff", borderRadius: size * 0.05 }}>
+      <path d={qr.d} fill={color} shapeRendering="crispEdges" />
+    </svg>
+  );
+};
 
 export type Food = "burger" | "fries" | "cookie" | "drink";
 

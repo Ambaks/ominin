@@ -1,0 +1,110 @@
+{
+  "$schema": "../_template/profile.schema.json",
+  "slug": "cafe-poulard",
+  "name": "Café Poulard",
+  "tagline": "Comptoir méditerranéen",
+  "cuisine": "Café-restaurant : petit-déjeuner, rôtisserie, plats du jour, tapas méditerranéennes",
+  "address": "27 Rue du Faubourg du Courreau, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "04 67 58 55 74",
+  "hours": "Tous les jours dès 8h ; service midi 12h00–14h30 du lundi au dimanche ; service soir 19h30–22h30 du mardi au dimanche (affiches Instagram des 3 et 23 septembre 2026). Retraits click & collect : lundi 8h–14h30, mardi–dimanche 8h–14h30 et 19h30–22h30 (collect.openingHours, à valider). Le pied de page reprend les horaires de retrait (describeOpeningHours), pour une seule annonce sur la page.",
+  "website": "",
+  "socials": {
+    "instagram": "https://www.instagram.com/cafe_poulard/",
+    "tiktok": "",
+    "facebook": "",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "https://www.google.com/maps/place/?q=place_id:ChIJU_sWg6mvthIR1dtA2qr3Q5I"
+  },
+  "legal": {
+    "raison_sociale": "MAGELLAN",
+    "forme": "SAS, capital 7 000 €",
+    "siren": "948767868",
+    "siret": "94876786800045",
+    "naf": "56.10A — restauration traditionnelle (établissement) ; 56.10C au niveau de la société",
+    "president": "Léo ARTAUD",
+    "creation": "2025-12-05 (établissement du 27 rue du Faubourg du Courreau)",
+    "debut_activite": "2025-11-08 selon l'annonce de cession ; 2026-06-01 selon l'INSEE",
+    "source": "recherche-entreprises.api.gouv.fr (948767868) et BODACC, consultés le 2026-10-15. Enseigne SIRENE : « COMPTOIR MEDITERRANEEN POPULAIRE ». Siège social : 4 rue des Teissiers, 34000 Montpellier (enseigne MAMA)."
+  },
+  "research": {
+    "date": "2026-10-15",
+    "identite": "Confirmé : le client « Au Café Poulard » est Café Poulard • comptoir méditerranéen, 27 rue du Faubourg du Courreau. Aucun autre « Café Poulard » en France ; la forme « Au Café Poulard » n'apparaît nulle part en ligne.",
+    "reprise": "Reprise de Les Frères Poulards (SARL T R, SIREN 829721000, rôtisserie ouverte en 2017, gérant Romain TERISSE) : redressement judiciaire 2024-10-11, liquidation 2025-11-07 ; fonds cédé à MAGELLAN SAS par acte du 2026-02-27 pour 121 500 € (BODACC du 2026-03-29). Premiers posts @cafe_poulard le 2026-02-25. MAGELLAN (président Léo ARTAUD) a acheté et revendu plusieurs fonds en 2024-2026 (Café du Roi, 4 rue des Teissiers, 36 rue du Faubourg du Courreau).",
+    "adresse": "Confirmée par la Base Adresse Nationale (score 0,98, 43.608296, 3.871024). Quartier Centre / sous-quartier Gambetta (OSM), dit « Figuerolles » ou « Écusson » selon les guides ; juste hors des boulevards de l'Écusson. Tram Saint-Guilhem – Courreau (L4, L5) ~200 m, Plan Cabanes (L3) ~235 m, Gambetta (L3, L5) ~380 m. Marché Plan Cabanes ~200 m, Peyrou ~350 m.",
+    "horaires": "Affiches Instagram (4 et 23 septembre 2026, les plus récentes) : service midi du lundi au dimanche 12h00–14h30, service soir du mardi au dimanche 19h30–22h30 ; formules petit-déjeuner dès 8h du lundi au dimanche. Google : lun 8h–14h30 ; mar, mer, sam 8h–22h30 ; jeu, ven 8h–14h30 et 19h30–22h30 ; dim 10h–22h30 (le dimanche 10h contredit « dès 8h du lundi au dimanche »). Tripadvisor et Claap portent encore les horaires de l'ancien exploitant.",
+    "google": "Fiche ChIJU_sWg6mvthIR1dtA2qr3Q5I : 4,4★ / 388 avis, en grande partie ceux des Frères Poulards. Nom en anglais « Café Poulard • comptoir méditerranéen », en français encore « Les Frères Poulards ». Pas de site web. Le propriétaire répond aux avis.",
+    "reseaux": "Instagram @cafe_poulard confirmé (adresse et téléphone dans la bio ; « Café Poulard 🐔 / Restaurant, Épicerie / Comptoir méditerranéen », ~300 abonnés). Pas de Facebook ni de TikTok propres. Comptes de l'ancien exploitant : @les_freres_poulards (dernier post 2023), page Facebook « Les Frères Poulards | Montpellier ».",
+    "plateformes": "Aucune présence trouvée sur Uber Eats, Deliveroo, Just Eat ni TheFork pour Café Poulard. Aucun click & collect. lesfrerespoulards.com est une page de l'ancien exploitant, avec l'ancien numéro.",
+    "telephone": "Actuel 04 67 58 55 74 (Google, Instagram). Ancien fixe 04 67 86 94 96 encore sur Tripadvisor (non revendiqué), Restaurant Guru, Focus et lesfrerespoulards.com ; ancien mobile 06 72 42 60 23 sur Trip.com et Mapstr. PagesJaunes marque Les Frères Poulards « fermé définitivement ».",
+    "identite_visuelle": "Logo (avatar Instagram et affiches) : disque bordeaux, « CAFÉ » en petites capitales au-dessus de « POULARD » en grandes capitales à empattements étroites et contrastées, crème et or biseauté avec ombre portée, « COMPTOIR MÉDITERRANÉEN » en capitales espacées dessous. Affiches : or sur blanc ou sur photo, fleurons, filet doré torsadé, cartouches à bord doré arrondi, titres en capitales noires encadrés de points (« • SERVICE MIDI • »), détails en italique (« dès 08h du matin »). Salle : grandes lettres de fer rouge rouillé « ALIMENTATION » au-dessus d'étagères d'épicerie, cave à vin, nappes blanches et sets jaunes, chaises bistrot.",
+    "avis": "Ère Café Poulard (2026) : plats du jour, tapas (beignets de courgettes sauce tartare, camembert pané), souris d'agneau, équipe sympathique ; « Changement de propriétaire, et pas du tout déçu ! » (mars 2026). Instagram : poulet rôti, poulet grillé le vendredi midi, brochettes du dimanche (bœuf, canard, cœurs) ou poulet rôti, formules petit-déjeuner, « la nouvelle carte est là » (24 juillet). Aucun prix de l'ère Café Poulard trouvé en ligne.",
+    "jazz": "Snippet Facebook du Discopathe (non vérifié sur page) : « #JazzduCourreau », chaque jeudi dès 20h, gratuit, dans la rue entre Le Discopathe et le Café Poulard."
+  },
+  "notes": [
+    "1. La carte complète avec prix : imprimée, ardoise du midi, carte tapas du soir et liste à emporter (sandwichs, burger, pita annoncés le 15 mai « plus d'infos bientôt »).",
+    "2. Le café à 1 € de 8h à 9h30 : en ligne, le prix est fixe (1,50 €) dans cet aperçu ; un tarif planifié peut l'appliquer automatiquement en production — à activer ?",
+    "3. Que contient la formule petit-déjeuner, et à quel prix ?",
+    "4. Le poulet rôti se vend-il au quart, au demi et entier, comme du temps des Frères Poulards ? Avec quels accompagnements ?",
+    "5. Les brochettes : seulement le dimanche ? Quelles viandes ?",
+    "6. Horaires des retraits : Google indique le dimanche dès 10h et un service continu certains jours ; les affiches disent dès 8h tous les jours. Lesquels font foi pour le click & collect ?",
+    "7. Les tapas sont « pour le soir » : faut-il les réserver aux retraits du soir ?",
+    "8. Les aiguillettes de poulet panées sauce tartare de la « nouvelle carte » (photo du carrousel du 11 août) et les huîtres (même carrousel) sont-elles à la carte ? Sous quel nom ?",
+    "9. Photos : la leur pour le poulet rôti (post « Rôtisserie » du 26 février 2026), et celles des plats illustrés par la banque d'images.",
+    "10. La « nouvelle carte » d'août : faut-il signaler des nouveautés sur la page ? (badges retirés de l'aperçu)",
+    "11. La souris d'agneau (avis de mars 2026, juste après la reprise) est-elle toujours à la carte ?",
+    "12. Des frites à emporter seules ? Le burger est-il servi avec frites et salade, comme sur votre visuel du service midi ?"
+  ],
+  "design": {
+    "palette": {
+      "primary": "#680018",
+      "secondary": "#f0d070",
+      "accent": "#7d1424",
+      "ground": "#faf6ee",
+      "ink": "#1c1714"
+    },
+    "style_notes": "Bordeaux #680018 mesuré sur le disque du logo (avatar Instagram) ; or #f0d070 mesuré sur le mot-symbole des affiches (DZE-TgSiBsw-2). L'or ne se lit pas sur le papier (1,4:1) : il trace les cadres des cartes, les points des titres et le nom sur la photo de la salle, voilée de bordeaux comme leurs visuels posés sur photo. Le bordeaux #7d1424 porte boutons, prix et liens (9,7:1 sur #faf6ee). Titres de section en capitales entre deux points, comme « • SERVICE MIDI • » ; cartes à bord doré arrondi, comme leurs cartouches. Noto Serif Display à sa chasse la plus étroite pour le nom (« POULARD » est une capitale à empattements étroite et contrastée), à chasse normale pour les titres ; Source Serif 4 pour le texte et l'italique des détails.",
+    "reference_images": [
+      "Affiches Instagram DZE-TgSiBsw-2/-4/-6 et Dda4PlTCDY_-1/-3 (logo or sur blanc)",
+      "identity-1.jpg (avatar bordeaux)",
+      "identity-3.jpg (salle, juillet 2026)"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte imprimée remise et aucun prix en ligne hors le café (1 € de 8h à 9h30, puis 1,50 €). Les articles sont ceux que nomment leur Instagram (petit-déjeuner, « nouvelle carte » du 11 août 2026, carte tapas, rôtisserie et à emporter du 15 mai 2026) et les avis Google récents (beignets de courgettes sauce tartare, camembert pané à partager, souris d'agneau). Le registre (frontend/lib/menu-data.ts, const cafePoulard) porte la carte ; rien n'est dupliqué ici. Choix de l'utilisateur le 2026-10-16 : prix d'emplacement à valider plutôt qu'attendre la carte du gérant.",
+    "categories_summary": [
+      "Formule petit-déjeuner — 6,00 € (composition et prix inventés)",
+      "Petit-déjeuner — 1,50 € à 4,50 € : café, chocolat, jus de fruits (bouteille / pressé), viennoiserie, tartines chocolat, gaufre",
+      "Rôtisserie — poulet rôti à la broche 7 / 12 / 20 € (quart, demi, entier)",
+      "Sandwichs & burger — 7,50 € à 14 €",
+      "Tapas — 6 € à 13 € : poulpe, beignets de courgettes, camembert pané, bouquet de crevettes, crudo de daurade, tataki de magret, pan con tomate, gaspacho",
+      "Plats — 14 € à 21 € : plat du jour, filet de daurade sauce vierge, salade exotique mangue, souris d'agneau, brochettes",
+      "Desserts — clafoutis 6 €"
+    ],
+    "prix_a_valider": "Tous les prix sauf le café (1,50 €) sont des emplacements : chocolat 2,50 ; jus bouteille 3 / pressé 4,50 ; viennoiserie 1,50 ; tartines chocolat 3,50 ; gaufre 4 ; poulet 7 / 12 / 20 ; burger 14 ; sandwich 7,50 ; pita 8,50 ; poulpe 13 ; beignets 7 ; camembert 8 ; crevettes 11 ; crudo 11 ; tataki 12 ; pan con tomate 9 ; gaspacho 6 ; plat du jour 15 ; daurade 19 ; salade mangue 14 ; souris d'agneau 21 ; brochettes 18 ; clafoutis 6 ; formule petit-déjeuner 6.",
+    "options_a_valider": [
+      "Viennoiserie : Croissant / Pain au chocolat (seul le pain au chocolat est sur leurs photos)",
+      "Formule petit-déjeuner : boisson chaude (café ou chocolat) + viennoiserie, le jus de fruits pressé compris d'office (dit par la description) — composition inventée, leurs affiches disent seulement « formules petit-déjeuner »",
+      "Poulet rôti : quart / demi / entier — formats de l'ancien exploitant (claap.fr, CityCrunch), non confirmés par les nouveaux",
+      "Burger « Frites et salade » : déduit de leur visuel Instagram https://www.instagram.com/cafe_poulard/p/DcvY0sfiBpn/ (horaires « SERVICE MIDI • SERVICE SOIR » posés sur la photo d'un burger avec frites et salade, docs/instagram-burger-service.jpg) ; aucun texte ne décrit le burger",
+      "Brochettes : Bœuf / Canard / Cœurs et « le dimanche » — repris de la recherche du 2026-10-15 (Instagram : « brochettes du dimanche »), sans capture archivée ; « avec frites » lu sur leur photo"
+    ],
+    "photos": "Leurs photos (Instagram, recadrées en 16:9 dans frontend/public/cafe-poulard/) : salle (fiche Google, publiée par le compte du restaurant, juillet 2026), café, jus, viennoiseries, tataki de magret, bouquet de crevettes, pan con tomate, filet de daurade, salade mangue, clafoutis, brochettes. Poulet rôti : photo de la galerie Google (auteur inconnu) montrant leur broche — à remplacer par la leur. Banque d'images pour les autres plats, marquées dans menu.photos_banque.",
+    "photos_banque": [
+      "chocolat — pexels(\"239584/pexels-photo-239584.jpeg\", 800)",
+      "tartines-chocolat — pexels(\"33526181/pexels-photo-33526181.jpeg\", 800)",
+      "gaufre — pexels(\"32123671/pexels-photo-32123671.jpeg\", 800)",
+      "burger — pexels(\"3248289/pexels-photo-3248289.jpeg\", 800)",
+      "sandwich — pexels(\"25048970/pexels-photo-25048970.jpeg\", 800)",
+      "pita — pexelsRecadre(\"6275121/pexels-photo-6275121.jpeg\", 800)",
+      "poulpe — pexels(\"37068830/pexels-photo-37068830.jpeg\", 800)",
+      "beignets-courgettes — pexels(\"32153515/pexels-photo-32153515.jpeg\", 800)",
+      "camembert-pane — pexels(\"29177201/pexels-photo-29177201.jpeg\", 800)",
+      "crudo-daurade — pexels(\"27890217/pexels-photo-27890217.jpeg\", 800)",
+      "gaspacho — pexels(\"37273396/pexels-photo-37273396.jpeg\", 800)",
+      "souris-agneau — pexels(\"16588046/pexels-photo-16588046.jpeg\", 800)"
+    ],
+    "photos_banque_reserves": "Burger : la photo n'a pas de salade (la description, tirée de leur affiche, en annonce). Pita : pita aux falafels, contenu réel inconnu. Camembert pané : « fromage frit au miel », camembert non certifié. Crudo : poisson blanc, daurade non certifiée. Remplacer chacune par leur photo à réception."
+  }
+}

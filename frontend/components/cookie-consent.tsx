@@ -34,6 +34,9 @@ const UNMEASURED_PATHS = [
   // la bannière couvrirait la barre du panier et la feuille d'options.
   "/demo/",
   "/menu/demo/",
+  // Le site d'un client : il ne pose aucun traceur, ses mentions légales le
+  // disent — la mesure d'Ominin n'a rien à y faire.
+  "/sites/",
 ];
 
 declare global {
@@ -65,9 +68,11 @@ export function CookieConsent() {
 
   useEffect(() => {
     // Le cookie n'existe pas au rendu serveur : il se lit une fois, au
-    // montage, et ne déclenche donc pas de cascade.
+    // montage, et ne déclenche donc pas de cascade. Une page encadrée (la
+    // boutique à essayer dans le téléphone d'une landing) ne mesure rien et
+    // n'affiche pas de bannière : la page hôte pose déjà la question.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setChoice(readChoice());
+    setChoice(window.self === window.top ? readChoice() : "denied");
   }, []);
 
   const measured =

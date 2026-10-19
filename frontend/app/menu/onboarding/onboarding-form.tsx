@@ -12,6 +12,7 @@ import type { Offre } from "@/lib/gestion/types";
 import { pricingSection } from "@/lib/landing-data";
 import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/lib/supabase/database.types";
+import { announceSignup } from "@/lib/signup-notify";
 
 function slugify(value: string): string {
   return value
@@ -85,6 +86,7 @@ export function OnboardingForm({
       setBusy(false);
       return;
     }
+    announceSignup();
     await enrollVisites();
 
     // Les réponses du composeur partent avec l'établissement : l'équipe les

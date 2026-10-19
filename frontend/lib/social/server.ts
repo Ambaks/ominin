@@ -5,8 +5,8 @@
  * jetons de Page : dérivés d'un jeton utilisateur longue durée, ils
  * n'expirent pas, et ce sont eux que l'API de publication Instagram attend.
  *
- * L'app Meta reste en mode développement : elle ne sert que les comptes de
- * son administrateur, ce qui dispense de l'App Review.
+ * L'app Meta est en Live mais ne sert que les comptes de son administrateur :
+ * l'accès standard aux permissions suffit, sans App Review.
  */
 
 /** Version d'API épinglée — la même que meta_graph_version côté backend. */
@@ -97,6 +97,43 @@ export async function fetchPages(
     access_token: long.access_token,
   });
   return data;
+}
+
+/** Permission sans laquelle l'agent ne peut pas publier sur ce réseau. */
+const PUBLISH_SCOPE = {
+  facebook: "pages_manage_posts",
+  instagram: "instagram_content_publish",
+} as const;
+
+/**
+ * Vérifie qu'un compte relié répond avec son jeton et peut publier.
+ * Renvoie null si tout va bien, sinon la raison lisible.
+ */
+export async function checkMetaAccount(
+  platform: keyof typeof PUBLISH_SCOPE,
+  externalId: string,
+  token: string
+): Promise<string | null> {
+  const { appId, appSecret } = credentials();
+  try {
+    const [, debug] = await Promise.all([
+      graph(`/${externalId}`, {
+        fields: platform === "facebook" ? "name" : "username",
+        access_token: token,
+      }),
+      graph<{ data: { is_valid: boolean; scopes?: string[] } }>(
+        "/debug_token",
+        { input_token: token, access_token: `${appId}|${appSecret}` }
+      ),
+    ]);
+    if (!debug.data.is_valid) return "Jeton expiré ou révoqué.";
+    if (!debug.data.scopes?.includes(PUBLISH_SCOPE[platform])) {
+      return `Permission ${PUBLISH_SCOPE[platform]} non accordée.`;
+    }
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
 }
 
 /** Host public réel : request.url peut porter le host interne (Vercel). */

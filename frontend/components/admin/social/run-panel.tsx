@@ -8,10 +8,11 @@ import type { SocialJob, SocialRun } from "@/lib/admin/social";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON } from "./styles";
 
 /*
- * Les deux jobs de l'agent tournent chaque jour par cron ; ces boutons les
- * lancent tout de suite, pour un premier essai ou après un échec corrigé.
- * Publier deux fois le même jour ne double rien : le contenu du jour est
- * repris, seuls les comptes sans succès sont retentés.
+ * Les deux jobs tournent par cron — les brouillons le mercredi soir, la
+ * publication aux créneaux — ; ces boutons les lancent tout de suite, pour
+ * un premier essai ou après un échec corrigé. Relancer ne double rien : un
+ * créneau qui a son brouillon est sauté, et la publication ne retente que
+ * les comptes sans succès des posts validés dont l'heure est venue.
  */
 
 const JOBS: {
@@ -21,18 +22,18 @@ const JOBS: {
   started: string;
 }[] = [
   {
-    id: "social_post",
-    label: "Publication du jour",
-    action: "Publier maintenant",
+    id: "social_draft",
+    label: "Brouillons de la semaine",
+    action: "Préparer maintenant",
     started:
-      "Publication lancée — quelques minutes, résultat dans l'onglet Publications.",
+      "Rédaction lancée — quelques minutes, les brouillons arrivent dans « À valider ».",
   },
   {
-    id: "social_research",
-    label: "Relevé et apprentissage",
-    action: "Analyser maintenant",
+    id: "social_post",
+    label: "Publication des posts validés",
+    action: "Publier maintenant",
     started:
-      "Analyse lancée — chiffres et ligne éditoriale mis à jour d'ici quelques minutes.",
+      "Publication lancée — seuls les posts validés dont l'heure est passée partent.",
   },
 ];
 
@@ -72,7 +73,9 @@ export function RunPanel({ onRefresh }: { onRefresh: () => void }) {
     setPending(job.id);
     void run(async () => {
       try {
-        await api.triggerSocialRun(job.id);
+        if ((await api.triggerSocialRun(job.id)) === "running") {
+          throw new Error("Un run de ce type tourne déjà.");
+        }
         reload();
       } finally {
         setPending(null);

@@ -5,7 +5,7 @@ import { Modal } from "@/components/ui/modal";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
 import type { CashDetails, EncaissementMode } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 function CashIcon() {
   return (
@@ -48,10 +48,13 @@ const FIELD_CLASS =
  */
 export function PaymentDialog({
   total,
+  tips = true,
   onSelect,
   onClose,
 }: {
   total: number;
+  /** Le champ pourboire : pas au comptoir d'une boutique qui remet un retrait. */
+  tips?: boolean;
   onSelect: (mode: EncaissementMode, cashDetails?: CashDetails, tip?: number) => void;
   onClose: () => void;
 }) {
@@ -329,21 +332,23 @@ export function PaymentDialog({
         </span>
         {PAYMENT_MODE_LABELS.mixte}
       </button>
-      <label className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3">
-        <span className="text-sm text-muted">Pourboire (optionnel)</span>
-        <div className="flex items-center gap-1.5">
-          <input
-            type="text"
-            inputMode="decimal"
-            value={tipRaw}
-            onChange={(e) => setTipRaw(e.target.value)}
-            placeholder="0"
-            aria-label="Pourboire en euros"
-            className="w-24 bg-transparent py-1 text-right text-base tabular-nums outline-none placeholder:text-faint lg:pointer-fine:text-sm"
-          />
-          <span className="text-sm text-muted">€</span>
-        </div>
-      </label>
+      {tips && (
+        <label className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3">
+          <span className="text-sm text-muted">Pourboire (optionnel)</span>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={tipRaw}
+              onChange={(e) => setTipRaw(e.target.value)}
+              placeholder="0"
+              aria-label="Pourboire en euros"
+              className="w-24 bg-transparent py-1 text-right text-base tabular-nums outline-none placeholder:text-faint lg:pointer-fine:text-sm"
+            />
+            <span className="text-sm text-muted">€</span>
+          </div>
+        </label>
+      )}
     </Modal>
   );
 }

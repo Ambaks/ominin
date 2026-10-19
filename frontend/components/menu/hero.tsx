@@ -1,5 +1,11 @@
 import { Fragment } from "react";
+import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
+import { heroDelay } from "@/components/menu/hero-delay";
+import { keepHyphenated } from "@/components/menu/keep-hyphenated";
+import { NameWords } from "@/components/menu/name-words";
+import { SectionLink } from "@/components/menu/section-link";
 import {
+  brandName,
   displayAddress,
   displayPhone,
   mapsUrl,
@@ -20,7 +26,30 @@ const PARTICLES = [
 ];
 
 const PILL_CLASS =
-  "inline-flex min-h-11 items-center rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
+  "inline-flex min-h-11 items-center gap-2 rounded-full border border-hairline bg-surface/70 px-4 py-2.5 backdrop-blur";
+
+/* L'icône d'une pastille, cachée sauf là où un thème la montre
+   (.hero-contact-icon, globals.css) : sans elle, la pastille se lisait comme
+   une étiquette, pas comme un lien. */
+const PILL_ICON_CLASS = "hero-contact-icon hidden size-4 shrink-0";
+
+/**
+ * L'adresse en deux blocs, la rue puis le code postal et la ville : la ligne
+ * se coupe entre eux, pas après « des » ni dans « Portet-sur-Garonne ». Une
+ * seule enveloppe — dans la pastille (flex), chaque bloc devenait sinon sa
+ * propre colonne.
+ */
+function AddressLines({ address }: { address: string }) {
+  const text = displayAddress(address);
+  const cut = text.lastIndexOf(", ");
+  if (cut < 0) return <span>{keepHyphenated(text)}</span>;
+  return (
+    <span>
+      <span className="address-line inline-block max-w-full">{keepHyphenated(text.slice(0, cut + 1))}</span>{" "}
+      <span className="address-line inline-block max-w-full">{keepHyphenated(text.slice(cut + 2))}</span>
+    </span>
+  );
+}
 
 /** Adresse, téléphone : seuls les champs renseignés ont leur pastille. */
 function ContactPills({
@@ -43,12 +72,13 @@ function ContactPills({
       {texts.map((text) => (
         <a
           key={text}
-          href={mapsUrl(text)}
+          href={mapsUrl(text, restaurant.placeId)}
           target="_blank"
           rel="noopener noreferrer"
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
-          {displayAddress(text)}
+          <PinIcon className={PILL_ICON_CLASS} />
+          <AddressLines address={text} />
         </a>
       ))}
       {phone && (
@@ -56,6 +86,7 @@ function ContactPills({
           href={`tel:${phone.replace(/\s/g, "")}`}
           className={`${PILL_CLASS} transition-colors hover:text-foreground`}
         >
+          <PhoneIcon className={PILL_ICON_CLASS} />
           {displayPhone(phone)}
         </a>
       )}
@@ -64,26 +95,50 @@ function ContactPills({
 }
 
 /**
- * Le nom, un mot par <span> : un thème peut le colorer mot à mot, comme une
- * enseigne bicolore (.theme-o-crousti-poulet). Sans thème, rien ne change.
+ * L'accroche en segments (« Bar Restaurant · Tapas Cocktail ») : chacun d'un
+ * tenant, son séparateur collé au segment qui le précède — une ligne ne
+ * commence jamais par « · ». Le séparateur a son <span> (.tagline-sep) : un
+ * thème peut le cacher et habiller les segments.
  */
-function NameWords({ name }: { name: string }) {
-  return name.split(" ").map((word, i) => (
-    <Fragment key={i}>
-      {i > 0 && " "}
-      <span>{word}</span>
-    </Fragment>
-  ));
+function Tagline({ text }: { text: string }) {
+  const segments = text.split(/(?<= [·—–]) /);
+  if (segments.length === 1) return text;
+  return segments.map((segment, i) => {
+    const sep = /^(.*) ([·—–])$/.exec(segment);
+    return (
+      <Fragment key={i}>
+        {i > 0 && " "}
+        <span className="whitespace-nowrap">
+          {sep ? (
+            <>
+              {`${sep[1]} `}
+              <span className="tagline-sep" aria-hidden>
+                {sep[2]}
+              </span>
+            </>
+          ) : (
+            segment
+          )}
+        </span>
+      </Fragment>
+    );
+  });
 }
 
-function LogoHero({ restaurant }: { restaurant: Restaurant }) {
+function LogoHero({
+  restaurant,
+  firstSectionId,
+}: {
+  restaurant: Restaurant;
+  firstSectionId: string | undefined;
+}) {
   // Un mot-symbole est le titre : lu en premier, avant l'accroche.
   const nameInLogo = Boolean(restaurant.logo && restaurant.logoIsName);
   const logo = restaurant.logo && (
     // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
     <img
       src={restaurant.logo}
-      alt={nameInLogo ? restaurant.name : ""}
+      alt={nameInLogo ? brandName(restaurant) : ""}
       className={`relative h-28 w-auto sm:h-32 lg:h-40 xl:h-44 ${restaurant.whiteLogo ? "logo-white" : ""}`}
     />
   );
@@ -153,37 +208,37 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
       <div className="hero-lockup contents">
         <p
           className="hero-tagline hero-entrance ember-text relative z-10 text-[11px] font-semibold uppercase tracking-[0.35em] lg:text-xs lg:tracking-[0.4em]"
-          style={{ animationDelay: "200ms" }}
+          style={heroDelay("200ms")}
         >
-          {restaurant.tagline}
+          <Tagline text={restaurant.tagline} />
         </p>
 
         {!nameInLogo && (
           <h1
             className="hero-name hero-entrance relative z-10 mt-3 px-5 text-center font-display text-6xl font-medium leading-none tracking-tight max-[359px]:text-5xl sm:text-7xl lg:mt-5 lg:text-8xl xl:text-9xl"
-            style={{ animationDelay: "350ms" }}
+            style={heroDelay("350ms")}
           >
-            <NameWords name={restaurant.name} />
+            <NameWords name={brandName(restaurant)} />
           </h1>
         )}
 
         <div
           className="hero-rule hero-entrance ember-gradient relative z-10 mt-6 h-px w-20 opacity-50 lg:mt-8 lg:w-28"
           aria-hidden
-          style={{ animationDelay: "500ms" }}
+          style={heroDelay("500ms")}
         />
       </div>
 
       <ContactPills
         restaurant={restaurant}
         className="hero-contact hero-entrance relative z-10 mt-6 flex flex-wrap justify-center gap-2 px-5 text-xs text-muted lg:mt-8 lg:gap-3 lg:text-sm"
-        style={{ animationDelay: "650ms" }}
+        style={heroDelay("650ms")}
       />
 
-      <a
-        href={`#${restaurant.categories[0]?.id ?? ""}`}
+      <SectionLink
+        sectionId={firstSectionId ?? ""}
         className="hero-cue hero-entrance absolute bottom-8 z-10 flex min-h-11 flex-col items-center justify-center gap-2 px-4 text-muted transition-colors hover:text-foreground lg:bottom-12"
-        style={{ animationDelay: "1100ms" }}
+        style={heroDelay("1100ms")}
       >
         <span className="text-[10px] uppercase tracking-[0.3em]">
           Découvrir la carte
@@ -199,7 +254,7 @@ function LogoHero({ restaurant }: { restaurant: Restaurant }) {
         >
           <path d="M4 6l4 4 4-4" />
         </svg>
-      </a>
+      </SectionLink>
     </header>
   );
 }
@@ -233,7 +288,7 @@ function PosterHero({
           fetchPriority="high"
           className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
         />
-        <h1 className="sr-only">{restaurant.name}</h1>
+        <h1 className="sr-only">{brandName(restaurant)}</h1>
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
@@ -241,7 +296,7 @@ function PosterHero({
         <ContactPills
           restaurant={restaurant}
           className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
-          style={{ animationDelay: "350ms" }}
+          style={heroDelay("350ms")}
         />
       )}
     </header>
@@ -251,13 +306,18 @@ function PosterHero({
 /**
  * `banner` (les formules en visuel) prend, sous l'affiche, la place de
  * l'adresse et du téléphone : le pied de page les porte déjà.
+ * `firstSectionId` : la première section de la page, que vise « Découvrir la
+ * carte » — les formules quand elles ouvrent la carte, sinon la première
+ * catégorie.
  */
 export function Hero({
   restaurant,
   banner,
+  firstSectionId,
 }: {
   restaurant: Restaurant;
   banner?: React.ReactNode;
+  firstSectionId: string | undefined;
 }) {
   if (restaurant.poster) {
     return (
@@ -266,7 +326,7 @@ export function Hero({
   }
 
   if (!restaurant.coverImage) {
-    return <LogoHero restaurant={restaurant} />;
+    return <LogoHero restaurant={restaurant} firstSectionId={firstSectionId} />;
   }
 
   return (
@@ -289,10 +349,10 @@ export function Hero({
           />
         )}
         <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em] lg:text-xs lg:tracking-[0.35em]">
-          {restaurant.tagline}
+          <Tagline text={restaurant.tagline} />
         </p>
         <h1 className="mt-2 font-display text-5xl font-medium leading-none tracking-tight sm:text-6xl lg:text-7xl">
-          {restaurant.name}
+          {brandName(restaurant)}
         </h1>
 
         <ContactPills

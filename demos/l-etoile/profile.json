@@ -1,0 +1,57 @@
+{
+  "slug": "l-etoile",
+  "nom": "L'Étoile",
+  "type": "Club & rooftop",
+  "adresse": "2 Avenue d'Atlanta, 31200 Toulouse",
+  "telephones": {
+    "vip": "+33 7 83 80 33 18",
+    "privatisation": "+33 5 61 61 02 02"
+  },
+  "reseaux": {
+    "instagram": "https://www.instagram.com/etoile_toulouse/",
+    "tiktok": "https://www.tiktok.com/@etoileclub_",
+    "facebook": "https://www.facebook.com/letoileclubtoulouse/"
+  },
+  "sources": [
+    "Carte numérique https://etoilemenu.vercel.app, lue le 2026-10-16 (copie : docs/carte-numerique-2026-10-16.html)",
+    "Site https://etoile-toulouse.com, lu le 2026-10-16 : « Club & Rooftop », slogan « ON FAIT, LA FÊTE, À L'ÉTOILE », adresse, téléphones, réseaux",
+    "Logo blanc docs/logo-blanc.png (carte numérique), icône argentée docs/icone-site.png (site)"
+  ],
+  "billetterie": "Le site embarque Shotgun (liste d'événements) et un conteneur Fourvenues sous « Billetterie & Tables VIP » : tables VIP probablement déjà réservées en ligne via Fourvenues.",
+  "page": {
+    "route": "/menu/demo/l-etoile",
+    "composants": "frontend/components/menu/etoile",
+    "systemes": {
+      "alcools": ["rhums", "tequilas", "whiskys", "vodkas", "gins", "cognacs"],
+      "softs": ["sodas", "eau"],
+      "shooters": ["shooters"],
+      "champagnes": ["champagnes"]
+    }
+  },
+  "identite": {
+    "marque": "L'étoile en traits du logo, vectorisée depuis docs/logo-blanc.png (components/menu/etoile/logo.tsx), dégradé blanc → cyan.",
+    "nom": "Composé en Playfair Display, avec l'accent (« L'ÉTOILE ») que le logo d'origine omet — à valider par le gérant.",
+    "palette": "Celle de leur carte numérique (styles.css), poussée au néon à la demande d'Ambaka (2026-10-16) : fond marine #060d1a / #0a1628, cyan #00d4ff, rose #ff2d78, or #d4a853 (Champagnes), lueurs.",
+    "polices": "Celles de leur carte numérique : Playfair Display (titres), Montserrat (texte, prix, télémétrie)."
+  },
+  "decisions": [
+    "2026-10-16 (Ambaka) : une seule version, aux couleurs du club ; pas de version Ominin.",
+    "2026-10-16 (Ambaka) : pas de mention sanitaire Loi Évin sur cette version.",
+    "2026-10-16 (Ambaka) : carte blanche sur la modernisation du logo et de la typographie.",
+    "Pas de porte d'âge : la page s'ouvre au QR, dans le club (accès réservé aux majeurs)."
+  ],
+  "options_a_valider": [
+    "Shooters : « Shooter 2cl 4€ x10 — 30€ » devient deux lignes (« 2 cl » 4 €, « 2 cl x10 » 30 €) pour un ajout en un toucher ; idem pour le Shooter Supérieur.",
+    "TVA : 20 % sur les alcools, 10 % (défaut) sur les softs et l'eau.",
+    "Paiement : « Payer en ligne » proposé (onlinePayment) — en aperçu, rien n'est payé ni envoyé."
+  ],
+  "notes": [
+    "1. Orthographe de la carte gardée telle quelle : « Class Azul Reposado » (Clase Azul ?), « Jack Daniel's Rey » (Rye ?), « Fuzetea » (Fuze Tea ?), « Armand De Brignac » (de Brignac) — à corriger seulement sur confirmation du gérant.",
+    "2. Ordre des familles : celui de leur carte (Alcools, Softs, Shooters, Champagnes). Champagnes en tête vendrait-il mieux ?",
+    "3. Horaires d'ouverture : absents de toutes les sources.",
+    "4. Numérotation des tables / carrés VIP pour les QR codes.",
+    "5. Commandes à table : réglées en ligne, ou servies puis encaissées par un serveur au terminal ?",
+    "6. Coordonnées affichées dans la télémétrie (43°38′N 1°27′E) : arrondies à la minute d'arc depuis l'adresse.",
+    "7. Nouveau nom en Michroma avec accent : validation du gérant avant toute mise en ligne."
+  ]
+}

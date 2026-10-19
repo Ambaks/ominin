@@ -79,12 +79,20 @@ export function InvitationForm({
         <h1 className="font-display text-xl font-medium">
           Bienvenue dans l&rsquo;équipe
         </h1>
+        {/* Serveur et cuisinier changent de nom en boutique à emporter, ce que
+            cette page ignore : seul le gérant est nommé. */}
         <p className="mt-1 text-sm text-muted">
           <span className="font-medium text-foreground">{restaurantName}</span>{" "}
-          vous a ajouté en tant que{" "}
-          <span className="font-medium text-foreground">
-            {ROLE_LABELS[role]}
-          </span>
+          {role === "gerant" ? (
+            <>
+              vous a ajouté en tant que{" "}
+              <span className="font-medium text-foreground">
+                {ROLE_LABELS.gerant}
+              </span>
+            </>
+          ) : (
+            "vous a ajouté à son équipe"
+          )}
           . Choisissez un mot de passe pour accéder à votre espace.
         </p>
 

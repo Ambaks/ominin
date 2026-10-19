@@ -33,8 +33,6 @@ const SINCE_LAUNCH = r.nights.filter((n) => n.day >= r.milestones.launch).map(on
 const WEEKEND_SHARE = (r.nights.filter(isWeekend).reduce((s, n) => s + n.rev, 0) / r.totals.rev) * 100;
 const MIXED_BILLS = r.nights.reduce((s, n) => s + n.mixed, 0);
 const ORDER_RATE = (r.funnel.steps.find((s) => s.stage === "commande")!.reached / r.funnel.sessions) * 100;
-const TOTAL_ATTEMPTS = r.nights.reduce((s, n) => s + n.intent, 0);
-const TOTAL_ABANDONED = r.nights.reduce((s, n) => s + n.abandoned, 0);
 const TOTAL_CANCELLED = r.nights.reduce((s, n) => s + n.cancelled, 0);
 
 let currentLang: Lang | null = null;
@@ -286,7 +284,7 @@ export function FieldReport() {
       <div className="page">
         <header className="mast">
           <span className="brand"><Link href="/">Ominin</Link> <span>·</span> {c.mast.brand}</span>
-          <span className="mast-note">{c.mast.note}</span>
+          <span className="mast-note">{c.mast.note(r)}</span>
           <div className="lang" role="group" aria-label={c.meta.switchLabel}>
             {LANGS.map((l) => (
               <button key={l} type="button" aria-pressed={lang === l} onClick={() => langStore.set(l)} lang={l}>
@@ -323,7 +321,7 @@ export function FieldReport() {
           </div>
           <div className="stats">
             <Stat label={c.kpi.revenue} value={f.eur(r.totals.rev)} sub={c.kpi.revenueSub(r, f)} count={[r.totals.rev, "eur0"]} />
-            <Stat label={c.kpi.online} value={f.pct(r.totals.lw_online_share)} sub={c.kpi.onlineSub(r, f)} hot count={[r.totals.lw_online_share, "pct0"]}>
+            <Stat label={c.kpi.online(r)} value={f.pct(r.totals.lw_online_share)} sub={c.kpi.onlineSub(r, f)} hot count={[r.totals.lw_online_share, "pct0"]}>
               <Sparkline values={SINCE_LAUNCH} />
             </Stat>
             <Stat label={c.kpi.success} value={f.pct(o.post_rate)} sub={c.kpi.successSub(r, f)} count={[o.post_rate, "pct0"]} />
@@ -376,7 +374,7 @@ export function FieldReport() {
             <Stat label={c.speed.medOnline} value={f.dur(s.online.p50)} sub={c.speed.nineIn10(f.dur(s.online.p90))} hot />
             <Stat label={c.speed.medCounter} value={f.dur(s.counter.p50)} sub={c.speed.nineIn10(f.dur(s.counter.p90))} />
             <Stat label={c.speed.over15} value={f.pct(s.over15, 1)} sub={c.speed.over30(f.pct(s.over30, 1))} count={[s.over15, "pct1"]} />
-            <Stat label={c.speed.saved} value={f.hours(s.saved_hours)} sub={c.speed.savedSub(s.n_online)} count={[s.saved_hours, "hours"]} />
+            <Stat label={c.speed.saved} value={f.hours(s.saved_hours)} sub={c.speed.savedSub(f.int(s.n_online))} count={[s.saved_hours, "hours"]} />
           </div>
           <div className="panel">
             <div className="panel-head"><h3>{c.speed.ecdfTitle}</h3><p className="small">{c.speed.ecdfSub}</p></div>
@@ -438,7 +436,7 @@ export function FieldReport() {
               <Chart name="heat" />
             </div>
             <div className="panel">
-              <div className="panel-head"><h3>{c.rhythm.dowTitle}</h3><p className="small">{c.rhythm.dowSub}</p></div>
+              <div className="panel-head"><h3>{c.rhythm.dowTitle}</h3><p className="small">{c.rhythm.dowSub(r)}</p></div>
               <Chart name="dow" />
             </div>
           </div>
@@ -452,7 +450,7 @@ export function FieldReport() {
           </div>
           <div className="grid-2">
             <div className="panel">
-              <div className="panel-head"><h3>{c.menu.catsTitle}</h3><p className="small">{c.menu.catsSub}</p></div>
+              <div className="panel-head"><h3>{c.menu.catsTitle}</h3><p className="small">{c.menu.catsSub(r)}</p></div>
               <Chart name="categories" />
             </div>
             <div className="panel">
@@ -506,8 +504,6 @@ export function FieldReport() {
                     <td>{f.pct(onlineShare(n), 1)}</td>
                     <td>{f.pct(onlineRevShare(n), 1)}</td>
                     <td>{f.dur(n.counter_med)}</td>
-                    <td>{n.intent}</td>
-                    <td>{n.abandoned}</td>
                     <td>{n.cancelled}</td>
                   </tr>
                 ))}
@@ -520,8 +516,6 @@ export function FieldReport() {
                   <td>{f.pct((r.totals.online_paid / r.totals.paid) * 100, 1)}</td>
                   <td>{f.pct((r.totals.online_rev / r.totals.rev) * 100, 1)}</td>
                   <td>{f.dur(s.counter.p50)}</td>
-                  <td>{TOTAL_ATTEMPTS}</td>
-                  <td>{TOTAL_ABANDONED}</td>
                   <td>{TOTAL_CANCELLED}</td>
                 </tr>
               </tfoot>

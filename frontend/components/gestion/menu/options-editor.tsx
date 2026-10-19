@@ -19,34 +19,65 @@ export interface ChoiceDraft {
   id: string;
   name: string;
   supplement: string;
+  /** Repris tel quel : la disponibilité se règle depuis la fiche, pas ici. */
+  disponible?: boolean;
 }
+
+/** Réglages d'un groupe que l'éditeur n'affiche pas, gardés à l'enregistrement. */
+type GroupExtras = Pick<OptionGroup, "multiple" | "formats" | "aucun" | "when">;
 
 export interface OptionGroupDraft {
   id: string;
   name: string;
   obligatoire: boolean;
   choices: ChoiceDraft[];
+  extras?: GroupExtras;
 }
 
 export function optionsToDraft(
   options: OptionGroup[] | undefined,
   freshIds = false
 ): OptionGroupDraft[] {
-  return (options ?? []).map((group) => ({
-    id: freshIds ? crypto.randomUUID() : group.id,
-    name: group.name,
-    obligatoire: group.obligatoire,
-    choices: group.choices.map((choice) => ({
-      id: freshIds ? crypto.randomUUID() : choice.id,
-      name: choice.name,
-      supplement: choice.supplement > 0 ? priceToInput(choice.supplement) : "",
-    })),
-  }));
+  // Une copie (freshIds) renumérote groupes et choix : la condition
+  // d'affichage d'un groupe (`when`) suit les nouveaux identifiants.
+  const ids = new Map<string, string>();
+  const renumber = (id: string) => {
+    if (!ids.has(id)) ids.set(id, freshIds ? crypto.randomUUID() : id);
+    return ids.get(id)!;
+  };
+  for (const group of options ?? []) {
+    renumber(group.id);
+    group.choices.forEach((choice) => renumber(choice.id));
+  }
+  return (options ?? []).map(
+    ({ id, name, obligatoire, choices, multiple, formats, aucun, when }) => ({
+      id: renumber(id),
+      name,
+      obligatoire,
+      choices: choices.map((choice) => ({
+        id: renumber(choice.id),
+        name: choice.name,
+        supplement: choice.supplement > 0 ? priceToInput(choice.supplement) : "",
+        disponible: choice.disponible,
+      })),
+      extras: {
+        multiple,
+        formats,
+        aucun,
+        when: when && {
+          group: renumber(when.group),
+          choices: when.choices.map(renumber),
+        },
+      },
+    })
+  );
 }
 
 export function draftToOptions(drafts: OptionGroupDraft[]): OptionGroup[] {
   return drafts
     .map((draft) => ({
+      // Absents du JSON quand non définis : JSON.stringify les omet.
+      ...draft.extras,
       id: draft.id,
       name: draft.name.trim(),
       obligatoire: draft.obligatoire,
@@ -55,6 +86,7 @@ export function draftToOptions(drafts: OptionGroupDraft[]): OptionGroup[] {
           id: choice.id,
           name: choice.name.trim(),
           supplement: parsePriceInput(choice.supplement) ?? 0,
+          ...(choice.disponible === false && { disponible: false }),
         }))
         .filter((choice) => choice.name),
     }))

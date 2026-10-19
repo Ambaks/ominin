@@ -1,5 +1,5 @@
 import { installSection } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { OnPartnerChange, PartnerText } from "./integration-showcase";
 
 const { order, integrations } = installSection;

@@ -1,0 +1,473 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { TableState } from "@/components/club/floor-plan";
+import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
+import { useToast } from "@/components/ui/toast";
+import type { ClubBooking, ClubTable } from "@/lib/club/types";
+import { formatCents, tableName } from "@/lib/club/format";
+import * as clubApi from "@/lib/gestion/club-api";
+import { formatPhone, matchesSearch, staffTableState, telHref } from "@/lib/gestion/club-selectors";
+import { StatusChip } from "./night-plan";
+import { usePresence } from "./use-presence";
+
+/*
+ * La porte : les tables du soir en une liste. D'abord celles à encaisser
+ * (cerclées de corail), puis les tables réglées qu'on attend, la plus
+ * ancienne réservation en tête, signalée ; les arrivées repliées dessous.
+ * Un seul geste par rangée ; une table réglée entre aussi d'un glissé vers
+ * la droite, et l'annonce qui suit permet de revenir dessus.
+ */
+
+/** Glissé (px) qui fait entrer une table ; au-delà, l'étiquette le dit et le lâcher suffit. */
+const SWIPE_COMMIT = 96;
+/** Glissé (px) à partir duquel la rangée suit le doigt plutôt que le défilement. */
+const SWIPE_START = 10;
+/** Vitesse (px/ms) d'un lancer qui fait entrer avant le seuil. */
+const FLICK_SPEED = 0.6;
+/** Vibration (ms) qui confirme sous le doigt qu'une table entre. */
+const COMMIT_BUZZ = 10;
+/** L'astuce du glissé ne se montre qu'une fois par appareil. */
+const SWIPE_HINT_KEY = "ominin-soirees-glisse-vu";
+
+export type HeldTable = {
+  booking: ClubBooking;
+  table: ClubTable;
+  zoneName: string;
+  /** Les amis qui ont payé leur part en ligne (table partagée). */
+  payers: string[];
+  /** Acompte réglé en ligne (table non partagée), frais compris ; null sinon. */
+  deposit: number | null;
+};
+type Entry = HeldTable & { state: TableState };
+type Phase = "repos" | "glisse" | "pret" | "parti";
+
+/** « 8 pers. », court : la rangée tient sur un téléphone. */
+const party = (count: number) => `${count} pers.`;
+
+/** L'astuce du glissé n'a de sens qu'au doigt, et qu'une fois. */
+function readHintSeen(): boolean {
+  if (!window.matchMedia("(pointer: coarse)").matches) return true;
+  try {
+    return window.localStorage.getItem(SWIPE_HINT_KEY) !== null;
+  } catch {
+    return true;
+  }
+}
+
+type Filter = "toutes" | "attente" | "payee";
+
+/** Les groupes de la porte, dans l'ordre : ce qu'il faut encaisser, puis ce qui est réglé. */
+const GROUPS: Partial<Record<TableState, string>> = {
+  attente: "À encaisser",
+  payee: "Payées",
+  prise: "Paiement en ligne en cours",
+};
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "toutes", label: "Toutes" },
+  { id: "attente", label: "À encaisser" },
+  { id: "payee", label: "Payées" },
+];
+
+/** « ⋯ » d'une rangée : appeler, lire la note, ouvrir la fiche (déplacer, rembourser). */
+function RowMenu({ booking, onOpen }: { booking: ClubBooking; onOpen: () => void }) {
+  const [open, setOpen] = useState(false);
+  const item = "flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm hover:bg-surface-raised";
+  return (
+    <div
+      className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && open) {
+          event.stopPropagation();
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Plus d'actions pour ${booking.name}`}
+        onClick={() => setOpen(!open)}
+        className="flex size-12 shrink-0 items-center justify-center rounded-full border border-hairline text-lg text-muted hover:text-foreground"
+      >
+        ⋯
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="soirees-entree absolute bottom-full left-0 z-20 mb-2 flex w-64 flex-col gap-1 rounded-2xl border border-hairline bg-surface-raised p-1.5 shadow-lg shadow-background/60"
+        >
+          {booking.phone && (
+            <a role="menuitem" href={telHref(booking.phone)} draggable={false} className={item}>
+              <PhoneIcon className="size-4 text-muted" />
+              Appeler <span className="tabular-nums">{formatPhone(booking.phone)}</span>
+            </a>
+          )}
+          {booking.note && (
+            <p className="px-3 py-2 text-sm">
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted">Note</span>
+              {booking.note}
+            </p>
+          )}
+          <button
+            role="menuitem"
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              onOpen();
+            }}
+            className={item}
+          >
+            Ouvrir la fiche · déplacer
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DoorRow({
+  entry,
+  next,
+  hint,
+  onOpen,
+  onArrive,
+}: {
+  entry: Entry;
+  next: boolean;
+  hint: boolean;
+  onOpen: () => void;
+  /** Fait entrer (et encaisse d'abord le reste s'il y en a) ; résout faux si la base refuse : la rangée revient. */
+  onArrive: () => Promise<boolean>;
+}) {
+  const { booking, table, zoneName, state, payers, deposit } = entry;
+  const remaining = booking.remainingCents;
+  const row = useRef<HTMLDivElement>(null);
+  const swipe = useRef<{ id: number; x: number; y: number; dx: number; t: number; speed: number; active: boolean } | null>(null);
+  const [phase, setPhase] = useState<Phase>("repos");
+  // Glisser fait entrer une table réglée ; l'argent, lui, se prend d'un geste visible.
+  const canSwipe = state === "payee";
+  const name = tableName(zoneName, table.label);
+
+  const setOffset = (dx: number) => {
+    row.current?.style.setProperty("--glisse", `${dx}px`);
+    row.current?.style.setProperty("--progres", String(Math.min(dx / SWIPE_COMMIT, 1)));
+  };
+
+  const commit = async () => {
+    navigator.vibrate?.(COMMIT_BUZZ);
+    setPhase("parti");
+    setOffset(row.current?.offsetWidth ?? 0);
+    if (await onArrive()) return;
+    setPhase("repos");
+    setOffset(0);
+  };
+
+  const button = (label: string, onClick: () => void) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-12 flex-1 rounded-full px-5 text-sm font-semibold ${
+        next ? "ember-gradient" : "border border-hairline text-foreground hover:border-ember-2/50"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div
+      ref={row}
+      className="porte-rangee"
+      data-phase={phase}
+      data-a-regler={state === "attente" || undefined}
+      data-indice={hint || undefined}
+      onPointerDown={(event) => {
+        if (!canSwipe || event.button !== 0 || phase === "parti") return;
+        swipe.current = {
+          id: event.pointerId,
+          x: event.clientX,
+          y: event.clientY,
+          dx: 0,
+          t: event.timeStamp,
+          speed: 0,
+          active: false,
+        };
+      }}
+      onPointerMove={(event) => {
+        const current = swipe.current;
+        if (!current || current.id !== event.pointerId) return;
+        const dx = event.clientX - current.x;
+        if (!current.active) {
+          if (Math.abs(event.clientY - current.y) > SWIPE_START) {
+            swipe.current = null;
+            return;
+          }
+          if (dx < SWIPE_START) return;
+          current.active = true;
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }
+        const next = Math.max(0, dx);
+        // Vitesse du dernier déplacement : un lancer rapide vaut un glissé jusqu'au seuil.
+        current.speed = (next - current.dx) / Math.max(event.timeStamp - current.t, 1);
+        current.t = event.timeStamp;
+        current.dx = next;
+        setOffset(current.dx);
+        const armed = current.dx >= SWIPE_COMMIT;
+        // Un cran sous le doigt au passage du seuil : lâcher fera entrer.
+        if (armed && phase !== "pret") navigator.vibrate?.(COMMIT_BUZZ);
+        setPhase(armed ? "pret" : "glisse");
+      }}
+      onPointerUp={() => {
+        const current = swipe.current;
+        swipe.current = null;
+        if (!current?.active) return;
+        if (current.dx >= SWIPE_COMMIT || current.speed >= FLICK_SPEED) {
+          void commit();
+          return;
+        }
+        setPhase("repos");
+        setOffset(0);
+      }}
+      onPointerCancel={() => {
+        swipe.current = null;
+        setPhase("repos");
+        setOffset(0);
+      }}
+    >
+      {canSwipe && (
+        <div className="porte-fond" aria-hidden>
+          <span className="porte-coche">
+            <CheckIcon className="size-4" />
+          </span>
+          {phase === "pret" || phase === "parti" ? "Relâchez : il entre" : "Faire entrer"}
+        </div>
+      )}
+      <div className="porte-contenu flex flex-col gap-3 p-4">
+        <button type="button" onClick={onOpen} className="flex flex-col gap-1.5 rounded-xl text-left">
+          <span className="flex items-start justify-between gap-3">
+            <span className="text-base font-semibold leading-snug">{booking.name}</span>
+            <span className="shrink-0 whitespace-nowrap rounded-full border border-hairline px-2.5 py-1 text-xs font-semibold tabular-nums">
+              {name}
+            </span>
+          </span>
+          <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
+            {party(booking.partySize)}
+            {booking.shared && payers.length > 1 && (
+              <span>
+                · {payers.length} payeur{payers.length > 1 ? "s" : ""}
+              </span>
+            )}
+            {deposit !== null ? (
+              <span className="reste statut-pose">
+                <span className="plan-legende" data-state="attente" aria-hidden />
+                Acompte <span className="tabular-nums">{formatCents(deposit)}</span> · reste{" "}
+                <span className="tabular-nums">{formatCents(remaining)}</span>
+              </span>
+            ) : remaining > 0 && booking.paidCents > 0 ? (
+              <span className="reste statut-pose">
+                <span className="plan-legende" data-state="attente" aria-hidden />
+                Reste <span className="tabular-nums">{formatCents(remaining)}</span>
+              </span>
+            ) : (
+              <StatusChip key={state} state={state} />
+            )}
+            {next && <span className="text-xs font-semibold text-ember-2">Suivant</span>}
+          </span>
+        </button>
+        {(state === "payee" || state === "attente" || booking.phone || booking.note) && (
+          <div className="flex items-center gap-2">
+            <RowMenu booking={booking} onOpen={onOpen} />
+            {state === "payee" && button("Arrivé(e)", () => void commit())}
+            {state === "attente" &&
+              button(`Encaisser ${formatCents(remaining)} et faire entrer`, () => void commit())}
+          </div>
+        )}
+        {hint && (
+          <p className="text-xs text-muted">Astuce : glissez une table réglée vers la droite pour la faire entrer.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId: string) => void }) {
+  const toast = useToast();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("toutes");
+  const [hintSeen] = useState(readHintSeen);
+
+  const entries: Entry[] = held
+    .map((entry) => ({ ...entry, state: staffTableState(entry.booking, true) }))
+    .filter(({ booking, table, zoneName, payers }) =>
+      matchesSearch(query, [booking.name, booking.phone, table.label, tableName(zoneName, table.label), ...payers])
+    );
+  // À encaisser d'abord, puis réglées, puis paiements en ligne en cours ;
+  // à l'intérieur, la réservation la plus ancienne.
+  const rank: Partial<Record<TableState, number>> = { attente: 0, payee: 1, prise: 2 };
+  const waiting = entries
+    .filter((entry) => entry.state !== "arrivee" && (filter === "toutes" || entry.state === filter))
+    .sort(
+      (a, b) =>
+        (rank[a.state] ?? 3) - (rank[b.state] ?? 3) ||
+        Date.parse(a.booking.createdAt) - Date.parse(b.booking.createdAt)
+    );
+  const arrived = entries
+    .filter((entry) => entry.state === "arrivee")
+    .sort((a, b) => Date.parse(b.booking.arrivedAt ?? "") - Date.parse(a.booking.arrivedAt ?? ""));
+  const nextId = waiting.find((entry) => entry.state !== "prise")?.booking.id;
+  const hintId = hintSeen ? undefined : waiting.find((entry) => entry.state === "payee")?.booking.id;
+  const [rows, done] = usePresence(waiting, (entry) => entry.booking.id);
+
+  // L'astuce montrée, elle ne revient plus sur cet appareil.
+  useEffect(() => {
+    if (!hintId) return;
+    try {
+      window.localStorage.setItem(SWIPE_HINT_KEY, "1");
+    } catch {
+      // Stockage refusé (navigation privée) : l'astuce reviendra, rien de plus.
+    }
+  }, [hintId]);
+
+  const arrive = async (booking: ClubBooking, name: string): Promise<boolean> => {
+    const collect = booking.remainingCents;
+    try {
+      await clubApi.markArrival(booking, true, collect > 0);
+      if (collect > 0) {
+        // De l'argent a changé de main : rien à annuler d'un geste, la fiche de la table le permet.
+        toast.success(`${name} : ${formatCents(collect)} encaissés, ${booking.name} est entré(e).`);
+        return true;
+      }
+      toast.notice(`${name} : ${booking.name} est entré(e).`, {
+        label: "Annuler",
+        onPress: () => {
+          clubApi
+            .markArrival({ ...booking, status: "arrivee" }, false)
+            .catch((error: unknown) =>
+              toast.error(error instanceof Error ? error.message : "Une erreur est survenue.")
+            );
+        },
+      });
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      return false;
+    }
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div className="sticky top-0 z-10 bg-background/95 pb-3 backdrop-blur-md">
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Nom, téléphone ou table"
+          aria-label="Chercher une réservation"
+          enterKeyHint="search"
+          className="w-full rounded-2xl border border-hairline bg-surface px-4 py-3.5 text-base outline-none transition-colors placeholder:text-muted focus:border-ember-2/60"
+        />
+        <div role="group" aria-label="Filtrer les tables attendues" className="no-scrollbar mt-2 flex gap-2 overflow-x-auto">
+          {FILTERS.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={filter === id}
+              onClick={() => setFilter(id)}
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
+                filter === id
+                  ? "border-[var(--soirees-gold)] text-foreground"
+                  : "border-hairline text-muted hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {held.length === 0 ? (
+        <p className="px-1 py-6 text-center text-sm text-muted">
+          Aucune table réservée pour l&rsquo;instant. Les réservations s&rsquo;affichent ici en direct.
+        </p>
+      ) : (
+        <>
+          {rows.length === 0 ? (
+            <p className="px-1 pb-4 text-sm text-muted">
+              {query ? "Personne d'attendu ne correspond." : "Tout le monde est arrivé."}
+            </p>
+          ) : (
+            <ul className="flex flex-col">
+              {rows.map(({ key, item, presence }, index) => {
+                const group = GROUPS[item.state] ?? GROUPS.payee;
+                const opens = index === 0 || (GROUPS[rows[index - 1].item.state] ?? GROUPS.payee) !== group;
+                const count = waiting.filter((entry) => (GROUPS[entry.state] ?? GROUPS.payee) === group).length;
+                return (
+                  <li
+                    key={key}
+                    className="rangee"
+                    data-presence={presence}
+                    onAnimationEnd={(event) => {
+                      if (event.target === event.currentTarget && presence === "sortie") done(key);
+                    }}
+                  >
+                    <div className="pb-2">
+                      {opens && (
+                        <p className={`px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-muted ${index > 0 ? "pt-4" : ""}`}>
+                          {group} · <span className="tabular-nums">{count}</span>
+                        </p>
+                      )}
+                      <div className="overflow-hidden rounded-2xl border border-hairline bg-surface">
+                        <DoorRow
+                          entry={item}
+                          next={item.booking.id === nextId}
+                          hint={item.booking.id === hintId}
+                          onOpen={() => onOpen(item.table.id)}
+                          onArrive={() => arrive(item.booking, tableName(item.zoneName, item.table.label))}
+                        />
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {arrived.length > 0 && (
+            <details className="group mt-4 rounded-2xl border border-hairline bg-surface">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                <span>
+                  Tables arrivées · <span className="tabular-nums">{arrived.length}</span>
+                </span>
+                <svg viewBox="0 0 24 24" className="size-4 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <ul className="divide-y divide-hairline border-t border-hairline">
+                {arrived.map(({ booking, table, zoneName }) => (
+                  <li key={booking.id}>
+                    <button
+                      type="button"
+                      onClick={() => onOpen(table.id)}
+                      className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-2 text-left"
+                    >
+                      <span className="min-w-0 text-sm font-medium">{booking.name}</span>
+                      <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
+                        {tableName(zoneName, table.label)}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

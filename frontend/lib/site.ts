@@ -26,6 +26,14 @@ export const menuSiteUrl = menuHost
   : `${siteUrl}/menu`;
 
 /**
+ * L'adresse du menu QR telle qu'elle s'imprime (présentation en PDF, film) :
+ * son sous-domaine de production, même rendue par un serveur qui, sans
+ * NEXT_PUBLIC_MENU_HOST, sert le menu sous /menu. Le domaine principal
+ * redirige sa forme préfixée vers ce sous-domaine (proxy.ts).
+ */
+export const menuPrintUrl = `https://${process.env.NEXT_PUBLIC_MENU_HOST ?? "menu.ominin.com"}`;
+
+/**
  * Origine publique du sous-domaine clippers, pour les canonicals des pages
  * /clip (accessibles aussi via ominin.com/clip à cause de la réécriture).
  * Dérivée du même host que la réécriture du proxy (NEXT_PUBLIC_CLIP_HOST).
@@ -36,11 +44,22 @@ export const clipSiteUrl = `https://${
 
 /**
  * Origine publique du sous-domaine click & collect, pour le canonical de la
- * landing /collect (accessible aussi via ominin.com/collect).
+ * landing /collect (accessible aussi via ominin.com/collect) et les liens
+ * vers la page d'un établissement, à la racine de ce sous-domaine. Un host
+ * localhost (dev) est servi en http.
  */
-export const collectSiteUrl = `https://${
-  process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com"
-}`;
+const collectHost = process.env.NEXT_PUBLIC_COLLECT_HOST ?? "collect.ominin.com";
+export const collectSiteUrl = `${collectHost.includes("localhost") ? "http" : "https"}://${collectHost}`;
+
+/**
+ * Origine publique d'Ominin Club (club.ominin.com) : pages des clubs, leurs
+ * soirées et les réservations de tables. Host absent ⇒ servi sur
+ * ominin.com/clubs (/club est la page de présentation aux clubs).
+ */
+const clubHost = process.env.NEXT_PUBLIC_CLUB_HOST;
+export const clubSiteUrl = clubHost
+  ? `${clubHost.includes("localhost") ? "http" : "https"}://${clubHost}`
+  : `${siteUrl}/clubs`;
 
 /**
  * Origine publique d'Ominin Shop (landing, boutiques /<slug>, espace de

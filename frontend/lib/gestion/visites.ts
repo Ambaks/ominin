@@ -1,9 +1,7 @@
-import {
-  ANALYTICS_PERIOD_DAYS,
-  ORDER_TAB_HINTS,
-  ORDER_TAB_LABELS,
-} from "./constants";
-import { orderTabsShown } from "./selectors";
+import { formatPrice } from "@/lib/menu/format";
+import { ANALYTICS_PERIOD_DAYS, ORDER_TAB_HINTS } from "./constants";
+import { dayEndLabel } from "./fermetures";
+import { isPickupShop, orderTabLabel, orderTabsShown } from "./selectors";
 import type { GestionState, OrderTab } from "./types";
 import { VISITES_METADATA_KEY } from "./visites-inscription";
 
@@ -88,6 +86,16 @@ const COMPTOIR: Record<OrderTab, string> = {
   historique: "les commandes remises, retirées ou annulées.",
 };
 
+/**
+ * Les onglets de Commandes d'une boutique à emporter seule : les commandes
+ * du site arrivent payées, celles du comptoir s'encaissent depuis Retraits.
+ */
+const EMPORTER: Record<OrderTab, string> = {
+  ...ORDER_TAB_HINTS,
+  a_servir: "les commandes du jour payées en ligne, de la préparation au retrait.",
+  historique: "les commandes retirées ou annulées.",
+};
+
 const VISITES: Record<string, Visite> = {
   "/gestion": {
     id: "bienvenue",
@@ -115,15 +123,19 @@ const VISITES: Record<string, Visite> = {
       },
       {
         target: "voir-menu",
-        title: "Votre menu, côté client",
-        body: "C’est la page qu’ouvrent vos QR codes. Ouvrez‑la pour voir votre carte comme vos clients la voient : un changement y apparaît dans la minute.",
+        title: (state) =>
+          isPickupShop(state) ? "Votre boutique, côté client" : "Votre menu, côté client",
+        body: (state) =>
+          isPickupShop(state)
+            ? "C’est la page où vos clients commandent à emporter. Ouvrez‑la pour la voir comme eux : un changement y apparaît dans la minute."
+            : "C’est la page qu’ouvrent vos QR codes. Ouvrez‑la pour voir votre carte comme vos clients la voient : un changement y apparaît dans la minute.",
       },
       {
         target: "etablissement",
         title: "Vos réglages",
         body: (state) =>
           avecCommandes(state)
-            ? "Nom, horaires, type de service, paiement en ligne et code de la tablette : tout se règle ici, dans Établissement."
+            ? "Nom, horaires, type de service, fermeture de la cuisine, paiement en ligne, commande minimum et code de la tablette : tout se règle ici, dans Établissement."
             : "Nom, slogan, adresse, horaires et lien d’avis Google : tout se règle ici, dans Établissement.",
       },
       {
@@ -176,17 +188,25 @@ const VISITES: Record<string, Visite> = {
     id: "commandes",
     steps: [
       {
+        target: "commandes-fermetures",
+        title: "Fermer d’un geste",
+        body: (state) =>
+          `Quand la cuisine s’arrête, fermez ici ce qu’elle ne sert plus : vos clients le voient « Plus servi ». Une table arrive tard ? Rouvrez ; sinon tout rouvre seul à ${dayEndLabel(state.dayEndHour)}.`,
+      },
+      {
         target: "commandes-etapes",
         title: "Le service, étape par étape",
         body: (state) => {
           const hints =
             state.etablissement.serviceMode === "fast_food"
               ? COMPTOIR
-              : ORDER_TAB_HINTS;
+              : isPickupShop(state)
+                ? EMPORTER
+                : ORDER_TAB_HINTS;
           return orderTabsShown(state, false)
             .map(
               (tab) =>
-                `« ${ORDER_TAB_LABELS[tab]} » : ${hints[tab].charAt(0).toLowerCase()}${hints[tab].slice(1)}`
+                `« ${orderTabLabel(state, tab)} » : ${hints[tab].charAt(0).toLowerCase()}${hints[tab].slice(1)}`
             )
             .join("\n");
         },
@@ -205,7 +225,7 @@ const VISITES: Record<string, Visite> = {
       {
         target: "prise-commande",
         title: "Saisir une commande",
-        body: "Un client commande sans scanner le QR code ? Appuyez sur + pour saisir sa commande : elle part en cuisine comme les autres.",
+        body: "Un client commande sans scanner le QR code ? Appuyez sur + pour saisir sa commande : elle part en cuisine comme les autres. Un plat fermé y reste ajoutable, marqué « Fermé ».",
       },
     ],
   },
@@ -259,8 +279,14 @@ const VISITES: Record<string, Visite> = {
       },
       {
         target: "equipe-inviter",
-        title: "Inviter un serveur ou un cuisinier",
-        body: "Son email et son rôle suffisent. Un serveur ou un cuisinier ne voit ensuite que ce dont il a besoin ; un gérant voit tout.",
+        title: (state) =>
+          isPickupShop(state)
+            ? "Inviter un employé"
+            : "Inviter un serveur ou un cuisinier",
+        body: (state) =>
+          isPickupShop(state)
+            ? "Son email et son rôle suffisent. Au comptoir comme en préparation, chacun ne voit ensuite que ce dont il a besoin ; un gérant voit tout."
+            : "Son email et son rôle suffisent. Un serveur ou un cuisinier ne voit ensuite que ce dont il a besoin ; un gérant voit tout.",
       },
     ],
   },
@@ -293,6 +319,12 @@ const VISITES: Record<string, Visite> = {
         body: "C’est ici que vous choisissez entre service à table et commande au comptoir. Vous pourrez changer à tout moment.",
       },
       {
+        target: "etablissement-fermetures",
+        when: avecCommandes,
+        title: "Fermer la cuisine",
+        body: "Choisissez ce qui n’est plus servi — les plats, le bar — à partir de quelle heure et quels jours. Pendant le service, Commandes a un bouton pour fermer ou rouvrir d’un geste ; tout rouvre seul à la fin de la journée.",
+      },
+      {
         target: "etablissement-paiement",
         when: avecCommandes,
         title: "Le paiement en ligne",
@@ -300,6 +332,15 @@ const VISITES: Record<string, Visite> = {
           state.etablissement.onlinePayment
             ? "Votre compte est relié et « Paiement en ligne » est allumé : vos clients paient par carte depuis le menu. Éteignez‑le pour les faire régler au comptoir."
             : "C’est ici que vous reliez votre compte de paiement : Stripe, ou Square si vous l’utilisez déjà. Une fois le compte validé, vérifiez que « Paiement en ligne » est allumé.",
+      },
+      {
+        target: "etablissement-minimum",
+        when: avecCommandes,
+        title: "Une commande minimum",
+        body: (state) =>
+          state.etablissement.onlineMinOrder !== null
+            ? `Sous ${formatPrice(state.etablissement.onlineMinOrder)}, les frais de carte pèsent trop : le client règle au comptoir ; en click & collect, il doit compléter son panier. Videz le champ pour n’en fixer aucun.`
+            : "Sous un petit montant, les frais de carte pèsent trop. Fixez un minimum : en dessous, le client règle au comptoir.",
       },
       {
         target: "etablissement-tablette",

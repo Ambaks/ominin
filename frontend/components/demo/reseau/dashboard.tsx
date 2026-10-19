@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getNetwork, type NetworkFixture } from "@/lib/demo/reseau/data";
+import { useSimClock } from "@/components/demo/use-sim-clock";
+import { getNetwork } from "@/lib/demo/reseau/data";
 import { offer, setupFeeLabel } from "@/lib/pitch/kit";
 import {
   formatCents,
@@ -22,22 +23,20 @@ import {
 import {
   activity,
   activityWindow,
-  addDays,
   bucketed,
   handoffMinutes,
   latestOrders,
-  minutesOf,
   networkTotals,
-  parisClock,
   readyWaiting,
   restaurantSnapshot,
   simulateDay,
   tillWaits,
-  type Clock,
   type RestaurantSnapshot,
   type SimOrder,
 } from "@/lib/demo/reseau/simulation";
-import { ActivityChart, ChartLegend, curve, smooth } from "./activity-chart";
+import { curve } from "@/lib/demo/curve";
+import { addDays, minutesOf, type Clock } from "@/lib/demo/sim";
+import { ActivityChart, ChartLegend, smooth } from "./activity-chart";
 import { AnimatedNumber } from "./animated-number";
 import { Figure } from "./figure";
 import { Joined } from "./joined";
@@ -56,30 +55,6 @@ import { useRowFit } from "./use-row-fit";
  * tailles, que c'est une démonstration, et laisse choisir l'hypothèse dont
  * tout dépend : la part des commandes passées par QR.
  */
-
-function useSimClock(fixture: NetworkFixture, clock: Clock) {
-  const [now, setNow] = useState({ day: clock.day, seconds: clock.seconds });
-  const { day, seconds, speed, follow } = clock;
-  const { dayStartHour } = fixture.simulation;
-  const { tickMs, fastTickMs } = fixture.display;
-
-  useEffect(() => {
-    if (!follow && speed === 0) return;
-    const origin = performance.now();
-    // Accéléré, l'horloge avance par petits pas plutôt que par bonds.
-    const period = !follow && speed > 1 ? fastTickMs : tickMs;
-    const id = setInterval(() => {
-      setNow(
-        follow
-          ? parisClock(new Date(), dayStartHour)
-          : { day, seconds: Math.floor(seconds + ((performance.now() - origin) / 1000) * speed) }
-      );
-    }, period);
-    return () => clearInterval(id);
-  }, [day, seconds, speed, follow, dayStartHour, tickMs, fastTickMs]);
-
-  return now;
-}
 
 const PANEL_TITLE = "text-[0.8125rem] font-semibold uppercase tracking-wider text-faint";
 const CARD = "rounded-2xl border border-hairline bg-surface";
@@ -308,7 +283,7 @@ export function NetworkDashboard({
 }) {
   const fixture = getNetwork(slug)!;
   const { simulation, display } = fixture;
-  const { day, seconds } = useSimClock(fixture, clock);
+  const { day, seconds } = useSimClock(clock, { dayStartHour: fixture.simulation.dayStartHour, ...fixture.display });
   const [adoption, setAdoption] = useState(simulation.adoption.initial);
   // simulateDay garde chaque journée en cache : seul l'instant se recalcule.
   const sim = simulateDay(fixture, day, adoption);

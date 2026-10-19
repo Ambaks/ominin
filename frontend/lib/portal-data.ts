@@ -1,4 +1,4 @@
-import { unsplash } from "@/lib/menu-data";
+import { pexels, unsplash } from "@/lib/menu/images";
 import {
   agentsSiteUrl,
   clipSiteUrl,
@@ -55,9 +55,13 @@ export const hero = {
     fr: "Solutions informatiques et IA",
     en: "Software and AI solutions",
   },
-  /* Le titre est coupé en deux : la seconde moitié porte le dégradé braise. */
-  titleLead: { fr: "Facilitez vos opérations,", en: "Facilitate your operations," },
-  titleAccent: { fr: "propulsées par l'IA.", en: "powered by AI." },
+  /** Une ligne par entrée ; la marquée reçoit le pavé braise. */
+  lines: [
+    { text: { fr: "Facilitez", en: "Facilitate" } },
+    { text: { fr: "vos opérations,", en: "your operations," } },
+    { text: { fr: "propulsées", en: "powered" } },
+    { text: { fr: "par l'IA.", en: "by AI." }, mark: true },
+  ],
   body: {
     fr: "Nous construisons des outils qui enlèvent le travail répétitif du quotidien des commerces — la prise de commande, la vente en ligne, la paperasse, la publication. Chaque produit règle un problème précis et s'utilise seul.",
     en: "We build tools that take the repetitive work out of running a business — taking orders, selling online, paperwork, publishing. Each product solves one problem, and works on its own.",
@@ -70,11 +74,62 @@ export const hero = {
     label: { fr: "Parler de votre besoin", en: "Tell us what you need" },
     href: "/sur-mesure",
   },
-  meta: {
-    fr: "Cinq produits en production, un sixième sur mesure.",
-    en: "Five products in production, a sixth built to order.",
-  },
-  scrollHint: { fr: "Nos produits", en: "Our products" },
+  stats: [
+    { value: "5", label: { fr: "produits en production", en: "products in production" } },
+    { value: "1", label: { fr: "seul interlocuteur, qui construit", en: "person to call, who builds it" } },
+    { value: "48 h", label: { fr: "pour vous répondre, jours ouvrés", en: "to reply, business days" } },
+  ],
+};
+
+/*
+ * Fil du hero : ce qui se passe chez nos clients pendant qu'on lit la page,
+ * un événement par produit. Les cartes tombent une à une (relais du kit).
+ */
+export const heroFeed = {
+  label: { fr: "Chez nos clients, en ce moment", en: "At our clients', right now" },
+  items: [
+    {
+      product: "Menu",
+      text: { fr: "Table 12 a payé 40,00 € depuis son téléphone", en: "Table 12 paid €40.00 from their phone" },
+      time: { fr: "à l'instant", en: "just now" },
+    },
+    {
+      product: "Collect",
+      text: { fr: "Camille passe prendre sa commande à 12:30", en: "Camille picks up her order at 12:30" },
+      time: { fr: "1 min", en: "1 min" },
+    },
+    {
+      product: "Shop",
+      text: { fr: "Nouvelle commande MyBox : 135,00 €", en: "New MyBox order: €135.00" },
+      time: { fr: "3 min", en: "3 min" },
+    },
+    {
+      product: "Clip",
+      text: { fr: "Clip publié sur TikTok, Reels et Shorts", en: "Clip posted to TikTok, Reels and Shorts" },
+      time: { fr: "8 min", en: "8 min" },
+    },
+    {
+      product: "Agents",
+      text: { fr: "Un prospect a répondu : « Rappelez-moi demain »", en: "A prospect replied: “Call me tomorrow”" },
+      time: { fr: "12 min", en: "12 min" },
+    },
+  ],
+};
+
+export const marquee: Localized[] = [
+  { fr: "Restaurants", en: "Restaurants" },
+  { fr: "Boulangeries", en: "Bakeries" },
+  { fr: "Pizzerias", en: "Pizzerias" },
+  { fr: "Créatrices", en: "Makers" },
+  { fr: "Boutiques en ligne", en: "Online stores" },
+  { fr: "Streamers", en: "Streamers" },
+  { fr: "Artisans", en: "Tradespeople" },
+  { fr: "Traiteurs", en: "Caterers" },
+];
+
+export const productsSection = {
+  eyebrow: { fr: "Nos produits", en: "Our products" },
+  title: { fr: "Un produit par problème.", en: "One product per problem." },
 };
 
 export type Product = {
@@ -169,11 +224,10 @@ export const products: Product[] = [
       en: "A turnkey online store for people already selling on Snapchat, Instagram or TikTok: handmade goods, boxes, dropshipping. Payments, shipping and orders run from a phone.",
     },
     photo: {
-      // Photo réelle de la première boutique (MyBox), pas une illustration.
-      src: "/shop/mybox/accueil.webp",
+      src: pexels("7679680/pexels-photo-7679680.jpeg", 1200),
       alt: {
-        fr: "Box beauté MyBox ouverte, parfum et roses",
-        en: "An open MyBox beauty box with perfume and roses",
+        fr: "Une créatrice prépare un coffret cadeau dans son atelier",
+        en: "A maker packing a gift box in her studio",
       },
     },
     chips: [
@@ -226,10 +280,10 @@ export const products: Product[] = [
       en: "An agent finds the businesses in your area, writes to them in your name from your Gmail and flags every reply.",
     },
     photo: {
-      src: unsplash("photo-1504307651254-35680f356dfd", 1200),
+      src: pexels("4491870/pexels-photo-4491870.jpeg", 1200),
       alt: {
-        fr: "Chantier de construction vu d'en haut",
-        en: "Construction site seen from above",
+        fr: "Un menuisier répond à ses e-mails dans son atelier",
+        en: "A carpenter answering emails in his workshop",
       },
     },
     chips: [
@@ -271,39 +325,97 @@ export const products: Product[] = [
 ];
 
 /*
- * Section « approche » : trois engagements numérotés, la seule partie du
- * portail qui parle de la maison plutôt que des produits. Volontairement
- * courte — la crédibilité passe par la précision, pas par le volume.
+ * Le manifeste : notre histoire, telle qu'elle sera dite dans la vidéo. Il
+ * remplace la section « approche » — le portail dit d'abord pourquoi Ominin
+ * existe. Une ligne par entrée, avec sa photo, allumée quand elle passe la ligne de
+ * lecture ; « turn » marque le basculement, la signature referme le texte.
  */
-export const approach = {
-  eyebrow: { fr: "Notre approche", en: "How we work" },
-  title: {
-    fr: "Des outils qu'on utilise dès le premier jour.",
-    en: "Tools you use from day one.",
-  },
-  points: [
+export const manifesto = {
+  eyebrow: { fr: "Notre histoire", en: "Our story" },
+  lines: [
     {
-      title: { fr: "Simples par principe", en: "Simple on principle" },
-      body: {
-        fr: "Pas de formation, pas de manuel. Si votre équipe ne s'en sert pas le premier soir, c'est raté — on conçoit à partir de là.",
-        en: "No training, no manual. If your team isn't using it by the first evening, we've failed — we design from that constraint.",
+      text: {
+        fr: "Une machine peut calculer, répondre, prévoir, produire.",
+        en: "A machine can calculate, answer, forecast, produce.",
+      },
+      photo: {
+        src: unsplash("photo-1712238107639-46803a6c3886", 1200),
+        alt: { fr: "Bras robotisé industriel dans une salle d'essai sombre", en: "Industrial robot arm in a dark test chamber" },
       },
     },
     {
-      title: { fr: "L'IA là où elle sert", en: "AI where it earns its keep" },
-      body: {
-        fr: "Elle rédige, trie, prévoit, relit — jamais pour faire joli. Quand une règle simple suffit, on écrit une règle simple.",
-        en: "It writes, sorts, forecasts, reviews — never for show. When a simple rule is enough, we write a simple rule.",
+      text: {
+        fr: "Elle ne peut pas s'asseoir en face de quelqu'un et le comprendre sans un mot.",
+        en: "It cannot sit across from someone and understand them without a word.",
+      },
+      photo: {
+        src: unsplash("photo-1693913177577-6ea5604551f7", 1200),
+        alt: { fr: "Deux personnes face à face à une terrasse de café, le soir", en: "Two people face to face at a café table at night" },
       },
     },
     {
-      title: { fr: "Un seul interlocuteur", en: "One person to call" },
-      body: {
-        fr: "Conçu, développé et maintenu par Ominin. Vous parlez à ceux qui construisent, pas à un support qui transmet.",
-        en: "Designed, built and maintained by Ominin. You talk to the people who build it, not a help desk relaying tickets.",
+      text: {
+        fr: "Elle ne peut pas avoir peur, espérer, aimer.",
+        en: "It cannot fear, hope, love.",
+      },
+      photo: {
+        src: pexels("10638718/pexels-photo-10638718.jpeg", 1200),
+        alt: { fr: "Deux mains qui se tendent l'une vers l'autre", en: "Two hands reaching for each other" },
+      },
+    },
+    {
+      text: {
+        fr: "Elle ne peut pas laisser sa main sur une paroi pour dire j'ai existé.",
+        en: "It cannot leave its hand on a cave wall to say: I existed.",
+      },
+      photo: {
+        src: unsplash("photo-1791461787539-8faa9ba7fdfa", 1200),
+        alt: { fr: "Mains préhistoriques peintes sur la roche, Cueva de las Manos", en: "Prehistoric hand stencils on rock, Cueva de las Manos" },
+      },
+    },
+    {
+      text: { fr: "Ça, c'est à nous.", en: "That is ours." },
+      turn: true,
+      photo: {
+        src: "/portal/silex-etincelles.webp",
+        alt: { fr: "Deux mains frappent une pierre et font jaillir des étincelles", en: "Two hands striking a stone, sending out sparks" },
+      },
+    },
+    {
+      text: {
+        fr: "Nous sommes Ominin. Le nom de notre lignée, avec une lettre en moins.",
+        en: "We are Ominin. The name of our lineage, minus one letter.",
+      },
+      photo: {
+        src: unsplash("photo-1733768296211-17e2233b3630", 1200),
+        alt: { fr: "Crâne fossile d'un ancêtre de l'homme", en: "Fossil skull of a human ancestor" },
+      },
+    },
+    {
+      text: {
+        fr: "Pour ne jamais oublier d'où l'on vient, ni ce qui nous rend humains.",
+        en: "So we never forget where we come from, or what makes us human.",
+      },
+      photo: {
+        src: unsplash("photo-1534768654272-e97681c3a2c7", 1200),
+        alt: { fr: "Main d'un bébé posée sur une main âgée", en: "A baby's hand resting on an old hand" },
+      },
+    },
+    {
+      text: {
+        fr: "Que l'intelligence artificielle prenne le poids. Que l'humain garde le sens.",
+        en: "Let artificial intelligence carry the weight. Let humans keep the meaning.",
+      },
+      photo: {
+        src: "/portal/grotte-ominin.webp",
+        alt: { fr: "Le logo d'Ominin peint à l'ocre sur une paroi", en: "The Ominin logo painted in ochre on a rock wall" },
       },
     },
   ],
+  signature: {
+    name: "Ominin.",
+    motto: { fr: "Garder la main.", en: "Keep the upper hand." },
+  },
 };
 
 /*
@@ -323,6 +435,15 @@ export const finalCta = {
     label: { fr: "Décrire mon besoin", en: "Describe my need" },
     href: "/sur-mesure",
   },
+  secondary: {
+    label: { fr: "Revoir nos produits", en: "Back to our products" },
+    href: "#produits",
+  },
+  microcopy: [
+    { fr: "Réponse sous deux jours ouvrés", en: "Reply within two business days" },
+    { fr: "Sans engagement", en: "No commitment" },
+    { fr: "Un seul interlocuteur", en: "One person to call" },
+  ],
 };
 
 /*

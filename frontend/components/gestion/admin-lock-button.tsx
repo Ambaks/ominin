@@ -6,12 +6,14 @@ import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { lockAdmin, unlockAdmin } from "@/lib/gestion/admin-lock";
+import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useRealRole, useTabletLocked } from "@/lib/gestion/store";
 import { LockIcon } from "./icons";
 
 /*
  * Passage en mode gérant depuis la tablette du restaurant. Le compte est
- * celui de l'établissement : l'espace y démarre en vue salle, ce bouton
+ * celui de l'établissement : l'espace y démarre en vue salle (vue comptoir
+ * dans une boutique à emporter seule), ce bouton
  * l'ouvre au code, et le referme d'un geste quand la tablette retourne au
  * comptoir. Il ne paraît que si un code est posé (page Établissement).
  */
@@ -50,11 +52,14 @@ export function AdminLockButton() {
   };
 
   if (!locked) {
+    const retour = isPickupShop(state)
+      ? "Revenir à la vue comptoir"
+      : "Revenir à la vue salle";
     return (
       <IconButton
         onClick={() => lockAdmin()}
-        title="Revenir à la vue salle"
-        aria-label="Revenir à la vue salle"
+        title={retour}
+        aria-label={retour}
       >
         <LockIcon className="size-4" />
       </IconButton>

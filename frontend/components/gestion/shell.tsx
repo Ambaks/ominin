@@ -2,18 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
+import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
-import { OFFRE_LABELS, ROLE_LABELS } from "@/lib/gestion/constants";
+import { OFFRE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
   activeProducts,
+  awaitsAcknowledgement,
   cardCount,
+  isClubOnly,
+  isPickupShop,
   needsAttention,
   offreFeeDue,
+  pickupLater,
+  roleLabels,
 } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
 import type { Feature, Role } from "@/lib/gestion/types";
@@ -24,9 +30,11 @@ import {
   useOrderChime,
 } from "@/lib/gestion/use-order-chime";
 import { VISITE_IDS, visiteFor, type VisiteId } from "@/lib/gestion/visites";
+import { clubSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 import {
   ApercuIcon,
+  BagIcon,
   BellIcon,
   ClockIcon,
   CommandesIcon,
@@ -39,6 +47,7 @@ import {
   MenuIcon,
   PrinterIcon,
   ProductsIcon,
+  SoireesIcon,
   TablesIcon,
   TeamIcon,
   type IconProps,
@@ -69,6 +78,8 @@ const NAV_ITEMS: NavItem[] = [
   // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
   { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
+  { href: "/gestion/soirees", label: "Soirées", feature: "soirees", icon: SoireesIcon },
+  { href: "/gestion/retraits", label: "Retraits", feature: "retraits", icon: BagIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   // Le gérant badge et planifie depuis l'onglet Équipe, qui porte aussi le
@@ -94,6 +105,17 @@ const PRODUITS_ITEM: NavItem = {
   label: "Produits",
   feature: "produits",
   icon: ProductsIcon,
+};
+
+/** Ce que compte la pastille d'un onglet, au survol. */
+const BADGE_HINTS: Record<string, string> = {
+  "/gestion/commandes": "Additions à encaisser et commandes à emporter du jour à prendre en charge",
+  "/gestion/retraits": "Commandes du site pour un jour à venir, à prendre en charge",
+};
+
+/** Boutique à emporter seule : tout se prend en charge depuis Retraits. */
+const PICKUP_BADGE_HINTS: Record<string, string> = {
+  "/gestion/retraits": "Commandes du site à prendre en charge, tous jours confondus",
 };
 
 /** Commandes de l'en-tête : une cible de 44 px au doigt, 36 px à la souris. */
@@ -160,8 +182,11 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
   const products = activeProducts(state);
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
-  // payés, plus sur le seul abonnement à l'offre.
-  const subscribed = products.offre != null || products.collect;
+  // payés, plus sur le seul abonnement à l'offre. Un club ne s'abonne pas :
+  // Ominin se paie sur ses tables vendues, l'espace s'ouvre avec ses soirées.
+  const clubOnly = isClubOnly(state);
+  const subscribed = products.offre != null || products.collect || clubOnly;
+  const pickupShop = isPickupShop(state);
   const items = NAV_ITEMS.filter(
     (item) =>
       (!item.feature || (state?.features[item.feature] ?? false)) &&
@@ -169,13 +194,59 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
       (!item.serveurFeature ||
         state?.role !== "serveur" ||
         (state.features[item.serveurFeature] ?? false)) &&
-      (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role))
+      (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role)) &&
+      // Un club n'a pas de carte : le menu, qui ne se retire jamais d'un
+      // restaurant, n'a rien à y faire.
+      (item.href !== "/gestion/menu" || !clubOnly) &&
+      // En boutique à emporter seule, l'aperçu de l'équipe renvoie à Retraits.
+      (item.feature !== "apercu" || state?.role === "gerant" || !pickupShop)
   );
-  const pendingCount = state
-    ? cardCount(state.orders.filter(needsAttention))
-    : 0;
+  // La page que voient les clients : pour une boutique à emporter seule, sa
+  // page de commande en ligne — elle n'a pas de menu QR.
+  const voirClient = clubOnly
+    ? "Voir ma page club"
+    : pickupShop
+      ? "Voir ma boutique en ligne"
+      : "Voir mon menu";
+  // Pastilles : ce qui attend un geste, là où il se fait — les commandes du
+  // site pour un jour à venir se prennent en charge depuis Retraits. En
+  // boutique à emporter seule, Retraits les compte toutes, aujourd'hui compris :
+  // Commandes n'en porte pas, pour ne pas les compter deux fois.
+  const badges: Record<string, number> = !state
+    ? {}
+    : pickupShop
+      ? { "/gestion/retraits": state.orders.filter(awaitsAcknowledgement).length }
+      : {
+          "/gestion/commandes": cardCount(state.orders.filter(needsAttention)),
+          "/gestion/retraits": state.orders.filter(
+            (order) => awaitsAcknowledgement(order) && pickupLater(order)
+          ).length,
+        };
+  const badgeHints = pickupShop ? PICKUP_BADGE_HINTS : BADGE_HINTS;
+  // Une barre du bas à un seul onglet (un club : Soirées) ne mène nulle part
+  // de plus : elle laisse la place aux barres collées des écrans.
+  const mobileItems = items.filter((item) => !item.sidebarOnly);
+  const mobileNav = mobileItems.length > 1;
+  // Hauteur de l'en-tête collé, pour ce qui se colle dessous (onglets d'un
+  // écran) : elle change avec la largeur, l'en-tête passant sur deux lignes.
+  const header = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = header.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      document.documentElement.style.setProperty(
+        "--gestion-entete",
+        `${entry.borderBoxSize[0].blockSize}px`
+      );
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   const showProduits =
     state != null && state.role !== "serveur" && state.features.produits;
+  const sidebarItems = showProduits ? [...items, PRODUITS_ITEM] : items;
+  // Même règle à gauche : un seul onglet, la page prend toute la largeur.
+  const sidebar = !state || sidebarItems.length > 1;
   // Visite de la page, pour le gérant (la vue salle d'une tablette
   // verrouillée se présente en serveur : elle n'en voit aucune). Elle s'ouvre
   // d'elle-même au premier passage d'un gérant inscrit, sauf au retour d'un
@@ -185,8 +256,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // vide » n'ouvre pas celle du menu par-dessus la feuille des catégories,
   // qui attendra le passage suivant — le « ? » relance, lui, la visite du
   // moment.
+  // Les visites présentent la carte et le service : un club n'en a pas.
   const visite =
-    state?.role === "gerant" ? visiteFor(pathname, state) : undefined;
+    state?.role === "gerant" && !clubOnly ? visiteFor(pathname, state) : undefined;
   // L'abonnement compte dans l'arrivée : revenu de Stripe Checkout avant le
   // webhook, le gérant arrive sur l'écran d'activation, et l'accueil s'ouvre
   // quand l'espace se déverrouille.
@@ -223,14 +295,21 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
     ? `${
         state.etablissement.offre
           ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
-          : collectBrand
-      } · ${ROLE_LABELS[state.role]}`
+          : clubOnly
+            ? "Ominin Club"
+            : collectBrand
+      } · ${roleLabels(state)[state.role]}`
     : "Espace de gestion";
 
   return (
-    <ToastProvider>
-      <div className="flex min-h-dvh w-full flex-col">
+    <ToastProvider placement={clubOnly ? "top" : "bottom"}>
+      <div
+        // Un club parle la langue de ses pages : leurs jetons et leurs polices, en-tête compris.
+        className={`flex min-h-dvh w-full flex-col ${clubOnly ? `club-tokens club-espace ${clubFonts}` : ""}`}
+        style={{ "--gestion-barre-bas": mobileNav ? "5rem" : "1rem" } as React.CSSProperties}
+      >
         <header
+          ref={header}
           data-visite-bord="haut"
           className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden"
         >
@@ -277,16 +356,22 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                 <AdminLockButton />
                 <ThemeToggle />
                 <a
-                  href={`/m/${state.etablissement.slug}`}
+                  href={
+                    clubOnly
+                      ? `${clubSiteUrl}/${state.etablissement.slug}`
+                      : pickupShop
+                        ? `${collectSiteUrl}/${state.etablissement.slug}`
+                        : `${menuSiteUrl}/m/${state.etablissement.slug}`
+                  }
                   data-visite="voir-menu"
                   target="_blank"
                   rel="noopener"
-                  title="Voir mon menu"
-                  aria-label="Voir mon menu"
+                  title={voirClient}
+                  aria-label={voirClient}
                   className="flex min-h-11 items-center gap-1.5 rounded-full border border-hairline px-3 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:pointer-fine:min-h-9"
                 >
                   <ExternalLinkIcon className="size-4" />
-                  <span className="hidden lg:inline">Voir mon menu</span>
+                  <span className="hidden lg:inline">{voirClient}</span>
                 </a>
                 {(state?.features.commandes ?? false) && (
                   <Link
@@ -298,7 +383,9 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     <BellIcon className="size-4" />
                   </Link>
                 )}
-                {can(state.role, "etablissement.edit") && (
+                {/* Les réglages de l'établissement sont ceux d'un restaurant
+                    (horaires, tablette de salle, encaissement) : rien pour un club. */}
+                {can(state.role, "etablissement.edit") && !clubOnly && (
                   <Link
                     href="/gestion/etablissement"
                     data-visite="etablissement"
@@ -336,35 +423,40 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
-          <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
-            <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
-              {(showProduits ? [...items, PRODUITS_ITEM] : items).map((item) => {
-                const active = isActive(pathname, item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                      active
-                        ? "border border-hairline bg-surface text-foreground"
-                        : "text-muted hover:text-foreground"
-                    }`}
-                  >
-                    <item.icon
-                      className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                    />
-                    {item.label}
-                    {item.href === "/gestion/commandes" && pendingCount > 0 && (
-                      <span className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
-                        {pendingCount}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </aside>
+          {sidebar && (
+            <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
+              <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
+                {sidebarItems.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
+                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                        active
+                          ? "border border-hairline bg-surface text-foreground"
+                          : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      <item.icon
+                        className={`size-4.5 ${active ? "text-ember-1" : ""}`}
+                      />
+                      {item.label}
+                      {(badges[item.href] ?? 0) > 0 && (
+                        <span
+                          title={badgeHints[item.href]}
+                          className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
+                        >
+                          {badges[item.href]}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </aside>
+          )}
 
           <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
             {!state ? (
@@ -412,35 +504,43 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        <nav
-          data-visite="nav"
-          data-visite-bord="bas"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
-        >
-          <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {items.filter((item) => !item.sidebarOnly).map((item) => {
-              const active = isActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                  className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                    active ? "text-ember-1" : "text-faint"
-                  }`}
-                >
-                  <item.icon className="size-5" />
-                  {item.label}
-                  {item.href === "/gestion/commandes" && pendingCount > 0 && (
-                    <span className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background">
-                      {pendingCount}
+        {mobileNav && (
+          <nav
+            data-visite="nav"
+            data-visite-bord="bas"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
+          >
+            <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+              {mobileItems.map((item) => {
+                const active = isActive(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
+                    className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                      active ? "text-ember-1" : "text-faint"
+                    }`}
+                  >
+                    <item.icon className="size-5" />
+                    {/* Sept onglets sur 320 px : le libellé se resserre plutôt que de toucher son voisin. */}
+                    <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
+                      {item.label}
                     </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+                    {(badges[item.href] ?? 0) > 0 && (
+                      <span
+                        title={badgeHints[item.href]}
+                        className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
+                      >
+                        {badges[item.href]}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </div>
     </ToastProvider>
   );

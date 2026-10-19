@@ -1,9 +1,9 @@
-import type { SignedDoc } from "@/lib/legal/types";
 import { createClient } from "@/lib/supabase/client";
 import type { Json, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import type { ShopTheme } from "./theme";
 import type { ShopOrderStatus } from "./types";
+import { announceSignup } from "@/lib/signup-notify";
 
 /*
  * Surface de mutation de l'espace de gestion. Les écritures simples passent
@@ -38,9 +38,11 @@ export async function updateTheme(shopId: string, theme: ShopTheme) {
 }
 
 export async function createShop(input: { name: string; slug: string; orderPrefix: string }): Promise<string> {
-  return must(
+  const id = must(
     await createClient().rpc("create_shop", { p_name: input.name, p_slug: input.slug, p_order_prefix: input.orderPrefix })
   );
+  announceSignup();
+  return id;
 }
 
 // ---------------------------------------------------------------------------
@@ -238,7 +240,4 @@ export async function refreshStripeStatus(): Promise<{ connected: boolean; charg
   const body = (await response.json()) as { connected: boolean; chargesEnabled: boolean; error?: string };
   if (!response.ok) throw new Error(body.error ?? "Une erreur est survenue.");
   return body;
-}
-export async function subscriptionCheckoutUrl(versions: Record<SignedDoc, string>): Promise<string> {
-  return (await postJson<{ url: string }>("/api/shop/gestion/subscribe", { versions })).url;
 }

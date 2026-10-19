@@ -9,7 +9,7 @@ import {
   themeColors,
   type CardPaymentState,
 } from "@/components/menu/card-payment";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import type { CardPhase } from "@/lib/menu/online-payment";
 import { SQUARE_COUNTRY, SQUARE_CURRENCY } from "@/lib/square/config";
 

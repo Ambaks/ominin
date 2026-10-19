@@ -1,212 +1,186 @@
 import Image from "next/image";
+import Link from "next/link";
+import { IphoneFrame } from "@/components/landing/iphone-frame";
 import { LeadForm } from "@/components/landing/lead-form";
-import { SectionHeading } from "@/components/landing/section-heading";
+import { KitFaq } from "@/components/landing-kit/faq";
+import { KitHeading } from "@/components/landing-kit/heading";
+import { Reveal } from "@/components/landing-kit/reveal";
 import { contactEmail } from "@/lib/landing-data";
+import { editor, LEGAL_LINKS } from "@/lib/legal/constants";
 import {
   audiencesSection,
   contactSection,
   faqSection,
-  featuresSection,
   footer,
-  hero,
-  howItWorks,
   nav,
   pricingSection,
+  setupSection,
   shiftSection,
   showcase,
 } from "@/lib/shop-landing-data";
 import { ShopWordmark } from "./wordmark";
 
-/* Sections de la landing Ominin Shop, dans le style des autres landings produit. */
+/* Sections de la landing Ominin Shop, sur le kit commun aux landings produit (landing-kit). */
 
-export function ShopHero() {
+/** Pictogrammes des trois profils (trait, couleur du texte). */
+const ICONS = {
+  chat: "M4 5h16v10H9l-5 4V5zm4 4h8m-8 3h5",
+  gift: "M4 10h16v10H4V10zm-1-4h18v4H3V6zm9 0v14M12 6c-1-3-5-3-5-.5S12 6 12 6zm0 0c1-3 5-3 5-.5S12 6 12 6z",
+  parcel: "M3 7l9-4 9 4v10l-9 4-9-4V7zm0 0l9 4 9-4M12 11v10M7.5 5l9 4",
+} as const;
+
+export function ShopAudiences() {
   return (
-    <section className="relative overflow-hidden">
-      <div
-        className="shop-ribbon-motif absolute inset-0 [mask-image:radial-gradient(ellipse_75%_85%_at_50%_15%,black,transparent)]"
-        aria-hidden
-      />
-      <div className="ember-glow absolute inset-0" aria-hidden />
-      <div className="relative mx-auto grid w-full max-w-2xl gap-12 px-5 pb-16 pt-16 lg:max-w-5xl lg:grid-cols-[1fr_minmax(0,24rem)] lg:items-center lg:gap-16 lg:px-10 lg:pb-24 lg:pt-28">
-        <div className="flex flex-col items-center gap-8 text-center lg:items-start lg:text-left">
-          <p className="rise text-[11px] font-semibold uppercase tracking-[0.28em] text-muted lg:text-xs lg:tracking-[0.35em]">{hero.eyebrow}</p>
-          <h1 className="rise font-display text-4xl font-medium leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl" style={{ animationDelay: "80ms" }}>
-            {hero.titleStart} <span className="ember-text">{hero.titleAccent}</span>
-          </h1>
-          <p className="rise max-w-xl text-sm leading-relaxed text-muted lg:text-base" style={{ animationDelay: "160ms" }}>
-            {hero.subtitle}
-          </p>
-          <div className="rise flex flex-col items-center gap-3 sm:flex-row sm:gap-4" style={{ animationDelay: "240ms" }}>
-            <a href={hero.primaryCta.href} className="ember-gradient rounded-full px-6 py-3 text-sm font-semibold text-background lg:px-8 lg:py-3.5 lg:text-base">
-              {hero.primaryCta.label}
-            </a>
-            <a href={hero.secondaryCta.href} className="rounded-full border border-hairline bg-background/50 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors hover:border-ember-2/40 lg:px-8 lg:py-3.5 lg:text-base">
-              {hero.secondaryCta.label}
-            </a>
-          </div>
-          <div className="rise flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-faint lg:justify-start" style={{ animationDelay: "320ms" }}>
-            {hero.trustline.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
+    <section id={audiencesSection.id} className="scroll-mt-20">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+        <KitHeading eyebrow={audiencesSection.eyebrow} title={audiencesSection.title} subtitle={audiencesSection.subtitle} />
+        <div className="mt-14 grid gap-4 lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto]">
+          {audiencesSection.items.map((item, i) => (
+            <Reveal
+              key={item.title}
+              as="article"
+              delay={i * 120}
+              className="kit-card flex flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6 lg:row-span-4 lg:grid lg:grid-rows-subgrid lg:p-7"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-ember-1">{item.kicker}</p>
+                <span className="ember-gradient flex size-11 shrink-0 items-center justify-center rounded-2xl text-background">
+                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d={ICONS[item.icon]} />
+                  </svg>
+                </span>
+              </div>
+              <h3 className="kit-display text-balance text-2xl lg:text-[1.7rem]">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-muted">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">{audiencesSection.todayLabel}</span>
+                <span className="mt-1 block text-foreground/75">{item.today}</span>
+              </p>
+              <p className="mt-auto rounded-2xl border border-ember-2/25 bg-ember-2/10 p-4 pt-3.5 text-sm leading-relaxed">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-ember-1">{audiencesSection.tomorrowLabel}</span>
+                <span className="mt-1 block">{item.tomorrow}</span>
+              </p>
+            </Reveal>
+          ))}
         </div>
-        <a href={showcase.href} className="rise group relative block overflow-hidden rounded-3xl border border-hairline bg-surface shadow-lg shadow-ember-2/5" style={{ animationDelay: "320ms" }}>
-          <Image src="/shop/mybox/signature.webp" alt={hero.showcase.alt} width={640} height={800} className="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" priority />
-          <span className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-2xl bg-background/85 px-4 py-3 backdrop-blur-sm">
-            <span className="flex flex-col">
-              <span className="text-sm font-semibold">{hero.showcase.name}</span>
-              <span className="text-xs text-muted">{hero.showcase.host}</span>
-            </span>
-            <span className="ember-text text-xs font-semibold uppercase tracking-wider">{hero.showcase.openLabel}</span>
-          </span>
-        </a>
       </div>
     </section>
   );
 }
 
 /*
- * Trois profils, chacun en deux temps — aujourd'hui / avec la boutique. Le
- * second temps est mis en avant (fond braise léger) : c'est la promesse, le
- * premier n'est là que pour qu'on s'y reconnaisse.
+ * Avant / après ligne à ligne : à gauche la bulle de message telle qu'on la
+ * reçoit, à droite ce que la boutique en fait. En mobile, chaque ligne
+ * empile ses deux temps.
  */
-export function ShopAudiences() {
-  return (
-    <section id={audiencesSection.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={audiencesSection.eyebrow} title={audiencesSection.title} subtitle={audiencesSection.subtitle} center />
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          {audiencesSection.items.map((item) => (
-            <article key={item.title} className="flex flex-col overflow-hidden rounded-3xl border border-hairline bg-surface">
-              <div className="flex flex-col gap-2 p-6 pb-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ember-2">{item.kicker}</p>
-                <h3 className="font-display text-xl font-medium">{item.title}</h3>
-              </div>
-              <div className="flex flex-1 flex-col">
-                <div className="border-t border-hairline px-6 py-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{audiencesSection.todayLabel}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.today}</p>
-                </div>
-                <div className="flex-1 border-t border-ember-2/30 bg-ember-2/5 px-6 py-4">
-                  <p className="ember-text text-[11px] font-semibold uppercase tracking-wider">{audiencesSection.tomorrowLabel}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed">{item.tomorrow}</p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* Avant / après ligne à ligne. En mobile, chaque ligne empile ses deux temps. */
 export function ShopShift() {
   return (
-    <section id={shiftSection.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={shiftSection.eyebrow} title={shiftSection.title} center />
-        <div className="mt-12 overflow-hidden rounded-3xl border border-hairline bg-surface">
-          <div className="hidden grid-cols-2 border-b border-hairline text-[11px] font-semibold uppercase tracking-wider sm:grid">
-            <p className="px-6 py-3 text-faint">{shiftSection.beforeLabel}</p>
-            <p className="ember-text border-l border-hairline px-6 py-3">{shiftSection.afterLabel}</p>
-          </div>
-          <ul className="divide-y divide-hairline">
-            {shiftSection.rows.map((row) => (
-              <li key={row.after} className="grid sm:grid-cols-2">
-                <p className="flex items-start gap-2.5 px-6 py-4 text-sm leading-relaxed text-muted">
-                  <span className="mt-0.5 text-faint" aria-hidden>
-                    –
-                  </span>
-                  <span>
-                    <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-faint sm:hidden">{shiftSection.beforeLabel}</span>
-                    {row.before}
-                  </span>
-                </p>
-                <p className="flex items-start gap-2.5 px-6 py-4 text-sm leading-relaxed sm:border-l sm:border-hairline">
-                  <span className="mt-0.5 text-ember-1" aria-hidden>
-                    ✓
-                  </span>
-                  <span>
-                    <span className="ember-text mb-0.5 block text-[10px] font-semibold uppercase tracking-wider sm:hidden">{shiftSection.afterLabel}</span>
-                    {row.after}
-                  </span>
-                </p>
-              </li>
-            ))}
-          </ul>
+    <section id={shiftSection.id} className="scroll-mt-20 border-y border-hairline bg-surface/40">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
+        <KitHeading eyebrow={shiftSection.eyebrow} title={shiftSection.title} />
+        <div className="mt-12 hidden grid-cols-2 gap-6 text-[11px] font-semibold uppercase tracking-[0.2em] sm:grid">
+          <p className="text-faint">{shiftSection.beforeLabel}</p>
+          <p className="text-ember-1">{shiftSection.afterLabel}</p>
         </div>
+        <ul className="mt-6 flex flex-col gap-4 sm:mt-4">
+          {shiftSection.rows.map((row, i) => (
+            <Reveal key={row.after} as="li" delay={i * 80} className="grid items-center gap-2 sm:grid-cols-2 sm:gap-6">
+              <p className="w-fit max-w-full rounded-2xl rounded-bl-md bg-hairline/70 px-4 py-3 text-sm leading-relaxed text-muted">
+                <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-faint sm:hidden">{shiftSection.beforeLabel}</span>
+                {row.before}
+              </p>
+              <p className="flex items-start gap-3 rounded-2xl border border-ember-2/25 bg-background/70 px-4 py-3 text-sm leading-relaxed">
+                <span className="ember-gradient mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-background" aria-hidden>
+                  ✓
+                </span>
+                <span>
+                  <span className="mb-0.5 block text-[10px] font-semibold uppercase tracking-wider text-ember-1 sm:hidden">{shiftSection.afterLabel}</span>
+                  {row.after}
+                </span>
+              </p>
+            </Reveal>
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
+/*
+ * La vraie boutique MyBox dans un téléphone, à essayer sans quitter la page.
+ * Sur ordinateur, le cadre iPhone, l'écran décalé sous la Dynamic Island.
+ * Sous lg, le cadre iPhone (24 rem) déborderait d'un écran de 360 px : la
+ * boutique y est rendue à la largeur d'un vrai téléphone (375 px) puis
+ * réduite à 80 %, sans quoi son hero se tasse et ses boutons sont rognés.
+ */
 export function ShopShowcase() {
+  const iframe = (className: string) => (
+    <iframe src={showcase.href} title={showcase.iframeTitle} loading="lazy" className={className} />
+  );
   return (
-    <section id={showcase.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto grid w-full max-w-2xl gap-10 px-5 py-16 lg:max-w-5xl lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10 lg:py-24">
-        <div className="flex flex-col gap-6">
-          <SectionHeading eyebrow={showcase.eyebrow} title={showcase.title} subtitle={showcase.subtitle} />
-          <dl className="grid grid-cols-2 gap-4">
+    <section id={showcase.id} className="scroll-mt-20">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_auto] lg:gap-16 lg:px-10 lg:py-28">
+        <div>
+          <KitHeading eyebrow={showcase.eyebrow} title={showcase.title} subtitle={showcase.subtitle} />
+          <Reveal as="div" delay={120} className="mt-8 grid grid-cols-3 gap-4 border-t border-hairline pt-6">
             {showcase.points.map((point) => (
-              <div key={point.label} className="rounded-2xl border border-hairline bg-surface p-4">
-                <dt className="text-[11px] font-semibold uppercase tracking-wider text-faint">{point.label}</dt>
-                <dd className="mt-1 text-sm">{point.value}</dd>
+              <div key={point.label}>
+                <p className="kit-display ember-text whitespace-nowrap text-3xl sm:text-4xl">{point.value}</p>
+                <p className="mt-1.5 text-xs leading-snug text-muted sm:text-sm">{point.label}</p>
               </div>
             ))}
-          </dl>
-          <a href={showcase.href} className="ember-gradient inline-block w-fit rounded-full px-6 py-3 text-sm font-semibold text-background">
+          </Reveal>
+          <Reveal delay={200} className="mt-8 hidden lg:block">
+            <a
+              href={showcase.href}
+              className="ember-gradient group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold text-background shadow-[0_12px_40px_-12px_var(--ember-2)] transition-transform hover:scale-[1.03] lg:text-base"
+            >
+              {showcase.ctaLabel}
+              <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+            </a>
+          </Reveal>
+        </div>
+
+        <Reveal delay={120} className="hidden flex-col items-center gap-4 lg:flex">
+          <IphoneFrame>
+            <div className="pt-12">{iframe("h-180 w-full")}</div>
+          </IphoneFrame>
+          <p className="text-sm text-muted">{showcase.hint}</p>
+        </Reveal>
+
+        <div className="flex flex-col items-center gap-5 text-center lg:hidden">
+          <div className="rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
+            <div className="h-[520px] w-[300px] overflow-hidden rounded-[1.9rem] bg-background">
+              {iframe("h-[650px] w-[375px] origin-top-left scale-[0.8]")}
+            </div>
+          </div>
+          <span className="text-xs text-muted">{showcase.hint}</span>
+          <a href={showcase.href} className="ember-gradient rounded-full px-6 py-3 text-sm font-bold text-background">
             {showcase.ctaLabel}
           </a>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Image src="/shop/mybox/l-ultime-30-ml.webp" alt="" width={480} height={600} className="mt-8 aspect-[4/5] w-full rounded-3xl object-cover" />
-          <Image src="/shop/mybox/l-evasion.webp" alt="" width={480} height={600} className="mb-8 aspect-[4/5] w-full rounded-3xl object-cover" />
-        </div>
       </div>
     </section>
   );
 }
 
-export function ShopHowItWorks() {
+/* Mise en route : quatre étapes reliées par un filet braise. */
+export function ShopSetup() {
   return (
-    <section id={howItWorks.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={howItWorks.eyebrow} title={howItWorks.title} center />
-        <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {howItWorks.steps.map((step, i) => (
-            <li key={step.title} className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-6">
-              <span className="ember-text font-display text-3xl font-medium">{String(i + 1).padStart(2, "0")}</span>
-              <span className="font-display text-lg font-medium">{step.title}</span>
+    <section id={setupSection.id} className="scroll-mt-20">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
+        <KitHeading eyebrow={setupSection.eyebrow} title={setupSection.title} subtitle={setupSection.subtitle} />
+        <ol className="relative mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <span aria-hidden className="ember-gradient absolute inset-x-8 top-[2.1rem] hidden h-px opacity-50 lg:block" />
+          {setupSection.steps.map((step, i) => (
+            <Reveal key={step.title} as="li" delay={i * 100} className="kit-card relative flex flex-col gap-3 rounded-3xl border border-hairline bg-surface p-6">
+              <span className="ember-gradient kit-display flex size-11 items-center justify-center rounded-2xl text-lg text-background">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-2 text-lg font-bold leading-snug">{step.title}</h3>
               <p className="text-sm leading-relaxed text-muted">{step.description}</p>
-            </li>
+            </Reveal>
           ))}
         </ol>
-      </div>
-    </section>
-  );
-}
-
-export function ShopFeatures() {
-  return (
-    <section id={featuresSection.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={featuresSection.eyebrow} title={featuresSection.title} subtitle={featuresSection.subtitle} center />
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {featuresSection.groups.map((group) => (
-            <div key={group.title} className="rounded-3xl border border-hairline bg-surface p-6 lg:p-8">
-              <h3 className="font-display text-xl font-medium">{group.title}</h3>
-              <ul className="mt-5 flex flex-col gap-3">
-                {group.items.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm">
-                    <span className="mt-0.5 text-ember-1">✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -215,52 +189,50 @@ export function ShopFeatures() {
 export function ShopPricing() {
   const { offer } = pricingSection;
   return (
-    <section id={pricingSection.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-5xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={pricingSection.eyebrow} title={pricingSection.title} subtitle={pricingSection.subtitle} center />
-        <div className="mx-auto mt-12 flex max-w-xl flex-col gap-6 rounded-3xl border border-ember-2/40 bg-surface p-6 shadow-lg shadow-ember-2/5 lg:p-8">
-          <div>
-            <h3 className="font-display text-2xl font-medium">{offer.name}</h3>
-            <p className="mt-1 text-sm text-muted">{offer.tagline}</p>
+    <section id={pricingSection.id} className="scroll-mt-20">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-32">
+        <KitHeading eyebrow={pricingSection.eyebrow} title={pricingSection.title} subtitle={pricingSection.subtitle} center />
+        <Reveal className="relative mx-auto mt-12 grid max-w-4xl gap-8 overflow-hidden rounded-[2rem] border border-ember-2/40 bg-surface p-7 shadow-lg shadow-ember-2/5 lg:mt-16 lg:grid-cols-2 lg:p-10">
+          <div className="shop-ribbon-motif absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_70%_80%_at_0%_0%,black,transparent)]" aria-hidden />
+          <div className="relative flex flex-col gap-6">
+            <div>
+              <h3 className="kit-display text-3xl">{offer.name}</h3>
+              <p className="mt-1 text-sm text-muted">{offer.tagline}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: pricingSection.freeLabel, value: pricingSection.freeValue },
+                { label: pricingSection.commissionLabel, value: `${offer.commissionPercent} %` },
+              ].map((line) => (
+                <div key={line.label} className="rounded-2xl border border-hairline bg-background/70 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{line.label}</p>
+                  <p className="kit-display ember-text mt-2 text-3xl sm:text-4xl">{line.value}</p>
+                </div>
+              ))}
+            </div>
+            <a
+              href={pricingSection.cta.href}
+              className="ember-gradient w-fit rounded-full px-7 py-3.5 text-sm font-bold text-background transition-transform hover:scale-[1.03]"
+            >
+              {pricingSection.cta.label}
+            </a>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              { label: pricingSection.setupLabel, price: offer.setupPrice, unit: pricingSection.onceLabel },
-              { label: pricingSection.monthlyLabel, price: offer.monthlyPrice, unit: pricingSection.perMonth },
-            ].map((line) => (
-              <div key={line.label} className="rounded-2xl border border-hairline bg-background p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{line.label}</p>
-                {offer.published && line.price > 0 ? (
-                  <p className="mt-1 flex items-baseline gap-1.5">
-                    <span className="ember-text font-display text-3xl font-medium">{line.price} €</span>
-                    <span className="text-sm text-faint">{line.unit}</span>
-                  </p>
-                ) : (
-                  <p className="ember-text mt-1 font-display text-2xl font-medium">{pricingSection.quoteLabel}</p>
-                )}
-              </div>
-            ))}
-          </div>
-          {!offer.published && <p className="text-xs leading-relaxed text-muted">{pricingSection.quoteHint}</p>}
-          <div>
+          <div className="relative">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted">{pricingSection.featuresLabel}</p>
-            <ul className="mt-2 flex flex-col gap-2">
+            <ul className="mt-3 flex flex-col gap-3">
               {offer.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2 text-sm">
-                  <span className="mt-0.5 text-ember-1">✓</span>
+                <li key={feature} className="flex items-start gap-3 text-sm leading-relaxed">
+                  <span className="mt-0.5 text-ember-1" aria-hidden>✓</span>
                   {feature}
                 </li>
               ))}
             </ul>
           </div>
-          <a href={pricingSection.cta.href} className="ember-gradient inline-block w-fit rounded-full px-8 py-3.5 text-sm font-semibold text-background">
-            {pricingSection.cta.label}
-          </a>
-        </div>
+        </Reveal>
         <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-muted">
           {pricingSection.guarantees.map((g) => (
             <span key={g} className="flex items-center gap-1.5">
-              <span className="text-ember-1">✓</span>
+              <span className="text-ember-1" aria-hidden>✓</span>
               {g}
             </span>
           ))}
@@ -271,48 +243,26 @@ export function ShopPricing() {
 }
 
 export function ShopFaq() {
-  return (
-    <section id={faqSection.id} className="scroll-mt-20 border-t border-hairline">
-      <div className="mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-3xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={faqSection.eyebrow} title={faqSection.title} center />
-        <div className="mt-10 flex flex-col divide-y divide-hairline rounded-3xl border border-hairline bg-surface px-6">
-          {faqSection.items.map((item) => (
-            <details key={item.question} className="group py-4">
-              <summary className="cursor-pointer list-none text-sm font-medium [&::-webkit-details-marker]:hidden">{item.question}</summary>
-              <p className="mt-3 text-sm leading-relaxed text-muted">{item.answer}</p>
-            </details>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+  return <KitFaq id={faqSection.id} eyebrow={faqSection.eyebrow} title={faqSection.title} items={faqSection.items} />;
 }
 
 /* La page se termine sur le formulaire : les questions se posent ici, sans changer de site. */
 export function ShopContact() {
   return (
-    <section id={contactSection.id} className="relative scroll-mt-20 border-t border-hairline">
-      <div
-        className="shop-ribbon-motif absolute inset-0 [mask-image:radial-gradient(ellipse_60%_70%_at_50%_50%,black,transparent)]"
-        aria-hidden
-      />
-      <div className="ember-glow absolute inset-0" aria-hidden />
-      <div className="relative mx-auto w-full max-w-2xl px-5 py-16 lg:max-w-3xl lg:px-10 lg:py-24">
-        <SectionHeading eyebrow={contactSection.eyebrow} title={contactSection.title} subtitle={contactSection.subtitle} center />
-        <div className="mt-10">
+    <section id={contactSection.id} className="relative scroll-mt-20 overflow-hidden border-t border-hairline">
+      <div className="kit-grid absolute inset-0" aria-hidden />
+      <div className="kit-aura absolute inset-0 opacity-40" aria-hidden />
+      <div className="relative mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10">
+        <KitHeading eyebrow={contactSection.eyebrow} title={contactSection.title} subtitle={contactSection.subtitle} center />
+        <Reveal className="mt-10">
           <LeadForm copy={contactSection.form} source="shop" locale="fr" />
-        </div>
+        </Reveal>
         <p className="mt-6 text-center text-xs text-muted">
           {contactSection.emailLabel}{" "}
           <a href={`mailto:${contactEmail}`} className="font-semibold text-foreground transition-colors hover:text-ember-1">
             {contactEmail}
           </a>
         </p>
-        <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-faint">
-          {contactSection.microcopy.map((item) => (
-            <span key={item}>{item}</span>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -335,7 +285,16 @@ export function ShopFooter() {
             </a>
           ))}
         </nav>
-        <p className="text-xs text-faint">© 2026 Ominin</p>
+        <nav aria-label="Documents légaux" className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-muted">
+          {LEGAL_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <p className="text-xs text-muted">
+          © 2026 Ominin{editor.siren && ` · SIREN ${editor.siren}`}
+        </p>
       </div>
     </footer>
   );

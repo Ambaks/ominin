@@ -70,7 +70,12 @@ async function open(browser, width, extra = {}) {
       brandDisplay: vars?.getPropertyValue("--brand-display").trim().split(",")[0].replace(/"/g, "") || null,
       brandWordmark: vars?.getPropertyValue("--brand-wordmark").trim().split(",")[0].replace(/"/g, "") || null,
       brandSans: vars?.getPropertyValue("--brand-sans").trim().split(",")[0].replace(/"/g, "") || null,
+      // Une police à part pour les descriptions (Toast' Tea : l'italique de son livret).
+      brandText: vars?.getPropertyValue("--brand-text").trim().split(",")[0].replace(/"/g, "") || null,
       h1: first("h1"),
+      // Un logo qui écrit le nom (logoIsName) : le h1 ne porte qu'une image,
+      // sa police ne dit rien du thème.
+      h1IsLogo: Boolean(document.querySelector("h1 img")) && !document.querySelector("h1")?.textContent.trim(),
       h2: first("main h2"),
       dish: first("article h3"),
       // Une description sur plusieurs lignes est une liste (DishCard).
@@ -85,21 +90,24 @@ async function open(browser, width, extra = {}) {
   // (posé sur une div) n'existe pas. Sans `font-family: var(--brand-sans)` sur
   // la classe du thème, tout le texte courant reste en police Ominin.
   if (t.brandSans) {
-    const want = t.brandSans.replace(/ Fallback$/, "");
+    const want = (t.brandText ?? t.brandSans).replace(/ Fallback$/, "");
     if (t.body && t.body.startsWith(want)) ok("police de texte du thème appliquée", want);
     else fail("police de texte du thème NON appliquée", `attendu ${want}, obtenu ${t.body} — ajouter font-family: var(--brand-sans) sur .${t.theme}`);
   }
   // Un thème peut composer le nom dans la police de son enseigne
   // (--brand-wordmark) et garder --brand-display pour les titres des plats :
   // le h1 se mesure alors contre la première, les plats contre la seconde.
-  if (t.brandWordmark) {
+  // Quand le h1 n'est qu'un logo, ce sont les sections qui portent le titrage :
+  // un thème peut composer les plats dans sa police de texte (Baï-Kō, comme
+  // son site).
+  if (t.brandWordmark && !t.h1IsLogo) {
     const want = t.brandWordmark.replace(/ Fallback$/, "");
     if (t.h1 && t.h1.startsWith(want)) ok("police de l'enseigne appliquée au nom", want);
     else fail("police de l'enseigne NON appliquée au nom", `attendu ${want}, obtenu ${t.h1}`);
   }
   if (t.brandDisplay) {
     const want = t.brandDisplay.replace(/ Fallback$/, "");
-    const [what, got] = t.brandWordmark ? ["plats", t.dish] : ["titrage", t.h1];
+    const [what, got] = t.h1IsLogo ? ["sections", t.h2] : t.brandWordmark ? ["plats", t.dish] : ["titrage", t.h1];
     if (got && got.startsWith(want)) ok(`police de titrage du thème appliquée (${what})`, want);
     else fail(`police de titrage du thème NON appliquée (${what})`, `attendu ${want}, obtenu ${got}`);
   }

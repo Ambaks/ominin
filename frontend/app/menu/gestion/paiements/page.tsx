@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
@@ -12,11 +13,13 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
+import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
   isPaid,
+  isPickupShop,
   isServiceToday,
+  paidAt,
   orderTotal,
   placeLabel,
   serviceDate,
@@ -26,7 +29,7 @@ import {
 } from "@/lib/gestion/selectors";
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 const MODE_FILTERS = [
   { id: "tous", label: "Tous" },
@@ -65,8 +68,8 @@ function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
   const days: DayGroup[] = [];
   const index = new Map<string, DayGroup>();
   for (const order of orders) {
-    const date = serviceDate(new Date(order.createdAt), dayEndHour);
-    const key = serviceDayKey(order.createdAt, dayEndHour);
+    const date = serviceDate(new Date(paidAt(order)), dayEndHour);
+    const key = serviceDayKey(paidAt(order), dayEndHour);
     let day = index.get(key);
     if (!day) {
       day = {
@@ -106,8 +109,11 @@ function PaymentRow({
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   // Tout encaissement au comptoir se corrige et s'annule ; un règlement en
-  // ligne est une transaction réelle chez le prestataire, il reste tel quel.
-  const editable = order.paymentMode != null && !order.paidOnline;
+  // ligne, y compris ceux de l'ancien tunnel click & collect (mode
+  // « en_ligne »), est une transaction réelle chez le prestataire : il reste
+  // tel quel.
+  const editable =
+    order.paymentMode != null && order.paymentMode !== "en_ligne" && !order.paidOnline;
   // Une addition partagée n'a pas de montant unique à afficher : ses deux
   // jambes le disent, et c'est la jambe espèces qui porte la monnaie rendue.
   const split = mode === "mixte" ? totalsByMode(order) : null;
@@ -120,11 +126,13 @@ function PaymentRow({
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5">
       <span className="w-11 shrink-0 text-xs tabular-nums text-faint">
-        {formatTime(order.createdAt)}
+        {formatTime(paidAt(order))}
       </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-medium">{heading}</p>
+      {/* Le nom d'abord : sur un téléphone, mode, total et gestes passent à
+          la ligne plutôt que de le réduire à une lettre. */}
+      <div className="min-w-36 flex-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <p className="text-sm font-medium [overflow-wrap:anywhere]">{heading}</p>
           {isCollect && (
             <span className="shrink-0 rounded-full border border-ember-2/30 bg-ember-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
               Emporter
@@ -183,26 +191,24 @@ export default function PaiementsPage() {
   const { hasFeature } = useGestionAccess();
   const toast = useToast();
   const [filter, setFilter] = useState<ModeFilter>("tous");
-  // L'historique complet n'est pas dans le fetch initial borné : pages à la
-  // demande, fusionnées avec les commandes du snapshot (fraîches, realtime).
+  // La liste s'affiche par pages de PAYMENTS_PAGE_SIZE : en rendre d'un coup
+  // le mois que l'état contient figeait l'onglet. Au-delà de cette fenêtre,
+  // les pages viennent du serveur. Curseur : undefined tant qu'aucune n'est
+  // demandée, null une fois tout chargé.
+  const [shown, setShown] = useState(PAYMENTS_PAGE_SIZE);
   const [history, setHistory] = useState<Order[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [editing, setEditing] = useState<Order | null>(null);
   const [voiding, setVoiding] = useState<Order | null>(null);
-  const loadRequested = useRef(false);
 
   const loadHistory = useCallback(
     async (before: string | null) => {
       setLoadingHistory(true);
       try {
         const page = await fetchPaidOrders(before);
-        setHistory((current) =>
-          before ? [...current, ...page.orders] : page.orders
-        );
+        setHistory((current) => [...current, ...page.orders]);
         setCursor(page.nextCursor);
-        setHistoryLoaded(true);
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Une erreur est survenue."
@@ -217,14 +223,26 @@ export default function PaiementsPage() {
   const ready =
     state != null && state.role === "gerant" && hasFeature("paiements");
 
-  useEffect(() => {
-    if (ready && !loadRequested.current) {
-      loadRequested.current = true;
-      void loadHistory(null);
-    }
-  }, [ready, loadHistory]);
-
   if (!state) return null;
+  const pickupShop = isPickupShop(state);
+  // Fermé par le rôle, pas par l'offre : rien à activer, c'est au gérant
+  // qu'il faut s'adresser. La sortie mène à l'accueil de l'équipe.
+  if (state.role !== "gerant") {
+    return (
+      <EmptyState
+        title="Réservé au gérant"
+        body="Les encaissements se consultent depuis le compte du gérant : adressez-vous à lui."
+        action={
+          <Link
+            href={pickupShop ? "/gestion/retraits" : "/gestion"}
+            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+          >
+            {pickupShop ? "Aller aux retraits" : "Retour à l'accueil"}
+          </Link>
+        }
+      />
+    );
+  }
   if (!ready) return <FeatureLocked feature="paiements" />;
 
   const paid = dedupeById([
@@ -232,19 +250,31 @@ export default function PaiementsPage() {
     ...history,
     ...state.orders,
   ])
-    // Filtré après fusion : la page chargée compte aussi les commandes
-    // collect prêtes (PAID_ORDER_STATUSES), réglées mais pas encore retirées.
+    // Filtré après fusion : une commande à emporter prête n'est réglée que
+    // payée en ligne (isPaid) — réglée au retrait, elle ne l'est pas encore.
     .filter(isPaid)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => paidAt(b).localeCompare(paidAt(a)));
 
   const visible =
     filter === "tous"
       ? paid
       : paid.filter((order) => matchesMode(order, filter));
-  const days = groupByDay(visible, state.dayEndHour);
+  // Seules les lignes s'arrêtent à `shown` : le compte et le total d'un jour
+  // portent sur tout ce qui est chargé.
+  const wholeDays = new Map(
+    groupByDay(visible, state.dayEndHour).map((day) => [day.key, day])
+  );
+  const days = groupByDay(visible.slice(0, shown), state.dayEndHour).map(
+    (day) => ({ ...day, whole: wholeDays.get(day.key) ?? day })
+  );
+  const showMore = async () => {
+    const next = shown + PAYMENTS_PAGE_SIZE;
+    if (next > visible.length && cursor !== null) await loadHistory(cursor ?? null);
+    setShown(next);
+  };
 
   const todayPaid = paid.filter((order) =>
-    isServiceToday(order.createdAt, state.dayEndHour)
+    isServiceToday(paidAt(order), state.dayEndHour)
   );
   const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
   const todayByMode = todayPaid.reduce(
@@ -275,31 +305,37 @@ export default function PaiementsPage() {
         <StripeDashboardButton />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div data-visite="paiements-jour" className="grid rounded-2xl">
+      <div className="flex flex-col gap-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div data-visite="paiements-jour" className="grid rounded-2xl">
+            <StatCard
+              label="Encaissé aujourd'hui"
+              value={formatPrice(todayTotal)}
+              hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}`}
+            />
+          </div>
           <StatCard
-            label="Encaissé aujourd'hui"
-            value={formatPrice(todayTotal)}
-            hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}`}
+            label="Espèces"
+            value={formatPrice(todayByMode.especes)}
+            hint="En caisse"
+          />
+          <StatCard
+            label="Carte"
+            value={formatPrice(todayByMode.carte)}
+            hint="Au comptoir"
+          />
+          <StatCard
+            label="En ligne"
+            value={formatPrice(todayByMode.en_ligne)}
+            hint="Payées par le client"
           />
         </div>
-        <StatCard
-          label="Espèces"
-          value={formatPrice(todayByMode.especes)}
-          hint="En caisse"
-        />
-        <StatCard
-          label="Carte"
-          value={formatPrice(todayByMode.carte)}
-          hint="Au comptoir"
-        />
-        <StatCard
-          label="En ligne"
-          value={formatPrice(todayByMode.en_ligne)}
-          hint="Payées par le client"
-        />
+        {pickupShop && (
+          <p className="text-xs text-muted">
+            Ce qui a été réglé aujourd&apos;hui, en ligne ou au comptoir, quel que soit le jour du retrait.
+          </p>
+        )}
       </div>
-
 
       {hasFeature("pourboires") && tipShares.length > 0 && (
         <section className="flex flex-col gap-2.5">
@@ -334,21 +370,17 @@ export default function PaiementsPage() {
         visite="paiements-modes"
         tabs={MODE_FILTERS.map(({ id, label }) => ({ id, label }))}
         activeId={filter}
-        onSelect={(id) => setFilter(id as ModeFilter)}
+        onSelect={(id) => {
+          setFilter(id as ModeFilter);
+          setShown(PAYMENTS_PAGE_SIZE);
+        }}
       />
 
       {visible.length === 0 ? (
-        !historyLoaded ? (
-          <div aria-busy className="flex flex-col gap-3">
-            <div className="shimmer h-24 rounded-2xl" />
-            <div className="shimmer h-24 rounded-2xl" />
-          </div>
-        ) : (
-          <EmptyState
-            title="Aucun paiement"
-            body="Les commandes encaissées apparaîtront ici, quel que soit le mode de règlement."
-          />
-        )
+        <EmptyState
+          title="Aucun paiement"
+          body="Les commandes encaissées apparaîtront ici, quel que soit le mode de règlement."
+        />
       ) : (
         <div className="flex flex-col gap-6">
           {days.map((day) => (
@@ -358,8 +390,9 @@ export default function PaiementsPage() {
                   {day.label}
                 </h2>
                 <span className="shrink-0 text-sm tabular-nums text-muted">
-                  {day.orders.length} paiement{day.orders.length > 1 ? "s" : ""} ·{" "}
-                  {formatPrice(day.total)}
+                  {day.whole.orders.length} paiement
+                  {day.whole.orders.length > 1 ? "s" : ""} ·{" "}
+                  {formatPrice(day.whole.total)}
                 </span>
               </div>
               <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
@@ -375,15 +408,15 @@ export default function PaiementsPage() {
               </div>
             </section>
           ))}
-          {cursor && (
+          {(shown < visible.length || cursor !== null) && (
             <div className="flex justify-center">
               <button
                 type="button"
-                onClick={() => void loadHistory(cursor)}
+                onClick={() => void showMore()}
                 disabled={loadingHistory}
                 className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60"
               >
-                {loadingHistory ? "Chargement…" : "Charger plus"}
+                {loadingHistory ? "Chargement…" : "Voir plus"}
               </button>
             </div>
           )}
@@ -420,6 +453,7 @@ export default function PaiementsPage() {
             voiding.paymentMode ? `en ${PAYMENT_MODE_LABELS[voiding.paymentMode].toLowerCase()} ` : ""
           }sera effacé et la commande passera en annulée. Cette action est définitive.`}
           confirmLabel="Annuler l'encaissement"
+          cancelLabel="Garder l'encaissement"
           destructive
           onClose={() => setVoiding(null)}
           onConfirm={async () => {

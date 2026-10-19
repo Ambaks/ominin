@@ -1,12 +1,21 @@
-import type { MenuItem } from "@/lib/menu-data";
-import { TOP_VENTES_COUNT } from "./constants";
+import { parisDate } from "@/lib/collect/hours";
+import { hasBlockedRequiredGroup, type MenuItem } from "@/lib/menu-data";
+import {
+  ACCORD_SOURCE_LABELS,
+  ORDER_TAB_LABELS,
+  PICKUP_ROLE_LABELS,
+  ROLE_LABELS,
+  TOP_VENTES_COUNT,
+} from "./constants";
 import type {
+  AccordSource,
   ActiveProducts,
   GestionState,
   Order,
   OrderItem,
   OrderTab,
   PaymentLeg,
+  Role,
   Staff,
   Table,
 } from "./types";
@@ -27,6 +36,29 @@ export function activeProducts(state: GestionState | null): ActiveProducts {
 }
 
 /**
+ * Boutique en click & collect seul, sans service à table : Retraits est
+ * l'accueil de son équipe, laboratoire compris ; seul le gérant a un aperçu.
+ */
+export function isPickupShop(state: GestionState | null): boolean {
+  return state !== null && activeProducts(state).offre === null && state.features.retraits;
+}
+
+/**
+ * Club sur Ominin Club seul, sans offre ni click & collect : ni carte ni
+ * service à table, son espace tient dans ses soirées.
+ */
+export function isClubOnly(state: GestionState | null): boolean {
+  if (!state) return false;
+  const products = activeProducts(state);
+  return products.offre === null && !products.collect && state.features.soirees;
+}
+
+/** Les noms des rôles à l'écran ; en base, les rôles restent les mêmes. */
+export function roleLabels(state: GestionState | null): Record<Role, string> {
+  return state && isPickupShop(state) ? PICKUP_ROLE_LABELS : ROLE_LABELS;
+}
+
+/**
  * Mois offerts échus sans exonération et sans abonnement souscrit : l'offre
  * reste ouverte côté carte, mais l'espace de gestion attend le paiement.
  */
@@ -44,21 +76,53 @@ export function orderTotal(order: Order): number {
   return order.items.reduce((sum, line) => sum + lineTotal(line), 0);
 }
 
+/** L'heure où la dernière ligne d'une commande est arrivée à table, si elle l'est. */
+export function lastServedAt(order: Order): string | undefined {
+  return order.items.reduce<string | undefined>(
+    (last, line) => (line.servedAt && (!last || line.servedAt > last) ? line.servedAt : last),
+    undefined
+  );
+}
+
 /** Close : servie (sur place), retirée (collect) ou annulée. */
 export function isHistoryStatus(status: Order["status"]): boolean {
   return status === "servie" || status === "annulee" || status === "retiree";
 }
 
 /**
+ * Payée en ligne : par le paiement intégré (à table ou sur le site), ou par
+ * l'ancien tunnel Stripe Checkout du click & collect (payment_mode
+ * « en_ligne » d'avant le 7 octobre 2026, sans paid_online).
+ */
+export function paidThroughSite(order: Order): boolean {
+  return Boolean(order.paidOnline) || order.paymentMode === "en_ligne";
+}
+
+/**
  * Encaissée : payée sur place (servie ou non ; prête au comptoir en fast
- * food), ou retirée (collect, payée en ligne).
+ * food), ou à emporter réglée — en ligne à la commande, même retirée dans
+ * plusieurs jours, ou au comptoir à son retrait.
  */
 export function isPaid(order: Order): boolean {
+  if (order.type === "collect") {
+    return order.status !== "annulee" && Boolean(order.paidOnline || order.paymentMode);
+  }
   return (
     order.status === "payee" ||
     order.status === "servie" ||
-    order.status === "retiree" ||
     (order.orderNumber !== undefined && order.status === "prete")
+  );
+}
+
+/**
+ * Quand l'argent est entré : le dernier règlement enregistré, ou la commande
+ * elle-même faute de règlement. Une précommande payée au retrait compte le
+ * jour où elle est réglée, pas celui où elle a été prise.
+ */
+export function paidAt(order: Order): string {
+  return (
+    order.payments.reduce<string>((last, leg) => (leg.paidAt > last ? leg.paidAt : last), "") ||
+    order.createdAt
   );
 }
 
@@ -88,14 +152,29 @@ export function awaitsPayment(order: Order): boolean {
 }
 
 /**
+ * Commande à emporter dont le retrait tombe un jour à venir (jour de Paris) :
+ * elle se suit depuis Retraits, elle n'est pas encore du service du jour.
+ */
+export function pickupLater(order: Order): boolean {
+  return (
+    order.type === "collect" &&
+    order.pickupAt !== undefined &&
+    parisDate(new Date(order.pickupAt)) > parisDate(new Date())
+  );
+}
+
+/**
  * À servir : commande sur place payée (partie en cuisine) dont il reste des
  * lignes à apporter, commande fast food pas encore remise, ou commande
- * collect payée encore en cours — non payée, elle n'existe pas pour la salle.
+ * collect du jour payée en ligne et encore en cours — en attente de son
+ * paiement, elle n'existe pas pour la salle. Celle que l'équipe a prise,
+ * réglée au retrait, se suit et s'encaisse depuis Retraits.
  */
 export function awaitsService(order: Order): boolean {
   if (order.type === "collect") {
+    if (!paidThroughSite(order) || pickupLater(order)) return false;
     return (
-      (order.status === "en_attente" && !awaitsOnlinePayment(order)) ||
+      order.status === "en_attente" ||
       order.status === "en_preparation" ||
       order.status === "prete"
     );
@@ -107,13 +186,23 @@ export function awaitsService(order: Order): boolean {
 }
 
 /**
+ * Nom d'un onglet de Commandes : sans service à table, rien n'est « à
+ * servir », c'est ce qui est en cours.
+ */
+export function orderTabLabel(state: GestionState, tab: OrderTab): string {
+  return tab === "a_servir" && isPickupShop(state) ? "En cours" : ORDER_TAB_LABELS[tab];
+}
+
+/**
  * Onglets de Commandes affichés, dans l'ordre du restaurant. Le filet : une
  * assiette qui attend sans que son ticket soit sorti, ou un boîtier tombé,
  * rajoutent « À servir » même si le réglage l'exclut ; en fast food, c'est la
  * file du comptoir, l'onglet est toujours là. La cuisine n'encaisse pas : son
  * onglet d'addition n'a pas de sens. Un restaurant peut n'avoir gardé que
  * l'addition ; la cuisine se retrouve alors sans onglet, et l'historique
- * tient lieu de repli.
+ * tient lieu de repli. Une boutique à emporter seule n'a pas d'addition :
+ * ses commandes du comptoir s'encaissent depuis Retraits — sauf s'il en
+ * reste d'avant (une offre à table échue garde sa carte ouverte).
  */
 export function orderTabsShown(state: GestionState, printerOffline: boolean): OrderTab[] {
   const serviceNet =
@@ -122,7 +211,10 @@ export function orderTabsShown(state: GestionState, printerOffline: boolean): Or
       printerOffline ||
       state.orders.some((order) => awaitsService(order)));
   const tabs = (serviceNet ? [...state.orderTabs, "a_servir" as OrderTab] : state.orderTabs).filter(
-    (tab) => tab !== "a_encaisser" || state.role !== "cuisinier"
+    (tab) =>
+      tab !== "a_encaisser" ||
+      (state.role !== "cuisinier" &&
+        (!isPickupShop(state) || state.orders.some(awaitsPayment)))
   );
   return tabs.length > 0 ? tabs : ["historique"];
 }
@@ -166,16 +258,23 @@ export function cardCount(orders: Order[]): number {
   return tables.size + singles;
 }
 
+/** Commande à emporter payée en ligne que personne n'a encore prise en charge. */
+export function awaitsAcknowledgement(order: Order): boolean {
+  return (
+    order.type === "collect" &&
+    order.status === "en_attente" &&
+    !awaitsOnlinePayment(order)
+  );
+}
+
 /**
  * Ce qui attend un geste de la salle : les additions à encaisser et les
- * commandes collect pas encore prises en charge.
+ * commandes collect du jour pas encore prises en charge (celles des jours
+ * suivants se signalent sur Retraits).
  */
 export function needsAttention(order: Order): boolean {
   return (
-    awaitsPayment(order) ||
-    (order.type === "collect" &&
-      order.status === "en_attente" &&
-      !awaitsOnlinePayment(order))
+    awaitsPayment(order) || (awaitsAcknowledgement(order) && !pickupLater(order))
   );
 }
 
@@ -295,7 +394,7 @@ export function revenueToday(state: GestionState): number {
     .filter(
       (order) =>
         isPaid(order) &&
-        isServiceToday(order.createdAt, state.dayEndHour)
+        isServiceToday(paidAt(order), state.dayEndHour)
     )
     .reduce((sum, order) => sum + orderTotal(order), 0);
 }
@@ -317,26 +416,24 @@ function ordersInPeriod(state: GestionState, days: number): Order[] {
   );
 }
 
-/** Plats les plus commandés sur la période, annulées exclues. */
-export function topVentes(
-  state: GestionState,
-  days: number
-): { name: string; quantity: number; revenue: number }[] {
-  const totals = new Map<
-    string,
-    { name: string; quantity: number; revenue: number }
-  >();
-  for (const order of ordersInPeriod(state, days)) {
-    for (const line of order.items) {
-      const key = line.itemId ?? line.name;
-      const entry = totals.get(key);
-      const revenue = lineTotal(line);
-      if (entry) {
-        entry.quantity += line.quantity;
-        entry.revenue += revenue;
-      } else {
-        totals.set(key, { name: line.name, quantity: line.quantity, revenue });
-      }
+export interface VenteEntry {
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+
+/** Classement des plats par quantité, une entrée par plat de la carte. */
+function rankDishes(lines: OrderItem[]): VenteEntry[] {
+  const totals = new Map<string, VenteEntry>();
+  for (const line of lines) {
+    const key = line.itemId ?? line.name;
+    const entry = totals.get(key);
+    const revenue = lineTotal(line);
+    if (entry) {
+      entry.quantity += line.quantity;
+      entry.revenue += revenue;
+    } else {
+      totals.set(key, { name: line.name, quantity: line.quantity, revenue });
     }
   }
   return [...totals.values()]
@@ -344,7 +441,56 @@ export function topVentes(
     .slice(0, TOP_VENTES_COUNT);
 }
 
+/** Plats les plus commandés sur la période, annulées exclues. */
+export function topVentes(state: GestionState, days: number): VenteEntry[] {
+  return rankDishes(ordersInPeriod(state, days).flatMap((order) => order.items));
+}
+
 export const topVentesToday = (state: GestionState) => topVentes(state, 1);
+
+/** L'établissement vend par l'accord du chef : au moins une ligne chargée en vient. */
+export function hasAccordSales(state: GestionState): boolean {
+  return state.orders.some((order) => order.items.some((line) => line.accord));
+}
+
+export interface AccordStats {
+  revenue: number;
+  lines: number;
+  /** Part des suggestions dans le chiffre des mêmes commandes, entre 0 et 1. */
+  share: number;
+  bySource: { source: AccordSource; lines: number; revenue: number }[];
+  top: VenteEntry[];
+}
+
+/**
+ * Ce que l'accord du chef a vendu sur la période, sur les mêmes commandes que
+ * le Top ventes (annulées exclues). Une ligne fusionnée compte en entier.
+ */
+export function accordStats(state: GestionState, days: number): AccordStats {
+  const lines = ordersInPeriod(state, days).flatMap((order) => order.items);
+  const bySource = (Object.keys(ACCORD_SOURCE_LABELS) as AccordSource[]).map(
+    (source) => ({ source, lines: 0, revenue: 0 })
+  );
+  const suggested: OrderItem[] = [];
+  let total = 0;
+  for (const line of lines) {
+    const revenue = lineTotal(line);
+    total += revenue;
+    if (!line.accord) continue;
+    suggested.push(line);
+    const entry = bySource.find((item) => item.source === line.accord)!;
+    entry.lines += 1;
+    entry.revenue += revenue;
+  }
+  const revenue = bySource.reduce((sum, entry) => sum + entry.revenue, 0);
+  return {
+    revenue,
+    lines: suggested.length,
+    share: total > 0 ? revenue / total : 0,
+    bySource,
+    top: rankDishes(suggested),
+  };
+}
 
 export interface DayPoint {
   /** Libellé court d'axe ("lun. 8"). */
@@ -382,7 +528,7 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
   }
   for (const order of state.orders) {
     if (!isPaid(order)) continue;
-    const point = index.get(serviceDayKey(order.createdAt, state.dayEndHour));
+    const point = index.get(serviceDayKey(paidAt(order), state.dayEndHour));
     if (!point) continue;
     point.revenue += orderTotal(order);
     point.orders += 1;
@@ -395,8 +541,9 @@ export function periodStats(
   state: GestionState,
   days: number
 ): { revenue: number; orders: number; avgTicket: number } {
-  const paid = ordersInPeriod(state, days).filter((order) =>
-    isPaid(order)
+  const from = dayStart(days - 1, state.dayEndHour).getTime();
+  const paid = state.orders.filter(
+    (order) => isPaid(order) && new Date(paidAt(order)).getTime() >= from
   );
   const revenue = paid.reduce((sum, order) => sum + orderTotal(order), 0);
   return {
@@ -447,7 +594,11 @@ export function ordersByHour(
 }
 
 export function isItemAvailable(item: MenuItem): boolean {
-  return item.disponible !== false && item.stock !== 0;
+  return (
+    item.disponible !== false &&
+    item.stock !== 0 &&
+    !hasBlockedRequiredGroup(item.options)
+  );
 }
 
 export function unavailableItems(state: GestionState): MenuItem[] {

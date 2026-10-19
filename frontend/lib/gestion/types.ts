@@ -19,6 +19,8 @@ export type OrderStatus =
   | "retiree";
 export type OrderType = "sur_place" | "collect";
 export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
+/** D'où vient une ligne suggérée par l'accord du chef (order_items.accord). */
+export type AccordSource = "panier" | "fiche" | "formule";
 /** Modes qu'un serveur choisit au comptoir ; l'en ligne, lui, est subi. */
 export type EncaissementMode = Extract<
   PaymentMode,
@@ -27,7 +29,7 @@ export type EncaissementMode = Extract<
 /** Mode d'une jambe de règlement : « mixte », c'est deux jambes, jamais une. */
 export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
-export type PaymentProvider = "stripe" | "sumup" | "square";
+export type PaymentProvider = "stripe" | "sumup" | "square" | "demo";
 /**
  * Restaurant : le client commande depuis sa table, la salle la lui apporte.
  * Fast food : il commande sans table et reçoit un numéro du jour.
@@ -44,6 +46,7 @@ export type Feature =
   | "qr"
   | "apercu"
   | "commandes"
+  | "retraits"
   | "paiements"
   | "tables"
   | "badgeage"
@@ -59,7 +62,8 @@ export type Feature =
   | "equipe_sans_comptes"
   | "produits"
   | "lien_heures"
-  | "fidelite";
+  | "fidelite"
+  | "soirees";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -82,7 +86,9 @@ export type Action =
   | "menu.availability"
   | "formules.edit"
   | "categories.edit"
-  | "etablissement.edit";
+  | "etablissement.edit"
+  | "fermetures.basculer"
+  | "soirees.edit";
 
 export interface Etablissement {
   id: string;
@@ -104,6 +110,13 @@ export interface Etablissement {
   paymentProvider: PaymentProvider | null;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
+  /** Durée d'un créneau de retrait, en minutes (posée par Ominin). */
+  collectSlotMinutes: number;
+  /**
+   * Sous ce total, le client règle au comptoir (le click & collect refuse la
+   * commande) ; null ⇒ aucun minimum.
+   */
+  onlineMinOrder: number | null;
   /**
    * Un code d'accès est posé : l'espace démarre alors en vue salle sur chaque
    * appareil, et les écrans du gérant se déverrouillent au code. Sans code,
@@ -135,6 +148,8 @@ export interface OrderItem {
   servedAt?: string;
   /** Points payés par unité : la ligne est offerte par la fidélité. */
   loyaltyPoints?: number;
+  /** Ajoutée sur une suggestion de l'accord du chef ; absente, commandée depuis la carte. */
+  accord?: AccordSource;
 }
 
 /**
@@ -179,6 +194,8 @@ export interface Order {
   onlinePaymentStartedAt?: string;
   customerName?: string;
   customerPhone?: string;
+  /** Le mot du client (inscription sur le gâteau, allergie…), click & collect. */
+  customerNote?: string;
   pickupAt?: string;
   /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
   estimatedReadyAt?: string;
@@ -251,6 +268,15 @@ export interface Formule {
   /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */
   days?: number[];
   etapes: Etape[];
+  /** Son emplacement sur une affiche des offres (rang 1 = à gauche) ; absent ⇒ tuile. */
+  affiche?: { id: string; rang: number };
+}
+
+/** Un visuel téléversé qui présente `offres` formules côte à côte. */
+export interface Affiche {
+  id: string;
+  image: string;
+  offres: number;
 }
 
 /** Mois offerts de l'offre : leur ouverture, et le verdict rendu à leur terme. */
@@ -288,8 +314,12 @@ export interface GestionState {
   staff: Staff[];
   categories: MenuCategory[];
   formules: Formule[];
+  /** Affiches des offres, de la plus ancienne à la plus récente. */
+  affiches: Affiche[];
   /** Tarifs planifiés du restaurant, du plus récent au plus ancien. */
   priceRules: PriceRule[];
+  /** Fermetures, de la plus ancienne à la plus récente. */
+  closures: Closure[];
   tables: Table[];
   orders: Order[];
 }
@@ -300,12 +330,12 @@ export type PriceRuleDirection = "majoration" | "remise";
 export type PriceRuleUnit = "montant" | "pourcentage";
 
 /**
- * Ce que la règle vise. Une catégorie entière, ou un article nommé — jamais
- * les deux à la fois. Viser la catégorie fait hériter les articles qu'on y
- * ajoutera plus tard ; viser l'article permet de l'excepter de la règle de sa
- * catégorie (le plus précis l'emporte).
+ * Ce qu'un tarif planifié ou une fermeture vise. Une catégorie entière, ou un
+ * article nommé — jamais les deux à la fois. Viser la catégorie fait hériter
+ * les articles qu'on y ajoutera plus tard ; viser l'article permet, pour un
+ * tarif, de l'excepter de la règle de sa catégorie (le plus précis l'emporte).
  */
-export type PriceRuleTarget =
+export type MenuTarget =
   | { kind: "category"; id: string }
   | { kind: "item"; id: string };
 
@@ -327,5 +357,29 @@ export interface PriceRule {
   /** Antérieur à startsAt ⇒ le créneau passe minuit et tient de la veille. */
   endsAt: string | null;
   actif: boolean;
-  targets: PriceRuleTarget[];
+  targets: MenuTarget[];
+}
+
+/**
+ * Une fermeture : une partie de la carte que le client ne commande plus, à
+ * heure fixe ou d'un geste pendant le service. Tout se lit en heure de
+ * service (lib/gestion/fermetures.ts) : la journée repart ouverte à la
+ * bascule, et le forçage à la main ne vaut que pour la journée où il a été
+ * posé.
+ */
+export interface Closure {
+  id: string;
+  /** « Cuisine », « Bar » : ce que l'équipe lit sur son bouton. */
+  name: string;
+  /** Jours ISO de l'horaire ; null ⇒ fermeture à la main seulement. */
+  days: number[] | null;
+  /** "22:00" — présent avec days. */
+  startsAt: string | null;
+  /** null ⇒ jusqu'à la fin de la journée de service. */
+  endsAt: string | null;
+  /** Fermée (true) ou rouverte (false) à la main pour overrideDay. */
+  overrideClosed: boolean | null;
+  /** Journée de service du forçage, "2026-10-13". */
+  overrideDay: string | null;
+  targets: MenuTarget[];
 }

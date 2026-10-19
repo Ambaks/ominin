@@ -1,0 +1,35 @@
+{
+  "cartes": [
+    "cafe-des-arts",
+    "le-victoria",
+    "le-novelty",
+    "brasserie-laissac"
+  ],
+  "groupe": {
+    "venues": 4,
+    "boxes": {
+      "revenue": {
+        "x": 45,
+        "y": 586,
+        "width": 1510,
+        "height": 130
+      },
+      "late": {
+        "x": 24,
+        "y": 358,
+        "width": 1552,
+        "height": 78
+      },
+      "open": {
+        "x": 965,
+        "y": 130,
+        "width": 298,
+        "height": 197
+      }
+    },
+    "heures": {
+      "width": 1552,
+      "height": 244
+    }
+  }
+}

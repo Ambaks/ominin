@@ -1,5 +1,7 @@
-import { DEMO_SLUG, getRestaurant } from "@/lib/menu-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
+import { getRestaurant } from "@/lib/menu-data";
 import {
+  DEFAULT_COLLECT_SLOT_MINUTES,
   DEFAULT_DAY_END_HOUR,
   FEATURES,
   ORDER_TABS,
@@ -279,6 +281,8 @@ export function seed(): GestionState {
       onlinePayment: false,
       paymentProvider: null,
       collectSlotCapacity: 5,
+      collectSlotMinutes: DEFAULT_COLLECT_SLOT_MINUTES,
+      onlineMinOrder: null,
       adminPinSet: false,
       paymentPinSet: false,
     },
@@ -302,6 +306,8 @@ export function seed(): GestionState {
     // La démo montre la carte telle quelle : un tarif planifié se règle, il
     // ne se raconte pas.
     priceRules: [],
+    affiches: [],
+    closures: [],
     formules: [
       {
         id: crypto.randomUUID(),

@@ -119,15 +119,6 @@ export function selectFollowUpBuckets(
   };
 }
 
-/** Badge de nav Agenda : relances ouvertes, échues aujourd'hui ou en retard. */
-export function selectTasksDueBadge(tasks: TaskRow[], now = new Date()): number {
-  const endOfToday = addDays(dayStart(now), 1).toISOString();
-  return tasks.filter(
-    (task) =>
-      task.status === "open" && task.dueAt !== null && task.dueAt < endOfToday
-  ).length;
-}
-
 /** Prochaine tâche ouverte par restaurant (cartes du pipeline). */
 export function selectNextTaskByLead(tasks: TaskRow[]): Map<string, TaskRow> {
   const next = new Map<string, TaskRow>();

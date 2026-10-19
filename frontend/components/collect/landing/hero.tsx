@@ -1,6 +1,6 @@
 import { demoShowcaseOrder } from "@/lib/collect/demo/data";
 import { hero, heroRelay, signupCta } from "@/lib/collect-landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 const order = demoShowcaseOrder();
 

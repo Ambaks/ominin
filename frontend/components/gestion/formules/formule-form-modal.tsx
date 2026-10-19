@@ -22,11 +22,14 @@ import {
 
 export function FormuleFormModal({
   formule,
+  slot,
   menuItems,
   onClose,
 }: {
   /** undefined ⇒ création. */
   formule?: Formule;
+  /** Création depuis un emplacement d'affiche : la formule y est placée. */
+  slot?: Formule["affiche"];
   menuItems: MenuItem[];
   onClose: () => void;
 }) {
@@ -65,6 +68,7 @@ export function FormuleFormModal({
           ? undefined
           : [...days].sort((a, b) => a - b),
       etapes: draftToEtapes(etapes),
+      affiche: formule ? formule.affiche : slot,
     };
     try {
       if (formule) {

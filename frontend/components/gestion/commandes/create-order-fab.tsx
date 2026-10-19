@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { isItemAvailable } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
-import { applyTarifs, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
-import { formatPrice, type MenuItem } from "@/lib/menu-data";
-import { createClient } from "@/lib/supabase/client";
+import { formatPrice } from "@/lib/menu/format";
+import {
+  OptionConfigurator,
+  PlusIcon,
+  StaffLinesList,
+  StaffMenu,
+  useStaffOrder,
+} from "./order-picker";
 
 /*
  * Prise de commande en salle : quand un client commande directement auprès
@@ -18,151 +22,6 @@ import { createClient } from "@/lib/supabase/client";
  * ensuite son encaissement : c'est lui qui la fait partir en cuisine.
  */
 
-interface CartLine {
-  key: string;
-  itemId: string;
-  name: string;
-  /** Prix unitaire suppléments compris (comme le fige place_order). */
-  unitPrice: number;
-  quantity: number;
-  choiceSummary: string[];
-  choices: { group_id: string; choice_id: string }[];
-}
-
-function lineKey(itemId: string, choices: { choice_id: string }[]): string {
-  return [itemId, ...choices.map((choice) => choice.choice_id).sort()].join(":");
-}
-
-function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      aria-hidden
-    >
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
-function OptionConfigurator({
-  item,
-  onAdd,
-  onBack,
-}: {
-  item: MenuItem;
-  onAdd: (line: CartLine) => void;
-  onBack: () => void;
-}) {
-  const groups = item.options ?? [];
-  const [selection, setSelection] = useState<Record<string, string>>({});
-  const complete = groups.every(
-    (group) => !group.obligatoire || selection[group.id]
-  );
-
-  const add = () => {
-    const choices: { group_id: string; choice_id: string }[] = [];
-    const summary: string[] = [];
-    let supplement = 0;
-    for (const group of groups) {
-      const choiceId = selection[group.id];
-      if (!choiceId) continue;
-      const choice = group.choices.find((c) => c.id === choiceId);
-      if (!choice) continue;
-      choices.push({ group_id: group.id, choice_id: choiceId });
-      summary.push(`${group.name} : ${choice.name}`);
-      supplement += choice.supplement;
-    }
-    onAdd({
-      key: lineKey(item.id, choices),
-      itemId: item.id,
-      name: item.name,
-      unitPrice: item.price + supplement,
-      quantity: 1,
-      choiceSummary: summary,
-      choices,
-    });
-  };
-
-  return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="font-display text-lg font-medium">{item.name}</p>
-        <span className="text-sm tabular-nums text-muted">
-          {formatPrice(item.price)}
-        </span>
-      </div>
-      {groups.map((group) => (
-        <div key={group.id} className="flex flex-col gap-2">
-          <p className="text-sm font-medium">
-            {group.name}
-            {!group.obligatoire && (
-              <span className="ml-1.5 text-xs font-normal text-faint">
-                (facultatif)
-              </span>
-            )}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {group.choices.map((choice) => {
-              const selected = selection[group.id] === choice.id;
-              return (
-                <button
-                  key={choice.id}
-                  type="button"
-                  onClick={() =>
-                    setSelection((current) =>
-                      selected && !group.obligatoire
-                        ? Object.fromEntries(
-                            Object.entries(current).filter(
-                              ([id]) => id !== group.id
-                            )
-                          )
-                        : { ...current, [group.id]: choice.id }
-                    )
-                  }
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    selected
-                      ? "ember-gradient text-background"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                  }`}
-                >
-                  {choice.name}
-                  {choice.supplement > 0 && (
-                    <span className="ml-1 tabular-nums opacity-80">
-                      +{formatPrice(choice.supplement)}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-      <div className="flex justify-end gap-3 pt-1">
-        <button
-          type="button"
-          onClick={onBack}
-          className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"
-        >
-          Retour
-        </button>
-        <button
-          type="button"
-          disabled={!complete}
-          onClick={add}
-          className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-40"
-        >
-          Ajouter
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function CreateOrderDialog({
   state,
   onClose,
@@ -171,52 +30,14 @@ function CreateOrderDialog({
   onClose: () => void;
 }) {
   const toast = useToast();
+  const order = useStaffOrder(state);
   const [pickedNumber, setPickedNumber] = useState<number | null>(null);
   const [newNumberRaw, setNewNumberRaw] = useState("");
-  const [lines, setLines] = useState<CartLine[]>([]);
-  const [configuring, setConfiguring] = useState<MenuItem | null>(null);
   const [sending, setSending] = useState(false);
-  const [tarifs, setTarifs] = useState<TarifMap | null>(null);
-  const [tarifsFailed, setTarifsFailed] = useState(false);
-
-  // Les tarifs planifiés du moment, relus à l'ouverture : c'est place_order
-  // qui figera les prix, et le serveur annonce souvent le total de vive voix.
-  // La carte n'est donc dépliée qu'une fois ces prix connus — un prix qui
-  // change sous les yeux du serveur vaudrait pire qu'une seconde d'attente.
-  const etablissementId = state.etablissement.id;
-  useEffect(() => {
-    let live = true;
-    fetchActiveTarifs(createClient(), etablissementId)
-      .then((loaded) => {
-        if (live) setTarifs(loaded);
-      })
-      .catch(() => {
-        if (!live) return;
-        setTarifs(new Map());
-        setTarifsFailed(true);
-      });
-    return () => {
-      live = false;
-    };
-  }, [etablissementId]);
 
   const tables = [...state.tables].sort((a, b) => a.number - b.number);
   // Fast food : pas de table à choisir, la commande prend son numéro du jour.
   const fastFood = state.etablissement.serviceMode === "fast_food";
-  // Vide tant que les tarifs ne sont pas là : la carte se déplie d'un coup,
-  // aux bons prix, plutôt que de les voir changer sous les yeux du serveur.
-  const categories =
-    tarifs === null
-      ? []
-      : applyTarifs(
-          state.categories
-            .map((category) => ({
-              ...category,
-              items: category.items.filter(isItemAvailable),
-            }))
-            .filter((category) => category.items.length > 0),
-          tarifs
-        );
 
   // Un numéro saisi prime sur la tuile touchée ; s'il existe déjà, c'est
   // cette table-là (place_order ne crée que les numéros inconnus).
@@ -227,61 +48,15 @@ function CreateOrderDialog({
       : null
     : pickedNumber;
 
-  const total = lines.reduce(
-    (sum, line) => sum + line.unitPrice * line.quantity,
-    0
-  );
-
-  const addLine = (line: CartLine) => {
-    setLines((current) => {
-      const existing = current.find((candidate) => candidate.key === line.key);
-      if (!existing) return [...current, line];
-      return current.map((candidate) =>
-        candidate.key === line.key
-          ? { ...candidate, quantity: candidate.quantity + line.quantity }
-          : candidate
-      );
-    });
-    setConfiguring(null);
-  };
-
-  const bumpLine = (key: string, delta: number) => {
-    setLines((current) =>
-      current
-        .map((line) =>
-          line.key === key ? { ...line, quantity: line.quantity + delta } : line
-        )
-        .filter((line) => line.quantity > 0)
-    );
-  };
-
-  const addItem = (item: MenuItem) => {
-    if (item.options?.length) {
-      setConfiguring(item);
+  const submit = async () => {
+    if ((!fastFood && tableNumber === null) || order.lines.length === 0) {
       return;
     }
-    addLine({
-      key: lineKey(item.id, []),
-      itemId: item.id,
-      name: item.name,
-      unitPrice: item.price,
-      quantity: 1,
-      choiceSummary: [],
-      choices: [],
-    });
-  };
-
-  const submit = async () => {
-    if ((!fastFood && tableNumber === null) || lines.length === 0) return;
     setSending(true);
     try {
       const orderNumber = await api.createStaffOrder(
         fastFood ? null : tableNumber,
-        lines.map((line) => ({
-          itemId: line.itemId,
-          quantity: line.quantity,
-          choices: line.choices,
-        }))
+        order.payload
       );
       toast.success(
         fastFood
@@ -297,13 +72,13 @@ function CreateOrderDialog({
     }
   };
 
-  if (configuring) {
+  if (order.configuring) {
     return (
       <Modal title="Nouvelle commande" onClose={onClose}>
         <OptionConfigurator
-          item={configuring}
-          onAdd={addLine}
-          onBack={() => setConfiguring(null)}
+          item={order.configuring}
+          onAdd={order.addLine}
+          onBack={() => order.setConfiguring(null)}
         />
       </Modal>
     );
@@ -318,13 +93,15 @@ function CreateOrderDialog({
           <span className="mr-auto flex items-baseline gap-2">
             <span className="text-sm text-muted">Total</span>
             <span className="font-display text-xl text-ember-1">
-              {formatPrice(total)}
+              {formatPrice(order.total)}
             </span>
           </span>
           <button
             type="button"
             disabled={
-              (!fastFood && tableNumber === null) || lines.length === 0 || sending
+              (!fastFood && tableNumber === null) ||
+              order.lines.length === 0 ||
+              sending
             }
             onClick={() => void submit()}
             className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
@@ -375,101 +152,8 @@ function CreateOrderDialog({
           </div>
         )}
 
-        {lines.length > 0 && (
-          <div className="flex flex-col gap-2.5">
-            <p className="text-sm font-medium">Commande</p>
-            <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-              {lines.map((line, index) => (
-                <li
-                  key={line.key}
-                  className={`flex items-center gap-3 px-4 py-3 ${
-                    index > 0 ? "border-t border-hairline" : ""
-                  }`}
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{line.name}</p>
-                    {line.choiceSummary.length > 0 && (
-                      <p className="truncate text-xs text-faint">
-                        {line.choiceSummary.join(" · ")}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2.5 rounded-full border border-hairline px-1">
-                    <button
-                      type="button"
-                      onClick={() => bumpLine(line.key, -1)}
-                      className="flex size-7 items-center justify-center text-lg text-muted"
-                      aria-label={`Retirer un ${line.name}`}
-                    >
-                      −
-                    </button>
-                    <span className="min-w-4 text-center text-sm font-semibold tabular-nums">
-                      {line.quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => bumpLine(line.key, 1)}
-                      className="flex size-7 items-center justify-center text-lg text-muted"
-                      aria-label={`Ajouter un ${line.name}`}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className="shrink-0 text-sm tabular-nums text-ember-1">
-                    {formatPrice(line.unitPrice * line.quantity)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {tarifsFailed && (
-          <p className="rounded-xl border border-hairline px-4 py-3 text-xs text-muted">
-            Les tarifs planifiés n&apos;ont pas pu être relus : les prix
-            ci-dessous sont ceux de la carte. La commande, elle, sera
-            enregistrée au tarif du moment.
-          </p>
-        )}
-
-        <div className="flex flex-col gap-4">
-          {tarifs === null && (
-            <p className="text-xs text-faint">Chargement de la carte…</p>
-          )}
-          {categories.map((category) => (
-            <div key={category.id} className="flex flex-col gap-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-                {category.name}
-              </p>
-              <ul className="flex flex-col">
-                {category.items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-center gap-3 border-b border-hairline py-2.5 last:border-b-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm">{item.name}</p>
-                      {item.options && item.options.length > 0 && (
-                        <p className="text-xs text-faint">Avec options</p>
-                      )}
-                    </div>
-                    <span className="shrink-0 text-sm tabular-nums text-muted">
-                      {formatPrice(item.price)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => addItem(item)}
-                      aria-label={`Ajouter ${item.name}`}
-                      className="flex size-8 shrink-0 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-ember-2/40 hover:text-ember-1"
-                    >
-                      <PlusIcon className="size-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <StaffLinesList order={order} />
+        <StaffMenu order={order} />
       </div>
     </Modal>
   );

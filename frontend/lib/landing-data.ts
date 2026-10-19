@@ -1,4 +1,5 @@
-import { DEMO_SLUG, formatPrice, unsplash } from "@/lib/menu-data";
+import { DEMO_SLUG, formatPrice } from "@/lib/menu/format";
+import { unsplash } from "@/lib/menu/images";
 import { siteUrl } from "@/lib/site";
 
 export interface Cta {
@@ -102,7 +103,7 @@ export interface FaqItem {
 export const brand = "Ominin";
 
 /** Plancher du nombre de caisses compatibles : le texte dit « plus de ». */
-const compatibleTills = 40;
+export const compatibleTills = 40;
 
 export const contactEmail = "omininsupport@gmail.com";
 
@@ -127,7 +128,7 @@ export const planQuoteHref = (planId: string) =>
 // Insécable : le montant ne se sépare jamais de son symbole.
 const formatEuros = (amount: number) => `${amount.toLocaleString("fr-FR")}\u00a0€`;
 
-const connectCommission: PlanCommission = {
+export const connectCommission: PlanCommission = {
   percent: 3,
   basis: "des commandes payées en ligne par carte",
 };

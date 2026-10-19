@@ -22,24 +22,22 @@ import {
   prospectsLabel,
   type Product,
 } from "@/lib/admin/products";
-import { selectTasksDueBadge } from "@/lib/admin/selectors";
 import { SOCIAL_PRODUCTS } from "@/lib/admin/social";
 import { retryLoad, useAdminLoadError } from "@/lib/admin/store";
 import { createClient } from "@/lib/supabase/client";
 import {
   BotIcon,
-  CalendarIcon,
   ChartIcon,
   FlagIcon,
   MapPinIcon,
-  PullRequestIcon,
+  NoteIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
   StoreIcon,
-  TaskIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
+import { NotificationsButton } from "./notifications";
 
 interface NavItem {
   /** Chemin local (sans racine ni produit). */
@@ -50,8 +48,6 @@ interface NavItem {
   products?: readonly Product[];
   /** Écrans rattachés, sans entrée propre. */
   subPaths?: readonly string[];
-  /** Actif sur son seul chemin : ses sous-chemins sont d'autres entrées. */
-  exact?: boolean;
 }
 
 interface Section {
@@ -62,8 +58,9 @@ interface Section {
 
 /*
  * Trois questions, trois onglets. Marketing va chercher des restaurants ;
- * Clients regarde ceux qui ont signé ; Projet dit ce qu'on construit, lu
- * depuis GitHub. L'écran des fiches de prospection (crm_restaurants) prend le
+ * Clients regarde ceux qui ont signé ; Projet suit les clients à interfacer
+ * et ce qui reste pour finir les offres, et tient le journal de ce que chacun
+ * a poussé. L'écran des fiches de prospection (crm_restaurants) prend le
  * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
  * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
@@ -99,7 +96,6 @@ const SECTIONS: Section[] = [
         icon: ShareIcon,
         products: SOCIAL_PRODUCTS,
       },
-      { href: "/agenda", label: "Agenda", icon: CalendarIcon },
     ],
   },
   {
@@ -132,19 +128,14 @@ const SECTIONS: Section[] = [
     id: "projet",
     label: "Projet",
     items: [
-      { href: "/projet", label: "Planning", icon: FlagIcon, exact: true },
-      { href: "/projet/taches", label: "Tâches", icon: TaskIcon },
-      {
-        href: "/projet/pull-requests",
-        label: "Pull requests",
-        icon: PullRequestIcon,
-      },
+      { href: "/projet", label: "Suivi", icon: FlagIcon },
+      { href: "/journal", label: "Journal", icon: NoteIcon },
     ],
   },
 ];
 
 function isActive(localPath: string, item: NavItem): boolean {
-  if (item.href === "/" || item.exact) return localPath === item.href;
+  if (item.href === "/") return localPath === item.href;
   return [item.href, ...(item.subPaths ?? [])].some(
     (path) => localPath === path || localPath.startsWith(`${path}/`),
   );
@@ -258,7 +249,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const current = section.items.find((item) => isActive(localPath, item));
   const items = section.items.filter((item) => availableIn(item, product));
   const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
-  const tasksDue = state ? selectTasksDueBadge(state.tasks) : 0;
   const pendingDrafts = state?.pendingDrafts ?? 0;
 
   /** Changer de produit garde l'écran courant s'il le concerne. */
@@ -271,11 +261,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   };
 
   const badgeCount = (item: NavItem) =>
-    item.href === "/agenda"
-      ? tasksDue
-      : item.href === "/prospection"
-        ? pendingDrafts
-        : 0;
+    item.href === "/prospection" ? pendingDrafts : 0;
 
   const badge = (item: NavItem, compact: boolean) => {
     const count = badgeCount(item);
@@ -370,6 +356,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </nav>
               </div>
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <NotificationsButton />
                 <ThemeToggle />
                 <button
                   type="button"

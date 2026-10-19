@@ -11,14 +11,17 @@ import {
   ANALYTICS_PERIOD_DAYS,
   DEFAULT_DAY_END_HOUR,
   HISTORY_ORDER_STATUSES,
-  HISTORY_PAGE_SIZE,
+  ORDER_HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
   PAID_ORDER_STATUSES,
+  PAYMENTS_PAGE_SIZE,
   TABLE_FEATURES,
 } from "./constants";
 import {
   assembleCategories,
+  rowToAffiche,
+  rowToClosure,
   rowToEtablissement,
   rowToFormule,
   rowToMember,
@@ -62,15 +65,12 @@ function notify() {
  * ancien se charge à la demande via fetchOrderHistory — sinon toute l'histoire
  * serait retéléchargée à chaque montage et à chaque événement realtime.
  */
-async function fetchOrders(supabase: Client, etablissementId: string) {
-  // Sans borne, tout l'historique repasserait sur le réseau à chaque refetch.
-  // On charge la fenêtre couvrant la plus longue période d'analytique, plus
-  // les commandes encore ouvertes quel que soit leur âge. L'heure de bascule
-  // n'est pas encore connue : un jour de plus depuis minuit couvre toutes.
-  const since = dayStart(
-    Math.max(...ANALYTICS_PERIOD_DAYS),
-    DEFAULT_DAY_END_HOUR
-  ).toISOString();
+async function fetchOrders(
+  supabase: Client,
+  etablissementId: string,
+  filter: string,
+  ids?: string[]
+) {
   // L'API plafonne chaque réponse (max rows de PostgREST, 1 000 chez
   // Supabase) : triées de la plus ancienne à la plus récente, ce sont les
   // nouvelles commandes qui tombaient du tableau de bord — le BOHO a passé
@@ -83,116 +83,249 @@ async function fetchOrders(supabase: Client, etablissementId: string) {
       .from("orders")
       .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
-      .or(
-        `created_at.gte.${since},status.in.(${OPEN_ORDER_STATUSES.join(",")})`
-      )
+      .or(filter)
       .order("created_at", { ascending: true });
+    if (ids) query = query.in("id", ids);
     if (after) query = query.gt("created_at", after);
     const page = must(await query);
-    if (page.length === 0) break;
     orders.push(...page.map(rowToOrder));
+    // Quelques ids tiennent dans une page : pas de page vide à relire.
+    if (ids || page.length === 0) break;
     after = page[page.length - 1].created_at;
   }
   return orders;
 }
 
-/**
- * Page d'historique (commandes clôturées), curseur = created_at décroissant.
- * Une recherche par table s'arrête au début du service : la table 4 d'hier
- * soir n'est pas celle qu'on cherche.
+/*
+ * Sans borne, tout l'historique repasserait sur le réseau à chaque refetch.
+ * On charge la fenêtre couvrant la plus longue période d'analytique, plus
+ * les commandes encore ouvertes quel que soit leur âge. L'heure de bascule
+ * n'est pas encore connue : un jour de plus depuis minuit couvre toutes.
  */
+const windowStart = () =>
+  dayStart(Math.max(...ANALYTICS_PERIOD_DAYS), DEFAULT_DAY_END_HOUR).toISOString();
+
+const openStatuses = `status.in.(${OPEN_ORDER_STATUSES.join(",")})`;
+
+// Une précommande prise il y a plus longtemps que la fenêtre, retirée
+// dedans, y reste : son règlement compte dans la période.
+const windowFilter = (since: string) =>
+  `created_at.gte.${since},pickup_at.gte.${since},${openStatuses}`;
+
+/** Début de fenêtre de la dernière lecture complète. */
+let loadedSince = "";
+
+async function fetchWindow(supabase: Client, etablissementId: string) {
+  const since = windowStart();
+  const orders = await fetchOrders(supabase, etablissementId, windowFilter(since));
+  loadedSince = since;
+  return orders;
+}
+
+/** Page d'historique (commandes clôturées), curseur = created_at décroissant. */
 export async function fetchOrderHistory(
-  before: string | null,
-  tableId: string | null = null
+  before: string | null
 ): Promise<{ orders: Order[]; nextCursor: string | null }> {
   const supabase = createClient();
-  const { etablissement, dayEndHour } = getState();
   let query = supabase
     .from("orders")
     .select("*, order_items(*), order_payments(*)")
-    .eq("etablissement_id", etablissement.id)
+    .eq("etablissement_id", getState().etablissement.id)
     .in("status", HISTORY_ORDER_STATUSES)
     .order("created_at", { ascending: false })
-    .limit(HISTORY_PAGE_SIZE);
-  if (tableId) {
-    query = query
-      .eq("table_id", tableId)
-      .gte("created_at", dayStart(0, dayEndHour).toISOString());
-  }
+    .limit(ORDER_HISTORY_PAGE_SIZE);
   if (before) query = query.lt("created_at", before);
   const orders = must(await query).map(rowToOrder);
   const nextCursor =
-    orders.length === HISTORY_PAGE_SIZE
+    orders.length === ORDER_HISTORY_PAGE_SIZE
       ? orders[orders.length - 1].createdAt
       : null;
   return { orders, nextCursor };
 }
 
-/** Historique des paiements (commandes encaissées), curseur = created_at décroissant. */
+/**
+ * Historique des paiements (commandes encaissées), curseur = created_at
+ * décroissant. Sans curseur, la page commence où s'arrête la fenêtre de
+ * l'état : ce qu'elle contient est déjà là.
+ */
 export async function fetchPaidOrders(
   before: string | null
 ): Promise<{ orders: Order[]; nextCursor: string | null }> {
   const supabase = createClient();
   const etablissementId = getState().etablissement.id;
-  let query = supabase
-    .from("orders")
-    .select("*, order_items(*), order_payments(*)")
-    .eq("etablissement_id", etablissementId)
-    .in("status", PAID_ORDER_STATUSES)
-    .order("created_at", { ascending: false })
-    .limit(HISTORY_PAGE_SIZE);
-  if (before) query = query.lt("created_at", before);
-  const orders = must(await query).map(rowToOrder);
+  const orders = must(
+    await supabase
+      .from("orders")
+      .select("*, order_items(*), order_payments(*)")
+      .eq("etablissement_id", etablissementId)
+      .in("status", PAID_ORDER_STATUSES)
+      .lt("created_at", before ?? loadedSince)
+      .order("created_at", { ascending: false })
+      .limit(PAYMENTS_PAGE_SIZE)
+  ).map(rowToOrder);
   const nextCursor =
-    orders.length === HISTORY_PAGE_SIZE
+    orders.length === PAYMENTS_PAGE_SIZE
       ? orders[orders.length - 1].createdAt
       : null;
   return { orders, nextCursor };
 }
 
 /*
- * Refetch des commandes sur événement realtime, coalescé : un refetch en
- * vol absorbe les événements suivants au lieu d'empiler les requêtes.
+ * Refetch sur événement realtime, coalescé : un refetch en vol absorbe les
+ * événements suivants au lieu d'empiler les requêtes, et une réponse
+ * ancienne ne repasse jamais après une récente.
  */
-let refreshing = false;
-let refreshQueued = false;
+function coalesced(
+  what: string,
+  refetch: (supabase: Client, etablissementId: string) => Promise<void>
+) {
+  let running = false;
+  let queued = false;
+  return async (supabase: Client, etablissementId: string) => {
+    // Tant que l'état n'est pas prêt, le fetch initial fait foi.
+    if (!state) return;
+    if (running) {
+      queued = true;
+      return;
+    }
+    running = true;
+    try {
+      do {
+        queued = false;
+        await refetch(supabase, etablissementId);
+      } while (queued);
+    } catch (error) {
+      console.error(`Rafraîchissement ${what} impossible :`, error);
+    } finally {
+      running = false;
+    }
+  };
+}
 
-async function refreshOrders(supabase: Client, etablissementId: string) {
-  // Tant que l'état n'est pas prêt, le fetch initial fait foi.
-  if (!state) return;
-  if (refreshing) {
-    refreshQueued = true;
-    return;
-  }
-  refreshing = true;
+/*
+ * Relectures ciblées : la fenêtre entière pesait plusieurs Mo au BOHO, et
+ * elle était relue à chaque ligne ajoutée ou statut changé, sur chaque
+ * appareil ouvert. Un événement ne relit plus que sa commande. Un réveil ou
+ * un retour de coupure relit les commandes ouvertes et celles créées depuis
+ * la plus récente connue ; la fenêtre entière ne se relit qu'au changement
+ * de jour.
+ */
+let pendingOrderIds = new Set<string>();
+let pendingCatchUp = false;
+
+const refreshOrders = coalesced("des commandes", async (supabase, etablissementId) => {
+  const catchUp = pendingCatchUp;
+  const ids = [...pendingOrderIds];
+  pendingCatchUp = false;
+  pendingOrderIds = new Set();
   try {
-    do {
-      refreshQueued = false;
-      const orders = await fetchOrders(supabase, etablissementId);
+    if (catchUp && windowStart() !== loadedSince) {
+      const orders = await fetchWindow(supabase, etablissementId);
       if (state) {
         state = { ...state, orders };
         notify();
       }
-    } while (refreshQueued);
+    } else if (catchUp && state) {
+      const known = state.orders;
+      const wanted = [
+        ...ids,
+        ...known
+          .filter((order) => OPEN_ORDER_STATUSES.includes(order.status))
+          .map((order) => order.id),
+      ];
+      const newest = known.at(-1)?.createdAt ?? loadedSince;
+      const filter = [`created_at.gte.${newest}`, openStatuses];
+      if (wanted.length > 0) filter.push(`id.in.(${wanted.join(",")})`);
+      const fresh = await fetchOrders(supabase, etablissementId, filter.join(","));
+      if (state) {
+        state = { ...state, orders: mergeOrders(state.orders, wanted, fresh) };
+        notify();
+      }
+    } else if (ids.length > 0) {
+      const fresh = await fetchOrders(
+        supabase,
+        etablissementId,
+        windowFilter(loadedSince),
+        ids
+      );
+      if (state) {
+        state = { ...state, orders: mergeOrders(state.orders, ids, fresh) };
+        notify();
+      }
+    }
   } catch (error) {
-    console.error("Rafraîchissement des commandes impossible :", error);
-  } finally {
-    refreshing = false;
+    pendingCatchUp ||= catchUp;
+    for (const id of ids) pendingOrderIds.add(id);
+    throw error;
   }
+});
+
+/**
+ * Remplace les commandes relues et ajoute les nouvelles ; une commande
+ * demandée mais absente de la réponse (supprimée, sortie de la fenêtre)
+ * disparaît, comme à une relecture complète.
+ */
+function mergeOrders(current: Order[], wanted: string[], fresh: Order[]): Order[] {
+  const asked = new Set(wanted);
+  const byId = new Map(fresh.map((order) => [order.id, order]));
+  const orders: Order[] = [];
+  for (const order of current) {
+    const next = byId.get(order.id);
+    if (next) {
+      orders.push(next);
+      byId.delete(order.id);
+    } else if (!asked.has(order.id)) {
+      orders.push(order);
+    }
+  }
+  if (byId.size === 0) return orders;
+  orders.push(...byId.values());
+  return orders.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
+
+/** Sans ids : rattrapage (réveil, retour de coupure). */
+function requestOrders(
+  supabase: Client,
+  etablissementId: string,
+  ids?: Iterable<string>
+) {
+  if (ids) for (const id of ids) pendingOrderIds.add(id);
+  else pendingCatchUp = true;
+  return refreshOrders(supabase, etablissementId);
+}
+
+/** Commandes de lignes connues localement (une ligne supprimée ne porte que son id). */
+export function ordersOfLines(lineIds: string[]): string[] {
+  const lines = new Set(lineIds);
+  return (state?.orders ?? [])
+    .filter((order) => order.items.some((item) => lines.has(item.id)))
+    .map((order) => order.id);
+}
+
+type ChangePayload = {
+  new: { id?: string; order_id?: string };
+  old: { id?: string; order_id?: string };
+};
 
 /*
  * Abonnement realtime, plus deux filets pour le Wi-Fi de salle : au retour
  * d'une coupure (canal rejoint) et au réveil de l'appareil (onglet redevenu
- * visible), tout est relu — un événement a pu passer inaperçu. Un nouvel
+ * visible), tout est rattrapé — un événement a pu passer inaperçu. Un nouvel
  * essai de chargement remplace le canal précédent au lieu de l'empiler.
  */
 function subscribeOrders(supabase: Client, etablissementId: string) {
   const refreshAll = () => {
-    void refreshOrders(supabase, etablissementId);
+    void requestOrders(supabase, etablissementId);
     void refreshTables(supabase, etablissementId);
+    void refreshClosures(supabase, etablissementId);
   };
-  const onChange = () => void refreshOrders(supabase, etablissementId);
+  const changed = (orderId: string | undefined) => {
+    if (orderId) void requestOrders(supabase, etablissementId, [orderId]);
+  };
+  const onOrder = ({ new: row, old }: ChangePayload) => changed(row.id ?? old.id);
+  // Une ligne supprimée n'envoie que son id : sa commande se retrouve en local.
+  const onLine = ({ new: row, old }: ChangePayload) =>
+    changed(row.order_id ?? old.order_id ?? ordersOfLines(old.id ? [old.id] : [])[0]);
 
   if (channel) void supabase.removeChannel(channel);
   if (onVisible) document.removeEventListener("visibilitychange", onVisible);
@@ -212,14 +345,14 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
         table: "orders",
         filter: `etablissement_id=eq.${etablissementId}`,
       },
-      onChange
+      onOrder
     )
     // order_items n'a pas de colonne etablissement_id : RLS limite déjà les
     // événements reçus aux commandes de l'établissement du membre.
     .on(
       "postgres_changes",
       { event: "*", schema: "public", table: "order_items" },
-      onChange
+      onLine
     )
     // Tables ouvertes depuis la salle sur un autre appareil (nouveau numéro).
     .on(
@@ -232,6 +365,19 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       },
       () => void refreshTables(supabase, etablissementId)
     )
+    // Une fermeture basculée depuis la cuisine se voit au comptoir. Ses
+    // cibles s'écrivent avec elle (enregistrer_fermeture) : son événement
+    // suffit à les relire.
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "closures",
+        filter: `etablissement_id=eq.${etablissementId}`,
+      },
+      () => void refreshClosures(supabase, etablissementId)
+    )
     .subscribe((status) => {
       const live = status === "SUBSCRIBED";
       if (live && joined) refreshAll();
@@ -242,6 +388,21 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
       }
     });
 }
+
+const closuresQuery = (supabase: Client, etablissementId: string) =>
+  supabase
+    .from("closures")
+    .select("*, closure_targets(*)")
+    .eq("etablissement_id", etablissementId)
+    .order("created_at", { ascending: true });
+
+const refreshClosures = coalesced("des fermetures", async (supabase, etablissementId) => {
+  const rows = must(await closuresQuery(supabase, etablissementId));
+  if (state) {
+    state = { ...state, closures: rows.map(rowToClosure) };
+    notify();
+  }
+});
 
 async function refreshTables(supabase: Client, etablissementId: string) {
   if (!state) return;
@@ -302,7 +463,9 @@ async function load(): Promise<void> {
     categories,
     items,
     formules,
+    affiches,
     priceRules,
+    closures,
     tables,
     orders,
     members,
@@ -335,6 +498,12 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
         .then(must),
+      supabase
+        .from("affiches")
+        .select("*")
+        .eq("etablissement_id", etablissementId)
+        .order("created_at", { ascending: true })
+        .then(must),
       // Les cibles sont embarquées : une règle sans elles ne dit rien.
       supabase
         .from("price_rules")
@@ -342,13 +511,14 @@ async function load(): Promise<void> {
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: false })
         .then(must),
+      closuresQuery(supabase, etablissementId).then(must),
       supabase
         .from("tables")
         .select("*")
         .eq("etablissement_id", etablissementId)
         .order("number", { ascending: true })
         .then(must),
-      fetchOrders(supabase, etablissementId),
+      fetchWindow(supabase, etablissementId),
       supabase
         .from("memberships")
         .select("*")
@@ -388,7 +558,9 @@ async function load(): Promise<void> {
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
+    affiches: affiches.map(rowToAffiche),
     priceRules: priceRules.map(rowToPriceRule),
+    closures: closures.map(rowToClosure),
     tables: tables.map(rowToTable),
     orders,
   };
@@ -476,10 +648,10 @@ function resolvedFeatures(snapshot: GestionState): GestionState["features"] {
   return features;
 }
 
-/** Relit les commandes sans attendre l'événement realtime (après un place_order local). */
-export async function refreshOrdersNow(): Promise<void> {
+/** Relit ces commandes sans attendre l'événement realtime (après un geste local). */
+export async function refreshOrdersNow(orderIds: string[]): Promise<void> {
   if (!state) return;
-  await refreshOrders(createClient(), state.etablissement.id);
+  await requestOrders(createClient(), state.etablissement.id, orderIds);
 }
 
 /*

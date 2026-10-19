@@ -19,6 +19,16 @@ function Svg({ className, children }: IconProps & { children: React.ReactNode })
   );
 }
 
+/** Un sac à emporter : les retraits du click & collect. */
+export function BagIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 8h14l-1.2 12.5H6.2L5 8z" />
+      <path d="M9 10.5V6.5a3 3 0 0 1 6 0v4" />
+    </Svg>
+  );
+}
+
 export function ApercuIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -238,6 +248,24 @@ export function HelpIcon(props: IconProps) {
       <circle cx="12" cy="12" r="9" />
       <path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.8" />
       <path d="M12 17.2v.1" />
+    </Svg>
+  );
+}
+
+/** Un croissant de lune et une étoile : les soirées d'un club. */
+export function SoireesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 15A8 8 0 0 1 9 4a8 8 0 1 0 11 11Z" />
+      <path d="M17 3.5l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z" />
+    </Svg>
+  );
+}
+
+export function PhoneIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 3.5h3.5l1.5 4.5-2.2 1.4a11 11 0 0 0 4.8 4.8l1.4-2.2 4.5 1.5V17a2 2 0 0 1-2 2A15.5 15.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />
     </Svg>
   );
 }

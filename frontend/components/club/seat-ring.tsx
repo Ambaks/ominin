@@ -1,0 +1,239 @@
+"use client";
+
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { formatCents } from "@/lib/club/format";
+import { initials } from "@/lib/club/mappers";
+import { fillSeats } from "@/lib/club/seats";
+
+/*
+ * Une table partagée vue d'en haut : la table au centre, une place par
+ * personne attendue tout autour. Chaque part payée remplit des places à
+ * proportion de son montant (une part égale = une place), dans l'ordre
+ * d'arrivée ; la première place qu'elle touche porte les initiales du
+ * payeur (« Vous » pour la personne qui regarde, « Libre » sur une place
+ * vide). Les places pleines se relient en constellation, l'anneau
+ * extérieur dit la part de la table déjà réglée. Les places vides
+ * respirent doucement ; une part arrivée pendant qu'on regarde pulse. Le
+ * disque d'une place pleine à moitié a la moitié de sa surface (échelle en
+ * racine). Toucher ou survoler une place dit qui l'a payée et combien.
+ */
+
+export type SeatShare = {
+  id: string;
+  name: string;
+  amountCents: number;
+  /** organiser : l'hôte ; you : la personne qui regarde ; preview : la part en cours de choix. */
+  tone: "organiser" | "friend" | "you" | "preview";
+};
+
+/* Au-delà de cette échelle, le disque couvre assez la place pour porter des initiales sombres. */
+const SOLID = 0.72;
+
+/* Repère du dessin (unités du viewBox) : centre, rayon des places, de l'anneau, de la table. */
+const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4 } as const;
+/* Taille du texte d'une place (« Vous », initiales, « Libre ») par unité de rayon : il tient dans le disque à toute tablée. */
+const LABEL_PER_RADIUS = 0.5;
+/* Écart (en places) sous lequel un reste « tombe juste ». */
+const EPSILON_SEAT = 0.01;
+
+export function SeatRing({
+  seats: count,
+  priceCents,
+  shares,
+  label,
+  freshId,
+  scrubbing = false,
+  compact = false,
+  className = "",
+}: {
+  seats: number;
+  priceCents: number;
+  shares: SeatShare[];
+  /** Au centre, au-dessus de ce qui reste à payer : la tablée (« 8 pers. »). */
+  label: string;
+  /** Une part à fêter dès le montage (celle qu'on vient de payer) ; les autres pulsent si elles arrivent ensuite. */
+  freshId?: string | null;
+  /** Le montant est en train d'être glissé : les places suivent sans délai ni rebond. */
+  scrubbing?: boolean;
+  /** Petit anneau sans texte dedans : la tablée, le reste et la légende passent à côté, lisibles. */
+  compact?: boolean;
+  className?: string;
+}) {
+  const ref = useRef<SVGSVGElement>(null);
+  // Les parts déjà là au montage ne pulsent pas : seules celles qui arrivent ensuite.
+  const [known] = useState(() => new Set(shares.map((share) => share.id)));
+  const [active, setActive] = useState<number | null>(null);
+  /* Les respirations s'arrêtent hors de l'écran. */
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      node.toggleAttribute("data-offscreen", !entry.isIntersecting),
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const seats = fillSeats(count, priceCents, shares, (share) => share.amountCents);
+  const paid = Math.min(1, shares.reduce((sum, share) => sum + share.amountCents, 0) / priceCents);
+  const centre = RING.size / 2;
+  const seatRadius = Math.min(RING.seatMax, (Math.PI * RING.seats) / count - RING.gap);
+  const labelSize = { fontSize: seatRadius * LABEL_PER_RADIUS };
+  const points = seats.map((_, index) => {
+    const angle = -Math.PI / 2 + (index / count) * Math.PI * 2;
+    return { x: centre + Math.cos(angle) * RING.seats, y: centre + Math.sin(angle) * RING.seats };
+  });
+  const lit = points.filter((_, index) => seats[index].fill >= 1);
+  const names = shares.filter((share) => share.tone !== "preview").map((share) => share.name);
+  const free = seats.filter((seat) => seat.fill < 1).length;
+  const paidCents = shares.reduce((sum, share) => sum + share.amountCents, 0);
+  const remaining = Math.max(0, priceCents - paidCents);
+  const caption = active !== null ? seats[active]?.owner : null;
+  // « N places restantes » seulement si le reste tombe juste en places ; sinon, le montant seul.
+  const exact = Math.abs(remaining / (priceCents / count) - free) < EPSILON_SEAT;
+  const left =
+    remaining <= 0
+      ? "Réglée"
+      : exact
+        ? `${free} place${free > 1 ? "s" : ""} restante${free > 1 ? "s" : ""}`
+        : `${formatCents(remaining)} restants`;
+  const legend = (
+    <span className="club-seats-legend" aria-hidden>
+      <span>
+        <i data-tone="you" /> Vous
+      </span>
+      {shares.some((share) => share.tone === "organiser") && (
+        <span>
+          <i data-tone="organiser" /> Hôte
+        </span>
+      )}
+      <span>
+        <i data-tone="friend" /> Amis
+      </span>
+      <span>
+        <i /> Libre
+      </span>
+    </span>
+  );
+
+  return (
+    <figure
+      className={`club-seats-figure ${className}`}
+      data-scrub={scrubbing || undefined}
+      data-compact={compact || undefined}
+    >
+      <svg
+        ref={ref}
+        viewBox={`0 0 ${RING.size} ${RING.size}`}
+        className="club-seats"
+        role="group"
+        aria-label={`${count} places${names.length ? ` · ${names.join(", ")} ${names.length > 1 ? "ont" : "a"} payé` : ""} · ${free} place${free > 1 ? "s" : ""} à prendre`}
+      >
+        <circle className="club-seats-track" cx={centre} cy={centre} r={RING.progress} />
+        <circle
+          className="club-seats-progress"
+          cx={centre}
+          cy={centre}
+          r={RING.progress}
+          pathLength={1}
+          style={{ "--paid": paid } as CSSProperties}
+          transform={`rotate(-90 ${centre} ${centre})`}
+        />
+        {lit.length > 1 && (
+          <polyline
+            className="club-seats-lines"
+            points={lit.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
+            pathLength={1}
+          />
+        )}
+        <g className="club-seats-table" transform={`translate(${centre} ${centre})`}>
+          <circle r={RING.table} />
+          <path
+            className="club-seats-star"
+            d="M0-14C.5-4 1.4-1.4 14 0 1.4 1.4.5 4 0 14-.5 4-1.4 1.4-14 0-1.4-1.4-.5-4 0-14Z"
+            transform="translate(0 -12)"
+          />
+          {!compact && (
+            <>
+              <text y={6} textAnchor="middle" dominantBaseline="central">
+                {label}
+              </text>
+              <text className="club-seats-left" y={24} textAnchor="middle" dominantBaseline="central">
+                {left}
+              </text>
+            </>
+          )}
+        </g>
+        {seats.map((seat, index) => {
+          const point = points[index];
+          const owner = seat.home ? seat.owner : null;
+          const tone = seat.owner?.tone;
+          const fresh = owner && (owner.id === freshId || !known.has(owner.id));
+          // La surface du disque suit la part de la place : échelle en racine.
+          const scale = Math.sqrt(seat.fill);
+          return (
+            <g
+              key={index}
+              className="club-seat"
+              data-tone={tone}
+              data-solid={scale >= SOLID || undefined}
+              data-empty={seat.fill === 0 || undefined}
+              data-fresh={fresh || undefined}
+              data-active={active === index || undefined}
+              // En propriété CSS, pas en attribut : une place qui se déplace (personnes en plus ou en moins) glisse.
+              style={
+                {
+                  "--i": index,
+                  transform: `translate(${point.x.toFixed(1)}px, ${point.y.toFixed(1)}px)`,
+                } as CSSProperties
+              }
+              {...(owner && owner.tone !== "preview"
+                ? {
+                    role: "button",
+                    tabIndex: 0,
+                    "aria-label": `${owner.tone === "you" ? "Vous" : owner.name} : ${formatCents(owner.amountCents)}`,
+                    onClick: () => setActive((current) => (current === index ? null : index)),
+                    onPointerEnter: (event: React.PointerEvent) => event.pointerType === "mouse" && setActive(index),
+                    onPointerLeave: (event: React.PointerEvent) => event.pointerType === "mouse" && setActive(null),
+                    onFocus: () => setActive(index),
+                    onBlur: () => setActive(null),
+                  }
+                : {})}
+            >
+              <circle className="club-seat-halo" r={seatRadius + 7} />
+              <circle className="club-seat-base" r={seatRadius} />
+              <circle className="club-seat-fill" r={seatRadius} style={{ "--fill": scale } as CSSProperties} />
+              {compact ? null : owner ? (
+                <text className="club-seat-initials" textAnchor="middle" dominantBaseline="central" style={labelSize}>
+                  {owner.tone === "preview" || owner.tone === "you" ? "Vous" : initials(owner.name)}
+                </text>
+              ) : (
+                seat.fill === 0 && (
+                  <text className="club-seat-free" textAnchor="middle" dominantBaseline="central" style={labelSize}>
+                    Libre
+                  </text>
+                )
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption className="club-seats-caption" aria-live="polite">
+        {compact && (
+          <span className="club-seats-summary">
+            <strong>{label}</strong>
+            <span>{left}</span>
+          </span>
+        )}
+        {caption ? (
+          <span className="club-seats-owner">
+            <strong>{caption.tone === "you" || caption.tone === "preview" ? "Vous" : caption.name}</strong>
+            <span className="club-mono">{formatCents(caption.amountCents)}</span>
+          </span>
+        ) : (
+          legend
+        )}
+      </figcaption>
+    </figure>
+  );
+}

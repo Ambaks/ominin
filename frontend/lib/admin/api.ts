@@ -9,7 +9,7 @@ import {
   OUTREACH_VARIANTS_FETCH_LIMIT,
   POSITIVE_CLASSIFICATIONS,
 } from "./constants";
-import { addDays, dayStart, rollingWeekStart } from "./format";
+import { dayStart, rollingWeekStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
 import {
   LEAD_LITE_SELECT,
@@ -512,20 +512,6 @@ export async function completeTask(taskId: string): Promise<void> {
   }
 }
 
-/** Tâches terminées/annulées récentes, pour l'historique de l'Agenda. */
-export async function fetchClosedTasks(sinceDays: number): Promise<TaskRow[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
-      .from("crm_tasks")
-      .select("*")
-      .neq("status", "open")
-      .gte("completed_at", addDays(dayStart(), -sinceDays).toISOString())
-      .order("completed_at", { ascending: false })
-  );
-  return rows.map(rowToTask);
-}
-
 // ---------------------------------------------------------------------------
 // Rendez-vous
 
@@ -590,48 +576,6 @@ export async function createAppointment(
     draft.activities.unshift(rowToActivity(activityRow));
   });
   return appointment;
-}
-
-export async function updateAppointmentStatus(
-  appointmentId: string,
-  status: AppointmentRow["status"]
-): Promise<void> {
-  const supabase = createClient();
-  const row = must(
-    await supabase
-      .from("crm_appointments")
-      .update({ status })
-      .eq("id", appointmentId)
-      .select()
-      .single()
-  );
-  apply((draft) => {
-    // Le store ne garde que les RDV encore prévus.
-    draft.appointments = draft.appointments.filter(
-      (a) => a.id !== appointmentId
-    );
-  });
-  patchDetail(row.restaurant_id, (draft) => {
-    const appointment = draft.appointments.find((a) => a.id === appointmentId);
-    if (appointment) appointment.status = status;
-  });
-}
-
-/** RDV de la fenêtre demandée, tous statuts (historique de l'Agenda). */
-export async function fetchAppointments(range: {
-  from: string;
-  to: string;
-}): Promise<AppointmentRow[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
-      .from("crm_appointments")
-      .select("*")
-      .gte("start_at", range.from)
-      .lte("start_at", range.to)
-      .order("start_at", { ascending: true })
-  );
-  return rows.map(rowToAppointment);
 }
 
 // ---------------------------------------------------------------------------

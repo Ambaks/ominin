@@ -6,7 +6,7 @@ import {
   trialPricing,
   type Plan,
 } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { KitHeading } from "@/components/landing-kit/heading";
 
 function Features({ plan, columns }: { plan: Plan; columns?: boolean }) {

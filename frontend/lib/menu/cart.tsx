@@ -12,9 +12,17 @@ import {
 } from "react";
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
+import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { lineName } from "@/lib/menu/format";
+import type { MenuItem } from "@/lib/menu-data";
+import type { Database } from "@/lib/supabase/database.types";
+import { createClient } from "@/lib/supabase/client";
 import type { MenuStage } from "./analytics/constants";
 import type { LoyaltyProgram } from "./loyalty";
+import type { FormuleOffer, Pairing } from "./pairings";
+import { tableParam } from "./table-param";
 import { TicketsProvider } from "./tickets";
+import { useQueryParam } from "./use-query-param";
 import {
   createTracker,
   type MenuTracker,
@@ -39,6 +47,8 @@ export interface CartLine {
   key: string;
   itemId: string;
   name: string;
+  /** Format du plat (« x4 », « pour 2 »), en fin de name : le panier l'écrit en petit. */
+  detail?: string;
   /** Prix de base + suppléments, pour l'affichage ; la base refige le montant. */
   unitPrice: number;
   quantity: number;
@@ -47,14 +57,29 @@ export interface CartLine {
   choices: CartChoice[];
   /** Stock affiché à l'ouverture du menu : borne la quantité (la base refait le test). */
   stock?: number | null;
+  /** Délai de commande du plat (heures) : repousse le premier retrait possible. */
+  noticeHours?: number;
   /**
    * Ligne offerte par un palier de fidélité : l'article se paie en points
    * (par unité), ses suppléments restent en euros dans unitPrice.
    */
   reward?: { id: string; points: number };
-  /** Ligne formule : itemId porte alors l'identifiant de la formule. */
-  formule?: { selections: FormuleSelection[] };
+  /**
+   * Ligne formule : itemId porte alors l'identifiant de la formule. `items`,
+   * les plats de la carte derrière les choix : une fermeture les vise.
+   */
+  formule?: {
+    selections: FormuleSelection[];
+    items?: { id: string; name: string }[];
+  };
+  /**
+   * L'accord du chef d'où vient la ligne (order_items.accord) : le panier, la
+   * feuille d'un plat ou l'offre de formule. Absent : ajoutée depuis la carte.
+   */
+  accord?: AccordSource;
 }
+
+export type AccordSource = Database["public"]["Enums"]["accord_source"];
 
 const noSubscription = () => () => {};
 
@@ -70,7 +95,8 @@ function isCartLine(value: unknown): value is CartLine {
     Number.isInteger(line.quantity) &&
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
-    Array.isArray(line.choices)
+    Array.isArray(line.choices) &&
+    (line.detail === undefined || typeof line.detail === "string")
   );
 }
 
@@ -96,6 +122,11 @@ export interface CartConfig {
   slug: string;
   /** Table scannée (via ?table=), ou null si le menu est ouvert sans QR. */
   tableNumber: number | null;
+  /**
+   * La table se lit dans l'URL (?table=) une fois la page hydratée, à la
+   * place de tableNumber : la page reste en cache, la même pour toutes.
+   */
+  tableFromUrl?: boolean;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
   /**
@@ -110,11 +141,24 @@ export interface CartConfig {
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
-  paymentProvider: "stripe" | "sumup" | "square";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
   loyalty?: LoyaltyProgram | null;
+  /** Sous ce total, le règlement par carte n'est pas proposé ; absent ⇒ aucun minimum. */
+  onlineMinOrder?: number | null;
+  /**
+   * Établissement dont les fermetures se relisent (articles_fermes) ; absent
+   * (aperçu), rien n'est jamais fermé.
+   */
+  etablissementId?: string;
+  /** Articles coupés au rendu de la page. */
+  closedItems?: string[];
+  /** L'accord du chef, par id de plat ; absent ⇒ rien n'est proposé. */
+  pairings?: Record<string, Pairing[]>;
+  /** Les formules que l'accord du chef propose de compléter. */
+  formuleOffers?: FormuleOffer[];
   /**
    * Aperçu commercial (/menu/demo/<slug>) : le parcours se montre en entier,
    * mais rien ne part — ni la visite dans l'analytique, ni la commande. La
@@ -124,10 +168,27 @@ export interface CartConfig {
    */
   preview?: boolean;
   /**
+   * Aperçu à table (Restaurant.demoSuivi) : « Payer en ligne » se simule, sans
+   * rien appeler, puis la commande se suit au bas de l'écran jusqu'au service.
+   * drinks : les articles des catégories de boissons ; une commande faite de
+   * ces seuls articles, sans formule, se salue « Bonne dégustation ! ».
+   * hotDrinks : celles qui sont chaudes ; rien que d'elles, la salutation
+   * porte une tasse. Ignoré hors aperçu.
+   */
+  demoSuivi?: { drinks: string[]; hotDrinks: string[] };
+  /**
    * Click & collect (collect.ominin.com/<slug>) : sans table, payé en ligne à
    * la commande, retiré à l'heure choisie dans les horaires d'ouverture.
    */
-  collect?: { hours: OpeningHours | null; slotMinutes: number };
+  collect?: {
+    hours: OpeningHours | null;
+    slotMinutes: number;
+    /**
+     * Page de suivi où mène le paiement abouti (le site de l'établissement) ;
+     * absent ⇒ celle de collect.ominin.com.
+     */
+    confirmationPath?: string;
+  };
 }
 
 interface CartContextValue extends CartConfig {
@@ -150,6 +211,20 @@ interface CartContextValue extends CartConfig {
   track: (stage: MenuStage, options?: TrackOptions) => void;
   /** Le panier gardé a été relu : les changements suivants sont du client. */
   ready: boolean;
+  /**
+   * Articles coupés : maintenant, ou à l'heure de retrait choisie en click &
+   * collect (une cuisine fermée ce soir sert demain midi).
+   */
+  closed: ReadonlySet<string>;
+  /**
+   * Relit les fermetures en base. `at` : l'heure de retrait à juger, null
+   * pour maintenant ; absent, l'instant retenu au dernier appel.
+   */
+  refreshClosed: (at?: string | null) => void;
+  /** L'instant que `closed` juge : l'heure de retrait choisie, null pour maintenant. */
+  closedAt: string | null;
+  /** Le plat d'une ligne du panier qu'une fermeture coupe, s'il y en a un. */
+  closedDish: (line: CartLine) => string | undefined;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -167,6 +242,20 @@ export function cartLineKey(
   const key = ids.length ? `${itemId}#${ids.join("+")}` : itemId;
   return rewardId ? `${rewardId}/${key}` : key;
 }
+
+/** La ligne de panier d'un plat sans options. */
+export const plainLine = (item: MenuItem, accord?: AccordSource): Omit<CartLine, "quantity"> => ({
+  key: cartLineKey(item.id, []),
+  itemId: item.id,
+  name: lineName(item),
+  detail: item.detail,
+  unitPrice: item.price,
+  optionSummary: [],
+  choices: [],
+  stock: item.stock,
+  noticeHours: item.noticeHours,
+  accord,
+});
 
 /** Clé du panier gardé dans l'onglet : par carte, par table, aperçu à part. */
 export function savedCartKey(slug: string, table: number | null, preview?: boolean) {
@@ -190,7 +279,6 @@ export function CartProvider({
    */
   // L'aperçu a sa propre clé : ses lignes (ids du registre) ne doivent pas
   // réapparaître dans le vrai menu du même restaurant, ni l'inverse.
-  const storageKey = savedCartKey(config.slug, config.tableNumber, config.preview);
   // Faux pendant l'hydratation (le rendu doit égaler celui du serveur), vrai
   // juste après : le panier gardé est relu à ce moment-là, une fois par clé.
   const hydrated = useSyncExternalStore(
@@ -198,6 +286,13 @@ export function CartProvider({
     () => true,
     () => false
   );
+  // Lue au même rendu que hydrated : la clé du panier et le suivi partent
+  // directement avec la bonne table.
+  const urlTable = useQueryParam("table");
+  const tableNumber = config.tableFromUrl
+    ? tableParam(urlTable ?? undefined)
+    : config.tableNumber;
+  const storageKey = savedCartKey(config.slug, tableNumber, config.preview);
   const [restoredKey, setRestoredKey] = useState<string | null>(null);
   if (hydrated && restoredKey !== storageKey) {
     setRestoredKey(storageKey);
@@ -221,9 +316,12 @@ export function CartProvider({
           return [...current, { ...line, quantity: capped(line, quantity) }];
         }
         const next = [...current];
+        // Une ligne touchée par une suggestion compte en entier pour l'accord
+        // du chef, quantité comprise : order_items ne détaille pas l'unité.
         next[index] = {
           ...next[index],
           quantity: capped(line, next[index].quantity + quantity),
+          accord: next[index].accord ?? line.accord,
         };
         return next;
       });
@@ -248,18 +346,62 @@ export function CartProvider({
     []
   );
 
+  /*
+   * Fermetures en cours : la page en cache peut dater d'avant la fermeture de
+   * la cuisine, et un client garde la carte ouverte tout le repas. Relues à
+   * l'arrivée, au retour sur l'onglet et à l'ouverture du panier.
+   */
+  const [closed, setClosed] = useState<ReadonlySet<string>>(
+    () => new Set(config.closedItems)
+  );
+  const etablissementId = config.etablissementId;
+  const [closedAt, setClosedAt] = useState<string | null>(null);
+  const closedAtRef = useRef<string | null>(null);
+  // Seule la dernière lecture compte : une heure de retrait changée deux fois
+  // de suite ne doit pas voir la première réponse arriver après la seconde.
+  const closedRequest = useRef(0);
+  const refreshClosed = useCallback(
+    (at?: string | null) => {
+      if (at !== undefined) closedAtRef.current = at;
+      if (!etablissementId) return;
+      const request = ++closedRequest.current;
+      const judged = closedAtRef.current;
+      fetchClosedItems(createClient(), etablissementId, judged ?? undefined).then(
+        (items) => {
+          if (request !== closedRequest.current) return;
+          setClosed(new Set(items));
+          setClosedAt(judged);
+        },
+        // Réseau perdu : l'état connu reste, place_order a le dernier mot.
+        () => {}
+      );
+    },
+    [etablissementId]
+  );
+  useEffect(() => {
+    if (!etablissementId) return;
+    refreshClosed();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshClosed();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [etablissementId, refreshClosed]);
+
   const tracker = useRef<MenuTracker | null>(null);
-  const tracking = !config.preview;
+  // Une table lue dans l'URL n'est connue qu'après l'hydratation : la visite
+  // ne s'ouvre qu'avec elle, pas une première fois sans table.
+  const tracking = !config.preview && (!config.tableFromUrl || hydrated);
   useEffect(() => {
     if (!tracking) return;
-    const instance = createTracker(config.slug, config.tableNumber);
+    const instance = createTracker(config.slug, tableNumber);
     tracker.current = instance;
     instance.start();
     return () => {
       instance.stop();
       tracker.current = null;
     };
-  }, [tracking, config.slug, config.tableNumber]);
+  }, [tracking, config.slug, tableNumber]);
 
   const track = useCallback((stage: MenuStage, options?: TrackOptions) => {
     tracker.current?.track(stage, options);
@@ -277,10 +419,11 @@ export function CartProvider({
     const fastFood = config.serviceMode === "fast_food";
     return {
       ...config,
+      tableNumber,
       fastFood,
       canOrder:
         config.orderingEnabled &&
-        (fastFood || config.collect !== undefined || config.tableNumber !== null),
+        (fastFood || config.collect !== undefined || tableNumber !== null),
       lines,
       count,
       total,
@@ -292,9 +435,19 @@ export function CartProvider({
       clearRewards,
       track,
       ready: restoredKey === storageKey,
+      closed,
+      refreshClosed,
+      closedAt,
+      closedDish: (line) =>
+        line.formule
+          ? line.formule.items?.find((item) => closed.has(item.id))?.name
+          : closed.has(line.itemId)
+            ? line.name
+            : undefined,
     };
   }, [
     config,
+    tableNumber,
     lines,
     addLine,
     setQuantity,
@@ -303,12 +456,19 @@ export function CartProvider({
     track,
     restoredKey,
     storageKey,
+    closed,
+    refreshClosed,
+    closedAt,
   ]);
 
   return (
     <CartContext.Provider value={value}>
       {config.serviceMode === "fast_food" ? (
         <TicketsProvider slug={config.slug} preview={config.preview}>
+          {children}
+        </TicketsProvider>
+      ) : config.preview && config.demoSuivi ? (
+        <TicketsProvider slug={config.slug} preview table={tableNumber}>
           {children}
         </TicketsProvider>
       ) : (

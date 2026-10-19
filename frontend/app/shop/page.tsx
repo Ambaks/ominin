@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
+import { kitFont } from "@/components/landing-kit/font";
+import "@/components/landing-kit/kit.css";
+import { Marquee } from "@/components/landing-kit/marquee";
+import { ShopHero } from "@/components/shop/landing/hero";
+import { ShopJourney } from "@/components/shop/landing/journey";
 import { ShopNav } from "@/components/shop/landing/nav";
+import { ShopScreens } from "@/components/shop/landing/screens";
 import {
   ShopAudiences,
   ShopContact,
   ShopFaq,
-  ShopFeatures,
   ShopFooter,
-  ShopHero,
-  ShopHowItWorks,
   ShopPricing,
+  ShopSetup,
   ShopShift,
   ShopShowcase,
 } from "@/components/shop/landing/sections";
-import { seo, shopBrand } from "@/lib/shop-landing-data";
+import { marquee, seo, shopBrand } from "@/lib/shop-landing-data";
 import { shopSiteUrl } from "@/lib/site";
 
 // Canonical absolu : la page est servie sur shop.ominin.com et ominin.com/shop.
@@ -25,27 +29,29 @@ export const metadata: Metadata = {
 };
 
 /*
- * Ordre pensé pour un trafic venu des réseaux : on se reconnaît (pour qui),
- * on voit ce qui change, on voit une vraie boutique, on comprend le
- * déroulé, puis le tarif, les objections, et la page se referme sur le
- * formulaire.
+ * Ordre pensé pour un trafic venu des réseaux : la promesse (hero animé), le
+ * parcours d'une commande raconté au défilement, on se reconnaît (pour qui),
+ * ce qui change, la vraie boutique à essayer, ses écrans, la mise en route,
+ * le tarif, les objections, et la page se referme sur le formulaire.
  */
 export default function ShopHome() {
   return (
-    <>
+    <div className={`kit-landing ${kitFont.variable}`}>
       <ShopNav />
-      <main>
+      <main className="overflow-x-clip">
         <ShopHero />
+        <Marquee words={marquee} />
+        <ShopJourney />
         <ShopAudiences />
         <ShopShift />
         <ShopShowcase />
-        <ShopHowItWorks />
-        <ShopFeatures />
+        <ShopScreens />
+        <ShopSetup />
         <ShopPricing />
         <ShopFaq />
         <ShopContact />
       </main>
       <ShopFooter />
-    </>
+    </div>
   );
 }

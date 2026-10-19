@@ -39,6 +39,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_alert_counters: {
+        Row: {
+          hits: number
+          key: string
+          notified_at: string | null
+          window_start: string
+        }
+        Insert: {
+          hits: number
+          key: string
+          notified_at?: string | null
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          notified_at?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       admin_pins: {
         Row: {
           etablissement_id: string
@@ -65,6 +86,39 @@ export type Database = {
           },
         ]
       }
+      admin_push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_label: string | null
+          endpoint: string
+          id: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_label?: string | null
+          endpoint: string
+          id?: string
+          owner: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_label?: string | null
+          endpoint?: string
+          id?: string
+          owner?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -82,6 +136,487 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      affiches: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          image: string
+          offres: number
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          image: string
+          offres: number
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          image?: string
+          offres?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiches_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_bookings: {
+        Row: {
+          arrived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          name: string
+          note: string | null
+          paid_at: string | null
+          paid_cents: number
+          party_size: number
+          phone: string | null
+          price_cents: number
+          refunded_at: string | null
+          share_token: string | null
+          shared: boolean
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          table_id: string
+          token: string
+          total_cents: number
+        }
+        Insert: {
+          arrived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          paid_at?: string | null
+          paid_cents?: number
+          party_size: number
+          phone?: string | null
+          price_cents: number
+          refunded_at?: string | null
+          share_token?: string | null
+          shared?: boolean
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status?: Database["public"]["Enums"]["club_booking_status"]
+          table_id: string
+          token?: string
+          total_cents: number
+        }
+        Update: {
+          arrived_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          event_id?: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          paid_at?: string | null
+          paid_cents?: number
+          party_size?: number
+          phone?: string | null
+          price_cents?: number
+          refunded_at?: string | null
+          share_token?: string | null
+          shared?: boolean
+          source?: Database["public"]["Enums"]["club_booking_source"]
+          status?: Database["public"]["Enums"]["club_booking_status"]
+          table_id?: string
+          token?: string
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_bookings_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_bookings_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_blocked_tables: {
+        Row: {
+          event_id: string
+          table_id: string
+        }
+        Insert: {
+          event_id: string
+          table_id: string
+        }
+        Update: {
+          event_id?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_blocked_tables_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_event_blocked_tables_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_zones: {
+        Row: {
+          event_id: string
+          price_cents: number | null
+          zone_id: string
+        }
+        Insert: {
+          event_id: string
+          price_cents?: number | null
+          zone_id: string
+        }
+        Update: {
+          event_id?: string
+          price_cents?: number | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_zones_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_event_zones_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "club_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_events: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          etablissement_id: string
+          guest_list_capacity: number | null
+          guest_list_max_party: number
+          guest_list_open: boolean
+          id: string
+          poster_url: string | null
+          published: boolean
+          slug: string
+          starts_at: string
+          tag: string | null
+          ticket_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          etablissement_id: string
+          guest_list_capacity?: number | null
+          guest_list_max_party?: number
+          guest_list_open?: boolean
+          id?: string
+          poster_url?: string | null
+          published?: boolean
+          slug: string
+          starts_at: string
+          tag?: string | null
+          ticket_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          etablissement_id?: string
+          guest_list_capacity?: number | null
+          guest_list_max_party?: number
+          guest_list_open?: boolean
+          id?: string
+          poster_url?: string | null
+          published?: boolean
+          slug?: string
+          starts_at?: string
+          tag?: string | null
+          ticket_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_events_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_guests: {
+        Row: {
+          arrived_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          id: string
+          name: string
+          party_size: number
+          phone: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          event_id: string
+          id?: string
+          name: string
+          party_size: number
+          phone: string
+        }
+        Update: {
+          arrived_at?: string | null
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          event_id?: string
+          id?: string
+          name?: string
+          party_size?: number
+          phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_guests_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_payments: {
+        Row: {
+          amount_cents: number
+          booking_id: string
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["club_payment_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          refunded_at: string | null
+          status: Database["public"]["Enums"]["club_payment_status"]
+          stripe_payment_intent_id: string | null
+          total_cents: number
+        }
+        Insert: {
+          amount_cents: number
+          booking_id: string
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["club_payment_method"]
+          name: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          refunded_at?: string | null
+          status?: Database["public"]["Enums"]["club_payment_status"]
+          stripe_payment_intent_id?: string | null
+          total_cents: number
+        }
+        Update: {
+          amount_cents?: number
+          booking_id?: string
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          fee_cents?: number
+          hold_expires_at?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["club_payment_method"]
+          name?: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          refunded_at?: string | null
+          status?: Database["public"]["Enums"]["club_payment_status"]
+          stripe_payment_intent_id?: string | null
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "club_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_payments_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_tables: {
+        Row: {
+          etablissement_id: string
+          id: string
+          label: string
+          seats: number
+          shape: string
+          x: number
+          y: number
+          zone_id: string
+        }
+        Insert: {
+          etablissement_id: string
+          id?: string
+          label: string
+          seats: number
+          shape?: string
+          x: number
+          y: number
+          zone_id: string
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          label?: string
+          seats?: number
+          shape?: string
+          x?: number
+          y?: number
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_tables_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_tables_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "club_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_zones: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          inclus: string | null
+          layout: Json
+          name: string
+          price_cents: number
+          sort: number
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          inclus?: string | null
+          layout?: Json
+          name: string
+          price_cents: number
+          sort?: number
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          inclus?: string | null
+          layout?: Json
+          name?: string
+          price_cents?: number
+          sort?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_zones_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_pins: {
         Row: {
@@ -587,6 +1122,90 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      closure_targets: {
+        Row: {
+          category_id: string | null
+          closure_id: string
+          item_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          closure_id: string
+          item_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          closure_id?: string
+          item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closure_targets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_closure_id_fkey"
+            columns: ["closure_id"]
+            isOneToOne: false
+            referencedRelation: "closures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closures: {
+        Row: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          days?: number[] | null
+          ends_at?: string | null
+          etablissement_id: string
+          id?: string
+          name: string
+          override_closed?: boolean | null
+          override_day?: string | null
+          starts_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          days?: number[] | null
+          ends_at?: string | null
+          etablissement_id?: string
+          id?: string
+          name?: string
+          override_closed?: boolean | null
+          override_day?: string | null
+          starts_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closures_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_requests: {
         Row: {
@@ -1107,6 +1726,9 @@ export type Database = {
         Row: {
           address: string
           admin_pin_set: boolean
+          club_dress_code: string | null
+          club_min_age: number
+          club_refused: string | null
           collect_fee_percent: number | null
           collect_slot_capacity: number
           collect_slot_minutes: number
@@ -1119,6 +1741,7 @@ export type Database = {
           loyalty_points_per_euro: number
           name: string
           offre: Database["public"]["Enums"]["offre"] | null
+          online_min_order: number | null
           online_payment: boolean
           opening_hours: Json | null
           payment_provider:
@@ -1131,11 +1754,16 @@ export type Database = {
           siret: string | null
           slug: string
           square_location_id: string | null
+          table_deposit_percent: number | null
+          table_fee_percent: number
           tagline: string
         }
         Insert: {
           address?: string
           admin_pin_set?: boolean
+          club_dress_code?: string | null
+          club_min_age?: number
+          club_refused?: string | null
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -1148,6 +1776,7 @@ export type Database = {
           loyalty_points_per_euro?: number
           name: string
           offre?: Database["public"]["Enums"]["offre"] | null
+          online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
           payment_provider?:
@@ -1160,11 +1789,16 @@ export type Database = {
           siret?: string | null
           slug: string
           square_location_id?: string | null
+          table_deposit_percent?: number | null
+          table_fee_percent?: number
           tagline?: string
         }
         Update: {
           address?: string
           admin_pin_set?: boolean
+          club_dress_code?: string | null
+          club_min_age?: number
+          club_refused?: string | null
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -1177,6 +1811,7 @@ export type Database = {
           loyalty_points_per_euro?: number
           name?: string
           offre?: Database["public"]["Enums"]["offre"] | null
+          online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
           payment_provider?:
@@ -1189,12 +1824,16 @@ export type Database = {
           siret?: string | null
           slug?: string
           square_location_id?: string | null
+          table_deposit_percent?: number | null
+          table_fee_percent?: number
           tagline?: string
         }
         Relationships: []
       }
       formules: {
         Row: {
+          affiche_id: string | null
+          affiche_rang: number | null
           created_at: string
           days: number[] | null
           description: string | null
@@ -1206,6 +1845,8 @@ export type Database = {
           price: number
         }
         Insert: {
+          affiche_id?: string | null
+          affiche_rang?: number | null
           created_at?: string
           days?: number[] | null
           description?: string | null
@@ -1217,6 +1858,8 @@ export type Database = {
           price: number
         }
         Update: {
+          affiche_id?: string | null
+          affiche_rang?: number | null
           created_at?: string
           days?: number[] | null
           description?: string | null
@@ -1228,6 +1871,13 @@ export type Database = {
           price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "formules_affiche_id_fkey"
+            columns: ["affiche_id"]
+            isOneToOne: false
+            referencedRelation: "affiches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "formules_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -1325,6 +1975,219 @@ export type Database = {
           },
         ]
       }
+      hubrise_connections: {
+        Row: {
+          access_token: string
+          account_id: string
+          account_name: string | null
+          callback_registered_at: string | null
+          catalog_dirty_at: string | null
+          catalog_id: string | null
+          catalog_name: string | null
+          catalog_snapshot: Json | null
+          catalog_synced_at: string | null
+          connected_at: string
+          customer_list_id: string | null
+          customer_list_name: string | null
+          etablissement_id: string
+          hours_note: string | null
+          hours_synced_at: string | null
+          inventory_synced_at: string | null
+          last_failed_at: string | null
+          location_id: string
+          location_name: string | null
+          payment_name: string | null
+          payment_ref: string | null
+          service_type_ref_collection: string | null
+          service_type_ref_eat_in: string | null
+          tip_charge_ref: string | null
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          account_name?: string | null
+          callback_registered_at?: string | null
+          catalog_dirty_at?: string | null
+          catalog_id?: string | null
+          catalog_name?: string | null
+          catalog_snapshot?: Json | null
+          catalog_synced_at?: string | null
+          connected_at?: string
+          customer_list_id?: string | null
+          customer_list_name?: string | null
+          etablissement_id: string
+          hours_note?: string | null
+          hours_synced_at?: string | null
+          inventory_synced_at?: string | null
+          last_failed_at?: string | null
+          location_id: string
+          location_name?: string | null
+          payment_name?: string | null
+          payment_ref?: string | null
+          service_type_ref_collection?: string | null
+          service_type_ref_eat_in?: string | null
+          tip_charge_ref?: string | null
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          account_name?: string | null
+          callback_registered_at?: string | null
+          catalog_dirty_at?: string | null
+          catalog_id?: string | null
+          catalog_name?: string | null
+          catalog_snapshot?: Json | null
+          catalog_synced_at?: string | null
+          connected_at?: string
+          customer_list_id?: string | null
+          customer_list_name?: string | null
+          etablissement_id?: string
+          hours_note?: string | null
+          hours_synced_at?: string | null
+          inventory_synced_at?: string | null
+          last_failed_at?: string | null
+          location_id?: string
+          location_name?: string | null
+          payment_name?: string | null
+          payment_ref?: string | null
+          service_type_ref_collection?: string | null
+          service_type_ref_eat_in?: string | null
+          tip_charge_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_connections_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubrise_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          etablissement_id: string
+          hubrise_id: string | null
+          id: string
+          item_id: string | null
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          order_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          etablissement_id: string
+          hubrise_id?: string | null
+          id?: string
+          item_id?: string | null
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          etablissement_id?: string
+          hubrise_id?: string | null
+          id?: string
+          item_id?: string | null
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_outbox_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_outbox_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_outbox_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubrise_ref_map: {
+        Row: {
+          choice_id: string | null
+          created_at: string
+          etablissement_id: string
+          group_id: string | null
+          hubrise_name: string | null
+          id: string
+          item_id: string
+          matched_by: string
+          option_list_name: string | null
+          ref: string
+          target: string
+        }
+        Insert: {
+          choice_id?: string | null
+          created_at?: string
+          etablissement_id: string
+          group_id?: string | null
+          hubrise_name?: string | null
+          id?: string
+          item_id: string
+          matched_by: string
+          option_list_name?: string | null
+          ref: string
+          target: string
+        }
+        Update: {
+          choice_id?: string | null
+          created_at?: string
+          etablissement_id?: string
+          group_id?: string | null
+          hubrise_name?: string | null
+          id?: string
+          item_id?: string
+          matched_by?: string
+          option_list_name?: string | null
+          ref?: string
+          target?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_ref_map_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_ref_map_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
           badges: Database["public"]["Enums"]["badge"][]
@@ -1337,6 +2200,7 @@ export type Database = {
           id: string
           image: string | null
           name: string
+          notice_hours: number | null
           options: Json
           pairing: string | null
           position: number
@@ -1356,6 +2220,7 @@ export type Database = {
           id?: string
           image?: string | null
           name: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -1375,6 +2240,7 @@ export type Database = {
           id?: string
           image?: string | null
           name?: string
+          notice_hours?: number | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -1505,18 +2371,21 @@ export type Database = {
           contact: string
           created_at: string
           etablissement_id: string
+          hubrise_customer_id: string | null
           id: string
         }
         Insert: {
           contact: string
           created_at?: string
           etablissement_id: string
+          hubrise_customer_id?: string | null
           id?: string
         }
         Update: {
           contact?: string
           created_at?: string
           etablissement_id?: string
+          hubrise_customer_id?: string | null
           id?: string
         }
         Relationships: [
@@ -1528,6 +2397,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      loyalty_devices: {
+        Row: {
+          contact: string
+          created_at: string
+          first_name: string | null
+          last_seen_at: string
+          token_hash: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          first_name?: string | null
+          last_seen_at?: string
+          token_hash: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          first_name?: string | null
+          last_seen_at?: string
+          token_hash?: string
+        }
+        Relationships: []
       }
       loyalty_entries: {
         Row: {
@@ -1968,6 +2861,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          accord: Database["public"]["Enums"]["accord_source"] | null
           components: Json | null
           id: string
           item_id: string | null
@@ -1983,6 +2877,7 @@ export type Database = {
           vat_rate: number | null
         }
         Insert: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -1998,6 +2893,7 @@ export type Database = {
           vat_rate?: number | null
         }
         Update: {
+          accord?: Database["public"]["Enums"]["accord_source"] | null
           components?: Json | null
           id?: string
           item_id?: string | null
@@ -2099,9 +2995,12 @@ export type Database = {
           cash_given: number | null
           created_at: string
           customer_name: string | null
+          customer_note: string | null
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
+          hubrise_order_id: string | null
+          hubrise_status: string | null
           id: string
           loyalty_customer_id: string | null
           online_payment_started_at: string | null
@@ -2127,9 +3026,12 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
+          hubrise_order_id?: string | null
+          hubrise_status?: string | null
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
@@ -2155,9 +3057,12 @@ export type Database = {
           cash_given?: number | null
           created_at?: string
           customer_name?: string | null
+          customer_note?: string | null
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
+          hubrise_order_id?: string | null
+          hubrise_status?: string | null
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
@@ -2710,6 +3615,183 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projet_chantiers: {
+        Row: {
+          created_at: string
+          id: string
+          position: number
+          product: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          position?: number
+          product?: Database["public"]["Enums"]["ominin_product"] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_journal: {
+        Row: {
+          branch: string
+          commit_sha: string
+          created_at: string
+          id: string
+          owner: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          branch: string
+          commit_sha: string
+          created_at?: string
+          id?: string
+          owner: string
+          summary?: string
+          title: string
+        }
+        Update: {
+          branch?: string
+          commit_sha?: string
+          created_at?: string
+          id?: string
+          owner?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_clients: {
+        Row: {
+          created_at: string
+          etablissement_id: string | null
+          id: string
+          name: string
+          notes: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name: string
+          notes?: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          product?: Database["public"]["Enums"]["ominin_product"]
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_clients_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projet_step_templates: {
+        Row: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Insert: {
+          detail: string
+          phase: string
+          position: number
+          shop: boolean
+          title: string
+        }
+        Update: {
+          detail?: string
+          phase?: string
+          position?: number
+          shop?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
+      projet_steps: {
+        Row: {
+          chantier_id: string | null
+          client_id: string | null
+          detail: string
+          id: string
+          owner: string | null
+          phase: string
+          position: number
+          status: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chantier_id?: string | null
+          client_id?: string | null
+          detail?: string
+          id?: string
+          owner?: string | null
+          phase?: string
+          position?: number
+          status?: Database["public"]["Enums"]["projet_step_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_steps_chantier_id_fkey"
+            columns: ["chantier_id"]
+            isOneToOne: false
+            referencedRelation: "projet_chantiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_steps_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "projet_clients"
             referencedColumns: ["id"]
           },
         ]
@@ -3882,6 +4964,7 @@ export type Database = {
           findings: Json
           guidelines: string
           id: string
+          proposal: Json | null
           version: number
         }
         Insert: {
@@ -3891,6 +4974,7 @@ export type Database = {
           findings?: Json
           guidelines: string
           id?: string
+          proposal?: Json | null
           version: number
         }
         Update: {
@@ -3900,6 +4984,7 @@ export type Database = {
           findings?: Json
           guidelines?: string
           id?: string
+          proposal?: Json | null
           version?: number
         }
         Relationships: []
@@ -3910,36 +4995,60 @@ export type Database = {
           brand: string
           captions: Json
           created_at: string
+          feedback: string | null
           format: string
           id: string
           playbook_id: string
           post_date: string
+          reel: Json | null
+          render_error: string | null
+          render_status: string | null
+          scheduled_at: string
           slides: Json
+          status: string
           topic: string
+          updated_at: string
+          video_path: string | null
         }
         Insert: {
           angle: string
           brand: string
           captions: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id: string
           post_date: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at: string
           slides: Json
+          status?: string
           topic: string
+          updated_at?: string
+          video_path?: string | null
         }
         Update: {
           angle?: string
           brand?: string
           captions?: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id?: string
           post_date?: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at?: string
           slides?: Json
+          status?: string
           topic?: string
+          updated_at?: string
+          video_path?: string | null
         }
         Relationships: [
           {
@@ -4404,6 +5513,15 @@ export type Database = {
       }
     }
     Functions: {
+      hubrise_set_choice_disponible: {
+        Args: {
+          p_choice: string
+          p_disponible: boolean
+          p_group: string
+          p_item: string
+        }
+        Returns: undefined
+      }
       abandon_online_payment: {
         Args: { p_order_id: string }
         Returns: undefined
@@ -4427,6 +5545,15 @@ export type Database = {
           sent: number
           user_id: string
         }[]
+      }
+      admin_alert_hit: {
+        Args: {
+          p_cooldown: string
+          p_key: string
+          p_threshold: number
+          p_window: string
+        }
+        Returns: boolean
       }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
@@ -4517,6 +5644,18 @@ export type Database = {
           sessions: number
         }[]
       }
+      admin_service_figures: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          commission: number
+          id: string
+          kind: string
+          name: string
+          orders: number
+          revenue: number
+          sessions: number
+        }[]
+      }
       admin_shop_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -4545,6 +5684,76 @@ export type Database = {
         Args: { p_code: string | null; p_entry_id: string; p_signature: string }
         Returns: undefined
       }
+      club_annuler_reservation: {
+        Args: { p_booking: string }
+        Returns: undefined
+      }
+      club_clore_reservation: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Enums"]["club_booking_status"]
+      }
+      club_deplacer_reservation: {
+        Args: { p_booking: string; p_table: string }
+        Returns: undefined
+      }
+      club_guest_list_restant: { Args: { p_event: string }; Returns: number }
+      club_marquer_arrivee: {
+        Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }
+        Returns: undefined
+      }
+      club_marquer_invite: {
+        Args: { p_arrived: boolean; p_guest: string }
+        Returns: undefined
+      }
+      club_offres: {
+        Args: { p_event: string }
+        Returns: {
+          available: boolean
+          max_party: number
+          price_cents: number
+          zone_id: string
+        }[]
+      }
+      club_partage_etat: {
+        Args: { p_booking: string }
+        Returns: {
+          minimum_cents: number
+          remaining_cents: number
+          seats_left: number
+        }[]
+      }
+      club_rembourser_paiement: {
+        Args: { p_payment: string }
+        Returns: {
+          amount_cents: number
+          booking_id: string
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["club_payment_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          refunded_at: string | null
+          status: Database["public"]["Enums"]["club_payment_status"]
+          stripe_payment_intent_id: string | null
+          total_cents: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "club_payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      club_retablir_paiement: {
+        Args: { p_payment: string }
+        Returns: undefined
+      }
       collect_full_slots: {
         Args: { p_from: string; p_slug: string; p_to: string }
         Returns: string[]
@@ -4552,6 +5761,22 @@ export type Database = {
       collect_open_at: {
         Args: { p_at: string; p_hours: Json }
         Returns: boolean
+      }
+      contribuer_table: {
+        Args: {
+          p_amount: number
+          p_email: string
+          p_hold_seconds: number
+          p_name: string
+          p_phone: string
+          p_share_token: string
+        }
+        Returns: {
+          booking_id: string
+          hold_expires_at: string
+          payment_id: string
+          total_cents: number
+        }[]
       }
       create_etablissement: {
         Args: {
@@ -4593,6 +5818,50 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      creer_reservation_club: {
+        Args: {
+          p_event: string
+          p_name: string
+          p_note: string
+          p_paid: boolean
+          p_party: number
+          p_phone: string
+          p_source: Database["public"]["Enums"]["club_booking_source"]
+          p_table: string
+        }
+        Returns: {
+          arrived_at: string | null
+          cancelled_at: string | null
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          event_id: string
+          fee_cents: number
+          hold_expires_at: string | null
+          id: string
+          name: string
+          note: string | null
+          paid_at: string | null
+          paid_cents: number
+          party_size: number
+          phone: string | null
+          price_cents: number
+          refunded_at: string | null
+          share_token: string | null
+          shared: boolean
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          table_id: string
+          token: string
+          total_cents: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "club_bookings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       crm_find_duplicates: {
         Args: {
           p_city?: string
@@ -4626,8 +5895,46 @@ export type Database = {
         Args: { p_order_id: string; p_started_before: string }
         Returns: boolean
       }
+      enregistrer_fermeture: {
+        Args: {
+          p_closure: string | null
+          p_days: number[] | null
+          p_ends_at: string | null
+          p_etablissement: string
+          p_name: string
+          p_starts_at: string | null
+          p_targets: Json
+        }
+        Returns: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
+      inscrire_guest_list: {
+        Args: {
+          p_email: string
+          p_event: string
+          p_name: string
+          p_party: number
+          p_phone: string
+        }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
       loyalty_active: { Args: { p_etablissement_id: string }; Returns: boolean }
       loyalty_adjust: {
@@ -4642,6 +5949,10 @@ export type Database = {
         Args: { p_contact: string; p_slug: string }
         Returns: number
       }
+      loyalty_claim_order: {
+        Args: { p_contact: string; p_order_id: string }
+        Returns: undefined
+      }
       loyalty_contact: { Args: { p_raw: string }; Returns: string }
       loyalty_customers_summary: {
         Args: { p_etablissement_id: string }
@@ -4651,6 +5962,57 @@ export type Database = {
           last_activity: string
           points: number
         }[]
+      }
+      loyalty_device_history: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          created_at: string
+          kind: Database["public"]["Enums"]["loyalty_entry_kind"]
+          points: number
+          rewards: string | null
+          table_number: number | null
+        }[]
+      }
+      loyalty_device_member: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          contact: string
+          first_name: string | null
+          member_since: string | null
+          points: number | null
+        }[]
+      }
+      loyalty_device_remember: {
+        Args: {
+          p_contact: string
+          p_first_name?: string | null
+          p_slug: string
+          p_token_hash: string
+        }
+        Returns: undefined
+      }
+      loyalty_stats_members: {
+        Args: { p_etablissement_id: string }
+        Returns: {
+          members: number
+          points_outstanding: number
+          remembered_phones: number
+          returning_members: number
+        }[]
+      }
+      loyalty_stats_weeks: {
+        Args: { p_etablissement_id: string }
+        Returns: {
+          card_orders: number
+          new_members: number
+          paid_orders: number
+          rewards_used: number
+          week: string
+        }[]
+      }
+      mark_demo_order_paid: {
+        Args: { p_order_id: string; p_tip?: number | null }
+        Returns: boolean
       }
       mark_order_paid_online: {
         Args: { p_order_id: string; p_tip?: number | null }
@@ -4760,11 +6122,48 @@ export type Database = {
         }
         Returns: number
       }
+      projet_add_client: {
+        Args: {
+          p_etablissement?: string
+          p_name: string
+          p_product: Database["public"]["Enums"]["ominin_product"]
+          p_shop?: string
+        }
+        Returns: string
+      }
+      regler_paiement: {
+        Args: { p_intent: string | null; p_payment: string; p_total: number }
+        Returns: string
+      }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
       reprint_order_tickets: {
         Args: { p_order_ids: string[] }
         Returns: number
+      }
+      articles_fermes: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: string[]
+      }
+      basculer_fermeture: {
+        Args: { p_closure: string; p_fermee: boolean }
+        Returns: {
+          created_at: string
+          days: number[] | null
+          ends_at: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          override_closed: boolean | null
+          override_day: string | null
+          starts_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       begin_square_payment: {
         Args: { p_idempotency_key: string; p_order_id: string }
@@ -4774,6 +6173,25 @@ export type Database = {
         Args: { p_item_id: string; p_quantity?: number }
         Returns: undefined
       }
+      reserver_table: {
+        Args: {
+          p_email: string
+          p_event: string
+          p_hold_seconds: number
+          p_name: string
+          p_party: number
+          p_phone: string
+          p_share_cents?: number | null
+          p_zone: string
+        }
+        Returns: {
+          booking_id: string
+          hold_expires_at: string
+          payment_id: string
+          token: string
+          total_cents: number
+        }[]
+      }
       serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       save_starter_setup: {
         Args: { p_etablissement_id: string; p_setup: Json }
@@ -4781,6 +6199,15 @@ export type Database = {
       }
       set_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }
+        Returns: undefined
+      }
+      set_option_choice_disponible: {
+        Args: {
+          p_choice: string
+          p_disponible: boolean
+          p_group: string
+          p_item: string
+        }
         Returns: undefined
       }
       set_payment_pin: {
@@ -4844,8 +6271,18 @@ export type Database = {
       }
     }
     Enums: {
+      accord_source: "panier" | "fiche" | "formule"
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
+      club_booking_source: "en_ligne" | "telephone" | "sur_place"
+      club_booking_status:
+        | "en_attente"
+        | "payee"
+        | "arrivee"
+        | "annulee"
+        | "remboursee"
+      club_payment_method: "en_ligne" | "sur_place"
+      club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
       crm_activity_type:
         | "note"
         | "call"
@@ -4935,12 +6372,13 @@ export type Database = {
         | "failed"
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
-      payment_provider: "stripe" | "sumup" | "square"
+      payment_provider: "stripe" | "sumup" | "square" | "demo"
       price_rule_direction: "majoration" | "remise"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
+      projet_step_status: "todo" | "doing" | "done" | "blocked"
       service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
@@ -5091,8 +6529,19 @@ export const Constants = {
   },
   public: {
     Enums: {
+      accord_source: ["panier", "fiche", "formule"],
       badge: ["maison", "top", "nouveau"],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
+      club_booking_source: ["en_ligne", "telephone", "sur_place"],
+      club_booking_status: [
+        "en_attente",
+        "payee",
+        "arrivee",
+        "annulee",
+        "remboursee",
+      ],
+      club_payment_method: ["en_ligne", "sur_place"],
+      club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
       crm_activity_type: [
         "note",
         "call",
@@ -5191,12 +6640,13 @@ export const Constants = {
         "cancelled",
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte"],
-      payment_provider: ["stripe", "sumup", "square"],
+      payment_provider: ["stripe", "sumup", "square", "demo"],
       price_rule_direction: ["majoration", "remise"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
+      projet_step_status: ["todo", "doing", "done", "blocked"],
       service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],

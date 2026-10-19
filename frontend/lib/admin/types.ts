@@ -141,7 +141,7 @@ export interface LeadDetail {
 export interface AdminState {
   userId: string;
   leads: LeadLite[];
-  /** Tâches ouvertes, toutes (badge de nav, Aperçu, Agenda, pipeline). */
+  /** Tâches ouvertes, toutes (Aperçu, pipeline). */
   tasks: TaskRow[];
   /** RDV prévus dans la fenêtre à venir (tableau de bord, filtres). */
   appointments: AppointmentRow[];

@@ -1,0 +1,138 @@
+{
+  "slug": "cafe-3-graces",
+  "name": "Café 3 Grâces",
+  "tagline": "Brasserie · Place de la Comédie",
+  "status": "prospect",
+  "demo": {
+    "url_locale": "http://localhost:5600/menu/demo/cafe-3-graces",
+    "url_production": "https://menu.ominin.com/demo/cafe-3-graces",
+    "perimetre": "Carte QR seule (/menu/demo/cafe-3-graces), aux couleurs de l'enseigne, avec le paiement simulé et le suivi jusqu'au « Bon appétit ! » (demoSuivi). Ni démo click & collect, ni version Ominin (consigne de l'utilisateur, 2026-10-17), cible 8/10 sur chaque correcteur, mouvement soigné demandé."
+  },
+  "cuisine": "Brasserie méditerranéenne et café-glacier : formules petit déjeuner, entrées, tapas et planches, plats, pinsas, burgers et salades, desserts maison, coupes glacées et boules, crêpes maison, boissons chaudes, softs, smoothies, cocktails, bières, vins et spiritueux",
+  "address": "14 Place de la Comédie, 34000 Montpellier",
+  "city": "Montpellier",
+  "phone": "+33 4 99 62 73 39",
+  "hours": "",
+  "website": "https://cafe3graces.com/ (WordPress + Elementor, © 2025, version anglaise Weglot). Leur QR actuel (bio Instagram → cafe3graces.com/qr) mène à cette carte, en lecture seule : FOOD (#menu), DRINKS (/drinks), GLACES / CRÊPES (/drinks/#glaces). Aucune commande ni aucun paiement en ligne.",
+  "socials": {
+    "instagram": "https://www.instagram.com/cafe3graces (vérifié : lié depuis leur site ; dernière publication le 2025-09-24)",
+    "tiktok": "non trouvé",
+    "facebook": "https://www.facebook.com/Les-trois-graces-804928482862734/ (page de l'ancien exploitant, probable ; leur site n'y renvoie pas)",
+    "snapchat": "",
+    "whatsapp": "",
+    "google_maps": "Fiche « Cafe 3 Graces, 14 Pl. de la Comédie » : marquée « Définitivement fermé » le 2026-10-17 (vue sans connexion) ; note 2,2★ sur 440 avis selon Sluurpy, avis hérités de l'ancien exploitant. Identifiant de fiche (ChIJ…) non relevé : aucun lien d'avis Google sur la démo."
+  },
+  "legal": {
+    "raison_sociale": "3G",
+    "forme": "SAS",
+    "siren": "941 273 047",
+    "siret": "94127304700022 (14 place de la Comédie, enseigne « LES 3 GRACES », ouvert le 2025-03-18, actif) ; siège 94127304700014 au 6A chemin des Cardonilles, 34980 Montferrier-sur-Lez",
+    "naf": "56.10A",
+    "president": "EL-NAGDI Waley-El-Deen (né en 1997) au registre ; directeur de la publication du site : LECHUGA Jordan",
+    "creation": "2025-02-18",
+    "debut_activite": "2025-02-18 (établissement de la place : 2025-03-18)",
+    "source": "recherche-entreprises.api.gouv.fr (2026-10-17) et les mentions légales de leur site (docs/site-2026-10-17/mentions-legales.txt). LL INVEST (SIREN 993666593, holding, président LECHUGA Laurent) est immatriculée au 14 place de la Comédie depuis le 2025-10-29 : lien avec 3G probable, non établi. Pappers refusé (403)."
+  },
+  "design": {
+    "primary_color": "#44522e",
+    "secondary_color": "#839563",
+    "accent_color": "#cc6942",
+    "style_notes": "L'identité de la reprise de 2025 (site, carte imprimée signée Zovision Graphic Studio, salle rénovée) : fond vert olive (#43512d sur la carte, #44522e dans le CSS du site), sauge (#839563), crème (#f8eac5), terre cuite (#cc6942), crème jaune du logo (#ffe9a1). Le logo au trait : une arche sur deux colonnes cannelées, un soleil et quatre étoiles à quatre branches, les trois Grâces de la fontaine, « CAFE 3 GRACES » en capitales Art nouveau (Rumble Brave) et « DEPUIS 1790 ». Polices du site et de la carte : Arcane Nine (titres, capitales Art déco étroites) et Champagne & Limousines (texte). Polices Google retenues après comparaison au rendu (crops dans la session) : Advent Pro, de même chasse et aux mêmes R et M qu'Arcane Nine ; Didact Gothic, la plus proche de Champagne & Limousines (déjà chargée pour O’Crousti). Dispositifs repris : le logo en haut de page, découpé en cinq calques qui se composent au chargement (l'arche, les Grâces, le soleil qui se lève d'un quart de tour, les étoiles, le nom) ; l'arche cernée de sauge qui coiffe chaque titre de section, comme les pages cintrées de leur carte, avec le soleil du logo au sommet ; les photos en fenêtre cintrée ; les arguments sur la crème de leurs cadres, séparés d'étoiles en terre cuite ; le bandeau d'annonces en terre cuite (crème à 4,9:1 sur la terre cuite assombrie #a54a28). Contrastes : crème sur vert 7:1, prix en crème jaune 7:1, boutons crème à l'encre verte 7:1. Écartés : les brins d'olivier des coins de la carte (aucun fichier assez net), le motif de fond du site (soleils et étoiles en sauge), trop chargé sous des lignes de texte.",
+    "interior_vibe": "Salle rénovée en 2025 : murs moulurés vert sauge, niches cintrées derrière le bar, chaises de bois à dossier cannée et assise moutarde, suspensions en rotin, tables façon pierre claire. Façade : enseigne en lettres « CAFE LES 3 GRACES », store taupe, terrasse sur la place face à la fontaine des Trois Grâces (photo Google de juillet 2026).",
+    "reference_images": [
+      "docs/identite/logo.png (logo de leur site, trait crème sur fond transparent)",
+      "docs/identite/embleme.png (l'emblème seul, crème sur vert bouteille #344934 : favicon et icône d'écran d'accueil)",
+      "docs/site-2026-10-17/carte-boissons-page-2.jpg … page-6.jpg (leur carte imprimée, pages publiées sur leur site)",
+      "docs/site-2026-10-17/formule-petit-dej.png",
+      "docs/identite/lebonbon-2025-06.jpg (couverture du Bonbon, 5 juin 2025 : deux de leurs plats, crédit « Café 3 Graces »)",
+      "Photos Google (non archivées, photos de clients) : façade de juillet 2026, salle de juillet 2025"
+    ]
+  },
+  "menu": {
+    "source": "Leur site cafe3graces.com, relevé le 2026-10-17 : le texte de la cuisine (page d'accueil, modifiée le 2025-06-23, identique dans les archives Wayback de juin 2026), archivé mot pour mot (docs/site-2026-10-17/accueil-carte.txt) ; les cinq pages publiées de leur carte imprimée (boissons, glaces, crêpes, petit déjeuner, docs/site-2026-10-17/carte-boissons-page-2…6.jpg) et l'affiche « Formule petit dej » (formule-petit-dej.png), mêmes prix que Le Bonbon du 5 juin 2025. Transcription ligne à ligne, vérifiée sur des agrandissements. La carte de l'ancien exploitant (set de table vert, formule à 7,50 €, 2019–2023) et celle du « Les 3 Graces » de l'Odysséum ne sont pas reprises. La carte vit dans frontend/lib/menu-data.ts (const cafe3Graces).",
+    "categories_summary": [
+      "Formule petit déj — Classic 5,90 €, Complet 7,90 €, Brunch 14,90 € ; orange pressée en supplément 2 €",
+      "Entrées — 6, de 9 à 19 €",
+      "Tapas & planches — 4 tapas de 9 à 13 €, 3 planches de 19 à 27 €",
+      "Plats — 6, de 18 à 28 € (côte de boeuf 400 g)",
+      "Pinsa — Rosyne 18 €, Aglaé 17 €, Thalie 16 € (les noms des Grâces)",
+      "Burgers maison — 3, 19 et 21 €",
+      "Salades gourmandes — 3, de 16 à 18 €",
+      "Les douceurs maison — 5, 9 et 10 €",
+      "Coupes glacées — 9 coupes de 9,90 à 11,90 €, boules 3 / 5,50 / 8 €, Coupe 3 Grâces 16,50 €",
+      "Crêpes maison — 6, de 4 à 5 € (banane ou chantilly +1 €) ; Formule douceur 7,90 €",
+      "Boissons chaudes — 10, de 2,20 à 5,10 €",
+      "Softs — 13, de 3,20 à 5 €",
+      "Sans alcool & smoothies — 3 à 7 €, 4 à 8 €",
+      "Cocktails — 11, 10 et 12 €",
+      "Bières — 5 pressions 25/50 cl (3,90 à 8,90 €), 3 bouteilles 33 cl",
+      "Vins & bulles — 4 blancs, 4 rouges, 2 rosés, 2 bulles (verre 12 cl ou bouteille 75 cl)",
+      "Apéritifs & digestifs — 14, de 3 à 10 €",
+      "Spiritueux — 10 (rhum, whisky, vodka, tequila), 4 cl, de 7 à 12 €"
+    ],
+    "photos": "Deux plats portent leurs propres photos, tirées de la couverture du Bonbon (5 juin 2025, crédit « Café 3 Graces ») : les tomates & mozzarella di bufala (une boule de mozzarella sur tomates anciennes, nappée d'huile au basilic : à confirmer) et le loup grillé, risotto et légumes. Les photos de plats de leur site sont des images du thème WordPress, pas les leurs : non reprises. 53 autres articles portent une photo libre (Pexels, Unsplash) auditée sur planches ; 86 articles n'en ont pas (vins, bières, apéritifs, spiritueux, softs, la plupart des boissons chaudes). Photos de banque approchées, à remplacer en priorité par les leurs : mozzarella panée (sans sésame, sauce façon ketchup), carpaccio (épinards et câpres, pas de citron), planche charcuterie (jamón et chorizo, sans terrine, coppa ni fuet), planche Méditerranée (falafels et halloumi, sans tapenade ni moules), seiches (encornets, sans risotto), tataki (épinards au lieu de la julienne), risotto (sans légumes grillés), escalope (tagliatelles au lieu de linguines à la tomate), côte de boeuf (sans sauce roquefort ni salade), Rosyne (sans câpres ni aneth, courgette en plus), L'Italien (ni pesto, ni parmesan, ni tomates confites ; pain au sésame), Le Crispy (sans bacon, tomate ni oignon), La Nordique (sans croûtons, copeaux au lieu de féta), poire Belle Hélène (poires entières, pistache), café liégeois (sans boules visibles), pêche Melba (fraises en plus), Exotique (mangue, sans passion), Coupe 3 Grâces (moins de six boules), smoothies Pinky Groovy (sans banane) et Yellow Slow (mangue seule). Sans photo faute d'une photo juste : stracciatella (les photos libres montrent une burrata), trilogie de mozzarella, La Romaine, café gourmand, Gourmande, crêpe crème de marron, viennois, et les formules du petit déjeuner et Formule douceur.",
+    "photos_risque_marque": "Photos auditées sur planches pleine taille et recadrage des fiches (photo_sheet.py, 2026-10-17) : aucune marque d'un tiers. Écartées pour une marque : voir la liste noire de .claude/skills/new-restaurant/references/photos.md (Café 3 Grâces).",
+    "options_a_valider": [
+      "Boisson chaude des trois formules du petit déjeuner : choisie parmi café, allongé, noisette, double café, cappuccino, thé, infusion, chocolat chaud maison, latte machiatto (la liste de la Formule douceur, hors viennois et lattes « gourmands ») — leur affiche dit seulement « boisson chaude ».",
+      "Formule douceur : crêpe au choix parmi les six crêpes, sans supplément de prix pour les crêpes à 5 € ; boisson parmi les boissons chaudes ci-dessus et les softs, hors orange pressée (exclue par la formule) et hors Granini, sirop à l'eau et diabolo (leur parfum ne se demande pas dans la formule). « Latte gourmand » n'existe pas sur la carte : le latte vanille et le latte caramel en sont exclus par déduction.",
+      "« Supp fruit 1€ » (mojito, caipirinha & roska) : un supplément « Fruit » sans le fruit.",
+      "« Supp sirop 0,20€ / picon 0,80€ » sur les cinq pressions ; le parfum du sirop n'est pas demandé.",
+      "« Supp chantilly 1€ / boule de glace 1,50€ » : la chantilly en supplément des boules, la boule de glace en supplément des coupes — la carte imprime les deux sous les boules sans dire à quoi ils s'appliquent.",
+      "Supplément banane ou chantilly (1 €) proposé sur chaque crêpe.",
+      "Parfums du sirop à l'eau : ceux du diabolo (fraise, menthe, citron, grenadine, pêche) ; « pac », coupé sur la carte, n'est pas repris.",
+      "Cuisson de la côte de boeuf (bleu, saignant, à point, bien cuit) : non imprimée, ajoutée pour la démonstration.",
+      "Glace 2 et 3 boules : un parfum par boule parmi les onze parfums imprimés.",
+      "Granini (6 parfums), Coca (regular, zero, cherry), Schweppes (tonic, agrumes), Get 27/31, Viennois café/chocolat, Panaché/Monaco, Caipirinha/Roska, Moscow/London mule, Café/allongé, Thé/infusion : la variante imprimée devient un choix obligatoire."
+    ],
+    "noms_ajustes": [
+      "Les noms imprimés en capitales passent en minuscules accentuées (« CARPACCIO DE BOEUF A L'ITALIENNE » → « Carpaccio de boeuf à l’italienne ») ; la page les remet en capitales. Graphies gardées telles qu'imprimées : « boeuf », « Moules gratinée », « Pain briochée », « brioche perdu » (brunch) et « Brioche perdue » (desserts), « Latte machiatto », « Patròn silver », « Domaine de JOŸ », « Rosyne ».",
+      "« COUPE 3 GRACES » (carte) → « Coupe 3 Grâces », l'accent du nom de la maison ; « Glace 1 boule… » portent en description les onze parfums imprimés sous « Boules glacées ».",
+      "Sauts de ligne des descriptions remplacés par une virgule là où la ligne tenait lieu de ponctuation (« croûtons / tomates », « olives / tomates confites », « spianata picante / terrine »).",
+      "« CÔTE DE BOEUF 400G » : le poids en format (« 400 g »).",
+      "Entrées : les six premières du bloc « Entrée & Tapas » de leur site (« Entrée » au bureau) ; les quatre autres réunies aux trois planches sous « Tapas & planches », l'intertitre de leur site au bureau.",
+      "« SANS ALCOOL 7€ » et « SMOOTHIES 8€ » réunis en « Sans alcool & smoothies », chaque article à son prix ; « Smoothie » ajouté en tête des fruits des smoothies ; première lettre des compositions en capitale.",
+      "Vins : le domaine en nom, l'appellation et les cépages en description, précédés de la couleur (l'intertitre de la carte) ; les trois Marie Antoinette prennent leur couleur dans le nom (« Marie Antoinette blanc ») pour trois noms distincts en cuisine. Le soleil à la place du prix au verre (Le Clos Real, Paul Mas 1892, Grain de Sagesse) est lu « bouteille seule ».",
+      "Spiritueux : la famille (« Rhum », « Whisky », « Vodka », « Tequila ») en description, « 4 cl » en format.",
+      "Crêpes : « Crêpe sucre », « Crêpe Nutella »… au lieu des seules garnitures ; « SUPP BANANE / SUPP CHANTILLY » en suppléments de chaque crêpe.",
+      "Boules glacées : « Glace 1 boule / 2 boules / 3 boules ».",
+      "TVA 20 % sur toutes les boissons alcoolisées ; Corona 0% à 10 %.",
+      "« L'abus d'alcool est dangereux pour la santé, à consommer avec modération », imprimé en pied de leur page des cocktails, en accroche de la section Cocktails."
+    ]
+  },
+  "offers": [
+    "Formule petit déj : Classic 5,90 € (boisson chaude, croissant, jus d'orange), Complet 7,90 € (+ tartine & beurre, Nutella), Brunch 14,90 € (+ avocado toast, œufs & bacon, brioche perdu) ; orange pressée supplément 2 €",
+    "Formule douceur 7,90 € : crêpe au choix + boisson chaude ou soft, hors viennois, latte gourmand & orange pressée (carte imprimée ; le chevalet de juillet 2026 dit « boisson chaude ou froide », prix illisible)",
+    "« Les boissons chaudes café, allongé, noisette sont servies jusqu'à 17h »"
+  ],
+  "research": {
+    "date": "2026-10-17",
+    "identification": "« Café Les Trois Glaces » (dictée de l'utilisateur) = la brasserie du 14 place de la Comédie, face à la fontaine des Trois Grâces. Reprise en 2025 par la SAS 3G et rebaptisée « Café 3 Grâces » (logo, site, Instagram, domaine cafe3graces.com) ; l'enseigne en lettres de la façade dit « CAFE LES 3 GRACES » (photo Google de juillet 2026) ; le registre, « LES 3 GRACES ». Avant 2025 : « Café Brasserie Les Trois Grâces », un autre exploitant (déco industrielle, soirées étudiantes, formule à 7,50 € — avis de 2019 à 2023). « Les 3 Graces » du 2 place de Lisbonne (Odysséum) est un autre café, fermé selon Google. Confiance : confirmé.",
+    "adresse": "BAN : 14 Place de la Comédie 34000 Montpellier (34172_1485_00014 ; lon 3,880058, lat 43,608416). L'Écusson, place de la Comédie, entre le Café Riche (n° 8) et la Crêperie de la Comédie (n° 12) ; tram Comédie (lignes 1, 2, 4). Confiance : confirmé.",
+    "statut": "Google Maps marque la fiche « Cafe 3 Graces » « Définitivement fermé » (2026-10-17, sans connexion). En sens contraire : une photo Google de juillet 2026 montre le café ouvert (terrasse dressée, chevalet « Formule douceur »), le registre donne l'établissement actif, le site est en ligne avec la même carte. Instagram muet depuis le 2025-09-24. Aucun avis daté de 2026 trouvé. À vérifier sur place : c'est la première chose à dire au gérant (une fiche Google « fermée » coûte des clients).",
+    "google": "Note 2,2★ sur 440 avis (Sluurpy, agrégat), Tripadvisor 2,5 (197), Restaurant Guru 2,6 (211) : avis hérités de l'ancien exploitant (accueil, verres sales, eau refusée par la canicule). Le Bonbon (5 juin 2025) salue la reprise. Argument : repartir sur une fiche propre.",
+    "plateformes": "Aucune fiche TheFork, Tripadvisor (nouveau nom), Uber Eats, Deliveroo ni Just Eat trouvée.",
+    "telephones": "04 99 62 73 39 (leur site, mentions légales, Le Bonbon) retenu ; 04 67 66 21 82 (Restaurant Guru, eat-list : ancien exploitant) ; 09 83 29 09 46 (Sluurpy, non rattaché).",
+    "horaires": "Aucun horaire sur leur site ni leur carte. Sluurpy (mis à jour en juin 2025, source inconnue) : lun. 9h–0h, mar. jeu. ven. 9h–1h, mer. 9h–2h, sam. dim. 9h–20h — non repris sur la page. Seule heure imprimée : café, allongé et noisette servis jusqu'à 17h.",
+    "nom": "Les trois pinsas portent les noms des Grâces (Aglaé, Thalie, « Rosyne » pour Euphrosyne). Leur site cite Pierre-Paul Riquet : « Le goût du vin, comme le bonheur, se trouve dans l'instant présent. »"
+  },
+  "notes": [
+    "1. Le café est-il ouvert ? Google marque sa fiche « Définitivement fermé » (octobre 2026) alors qu'une photo de juillet 2026 le montre ouvert : à corriger d'urgence dans leur fiche Google, nous pouvons les y aider.",
+    "2. Les prix de la démo sont ceux de leur site (carte publiée en février–juin 2025, inchangée depuis) : sont-ils toujours ceux pratiqués ? Aucune carte de 2026 n'a été trouvée.",
+    "3. Le nom à afficher : « Café 3 Grâces » (logo, site, Instagram) ou « Café Les 3 Grâces » (enseigne de la façade) ?",
+    "4. Les horaires d'ouverture, du petit déjeuner, de la cuisine, des glaces et crêpes ? La page ne les affiche pas.",
+    "5. Formules du petit déjeuner : quelles boissons chaudes sont comprises ? Le jus d'orange est-il un jus en bouteille (l'orange pressée étant en supplément) ?",
+    "6. Formule douceur : toutes les crêpes, y compris celles à 5 € ? « Latte gourmand » désigne-t-il le latte vanille et le latte caramel ? Le chevalet dit « boisson chaude ou froide » : les cocktails sans alcool et smoothies en sont-ils ? Granini, sirop et diabolo (à parfum) en sont-ils ?",
+    "7. Suppléments : le fruit du mojito et de la caipirinha (« supp fruit 1€ ») ? Le parfum du sirop des pressions ? « Supp chantilly 1€ / boule de glace 1,50€ » : sur les boules, sur les coupes, sur les crêpes ?",
+    "8. Diabolo : « fraise, menthe, citron, grenadine, pêche, pac » — que dit le mot coupé (« pastèque » ? « passion » ?) ? Les sirops à l'eau ont-ils les mêmes parfums ?",
+    "9. Vins : le soleil à la place du prix au verre (Le Clos Real, Paul Mas 1892, Grain de Sagesse) veut-il dire « bouteille seule » ? Grain de Sagesse (Vermentino & Roussanne, cépages blancs) est rangé en rouge : est-ce un blanc ?",
+    "10. Pêche Melba : « 2 boules pêche », mais la pêche n'est pas dans les parfums des boules : un parfum de saison ?",
+    "11. Cuisson de la côte de boeuf : ajoutée pour la démonstration (bleu, saignant, à point, bien cuit). À garder ?",
+    "12. Graphies à confirmer ou à corriger : « brioche perdu » (brunch), « Moules gratinée », « Pain briochée », « Latte machiatto », « Patròn », « Rosyne ».",
+    "13. Pas d'eaux (plate, gazeuse), de gin hors cocktails, d'accompagnements (frites) ni de plat du jour sur la carte publiée : la page 1 de leur carte imprimée (non publiée) en contenait-elle ?",
+    "14. Photos : deux de leurs plats (couverture du Bonbon) sont repris ; la boule de mozzarella sur tomates est-elle bien les « tomates & mozzarella di bufala » ? Peuvent-ils fournir leurs photos des autres plats, des coupes et des crêpes ?",
+    "15. Le logo est repris de leur site, découpé en calques pour l'animation du haut de page : leur accord pour la démo en ligne ? Le fichier vectoriel d'origine (Zovision Graphic Studio) serait plus net.",
+    "16. Leur QR actuel (cafe3graces.com/qr) mène à la carte du site, sans commande : quelle caisse utilisent-ils (pour l'envoi des commandes en cuisine et au bar) ?",
+    "17. Qui décide : SAS 3G (président EL-NAGDI Waley-El-Deen au registre), Jordan Lechuga (directeur de la publication du site) ou LL INVEST (Laurent Lechuga, immatriculée à l'adresse en octobre 2025) ?",
+    "18. « Depuis 1790 » : l'année du lieu ou de la maison ? Elle est sur le logo et repassée telle quelle dans le bandeau d'annonces."
+  ]
+}

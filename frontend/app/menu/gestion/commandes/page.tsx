@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CounterCard } from "@/components/gestion/commandes/counter-card";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
+import {
+  FermeturesBar,
+  FermeturesStatut,
+} from "@/components/gestion/commandes/fermetures-bar";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
 import { ServirCard } from "@/components/gestion/commandes/servir-card";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
@@ -11,14 +15,16 @@ import { PushPrompt } from "@/components/gestion/push-prompt";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
-import { ORDER_TAB_LABELS, ORDER_TABS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { ORDER_TABS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
   cardCount,
   earlierNumberingDay,
   isHistoryStatus,
+  isPickupShop,
   isServiceToday,
+  orderTabLabel,
   orderTabsShown,
   placeLabel,
 } from "@/lib/gestion/selectors";
@@ -46,7 +52,7 @@ import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
  */
 const EMPTY_BODIES: Record<OrderTab, string> = {
   a_encaisser:
-    "Les commandes passées depuis le menu QR ou prises en salle apparaîtront ici, article par article.",
+    "Les commandes à encaisser apparaîtront ici, article par article : celles du menu QR comme celles prises par l'équipe.",
   a_servir:
     "Les commandes encaissées, parties en cuisine, apparaîtront ici jusqu'à leur service.",
   historique: "Les commandes servies, retirées ou annulées apparaîtront ici.",
@@ -66,20 +72,21 @@ function dedupeById(orders: Order[]): Order[] {
 
 export default function CommandesPage() {
   const state = useGestion();
-  const { hasFeature } = useGestionAccess();
+  const { can, hasFeature } = useGestionAccess();
   const live = useRealtimeLive();
   const now = useNow(WAIT_TICK_MS);
   const printerOffline = usePrinterOffline(state?.etablissement.id ?? "");
   const toast = useToast();
   // Onglet choisi ; avant tout choix, celui du rôle (la cuisine n'encaisse pas).
   const [chosenFilter, setChosenFilter] = useState<OrderTab | null>(null);
-  // L'historique n'est pas dans le fetch initial borné : il se charge à la
-  // demande, page par page, quand l'onglet Historique est ouvert.
+  // L'historique s'affiche par pages de ORDER_HISTORY_PAGE_SIZE, chargées à la
+  // demande : en rendre d'un coup les semaines que l'état contient figeait
+  // l'onglet. Curseur : undefined tant qu'aucune page n'est arrivée, null
+  // une fois tout chargé.
   const [history, setHistory] = useState<Order[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
+  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const historyRequest = useRef(0);
   const [tableQuery, setTableQuery] = useState("");
   const [historyTable, setHistoryTable] = useState<{
     number: number;
@@ -87,25 +94,21 @@ export default function CommandesPage() {
   } | null>(null);
 
   const loadHistory = useCallback(
-    async (before: string | null, tableId: string | null) => {
-      const requestId = ++historyRequest.current;
+    async (before: string | null) => {
       setLoadingHistory(true);
       try {
-        const page = await fetchOrderHistory(before, tableId);
-        if (requestId !== historyRequest.current) return;
+        const page = await fetchOrderHistory(before);
         setHistory((current) =>
           before ? [...current, ...page.orders] : page.orders
         );
         setCursor(page.nextCursor);
-        setHistoryLoaded(true);
       } catch (error) {
-        if (requestId !== historyRequest.current) return;
-        setHistoryLoaded(true);
         toast.error(
           error instanceof Error ? error.message : "Une erreur est survenue."
         );
       } finally {
-        if (requestId === historyRequest.current) setLoadingHistory(false);
+        setHistoryLoaded(true);
+        setLoadingHistory(false);
       }
     },
     [toast]
@@ -122,37 +125,47 @@ export default function CommandesPage() {
 
   useEffect(() => {
     if (filter !== "historique" || historyLoaded || loadingHistory) return;
-    if (historyTable && !historyTable.id) return;
     // Faux positif : le drapeau de chargement accompagne un appel réseau,
     // ce n'est pas un état dérivé du rendu.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadHistory(null, historyTable?.id ?? null);
-  }, [filter, historyLoaded, loadingHistory, loadHistory, historyTable]);
+    void loadHistory(null);
+  }, [filter, historyLoaded, loadingHistory, loadHistory]);
 
   if (!state) return null;
   if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
 
   const isServeur = state.role === "serveur";
+  // Boutique à emporter seule : ni salle ni tables, un comptoir et un laboratoire.
+  const pickupShop = isPickupShop(state);
+  const tabLabel = (tab: OrderTab) => orderTabLabel(state, tab);
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
-  const matchesHistoryTable = (order: Order) =>
-    historyTable === null ||
-    (historyTable.id !== null &&
-      order.tableId === historyTable.id &&
-      isServiceToday(order.createdAt, state.dayEndHour));
-
-  // Onglet Historique : les commandes closes du jour (déjà dans l'état) sont
-  // fusionnées avec les pages plus anciennes chargées à la demande.
+  const closedOrders = state.orders.filter((order) =>
+    isHistoryStatus(order.status)
+  );
+  // Onglet Historique. Une table se cherche dans le service du jour, que
+  // l'état contient en entier. Sinon, les pages chargées, que l'état tient à
+  // jour en direct (commandes closes depuis, statuts changés) dans la plage
+  // qu'elles couvrent.
+  const historyOrders = historyTable
+    ? closedOrders.filter(
+        (order) =>
+          historyTable.id !== null &&
+          order.tableId === historyTable.id &&
+          isServiceToday(order.createdAt, state.dayEndHour)
+      )
+    : cursor === undefined
+      ? history
+      : dedupeById([
+          ...history,
+          ...closedOrders.filter(
+            (order) => cursor === null || order.createdAt >= cursor
+          ),
+        ]);
   const visible =
     filter === "historique"
-      ? dedupeById([
-          ...state.orders.filter(
-            (order) =>
-              isHistoryStatus(order.status) && matchesHistoryTable(order)
-          ),
-          ...history,
-        ]).sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      ? [...historyOrders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       : state.orders
           .filter((order) => matchesFilter(order, filter))
           .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -183,11 +196,15 @@ export default function CommandesPage() {
             Commandes
           </h1>
           {isServeur && (
-            <p className="mt-1 text-sm text-muted">La salle, en direct.</p>
+            <p className="mt-1 text-sm text-muted">
+              {pickupShop ? "Le comptoir, en direct." : "La salle, en direct."}
+            </p>
           )}
           {isCuisinier && (
             <p className="mt-1 text-sm text-muted">
-              Ce qui est parti en cuisine, en direct.
+              {pickupShop
+                ? "Ce qui part en préparation, en direct."
+                : "Ce qui est parti en cuisine, en direct."}
             </p>
           )}
         </div>
@@ -209,13 +226,29 @@ export default function CommandesPage() {
         )}
       </div>
 
+      {state.closures.length > 0 &&
+        (can("fermetures.basculer") ? (
+          <FermeturesBar
+            closures={state.closures}
+            categories={state.categories}
+            dayEndHour={state.dayEndHour}
+          />
+        ) : (
+          <FermeturesStatut
+            closures={state.closures}
+            categories={state.categories}
+            dayEndHour={state.dayEndHour}
+          />
+        ))}
+
       {printerOffline && (
         <p
           role="alert"
           className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm leading-relaxed"
         >
-          <strong>Boîtier Omilink hors ligne</strong> — les tickets cuisine ne
-          sortent pas. Suivez les commandes dans « À servir » en attendant.
+          <strong>Boîtier Omilink hors ligne</strong> — les tickets{" "}
+          {pickupShop ? "de préparation" : "cuisine"} ne sortent pas. Suivez les
+          commandes dans « {tabLabel("a_servir")} » en attendant.
         </p>
       )}
 
@@ -226,7 +259,7 @@ export default function CommandesPage() {
           visite="commandes-etapes"
           tabs={shown.map((id) => ({
             id,
-            label: ORDER_TAB_LABELS[id],
+            label: tabLabel(id),
             // L'historique est borné/paginé : pas de total fiable à afficher.
             count:
               id === "historique"
@@ -240,7 +273,7 @@ export default function CommandesPage() {
         />
       )}
 
-      {filter === "historique" && !fastFood && (
+      {filter === "historique" && !fastFood && !pickupShop && (
         <form
           className="flex max-w-md flex-wrap gap-2"
           onSubmit={(event) => {
@@ -251,12 +284,7 @@ export default function CommandesPage() {
             const table = state.tables.find(
               (candidate) => candidate.number === number
             );
-            historyRequest.current += 1;
-            setLoadingHistory(false);
-            setHistory([]);
-            setCursor(null);
             setHistoryTable({ number, id: table?.id ?? null });
-            setHistoryLoaded(!table);
           }}
         >
           <label className="min-w-44 flex-1">
@@ -274,7 +302,7 @@ export default function CommandesPage() {
           </label>
           <button
             type="submit"
-            disabled={!tableQuery.trim() || loadingHistory}
+            disabled={!tableQuery.trim()}
             className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
           >
             Rechercher
@@ -283,13 +311,8 @@ export default function CommandesPage() {
             <button
               type="button"
               onClick={() => {
-                historyRequest.current += 1;
-                setLoadingHistory(false);
                 setTableQuery("");
-                setHistory([]);
-                setCursor(null);
                 setHistoryTable(null);
-                setHistoryLoaded(false);
               }}
               className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
             >
@@ -300,7 +323,7 @@ export default function CommandesPage() {
       )}
 
       {visible.length === 0 ? (
-        filter === "historique" && !historyLoaded ? (
+        filter === "historique" && !historyTable && !historyLoaded ? (
           <div aria-busy className="flex flex-col gap-3">
             <div className="shimmer h-24 rounded-2xl" />
             <div className="shimmer h-24 rounded-2xl" />
@@ -313,7 +336,9 @@ export default function CommandesPage() {
                 ? `Aucune commande sur la table ${historyTable.number} depuis le début du service.`
                 : fastFood && filter === "a_servir"
                   ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
-                  : EMPTY_BODIES[filter]
+                  : pickupShop && filter === "a_servir"
+                    ? "Les commandes du jour payées en ligne apparaîtront ici, de la préparation au retrait."
+                    : EMPTY_BODIES[filter]
             }
           />
         )
@@ -331,6 +356,7 @@ export default function CommandesPage() {
                 key={tableId}
                 orders={orders}
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
+                now={now}
                 readOnly={isCuisinier}
               />
             )
@@ -364,32 +390,35 @@ export default function CommandesPage() {
           {singles.map((order) =>
             isServeur ? (
               <div key={order.id} className="order-pop">
-                <OrderCard order={order} place={placeLabel(order, state.tables)} />
+                <OrderCard order={order} place={placeLabel(order, state.tables)} pickupShop={pickupShop} />
               </div>
             ) : (
               <OrderCard
                 key={order.id}
                 order={order}
                 place={placeLabel(order, state.tables)}
+                pickupShop={pickupShop}
               />
             )
           )}
-          {filter === "historique" && cursor && (
-            <div className="flex justify-center pt-2">
-              <button
-                type="button"
-                onClick={() =>
-                  void loadHistory(cursor, historyTable?.id ?? null)
-                }
-                disabled={loadingHistory}
-                className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60"
-              >
-                {loadingHistory ? "Chargement…" : "Charger plus"}
-              </button>
-            </div>
-          )}
         </div>
       )}
+
+      {filter === "historique" &&
+        !historyTable &&
+        historyLoaded &&
+        cursor !== null && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => void loadHistory(cursor ?? null)}
+              disabled={loadingHistory}
+              className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60"
+            >
+              {loadingHistory ? "Chargement…" : "Voir plus"}
+            </button>
+          </div>
+        )}
 
       {/* Prise de commande en salle : le client commande au serveur. */}
       {!isCuisinier && hasFeature("prise_commande") && (

@@ -1,6 +1,9 @@
-import { BADGE_LABELS, formatPrice, type Badge, type MenuItem } from "@/lib/menu-data";
+import { allergenLine, BADGE_LABELS, formatPrice, hasFormats } from "@/lib/menu/format";
+import { type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
+import { DishIndicators } from "./dish-indicators";
 import { keepHyphenated } from "./keep-hyphenated";
+import { RewardHint } from "./reward-hint";
 
 function Badges({ badges }: { badges?: Badge[] }) {
   if (!badges?.length) return null;
@@ -22,18 +25,61 @@ function Badges({ badges }: { badges?: Badge[] }) {
  * Une description sur plusieurs lignes est une liste — la composition d'un
  * menu (« 1 cuisse… / + 1 accompagnement… / + 1 boisson ») ; sur une seule,
  * un paragraphe.
+ *
+ * `detail` (« 33 cl ») suit aussi la description, caché : un thème qui le
+ * préfère là plutôt qu'à côté du nom l'y montre (.dish-detail-after,
+ * globals.css) — au bout du paragraphe, ou sur sa ligne.
+ *
+ * Les prix des formats (`tarifs`) ferment la description, sur leur ligne
+ * (.dish-tarifs).
  */
-function Description({ text }: { text?: string }) {
-  if (!text) return null;
+function Description({ text, tarifs, detail }: { text?: string; tarifs?: string; detail?: string }) {
   const className = "text-sm leading-relaxed text-muted lg:text-[15px]";
-  const lines = text.split("\n");
-  if (lines.length === 1) return <p className={className}>{text}</p>;
+  const ownLine = detail ? <p className={`dish-detail-after hidden ${className}`}>{detail}</p> : null;
+  const lines = [
+    ...(text ? text.split("\n").map((line) => ({ line, hook: undefined })) : []),
+    ...(tarifs ? [{ line: tarifs, hook: "dish-tarifs" }] : []),
+  ];
+  if (lines.length === 0) return ownLine;
+  if (lines.length === 1) {
+    return (
+      <p className={lines[0].hook ? `${lines[0].hook} ${className}` : className}>
+        {keepHyphenated(lines[0].line)}
+        {detail && <span className="dish-detail-after hidden">{detail}</span>}
+      </p>
+    );
+  }
   return (
-    <ul className={`dish-lines ${className}`}>
-      {lines.map((line) => (
-        <li key={line}>{line}</li>
-      ))}
-    </ul>
+    <>
+      <ul className={`dish-lines ${className}`}>
+        {lines.map(({ line, hook }) => (
+          <li key={line} className={hook}>
+            {keepHyphenated(line)}
+          </li>
+        ))}
+      </ul>
+      {ownLine}
+    </>
+  );
+}
+
+/** Les allergènes que l'établissement déclare pour ce plat. */
+function Allergens({ item }: { item: MenuItem }) {
+  if (!item.allergens?.length) return null;
+  return (
+    <p className="dish-allergens text-xs leading-relaxed text-faint">
+      {allergenLine(item.allergens)}
+    </p>
+  );
+}
+
+/** Click & collect : le délai que le plat demande avant son retrait. */
+function Notice({ hours }: { hours?: number }) {
+  if (!hours) return null;
+  return (
+    <p className="dish-notice text-xs font-semibold text-ember-2">
+      À commander {hours}&nbsp;h à l&apos;avance
+    </p>
   );
 }
 
@@ -45,9 +91,15 @@ function Pairing({ pairing }: { pairing?: string }) {
 }
 
 /** Large photo card for featured items. */
-function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
+function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl">
+    <article
+      // data-item : un thème peut marquer un plat précis (globals.css).
+      data-item={item.id}
+      // Une fiche que la mise en page d'un thème peut étendre à la rangée (globals.css).
+      data-span={span || undefined}
+      className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl"
+    >
       {item.image && (
         <div className="dish-photo relative aspect-video overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
@@ -87,6 +139,9 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
           </h3>
           <div className="flex shrink-0 flex-col items-end">
             <span className="dish-price font-display text-xl text-ember-1 lg:text-2xl">
+              {/* En formats, le prix affiché est celui du plus petit : la girafe
+                  de Paulaner ne coûte pas 3 €. */}
+              {hasFormats(item) && "dès\u00a0"}
               {formatPrice(item.price)}
             </span>
             {item.tarif && (
@@ -103,8 +158,12 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
             )}
           </div>
         </div>
-        <Description text={item.description} />
+        <DishIndicators item={item} />
+        <Description text={item.description} tarifs={item.tarifs} detail={item.detail} />
+        <Notice hours={item.noticeHours} />
+        <Allergens item={item} />
         <Pairing pairing={item.pairing} />
+        <RewardHint itemId={item.id} />
         <div className="dish-action mt-1 flex justify-end">
           <AddToOrder item={item} />
         </div>
@@ -113,6 +172,6 @@ function FeaturedCard({ item, priority }: { item: MenuItem; priority?: boolean }
   );
 }
 
-export function DishCard({ item, priority }: { item: MenuItem; priority?: boolean }) {
-  return <FeaturedCard item={item} priority={priority} />;
+export function DishCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
+  return <FeaturedCard item={item} priority={priority} span={span} />;
 }

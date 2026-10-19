@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { dispatchOrderEvent } from "@/lib/push/server";
-import { collectSiteUrl, menuSiteUrl } from "@/lib/site";
+import { clubSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -58,14 +58,14 @@ export async function connectedAccount(
  * Apple Pay et Google Pay ne s'affichent que sur un domaine enregistré
  * auprès du compte qui encaisse — en paiement direct, le compte connecté du
  * restaurant, pas la plateforme. Les domaines sont ceux où la feuille de
- * paiement s'ouvre : menus QR et click & collect.
+ * paiement s'ouvre : menus QR, click & collect et tables de club.
  */
 export async function registerWalletDomains(
   stripe: Stripe,
   accountId: string
 ): Promise<void> {
   const options = { stripeAccount: accountId };
-  for (const site of [menuSiteUrl, collectSiteUrl]) {
+  for (const site of [menuSiteUrl, collectSiteUrl, clubSiteUrl]) {
     const domain = { domain_name: new URL(site).hostname };
     const known = await stripe.paymentMethodDomains.list(domain, options);
     if (!known.data.length) await stripe.paymentMethodDomains.create(domain, options);

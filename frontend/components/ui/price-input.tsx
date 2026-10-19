@@ -8,12 +8,15 @@ export function PriceInput({
   onChange,
   placeholder,
   invalid,
+  describedBy,
   className,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   invalid?: boolean;
+  /** Id du texte qui l'explique, ou de son erreur. */
+  describedBy?: string;
   className?: string;
 }) {
   return (
@@ -24,6 +27,8 @@ export function PriceInput({
         value={value}
         placeholder={placeholder ?? "0,00"}
         onChange={(event) => onChange(event.target.value)}
+        aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         onBlur={() => {
           const parsed = parsePriceInput(value);
           if (parsed !== null) onChange(priceToInput(parsed));

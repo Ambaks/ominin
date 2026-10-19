@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShareIcon } from "@/components/admin/icons";
 import { AccountsTab } from "@/components/admin/social/accounts-tab";
+import { DraftsTab } from "@/components/admin/social/drafts-tab";
 import { PlaybookTab } from "@/components/admin/social/playbook-tab";
 import { PostsTab } from "@/components/admin/social/posts-tab";
 import { RunPanel } from "@/components/admin/social/run-panel";
@@ -16,6 +17,7 @@ import { useToast } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import * as api from "@/lib/admin/social";
 import type {
+  PostStatus,
   SocialAccount,
   SocialPlaybook,
   SocialPost,
@@ -23,15 +25,20 @@ import type {
 import { BRANDS, type SocialBrand } from "@/lib/social/brands";
 
 /*
- * Poste de pilotage de l'agent des réseaux sociaux. Il publie seul, chaque
- * jour, un carrousel par marque, et réécrit seul sa ligne éditoriale d'après
- * les résultats : rien ici n'attend une validation. L'écran sert à relier les
- * comptes, à voir ce qui est parti et ce que ça a donné, à poster Snapchat à
- * la main, et à reprendre la main sur la ligne éditoriale si besoin. La vue
- * d'un produit ne montre que sa marque ; la vue d'ensemble, toutes.
+ * Poste de pilotage de l'agent des réseaux sociaux. Il prépare chaque
+ * mercredi soir les publications de la semaine (trois créneaux par marque,
+ * en Reel, carrousel ou image) ;
+ * rien ne part sans être validé ici. L'écran sert à valider, corriger ou
+ * faire réécrire les brouillons, relier les comptes, voir ce qui est parti
+ * et ce que ça a donné, poster Snapchat à la main, et tenir la ligne
+ * éditoriale. La vue d'un produit ne montre que sa marque ; la vue
+ * d'ensemble, toutes.
  */
 
-type TabId = "accounts" | "posts" | "snapchat" | "playbook";
+type TabId = "drafts" | "accounts" | "posts" | "snapchat" | "playbook";
+
+/** Statuts d'un post qui n'est pas encore parti : l'onglet « À valider ». */
+const PENDING: readonly PostStatus[] = ["draft", "redrafting", "approved"];
 
 /** Retours du flux OAuth Meta (?meta=…), posés par /api/social/meta/callback. */
 const META_OUTCOMES: Record<string, { ok: boolean; message: string }> = {
@@ -55,7 +62,7 @@ export default function SocialPage() {
   const brand = product as SocialBrand | null;
   const brands = brand ? BRANDS.filter((item) => item.id === brand) : BRANDS;
 
-  const [tab, setTab] = useState<TabId>("accounts");
+  const [tab, setTab] = useState<TabId>("drafts");
   const [accounts, setAccounts] = useState<SocialAccount[] | null>(null);
   const [posts, setPosts] = useState<SocialPost[] | null>(null);
   const [playbooks, setPlaybooks] = useState<SocialPlaybook[] | null>(null);
@@ -111,6 +118,18 @@ export default function SocialPage() {
       (account) => !brand || account.brand === brand || account.brand === null
     ) ?? null;
 
+  const pending = useMemo(
+    () => brandPosts?.filter((post) => PENDING.includes(post.status)) ?? null,
+    [brandPosts]
+  );
+  const published = useMemo(
+    () => brandPosts?.filter((post) => post.status === "published") ?? null,
+    [brandPosts]
+  );
+  const toValidate = (pending ?? []).filter(
+    (post) => post.status === "draft"
+  ).length;
+
   const snapchat = useMemo<SnapchatItem[]>(
     () =>
       (brandPosts ?? []).flatMap((post) =>
@@ -136,8 +155,9 @@ export default function SocialPage() {
         <div>
           <h1 className="font-display text-2xl font-medium">Réseaux sociaux</h1>
           <p className="text-xs text-faint">
-            Un carrousel par marque et par jour, publié et amélioré par
-            l&apos;agent
+            Trois publications par marque et par semaine (Reel, carrousel ou
+            image), préparées par
+            l&apos;agent, publiées une fois validées
           </p>
         </div>
       </div>
@@ -146,6 +166,7 @@ export default function SocialPage() {
 
       <PillTabs
         tabs={[
+          { id: "drafts", label: "À valider", count: toValidate },
           { id: "accounts", label: "Comptes", count: unassigned },
           { id: "posts", label: "Publications" },
           { id: "snapchat", label: "Snapchat à poster", count: toPost },
@@ -155,6 +176,12 @@ export default function SocialPage() {
         onSelect={(id) => setTab(id as TabId)}
       />
 
+      {tab === "drafts" &&
+        (pending ? (
+          <DraftsTab posts={pending} onChange={reloadPosts} />
+        ) : (
+          loading
+        ))}
       {tab === "accounts" &&
         (brandAccounts ? (
           <AccountsTab
@@ -166,7 +193,7 @@ export default function SocialPage() {
           loading
         ))}
       {tab === "posts" &&
-        (brandPosts ? <PostsTab posts={brandPosts} /> : loading)}
+        (published ? <PostsTab posts={published} /> : loading)}
       {tab === "snapchat" &&
         (brandPosts ? (
           <SnapchatTab items={snapchat} onChange={reloadPosts} />

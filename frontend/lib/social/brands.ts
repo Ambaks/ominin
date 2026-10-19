@@ -26,10 +26,10 @@ export interface Brand {
 }
 
 /*
- * Teintes reprises de app/globals.css (palette candlelit sombre et sa
- * variante claire) : le moteur de rendu des images ne lit pas les variables
- * CSS. Chaque marque garde la famille ember, avec sa dominante — on
- * reconnaît Ominin, on distingue l'offre.
+ * Teintes des landings (components/landing-kit, palette candlelit sombre) :
+ * le moteur de rendu des images ne lit pas les variables CSS. Toutes les
+ * marques sur le même fond que les landings, chacune avec sa dominante dans
+ * la famille ember — on reconnaît Ominin, on distingue l'offre.
  */
 export const BRANDS: readonly Brand[] = [
   {
@@ -50,7 +50,7 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Menu",
     url: "menu.ominin.com",
     theme: {
-      background: "#15110d",
+      background: "#0c0a08",
       foreground: "#f3ece1",
       muted: "#a1937f",
       accentFrom: "#f0b35b",
@@ -63,12 +63,12 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Collect",
     url: "collect.ominin.com",
     theme: {
-      background: "#faf6f0",
-      foreground: "#221b13",
-      muted: "#7a6a58",
-      accentFrom: "#c08515",
-      accentTo: "#c05a32",
-      onAccent: "#ffffff",
+      background: "#0c0a08",
+      foreground: "#f3ece1",
+      muted: "#a1937f",
+      accentFrom: "#f5c26b",
+      accentTo: "#d9653f",
+      onAccent: "#0c0a08",
     },
   },
   {
@@ -76,7 +76,7 @@ export const BRANDS: readonly Brand[] = [
     name: "Ominin Shop",
     url: "shop.ominin.com",
     theme: {
-      background: "#1c1712",
+      background: "#0c0a08",
       foreground: "#f3ece1",
       muted: "#a1937f",
       accentFrom: "#e2764b",
@@ -98,9 +98,20 @@ export interface Slide {
   kicker: string;
   title: string;
   body: string;
+  /** Capture de l'outil posée dans un téléphone (lib/social/screens), ou "". */
+  screen?: string;
 }
 
-/** Image n (à partir de 1) d'une publication ; format story pour Snapchat. */
-export function slideUrl(postId: string, index: number, story = false): string {
-  return `/api/social/slides/${postId}/${index}.jpg${story ? "?format=story" : ""}`;
+/** Image n (à partir de 1) d'une publication ; format story pour Snapchat.
+ * version (updated_at du post) : les images sont en cache immuable, une
+ * correction doit changer d'URL. */
+export function slideUrl(
+  postId: string,
+  index: number,
+  version: string,
+  story = false
+): string {
+  const params = new URLSearchParams({ v: version });
+  if (story) params.set("format", "story");
+  return `/api/social/slides/${postId}/${index}.jpg?${params}`;
 }

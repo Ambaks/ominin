@@ -1,0 +1,85 @@
+/*
+  Pitch Baï-Kō : la nuit et le néon de son site — fond #0a0a0c, rose
+  #ff3c78 des boutons et des noms coréens, violet du logo, cyan des
+  horaires — Bebas Neue en titres comme ses sections, DM Sans en texte.
+*/
+.pitch-bai-ko {
+  --pitch-ground: #0a0a0c;
+  --pitch-surface: #141419;
+  --pitch-raised: #1c1c23;
+  --pitch-accent: #ff3c78;
+  --pitch-accent-deep: #e0225c;
+  --pitch-accent-light: #ff7aa3;
+  --pitch-accent-text: #ff5c8d;
+  --pitch-on-accent: #0a0a0c;
+  --pitch-ink: #f2f2f8;
+  --pitch-muted: #c2c2d2;
+  --pitch-faint: #9d9db2;
+  --pitch-line: rgba(242, 242, 248, 0.12);
+  --pitch-film: #0a0a0c;
+  /* Le cyan des horaires de son site (globals.css, --bk-cyan). */
+  --pitch-neon: #3ce4ff;
+
+  --font-pitch-wordmark: var(--font-pitch-numeral);
+}
+
+/*
+  « ≈ » et « → », absents de DM Sans et de Bebas Neue : Noto Sans Math plutôt
+  qu'Arial (bai-ko-fonts.ts). Les familles par leur nom et non par leurs
+  variables : celles-ci finissent par la police de repli de next/font, un
+  Arial recalé, qui a ces deux signes et passait avant Noto Sans Math.
+*/
+.pitch.pitch-bai-ko {
+  font-family: "DM Sans", var(--font-pitch-symbols), sans-serif;
+}
+
+.pitch-bai-ko .font-numeral {
+  font-family: "Bebas Neue", var(--font-pitch-symbols), sans-serif;
+}
+
+/* Les titres en Bebas Neue, comme les sections du site : une seule graisse, pas de resserrage. */
+.pitch-bai-ko :is(h1, h2, .pitch-quote) {
+  font-family: "Bebas Neue", var(--font-pitch-symbols), sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.pitch-bai-ko :is(.font-numeral, .pitch-ticket-number, .pitch-ticket-brand) {
+  font-weight: 400;
+}
+
+.pitch-bai-ko .pitch-ticket-brand {
+  letter-spacing: 0.06em;
+}
+
+/* Le point de chaque titre de section en cyan : le second néon du site, à côté du rose. */
+.pitch-bai-ko .eyebrow::before {
+  background: var(--pitch-neon);
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--pitch-neon) 60%, transparent);
+}
+
+/* La touche coréenne : 바이코 en rose néon, comme les noms de section du site. */
+.pitch-bai-ko .flourish {
+  color: var(--pitch-accent);
+  text-shadow:
+    0 0 0.06em color-mix(in srgb, var(--pitch-accent-light) 90%, transparent),
+    0 0 0.4em color-mix(in srgb, var(--pitch-accent) 55%, transparent);
+}
+
+/* Les QR codes : modules de nuit sur blanc, dans un cadre rose. */
+.pitch-bai-ko .pitch-qr {
+  background-color: #ffffff;
+  color: var(--pitch-ground);
+  /* Un contour, pas une ombre : l'impression du PDF retire toutes les ombres. */
+  outline: 12px solid var(--pitch-accent);
+}
+
+/* L'aplat en début de ligne reste dans la marge : en Bebas, son débord se lisait comme un décalage. */
+.pitch-bai-ko .mark-start {
+  margin-left: 0;
+}
+
+/* « Chez vous » : ses cartes au milieu de la place libre, pas collées au chapeau, le vide en bas. */
+.pitch-bai-ko .deck-slide ol.mb-auto {
+  margin-top: auto;
+}

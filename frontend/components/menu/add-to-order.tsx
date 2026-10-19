@@ -1,13 +1,42 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useId, useRef, useState } from "react";
-import { cartLineKey, useCart, type CartChoice } from "@/lib/menu/cart";
-import { formatPrice, type MenuItem, type OptionGroup } from "@/lib/menu-data";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
+import { cartLineKey, plainLine, useCart, type CartChoice } from "@/lib/menu/cart";
+import {
+  addVerb,
+  formatPrice,
+  keepVisible,
+  lineName,
+  sheetDescription,
+  visibleGroups,
+} from "@/lib/menu/format";
+import { scrollBehavior } from "@/lib/menu/scroll";
+import {
+  hasBlockedRequiredGroup,
+  isChoiceAvailable,
+  type MenuItem,
+  type OptionGroup,
+} from "@/lib/menu-data";
+import { SheetPairings, useSheetPairings } from "./chef-pairings";
 import { keepHyphenated } from "./keep-hyphenated";
 import { Sheet } from "./sheet";
 
 export function isUnavailable(item: MenuItem): boolean {
-  return item.disponible === false || item.stock === 0;
+  return (
+    item.disponible === false ||
+    item.stock === 0 ||
+    hasBlockedRequiredGroup(item.options)
+  );
 }
 
 /** Durée du « Ajouté ✓ » sur le bouton, avant retour au libellé normal. */
@@ -16,12 +45,245 @@ const ADDED_FLASH_MS = 1200;
 const choiceRow =
   "flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm transition-colors";
 
-export const choiceRowClass = (checked: boolean) =>
+const choiceRowClass = (checked: boolean) =>
   `choice-row ${choiceRow} ${checked ? "is-checked border-ember-2/60 bg-surface-raised" : "border-hairline"}`;
 
-/** Défilement doux, sauf si le client a demandé moins de mouvement. */
-const scrollBehavior = (): ScrollBehavior =>
-  matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+/** Une ligne de choix : le bouton, son libellé, son supplément. */
+export function ChoiceRow({
+  type,
+  name,
+  checked,
+  onChange,
+  supplement = 0,
+  price,
+  describedBy,
+  invalid,
+  soldOut,
+  children,
+}: {
+  type: "radio" | "checkbox";
+  name: string;
+  checked: boolean;
+  onChange: () => void;
+  supplement?: number;
+  /** Prix entier du format choisi, affiché à la place du supplément. */
+  price?: number;
+  describedBy?: string;
+  /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
+  invalid?: boolean;
+  /** Épuisé : visible mais pas sélectionnable, le prix laisse place au mot. */
+  soldOut?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <label
+      className={`${choiceRowClass(checked)} ${
+        soldOut ? "cursor-not-allowed opacity-50" : ""
+      }`}
+    >
+      <span className="flex items-center gap-2.5">
+        <input
+          type={type}
+          name={name}
+          checked={checked}
+          onChange={onChange}
+          disabled={soldOut}
+          aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
+          className="accent-ember-2"
+        />
+        <span className={soldOut ? "line-through" : undefined}>{children}</span>
+      </span>
+      {soldOut ? (
+        <span className="text-muted">Épuisé</span>
+      ) : price !== undefined ? (
+        <span className="text-muted">{formatPrice(price)}</span>
+      ) : (
+        supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>
+      )}
+    </label>
+  );
+}
+
+/**
+ * Les choix d'un groupe d'options — feuille d'un plat, questions d'un plat
+ * de formule. Facultatif à choix unique, il commence par « Aucun » : l'état
+ * par défaut, et le seul moyen de revenir en arrière (un radio coché ne se
+ * décoche pas).
+ */
+export function GroupChoices({
+  group,
+  name,
+  chosen,
+  onToggle,
+  onClear,
+  invalid,
+  basePrice,
+}: {
+  group: OptionGroup;
+  name: string;
+  chosen: string[];
+  onToggle: (choiceId: string) => void;
+  onClear: () => void;
+  invalid?: boolean;
+  /** Prix de l'article hors ce groupe : un groupe de formats l'ajoute à chaque choix. */
+  basePrice?: number;
+}) {
+  const formatPrices = group.formats && basePrice !== undefined;
+  return (
+    <>
+      {!group.obligatoire && !group.multiple && (
+        <ChoiceRow type="radio" name={name} checked={chosen.length === 0} onChange={onClear}>
+          {group.aucun ?? "Aucun"}
+        </ChoiceRow>
+      )}
+      {group.choices.map((choice) => (
+        <ChoiceRow
+          key={choice.id}
+          type={group.multiple ? "checkbox" : "radio"}
+          name={name}
+          checked={chosen.includes(choice.id)}
+          onChange={() => onToggle(choice.id)}
+          supplement={choice.supplement}
+          price={formatPrices ? basePrice + choice.supplement : undefined}
+          invalid={invalid}
+          soldOut={!isChoiceAvailable(choice)}
+        >
+          {choice.name}
+        </ChoiceRow>
+      ))}
+    </>
+  );
+}
+
+/**
+ * L'étiquette d'un groupe à côté de son nom : « · Facultatif », « · 1 au
+ * choix » (« · Au choix » s'il en prend plusieurs), puis une coche une fois
+ * choisi — comme le dit le panneau d'un comptoir. Une étiquette et non un
+ * adjectif : « Sauce facultatif » ne s'accordait pas. Feuille d'un plat et
+ * formules.
+ */
+export function ChoiceTag({
+  required,
+  multiple,
+  done,
+}: {
+  required: boolean;
+  multiple?: boolean;
+  done: boolean;
+}) {
+  // Le point à égale distance du nom (gap-2 de la légende) et de l'étiquette.
+  const dot = (
+    <span aria-hidden className="mr-2">
+      ·
+    </span>
+  );
+  if (!required) {
+    return (
+      <span className="text-xs font-medium text-muted">
+        {dot}Facultatif
+      </span>
+    );
+  }
+  return (
+    <span className="text-xs font-medium text-ember-2">
+      {done ? (
+        <>
+          <span aria-hidden>✓</span>
+          <span className="sr-only">(choix fait)</span>
+        </>
+      ) : (
+        <>
+          {dot}
+          {multiple ? "Au choix" : "1 au choix"}
+          <span className="sr-only">, obligatoire</span>
+        </>
+      )}
+    </span>
+  );
+}
+
+/**
+ * Sous le titre d'une feuille à composer, ce qui est choisi et, estompé, ce
+ * qui attend encore. Sur toute la largeur : dans la colonne du titre, le
+ * premier choix faisait passer la ligne à deux et descendre les options sous
+ * le doigt.
+ */
+export function ChoiceRecap({
+  parts,
+  className = "",
+}: {
+  parts: { id: string; text: string; done: boolean }[];
+  className?: string;
+}) {
+  return (
+    <p className={className ? `text-xs text-muted ${className}` : "text-xs text-muted"}>
+      {parts.map((part, i) => (
+        <Fragment key={part.id}>
+          {i > 0 && "\u00a0· "}
+          <span className={part.done ? "text-foreground" : undefined}>
+            {keepHyphenated(part.text)}
+          </span>
+        </Fragment>
+      ))}
+    </p>
+  );
+}
+
+/**
+ * Un groupe obligatoire à choix unique (options d'un plat, étape d'une
+ * formule) s'annonce « obligatoire ». Pas `required` sur ses boutons radio :
+ * Chrome les déclarait tous invalides dès l'ouverture de la feuille.
+ */
+export const requiredGroup = (group: { obligatoire: boolean; multiple?: boolean }) =>
+  group.obligatoire && !group.multiple
+    ? ({ role: "radiogroup", "aria-required": true } as const)
+    : {};
+
+/*
+ * Pied des feuilles : Annuler et la validation, resserrés ensemble sous
+ * 400 px pour laisser au libellé « Choisir : … » sa place. La validation y
+ * garde deux lignes de haut : passée d'un libellé sur deux lignes à
+ * « Ajouter · 15,00 € », elle raccourcissait la feuille, qui descendait sous
+ * le doigt.
+ */
+export const sheetCancelClass =
+  "min-h-11 rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold max-[399px]:px-3.5 max-[399px]:text-[13px]";
+
+export const sheetConfirmClass = (ready: boolean) =>
+  `min-h-11 min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold max-[399px]:min-h-14 max-[399px]:px-3 max-[399px]:text-[13px] ${
+    ready ? "ember-gradient text-background" : "border border-hairline bg-surface-raised text-foreground"
+  }`;
+
+/** Choix manquant signalé ; n alterne deux animations identiques pour la rejouer à chaque toucher. */
+export type Flash = { key: string; n: number } | null;
+
+/**
+ * L'enveloppe d'un groupe qu'on peut signaler. Le surlignage est sur elle :
+ * peint sur le fieldset, il partait du milieu de sa légende. -m-2 p-2 : le
+ * cerne passe à distance du texte sans rien déplacer ; scroll-mt-3 + p-2 :
+ * le défilement s'arrête à la marge intérieure de la feuille.
+ */
+export const pickFrameClass = (flash: Flash, key: string) =>
+  `-m-2 scroll-mt-3 p-2 ${
+    flash?.key === key ? (flash.n % 2 ? "group-flash-a" : "group-flash-b") : ""
+  }`;
+
+/**
+ * Il manque un choix : on emmène le client dessus plutôt que de lui présenter
+ * un bouton mort loin du groupe concerné. Sans preventScroll, le focus
+ * referait son propre défilement et annulerait le premier ; au doigt, le
+ * focus ne se voit pas, d'où le surlignage.
+ */
+export function revealMissing(
+  field: HTMLElement | null | undefined,
+  key: string,
+  setFlash: Dispatch<SetStateAction<Flash>>
+) {
+  field?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
+  field?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
+  setFlash((current) => ({ key, n: (current?.n ?? 0) + 1 }));
+}
 
 /*
  * La barre du panier apparaît en bas de l'écran, souvent pile sous le pouce
@@ -29,20 +291,18 @@ const scrollBehavior = (): ScrollBehavior =>
  * seconde portion. La page remonte juste assez pour dégager le bouton — la
  * marge est celle qui entoure la barre, lue dans sa mise en page.
  */
-function revealAboveCartBar(button: HTMLElement | null) {
+export function revealAboveCartBar(button: HTMLElement | null) {
   requestAnimationFrame(() => {
     const bar = document.querySelector<HTMLElement>(".cart-bar");
     if (!button?.isConnected || !bar?.parentElement) return;
     const gap = parseFloat(getComputedStyle(bar.parentElement).paddingTop);
-    const overlap =
-      button.getBoundingClientRect().bottom + gap - bar.getBoundingClientRect().top;
+    // La place de la barre dans sa mise en page (offsetTop), pas celle de son
+    // entrée animée : un thème la fait monter du bas de l'écran.
+    const barTop = bar.parentElement.getBoundingClientRect().top + bar.offsetTop;
+    const overlap = button.getBoundingClientRect().bottom + gap - barTop;
     if (overlap > 0) window.scrollBy({ top: overlap, behavior: scrollBehavior() });
   });
 }
-
-/** Nom de la ligne du panier : avec son format, « Pilons x3 », « Boisson 33 cl ». */
-const lineName = (item: MenuItem) =>
-  item.detail ? `${item.name} ${item.detail}` : item.name;
 
 /** « Sans salade, tomate » plutôt que « Sans salade, Sans tomate » : un premier mot commun ne se répète pas. */
 function shared(names: string[]): string {
@@ -55,7 +315,8 @@ function shared(names: string[]): string {
 
 /** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
 export function AddToOrder({ item }: { item: MenuItem }) {
-  const { orderingEnabled, canOrder, addLine, track, lines } = useCart();
+  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
+    useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,10 +337,17 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   if (!orderingEnabled) return null;
 
-  if (isUnavailable(item)) {
+  // Épuisé, ou coupé par une fermeture (la cuisine ne sert plus) : le plat
+  // reste à la carte, sans bouton. En click & collect, la fermeture se juge à
+  // l'heure de retrait, que le panier connaît seul.
+  if (isUnavailable(item) || (!collect && closed.has(item.id))) {
     return (
-      <span className="shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-faint">
-        Indisponible
+      <span
+        className={`shrink-0 rounded-full border border-hairline px-4 py-2 text-xs font-semibold ${
+          isUnavailable(item) ? "text-faint" : "text-muted"
+        }`}
+      >
+        {isUnavailable(item) ? "Indisponible" : "Plus servi"}
       </span>
     );
   }
@@ -97,11 +365,10 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     );
   }
 
-  const hasOptions = (item.options?.length ?? 0) > 0;
-  // Un menu à plusieurs choix se compose ; un seul choix se choisit.
-  const verb =
-    (item.options?.length ?? 0) > 1 ? "Composer" : hasOptions ? "Choisir" : "Ajouter";
-  const label = hasOptions ? verb : "+ Ajouter";
+  const groups = item.options ?? [];
+  const hasOptions = groups.length > 0;
+  const verb = addVerb(item);
+  const label = verb === "Ajouter" ? "+ Ajouter" : verb;
   // Combien de ce plat sont déjà au panier, toutes options confondues : le
   // « Ajouté ✓ » s'efface, le compte reste sur la carte.
   const inCart = lines
@@ -109,15 +376,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
     .reduce((sum, line) => sum + line.quantity, 0);
 
   const addPlain = () => {
-    addLine({
-      key: cartLineKey(item.id, []),
-      itemId: item.id,
-      name: lineName(item),
-      unitPrice: item.price,
-      optionSummary: [],
-      choices: [],
-      stock: item.stock,
-    });
+    addLine(plainLine(item));
     // « panier » implique « plat » : l'étape ne recule pas, un seul envoi suffit.
     track("panier", { items: [item.id] });
     flashAdded();
@@ -126,6 +385,15 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 
   return (
     <>
+      {/* Click & collect : coupé à l'heure jugée, le plat reste ajoutable — un
+          retrait plus tard ou un autre jour le servira. */}
+      {collect && closed.has(item.id) && (
+        <span className="mr-3 self-center text-xs text-muted">
+          {closedAt
+            ? "Plus servi à l’heure choisie"
+            : "Plus servi maintenant · possible pour un retrait plus tard"}
+        </span>
+      )}
       <button
         ref={buttonRef}
         type="button"
@@ -139,6 +407,11 @@ export function AddToOrder({ item }: { item: MenuItem }) {
           event.currentTarget.focus({ preventScroll: true });
           setModalOpen(true);
         }}
+        aria-haspopup={hasOptions ? "dialog" : undefined}
+        // Repères pour l'habillage d'un établissement (le « Ajouté ✓ » et le
+        // compte au panier, plus bas) : un thème dont le bouton n'est qu'un
+        // « + » y montre sa coche (globals.css).
+        data-added={added || undefined}
         // Onze « + Ajouter » identiques ne disent rien à un lecteur d'écran.
         aria-label={`${added ? "Ajouté" : verb}\u00a0: ${lineName(item)}${
           inCart > 0 ? `, ${inCart} au panier` : ""
@@ -147,9 +420,14 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       >
         {added ? "Ajouté ✓" : label}
         {/* Le compte au panier, en pastille au coin de la carte (la carte
-            est le repère) : dans le bouton, il le faisait passer à la ligne. */}
+            est le repère) : dans le bouton, il le faisait passer à la ligne.
+            Une pastille neuve à chaque compte : un thème la fait sauter. */}
         {inCart > 0 && (
-          <span className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg">
+          <span
+            key={inCart}
+            data-in-cart={inCart}
+            className="cart-count absolute right-2 top-2 z-10 flex min-w-7 items-center justify-center rounded-full bg-foreground px-2 py-1 text-xs font-bold text-background shadow-lg"
+          >
             {inCart}
           </span>
         )}
@@ -186,9 +464,13 @@ export function OptionsModal({
   const { addLine, track } = useCart();
   const groups = item.options ?? [];
   const [selected, setSelected] = useState<Record<string, string[]>>({});
-  // Groupe manquant signalé au toucher du bouton grisé ; n alterne deux
-  // animations identiques pour la rejouer à chaque toucher.
-  const [flash, setFlash] = useState<{ id: string; n: number } | null>(null);
+  // Un plat offert se compose seul : ses accords se paieraient en euros.
+  const sheetPairings = useSheetPairings(item.id);
+  const pairings = reward ? [] : sheetPairings;
+  const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
+  const pickedPairings = pairings.filter(({ item: other }) => picked.has(other.id));
+  // Groupe manquant signalé au toucher du bouton qui le nomme.
+  const [flash, setFlash] = useState<Flash>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   // Dernier geste au doigt ou à la souris (et non au clavier) : seul lui fait
   // défiler la feuille vers le groupe suivant — au clavier, le focus resterait
@@ -197,32 +479,48 @@ export function OptionsModal({
   const autoScrolling = useRef(false);
   const titleId = useId();
 
+  // Les groupes à condition (la cuisson, quand le menu prend le steak)
+  // n'existent qu'une fois leur choix fait : `selected` ne garde que les
+  // choix des groupes montrés (keepVisible).
+  const shown = visibleGroups(groups, selected);
   const chosen = (groupId: string) => selected[groupId] ?? [];
-  const missingGroups = groups.filter(
+  const missingGroups = shown.filter(
     (group) => group.obligatoire && chosen(group.id).length === 0
   );
   /* Un choix posé, même optionnel : fermer par le fond le perdrait sans
      prévenir, sur une feuille qui ne couvre parfois que la moitié de l'écran. */
   const touched = Object.values(selected).some((ids) => ids.length > 0);
+  const description = sheetDescription(item);
 
   const toggle = (group: OptionGroup, choiceId: string) => {
     // Choisi : le groupe n'a plus à être signalé (surlignage fixe en
     // mouvement réduit).
-    setFlash((current) => (current?.id === group.id ? null : current));
-    // Premier choix d'un groupe obligatoire à choix unique : la feuille
-    // descend d'elle-même au prochain groupe qui attend.
+    setFlash((current) => (current?.key === group.id ? null : current));
+    const previous = chosen(group.id);
+    const nextSelected = keepVisible(groups, {
+      ...selected,
+      [group.id]: !group.multiple
+        ? [choiceId]
+        : previous.includes(choiceId)
+          ? previous.filter((id) => id !== choiceId)
+          : [...previous, choiceId],
+    });
+    const nextShown = visibleGroups(groups, nextSelected);
+    // Premier choix d'un groupe obligatoire à choix unique, ou choix qui
+    // fait paraître un groupe : la feuille descend d'elle-même au groupe qui
+    // vient de paraître, sinon au prochain qui attend — jamais à un groupe
+    // laissé plus haut (choisir le steak menait à l'entrée oubliée, pas à
+    // sa cuisson).
+    const revealed = nextShown.filter((other) => !shown.includes(other));
     if (
       pointer.current &&
-      group.obligatoire &&
-      !group.multiple &&
-      chosen(group.id).length === 0
+      ((group.obligatoire && !group.multiple && previous.length === 0) || revealed.length > 0)
     ) {
-      const next = groups.find(
-        (other) =>
-          other.id !== group.id &&
-          other.obligatoire &&
-          chosen(other.id).length === 0
-      );
+      const waiting = (other: OptionGroup) =>
+        other.obligatoire && !nextSelected[other.id]?.length;
+      const next =
+        revealed.find(waiting) ??
+        nextShown.slice(nextShown.indexOf(group) + 1).find(waiting);
       // Seulement là où la fin du glissement se signale (scrollend) : sans
       // elle, pas moyen de savoir quand les touchers redeviennent sûrs.
       const body = bodyRef.current;
@@ -265,76 +563,75 @@ export function OptionsModal({
         });
       }
     }
-    setSelected((current) => {
-      const previous = current[group.id] ?? [];
-      if (!group.multiple) return { ...current, [group.id]: [choiceId] };
-      return {
-        ...current,
-        [group.id]: previous.includes(choiceId)
-          ? previous.filter((id) => id !== choiceId)
-          : [...previous, choiceId],
-      };
-    });
+    setSelected(nextSelected);
   };
 
-  const supplement = groups.reduce(
-    (sum, group) =>
-      sum +
-      group.choices
-        .filter((choice) => chosen(group.id).includes(choice.id))
-        .reduce((groupSum, choice) => groupSum + choice.supplement, 0),
-    0
-  );
+  const groupSupplement = (group: OptionGroup) =>
+    group.choices
+      .filter((choice) => chosen(group.id).includes(choice.id))
+      .reduce((sum, choice) => sum + choice.supplement, 0);
+  const supplement = shown.reduce((sum, group) => sum + groupSupplement(group), 0);
   const unitPrice = reward ? supplement : item.price + supplement;
-  // Offert : le prix se dit en points, plus les suppléments éventuels.
+  // Offert : le prix se dit en points, plus les suppléments éventuels. Format
+  // pas encore choisi : le prix est celui du plus petit, comme sur la fiche.
+  const fromPrice = shown.some((group) => group.formats && chosen(group.id).length === 0);
   const priceLabel = reward
     ? `${reward.points}\u00a0pts${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
-    : formatPrice(unitPrice);
+    : `${fromPrice ? "dès\u00a0" : ""}${formatPrice(unitPrice)}`;
+
+  // Le bouton dit ce qui part avec le plat : ses accords cochés compris.
+  const confirmLabel =
+    pickedPairings.length > 0
+      ? `Ajouter ${pickedPairings.length + 1} articles · ${fromPrice ? "dès\u00a0" : ""}${formatPrice(
+          unitPrice + pickedPairings.reduce((sum, { item: other }) => sum + other.price, 0)
+        )}`
+      : `Ajouter · ${priceLabel}`;
 
   /* Un menu à composer : ce qui est choisi, et le nom des groupes qui
      attendent encore — au moment de valider, le premier choix est loin
-     au-dessus. */
+     au-dessus. Les groupes facultatifs n'y figurent pas : jamais manquants,
+     et le prix dit déjà leurs suppléments — chaque case cochée allongeait
+     la ligne et faisait descendre les options sous le doigt. */
   const recap =
-    groups.length > 1
-      ? groups.flatMap((group) => {
+    shown.length > 1
+      ? shown.flatMap((group) => {
+          if (!group.obligatoire) return [];
           const names = group.choices
             .filter((choice) => chosen(group.id).includes(choice.id))
             .map((choice) => choice.name);
-          if (names.length > 0)
-            return [{ id: group.id, text: shared(names), done: true }];
-          return group.obligatoire
-            ? [{ id: group.id, text: group.name, done: false }]
-            : [];
+          return [
+            names.length > 0
+              ? { id: group.id, text: shared(names), done: true }
+              : { id: group.id, text: group.name, done: false },
+          ];
         })
       : [];
 
   const confirm = (close: () => void) => {
-    // Il manque un choix obligatoire : on emmène le client dessus plutôt que
-    // de lui présenter un bouton mort à 1 600 px du groupe concerné.
     if (missingGroups.length > 0) {
       const id = missingGroups[0].id;
-      const field = bodyRef.current?.querySelector<HTMLElement>(
-        `[data-group="${id}"]`
+      revealMissing(
+        bodyRef.current?.querySelector<HTMLElement>(`[data-group="${id}"]`),
+        id,
+        setFlash
       );
-      field?.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
-      // Sans preventScroll, le focus refait son propre défilement et annule
-      // le précédent : le groupe restait sous le bouton.
-      field
-        ?.querySelector<HTMLInputElement>("input")
-        ?.focus({ preventScroll: true });
-      // Au doigt, le focus ne se voit pas : le groupe clignote.
-      setFlash((current) => ({ id, n: (current?.n ?? 0) + 1 }));
       return;
     }
     const choices: CartChoice[] = [];
     const optionSummary: string[] = [];
-    for (const group of groups) {
+    for (const group of shown) {
       for (const choice of group.choices) {
         if (!chosen(group.id).includes(choice.id)) continue;
         choices.push({ group_id: group.id, choice_id: choice.id });
+        // Un nom déjà entre parenthèses (« … (épicé) ») y range son supplément,
+        // « (épicé, +1,00 €) » : deux parenthèses de suite se lisaient mal, et
+        // un point médian se confondait avec celui qui sépare les choix.
+        const supplement = `+${formatPrice(choice.supplement)}`;
         optionSummary.push(
-          choice.supplement > 0
-            ? `${choice.name} (+${formatPrice(choice.supplement)})`
+          choice.supplement > 0 && !(group.formats && !reward)
+            ? choice.name.endsWith(")")
+              ? `${choice.name.slice(0, -1)},\u00a0${supplement})`
+              : `${choice.name} (${supplement})`
             : choice.name
         );
       }
@@ -343,12 +640,15 @@ export function OptionsModal({
       key: cartLineKey(item.id, choices, reward?.id),
       itemId: item.id,
       name: lineName(item),
+      detail: item.detail,
       unitPrice,
       optionSummary,
       choices,
       stock: item.stock,
+      noticeHours: item.noticeHours,
       reward,
     });
+    for (const { item: other } of pickedPairings) addLine(plainLine(other, "fiche"));
     track("panier");
     onAdded();
     close();
@@ -364,28 +664,29 @@ export function OptionsModal({
             <div className="flex items-baseline justify-between gap-4">
               <h3
                 id={titleId}
-                data-compose={groups.length > 1 || undefined}
+                data-compose={shown.length > 1 || undefined}
                 className="font-display text-xl font-medium"
               >
-                {lineName(item)}
+                {/* Le format en petit, comme sur la fiche : « x4 », « pour 2 » ; l'espace
+                    insécable le garde avec le dernier mot. */}
+                {item.detail ? `${item.name}\u00a0` : item.name}
+                {item.detail && (
+                  <span className="sheet-detail whitespace-nowrap align-middle text-sm font-normal text-muted">
+                    {item.detail}
+                  </span>
+                )}
               </h3>
               <span className="dish-price shrink-0 font-display text-lg text-ember-1">
                 {priceLabel}
               </span>
             </div>
-            {/* Sur toute la largeur : dans la colonne du titre, le premier
-                choix faisait passer la ligne à deux et descendre les options
-                sous le doigt. */}
-            {recap.length > 0 && (
-              <p className="mt-1.5 text-xs text-muted">
-                {recap.map((part, i) => (
-                  <Fragment key={part.id}>
-                    {i > 0 && "\u00a0· "}
-                    <span className={part.done ? "text-foreground" : undefined}>
-                      {keepHyphenated(part.text)}
-                    </span>
-                  </Fragment>
-                ))}
+            {/* Seul, le récapitulatif répétait le nom du groupe juste
+                dessous (« Viande » sur « Viande ») : il ne sert qu'à
+                plusieurs choix. */}
+            {recap.length > 1 && <ChoiceRecap parts={recap} className="mt-1.5" />}
+            {item.noticeHours && (
+              <p className="mt-1.5 text-xs font-semibold text-ember-2">
+                À commander {item.noticeHours}&nbsp;h à l&apos;avance
               </p>
             )}
           </div>
@@ -410,89 +711,50 @@ export function OptionsModal({
               event.stopPropagation();
             }}
           >
+            {/* Ce que contient le plat, relu au moment de le composer ; il
+                défile avec les choix pour laisser le titre seul épinglé.
+                Caché sauf là où un thème le montre (.sheet-description,
+                globals.css) : ailleurs, un long menu repoussait ses choix. */}
+            {description && (
+              <p className="sheet-description mb-5 hidden whitespace-pre-line text-sm leading-relaxed text-muted">
+                {keepHyphenated(description)}
+              </p>
+            )}
             <div className="flex flex-col gap-6">
-              {groups.map((group) => (
+              {shown.map((group) => (
                 <div
                   key={group.id}
                   data-group={group.id}
-                  // Le défilement vers un groupe s'arrête avant l'en-tête épinglé.
-                  // scroll-mt-3 + p-2 : la marge intérieure du corps de la feuille.
-                  // Le surlignage sur l'enveloppe : peint sur le fieldset, il partait du
-                  // milieu de sa légende. -m-2 p-2 : le cerne passe à distance du texte
-                  // sans rien déplacer.
-                  className={`-m-2 scroll-mt-3 p-2 ${
-                    flash?.id === group.id
-                      ? flash.n % 2
-                        ? "group-flash-a"
-                        : "group-flash-b"
-                      : ""
-                  }`}
+                  className={pickFrameClass(flash, group.id)}
                 >
-                  <fieldset data-required={group.obligatoire || undefined}>
-                    {/* « Au choix », comme le dit le panneau d'un comptoir ;
-                        une fois choisi, une coche. */}
+                  <fieldset
+                    data-required={group.obligatoire || undefined}
+                    {...requiredGroup(group)}
+                  >
                     <legend className="mb-2 flex items-baseline gap-2 text-sm font-semibold">
                       {group.name}{" "}
-                      {!group.obligatoire ? (
-                        <span className="text-xs font-medium text-muted">
-                          facultatif
-                        </span>
-                      ) : chosen(group.id).length > 0 ? (
-                        <span className="text-xs font-medium text-ember-2">
-                          <span aria-hidden>✓</span>
-                          <span className="sr-only">, choix fait</span>
-                        </span>
-                      ) : (
-                        <span className="text-xs font-medium text-ember-2">
-                          {group.multiple ? "au choix" : "1 au choix"}
-                        </span>
-                      )}
+                      <ChoiceTag
+                        required={group.obligatoire}
+                        multiple={group.multiple}
+                        done={chosen(group.id).length > 0}
+                      />
                     </legend>
                     <div className="flex flex-col gap-2">
-                      {/* Groupe optionnel : « Aucun » est l'état par défaut et le
-                          seul moyen de revenir en arrière (un radio coché ne se
-                          décoche pas). */}
-                      {!group.obligatoire && !group.multiple && (
-                        <label className={choiceRowClass(chosen(group.id).length === 0)}>
-                          <span className="flex items-center gap-2.5">
-                            <input
-                              type="radio"
-                              name={group.id}
-                              checked={chosen(group.id).length === 0}
-                              onChange={() =>
-                                setSelected((current) => ({
-                                  ...current,
-                                  [group.id]: [],
-                                }))
-                              }
-                              className="accent-ember-2"
-                            />
-                            Aucun
-                          </span>
-                        </label>
-                      )}
-                      {group.choices.map((choice) => {
-                        const checked = chosen(group.id).includes(choice.id);
-                        return (
-                          <label key={choice.id} className={choiceRowClass(checked)}>
-                            <span className="flex items-center gap-2.5">
-                              <input
-                                type={group.multiple ? "checkbox" : "radio"}
-                                name={group.id}
-                                checked={checked}
-                                onChange={() => toggle(group, choice.id)}
-                                className="accent-ember-2"
-                              />
-                              {choice.name}
-                            </span>
-                            {choice.supplement > 0 && (
-                              <span className="text-muted">
-                                +{formatPrice(choice.supplement)}
-                              </span>
-                            )}
-                          </label>
-                        );
-                      })}
+                      <GroupChoices
+                        group={group}
+                        name={group.id}
+                        chosen={chosen(group.id)}
+                        // Le prix de la commande hors ce groupe : un format se lit
+                        // avec les autres suppléments déjà choisis.
+                        basePrice={reward ? undefined : unitPrice - groupSupplement(group)}
+                        onToggle={(choiceId) => toggle(group, choiceId)}
+                        invalid={flash?.key === group.id && chosen(group.id).length === 0}
+                        onClear={() =>
+                          setSelected((current) =>
+                            keepVisible(groups, { ...current, [group.id]: [] })
+                          )
+                        }
+                      />
                     </div>
                   </fieldset>
                 </div>
@@ -502,33 +764,38 @@ export function OptionsModal({
 
           {/* Épinglée : les options d'un tacos 3 viandes défilent sur plus de
               1 600 px, le bouton ne doit pas partir avec elles. */}
-          <div className="flex items-center gap-3 border-t border-hairline bg-surface p-4">
-            {/* Resserré sous 400 px : le bouton de validation, qui nomme le
-                groupe manquant, garde la place de son libellé. */}
-            <button
-              type="button"
-              onClick={close}
-              className="min-h-11 rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold max-[399px]:px-3.5 max-[399px]:text-[13px]"
-            >
-              Annuler
-            </button>
-            <button
-              type="button"
-              onClick={() => confirm(close)}
-              // Incomplet, il reste actif — il emmène au groupe qui manque — et
-              // lisible : pas d'estompage, un aplat neutre.
-              className={`min-h-11 min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold max-[389px]:px-3 max-[389px]:text-[13px] ${
-                missingGroups.length > 0
-                  ? "border border-hairline bg-surface-raised text-foreground"
-                  : "ember-gradient text-background"
-              }`}
-            >
-              <span aria-live="polite" className="block text-balance leading-tight">
-                {missingGroups.length > 0
-                  ? `Choisir\u00a0: ${missingGroups[0].name}`
-                  : `Ajouter · ${priceLabel}`}
-              </span>
-            </button>
+          <div className="flex flex-col gap-4 border-t border-hairline bg-surface px-6 py-4">
+            {pairings.length > 0 && (
+              <SheetPairings
+                pairings={pairings}
+                picked={picked}
+                onToggle={(id) =>
+                  setPicked((current) => {
+                    const next = new Set(current);
+                    if (!next.delete(id)) next.add(id);
+                    return next;
+                  })
+                }
+              />
+            )}
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={close} className={sheetCancelClass}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => confirm(close)}
+                // Incomplet, il reste actif — il emmène au groupe qui manque — et
+                // lisible : pas d'estompage, un aplat neutre.
+                className={sheetConfirmClass(missingGroups.length === 0)}
+              >
+                <span aria-live="polite" className="block text-balance leading-tight">
+                  {missingGroups.length > 0
+                    ? `Choisir\u00a0: ${missingGroups[0].name}`
+                    : confirmLabel}
+                </span>
+              </button>
+            </div>
           </div>
         </>
       )}

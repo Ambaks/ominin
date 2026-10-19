@@ -1,0 +1,56 @@
+# Réseaux sociaux : rendu des Reels (social-video/, Remotion). Lancé par le
+# backend (repository_dispatch) après la rédaction des brouillons ou une
+# modification d'un script dans l'admin ; traite tous les Reels en attente.
+# Un seul rendu à la fois : un nouvel appel attend la fin du précédent.
+#
+# Secrets : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY,
+# PEXELS_API_KEY. Variables : TTS_MODEL, TTS_VOICE, TTS_INSTRUCTIONS
+# (facultative) — fournisseur de voix à confirmer, voir scripts/tts.ts.
+name: social-render
+
+on:
+  repository_dispatch:
+    types: [social-render]
+  workflow_dispatch:
+
+concurrency:
+  group: social-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: social-video
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: social-video/package-lock.json
+      - run: npm ci
+      # Navigateur des démos filmées ; Remotion télécharge le sien au rendu.
+      - run: npx playwright install --with-deps chromium
+      - name: Rendre les Reels en attente
+        run: npm run render
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          TTS_MODEL: ${{ vars.TTS_MODEL }}
+          TTS_VOICE: ${{ vars.TTS_VOICE }}
+          TTS_INSTRUCTIONS: ${{ vars.TTS_INSTRUCTIONS }}
+      # Échec : notification à Marwan et Ambaka (une par 6 h au plus, voir
+      # lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        working-directory: .
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Le rendu des Reels n'a pas tourné\",\"body\":\"Touche pour ouvrir le run et voir l'erreur.\",\"key\":\"${{ github.workflow }}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"urgent\":true}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

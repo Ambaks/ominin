@@ -1,10 +1,10 @@
-"""Social agent, daily learning loop (AutoResearch for the social accounts).
+"""Social agent, weekly learning loop (AutoResearch for the social accounts).
 
 First refreshes the metrics of every live publication, freezing them once a
 post is social_settle_days old. Then, per brand, hands the settled posts and
-the editorial line in force to Claude, which may rewrite that line. A new
-version applies from the next post on, without human review — the operator
-is notified of what changed and can roll back from /admin/reseaux.
+the editorial line in force to Claude, which may propose a new line. The
+proposal is stored on the version in force and the operator is notified; it
+only applies once an admin adopts it in /admin/reseaux.
 """
 
 from datetime import UTC, datetime, timedelta
@@ -17,7 +17,7 @@ from app.clients.supabase import get_supabase
 from app.config import settings
 from app.prompts.social import BRANDS, DAYS, ResearchFindings, research_system
 from app.services import keepalive, notify
-from app.services.social_post import current_playbook
+from app.services.social_draft import current_playbook
 
 _METRICS = {
     "instagram": meta.instagram_metrics,
@@ -83,7 +83,7 @@ def _research_brand(sb, brand: str) -> dict:
     posts = (
         sb.table("social_posts")
         .select(
-            "post_date, topic, angle, slides, captions,"
+            "post_date, format, topic, angle, slides, reel, captions,"
             " social_publications(metrics, metrics_settled_at,"
             " social_accounts(platform))"
         )
@@ -124,26 +124,27 @@ def _research_brand(sb, brand: str) -> dict:
         "what_fails": findings.what_fails,
         "next_experiments": findings.next_experiments,
     }
-    outcome: dict = {"analyzed": len(settled), "findings": report, "updated": False}
-
-    if findings.updated_guidelines and findings.change_summary:
-        version = current["version"] + 1
-        sb.table("social_playbooks").insert(
-            {
-                "brand": brand,
-                "version": version,
-                "guidelines": findings.updated_guidelines,
-                "change_summary": findings.change_summary,
+    changes = bool(findings.updated_guidelines and findings.change_summary)
+    # Le bilan s'affiche même sans changement proposé ; une proposition non
+    # adoptée est remplacée par la suivante.
+    sb.table("social_playbooks").update(
+        {
+            "proposal": {
+                "guidelines": findings.updated_guidelines if changes else None,
+                "change_summary": findings.change_summary if changes else None,
                 "findings": report,
+                "created_at": datetime.now(UTC).isoformat(),
             }
-        ).execute()
-        outcome.update(updated=True, version=version)
+        }
+    ).eq("id", current["id"]).execute()
+    if changes:
         notify.send(
-            f"Réseaux sociaux — ligne éditoriale {BRANDS[brand]['name']} v{version}",
-            f"{findings.change_summary}\n\n"
-            f"Historique et retour arrière : {settings.frontend_origin}/admin/reseaux",
+            f"Réseaux sociaux — nouvelle ligne proposée pour {BRANDS[brand]['name']}",
+            f"{findings.change_summary}\n\nÀ adopter ou ignorer dans l'onglet "
+            "Apprentissage.",
+            path="/reseaux",
         )
-    return outcome
+    return {"analyzed": len(settled), "findings": report, "proposed": changes}
 
 
 def _format_campaign(current: dict, posts: list[dict]) -> str:
@@ -163,13 +164,19 @@ def _format_campaign(current: dict, posts: list[dict]) -> str:
         weekday = DAYS[datetime.fromisoformat(post["post_date"]).weekday()]
         parts.extend(
             [
-                f"\n--- {post['post_date']} ({weekday}) ---",
+                f"\n--- {post['post_date']} ({weekday}) — {post['format']} ---",
                 f"Sujet : {post['topic']}",
                 f"Angle : {post['angle']}",
-                "Images :",
                 *(
                     f"  {index}. [{slide['kicker']}] {slide['title']} — {slide['body']}"
                     for index, slide in enumerate(post["slides"], 1)
+                ),
+                *(
+                    f"  scène {index} ({scene['visual']}) : « {scene['voiceover']} »"
+                    f" / écran : {scene['caption']}"
+                    for index, scene in enumerate(
+                        (post["reel"] or {}).get("scenes", []), 1
+                    )
                 ),
                 f"Légende Instagram : {post['captions']['instagram']}",
                 "Résultats :",

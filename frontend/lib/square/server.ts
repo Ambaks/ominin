@@ -1,7 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 /*
  * Client Square côté serveur (route handlers uniquement — secrets OAuth).
@@ -82,23 +81,8 @@ export function squareAuthorizeUrl(
   return `${url.toString()}&scope=${OAUTH_SCOPES}`;
 }
 
-/** Origine publique derrière le proxy Vercel, identique à l'aller et au retour OAuth. */
-export function publicRequestOrigin(request: Request): string {
-  const requestUrl = new URL(request.url);
-  const forwardedProtocol = request.headers
-    .get("x-forwarded-proto")
-    ?.split(",")[0]
-    .trim();
-  const forwardedHost = request.headers
-    .get("x-forwarded-host")
-    ?.split(",")[0]
-    .trim();
-  const protocol = forwardedProtocol
-    ? `${forwardedProtocol.replace(/:$/, "")}:`
-    : requestUrl.protocol;
-  const host = forwardedHost ?? request.headers.get("host") ?? requestUrl.host;
-  return `${protocol}//${host}`;
-}
+export { publicRequestOrigin } from "@/lib/request-origin";
+export { requireGerant } from "@/lib/supabase/gerant";
 
 interface SquareTokens {
   access_token: string;
@@ -374,28 +358,6 @@ export function verifyWebhookSignature(
   return (
     received.length === computed.length && timingSafeEqual(received, computed)
   );
-}
-
-/** Gérant de l'établissement courant — même garde que les routes Stripe. */
-export async function requireGerant() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Authentification requise.", status: 401 as const };
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("etablissement_id, role")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!membership || membership.role !== "gerant") {
-    return {
-      error: "Seul le gérant peut configurer le paiement en ligne.",
-      status: 403 as const,
-    };
-  }
-  return { etablissementId: membership.etablissement_id, email: user.email };
 }
 
 /**

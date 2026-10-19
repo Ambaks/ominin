@@ -1,31 +1,11 @@
-import { DEFAULT_DAY_END_HOUR, FEATURES } from "@/lib/gestion/constants";
-import { orderTotal } from "@/lib/gestion/selectors";
-import type {
-  GestionState,
-  Order,
-  OrderItem,
-  OrderItemOption,
-} from "@/lib/gestion/types";
-import { getRestaurant, type MenuItem } from "@/lib/menu-data";
+import { getRestaurant } from "@/lib/menu-data";
+import { demoState, paidOrder, type Line, type Scenario, type ServiceDemo } from "../_service/fixtures";
 
 /*
  * Un coup de feu au comptoir, joué sans base : les commandes payées en ligne
- * d'un restaurant fast food, telles que l'espace de gestion les reçoit. Les
- * articles sont désignés par leur nom sur la carte (lib/menu-data) et leurs
- * choix par libellé : chaque libellé va au premier groupe de l'article qui
- * le propose, un groupe obligatoire sans libellé prend son premier choix, et
- * une ligne dont l'article a quitté la carte disparaît de la commande.
+ * d'un restaurant fast food, telles que l'espace de gestion les reçoit ; leurs
+ * lignes se désignent comme dans ../_service/fixtures.
  */
-
-/**
- * rush : le coup de feu commence, la file se remplit sous les yeux ; fige :
- * la file pleine, rien n'arrive.
- */
-export const SCENARIOS = ["rush", "fige"] as const;
-export type Scenario = (typeof SCENARIOS)[number];
-
-/** Article par son nom sur la carte, quantité, libellés des choix voulus. */
-type Line = readonly [name: string, quantity: number, ...choices: string[]];
 
 interface Ticket {
   number: number;
@@ -88,6 +68,42 @@ const SERVICES: Record<string, Service> = {
     cadenceS: [6, 14, 11, 18, 9, 15, 21, 12],
     maxOpen: 14,
   },
+  "big-smash": {
+    site: "Toulouse Matabiau",
+    tickets: [
+      { number: 30, minutesAgo: 41, status: "servie", lines: [["Menu Smash Classic", 1, "Frites nature", "Coca Cola"]] },
+      { number: 31, minutesAgo: 37, status: "servie", lines: [["Big Combo", 1, "Smash Classic", "Original Cheese", "Frites cheddar", "Coca Cola"]] },
+      { number: 32, minutesAgo: 34, status: "servie", lines: [["Menu Big Chicken", 1, "Frites épicées", "Limonade Red Cherry"], ["Milkshake", 1, "Fraise"]] },
+      { number: 33, minutesAgo: 30, status: "servie", lines: [["Menu Big Smash", 2, "Frites nature", "Coca Cola", "Sans pickles"]] },
+      { number: 34, minutesAgo: 26, status: "servie", lines: [["Tenders", 2], ["Frites cheddar bacon", 1], ["Fuze Tea Pêche", 1]] },
+      { number: 35, minutesAgo: 22, status: "servie", lines: [["Menu Original Cheese", 1, "Pops cheddar", "Badoit"], ["Big Kids", 1, "Nuggets x5", "Kinder Country", "Capri-Sun"]] },
+      { number: 36, minutesAgo: 17, status: "payee", lines: [["Menu Chicken Spicy", 1, "Frites épicées", "Red Bull"], ["Big Sundae", 1, "Caramel", "Oreo"]] },
+      { number: 37, minutesAgo: 13, status: "prete", lines: [["Menu Surf & Turf", 1, "Frites nature", "Limonade Fizz Yuzu"]] },
+      { number: 38, minutesAgo: 11, status: "prete", lines: [["Menu Smash Classic", 2, "Frites cheddar", "Coca Cola", "Sans tomate"]] },
+      { number: 39, minutesAgo: 9, status: "payee", lines: [["Menu Smash Bacon", 1, "Frites cheddar bacon", "Thé Blanc Tropical", "Sans tomate", "Sauce Big Smash", "Sauce Spicy"], ["Milkshake Pistache Macadamia", 1]] },
+      { number: 40, minutesAgo: 7, status: "payee", lines: [["Menu Big Chicken", 1, "Frites nature", "Coca Cola"], ["Chicken Pop-Corn", 1]] },
+      { number: 41, minutesAgo: 5, status: "payee", lines: [["Big Smash Burger", 2, "Sans pickles"], ["Frites cheddar bacon", 1], ["Coca Cola", 2]] },
+      { number: 42, minutesAgo: 4, status: "payee", lines: [["Menu Grilled Smash", 1, "Pops nature", "Evian"], ["Grilled Nutella", 1]] },
+      { number: 43, minutesAgo: 3, status: "payee", lines: [["Big Combo", 1, "Smash Spicy", "Big Fish", "Frites épicées", "Limonade Blue Mango Passion"]] },
+      { number: 44, minutesAgo: 2, status: "payee", lines: [["Menu Big Cheese", 1, "Frites cheddar", "Coca Cola", "Sauce Big Smash"], ["Crevettes panées", 1, "x5"]] },
+      { number: 45, minutesAgo: 1, status: "payee", lines: [["Menu Original Chicken", 1, "Frites nature", "Badoit"], ["Milkshake", 1, "Vanille"]] },
+    ],
+    openAtStart: 5,
+    arrivals: [
+      [["Menu Smash Spicy", 1, "Frites épicées", "Coca Cola"]],
+      [["Menu Big Smash", 1, "Frites cheddar bacon", "Thé Blanc Tropical"], ["Big Sundae Pistachio", 1]],
+      [["Tenders", 1], ["Frites nature", 1], ["Coca Cola", 1]],
+      [["Big Combo", 1, "Smash Classic", "Smash Classic", "Frites cheddar", "Red Bull"]],
+      [["Menu Big Chicken", 2, "Frites nature", "Coca Cola"], ["Big Kids", 1, "Cheeseburger", "Kinder Country", "Evian"]],
+      [["Menu Smash Bacon", 1, "Pops cheddar bacon", "Limonade Lime Watermelon", "Sans salade"]],
+      [["Cheesy Dog", 2], ["Frites cheddar", 1], ["Milkshake", 1, "Caramel"]],
+      [["Menu Surf & Turf", 1, "Frites épicées", "Limonade Red Cherry"]],
+      [["Menu Chicken Spicy", 1, "Frites nature", "Badoit"], ["Chicken Pop-Corn Spicy", 1]],
+    ],
+    // Une première arrivée tout de suite, puis le rythme d'un restaurant au coup de feu.
+    cadenceS: [6, 32, 41, 27, 45, 30, 38, 25],
+    maxOpen: 14,
+  },
   "chicken-street": {
     site: "Paris Gare de l’Est",
     tickets: [
@@ -134,90 +150,12 @@ export function counterTitle(slug: string, name: string): string {
   return site ? `${name} · ${site}` : name;
 }
 
-const sameLabel = (a: string, b: string) =>
-  a.localeCompare(b, "fr", { sensitivity: "base" }) === 0;
-
-function orderLine(
-  items: MenuItem[],
-  [name, quantity, ...wanted]: Line,
-  id: string
-): OrderItem | null {
-  const item = items.find((candidate) => sameLabel(candidate.name, name));
-  if (!item) return null;
-  const left = [...wanted];
-  const options: OrderItemOption[] = [];
-  for (const group of item.options ?? []) {
-    const matches = left.flatMap((label) => {
-      const choice = group.choices.find((candidate) => sameLabel(candidate.name, label));
-      return choice ? [choice] : [];
-    });
-    const chosen = group.multiple ? matches : matches.slice(0, 1);
-    if (chosen.length === 0 && group.obligatoire) chosen.push(group.choices[0]);
-    for (const choice of chosen) {
-      const index = left.findIndex((label) => sameLabel(label, choice.name));
-      if (index !== -1) left.splice(index, 1);
-      options.push({
-        groupName: group.name,
-        choiceName: choice.name,
-        supplement: choice.supplement,
-      });
-    }
-  }
-  return {
-    id,
-    itemId: item.id,
-    // Le nom du ticket client : « Tenders x4 », pas « 2× Tenders ».
-    name: item.detail ? `${item.name} ${item.detail}` : item.name,
-    quantity,
-    // Convention de place_order : suppléments inclus dans unitPrice.
-    unitPrice: options.reduce((sum, option) => sum + option.supplement, item.price),
-    options: options.length > 0 ? options : undefined,
-    paidMode: "en_ligne",
-  };
-}
-
-function paidOnline(
-  items: MenuItem[],
-  number: number,
-  status: Order["status"],
-  lines: readonly Line[],
-  createdAt: string
-): Order | null {
-  const orderItems = lines.flatMap(
-    (line, index) => orderLine(items, line, `demo-${number}-${index}`) ?? []
-  );
-  if (orderItems.length === 0) return null;
-  const order: Order = {
-    id: `demo-${number}`,
-    type: "sur_place",
-    tableId: null,
-    orderNumber: number,
-    status,
-    createdAt,
-    items: orderItems,
-    paymentMode: "carte",
-    paidOnline: true,
-    payments: [],
-  };
-  order.payments = [{ mode: "en_ligne", amount: orderTotal(order), paidAt: createdAt }];
-  return order;
-}
-
-export interface CounterDemo {
-  state: GestionState;
-  /** La index-ième commande payée après l'ouverture, datée de createdAt. */
-  arrival: (index: number, createdAt: string) => Order | null;
-  /** Attente avant l'arrivée index, en millisecondes. */
-  delayMs: (index: number) => number;
-  maxOpen: number;
-}
-
-/** Le service au comptoir de slug, ouvert à openedAt (ms). */
+/** Le service au comptoir de slug, ouvert à openedAt (ms), à l'heure de l'appareil. */
 export function counterDemo(
   slug: string,
   openedAt: number,
   scenario: Scenario
-): CounterDemo | null {
+): ServiceDemo | null {
   const restaurant = getRestaurant(slug);
   if (!restaurant || !hasCounterDemo(slug)) return null;
   const service = SERVICES[slug];
@@ -234,58 +172,20 @@ export function counterDemo(
     index < deferred.length
       ? deferred[index].lines
       : service.arrivals[(index - deferred.length) % service.arrivals.length];
+  const ticket = (number: number, status: Ticket["status"], lines: readonly Line[], createdAt: string) =>
+    paidOrder(items, `demo-${number}`, lines, createdAt, { status, tableId: null, orderNumber: number });
 
   return {
-    state: {
-      etablissement: {
-        id: `demo-${slug}`,
-        slug,
-        name: restaurant.name,
-        tagline: restaurant.tagline,
-        address: restaurant.address,
-        phone: restaurant.phone,
-        hours: restaurant.hours,
-        openingHours: null,
-        offre: "connect",
-        serviceMode: "fast_food",
-        onlinePayment: true,
-        paymentProvider: "stripe",
-        collectSlotCapacity: 0,
-        adminPinSet: false,
-        paymentPinSet: false,
-      },
-      subscriptionStatus: "active",
-      offreTrial: null,
-      collectSubscriptionStatus: null,
-      userId: "demo",
-      visitesVues: null,
-      role: "gerant",
-      members: [],
-      features: Object.fromEntries(
-        FEATURES.map((feature) => [feature, true])
-      ) as GestionState["features"],
-      // Tout est réglé en ligne : pas d'addition à encaisser au comptoir.
-      orderTabs: ["a_servir", "historique"],
-      dayEndHour: DEFAULT_DAY_END_HOUR,
-      orderNumberResetHour: null,
-      staff: [],
-      categories: restaurant.categories,
-      formules: [],
-      priceRules: [],
-      tables: [],
-      orders: present.flatMap(
+    state: demoState(
+      restaurant,
+      "fast_food",
+      [],
+      present.flatMap(
         ({ number, minutesAgo, status, lines }) =>
-          paidOnline(
-            items,
-            number,
-            status,
-            lines,
-            new Date(openedAt - minutesAgo * 60_000).toISOString()
-          ) ?? []
-      ),
-    },
-    arrival: (index, createdAt) =>
-      paidOnline(items, firstArrival + index, "payee", linesOf(index), createdAt),
+          ticket(number, status, lines, new Date(openedAt - minutesAgo * 60_000).toISOString()) ?? []
+      )
+    ),
+    arrival: (index, createdAt) => ticket(firstArrival + index, "payee", linesOf(index), createdAt),
     delayMs: (index) => service.cadenceS[index % service.cadenceS.length] * 1000,
     maxOpen: service.maxOpen,
   };

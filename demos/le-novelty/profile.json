@@ -1,0 +1,120 @@
+{
+  "slug": "le-novelty",
+  "name": "Le Novelty",
+  "tagline": "Bar — Cocktails — Terrasse",
+  "status": "prospect — démo de visite du 2026-10-14, carte relevée sur leur site (pages ouvertes le 2026-10-14), sans document du gérant",
+  "demo": {
+    "menu": "/menu/demo/le-novelty",
+    "click_and_collect": "/collect/demo/le-novelty"
+  },
+  "cuisine": "Bar à cocktails : cocktails (classiques, signature, sans alcool), bières pression et bouteille, softs, boissons chaudes ; carte Tapas (planches, tapas à la carte, incontournables) ; formules goûter et étudiante.",
+  "address": "10 Rue Saint-Guilhem, 34000 Montpellier",
+  "city": "Montpellier (Écusson, face à la place Castellane)",
+  "phone": "04 34 35 36 28 (site, Google) — l'affiche happy hour du site imprime 04 67 60 81 87",
+  "hours": "7j/7 8h30–1h ; happy hours 17h–23h ; cafés fin de service 20h ; café du matin 9h–12h (site officiel)",
+  "website": "https://lenovelty-montpellier.fr/",
+  "socials": {
+    "instagram": "@le_novelty_bar_montpellier (confirmé : lié depuis le site, 1 659 abonnés)",
+    "facebook": "candidat non vérifié",
+    "tiktok": "non trouvé",
+    "google_maps": "3,9/5 sur 1 203 avis (miroir Wanderlog, probable)"
+  },
+  "legal": {
+    "raison_sociale": "NEWVELTY (enseigne LE NOVELTY), propriétaire du fonds",
+    "forme": "SAS",
+    "siren": "898 370 200",
+    "naf": "56.30Z",
+    "president": "JSK HOLDING (SIREN 894 402 320, gérant Med Oul Hocine Belkhir)",
+    "creation": "16/04/2021",
+    "exploitant_probable": "BKB (enseigne LE NOVELTY), SAS, SIREN 988 381 083, activité depuis le 01/08/2025 ; présidente Louisa Dahlia Boukerb, DG Farida Mohamedi — locataire-gérant déduit de la date (acte de location-gérance du 30/06/2025), annonce non retrouvée",
+    "notes": "API recherche-entreprises et BODACC ouvertes le 2026-10-14 (docs/recherche-profile.md)."
+  },
+  "design": {
+    "primary_color": "#080808",
+    "secondary_color": "#F5F0E8",
+    "accent_color": "#C9A84C (clair #E8C96A, sombre #8A6E2F)",
+    "style_notes": "Repris de leur site (lenovelty-montpellier.fr) : variables CSS --noir #080808, --white #F5F0E8, --gold #C9A84C ; Cormorant Garamond (le nom « Le » ivoire / « Novelty » italique doré, noms et prix) et Josefin Sans en capitales espacées (accroches, onglets). Dispositifs gardés de « Notre Carte » : articles en tuiles à angles droits séparées d'un filet, bouton cerné d'or comme « Réserver », onglets soulignés. Le badge rond du logo (fichier du site, 1800 px) ouvre la page et sert d'icône. Écartés : l'orange et les croquis de l'ardoise Tapas, propres à l'imprimé.",
+    "logo": "frontend/public/le-novelty/logo.webp (badge du site, détouré) ; icônes favicon.png / icon.png sur noir",
+    "interior_vibe": "« café bar moderne et cosy », grande terrasse (annuaires)",
+    "reference_images": [
+      "docs/logo.png",
+      "docs/site/site-desktop-hero.jpg",
+      "docs/site/site-desktop-carte-cocktails.jpg",
+      "docs/carte-tapas.jpg",
+      "docs/happy-hour-affiche.jpg"
+    ]
+  },
+  "menu": {
+    "source": "Leur site, ouvert le 2026-10-14 : onglets Cocktails · Bières · Softs & Cafés mot pour mot (HTML), carte Tapas, Formule Goûter et affiche happy hour lues sur leurs visuels (docs/). Transcription ligne à ligne et écarts : docs/recherche-carte.md. La carte vit dans frontend/lib/menu-data.ts (const leNovelty).",
+    "categories_summary": [
+      "Cocktails — 22, 7 à 11 € (XXL +3 €, sauf Ti-Punch)",
+      "Cocktails signature — Le N'Fire, El Marez, 13 €",
+      "Cocktails sans alcool — 4, 7 € (XXL 9 €)",
+      "Bières pression — 12, de 3,60 € (25 cl) à 15 € (1 L)",
+      "Bières bouteilles — 8, 5 à 7 €",
+      "Boissons chaudes — 14, 1,90 à 9 €",
+      "Boissons fraîches — 16, 3 à 6,50 €",
+      "Planches — 5, 13 à 60 €",
+      "Tapas à la carte — 11, 6,50 à 13 €",
+      "Les incontournables — 10, 5 à 13 €",
+      "Formules — goûter 5 €, étudiante 8,50 €"
+    ],
+    "photos": "Les tapas et les petites planches portent des photos libres auditées (aucune photo de leurs plats en ligne) ; la formule goûter, les boissons sont sans photo, une carte de bar se lit en lignes. Sans photo faute de photo juste : planche tapas, planche gourmande, camembert rôti, sépions (la seule photo trouvée montrait des calamars farcis aux pommes de terre), bruschetta (la photo ne montrait que la Norvégienne). Remplacées le 15 octobre 2026 : jambon serrano (sur pan con tomate), fish & chips (sauce tartare), mini saucissons, patatas bravas, mini nems ; les photos sont un peu assombries sur le noir de la carte. À la séance photo : tapas et cocktails, les cinq sans photo d'abord.",
+    "options_a_valider": [
+      "Mojito, Caïpirinha, Caïpiroska, Daïquiri, Virgin Mojito : le parfum est facultatif (version nature par défaut) — le site liste mangue, fraise, framboise, passion, pêche sans dire si la version nature existe.",
+      "Cocktails sans alcool : « XXL 7€ / 9€ » lu comme 7 € normal, 9 € en XXL (option XXL à +2 €).",
+      "Guinness : le site imprime « 8° » — degré non affiché.",
+      "Café du matin (1 €, 9h–12h) : annoncé dans le bandeau, pas commandable — la carte ne sait pas limiter un article à une plage horaire.",
+      "Formule Goûter : garnitures Nutella, sucre, citron (le visuel ajoute « ... ») ; « Fruit ou chantilly +1€ » en cases à cocher.",
+      "Formule Goûter : « Boisson chaude » ouvre un choix obligatoire parmi toutes les boissons chaudes sans alcool de la carte (café, noisette, décaféiné, café allongé, double café, café crème, cappuccino, chocolat chaud, café et chocolat viennois, thé, infusion) ; le visuel ne dit pas lesquelles la formule comprend.",
+      "Formule Étudiante : « Pizza Margarita » gardée telle quelle (le site lui donne le détail « Poulet curry ou Bolognaise », sans doute recopié des tagliatelles).",
+      "Eau Plate / Gazeuse 100 cl « 5€ / 5,20€ » : plate 5 €, gazeuse 5,20 € (par position).",
+      "Prix happy hour (affiche) : dans le bandeau, et en dernière ligne de chaque article concerné, en étiquette dorée, avec l'heure de l'affiche (« Happy hours 17h–23h : 6 € » : Mojito, Spritz, Coco Bull, Planteur, Caïpirinha, Tête à l'Envers ; « Pinte 4 € » pour la Kronenbourg, « Pinte 4,20 € » pour le Monaco ; Virgin Mojito et Virgin Colada 5,50 €). Le prix commandé reste celui de la carte : la carte ne sait pas changer de prix selon l'heure. Les vins, qui n'ont qu'un prix happy hour, ne sont pas à la carte. Plus d'accroche « prix hors happy hours » sur les catégories : seuls quelques articles en ont un. À emporter, la démo Collect montre ces lignes et facture le prix de la carte (question au gérant).",
+      "Sirops (Sirop à l'Eau, Diabolo, et les « Sirop » et « Diabolo » des formules goûter et étudiante) : grenadine, pêche, menthe, fraise, citron, la liste du site sous « Sirop à l'Eau » (elle finit par « … ») ; le site ne nomme pas les parfums du diabolo, la même liste est reprise.",
+      "Thé / Infusion : choix « Thé » ou « Infusion » ; le site ne nomme ni thés ni infusions.",
+      "Planche Gourmande : la couronne de leur carte Tapas, dessinée en or devant le nom ; elle n'est pas dans le nom, que le panier et le ticket de cuisine impriment « Planche Gourmande ».",
+      "Formules goûter et étudiante : la boisson se choisit (« Sirop », « Diabolo »…), puis le parfum quand c'est un sirop ou un diabolo.",
+      "Click & collect : les tapas dans l'ordre de leur carte (planches, à la carte, incontournables), avant les formules et les boissons.",
+      "Click & collect : la 1664 0° Sans Alcool est la seule bière proposée à emporter.",
+      "« Crèpe » du visuel goûter écrit « Crêpe »."
+    ]
+  },
+  "offers": [
+    "Happy Hours tous les jours de 17h à 23h (affiche du site) : Chardonnay 3 € / 17 €, vin moelleux 3,50 € / 20 €, punch & sangria 3 € / 17 € (50 cl 6 €), pinte de Kro 4 €, pinte de Monaco 4,20 €, Mojito, Aperol Spritz, Coco Bull, Planteur, Caipirinha, Tête à l'envers 6 € (XXL +3 €), Virgin Mojito et Virgin Colada 5,50 €",
+    "Café du matin 1 € de 9h à 12h, du lundi au dimanche (expresso, café allongé, noisette)",
+    "Formule Goûter 5 € tous les jours",
+    "Formule Étudiante 8,50 € sur présentation de la carte étudiante",
+    "Tous les cocktails en XXL : +3 € (sans alcool : 9 €)"
+  ],
+  "research": {
+    "date": "2026-10-14",
+    "fichiers": "docs/recherche-carte.md, docs/recherche-profile.md",
+    "methode": "Pages ouvertes directement (site, API recherche-entreprises, BODACC, BAN, Privateaser, Schlouk) ; Instagram et Tripadvisor bloqués.",
+    "adresse": "BAN : 10 Rue Saint-Guilhem, 34000 Montpellier (score 0,98) ; tram Saint-Guilhem – Courreau 321 m, Comédie 347 m.",
+    "groupe": "Même groupe que Le Victoria et le Café des Arts (et la Brasserie Laissac) : JSK HOLDING / Med Belkhir.",
+    "site": "og:url et JSON-LD du site portent « lenovety-montpellier.fr » (domaine inexistant) : à corriger, argument de vente.",
+    "privateaser": "Fiche non réservable ; photos et textes mélangés avec Le Victoria.",
+    "plateformes": "Aucune plateforme de livraison ni de réservation."
+  },
+  "notes": [
+    "Qui exploite le bar : BKB (Mmes Boukerb et Mohamedi, depuis le 01/08/2025) en location-gérance de NEWVELTY / JSK Holding ? Qui décide de la carte et des outils ?",
+    "Le bon téléphone : 04 34 35 36 28 (site, Google) ou 04 67 60 81 87 (affiche happy hour) ?",
+    "Cocktails sans alcool « 7€ / 9€ » : 9 € en XXL ?",
+    "Mojito, caïpirinha, caïpiroska, daïquiri : existe-t-il une version nature, sans parfum ?",
+    "Guinness « 8° » sur le site : coquille ?",
+    "Quelle est la Bière du Moment ?",
+    "Formule étudiante : « Pizza Margarita » ou Margherita, et que veut dire « Poulet curry ou Bolognaise » sous la pizza ?",
+    "Vins, shots et champagne hors happy hour : prix ? (le site ne les cite qu'en happy hour ; Schlouk parle d'une coupe à 5 €)",
+    "Formule goûter : quelles boissons chaudes la « Boisson chaude » comprend-elle (café, thé, chocolat…) ? La démo propose en attendant toutes les boissons chaudes sans alcool de la carte (voir options_a_valider).",
+    "Sirops : quelle est la liste complète (le site écrit « Grenadine, pêche, menthe, fraise, citron… ») ? Les mêmes pour le diabolo ?",
+    "Happy hours : faut-il que la carte applique d'elle-même les prix de l'affiche de 17h à 23h ? (aujourd'hui, ils sont écrits sous chaque article et le prix commandé est celui de la carte)",
+    "Formule goûter : à quelles heures ? Le plat du jour (≈ 14,80 € plat + dessert selon les avis) est-il toujours servi, et la carte restaurant « bientôt » annoncée ?",
+    "Café du matin : faut-il le rendre commandable de 9h à 12h seulement ?",
+    "Photos : séance photo des tapas et cocktails ; la façade et l'enseigne (aucune photo en ligne).",
+    "Quelle devise du logo est la bonne : « BAR – BRASSERIE – COCKTAIL – TAPAS – PUB » ou « BAR · AMBIANCE · COCKTAILS · TAPAS · BIÈRES » ?",
+    "Événements, concerts, privatisation (capacité 50 ou 100 ?)",
+    "À emporter : la Formule Étudiante se commande-t-elle en ligne, et comment la carte étudiante est-elle vérifiée au retrait ? La démo Collect la propose en attendant.",
+    "À emporter : les prix happy hours (Virgin Mojito et Virgin Colada 5,50 € de 17h à 23h) valent-ils pour une commande à emporter ? La démo Collect facture le prix de la carte (7 €) ; si l'affiche ne vaut qu'au bar, ses lignes sont à retirer de la carte à emporter.",
+    "Allergènes : aucun n'est imprimé sur la carte ; la vente à emporter les doit au client avant le paiement, à fournir avant la mise en service."
+  ]
+}

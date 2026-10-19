@@ -4,15 +4,19 @@ import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
-import { FormulesBanner, FormulesSection } from "@/components/menu/formules";
+import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
+import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
+import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
-import { restaurantThemeClass } from "@/lib/menu-data";
+import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
+import { FORMULES_LINK } from "@/lib/menu/format";
+import { brandName, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -25,6 +29,13 @@ import { menuSiteUrl } from "@/lib/site";
  */
 export const revalidate = 60;
 
+// Aucune carte pré-rendue au build : chacune se rend au premier scan, puis
+// sert depuis le cache. Table et iframe (?table=, ?embed=) se lisent dans le
+// navigateur — searchParams rendrait la page à chaque visite.
+export async function generateStaticParams() {
+  return [];
+}
+
 const getRestaurant = cache(fetchRestaurant);
 
 export async function generateMetadata({
@@ -35,7 +46,7 @@ export async function generateMetadata({
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
   const { restaurant } = data;
-  const title = `${restaurant.name} — Menu`;
+  const title = `${brandName(restaurant)} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
   const shareImage = restaurant.coverImage ?? restaurant.poster;
   const images = shareImage ? [shareImage] : undefined;
@@ -58,44 +69,42 @@ export async function generateMetadata({
 
 export default async function MenuPage({
   params,
-  searchParams,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
-  const { embed, table } = await searchParams;
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
   const {
+    id,
     restaurant,
     offre,
     onlinePayment,
+    onlineMinOrder,
+    closedItems,
     paymentProvider,
     squareLocationId,
     serviceMode,
     callServer,
     loyalty,
     formules,
+    pairings,
+    formuleOffers,
   } = data;
 
-  // Le visuel des formules s'affiche sous l'affiche ; sans lui (ou sans
-  // aucune de ses formules disponible), elles ont leur section en tête de carte.
-  const banner = restaurant.formulesBanner;
-  const showBanner =
-    restaurant.poster != null &&
-    banner != null &&
-    formules.some((formule) => banner.formules.includes(formule.name));
+  // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
+  // elle, en tête de la section des formules, avant les tuiles de celles
+  // qu'aucune affiche ne porte.
+  const affiches = restaurant.affiches ?? [];
+  const affichesInHero = restaurant.poster != null && affiches.length > 0;
+  const tiles = formules.filter((formule) => !formule.affiche);
+  const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
 
-  const parsedTable = Number(Array.isArray(table) ? table[0] : table);
-  const tableNumber =
-    Number.isInteger(parsedTable) && parsedTable > 0 ? parsedTable : null;
   const orderingEnabled = offre === "smart" || offre === "connect";
   // Fast food : un seul QR, au comptoir ; on commande sans table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
 
   const categoryLinks = [
-    ...(!showBanner && formules.length > 0
-      ? [{ id: "formules", name: "Formules" }]
-      : []),
+    ...(showFormules ? [FORMULES_LINK] : []),
     ...restaurant.categories.map(({ id, name }) => ({ id, name })),
   ];
 
@@ -140,67 +149,85 @@ export default async function MenuPage({
         slug,
         // Un ancien QR de table ne compte plus en fast food : ni panier par
         // table, ni table dans l'analytique.
-        tableNumber: fastFood ? null : tableNumber,
+        tableNumber: null,
+        tableFromUrl: !fastFood,
         orderingEnabled,
         serviceMode,
         restaurantName: restaurant.name,
         onlinePayment: orderingEnabled && onlinePayment,
+        onlineMinOrder,
         paymentProvider,
         squareLocationId,
         loyalty,
+        // Sans commande, rien à fermer : pas de relecture.
+        etablissementId: orderingEnabled ? id : undefined,
+        closedItems: orderingEnabled ? closedItems : undefined,
+        pairings,
+        formuleOffers,
       }}
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
-      <div
-        data-menu-root
-        data-slug={slug}
-        data-service={fastFood ? "fast-food" : undefined}
-        className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
-      >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <Hero
-          restaurant={restaurant}
-          banner={
-            showBanner ? (
-              <FormulesBanner banner={banner} formules={formules} />
-            ) : undefined
-          }
-        />
-        <MenuHighlights highlights={restaurant.highlights} />
-        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-            bout de la carte. */}
-        <TicketTracker />
-        <CartBar />
-        <CategoryNav
-          categories={categoryLinks}
-          embedded={embed === "1"}
-          themeLocked={Boolean(restaurantThemeClass(slug))}
-        />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {!showBanner && formules.length > 0 && (
-            <FormulesSection formules={formules} />
-          )}
-          {restaurant.categories.length === 0 ? (
-            <p className="py-16 text-center text-sm text-muted">
-              La carte est en préparation — revenez bientôt.
-            </p>
-          ) : (
-            restaurant.categories.map((category, i) => (
-              <MenuSection key={category.id} category={category} first={i === 0} />
-            ))
-          )}
-        </main>
-        <MenuFooter
-          restaurant={restaurant}
-          themeToggle={!restaurantThemeClass(slug)}
-        />
-        {callServer && <CallServerButton />}
-      </div>
+      <LoyaltyMemberProvider slug={slug} enabled={orderingEnabled && loyalty != null}>
+        <div
+          data-menu-root
+          data-slug={slug}
+          data-service={fastFood ? "fast-food" : undefined}
+          className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
+        >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
+          <MenuTicker items={restaurant.ticker} />
+          <Hero
+            restaurant={restaurant}
+            firstSectionId={categoryLinks[0]?.id}
+            banner={
+              affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
+            }
+          />
+          <MenuHighlights highlights={restaurant.highlights} />
+          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+              bout de la carte. */}
+          <TicketTracker />
+          <CartBar />
+          <CategoryNav
+            categories={categoryLinks}
+            themeLocked={Boolean(restaurantThemeClass(slug))}
+          />
+          <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+            {showFormules && (
+              <FormulesSection
+                formules={tiles}
+                affiches={affichesInHero ? undefined : affiches}
+              />
+            )}
+            {restaurant.categories.length === 0 ? (
+              <p className="py-16 text-center text-sm text-muted">
+                La carte est en préparation — revenez bientôt.
+              </p>
+            ) : (
+              restaurant.categories.map((category) => (
+                <MenuSection
+                  key={category.id}
+                  category={category}
+                  // La première photo ne se charge d'emblée qu'en tête de carte :
+                  // sous des formules, elle est déjà loin sous le premier écran.
+                  first={category.id === categoryLinks[0]?.id}
+                />
+              ))
+            )}
+          </main>
+          <MenuFooter
+            restaurant={restaurant}
+            themeToggle={!restaurantThemeClass(slug)}
+          />
+          {callServer && <CallServerButton />}
+          <LoyaltyWelcome brand={brandName(restaurant)} logo={restaurant.logo} />
+        </div>
+      </LoyaltyMemberProvider>
     </CartProvider>
   );
 }

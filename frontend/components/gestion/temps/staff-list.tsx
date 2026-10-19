@@ -6,7 +6,8 @@ import { StaffModal } from "@/components/gestion/temps/staff-modal";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
-import { ROLE_LABELS } from "@/lib/gestion/constants";
+import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
+import { useGestion } from "@/lib/gestion/store";
 import {
   entriesOf,
   formatDuration,
@@ -85,6 +86,9 @@ export function StaffList({
 }) {
   const [editing, setEditing] = useState<Staff | null>(null);
   const [creating, setCreating] = useState(false);
+  const state = useGestion();
+  const roleLabel = roleLabels(state);
+  const pickupShop = isPickupShop(state);
   const now = new Date();
 
   return (
@@ -102,14 +106,14 @@ export function StaffList({
           onClick={() => setCreating(true)}
           className="ember-gradient shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold text-background"
         >
-          + Ajouter un serveur
+          {pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur"}
         </button>
       </div>
 
       {staff.length === 0 ? (
         <EmptyState
           title="Personne dans l'équipe"
-          body="Ajoutez vos serveurs : ils apparaîtront sur la badgeuse et dans le planning."
+          body={`Ajoutez vos ${pickupShop ? "employés" : "serveurs"} : ils apparaîtront sur la badgeuse et dans le planning.`}
         />
       ) : (
         <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
@@ -143,7 +147,7 @@ export function StaffList({
                     {!member.codeSet && <Tag tone="warn">Sans code</Tag>}
                   </div>
                   <p className="text-xs text-faint">
-                    {ROLE_LABELS[member.role]}
+                    {roleLabel[member.role]}
                     {member.userId ? " · a un compte" : ""}
                   </p>
                 </button>

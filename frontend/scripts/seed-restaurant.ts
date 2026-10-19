@@ -1,7 +1,10 @@
 /*
  * Insère un restaurant du registre statique (lib/menu-data) dans Supabase —
  * démo client sur le vrai produit menu (/m/<slug>), commandes à table
- * comprises (offre connect, paiement au comptoir).
+ * comprises (offre connect, paiement au comptoir). Une boutique en click &
+ * collect seul (`collect` au registre) reçoit ses horaires et le produit
+ * collect, sans offre ni tables ; son paiement en ligne et sa commission
+ * restent à ouvrir par Ominin.
  *
  * Usage, depuis frontend/ :
  *   npm run seed:restaurant -- <slug> [email mot-de-passe]
@@ -18,6 +21,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { SEED_TABLE_COUNT } from "../lib/gestion/constants";
 import { getRestaurant } from "../lib/menu-data";
+import { formatPrice } from "../lib/menu/format";
 import type { Database, Json, TablesInsert } from "../lib/supabase/database.types";
 import { must } from "../lib/supabase/result";
 
@@ -65,7 +69,8 @@ async function main() {
         address: restaurant!.address,
         phone: restaurant!.phone,
         hours: restaurant!.hours,
-        offre: "connect",
+        offre: restaurant!.collect ? null : "connect",
+        opening_hours: toJson(restaurant!.collect?.openingHours ?? null),
         cover_image: restaurant!.coverImage ?? null,
         google_review_url: restaurant!.googleReviewUrl ?? null,
       })
@@ -76,6 +81,7 @@ async function main() {
   // La démo reste utilisable sans passer par Stripe.
   const { error: subscriptionError } = await db.from("subscriptions").insert({
     etablissement_id: etab.id,
+    product: restaurant!.collect ? "collect" : "offre",
     status: "active",
   });
   if (subscriptionError) throw new Error(subscriptionError.message);
@@ -97,6 +103,14 @@ async function main() {
   const itemSeeds = restaurant!.categories.flatMap((category, i) =>
     category.items.map((item) => ({ categoryId: categories[i].id, item }))
   );
+  // Les groupes conditionnels (`when`) ne vivent que côté client : place_order
+  // exigerait un groupe caché et la gestion perdrait la condition.
+  const conditionnel = itemSeeds.find(({ item }) => item.options?.some((group) => group.when));
+  if (conditionnel) {
+    throw new Error(
+      `${conditionnel.item.id} a un groupe conditionnel (when) : place_order et la gestion ne le gèrent pas encore.`
+    );
+  }
   const items = must(
     await db
       .from("items")
@@ -119,6 +133,7 @@ async function main() {
           // caisse : le seed perdait ce taux.
           vat_rate: item.vatRate,
           print_name: item.printName ?? null,
+          notice_hours: item.noticeHours ?? null,
         })),
         // La liste des colonnes vient des clés, undefined compris : sans
         // missing=default, un taux absent partait en NULL et violait le
@@ -128,17 +143,20 @@ async function main() {
       .select("id")
   );
 
-  const tables = must(
-    await db
-      .from("tables")
-      .insert(
-        Array.from({ length: SEED_TABLE_COUNT }, (_, i) => ({
-          etablissement_id: etab.id,
-          number: i + 1,
-        }))
-      )
-      .select("id")
-  );
+  // Une boutique de click & collect n'a pas de salle.
+  const tables = restaurant!.collect
+    ? []
+    : must(
+        await db
+          .from("tables")
+          .insert(
+            Array.from({ length: SEED_TABLE_COUNT }, (_, i) => ({
+              etablissement_id: etab.id,
+              number: i + 1,
+            }))
+          )
+          .select("id")
+      );
 
   let accountNote = "sans compte de gestion";
   if (email && password) {
@@ -170,9 +188,18 @@ async function main() {
   }
 
   console.log(
-    `« ${restaurant!.name} » inséré (offre connect) : ${categories.length} catégories, ` +
+    `« ${restaurant!.name} » inséré (${restaurant!.collect ? "click & collect" : "offre connect"}) : ${categories.length} catégories, ` +
       `${items.length} plats, ${tables.length} tables — ${accountNote}.`
   );
+  // Les formules du registre ne servent qu'à l'aperçu : leurs articles
+  // pointent sur des identifiants du registre, pas sur les plats insérés.
+  const formules = restaurant!.formules ?? [];
+  if (formules.length > 0) {
+    console.warn(
+      `Formules non insérées, à créer depuis l'espace gérant : ` +
+        formules.map((formule) => `${formule.name} (${formatPrice(formule.price)})`).join(", ")
+    );
+  }
 }
 
 main().catch((error) => {

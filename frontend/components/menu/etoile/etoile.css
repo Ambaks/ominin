@@ -1,0 +1,1371 @@
+/*
+ * L'Étoile — mise en scène de la carte. Argent de club haut de gamme : noir
+ * graphite, un ciel de nuit en WebGL plein écran (sky.ts), Archivo élargie
+ * en capitales fines pour les titres en argent poli, filets fins ; l'or du
+ * champagne pour sa seule section. Les jetons du thème habillent aussi les
+ * feuilles partagées (panier, paiement), portées dans [data-menu-root].
+ */
+
+.theme-l-etoile {
+  --background: #050507;
+  --foreground: #f4f5f7;
+  --surface: #0c0c0f;
+  --surface-raised: #141418;
+  --hairline: rgba(232, 234, 238, 0.14);
+  --muted: rgba(244, 245, 247, 0.72);
+  --faint: rgba(244, 245, 247, 0.48);
+  --ember-1: #ffffff;
+  --ember-2: #d6d9df;
+  --ember-3: #8a8f98;
+  --shimmer-highlight: rgba(255, 255, 255, 0.08);
+  --glow-inner: rgba(232, 234, 238, 0.05);
+  --glow-outer: rgba(232, 234, 238, 0.03);
+  --brand-display: var(--font-archivo), system-ui, sans-serif;
+  --brand-sans: var(--font-archivo), system-ui, sans-serif;
+  --et-ink: #050507;
+  --et-white: #f4f5f7;
+  --et-silver: #d6d9df;
+  --et-dim: rgba(244, 245, 247, 0.56);
+  --et-line: rgba(232, 234, 238, 0.14);
+  --et-glow: rgba(232, 234, 238, 0.28);
+  /* Argent poli : reflets clairs, une bande sombre au milieu, comme un métal brossé. */
+  --et-metal: linear-gradient(180deg, #ffffff 0%, #e6e8ec 36%, #8f949d 52%, #d4d7dd 68%, #f8f9fa 100%);
+  --et-foil: linear-gradient(100deg, #7d828b 0%, #d6d9df 30%, #ffffff 50%, #d6d9df 70%, #7d828b 100%);
+  --et-gold: #d9c08a;
+  --et-gold-foil: linear-gradient(100deg, #8c6d33 0%, #d9c08a 30%, #fff4d6 50%, #d9c08a 70%, #8c6d33 100%);
+  /* Mouvement : trois durées, une courbe d'entrée, une de sortie, pour toute la page. */
+  --et-fast: 240ms;
+  --et-base: 480ms;
+  --et-slow: 900ms;
+  --et-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --et-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --et-cross: cubic-bezier(0.65, 0, 0.35, 1);
+  /* body résout --font-sans dans SON scope, où --brand-sans n'existe pas. */
+  font-family: var(--brand-sans);
+  color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html:has(.theme-l-etoile),
+html:has(.theme-l-etoile) body {
+  background-color: #050507;
+}
+
+/* Plein écran : pas de barre de défilement par-dessus la scène. */
+html:has(.theme-l-etoile) {
+  scrollbar-width: none;
+}
+
+html:has(.theme-l-etoile)::-webkit-scrollbar {
+  display: none;
+}
+
+.et {
+  position: relative;
+  isolation: isolate;
+  color: var(--et-white);
+}
+
+.et :focus-visible {
+  outline: 1px solid var(--et-silver);
+  outline-offset: 4px;
+}
+
+.et button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- Ciel ---------- */
+
+/* Le ciel WebGL (sky.ts) ; dessous, et seul sans WebGL, une nuit en dégradés : une Voie lactée à peine posée. */
+.et-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -5;
+  height: 100lvh;
+  background:
+    radial-gradient(60% 18% at 52% 42%, rgba(196, 202, 214, 0.07), transparent 70%),
+    radial-gradient(120% 34% at 50% 44%, rgba(160, 168, 184, 0.05), transparent 75%),
+    var(--et-ink);
+}
+
+.et-sky-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.6s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.et-sky-canvas[data-on] {
+  opacity: 1;
+}
+
+/* Une feuille ouverte fige aussi le bouton d'appel. */
+.et[data-paused] .et-cta {
+  animation-play-state: paused;
+}
+
+/* Lisibilité : un voile léger sous le texte (en portrait vers le bas, en paysage sur toute la largeur) ; le ciel reste visible partout. */
+.et-shade {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  height: 100lvh;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 30%, rgba(5, 5, 7, 0.32) 62%, rgba(5, 5, 7, 0.6) 100%);
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .et-shade {
+    background: linear-gradient(to bottom, rgba(5, 5, 7, 0.5) 0%, rgba(5, 5, 7, 0.3) 16%, rgba(5, 5, 7, 0.3) 72%, rgba(5, 5, 7, 0.55) 100%);
+  }
+}
+
+/* ---------- Bandeau ---------- */
+
+.et-top {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: max(10px, env(safe-area-inset-top)) 16px 16px;
+  /* Plein sous les libellés, fondu au-delà : le texte qui défile passe dessous, la scène n'est jamais encadrée. */
+  background: linear-gradient(to bottom, #050507 0, #050507 74%, rgba(5, 5, 7, 0) 100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 800ms var(--et-cross) 1.2s, visibility 0s 1.2s;
+}
+
+.et[data-ready] .et-top {
+  opacity: 1;
+  visibility: visible;
+}
+
+.et-top-mark {
+  min-height: 32px;
+  padding: 2px 0 0 0.34em;
+  background: var(--et-metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--brand-display) !important;
+  font-stretch: 125%;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+.et-top-nav {
+  position: relative;
+}
+
+.et-top ol {
+  display: flex;
+  gap: clamp(12px, 4vw, 34px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.et-top ol button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0;
+  color: #a9abb0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.et-top-num {
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Un seul filet, qui glisse d'un chapitre à l'autre (placé par la page). */
+.et-top-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--w, 0);
+  height: 1px;
+  background: var(--et-silver);
+  transform: translateX(var(--x, 0));
+  transition: transform var(--et-base) var(--et-ease), width var(--et-base) var(--et-ease), opacity var(--et-fast) ease;
+}
+
+.et-top ol [aria-current] {
+  color: var(--et-white);
+}
+
+@media (hover: hover) {
+  .et-top ol button:not([aria-current]):hover {
+    color: rgba(244, 245, 247, 0.8);
+  }
+}
+
+@media (max-width: 419px) {
+  .et-top-num {
+    display: none;
+  }
+}
+
+@media (min-width: 900px) {
+  .et-top {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 22px clamp(40px, 6vw, 96px) 28px;
+  }
+  .et-top-mark {
+    font-size: 15px;
+  }
+  .et-top ol button {
+    font-size: 12.5px;
+    letter-spacing: 0.22em;
+  }
+}
+
+/* ---------- Accueil ---------- */
+
+.et-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 104px 24px 40px;
+}
+
+/* La ligne du haut se lit sur la Voie lactée : un voile sous elle. */
+.et-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 200px;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), transparent);
+  pointer-events: none;
+}
+
+.et-hero-meta {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  color: rgba(244, 245, 247, 0.72);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.et-hero-body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 36px;
+  text-align: center;
+}
+
+/* Sous le titre, la Voie lactée s'assombrit : le nom se lit d'un coup d'œil. */
+.et-hero-body::before {
+  content: "";
+  position: absolute;
+  inset: auto -24px 0;
+  z-index: -1;
+  height: 70%;
+  background: radial-gradient(60% 55% at 50% 60%, rgba(5, 5, 7, 0.55), transparent 75%);
+  pointer-events: none;
+}
+
+.et-hero-mark {
+  width: 32px;
+  margin-bottom: 18px;
+  opacity: 0;
+  filter: drop-shadow(0 0 18px var(--et-glow));
+  transition: opacity 1.2s ease 0.3s;
+}
+
+.et[data-ready] .et-hero-mark {
+  opacity: 1;
+}
+
+.et-wordmark {
+  margin: 0;
+  padding-left: 0.14em;
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: clamp(38px, 11.5vw, 116px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  filter: drop-shadow(0 0 30px rgba(232, 234, 238, 0.18));
+}
+
+/* Chaque lettre porte son argent : elles s'animent une à une, hors du rognage du titre. */
+.et-wordmark span[aria-hidden] {
+  display: inline-block;
+  background: var(--et-metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transform: translate3d(0, 0.3em, 0);
+  filter: blur(10px);
+}
+
+.et[data-ready] .et-wordmark span[aria-hidden] {
+  animation: et-letter 1.2s cubic-bezier(0.2, 0.7, 0.1, 1) forwards;
+  animation-delay: calc(0.45s + var(--i) * 72ms);
+}
+
+@keyframes et-letter {
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.et-hero-line {
+  margin: 22px 0 32px;
+  color: var(--et-silver);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.et-hero-line,
+.et-cta,
+.et-index,
+.et-hero-meta {
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition: opacity 1s ease, transform 1.2s var(--et-ease);
+}
+
+.et[data-ready] :is(.et-hero-line, .et-cta, .et-index, .et-hero-meta) {
+  opacity: 1;
+  transform: none;
+}
+
+.et[data-ready] .et-hero-line { transition-delay: 1.6s; }
+.et[data-ready] .et-cta { transition-delay: 1.8s; }
+.et[data-ready] .et-index { transition-delay: 2s; }
+.et[data-ready] .et-hero-meta { transition-delay: 2s; }
+
+.et-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 54px;
+  padding: 0 26px 0 30px;
+  border: 1px solid rgba(232, 234, 238, 0.5);
+  border-radius: 999px;
+  background: rgba(5, 5, 7, 0.35);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  transition: opacity 1s ease, transform 1.2s var(--et-ease), background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+  animation: et-breathe 4s ease-in-out 3s infinite;
+}
+
+@keyframes et-breathe {
+  50% { box-shadow: 0 0 22px rgba(232, 234, 238, 0.18); border-color: rgba(232, 234, 238, 0.75); }
+}
+
+.et-cta svg {
+  width: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  transition: transform 0.35s var(--et-ease);
+}
+
+.et-cta:active,
+.et-cta:focus-visible {
+  border-color: transparent;
+  background: var(--et-metal);
+  color: var(--et-ink);
+}
+
+@media (hover: hover) {
+  .et-cta:hover {
+    border-color: transparent;
+    background: var(--et-metal);
+    color: var(--et-ink);
+  }
+  .et-cta:hover svg {
+    transform: translateX(4px);
+  }
+}
+
+/* Le sommaire : les chapitres, comme la première page d'une carte de grande maison. */
+.et-index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--et-line);
+}
+
+.et-index button {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: baseline;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--et-line);
+  text-align: left;
+}
+
+.et-index-num {
+  color: var(--et-dim);
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 14px;
+}
+
+.et-index-name {
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 17px;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: letter-spacing 0.5s var(--et-ease);
+}
+
+.et-index-count {
+  color: rgba(244, 245, 247, 0.78);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) {
+  .et-index button:hover .et-index-name {
+    letter-spacing: 0.2em;
+  }
+}
+
+/* ---------- Chapitres ---------- */
+
+.et-main {
+  overflow-x: clip;
+}
+
+.et-chapter {
+  position: relative;
+  padding: 0 24px 6svh;
+}
+
+/* Entre deux chapitres, un temps de ciel : le passage où les étoiles s'étirent (sky.ts). */
+.et-head {
+  position: relative;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  padding: 14svh 0 24px;
+}
+
+/* Le ciel s'efface sous le titre : jamais de capitales sur la Voie lactée. */
+.et-head::before {
+  content: "";
+  position: absolute;
+  inset: 0 -24px;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0) 4svh, rgba(5, 5, 7, 0.3) 8svh, rgba(5, 5, 7, 0.7) 12svh, rgba(5, 5, 7, 0.86) 17svh);
+  transition: opacity 600ms var(--et-cross);
+}
+
+.et-kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  color: var(--et-dim);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.et-kicker span:first-child {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+}
+
+.et-kicker span:first-child::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(232, 234, 238, 0.45), rgba(232, 234, 238, 0));
+}
+
+.et-title {
+  margin: 18px 0 14px;
+  padding: 0 0.1em 0.06em 0;
+  background: var(--et-foil) 0 0 / 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  /* À la largeur de la colonne : les noms longs (Champagnes) tiennent sur une ligne. */
+  font-size: min(112px, 14cqi, calc(92cqi / var(--len, 8)));
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  outline: none;
+}
+
+#champagnes .et-title {
+  background-image: var(--et-gold-foil);
+}
+
+/* À l'arrivée, un reflet traverse le métal. */
+.et-head[data-in] .et-title {
+  animation: et-foil 1.6s var(--et-ease) 0.4s both;
+}
+
+@keyframes et-foil {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+.et-range {
+  margin: 0;
+  color: var(--et-silver);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Les familles, sur une ligne qui défile : la première bouteille reste dans le premier écran. */
+.et-subnav {
+  display: flex;
+  gap: 8px;
+  margin: 22px -24px 0;
+  padding: 0 24px;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.et-subnav::-webkit-scrollbar {
+  display: none;
+}
+
+.et-subnav a {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--et-line);
+  border-radius: 999px;
+  color: rgba(244, 245, 247, 0.82);
+  background: rgba(5, 5, 7, 0.4);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.et-subnav a:active {
+  border-color: var(--et-silver);
+  color: var(--et-white);
+}
+
+@media (hover: hover) {
+  .et-subnav a:hover {
+    border-color: rgba(232, 234, 238, 0.5);
+    color: var(--et-white);
+  }
+}
+
+/* Sous les lignes, un fond plein qui naît en fondu : jamais de texte sur une traînée lumineuse. */
+.et-list {
+  position: relative;
+}
+
+.et-list::before {
+  content: "";
+  position: absolute;
+  inset: -180px -24px -180px;
+  z-index: -1;
+  /* Une rampe longue à chaque bout : aucune arête entre la liste et la scène. */
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 7, 0) 0,
+    rgba(5, 5, 7, 0.1) 40px,
+    rgba(5, 5, 7, 0.45) 100px,
+    rgba(5, 5, 7, 0.86) 180px,
+    rgba(5, 5, 7, 0.86) calc(100% - 180px),
+    rgba(5, 5, 7, 0.45) calc(100% - 100px),
+    rgba(5, 5, 7, 0.1) calc(100% - 40px),
+    rgba(5, 5, 7, 0) 100%
+  );
+  transition: opacity 600ms var(--et-cross);
+}
+
+.et-items {
+  text-shadow: 0 1px 12px rgba(5, 5, 7, 0.8);
+}
+
+.et-group {
+  scroll-margin-top: 110px;
+}
+
+.et-group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 44px 0 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--et-line);
+  color: rgba(232, 234, 238, 0.6);
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.et-group-title span:last-child {
+  color: rgba(232, 234, 238, 0.35);
+  font-family: var(--brand-sans);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.et-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.et-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(232, 234, 238, 0.12);
+}
+
+.et-item-name {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.et-item-meta {
+  display: block;
+  margin-top: 6px;
+  color: rgba(244, 245, 247, 0.5);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.et-item-price {
+  font-size: 15.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#champagnes .et-item-price {
+  color: var(--et-gold);
+}
+
+.et-add {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: transparent;
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease, transform 0.2s var(--et-ease);
+}
+
+.et-add svg {
+  width: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+#champagnes .et-add {
+  border-color: rgba(217, 192, 138, 0.55);
+  color: var(--et-gold);
+}
+
+/* Le chapitre doré dore aussi le filet de la navigation. */
+.et[data-chapter="4"] .et-top-line {
+  background: var(--et-gold);
+}
+
+.et-add:active {
+  transform: scale(0.92);
+  border-color: transparent;
+  background: var(--et-metal);
+  color: var(--et-ink);
+}
+
+@media (hover: hover) {
+  .et-add:hover {
+    border-color: rgba(232, 234, 238, 0.8);
+  }
+}
+
+.et-add[data-quantity] {
+  border-color: rgba(232, 234, 238, 0.8);
+}
+
+.et-add-quantity {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--et-metal);
+  color: var(--et-ink);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Apparitions : chaque bloc monte et se pose, une ligne après l'autre. */
+.et [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity 0.9s ease, transform 1.2s var(--et-ease);
+  transition-delay: var(--delay, 0ms);
+}
+
+.et [data-reveal][data-in] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Arrivée en plein défilement rapide : la ligne est déjà là, sans montée ni attente. */
+.et [data-reveal][data-instant] {
+  transform: none;
+  transition: opacity var(--et-fast) ease;
+  transition-delay: 0ms;
+}
+
+/* ---------- Paysage : la carte sur toute la largeur, les lignes sur deux colonnes ---------- */
+
+@media (min-aspect-ratio: 1/1) {
+  .et {
+    --et-gutter: clamp(40px, 6vw, 96px);
+  }
+  .et-hero {
+    padding: 120px var(--et-gutter) 56px;
+  }
+  .et-hero-meta {
+    position: absolute;
+    top: 104px;
+    right: var(--et-gutter);
+    left: var(--et-gutter);
+  }
+  .et-hero-body {
+    padding-bottom: 56px;
+  }
+  .et-wordmark {
+    font-size: min(10vw, 168px);
+  }
+  /* Le sommaire : les chapitres deux par deux, puis les quatre côte à côte quand la largeur le permet. */
+  .et-index {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: clamp(24px, 3vw, 48px);
+  }
+  .et-chapter {
+    padding: 0 var(--et-gutter) 12vh;
+  }
+}
+
+/* Assez large pour deux lignes côte à côte (nom, prix, bouton) sans serrer. */
+@media (min-aspect-ratio: 1/1) and (min-width: 960px) {
+  .et-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(40px, 5vw, 96px);
+  }
+}
+
+@media (min-aspect-ratio: 1/1) and (min-width: 1180px) {
+  .et-index {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .et-head {
+    padding: 12vh 0 32px;
+  }
+  .et-head::before {
+    content: none;
+  }
+  .et-list::before {
+    content: none;
+  }
+  .et-title {
+    letter-spacing: 0.03em;
+  }
+  .et-item {
+    padding: 28px 0;
+  }
+  .et-item-name {
+    font-size: 18px;
+  }
+  .et-item-meta {
+    font-size: 12.5px;
+    color: rgba(244, 245, 247, 0.62);
+  }
+  .et-item-price {
+    font-size: 18px;
+  }
+  .et-group-title {
+    font-size: 12px;
+    color: rgba(232, 234, 238, 0.7);
+  }
+  .et-group-title span:last-child {
+    color: rgba(232, 234, 238, 0.5);
+  }
+  .et-add {
+    width: 48px;
+    height: 48px;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+  .et-particle {
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 24px rgba(232, 234, 238, 0.6));
+  }
+}
+
+/* ---------- Pied ---------- */
+
+.et-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 72px 24px calc(120px + env(safe-area-inset-bottom));
+  color: var(--et-dim);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  line-height: 1.7;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.et-footer-mark {
+  width: 40px;
+  opacity: 0.85;
+}
+
+.et-footer p {
+  margin: 0;
+}
+
+.et-footer-name {
+  padding-left: 0.3em;
+  background: var(--et-metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 20px;
+  letter-spacing: 0.3em;
+}
+
+.et-credit {
+  margin: 28px 0 0;
+  font-size: 11px;
+  color: rgba(244, 245, 247, 0.6);
+}
+
+/* ---------- Barre de commande : le trou noir à son bord ---------- */
+
+/* Les boutons pleins du thème partagé : argent poli, encre noire (la barre de commande, plus bas, garde son graphite). */
+.theme-l-etoile .ember-gradient {
+  background-image: linear-gradient(180deg, #f2f3f5, #c9cdd3);
+  color: var(--et-ink);
+  box-shadow: none;
+}
+
+.theme-l-etoile .cart-bar {
+  position: relative;
+  min-height: 62px;
+  padding-left: 84px;
+  padding-right: 22px;
+  border: 1px solid rgba(232, 234, 238, 0.36);
+  border-radius: 999px;
+  background-image: none;
+  background-color: rgba(12, 12, 15, 0.94);
+  color: var(--et-white);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 50px -14px rgba(0, 0, 0, 0.85);
+}
+
+/* Au chapitre doré, la barre aussi. */
+.theme-l-etoile:has(.et[data-chapter="4"]) .cart-bar {
+  border-color: rgba(217, 192, 138, 0.55);
+}
+
+.theme-l-etoile .cart-bar-count {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+}
+
+/* Le trou noir porte le compte ; sans lui, la pastille d'origine reste. */
+.theme-l-etoile:has(.et-hole[data-ready]) .cart-bar-count {
+  background: transparent;
+  color: transparent;
+}
+
+.theme-l-etoile .cart-bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile .cart-bar-total {
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--et-white);
+}
+
+.theme-l-etoile div:has(> .cart-bar) {
+  animation: et-bar-in 360ms var(--et-ease) both;
+}
+
+/* Le texte de la barre arrive une fois la barre posée : jamais coupé en plein mot. */
+.theme-l-etoile .cart-bar > * {
+  animation: et-fade-in var(--et-fast) ease both;
+}
+
+@keyframes et-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Opacité seule : le trou noir se pose sur la barre dès sa première image, à sa vraie place. */
+@keyframes et-bar-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.theme-l-etoile .cart-bar:is(.cart-bump-a, .cart-bump-b) {
+  animation: et-bar-glow 0.9s ease 0.85s;
+}
+
+@keyframes et-bar-glow {
+  0% { border-color: rgba(232, 234, 238, 0.36); }
+  30% { border-color: rgba(255, 255, 255, 0.95); }
+  100% { border-color: rgba(232, 234, 238, 0.36); }
+}
+
+.et-bottom-fade {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 39;
+  height: 168px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0), rgba(5, 5, 7, 0.92) 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.et-bottom-fade[data-on] {
+  opacity: 1;
+}
+
+/* Ancré au bas de l'écran comme la barre : centre placé par translate (JS). */
+.et-hole {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 41;
+  width: 56px;
+  height: 56px;
+  margin: 0 0 -28px -28px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  will-change: transform;
+}
+
+.et-hole:not([data-ready]) {
+  display: none;
+}
+
+.et-hole[data-on] {
+  opacity: 1;
+  transition: opacity 0.45s ease 0.3s;
+}
+
+/* Le disque : rendu par lancer de rayons (black-hole.ts) ; sans WebGL, une ombre cernée d'argent en dégradés. */
+.et-hole-disk {
+  position: absolute;
+  inset: -22px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #000 0 22%, rgba(255, 255, 255, 0.92) 25%, rgba(214, 217, 223, 0.4) 31%, rgba(214, 217, 223, 0.12) 42%, transparent 58%);
+  transform: scale(0.3);
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+}
+
+.et-hole-disk[data-gl] {
+  background: none;
+}
+
+.et-hole[data-on] .et-hole-disk {
+  transform: scale(var(--et-fill, 1));
+}
+
+.et-hole-gl {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 7px rgba(232, 234, 238, 0.32));
+}
+
+.et-hole-ring {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 28px rgba(232, 234, 238, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Le compte, en pastille d'argent posée au bord de l'horizon. */
+.et-hole-count {
+  position: absolute;
+  top: -12px;
+  left: 48px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--et-metal);
+  box-shadow: 0 0 0 2px var(--et-ink);
+  color: var(--et-ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.et-hole-count:empty {
+  display: none;
+}
+
+.et-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+
+/* La commande part en point de lumière d'argent, étiré par sa vitesse, sa traînée derrière lui. */
+.et-particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #ffffff, rgba(232, 234, 238, 0.6) 60%, rgba(232, 234, 238, 0));
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+  will-change: transform, opacity;
+}
+
+.et-particle-echo {
+  width: 14px;
+  height: 5px;
+  margin: -2.5px 0 0 -7px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(244, 246, 250, 0.95), rgba(232, 234, 238, 0));
+  filter: none;
+  scale: calc(1 - var(--echo) * 0.6);
+  opacity: calc(0.75 - var(--echo) * 0.6);
+}
+
+/* ---------- Feuilles partagées (options, panier, paiement) ---------- */
+
+.theme-l-etoile div:has(> [role="dialog"]) {
+  background-color: rgba(2, 2, 3, 0.6);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.theme-l-etoile [role="dialog"] {
+  border-color: rgba(232, 234, 238, 0.2);
+  border-top-color: rgba(232, 234, 238, 0.4);
+  border-radius: 18px 18px 0 0;
+  background-color: #08080b;
+}
+
+@media (min-width: 640px) {
+  .theme-l-etoile [role="dialog"] {
+    border-radius: 18px;
+  }
+}
+
+.theme-l-etoile [role="dialog"] .cart-title {
+  font-family: var(--brand-display);
+  font-stretch: 125%;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] .cart-title span {
+  font-family: var(--brand-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] .cart-line-name {
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] :is(.cart-line-price, .cart-total) {
+  font-weight: 500;
+  color: var(--et-white);
+}
+
+.theme-l-etoile [role="dialog"] :is([role="radio"], [role="group"] button) {
+  color: rgba(244, 245, 247, 0.82);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Le choix retenu : un filet d'argent, pas un aplat (le texte blanc y reste lisible). */
+.theme-l-etoile [role="dialog"] [role="radio"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  min-height: 56px;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  background-image: none;
+  background-color: transparent;
+}
+
+/* Le libellé du choix tient sur une ligne : text-balance du composant partagé le referait passer à la ligne. */
+.theme-l-etoile [role="dialog"] [role="radio"] > span {
+  text-wrap: nowrap;
+}
+
+.theme-l-etoile [role="dialog"] [role="radio"][aria-checked="true"] {
+  border-color: #d9dce1;
+  background-image: none;
+  background-color: rgba(255, 255, 255, 0.07);
+  color: var(--et-white);
+}
+
+/* Le bouton d'envoi ; le choix de règlement retenu porte la même classe, sans son retrait (les deux choix restent alignés). */
+.theme-l-etoile [role="dialog"] button.ember-gradient:not([role="radio"]) {
+  margin-top: 10px;
+  min-height: 54px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+/* Au pied du panier, l'envoi partage sa rangée avec « La carte » : même hauteur, sans retrait. */
+.theme-l-etoile [role="dialog"] .cart-foot :is(button.ember-gradient, .cart-back) {
+  margin-top: 0;
+  min-height: 54px;
+}
+
+.theme-l-etoile [role="dialog"] .cart-back {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Les feuilles parlent la langue de la page : titres en capitales larges et fines, libellés espacés. */
+.theme-l-etoile [role="dialog"] :is(.order-ticket-title, .serve-box-title, .cart-sent-title) {
+  font-stretch: 125%;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] .order-ticket-title {
+  font-size: 20px;
+}
+
+.theme-l-etoile [role="dialog"] .serve-box-title {
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.theme-l-etoile [role="dialog"] :is(.order-ticket-exit button, [data-preview-payment] > button) {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] .order-ticket-digits {
+  font-stretch: 125%;
+  font-weight: 300;
+}
+
+.theme-l-etoile [role="dialog"] .order-step-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.theme-l-etoile [role="dialog"] .order-ticket-number > span[aria-hidden] {
+  font-size: 30px;
+  font-weight: 300;
+}
+
+/* La commande de démonstration s'efface derrière le retour à la carte. */
+.theme-l-etoile [role="dialog"] .order-ticket-exit button.border-dashed {
+  order: 2;
+  min-height: 40px;
+  border: 0;
+  background: none;
+  opacity: 0.5;
+}
+
+/* La carte de démonstration : un métal noir usiné, liseré d'argent. */
+.theme-l-etoile .payment-card {
+  border-color: rgba(232, 234, 238, 0.28);
+  background: linear-gradient(135deg, #1c1d22 0%, #0b0b0e 55%, #16171b 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 24px 60px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* La pastille de suivi, sur la page : du même verre fumé que la barre de commande. */
+.theme-l-etoile .ticket-chip {
+  border-color: rgba(232, 234, 238, 0.36);
+  background: rgba(12, 12, 15, 0.96);
+}
+
+.theme-l-etoile .ticket-chip-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Écrans étroits : la gouttière du trou noir laisse le total, le libellé s'efface. */
+@media (max-width: 379px) {
+  .theme-l-etoile .cart-bar-label {
+    display: none;
+  }
+}
+
+/* ---------- Moins de mouvement ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .et-sky-canvas {
+    transition-duration: 0.01s;
+  }
+  .et-cta { animation: none; transform: none; }
+  .et-hole-disk,
+  .et-top { transition: none; }
+  .et [data-reveal],
+  .et-wordmark span[aria-hidden],
+  .et :is(.et-hero-line, .et-cta, .et-index, .et-hero-meta, .et-hero-mark) {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+    animation: none;
+  }
+  .et-head[data-in] .et-title { animation: none; }
+  .theme-l-etoile div:has(> .cart-bar),
+  .theme-l-etoile .cart-bar > * { animation: none; }
+}
+
+/* Couleurs forcées : le métal en dégradé disparaîtrait, le texte reprend sa couleur. */
+@media (forced-colors: active) {
+  .et :is(.et-title, .et-top-mark, .et-footer-name, .et-wordmark span[aria-hidden]) {
+    -webkit-text-fill-color: currentColor;
+    background: none;
+  }
+  .et-top ol [aria-current] {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+  .theme-l-etoile:has(.et-hole[data-ready]) .cart-bar-count {
+    visibility: hidden;
+  }
+}

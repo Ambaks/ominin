@@ -13,6 +13,7 @@ import { Field, inputClass } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import { DEFAULT_DAY_END_HOUR, ROLE_LABELS } from "@/lib/gestion/constants";
+import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { weekStart } from "@/lib/gestion/temps";
 import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
@@ -24,6 +25,7 @@ const ROLES = Object.keys(ROLE_LABELS) as Role[];
 
 function TeamManager({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
+  const roleLabel = roleLabels(useGestion());
   const [userId, setUserId] = useState<string | null>(null);
   const [members, setMembers] = useState<Tables<"memberships">[] | null>(null);
   const [invitations, setInvitations] = useState<Tables<"invitations">[]>([]);
@@ -116,7 +118,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
         .eq("etablissement_id", etablissementId);
       if (error) throw new Error(error.message);
       await load();
-      toast.success(`${member.email} est maintenant ${ROLE_LABELS[role]}.`);
+      toast.success(`${member.email} a maintenant le rôle ${roleLabel[role]}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
@@ -198,7 +200,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
           >
             {ROLES.map((role) => (
               <option key={role} value={role}>
-                {ROLE_LABELS[role]}
+                {roleLabel[role]}
               </option>
             ))}
           </select>
@@ -237,7 +239,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
               </div>
               {isSelf ? (
                 <span className="shrink-0 text-sm text-muted">
-                  {ROLE_LABELS[member.role]}
+                  {roleLabel[member.role]}
                 </span>
               ) : (
                 <div className="flex shrink-0 items-center gap-2">
@@ -251,7 +253,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
                   >
                     {ROLES.map((role) => (
                       <option key={role} value={role}>
-                        {ROLE_LABELS[role]}
+                        {roleLabel[role]}
                       </option>
                     ))}
                   </select>
@@ -284,7 +286,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{invitation.email}</p>
                 <p className="text-xs text-faint">
-                  {ROLE_LABELS[invitation.role]}
+                  {roleLabel[invitation.role]}
                 </p>
               </div>
               <button
@@ -366,7 +368,11 @@ export default function EquipePage() {
         <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
           Équipe
         </h1>
-        <p className="mt-1 text-sm text-muted">{PANE_TAGLINES[active]}</p>
+        <p className="mt-1 text-sm text-muted">
+          {active === "membres" && isPickupShop(state)
+            ? "Votre équipe, et ce que chacun peut faire."
+            : PANE_TAGLINES[active]}
+        </p>
       </div>
 
       {role !== "gerant" ? (

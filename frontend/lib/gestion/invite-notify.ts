@@ -1,10 +1,5 @@
 import { sendEmail } from "@/lib/gmail";
-
-const ROLE_LABELS: Record<string, string> = {
-  gerant: "gérant",
-  cuisinier: "cuisinier",
-  serveur: "serveur",
-};
+import type { Role } from "./types";
 
 const escapeHtml = (value: string) =>
   value
@@ -62,20 +57,24 @@ function card(heading: string, body: string, cta: { label: string; url: string }
 </html>`;
 }
 
+/*
+ * Dans les deux envois, seul le gérant est nommé : serveur et cuisinier
+ * deviennent Comptoir et Préparation en boutique à emporter, ce que l'envoi
+ * ignore.
+ */
 export async function sendInviteEmail(
   email: string,
   restaurantName: string,
-  role: string,
+  role: Role,
   actionLink: string,
 ) {
-  const roleLabel = ROLE_LABELS[role] ?? role;
   const name = escapeHtml(restaurantName);
   await sendEmail(
     email,
     `${restaurantName} vous invite à rejoindre son équipe`,
     card(
       "Rejoignez l&rsquo;&eacute;quipe.",
-      `<strong>${name}</strong> vous invite en tant que <strong>${roleLabel}</strong>. Cr&eacute;ez votre acc&egrave;s pour commencer.`,
+      `<strong>${name}</strong> vous invite ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; rejoindre son &eacute;quipe"}. Cr&eacute;ez votre acc&egrave;s pour commencer.`,
       { label: "Créer mon accès", url: actionLink },
       "Vous n&rsquo;&ecirc;tes pas concern&eacute;&nbsp;? Ignorez simplement cet email.",
     ),
@@ -85,17 +84,16 @@ export async function sendInviteEmail(
 export async function sendTeamNotification(
   email: string,
   restaurantName: string,
-  role: string,
+  role: Role,
   dashboardUrl: string,
 ) {
-  const roleLabel = ROLE_LABELS[role] ?? role;
   const name = escapeHtml(restaurantName);
   await sendEmail(
     email,
     `${restaurantName} vous a ajouté à son équipe`,
     card(
       "Bienvenue dans l&rsquo;&eacute;quipe.",
-      `<strong>${name}</strong> vous a ajout&eacute; en tant que <strong>${roleLabel}</strong>. Connectez-vous pour acc&eacute;der &agrave; l&rsquo;espace de gestion.`,
+      `<strong>${name}</strong> vous a ajout&eacute; ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; son &eacute;quipe"}. Connectez-vous pour acc&eacute;der &agrave; l&rsquo;espace de gestion.`,
       { label: "Accéder à l’espace", url: dashboardUrl },
       "Vous recevez cet email car un g&eacute;rant vous a ajout&eacute; &agrave; son &eacute;quipe sur Ominin.",
     ),

@@ -13,7 +13,7 @@ import { earlierNumberingDay } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatWait, minutesSince } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Une commande fast food dans l'onglet À servir : son numéro, en grand — c'est

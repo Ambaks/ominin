@@ -16,7 +16,7 @@ import {
   type SupportId,
 } from "@/lib/composer";
 import { composerPage, starterKit } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { quotePlan } from "@/lib/quote";
 import styles from "./composer.module.css";
 import {

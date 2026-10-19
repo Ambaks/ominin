@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { DayPicker } from "@/components/gestion/day-picker";
+import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -8,19 +10,19 @@ import { PriceInput } from "@/components/ui/price-input";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { WEEK_DAYS } from "@/lib/gestion/constants";
 import {
   formatDays,
   parsePriceInput,
   priceToInput,
 } from "@/lib/gestion/format";
 import type {
+  MenuTarget,
   PriceRule,
   PriceRuleDirection,
-  PriceRuleTarget,
   PriceRuleUnit,
 } from "@/lib/gestion/types";
-import { formatPrice, type MenuCategory } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
+import { type MenuCategory } from "@/lib/menu-data";
 
 /*
  * Tarifs planifiés : le prix de certains articles change les jours dits. Le
@@ -57,15 +59,6 @@ function formatWindow(rule: PriceRule): string {
 // ---------------------------------------------------------------------------
 // Formulaire
 
-const targetKey = (target: PriceRuleTarget) => `${target.kind}:${target.id}`;
-
-function parseTargetKey(key: string): PriceRuleTarget {
-  const [kind, id] = key.split(":", 2);
-  return kind === "category"
-    ? { kind: "category", id }
-    : { kind: "item", id };
-}
-
 export function RuleForm({
   rule,
   categories,
@@ -75,7 +68,7 @@ export function RuleForm({
   rule: PriceRule | null;
   categories: MenuCategory[];
   /** Nouveau tarif ouvert depuis un article : celui-ci est déjà coché. */
-  initialTargets?: PriceRuleTarget[];
+  initialTargets?: MenuTarget[];
   onClose: () => void;
 }) {
   const toast = useToast();
@@ -91,38 +84,21 @@ export function RuleForm({
   const [allDay, setAllDay] = useState(!rule?.startsAt);
   const [startsAt, setStartsAt] = useState(rule?.startsAt?.slice(0, 5) ?? "");
   const [endsAt, setEndsAt] = useState(rule?.endsAt?.slice(0, 5) ?? "");
-  const [targetKeys, setTargetKeys] = useState<string[]>(
-    (rule?.targets ?? initialTargets).map(targetKey)
+  const [targets, setTargets] = useState<MenuTarget[]>(
+    rule?.targets ?? initialTargets
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const value = parsePriceInput(valueRaw);
-  const pickedCategories = new Set(
-    targetKeys.filter((key) => key.startsWith("category:"))
-  );
   const valid =
     name.trim().length > 0 &&
     value !== null &&
     value > 0 &&
     !(unit === "pourcentage" && direction === "remise" && value > 100) &&
     days.length > 0 &&
-    targetKeys.length > 0 &&
+    targets.length > 0 &&
     (allDay || (startsAt !== "" && endsAt !== "" && startsAt !== endsAt));
-
-  const toggleDay = (iso: number) =>
-    setDays((current) =>
-      current.includes(iso)
-        ? current.filter((day) => day !== iso)
-        : [...current, iso].sort((a, b) => a - b)
-    );
-
-  const toggleTarget = (key: string) =>
-    setTargetKeys((current) =>
-      current.includes(key)
-        ? current.filter((candidate) => candidate !== key)
-        : [...current, key]
-    );
 
   const submit = async () => {
     if (!valid || value === null) return;
@@ -136,7 +112,7 @@ export function RuleForm({
         days,
         startsAt: allDay ? null : startsAt,
         endsAt: allDay ? null : endsAt,
-        targets: targetKeys.map(parseTargetKey),
+        targets,
       };
       if (rule) await api.updatePriceRule(rule.id, input);
       else await api.createPriceRule(input);
@@ -302,32 +278,7 @@ export function RuleForm({
             )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-            Jours <span className="text-ember-2">*</span>
-          </span>
-          <div className="flex gap-1.5">
-            {WEEK_DAYS.map((day) => {
-              const picked = days.includes(day.iso);
-              return (
-                <button
-                  key={day.iso}
-                  type="button"
-                  onClick={() => toggleDay(day.iso)}
-                  aria-pressed={picked}
-                  aria-label={day.long}
-                  className={`flex size-9 items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
-                    picked
-                      ? "ember-gradient text-background"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                  }`}
-                >
-                  {day.short}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <DayPicker value={days} onChange={setDays} />
 
         <div className="flex flex-col gap-2.5">
           <label className="flex items-center gap-3">
@@ -365,57 +316,12 @@ export function RuleForm({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-            Articles concernés <span className="text-ember-2">*</span>
-          </span>
-          <p className="text-xs text-faint">
-            Cochez une catégorie entière et les articles que vous y ajouterez
-            plus tard suivront d&apos;eux-mêmes.
-          </p>
-          <div className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4">
-            {categories.map((category) => {
-              const wholeCategory = pickedCategories.has(
-                `category:${category.id}`
-              );
-              return (
-                <div key={category.id} className="flex flex-col gap-1.5">
-                  <label className="flex items-center gap-2.5 text-sm font-medium">
-                    <input
-                      type="checkbox"
-                      checked={wholeCategory}
-                      onChange={() => toggleTarget(`category:${category.id}`)}
-                      className="size-4 accent-ember-2"
-                    />
-                    {category.name}
-                  </label>
-                  <div className="flex flex-col gap-1 pl-7">
-                    {category.items.map((item) => (
-                      <label
-                        key={item.id}
-                        className={`flex items-center gap-2.5 text-sm ${
-                          wholeCategory ? "text-faint" : "text-muted"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={
-                            wholeCategory ||
-                            targetKeys.includes(`item:${item.id}`)
-                          }
-                          disabled={wholeCategory}
-                          onChange={() => toggleTarget(`item:${item.id}`)}
-                          className="size-4 accent-ember-2"
-                        />
-                        {item.name}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <MenuTargetPicker
+          categories={categories}
+          value={targets}
+          onChange={setTargets}
+          label="Articles concernés"
+        />
       </div>
     </Modal>
   );
@@ -466,23 +372,27 @@ export function TarifsInline({
   inherited = [],
   categories,
   canEdit,
+  offerNew = true,
   effective,
 }: {
   /** Ce que vise le bouton « + » : cet article, ou cette catégorie. */
-  target: PriceRuleTarget;
+  target: MenuTarget;
   /** Règles qui visent exactement cette cible : modifiables ici. */
   owned: PriceRule[];
   /** Règles héritées de la catégorie : rappelées, réglées ailleurs. */
   inherited?: PriceRule[];
   categories: MenuCategory[];
   canEdit: boolean;
+  /** Le bouton « + Tarif planifié » : une boutique à emporter le trouve une
+   *  fois, sur la catégorie, plutôt que sur chaque article. */
+  offerNew?: boolean;
   /** Prix en vigueur à l'instant, relu en base (articles seulement). */
   effective?: { price: number; ruleName: string } | null;
 }) {
   const [editing, setEditing] = useState<PriceRule | null>(null);
   const [creating, setCreating] = useState(false);
 
-  if (!canEdit && owned.length === 0 && inherited.length === 0 && !effective) {
+  if (!(canEdit && offerNew) && owned.length === 0 && inherited.length === 0 && !effective) {
     return null;
   }
 
@@ -524,7 +434,7 @@ export function TarifsInline({
           {rule.name} {formatAdjustment(rule)} · catégorie
         </span>
       ))}
-      {canEdit && (
+      {canEdit && offerNew && (
         <button
           type="button"
           onClick={() => setCreating(true)}

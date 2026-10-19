@@ -5,6 +5,9 @@
  * dupliquer ici tout changement là-bas.
  */
 
+// Libellés des boutons d'une notification du suivi (PushAction).
+const ACTION_LABELS = { done: "Fait", take: "Je prends", unblock: "Débloquer" };
+
 self.addEventListener("install", () => {
   // Une nouvelle version du worker prend la main sans attendre la fermeture
   // des onglets : le push est le seul rôle du worker, rien à préserver.
@@ -34,10 +37,15 @@ self.addEventListener("push", (event) => {
       // Une nouvelle commande ou un appel client reste affiché jusqu'à un
       // geste : c'est un ordre de travail, pas une information.
       requireInteraction:
+        payload.urgent === true ||
         payload.event === "nouvelle_commande" ||
         payload.event === "appel_serveur",
+      actions: (payload.actions || []).map((action) => ({
+        action,
+        title: ACTION_LABELS[action],
+      })),
       vibrate: [200, 100, 200],
-      data: { url: payload.url },
+      data: { url: payload.url, step: payload.step },
       timestamp: Date.now(),
     })
   );
@@ -45,13 +53,30 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/gestion/commandes";
+  const data = event.notification.data || {};
+  if (event.action) {
+    // Un bouton : le geste est fait sans ouvrir l'admin (session de l'appareil).
+    event.waitUntil(
+      fetch("/api/admin/push/action", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stepId: data.step, action: event.action }),
+      }).catch(() => {})
+    );
+    return;
+  }
+  const url = data.url || "/gestion/commandes";
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((windows) => {
-        const open = windows.find((client) => client.url.includes("/gestion"));
-        if (open) {
+        // Une fenêtre déjà ouverte de ce site (gestion ou admin, chacun son host).
+        const open = windows.find(
+          (client) => new URL(client.url).origin === self.location.origin
+        );
+        // Un lien vers un autre site (le run GitHub d'un cron) s'ouvre à part.
+        if (open && new URL(url, self.location.origin).origin === self.location.origin) {
           open.navigate(url).catch(() => {});
           return open.focus();
         }

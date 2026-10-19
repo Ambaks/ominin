@@ -23,6 +23,9 @@ export function Modal({
 
   useEffect(() => {
     ref.current?.showModal();
+    // showModal remet le focus sur le premier bouton (Fermer) : le champ que
+    // le dialogue attend (data-autofocus) le reprend.
+    ref.current?.querySelector<HTMLElement>("[data-autofocus]")?.focus();
   }, []);
 
   return (

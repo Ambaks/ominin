@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrowserFrame } from "@/components/landing/browser-frame";
 import { IphoneFrame } from "@/components/landing/iphone-frame";
-import { COLLECT_DEMO } from "@/lib/collect/demo/data";
+import { COLLECT_DEMO, demoSettings } from "@/lib/collect/demo/data";
 import {
   CollectDemoProvider,
   nextActionSide,
@@ -31,6 +31,19 @@ const dashboardUrl = `${menuSiteUrl.replace(
 
 type Side = "client" | "restaurant";
 
+/*
+ * Vrai téléphone : la hauteur des deux écrans (--demo-pane-h, 35rem par
+ * défaut) se règle sur celle de la fenêtre, pour que la puce guide et le
+ * bouton de bascule restent visibles sur un laptop bas ou un téléphone ; le
+ * retrait est la hauteur de ce qui les entoure, le plancher garde l'écran
+ * lisible. Côte à côte, l'écran grandit jusqu'à un téléphone de vraies
+ * proportions plutôt que de laisser des bandes vides sur un grand écran.
+ * Un volet à la fois, le retrait laisse le pied de page sous le pli : la
+ * carte gagne sa hauteur, la puce et le bouton de bascule restent visibles.
+ */
+const DUAL_PANE_HEIGHT = "[--demo-pane-h:clamp(28rem,calc(100dvh_-_14.5rem),44rem)]";
+const SWITCH_PANE_HEIGHT = "[--demo-pane-h:clamp(26rem,calc(100dvh_-_17rem),35rem)]";
+
 /** Point braise traversant le lien téléphone ↔ dashboard (décoratif). */
 function RelayConnector() {
   const demo = useCollectDemo();
@@ -53,7 +66,10 @@ function RelayConnector() {
   );
 }
 
-/** Puce guide : nomme la prochaine action ; propose la bascule en mobile. */
+/** Puce guide : nomme la prochaine action ; propose la bascule en mobile.
+ * Vrai téléphone, commande retirée : « Rejouer la démo » quitte le téléphone
+ * pour la puce — dessous un volet à la fois, à côté en vue côte à côte
+ * (dessous, il passerait sous le bas d'un laptop de 720 px). */
 function DemoHint({
   side,
   onSwitch,
@@ -62,29 +78,65 @@ function DemoHint({
   onSwitch?: (side: Side) => void;
 }) {
   const demo = useCollectDemo();
-  const target = nextActionSide(demo.step);
-  const needsSwitch = side && onSwitch && target && target !== side;
+  // Payée mais pas encore à l'écran du restaurant : ni action, ni bascule.
+  const arriving =
+    (demo.step === "en_attente" || demo.step === "programmee") && !demo.orderVisible;
+  const target = arriving ? null : nextActionSide(demo.step);
+  const replay = demo.settings.realPhone && demo.step === "retiree";
+  const needsSwitch = !replay && side && onSwitch && target && target !== side;
+  // Vrai téléphone, un volet à la fois : la puce a la hauteur de deux lignes
+  // et le bouton de bascule sa place dessous, rien ne saute quand ils changent.
+  // Côte à côte, la rangée a d'emblée la hauteur de « Rejouer la démo ».
+  const fixed = side && demo.settings.realPhone;
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2">
+    <div
+      className={`flex items-center justify-center gap-2 ${
+        fixed
+          ? "min-h-26 flex-col justify-start"
+          : `flex-wrap ${demo.settings.realPhone ? "min-h-11" : ""}`
+      }`}
+    >
       <span
         aria-hidden
-        className="flex items-center gap-2 rounded-full border border-hairline bg-surface px-4 py-2 text-xs text-muted"
+        className={`flex items-center gap-2 rounded-full border border-hairline bg-surface px-4 py-2 text-xs text-muted ${
+          fixed ? "min-h-12.5" : ""
+        }`}
       >
         <span className="size-1.5 animate-pulse rounded-full bg-ember-2" />
-        {demo.step === "menu" && Object.values(demo.cart).some((quantity) => quantity > 0)
-          ? COLLECT_DEMO.hints.menuReady
-          : COLLECT_DEMO.hints[demo.step]}
+        {arriving
+          ? COLLECT_DEMO.hints.arriving
+          : demo.step === "menu" && demo.cart.length > 0
+            ? COLLECT_DEMO.hints.menuReady
+            : COLLECT_DEMO.hints[demo.step]}
       </span>
       {needsSwitch && (
         <button
           type="button"
           onClick={() => onSwitch(target)}
-          className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
+          className={`ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background ${
+            demo.settings.realPhone ? "min-h-11" : ""
+          }`}
         >
           Passer{" "}
           {target === "client" ? demoSection.customerLabel.toLowerCase() : demoSection.restaurantLabel.toLowerCase()}{" "}
           →
+        </button>
+      )}
+      {replay && (
+        <button
+          type="button"
+          data-demo-replay
+          onClick={() => {
+            demo.replay();
+            // Un volet à la fois : la démo reprend côté client.
+            if (side === "restaurant") onSwitch?.("client");
+          }}
+          className={`min-h-11 rounded-full border border-hairline bg-surface px-5 text-xs font-semibold text-foreground transition-colors hover:border-ember-2/40 ${
+            demo.hintActive ? "soft-pulse" : ""
+          }`}
+        >
+          Rejouer la démo
         </button>
       )}
     </div>
@@ -101,10 +153,25 @@ function LiveRegion() {
   );
 }
 
+/** Démo « vrai téléphone » : le thème de la carte sur le seul téléphone,
+ * l'écran du restaurant reste celui d'Ominin, comme le vrai. Les autres
+ * portent leur thème sur toute la page. */
+function usePhoneTheme(): string {
+  const demo = useCollectDemo();
+  return demo.settings.realPhone
+    ? `${demo.restaurant.themeClass ?? ""} text-foreground`
+    : "";
+}
+
 function DualStage() {
+  const phoneTheme = usePhoneTheme();
   return (
     <div className="grid items-center gap-6 lg:grid-cols-[24rem_5rem_minmax(0,1fr)] lg:gap-0">
-      <section aria-label="Démo — le téléphone de votre client">
+      <section
+        aria-label="Démo — le téléphone de votre client"
+        data-demo-phone
+        className={phoneTheme}
+      >
         <IphoneFrame>
           <CustomerPane />
         </IphoneFrame>
@@ -121,9 +188,31 @@ function DualStage() {
 
 function SwitchStage() {
   const [side, setSide] = useState<Side>("client");
+  const phoneTheme = usePhoneTheme();
+  const { realPhone } = useCollectDemo().settings;
+  // « Passer côté … » disparaît une fois la bascule faite : le focus va à la
+  // prochaine action du volet ouvert, sinon à son titre.
+  const panes = useRef<Record<Side, HTMLDivElement | null>>({ client: null, restaurant: null });
+  const passed = useRef(false);
+  const pass = (target: Side) => {
+    passed.current = true;
+    setSide(target);
+  };
+  useEffect(() => {
+    if (!passed.current) return;
+    passed.current = false;
+    const pane = panes.current[side];
+    (
+      pane?.querySelector<HTMLElement>("[data-action]") ??
+      pane?.querySelector<HTMLElement>('[tabindex="-1"], button')
+    )?.focus({ preventScroll: true });
+  }, [side]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div
+      data-demo-stage
+      className={`flex flex-col gap-5 ${realPhone ? SWITCH_PANE_HEIGHT : ""}`}
+    >
       <div
         role="group"
         aria-label="Choix du volet de la démo"
@@ -141,6 +230,8 @@ function SwitchStage() {
             aria-pressed={side === value}
             onClick={() => setSide(value)}
             className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
+              realPhone ? "min-h-11" : ""
+            } ${
               side === value
                 ? "ember-gradient text-background"
                 : "text-muted hover:text-foreground"
@@ -151,23 +242,43 @@ function SwitchStage() {
         ))}
       </div>
 
-      <div className={side === "client" ? "" : "hidden"}>
+      <div
+        ref={(node) => {
+          panes.current.client = node;
+        }}
+        className={side === "client" ? "" : "hidden"}
+      >
         <section
           aria-label="Démo — le téléphone de votre client"
-          className="mx-auto w-full max-w-md overflow-hidden rounded-3xl border border-hairline bg-background shadow-2xl shadow-black/30"
+          data-demo-phone
+          className={`${phoneTheme} mx-auto w-full max-w-md overflow-hidden rounded-3xl border border-hairline bg-background shadow-2xl shadow-black/30`}
         >
           <CustomerPane framed={false} />
         </section>
       </div>
-      <div className={side === "restaurant" ? "" : "hidden"}>
-        <section aria-label="Démo — votre espace de gestion">
+      <div
+        ref={(node) => {
+          panes.current.restaurant = node;
+        }}
+        className={side === "restaurant" ? "" : "hidden"}
+      >
+        <section
+          aria-label="Démo — votre espace de gestion"
+          // Vrai téléphone : l'écran du restaurant cède la barre du navigateur
+          // (h-10), les deux volets ont la même taille.
+          className={
+            realPhone
+              ? "mx-auto w-full max-w-md [--demo-restaurant-h:calc(var(--demo-pane-h)_-_2.5rem)]"
+              : ""
+          }
+        >
           <BrowserFrame url={dashboardUrl}>
             <RestaurantPane />
           </BrowserFrame>
         </section>
       </div>
 
-      <DemoHint side={side} onSwitch={setSide} />
+      <DemoHint side={side} onSwitch={pass} />
       <LiveRegion />
     </div>
   );
@@ -177,20 +288,38 @@ export function CollectDemoStage({
   variant,
   slug,
 }: {
-  variant: "dual" | "switch";
+  /** « responsive » : un volet à la fois sous lg, côte à côte au-delà — un
+   * seul état pour les deux, la démo survit au passage de lg (fenêtre
+   * redimensionnée, tablette tournée). */
+  variant: "dual" | "switch" | "responsive";
   /** Slug du restaurant joué (défaut : la Trattoria de la landing). */
   slug?: string;
 }) {
+  const dual = (
+    // Vrai téléphone : resserrée (le retrait de DUAL_PANE_HEIGHT), la puce
+    // guide reste visible sur un laptop bas.
+    <div
+      data-demo-stage
+      className={`flex flex-col ${demoSettings(slug).realPhone ? `gap-3 ${DUAL_PANE_HEIGHT}` : "gap-6"}`}
+    >
+      <DualStage />
+      <DemoHint />
+      <LiveRegion />
+    </div>
+  );
   return (
     <CollectDemoProvider slug={slug}>
       {variant === "dual" ? (
-        <div className="flex flex-col gap-6">
-          <DualStage />
-          <DemoHint />
-          <LiveRegion />
-        </div>
-      ) : (
+        dual
+      ) : variant === "switch" ? (
         <SwitchStage />
+      ) : (
+        <>
+          <div className="lg:hidden">
+            <SwitchStage />
+          </div>
+          <div className="hidden lg:block">{dual}</div>
+        </>
       )}
     </CollectDemoProvider>
   );

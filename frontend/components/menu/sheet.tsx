@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -17,6 +24,53 @@ let pageScrollRestoration: ScrollRestoration | null = null;
  * ce retour dépilait, et elle se refermait aussitôt ouverte.
  */
 let pendingBack: Promise<void> | null = null;
+
+/**
+ * Les feuilles montées, celles qui descendent comprises. Une feuille
+ * empilée sur une autre qui part la verrait rendre en partant le défilement
+ * et la page, elle encore ouverte : une feuille qui s'ouvre d'elle-même (le
+ * salut du service, aperçu à table) attend qu'il n'y en ait plus.
+ */
+let mountedSheets = 0;
+const sheetListeners = new Set<() => void>();
+
+function countSheet(delta: 1 | -1) {
+  mountedSheets += delta;
+  for (const listener of sheetListeners) listener();
+}
+
+const subscribeSheets = (listener: () => void) => {
+  sheetListeners.add(listener);
+  return () => {
+    sheetListeners.delete(listener);
+  };
+};
+
+/** Vrai quand aucune feuille n'est montée, ni ne descend. */
+export function useNoSheet(): boolean {
+  return useSyncExternalStore(
+    subscribeSheets,
+    () => mountedSheets === 0,
+    () => true
+  );
+}
+
+/**
+ * Quitter la page en refermant la feuille (le panier vidé par une commande
+ * d'aperçu) : le « Retour » qu'elle lance en se démontant annulait la
+ * navigation partie avant lui. On part une fois la dernière feuille
+ * démontée — son retour est alors lancé — et ce retour revenu.
+ */
+export function leaveAfterSheet(url: string) {
+  const leave = async () => {
+    if (mountedSheets > 0) return;
+    sheetListeners.delete(leave);
+    if (pendingBack) await pendingBack;
+    window.location.assign(url);
+  };
+  sheetListeners.add(leave);
+  void leave();
+}
 
 /**
  * Une page rechargée alors qu'une feuille était ouverte garde l'entrée
@@ -78,8 +132,11 @@ export function Sheet({
   backdropCloses: boolean;
   labelledBy?: string;
   label?: string;
-  /** Reçoit la fermeture animée, à brancher sur Annuler, ×, la validation. */
-  children: (close: () => void) => ReactNode;
+  /**
+   * Reçoit la fermeture animée, à brancher sur Annuler, ×, la validation ;
+   * et closing, vrai dès qu'elle descend : ce qu'elle jouait s'arrête là.
+   */
+  children: (close: () => void, closing: boolean) => ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const sheetId = useId();
@@ -101,11 +158,15 @@ export function Sheet({
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
+    countSheet(1);
     settled.current = getComputedStyle(panel).animationName === "none";
     const opener = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
     panel.focus();
     document.body.style.overflow = "hidden";
+    // Un saut de catégorie encore en cours (défilement doux) continuait
+    // derrière la feuille : le plat touché n'était plus là à la fermeture.
+    window.scrollTo({ top: window.scrollY, behavior: "instant" });
 
     // aria-modal ne suffit qu'à VoiceOver : pour TalkBack, NVDA et JAWS, la
     // page derrière reste parcourable. On la rend inerte le temps de la feuille.
@@ -152,7 +213,13 @@ export function Sheet({
       }
       if (event.key !== "Tab") return;
       const stops = tabbables();
-      if (stops.length === 0) return;
+      // Rien à atteindre (un paiement en cours) : le focus reste dans la
+      // feuille. Jamais repris du dehors : la vérification 3DS de Stripe
+      // s'ouvre dans un cadre ajouté au body, que le clavier doit atteindre.
+      if (stops.length === 0) {
+        if (panel.contains(document.activeElement)) event.preventDefault();
+        return;
+      }
       const first = stops[0];
       const last = stops[stops.length - 1];
       // Le focus peut être sur la feuille elle-même (à l'ouverture), ou
@@ -232,6 +299,9 @@ export function Sheet({
       } else if (pushed) {
         history.scrollRestoration = restoration;
       }
+      // Décomptée une fois son retour lancé : qui attend qu'il n'y ait plus de
+      // feuille (leaveAfterSheet) trouve pendingBack déjà posé.
+      countSheet(-1);
       document.removeEventListener("keydown", onKeyDown);
       for (const el of behind) el.inert = false;
       document.body.style.overflow = bodyOverflow;
@@ -327,7 +397,7 @@ export function Sheet({
           else settled.current = true;
         }}
       >
-        {children(close)}
+        {children(close, closing)}
       </div>
     </div>,
     // Pas une copie encore masquée de la page (rendu en flux), que React

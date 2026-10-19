@@ -1,4 +1,5 @@
 import type {
+  AccordSource,
   Action,
   Feature,
   Offre,
@@ -14,13 +15,21 @@ export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
+/** L'accord du chef : accords proposés à la fois dans le panier du menu QR. */
+export const CART_PAIRINGS_COUNT = 2;
+/** Lignes du panier montrées d'emblée : au-delà, la liste se replie sous l'accord du chef et la fidélité. */
+export const CART_LINES_SHOWN = 3;
+/** Articles d'un palier de fidélité montrés d'emblée dans le panier : au-delà, « Voir les N autres ». */
+export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;
-/** Nombre de commandes par page dans l'historique (chargement à la demande). */
-export const HISTORY_PAGE_SIZE = 50;
+/** Onglet Paiements : encaissements affichés d'emblée, puis ajoutés à chaque « Voir plus ». */
+export const PAYMENTS_PAGE_SIZE = 20;
+/** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
+export const ORDER_HISTORY_PAGE_SIZE = 10;
 
 /** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
 export const TERMINAUX_REFRESH_MS = 5000;
@@ -66,8 +75,8 @@ export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "reti
 
 /**
  * Statuts relus par la page Paiements : payée sur place (servie ou non),
- * prête (une commande fast food réglée qui attend son client), ou retirée
- * (collect, payée en ligne). isPaid écarte ensuite les collect prêtes.
+ * prête (une commande fast food réglée, ou à emporter payée en ligne, qui
+ * attend son client), ou retirée. isPaid trie ensuite ce qui est réglé.
  */
 export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
@@ -84,12 +93,14 @@ export const OPEN_ORDER_STATUSES: OrderStatus[] = [
 
 /** Horloge de service des vues employés : cadence d'affichage (seconde). */
 export const SERVICE_CLOCK_TICK_MS = 1000;
-/** Temps d'attente affichés (en minutes) : cadence de recalcul. */
+/** Cadence de recalcul des écrans qui suivent l'heure (attentes, créneaux, ouvert/fermé, fermetures). */
 export const WAIT_TICK_MS = 30_000;
 /** Comptoir fast food : minutes de préparation au-delà desquelles une commande se signale… */
 export const COUNTER_WAIT_WARN_MINUTES = 8;
 /** … puis passe en retard. */
 export const COUNTER_WAIT_LATE_MINUTES = 15;
+/** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
+export const SERVICE_LATE_MINUTES = 20;
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
@@ -120,7 +131,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
  */
 export const ORDER_STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   en_attente: ["payee", "en_preparation", "annulee"],
-  en_preparation: ["prete", "annulee"],
+  // Une commande à emporter se remet dès qu'elle est sur l'étagère.
+  en_preparation: ["prete", "retiree", "annulee"],
   prete: ["retiree", "servie", "payee", "annulee"],
   payee: ["servie", "prete"],
   servie: [],
@@ -151,6 +163,21 @@ export const ORDER_ACTION_LABELS: Record<
   retiree: "Marquer retirée",
 };
 
+/** Boutique à emporter seule : Commandes reprend les verbes de Retraits. */
+export const PICKUP_ACTION_LABELS: Partial<Record<OrderStatus, string>> = {
+  en_preparation: "Prendre en charge",
+  prete: "Prête",
+  retiree: "Remettre",
+};
+
+/** Les mots de la boutique pour chaque étape d'un retrait, dans Retraits comme dans Commandes. */
+export const PICKUP_STATUS_LABELS: Partial<Record<OrderStatus, string>> = {
+  en_attente: "Nouvelle",
+  en_preparation: "À préparer",
+  prete: "Prête",
+  retiree: "Remise",
+};
+
 export const ROLE_LABELS: Record<Role, string> = {
   gerant: "Gérant",
   cuisinier: "Cuisinier",
@@ -161,6 +188,19 @@ export const ROLE_TAGLINES: Record<Role, string> = {
   gerant: "Accès complet : menu, équipe, abonnements et service.",
   cuisinier: "La cuisine : disponibilité des articles, commandes en cuisine — les tickets sortent sur l'imprimante.",
   serveur: "La salle : encaissement et service des tables.",
+};
+
+/** Boutique à emporter seule : ni salle ni cuisine, un comptoir et une préparation. */
+export const PICKUP_ROLE_LABELS: Record<Role, string> = {
+  gerant: "Gérant",
+  cuisinier: "Préparation",
+  serveur: "Comptoir",
+};
+
+export const PICKUP_ROLE_TAGLINES: Record<Role, string> = {
+  gerant: ROLE_TAGLINES.gerant,
+  cuisinier: "La préparation : disponibilité des articles et quantités à produire, jour par jour.",
+  serveur: "Le comptoir : commandes, encaissement et retraits.",
 };
 
 export const OFFRE_LABELS: Record<Offre, string> = {
@@ -176,6 +216,13 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   mixte: "Espèces + carte",
 };
 
+/** Origines d'une vente de l'accord du chef, dans l'ordre de la page Analytique. */
+export const ACCORD_SOURCE_LABELS: Record<AccordSource, string> = {
+  panier: "Suggérés dans le panier",
+  fiche: "Cochés sur une fiche plat",
+  formule: "Formules proposées",
+};
+
 /**
  * Taux de TVA de la restauration française : 5,5 % (emporter différé /
  * scellé), 10 % (sur place et emporter immédiat), 20 % (alcools).
@@ -183,6 +230,34 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
 export const VAT_RATES = [5.5, 10, 20] as const;
 /** Taux par défaut d'un article (miroir du défaut SQL de items.vat_rate). */
 export const DEFAULT_VAT_RATE = 10;
+
+/** Durée d'un créneau de retrait (miroir du défaut SQL de etablissements.collect_slot_minutes). */
+export const DEFAULT_COLLECT_SLOT_MINUTES = 15;
+
+/**
+ * Bornes des saisies d'Ominin Club, miroirs des contraintes SQL de
+ * club_events, club_zones, club_bookings et des conditions d'entrée
+ * d'etablissements (20261020000001) : le formulaire
+ * refuse ce que la base refuserait.
+ */
+export const CLUB_LIMITS = {
+  title: 80,
+  tag: 30,
+  description: 2000,
+  inclus: 120,
+  guestMaxParty: 20,
+  name: 80,
+  phoneMin: 6,
+  phoneMax: 30,
+  note: 300,
+  minAgeFrom: 16,
+  minAgeTo: 25,
+  dressCode: 80,
+  refused: 120,
+} as const;
+
+/** Jours proposés d'un geste dans Retraits, aujourd'hui compris ; au-delà, le champ date. */
+export const RETRAITS_DAYS_SHOWN = 14;
 
 /**
  * L'arborescence qu'Ominin coche pour chaque restaurant : une vue de l'espace
@@ -252,6 +327,12 @@ export const VIEWS: ViewSpec[] = [
     ],
   },
   {
+    id: "retraits",
+    label: "Retraits",
+    hint: "Le click & collect jour par jour : les retraits, les commandes prises au comptoir ou au téléphone, et ce qu'il reste à préparer.",
+    features: [],
+  },
+  {
     id: "tables",
     label: "Tables",
     hint: "Les tables en service et leur addition.",
@@ -314,6 +395,12 @@ export const VIEWS: ViewSpec[] = [
     id: "fidelite",
     label: "Fidélité",
     hint: "Les points gagnés à chaque commande du menu QR et les paliers qu'ils offrent. Hors offre : Ominin l'ouvre à la demande, le gérant l'allume ensuite.",
+    features: [],
+  },
+  {
+    id: "soirees",
+    label: "Soirées",
+    hint: "Ominin Club : les soirées du club, les tables à vendre et leurs prix, le plan du soir en direct à la porte et la liste d'invités. Hors offre : Ominin l'ouvre pour un club.",
     features: [],
   },
   {
@@ -395,6 +482,7 @@ export const TABLE_FEATURES: Feature[] = [
 export const COLLECT_FEATURES: Feature[] = [
   "apercu",
   "commandes",
+  "retraits",
   "paiements",
   "options",
   "terminaux",
@@ -414,6 +502,8 @@ export const ACTION_LABELS: Record<Action, string> = {
   "formules.edit": "Modifier les formules",
   "categories.edit": "Modifier les catégories",
   "etablissement.edit": "Modifier l'établissement",
+  "fermetures.basculer": "Fermer ou rouvrir la cuisine",
+  "soirees.edit": "Préparer les soirées, saisir et rembourser les tables",
 };
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
@@ -424,11 +514,13 @@ export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
       "commandes",
     ])
   ) as Record<Extract<Action, `orders.${string}`>, Feature>),
+  "fermetures.basculer": "commandes",
+  "soirees.edit": "soirees",
 };
 
 export const ROLE_ACTIONS: Record<Role, Action[] | "all"> = {
   gerant: "all",
-  cuisinier: ["menu.availability"],
+  cuisinier: ["menu.availability", "fermetures.basculer"],
   serveur: [
     "orders.setStatus:payee",
     "orders.setStatus:servie",

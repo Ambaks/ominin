@@ -1,16 +1,19 @@
 ---
 name: new-restaurant
-description: Onboard a new restaurant client end to end and build their customer-facing QR menu in two versions — one in the restaurant's own identity, one in the Ominin house style — from whatever the user hands over (flyer, menu photos, PDF, notes, links), completed by web research on the business, then loop with fresh, independent scoring agents until both pages score 9/10 and the code passes an engineering review. Use this whenever the user says they signed, met or visited a restaurant, wants to add a client or prospect, sends a flyer or menu to turn into a page, asks for a demo or a menu page for a restaurant, or wants to update an existing client's carte, photos or theme — even if they never say "onboard". Trigger: /new-restaurant
+description: Onboard a new restaurant client end to end and build their customer-facing QR menu in the restaurant's own identity from whatever the user hands over (flyer, menu photos, PDF, notes, links), completed by web research on the business, then loop with fresh, independent scoring agents until the page scores 9/10 and the code passes an engineering review. Use this whenever the user says they signed, met or visited a restaurant, wants to add a client or prospect, sends a flyer or menu to turn into a page, asks for a demo or a menu page for a restaurant, or wants to update an existing client's carte, photos or theme — even if they never say "onboard". Trigger: /new-restaurant
 ---
 
 # /new-restaurant
 
 Turn what a restaurant hands over — a flyer, menu photos, a PDF, a few
-notes — into its Ominin QR menu, in two versions: one wearing the
-restaurant's own identity, one in the Ominin house style. Research the
-business on the web, build, verify mechanically, then keep handing the page
-to fresh scoring agents until both versions score 9/10, and the code to an
-engineering reviewer until it scores 9/10 too.
+notes — into its Ominin QR menu, wearing the restaurant's own identity.
+Research the business on the web, build, verify mechanically, then keep
+handing the page to fresh scoring agents until it scores 9/10, and the code
+to an engineering reviewer until it scores 9/10 too.
+
+Only the restaurant's own version is built: never design, check, score or
+hand off an Ominin-styled version (`?theme=ominin`) unless the user asks for
+one (user, October 2026).
 
 LZ.FOOD (Montpellier, September 2026) was built this way and is the
 reference implementation throughout: `const lzFood` in
@@ -23,7 +26,6 @@ LZ.FOOD does it.
 | Deliverable | Where |
 |---|---|
 | Restaurant-themed menu | `http://localhost:3000/menu/demo/<slug>` |
-| Ominin-themed menu (same carte) | `http://localhost:3000/menu/demo/<slug>?theme=ominin` |
 | Client record: sources, research, every inference, questions for the owner | `demos/<slug>/profile.json` + `demos/<slug>/docs/` |
 | Carte, options, photos | `const <camelSlug>: Restaurant` in `frontend/lib/menu-data.ts`, registered in `restaurants` and `themeClasses` |
 | Identity | `.theme-<slug>` in `frontend/app/globals.css`, brand fonts in `frontend/lib/menu/brand-fonts.ts` |
@@ -71,8 +73,10 @@ outward-facing and some are hard to undo (Phase 9 has the safe procedure).
 8. **Nobody ever presses the final "Envoyer la commande" / pay button** — not
    you, not a scorer, not a tester. The dev server talks to the production
    database: on a seeded restaurant a real order would reach its kitchen.
-   The preview route locks that button (`CartConfig.preview`), and
-   `check_order.cjs` verifies the lock; production checks stop at the cart.
+   On the preview route the last button only shows the confirmation
+   locally (`CartConfig.preview`, « Aperçu : voir la confirmation »);
+   `check_order.cjs` presses it there alone, blocking every order request,
+   and checks nothing left. Production checks stop at the cart.
 9. **Everything customer-facing is French.** Comments in this codebase are
    French too — match the surrounding code.
 
@@ -89,8 +93,8 @@ They exist because each was rewritten by hand, repeatedly, during LZ.FOOD.
 | `photo_sheet.py --from-menu <slug> <dir>` | verify every photo URL, flag duplicates, draw numbered sheets: `full-*` (branding, dish, diet) and `card-*` (the 16:9 crop shown) |
 | `pw.sh tour.cjs <url> <prefix> [w] [h] [n]` | scroll-through screenshots to *look at* |
 | `pw.sh check_page.cjs <url>` | theme + fonts actually applied, photos, overflow 320-1440, every category jump, reduced motion, console |
-| `pw.sh check_order.cjs <url>` | one options modal per section (dialog semantics, on-screen, CTA), a multi-group item completed by pointer taps (each must register), add to cart, cart bar — never submits |
-| `pw.sh check_contrast.cjs <url> [w] [h] [--light]` | contrast of every button, link and price measured on pixels (gradients, photos, veils) — run on both versions, `--light` for the Ominin light mode |
+| `pw.sh check_order.cjs <url>` | one options modal per section (dialog semantics, on-screen, CTA), a multi-group item completed by pointer taps (each must register), add to cart, cart bar; on a preview URL only, presses « Aperçu » with order requests blocked and checks the local confirmation |
+| `pw.sh check_contrast.cjs <url> [w] [h]` | contrast of every button, link and price measured on pixels (gradients, photos, veils) |
 | `dev_server.sh status \| css-has <text> [url] \| restart` | is the served CSS the CSS you wrote? |
 
 Work files (renders, sheets, screenshots) go in the session scratchpad,
@@ -201,9 +205,6 @@ because of the cuisine.
   make the brand colour carry structure, not garnish. Re-measure the built
   page with `sample_palette.py` on a full screenshot: LZ's flyer was 14 %
   red, the first build 0.6 %, and that gap was the loudest review complaint.
-- **Ominin version** — nothing to design: `?theme=ominin` drops the theme
-  class and the same carte renders in the house palette and fonts. It still
-  has to score 9, so its photos, data and hero must be good on their own.
 
 ## Phase 5 — Build
 
@@ -239,10 +240,8 @@ Before any scorer sees the page:
 
 ```bash
 $S/pw.sh check_page.cjs  "http://localhost:3000/menu/demo/<slug>"
-$S/pw.sh check_page.cjs  "http://localhost:3000/menu/demo/<slug>?theme=ominin"
 $S/pw.sh check_order.cjs "http://localhost:3000/menu/demo/<slug>"   # if options exist
 $S/pw.sh check_contrast.cjs "http://localhost:3000/menu/demo/<slug>"
-$S/pw.sh check_contrast.cjs "http://localhost:3000/menu/demo/<slug>?theme=ominin" 390 844 --light
 $S/pw.sh tour.cjs "http://localhost:3000/menu/demo/<slug>" <scratch>/m 390 844 8
 $S/pw.sh tour.cjs "http://localhost:3000/menu/demo/<slug>" <scratch>/d 1440 900 6
 ```
@@ -252,26 +251,25 @@ scripts can't tell you a heading is ugly. Also run `check_page.cjs` on every
 other slug in the registry: shared components changed for one client must
 not break another.
 
-## Phase 8 — Scoring loop (target: 9/10 on both versions and on the code)
+## Phase 8 — Scoring loop (target: 9/10 on the page and on the code)
 
 The loop is the point of this skill; its mechanics, prompts and rubric are in
 [references/scoring.md](references/scoring.md). In short:
 
-1. **Round 1 is a full audit; then change-only rounds until every version
+1. **Round 1 is a full audit; then change-only rounds until the page
    holds 9; then a full audit again.** Each round spawns fresh agents in
    parallel (`general-purpose`, one message) — one that has seen its
    earlier verdict anchors on it.
    - **Full audit:** **two independent holistic scorers** — the **lower**
-     score is the round's score for each version, so one lenient scorer
+     score is the round's score, so one lenient scorer
      can't pass the page; **an engineering reviewer** on the whole diff
      against `main` (no scorer reads the code, and shared components serve
      paying restaurants live); the ordering stress-tester and the accuracy
      auditor in round 1, and later when ordering code or carte text changed
      since the last full audit.
-   - **Change-only round:** **one reviewer** for the versions still below 9
-     or touched by a fix, working from the change list, plus the
-     engineering reviewer on the code changed since the last round. A
-     version at 9 drops out until a fix touches it.
+   - **Change-only round:** **one reviewer** for the page while it is below
+     9 or touched by a fix, working from the change list, plus the
+     engineering reviewer on the code changed since the last round.
 
    If a full audit finds issues, go back to change-only rounds, then audit
    again.
@@ -290,7 +288,7 @@ The loop is the point of this skill; its mechanics, prompts and rubric are in
 5. **Re-run Phase 7**, then start the next round.
 
 **Pass:** only in a full audit — **both** holistic scorers give **≥ 9 to
-the restaurant version and ≥ 9 to the Ominin version** (whole numbers), the
+the page** (whole numbers), the
 engineering reviewer gives **≥ 9**, and none of the ordering tester, the
 accuracy auditor or the engineering reviewer has a must-fix open. A 9 in a
 change-only round only means the next round is a full audit.
@@ -302,7 +300,7 @@ if it doesn't, stop.
 
 **Stop without passing** — and say so plainly — when either:
 - the budget is spent, or
-- two consecutive full audits raised neither version's score nor the
+- two consecutive full audits raised neither the page's score nor the
   engineering score while every remaining finding is client-blocked,
   verified wrong, or a declined taste call.
 
@@ -314,7 +312,7 @@ scorer up, never hide a known defect, never round up.
 
 Final message to the user:
 
-- both preview URLs, and the last round's scores per version and for the
+- the preview URL, and the last round's scores for the page and for the
   code
 - what was built (compact) and anything shared that changed for every
   restaurant
@@ -330,7 +328,8 @@ Final message to the user:
 - the next steps it does not take without a go-ahead: seeding production,
   committing, creating the owner account. Once the code is pushed, the
   preview is shareable with the owner at
-  `https://menu.ominin.com/demo/<slug>` — ordering is locked there.
+  `https://menu.ominin.com/demo/<slug>` — its last button only shows the
+  confirmation locally; nothing is sent.
 
 **When the user says go live**, follow the production checklist in
 [references/build.md](references/build.md#going-live): confirm which

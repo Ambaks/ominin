@@ -1,0 +1,680 @@
+/*
+  La présentation au Groupe CKL, sur la maison Ominin : fond presque noir et
+  chaud, Fraunces pour les titres et les chiffres, Instrument Sans pour le
+  texte, l'ambre et la braise d'Ominin pour la structure ; la couleur de
+  chaque établissement seulement là où il parle (filets, points, liserés).
+
+  Deux lectures. En continu, les diapositives se suivent, chacune mise à
+  l'échelle de la page (--deck-scale, components/pitch/slides.tsx) ; ses
+  éléments entrent quand elle arrive à l'écran (data-seen, posé par le script
+  du Deck). En présentation (data-mode="present", presenter.tsx), une seule
+  diapositive remplit l'écran.
+
+  Le mouvement n'existe qu'à l'écran et pour qui l'accepte : tout est rangé
+  sous @media screen and (prefers-reduced-motion: no-preference). Ailleurs —
+  impression, export PDF, mouvement réduit —, chaque élément est dans son
+  état final ; ce qui ne sert qu'à l'animation (impulsions, projecteurs) n'y
+  paraît pas. Les durées viennent de lib/pitch/groupe-ckl (motion), posées
+  en variables sur .ckl-deck.
+*/
+
+.ckl-deck {
+  --ckl-ground: #0c0a08;
+  --ckl-page: #070605;
+  --ckl-surface: #17130f;
+  --ckl-raised: #201b16;
+  --ckl-ink: #f6f0e7;
+  --ckl-muted: #cdc3b6;
+  --ckl-faint: #9d9386;
+  --ckl-line: rgba(246, 240, 231, 0.12);
+  --ckl-amber: #f0b35b;
+  --ckl-amber-light: #f7cd8d;
+  --ckl-ember: #e2764b;
+  --ckl-on-amber: #1b1208;
+  --ckl-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Les jetons que lisent les cadres d'appareils partagés (components/pitch/pitch.css). */
+  --pitch-ground: var(--ckl-ground);
+  --pitch-accent: var(--ckl-amber);
+  --pitch-accent-light: var(--ckl-amber-light);
+  --pitch-ink: var(--ckl-ink);
+  --pitch-muted: var(--ckl-muted);
+  --pitch-faint: var(--ckl-faint);
+  --pitch-line: var(--ckl-line);
+
+  min-height: 100dvh;
+  background: var(--ckl-page);
+  color: var(--ckl-ink);
+  font-family: var(--font-instrument-sans), sans-serif;
+  color-scheme: dark;
+}
+
+.ckl-deck ::selection {
+  background: var(--ckl-amber);
+  color: var(--ckl-on-amber);
+}
+
+.ckl-deck :focus-visible {
+  outline: 2px solid var(--ckl-amber);
+  outline-offset: 3px;
+}
+
+@layer base {
+  .ckl-deck :is(p, li) {
+    text-wrap: pretty;
+  }
+}
+
+/* ——— La page ———————————————————————————————————————————————— */
+
+.ckl-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px max(16px, calc((100% - 1680px) / 2 + 24px));
+  border-bottom: 1px solid var(--ckl-line);
+  background: color-mix(in srgb, var(--ckl-page) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ckl-bar-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ckl-bar-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ckl-bar-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.ckl-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 1px solid var(--ckl-line);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ckl-ink);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.ckl-button:hover {
+  border-color: color-mix(in srgb, var(--ckl-amber) 60%, transparent);
+}
+
+.ckl-button-primary {
+  border-color: transparent;
+  background: var(--ckl-amber);
+  color: var(--ckl-on-amber);
+}
+
+.ckl-button-primary:hover {
+  background: var(--ckl-amber-light);
+}
+
+/* Téléphone tenu droit : la diapositive entière tient, petite. */
+.ckl-hint {
+  display: none;
+  margin: 12px 16px 0;
+  font-size: 13px;
+  color: var(--ckl-faint);
+  text-align: center;
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+  .ckl-hint {
+    display: block;
+  }
+}
+
+.ckl-deck .deck {
+  max-width: 1680px;
+  margin-inline: auto;
+  gap: 32px;
+  padding: 24px;
+  background: none;
+}
+
+@media (max-width: 640px) {
+  .ckl-deck .deck {
+    gap: 16px;
+    padding: 12px;
+  }
+}
+
+.ckl-deck .deck-frame {
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 1px var(--ckl-line),
+    0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* ——— La diapositive ——————————————————————————————————————————— */
+
+.ckl-slide {
+  background:
+    radial-gradient(70% 60% at var(--glow-x, 80%) var(--glow-y, 0%), color-mix(in srgb, var(--ckl-ember) 9%, transparent), transparent 70%),
+    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.5)),
+    var(--ckl-ground);
+  font-family: var(--font-instrument-sans), sans-serif;
+  color: var(--ckl-ink);
+}
+
+.ckl-display {
+  font-family: var(--font-fraunces), serif;
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.025em;
+}
+
+/* Les chiffres en Instrument Sans : nets et réguliers, quand les chiffres de Fraunces dansent. */
+.ckl-figure {
+  font-family: var(--font-instrument-sans), sans-serif;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+}
+
+.ckl-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ckl-muted);
+}
+
+.ckl-eyebrow::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: var(--ckl-amber);
+}
+
+.ckl-accent {
+  color: var(--ckl-amber);
+}
+
+/* La marque d'un établissement : son emblème rond, cerclé de sa couleur. */
+.ckl-mark {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #000;
+  box-shadow: 0 0 0 3px var(--venue);
+}
+
+.ckl-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pas encore de carte : un cercle en pointillé et les initiales, sans logo inventé. */
+.ckl-mark-pending {
+  display: inline-grid;
+  place-items: center;
+  background: var(--ckl-surface);
+  box-shadow: none;
+  outline: 2px dashed color-mix(in srgb, var(--venue) 70%, transparent);
+  outline-offset: -2px;
+  font-family: var(--font-fraunces), serif;
+  color: var(--ckl-muted);
+}
+
+.ckl-card {
+  border-radius: 28px;
+  background: var(--ckl-surface);
+  box-shadow: inset 0 0 0 1px var(--ckl-line);
+}
+
+.ckl-qr {
+  display: block;
+  border-radius: 18px;
+  background: var(--ckl-ink);
+  color: #0c0a08;
+}
+
+/* Un écran capturé recadré, à la manière des cadres partagés. */
+.ckl-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+.ckl-screen > img {
+  display: block;
+  max-width: none;
+}
+
+/* Les repères posés sur la vue groupe : un liseré ambre et son numéro. */
+.ckl-zone {
+  position: absolute;
+  border: 2px solid var(--ckl-amber);
+  border-radius: 14px;
+}
+
+.ckl-pin {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ckl-amber);
+  color: var(--ckl-on-amber);
+  font-family: var(--font-instrument-sans), sans-serif;
+  font-weight: 700;
+  font-variant-numeric: lining-nums;
+}
+
+/* Le numéro à cheval sur le coin droit, hors du libellé de la zone ; sans sortir de l'écran pour une zone collée au bord. */
+.ckl-zone .ckl-pin {
+  position: absolute;
+  top: -16px;
+  right: -12px;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+}
+
+/* Le projecteur : tout s'assombrit autour de la zone. Animation seulement. */
+.ckl-spot {
+  display: none;
+  position: absolute;
+  border-radius: 14px;
+  box-shadow: 0 0 0 4000px rgba(5, 4, 3, 0.62);
+  pointer-events: none;
+}
+
+/* Les liaisons du schéma et leurs impulsions (impulsions : animation seulement). */
+.ckl-link {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ckl-amber) 30%, transparent), var(--ckl-amber));
+}
+
+/* Posée sur le début de sa liaison (left, top), centrée sur le trait. */
+.ckl-pulse {
+  display: none;
+  position: absolute;
+  margin: -5px 0 0 -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ckl-amber-light);
+  box-shadow: 0 0 14px 4px color-mix(in srgb, var(--ckl-amber) 55%, transparent);
+}
+
+/* Le prix barré du tarif planifié. */
+.ckl-struck {
+  position: relative;
+  color: var(--ckl-faint);
+}
+
+.ckl-struck::after {
+  content: "";
+  position: absolute;
+  inset: 52% -4% auto;
+  height: 3px;
+  background: currentColor;
+  transform-origin: left;
+}
+
+.ckl-race-bar {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left;
+}
+
+/* ——— Le mode présentation ———————————————————————————————————————— */
+
+/* À l'écran seulement : imprimée depuis la présentation, la page reste une suite de diapositives. */
+@media screen {
+  html:has(.ckl-deck[data-mode="present"]) {
+    overflow: hidden;
+  }
+
+  .ckl-deck[data-mode="present"] .ckl-bar,
+  .ckl-deck[data-mode="present"] .ckl-hint {
+    display: none;
+  }
+
+  .ckl-deck[data-mode="present"] .deck {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: #000;
+  }
+
+  .ckl-deck[data-mode="present"] .deck-frame {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    aspect-ratio: auto;
+    border-radius: 0;
+    box-shadow: none;
+    opacity: 0;
+    visibility: hidden;
+    translate: var(--ckl-shift, 0) 0;
+    scale: 0.985;
+    transition:
+      opacity var(--ckl-slide-out-ms) ease,
+      translate var(--ckl-slide-ms) var(--ckl-ease),
+      scale var(--ckl-slide-ms) var(--ckl-ease),
+      visibility 0s linear var(--ckl-slide-ms);
+  }
+
+  .ckl-deck[data-mode="present"] .deck-frame[data-pos="before"] {
+    --ckl-shift: calc(-1 * var(--ckl-shift-px));
+  }
+
+  .ckl-deck[data-mode="present"] .deck-frame[data-pos="after"] {
+    --ckl-shift: var(--ckl-shift-px);
+  }
+
+  .ckl-deck[data-mode="present"] .deck-frame[data-pos="current"] {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    scale: 1;
+    transition:
+      opacity var(--ckl-slide-ms) ease var(--ckl-slide-in-delay-ms),
+      translate var(--ckl-slide-ms) var(--ckl-ease),
+      scale var(--ckl-slide-ms) var(--ckl-ease),
+      visibility 0s;
+  }
+
+  .ckl-deck[data-mode="present"] .deck-slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    transform-origin: center;
+    scale: var(--ckl-present-scale, 1);
+  }
+
+  .ckl-progress {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ckl-amber), var(--ckl-ember));
+    transform-origin: left;
+    transition: scale var(--ckl-slide-ms) var(--ckl-ease);
+  }
+
+  .ckl-controls {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(12, 10, 8, 0.72);
+    box-shadow: inset 0 0 0 1px var(--ckl-line);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ckl-muted);
+    opacity: 0.55;
+    transition: opacity 200ms ease;
+  }
+
+  .ckl-controls:hover,
+  .ckl-controls:focus-within {
+    opacity: 1;
+  }
+
+  .ckl-controls button {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--ckl-ink);
+  }
+
+  .ckl-controls button:hover {
+    background: var(--ckl-raised);
+  }
+
+  .ckl-controls p {
+    padding: 0 6px;
+  }
+
+  /* Téléphone couché : les commandes se font discrètes sur une diapositive basse. */
+  @media (max-height: 500px) {
+    .ckl-controls {
+      right: 8px;
+      bottom: 8px;
+    }
+
+    .ckl-controls button {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+/* ——— Le mouvement ————————————————————————————————————————————— */
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .ckl-deck[data-mode="present"] {
+    --ckl-base: var(--ckl-present-delay-ms);
+  }
+
+  .ckl-deck[data-motion] .deck-frame:not([data-seen]) [data-anim] {
+    opacity: 0;
+  }
+
+  .ckl-deck[data-motion] .deck-frame[data-seen] [data-anim] {
+    animation: var(--ckl-anim) var(--ckl-enter-ms) var(--ckl-ease) both;
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--i, 0) * var(--ckl-stagger-ms));
+  }
+
+  [data-anim="rise"] {
+    --ckl-anim: ckl-rise;
+  }
+
+  [data-anim="fade"] {
+    --ckl-anim: ckl-fade;
+  }
+
+  [data-anim="wipe"] {
+    --ckl-anim: ckl-wipe;
+  }
+
+  [data-anim="pop"] {
+    --ckl-anim: ckl-pop;
+  }
+
+  [data-anim="converge"] {
+    --ckl-anim: ckl-converge;
+  }
+
+  /* Les repères de la vue groupe entrent au pas du projecteur, un par un. */
+  .ckl-deck[data-motion] .deck-frame[data-seen] [data-anim][data-step] {
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--ckl-enter-ms) + var(--i, 0) * var(--ckl-spot-ms));
+  }
+
+  .ckl-deck[data-motion] .ckl-spot {
+    display: block;
+    opacity: 0;
+  }
+
+  .ckl-deck[data-motion] .deck-frame[data-seen] .ckl-spot {
+    animation: ckl-spot var(--ckl-spot-ms) ease both;
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--ckl-enter-ms) + var(--i, 0) * var(--ckl-spot-ms));
+  }
+
+  /* Les barres de la course poussent à la même vitesse : chacune s'arrête à sa durée. */
+  .ckl-deck[data-motion] .deck-frame[data-seen] [data-anim="grow"] {
+    animation: ckl-grow calc(var(--seconds) * var(--ckl-race-ms)) linear both;
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--ckl-enter-ms));
+  }
+
+  .ckl-deck[data-motion] .deck-frame[data-seen] .ckl-struck::after {
+    animation: ckl-strike 420ms var(--ckl-ease) both;
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--ckl-enter-ms) + var(--i, 0) * var(--ckl-stagger-ms));
+  }
+
+  .ckl-deck[data-motion] .ckl-pulse {
+    display: block;
+    opacity: 0;
+  }
+
+  .ckl-deck[data-motion] .deck-frame[data-seen] .ckl-pulse {
+    animation: ckl-travel calc(var(--ckl-pulse-ms) + var(--ckl-pulse-pause-ms)) linear var(--ckl-pulse-cycles);
+    animation-delay: calc(var(--ckl-base, 0ms) + var(--ckl-enter-ms) * 2 + var(--i, 0) * var(--ckl-pulse-ms) / 3);
+  }
+
+  /* Hors de l'écran, ou derrière la diapositive présentée, les impulsions attendent. */
+  .ckl-deck[data-mode="scroll"] .deck-frame:not([data-inview]) .ckl-pulse,
+  .ckl-deck[data-mode="present"] .deck-frame:not([data-pos="current"]) .ckl-pulse {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ckl-deck .deck-frame,
+  .ckl-progress {
+    transition: none !important;
+  }
+}
+
+@keyframes ckl-rise {
+  from {
+    opacity: 0;
+    translate: 0 36px;
+  }
+}
+
+@keyframes ckl-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ckl-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes ckl-pop {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+@keyframes ckl-converge {
+  from {
+    opacity: 0;
+    translate: var(--from-x, 0) 0;
+    scale: 0.92;
+  }
+}
+
+@keyframes ckl-grow {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes ckl-strike {
+  from {
+    scale: 0 1;
+  }
+}
+
+@keyframes ckl-spot {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  22%,
+  78% {
+    opacity: 1;
+  }
+}
+
+/* Une impulsion : elle part, parcourt la liaison (--length), s'éteint, attend. */
+@keyframes ckl-travel {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  58% {
+    opacity: 1;
+  }
+  68%,
+  100% {
+    opacity: 0;
+    translate: var(--length) 0;
+  }
+}
+
+/* ——— L'impression ————————————————————————————————————————————— */
+
+@media print {
+  .ckl-deck {
+    min-height: 0;
+    background: none;
+  }
+
+  .ckl-bar,
+  .ckl-hint,
+  .ckl-controls,
+  .ckl-progress {
+    display: none;
+  }
+
+  /* La page fait la largeur d'une diapositive : ni marge, ni écart. */
+  .ckl-deck .deck {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  .ckl-deck .deck-frame {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

@@ -17,8 +17,23 @@ export function MenuSection({
   const tiles =
     category.items.length > 1 &&
     category.items.every(
-      (item) => item.image && !item.description && !item.pairing
+      (item) => item.image && !item.description && !item.tarifs && !item.pairing
     );
+
+  /* Les fiches sans photo qui resteraient seules sur leur rangée quand les
+     fiches à photo en prennent une entière (.theme-bai-ko) : la dernière
+     d'une suite de fiches sans photo en nombre impair. */
+  const lone = new Set<number>();
+  let run = 0;
+  category.items.forEach((item, i) => {
+    run = item.image ? 0 : run + 1;
+    const next = category.items[i + 1];
+    if (!item.image && (!next || next.image) && run % 2 === 1) lone.add(i);
+  });
+
+  // La première photo de la section, pas son premier article : sans photo,
+  // il laissait la vraie première image en différé.
+  const firstPhoto = first ? category.items.findIndex((item) => item.image) : -1;
 
   /* Pas de révélation au défilement : masquées jusqu'au chargement du
      JavaScript, les sections restaient blanches plusieurs secondes sur le
@@ -33,6 +48,12 @@ export function MenuSection({
       <div className="mb-4 sm:mb-6 lg:mb-8">
         <div className="category-head flex items-baseline gap-4">
           <h2 className="category-heading font-display text-3xl font-medium tracking-tight sm:text-4xl lg:text-5xl">
+            {category.kicker && (
+              // L'espace sépare les deux noms pour un lecteur d'écran (« 안주 Anju »), pas seulement à l'œil.
+              <span lang={category.kicker.lang} className="category-kicker mr-2 lg:mr-3">
+                {`${category.kicker.text} `}
+              </span>
+            )}
             {category.name}
           </h2>
           <span
@@ -50,7 +71,7 @@ export function MenuSection({
         className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
       >
         {category.items.map((item, i) => (
-          <DishCard key={item.id} item={item} priority={first && i === 0} />
+          <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
         ))}
       </div>
     </section>

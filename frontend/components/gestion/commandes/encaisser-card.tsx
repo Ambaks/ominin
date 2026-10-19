@@ -15,7 +15,7 @@ import type {
   OrderItem,
   PaymentLeg,
 } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
 import { PaymentPinDialog } from "./payment-pin-dialog";
@@ -112,7 +112,9 @@ export function EncaisserPanel({
   const requestPayment = (units: Unit[], total: number) => {
     if (!state?.etablissement.paymentPinSet) {
       toast.error(
-        "Configurez le code d'encaissement dans les réglages Admin."
+        state?.role === "gerant"
+          ? "Définissez d'abord le code d'encaissement, dans Établissement."
+          : "Le code d'encaissement n'est pas encore défini : demandez au gérant."
       );
       return;
     }

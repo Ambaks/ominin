@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { ScrollStory } from "@/components/landing-kit/scroll-story";
 import { demoShowcaseOrder } from "@/lib/collect/demo/data";
 import { heroRelay, howItWorks } from "@/lib/landing-data";
-import { formatPrice } from "@/lib/menu-data";
+import { formatPrice } from "@/lib/menu/format";
 
 /* Le parcours à table au défilement (landing-kit/scroll-story) : la table 12 de la démo. */
 

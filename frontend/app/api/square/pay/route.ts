@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { raiseAlert } from "@/lib/admin/alerts";
+import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   createOrder,
   createPayment,
@@ -123,7 +125,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
+      .select("name, online_payment, online_min_order, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -147,6 +149,14 @@ export async function POST(request: Request) {
   }
   if (!lines?.length) {
     return NextResponse.json({ error: "Commande vide." }, { status: 409 });
+  }
+  const belowMinimum = onlineMinimumError(
+    lines,
+    etab.online_min_order,
+    order.type === "collect"
+  );
+  if (belowMinimum) {
+    return NextResponse.json({ error: belowMinimum }, { status: 409 });
   }
 
   const merchant = await getMerchantToken(admin, order.etablissement_id);
@@ -270,6 +280,14 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[square] paiement impossible", { orderId, message });
+    // Des refus en série (3 en 30 min) disent une carte, un TPE ou un
+    // réglage 3-D Secure en panne chez le client : l'équipe est prévenue.
+    await raiseAlert("paiement", order.etablissement_id, {
+      title: `${etab.name} : paiements refusés en série`,
+      body: `Square refuse les paiements (carte, TPE ou 3-D Secure). Dernière erreur : ${message.slice(0, 160)}`,
+      url: "/clients",
+      urgent: true,
+    }).catch(() => false);
     // La commande reste valable et visible en salle : le client règle au
     // comptoir. Le webhook rattrape le cas — rare — d'un débit passé dont
     // l'enregistrement a échoué.

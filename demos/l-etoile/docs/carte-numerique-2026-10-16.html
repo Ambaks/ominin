@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Étoile Toulouse — La Carte</title>
+    <meta name="description" content="Découvrez la carte des boissons de L'Étoile Toulouse. Champagnes, spiritueux, cocktails et plus.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/ETOILE.PNG">
+</head>
+<body>
+
+    <!-- Ambient particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <img src="images/ETOILE.PNG" alt="L'Étoile Toulouse" class="logo-img">
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">La Carte</h1>
+            <div class="hero-line"></div>
+            <p class="hero-subtitle">ON FAIT LA FÊTE À L'ÉTOILE</p>
+        </div>
+    </section>
+
+    <!-- Category Navigation -->
+    <nav class="cat-nav" id="catNav">
+        <div class="cat-nav-inner">
+            <button class="cat-btn active" data-target="alcools">Alcools</button>
+            <button class="cat-btn" data-target="softs">Softs</button>
+            <button class="cat-btn" data-target="shooters">Shooters</button>
+            <button class="cat-btn" data-target="champagnes">Champagnes</button>
+        </div>
+    </nav>
+
+    <!-- Menu Content -->
+    <main class="menu-main">
+
+        <!-- ═══════ ALCOOLS ═══════ -->
+        <section class="menu-section" id="alcools">
+            <div class="section-header-block">
+                <h2 class="section-title">Alcools</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <!-- Rhums -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Rhums</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Zacapa</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">160€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tequilas -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Tequilas</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Class Azul Reposado</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">350€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Don Julio 1942</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">350€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Don Julio Reposado</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">160€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Don Julio Blanco</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Whiskys -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Whiskys</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Black Label</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Jack Daniel's</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Magnum Jack Daniel's</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">175cl</span>
+                            <span class="item-price">300€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Jack Daniel's Honey</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Jack Daniel's Rey</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Jack Daniel's Apple</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vodkas -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Vodkas</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Ciroc</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Magnum Ciroc</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">175cl</span>
+                            <span class="item-price">300€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Ciroc Aromatisée</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Belvedere</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">160€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Belvedere Lumineuse</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">170€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Belvedere Chrome</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">180€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gins -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Gins</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Tanqueray Ten</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">70cl</span>
+                            <span class="item-price">130€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cognacs -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Cognacs</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Hennessy Fine</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">160€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Hennessy Fine</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">150cl</span>
+                            <span class="item-price">350€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ SOFTS ═══════ -->
+        <section class="menu-section" id="softs">
+            <div class="section-header-block">
+                <h2 class="section-title">Softs</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <!-- Sodas -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Sodas</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Fuzetea</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">33cl</span>
+                            <span class="item-price">6€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Coca-Cola</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">33cl</span>
+                            <span class="item-price">6€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Coca-Cola Zéro</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">33cl</span>
+                            <span class="item-price">6€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Hexis Energy</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">25cl</span>
+                            <span class="item-price">6€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Hexis Energy Pack</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">x5</span>
+                            <span class="item-price">25€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Hexis Energy</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">100cl</span>
+                            <span class="item-price">15€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eau -->
+            <div class="category" data-animate>
+                <h3 class="category-title">Eau</h3>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Cristaline</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">50cl</span>
+                            <span class="item-price">4€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ SHOOTERS ═══════ -->
+        <section class="menu-section" id="shooters">
+            <div class="section-header-block">
+                <h2 class="section-title">Shooters</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="category" data-animate>
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Shooter</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">2cl</span>
+                            <span class="item-price">4€</span>
+                            <span class="item-pack">x10 — 30€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Shooter Supérieur</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">2cl</span>
+                            <span class="item-price">6€</span>
+                            <span class="item-pack">x10 — 50€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <span class="item-name">Shooter Supérieur Tequila</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">2cl</span>
+                            <span class="item-price">8€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ CHAMPAGNES ═══════ -->
+        <section class="menu-section" id="champagnes">
+            <div class="section-header-block">
+                <h2 class="section-title">Champagnes</h2>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="category" data-animate>
+                <div class="menu-items">
+                    <div class="menu-item champagne-item">
+                        <div class="item-info">
+                            <span class="item-name">Moët Brut</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item">
+                        <div class="item-info">
+                            <span class="item-name">Magnum Moët Brut</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">150cl</span>
+                            <span class="item-price">300€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item">
+                        <div class="item-info">
+                            <span class="item-name">Moët Ice</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">150€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item">
+                        <div class="item-info">
+                            <span class="item-name">Moët Rosé</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">160€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item">
+                        <div class="item-info">
+                            <span class="item-name">Ruinart Blanc de Blancs</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">300€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item premium">
+                        <div class="item-info">
+                            <span class="item-name">Dom Pérignon Lumineuse</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">400€</span>
+                        </div>
+                    </div>
+                    <div class="menu-item champagne-item premium">
+                        <div class="item-info">
+                            <span class="item-name">Armand De Brignac Gold</span>
+                            <span class="item-dots"></span>
+                        </div>
+                        <div class="item-details">
+                            <span class="item-volume">75cl</span>
+                            <span class="item-price">450€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <a href="https://nfcforyou.com" target="_blank" rel="noopener noreferrer" class="powered-by">
+                <span class="powered-text">Powered by</span>
+                <span class="powered-brand">NFC FOR YOU</span>
+                <svg class="powered-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
