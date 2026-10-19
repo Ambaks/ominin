@@ -36,7 +36,7 @@ export type AlertKind = keyof typeof ALERT_RULES;
 export async function raiseAlert(
   kind: AlertKind,
   key: string,
-  payload: { title: string; body: string; url: string },
+  payload: { title: string; body: string; url: string; urgent?: boolean },
 ): Promise<boolean> {
   const rule = ALERT_RULES[kind];
   const { data: due } = await createAdminClient().rpc("admin_alert_hit", {

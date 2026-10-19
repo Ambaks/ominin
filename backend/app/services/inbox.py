@@ -15,6 +15,13 @@ BOUNCE_LABEL = "Bounces"
 BOUNCE_FROM_RE = re.compile(r"mailer-daemon@|postmaster@", re.IGNORECASE)
 BOUNCE_SUBJECT_RE = re.compile(r"delivery status|undelivered|échec de la remise", re.IGNORECASE)
 
+# Titre d'une notification : le nom du restaurant, puis ce qu'il veut.
+PUSH_VERBS = {
+    "interested": "est intéressé",
+    "meeting_request": "veut un RDV",
+    "question": "pose une question",
+}
+
 CLASSIFICATION_TITLES = {
     "interested": "Réponse reçue — intéressé",
     "meeting_request": "Réponse reçue — demande de RDV",
@@ -423,7 +430,8 @@ def _apply(sb, inbound: dict, outbound: dict, verdict: InboxVerdict, stats: dict
             else "Pas de brouillon généré — répondre à la main"
         )
         notify.send(
-            f"Léa — {CLASSIFICATION_TITLES[classification]}",
-            f"{name}\n\n{(inbound.get('body_text') or '')[:300]}\n\n"
-            f"{action} : {settings.frontend_origin}/admin/prospection",
+            f"{name} {PUSH_VERBS[classification]}",
+            f"{(inbound.get('body_text') or '')[:240]}\n\n{action}",
+            path="/prospection",
+            urgent=True,
         )

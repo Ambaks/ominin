@@ -10,8 +10,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
  */
 
 const timeZone = "Europe/Paris";
+/** « 14h30 ». */
 const hour = (iso: string) =>
-  new Date(iso).toLocaleTimeString("fr-FR", { timeZone, hour: "2-digit", minute: "2-digit" });
+  new Date(iso)
+    .toLocaleTimeString("fr-FR", { timeZone, hour: "2-digit", minute: "2-digit" })
+    .replace(":", "h");
 /** « 2026-10-16 » à Paris, pour la date donnée. */
 const parisDay = (date: Date) => date.toLocaleDateString("sv-SE", { timeZone });
 
@@ -37,9 +40,9 @@ export async function POST(request: Request) {
     const name = rdv.crm_restaurants?.name ?? rdv.title;
     await notifyOwners(OWNERS, {
       title: `Demain ${hour(rdv.start_at)} · ${name}`,
-      body: [rdv.title, rdv.location].filter(Boolean).join(" — "),
+      body: [rdv.title !== name && rdv.title, rdv.location].filter(Boolean).join(" — "),
       tag: `rdv-${rdv.start_at}`,
-      url: "/",
+      url: "/restaurants",
     });
   }
   return NextResponse.json({ rdvs: rdvs.length });

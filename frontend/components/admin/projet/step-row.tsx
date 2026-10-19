@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useRunMutation } from "@/components/ui/toast";
 import {
+  ASSIGNEE_LABELS,
+  ASSIGNEES,
   deleteStep,
+  isAssignee,
   NEXT_STATUS,
-  OWNER_LABELS,
-  OWNERS,
+  ownersOf,
   STATUS_LABELS,
   updateStep,
-  type Owner,
   type Step,
   type StepStatus,
 } from "@/lib/admin/projet";
@@ -50,6 +51,8 @@ export function StatusDot({ status }: { status: StepStatus }) {
 
 const ACTION =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground";
+const FIELD =
+  "w-full rounded-lg border border-hairline bg-surface px-3 py-2 text-base focus:border-ember-2/50 focus:outline-none sm:text-sm";
 
 /**
  * Une étape. La pastille la fait avancer (à faire → en cours → fait), les
@@ -61,9 +64,11 @@ export function StepRow({ step }: { step: Step }) {
   const run = useRunMutation();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
-  const { status, owner } = step;
-  // Sans responsable → Marwan → Ambaka → sans responsable.
-  const nextOwner = OWNERS[OWNERS.indexOf(owner as Owner) + 1] ?? null;
+  const { status } = step;
+  const owner = isAssignee(step.owner) ? step.owner : null;
+  // Sans responsable → Marwan → Ambaka → les deux → sans responsable.
+  const nextOwner = ASSIGNEES[owner ? ASSIGNEES.indexOf(owner) + 1 : 0] ?? null;
+  const ownerLabel = owner ? ASSIGNEE_LABELS[owner] : "Sans responsable";
 
   return (
     <li className="py-2">
@@ -91,33 +96,56 @@ export function StepRow({ step }: { step: Step }) {
         <button
           type="button"
           onClick={() => void run(() => updateStep(step.id, { owner: nextOwner }))}
-          title={owner ? OWNER_LABELS[owner as Owner] : "Sans responsable"}
+          title={ownerLabel}
           aria-label="Changer de responsable"
           className={`flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${
             owner ? "border-ember-2/40 text-ember-1" : "border-dashed border-hairline text-faint"
           }`}
         >
-          {owner ? owner[0].toUpperCase() : "?"}
+          {owner ? ownersOf(owner).map((who) => who[0].toUpperCase()).join("") : "?"}
         </button>
       </div>
 
       {open && (
         <div className="ml-7.5 mt-2 flex flex-col gap-3 rounded-xl bg-surface-raised p-3">
           {editing ? (
-            <textarea
-              autoFocus
-              defaultValue={step.detail}
-              rows={4}
-              onBlur={(event) => {
-                const detail = event.target.value.trim();
+            <form
+              className="flex flex-col gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const fields = event.currentTarget.elements;
+                const title = (fields.namedItem("title") as HTMLInputElement).value.trim();
+                const detail = (fields.namedItem("detail") as HTMLTextAreaElement).value.trim();
+                if (!title) return;
                 setEditing(false);
-                if (detail !== step.detail) {
-                  void run(() => updateStep(step.id, { detail }), "Description enregistrée");
+                if (title !== step.title || detail !== step.detail) {
+                  void run(() => updateStep(step.id, { title, detail }), "Étape modifiée");
                 }
               }}
-              placeholder="Ce qu'il faut faire, concrètement, et quand c'est fini."
-              className="w-full rounded-lg border border-hairline bg-surface px-3 py-2 text-base focus:border-ember-2/50 focus:outline-none sm:text-sm"
-            />
+            >
+              <input
+                name="title"
+                autoFocus
+                required
+                defaultValue={step.title}
+                className={FIELD}
+              />
+              <textarea
+                name="detail"
+                defaultValue={step.detail}
+                rows={4}
+                placeholder="Ce qu'il faut faire, concrètement, et quand c'est fini."
+                className={FIELD}
+              />
+              <div className="flex gap-2">
+                <button type="submit" className={ACTION}>
+                  Enregistrer
+                </button>
+                <button type="button" onClick={() => setEditing(false)} className={ACTION}>
+                  Annuler
+                </button>
+              </div>
+            </form>
           ) : (
             <p className="whitespace-pre-line text-sm text-muted">
               {step.detail || "Pas encore de description."}
@@ -125,18 +153,22 @@ export function StepRow({ step }: { step: Step }) {
           )}
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-auto text-xs text-faint">
-              {STATUS_LABELS[status]} · {owner ? OWNER_LABELS[owner as Owner] : "Sans responsable"}
+              {STATUS_LABELS[status]} · {ownerLabel}
             </span>
             <button type="button" onClick={() => setEditing(true)} className={ACTION}>
-              Modifier la description
+              Modifier
             </button>
             <button
               type="button"
-              onClick={() =>
-                void run(() =>
-                  updateStep(step.id, { status: status === "blocked" ? "todo" : "blocked" }),
-                )
-              }
+              onClick={() => {
+                if (status === "blocked") {
+                  void run(() => updateStep(step.id, { status: "todo" }));
+                  return;
+                }
+                const reason = window.prompt("Pourquoi c'est bloqué ? (facultatif)");
+                if (reason === null) return;
+                void run(() => updateStep(step.id, { status: "blocked" }, reason.trim() || undefined));
+              }}
               className={ACTION}
             >
               {status === "blocked" ? "Débloquer" : "Bloquer"}

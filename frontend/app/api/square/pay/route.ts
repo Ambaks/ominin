@@ -283,9 +283,10 @@ export async function POST(request: Request) {
     // Des refus en série (3 en 30 min) disent une carte, un TPE ou un
     // réglage 3-D Secure en panne chez le client : l'équipe est prévenue.
     await raiseAlert("paiement", order.etablissement_id, {
-      title: `Paiements refusés en série · ${etab.name}`,
-      body: `Plusieurs paiements Square refusés en peu de temps. Dernière erreur : ${message.slice(0, 160)}`,
+      title: `${etab.name} : paiements refusés en série`,
+      body: `Square refuse les paiements (carte, TPE ou 3-D Secure). Dernière erreur : ${message.slice(0, 160)}`,
       url: "/clients",
+      urgent: true,
     }).catch(() => false);
     // La commande reste valable et visible en salle : le client règle au
     // comptoir. Le webhook rattrape le cas — rare — d'un débit passé dont

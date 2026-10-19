@@ -6,16 +6,18 @@ import {
   CLIENT_PERIOD_DAYS,
 } from "@/lib/admin/constants";
 import { formatEuros } from "@/lib/admin/format";
-import { OWNER_LABELS, OWNERS } from "@/lib/admin/owners";
+import { ASSIGNEES, isAssignedTo, OWNERS } from "@/lib/admin/owners";
 import { notifyOwners } from "@/lib/admin/push";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Le point du matin (workflow admin-digest) :
- * - à chacun, ce qui l'attend dans le suivi (en cours, bloqué, à faire) et la
- *   prochaine étape — rien à qui n'a rien d'ouvert ;
+ * - à chacun, ce qui l'attend dans le suivi : la première étape (en cours,
+ *   puis bloquée, puis à faire), les deux suivantes, le reste compté — rien
+ *   à qui n'a rien d'ouvert ;
  * - à tous, les chiffres des dernières 24 h des clients en service (le
- *   service du soir est fini à cette heure-là) ;
+ *   service du soir est fini à cette heure-là), face à leur moyenne
+ *   journalière sur 30 jours ;
  * - à tous, un client qui décroche : visites du menu en baisse d'au moins
  *   CHURN_DROP_RATIO sur 30 jours face aux 30 d'avant (la règle de la
  *   Synthèse), une fois par semaine au plus par client.
@@ -34,29 +36,30 @@ export async function POST(request: Request) {
   const { data: steps, error } = await db
     .from("projet_steps")
     .select("title, owner, status, position, projet_clients (name), projet_chantiers (title)")
-    .in("owner", OWNERS)
+    .in("owner", ASSIGNEES)
     .neq("status", "done")
     .order("position");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   for (const owner of OWNERS) {
-    const mine = steps.filter((step) => step.owner === owner);
+    const mine = steps.filter((step) => isAssignedTo(step.owner, owner));
     if (!mine.length) continue;
-    const count = (status: string) => mine.filter((step) => step.status === status).length;
-    // En cours d'abord, puis bloqué, puis à faire.
-    const next =
-      mine.find((step) => step.status === "doing") ??
-      mine.find((step) => step.status === "blocked") ??
-      mine[0];
+    // En cours d'abord, puis bloqué, puis à faire (l'ordre du suivi sinon).
+    const rank = { doing: 0, blocked: 1, todo: 2 } as Record<string, number>;
+    const queue = [...mine].sort((a, b) => rank[a.status] - rank[b.status]);
+    const [next, ...rest] = queue;
     const where = next.projet_clients?.name ?? next.projet_chantiers?.title ?? "";
-    const parts = [
-      count("doing") && `${count("doing")} en cours`,
-      count("blocked") && `${count("blocked")} bloquée${count("blocked") > 1 ? "s" : ""}`,
-      count("todo") && `${count("todo")} à faire`,
-    ].filter(Boolean);
+    const blocked = queue.filter((step) => step.status === "blocked").length;
     await notifyOwners([owner], {
-      title: `Bonjour ${OWNER_LABELS[owner]} · ${parts.join(" · ")}`,
-      body: `Prochaine : ${next.title}${where ? ` (${where})` : ""}`,
+      title: `Aujourd'hui : ${next.title}${where ? ` (${where})` : ""}`,
+      body:
+        [
+          ...rest.slice(0, 2).map((step) => step.title),
+          rest.length > 2 && `+ ${rest.length - 2} autres`,
+          blocked && `${blocked} bloquée${blocked > 1 ? "s" : ""}`,
+        ]
+          .filter(Boolean)
+          .join(" · ") || "Rien d'autre d'ouvert.",
       tag: "point-du-matin",
       url: "/projet",
     });
@@ -91,10 +94,23 @@ export async function POST(request: Request) {
   if (day.length) {
     const total = (pick: (row: NonNullable<(typeof day)[number]["row"]>) => number) =>
       day.reduce((sum, { row }) => sum + pick(row!), 0);
+    const revenue = total((row) => row.revenue);
+    // Moyenne journalière sur 30 jours des mêmes clients.
+    const average =
+      linked.reduce((sum, client) => sum + (figure(current, client)?.revenue ?? 0), 0) /
+      CLIENT_PERIOD_DAYS[1];
+    const gap = average > 0 ? Math.round((revenue / average - 1) * 100) : null;
+    const best = [...day].sort((a, b) => b.row!.revenue - a.row!.revenue);
     await notifyOwners(OWNERS, {
-      title: `Hier : ${formatEuros(total((row) => row.revenue))} encaissés, ${formatEuros(total((row) => row.commission))} pour nous`,
-      body: day
-        .map(({ client, row }) => `${client.name} ${formatEuros(row!.revenue)} · ${row!.orders} tickets`)
+      title: `Hier ${formatEuros(revenue)} · ${formatEuros(total((row) => row.commission))} pour nous`,
+      body: [
+        best
+          .slice(0, 2)
+          .map(({ client, row }) => `${client.name} ${formatEuros(row!.revenue)} (${row!.orders} tickets)`)
+          .join(" · ") + (best.length > 2 ? ` · + ${best.length - 2}` : ""),
+        gap !== null && `${gap >= 0 ? "+" : "−"}${Math.abs(gap)} % vs moyenne ${CLIENT_PERIOD_DAYS[1]} j`,
+      ]
+        .filter(Boolean)
         .join(" — "),
       tag: "chiffres-hier",
       url: "/clients",
@@ -108,8 +124,8 @@ export async function POST(request: Request) {
     const now30 = figure(current, client)?.sessions ?? 0;
     if (before >= CHURN_MIN_PREVIOUS_SESSIONS && now30 <= before * (1 - CHURN_DROP_RATIO)) {
       await raiseAlert("decroche", client.id, {
-        title: `${client.name} décroche`,
-        body: `Visites du menu : ${before} → ${now30} sur 30 jours. À appeler.`,
+        title: `${client.name} : visites −${Math.round((1 - now30 / before) * 100)} % en ${CLIENT_PERIOD_DAYS[1]} j`,
+        body: `Visites du menu ${before} → ${now30}. À appeler.`,
         url: `/projet/${client.id}`,
       });
     }
