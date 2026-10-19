@@ -1,0 +1,300 @@
+import type { createAdminClient } from "@/lib/supabase/admin";
+import type { OptionGroup } from "@/lib/menu-data";
+import { HubriseError } from "./client";
+import { HUBRISE } from "./config";
+import { callHubrise, type Connection } from "./connection";
+import { money, parisIso, splitName, toE164 } from "./format";
+
+type Admin = ReturnType<typeof createAdminClient>;
+
+/*
+ * Commande Ominin → commande HubRise (POST /location/orders).
+ *
+ * Trois pièges, tous venus du modèle de la base :
+ *  - order_items.unit_price INCLUT les suppléments d'options (place_order
+ *    additionne prix + suppléments), alors que HubRise veut le prix de base
+ *    sur la ligne et le supplément sur l'option : sans la soustraction, le
+ *    total serait compté deux fois.
+ *  - order_items.options ne garde que des noms (groupe, choix) : les codes
+ *    de la caisse se retrouvent par ces noms dans la carte actuelle.
+ *  - une formule n'a pas d'article derrière elle (item_id nul) : elle part en
+ *    une ligne, ses composants en options à zéro, sans code propre.
+ */
+
+interface OrderRow {
+  id: string;
+  etablissement_id: string;
+  order_number: number | null;
+  type: "sur_place" | "collect";
+  status: string;
+  paid_online: boolean;
+  tip_amount: number | null;
+  customer_name: string | null;
+  customer_phone: string | null;
+  customer_note: string | null;
+  pickup_at: string | null;
+  loyalty_customer_id: string | null;
+  stripe_payment_intent_id: string | null;
+  square_payment_id: string | null;
+  sumup_checkout_id: string | null;
+  tables: { number: number } | null;
+  order_items: {
+    item_id: string | null;
+    name: string;
+    quantity: number;
+    unit_price: number;
+    vat_rate: number | null;
+    options: { groupName: string; choiceName: string; supplement: number }[];
+    components: { name: string; item_id?: string | null }[] | null;
+  }[];
+}
+
+const ORDER_SELECT =
+  "id, etablissement_id, order_number, type, status, paid_online, tip_amount, customer_name, customer_phone, customer_note, pickup_at, loyalty_customer_id, stripe_payment_intent_id, square_payment_id, sumup_checkout_id, tables (number), order_items (item_id, name, quantity, unit_price, vat_rate, options, components)";
+
+export interface BuiltOrder {
+  /** null : la commande ne se transmet plus (annulée avant l'envoi). */
+  payload: Record<string, unknown> | null;
+}
+
+/** Code HubRise d'un article ou d'un choix, d'après la carte reliée. */
+interface RefIndex {
+  sku: Map<string, string>;
+  option: Map<string, { ref: string; listName: string | null }>;
+  /** (article, nom du groupe, nom du choix) → (id du groupe, id du choix) */
+  names: Map<string, { groupId: string; choiceId: string }>;
+}
+
+async function loadRefs(
+  admin: Admin,
+  etablissementId: string,
+  itemIds: string[]
+): Promise<RefIndex> {
+  const index: RefIndex = { sku: new Map(), option: new Map(), names: new Map() };
+  if (!itemIds.length) return index;
+
+  const [{ data: refs }, { data: items }] = await Promise.all([
+    admin
+      .from("hubrise_ref_map")
+      .select("item_id, group_id, choice_id, target, ref, option_list_name")
+      .eq("etablissement_id", etablissementId)
+      .in("item_id", itemIds),
+    admin.from("items").select("id, options").in("id", itemIds),
+  ]);
+
+  for (const row of refs ?? []) {
+    if (row.target === "sku") index.sku.set(row.item_id, row.ref);
+    else
+      index.option.set(`${row.item_id}|${row.group_id}|${row.choice_id}`, {
+        ref: row.ref,
+        listName: row.option_list_name,
+      });
+  }
+  for (const item of items ?? []) {
+    for (const group of (item.options as unknown as OptionGroup[]) ?? []) {
+      for (const choice of group.choices) {
+        index.names.set(`${item.id}|${group.name}|${choice.name}`, {
+          groupId: group.id,
+          choiceId: choice.id,
+        });
+      }
+    }
+  }
+  return index;
+}
+
+function paymentTransaction(order: OrderRow) {
+  if (order.stripe_payment_intent_id)
+    return { provider: "stripe", transaction_id: order.stripe_payment_intent_id };
+  if (order.square_payment_id)
+    return { provider: "square", transaction_id: order.square_payment_id };
+  if (order.sumup_checkout_id)
+    return { provider: "sumup", transaction_id: order.sumup_checkout_id };
+  return null;
+}
+
+/**
+ * Client de la commande : un client fidélité est créé ou mis à jour dans la
+ * liste de clients juste avant la commande (consigne de HubRise), un invité
+ * part dans la commande elle-même. Un échec ici ne retient jamais la
+ * commande, sauf le 401 qui bloque toute la connexion.
+ */
+async function customerFields(
+  admin: Admin,
+  connection: Connection,
+  order: OrderRow
+): Promise<Record<string, unknown>> {
+  const phone = toE164(order.customer_phone);
+  const identity = {
+    ...splitName(order.customer_name),
+    ...(phone ? { phone } : {}),
+  };
+  const guest = Object.keys(identity).length ? { customer: identity } : {};
+
+  if (!order.loyalty_customer_id || !connection.customer_list_id) return guest;
+  try {
+    const { data: loyalty } = await admin
+      .from("loyalty_customers")
+      .select("id, contact, hubrise_customer_id")
+      .eq("id", order.loyalty_customer_id)
+      .maybeSingle();
+    if (!loyalty) return guest;
+
+    const contact = loyalty.contact.includes("@")
+      ? { email: loyalty.contact }
+      : { phone: toE164(loyalty.contact) ?? phone };
+    const fields = {
+      ...identity,
+      ...Object.fromEntries(
+        Object.entries(contact).filter(([, value]) => value)
+      ),
+    };
+    const base = `/customer_lists/${connection.customer_list_id}/customers`;
+    if (loyalty.hubrise_customer_id) {
+      await callHubrise(admin, connection, `${base}/${loyalty.hubrise_customer_id}`, {
+        method: "PATCH",
+        body: JSON.stringify(fields),
+      });
+      return { customer_id: loyalty.hubrise_customer_id };
+    }
+    const created = await callHubrise<{ id: string }>(admin, connection, base, {
+      method: "POST",
+      body: JSON.stringify({ private_ref: loyalty.id, ...fields }),
+    });
+    await admin
+      .from("loyalty_customers")
+      .update({ hubrise_customer_id: created.id })
+      .eq("id", loyalty.id);
+    return { customer_id: created.id };
+  } catch (error) {
+    if (error instanceof HubriseError && error.status === 401) throw error;
+    console.error("[hubrise] client non transmis, commande envoyée en invité", {
+      orderId: order.id,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return guest;
+  }
+}
+
+export async function buildOrder(
+  admin: Admin,
+  connection: Connection,
+  orderId: string
+): Promise<BuiltOrder | null> {
+  const { data } = await admin
+    .from("orders")
+    .select(ORDER_SELECT)
+    .eq("id", orderId)
+    .maybeSingle();
+  const order = data as unknown as OrderRow | null;
+  if (!order) return null;
+  if (order.status === "annulee") return { payload: null };
+
+  const refs = await loadRefs(
+    admin,
+    order.etablissement_id,
+    order.order_items.flatMap((line) => (line.item_id ? [line.item_id] : []))
+  );
+
+  const items = order.order_items.map((line) => {
+    const supplements = line.options.reduce(
+      (sum, option) => sum + (option.supplement ?? 0),
+      0
+    );
+    const options = line.options.map((option) => {
+      const ids = line.item_id
+        ? refs.names.get(`${line.item_id}|${option.groupName}|${option.choiceName}`)
+        : undefined;
+      const mapped = ids
+        ? refs.option.get(`${line.item_id}|${ids.groupId}|${ids.choiceId}`)
+        : undefined;
+      return {
+        option_list_name: mapped?.listName ?? option.groupName,
+        name: option.choiceName,
+        ...(mapped ? { ref: mapped.ref } : {}),
+        price: money(option.supplement ?? 0),
+        quantity: 1,
+      };
+    });
+    const components = (line.components ?? []).map((component) => {
+      const ref = component.item_id ? refs.sku.get(component.item_id) : undefined;
+      return {
+        option_list_name: HUBRISE.labels.formule,
+        name: component.name,
+        ...(ref ? { ref } : {}),
+        price: money(0),
+        quantity: 1,
+      };
+    });
+    const skuRef = line.item_id ? refs.sku.get(line.item_id) : undefined;
+    return {
+      product_name: line.name,
+      ...(skuRef ? { sku_ref: skuRef } : {}),
+      price: money(line.unit_price - supplements),
+      quantity: String(line.quantity),
+      ...(line.vat_rate != null ? { tax_rate: String(line.vat_rate) } : {}),
+      options: [...components, ...options],
+    };
+  });
+
+  const tip = order.tip_amount ?? 0;
+  const total =
+    order.order_items.reduce(
+      (sum, line) => sum + line.quantity * line.unit_price,
+      0
+    ) + tip;
+
+  const pickup = order.pickup_at ? new Date(order.pickup_at) : null;
+  // HubRise refuse une heure attendue passée : un retrait déjà écoulé (envoi
+  // tardif après une panne) repart « dès que possible ».
+  const scheduled = order.type === "collect" && pickup && pickup > new Date();
+  const serviceTypeRef =
+    order.type === "collect"
+      ? connection.service_type_ref_collection
+      : connection.service_type_ref_eat_in;
+  const transaction = paymentTransaction(order);
+
+  return {
+    payload: {
+      status: "new",
+      ref: order.order_number != null ? String(order.order_number) : undefined,
+      private_ref: order.id,
+      service_type: order.type === "collect" ? "collection" : "eat_in",
+      ...(serviceTypeRef ? { service_type_ref: serviceTypeRef } : {}),
+      ...(scheduled
+        ? { expected_time: parisIso(pickup), asap: false }
+        : { asap: true }),
+      ...(order.customer_note ? { customer_notes: order.customer_note } : {}),
+      items,
+      ...(tip > 0
+        ? {
+            charges: [
+              {
+                name: HUBRISE.labels.tip,
+                price: money(tip),
+                ...(connection.tip_charge_ref ? { ref: connection.tip_charge_ref } : {}),
+              },
+            ],
+          }
+        : {}),
+      // Réglée en ligne : un paiement égal au total. Sinon aucun — HubRise
+      // lit une commande sans paiement comme à encaisser.
+      ...(order.paid_online
+        ? {
+            payments: [
+              {
+                name: connection.payment_name ?? HUBRISE.labels.payment,
+                ...(connection.payment_ref ? { ref: connection.payment_ref } : {}),
+                amount: money(total),
+                ...(transaction ? { info: transaction } : {}),
+              },
+            ],
+          }
+        : {}),
+      ...(order.type === "sur_place" && order.tables
+        ? { custom_fields: { restaurant: { table_name: String(order.tables.number) } } }
+        : {}),
+      ...(await customerFields(admin, connection, order)),
+    },
+  };
+}

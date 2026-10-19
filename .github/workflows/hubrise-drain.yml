@@ -1,0 +1,34 @@
+# Filet de la connexion HubRise. La commande part dès qu'elle devient « vraie »
+# (lib/push/server.ts) ; ce passage rattrape ce qui n'est pas parti, relit le
+# catalogue, les stocks et les horaires dont un callback perdu aurait privé la
+# carte, alerte les commandes que la caisse n'a pas reprises et purge les
+# envois anciens.
+#
+# L'échec du workflow EST le canal d'alerte : la route répond en erreur dès
+# qu'une relecture a échoué.
+name: hubrise-drain
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vider la file HubRise et relire la caisse
+        run: |
+          response=$(curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/hubrise/drain")
+          echo "$response"
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true
