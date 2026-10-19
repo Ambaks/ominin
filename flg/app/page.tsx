@@ -7,7 +7,6 @@ import { QuoteForm } from "@/components/quote-form";
 import { Logo, SiteNav } from "@/components/site-nav";
 import { VideoLoop } from "@/components/video-loop";
 import {
-  alsoOffered,
   applications,
   audiences,
   cases,
@@ -154,9 +153,7 @@ export default function Home() {
               {cases.map((c) => (
                 <Reveal key={c.title}>
                   <BeforeAfter before={c.before} after={c.after} alt={c.title} sizes={half} className="aspect-[4/5]" />
-                  {c.kind && <p className="label mt-6 text-accent-text">{c.kind}</p>}
-                  <h3 className={`display display-s ${c.kind ? "mt-3" : "mt-6"}`}>{c.title}</h3>
-                  {c.body && <p className="mt-3 max-w-md text-muted">{c.body}</p>}
+                  <h3 className="display display-s mt-6">{c.title}</h3>
                 </Reveal>
               ))}
             </div>
@@ -171,8 +168,7 @@ export default function Home() {
                     sizes="(min-width: 768px) 30vw, 100vw"
                     className="aspect-square"
                   />
-                  <p className="label mt-4 text-accent-text">{c.kind}</p>
-                  <h3 className="mt-2 font-medium">{c.title}</h3>
+                  <h3 className="mt-4 font-medium">{c.title}</h3>
                   <p className="mt-1 text-[0.95rem] text-muted">{c.body}</p>
                 </Reveal>
               ))}
@@ -247,10 +243,9 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
-            <p className="mt-6 text-muted">{alsoOffered}</p>
-            <Reveal className="mt-6 grid gap-4 border border-accent/50 p-8 md:grid-cols-12">
-              <p className="label text-accent-text md:col-span-3">Peintures au plomb</p>
-              <p className="text-muted md:col-span-9">
+            <Reveal className="mt-6 grid gap-6 border border-accent/50 p-8 md:grid-cols-12 md:p-12">
+              <p className="display display-s text-accent-text md:col-span-4">Peintures au plomb</p>
+              <p className="lead text-muted md:col-span-8">
                 Elles ne se décapent pas par aérogommage. Dans le bâti ancien, un diagnostic plomb est à réaliser avant
                 toute intervention : nous vous le demanderons lors de la visite.
               </p>

@@ -46,7 +46,6 @@ export const proofs = [
 
 export type Case = {
   title: string;
-  kind?: string;
   body?: string;
   before: StaticImageData;
   after: StaticImageData;
@@ -69,20 +68,13 @@ export const featured = {
 
 export const cases: readonly Case[] = [
   { title: "Charpente extérieure", before: charpenteAvant, after: charpenteApres },
-  {
-    title: "Escalier en chêne",
-    kind: "Escalier · Intérieur",
-    body: "Marches peintes, chêne retrouvé.",
-    before: escalierAvant,
-    after: escalierApres,
-  },
+  { title: "Escalier intérieur", before: escalierAvant, after: escalierApres },
 ];
 
 export const smallCases: readonly Case[] = [
   {
     title: "Portail métallique",
-    kind: "Métal · Extérieur",
-    body: "Décapé jusqu'au métal sain, puis repeint.",
+    body: "Décapé, application anti-rouille.",
     before: portailAvant,
     after: portailApres,
   },
@@ -102,7 +94,6 @@ export const applications = [
   { title: "Métal", items: ["Portails et garde-corps", "Structures et ossatures", "Préparation avant peinture"] },
 ] as const;
 
-export const alsoOffered = "Aussi : microbillage de pièces inox et aluminium, dépolissage du verre au pochoir.";
 
 export const audiences = [
   { title: "Architectes et maîtres d'œuvre", body: "Restituer un bâti ancien sans le dénaturer, préparer un support avant finition." },
