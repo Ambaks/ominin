@@ -628,6 +628,17 @@ export function FormuleTile({
         aria-hidden
         className="formule-glow ember-gradient absolute -right-12 -top-12 size-40 rounded-full opacity-20 blur-2xl"
       />
+      {formule.image && (
+        <span className="formule-photo relative -mx-5 -mt-5 block aspect-video overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image */}
+          <img
+            src={formule.image}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover"
+          />
+        </span>
+      )}
       <span>
         <span className="ember-text block text-[11px] font-semibold uppercase tracking-[0.28em]">
           Formule

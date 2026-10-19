@@ -261,6 +261,7 @@ export interface Formule {
   id: string;
   name: string;
   description?: string;
+  image?: string;
   price: number;
   disponible: boolean;
   /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */

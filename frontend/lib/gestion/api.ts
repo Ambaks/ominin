@@ -333,6 +333,7 @@ function formuleColumns(
   return {
     name: input.name,
     description: input.description || null,
+    image: input.image || null,
     price: input.price,
     disponible: input.disponible,
     days: input.days ?? null,

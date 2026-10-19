@@ -94,6 +94,7 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     id: row.id,
     name: row.name,
     description: row.description ?? undefined,
+    image: row.image ?? undefined,
     price: Number(row.price),
     disponible: row.disponible,
     days: row.days ?? undefined,
