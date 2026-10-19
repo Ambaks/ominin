@@ -9,7 +9,7 @@ import {
 } from "@/components/gestion/soirees/club-states";
 import { ZonesSettings } from "@/components/gestion/soirees/zones-settings";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PillTabs } from "@/components/ui/pill-tabs";
+import { UnderlineTabs } from "@/components/gestion/soirees/underline-tabs";
 import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
 import type { ClubEvent } from "@/lib/club/types";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
@@ -213,7 +213,7 @@ export default function SoireesPage() {
 
       {error && <ClubLoadError message={error} />}
 
-      <PillTabs tabs={tabs} activeId={tab} onSelect={(id) => setTab(id as Tab)} />
+      <UnderlineTabs label="Soirées" tabs={tabs} activeId={tab} onSelect={(id) => setTab(id as Tab)} />
 
       {tab === "salle" ? (
         <ZonesSettings

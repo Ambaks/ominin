@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { formatCents } from "@/lib/club/format";
+import { initials } from "@/lib/club/mappers";
 
 /*
  * Une table partagée vue d'en haut : la table au centre, une place par
  * personne attendue tout autour. Chaque part payée remplit des places à
  * proportion de son montant (une part égale = une place), dans l'ordre
  * d'arrivée ; la première place qu'elle touche porte les initiales du
- * payeur. Les places pleines se relient en constellation, l'anneau
+ * payeur (« Vous » pour la personne qui regarde, « Libre » sur une place
+ * vide). Les places pleines se relient en constellation, l'anneau
  * extérieur dit la part de la table déjà réglée. Les places vides
  * respirent doucement ; une part arrivée pendant qu'on regarde pulse. Le
  * disque d'une place pleine à moitié a la moitié de sa surface (échelle en
@@ -29,12 +31,11 @@ type Seat = { fill: number; owner: SeatShare | null; tone: SeatShare["tone"] | n
 const SOLID = 0.72;
 
 /* Repère du dessin (unités du viewBox) : centre, rayon des places, de l'anneau, de la table. */
-const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4, amountGap: 16 } as const;
-
-function initials(name: string): string {
-  const [first, second] = name.replace(/\./g, "").split(/\s+/);
-  return `${first?.[0] ?? ""}${second?.[0] ?? ""}`.toUpperCase();
-}
+const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4 } as const;
+/* Taille du texte d'une place (« Vous », initiales, « Libre ») par unité de rayon : il tient dans le disque à toute tablée. */
+const LABEL_PER_RADIUS = 0.5;
+/* Écart (en places) sous lequel un reste « tombe juste ». */
+const EPSILON_SEAT = 0.01;
 
 /** Les places remplies par les parts, dans l'ordre : une part égale (prix ÷ places) = une place. */
 function fillSeats(count: number, priceCents: number, shares: SeatShare[]): Seat[] {
@@ -69,7 +70,7 @@ export function SeatRing({
   seats: number;
   priceCents: number;
   shares: SeatShare[];
-  /** Au centre : le numéro de la table. */
+  /** Au centre, au-dessus de ce qui reste à payer : la tablée (« 8 pers. »). */
   label: string;
   /** Une part à fêter dès le montage (celle qu'on vient de payer) ; les autres pulsent si elles arrivent ensuite. */
   freshId?: string | null;
@@ -94,6 +95,7 @@ export function SeatRing({
   const paid = Math.min(1, shares.reduce((sum, share) => sum + share.amountCents, 0) / priceCents);
   const centre = RING.size / 2;
   const seatRadius = Math.min(RING.seatMax, (Math.PI * RING.seats) / count - RING.gap);
+  const labelSize = { fontSize: seatRadius * LABEL_PER_RADIUS };
   const points = seats.map((_, index) => {
     const angle = -Math.PI / 2 + (index / count) * Math.PI * 2;
     return { x: centre + Math.cos(angle) * RING.seats, y: centre + Math.sin(angle) * RING.seats };
@@ -104,6 +106,9 @@ export function SeatRing({
   const paidCents = shares.reduce((sum, share) => sum + share.amountCents, 0);
   const remaining = Math.max(0, priceCents - paidCents);
   const caption = active !== null ? seats[active]?.owner : null;
+  const unit = Math.ceil(priceCents / count);
+  // « N places restantes » seulement si le reste tombe juste en places ; sinon, le montant seul.
+  const exact = Math.abs(remaining / (priceCents / count) - free) < EPSILON_SEAT;
 
   return (
     <figure className={`club-seats-figure ${className}`} data-scrub={scrubbing || undefined}>
@@ -142,7 +147,7 @@ export function SeatRing({
             {label}
           </text>
           <text className="club-seats-left" y={24} textAnchor="middle" dominantBaseline="central">
-            {remaining > 0 ? `${free} pl. · ${formatCents(remaining)}` : "Réglée"}
+            {remaining <= 0 ? "Réglée" : exact ? `${free} place${free > 1 ? "s" : ""} restante${free > 1 ? "s" : ""}` : `${formatCents(remaining)} restants`}
           </text>
         </g>
         {seats.map((seat, index) => {
@@ -151,8 +156,6 @@ export function SeatRing({
           const fresh = owner && (owner.id === freshId || !known.has(owner.id));
           // La surface du disque suit la part de la place : échelle en racine.
           const scale = Math.sqrt(seat.fill);
-          // Le montant d'une part, à l'extérieur de sa place, dans l'axe du centre.
-          const outward = { x: (point.x - centre) / RING.seats, y: (point.y - centre) / RING.seats };
           return (
             <g
               key={index}
@@ -180,21 +183,16 @@ export function SeatRing({
               <circle className="club-seat-halo" r={seatRadius + 7} />
               <circle className="club-seat-base" r={seatRadius} />
               <circle className="club-seat-fill" r={seatRadius} style={{ "--fill": scale } as CSSProperties} />
-              {seat.owner && (
-                <text className="club-seat-initials" textAnchor="middle" dominantBaseline="central">
-                  {seat.owner.tone === "preview" || seat.owner.tone === "you" ? "Vous" : initials(seat.owner.name)}
+              {owner ? (
+                <text className="club-seat-initials" textAnchor="middle" dominantBaseline="central" style={labelSize}>
+                  {owner.tone === "preview" || owner.tone === "you" ? "Vous" : initials(owner.name)}
                 </text>
-              )}
-              {seat.owner && seat.owner.tone !== "preview" && (
-                <text
-                  className="club-seat-amount"
-                  x={outward.x * (seatRadius + RING.amountGap)}
-                  y={outward.y * (seatRadius + RING.amountGap)}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                >
-                  {formatCents(seat.owner.amountCents)}
-                </text>
+              ) : (
+                seat.fill === 0 && (
+                  <text className="club-seat-free" textAnchor="middle" dominantBaseline="central" style={labelSize}>
+                    Libre
+                  </text>
+                )
               )}
             </g>
           );
@@ -209,11 +207,16 @@ export function SeatRing({
         ) : (
           <>
             <span>
-              1 place ≈ <span className="club-mono">{formatCents(Math.ceil(priceCents / count))}</span>
+              1 place · <span className="club-mono">{formatCents(unit)}</span>
             </span>
             <span className="club-seats-legend" aria-hidden>
               <i data-tone="you" /> Vous
-              <i data-tone="friend" /> Payé
+              {shares.some((share) => share.tone === "organiser") && (
+                <>
+                  <i data-tone="organiser" /> Hôte
+                </>
+              )}
+              <i data-tone="friend" /> Amis
               <i /> Libre
             </span>
           </>

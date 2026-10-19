@@ -607,7 +607,19 @@ html:has(.soirees-barre) {
   color: var(--foreground);
   font-size: 0.875rem;
   font-weight: 600;
+  /* Invisible au repos, il apparaît avec le glissé et s'efface au retour. */
+  opacity: var(--progres, 0);
+  transition:
+    background-color var(--c-fast) var(--c-ease),
+    opacity var(--c-slow) var(--c-ease);
+}
+
+.porte-rangee:is([data-phase="glisse"], [data-phase="pret"]) .porte-fond {
   transition: background-color var(--c-fast) var(--c-ease);
+}
+
+.porte-rangee[data-phase="parti"] .porte-fond {
+  opacity: 1;
 }
 
 /* L'icône grandit et se remplit avec le glissé. */
@@ -734,26 +746,42 @@ html:has(.soirees-barre) {
   font-weight: 600;
 }
 
-.anneau-place circle {
-  fill: color-mix(in srgb, var(--c-violet) 30%, var(--surface));
-  stroke: var(--c-violet);
+.anneau-place {
+  --place: var(--c-violet);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: anneau-place var(--c-slow) var(--c-spring) backwards;
+  animation-delay: calc(var(--i) * 60ms);
+}
+
+.anneau-place[data-organiser] {
+  --place: var(--soirees-gold);
+}
+
+.anneau-socle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--place) 60%, transparent);
   stroke-width: 1.5;
 }
 
-.anneau-place[data-organiser] circle {
-  fill: color-mix(in srgb, var(--soirees-gold) 30%, var(--surface));
-  stroke: var(--soirees-gold);
+.anneau-place[data-vide] .anneau-socle {
+  stroke: var(--hairline);
+  stroke-dasharray: 3 3;
 }
 
-.anneau-place {
-  animation: anneau-place var(--c-slow) var(--c-spring) backwards;
-  animation-delay: calc(var(--i) * 60ms);
+/* Une place payée en partie se remplit en partie. */
+.anneau-plein {
+  fill: color-mix(in srgb, var(--place) 45%, var(--surface));
+  transform: scale(var(--fill));
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform var(--c-sheet) var(--c-spring);
 }
 
 @keyframes anneau-place {
   from {
     opacity: 0;
-    scale: 0.6;
+    transform: scale(0.6);
   }
 }
 
@@ -763,15 +791,55 @@ html:has(.soirees-barre) {
   font-weight: 700;
 }
 
-.anneau-montant {
-  fill: var(--foreground);
-  font-family: var(--c-mono);
-  font-size: 10px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .anneau-part,
   .anneau-place {
     animation: none;
   }
+}
+
+/* Onglets soulignés (underline-tabs.tsx) : le trait d'or glisse sous l'onglet ouvert. */
+.onglet::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--soirees-gold);
+  transform: scaleX(0);
+  transition: transform var(--c-base) var(--c-ease);
+}
+
+.onglet[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Une rangée qui défile : ses bords s'estompent plutôt que de couper un mot. */
+.defile {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+  padding-inline: 1.25rem;
+  scroll-padding-inline: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onglet::after {
+    transition: none;
+  }
+}
+
+/*
+  Au téléphone, plan entier : les pastilles des places, trop petites pour
+  être lues, s'effacent ; elles reviennent dès qu'on agrandit (et sur la
+  fiche de la table).
+*/
+@media (max-width: 63.99rem) {
+  .plan-cadre:not([data-zoomed]) .plan-places {
+    opacity: 0;
+  }
+}
+
+.gestion-plan .plan-places {
+  transition: opacity var(--c-base) var(--c-ease);
 }

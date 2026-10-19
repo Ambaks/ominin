@@ -42,7 +42,7 @@ export type EventZoneSetting = { zoneId: string; priceCents: number | null };
 export type ClubNight = { bookings: ClubBooking[]; payments: ClubPayment[]; guests: ClubGuest[] };
 
 /** Une table payée en ligne par un client pendant que l'écran était ouvert. */
-export type ClubArrival = { booking: ClubBooking; eventId: string };
+type ClubArrival = { booking: ClubBooking; eventId: string };
 
 /** Les conditions d'entrée du club, montrées au client avant de payer sa table. */
 export type ClubConditions = { minAge: number; dressCode: string | null; refused: string | null };

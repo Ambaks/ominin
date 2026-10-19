@@ -11,6 +11,7 @@ import {
   type Contact,
 } from "@/components/club/contact-form";
 import { RollingAmount } from "@/components/club/rolling-amount";
+import { SeatRing, type SeatShare } from "@/components/club/seat-ring";
 import { ShareAmount } from "@/components/club/share-amount";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_TIMING } from "@/components/club/timing";
@@ -137,11 +138,20 @@ export function ShareJoin({
   conditions,
   recap,
   payerIds,
+  seats,
+  totalCents,
+  paidCents,
+  shares,
 }: {
   shareToken: string;
   provider: Club["paymentProvider"];
   minimumCents: number;
   remainingCents: number;
+  /** La tablée, le prix de la table (frais compris), ce qui en est payé et par qui : l'anneau. */
+  seats: number;
+  totalCents: number;
+  paidCents: number;
+  shares: SeatShare[];
   conditions: Club["conditions"];
   /** « Sam. 24 oct. · VIP Salon Rouge ». */
   recap: string;
@@ -157,6 +167,8 @@ export function ShareJoin({
   const [contact, setContact] = useState<Contact>({ name: "", phone: "", email: "" });
   const [accepted, setAccepted] = useState(false);
   const [tried, setTried] = useState(false);
+  // Le curseur du montant est tenu : montants et anneau suivent sans animation.
+  const [scrubbing, setScrubbing] = useState(false);
   const errors = contactErrors(contact, accepted);
   const valid = Object.keys(errors).length === 0;
   const [sending, setSending] = useState(false);
@@ -249,7 +261,30 @@ export function ShareJoin({
 
   const shown = tried ? errors : {};
   return (
-    <form ref={formRef} className="club-join club-form" onSubmit={submit} noValidate>
+    <>
+      <div className="club-join-top">
+        <p className="club-label">Votre part</p>
+        <p className="club-share-value">
+          <RollingAmount cents={value} instant={scrubbing} />
+        </p>
+        <p className="club-share-sub">
+          Reste <RollingAmount cents={Math.max(0, remainingCents - value)} instant={scrubbing} /> après vous
+        </p>
+        <a href="#ma-part" className="club-button club-button-primary">
+          Payer ma part
+        </a>
+      </div>
+      <div className="club-share-board">
+        <SeatRing
+          seats={seats}
+          priceCents={totalCents}
+          shares={[...shares, { id: "votre-part", name: contact.name || "Vous", amountCents: value, tone: "preview" }]}
+          label={`${seats} pers.`}
+          scrubbing={scrubbing}
+        />
+        <ShareMeter paidCents={paidCents} priceCents={totalCents} />
+      </div>
+    <form id="ma-part" ref={formRef} className="club-join club-form" onSubmit={submit} noValidate>
       <ShareAmount
         value={value}
         min={minimumCents}
@@ -261,10 +296,11 @@ export function ShareJoin({
           </>
         }
         presets={[
-          { label: "Part égale", cents: minimumCents },
+          { label: "Minimum", cents: minimumCents },
           { label: "Tout le reste", cents: remainingCents },
         ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
         onChange={setAmount}
+        onScrub={setScrubbing}
       />
       <ContactFields value={contact} onChange={setContact} errors={shown} emailHint="Votre reçu y arrive." />
       <ConditionsBlock
@@ -312,5 +348,6 @@ export function ShareJoin({
         </p>
       )}
     </form>
+    </>
   );
 }

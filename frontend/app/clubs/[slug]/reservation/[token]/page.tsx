@@ -53,7 +53,7 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
       return {
         pill: "En attente de paiement",
         title: "Votre table vous attend",
-        text: `Réglez ${total} pour la confirmer. Tant que le compte à rebours tourne, personne d'autre ne peut la prendre.`,
+        text: `Réglez ${booking.shared && booking.pendingTotalCents !== null ? `votre part, ${formatCents(booking.pendingTotalCents)},` : total} pour la confirmer. Tant que le compte à rebours tourne, personne d'autre ne peut la prendre.`,
       };
     case "expiree":
       return {
@@ -74,7 +74,7 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
         return {
           pill: `Réservée · ${remaining} à régler`,
           title: "Votre table est réservée",
-          text: `${formatCents(booking.totalCents - booking.remainingCents)} déjà payés. Vos amis peuvent payer leur part jusqu'au début de la soirée. Il reste ${remaining} à régler à l'entrée si vos amis ne paient pas.`,
+          text: `${formatCents(booking.paidTotalCents)} déjà payés. Vos amis peuvent payer leur part jusqu'au début de la soirée. Il reste ${remaining} à régler à l'entrée si vos amis ne paient pas.`,
         };
       }
       return {
@@ -89,6 +89,14 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
         text: "Votre arrivée est enregistrée. Bonne soirée.",
       };
     case "remboursee":
+      // Partagée : chaque part est remboursée à qui l'a payée, sur son propre moyen de paiement.
+      if (booking.shared) {
+        return {
+          pill: eventCancelled ? "Soirée annulée" : "Remboursée",
+          title: "Remboursement effectué",
+          text: `${eventCancelled ? "Le club a annulé la soirée : c" : "C"}haque part payée en ligne est remboursée automatiquement${refunded}, à la personne qui l'a payée. Le délai d'affichage sur un compte dépend de la banque.`,
+        };
+      }
       return eventCancelled
         ? {
             pill: "Soirée annulée",
@@ -229,13 +237,16 @@ export default async function BookingPage({
           <ResumePayment
             paymentId={booking.pendingPaymentId}
             provider={booking.club.paymentProvider}
-            totalCents={booking.shared ? null : booking.totalCents}
+            totalCents={booking.shared ? booking.pendingTotalCents : booking.totalCents}
+            payLabel={booking.shared ? "Payer ma part" : undefined}
             remainingMs={Date.parse(booking.holdExpiresAt) - now}
             recap={[
               formatNightShort(booking.event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
               booking.table.zone,
               `${booking.partySize} pers.`,
-              `${formatCents(booking.totalCents)} tout compris`,
+              booking.shared && booking.pendingTotalCents !== null
+                ? `votre part ${formatCents(booking.pendingTotalCents)}`
+                : `${formatCents(booking.totalCents)} tout compris`,
             ].join(" · ")}
           />
         )}
@@ -255,9 +266,16 @@ export default async function BookingPage({
                 tone: payer.organiser ? "you" : "friend",
               }))}
               label={`${booking.partySize} pers.`}
-              freshId={booking.payers.at(-1)?.id}
             />
-            <ShareMeter paidCents={booking.totalCents - booking.remainingCents} priceCents={booking.totalCents} />
+            <ShareMeter paidCents={booking.paidTotalCents} priceCents={booking.totalCents} />
+            <ul className="club-payers" aria-label="Parts payées">
+              {booking.payers.map((payer) => (
+                <li key={payer.id} data-you={payer.organiser || undefined}>
+                  <span>{payer.organiser ? "Vous" : payer.name}</span>
+                  <span className="club-mono">{formatCents(payer.amountCents)}</span>
+                </li>
+              ))}
+            </ul>
             {booking.remainingCents > 0 ? (
               <ShareLink
                 url={`${clubSiteUrl}${sharePath(slug, booking.shareToken)}`}
@@ -282,7 +300,7 @@ export default async function BookingPage({
             <span className="club-pass-date club-mono">{formatNightShort(booking.event.startsAt)}</span>
           </header>
           <div className="club-pass-primary">
-            <p className="club-label">Votre table vous attend</p>
+            <p className="club-label">{passValid ? "Votre table vous attend" : "Votre table"}</p>
             <p className="club-pass-table">{booking.table.zone}</p>
           </div>
           <dl className="club-pass-fields">
@@ -335,6 +353,7 @@ export default async function BookingPage({
           )}
 
           {booking.shared ? (
+            passValid && (
             <dl className="club-lines club-pass-lines">
               <div>
                 <dt>Table, tout compris</dt>
@@ -342,13 +361,14 @@ export default async function BookingPage({
               </div>
               <div>
                 <dt>Déjà payé, toutes parts</dt>
-                <dd className="club-mono">{formatCents(booking.totalCents - booking.remainingCents)}</dd>
+                <dd className="club-mono">{formatCents(booking.paidTotalCents)}</dd>
               </div>
               <div className="club-lines-total">
                 <dt>{eventStarted ? "Reste à régler à l'entrée" : "Reste à payer"}</dt>
                 <dd className="club-mono">{formatCents(booking.remainingCents)}</dd>
               </div>
             </dl>
+            )
           ) : (
             <dl className="club-lines club-pass-lines">
               <div>

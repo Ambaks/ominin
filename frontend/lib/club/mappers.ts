@@ -105,6 +105,12 @@ export function publicName(name: string): string {
   return initial ? `${first} ${initial.toUpperCase()}.` : first;
 }
 
+/** « Sarah L. » → « SL » : ce que porte sa place sur l'anneau d'une table partagée. */
+export function initials(name: string): string {
+  const [first, second] = name.replace(/\./g, "").split(/\s+/);
+  return `${first?.[0] ?? ""}${second?.[0] ?? ""}`.toUpperCase();
+}
+
 /** Les parts payées en ligne, dans l'ordre où elles sont arrivées, montants frais compris. */
 export function sharePayers(
   rows: Pick<Tables<"club_payments">, "id" | "name" | "total_cents" | "organiser" | "paid_at" | "status" | "method">[]

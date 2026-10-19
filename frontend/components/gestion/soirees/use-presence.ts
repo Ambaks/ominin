@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export type Presence = "stable" | "entree" | "sortie";
+type Presence = "stable" | "entree" | "sortie";
 
 type Row<T> = { key: string; item: T; presence: Presence };
 

@@ -302,7 +302,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
     : "Espace de gestion";
 
   return (
-    <ToastProvider>
+    <ToastProvider placement={clubOnly ? "top" : "bottom"}>
       <div
         // Un club parle la langue de ses pages : leurs jetons et leurs polices, en-tête compris.
         className={`flex min-h-dvh w-full flex-col ${clubOnly ? `club-tokens club-espace ${clubFonts}` : ""}`}

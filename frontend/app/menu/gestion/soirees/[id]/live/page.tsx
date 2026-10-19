@@ -19,9 +19,9 @@ import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
 import { useWide } from "@/components/gestion/soirees/use-wide";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
-import { PillTabs } from "@/components/ui/pill-tabs";
+import { UnderlineTabs } from "@/components/gestion/soirees/underline-tabs";
 import { useToast } from "@/components/ui/toast";
-import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatHours, formatNightShort, tableName } from "@/lib/club/format";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
@@ -35,7 +35,6 @@ import {
   people,
   staffTableState,
   TABLE_STATE_LABELS,
-  tableName,
   tablePrice,
 } from "@/lib/gestion/club-selectors";
 import {
@@ -318,7 +317,7 @@ export default function LivePage() {
   const plan = zone ? (
     <div className="flex flex-col gap-3">
       {zones.length > 1 && (
-        <div role="tablist" aria-label="Zones" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:px-0">
+        <div role="tablist" aria-label="Zones" className="defile no-scrollbar -mx-5 flex gap-2 overflow-x-auto lg:mx-0">
           {zones.map((candidate) => {
             const active = candidate.id === zone.id;
             const held = club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length;
@@ -456,11 +455,12 @@ export default function LivePage() {
       )}
 
       {wide ? (
-        <div className="grid grid-cols-[minmax(0,1fr)_24rem] items-start gap-6">
+        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start gap-6">
           {plan}
-          <div className="sticky top-[calc(var(--gestion-entete,0px)+7rem)] flex max-h-[calc(100dvh-var(--gestion-entete,0px)-8rem)] flex-col gap-3 overflow-y-auto overscroll-contain rounded-2xl">
+          <div className="sticky top-[calc(var(--gestion-entete,0px)+9rem)] flex h-[calc(100dvh-var(--gestion-entete,0px)-10rem)] flex-col gap-3">
             {guestList && (
-              <PillTabs
+              <UnderlineTabs
+                label="Porte et invités"
                 tabs={[
                   { id: "porte", label: "Porte", count: expected },
                   { id: "invites", label: "Invités", count: stats.guests },
@@ -469,13 +469,17 @@ export default function LivePage() {
                 onSelect={(next) => setSide(next as "porte" | "invites")}
               />
             )}
-            {side === "porte" || !guestList ? <DoorList held={held} onOpen={setSelectedId} /> : guests}
+            {/* Les onglets restent en place ; seule la liste défile, sa recherche collée en haut. */}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl">
+              {side === "porte" || !guestList ? <DoorList held={held} onOpen={setSelectedId} /> : guests}
+            </div>
           </div>
         </div>
       ) : (
         <>
           <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md">
-            <PillTabs
+            <UnderlineTabs
+              label="Le plan du soir"
               tabs={[
                 { id: "plan", label: "Plan" },
                 { id: "porte", label: "Porte", count: expected },

@@ -81,7 +81,7 @@ export async function updateConditions(conditions: ClubConditions) {
 // ---------------------------------------------------------------------------
 // Soirées
 
-export interface EventInput {
+interface EventInput {
   slug: string;
   title: string;
   startsAt: string;
@@ -176,7 +176,7 @@ export async function setPublished(eventId: string, published: boolean) {
   });
 }
 
-export type CancelResult = { refunded: number; cancelled: number; failed: string[] };
+type CancelResult = { refunded: number; cancelled: number; failed: string[] };
 
 /**
  * Annule la soirée : chaque table est remboursée ou annulée, chaque client

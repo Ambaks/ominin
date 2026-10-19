@@ -132,6 +132,8 @@ export type BookingTicket = {
   pendingTotalCents: number | null;
   /** Tout ce qui a été payé, frais compris : en ligne et à l'entrée. */
   paidTotalCents: number;
+  /** Tout ce qui a été remboursé, frais compris. */
+  refundedTotalCents: number;
   payers: SharePayer[];
   /** La zone réservée : le client ne voit pas le numéro de table, que le club peut changer. */
   table: { zone: string; inclus: string | null };
@@ -182,6 +184,9 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     pendingPaymentId: pending?.id ?? null,
     pendingTotalCents: pending?.total_cents ?? null,
     paidTotalCents: paidTotal(data.club_payments),
+    refundedTotalCents: data.club_payments
+      .filter((payment) => payment.status === "remboursee")
+      .reduce((sum, payment) => sum + payment.total_cents, 0),
     payers: sharePayers(data.club_payments),
     table: {
       zone: data.club_tables.club_zones.name,

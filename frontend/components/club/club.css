@@ -72,6 +72,8 @@ html:has(.club) {
   z-index: -1;
   min-height: 100lvh;
   pointer-events: none;
+  /* Le bas du ciel se fond dans le fond de la page : aucune couture, même en capture pleine page. */
+  mask-image: linear-gradient(180deg, #000 calc(100% - 200px), transparent);
   background:
     radial-gradient(70% 45% at 70% 10%, rgba(143, 123, 255, 0.2), transparent 70%),
     radial-gradient(60% 40% at 15% 80%, rgba(226, 196, 143, 0.1), transparent 70%),
@@ -121,8 +123,9 @@ html:has(.club) {
     visibility 0s linear var(--c-sheet);
 }
 
+/* Le halo du haut s'éteint à 900 px ; au-delà, la nuit à plat continue jusqu'en bas de la page. */
 .club-calm {
-  background: radial-gradient(120% 60% at 50% 0%, #1a2150 0%, var(--c-navy) 45%, #0c1029 100%) fixed;
+  background: radial-gradient(120% 900px at 50% 0%, #1a2150 0%, var(--c-navy) 45%, #0c1029 100%) #0c1029;
 }
 
 /* ---------- Charpente ---------- */
@@ -1021,6 +1024,27 @@ html:has(.club) {
   color: var(--c-muted);
 }
 
+.club-allin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-gold-light);
+}
+
+.club-allin::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.club-refund-note {
+  text-align: left;
+}
+
 .club-booking-grid {
   display: grid;
   gap: 20px;
@@ -1098,7 +1122,16 @@ html:has(.club) {
 
 .club-offer[aria-disabled] {
   cursor: not-allowed;
-  opacity: 0.55;
+  border-style: dashed;
+}
+
+.club-offer[aria-disabled] .club-offer-visual {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.club-offer[aria-disabled] :is(.club-offer-price, .club-offer-ambience) {
+  color: var(--c-muted);
 }
 
 .club-offer-art {
@@ -1116,6 +1149,10 @@ html:has(.club) {
   font-size: 14px;
   font-style: normal;
   color: var(--c-gold);
+}
+
+.club-offer-ambience:empty {
+  display: none;
 }
 
 /* La barre de prix monte au choix : la carte choisie garde sa place au-dessus. */
@@ -1141,8 +1178,12 @@ html:has(.club) {
   }
 }
 
-/* Les murs se tracent à l'arrivée, les repères suivent ; choisie, l'offre se retrace. */
-.club-offer-walls polyline {
+/*
+ * Les murs se tracent à l'arrivée, les repères suivent ; choisie, l'offre se
+ * retrace. Le tracé d'arrivée anime le groupe (stroke-dashoffset s'hérite),
+ * le retracé anime les murs : quitter le choix ne relance pas l'arrivée.
+ */
+.club-offer-walls {
   stroke-dasharray: 1;
   animation: club-wall-draw var(--c-draw) var(--c-ease) both;
   animation-delay: calc(var(--i) * 80ms + 150ms);
@@ -1297,9 +1338,21 @@ html:has(.club) {
   .club-offer {
     grid-template-columns: 1fr;
     align-items: stretch;
+    align-content: start;
   }
   .club-offer-visual {
     aspect-ratio: 16 / 9;
+  }
+  /* Sous-ligne réservée même vide (le Bar n'en a pas) : noms et prix alignés d'une carte à l'autre. */
+  .club-offer-ambience:empty {
+    display: block;
+    min-height: 1lh;
+  }
+  /* Une offre seule sur sa ligne prend toute la largeur, dessin à gauche. */
+  .club-offer:nth-child(odd):last-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
   }
 }
 
@@ -2670,7 +2723,7 @@ html:has(.club) {
   font-weight: 600;
   color: var(--c-muted);
   cursor: pointer;
-  transition: color var(--c-base) var(--c-ease);
+  transition: color var(--c-slow) var(--c-sheet-ease);
 }
 
 .club-mode button[aria-checked="true"] {
@@ -2762,14 +2815,6 @@ html:has(.club) {
   transition: none;
 }
 
-.club-seat-amount {
-  fill: var(--c-muted);
-  font-family: var(--c-sans);
-  font-size: 10px;
-  font-weight: 600;
-  pointer-events: none;
-}
-
 .club-seats-legend {
   display: inline-flex;
   align-items: center;
@@ -2785,34 +2830,44 @@ html:has(.club) {
   border-radius: 50%;
 }
 
+.club-seats-legend i[data-tone] {
+  border: 0;
+  background: var(--seat);
+}
+
 .club-seats-legend i[data-tone="you"] {
-  border: 0;
-  background: var(--c-gold-light);
+  box-shadow: 0 0 0 2px var(--c-coral);
 }
 
-.club-seats-legend i[data-tone="friend"] {
-  border: 0;
-  background: #c4b8ff;
-}
-
-.club-seat[data-tone="friend"] {
-  --seat: #c4b8ff;
-}
-
-/* « Vous » a la même lumière partout : votre part en cours de choix, votre place payée. */
-.club-seat[data-tone="you"],
+/* « Vous » est le même partout (votre part en cours de choix, votre place payée) : blanc cerclé de corail. */
+:is(.club-seat, .club-seats-legend i)[data-tone="you"],
 .club-seat[data-tone="preview"] {
-  --seat: var(--c-gold-light);
+  --seat: #fff;
 }
 
-.club-seat[data-tone="organiser"] {
+:is(.club-seat, .club-seats-legend i)[data-tone="organiser"] {
   --seat: var(--c-gold);
+}
+
+:is(.club-seat, .club-seats-legend i)[data-tone="friend"] {
+  --seat: #c4b8ff;
 }
 
 .club-seat-base {
   fill: rgba(255, 255, 255, 0.04);
   stroke: rgba(255, 255, 255, 0.24);
   stroke-width: 1.2;
+}
+
+.club-seat:is([data-tone="you"], [data-tone="preview"]) .club-seat-base {
+  stroke: var(--c-coral);
+  stroke-width: 3;
+}
+
+.club-seat-free {
+  fill: var(--c-faint);
+  font-weight: 500;
+  pointer-events: none;
 }
 
 /* Les places vides respirent. */
@@ -2868,7 +2923,6 @@ html:has(.club) {
 
 .club-seat-initials {
   fill: var(--c-text);
-  font-size: 11px;
   font-weight: 700;
   pointer-events: none;
   animation: club-pop var(--c-slow) var(--c-spring) both;
@@ -2907,11 +2961,14 @@ html:has(.club) {
 
 .club-seats-caption {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 4px 8px;
   min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  white-space: nowrap;
   background: rgba(255, 255, 255, 0.05);
   font-size: 14px;
   color: var(--c-muted);
@@ -3259,7 +3316,25 @@ html:has(.club) {
   gap: 14px;
 }
 
+.club-join-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 22px 20px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--c-radius-lg);
+  background: #141a3c;
+  text-align: center;
+}
+
+.club-join-top .club-button {
+  align-self: stretch;
+  margin-top: 12px;
+}
+
 .club-join {
+  scroll-margin-top: 16px;
   padding: 22px 20px;
   border: 1px solid var(--c-line-strong);
   border-radius: var(--c-radius-lg);
@@ -3379,16 +3454,9 @@ html:has(.club) {
   color: var(--c-text);
 }
 
-/* Téléphone : l'anneau reste en vue pendant qu'on fait glisser le montant. */
+/* Téléphone : le montant et son curseur d'abord, l'anneau plus petit dessous. */
 @media (max-width: 1023px) {
-  .club-sheet .club-share .club-seats-figure {
-    position: sticky;
-    top: 28px;
-    z-index: 1;
-    padding-bottom: 8px;
-    background: #141a3c;
-  }
-  .club-sheet .club-share .club-seats {
+  :is(.club-sheet .club-share, .club-share-join) .club-seats {
     max-width: 190px;
   }
 }
@@ -3418,9 +3486,25 @@ html:has(.club) {
   }
 }
 
+/* Trois par ligne, sur une grille de six : la dernière ligne se partage la largeur, sans case vide. */
 @media (min-width: 1280px) {
   .club-offers {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .club-offer,
+  .club-offer:nth-child(odd):last-child {
+    grid-column: span 2;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .club-offer:nth-child(3n + 1):nth-last-child(2),
+  .club-offer:nth-child(3n + 2):last-child {
+    grid-column: span 3;
+  }
+  .club-offer:nth-child(3n + 1):last-child {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
   }
 }
 

@@ -11,7 +11,7 @@ import type { ClubConditions } from "@/lib/club/types";
  */
 
 export type Contact = { name: string; phone: string; email: string };
-export type ContactErrors = Partial<Record<keyof Contact | "accepted", string>>;
+type ContactErrors = Partial<Record<keyof Contact | "accepted", string>>;
 
 
 export function contactErrors(contact: Contact, accepted: boolean): ContactErrors {

@@ -39,6 +39,7 @@ export function ResumePayment({
   totalCents,
   remainingMs,
   recap,
+  payLabel,
 }: {
   paymentId: string;
   provider: Club["paymentProvider"];
@@ -46,6 +47,8 @@ export function ResumePayment({
   totalCents: number | null;
   remainingMs: number;
   recap: string;
+  /** « Payer ma part » : le libellé du bouton, avant le montant. */
+  payLabel?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -60,6 +63,7 @@ export function ResumePayment({
         totalCents={totalCents}
         remainingMs={remainingMs}
         recap={recap}
+        payLabel={payLabel}
         onPaid={onPaid}
         onExpired={onExpired}
       />
@@ -95,7 +99,10 @@ export function PaidBurst({
     if (!host || !plate) return;
     const reduced = prefersReducedMotion();
     if (scroll) plate.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
-    if (reduced) return;
+    if (reduced) {
+      step?.setAttribute("data-lit", "");
+      return;
+    }
 
     const animations: Animation[] = [];
     let timer = 0;

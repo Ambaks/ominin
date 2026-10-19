@@ -5,9 +5,9 @@ import type { TableState } from "@/components/club/floor-plan";
 import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
-import { formatCents } from "@/lib/club/format";
+import { formatCents, tableName } from "@/lib/club/format";
 import * as clubApi from "@/lib/gestion/club-api";
-import { formatPhone, matchesSearch, staffTableState, tableName, telHref } from "@/lib/gestion/club-selectors";
+import { formatPhone, matchesSearch, staffTableState, telHref } from "@/lib/gestion/club-selectors";
 import { StatusChip } from "./night-plan";
 import { usePresence } from "./use-presence";
 
@@ -150,7 +150,10 @@ function DoorRow({
         current.t = event.timeStamp;
         current.dx = next;
         setOffset(current.dx);
-        setPhase(current.dx >= SWIPE_COMMIT ? "pret" : "glisse");
+        const armed = current.dx >= SWIPE_COMMIT;
+        // Un cran sous le doigt au passage du seuil : lâcher fera entrer.
+        if (armed && phase !== "pret") navigator.vibrate?.(COMMIT_BUZZ);
+        setPhase(armed ? "pret" : "glisse");
       }}
       onPointerUp={() => {
         const current = swipe.current;
@@ -169,12 +172,12 @@ function DoorRow({
         setOffset(0);
       }}
     >
-      {canSwipe && phase !== "repos" && (
+      {canSwipe && (
         <div className="porte-fond" aria-hidden>
           <span className="porte-coche">
             <CheckIcon className="size-4" />
           </span>
-          {phase === "glisse" ? "Faire entrer" : "Relâchez : il entre"}
+          {phase === "pret" || phase === "parti" ? "Relâchez : il entre" : "Faire entrer"}
         </div>
       )}
       <div className="porte-contenu flex flex-col gap-3 p-4">

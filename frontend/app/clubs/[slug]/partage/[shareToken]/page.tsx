@@ -68,17 +68,19 @@ export default async function SharePage({ params, searchParams }: { params: Para
           </p>
         </header>
 
+        {!joinable && (
         <div className="club-share-board">
           <SeatRing
             seats={table.partySize}
             priceCents={table.totalCents}
             shares={shares}
             label={`${table.partySize} pers.`}
-            freshId={yours?.id ?? table.payers.at(-1)?.id}
+            freshId={query.nouveau !== undefined ? yours?.id : undefined}
           />
-          <ShareMeter paidCents={table.totalCents - table.remainingCents} priceCents={table.totalCents} />
+          <ShareMeter paidCents={table.paidTotalCents} priceCents={table.totalCents} />
 
         </div>
+        )}
 
         {yours ? (
           <div className="club-share-state" data-tone="success" role="status">
@@ -122,13 +124,9 @@ export default async function SharePage({ params, searchParams }: { params: Para
           </div>
         ) : joinable ? (
           <section className="club-share-join" aria-labelledby="part-titre">
-            <h2 id="part-titre" className="club-h2">
+            <h2 id="part-titre" className="sr-only">
               Payer votre part
             </h2>
-            <p className="club-lead">
-              Reste <strong className="club-mono">{formatCents(table.remainingCents)}</strong> pour {table.seatsLeft}{" "}
-              place{table.seatsLeft > 1 ? "s" : ""}. Choisissez votre montant.
-            </p>
             <ShareJoin
               shareToken={table.shareToken}
               provider={table.club.paymentProvider}
@@ -137,6 +135,10 @@ export default async function SharePage({ params, searchParams }: { params: Para
               payerIds={table.payers.map((payer) => payer.id)}
               conditions={table.club.conditions}
               recap={`${capitalize(formatNightShort(table.event.startsAt))} · ${where}`}
+              seats={table.partySize}
+              totalCents={table.totalCents}
+              paidCents={table.paidTotalCents}
+              shares={shares}
             />
           </section>
         ) : (

@@ -57,7 +57,8 @@ export function useStripeElements({
   onAlreadyPaid?: () => void;
   /** Habillage des iframes, lu sur le conteneur de la carte au montage. */
   appearance: (container: HTMLElement) => { appearance: Appearance; dark: boolean };
-  buttonHeight: number;
+  /** Hauteur des boutons Apple Pay / Google Pay (px), ou sa lecture au montage (un jeton CSS). */
+  buttonHeight: number | (() => number);
 }) {
   const [state, setState] = useState<CardPaymentState>("loading");
   // Une tentative refusée démonte le formulaire : « Réessayer » en remonte
@@ -147,7 +148,7 @@ export function useStripeElements({
         },
         paymentMethodOrder: ["applePay", "googlePay"],
         layout: { maxColumns: 1, overflow: "never" },
-        buttonHeight,
+        buttonHeight: typeof buttonHeight === "function" ? buttonHeight() : buttonHeight,
         buttonType: { applePay: "plain", googlePay: "plain" },
         buttonTheme: {
           applePay: dark ? "white" : "black",

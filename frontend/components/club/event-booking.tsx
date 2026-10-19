@@ -182,6 +182,7 @@ export function EventBooking({
   const setMode = (next: Mode) => {
     setBack(modes.findIndex((item) => item.id === next) < modeIndex);
     setModeState(next);
+    revealFigure.current = true;
   };
   const goStep = (next: Step) => {
     setBack(STEPS.findIndex((item) => item.id === next) < STEPS.findIndex((item) => item.id === step));
@@ -314,36 +315,46 @@ export function EventBooking({
     const sheet = sheetRef.current;
     if (!sheet || !open) return;
     let start: { y: number; time: number } | null = null;
+    let dragging = false;
     let dy = 0;
     const onStart = (touch: TouchEvent) => {
       start = sheet.scrollTop <= 0 && !live.current.paying ? { y: touch.touches[0].clientY, time: touch.timeStamp } : null;
+      dragging = false;
       dy = 0;
     };
+    // Une fois la feuille prise, le doigt la garde jusqu'au bout : revenu plus haut que son départ, elle reste en place.
     const onMove = (touch: TouchEvent) => {
       if (!start) return;
       dy = touch.touches[0].clientY - start.y;
-      if (dy <= 0) {
+      if (dy <= 0 && !dragging) {
         start = null;
         return;
       }
       touch.preventDefault();
-      sheet.setAttribute("data-dragging", "");
-      backdropRef.current?.setAttribute("data-dragging", "");
+      dy = Math.max(0, dy);
+      if (!dragging) {
+        dragging = true;
+        sheet.setAttribute("data-dragging", "");
+        backdropRef.current?.setAttribute("data-dragging", "");
+      }
       sheet.style.translate = `0 ${dy}px`;
       backdropRef.current?.style.setProperty("opacity", String(1 - Math.min(dy / sheet.offsetHeight, 1)));
     };
     const onEnd = (touch: TouchEvent) => {
-      if (!start || dy <= 0) return;
+      if (!start || !dragging) return;
       releaseSheet(sheet, backdropRef.current, dy / Math.max(touch.timeStamp - start.time, 1), dy, closeSheet);
       start = null;
+      dragging = false;
     };
     sheet.addEventListener("touchstart", onStart, { passive: true });
     sheet.addEventListener("touchmove", onMove, { passive: false });
     sheet.addEventListener("touchend", onEnd);
+    sheet.addEventListener("touchcancel", onEnd);
     return () => {
       sheet.removeEventListener("touchstart", onStart);
       sheet.removeEventListener("touchmove", onMove);
       sheet.removeEventListener("touchend", onEnd);
+      sheet.removeEventListener("touchcancel", onEnd);
     };
   }, [open, closeSheet]);
   const dragHandlers = {
@@ -368,6 +379,19 @@ export function EventBooking({
       easing: clubToken("--c-ease"),
     });
   }, [step, offerId, hold, mode, people]);
+
+  /* Un mode choisi : son chiffre clé (acompte, votre part) vient en vue, au-dessus de la barre d'action collée. */
+  const revealFigure = useRef(false);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!revealFigure.current) return;
+    revealFigure.current = false;
+    const sheet = sheetRef.current;
+    const figure = sheet?.querySelector<HTMLElement>("[data-key-figure]");
+    if (!sheet || !figure) return;
+    sheet.style.scrollPaddingBottom = `${ctaRef.current?.offsetHeight ?? 0}px`;
+    figure.scrollIntoView({ block: "nearest", behavior: reducedMotion() ? "auto" : "smooth" });
+  }, [mode]);
 
   useEffect(() => {
     if (step !== "offre") headingRef.current?.focus({ preventScroll: true });
@@ -462,6 +486,7 @@ export function EventBooking({
           <span className="sr-only">Conditions d&rsquo;entrée : </span>
           {[`${conditions.minAge}+`, conditions.dress, conditions.refused].filter(Boolean).join(" · ")}
         </p>
+        <p className="club-allin">Prix tout compris, aucun autre frais</p>
       </header>
 
       <div className="club-booking-grid">
@@ -506,9 +531,9 @@ export function EventBooking({
                   </span>
                   <span className="club-offer-body">
                     <span className="club-offer-name">{offer.name}</span>
-                    {ambience(offer) && <span className="club-offer-ambience">{ambience(offer)}</span>}
+                    <span className="club-offer-ambience">{ambience(offer)}</span>
                     <span className="club-offer-price club-mono">{formatCents(allIn(offer.offerCents))}</span>
-                    <span className="club-offer-meta">Jusqu&rsquo;à {offer.maxParty} personnes · frais compris</span>
+                    <span className="club-offer-meta">Jusqu&rsquo;à {offer.maxParty} personnes</span>
                     {offer.inclus && <span className="club-offer-inclus">{offer.inclus}</span>}
                   </span>
                 </button>
@@ -598,6 +623,9 @@ export function EventBooking({
                   {selected.name}
                 </h3>
                 <p className="club-sheet-text">Jusqu&rsquo;à {selected.maxParty} personnes · table attribuée par le club</p>
+                <p className="club-sheet-price">
+                  <RollingAmount cents={tablePrice} className="club-mono" /> tout compris · {people} pers.
+                </p>
               </div>
 
               <div ref={stageRef} className="club-stage" data-back={back || undefined}>
@@ -656,7 +684,7 @@ export function EventBooking({
                       ))}
                     </div>
                     {mode === "deposit" && deposit !== null && (
-                      <div className="club-deposit" key="deposit">
+                      <div className="club-deposit" key="deposit" data-key-figure>
                         <p className="club-label">Acompte de {club.depositPercent} %</p>
                         <p className="club-share-value">
                           <RollingAmount cents={deposit} className="club-mono" />
@@ -668,14 +696,7 @@ export function EventBooking({
                       </div>
                     )}
                     {shared && people > 1 && (
-                      <div className="club-share" key="share">
-                        <SeatRing
-                          seats={people}
-                          priceCents={tablePrice}
-                          shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
-                          label={`${people} pers.`}
-                          scrubbing={scrubbing}
-                        />
+                      <div className="club-share" key="share" data-key-figure>
                         <ShareAmount
                           value={share}
                           min={part}
@@ -695,6 +716,13 @@ export function EventBooking({
                           ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
                           onChange={setShareCents}
                           onScrub={setScrubbing}
+                        />
+                        <SeatRing
+                          seats={people}
+                          priceCents={tablePrice}
+                          shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
+                          label={`${people} pers.`}
+                          scrubbing={scrubbing}
                         />
                         <p className="club-fine club-share-note">
                           La table est à vous dès ce paiement. Vos amis reçoivent un lien privé pour payer leur part
@@ -725,7 +753,11 @@ export function EventBooking({
                         </dd>
                       </div>
                     </dl>
-                    <div className="club-sticky-cta">
+                    <p className="club-fine club-refund-note">{REFUND_RULE}</p>
+                    <div ref={ctaRef} className="club-sticky-cta">
+                      <p className="club-fine club-fee-note">
+                        {`Dont ${formatCents(fee(price))} de frais de réservation (${club.feePercent} %)${partial ? ", pris sur ce premier paiement" : ""} · aucun autre frais.`}
+                      </p>
                       <button
                         ref={reserveRef}
                         type="button"
@@ -735,9 +767,6 @@ export function EventBooking({
                       >
                         Continuer · <RollingAmount cents={total} instant={scrubbing} />
                       </button>
-                      <p className="club-fine club-fee-note">
-                        {`Dont ${formatCents(fee(price))} de frais de réservation (${club.feePercent} %)${partial ? ", pris sur ce premier paiement" : ""} · aucun autre frais.`}
-                      </p>
                     </div>
                   </div>
                 )}

@@ -4,18 +4,18 @@ import type { ClubTable, PlanMark, ZoneLayout } from "@/lib/club/types";
 
 /*
  * Le plan d'une zone, dessiné (pas une image) : murs, repères et tables à
- * leur place, chaque table un bouton. Partagé par la page du club (le client
- * choisit SA table) et par la gestion (le plan du soir en direct) : l'état
- * de chaque table passe en data-state, l'habillage revient à la feuille de
- * style de chaque côté (.club-plan, .gestion-plan).
+ * leur place, chaque table un bouton. Réservé à l'équipe du club (le plan
+ * du soir en direct, l'éditeur de soirée) : le client choisit une offre et
+ * ne voit jamais le plan. L'état de chaque table passe en data-state,
+ * l'habillage revient à la feuille de style de la gestion (.gestion-plan).
  */
 
 export type TableState =
-  // Côté client
+  // Disponibilité
   | "libre"
   | "prise"
   | "fermee"
-  // Côté club
+  // Suivi du soir
   | "payee"
   | "arrivee"
   | "attente"

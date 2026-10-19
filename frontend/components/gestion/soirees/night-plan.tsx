@@ -8,7 +8,7 @@ import { TABLE_STATE_LABELS } from "@/lib/gestion/club-selectors";
 import type { ClubTable, ClubZone } from "@/lib/club/types";
 
 /** Une table à signaler sur le plan, le temps de son halo. */
-export type PlanPing = { id: string; table: ClubTable };
+type PlanPing = { id: string; table: ClubTable };
 
 /** Tables dessinées un peu plus grandes que sur le plan d'origine : numéros lisibles au téléphone, sans se toucher. */
 const TABLE_SCALE = 1.2;

@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HoldCountdown } from "@/components/club/hold-countdown";
+import { CLUB_TIMING } from "@/components/club/timing";
 import { useMagnetic } from "@/components/club/use-magnetic";
 import { themeColors } from "@/components/menu/card-payment";
 import { useStripeElements, type PreparedIntent } from "@/components/payment/use-stripe-elements";
 import { formatCents } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
+import { clubToken } from "@/lib/club/media";
 import type { Club } from "@/lib/club/types";
 
 /*
@@ -22,7 +24,19 @@ import type { Club } from "@/lib/club/types";
  */
 
 /* onExpired : le message du serveur quand la table n'est plus tenue (délai passé, réservation reprise). */
-type Outcome = { onPaid: () => void; onExpired: (message?: string) => void; onBusy: (busy: boolean) => void };
+type Outcome = {
+  onPaid: () => void;
+  onExpired: (message?: string) => void;
+  onBusy: (busy: boolean) => void;
+  /** Le libellé du bouton, avant le montant (« Payer », « Payer ma part »). */
+  label?: string;
+};
+
+/* Payé : le bouton le dit (et le téléphone vibre) un instant, puis on passe à la réservation. */
+const celebrate = (onPaid: () => void) => {
+  navigator.vibrate?.(CLUB_TIMING.paidVibrateMs);
+  window.setTimeout(onPaid, CLUB_TIMING.paidPause);
+};
 
 async function post(path: "/api/club/pay" | "/api/club/verify", paymentId: string) {
   const response = await fetch(path, {
@@ -44,11 +58,13 @@ function PayButton({
   busy,
   paid,
   totalCents,
+  label = "Payer",
   onClick,
 }: {
   busy: boolean;
   paid?: boolean;
   totalCents: number | null;
+  label?: string;
   onClick?: () => void;
 }) {
   const ref = useMagnetic<HTMLButtonElement>();
@@ -60,9 +76,15 @@ function PayButton({
       onClick={onClick}
       disabled={busy || paid}
       aria-busy={busy || undefined}
+      data-paid={paid || undefined}
     >
       {paid ? (
-        "Payé"
+        <>
+          <svg className="club-paid-check" viewBox="0 0 16 16" aria-hidden>
+            <path d="M3 8.5l3.2 3L13 4.5" />
+          </svg>
+          Payé
+        </>
       ) : busy ? (
         <>
           <span className="club-spinner" aria-hidden />
@@ -70,14 +92,20 @@ function PayButton({
         </>
       ) : (
         <>
-          Payer {totalCents === null ? "ma part" : <span className="club-mono">{formatCents(totalCents)}</span>}
+          {label}
+          {totalCents !== null && (
+            <>
+              {" · "}
+              <span className="club-mono">{formatCents(totalCents)}</span>
+            </>
+          )}
         </>
       )}
     </button>
   );
 }
 
-function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { paymentId: string; totalCents: number | null } & Outcome) {
+function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy, label }: { paymentId: string; totalCents: number | null } & Outcome) {
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +118,7 @@ function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { pay
       if (status === 409 || status === 410) return onExpired(body.error);
       if (ok && body.paid) {
         setPaid(true);
-        return onPaid();
+        return celebrate(onPaid);
       }
       setError(body.error ?? "Le paiement n'a pas abouti.");
     } catch {
@@ -128,7 +156,7 @@ function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { pay
         </p>
       )}
       <div className="club-sticky-cta">
-        <PayButton busy={paying} paid={paid} totalCents={totalCents} onClick={() => void pay()} />
+        <PayButton busy={paying} paid={paid} totalCents={totalCents} label={label} onClick={() => void pay()} />
       </div>
     </div>
   );
@@ -137,7 +165,8 @@ function DemoPayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { pay
 const EXPRESS_ID = "club-stripe-express";
 const CARD_ID = "club-stripe-card";
 
-function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy }: { paymentId: string; totalCents: number | null } & Outcome) {
+function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy, label }: { paymentId: string; totalCents: number | null } & Outcome) {
+  const [succeeded, setSucceeded] = useState(false);
   const [refunded, setRefunded] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -162,7 +191,10 @@ function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy }
   const onSucceeded = useCallback(async () => {
     const verified = await post("/api/club/verify", paymentId).catch(() => null);
     if (verified?.ok && verified.body.paid === false) setRefunded(true);
-    else onPaid();
+    else {
+      setSucceeded(true);
+      celebrate(onPaid);
+    }
   }, [paymentId, onPaid]);
 
   const appearance = useCallback((container: HTMLElement) => {
@@ -197,7 +229,7 @@ function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy }
     onAlreadyPaid: onPaid,
     appearance,
     // La hauteur des boutons de la page (--c-control).
-    buttonHeight: 52,
+    buttonHeight: () => parseFloat(clubToken("--c-control")),
   });
 
   useEffect(() => {
@@ -259,8 +291,9 @@ function StripeTablePayment({ paymentId, totalCents, onPaid, onExpired, onBusy }
       <div className="club-sticky-cta">
         <PayButton
           busy={state === "paying" || state === "loading"}
-          paid={state === "paid"}
+          paid={state === "paid" || succeeded}
           totalCents={totalCents}
+          label={label}
           onClick={() => void confirm()}
         />
       </div>
@@ -274,6 +307,7 @@ export function TablePayment({
   totalCents,
   remainingMs,
   recap,
+  payLabel,
   onPaid,
   onExpired,
 }: {
@@ -285,6 +319,7 @@ export function TablePayment({
   remainingMs: number;
   /** « Sam. 24 oct. · VIP Salon Rouge · 8 pers. · 1 050 € tout compris ». */
   recap: string;
+  payLabel?: string;
   onPaid: () => void;
   onExpired: (message?: string) => void;
 }) {
@@ -317,7 +352,7 @@ export function TablePayment({
   }, [timeUp, busy, paymentId, paid, expired]);
 
   const onTimeUp = useCallback(() => setTimeUp(true), []);
-  const props = { paymentId, totalCents, onPaid: paid, onExpired: expired, onBusy: setBusy };
+  const props = { paymentId, totalCents, onPaid: paid, onExpired: expired, onBusy: setBusy, label: payLabel };
   return (
     <div className="club-paystep">
       <p className="club-recap">{recap}</p>

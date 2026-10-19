@@ -53,7 +53,6 @@ export function tablePrice(club: ClubState, eventId: string, table: ClubTable): 
   return setting?.priceCents ?? zone?.priceCents ?? 0;
 }
 
-/** L'état d'une table sur le plan de l'équipe. */
 /**
  * L'état d'une table sur le plan de l'équipe. Une table tenue dont il reste
  * à encaisser (saisie par le club, ou partagée et pas encore réglée en
@@ -82,6 +81,44 @@ export function depositOf(booking: ClubBooking, payments: ClubPayment[]): number
   return online[0].amountCents + online[0].feeCents;
 }
 
+/** Un payeur d'une table : ses paiements (une part, puis un complément), réunis sous son nom. */
+export type Payer = {
+  key: string;
+  name: string;
+  organiser: boolean;
+  /** Payé et non remboursé, frais compris et hors frais. */
+  totalCents: number;
+  amountCents: number;
+  feeCents: number;
+  payments: ClubPayment[];
+};
+
+/**
+ * Les payeurs d'une table, dans l'ordre de leur premier paiement : une
+ * personne qui paie deux fois (sa part en ligne, le reste à la porte) reste
+ * une personne, reconnue à son nom. La liste « Qui a payé » et l'anneau en
+ * sont la source.
+ */
+export function payersOf(payments: ClubPayment[]): Payer[] {
+  const byKey = new Map<string, Payer>();
+  for (const payment of payments) {
+    const key = payment.name.trim().toLowerCase();
+    const payer =
+      byKey.get(key) ??
+      byKey
+        .set(key, { key, name: payment.name, organiser: false, totalCents: 0, amountCents: 0, feeCents: 0, payments: [] })
+        .get(key)!;
+    payer.organiser ||= payment.organiser;
+    payer.payments.push(payment);
+    if (payment.status === "payee") {
+      payer.amountCents += payment.amountCents;
+      payer.feeCents += payment.feeCents;
+      payer.totalCents += payment.amountCents + payment.feeCents;
+    }
+  }
+  return [...byKey.values()];
+}
+
 /** Payé en ligne, non remboursé : ce qu'un remboursement de la table rend. */
 export const refundableOnline = (payments: ClubPayment[]) =>
   payments.filter((payment) => payment.method === "en_ligne" && payment.status === "payee");
@@ -95,7 +132,7 @@ export const TABLE_STATE_LABELS: Partial<Record<TableState, string>> = {
   gardee: "Gardée, hors vente",
 };
 
-export interface NightStats {
+interface NightStats {
   sold: number;
   /** Tables en vente ce soir, plus celles vendues hors vente (gardées, zone fermée). */
   capacity: number;
@@ -153,9 +190,6 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
   }
   return stats;
 }
-
-/** « Salon Rouge · 03 » : une table se nomme par sa zone, comme sur la page du club. */
-export const tableName = (zoneName: string, label: string) => `${zoneName} · ${label}`;
 
 /** « 1 personne », « 5 personnes ». */
 export const people = (count: number) => `${count} personne${count > 1 ? "s" : ""}`;

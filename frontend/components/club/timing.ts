@@ -17,6 +17,9 @@ export const CLUB_TIMING = {
   burst: 1_600,
   /* Au plus ce délai pour qu'un défilement vers l'élément fêté se pose. */
   scrollSettle: 900,
+  /* Le bouton dit « Payé » (et le téléphone vibre) avant de passer à la réservation. */
+  paidPause: 650,
+  paidVibrateMs: 12,
   /* « Lien copié » reste affiché. */
   copied: 1_800,
 } as const;

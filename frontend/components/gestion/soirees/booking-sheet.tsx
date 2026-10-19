@@ -6,17 +6,17 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { formatClock } from "@/lib/collect/hours";
-import { formatCents } from "@/lib/club/format";
+import { formatCents, tableName } from "@/lib/club/format";
 import type { ClubBooking, ClubEvent, ClubPayment, ClubTable, ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
   depositOf,
   formatPhone,
   isClubEntered,
+  payersOf,
   people,
   refundableOnline,
   staffTableState,
-  tableName,
   telHref,
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
@@ -138,7 +138,8 @@ function BookingCard({
   const onlineTotal = online.reduce((sum, payment) => sum + payment.amountCents + payment.feeCents, 0);
   const fees = online.reduce((sum, payment) => sum + payment.feeCents, 0);
   const paid = payments.filter((payment) => payment.status === "payee");
-  const payers = paid.filter((payment) => payment.method === "en_ligne").length;
+  const groups = payersOf(payments);
+  const payers = groups.filter((payer) => payer.totalCents > 0).length;
   const paidTotal = paid.reduce((sum, payment) => sum + payment.amountCents + payment.feeCents, 0);
   const paidFees = paid.reduce((sum, payment) => sum + payment.feeCents, 0);
 
@@ -208,14 +209,10 @@ function BookingCard({
         {booking.shared && payers > 1 && (
           <PayerRing
             label={table.label}
+            seats={booking.partySize}
             priceCents={booking.priceCents}
             paidCents={booking.paidCents}
-            payers={paid.map((payment) => ({
-              id: payment.id,
-              name: payment.name,
-              totalCents: payment.amountCents + payment.feeCents,
-              organiser: payment.organiser,
-            }))}
+            payers={groups.filter((payer) => payer.totalCents > 0)}
           />
         )}
 
@@ -233,57 +230,60 @@ function BookingCard({
           <section aria-label="Paiements" className="flex flex-col gap-2">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Qui a payé</h3>
             <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-              {payments.map((payment) => {
-                const refunded = payment.status === "remboursee";
-                // Un ami qui se désiste ; la part de l'organisateur (et les frais) part avec la table entière.
-                const refundable =
-                  gerant && booking.shared && !payment.organiser && payment.method === "en_ligne" && !refunded;
-                return (
-                  <li key={payment.id} className="flex items-center gap-3 px-4 py-2.5">
-                    <span className="min-w-0 flex-1">
-                      <span className={`text-sm font-medium ${refunded ? "text-muted line-through" : ""}`}>
-                        {payment.name}
-                      </span>
-                      {payment.organiser && booking.shared && (
+              {groups.map((payer) => (
+                <li key={payer.key} className="flex flex-col gap-1.5 px-4 py-2.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className={`min-w-0 text-sm font-medium ${payer.totalCents === 0 ? "text-muted line-through" : ""}`}>
+                      {payer.name}
+                      {payer.organiser && booking.shared && (
                         <span className="ml-1.5 text-xs font-medium text-ember-1">Organisateur</span>
                       )}
-                      <span className="block text-xs text-muted">
-                        {METHOD_LABELS[payment.method]}
-                        {refunded
-                          ? booking.status === "remboursee"
-                            ? " · remboursée"
-                            : " · part remboursée"
-                          : payment.paidAt
-                            ? ` · ${formatClock(payment.paidAt)}`
-                            : ""}
-                        {payment.feeCents > 0 && (
-                          <>
-                            {" · dont "}
-                            <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais Ominin
-                          </>
+                    </span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums">{formatCents(payer.totalCents)}</span>
+                  </div>
+                  {payer.payments.map((payment) => {
+                    const refunded = payment.status === "remboursee";
+                    // Un ami qui se désiste ; la part de l'organisateur (et les frais) part avec la table entière.
+                    const refundable =
+                      gerant && booking.shared && !payment.organiser && payment.method === "en_ligne" && !refunded;
+                    return (
+                      <div key={payment.id} className="flex items-center justify-between gap-3 text-xs text-muted">
+                        <span className={refunded ? "line-through" : undefined}>
+                          {METHOD_LABELS[payment.method]}
+                          {payment.paidAt ? ` · ${formatClock(payment.paidAt)}` : ""}
+                          {payer.payments.length > 1 && (
+                            <>
+                              {" · "}
+                              <span className="tabular-nums">{formatCents(payment.amountCents + payment.feeCents)}</span>
+                            </>
+                          )}
+                          {payment.feeCents > 0 && (
+                            <>
+                              {" · dont "}
+                              <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais Ominin
+                            </>
+                          )}
+                          {refunded && (booking.status === "remboursee" ? " · remboursée" : " · part remboursée")}
+                        </span>
+                        {refundable && (
+                          <button
+                            type="button"
+                            disabled={working}
+                            onClick={() => setConfirm(payment)}
+                            aria-label={`Rembourser la part de ${payment.name}`}
+                            className="min-h-11 shrink-0 rounded-full border border-hairline px-3.5 text-xs font-semibold text-foreground hover:border-ember-3/60 disabled:opacity-50"
+                          >
+                            {busy === payment.id ? "…" : "Rembourser"}
+                          </button>
                         )}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">
-                      {formatCents(payment.amountCents + payment.feeCents)}
-                    </span>
-                    {refundable && (
-                      <button
-                        type="button"
-                        disabled={working}
-                        onClick={() => setConfirm(payment)}
-                        aria-label={`Rembourser la part de ${payment.name}`}
-                        className="min-h-11 shrink-0 rounded-full border border-hairline px-3.5 text-xs font-semibold text-foreground hover:border-ember-3/60 disabled:opacity-50"
-                      >
-                        {busy === payment.id ? "…" : "Rembourser"}
-                      </button>
-                    )}
-                    {gerant && booking.status === "remboursee" && payment.method === "en_ligne" && !refunded && (
-                      <span className="shrink-0 text-xs font-semibold text-ember-3">Remboursement à relancer</span>
-                    )}
-                  </li>
-                );
-              })}
+                        {gerant && booking.status === "remboursee" && payment.method === "en_ligne" && !refunded && (
+                          <span className="shrink-0 font-semibold text-foreground">Remboursement à relancer</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </li>
+              ))}
               <li className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
                 <span className="font-medium">
                   Total payé

@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
-import { PillTabs } from "@/components/ui/pill-tabs";
+import { UnderlineTabs } from "./underline-tabs";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import { slugify, uniqueSlug } from "@/lib/admin/slug";
@@ -18,7 +18,7 @@ import {
   shiftDay,
   toMinutes,
 } from "@/lib/collect/hours";
-import { formatCents, formatNight, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatNight, formatNightShort, tableName } from "@/lib/club/format";
 import type { ClubEvent } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
@@ -30,7 +30,6 @@ import {
   refundableOnline,
   staffTableState,
   TABLE_STATE_LABELS,
-  tableName,
 } from "@/lib/gestion/club-selectors";
 import type { ClubState } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS, WAIT_TICK_MS } from "@/lib/gestion/constants";
@@ -189,7 +188,7 @@ function SectionTabs({
     <div
       role="tablist"
       aria-label="Préparer la soirée"
-      className="no-scrollbar sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 flex gap-1.5 overflow-x-auto bg-background/90 px-5 py-2 backdrop-blur-md lg:mx-0 lg:px-0"
+      className="defile no-scrollbar sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 flex gap-1.5 overflow-x-auto bg-background/90 py-2 backdrop-blur-md lg:mx-0"
     >
       {SECTIONS.filter((section) => available.includes(section.id)).map((section, index) => {
         const active = section.id === current;
@@ -696,7 +695,8 @@ export function EventEditor({
           hint="Touchez une table pour la garder hors vente ce soir — artiste, habitués. Vous pourrez toujours la réserver vous-même."
         >
           {zonesOn.length > 1 && (
-            <PillTabs
+            <UnderlineTabs
+            label="Zone du plan"
               tabs={zonesOn.map((zone) => ({ id: zone.id, label: zone.name, count: blockedIn(zone.id) }))}
               activeId={planZone.id}
               onSelect={setPlanZoneId}
