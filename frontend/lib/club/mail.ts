@@ -167,19 +167,17 @@ export function sendPaymentRefunded(mail: BookingMail) {
   );
 }
 
-export function sendEventCancelled(mail: BookingMail, refunded: boolean) {
+export function sendEventCancelled(mail: BookingMail) {
   return send(
     mail.to,
     `Soirée annulée · ${mail.event.title}`,
     layout(
       mail,
       "La soirée est annulée",
-      refunded
-        ? `${escapeHtml(mail.name)}, ${escapeHtml(mail.club.name)} a annulé la soirée. Ce que vous avez payé vous est remboursé automatiquement, sous 5 à 10 jours selon votre banque.`
-        : `${escapeHtml(mail.name)}, ${escapeHtml(mail.club.name)} a annulé la soirée. Votre réservation est annulée.`,
+      `${escapeHtml(mail.name)}, ${escapeHtml(mail.club.name)} a annulé la soirée. Ce que vous avez payé vous est remboursé automatiquement, sous 5 à 10 jours selon votre banque.`,
       "Voir ma réservation",
       "",
-      refunded ? "refunded" : "paid"
+      "refunded"
     )
   );
 }

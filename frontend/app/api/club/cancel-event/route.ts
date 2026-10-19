@@ -62,22 +62,28 @@ export async function POST(request: Request) {
   ].map((id) => ({ id }));
   const stripe = bookings.length ? getStripe() : null;
 
-  // En parallèle : au plus une réservation par table du club.
+  // En parallèle : au plus une réservation par table du club. Chaque payeur
+  // est prévenu de ce que CET appel lui a rendu : un échec en cours de route
+  // ne prive pas d'e-mail ceux déjà remboursés, et une relance ne réécrit pas
+  // à ceux déjà prévenus.
   const results = await Promise.all(
     bookings.map(async (booking) => {
+      const refunded: string[] = [];
+      let outcome: Awaited<ReturnType<typeof refundBooking>> | "failed";
       try {
-        // Qui prévenir se lit avant de rendre l'argent : remboursés, leurs
-        // paiements ne comptent plus parmi ceux qui tiennent la table.
-        const mails = await bookingRecipients(admin, booking.id);
-        const outcome = await refundBooking(admin, stripe, booking.id, { notify: false });
-        if (outcome !== "not_refundable") {
-          await Promise.all(mails.map((mail) => sendEventCancelled(mail, outcome === "refunded")));
-        }
-        return { id: booking.id, outcome };
+        outcome = await refundBooking(admin, stripe, booking.id, {
+          notify: false,
+          onRefunded: (paymentId) => refunded.push(paymentId),
+        });
       } catch (error) {
         console.error("[club] remboursement à l'annulation", { bookingId: booking.id, error });
-        return { id: booking.id, outcome: "failed" as const };
+        outcome = "failed";
       }
+      if (refunded.length) {
+        const mails = await bookingRecipients(admin, booking.id, { paymentIds: refunded });
+        await Promise.all(mails.map(sendEventCancelled));
+      }
+      return { id: booking.id, outcome };
     })
   );
   return NextResponse.json({

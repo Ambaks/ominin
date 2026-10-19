@@ -89,22 +89,27 @@ export async function bookingMail(
 }
 
 /**
- * Tous ceux à prévenir d'un changement : l'organisateur et chaque ami dont
- * le paiement tient encore, chacun avec ce qu'il a payé. Un paiement
- * abandonné ou déjà remboursé ne reçoit rien.
+ * Tous ceux à prévenir d'un changement, chacun avec ce qu'il a payé :
+ * l'organisateur et chaque ami dont le paiement tient encore — ou, avec
+ * paymentIds, les payeurs de ces paiements-là (ceux qu'une annulation vient
+ * de rembourser). Un paiement abandonné ne reçoit rien.
  */
-export async function bookingRecipients(admin: Admin, bookingId: string): Promise<BookingMail[]> {
-  const [{ data: booking }, { data: payments }] = await Promise.all([
+export async function bookingRecipients(
+  admin: Admin,
+  bookingId: string,
+  options: { paymentIds?: string[] } = {}
+): Promise<BookingMail[]> {
+  const payments = admin
+    .from("club_payments")
+    .select("name, email, total_cents, organiser")
+    .eq("booking_id", bookingId)
+    .eq("method", "en_ligne");
+  const [{ data: booking }, { data: payers }] = await Promise.all([
     admin.from("club_bookings").select(MAIL_SELECT).eq("id", bookingId).maybeSingle(),
-    admin
-      .from("club_payments")
-      .select("name, email, total_cents, organiser")
-      .eq("booking_id", bookingId)
-      .eq("method", "en_ligne")
-      .eq("status", "payee"),
+    options.paymentIds ? payments.in("id", options.paymentIds) : payments.eq("status", "payee"),
   ]);
   if (!booking) return [];
-  const organiserPaid = (payments ?? []).find((payment) => payment.organiser);
+  const organiserPaid = (payers ?? []).find((payment) => payment.organiser);
   const mails = [
     organiserPaid &&
       mailFor(booking, {
@@ -113,7 +118,7 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
         amountCents: organiserPaid.total_cents,
         organiser: true,
       }),
-    ...(payments ?? [])
+    ...(payers ?? [])
       .filter((payment) => !payment.organiser)
       .map((payment) =>
         mailFor(booking, {
@@ -307,7 +312,7 @@ export async function refundBooking(
   admin: Admin,
   stripe: Stripe | null,
   bookingId: string,
-  options: { notify: boolean }
+  options: { notify: boolean; onRefunded?: (paymentId: string) => void }
 ): Promise<RefundOutcome> {
   const { data: before } = await admin
     .from("club_bookings")
@@ -329,7 +334,10 @@ export async function refundBooking(
   // Un échec Stripe interrompt la boucle : la relance reprend les parts encore payées.
   let refunded = 0;
   for (const payment of payments ?? []) {
-    if (await refundPayment(admin, stripe, payment.id, options)) refunded += 1;
+    if (await refundPayment(admin, stripe, payment.id, options)) {
+      refunded += 1;
+      options.onRefunded?.(payment.id);
+    }
   }
   if (refunded > 0) return "refunded";
   const wasActive = ["en_attente", "payee", "arrivee"].includes(before.status);
