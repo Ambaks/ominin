@@ -11,11 +11,11 @@ import {
   ANALYTICS_PERIOD_DAYS,
   DEFAULT_DAY_END_HOUR,
   HISTORY_ORDER_STATUSES,
-  HISTORY_PAGE_SIZE,
   ORDER_HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
   PAID_ORDER_STATUSES,
+  PAYMENTS_PAGE_SIZE,
   TABLE_FEATURES,
 } from "./constants";
 import {
@@ -142,23 +142,28 @@ export async function fetchOrderHistory(
   return { orders, nextCursor };
 }
 
-/** Historique des paiements (commandes encaissées), curseur = created_at décroissant. */
+/**
+ * Historique des paiements (commandes encaissées), curseur = created_at
+ * décroissant. Sans curseur, la page commence où s'arrête la fenêtre de
+ * l'état : ce qu'elle contient est déjà là.
+ */
 export async function fetchPaidOrders(
   before: string | null
 ): Promise<{ orders: Order[]; nextCursor: string | null }> {
   const supabase = createClient();
   const etablissementId = getState().etablissement.id;
-  let query = supabase
-    .from("orders")
-    .select("*, order_items(*), order_payments(*)")
-    .eq("etablissement_id", etablissementId)
-    .in("status", PAID_ORDER_STATUSES)
-    .order("created_at", { ascending: false })
-    .limit(HISTORY_PAGE_SIZE);
-  if (before) query = query.lt("created_at", before);
-  const orders = must(await query).map(rowToOrder);
+  const orders = must(
+    await supabase
+      .from("orders")
+      .select("*, order_items(*), order_payments(*)")
+      .eq("etablissement_id", etablissementId)
+      .in("status", PAID_ORDER_STATUSES)
+      .lt("created_at", before ?? loadedSince)
+      .order("created_at", { ascending: false })
+      .limit(PAYMENTS_PAGE_SIZE)
+  ).map(rowToOrder);
   const nextCursor =
-    orders.length === HISTORY_PAGE_SIZE
+    orders.length === PAYMENTS_PAGE_SIZE
       ? orders[orders.length - 1].createdAt
       : null;
   return { orders, nextCursor };

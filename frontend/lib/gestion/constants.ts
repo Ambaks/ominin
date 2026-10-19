@@ -24,8 +24,8 @@ export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;
-/** Nombre de commandes par page dans l'historique (chargement à la demande). */
-export const HISTORY_PAGE_SIZE = 50;
+/** Onglet Paiements : encaissements affichés d'emblée, puis ajoutés à chaque « Voir plus ». */
+export const PAYMENTS_PAGE_SIZE = 20;
 /** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
 export const ORDER_HISTORY_PAGE_SIZE = 10;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
@@ -13,7 +13,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
+import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
   isPaid,
@@ -191,26 +191,24 @@ export default function PaiementsPage() {
   const { hasFeature } = useGestionAccess();
   const toast = useToast();
   const [filter, setFilter] = useState<ModeFilter>("tous");
-  // L'historique complet n'est pas dans le fetch initial borné : pages à la
-  // demande, fusionnées avec les commandes du snapshot (fraîches, realtime).
+  // La liste s'affiche par pages de PAYMENTS_PAGE_SIZE : en rendre d'un coup
+  // le mois que l'état contient figeait l'onglet. Au-delà de cette fenêtre,
+  // les pages viennent du serveur. Curseur : undefined tant qu'aucune n'est
+  // demandée, null une fois tout chargé.
+  const [shown, setShown] = useState(PAYMENTS_PAGE_SIZE);
   const [history, setHistory] = useState<Order[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [editing, setEditing] = useState<Order | null>(null);
   const [voiding, setVoiding] = useState<Order | null>(null);
-  const loadRequested = useRef(false);
 
   const loadHistory = useCallback(
     async (before: string | null) => {
       setLoadingHistory(true);
       try {
         const page = await fetchPaidOrders(before);
-        setHistory((current) =>
-          before ? [...current, ...page.orders] : page.orders
-        );
+        setHistory((current) => [...current, ...page.orders]);
         setCursor(page.nextCursor);
-        setHistoryLoaded(true);
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Une erreur est survenue."
@@ -224,13 +222,6 @@ export default function PaiementsPage() {
 
   const ready =
     state != null && state.role === "gerant" && hasFeature("paiements");
-
-  useEffect(() => {
-    if (ready && !loadRequested.current) {
-      loadRequested.current = true;
-      void loadHistory(null);
-    }
-  }, [ready, loadHistory]);
 
   if (!state) return null;
   const pickupShop = isPickupShop(state);
@@ -268,7 +259,19 @@ export default function PaiementsPage() {
     filter === "tous"
       ? paid
       : paid.filter((order) => matchesMode(order, filter));
-  const days = groupByDay(visible, state.dayEndHour);
+  // Seules les lignes s'arrêtent à `shown` : le compte et le total d'un jour
+  // portent sur tout ce qui est chargé.
+  const wholeDays = new Map(
+    groupByDay(visible, state.dayEndHour).map((day) => [day.key, day])
+  );
+  const days = groupByDay(visible.slice(0, shown), state.dayEndHour).map(
+    (day) => ({ ...day, whole: wholeDays.get(day.key) ?? day })
+  );
+  const showMore = async () => {
+    const next = shown + PAYMENTS_PAGE_SIZE;
+    if (next > visible.length && cursor !== null) await loadHistory(cursor ?? null);
+    setShown(next);
+  };
 
   const todayPaid = paid.filter((order) =>
     isServiceToday(paidAt(order), state.dayEndHour)
@@ -367,21 +370,17 @@ export default function PaiementsPage() {
         visite="paiements-modes"
         tabs={MODE_FILTERS.map(({ id, label }) => ({ id, label }))}
         activeId={filter}
-        onSelect={(id) => setFilter(id as ModeFilter)}
+        onSelect={(id) => {
+          setFilter(id as ModeFilter);
+          setShown(PAYMENTS_PAGE_SIZE);
+        }}
       />
 
       {visible.length === 0 ? (
-        !historyLoaded ? (
-          <div aria-busy className="flex flex-col gap-3">
-            <div className="shimmer h-24 rounded-2xl" />
-            <div className="shimmer h-24 rounded-2xl" />
-          </div>
-        ) : (
-          <EmptyState
-            title="Aucun paiement"
-            body="Les commandes encaissées apparaîtront ici, quel que soit le mode de règlement."
-          />
-        )
+        <EmptyState
+          title="Aucun paiement"
+          body="Les commandes encaissées apparaîtront ici, quel que soit le mode de règlement."
+        />
       ) : (
         <div className="flex flex-col gap-6">
           {days.map((day) => (
@@ -391,8 +390,9 @@ export default function PaiementsPage() {
                   {day.label}
                 </h2>
                 <span className="shrink-0 text-sm tabular-nums text-muted">
-                  {day.orders.length} paiement{day.orders.length > 1 ? "s" : ""} ·{" "}
-                  {formatPrice(day.total)}
+                  {day.whole.orders.length} paiement
+                  {day.whole.orders.length > 1 ? "s" : ""} ·{" "}
+                  {formatPrice(day.whole.total)}
                 </span>
               </div>
               <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
@@ -408,15 +408,15 @@ export default function PaiementsPage() {
               </div>
             </section>
           ))}
-          {cursor && (
+          {(shown < visible.length || cursor !== null) && (
             <div className="flex justify-center">
               <button
                 type="button"
-                onClick={() => void loadHistory(cursor)}
+                onClick={() => void showMore()}
                 disabled={loadingHistory}
                 className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60"
               >
-                {loadingHistory ? "Chargement…" : "Charger plus"}
+                {loadingHistory ? "Chargement…" : "Voir plus"}
               </button>
             </div>
           )}
