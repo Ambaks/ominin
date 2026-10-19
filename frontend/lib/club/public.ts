@@ -1,15 +1,14 @@
 import { cache } from "react";
 import { isShareToken } from "@/lib/club/links";
 import { rowToEvent, rowToZone, publicName, sharePayers } from "@/lib/club/mappers";
-import type { BookingStatus, Club, ClubConditions, ClubEvent, EventZone, SharePayer } from "@/lib/club/types";
+import type { BookingStatus, Club, ClubConditions, ClubEvent, SharePayer } from "@/lib/club/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /*
  * Lectures de la page publique d'un club (club.ominin.com/<slug>) : sans
- * session, sous les policies de lecture publique — le plan, les soirées
- * publiées et leurs prix. Les tables prises viennent de club_tables_prises,
- * qui ne livre que des identifiants.
+ * session, sous les policies de lecture publique — les zones, les soirées
+ * publiées et leurs offres (club_offres), jamais le stock de tables.
  */
 
 export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
@@ -116,7 +115,6 @@ export type BookingTicket = {
   priceCents: number;
   feeCents: number;
   totalCents: number;
-  createdAt: string;
   holdExpiresAt: string | null;
   paidAt: string | null;
   refundedAt: string | null;
@@ -127,9 +125,9 @@ export type BookingTicket = {
   remainingCents: number;
   /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page. */
   pendingPaymentId: string | null;
-  pendingTotalCents: number | null;
   payers: SharePayer[];
-  table: { label: string; seats: number; zone: string; inclus: string | null };
+  /** La zone réservée : le client ne voit pas le numéro de table, que le club peut changer. */
+  table: { zone: string; inclus: string | null };
   event: ClubEvent;
   club: {
     slug: string;
@@ -149,7 +147,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, created_at, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, amount_cents, total_cents, organiser, paid_at, status, method)"
+      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
@@ -166,7 +164,6 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     priceCents: data.price_cents,
     feeCents: data.fee_cents,
     totalCents: data.total_cents,
-    createdAt: data.created_at,
     holdExpiresAt: data.hold_expires_at,
     paidAt: data.paid_at,
     refundedAt: data.refunded_at,
@@ -176,11 +173,8 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     paidCents: data.paid_cents,
     remainingCents: data.price_cents - data.paid_cents,
     pendingPaymentId: pending?.id ?? null,
-    pendingTotalCents: pending?.total_cents ?? null,
     payers: sharePayers(data.club_payments),
     table: {
-      label: data.club_tables.label,
-      seats: data.club_tables.seats,
       zone: data.club_tables.club_zones.name,
       inclus: data.club_tables.club_zones.inclus,
     },
@@ -199,19 +193,19 @@ export type ShareTable = {
   organiser: string;
   status: BookingStatus;
   partySize: number;
-  priceCents: number;
   /** La table frais compris : le prix que voient l'organisateur et ses amis. */
   totalCents: number;
-  paidCents: number;
-  feePercent: number;
   payers: SharePayer[];
+  /** Tout le prix est réglé (parts payées seulement, pas celles en cours). */
+  fullyPaid: boolean;
   /** Ce qui reste, places encore libres pour une part, et la plus petite part possible. */
   remainingCents: number;
   seatsLeft: number;
   minimumCents: number;
   /** Les amis peuvent payer : table confirmée, soirée ni annulée ni commencée. */
   open: boolean;
-  table: { label: string; seats: number; zone: string; inclus: string | null };
+  /** La zone réservée : le client ne voit pas le numéro de table, que le club peut changer. */
+  table: { zone: string; inclus: string | null };
   event: ClubEvent;
   club: {
     slug: string;
@@ -233,7 +227,7 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, status, name, party_size, price_cents, total_cents, paid_cents, share_token, club_tables(label, seats, club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, table_fee_percent, club_min_age, club_dress_code, club_refused), club_payments(id, name, amount_cents, organiser, paid_at, status, method)"
+      "id, status, name, party_size, price_cents, total_cents, paid_cents, share_token, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, club_min_age, club_dress_code, club_refused), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("share_token", shareToken)
     .maybeSingle();
@@ -249,10 +243,8 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
     organiser: publicName(data.name),
     status: data.status,
     partySize: data.party_size,
-    priceCents: data.price_cents,
     totalCents: data.total_cents,
-    paidCents: data.paid_cents,
-    feePercent: Number(etab.table_fee_percent),
+    fullyPaid: data.paid_cents >= data.price_cents,
     payers: sharePayers(data.club_payments),
     remainingCents: state?.[0]?.remaining_cents ?? 0,
     seatsLeft: state?.[0]?.seats_left ?? 0,
@@ -262,8 +254,6 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
       !event.cancelledAt &&
       Date.parse(event.startsAt) > now,
     table: {
-      label: data.club_tables.label,
-      seats: data.club_tables.seats,
       zone: data.club_tables.club_zones.name,
       inclus: data.club_tables.club_zones.inclus,
     },

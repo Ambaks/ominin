@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   }
   const admin = createAdminClient();
   const { data: target } = paymentId
-    ? await admin.from("club_payments").select("etablissement_id").eq("id", paymentId).maybeSingle()
+    ? await admin.from("club_payments").select("etablissement_id, organiser").eq("id", paymentId).maybeSingle()
     : await admin.from("club_bookings").select("etablissement_id").eq("id", bookingId!).maybeSingle();
   if (!target) {
     return NextResponse.json({ error: "Réservation introuvable." }, { status: 404 });
@@ -29,6 +29,12 @@ export async function POST(request: Request) {
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
   if (paymentId) {
+    if ("organiser" in target && target.organiser) {
+      return NextResponse.json(
+        { error: "La part de l'organisateur tient la table : remboursez la table entière." },
+        { status: 409 }
+      );
+    }
     const refunded = await refundPayment(admin, getStripe(), paymentId, { notify: true });
     if (!refunded) {
       return NextResponse.json({ error: "Cette part n'est plus à rembourser." }, { status: 409 });

@@ -22,7 +22,7 @@ type Admin = ReturnType<typeof createAdminClient>;
  */
 
 const MAIL_SELECT =
-  "name, email, token, share_token, party_size, price_cents, paid_cents, club_tables(label, club_zones(name)), club_events(title, starts_at, ends_at), etablissements(slug, name, address)";
+  "name, email, token, share_token, party_size, price_cents, total_cents, paid_cents, club_tables(club_zones(name)), club_events(title, starts_at, ends_at), etablissements(slug, name, address), club_payments(total_cents, organiser, status, method)";
 
 type MailBooking = {
   name: string;
@@ -31,10 +31,12 @@ type MailBooking = {
   share_token: string | null;
   party_size: number;
   price_cents: number;
+  total_cents: number;
   paid_cents: number;
-  club_tables: { label: string; club_zones: { name: string } | null } | null;
+  club_tables: { club_zones: { name: string } | null } | null;
   club_events: { title: string; starts_at: string; ends_at: string } | null;
   etablissements: { slug: string; name: string; address: string | null } | null;
+  club_payments: { total_cents: number; organiser: boolean; status: string; method: string }[];
 };
 
 type Payer = { name: string; email: string | null; amountCents: number; organiser: boolean };
@@ -57,9 +59,17 @@ function mailFor(data: MailBooking, payer?: Payer): BookingMail | null {
       startsAt: data.club_events.starts_at,
       endsAt: data.club_events.ends_at,
     },
-    table: { label: data.club_tables.label, zone: data.club_tables.club_zones.name },
+    zone: data.club_tables.club_zones.name,
     partySize: data.party_size,
-    amountCents: payer?.amountCents ?? data.price_cents,
+    // L'organisateur : ce qu'il a payé en ligne (acompte ou part, frais
+    // compris), à défaut la table entière.
+    amountCents:
+      payer?.amountCents ??
+      (data.club_payments
+        .filter((p) => p.organiser && p.method === "en_ligne" && p.status === "payee")
+        .reduce((sum, p) => sum + p.total_cents, 0) ||
+        data.total_cents),
+    totalCents: data.total_cents,
     remainingCents: data.price_cents - data.paid_cents,
   };
 }
@@ -88,7 +98,7 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
     admin.from("club_bookings").select(MAIL_SELECT).eq("id", bookingId).maybeSingle(),
     admin
       .from("club_payments")
-      .select("name, email, amount_cents, organiser")
+      .select("name, email, total_cents, organiser")
       .eq("booking_id", bookingId)
       .eq("method", "en_ligne")
       .in("status", ["payee", "remboursee"]),
@@ -99,7 +109,7 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
     mailFor(
       booking,
       organiserPaid
-        ? { name: booking.name, email: booking.email, amountCents: organiserPaid.amount_cents, organiser: true }
+        ? { name: booking.name, email: booking.email, amountCents: organiserPaid.total_cents, organiser: true }
         : undefined
     ),
     ...(payments ?? [])
@@ -108,7 +118,7 @@ export async function bookingRecipients(admin: Admin, bookingId: string): Promis
         mailFor(booking, {
           name: payment.name,
           email: payment.email,
-          amountCents: payment.amount_cents,
+          amountCents: payment.total_cents,
           organiser: false,
         })
       ),
@@ -146,7 +156,7 @@ async function refundIntent(
 async function announce(admin: Admin, paymentId: string) {
   const { data: payment } = await admin
     .from("club_payments")
-    .select("booking_id, name, email, amount_cents, organiser")
+    .select("booking_id, name, email, total_cents, organiser")
     .eq("id", paymentId)
     .single();
   if (!payment) return;
@@ -159,14 +169,14 @@ async function announce(admin: Admin, paymentId: string) {
     bookingMail(admin, payment.booking_id, {
       name: payment.name,
       email: payment.email,
-      amountCents: payment.amount_cents,
+      amountCents: payment.total_cents,
       organiser: false,
     }),
     bookingMail(admin, payment.booking_id),
   ]);
   await Promise.all([
     friend && sendShareConfirmed(friend),
-    organiser && sendSharePaid(organiser, payment.name, payment.amount_cents),
+    organiser && sendSharePaid(organiser, payment.name, payment.total_cents),
   ]);
 }
 

@@ -75,9 +75,6 @@ export type ClubConditions = {
   refused: string | null;
 };
 
-/** Une zone en vente un soir donné, à son prix du soir. */
-export type EventZone = { zoneId: string; priceCents: number };
-
 export type Club = {
   id: string;
   slug: string;

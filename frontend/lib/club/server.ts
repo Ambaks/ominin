@@ -1,3 +1,4 @@
+import { CONTACT_RULES } from "@/lib/club/contact";
 import { connectedAccount } from "@/lib/stripe/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -31,9 +32,10 @@ export function cleanContact(body: {
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const phone = typeof body.phone === "string" ? body.phone.replace(/[^\d+]/g, "") : "";
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-  if (name.length < 2 || name.length > 80) return null;
-  if (phone.length < 6 || phone.length > 20) return null;
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 120) return null;
+  const { name: n, phoneDigits, emailMax, email: pattern } = CONTACT_RULES;
+  if (name.length < n.min || name.length > n.max) return null;
+  if (phone.length < phoneDigits.min || phone.length > phoneDigits.max) return null;
+  if (!pattern.test(email) || email.length > emailMax) return null;
   return { name, phone, email };
 }
 

@@ -19,10 +19,13 @@ export type BookingMail = {
   shareToken: string | null;
   club: { slug: string; name: string; address: string | null };
   event: { title: string; startsAt: string; endsAt: string };
-  table: { label: string; zone: string };
+  /** La zone réservée, jamais le numéro de table : le club peut la changer. */
+  zone: string;
   partySize: number;
-  /** Ce que cette personne a payé, ou le prix de la table pour l'organisateur. */
+  /** Ce que cette personne a payé, frais compris. */
   amountCents: number;
+  /** La table, frais compris. */
+  totalCents: number;
   remainingCents: number;
 };
 
@@ -63,8 +66,9 @@ function layout(mail: BookingMail, title: string, intro: string, cta: string, ex
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
 ${row("Soirée", escapeHtml(mail.event.title))}
 ${row("Date", escapeHtml(night))}
-${row("Table", `${escapeHtml(mail.table.zone)} · ${escapeHtml(mail.table.label)} · ${mail.partySize} pers.`)}
-${row(mail.organiser ? "Table" : "Votre part", formatCents(mail.amountCents), true)}
+${row("Table", `${escapeHtml(mail.zone)} · ${mail.partySize} pers.`)}
+${mail.organiser && mail.amountCents !== mail.totalCents ? row("Table", formatCents(mail.totalCents)) : ""}
+${row(mail.organiser ? "Payé" : "Votre part", formatCents(mail.amountCents), true)}
 ${mail.remainingCents > 0 ? row("Reste à régler", formatCents(mail.remainingCents)) : ""}
 </table></td></tr>
 ${extra}
@@ -96,7 +100,7 @@ export function sendBookingConfirmed(mail: BookingMail) {
   const shared = Boolean(mail.shareToken) && mail.remainingCents > 0;
   return send(
     mail.to,
-    `Votre table ${mail.table.label} · ${mail.event.title}`,
+    `Votre table ${mail.zone} · ${mail.event.title}`,
     layout(
       mail,
       "Votre table est réservée",

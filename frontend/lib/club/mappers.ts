@@ -105,9 +105,9 @@ export function publicName(name: string): string {
   return initial ? `${first} ${initial.toUpperCase()}.` : first;
 }
 
-/** Les parts payées en ligne, dans l'ordre où elles sont arrivées. */
+/** Les parts payées en ligne, dans l'ordre où elles sont arrivées, montants frais compris. */
 export function sharePayers(
-  rows: Pick<Tables<"club_payments">, "id" | "name" | "amount_cents" | "organiser" | "paid_at" | "status" | "method">[]
+  rows: Pick<Tables<"club_payments">, "id" | "name" | "total_cents" | "organiser" | "paid_at" | "status" | "method">[]
 ): SharePayer[] {
   return rows
     .filter((row) => row.status === "payee" && row.method === "en_ligne" && row.paid_at)
@@ -115,7 +115,9 @@ export function sharePayers(
     .map((row) => ({
       id: row.id,
       name: publicName(row.name),
-      amountCents: row.amount_cents,
+      // Ce que la personne a payé : frais compris pour l'organisateur, comme
+      // le prix affiché de la table.
+      amountCents: row.total_cents,
       organiser: row.organiser,
       paidAt: row.paid_at!,
     }));

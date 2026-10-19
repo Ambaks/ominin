@@ -378,7 +378,7 @@ create policy "member read" on public.club_event_blocked_tables
     exists (
       select 1 from public.club_events e
       where e.id = event_id
-        and (e.published or public.current_member_role(e.etablissement_id) is not null)
+        and public.current_member_role(e.etablissement_id) is not null
     )
   );
 create policy "gerant write" on public.club_event_blocked_tables
@@ -665,7 +665,14 @@ begin
         select 1 from club_event_blocked_tables bt
         where bt.event_id = p_event and bt.table_id = t.id
       )
-    order by t.seats, t.label
+    -- Les tables vraiment libres d'abord : une attente expirée mais pas encore
+    -- rendue peut voir son paiement aboutir (il serait alors remboursé).
+    order by t.seats,
+      exists (
+        select 1 from club_bookings b
+        where b.event_id = p_event and b.table_id = t.id and b.status = 'en_attente'
+      ),
+      length(t.label), t.label
   loop
     perform club_liberer_attentes(p_event, v_table);
     begin
@@ -767,6 +774,9 @@ declare
   v_payment club_payments;
   v_hold timestamptz := now() + make_interval(secs => p_hold_seconds);
 begin
+  if p_hold_seconds is null or p_hold_seconds <= 0 then
+    raise exception 'Délai de paiement invalide.';
+  end if;
   -- Une part à la fois par table : le reste se compte sans course.
   select * into v_booking from club_bookings where share_token = p_share_token for update;
   if v_booking.id is null then
@@ -782,6 +792,15 @@ begin
   if v_event.starts_at <= now() then
     raise exception 'La soirée a commencé : le reste se règle à l''entrée.';
   end if;
+
+  -- Une part en cours par personne : recommencer rend la précédente (même
+  -- e-mail ET même téléphone, comme pour une table).
+  update club_payments
+  set status = 'annulee'
+  where booking_id = v_booking.id
+    and status = 'en_attente'
+    and email = lower(btrim(p_email))
+    and phone = btrim(p_phone);
 
   select * into v_state from club_partage_etat(v_booking.id);
   if v_state.remaining_cents <= 0 then
@@ -883,9 +902,15 @@ as $$
 declare
   v_payment club_payments;
 begin
-  update club_payments
+  -- La part de l'organisateur tient la table : elle ne se rend qu'avec la
+  -- table entière, une fois celle-ci close (club_clore_reservation).
+  update club_payments p
   set status = 'remboursee', refunded_at = now()
-  where id = p_payment and status = 'payee' and method = 'en_ligne'
+  where p.id = p_payment and p.status = 'payee' and p.method = 'en_ligne'
+    and (not p.organiser or exists (
+      select 1 from club_bookings b
+      where b.id = p.booking_id and b.status in ('remboursee', 'annulee')
+    ))
   returning * into v_payment;
   if v_payment.id is not null then
     update club_bookings set paid_cents = paid_cents - v_payment.amount_cents
@@ -1093,14 +1118,19 @@ as $$
 declare
   v_booking club_bookings;
   v_seats smallint;
+  v_event club_events;
 begin
-  select * into v_booking from club_bookings where id = p_booking;
+  select * into v_booking from club_bookings where id = p_booking for update;
   if v_booking.id is null
      or current_member_role(v_booking.etablissement_id) is distinct from 'gerant' then
     raise exception 'Accès refusé.' using errcode = '42501';
   end if;
   if not club_booking_holds(v_booking.status, v_booking.hold_expires_at) then
     raise exception 'Cette réservation n''est plus active.';
+  end if;
+  select * into v_event from club_events where id = v_booking.event_id;
+  if v_event.cancelled_at is not null or v_event.ends_at <= now() then
+    raise exception 'Cette soirée est close.';
   end if;
   select seats into v_seats from club_tables
   where id = p_table and etablissement_id = v_booking.etablissement_id;
