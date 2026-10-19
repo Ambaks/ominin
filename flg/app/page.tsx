@@ -16,7 +16,6 @@ import {
   navCta,
   navLinks,
   proofs,
-  smallCases,
   steps,
   surfaces,
   zone,
@@ -155,27 +154,12 @@ export default function Home() {
                 <Reveal key={c.title}>
                   <BeforeAfter before={c.before} after={c.after} alt={c.title} sizes={half} className="aspect-[4/5]" />
                   <h3 className="display display-s mt-6">{c.title}</h3>
+                  {c.body && <p className="mt-3 max-w-md text-muted">{c.body}</p>}
                 </Reveal>
               ))}
             </div>
 
-            <div className="mt-24 grid gap-6 md:mt-32 md:grid-cols-12">
-              {smallCases.map((c) => (
-                <Reveal key={c.title} className="md:col-span-4">
-                  <BeforeAfter
-                    before={c.before}
-                    after={c.after}
-                    alt={c.title}
-                    sizes="(min-width: 768px) 30vw, 100vw"
-                    className="aspect-square"
-                  />
-                  <h3 className="mt-4 font-medium">{c.title}</h3>
-                  <p className="mt-1 text-[0.95rem] text-muted">{c.body}</p>
-                </Reveal>
-              ))}
-            </div>
-
-            <CtaBand title="Un plafond, une charpente, un auvent à rendre à son bois d'origine ?" />
+            <CtaBand title="Un travail à effectuer ? Demandez un devis." />
           </div>
         </section>
 
