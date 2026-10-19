@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { isUnavailable, OptionsModal } from "@/components/menu/add-to-order";
 import { suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
+import { REWARD_ITEMS_SHOWN } from "@/lib/gestion/constants";
 import { cartLineKey, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import {
@@ -66,6 +67,8 @@ export function LoyaltySection({
     setOpened(true);
   };
   const [lookup, setLookup] = useState<LookupState>("idle");
+  // Paliers dépliés : un palier d'une dizaine de boissons repoussait le pied.
+  const [unfolded, setUnfolded] = useState<ReadonlySet<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<{
     item: MenuItem;
@@ -275,6 +278,11 @@ export function LoyaltySection({
           <ul className="flex flex-col gap-3">
             {program.rewards.map((reward) => {
               const reachable = remaining >= reward.points;
+              const items = reward.items.filter(
+                (item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id))
+              );
+              const all = unfolded.has(reward.id);
+              const hidden = items.length - REWARD_ITEMS_SHOWN;
               return (
                 <li key={reward.id} className="flex flex-col gap-2">
                   <p className="flex items-baseline justify-between gap-3 text-xs">
@@ -287,10 +295,9 @@ export function LoyaltySection({
                   </p>
                   {reachable ? (
                     // Comme l'accord du chef : photo, nom, ce qu'il vaut, un bouton.
-                    <ul className="flex flex-col gap-2.5">
-                      {reward.items
-                        .filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)))
-                        .map((item) => (
+                    <>
+                      <ul className="flex flex-col gap-2.5">
+                        {(all ? items : items.slice(0, REWARD_ITEMS_SHOWN)).map((item) => (
                           <li key={item.id}>
                             <SuggestionRow
                               image={item.image}
@@ -308,7 +315,29 @@ export function LoyaltySection({
                             </SuggestionRow>
                           </li>
                         ))}
-                    </ul>
+                      </ul>
+                      {hidden > 0 && (
+                        <button
+                          type="button"
+                          aria-expanded={all}
+                          onClick={() =>
+                            setUnfolded((current) => {
+                              const next = new Set(current);
+                              if (all) next.delete(reward.id);
+                              else next.add(reward.id);
+                              return next;
+                            })
+                          }
+                          className="self-start text-xs font-semibold text-muted underline underline-offset-4"
+                        >
+                          {all
+                            ? "Replier la liste"
+                            : hidden === 1
+                              ? "Voir l’autre article"
+                              : `Voir les ${hidden} autres articles`}
+                        </button>
+                      )}
+                    </>
                   ) : (
                     <p className="text-xs text-faint">
                       Encore {reward.points - remaining}{" "}
