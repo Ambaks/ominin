@@ -53,6 +53,7 @@ export type Case = {
 
 export const featured = {
   title: "Chantiers extérieurs et intérieurs",
+  note: "Poutres salies par la graisse du toit.",
   film: {
     src: "/films/auvent-travelling.mp4",
     poster: "/films/auvent-travelling.jpg",
