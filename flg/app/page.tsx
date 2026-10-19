@@ -128,16 +128,16 @@ export default function Home() {
 
             <h3 className="display display-l">{featured.title}</h3>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <div className="relative aspect-[9/16] overflow-hidden">
-                <VideoLoop {...featured.film} className="absolute inset-0 size-full" />
-                <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
-                  Après · toute la galerie
-                </span>
-              </div>
               <div className="relative hidden aspect-[9/16] overflow-hidden md:block">
                 <VideoLoop {...featured.filmBefore} className="absolute inset-0 size-full" />
                 <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
                   Avant · toute la galerie
+                </span>
+              </div>
+              <div className="relative aspect-[9/16] overflow-hidden">
+                <VideoLoop {...featured.film} className="absolute inset-0 size-full" />
+                <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
+                  Après · toute la galerie
                 </span>
               </div>
               <BeforeAfter
