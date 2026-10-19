@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AfficheCard } from "@/components/gestion/formules/affiche-card";
+import { AfficheFormModal } from "@/components/gestion/formules/affiche-form-modal";
 import { FormuleCard } from "@/components/gestion/formules/formule-card";
 import { FormuleFormModal } from "@/components/gestion/formules/formule-form-modal";
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
@@ -22,7 +24,7 @@ import {
   setItemPrinter,
   type Printer,
 } from "@/lib/gestion/terminaux";
-import type { Formule } from "@/lib/gestion/types";
+import type { Affiche, Formule } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import type { MenuItem } from "@/lib/menu-data";
@@ -43,8 +45,12 @@ export default function MenuPage() {
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
   const [managingCats, setManagingCats] = useState(false);
   const [creatingFormule, setCreatingFormule] = useState(false);
+  const [formuleSlot, setFormuleSlot] = useState<Formule["affiche"]>();
   const [editingFormule, setEditingFormule] = useState<Formule | null>(null);
   const [deletingFormule, setDeletingFormule] = useState<Formule | null>(null);
+  const [creatingAffiche, setCreatingAffiche] = useState(false);
+  const [editingAffiche, setEditingAffiche] = useState<Affiche | null>(null);
+  const [deletingAffiche, setDeletingAffiche] = useState<Affiche | null>(null);
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [routing, setRouting] = useState<Map<string, string>>(new Map());
   // Les prix que les tarifs planifiés donnent à cet instant, relus en base :
@@ -110,6 +116,7 @@ export default function MenuPage() {
 
   const canEditMenu = can("menu.edit");
   const canEditFormules = can("formules.edit");
+  const unplacedFormules = state.formules.filter((formule) => !formule.affiche);
   const categories = state.categories;
   const category =
     categories.find((c) => c.id === activeCatId) ?? categories[0];
@@ -199,13 +206,22 @@ export default function MenuPage() {
         )}
 
         {view === "formules" && canEditFormules && (
-          <button
-            type="button"
-            onClick={() => setCreatingFormule(true)}
-            className="ember-gradient shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold text-background"
-          >
-            + Nouvelle formule
-          </button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCreatingAffiche(true)}
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+            >
+              + Nouvelle affiche
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreatingFormule(true)}
+              className="ember-gradient rounded-full px-4 py-2.5 text-sm font-semibold text-background"
+            >
+              + Nouvelle formule
+            </button>
+          </div>
         )}
       </div>
 
@@ -323,28 +339,62 @@ export default function MenuPage() {
         <>
           <p className="text-sm text-muted">
             Les formules s&rsquo;affichent au-dessus des catégories sur le menu
-            client — inutile de créer une catégorie pour elles.
+            client — inutile de créer une catégorie pour elles. Une affiche
+            présente vos offres en visuel : elle défile en haut du menu, avec
+            un bouton par formule placée dessus.
           </p>
 
-          {state.formules.length === 0 ? (
+          {state.affiches.map((affiche) => (
+            <AfficheCard
+              key={affiche.id}
+              affiche={affiche}
+              formules={state.formules}
+              canEdit={canEditFormules}
+              onEdit={() => setEditingAffiche(affiche)}
+              onDelete={() => setDeletingAffiche(affiche)}
+              onCreateFormule={setFormuleSlot}
+              onEditFormule={setEditingFormule}
+              onDeleteFormule={setDeletingFormule}
+            />
+          ))}
+
+          {state.affiches.length > 0 && unplacedFormules.length > 0 && (
+            <h3 className="mt-2 font-display text-lg font-medium">
+              Formules sans affiche{" "}
+              <span className="text-sm font-normal text-muted">
+                · en tuiles sur le menu
+              </span>
+            </h3>
+          )}
+
+          {state.formules.length === 0 && state.affiches.length === 0 ? (
             <EmptyState
               title="Aucune formule"
-              body="Créez une formule pour proposer un menu à étapes (entrée + plat + dessert…)."
+              body="Créez une formule pour proposer un menu à étapes (entrée + plat + dessert…), ou commencez par l'affiche qui présente vos offres."
               action={
                 canEditFormules && (
-                  <button
-                    type="button"
-                    onClick={() => setCreatingFormule(true)}
-                    className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-                  >
-                    Créer une formule
-                  </button>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCreatingAffiche(true)}
+                      className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                    >
+                      Créer une affiche
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCreatingFormule(true)}
+                      className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+                    >
+                      Créer une formule
+                    </button>
+                  </div>
                 )
               }
             />
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
-              {state.formules.map((formule) => (
+              {unplacedFormules.map((formule) => (
                 <FormuleCard
                   key={formule.id}
                   formule={formule}
@@ -392,14 +442,42 @@ export default function MenuPage() {
         <CategoryManager categories={categories} onClose={() => setManagingCats(false)} />
       )}
 
-      {(creatingFormule || editingFormule) && (
+      {(creatingFormule || editingFormule || formuleSlot) && (
         <FormuleFormModal
           formule={editingFormule ?? undefined}
+          slot={formuleSlot}
           menuItems={menuItems}
           onClose={() => {
             setCreatingFormule(false);
             setEditingFormule(null);
+            setFormuleSlot(undefined);
           }}
+        />
+      )}
+
+      {(creatingAffiche || editingAffiche) && (
+        <AfficheFormModal
+          affiche={editingAffiche ?? undefined}
+          onClose={() => {
+            setCreatingAffiche(false);
+            setEditingAffiche(null);
+          }}
+        />
+      )}
+
+      {deletingAffiche && (
+        <ConfirmDialog
+          title="Supprimer cette affiche ?"
+          message="Ses formules restent en vente, en tuiles sur le menu."
+          confirmLabel="Supprimer"
+          destructive
+          onClose={() => setDeletingAffiche(null)}
+          onConfirm={() =>
+            void run(async () => {
+              await api.deleteAffiche(deletingAffiche.id);
+              setDeletingAffiche(null);
+            }, "Affiche supprimée.")
+          }
         />
       )}
 

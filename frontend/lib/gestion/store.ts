@@ -20,6 +20,7 @@ import {
 } from "./constants";
 import {
   assembleCategories,
+  rowToAffiche,
   rowToClosure,
   rowToEtablissement,
   rowToFormule,
@@ -462,6 +463,7 @@ async function load(): Promise<void> {
     categories,
     items,
     formules,
+    affiches,
     priceRules,
     closures,
     tables,
@@ -492,6 +494,12 @@ async function load(): Promise<void> {
         .then(must),
       supabase
         .from("formules")
+        .select("*")
+        .eq("etablissement_id", etablissementId)
+        .order("created_at", { ascending: true })
+        .then(must),
+      supabase
+        .from("affiches")
         .select("*")
         .eq("etablissement_id", etablissementId)
         .order("created_at", { ascending: true })
@@ -550,6 +558,7 @@ async function load(): Promise<void> {
     staff: staff.map(rowToStaff),
     categories: assembleCategories(categories, items),
     formules: formules.map(rowToFormule),
+    affiches: affiches.map(rowToAffiche),
     priceRules: priceRules.map(rowToPriceRule),
     closures: closures.map(rowToClosure),
     tables: tables.map(rowToTable),

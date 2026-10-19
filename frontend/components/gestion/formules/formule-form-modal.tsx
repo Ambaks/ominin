@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { PhotoField } from "@/components/gestion/photo-field";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
@@ -23,11 +22,14 @@ import {
 
 export function FormuleFormModal({
   formule,
+  slot,
   menuItems,
   onClose,
 }: {
   /** undefined ⇒ création. */
   formule?: Formule;
+  /** Création depuis un emplacement d'affiche : la formule y est placée. */
+  slot?: Formule["affiche"];
   menuItems: MenuItem[];
   onClose: () => void;
 }) {
@@ -36,7 +38,6 @@ export function FormuleFormModal({
 
   const [name, setName] = useState(formule?.name ?? "");
   const [description, setDescription] = useState(formule?.description ?? "");
-  const [image, setImage] = useState(formule?.image ?? "");
   const [price, setPrice] = useState(
     formule ? priceToInput(formule.price) : ""
   );
@@ -60,7 +61,6 @@ export function FormuleFormModal({
     const input: api.FormuleInput = {
       name: name.trim(),
       description: description.trim() || undefined,
-      image: image.trim() || undefined,
       price: parsedPrice,
       disponible,
       days:
@@ -68,6 +68,7 @@ export function FormuleFormModal({
           ? undefined
           : [...days].sort((a, b) => a - b),
       etapes: draftToEtapes(etapes),
+      affiche: formule ? formule.affiche : slot,
     };
     try {
       if (formule) {
@@ -136,12 +137,6 @@ export function FormuleFormModal({
             className={`${inputClass} resize-none`}
           />
         </Field>
-
-        <PhotoField
-          value={image}
-          onChange={setImage}
-          alt="Aperçu de la photo de la formule"
-        />
 
         <label className="flex items-center gap-2.5 text-sm text-muted">
           <Toggle

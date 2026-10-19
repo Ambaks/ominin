@@ -28,14 +28,6 @@ export function FormuleCard({
         formule.disponible ? "" : "opacity-60"
       }`}
     >
-      {formule.image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={formule.image}
-          alt=""
-          className="-mx-5 -mt-5 aspect-video w-[calc(100%+2.5rem)] max-w-none rounded-t-2xl object-cover"
-        />
-      )}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-display text-lg font-medium">{formule.name}</h3>

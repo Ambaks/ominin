@@ -1,6 +1,6 @@
 import { CartBar } from "@/components/menu/cart-bar";
 import { CategoryNav } from "@/components/menu/category-nav";
-import { FormulesBanner, FormulesSection } from "@/components/menu/formules";
+import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
@@ -29,13 +29,13 @@ export function CollectMenu({
   formules: Formule[];
   openingHours: OpeningHours;
 }) {
-  const banner = restaurant.formulesBanner;
-  const showBanner =
-    restaurant.poster != null &&
-    banner != null &&
-    formules.some((formule) => banner.formules.includes(formule.name));
+  // Mêmes règles que le menu QR (app/menu/m/[slug]/page.tsx).
+  const affiches = restaurant.affiches ?? [];
+  const affichesInHero = restaurant.poster != null && affiches.length > 0;
+  const tiles = formules.filter((formule) => !formule.affiche);
+  const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
   const categoryLinks = [
-    ...(!showBanner && formules.length > 0 ? [FORMULES_LINK] : []),
+    ...(showFormules ? [FORMULES_LINK] : []),
     ...restaurant.categories.map(({ id, name }) => ({ id, name })),
   ];
   const theme = restaurantThemeClass(config.slug);
@@ -52,9 +52,7 @@ export function CollectMenu({
           restaurant={restaurant}
           firstSectionId={categoryLinks[0]?.id}
           banner={
-            showBanner ? (
-              <FormulesBanner banner={banner} formules={formules} />
-            ) : undefined
+            affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
           }
         />
         <div className="mx-auto w-full max-w-2xl px-5 pt-5 lg:max-w-5xl lg:px-10">
@@ -81,8 +79,11 @@ export function CollectMenu({
         <CartBar />
         <CategoryNav categories={categoryLinks} themeLocked={Boolean(theme)} />
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {!showBanner && formules.length > 0 && (
-            <FormulesSection formules={formules} />
+          {showFormules && (
+            <FormulesSection
+              formules={tiles}
+              affiches={affichesInHero ? undefined : affiches}
+            />
           )}
           {restaurant.categories.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted">

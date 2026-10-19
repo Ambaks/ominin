@@ -2,6 +2,7 @@ import type { OpeningHours } from "@/lib/collect/hours";
 import type { MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
+  Affiche,
   Closure,
   Etablissement,
   Etape,
@@ -94,12 +95,19 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     id: row.id,
     name: row.name,
     description: row.description ?? undefined,
-    image: row.image ?? undefined,
     price: Number(row.price),
     disponible: row.disponible,
     days: row.days ?? undefined,
     etapes: row.etapes as unknown as Etape[],
+    affiche:
+      row.affiche_id && row.affiche_rang
+        ? { id: row.affiche_id, rang: row.affiche_rang }
+        : undefined,
   };
+}
+
+export function rowToAffiche(row: Tables<"affiches">): Affiche {
+  return { id: row.id, image: row.image, offres: row.offres };
 }
 
 export function rowToTable(row: Tables<"tables">): Table {

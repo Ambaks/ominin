@@ -137,6 +137,38 @@ export type Database = {
         }
         Relationships: []
       }
+      affiches: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          image: string
+          offres: number
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          image: string
+          offres: number
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          image?: string
+          offres?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiches_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_bookings: {
         Row: {
           arrived_at: string | null
@@ -1800,6 +1832,8 @@ export type Database = {
       }
       formules: {
         Row: {
+          affiche_id: string | null
+          affiche_rang: number | null
           created_at: string
           days: number[] | null
           description: string | null
@@ -1807,11 +1841,12 @@ export type Database = {
           etablissement_id: string
           etapes: Json
           id: string
-          image: string | null
           name: string
           price: number
         }
         Insert: {
+          affiche_id?: string | null
+          affiche_rang?: number | null
           created_at?: string
           days?: number[] | null
           description?: string | null
@@ -1819,11 +1854,12 @@ export type Database = {
           etablissement_id: string
           etapes?: Json
           id?: string
-          image?: string | null
           name: string
           price: number
         }
         Update: {
+          affiche_id?: string | null
+          affiche_rang?: number | null
           created_at?: string
           days?: number[] | null
           description?: string | null
@@ -1831,11 +1867,17 @@ export type Database = {
           etablissement_id?: string
           etapes?: Json
           id?: string
-          image?: string | null
           name?: string
           price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "formules_affiche_id_fkey"
+            columns: ["affiche_id"]
+            isOneToOne: false
+            referencedRelation: "affiches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "formules_etablissement_id_fkey"
             columns: ["etablissement_id"]

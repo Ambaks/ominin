@@ -5,6 +5,7 @@ import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import {
+  rowToAffiche,
   rowToClosure,
   rowToFormule,
   rowToMenuItem,
@@ -15,6 +16,7 @@ import {
 } from "./mappers";
 import { commit, getState, ordersOfLines, refreshOrdersNow } from "./store";
 import type {
+  Affiche,
   CashDetails,
   Closure,
   EncaissementMode,
@@ -333,11 +335,12 @@ function formuleColumns(
   return {
     name: input.name,
     description: input.description || null,
-    image: input.image || null,
     price: input.price,
     disponible: input.disponible,
     days: input.days ?? null,
     etapes: toJson(input.etapes),
+    affiche_id: input.affiche?.id ?? null,
+    affiche_rang: input.affiche?.rang ?? null,
   };
 }
 
@@ -397,6 +400,85 @@ export async function setFormuleAvailability(
     const formule = draft.formules.find((f) => f.id === formuleId);
     if (!formule) throw new Error("Formule introuvable.");
     formule.disponible = disponible;
+  });
+}
+
+/** Place une formule sur l'emplacement d'une affiche, ou l'en retire (null). */
+export async function placeFormule(
+  formuleId: string,
+  affiche: Formule["affiche"] | null
+): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase
+      .from("formules")
+      .update({ affiche_id: affiche?.id ?? null, affiche_rang: affiche?.rang ?? null })
+      .eq("id", formuleId)
+  );
+  apply((draft) => {
+    const formule = draft.formules.find((f) => f.id === formuleId);
+    if (!formule) throw new Error("Formule introuvable.");
+    formule.affiche = affiche ?? undefined;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Affiches des offres
+
+export type AfficheInput = Omit<Affiche, "id">;
+
+export async function createAffiche(input: AfficheInput): Promise<Affiche> {
+  const supabase = createClient();
+  const affiche = rowToAffiche(
+    must(
+      await supabase
+        .from("affiches")
+        .insert({ etablissement_id: etablissementId(), ...input })
+        .select()
+        .single()
+    )
+  );
+  return apply((draft) => {
+    draft.affiches.push(affiche);
+    return affiche;
+  });
+}
+
+/** Moins d'offres qu'avant : les formules des emplacements disparus redeviennent des tuiles. */
+export async function updateAffiche(
+  afficheId: string,
+  input: AfficheInput
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("affiches").update(input).eq("id", afficheId));
+  check(
+    await supabase
+      .from("formules")
+      .update({ affiche_id: null, affiche_rang: null })
+      .eq("affiche_id", afficheId)
+      .gt("affiche_rang", input.offres)
+  );
+  apply((draft) => {
+    const index = draft.affiches.findIndex((a) => a.id === afficheId);
+    if (index === -1) throw new Error("Affiche introuvable.");
+    draft.affiches[index] = { id: afficheId, ...input };
+    for (const formule of draft.formules) {
+      if (formule.affiche?.id === afficheId && formule.affiche.rang > input.offres) {
+        formule.affiche = undefined;
+      }
+    }
+  });
+}
+
+/** Ses formules restent, en tuiles (formules.affiche_id on delete set null). */
+export async function deleteAffiche(afficheId: string): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("affiches").delete().eq("id", afficheId));
+  apply((draft) => {
+    draft.affiches = draft.affiches.filter((a) => a.id !== afficheId);
+    for (const formule of draft.formules) {
+      if (formule.affiche?.id === afficheId) formule.affiche = undefined;
+    }
   });
 }
 
