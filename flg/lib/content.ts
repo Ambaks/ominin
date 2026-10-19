@@ -80,7 +80,7 @@ export const steps = [
   { title: "Visite et devis", body: "Vérification du type de support et de la matière à décaper." },
   { title: "Protection", body: "Sols, menuiseries, vitrages et murs sont bâchés avant toute projection, un extracteur de particules est mis en place." },
   { title: "Aérogommage", body: "La pression et l'abrasif sont choisis selon le type de matériau." },
-  { title: "Finition", body: "Si vous le souhaitez, lasure, vernis ou huile de fabricants reconnus pour protéger le support." },
+  { title: "Finition", body: "Si vous le souhaitez, lasure, vernis ou anti-rouille peuvent être appliqués." },
   { title: "Réception", body: "Désinstallation et nettoyage du chantier. Le chantier est réceptionné par le client." },
 ] as const;
 
