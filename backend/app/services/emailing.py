@@ -144,10 +144,11 @@ def _send_one(sb, row: dict, stats: dict) -> None:
             # A human approved this reply believing it would go out — a
             # silent cancellation here is a warm conversation dying unseen.
             notify.send(
-                "Léa — réponse approuvée NON envoyée (adresse désinscrite)",
+                "Réponse approuvée NON envoyée : adresse désinscrite",
                 f"Destinataire : {row['to_email']}\n"
-                f"Objet : {row.get('subject') or ''}\n\n"
-                f"{settings.frontend_origin}/admin/prospection",
+                f"Objet : {row.get('subject') or ''}",
+                path="/prospection",
+                urgent=True,
             )
         return
 

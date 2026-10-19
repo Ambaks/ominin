@@ -88,12 +88,16 @@ def run_social_post(*, flush=None) -> dict:
 
     if errors:
         stats["errors"] = errors
-        notify.send("Réseaux sociaux — publication en échec", "\n".join(errors))
+        notify.send(
+            "Réseaux sociaux — publication en échec",
+            "\n".join(errors),
+            path="/reseaux",
+        )
     if stats["to_post"]:
         notify.send(
             "Snapchat — contenu du jour prêt",
-            f"{stats['to_post']} story à poster : "
-            f"{settings.frontend_origin}/admin/reseaux",
+            f"{stats['to_post']} story à poster",
+            path="/reseaux",
         )
     if stats["failed"] and not stats["published"]:
         # Rien n'est parti : le run est un échec, et l'admin l'affiche comme

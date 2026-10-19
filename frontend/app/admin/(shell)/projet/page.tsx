@@ -22,6 +22,7 @@ import {
   chantierSteps,
   clientSteps,
   deleteChantier,
+  isAssignedTo,
   currentStep,
   OWNER_LABELS,
   OWNERS,
@@ -99,7 +100,7 @@ function WhoFilter({ who, onChange }: { who: Who; onChange: (who: Who) => void }
 function ChantierCard({ chantier, data, who }: { chantier: Chantier; data: ProjetData; who: Who }) {
   const run = useRunMutation();
   const [open, setOpen] = useState(false);
-  const steps = chantierSteps(data, chantier.id).filter((step) => who === "all" || step.owner === who);
+  const steps = chantierSteps(data, chantier.id).filter((step) => who === "all" || isAssignedTo(step.owner, who));
   const { done, total } = progress(steps);
   const shown = open
     ? steps
@@ -347,7 +348,7 @@ export default function ProjetPage() {
   const chantiers =
     view && data
       ? view.chantiers.filter(
-          (chantier) => who === "all" || chantierSteps(data, chantier.id).some((step) => step.owner === who),
+          (chantier) => who === "all" || chantierSteps(data, chantier.id).some((step) => isAssignedTo(step.owner, who)),
         )
       : [];
 

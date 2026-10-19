@@ -140,8 +140,9 @@ def _research_brand(sb, brand: str) -> dict:
     if changes:
         notify.send(
             f"Réseaux sociaux — nouvelle ligne proposée pour {BRANDS[brand]['name']}",
-            f"{findings.change_summary}\n\n"
-            f"À adopter ou ignorer : {settings.frontend_origin}/admin/reseaux",
+            f"{findings.change_summary}\n\nÀ adopter ou ignorer dans l'onglet "
+            "Apprentissage.",
+            path="/reseaux",
         )
     return {"analyzed": len(settled), "findings": report, "proposed": changes}
 

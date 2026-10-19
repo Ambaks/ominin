@@ -298,6 +298,11 @@ export const MAP_CLUSTER_MAX_ZOOM = 14;
 export const MAP_VIEWPORT_STORAGE_KEY = "ominin-admin-map-viewport";
 /** Qui tient cet appareil (Marwan ou Ambaka), pour ses notifications. */
 export const PUSH_OWNER_STORAGE_KEY = "ominin-admin-push-owner";
+/**
+ * Attente avant d'annoncer une étape confiée : le bouton du responsable
+ * fait défiler les choix, seul le dernier doit sonner chez l'autre.
+ */
+export const ASSIGN_NOTIFY_DELAY_MS = 5000;
 
 // ---------------------------------------------------------------------------
 // Terrain

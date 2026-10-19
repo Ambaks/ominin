@@ -76,12 +76,16 @@ def run_social_draft(*, flush=None) -> dict:
     _render_reels(stats, errors)
     if errors:
         stats["errors"] = errors
-        notify.send("Réseaux sociaux — brouillons incomplets", "\n".join(errors))
+        notify.send(
+            "Réseaux sociaux — brouillons incomplets",
+            "\n".join(errors),
+            path="/reseaux",
+        )
     if stats["drafted"]:
         notify.send(
             "Réseaux sociaux — brouillons à valider",
-            f"{stats['drafted']} publications prêtes pour la semaine : "
-            f"{settings.frontend_origin}/admin/reseaux",
+            f"{stats['drafted']} publications prêtes pour la semaine.",
+            path="/reseaux",
         )
     if stats["failed"] and not stats["drafted"]:
         raise RuntimeError("aucun brouillon rédigé\n" + "\n".join(errors))
@@ -135,7 +139,11 @@ def run_social_redraft(*, flush=None) -> dict:
     _render_reels(stats, errors)
     if errors:
         stats["errors"] = errors
-        notify.send("Réseaux sociaux — réécriture en échec", "\n".join(errors))
+        notify.send(
+            "Réseaux sociaux — réécriture en échec",
+            "\n".join(errors),
+            path="/reseaux",
+        )
     return stats
 
 
