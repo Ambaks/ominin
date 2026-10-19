@@ -21,7 +21,11 @@ export const navCta = { href: "#devis", label: "Demander un devis" } as const;
 
 export const zone = ["Toulouse", "Montauban", "Albi", "Carcassonne", "Auch"] as const;
 
-export const contact = { phone: "07 46 28 95 90", phoneHref: "tel:+33746289590" } as const;
+export const contact = {
+  phone: "07 46 28 95 90",
+  phoneHref: "tel:+33746289590",
+  email: "flgaerogommage@gmail.com",
+} as const;
 
 export const surfaces = [
   "Charpentes",

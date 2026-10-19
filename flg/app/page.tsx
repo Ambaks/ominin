@@ -356,6 +356,11 @@ export default function Home() {
                 </a>
                 .
               </p>
+              <p className="mt-6">
+                <a href={`mailto:${contact.email}`} className="text-fg underline decoration-accent underline-offset-4">
+                  {contact.email}
+                </a>
+              </p>
             </div>
             <div className="relative md:col-span-6 md:col-start-7">
               <QuoteForm />
