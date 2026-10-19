@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     body?: string;
     key?: string;
     url?: string;
+    urgent?: boolean;
   } | null;
   if (!body?.title || !body.key) {
     return NextResponse.json({ error: "Titre et clé requis." }, { status: 400 });
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
     title: body.title,
     body: body.body ?? "",
     url: body.url ?? "/projet",
+    urgent: body.urgent,
   });
   return NextResponse.json({ sent });
 }

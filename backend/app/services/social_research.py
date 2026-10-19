@@ -140,8 +140,8 @@ def _research_brand(sb, brand: str) -> dict:
         outcome.update(updated=True, version=version)
         notify.send(
             f"Réseaux sociaux — ligne éditoriale {BRANDS[brand]['name']} v{version}",
-            f"{findings.change_summary}\n\n"
-            f"Historique et retour arrière : {settings.frontend_origin}/admin/reseaux",
+            findings.change_summary,
+            path="/reseaux",
         )
     return outcome
 

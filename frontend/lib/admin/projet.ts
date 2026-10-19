@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CLIENT_PERIOD_DAYS } from "@/lib/admin/constants";
+import { ASSIGN_NOTIFY_DELAY_MS, CLIENT_PERIOD_DAYS } from "@/lib/admin/constants";
 import {
   fetchOverview,
   fetchShopClients,
@@ -249,17 +249,35 @@ async function optimistic(
 // Écritures
 
 /** Fait sonner ce que le changement mérite (best effort : jamais bloquant). */
-function notify(stepId: string, event: "assigned" | "blocked" | "done") {
+function notify(stepId: string, event: "assigned" | "blocked" | "done", note?: string) {
   void fetch("/api/admin/push/projet", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ stepId, event }),
+    body: JSON.stringify({ stepId, event, note }),
   }).catch(() => {});
+}
+
+const assignTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+/** Annonce une étape confiée une fois le choix posé ; le reste est annulé. */
+function scheduleAssigned(stepId: string, assigned: boolean) {
+  clearTimeout(assignTimers.get(stepId));
+  assignTimers.delete(stepId);
+  if (!assigned) return;
+  assignTimers.set(
+    stepId,
+    setTimeout(() => {
+      assignTimers.delete(stepId);
+      notify(stepId, "assigned");
+    }, ASSIGN_NOTIFY_DELAY_MS),
+  );
 }
 
 export async function updateStep(
   id: string,
   patch: Partial<Pick<Step, "status" | "owner" | "title" | "detail">>,
+  /** Pourquoi l'étape est bloquée, dit à l'autre dans la notification. */
+  reason?: string,
 ): Promise<void> {
   await optimistic(
     (data) => ({
@@ -269,8 +287,8 @@ export async function updateStep(
     async () =>
       check(await createClient().from("projet_steps").update(patch).eq("id", id)),
   );
-  if (patch.owner) notify(id, "assigned");
-  if (patch.status === "blocked") notify(id, "blocked");
+  if (patch.owner !== undefined) scheduleAssigned(id, patch.owner !== null);
+  if (patch.status === "blocked") notify(id, "blocked", reason);
   if (patch.status === "done") notify(id, "done");
 }
 

@@ -160,11 +160,15 @@ export function StepRow({ step }: { step: Step }) {
             </button>
             <button
               type="button"
-              onClick={() =>
-                void run(() =>
-                  updateStep(step.id, { status: status === "blocked" ? "todo" : "blocked" }),
-                )
-              }
+              onClick={() => {
+                if (status === "blocked") {
+                  void run(() => updateStep(step.id, { status: "todo" }));
+                  return;
+                }
+                const reason = window.prompt("Pourquoi c'est bloqué ? (facultatif)");
+                if (reason === null) return;
+                void run(() => updateStep(step.id, { status: "blocked" }, reason.trim() || undefined));
+              }}
               className={ACTION}
             >
               {status === "blocked" ? "Débloquer" : "Bloquer"}
