@@ -8,7 +8,6 @@ import escalierAvant from "@/assets/chantiers/escalier-avant.jpg";
 import escalierApres from "@/assets/chantiers/escalier-apres.jpg";
 import portailAvant from "@/assets/chantiers/portail-avant.jpg";
 import portailApres from "@/assets/chantiers/portail-apres.jpg";
-import auventGalerie from "@/assets/chantiers/auvent-galerie.jpg";
 
 export const navLinks = [
   { href: "#chantiers", label: "Chantiers" },
@@ -54,13 +53,16 @@ export type Case = {
 };
 
 export const featured = {
-  kind: "Bâtiment neuf · Extérieur",
-  title: "Chantier extérieur",
-  wide: auventGalerie,
+  title: "Chantiers extérieurs et intérieurs",
   film: {
     src: "/films/auvent-travelling.mp4",
     poster: "/films/auvent-travelling.jpg",
     label: "Travelling le long de l'auvent : les poutres décapées sur toute la galerie",
+  },
+  filmBefore: {
+    src: "/films/auvent-avant.mp4",
+    poster: "/films/auvent-avant.jpg",
+    label: "Travelling le long de l'auvent avant le décapage : les poutres noircies sur toute la galerie",
   },
   compare: { title: "Plafond intérieur", before: plafondAvant, after: plafondApres },
 };
@@ -87,11 +89,11 @@ export const smallCases: readonly Case[] = [
 ];
 
 export const steps = [
-  { title: "Visite et devis", body: "On regarde le support, la couche à retirer, l'accès et la surface. Le devis est gratuit." },
-  { title: "Protection", body: "Sols, menuiseries, vitrages et murs sont bâchés avant toute projection." },
-  { title: "Aérogommage", body: "Abrasif et pression choisis pour le matériau : on retire la couche sans attaquer le support." },
+  { title: "Visite et devis", body: "Vérification du type de support et de la matière à décaper." },
+  { title: "Protection", body: "Sols, menuiseries, vitrages et murs sont bâchés avant toute projection, un extracteur de particules est mis en place." },
+  { title: "Aérogommage", body: "La pression et l'abrasif sont choisis selon le type de matériau." },
   { title: "Finition", body: "Si vous le souhaitez, lasure, vernis ou huile de fabricants reconnus pour protéger le support." },
-  { title: "Réception", body: "Chantier nettoyé, bâches retirées, le résultat vu ensemble." },
+  { title: "Réception", body: "Désinstallation et nettoyage du chantier. Le chantier est réceptionné par le client." },
 ] as const;
 
 export const applications = [
