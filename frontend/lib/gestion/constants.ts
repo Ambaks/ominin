@@ -19,6 +19,8 @@ export const TOP_VENTES_COUNT = 5;
 export const CART_PAIRINGS_COUNT = 2;
 /** Lignes du panier montrées d'emblée : au-delà, la liste se replie sous l'accord du chef et la fidélité. */
 export const CART_LINES_SHOWN = 3;
+/** Articles d'un palier de fidélité montrés d'emblée dans le panier : au-delà, « Voir les N autres ». */
+export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
 /** Bascule de la journée de service. Miroir du défaut SQL de
