@@ -29,7 +29,7 @@ type Seat = { fill: number; owner: SeatShare | null; tone: SeatShare["tone"] | n
 const SOLID = 0.72;
 
 /* Repère du dessin (unités du viewBox) : centre, rayon des places, de l'anneau, de la table. */
-const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4 } as const;
+const RING = { size: 260, seats: 92, progress: 120, table: 44, seatMax: 22, gap: 4, amountGap: 16 } as const;
 
 function initials(name: string): string {
   const [first, second] = name.replace(/\./g, "").split(/\s+/);
@@ -63,6 +63,7 @@ export function SeatRing({
   shares,
   label,
   freshId,
+  scrubbing = false,
   className = "",
 }: {
   seats: number;
@@ -72,6 +73,8 @@ export function SeatRing({
   label: string;
   /** Une part à fêter dès le montage (celle qu'on vient de payer) ; les autres pulsent si elles arrivent ensuite. */
   freshId?: string | null;
+  /** Le montant est en train d'être glissé : les places suivent sans délai ni rebond. */
+  scrubbing?: boolean;
   className?: string;
 }) {
   const ref = useRef<SVGSVGElement>(null);
@@ -103,7 +106,7 @@ export function SeatRing({
   const caption = active !== null ? seats[active]?.owner : null;
 
   return (
-    <figure className={`club-seats-figure ${className}`}>
+    <figure className={`club-seats-figure ${className}`} data-scrub={scrubbing || undefined}>
       <svg
         ref={ref}
         viewBox={`0 0 ${RING.size} ${RING.size}`}
@@ -123,7 +126,6 @@ export function SeatRing({
         />
         {lit.length > 1 && (
           <polyline
-            key={lit.length}
             className="club-seats-lines"
             points={lit.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
             pathLength={1}
@@ -149,6 +151,8 @@ export function SeatRing({
           const fresh = owner && (owner.id === freshId || !known.has(owner.id));
           // La surface du disque suit la part de la place : échelle en racine.
           const scale = Math.sqrt(seat.fill);
+          // Le montant d'une part, à l'extérieur de sa place, dans l'axe du centre.
+          const outward = { x: (point.x - centre) / RING.seats, y: (point.y - centre) / RING.seats };
           return (
             <g
               key={index}
@@ -158,8 +162,8 @@ export function SeatRing({
               data-empty={seat.fill === 0 || undefined}
               data-fresh={fresh || undefined}
               data-active={active === index || undefined}
-              transform={`translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`}
-              style={{ "--i": index } as CSSProperties}
+              // En propriété CSS, pas en attribut : une place qui se déplace (personnes en plus ou en moins) glisse.
+              style={{ "--i": index, transform: `translate(${point.x.toFixed(1)}px, ${point.y.toFixed(1)}px)` } as CSSProperties}
               {...(owner && owner.tone !== "preview"
                 ? {
                     role: "button",
@@ -181,6 +185,17 @@ export function SeatRing({
                   {seat.owner.tone === "preview" || seat.owner.tone === "you" ? "Vous" : initials(seat.owner.name)}
                 </text>
               )}
+              {seat.owner && seat.owner.tone !== "preview" && (
+                <text
+                  className="club-seat-amount"
+                  x={outward.x * (seatRadius + RING.amountGap)}
+                  y={outward.y * (seatRadius + RING.amountGap)}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                >
+                  {formatCents(seat.owner.amountCents)}
+                </text>
+              )}
             </g>
           );
         })}
@@ -192,9 +207,16 @@ export function SeatRing({
             <span className="club-mono">{formatCents(caption.amountCents)}</span>
           </>
         ) : (
-          <span>
-            1 place ≈ <span className="club-mono">{formatCents(Math.ceil(priceCents / count))}</span>
-          </span>
+          <>
+            <span>
+              1 place ≈ <span className="club-mono">{formatCents(Math.ceil(priceCents / count))}</span>
+            </span>
+            <span className="club-seats-legend" aria-hidden>
+              <i data-tone="you" /> Vous
+              <i data-tone="friend" /> Payé
+              <i /> Libre
+            </span>
+          </>
         )}
       </figcaption>
     </figure>

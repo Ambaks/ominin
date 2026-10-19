@@ -74,7 +74,7 @@ function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean)
         return {
           pill: `Réservée · ${remaining} à régler`,
           title: "Votre table est réservée",
-          text: `${formatCents(booking.totalCents - booking.remainingCents)} déjà payés. Vos amis peuvent payer leur part jusqu'au début de la soirée ; à l'entrée, ce qui reste (${remaining} aujourd'hui) se règle sur place, par vous.`,
+          text: `${formatCents(booking.totalCents - booking.remainingCents)} déjà payés. Vos amis peuvent payer leur part jusqu'au début de la soirée. Il reste ${remaining} à régler à l'entrée si vos amis ne paient pas.`,
         };
       }
       return {
@@ -327,7 +327,7 @@ export default async function BookingPage({
               {booking.shared && booking.remainingCents > 0 && (
                 <p className="club-pass-caption">
                   Valable à l&rsquo;entrée. Reste{" "}
-                  <strong className="club-mono">{formatCents(booking.remainingCents)}</strong> à régler par
+                  <strong className="club-mono">{formatCents(booking.remainingCents)}</strong>{" "}à régler par
                   l&rsquo;hôte si vos amis n&rsquo;ont pas payé.
                 </p>
               )}

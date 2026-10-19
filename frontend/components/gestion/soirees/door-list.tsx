@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
-import { PhoneIcon } from "@/components/gestion/icons";
+import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
 import { formatCents } from "@/lib/club/format";
@@ -23,6 +23,10 @@ import { usePresence } from "./use-presence";
 const SWIPE_COMMIT = 96;
 /** Glissé (px) à partir duquel la rangée suit le doigt plutôt que le défilement. */
 const SWIPE_START = 10;
+/** Vitesse (px/ms) d'un lancer qui fait entrer avant le seuil. */
+const FLICK_SPEED = 0.6;
+/** Vibration (ms) qui confirme sous le doigt qu'une table entre. */
+const COMMIT_BUZZ = 10;
 /** L'astuce du glissé ne se montre qu'une fois par appareil. */
 const SWIPE_HINT_KEY = "ominin-soirees-glisse-vu";
 
@@ -41,13 +45,23 @@ type Phase = "repos" | "glisse" | "pret" | "parti";
 /** « 8 pers. », court : la rangée tient sur un téléphone. */
 const party = (count: number) => `${count} pers.`;
 
+/** L'astuce du glissé n'a de sens qu'au doigt, et qu'une fois. */
 function readHintSeen(): boolean {
+  if (!window.matchMedia("(pointer: coarse)").matches) return true;
   try {
     return window.localStorage.getItem(SWIPE_HINT_KEY) !== null;
   } catch {
     return true;
   }
 }
+
+type Filter = "toutes" | "attente" | "payee";
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "toutes", label: "Toutes" },
+  { id: "attente", label: "À encaisser" },
+  { id: "payee", label: "Payées" },
+];
 
 function DoorRow({
   entry,
@@ -66,15 +80,19 @@ function DoorRow({
   const { booking, table, zoneName, state, payers, deposit } = entry;
   const remaining = booking.remainingCents;
   const row = useRef<HTMLDivElement>(null);
-  const swipe = useRef<{ id: number; x: number; y: number; dx: number; active: boolean } | null>(null);
+  const swipe = useRef<{ id: number; x: number; y: number; dx: number; t: number; speed: number; active: boolean } | null>(null);
   const [phase, setPhase] = useState<Phase>("repos");
   // Glisser fait entrer une table réglée ; l'argent, lui, se prend d'un geste visible.
   const canSwipe = state === "payee";
   const name = tableName(zoneName, table.label);
 
-  const setOffset = (dx: number) => row.current?.style.setProperty("--glisse", `${dx}px`);
+  const setOffset = (dx: number) => {
+    row.current?.style.setProperty("--glisse", `${dx}px`);
+    row.current?.style.setProperty("--progres", String(Math.min(dx / SWIPE_COMMIT, 1)));
+  };
 
   const commit = async () => {
+    navigator.vibrate?.(COMMIT_BUZZ);
     setPhase("parti");
     setOffset(row.current?.offsetWidth ?? 0);
     if (await onArrive()) return;
@@ -103,7 +121,15 @@ function DoorRow({
       data-indice={hint || undefined}
       onPointerDown={(event) => {
         if (!canSwipe || event.button !== 0 || phase === "parti") return;
-        swipe.current = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, active: false };
+        swipe.current = {
+          id: event.pointerId,
+          x: event.clientX,
+          y: event.clientY,
+          dx: 0,
+          t: event.timeStamp,
+          speed: 0,
+          active: false,
+        };
       }}
       onPointerMove={(event) => {
         const current = swipe.current;
@@ -118,7 +144,11 @@ function DoorRow({
           current.active = true;
           event.currentTarget.setPointerCapture(event.pointerId);
         }
-        current.dx = Math.max(0, dx);
+        const next = Math.max(0, dx);
+        // Vitesse du dernier déplacement : un lancer rapide vaut un glissé jusqu'au seuil.
+        current.speed = (next - current.dx) / Math.max(event.timeStamp - current.t, 1);
+        current.t = event.timeStamp;
+        current.dx = next;
         setOffset(current.dx);
         setPhase(current.dx >= SWIPE_COMMIT ? "pret" : "glisse");
       }}
@@ -126,7 +156,7 @@ function DoorRow({
         const current = swipe.current;
         swipe.current = null;
         if (!current?.active) return;
-        if (current.dx >= SWIPE_COMMIT) {
+        if (current.dx >= SWIPE_COMMIT || current.speed >= FLICK_SPEED) {
           void commit();
           return;
         }
@@ -139,16 +169,19 @@ function DoorRow({
         setOffset(0);
       }}
     >
-      {canSwipe && (
+      {canSwipe && phase !== "repos" && (
         <div className="porte-fond" aria-hidden>
-          {phase === "pret" || phase === "parti" ? "Relâchez : il entre" : "Faire entrer →"}
+          <span className="porte-coche">
+            <CheckIcon className="size-4" />
+          </span>
+          {phase === "glisse" ? "Faire entrer" : "Relâchez : il entre"}
         </div>
       )}
       <div className="porte-contenu flex flex-col gap-3 p-4">
         <button type="button" onClick={onOpen} className="flex flex-col gap-1.5 rounded-xl text-left">
           <span className="flex items-start justify-between gap-3">
             <span className="text-base font-semibold leading-snug">{booking.name}</span>
-            <span className="shrink-0 rounded-full border border-hairline px-2.5 py-1 text-xs font-semibold tabular-nums">
+            <span className="shrink-0 whitespace-nowrap rounded-full border border-hairline px-2.5 py-1 text-xs font-semibold tabular-nums">
               {name}
             </span>
           </span>
@@ -203,6 +236,7 @@ function DoorRow({
 export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId: string) => void }) {
   const toast = useToast();
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("toutes");
   const [hintSeen] = useState(readHintSeen);
 
   const entries: Entry[] = held
@@ -214,7 +248,7 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
   // à l'intérieur, la réservation la plus ancienne.
   const rank: Partial<Record<TableState, number>> = { attente: 0, payee: 1, prise: 2 };
   const waiting = entries
-    .filter((entry) => entry.state !== "arrivee")
+    .filter((entry) => entry.state !== "arrivee" && (filter === "toutes" || entry.state === filter))
     .sort(
       (a, b) =>
         (rank[a.state] ?? 3) - (rank[b.state] ?? 3) ||
@@ -275,6 +309,23 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
           enterKeyHint="search"
           className="w-full rounded-2xl border border-hairline bg-surface px-4 py-3.5 text-base outline-none transition-colors placeholder:text-muted focus:border-ember-2/60"
         />
+        <div role="group" aria-label="Filtrer les tables attendues" className="no-scrollbar mt-2 flex gap-2 overflow-x-auto">
+          {FILTERS.map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={filter === id}
+              onClick={() => setFilter(id)}
+              className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
+                filter === id
+                  ? "border-[var(--soirees-gold)] text-foreground"
+                  : "border-hairline text-muted hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {held.length === 0 ? (

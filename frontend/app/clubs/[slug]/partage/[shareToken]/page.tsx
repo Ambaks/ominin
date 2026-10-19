@@ -35,7 +35,7 @@ export default async function SharePage({ params, searchParams }: { params: Para
     amountCents: payer.amountCents,
     tone: payer.id === yours?.id ? "you" : payer.organiser ? "organiser" : "friend",
   }));
-  const complete = table.remainingCents <= 0;
+  const complete = table.fullyPaid;
   const eventCancelled = Boolean(table.event.cancelledAt);
   // La réservation elle-même n'est plus valable (délai de paiement passé, annulée ou remboursée par le club).
   const voided = !eventCancelled && (table.status === "annulee" || table.status === "remboursee");
@@ -77,17 +77,7 @@ export default async function SharePage({ params, searchParams }: { params: Para
             freshId={yours?.id ?? table.payers.at(-1)?.id}
           />
           <ShareMeter paidCents={table.totalCents - table.remainingCents} priceCents={table.totalCents} />
-          <ul className="club-payers" aria-label="Déjà à table">
-            {table.payers.map((payer) => (
-              <li key={payer.id} data-you={payer.id === yours?.id || undefined}>
-                <span>
-                  {payer.id === yours?.id ? "Vous" : payer.name}
-                  {payer.organiser && <span className="club-pill-tag">Hôte</span>}
-                </span>
-                <span className="club-mono">{formatCents(payer.amountCents)}</span>
-              </li>
-            ))}
-          </ul>
+
         </div>
 
         {yours ? (
@@ -154,6 +144,22 @@ export default async function SharePage({ params, searchParams }: { params: Para
             <p className="club-sheet-title">Toutes les parts sont prises</p>
             <p className="club-lead">Le reste se règle à l&rsquo;entrée.</p>
           </div>
+        )}
+
+        {table.payers.length > 0 && (
+          <section className="club-share-board club-payers-board" aria-label="Déjà à table">
+            <ul className="club-payers">
+              {table.payers.map((payer) => (
+                <li key={payer.id} data-you={payer.id === yours?.id || undefined}>
+                  <span>
+                    {payer.id === yours?.id ? "Vous" : payer.name}
+                    {payer.organiser && <span className="club-pill-tag">Hôte</span>}
+                  </span>
+                  <span className="club-mono">{formatCents(payer.amountCents)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
 
         <Link href={clubHref(`/${slug}/${table.event.slug}`)} className="club-text-link">

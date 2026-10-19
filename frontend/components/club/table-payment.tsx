@@ -283,7 +283,7 @@ export function TablePayment({
   totalCents: number | null;
   /** Temps restant sur la table tenue, au montage. */
   remainingMs: number;
-  /** « Sam. 24 oct. · VIP Salon Rouge · 03 · 8 pers. · 1 050 € tout compris ». */
+  /** « Sam. 24 oct. · VIP Salon Rouge · 8 pers. · 1 050 € tout compris ». */
   recap: string;
   onPaid: () => void;
   onExpired: (message?: string) => void;

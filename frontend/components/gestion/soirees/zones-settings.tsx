@@ -179,7 +179,7 @@ function ZoneRow({ zone, tableCount }: { zone: ClubZone; tableCount: number }) {
         <Field label="Prix d'une table" required error={dirty ? priceError : undefined}>
           <EurosInput value={price} onChange={setPrice} invalid={dirty && Boolean(priceError)} />
         </Field>
-        <Field label="Ce que comprend la table" hint="Lu par le client sur le plan.">
+        <Field label="Ce que comprend la table" hint="Affiché sur l’offre côté client.">
           <input
             value={inclus}
             maxLength={CLUB_LIMITS.inclus}

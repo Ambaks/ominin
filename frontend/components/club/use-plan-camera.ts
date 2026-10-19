@@ -12,16 +12,15 @@ import { prefersReducedMotion } from "@/lib/club/media";
  *
  * Au repos, la caméra cadre `fit` (fractions du calque : la salle utile,
  * sans le vide autour) dans le cadre. Glisser déplace (zoomé), pincer ou
- * Ctrl/⌘ + molette agrandit autour du point visé, double toucher zoome
- * (doubleTapZoom) ; relâché, le plan glisse, ralentit, et revient en ressort
- * s'il a dépassé ses bords. Au repos, un glissement vertical reste le
- * défilement de la page (touch-action pan-y) — sauf à deux doigts, qui
- * pincent ; un glissement horizontal est rendu par onSwipe. Le focus
+ * Ctrl/⌘ + molette agrandit autour du point visé, double toucher dans le
+ * vide zoome ; relâché, le plan glisse, ralentit, et revient en ressort
+ * s'il a dépassé ses bords. Au repos, un glissement reste le défilement de
+ * la page (touch-action pan-y) — sauf à deux doigts, qui pincent. Le focus
  * clavier d'un élément hors cadre l'y ramène.
  *
  * Un toucher sans glissement est rendu tout de suite par onTap (point écran,
- * cadre), qui dit s'il a touché quelque chose ; avec doubleTapZoom, deux
- * touchers rapprochés dans le vide (onTap rend false) zooment. Les clics de pointeur sont absorbés ; ceux du
+ * cadre), qui dit s'il a touché quelque chose ; deux touchers rapprochés
+ * dans le vide (onTap ne rend pas true) zooment. Les clics de pointeur sont absorbés ; ceux du
  * clavier et des lecteurs d'écran passent. Mouvement réduit : ni élan, ni
  * ressort, ni débordement.
  */
@@ -39,11 +38,7 @@ export function usePlanCamera({
   resetKey,
   fit = null,
   fitHeight = false,
-  maxZoom = CAM.max,
-  doubleTapZoom = true,
   onTap,
-  onSwipe,
-  onChange,
 }: {
   /** Change (la zone) ⇒ retour instantané au cadrage de repos. */
   resetKey: string;
@@ -54,23 +49,17 @@ export function usePlanCamera({
    * la fait glisser d'un cadrage à l'autre.
    */
   fitHeight?: boolean;
-  /** Agrandissement maximal, relatif au cadrage de repos. */
-  maxZoom?: number;
-  doubleTapZoom?: boolean;
   /** Un toucher : le point (écran) et le cadre à cet instant ; true s'il a touché un élément (pas de double toucher). */
   onTap?: (point: Point, frame: DOMRect) => boolean | void;
-  onSwipe?: (direction: 1 | -1) => void;
-  /** Après chaque image où la caméra a bougé. */
-  onChange?: (camera: PlanCamera) => void;
 }) {
   const viewport = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const [zoomed, setZoomed] = useState(false);
   const cam = useRef<PlanCamera>({ x: 0, y: 0, s: 1 });
-  const handlers = useRef({ onTap, onSwipe, onChange });
+  const handlers = useRef({ onTap });
   useEffect(() => {
-    handlers.current = { onTap, onSwipe, onChange };
-  }, [onTap, onSwipe, onChange]);
+    handlers.current = { onTap };
+  }, [onTap]);
   const fitKey = fit ? `${fit.x}:${fit.y}:${fit.w}:${fit.h}` : "";
   const fitRef = useRef(fit);
   // Avant tout autre effet : le cadrage et la hauteur lisent le `fit` de ce rendu.
@@ -116,7 +105,7 @@ export function usePlanCamera({
       return { s, x: vw / 2 - (r.x + r.w / 2) * s, y: vh / 2 - (r.y + r.h / 2) * s };
     };
     let rest = home();
-    const range = () => ({ min: rest.s, max: rest.s * maxZoom });
+    const range = () => ({ min: rest.s, max: rest.s * CAM.max });
     /* Bornes d'une caméra d'échelle s : la salle utile reste à l'écran, centrée si elle y tient. */
     const limits = (s: number) => {
       const r = focusRect();
@@ -151,7 +140,6 @@ export function usePlanCamera({
 
     const paint = () => {
       layer.style.transform = `translate3d(${c.x}px, ${c.y}px, 0) scale(${c.s})`;
-      handlers.current.onChange?.({ ...c });
       const isZoomed = c.s > rest.s * (1 + EPSILON);
       if (isZoomed === wasZoomed) return;
       wasZoomed = isZoomed;
@@ -276,13 +264,11 @@ export function usePlanCamera({
         return;
       }
       if (!start) return;
-      const dx = point.x - start.point.x;
-      const dy = point.y - start.point.y;
       start = null;
       if (!moved) {
         if (interrupted) settle(c);
         const hit = handlers.current.onTap?.({ x: event.clientX, y: event.clientY }, frame.getBoundingClientRect());
-        if (hit || !doubleTapZoom || event.pointerType === "mouse") {
+        if (hit || event.pointerType === "mouse") {
           lastTap = null;
           return;
         }
@@ -306,10 +292,6 @@ export function usePlanCamera({
           last = 0;
           kick();
         } else settle(c);
-        return;
-      }
-      if (!zoomedNow() && Math.abs(dx) > CAM.swipe && Math.abs(dx) > Math.abs(dy) * CAM.swipeRatio) {
-        handlers.current.onSwipe?.(dx < 0 ? 1 : -1);
       }
     };
 
@@ -453,7 +435,7 @@ export function usePlanCamera({
       frame.removeEventListener("wheel", onWheel);
       frame.removeEventListener("focusin", onFocusIn);
     };
-  }, [resetKey, fitKey, maxZoom, doubleTapZoom]);
+  }, [resetKey, fitKey]);
 
   const recenter = useCallback(() => api.current?.recenter(), []);
   const zoomBy = useCallback((factor: number) => api.current?.zoomBy(factor), []);

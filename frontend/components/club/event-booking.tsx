@@ -24,6 +24,7 @@ import {
 import { OfferVisual } from "@/components/club/offer-visual";
 import { RollingAmount } from "@/components/club/rolling-amount";
 import { SeatRing } from "@/components/club/seat-ring";
+import { Spotlight } from "@/components/club/spotlight";
 import { ShareAmount } from "@/components/club/share-amount";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_SHEET, CLUB_TIMING } from "@/components/club/timing";
@@ -70,6 +71,31 @@ const holdClock = () => {
   return () => TABLE_HOLD_S * 1000 - (performance.now() - sentAt);
 };
 
+/* La feuille relâchée : elle se ferme (en glissant seulement, d'où le doigt l'a laissée) ou revient en place. */
+function releaseSheet(sheet: HTMLElement, backdrop: HTMLElement | null, speed: number, dy: number, close: () => void) {
+  sheet.removeAttribute("data-dragging");
+  backdrop?.removeAttribute("data-dragging");
+  backdrop?.style.removeProperty("opacity");
+  if (dy > CLUB_SHEET.dismiss || speed > CLUB_SHEET.velocity) {
+    sheet.setAttribute("data-dismissing", "");
+    sheet.style.translate = "0 100%";
+    sheet.addEventListener(
+      "transitionend",
+      () => {
+        sheet.removeAttribute("data-dismissing");
+        sheet.style.translate = "";
+      },
+      { once: true }
+    );
+    close();
+  } else sheet.style.translate = "";
+}
+
+/* Une ligne d'ambiance, tirée du dessin de la zone (« Vue sur Toulouse », « Vue sur la piste ») : rien d'inventé. */
+const VIEW = /^vue\b/i;
+const ambience = (offer: Offer) =>
+  offer.layout.marks.find((mark) => mark.label && VIEW.test(mark.label))?.label ?? null;
+
 const STEPS: { id: Step; label: string }[] = [
   { id: "offre", label: "Offre" },
   { id: "infos", label: "Infos" },
@@ -115,7 +141,11 @@ export function EventBooking({
   const errors = contactErrors(contact, accepted);
   const formValid = Object.keys(errors).length === 0;
   const shownErrors = triedPay ? errors : {};
-  const [mode, setMode] = useState<Mode>("full");
+  const [mode, setModeState] = useState<Mode>("full");
+  // Le sens d'un changement (étape, mode de paiement) : ce qui arrive vient du bon côté.
+  const [back, setBack] = useState(false);
+  // Le curseur du montant est tenu : chiffres et places suivent sans animation.
+  const [scrubbing, setScrubbing] = useState(false);
   const [shareCents, setShareCents] = useState<number | null>(null);
   const [hold, setHold] = useState<Hold | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -148,6 +178,24 @@ export function EventBooking({
     ...(deposit !== null ? [{ id: "deposit" as const, label: "Acompte" }] : []),
     { id: "shared", label: "Partager" },
   ];
+  const modeIndex = modes.findIndex((item) => item.id === mode);
+  const setMode = (next: Mode) => {
+    setBack(modes.findIndex((item) => item.id === next) < modeIndex);
+    setModeState(next);
+  };
+  const goStep = (next: Step) => {
+    setBack(STEPS.findIndex((item) => item.id === next) < STEPS.findIndex((item) => item.id === step));
+    setStep(next);
+  };
+  // Flèches dans le choix du mode de paiement (boutons radio, un seul arrêt de tabulation).
+  const onModesKey = (keyEvent: KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(keyEvent.key)) return;
+    keyEvent.preventDefault();
+    const by = keyEvent.key === "ArrowRight" || keyEvent.key === "ArrowDown" ? 1 : -1;
+    const next = modes[(modeIndex + by + modes.length) % modes.length];
+    setMode(next.id);
+    keyEvent.currentTarget.querySelector<HTMLElement>(`[data-mode="${next.id}"]`)?.focus();
+  };
   const paying = step === "paiement" && hold !== null;
   // La barre de prix garde sa dernière offre le temps de sortir.
   const [barOffer, setBarOffer] = useState<Offer | null>(null);
@@ -163,11 +211,7 @@ export function EventBooking({
       if (!document.hidden && !live.current.paying) router.refresh();
     };
     document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", onVisible);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", onVisible);
-    };
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [router]);
 
   // L'offre choisie s'est épuisée entre-temps (offres relues) : on le dit, sans rien inventer d'autre.
@@ -184,6 +228,12 @@ export function EventBooking({
     setFormError(null);
     setOfferId(offer.id);
     setParty((current) => (current === null ? offer.maxParty : Math.min(current, offer.maxParty)));
+    // La barre de prix monte : la carte choisie reste visible au-dessus (scroll-margin de .club-offer).
+    requestAnimationFrame(() =>
+      document
+        .querySelector(`[data-offer="${offer.id}"]`)
+        ?.scrollIntoView({ block: "nearest", behavior: reducedMotion() ? "auto" : "smooth" })
+    );
   };
   // Flèches : d'une offre ouverte à la suivante (groupe de boutons radio).
   const onOffersKey = (keyEvent: KeyboardEvent<HTMLDivElement>) => {
@@ -238,6 +288,7 @@ export function EventBooking({
     drag.current = { y: pointer.clientY, time: pointer.timeStamp, dy: 0 };
     pointer.currentTarget.setPointerCapture(pointer.pointerId);
     sheetRef.current?.setAttribute("data-dragging", "");
+    backdropRef.current?.setAttribute("data-dragging", "");
   };
   const onHandleMove = (pointer: ReactPointerEvent) => {
     const sheet = sheetRef.current;
@@ -252,22 +303,49 @@ export function EventBooking({
     const state = drag.current;
     drag.current = null;
     if (!sheet || !state) return;
-    sheet.removeAttribute("data-dragging");
-    backdropRef.current?.style.removeProperty("opacity");
-    const speed = state.dy / Math.max(pointer.timeStamp - state.time, 1);
-    if (state.dy > CLUB_SHEET.dismiss || speed > CLUB_SHEET.velocity) {
-      // Elle part d'où le doigt l'a laissée, vers le bas, sans revenir d'abord en place.
-      sheet.style.translate = "0 100%";
-      sheet.addEventListener(
-        "transitionend",
-        () => {
-          sheet.style.translate = "";
-        },
-        { once: true }
-      );
-      closeSheet();
-    } else sheet.style.translate = "";
+    releaseSheet(sheet, backdropRef.current, state.dy / Math.max(pointer.timeStamp - state.time, 1), state.dy, closeSheet);
   };
+  /*
+   * Tirée vers le bas depuis son contenu, quand il est déjà en haut : la
+   * feuille suit le doigt comme par sa poignée. Écouteurs tactiles non
+   * passifs : vers le bas en haut du contenu, le geste est à la feuille.
+   */
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    if (!sheet || !open) return;
+    let start: { y: number; time: number } | null = null;
+    let dy = 0;
+    const onStart = (touch: TouchEvent) => {
+      start = sheet.scrollTop <= 0 && !live.current.paying ? { y: touch.touches[0].clientY, time: touch.timeStamp } : null;
+      dy = 0;
+    };
+    const onMove = (touch: TouchEvent) => {
+      if (!start) return;
+      dy = touch.touches[0].clientY - start.y;
+      if (dy <= 0) {
+        start = null;
+        return;
+      }
+      touch.preventDefault();
+      sheet.setAttribute("data-dragging", "");
+      backdropRef.current?.setAttribute("data-dragging", "");
+      sheet.style.translate = `0 ${dy}px`;
+      backdropRef.current?.style.setProperty("opacity", String(1 - Math.min(dy / sheet.offsetHeight, 1)));
+    };
+    const onEnd = (touch: TouchEvent) => {
+      if (!start || dy <= 0) return;
+      releaseSheet(sheet, backdropRef.current, dy / Math.max(touch.timeStamp - start.time, 1), dy, closeSheet);
+      start = null;
+    };
+    sheet.addEventListener("touchstart", onStart, { passive: true });
+    sheet.addEventListener("touchmove", onMove, { passive: false });
+    sheet.addEventListener("touchend", onEnd);
+    return () => {
+      sheet.removeEventListener("touchstart", onStart);
+      sheet.removeEventListener("touchmove", onMove);
+      sheet.removeEventListener("touchend", onEnd);
+    };
+  }, [open, closeSheet]);
   const dragHandlers = {
     onPointerDown: onHandleDown,
     onPointerMove: onHandleMove,
@@ -391,7 +469,7 @@ export function EventBooking({
           <p className="club-notice" role="status" aria-live="polite">
             {shownNotice}
           </p>
-          <div className="club-offers" role="radiogroup" aria-labelledby="offres-titre" onKeyDown={onOffersKey}>
+          <Spotlight className="club-offers" role="radiogroup" aria-labelledby="offres-titre" onKeyDown={onOffersKey}>
             {offers.map((offer, index) => {
               const checked = offer.id === selected?.id;
               return (
@@ -405,28 +483,30 @@ export function EventBooking({
                   aria-disabled={!offer.available || !bookable || undefined}
                   tabIndex={checked || (!selected && index === firstOpen) ? 0 : -1}
                   data-tone={offer.layout.tone ?? "nuit"}
+                  data-spotlight
                   style={{ "--i": index } as CSSProperties}
                   onClick={() => bookable && choose(offer)}
                 >
-                  <OfferVisual layout={offer.layout} />
-                  <span className="club-offer-body">
-                    <span className="club-offer-head">
-                      <span className="club-offer-name">{offer.name}</span>
-                      {!offer.available ? (
-                        <span className="club-offer-badge" data-full>
-                          Complet
+                  <span className="club-offer-art">
+                    <OfferVisual layout={offer.layout} />
+                    {!offer.available ? (
+                      <span className="club-offer-badge" data-full>
+                        Complet
+                      </span>
+                    ) : (
+                      checked && (
+                        <span className="club-offer-badge">
+                          <svg viewBox="0 0 16 16" aria-hidden>
+                            <path d="M3 8.5l3.2 3L13 4.5" />
+                          </svg>
+                          Choisie
                         </span>
-                      ) : (
-                        checked && (
-                          <span className="club-offer-badge">
-                            <svg viewBox="0 0 16 16" aria-hidden>
-                              <path d="M3 8.5l3.2 3L13 4.5" />
-                            </svg>
-                            Choisie
-                          </span>
-                        )
-                      )}
-                    </span>
+                      )
+                    )}
+                  </span>
+                  <span className="club-offer-body">
+                    <span className="club-offer-name">{offer.name}</span>
+                    {ambience(offer) && <span className="club-offer-ambience">{ambience(offer)}</span>}
                     <span className="club-offer-price club-mono">{formatCents(allIn(offer.offerCents))}</span>
                     <span className="club-offer-meta">Jusqu&rsquo;à {offer.maxParty} personnes · frais compris</span>
                     {offer.inclus && <span className="club-offer-inclus">{offer.inclus}</span>}
@@ -434,7 +514,7 @@ export function EventBooking({
                 </button>
               );
             })}
-          </div>
+          </Spotlight>
           {!bookable && <p className="club-fine">La réservation en ligne n&rsquo;est pas encore ouverte pour ce club.</p>}
         </div>
 
@@ -480,7 +560,7 @@ export function EventBooking({
             <div className="club-sheet-body">
               <div className="club-sheet-head" {...dragHandlers}>
                 {step === "infos" ? (
-                  <button type="button" className="club-icon-button" onClick={() => setStep("offre")} aria-label="Revenir à l'offre">
+                  <button type="button" className="club-icon-button" onClick={() => goStep("offre")} aria-label="Revenir à l'offre">
                     <svg viewBox="0 0 16 16" aria-hidden>
                       <path d="M10 3 5 8l5 5" />
                     </svg>
@@ -520,7 +600,7 @@ export function EventBooking({
                 <p className="club-sheet-text">Jusqu&rsquo;à {selected.maxParty} personnes · table attribuée par le club</p>
               </div>
 
-              <div ref={stageRef} className="club-stage">
+              <div ref={stageRef} className="club-stage" data-back={back || undefined}>
                 {step === "offre" && (
                   <div className="club-step" key="offre">
                     {selected.inclus && (
@@ -557,11 +637,20 @@ export function EventBooking({
                       className="club-mode"
                       role="radiogroup"
                       aria-label="Paiement de la table"
-                      style={{ "--modes": modes.length, "--mode": modes.findIndex((item) => item.id === mode) } as CSSProperties}
+                      style={{ "--modes": modes.length, "--mode": modeIndex } as CSSProperties}
+                      onKeyDown={onModesKey}
                     >
                       <span className="club-mode-pill" aria-hidden />
                       {modes.map((item) => (
-                        <button key={item.id} type="button" role="radio" aria-checked={mode === item.id} onClick={() => setMode(item.id)}>
+                        <button
+                          key={item.id}
+                          type="button"
+                          role="radio"
+                          data-mode={item.id}
+                          aria-checked={mode === item.id}
+                          tabIndex={mode === item.id ? 0 : -1}
+                          onClick={() => setMode(item.id)}
+                        >
                           {item.label}
                         </button>
                       ))}
@@ -573,7 +662,7 @@ export function EventBooking({
                           <RollingAmount cents={deposit} className="club-mono" />
                         </p>
                         <p className="club-share-sub">
-                          Reste <span className="club-mono">{formatCents(tablePrice - deposit)}</span> à régler à
+                          Reste <span className="club-mono">{formatCents(tablePrice - deposit)}</span>{" "}à régler à
                           l&rsquo;entrée — ou partagez le lien avec vos amis, ils paient leur part en ligne.
                         </p>
                       </div>
@@ -585,6 +674,7 @@ export function EventBooking({
                           priceCents={tablePrice}
                           shares={[{ id: "vous", name: contact.name || "Vous", amountCents: share, tone: "preview" }]}
                           label={`${people} pers.`}
+                          scrubbing={scrubbing}
                         />
                         <ShareAmount
                           value={share}
@@ -593,7 +683,7 @@ export function EventBooking({
                           part={equalPart}
                           note={
                             <>
-                              Vos amis : <RollingAmount cents={tablePrice - share} className="club-mono" />
+                              Vos amis : <RollingAmount cents={tablePrice - share} instant={scrubbing} className="club-mono" />
                             </>
                           }
                           presets={[
@@ -604,6 +694,7 @@ export function EventBooking({
                             { label: "Tout", cents: tablePrice },
                           ].filter((preset, index, all) => all.findIndex((other) => other.cents === preset.cents) === index)}
                           onChange={setShareCents}
+                          onScrub={setScrubbing}
                         />
                         <p className="club-fine club-share-note">
                           La table est à vous dès ce paiement. Vos amis reçoivent un lien privé pour payer leur part
@@ -623,32 +714,30 @@ export function EventBooking({
                         <div>
                           <dt>{shared ? "Vos amis" : "Reste à l'entrée ou par vos amis"}</dt>
                           <dd>
-                            <RollingAmount cents={tablePrice - share} className="club-mono" />
+                            <RollingAmount cents={tablePrice - share} instant={scrubbing} className="club-mono" />
                           </dd>
                         </div>
                       )}
                       <div className="club-lines-total">
                         <dt>{shared ? "Votre part, maintenant" : partial ? "Acompte, maintenant" : "À payer"}</dt>
                         <dd>
-                          <RollingAmount cents={total} className="club-mono" />
+                          <RollingAmount cents={total} instant={scrubbing} className="club-mono" />
                         </dd>
                       </div>
                     </dl>
-                    <p className="club-fine club-fee-note">
-                      Dont <span className="club-mono">{formatCents(fee(price))}</span> de frais de réservation (
-                      {club.feePercent} %){partial ? ", pris sur ce premier paiement" : ""}.
-                    </p>
                     <div className="club-sticky-cta">
                       <button
                         ref={reserveRef}
                         type="button"
                         className="club-button club-button-primary club-button-block club-magnet"
-                        onClick={() => setStep("infos")}
+                        onClick={() => goStep("infos")}
                         disabled={shared && people <= 1}
                       >
-                        Continuer
+                        Continuer · <RollingAmount cents={total} instant={scrubbing} />
                       </button>
-                      <p className="club-fine">Aucun frais ne s&rsquo;ajoute ensuite.</p>
+                      <p className="club-fine club-fee-note">
+                        {`Dont ${formatCents(fee(price))} de frais de réservation (${club.feePercent} %)${partial ? ", pris sur ce premier paiement" : ""} · aucun autre frais.`}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -678,7 +767,6 @@ export function EventBooking({
                       <button
                         type="submit"
                         className="club-button club-button-primary club-button-block"
-                        data-incomplete={!formValid || undefined}
                         disabled={submitting}
                         aria-busy={submitting || undefined}
                       >

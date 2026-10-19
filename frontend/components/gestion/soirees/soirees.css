@@ -33,7 +33,7 @@
   --etat-gardee: var(--c-state-fermee);
   /* Le numéro posé sur une table pleine (payée, arrivée). */
   --etat-encre: var(--c-ink);
-  font-family: var(--font-soirees-sans), system-ui, sans-serif;
+  font-family: var(--c-sans);
 }
 
 html.light .soirees {
@@ -50,14 +50,24 @@ html.light .soirees {
   --etat-encre: #ffffff;
 }
 
-.soirees .font-display {
-  font-family: var(--font-soirees-sans), system-ui, sans-serif;
+/*
+  La typographie des pages du club : Bricolage Grotesque pour les titres,
+  Geist pour le texte, Geist Mono pour les chiffres. L'en-tête de l'espace
+  d'un club (.club-espace, posé par le shell) la prend aussi : plus de
+  serif sur le nom du club.
+*/
+.club-espace {
+  font-family: var(--c-sans);
+}
+
+:is(.club-espace, .soirees) .font-display {
+  font-family: var(--c-display);
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
 }
 
 .soirees .tabular-nums {
-  font-family: var(--font-soirees-mono), ui-monospace, monospace;
+  font-family: var(--c-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -457,8 +467,8 @@ html:has(.soirees-barre) {
 
 .gestion-plan .plan-numero {
   fill: var(--foreground);
-  font-family: var(--font-soirees-mono), ui-monospace, monospace;
-  font-size: 13px;
+  font-family: var(--c-mono);
+  font-size: 15px;
   font-weight: 600;
   pointer-events: none;
 }
@@ -471,7 +481,7 @@ html:has(.soirees-barre) {
 
 .gestion-plan .plan-places text {
   fill: var(--foreground);
-  font-family: var(--font-soirees-mono), ui-monospace, monospace;
+  font-family: var(--c-mono);
   font-size: 10px;
   font-weight: 600;
   pointer-events: none;
@@ -591,12 +601,27 @@ html:has(.soirees-barre) {
   inset: 0;
   display: flex;
   align-items: center;
+  gap: 0.625rem;
   padding-inline: 1.25rem;
   background: color-mix(in srgb, var(--soirees-ok) 18%, var(--surface));
   color: var(--foreground);
   font-size: 0.875rem;
   font-weight: 600;
   transition: background-color var(--c-fast) var(--c-ease);
+}
+
+/* L'icône grandit et se remplit avec le glissé. */
+.porte-coche {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid var(--soirees-ok);
+  background: color-mix(in srgb, var(--soirees-ok) calc(var(--progres, 0) * 100%), transparent);
+  color: var(--foreground);
+  transform: scale(calc(0.6 + 0.4 * var(--progres, 0)));
 }
 
 /* Passé le seuil, le fond le dit : lâcher fait entrer. */
@@ -651,7 +676,7 @@ html:has(.soirees-barre) {
   .gestion-plan .plan-forme,
   .gestion-plan .plan-halo,
   .plan-cadre,
-  .porte-rangee .porte-contenu {
+  .porte-rangee[data-phase] .porte-contenu {
     transition: none;
   }
   .porte-rangee[data-indice] .porte-contenu {
@@ -669,5 +694,84 @@ html:has(.soirees-barre) {
   }
   to {
     opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Une table partagée vue d'en haut (payer-ring.tsx). */
+
+.anneau-piste {
+  fill: none;
+  stroke: var(--hairline);
+  stroke-width: 2;
+}
+
+.anneau-part {
+  fill: none;
+  stroke: var(--soirees-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  transition: stroke-dashoffset var(--c-sheet) var(--c-ease);
+  animation: anneau-part var(--c-sheet) var(--c-ease) both;
+}
+
+@keyframes anneau-part {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+.anneau-table {
+  fill: var(--surface-raised);
+  stroke: var(--hairline);
+}
+
+.anneau-numero {
+  fill: var(--foreground);
+  font-family: var(--c-mono);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.anneau-place circle {
+  fill: color-mix(in srgb, var(--c-violet) 30%, var(--surface));
+  stroke: var(--c-violet);
+  stroke-width: 1.5;
+}
+
+.anneau-place[data-organiser] circle {
+  fill: color-mix(in srgb, var(--soirees-gold) 30%, var(--surface));
+  stroke: var(--soirees-gold);
+}
+
+.anneau-place {
+  animation: anneau-place var(--c-slow) var(--c-spring) backwards;
+  animation-delay: calc(var(--i) * 60ms);
+}
+
+@keyframes anneau-place {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+
+.anneau-initiales {
+  fill: var(--foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.anneau-montant {
+  fill: var(--foreground);
+  font-family: var(--c-mono);
+  font-size: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anneau-part,
+  .anneau-place {
+    animation: none;
   }
 }

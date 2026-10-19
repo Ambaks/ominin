@@ -143,7 +143,7 @@ export function ShareJoin({
   minimumCents: number;
   remainingCents: number;
   conditions: Club["conditions"];
-  /** « Sam. 24 oct. · VIP Salon Rouge · 03 ». */
+  /** « Sam. 24 oct. · VIP Salon Rouge ». */
   recap: string;
   /** Les parts déjà payées : si ce navigateur en a payé une, la page le dit. */
   payerIds: string[];
@@ -275,9 +275,7 @@ export function ShareJoin({
         onAccept={setAccepted}
         error={shown.accepted}
       />
-      <p className="club-fee-sum">
-        Vous payez <RollingAmount cents={value} className="club-mono club-fee-total" />
-      </p>
+
       {error && (
         <p className="club-error" role="alert">
           {error}
@@ -286,9 +284,9 @@ export function ShareJoin({
       <button
         type="submit"
         className="club-button club-button-primary club-button-block"
-        data-incomplete={!valid || undefined}
         disabled={sending}
         aria-busy={sending || undefined}
+        aria-describedby={!valid ? "part-missing" : undefined}
       >
         {sending ? (
           <>
@@ -296,9 +294,23 @@ export function ShareJoin({
             Un instant…
           </>
         ) : (
-          "Payer ma part"
+          <>
+            Payer <RollingAmount cents={value} />
+          </>
         )}
       </button>
+      {!valid && (
+        <p className="club-fine club-pay-hint" id="part-missing">
+          {`Encore : ${[
+            errors.name && "votre nom",
+            errors.phone && "votre téléphone",
+            errors.email && "votre e-mail",
+            errors.accepted && "les conditions à accepter",
+          ]
+            .filter(Boolean)
+            .join(", ")}.`}
+        </p>
+      )}
     </form>
   );
 }

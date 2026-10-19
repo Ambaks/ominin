@@ -122,7 +122,7 @@ export function PaidBurst({
               opacity: 0,
             },
           ],
-          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_TIMING.stagger * 2, easing: ease, fill: "both" }
+          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_BURST.jitterMs, easing: ease, fill: "both" }
         );
         animation.onfinish = () => star.remove();
         animations.push(animation);

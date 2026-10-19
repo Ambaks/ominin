@@ -44,6 +44,10 @@
   --c-slow: 320ms;
   --c-sheet: 520ms;
   --c-state: 600ms;
+  /* Entrées de page, tracés et remplissages longs, effets qui se répètent */
+  --c-enter: 700ms;
+  --c-draw: 900ms;
+  --c-pulse: 1.6s;
   --c-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --c-exit: cubic-bezier(0.4, 0, 1, 1);
   --c-spring: linear(0, 0.18 7%, 0.62 17%, 0.96 27%, 1.07 34%, 1.09 39%, 1.06 47%, 1.01 57%, 0.995 70%, 1);

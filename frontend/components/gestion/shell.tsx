@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
+import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
 import { OFFRE_LABELS } from "@/lib/gestion/constants";
@@ -303,7 +304,8 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
       <div
-        className="flex min-h-dvh w-full flex-col"
+        // Un club parle la langue de ses pages : leurs jetons et leurs polices, en-tête compris.
+        className={`flex min-h-dvh w-full flex-col ${clubOnly ? `club-tokens club-espace ${clubFonts}` : ""}`}
         style={{ "--gestion-barre-bas": mobileNav ? "5rem" : "1rem" } as React.CSSProperties}
       >
         <header

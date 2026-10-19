@@ -229,7 +229,7 @@ export default function SoireesPage() {
             tab === "passees"
               ? "Les soirées terminées s'affichent ici avec ce qu'elles ont vendu."
               : gerant
-                ? "Créez votre prochaine soirée : ses zones, ses prix, et la page où vos clients choisissent leur table."
+                ? "Créez votre prochaine soirée : ses zones, ses prix, et la page où vos clients réservent leur offre de table."
                 : "Le gérant n'a pas encore programmé de soirée."
           }
           action={

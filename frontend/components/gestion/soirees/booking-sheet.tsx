@@ -20,7 +20,7 @@ import {
   telHref,
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
-import { SeatRing, type SeatShare } from "@/components/club/seat-ring";
+import { PayerRing } from "./payer-ring";
 import { StatusChip } from "./night-plan";
 
 /*
@@ -40,7 +40,7 @@ const PRIMARY =
 const SECONDARY =
   "min-h-11 w-full rounded-full border border-hairline px-5 text-sm font-semibold text-foreground transition-colors hover:border-ember-2/40 disabled:opacity-50";
 const DANGER =
-  "min-h-11 rounded-full border border-ember-3/40 px-4 text-sm font-semibold text-ember-3 transition-colors hover:bg-ember-3/10 disabled:opacity-50";
+  "min-h-11 w-full rounded-full border border-ember-3/60 px-5 text-sm font-semibold text-foreground transition-colors hover:bg-ember-3/15 disabled:opacity-50";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -72,7 +72,8 @@ function Progress({ booking, deposit }: { booking: ClubBooking; deposit: number 
             </>
           ) : (
             <>
-              Payé <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>
+              Payé <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>{" "}
+              <span className="text-xs text-muted">hors frais</span>
             </>
           )}
         </span>
@@ -138,12 +139,8 @@ function BookingCard({
   const fees = online.reduce((sum, payment) => sum + payment.feeCents, 0);
   const paid = payments.filter((payment) => payment.status === "payee");
   const payers = paid.filter((payment) => payment.method === "en_ligne").length;
-  const shares: SeatShare[] = paid.map((payment) => ({
-    id: payment.id,
-    name: payment.name,
-    amountCents: payment.amountCents,
-    tone: payment.organiser ? "organiser" : "friend",
-  }));
+  const paidTotal = paid.reduce((sum, payment) => sum + payment.amountCents + payment.feeCents, 0);
+  const paidFees = paid.reduce((sum, payment) => sum + payment.feeCents, 0);
 
   const run = async (key: string, action: () => Promise<unknown>, success: string, close = false) => {
     setBusy(key);
@@ -160,63 +157,34 @@ function BookingCard({
 
   const name = tableName(zone.name, table.label);
   const working = busy !== null;
-  // Le geste attendu, sur toute la largeur. Ce qui défait ou rend l'argent
-  // vit dans la fiche, en bas, et passe toujours par une confirmation.
-  const footer = holding ? undefined : (
-    <>
-      {remaining > 0 && booking.status !== "arrivee" && (
-        <>
-          <button
-            type="button"
-            disabled={working}
-            onClick={() =>
-              void run(
-                "porte",
-                () => clubApi.markArrival(booking, true, true),
-                `${name} : ${formatCents(remaining)} encaissés, arrivée.`,
-                true
-              )
-            }
-            className={PRIMARY}
-          >
-            {busy === "porte"
-              ? "Encaissement…"
-              : `${booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} ${formatCents(remaining)} et faire entrer`}
-          </button>
-          <button
-            type="button"
-            disabled={working}
-            onClick={() =>
-              void run("sans", () => clubApi.markArrival(booking, false, true), `${name} : ${formatCents(remaining)} encaissés.`)
-            }
-            className={SECONDARY}
-          >
-            {busy === "sans" ? "Encaissement…" : `Encaisser ${formatCents(remaining)} sans faire entrer`}
-          </button>
-        </>
-      )}
-      {remaining === 0 && booking.status === "payee" && (
-        <button
-          type="button"
-          disabled={working}
-          onClick={() => void run("porte", () => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
-          className={PRIMARY}
-        >
-          {busy === "porte" ? "Un instant…" : "Marquer arrivé(e)"}
-        </button>
-      )}
-      {booking.status === "arrivee" && (
-        <button
-          type="button"
-          disabled={working}
-          onClick={() => void run("porte", () => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
-          className={SECONDARY}
-        >
-          {busy === "porte" ? "Un instant…" : "Annuler l’arrivée"}
-        </button>
-      )}
-    </>
-  );
+  // Un seul geste en bas, celui qu'on attend : la fiche reste lisible
+  // au-dessus. Les autres gestes vivent dans la fiche, sous ses données ;
+  // ce qui rend de l'argent passe toujours par une confirmation chiffrée.
+  const collect = remaining > 0 && booking.status !== "arrivee";
+  const footer =
+    holding || booking.status === "remboursee" ? undefined : collect ? (
+      <button
+        type="button"
+        disabled={working}
+        onClick={() =>
+          void run("porte", () => clubApi.markArrival(booking, true, true), `${name} : ${formatCents(remaining)} encaissés, arrivée.`, true)
+        }
+        className={PRIMARY}
+      >
+        {busy === "porte"
+          ? "Encaissement…"
+          : `${booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} ${formatCents(remaining)} et faire entrer`}
+      </button>
+    ) : booking.status === "payee" ? (
+      <button
+        type="button"
+        disabled={working}
+        onClick={() => void run("porte", () => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
+        className={PRIMARY}
+      >
+        {busy === "porte" ? "Un instant…" : "Marquer arrivé(e)"}
+      </button>
+    ) : undefined;
 
   return (
     <Modal title={name} onClose={onClose} footer={footer}>
@@ -238,12 +206,16 @@ function BookingCard({
         </div>
 
         {booking.shared && payers > 1 && (
-          <SeatRing
-            seats={booking.partySize}
-            priceCents={booking.priceCents}
-            shares={shares}
+          <PayerRing
             label={table.label}
-            className="max-w-[13rem]"
+            priceCents={booking.priceCents}
+            paidCents={booking.paidCents}
+            payers={paid.map((payment) => ({
+              id: payment.id,
+              name: payment.name,
+              totalCents: payment.amountCents + payment.feeCents,
+              organiser: payment.organiser,
+            }))}
           />
         )}
 
@@ -286,20 +258,22 @@ function BookingCard({
                             : ""}
                         {payment.feeCents > 0 && (
                           <>
-                            {" · + "}
-                            <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais
+                            {" · dont "}
+                            <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais Ominin
                           </>
                         )}
                       </span>
                     </span>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">{formatCents(payment.amountCents)}</span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums">
+                      {formatCents(payment.amountCents + payment.feeCents)}
+                    </span>
                     {refundable && (
                       <button
                         type="button"
                         disabled={working}
                         onClick={() => setConfirm(payment)}
                         aria-label={`Rembourser la part de ${payment.name}`}
-                        className="min-h-11 shrink-0 rounded-full border border-ember-3/40 px-3 text-xs font-semibold text-ember-3 hover:bg-ember-3/10 disabled:opacity-50 lg:pointer-fine:min-h-9"
+                        className="min-h-11 shrink-0 rounded-full border border-hairline px-3.5 text-xs font-semibold text-foreground hover:border-ember-3/60 disabled:opacity-50"
                       >
                         {busy === payment.id ? "…" : "Rembourser"}
                       </button>
@@ -311,8 +285,15 @@ function BookingCard({
                 );
               })}
               <li className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                <span className="font-medium">Total payé</span>
-                <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>
+                <span className="font-medium">
+                  Total payé
+                  {paidFees > 0 && (
+                    <span className="block text-xs font-normal text-muted">
+                      dont <span className="tabular-nums">{formatCents(paidFees)}</span> de frais Ominin
+                    </span>
+                  )}
+                </span>
+                <span className="font-semibold tabular-nums">{formatCents(paidTotal)}</span>
               </li>
             </ul>
           </section>
@@ -329,7 +310,7 @@ function BookingCard({
               </a>
             </Row>
           )}
-          <Row label="Prix de la table">
+          <Row label="Prix hors frais">
             <span className="font-semibold tabular-nums">{formatCents(booking.priceCents)}</span>
             {fees > 0 && (
               <span className="block text-xs text-muted">
@@ -353,30 +334,47 @@ function BookingCard({
           )}
         </dl>
 
-        {gerant && !holding && booking.status !== "remboursee" && (
-          <button
-            type="button"
-            disabled={working}
-            onClick={() => setMoving(true)}
-            className={`${SECONDARY} flex items-center justify-center gap-2`}
-          >
-            {busy === "deplacer" ? "Déplacement…" : "Déplacer sur une autre table"}
-          </button>
-        )}
-
-        {gerant && (online.length > 0 || clubEntered) && (
-          <div className="flex flex-col items-start gap-2 border-t border-hairline pt-4">
-            {online.length > 0 && (
+        {!holding && booking.status !== "remboursee" && (
+          <section aria-label="Autres actions" className="flex flex-col gap-2 border-t border-hairline pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Autres actions</h3>
+            {collect && (
+              <button
+                type="button"
+                disabled={working}
+                onClick={() =>
+                  void run("sans", () => clubApi.markArrival(booking, false, true), `${name} : ${formatCents(remaining)} encaissés.`)
+                }
+                className={SECONDARY}
+              >
+                {busy === "sans" ? "Encaissement…" : `Encaisser ${formatCents(remaining)} sans faire entrer`}
+              </button>
+            )}
+            {booking.status === "arrivee" && (
+              <button
+                type="button"
+                disabled={working}
+                onClick={() => void run("porte", () => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
+                className={SECONDARY}
+              >
+                {busy === "porte" ? "Un instant…" : "Annuler l’arrivée"}
+              </button>
+            )}
+            {gerant && (
+              <button type="button" disabled={working} onClick={() => setMoving(true)} className={SECONDARY}>
+                {busy === "deplacer" ? "Déplacement…" : "Déplacer sur une autre table"}
+              </button>
+            )}
+            {gerant && online.length > 0 && (
               <button type="button" disabled={working} onClick={() => setConfirm("refund")} className={DANGER}>
                 {busy === "table" ? "Remboursement…" : `Rembourser toute la table (${formatCents(onlineTotal)})`}
               </button>
             )}
-            {clubEntered && (
+            {gerant && clubEntered && (
               <button type="button" disabled={working} onClick={() => setConfirm("cancel")} className={DANGER}>
                 Annuler la réservation
               </button>
             )}
-          </div>
+          </section>
         )}
       </div>
 

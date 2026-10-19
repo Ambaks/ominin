@@ -1,5 +1,6 @@
 "use client";
 
+import { CONTACT_RULES as RULES } from "@/lib/club/contact";
 import type { ClubConditions } from "@/lib/club/types";
 
 /*
@@ -12,18 +13,16 @@ import type { ClubConditions } from "@/lib/club/types";
 export type Contact = { name: string; phone: string; email: string };
 export type ContactErrors = Partial<Record<keyof Contact | "accepted", string>>;
 
-/* Les bornes de cleanContact (lib/club/server.ts), rappelées au client. */
-const NAME = { min: 2, max: 80 };
-const PHONE_DIGITS = { min: 6, max: 20 };
-const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export function contactErrors(contact: Contact, accepted: boolean): ContactErrors {
   const errors: ContactErrors = {};
   const name = contact.name.trim();
   const phone = contact.phone.replace(/[^\d+]/g, "");
-  if (name.length < NAME.min || name.length > NAME.max) errors.name = "Indiquez votre nom et votre prénom.";
-  if (phone.length < PHONE_DIGITS.min || phone.length > PHONE_DIGITS.max) errors.phone = "Ce numéro paraît incomplet.";
-  if (!EMAIL.test(contact.email.trim())) errors.email = "Cette adresse e-mail paraît incomplète.";
+  const email = contact.email.trim();
+  if (name.length < RULES.name.min || name.length > RULES.name.max) errors.name = "Indiquez votre nom et votre prénom.";
+  if (phone.length < RULES.phoneDigits.min || phone.length > RULES.phoneDigits.max)
+    errors.phone = "Ce numéro paraît incomplet.";
+  if (!RULES.email.test(email) || email.length > RULES.emailMax) errors.email = "Cette adresse e-mail paraît incomplète.";
   if (!accepted) errors.accepted = "Cochez la case pour accepter les conditions du club.";
   return errors;
 }
@@ -79,7 +78,7 @@ export function ContactFields({
         <input
           name="name"
           autoComplete="name"
-          maxLength={NAME.max}
+          maxLength={RULES.name.max}
           aria-invalid={Boolean(errors.name) || undefined}
           aria-describedby={errors.name ? "name-error" : undefined}
           value={value.name}
@@ -106,6 +105,7 @@ export function ContactFields({
           autoComplete="email"
           autoCapitalize="none"
           spellCheck={false}
+          maxLength={RULES.emailMax}
           aria-invalid={Boolean(errors.email) || undefined}
           aria-describedby={errors.email ? "email-error" : undefined}
           value={value.email}

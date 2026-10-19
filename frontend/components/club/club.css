@@ -557,7 +557,7 @@ html:has(.club) {
   margin: 12px 0;
 }
 
-.club-skeleton-plan {
+.club-skeleton-block {
   height: 340px;
   margin-top: 20px;
   border-radius: var(--c-radius);
@@ -739,14 +739,14 @@ html:has(.club) {
   display: block;
   border-radius: var(--c-radius-lg);
   box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
-  animation: club-rise 700ms var(--c-ease) both;
+  animation: club-rise var(--c-enter) var(--c-ease) both;
 }
 
 .club-feature-info {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: club-rise 700ms var(--c-ease) 120ms both;
+  animation: club-rise var(--c-enter) var(--c-ease) 120ms both;
 }
 
 @keyframes club-rise {
@@ -773,7 +773,7 @@ html:has(.club) {
   background: linear-gradient(90deg, var(--c-gold), var(--c-coral));
   transform: scaleX(var(--fill));
   transform-origin: left;
-  animation: club-fill 900ms var(--c-ease) 300ms both;
+  animation: club-fill var(--c-draw) var(--c-ease) 300ms both;
 }
 
 @keyframes club-fill {
@@ -1101,6 +1101,85 @@ html:has(.club) {
   opacity: 0.55;
 }
 
+.club-offer-art {
+  position: relative;
+  display: block;
+}
+
+.club-offer-art .club-offer-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.club-offer-ambience {
+  font-size: 14px;
+  font-style: normal;
+  color: var(--c-gold);
+}
+
+/* La barre de prix monte au choix : la carte choisie garde sa place au-dessus. */
+.club-offer {
+  scroll-margin-bottom: 120px;
+}
+
+/* Lumière dorée qui suit le curseur (spotlight.tsx). */
+.club-offer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 30%), rgba(251, 239, 210, 0.1), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--c-slow) var(--c-ease);
+}
+
+@media (hover: hover) {
+  .club-offer:not([aria-disabled]):hover::after {
+    opacity: 1;
+  }
+}
+
+/* Les murs se tracent à l'arrivée, les repères suivent ; choisie, l'offre se retrace. */
+.club-offer-walls polyline {
+  stroke-dasharray: 1;
+  animation: club-wall-draw var(--c-draw) var(--c-ease) both;
+  animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+.club-offer-marks {
+  animation: club-marks-in var(--c-slow) var(--c-ease) both;
+  animation-delay: calc(var(--i) * 80ms + 600ms);
+}
+
+.club-offer[aria-checked="true"] .club-offer-walls polyline {
+  animation: club-wall-redraw var(--c-draw) var(--c-ease) both;
+}
+
+@keyframes club-wall-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+
+@keyframes club-wall-redraw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes club-marks-in {
+  from {
+    opacity: 0;
+  }
+}
+
 .club-offer-visual {
   position: relative;
   display: block;
@@ -1155,12 +1234,6 @@ html:has(.club) {
   min-width: 0;
 }
 
-.club-offer-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
 
 .club-offer-name {
   font-family: var(--c-display);
@@ -1312,8 +1385,17 @@ html:has(.club) {
     visibility 0s;
 }
 
-.club-sheet[data-dragging] {
+.club-sheet[data-dragging],
+.club-sheet-backdrop[data-dragging] {
   transition: none;
+}
+
+/* Fermée d'un geste : elle ne descend que par translate, depuis là où le doigt l'a laissée. */
+.club-sheet[data-dismissing] {
+  transform: none;
+  transition:
+    translate var(--c-sheet) var(--c-sheet-ease),
+    visibility 0s linear var(--c-sheet);
 }
 
 .club-sheet-handle {
@@ -1430,8 +1512,13 @@ html:has(.club) {
 @keyframes club-step-in {
   from {
     opacity: 0;
-    transform: translateX(12px);
+    transform: translateX(calc(var(--enter-dir, 1) * 12px));
   }
+}
+
+/* En arrière (étape précédente, mode à gauche), ce qui arrive vient de la gauche. */
+.club-stage[data-back] {
+  --enter-dir: -1;
 }
 
 .club-sticky-cta {
@@ -1770,7 +1857,7 @@ html:has(.club) {
 
 .club-countdown[data-urgent] .club-countdown-ring {
   stroke: var(--c-coral);
-  animation: club-urgent 1.6s ease-in-out infinite;
+  animation: club-urgent var(--c-pulse) ease-in-out infinite;
 }
 
 @keyframes club-urgent {
@@ -2074,7 +2161,7 @@ html:has(.club) {
 /* L'étape en cours pulse. */
 .club-track [data-state="current"] > span:first-child {
   border-color: var(--status);
-  animation: club-current 1.8s var(--c-ease) infinite;
+  animation: club-current var(--c-pulse) var(--c-ease) infinite;
 }
 
 @keyframes club-current {
@@ -2088,7 +2175,7 @@ html:has(.club) {
 }
 
 .club-track li[data-lit] > span:first-child {
-  animation: club-lit 900ms var(--c-spring) both;
+  animation: club-lit var(--c-draw) var(--c-spring) both;
 }
 
 @keyframes club-lit {
@@ -2097,7 +2184,7 @@ html:has(.club) {
   }
 }
 
-/* Le passe, façon carte de portefeuille. */
+/* Le passe : une carte à montrer à l’entrée. */
 .club-pass {
   position: relative;
   overflow: hidden;
@@ -2107,7 +2194,7 @@ html:has(.club) {
     radial-gradient(120% 60% at 100% 0%, rgba(226, 196, 143, 0.2), transparent 60%),
     linear-gradient(180deg, #1f2860, #121731 70%);
   box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.95);
-  animation: club-rise 700ms var(--c-ease) 80ms both;
+  animation: club-rise var(--c-enter) var(--c-ease) 80ms both;
 }
 
 .club-pass:is([data-view="annulee"], [data-view="expiree"]) {
@@ -2225,7 +2312,7 @@ html:has(.club) {
 }
 
 .club-qr-plate[data-flash]::after {
-  animation: club-flash 1.2s var(--c-ease) both;
+  animation: club-flash var(--c-draw) var(--c-ease) both;
 }
 
 @keyframes club-flash {
@@ -2567,7 +2654,7 @@ html:has(.club) {
   background: var(--c-gold-light);
   box-shadow: 0 6px 20px -8px rgba(251, 239, 210, 0.6);
   transform: translateX(calc(var(--mode, 0) * 100%));
-  transition: transform var(--c-sheet) var(--c-spring);
+  transition: transform var(--c-slow) var(--c-sheet-ease);
 }
 
 .club-mode button {
@@ -2624,7 +2711,7 @@ html:has(.club) {
   stroke-dasharray: 1;
   stroke-dashoffset: calc(1 - var(--paid));
   transition: stroke-dashoffset var(--c-sheet) var(--c-ease);
-  animation: club-progress-in 1s var(--c-ease) 200ms both;
+  animation: club-progress-in var(--c-draw) var(--c-ease) 200ms both;
 }
 
 @keyframes club-progress-in {
@@ -2639,7 +2726,7 @@ html:has(.club) {
   stroke-width: 1.2;
   stroke-dasharray: 1;
   stroke-linejoin: round;
-  animation: club-lines-in 900ms var(--c-ease) 300ms both;
+  animation: club-lines-in var(--c-draw) var(--c-ease) 300ms both;
 }
 
 @keyframes club-lines-in {
@@ -2667,15 +2754,59 @@ html:has(.club) {
 
 .club-seat {
   --seat: var(--c-state-libre);
+  transition: transform var(--c-slow) var(--c-ease);
+}
+
+/* Le montant glissé : les places suivent le doigt, sans délai ni rebond. */
+.club-seats-figure[data-scrub] :is(.club-seat, .club-seat-fill, .club-seats-progress) {
+  transition: none;
+}
+
+.club-seat-amount {
+  fill: var(--c-muted);
+  font-family: var(--c-sans);
+  font-size: 10px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.club-seats-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+}
+
+.club-seats-legend i {
+  width: 10px;
+  height: 10px;
+  margin-left: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+
+.club-seats-legend i[data-tone="you"] {
+  border: 0;
+  background: var(--c-gold-light);
+}
+
+.club-seats-legend i[data-tone="friend"] {
+  border: 0;
+  background: #c4b8ff;
 }
 
 .club-seat[data-tone="friend"] {
   --seat: #c4b8ff;
 }
 
+/* « Vous » a la même lumière partout : votre part en cours de choix, votre place payée. */
 .club-seat[data-tone="you"],
 .club-seat[data-tone="preview"] {
   --seat: var(--c-gold-light);
+}
+
+.club-seat[data-tone="organiser"] {
+  --seat: var(--c-gold);
 }
 
 .club-seat-base {
@@ -2723,7 +2854,7 @@ html:has(.club) {
 }
 
 .club-seat[data-fresh] .club-seat-halo {
-  animation: club-seat-pulse 1.4s var(--c-ease) 3 600ms;
+  animation: club-seat-pulse var(--c-pulse) var(--c-ease) 3 600ms;
 }
 
 @keyframes club-seat-pulse {
@@ -2866,12 +2997,14 @@ html:has(.club) {
   background: var(--c-gold);
 }
 
+/* Pouce de 44 px au doigt, disque visible de 28 px. */
 .club-range::-webkit-slider-thumb {
-  width: 28px;
-  height: 28px;
-  margin-top: -11px;
+  width: 44px;
+  height: 44px;
+  margin-top: -19px;
+  border: 8px solid transparent;
   border-radius: 50%;
-  background: #fff;
+  background: #fff padding-box;
   box-shadow:
     0 0 0 6px rgba(226, 196, 143, 0.25),
     0 4px 12px rgba(0, 0, 0, 0.5);
@@ -2880,11 +3013,11 @@ html:has(.club) {
 }
 
 .club-range::-moz-range-thumb {
-  width: 28px;
-  height: 28px;
-  border: 0;
+  width: 44px;
+  height: 44px;
+  border: 8px solid transparent;
   border-radius: 50%;
-  background: #fff;
+  background: #fff padding-box;
   box-shadow:
     0 0 0 6px rgba(226, 196, 143, 0.25),
     0 4px 12px rgba(0, 0, 0, 0.5);
@@ -3052,7 +3185,7 @@ html:has(.club) {
   border: 1px solid var(--c-line-strong);
   border-radius: var(--c-radius-lg);
   background: #141a3c;
-  animation: club-rise 700ms var(--c-ease) both;
+  animation: club-rise var(--c-enter) var(--c-ease) both;
 }
 
 .club-share-panel .club-h2 {
@@ -3073,7 +3206,7 @@ html:has(.club) {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  animation: club-rise 700ms var(--c-ease) both;
+  animation: club-rise var(--c-enter) var(--c-ease) both;
 }
 
 .club-share-hero .club-h1 {
@@ -3205,11 +3338,6 @@ html:has(.club) {
   border-color: rgba(255, 143, 122, 0.6);
 }
 
-/* Pas encore prêt : l'air inactif, mais cliquable pour dire ce qui manque. */
-.club-button[data-incomplete] {
-  opacity: 0.6;
-  box-shadow: none;
-}
 
 .club-fee-note {
   text-align: left;
@@ -3270,5 +3398,38 @@ html:has(.club) {
   .club-sheet[data-open] {
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+}
+
+/* Le bouton de paiement des amis reste corail ; ce qui manque se dit dessous. */
+.club-pay-hint {
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.club-payers-board {
+  padding-block: 8px;
+}
+
+@media (min-width: 1024px) {
+  .club-stepper button {
+    width: 52px;
+    height: 48px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .club-offers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Accueil, téléphone : l'affiche devient un bandeau (le titre et la date sont juste dessous). */
+@media (max-width: 1023px) {
+  .club-feature-poster .club-poster {
+    aspect-ratio: 2 / 1;
+  }
+  .club-feature-poster :is(.club-poster-date, .club-poster-title) {
+    display: none;
   }
 }

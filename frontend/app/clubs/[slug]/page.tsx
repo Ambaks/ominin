@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const club = await fetchClub((await params).slug);
   if (!club) return {};
   const title = `${club.name} — Réserver une table`;
-  const description = `${club.tagline ? `${club.tagline}. ` : ""}Choisissez votre table sur le plan, réglez en ligne, présentez votre QR code à l'entrée.`;
+  const description = `${club.tagline ? `${club.tagline}. ` : ""}Choisissez votre offre, réglez en ligne, présentez votre QR code à l'entrée : le club vous attribue la table.`;
   return { title, description, openGraph: { title, description } };
 }
 
@@ -142,8 +142,8 @@ export default async function ClubPage({ params }: { params: Params }) {
         <ol className="club-steps">
           <li className="club-step-card">
             <span className="club-step-num club-mono">01</span>
-            <h3>Choisissez la table</h3>
-            <p>Sur le plan du club, en direct : celles qui restent, ce qu&rsquo;elles comprennent, leur prix.</p>
+            <h3>Choisissez votre offre</h3>
+            <p>Rooftop, bar, salons VIP : ce que chacune comprend, son prix tout compris. Le club vous attribue la table.</p>
           </li>
           <li className="club-step-card">
             <span className="club-step-num club-mono">02</span>

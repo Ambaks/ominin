@@ -10,7 +10,9 @@ import type { ClubTable, ClubZone } from "@/lib/club/types";
 /** Une table à signaler sur le plan, le temps de son halo. */
 export type PlanPing = { id: string; table: ClubTable };
 
-/** Pas des boutons − / +, comme sur le plan du client. */
+/** Tables dessinées un peu plus grandes que sur le plan d'origine : numéros lisibles au téléphone, sans se toucher. */
+const TABLE_SCALE = 1.2;
+/** Pas des boutons − / + du plan. */
 const ZOOM_STEP = 1.5;
 /** Rayon de la pastille des places, en unités du plan : son chiffre de 10 y tient lisible. */
 const PLACES_BADGE = 10;
@@ -58,7 +60,7 @@ export function NightPlan({
 
   /* Le cadrage de repos : les tables, pas le vide autour. */
   const fit = useMemo<FitRect | null>(() => {
-    const bounds = tablesBounds(tables, { badge: PLACES_BADGE, margin: PLAN_FIT.margin });
+    const bounds = tablesBounds(tables, { scale: TABLE_SCALE, badge: PLACES_BADGE, margin: PLAN_FIT.margin });
     if (!bounds) return null;
     const x = Math.max(bounds.x, 0) / w;
     const y = Math.max(bounds.y, 0) / h;
@@ -94,37 +96,42 @@ export function NightPlan({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-end gap-2">
-        {zoomed && (
-          <button
-            type="button"
-            onClick={recenter}
-            className="min-h-11 rounded-full border border-hairline px-4 text-sm font-medium text-muted hover:text-foreground lg:pointer-fine:min-h-9"
-          >
-            Recentrer
-          </button>
-        )}
-        <div role="group" aria-label="Zoom du plan" className="flex rounded-full border border-hairline">
-          <button
-            type="button"
-            onClick={() => zoomBy(1 / ZOOM_STEP)}
-            disabled={!zoomed}
-            aria-label="Réduire le plan"
-            className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground disabled:opacity-40 lg:pointer-fine:size-9"
-          >
-            −
-          </button>
-          <button
-            type="button"
-            onClick={() => zoomBy(ZOOM_STEP)}
-            aria-label="Agrandir le plan"
-            className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground lg:pointer-fine:size-9"
-          >
-            +
-          </button>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs text-muted">
+          {zoomed ? "Glissez pour vous déplacer." : "Pincez ou utilisez − / + pour agrandir."}
+        </p>
+        <div className="flex shrink-0 items-center gap-2">
+          {zoomed && (
+            <button
+              type="button"
+              onClick={recenter}
+              className="min-h-11 rounded-full border border-hairline bg-background/80 px-4 text-sm font-medium text-muted backdrop-blur-md hover:text-foreground lg:pointer-fine:min-h-9"
+            >
+              Recentrer
+            </button>
+          )}
+          <div role="group" aria-label="Zoom du plan" className="flex rounded-full border border-hairline bg-background/80 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => zoomBy(1 / ZOOM_STEP)}
+              disabled={!zoomed}
+              aria-label="Réduire le plan"
+              className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground disabled:opacity-40 lg:pointer-fine:size-9"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={() => zoomBy(ZOOM_STEP)}
+              aria-label="Agrandir le plan"
+              className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground lg:pointer-fine:size-9"
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
-      <div className="rounded-2xl border border-hairline bg-surface p-2 sm:p-3">
+      <div className="relative rounded-2xl border border-hairline bg-surface p-2 sm:p-3">
         <div
           ref={viewport}
           className="plan-cadre"
@@ -142,6 +149,7 @@ export function NightPlan({
               describe={describe}
               label={`Plan ${zone.name}`}
               badge={PLACES_BADGE}
+              scale={TABLE_SCALE}
             />
             <svg viewBox={`0 0 ${w} ${h}`} className="gestion-plan-calque" aria-hidden>
               <defs>
@@ -153,7 +161,7 @@ export function NightPlan({
               {tables.map((table) => {
                 const sign = SIGNS[states[table.id]];
                 if (!sign) return null;
-                const half = tableSize(table.seats) / 2;
+                const half = tableSize(table.seats, TABLE_SCALE) / 2;
                 return (
                   <g
                     key={table.id}

@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!found) return {};
   const { club, event } = found;
   const title = `${event.title} — ${club.name}`;
-  const description = `${formatNight(event.startsAt)}, ${formatHours(event.startsAt, event.endsAt)}. Choisissez votre table sur le plan et réservez-la en ligne.`;
+  const description = `${formatNight(event.startsAt)}, ${formatHours(event.startsAt, event.endsAt)}. Choisissez votre offre et réservez votre table en ligne.`;
   return { title, description, openGraph: { title, description } };
 }
 
@@ -66,7 +66,7 @@ export default async function EventPage({ params }: { params: Params }) {
           {event.description && <p className="club-lead">{event.description}</p>}
           {cancelled ? (
             <p className="club-banner" role="status">
-              <strong>Soirée annulée par le club.</strong> Les tables déjà réglées sont remboursées automatiquement,
+              <strong>Soirée annulée par le club.</strong>{" "}Les tables déjà réglées sont remboursées automatiquement,
               sans démarche de votre part.
             </p>
           ) : (

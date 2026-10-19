@@ -318,15 +318,27 @@ export default function LivePage() {
   const plan = zone ? (
     <div className="flex flex-col gap-3">
       {zones.length > 1 && (
-        <PillTabs
-          tabs={zones.map((candidate) => ({
-            id: candidate.id,
-            label: candidate.name,
-            count: club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length,
-          }))}
-          activeId={zone.id}
-          onSelect={setZoneId}
-        />
+        <div role="tablist" aria-label="Zones" className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:px-0">
+          {zones.map((candidate) => {
+            const active = candidate.id === zone.id;
+            const held = club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length;
+            return (
+              <button
+                key={candidate.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setZoneId(candidate.id)}
+                className={`flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
+                  active ? "border-[var(--soirees-gold)] text-foreground" : "border-hairline text-muted hover:text-foreground"
+                }`}
+              >
+                {candidate.name}
+                {held > 0 && <span className="text-xs tabular-nums text-muted">{held}</span>}
+              </button>
+            );
+          })}
+        </div>
       )}
       <NightPlan
         key={zone.id}
@@ -407,7 +419,7 @@ export default function LivePage() {
 
       {/* Un seul bandeau, les mêmes mots partout : des tables (réservées, attendues, arrivées), des personnes, de l'argent. */}
       <dl
-        className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline ${
+        className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline lg:sticky lg:top-[calc(var(--gestion-entete,0px)+0.5rem)] lg:z-20 lg:shadow-lg lg:shadow-background/60 ${
           gerant ? "lg:grid-cols-4" : ""
         }`}
       >
@@ -446,7 +458,7 @@ export default function LivePage() {
       {wide ? (
         <div className="grid grid-cols-[minmax(0,1fr)_24rem] items-start gap-6">
           {plan}
-          <div className="sticky top-[calc(var(--gestion-entete,0px)+1rem)] flex max-h-[calc(100dvh-var(--gestion-entete,0px)-2rem)] flex-col gap-3 overflow-y-auto overscroll-contain rounded-2xl">
+          <div className="sticky top-[calc(var(--gestion-entete,0px)+7rem)] flex max-h-[calc(100dvh-var(--gestion-entete,0px)-8rem)] flex-col gap-3 overflow-y-auto overscroll-contain rounded-2xl">
             {guestList && (
               <PillTabs
                 tabs={[

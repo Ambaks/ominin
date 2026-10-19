@@ -13,7 +13,7 @@ export default function EventLoading() {
       </section>
       <section className="club-section" aria-hidden>
         <span className="club-skeleton club-skeleton-title" />
-        <span className="club-skeleton club-skeleton-plan" />
+        <span className="club-skeleton club-skeleton-block" />
       </section>
       <p className="sr-only">Chargement de la soirée…</p>
     </main>

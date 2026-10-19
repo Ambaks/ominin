@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type CSSProperties, type ReactNode } from "react";
+import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { RollingAmount } from "@/components/club/rolling-amount";
 import { formatCents } from "@/lib/club/format";
 
@@ -23,6 +23,7 @@ export function ShareAmount({
   presets,
   note,
   onChange,
+  onScrub,
 }: {
   value: number;
   min: number;
@@ -33,8 +34,15 @@ export function ShareAmount({
   /** Sous le montant : frais, part des autres. */
   note: ReactNode;
   onChange: (cents: number) => void;
+  /** Le curseur est tenu (true) puis relâché (false). */
+  onScrub?: (scrubbing: boolean) => void;
 }) {
   const id = useId();
+  const [held, setHeld] = useState(false);
+  const hold = (next: boolean) => {
+    setHeld(next);
+    onScrub?.(next);
+  };
   const clampValue = (cents: number) => Math.min(max, Math.max(min, cents));
   const fillRatio = max > min ? (value - min) / (max - min) : 1;
   return (
@@ -44,7 +52,7 @@ export function ShareAmount({
           Votre part
         </label>
         <p className="club-share-value">
-          <RollingAmount cents={value} className="club-mono" />
+          <RollingAmount cents={value} instant={held} className="club-mono" />
         </p>
         <p className="club-share-sub">{note}</p>
       </div>
@@ -67,6 +75,10 @@ export function ShareAmount({
           step={SLIDER_STEP}
           value={value}
           style={{ "--fill": fillRatio } as CSSProperties}
+          onPointerDown={() => hold(true)}
+          onPointerUp={() => hold(false)}
+          onPointerCancel={() => hold(false)}
+          onBlur={() => hold(false)}
           aria-valuetext={`${formatCents(value)}, entre ${formatCents(min)} et ${formatCents(max)}`}
           onChange={(input) => {
             const next = Number(input.target.value);

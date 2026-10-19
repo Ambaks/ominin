@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type HTMLAttributes } from "react";
 import { PLAN_POINTER } from "@/components/club/timing";
 import { finePointer, prefersReducedMotion } from "@/lib/club/media";
 
@@ -9,7 +9,7 @@ import { finePointer, prefersReducedMotion } from "@/lib/club/media";
  * (--mx, --my sur la carte survolée, rejoints en douceur une fois par
  * image). Rien au toucher ni en mouvement réduit.
  */
-export function Spotlight({ children, className }: { children: ReactNode; className: string }) {
+export function Spotlight({ children, ...props }: HTMLAttributes<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = ref.current;
@@ -51,7 +51,7 @@ export function Spotlight({ children, className }: { children: ReactNode; classN
     };
   }, []);
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} {...props}>
       {children}
     </div>
   );
