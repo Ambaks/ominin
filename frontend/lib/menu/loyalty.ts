@@ -15,6 +15,9 @@ export interface LoyaltyReward {
   items: MenuItem[];
 }
 
+/** Ce qui pend au fil de la guirlande de « Ma carte » ; des lanternes, sauf mention au registre. */
+export type GarlandMotif = "lanternes" | "fanions";
+
 export interface LoyaltyProgram {
   pointsPerEuro: number;
   /** Du palier le moins cher au plus cher. */

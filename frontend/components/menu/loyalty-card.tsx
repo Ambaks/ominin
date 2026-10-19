@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
-import type { LoyaltyProgram } from "@/lib/menu/loyalty";
+import type { GarlandMotif, LoyaltyProgram } from "@/lib/menu/loyalty";
 
 /*
  * La carte de fidélité dessinée (« Ma carte ») : la carte elle-même aux
@@ -87,12 +87,15 @@ function LogoLattice({ logo }: { logo: string }) {
 export function LoyaltyCard({
   brand,
   logo,
+  wordmark,
   name,
   since,
   points,
 }: {
   brand: string;
   logo?: string;
+  /** Le logo écrit déjà le nom : il tient lieu de nom, et ne sert pas de filigrane (il y serait coupé). */
+  wordmark?: boolean;
   name: string | null;
   since: string | null;
   points: number;
@@ -132,17 +135,24 @@ export function LoyaltyCard({
     >
       <div className="loyalty-card-bg absolute inset-0" />
       <div className="loyalty-card-grain absolute inset-0" />
-      {logo && <LogoLattice logo={logo} />}
+      {logo && !wordmark && <LogoLattice logo={logo} />}
       <div key={sheen} className="loyalty-card-sheen pointer-events-none absolute -inset-[40%]" />
       <div className="relative flex h-full flex-col justify-between p-5">
         <div className="flex items-center gap-2.5">
-          {logo && (
+          {logo && wordmark ? (
             // eslint-disable-next-line @next/next/no-img-element -- logo du dossier public
-            <img src={logo} alt="" className="size-6.5 object-contain" />
+            <img src={logo} alt={brand} className="h-6 w-auto max-w-[60%] object-contain object-left" />
+          ) : (
+            <>
+              {logo && (
+                // eslint-disable-next-line @next/next/no-img-element -- logo du dossier public
+                <img src={logo} alt="" className="size-6.5 object-contain" />
+              )}
+              <span className="font-display text-[22px] uppercase leading-none tracking-[0.14em]">
+                {brand}
+              </span>
+            </>
           )}
-          <span className="font-display text-[22px] uppercase leading-none tracking-[0.14em]">
-            {brand}
-          </span>
           <span className="ml-auto text-[10px] uppercase tracking-[0.2em] opacity-75">
             Carte fidélité
           </span>
@@ -168,8 +178,10 @@ export function LoyaltyCard({
 
 /* ---------------------------------------------------------------------------
  * La guirlande : un fil tendu entre deux poteaux, une lanterne de rotin à
- * chaque récompense, des ampoules entre elles. Ce que le solde atteint
- * s'allume, l'étincelle courant le long du fil à l'ouverture.
+ * chaque récompense, des ampoules entre elles — ou, en fanions, celle d'une
+ * terrasse italienne : un grand fanion à chaque récompense, des petits entre
+ * eux. Ce que le solde atteint s'allume, l'étincelle courant le long du fil
+ * à l'ouverture.
  */
 
 const GARLAND_BULBS = 20;
@@ -182,7 +194,15 @@ const along = (t: number) => ({
   y: 6 * (1 - t) ** 2 + 184 * (1 - t) * t + 6 * t * t,
 });
 
-export function Garland({ program, points }: { program: LoyaltyProgram; points: number }) {
+export function Garland({
+  program,
+  points,
+  motif = "lanternes",
+}: {
+  program: LoyaltyProgram;
+  points: number;
+  motif?: GarlandMotif;
+}) {
   const id = useId();
   const sparkRef = useRef<SVGCircleElement>(null);
   const max = program.rewards.at(-1)?.points ?? 0;
@@ -221,6 +241,7 @@ export function Garland({ program, points }: { program: LoyaltyProgram; points: 
       viewBox="0 0 346 124"
       role="img"
       aria-label={`${points} points sur le chemin des récompenses : ${lanterns.join(", ")} points`}
+      data-motif={motif}
       className="loyalty-garland block h-auto w-full overflow-visible"
     >
       <defs>
@@ -246,8 +267,14 @@ export function Garland({ program, points }: { program: LoyaltyProgram; points: 
             className={on ? "bulb on" : "bulb"}
             style={{ "--d": `${lightDelay(value)}ms` } as CSSProperties}
           >
-            <line y2="5" />
-            <circle className="glass" cy="9.5" r="3.8" filter={on ? `url(#${id}-glow)` : undefined} />
+            {motif === "fanions" ? (
+              <path className="glass" d="M-4.5 0H4.5L0 10Z" />
+            ) : (
+              <>
+                <line y2="5" />
+                <circle className="glass" cy="9.5" r="3.8" filter={on ? `url(#${id}-glow)` : undefined} />
+              </>
+            )}
           </g>
         );
       })}
@@ -262,14 +289,22 @@ export function Garland({ program, points }: { program: LoyaltyProgram; points: 
             style={{ "--d": `${lightDelay(value)}ms` } as CSSProperties}
           >
             <g className="sway">
-              <g transform="scale(1.5)">
-                <line y2="9" />
-                <circle className="halo" cy="18" r="15" filter={`url(#${id}-halo)`} />
-                <path className="shade" d="M-8 25Q-8 9 0 9Q8 9 8 25Z" />
-                <path className="weave" d="M-6.6 14H6.6M-7.7 19H7.7M0 9V25M-4 9.9-4.7 25M4 9.9 4.7 25" />
-              </g>
+              {motif === "fanions" ? (
+                <>
+                  <circle className="halo" cy="14" r="18" filter={`url(#${id}-halo)`} />
+                  <path className="shade" d="M-11 0H11L0 30Z" />
+                  <path className="weave" d="M-7.5 5H7.5" />
+                </>
+              ) : (
+                <g transform="scale(1.5)">
+                  <line y2="9" />
+                  <circle className="halo" cy="18" r="15" filter={`url(#${id}-halo)`} />
+                  <path className="shade" d="M-8 25Q-8 9 0 9Q8 9 8 25Z" />
+                  <path className="weave" d="M-6.6 14H6.6M-7.7 19H7.7M0 9V25M-4 9.9-4.7 25M4 9.9 4.7 25" />
+                </g>
+              )}
             </g>
-            <text y="52">{value}</text>
+            <text y={motif === "fanions" ? 46 : 52}>{value}</text>
           </g>
         );
       })}
@@ -288,6 +323,12 @@ const CHICHA =
 const DRAWINGS: { match: RegExp; lines: string; extra?: "steam" | "bubbles" | "smoke" }[] = [
   { match: /chicha.*(premium|adalya)/i, lines: `${CHICHA}|M32 40l4 4-4 4-4-4z|M19 51h26`, extra: "smoke" },
   { match: /chicha/i, lines: CHICHA, extra: "smoke" },
+  // Une burrata sur son assiette, nouée en haut.
+  { match: /antipast|burrata|entr[ée]e/i, lines: "M8 46c6 6 15 9 24 9s18-3 24-9|M8 46h48|M18 44c-1-11 5-19 14-19s15 8 14 19|M28 25l4-6 4 6|M26 18c2 1 4 1 6 0s4-1 6 0" },
+  // Une part de pizza, croûte en haut, garnie de trois rondelles.
+  { match: /pizz|pasta/i, lines: "M12 17c13-5 27-5 40 0|M14 22l18 36 18-36|M14 22c12-4 24-4 36 0|M27 31a3 3 0 1 0 0.1 0|M37 33a2.5 2.5 0 1 0 0.1 0|M31 43a2.5 2.5 0 1 0 0.1 0" },
+  // Un cornet de deux boules.
+  { match: /dessert|glace|gelat|tiramis/i, lines: "M21 33l11 25 11-25|M24 39h16|M27 46l5 5 5-5|M20 33a12 11 0 0 1 24 0z|M24 21a8 8 0 0 1 16 0" },
   { match: /smoothie|milkshake|cocktail|jus/i, lines: "M19 18h26l-4 37H23z|M20.5 30c4 2 8 2 11.5 0s7.5-2 11.5 0|M35 23l7-17h6|M41 18a7 7 0 0 1 14 0z", extra: "bubbles" },
   { match: /caf[ée]|th[ée]|soft|boisson/i, lines: "M15 29h30v8c0 8-6.5 13-15 13s-15-5-15-13z|M45 32c5 0 7.5 2.5 7.5 6s-3 6.5-8 6.5|M8 55c7 3 14 4 22 4s15-1 22-4", extra: "steam" },
 ];

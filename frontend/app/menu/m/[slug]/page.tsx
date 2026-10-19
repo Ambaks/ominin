@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
@@ -64,7 +64,24 @@ export async function generateMetadata({
       images,
     },
     twitter: { card: "summary_large_image", title, description, images },
+    // Le raccourci d'écran d'accueil porte ses icônes et son nom, pas ceux d'Ominin.
+    ...(restaurant.icons && {
+      icons: {
+        icon: { url: restaurant.icons.tab, sizes: "32x32", type: "image/png" },
+        apple: restaurant.icons.homeScreen,
+      },
+      appleWebApp: { capable: false, title: restaurant.name },
+    }),
   };
+}
+
+/** La barre du navigateur aux couleurs de l'établissement. */
+export async function generateViewport({
+  params,
+}: PageProps<"/menu/m/[slug]">): Promise<Viewport> {
+  const { slug } = await params;
+  const themeColor = (await getRestaurant(slug))?.restaurant.themeColor;
+  return themeColor ? { themeColor } : {};
 }
 
 export default async function MenuPage({
@@ -225,7 +242,13 @@ export default async function MenuPage({
             themeToggle={!restaurantThemeClass(slug)}
           />
           {callServer && <CallServerButton />}
-          <LoyaltyWelcome brand={brandName(restaurant)} logo={restaurant.logo} />
+          <LoyaltyWelcome
+            brand={brandName(restaurant)}
+            logo={restaurant.logo}
+            icon={restaurant.icons?.homeScreen}
+            wordmark={restaurant.logoIsName}
+            motif={restaurant.loyaltyMotif}
+          />
         </div>
       </LoyaltyMemberProvider>
     </CartProvider>

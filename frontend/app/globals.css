@@ -14061,3 +14061,57 @@ html:has(.groupe-dialog:modal) {
     animation: none;
   }
 }
+
+/*
+  Fidélité de Caffè Panis : la carte en vert bouteille à l'encre ivoire, le
+  mot-symbole en tête, le damier de la salle à son pied ; la guirlande en
+  fanions de terrasse, crème au repos, verts une fois atteints.
+*/
+.theme-caffe-panis .loyalty-card {
+  color: var(--cp-ivory);
+  box-shadow:
+    0 22px 44px -20px rgba(11, 58, 28, 0.6),
+    inset 0 0 0 1px rgba(238, 234, 199, 0.16);
+}
+.theme-caffe-panis .loyalty-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 0.5rem;
+  background: var(--cp-mosaic) top / 0.5rem 0.5rem repeat-x;
+}
+.theme-caffe-panis .loyalty-card-bg {
+  background:
+    radial-gradient(80% 70% at 90% 105%, rgba(238, 234, 199, 0.13), transparent 60%),
+    radial-gradient(60% 50% at 0% 0%, rgba(255, 255, 255, 0.07), transparent 70%),
+    linear-gradient(158deg, var(--cp-green) 0%, var(--cp-green-deep) 100%);
+}
+.theme-caffe-panis .loyalty-garland .glass,
+.theme-caffe-panis .loyalty-garland .shade {
+  fill: var(--cp-ivory);
+  stroke: color-mix(in srgb, var(--cp-green) 45%, transparent);
+}
+.theme-caffe-panis .loyalty-garland .bulb.on .glass,
+.theme-caffe-panis .loyalty-garland .lantern.on .shade {
+  fill: var(--cp-green);
+  stroke: var(--cp-green-deep);
+}
+.theme-caffe-panis .loyalty-garland .lantern.on .weave {
+  stroke: var(--cp-ivory);
+}
+.theme-caffe-panis .loyalty-garland .bulb.on .glass {
+  animation: loyalty-bulb-on 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--d) backwards;
+}
+.theme-caffe-panis .loyalty-garland .lantern.on .halo {
+  display: none;
+}
+.theme-caffe-panis .loyalty-garland .spark {
+  fill: var(--cp-green);
+}
+/* Les fanions pendent du fil : ils flottent depuis leur bord haut. */
+.loyalty-garland[data-motif="fanions"] .sway {
+  transform-origin: 0 0;
+}
+.loyalty-garland[data-motif="fanions"] .glass {
+  transform-origin: top;
+}
