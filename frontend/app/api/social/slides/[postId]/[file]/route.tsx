@@ -26,19 +26,20 @@ const JPEG_QUALITY = 90;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HIGHLIGHT = /\[\[(.+?)\]\]/g;
 
-const asset = (...path: string[]) => readFile(join(process.cwd(), ...path));
-
 let assets: Promise<{
   fonts: { name: string; data: Buffer; weight: 400 | 500 | 800; style: "normal" }[];
   logo: string;
 }> | null = null;
 
+/* Chemins littéraux, un par appel : le traçage des fichiers de Vercel ne
+ * suit que ceux-là. Un chemin assemblé à l'exécution lui fait embarquer tout
+ * public/ (films et PDF des pitchs) dans la fonction. */
 function loadAssets() {
   assets ??= Promise.all([
-    asset("assets/fonts", "geist-latin-400-normal.woff"),
-    asset("assets/fonts", "geist-latin-800-normal.woff"),
-    asset("assets/fonts", "fraunces-latin-500-normal.woff"),
-    asset("public", "logo.png"),
+    readFile(join(process.cwd(), "assets/fonts/geist-latin-400-normal.woff")),
+    readFile(join(process.cwd(), "assets/fonts/geist-latin-800-normal.woff")),
+    readFile(join(process.cwd(), "assets/fonts/fraunces-latin-500-normal.woff")),
+    readFile(join(process.cwd(), "public/logo.png")),
   ]).then(([geist, geistBlack, fraunces, logo]) => ({
     fonts: [
       { name: "Geist", data: geist, weight: 400, style: "normal" },
