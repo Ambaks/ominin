@@ -72,8 +72,8 @@ export default function Home() {
               <Reveal delay={0.7}>
                 <p className="lead mt-10 max-w-xl text-fg/80">
                   Décapage de grandes surfaces — charpentes, plafonds, façades, escaliers, poutres, sols — en bois,
-                  métal, pierre et tomette. Nous travaillons pour des architectes, des entreprises de rénovation, des
-                  collectivités et des particuliers.
+                  métal, pierre et tomette. Nous travaillons pour les particuliers, mais aussi pour les architectes, des
+                  entreprises de rénovation, des entreprises de BTP.
                 </p>
                 <div className="mt-12 flex flex-wrap items-center gap-4">
                   <Button href="#devis">Demander un devis</Button>
@@ -127,8 +127,7 @@ export default function Home() {
           <div className="shell">
             <SectionHead n="01" />
 
-            <p className="label text-accent-text">{featured.kind}</p>
-            <h3 className="display display-l mt-4">{featured.title}</h3>
+            <h3 className="display display-l">{featured.title}</h3>
             <div className="mt-12 grid gap-6 md:grid-cols-3">
               <div className="relative aspect-[9/16] overflow-hidden">
                 <VideoLoop {...featured.film} className="absolute inset-0 size-full" />
@@ -193,8 +192,7 @@ export default function Home() {
           <div className="shell">
             <SectionHead
               n="02"
-              title="Une méthode, *cinq temps.*"
-              intro="Le décapage ne dure qu'une partie du chantier. Ce qui fait la différence, c'est ce qui l'entoure."
+              title="Une méthode, *cinq étapes.*"
             />
             <div className="grid gap-16 md:grid-cols-12">
               <div className="md:col-span-5">
@@ -205,9 +203,6 @@ export default function Home() {
                     label="Aérogommage d'une poutre en bois, en combinaison ventilée"
                     className="absolute inset-0 size-full"
                   />
-                  <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
-                    En combinaison ventilée
-                  </span>
                 </div>
               </div>
               <ol className="md:col-span-6 md:col-start-7">
@@ -230,7 +225,7 @@ export default function Home() {
                       className="aspect-[3/4]"
                     />
                   ))}
-                  <p className="label col-span-3 mt-2 text-muted">On bâche avant de projeter.</p>
+                  <p className="label col-span-3 mt-2 text-muted">Protection du chantier</p>
                 </li>
               </ol>
             </div>
