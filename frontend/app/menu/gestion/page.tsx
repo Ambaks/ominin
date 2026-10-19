@@ -8,9 +8,15 @@ import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
-import { ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
+import { formatPercent } from "@/lib/admin/format";
+import {
+  ACCORD_SOURCE_LABELS,
+  ANALYTICS_PERIOD_DAYS,
+} from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
+  accordStats,
+  hasAccordSales,
   isPickupShop,
   openOrders,
   ordersByHour,
@@ -22,7 +28,9 @@ import {
   topVentes,
   topVentesToday,
   unavailableItems,
+  type AccordStats,
   type DayPoint,
+  type VenteEntry,
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 
@@ -90,11 +98,7 @@ function RevenueChart({ points }: { points: DayPoint[] }) {
   );
 }
 
-function TopVentesChart({
-  entries,
-}: {
-  entries: { name: string; quantity: number; revenue: number }[];
-}) {
+function TopVentesChart({ entries }: { entries: VenteEntry[] }) {
   const max = Math.max(...entries.map((entry) => entry.quantity));
   return (
     <div className="flex flex-col gap-3">
@@ -115,6 +119,85 @@ function TopVentesChart({
         </div>
       ))}
     </div>
+  );
+}
+
+function AccordSourcesChart({
+  sources,
+}: {
+  sources: AccordStats["bySource"];
+}) {
+  const max = Math.max(...sources.map((entry) => entry.revenue));
+  return (
+    <div className="flex flex-col gap-3">
+      {sources.map((entry) => (
+        <div key={entry.source}>
+          <div className="mb-1 flex items-baseline justify-between gap-4">
+            <p className="truncate text-sm font-medium">
+              {ACCORD_SOURCE_LABELS[entry.source]}
+            </p>
+            <p className="shrink-0 text-xs text-muted">
+              {entry.lines} ligne{entry.lines > 1 ? "s" : ""} ·{" "}
+              {formatPrice(entry.revenue)}
+            </p>
+          </div>
+          <div className="h-2 rounded-full bg-surface-raised">
+            <div
+              className="h-full rounded-full bg-chart-mark"
+              style={{ width: max > 0 ? `${(entry.revenue / max) * 100}%` : "0%" }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AccordDuChef({ stats, period }: { stats: AccordStats; period: Period }) {
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h2 className="font-display text-lg font-medium">L&apos;accord du chef</h2>
+        <p className="mt-1 text-sm text-muted">
+          Ce que les suggestions du menu ont fait commander, annulations exclues.
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard
+          label="CA des suggestions"
+          value={formatPrice(stats.revenue)}
+          hint={`Sur ${period} jours`}
+        />
+        <StatCard
+          label="Lignes suggérées"
+          value={String(stats.lines)}
+          hint="Une ligne fusionnée compte en entier"
+        />
+        <StatCard
+          label="Part du CA"
+          value={formatPercent(stats.share)}
+          hint="Du chiffre des commandes de la période"
+        />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Par origine
+          </p>
+          <AccordSourcesChart sources={stats.bySource} />
+        </div>
+        <div className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Plats suggérés les plus vendus
+          </p>
+          {stats.top.length ? (
+            <TopVentesChart entries={stats.top} />
+          ) : (
+            <p className="text-sm text-muted">Aucune suggestion vendue sur la période.</p>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -228,6 +311,7 @@ export default function ApercuPage() {
   const ventesTop = hasCommandes ? topVentes(state, period) : [];
   const hours = hasCommandes ? ordersByHour(state, period) : [];
   const tips = hasCommandes ? tipsTotal(state, period) : 0;
+  const accord = hasCommandes && hasAccordSales(state) ? accordStats(state, period) : null;
   const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
 
   return (
@@ -389,6 +473,8 @@ export default function ApercuPage() {
                   <HoursChart buckets={hours} />
                 </ChartSection>
               </div>
+
+              {accord && <AccordDuChef stats={accord} period={period} />}
 
               <details className="rounded-2xl border border-hairline bg-surface">
                 <summary className="cursor-pointer px-5 py-4 text-sm font-medium text-muted">
