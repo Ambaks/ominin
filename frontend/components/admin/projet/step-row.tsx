@@ -51,6 +51,8 @@ export function StatusDot({ status }: { status: StepStatus }) {
 
 const ACTION =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground";
+const FIELD =
+  "w-full rounded-lg border border-hairline bg-surface px-3 py-2 text-base focus:border-ember-2/50 focus:outline-none sm:text-sm";
 
 /**
  * Une étape. La pastille la fait avancer (à faire → en cours → fait), les
@@ -107,20 +109,43 @@ export function StepRow({ step }: { step: Step }) {
       {open && (
         <div className="ml-7.5 mt-2 flex flex-col gap-3 rounded-xl bg-surface-raised p-3">
           {editing ? (
-            <textarea
-              autoFocus
-              defaultValue={step.detail}
-              rows={4}
-              onBlur={(event) => {
-                const detail = event.target.value.trim();
+            <form
+              className="flex flex-col gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const fields = event.currentTarget.elements;
+                const title = (fields.namedItem("title") as HTMLInputElement).value.trim();
+                const detail = (fields.namedItem("detail") as HTMLTextAreaElement).value.trim();
+                if (!title) return;
                 setEditing(false);
-                if (detail !== step.detail) {
-                  void run(() => updateStep(step.id, { detail }), "Description enregistrée");
+                if (title !== step.title || detail !== step.detail) {
+                  void run(() => updateStep(step.id, { title, detail }), "Étape modifiée");
                 }
               }}
-              placeholder="Ce qu'il faut faire, concrètement, et quand c'est fini."
-              className="w-full rounded-lg border border-hairline bg-surface px-3 py-2 text-base focus:border-ember-2/50 focus:outline-none sm:text-sm"
-            />
+            >
+              <input
+                name="title"
+                autoFocus
+                required
+                defaultValue={step.title}
+                className={FIELD}
+              />
+              <textarea
+                name="detail"
+                defaultValue={step.detail}
+                rows={4}
+                placeholder="Ce qu'il faut faire, concrètement, et quand c'est fini."
+                className={FIELD}
+              />
+              <div className="flex gap-2">
+                <button type="submit" className={ACTION}>
+                  Enregistrer
+                </button>
+                <button type="button" onClick={() => setEditing(false)} className={ACTION}>
+                  Annuler
+                </button>
+              </div>
+            </form>
           ) : (
             <p className="whitespace-pre-line text-sm text-muted">
               {step.detail || "Pas encore de description."}
@@ -131,7 +156,7 @@ export function StepRow({ step }: { step: Step }) {
               {STATUS_LABELS[status]} · {ownerLabel}
             </span>
             <button type="button" onClick={() => setEditing(true)} className={ACTION}>
-              Modifier la description
+              Modifier
             </button>
             <button
               type="button"
