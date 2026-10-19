@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useRunMutation } from "@/components/ui/toast";
 import {
+  ASSIGNEE_LABELS,
+  ASSIGNEES,
   deleteStep,
+  isAssignee,
   NEXT_STATUS,
-  OWNER_LABELS,
-  OWNERS,
+  ownersOf,
   STATUS_LABELS,
   updateStep,
-  type Owner,
   type Step,
   type StepStatus,
 } from "@/lib/admin/projet";
@@ -61,9 +62,11 @@ export function StepRow({ step }: { step: Step }) {
   const run = useRunMutation();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
-  const { status, owner } = step;
-  // Sans responsable → Marwan → Ambaka → sans responsable.
-  const nextOwner = OWNERS[OWNERS.indexOf(owner as Owner) + 1] ?? null;
+  const { status } = step;
+  const owner = isAssignee(step.owner) ? step.owner : null;
+  // Sans responsable → Marwan → Ambaka → les deux → sans responsable.
+  const nextOwner = ASSIGNEES[owner ? ASSIGNEES.indexOf(owner) + 1 : 0] ?? null;
+  const ownerLabel = owner ? ASSIGNEE_LABELS[owner] : "Sans responsable";
 
   return (
     <li className="py-2">
@@ -91,13 +94,13 @@ export function StepRow({ step }: { step: Step }) {
         <button
           type="button"
           onClick={() => void run(() => updateStep(step.id, { owner: nextOwner }))}
-          title={owner ? OWNER_LABELS[owner as Owner] : "Sans responsable"}
+          title={ownerLabel}
           aria-label="Changer de responsable"
           className={`flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold ${
             owner ? "border-ember-2/40 text-ember-1" : "border-dashed border-hairline text-faint"
           }`}
         >
-          {owner ? owner[0].toUpperCase() : "?"}
+          {owner ? ownersOf(owner).map((who) => who[0].toUpperCase()).join("") : "?"}
         </button>
       </div>
 
@@ -125,7 +128,7 @@ export function StepRow({ step }: { step: Step }) {
           )}
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-auto text-xs text-faint">
-              {STATUS_LABELS[status]} · {owner ? OWNER_LABELS[owner as Owner] : "Sans responsable"}
+              {STATUS_LABELS[status]} · {ownerLabel}
             </span>
             <button type="button" onClick={() => setEditing(true)} className={ACTION}>
               Modifier la description

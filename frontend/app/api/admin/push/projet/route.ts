@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { isOwner, OWNER_LABELS, OWNERS } from "@/lib/admin/owners";
+import { ASSIGNEE_LABELS, isAssignee, OWNERS, ownersOf } from "@/lib/admin/owners";
 import { notifyOwners } from "@/lib/admin/push";
 import { requireAdmin } from "@/lib/admin/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Ce qu'un changement du suivi fait sonner, appelé par l'admin après
- * l'écriture : une étape confiée à quelqu'un (il est prévenu), une étape
+ * l'écriture : une étape confiée à quelqu'un ou aux deux (prévenus), une étape
  * bloquée (les deux le sont), un client dont la dernière étape vient d'être
  * faite (les deux). L'auteur du geste n'est jamais notifié.
  */
@@ -35,11 +35,11 @@ export async function POST(request: Request) {
   const where = step.projet_clients?.name ?? step.projet_chantiers?.title ?? "Projet";
   const url = step.client_id ? `/projet/${step.client_id}` : "/projet";
 
-  if (body.event === "assigned" && isOwner(step.owner)) {
+  if (body.event === "assigned" && isAssignee(step.owner)) {
     await notifyOwners(
-      [step.owner],
+      ownersOf(step.owner),
       {
-        title: `Pour toi, ${OWNER_LABELS[step.owner]} · ${where}`,
+        title: `${step.owner === "both" ? "À faire à deux" : `Pour toi, ${ASSIGNEE_LABELS[step.owner]}`} · ${where}`,
         body: step.title,
         tag: `etape-${body.stepId}`,
         url,

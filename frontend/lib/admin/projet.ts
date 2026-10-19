@@ -27,7 +27,16 @@ export type ProjetClient = Tables["projet_clients"]["Row"];
 export type Chantier = Tables["projet_chantiers"]["Row"];
 export type Step = Tables["projet_steps"]["Row"];
 export type StepStatus = Database["public"]["Enums"]["projet_step_status"];
-export { OWNER_LABELS, OWNERS, type Owner } from "./owners";
+export {
+  ASSIGNEE_LABELS,
+  ASSIGNEES,
+  isAssignedTo,
+  isAssignee,
+  OWNER_LABELS,
+  OWNERS,
+  ownersOf,
+  type Owner,
+} from "./owners";
 
 export const STATUS_LABELS: Record<StepStatus, string> = {
   todo: "À faire",

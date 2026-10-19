@@ -6,7 +6,7 @@ import {
   CLIENT_PERIOD_DAYS,
 } from "@/lib/admin/constants";
 import { formatEuros } from "@/lib/admin/format";
-import { OWNER_LABELS, OWNERS } from "@/lib/admin/owners";
+import { ASSIGNEES, isAssignedTo, OWNER_LABELS, OWNERS } from "@/lib/admin/owners";
 import { notifyOwners } from "@/lib/admin/push";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -34,13 +34,13 @@ export async function POST(request: Request) {
   const { data: steps, error } = await db
     .from("projet_steps")
     .select("title, owner, status, position, projet_clients (name), projet_chantiers (title)")
-    .in("owner", OWNERS)
+    .in("owner", ASSIGNEES)
     .neq("status", "done")
     .order("position");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   for (const owner of OWNERS) {
-    const mine = steps.filter((step) => step.owner === owner);
+    const mine = steps.filter((step) => isAssignedTo(step.owner, owner));
     if (!mine.length) continue;
     const count = (status: string) => mine.filter((step) => step.status === status).length;
     // En cours d'abord, puis bloqué, puis à faire.
