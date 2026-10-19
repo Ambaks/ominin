@@ -142,7 +142,7 @@ export function sendSharePaid(mail: BookingMail, friend: string, amountCents: nu
     `${friend} a payé sa part · ${mail.event.title}`,
     layout(
       mail,
-      `${escapeHtml(friend)} a payé sa part`,
+      `${friend} a payé sa part`,
       mail.remainingCents > 0
         ? `${formatCents(amountCents)} de plus : il reste ${formatCents(mail.remainingCents)} à régler sur la table.`
         : `${formatCents(amountCents)} de plus : la table est entièrement payée.`,

@@ -80,8 +80,12 @@ export async function POST(request: Request) {
         outcome = "failed";
       }
       if (refunded.length) {
-        const mails = await bookingRecipients(admin, booking.id, { paymentIds: refunded });
-        await Promise.all(mails.map(sendEventCancelled));
+        try {
+          const mails = await bookingRecipients(admin, booking.id, { paymentIds: refunded });
+          await Promise.all(mails.map(sendEventCancelled));
+        } catch (error) {
+          console.error("[club] e-mails d'annulation", { bookingId: booking.id, error });
+        }
       }
       return { id: booking.id, outcome };
     })

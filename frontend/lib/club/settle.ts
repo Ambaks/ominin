@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import type Stripe from "stripe";
 import {
   sendBookingConfirmed,
@@ -222,7 +223,9 @@ export async function settleClubIntent(
     console.error("[club] paiement remboursé : il ne pouvait plus compter", { paymentId });
     return "refunded";
   }
-  await announce(admin, paymentId);
+  // Les e-mails partent après la réponse : la feuille du client n'attend
+  // pas Gmail pour afficher « Payé ».
+  after(() => announce(admin, paymentId));
   return "paid";
 }
 
@@ -245,7 +248,7 @@ export async function settleDemoPayment(admin: Admin, paymentId: string): Promis
   });
   if (error) throw new Error(error.message);
   if (outcome !== "paid") return outcome === "already_paid";
-  await announce(admin, paymentId);
+  after(() => announce(admin, paymentId));
   return true;
 }
 

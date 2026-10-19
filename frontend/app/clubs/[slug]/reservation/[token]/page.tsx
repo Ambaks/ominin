@@ -193,7 +193,10 @@ export default async function BookingPage({ params, searchParams }: { params: Pa
     <main className="club-page club-pass-page">
       <ClubTop slug={slug} name={club.name} />
       {/* « En attente » n'est pas relu : le paiement en cours (vérification, expiration) rafraîchit lui-même. */}
-      <BookingWatch live={holding && !eventOver} />
+      <BookingWatch
+        live={holding && !eventOver}
+        pendingPaymentId={view === "attente" ? booking.pendingPaymentId : null}
+      />
       {query.paye !== undefined && view === "payee" && <PaidBurst />}
 
       <section className="club-pass-layout" data-chapter>

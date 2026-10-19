@@ -37,6 +37,9 @@ export type PreparedIntent =
   /** L'appelant a pris la main (délai passé…) : plus rien à monter. */
   | { kind: "halt" };
 
+const buttonHeightOf = (height: number | (() => number)) =>
+  typeof height === "function" ? height() : height;
+
 export function useStripeElements({
   expressId,
   cardId,
@@ -66,10 +69,12 @@ export function useStripeElements({
   const [attempt, setAttempt] = useState(0);
   const [hasWallet, setHasWallet] = useState(false);
   const session = useRef<{ stripe: Stripe; elements: StripeElements } | null>(null);
-  const callbacks = useRef({ prepare, onSucceeded, onAlreadyPaid, appearance });
+  // Lus au moment voulu, pas en dépendances : une fonction recréée à chaque
+  // rendu remonterait les éléments Stripe — et effacerait une carte en cours.
+  const callbacks = useRef({ prepare, onSucceeded, onAlreadyPaid, appearance, buttonHeight });
   useEffect(() => {
-    callbacks.current = { prepare, onSucceeded, onAlreadyPaid, appearance };
-  }, [prepare, onSucceeded, onAlreadyPaid, appearance]);
+    callbacks.current = { prepare, onSucceeded, onAlreadyPaid, appearance, buttonHeight };
+  }, [prepare, onSucceeded, onAlreadyPaid, appearance, buttonHeight]);
 
   const confirm = useCallback(async (express?: StripeExpressCheckoutElementConfirmEvent) => {
     const current = session.current;
@@ -148,7 +153,7 @@ export function useStripeElements({
         },
         paymentMethodOrder: ["applePay", "googlePay"],
         layout: { maxColumns: 1, overflow: "never" },
-        buttonHeight: typeof buttonHeight === "function" ? buttonHeight() : buttonHeight,
+        buttonHeight: buttonHeightOf(callbacks.current.buttonHeight),
         buttonType: { applePay: "plain", googlePay: "plain" },
         buttonTheme: {
           applePay: dark ? "white" : "black",
@@ -191,7 +196,7 @@ export function useStripeElements({
       teardown();
       session.current = null;
     };
-  }, [prepareKey, attempt, confirm, expressId, cardId, buttonHeight]);
+  }, [prepareKey, attempt, confirm, expressId, cardId]);
 
   const retry = useCallback(() => {
     setAttempt((count) => count + 1);

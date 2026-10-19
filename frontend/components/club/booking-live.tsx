@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSkyPause } from "@/components/club/club-sky";
 import { TablePayment } from "@/components/club/table-payment";
@@ -16,12 +16,33 @@ import type { Club } from "@/lib/club/types";
  * partage du lien.
  */
 
-export function BookingWatch({ live }: { live: boolean }) {
+export function BookingWatch({
+  live,
+  pendingPaymentId,
+}: {
+  live: boolean;
+  /**
+   * Le paiement repris sur cette page : une fois la feuille revenue « payée »
+   * (?paye=1), la page le fait vérifier puis se relit jusqu'à afficher la
+   * table payée, même si la vérification de la feuille avait échoué.
+   */
+  pendingPaymentId: string | null;
+}) {
   const router = useRouter();
+  const justPaid = useSearchParams().has("paye") && pendingPaymentId !== null;
   useEffect(() => {
-    if (!live) return;
+    if (!live && !justPaid) return;
     const onVisible = () => {
-      if (!document.hidden) router.refresh();
+      if (document.hidden) return;
+      if (justPaid) {
+        void fetch("/api/club/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId: pendingPaymentId }),
+        })
+          .catch(() => {})
+          .finally(() => router.refresh());
+      } else router.refresh();
     };
     const timer = window.setInterval(onVisible, CLUB_TIMING.refresh);
     document.addEventListener("visibilitychange", onVisible);
@@ -29,7 +50,7 @@ export function BookingWatch({ live }: { live: boolean }) {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [router, live]);
+  }, [router, live, justPaid, pendingPaymentId]);
   return null;
 }
 
@@ -129,7 +150,7 @@ export function PaidBurst({
               opacity: 0,
             },
           ],
-          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_BURST.jitterMs, easing: ease, fill: "both" }
+          { duration: CLUB_TIMING.burst, delay: Math.random() * CLUB_BURST.jitterMs, easing: ease, fill: "both" },
         );
         animation.onfinish = () => star.remove();
         animations.push(animation);
@@ -200,7 +221,10 @@ export function PassActions({ url, title }: { url: string; title: string }) {
       await navigator.share({ title, url }).catch(() => {});
       return;
     }
-    await navigator.clipboard?.writeText(url).then(() => setCopied(true), () => {});
+    await navigator.clipboard?.writeText(url).then(
+      () => setCopied(true),
+      () => {},
+    );
   };
   return (
     <button type="button" onClick={() => void share()}>
