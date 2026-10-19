@@ -162,12 +162,6 @@ export default function Home() {
             </div>
 
             <div className="mt-24 grid gap-6 md:mt-32 md:grid-cols-12">
-              <div className="md:col-span-4">
-                <p className="label text-muted">Et aussi</p>
-                <p className="mt-4 max-w-xs text-muted">
-                  Les mêmes gestes sur des ouvrages plus petits, quand ils accompagnent un chantier.
-                </p>
-              </div>
               {smallCases.map((c) => (
                 <Reveal key={c.title} className="md:col-span-4">
                   <BeforeAfter
