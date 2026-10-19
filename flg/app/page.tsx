@@ -212,7 +212,6 @@ export default function Home() {
             <SectionHead
               n="03"
               title="Tous les supports, *un seul geste.*"
-              intro="L'abrasif et la pression changent avec le matériau. Le principe reste : retirer la couche, garder la matière."
             />
             <div className="grid gap-px bg-line md:grid-cols-3">
               {applications.map((a, i) => (
