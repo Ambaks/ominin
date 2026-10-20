@@ -71,24 +71,8 @@ export const SCREENS: readonly Screen[] = [
     description:
       "Côté commerçant : la commande à emporter qui arrive en direct, payée en ligne, avec ses plats et le bouton « Commencer la préparation ».",
   },
-  {
-    id: "shop-vitrine",
-    brand: "shop",
-    description:
-      "L'accueil d'une boutique en ligne de box cadeaux au téléphone : bandeau promo, logo, panier, grande photo avec accroche et bouton « Découvrir nos box ».",
-  },
-  {
-    id: "shop-produit",
-    brand: "shop",
-    description:
-      "Une fiche produit de la boutique au téléphone : grande photo de la box, badge « Best-seller », prix et début de la description.",
-  },
-  {
-    id: "shop-gestion",
-    brand: "shop",
-    description:
-      "L'espace de gestion de la vendeuse au téléphone : ventes des 30 derniers jours, commandes à préparer, panier moyen, messages non lus et bouton « + Nouveau produit ».",
-  },
+  // Shop : aucune capture tant qu'il n'existe pas de boutique de démo
+  // fictive — les seules boutiques en ligne sont celles de vrais clients.
 ];
 
 export const SCREEN_BY_ID = new Map(SCREENS.map((screen) => [screen.id, screen]));
