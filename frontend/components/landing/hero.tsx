@@ -1,5 +1,5 @@
 import { demoShowcaseOrder } from "@/lib/collect/demo/data";
-import { clientsSection, demoCta, hero, heroRelay } from "@/lib/landing-data";
+import { clientsSection, composerCta, hero, heroRelay } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu/format";
 
 /*
@@ -135,10 +135,10 @@ export function Hero() {
             style={{ "--rise-delay": "800ms" } as React.CSSProperties}
           >
             <a
-              href={demoCta.href}
+              href={composerCta.href}
               className="ember-gradient rounded-full px-7 py-3.5 text-sm font-bold text-background shadow-[0_12px_40px_-12px_var(--ember-2)] transition-transform hover:scale-[1.03] lg:text-base"
             >
-              {demoCta.label}
+              {composerCta.label}
             </a>
             <a
               href={hero.secondaryCta.href}
