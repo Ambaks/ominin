@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/toast";
 import { MATERIEL_ITEMS, type MaterielItem } from "@/lib/admin/constants";
 import { featuredTills, tillSupport } from "@/lib/composer";
 import { otherTills } from "@/lib/landing-data";
+import { EmptyState } from "@/components/ui/empty-state";
 import { createClient } from "@/lib/supabase/client";
 
 /*
@@ -18,11 +19,49 @@ const TILL_NAME_MAX_LENGTH = 80;
 
 type Quantities = Partial<Record<MaterielItem, number>>;
 
-export function ClientMateriel({
+/*
+ * Même liste depuis la fiche d'un client en service : on retrouve son client
+ * du Projet par son établissement, puisque c'est là que le matériel se suit.
+ */
+export function ClientMaterielParEtablissement({
   etablissementId,
 }: {
   etablissementId: string;
 }) {
+  const toast = useToast();
+  const [projetClientId, setProjetClientId] = useState<
+    string | null | undefined
+  >(undefined);
+
+  useEffect(() => {
+    createClient()
+      .from("projet_clients")
+      .select("id")
+      .eq("etablissement_id", etablissementId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) toast.error(error.message);
+        else setProjetClientId(data?.id ?? null);
+      });
+    // toast est stable (contexte).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [etablissementId]);
+
+  if (projetClientId === undefined) {
+    return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+  }
+  if (projetClientId === null) {
+    return (
+      <EmptyState
+        title="Pas dans le Projet"
+        body="Ce client n'a pas de fiche dans le suivi Projet : le matériel se note depuis cette fiche."
+      />
+    );
+  }
+  return <ClientMateriel projetClientId={projetClientId} />;
+}
+
+export function ClientMateriel({ projetClientId }: { projetClientId: string }) {
   const toast = useToast();
   const [quantities, setQuantities] = useState<Quantities | null>(null);
   const [till, setTill] = useState("");
@@ -31,7 +70,7 @@ export function ClientMateriel({
     createClient()
       .from("client_materiel")
       .select("item, quantity")
-      .eq("etablissement_id", etablissementId)
+      .eq("projet_client_id", projetClientId)
       .then(({ data, error }) => {
         if (error) {
           toast.error(error.message);
@@ -43,13 +82,13 @@ export function ClientMateriel({
       });
     // toast est stable (contexte).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [etablissementId]);
+  }, [projetClientId]);
 
   useEffect(() => {
     createClient()
       .from("client_caisse")
       .select("name")
-      .eq("etablissement_id", etablissementId)
+      .eq("projet_client_id", projetClientId)
       .maybeSingle()
       .then(({ data, error }) => {
         if (error) toast.error(error.message);
@@ -57,7 +96,7 @@ export function ClientMateriel({
       });
     // toast est stable (contexte).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [etablissementId]);
+  }, [projetClientId]);
 
   async function saveTill(value: string) {
     const name = value.trim();
@@ -66,8 +105,8 @@ export function ClientMateriel({
     setTill(name);
     const table = createClient().from("client_caisse");
     const { error } = name
-      ? await table.upsert({ etablissement_id: etablissementId, name })
-      : await table.delete().eq("etablissement_id", etablissementId);
+      ? await table.upsert({ projet_client_id: projetClientId, name })
+      : await table.delete().eq("projet_client_id", projetClientId);
     if (error) {
       setTill(previous);
       toast.error(error.message);
@@ -83,13 +122,13 @@ export function ClientMateriel({
     const { error } =
       quantity > 0
         ? await table.upsert({
-            etablissement_id: etablissementId,
+            projet_client_id: projetClientId,
             item,
             quantity,
           })
         : await table
             .delete()
-            .eq("etablissement_id", etablissementId)
+            .eq("projet_client_id", projetClientId)
             .eq("item", item);
     if (error) {
       setQuantities((current) => ({ ...current, [item]: previous }));

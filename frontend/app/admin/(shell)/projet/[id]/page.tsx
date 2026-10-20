@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { StatTile } from "@/components/admin/charts";
 import { ChevronLeftIcon } from "@/components/admin/icons";
+import { ClientMateriel } from "@/components/admin/projet/materiel";
 import {
   AddStep,
   ProgressBar,
@@ -187,6 +188,13 @@ export default function ProjetClientPage() {
               );
             })}
           </ol>
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Matériel à livrer
+          </h2>
+          <ClientMateriel projetClientId={client.id} />
         </section>
 
         <section className="flex flex-col gap-2">
