@@ -1123,6 +1123,32 @@ export type Database = {
         }
         Relationships: []
       }
+      client_materiel: {
+        Row: {
+          etablissement_id: string
+          item: string
+          quantity: number
+        }
+        Insert: {
+          etablissement_id: string
+          item: string
+          quantity: number
+        }
+        Update: {
+          etablissement_id?: string
+          item?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_materiel_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       closure_targets: {
         Row: {
           category_id: string | null

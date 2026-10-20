@@ -281,10 +281,25 @@ export const CLIENT_VIEWS = [
   { id: "analytique", label: "Analytique" },
   { id: "activite", label: "Activité" },
   { id: "demarrage", label: "Démarrage" },
+  { id: "materiel", label: "Matériel" },
   { id: "reglages", label: "Réglages" },
 ] as const;
 
 export type ClientView = (typeof CLIENT_VIEWS)[number]["id"];
+
+/** Matériel qu'Ominin peut livrer à un client (même jeu que la table client_materiel). */
+export const MATERIEL_ITEMS = [
+  { id: "caisse", label: "Caisse enregistreuse" },
+  { id: "cachet", label: "Cartes QR de table (Cachets)" },
+  { id: "socle", label: "Socle" },
+  { id: "affiche", label: "Affiche" },
+  { id: "vitrophanie", label: "Vitrophanie" },
+  { id: "imprimante", label: "Imprimante tickets" },
+  { id: "omilink", label: "Boîtier Omilink (Raspberry Pi)" },
+  { id: "cable", label: "Câble Ethernet" },
+] as const;
+
+export type MaterielItem = (typeof MATERIEL_ITEMS)[number]["id"];
 
 // ---------------------------------------------------------------------------
 // Carte

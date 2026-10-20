@@ -7,6 +7,7 @@ import { ChevronLeftIcon } from "@/components/admin/icons";
 import { ClientActivity } from "@/components/admin/clients/activity";
 import { ClientAnalytique } from "@/components/admin/clients/analytique";
 import { ClientDemarrage } from "@/components/admin/clients/demarrage";
+import { ClientMateriel } from "@/components/admin/clients/materiel";
 import { ClientReglages } from "@/components/admin/clients/reglages";
 import { ClientRevenus } from "@/components/admin/clients/revenus";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -122,7 +123,7 @@ function ClientDetail() {
             {client.name}
           </h1>
         </div>
-        {view !== "reglages" && view !== "demarrage" && (
+        {view !== "reglages" && view !== "demarrage" && view !== "materiel" && (
           <PillTabs
             tabs={PERIOD_TABS}
             activeId={String(days)}
@@ -147,7 +148,10 @@ function ClientDetail() {
       {view === "demarrage" && (
         <ClientDemarrage etablissementId={client.etablissement_id} />
       )}
-      {view === "reglages" && <ClientReglages client={client} />}
+      {view === "materiel" && (
+        <ClientMateriel etablissementId={client.etablissement_id} />
+      )}
+      {view === "reglages" &&<ClientReglages client={client} />}
     </div>
   );
 }
