@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/portal/reveal";
 import {
   installSection,
-  planQuoteHref,
+  composerCta,
   pricingSection,
   trialPricing,
   type Plan,
@@ -35,7 +35,7 @@ function PlanCard({ plan }: { plan: Plan }) {
   const trial = trialPricing(plan);
   return (
     <div
-      className={`kit-card relative flex flex-col gap-6 rounded-[2rem] border p-7 lg:self-start lg:p-9 ${
+      className={`kit-card relative mx-auto flex w-full max-w-3xl flex-col gap-6 rounded-[2rem] border p-7 lg:p-9 ${
         commission
           ? "border-ember-2/40 bg-surface shadow-lg shadow-ember-2/5"
           : "border-hairline bg-surface"
@@ -143,7 +143,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       )}
 
       <a
-        href={planQuoteHref(plan.id)}
+        href={composerCta.href}
         className={`relative mt-auto rounded-full px-5 py-2.5 text-center text-sm font-semibold transition-colors ${
           commission
             ? "ember-gradient text-background"
@@ -170,13 +170,9 @@ export function Pricing() {
           center
         />
 
-        <div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-5 lg:items-stretch">
-          {pricingSection.plans.map((plan, index) => (
-            <Reveal
-              key={plan.id}
-              delay={index * 120}
-              className={plan.commission ? "lg:col-span-3" : "lg:col-span-2"}
-            >
+        <div className="mt-12 lg:mt-16">
+          {pricingSection.plans.map((plan) => (
+            <Reveal key={plan.id}>
               <PlanCard plan={plan} />
             </Reveal>
           ))}

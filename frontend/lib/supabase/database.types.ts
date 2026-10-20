@@ -1123,6 +1123,29 @@ export type Database = {
         }
         Relationships: []
       }
+      client_caisse: {
+        Row: {
+          etablissement_id: string
+          name: string
+        }
+        Insert: {
+          etablissement_id: string
+          name: string
+        }
+        Update: {
+          etablissement_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_caisse_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_materiel: {
         Row: {
           etablissement_id: string

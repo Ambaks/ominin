@@ -112,17 +112,11 @@ export const demoCta: Cta = {
   href: `/m/${DEMO_SLUG}`,
 };
 
-export const signupCta: Cta = {
-  label: "Commencer",
-  href: "/inscription",
+/** Toutes les invitations à agir de la page mènent au composeur Connect. */
+export const composerCta: Cta = {
+  label: "Composer mon offre",
+  href: "/composer",
 };
-
-/**
- * CTA d'une carte tarif : Connect s'ouvre sur le composeur (questions sur la
- * salle, matériel compris), les autres offres sur le devis présélectionné.
- */
-export const planQuoteHref = (planId: string) =>
-  planId === "connect" ? "/composer" : `/devis?plan=${encodeURIComponent(planId)}`;
 
 /** Montants à quatre chiffres : sans l'espace des milliers, on les lit mal. */
 // Insécable : le montant ne se sépare jamais de son symbole.
@@ -439,7 +433,7 @@ export const pricingSection = {
   id: "tarifs",
   eyebrow: "Tarifs",
   title: "Un prix simple. Aucun engagement.",
-  subtitle: `La carte seule, ou le service complet : Connect est sans abonnement, Ominin se rémunère à ${connectCommission.percent}\u00a0% sur les commandes payées en ligne.`,
+  subtitle: `Connect est sans abonnement, Ominin se rémunère à ${connectCommission.percent}\u00a0% sur les commandes payées en ligne.`,
   perMonth: "/mois",
   ctaLabel: "Choisir",
   installLabel: "Se branche sur votre salle",
@@ -447,26 +441,17 @@ export const pricingSection = {
   cardFeesNote: "Frais de carte de votre prestataire (Stripe ou Square) en sus.",
   plans: [
     {
-      id: "digital",
-      name: "Digital",
-      price: 59,
-      tagline: "Votre carte, en digital.",
+      id: "connect",
+      name: "Connect",
+      price: connectPrice,
+      commission: connectCommission,
+      tagline: "Vos clients scannent, commandent et payent.",
       featuresLabel: "Inclus :",
       features: [
         "Menu digital par QR code",
         `Vos Cachets à votre logo — ${formatPrice(starterKit.cachet.price)} par table + ${formatPrice(starterKit.shipping.price)} de livraison, une fois`,
         "Mise à jour en temps réel",
         "Espace de gestion",
-      ],
-    },
-    {
-      id: "connect",
-      name: "Connect",
-      price: connectPrice,
-      commission: connectCommission,
-      tagline: "Vos clients scannent, commandent et payent.",
-      featuresLabel: "Tout Digital, plus :",
-      features: [
         "Commande à table",
         "Paiement à table par carte bancaire",
         "Gestion des tables",

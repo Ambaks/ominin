@@ -297,6 +297,7 @@ export const MATERIEL_ITEMS = [
   { id: "imprimante", label: "Imprimante tickets" },
   { id: "omilink", label: "Boîtier Omilink (Raspberry Pi)" },
   { id: "cable", label: "Câble Ethernet" },
+  { id: "routeur", label: "Routeur internet" },
 ] as const;
 
 export type MaterielItem = (typeof MATERIEL_ITEMS)[number]["id"];

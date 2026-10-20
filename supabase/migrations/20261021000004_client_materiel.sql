@@ -8,7 +8,7 @@ create table public.client_materiel (
     references public.etablissements (id) on delete cascade,
   item text not null check (item in (
     'caisse', 'cachet', 'socle', 'affiche', 'vitrophanie',
-    'imprimante', 'omilink', 'cable'
+    'imprimante', 'omilink', 'cable', 'routeur'
   )),
   quantity integer not null check (quantity > 0),
   primary key (etablissement_id, item)
@@ -17,5 +17,19 @@ create table public.client_materiel (
 alter table public.client_materiel enable row level security;
 
 create policy "admin all" on public.client_materiel
+  for all to authenticated
+  using ((select public.is_admin())) with check ((select public.is_admin()));
+
+-- La caisse avec laquelle le client travaille déjà (nom du composeur Connect
+-- ou tapé à la main) : de quoi savoir s'il faut en livrer une.
+create table public.client_caisse (
+  etablissement_id uuid primary key
+    references public.etablissements (id) on delete cascade,
+  name text not null check (length(btrim(name)) between 1 and 80)
+);
+
+alter table public.client_caisse enable row level security;
+
+create policy "admin all" on public.client_caisse
   for all to authenticated
   using ((select public.is_admin())) with check ((select public.is_admin()));

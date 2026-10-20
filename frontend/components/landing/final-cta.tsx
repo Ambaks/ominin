@@ -1,5 +1,5 @@
 import { KitFinalCta } from "@/components/landing-kit/final-cta";
-import { contactEmail, demoCta, finalCta } from "@/lib/landing-data";
+import { composerCta, contactEmail, finalCta } from "@/lib/landing-data";
 
 export function FinalCta() {
   return (
@@ -7,7 +7,7 @@ export function FinalCta() {
       id={finalCta.id}
       title={finalCta.title}
       subtitle={finalCta.subtitle}
-      primary={demoCta}
+      primary={composerCta}
       secondary={{ label: finalCta.contactLabel, href: `mailto:${contactEmail}` }}
       microcopy={finalCta.microcopy}
     />
